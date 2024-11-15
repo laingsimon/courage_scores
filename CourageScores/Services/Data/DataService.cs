@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Dtos;
+﻿using System.Security.Cryptography;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Repository;
 using CourageScores.Services.Identity;
@@ -239,10 +240,10 @@ public class DataService : IDataService
 
             actionResult.Success = true;
         }
-        /*catch (BadPasswordException)
+        catch (CryptographicException)
         {
             actionResult.Errors.Add("Password is incorrect");
-        }*/
+        }
         catch (Exception exc)
         {
             actionResult.Errors.Add(exc.Message);

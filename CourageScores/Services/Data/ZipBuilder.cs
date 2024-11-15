@@ -5,17 +5,15 @@ namespace CourageScores.Services.Data;
 
 public class ZipBuilder : IZipBuilder
 {
+    private readonly IContentEncryptor _encryptor;
     private readonly ZipArchive _zip;
     private readonly MemoryStream _stream;
 
-    public ZipBuilder(string? password)
+    public ZipBuilder(IContentEncryptor encryptor)
     {
+        _encryptor = encryptor;
         _stream = new MemoryStream();
         _zip = new ZipArchive(_stream, ZipArchiveMode.Create);
-        /*if (!string.IsNullOrEmpty(password))
-        {
-            _zip.Password = password;
-        }*/
     }
 
     public Task<byte[]> CreateZip()
@@ -33,9 +31,21 @@ public class ZipBuilder : IZipBuilder
     public async Task AddFile(string fileName, string content)
     {
         var entry = _zip.CreateEntry(fileName);
-        using (var streamWriter = new StreamWriter(entry.Open()))
+        using (var stream = entry.Open())
+        {
+            await WriteContentEncrypted(stream, content);
+        }
+    }
+
+    private async Task WriteContentEncrypted(Stream entry, string content)
+    {
+        var unencrypted = new MemoryStream();
+        using (var streamWriter = new StreamWriter(unencrypted))
         {
             await streamWriter.WriteAsync(content);
         }
+
+        var buffer = new MemoryStream(unencrypted.ToArray());
+        await _encryptor.Encrypt(buffer, entry);
     }
 }

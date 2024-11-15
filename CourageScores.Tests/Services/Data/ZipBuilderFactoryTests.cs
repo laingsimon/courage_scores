@@ -33,7 +33,7 @@ public class ZipBuilderFactoryTests
         _clock.Setup(c => c.UtcNow).Returns(_utcNow);
     }
 
-    [Test, Ignore("Password protected archives are not supported currently")]
+    [Test]
     public async Task Create_GivenPassword_CreatesZipFileWithPassword()
     {
         var zipBuilder = await _factory.Create("USER", new ExportDataRequestDto
@@ -45,7 +45,6 @@ public class ZipBuilderFactoryTests
         Assert.That(metaData.Creator, Is.EqualTo("USER"));
     }
 
-    [Ignore("Password protected archives are not supported currently")]
     [TestCase("")]
     [TestCase(null)]
     public async Task Create_GivenNoPassword_CreatesZipFileWithPassword(string password)
@@ -139,7 +138,7 @@ public class ZipBuilderFactoryTests
     {
         var zipBytes = await builder.CreateZip();
         var zip = new ZipArchive(new MemoryStream(zipBytes), ZipArchiveMode.Read);
-        // zip.Password = password;
+        var encryptor = string.IsNullOrEmpty(password) ? NullContentEncryptor.Instance : new ContentEncryptor(password);
 
         var entries = zip.Entries.ToList();
         Assert.That(entries, Is.Not.Empty);
@@ -149,7 +148,10 @@ public class ZipBuilderFactoryTests
         await entry!.Open().CopyToAsync(content);
         content.Seek(0, SeekOrigin.Begin);
 
-        var json = await new StreamReader(content).ReadToEndAsync();
+        var decrypted = new MemoryStream();
+        await encryptor.Decrypt(content, decrypted);
+        decrypted.Seek(0, SeekOrigin.Begin);
+        var json = await new StreamReader(decrypted).ReadToEndAsync();
         return JsonConvert.DeserializeObject<ExportMetaData>(json)!;
     }
 }

@@ -61,9 +61,22 @@ public class DataImporter : IDataImporter
             yield return
                 $"{(_request.DryRun ? "DRY RUN: " : "")}Importing data into {tableName} ({files.Length} record/s)";
 
-            Container container =
-                await _database.CreateContainerIfNotExistsAsync(tableName, table.PartitionKey,
-                    cancellationToken: token);
+            Container container;
+            try
+            {
+                container =
+                    await _database.CreateContainerIfNotExistsAsync(tableName, table.PartitionKey,
+                        cancellationToken: token);
+            }
+            catch (CosmosException exc)
+            {
+                var indexOfClosingBrace = exc.ResponseBody?.IndexOf("}");
+                var subString = indexOfClosingBrace > 0
+                    ? exc.ResponseBody?.Substring(0, Math.Min(250, indexOfClosingBrace.Value) + 1)
+                    : exc.ResponseBody?.Substring(0, 250);
+                throw new InvalidOperationException($"Unable to create table {tableName}: {subString}");
+            }
+
             await foreach (var message in ImportRecordsForTable(container, table, files, zip, token))
             {
                 yield return message;

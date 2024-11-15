@@ -18,12 +18,12 @@ public class ZipFileReaderFactory : IZipFileReaderFactory
         return await Task.Run(() =>
         {
             var zip = new ZipArchive(stream, ZipArchiveMode.Read);
-            /*if (!string.IsNullOrEmpty(password))
-            {
-                zip.Password = password;
-            }*/
-
-            return new ZipFileReader(zip, _serializer);
+            return new ZipFileReader(
+                zip,
+                _serializer,
+                password == null
+                    ? NullContentEncryptor.Instance
+                    : new ContentEncryptor(password));
         });
     }
 }
