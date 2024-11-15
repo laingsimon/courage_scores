@@ -43,7 +43,7 @@ export function MatchReportRow({matchIndex, saygData, noOfThrows, noOfLegs, show
                     <td>{legIndex + 1}</td>
                     {repeat(noOfThrows + 1, throwIndex => {
                         const thr = (leg.home.throws ? leg.home.throws[throwIndex] : null) || {};
-                        const score = thr.bust ? 0 : thr.score;
+                        const score = thr.score;
                         return (<td
                             className={(score >= 100 ? ' text-danger' : '') + (score >= 180 ? ' fw-bold' : '')}
                             key={`${matchIndex}_${legIndex}_sideA_${throwIndex}`}>{score}</td>);
@@ -59,7 +59,7 @@ export function MatchReportRow({matchIndex, saygData, noOfThrows, noOfLegs, show
                                            className={`align-middle page-break-avoid ${winner === 'away' && showWinner ? ' bg-winner' : (matchIndex % 2 === 0 ? 'bg-light' : '')}`}>{opponentPlayerName}</td>) : null}
                     {repeat(noOfThrows + 1, throwIndex => {
                         const thr = (leg.away.throws ? leg.away.throws[throwIndex] : null) || {};
-                        const score = thr.bust ? 0 : thr.score;
+                        const score = thr.score;
                         return (<td
                             className={(score >= 100 ? ' text-danger' : '') + (score >= 180 ? ' fw-bold' : '')}
                             key={`${matchIndex}_${legIndex}_sideB_${throwIndex}`}>{score}</td>);

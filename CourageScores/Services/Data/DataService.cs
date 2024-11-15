@@ -1,8 +1,8 @@
-﻿using CourageScores.Models.Dtos;
+﻿using System.Security.Cryptography;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Repository;
 using CourageScores.Services.Identity;
-using Ionic.Zip;
 using Microsoft.Azure.Cosmos;
 
 namespace CourageScores.Services.Data;
@@ -240,7 +240,7 @@ public class DataService : IDataService
 
             actionResult.Success = true;
         }
-        catch (BadPasswordException)
+        catch (CryptographicException)
         {
             actionResult.Errors.Add("Password is incorrect");
         }

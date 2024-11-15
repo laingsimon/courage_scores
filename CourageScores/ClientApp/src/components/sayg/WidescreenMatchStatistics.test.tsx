@@ -40,7 +40,7 @@ describe('WidescreenMatchStatistics', () => {
                 .opponentName(null)
                 .scores(1, 2)
                 .numberOfLegs(5)
-                .withLeg(0, (l: ILegBuilder) => l.startingScore(501).home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3)))
+                .withLeg(0, (l: ILegBuilder) => l.startingScore(501).home((c: ILegCompetitorScoreBuilder) => c.withThrow(100)))
                 .addTo(saygData)
                 .build();
         });
@@ -139,8 +139,8 @@ describe('WidescreenMatchStatistics', () => {
                 .numberOfLegs(5)
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3))
-                    .away((c: ILegCompetitorScoreBuilder) => c.score(200).noOfDarts(6)))
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(100)))
                 .addTo(saygData)
                 .build();
         });
@@ -280,8 +280,8 @@ describe('WidescreenMatchStatistics', () => {
                 .numberOfLegs(5)
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.score(501).noOfDarts(3))
-                    .away((c: ILegCompetitorScoreBuilder) => c.score(200).noOfDarts(6)))
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(501))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(100)))
                 .addTo(saygData)
                 .build();
 
@@ -306,8 +306,8 @@ describe('WidescreenMatchStatistics', () => {
                 .numberOfLegs(5)
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3))
-                    .away((c: ILegCompetitorScoreBuilder) => c.score(501).noOfDarts(6)))
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(401).withThrow(100)))
                 .addTo(saygData)
                 .build();
 
@@ -336,8 +336,8 @@ describe('WidescreenMatchStatistics', () => {
                 .numberOfLegs(5)
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3))
-                    .away((c: ILegCompetitorScoreBuilder) => c.score(200).noOfDarts(6)))
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(100)))
                 .addTo(saygData)
                 .build();
         });

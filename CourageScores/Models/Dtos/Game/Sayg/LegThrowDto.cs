@@ -17,9 +17,4 @@ public class LegThrowDto
     /// The number of darts thrown
     /// </summary>
     public int NoOfDarts { get; set; }
-
-    /// <summary>
-    /// Did this score cause the player to go bust
-    /// </summary>
-    public bool Bust { get; set; }
 }

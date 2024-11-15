@@ -40,20 +40,20 @@ describe('MatchReport', () => {
     function createLeg(homeWinner: boolean, awayWinner: boolean) {
         function winningThrows(c: ILegCompetitorScoreBuilder) {
             return c
-                .withThrow(90, false, 3)
-                .withThrow(100, false, 3)
-                .withThrow(110, false, 3)
-                .withThrow(120, false, 3)
-                .withThrow(81, false, 3);
+                .withThrow(90)
+                .withThrow(100)
+                .withThrow(110)
+                .withThrow(120)
+                .withThrow(81);
         }
 
         function notWinningThrows(c: ILegCompetitorScoreBuilder) {
             return c
-                .withThrow(90, false, 3)
-                .withThrow(90, false, 3)
-                .withThrow(90, false, 3)
-                .withThrow(90, false, 3)
-                .withThrow(90, false, 3);
+                .withThrow(90)
+                .withThrow(90)
+                .withThrow(90)
+                .withThrow(90)
+                .withThrow(90);
         }
 
         return legBuilder()

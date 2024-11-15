@@ -1,43 +1,46 @@
-﻿using Ionic.Zip;
+﻿using System.IO.Compression;
 
 namespace CourageScores.Services.Data;
 
 public class ZipFileReader : IZipFileReader
 {
     private readonly IJsonSerializerService _serializer;
-    private readonly ZipFile _zip;
+    private readonly IContentEncryptor _encryptor;
+    private readonly ZipArchive _zip;
 
-    public ZipFileReader(ZipFile zip, IJsonSerializerService serializer)
+    public ZipFileReader(ZipArchive zip, IJsonSerializerService serializer, IContentEncryptor encryptor)
     {
         _zip = zip;
         _serializer = serializer;
+        _encryptor = encryptor;
     }
 
     public bool HasFile(string fileName)
     {
-        return _zip.ContainsEntry(fileName);
+        return _zip.Entries.Any(e => e.FullName.EndsWith(fileName, StringComparison.OrdinalIgnoreCase));
     }
 
     public async Task<T> ReadJson<T>(string fileName)
     {
-        return await Task.Run(() =>
+        var stream = new MemoryStream();
+        var entry = _zip.GetEntry(fileName);
+        if (entry == null)
         {
-            var stream = new MemoryStream();
-            var entry = _zip.Entries.SingleOrDefault(e => e.FileName == fileName);
-            if (entry == null)
-            {
-                throw new FileNotFoundException("File not found", fileName);
-            }
+            throw new FileNotFoundException("File not found", fileName);
+        }
 
-            entry.Extract(stream);
-            stream.Seek(0, SeekOrigin.Begin);
+        await entry.Open().CopyToAsync(stream);
+        stream.Seek(0, SeekOrigin.Begin);
 
-            return _serializer.DeserialiseTo<T>(stream);
-        });
+        var decrypted = new MemoryStream();
+        await _encryptor.Decrypt(stream, decrypted);
+        decrypted.Seek(0, SeekOrigin.Begin);
+
+        return _serializer.DeserialiseTo<T>(decrypted);
     }
 
     public IEnumerable<string> EnumerateFiles(string path)
     {
-        return _zip.Entries.Where(e => e.FileName.StartsWith(path)).Select(e => e.FileName);
+        return _zip.Entries.Where(e => e.FullName.StartsWith(path)).Select(e => e.FullName);
     }
 }

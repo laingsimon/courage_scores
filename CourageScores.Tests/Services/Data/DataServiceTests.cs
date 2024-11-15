@@ -1,9 +1,9 @@
+using System.Security.Cryptography;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Repository;
 using CourageScores.Services.Data;
 using CourageScores.Services.Identity;
-using Ionic.Zip;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
@@ -69,7 +69,7 @@ public class DataServiceTests
             .ReturnsAsync(() => _importZip.Object);
         _zipFileReaderFactory
             .Setup(f => f.Create(It.IsAny<Stream>(), It.Is<string>(p => p != "correct password")))
-            .Throws(() => new BadPasswordException());
+            .Throws(() => new CryptographicException("bad password"));
         _dataImporterFactory
             .Setup(f => f.Create(_importRequest, It.IsAny<ImportDataResultDto>(), It.IsAny<IAsyncEnumerable<TableDto>>()))
             .ReturnsAsync(_tableImporter.Object);

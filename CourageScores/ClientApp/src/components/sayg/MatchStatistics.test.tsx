@@ -142,8 +142,8 @@ describe('MatchStatistics', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123, false, 3).score(123).noOfDarts(3))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
+            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
+            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(150))
             .build();
         const saygData = saygBuilder()
             .withLeg(0, leg)
@@ -176,9 +176,8 @@ describe('MatchStatistics', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(378).withThrow(123))
             .away((c: ILegCompetitorScoreBuilder) => c)
-            .winner('home')
             .build();
         const saygData = saygBuilder()
             .withLeg(0, leg)
@@ -199,17 +198,17 @@ describe('MatchStatistics', () => {
             0,
             [
                 'Leg: 1Details',
-                'Average: 123 (3 darts)Checkout: 123']);
-        assertMatchAverage(['Match average3️⃣', '123']);
-        assertMatchDartCount(['Match darts', '3'], true);
+                'Average: 250.5 (6 darts)Checkout: 123']);
+        assertMatchAverage(['Match average3️⃣', '250.5']);
+        assertMatchDartCount(['Match darts', '6'], true);
     });
 
     it('can expand leg to show throws', async () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123, false, 3).score(123).noOfDarts(3))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
+            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
+            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(150))
             .build();
         const saygData = saygBuilder()
             .withLeg(0, leg)
@@ -240,8 +239,8 @@ describe('MatchStatistics', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123, false, 3).score(123).noOfDarts(3))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
+            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
+            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(150))
             .build();
         const saygData = saygBuilder()
             .withLeg(0, leg)
@@ -273,8 +272,8 @@ describe('MatchStatistics', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123, false, 3).score(123).noOfDarts(3))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
+            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
+            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(150))
             .build();
         const saygData = saygBuilder()
             .withLeg(0, leg)
@@ -313,8 +312,8 @@ describe('MatchStatistics', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123, false, 3).score(123).noOfDarts(3))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
+            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
+            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(150))
             .build();
         const saygData = saygBuilder()
             .withLeg(0, leg)
@@ -339,9 +338,8 @@ describe('MatchStatistics', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
             .away((c: ILegCompetitorScoreBuilder) => c)
-            .winner('home')
             .build();
         const saygData = saygBuilder()
             .withLeg(0, leg)
@@ -364,9 +362,8 @@ describe('MatchStatistics', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123, false, 3).score(123).noOfDarts(3))
-            .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(1))
-            .winner('home')
+            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
+            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(0, 1))
             .build();
         const liveOptions: ILiveOptions = {
             canSubscribe: true,
@@ -395,9 +392,8 @@ describe('MatchStatistics', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123, false, 3).score(123).noOfDarts(3))
-            .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(1))
-            .winner('home')
+            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
+            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(0, 1))
             .build();
         const liveOptions: ILiveOptions = {
             canSubscribe: true,
@@ -504,8 +500,8 @@ describe('MatchStatistics', () => {
         const leg: LegDto = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).score(100).noOfDarts(3))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(75, false, 2).score(75).noOfDarts(2))
+            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
+            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(75, 2))
             .build();
         const id = createTemporaryId();
         const liveOptions: ILiveOptions = {
@@ -553,8 +549,8 @@ describe('MatchStatistics', () => {
         const leg: LegDto = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).score(100).noOfDarts(3))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(75, false, 2).score(75).noOfDarts(2))
+            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
+            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(75, 2))
             .build();
         const saygId = createTemporaryId();
         const liveOptions: ILiveOptions = {
@@ -597,8 +593,8 @@ describe('MatchStatistics', () => {
         const leg: LegDto = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).score(100).noOfDarts(3))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(75, false, 2).score(75).noOfDarts(2))
+            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
+            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(75, 2))
             .build();
         const saygId = createTemporaryId();
         const liveOptions: ILiveOptions = {
@@ -641,14 +637,14 @@ describe('MatchStatistics', () => {
         const leg: LegDto = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).score(100).noOfDarts(3))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(75, false, 2).score(75).noOfDarts(2))
+            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
+            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(75, 2))
             .build();
         const finishedLeg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(501, false, 3).score(501).noOfDarts(3))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(75, false, 2).score(75).noOfDarts(2))
+            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(501))
+            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(75, 2))
             .build();
         const id = createTemporaryId();
         const liveOptions: ILiveOptions = {

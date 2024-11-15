@@ -1,26 +1,25 @@
-﻿using Ionic.Zip;
+﻿using System.IO.Compression;
 using Newtonsoft.Json.Linq;
 
 namespace CourageScores.Services.Data;
 
 public class ZipBuilder : IZipBuilder
 {
-    private readonly ZipFile _zip;
+    private readonly IContentEncryptor _encryptor;
+    private readonly ZipArchive _zip;
+    private readonly MemoryStream _stream;
 
-    public ZipBuilder(string? password)
+    public ZipBuilder(IContentEncryptor encryptor)
     {
-        _zip = new ZipFile();
-        if (!string.IsNullOrEmpty(password))
-        {
-            _zip.Password = password;
-        }
+        _encryptor = encryptor;
+        _stream = new MemoryStream();
+        _zip = new ZipArchive(_stream, ZipArchiveMode.Create);
     }
 
     public Task<byte[]> CreateZip()
     {
-        var stream = new MemoryStream();
-        _zip.Save(stream);
-        return Task.FromResult(stream.ToArray());
+        _zip.Dispose();
+        return Task.FromResult(_stream.ToArray());
     }
 
     public async Task AddFile(string tableName, string id, JObject record)
@@ -29,8 +28,24 @@ public class ZipBuilder : IZipBuilder
         await AddFile(fileName, record.ToString());
     }
 
-    public Task AddFile(string fileName, string content)
+    public async Task AddFile(string fileName, string content)
     {
-        return Task.Run(() => { _zip.AddEntry(fileName, content); });
+        var entry = _zip.CreateEntry(fileName);
+        using (var stream = entry.Open())
+        {
+            await WriteContentEncrypted(stream, content);
+        }
+    }
+
+    private async Task WriteContentEncrypted(Stream entry, string content)
+    {
+        var unencrypted = new MemoryStream();
+        using (var streamWriter = new StreamWriter(unencrypted))
+        {
+            await streamWriter.WriteAsync(content);
+        }
+
+        var buffer = new MemoryStream(unencrypted.ToArray());
+        await _encryptor.Encrypt(buffer, entry);
     }
 }

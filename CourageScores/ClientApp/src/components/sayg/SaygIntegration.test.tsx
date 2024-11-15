@@ -26,6 +26,7 @@ import {
 } from "../../helpers/constants";
 import {checkoutWith, enterScores, keyPad, playsFirst} from "../../helpers/sayg";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {isLegWinner} from "../../helpers/superleague";
 
 describe('SaygIntegrationTest', () => {
     let context: TestContext;
@@ -247,7 +248,6 @@ describe('SaygIntegrationTest', () => {
 
             expect(sayg.legs[0].home.throws).toEqual([{
                 score: 120,
-                bust: false,
                 noOfDarts: 3
             }]);
         });
@@ -269,7 +269,6 @@ describe('SaygIntegrationTest', () => {
             ], [ 10, 10, 10, 10 ]);
             await checkoutWith(context, CHECKOUT_2_DART);
 
-            expect(sayg.legs[0].winner).toEqual('home');
             expect(sayg.legs[1].currentThrow).toEqual('away');
         });
 
@@ -290,7 +289,6 @@ describe('SaygIntegrationTest', () => {
             ], [ ]);
             await checkoutWith(context, CHECKOUT_2_DART);
 
-            expect(sayg.legs[0].winner).toEqual('home');
             expect(sayg.legs[1].currentThrow).toEqual('home');
         });
     });
@@ -316,8 +314,8 @@ describe('SaygIntegrationTest', () => {
                 .scores(0, 0)
                 .withLeg(0, (l: ILegBuilder) => l
                     .playerSequence('away', 'home')
-                    .home((c: ILegCompetitorScoreBuilder) => c.score(0))
-                    .away((c: ILegCompetitorScoreBuilder) => c.score(0))
+                    .home((c: ILegCompetitorScoreBuilder) => c)
+                    .away((c: ILegCompetitorScoreBuilder) => c)
                     .startingScore(501)
                     .currentThrow('away'))
                 .addTo(saygData)
@@ -352,10 +350,11 @@ describe('SaygIntegrationTest', () => {
             await enterScores(context, checkoutScores, nonCheckoutScores);
             await checkoutWith(context, CHECKOUT_1_DART);
 
-            expect(sayg.legs[0].winner).toEqual('away');
             expect(sayg.legs[1].currentThrow).toEqual('home');
             expect(sayg.homeScore).toEqual(0);
             expect(sayg.awayScore).toEqual(1);
+            expect(sayg.legs[0].away.noOfDarts).toEqual(13);
+            expect(sayg.legs[0].home.noOfDarts).toEqual(12);
         });
 
         it('records a checkout with 2 darts', async () => {
@@ -369,10 +368,11 @@ describe('SaygIntegrationTest', () => {
             await enterScores(context, checkoutScores, nonCheckoutScores);
             await checkoutWith(context, CHECKOUT_2_DART);
 
-            expect(sayg.legs[0].winner).toEqual('away');
             expect(sayg.legs[1].currentThrow).toEqual('home');
             expect(sayg.homeScore).toEqual(0);
             expect(sayg.awayScore).toEqual(1);
+            expect(sayg.legs[0].away.noOfDarts).toEqual(14);
+            expect(sayg.legs[0].home.noOfDarts).toEqual(12);
         });
 
         it('records a checkout with 3 darts', async () => {
@@ -386,10 +386,11 @@ describe('SaygIntegrationTest', () => {
             await enterScores(context, checkoutScores, nonCheckoutScores);
             await checkoutWith(context, CHECKOUT_3_DART);
 
-            expect(sayg.legs[0].winner).toEqual('away');
             expect(sayg.legs[1].currentThrow).toEqual('home');
             expect(sayg.homeScore).toEqual(0);
             expect(sayg.awayScore).toEqual(1);
+            expect(sayg.legs[0].away.noOfDarts).toEqual(15);
+            expect(sayg.legs[0].home.noOfDarts).toEqual(12);
         });
 
         it('can close the checkout dialog', async () => {
@@ -507,23 +508,18 @@ describe('SaygIntegrationTest', () => {
 
             return l.playerSequence(startingWith, second)
                 .home((c: ILegCompetitorScoreBuilder) => c
-                    .score(winner === 'home' ? 501 : 300)
-                    .noOfDarts(15)
-                    .withThrow(winner === 'home' ? 100 : 1, false, 3)
-                    .withThrow(winner === 'home' ? 100 : 2, false, 3)
-                    .withThrow(winner === 'home' ? 100 : 3, false, 3)
-                    .withThrow(winner === 'home' ? 100 : 4, false, 3)
-                    .withThrow(winner === 'home' ? 101 : 5, false, 3))
+                    .withThrow(winner === 'home' ? 100 : 1)
+                    .withThrow(winner === 'home' ? 100 : 2)
+                    .withThrow(winner === 'home' ? 100 : 3)
+                    .withThrow(winner === 'home' ? 100 : 4)
+                    .withThrow(winner === 'home' ? 101 : 5))
                 .away((c: ILegCompetitorScoreBuilder) => c
-                    .score(winner === 'away' ? 501 : 300)
-                    .noOfDarts(15)
-                    .withThrow(winner === 'away' ? 100 : 6, false, 3)
-                    .withThrow(winner === 'away' ? 100 : 7, false, 3)
-                    .withThrow(winner === 'away' ? 100 : 8, false, 3)
-                    .withThrow(winner === 'away' ? 100 : 9, false, 3)
-                    .withThrow(winner === 'away' ? 101 : 10, false, 3))
+                    .withThrow(winner === 'away' ? 100 : 6)
+                    .withThrow(winner === 'away' ? 100 : 7)
+                    .withThrow(winner === 'away' ? 100 : 8)
+                    .withThrow(winner === 'away' ? 100 : 9)
+                    .withThrow(winner === 'away' ? 101 : 10))
                 .startingScore(501)
-                .winner(winner)
         }
 
         beforeEach(() => {
@@ -562,10 +558,10 @@ describe('SaygIntegrationTest', () => {
             expect(Array.from(rows[0].querySelectorAll('td')).map(td => td.textContent)).toEqual([ 'Score', '1', '3']);
             expect(rows[1].textContent).toContain('Leg: 1Winner: CONTENDER');
             expect(rows[1].textContent).toContain('Checkout: 101');
-            expect(rows[1].textContent).toContain('Remaining: 201');
+            expect(rows[1].textContent).toContain('Remaining: 461');
             expect(rows[2].textContent).toContain('Leg: 2Winner: OPPONENT');
             expect(rows[2].textContent).toContain('Checkout: 101');
-            expect(rows[2].textContent).toContain('Remaining: 201');
+            expect(rows[2].textContent).toContain('Remaining: 486');
         });
 
         it('presents statistics for single player', async () => {
@@ -639,15 +635,6 @@ describe('SaygIntegrationTest', () => {
 
                 expect(sayg.legs[0].home.throws[0].score).toEqual(99);
             });
-
-            it('can change bust', async () => {
-                expect(sayg.legs[0].home.throws[0].bust).toEqual(false);
-
-                await doClick(dialog, 'input[name="bust"]');
-                await doClick(findButton(dialog, 'Save changes'));
-
-                expect(sayg.legs[0].home.throws[0].bust).toEqual(true);
-            });
         });
 
         describe('when not permitted', () => {
@@ -693,8 +680,8 @@ describe('SaygIntegrationTest', () => {
                 .scores(0, 0)
                 .withLeg(0, (l: ILegBuilder) => l
                     .playerSequence('home', 'away')
-                    .home((c: ILegCompetitorScoreBuilder) => c.score(0))
-                    .away((c: ILegCompetitorScoreBuilder) => c.score(0))
+                    .home((c: ILegCompetitorScoreBuilder) => c)
+                    .away((c: ILegCompetitorScoreBuilder) => c)
                     .startingScore(501)
                     .currentThrow('home'))
                 .addTo(saygData)
@@ -873,9 +860,7 @@ describe('SaygIntegrationTest', () => {
                 [180, 180 /*=360*/, 180 /*=540*/, 30 /*=390*/],
                 [50, 51, 20]);
             expect(sayg.legs[0].home.throws[2].score).toEqual(180);
-            expect(sayg.legs[0].home.throws[2].bust).toEqual(true);
             expect(sayg.legs[0].home.throws[3].score).toEqual(30);
-            expect(sayg.legs[0].home.throws[3].bust).toEqual(false);
             expect(sayg.legs[0].home.score).toEqual(390);
 
             const previousScores = Array.from(context.container.querySelectorAll('div[datatype="previous-scores"] > div'));
@@ -898,7 +883,6 @@ describe('SaygIntegrationTest', () => {
                 [100, 100 /*=200*/, 100 /*=300*/, 100 /*=400*/, 120 /*=520*/, 110 /*=510*/],
                 [10, 20, 30, 40, 50, 60]);
             expect(sayg.legs[0].home.throws[4].score).toEqual(120);
-            expect(sayg.legs[0].home.throws[4].bust).toEqual(true);
             expect(sayg.legs[0].home.score).toEqual(400);
 
             const previousScores = Array.from(context.container.querySelectorAll('div[datatype="previous-scores"] > div'));
@@ -907,7 +891,6 @@ describe('SaygIntegrationTest', () => {
             await keyPad(context, ['7', '0', ENTER_SCORE_BUTTON]);
 
             expect(sayg.legs[0].home.throws[4].score).toEqual(70);
-            expect(sayg.legs[0].home.throws[4].bust).toEqual(false);
             expect(sayg.legs[0].home.score).toEqual(470);
         });
 
@@ -954,7 +937,7 @@ describe('SaygIntegrationTest', () => {
 
             await checkoutWith(context, CHECKOUT_2_DART);
 
-            expect(sayg.legs[0].winner).toEqual('home');
+            expect(isLegWinner(sayg.legs[0], 'home')).toEqual(true);
         });
 
         it('can change home checkout for previous leg', async () => {
@@ -975,7 +958,6 @@ describe('SaygIntegrationTest', () => {
             await doClick(findButton(changePrompt, 'Change'));
             await checkoutWith(context, CHECKOUT_2_DART);
 
-            expect(sayg.legs[0].winner).toEqual('home');
             expect(sayg.legs[0].home.throws[4].noOfDarts).toEqual(2);
         });
 
@@ -1042,8 +1024,8 @@ describe('SaygIntegrationTest', () => {
                 .scores(0, 0)
                 .withLeg(0, (l: ILegBuilder) => l
                     .playerSequence('home', 'away')
-                    .home((c: ILegCompetitorScoreBuilder) => c.score(0))
-                    .away((c: ILegCompetitorScoreBuilder) => c.score(0))
+                    .home((c: ILegCompetitorScoreBuilder) => c)
+                    .away((c: ILegCompetitorScoreBuilder) => c)
                     .startingScore(501)
                     .currentThrow('home'))
                 .addTo(saygData)
