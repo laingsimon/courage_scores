@@ -159,6 +159,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         }
 
         lastThrow.noOfDarts = noOfDarts;
+        newLeg.noOfDarts = sum(newLeg.throws, (thr: LegThrowDto) => thr.noOfDarts);
         if (canEditPreviousCheckout) {
             await onChangePrevious(newLeg);
         } else {
