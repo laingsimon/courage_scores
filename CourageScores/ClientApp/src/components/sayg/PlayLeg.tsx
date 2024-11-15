@@ -1,3 +1,4 @@
+import {sum} from "../../helpers/collections";
 import {PlayerInput} from "./PlayerInput";
 import {PreviousPlayerScore} from "./PreviousPlayerScore";
 import {IBootstrapDropdownItem} from "../common/BootstrapDropdown";
@@ -159,6 +160,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         }
 
         lastThrow.noOfDarts = noOfDarts;
+        accumulator.noOfDarts = sum(accumulator.throws, (thr: LegThrowDto) => thr.noOfDarts);
         if (canEditPreviousCheckout) {
             await onChangePrevious(newLeg);
         } else {

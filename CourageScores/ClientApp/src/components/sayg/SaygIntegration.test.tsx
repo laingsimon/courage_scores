@@ -353,6 +353,8 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.legs[1].currentThrow).toEqual('home');
             expect(sayg.homeScore).toEqual(0);
             expect(sayg.awayScore).toEqual(1);
+            expect(sayg.legs[0].away.noOfDarts).toEqual(13);
+            expect(sayg.legs[0].home.noOfDarts).toEqual(12);
         });
 
         it('records a checkout with 2 darts', async () => {
@@ -369,6 +371,8 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.legs[1].currentThrow).toEqual('home');
             expect(sayg.homeScore).toEqual(0);
             expect(sayg.awayScore).toEqual(1);
+            expect(sayg.legs[0].away.noOfDarts).toEqual(14);
+            expect(sayg.legs[0].home.noOfDarts).toEqual(12);
         });
 
         it('records a checkout with 3 darts', async () => {
@@ -385,6 +389,8 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.legs[1].currentThrow).toEqual('home');
             expect(sayg.homeScore).toEqual(0);
             expect(sayg.awayScore).toEqual(1);
+            expect(sayg.legs[0].away.noOfDarts).toEqual(15);
+            expect(sayg.legs[0].home.noOfDarts).toEqual(12);
         });
 
         it('can close the checkout dialog', async () => {
