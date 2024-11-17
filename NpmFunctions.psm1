@@ -59,15 +59,17 @@ Function Format-NpmOutdatedContent($output, $error, $narrow)
             $parts = $line -split ":"
             $package=[System.IO.Path]::GetFileName($parts[0])
             $packageDirectoryName = [System.IO.Path]::GetFileName([System.IO.Path]::GetDirectoryName($parts[0]))
+            $versionOffset = 1
 
             if ($packageDirectoryName -like "@*")
             {
                 $package = "$($packageDirectoryName)/$($package)"
+                $versionOffset = 2
             }
 
-            $wanted=$parts[1].Split("@")[1]
-            $current=$parts[2].Split("@")[1]
-            $latest=$parts[3].Split("@")[1]
+            $wanted=$parts[1].Split("@")[$versionOffset]
+            $current=$parts[2].Split("@")[$versionOffset]
+            $latest=$parts[3].Split("@")[$versionOffset]
             $location=$parts[0].Substring([System.Math]::Max($parts[0].IndexOf("node_modules"), 0)).Replace("\", "/")
             $dependedBy=$parts[4]
 
