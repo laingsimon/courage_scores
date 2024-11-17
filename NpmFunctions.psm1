@@ -53,6 +53,8 @@ Function Format-NpmOutdatedContent($output, $error, $narrow)
         {
             # replace windows drive letter prefixes to allow a split on :
             $line = $line.Replace("C:\", "/c/")
+            $line = $line.Replace("D:\", "/d/")
+            $line = $line.Replace("\", "/")
 
             $parts = $line -split ":"
             $package=[System.IO.Path]::GetFileName($parts[0])
