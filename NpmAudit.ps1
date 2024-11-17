@@ -156,7 +156,6 @@ If ($NpmAuditResult.ExitCode -ne 0)
     Add-PullRequestComment "#### $($AuditCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($NpmAuditResult.output)`n$($NpmAuditResult.error)`n$($GitHubMarkdownCodeBlock)`n$($BypassInstruction)"
 }
 
-$NpmOutdatedResult = Invoke-NpmCommand -Command "outdated --parseable"
 $OutdatedNpmModulesComment = Invoke-Expression "$($PSScriptRoot)/Format-OutdatedNpmModules.ps1 -OutdatedCommentHeading ""$OutdatedCommentHeading"""
 If ($OutdatedNpmModulesComment -ne "")
 {
