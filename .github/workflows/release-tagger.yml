@@ -1,0 +1,22 @@
+on:
+  pull_request_target:
+    types:
+      - closed
+    branches:
+      - 'main'
+jobs:
+  if_merged:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Print title and sha
+        run: |
+           echo "${github.event.pullrequest.title}"
+           echo "${github.event.pullrequest.merge_commit_sha}"
+
+      - name: add tag and push
+        run: |
+              git tag "${github.event.pullrequest.title}"
+              git push
