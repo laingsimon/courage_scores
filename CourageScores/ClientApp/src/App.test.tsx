@@ -114,6 +114,7 @@ describe('App', () => {
         createBuildElement('build:branch', build.branch);
         createBuildElement('build:sha', build.version);
         createBuildElement('build:date', build.date);
+        createBuildElement('build:pr_name', build.prName);
     }
 
     function createBuildElement(name: string, value: string) {

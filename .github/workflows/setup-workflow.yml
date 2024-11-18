@@ -47,7 +47,7 @@ jobs:
         shell: bash
         run: |
           echo "branch-name=${{ inputs.branch-name }}"
-          echo "pr-name=${{ github.event.pull_request.title }}"
+          echo "pr-link=${{ github.event.pull_request.issue_url }}"
 
       - name: Should deploy (branch name)
         if: ${{ inputs.branch-name == 'release' || inputs.branch-name == 'main' || inputs.deploy-requested == 'true' || inputs.deploy-requested == '' }}

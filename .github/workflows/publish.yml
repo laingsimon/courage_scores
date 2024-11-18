@@ -32,6 +32,8 @@ jobs:
           VITE_APP_BRANCH: "${{ inputs.branch-name }}"
           VITE_APP_SHA: "${{ inputs.commit-sha }}"
           VITE_APP_DATE: "${{ inputs.commit-date }}"
+          VITE_APP_PR_NAME: "${{ github.event.pull_request.title }}"
+          VITE_APP_PR_LINK: "${{ github.event.pull_request.issue_url }}"
 
       - name: Check .tsx file sizes
         if: ${{ github.event.inputs.ignore_sizes != 'true' }}
