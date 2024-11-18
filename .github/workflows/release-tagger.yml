@@ -14,11 +14,16 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Print title and sha
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_SHA: ${{ github.event.pull_request.merge_commit_sha }}
         run: |
-           echo "${{ github.event.pull_request.title }}"
-           echo "${{ github.event.pull_request.merge_commit_sha }}"
+           echo "$PR_TITLE"
+           echo "$PR_SHA"
 
       - name: add tag and push
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-              git tag "${{ github.event.pull_request.title }}"
+              git tag "$PR_TITLE"
               git push
