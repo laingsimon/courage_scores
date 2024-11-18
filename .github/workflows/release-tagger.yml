@@ -26,4 +26,4 @@ jobs:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
               git tag "$PR_TITLE"
-              git push
+              git push --tags
