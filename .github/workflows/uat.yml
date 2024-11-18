@@ -49,7 +49,7 @@ jobs:
     uses: ./.github/workflows/deploy.yml
     with:
       environment-name: 'UAT'
-      app-name: 'CourageScores'
+      app-name: 'CourageLeagueUat'
     secrets:
       publish-profile: ${{ secrets.PUBLISHPROFILE_UAT1 }}
 
