@@ -1,0 +1,27 @@
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      reset_to:
+        description: 'Tag or sha to reset release branch to'
+        required: false
+        type: string
+jobs:
+  revert:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: 
+           ref: 'release'
+
+      - name: Print reset request and recent branch commit history
+        run: |
+           echo "${{ github.event.inputs.reset_to }}"
+           git branch
+           git log -5 --format="%cd %h %s"
+
+      - name: Reset to the given sha or tag
+        run: |
+              git reset "${{ github.event.inputs.reset_to }}" --hard
+              git push

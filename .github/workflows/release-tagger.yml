@@ -1,0 +1,29 @@
+name: Tag releases
+
+on:
+  pull_request_target:
+    types:
+      - closed
+    branches:
+      - 'release'
+jobs:
+  if_merged:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Print title and sha
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+           echo "$PR_TITLE"
+           echo "$PR_SHA"
+
+      - name: add tag and push
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+              git tag "$PR_TITLE"
+              git push
