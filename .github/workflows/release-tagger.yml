@@ -1,4 +1,4 @@
-name: Tag releases
+name: Post-release steps
 
 on:
   pull_request_target:
@@ -7,19 +7,13 @@ on:
     branches:
       - 'release'
 jobs:
-  if_merged:
+  tag_merge_commit:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Print title and sha
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_SHA: ${{ github.event.pull_request.merge_commit_sha }}
-        run: |
-           echo "$PR_TITLE"
-           echo "$PR_SHA"
+        with:
+          ref: 'release'
 
       - name: add tag and push
         env:
@@ -27,3 +21,14 @@ jobs:
         run: |
               git tag "$PR_TITLE"
               git push --tags
+
+  close_milestone:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: Akkjon/close-milestone@v2.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          milestone_name: ${{ github.event.pull_request.title }}
+          crash_on_missing: true
