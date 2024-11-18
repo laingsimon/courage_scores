@@ -195,7 +195,7 @@ describe('App', () => {
             await renderComponent({
                 branch: 'BRANCH',
                 version: '0123456789abcdef',
-                date: '2023-04-05T06:07:08'
+                date: '2023-04-05T06:07:08',
             });
 
             assertSocialLinks();

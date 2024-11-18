@@ -51,9 +51,12 @@ export function About() {
             <tr>
                 <th>Version</th>
                 <td>
-                    {build.version
-                        ? (
-                            <a href={`https://github.com/laingsimon/courage_scores/commit/${build.version}`}>{build.version.substring(0, 8)}</a>)
+                    {build.version || build.prLink
+                        ? (<a href={build.prLink || `https://github.com/laingsimon/courage_scores/commit/${build.version}`}>
+                            {build.prName
+                                ? `${build.prName} (${build.version.substring(0, 8)})`
+                                : `${build.version.substring(0, 8)}`}
+                        </a>)
                         : <span>Unknown</span>}
                 </td>
             </tr>

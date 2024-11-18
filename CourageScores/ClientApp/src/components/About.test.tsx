@@ -7,11 +7,7 @@ import {IBrandingData} from "./common/IBrandingData";
 
 describe('About', () => {
     let context: TestContext;
-    const emptyBuild: IBuild = {
-        branch: '',
-        date: '',
-        version: ''
-    };
+    const emptyBuild: IBuild = {};
     const emptyBranding: IBrandingData = {
         name: '',
         menu: {
@@ -49,6 +45,7 @@ describe('About', () => {
                 branch: 'BRANCH',
                 version: '0123456789abcdef',
                 date: '2023-04-05T06:07:08',
+                prName: 'my PR title',
             }, emptyBranding);
 
             const branchRow = getRow('Branch');
@@ -61,21 +58,36 @@ describe('About', () => {
                 branch: 'BRANCH',
                 version: '0123456789abcdef',
                 date: '2023-04-05T06:07:08',
+                prName: 'my PR title',
             }, emptyBranding);
 
             const branchRow = getRow('Version');
             const cell = branchRow.querySelector('td') as HTMLTableCellElement;
             const link = cell.querySelector('a') as HTMLAnchorElement;
             expect(link.href).toEqual(`https://github.com/laingsimon/courage_scores/commit/0123456789abcdef`);
-            expect(link.textContent).toEqual('01234567');
-            expect(cell.textContent).toEqual('01234567');
+            expect(link.textContent).toEqual('my PR title (01234567)');
+        });
+
+        it('shows version with PR link', async () => {
+            await renderComponent({
+                branch: 'BRANCH',
+                version: '0123456789abcdef',
+                date: '2023-04-05T06:07:08',
+                prName: 'my PR title',
+                prLink: 'https://github.com/laingsimon/courage_scores/pulls/1234',
+            }, emptyBranding);
+
+            const branchRow = getRow('Version');
+            const cell = branchRow.querySelector('td') as HTMLTableCellElement;
+            const link = cell.querySelector('a') as HTMLAnchorElement;
+            expect(link.href).toEqual(`https://github.com/laingsimon/courage_scores/pulls/1234`);
+            expect(link.textContent).toEqual('my PR title (01234567)');
         });
 
         it('shows empty when no version', async () => {
             await renderComponent({
                 branch: 'BRANCH',
                 date: '2023-04-05T06:07:08',
-                version: null!,
             }, emptyBranding);
 
             const branchRow = getRow('Version');
