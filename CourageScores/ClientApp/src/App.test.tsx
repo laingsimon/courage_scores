@@ -114,6 +114,7 @@ describe('App', () => {
         createBuildElement('build:branch', build.branch);
         createBuildElement('build:sha', build.version);
         createBuildElement('build:date', build.date);
+        createBuildElement('build:pr_name', build.prName);
     }
 
     function createBuildElement(name: string, value: string) {
@@ -194,7 +195,7 @@ describe('App', () => {
             await renderComponent({
                 branch: 'BRANCH',
                 version: '0123456789abcdef',
-                date: '2023-04-05T06:07:08'
+                date: '2023-04-05T06:07:08',
             });
 
             assertSocialLinks();

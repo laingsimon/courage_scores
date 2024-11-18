@@ -1,5 +1,7 @@
 ﻿export interface IBuild {
-    branch: string | null,
-    version: string | null,
-    date: string | null,
+    branch?: string;
+    version?: string;
+    date?: string;
+    prName?: string;
+    prLink?: string;
 }
