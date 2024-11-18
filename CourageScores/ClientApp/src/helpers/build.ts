@@ -8,11 +8,15 @@ function getBuildDetail(name: string): string | null {
 }
 
 export function getBuild(): IBuild {
+    const prNumber = getBuildDetail('pr_number');
+
     return {
         branch: getBuildDetail('branch'),
         version: getBuildDetail('sha'),
         date: getBuildDetail('date'),
         prName: getBuildDetail('pr_name'),
-        prLink: getBuildDetail('pr_link'),
+        prLink: prNumber
+            ? `https://github.com/laingsimon/courage_scores/pull/${prNumber}/`
+            : undefined,
     };
 }
