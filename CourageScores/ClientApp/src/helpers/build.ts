@@ -12,5 +12,7 @@ export function getBuild(): IBuild {
         branch: getBuildDetail('branch'),
         version: getBuildDetail('sha'),
         date: getBuildDetail('date'),
+        prName: getBuildDetail('pr_name'),
+        prLink: getBuildDetail('pr_link'),
     };
 }
