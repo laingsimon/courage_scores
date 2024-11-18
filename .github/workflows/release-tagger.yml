@@ -13,10 +13,10 @@ jobs:
 
       - name: Print title and sha
         run: |
-           echo "${github.event.pullrequest.title}"
-           echo "${github.event.pullrequest.merge_commit_sha}"
+           echo "${github.event.pull_request.title}"
+           echo "${github.event.pull_request.merge_commit_sha}"
 
       - name: add tag and push
         run: |
-              git tag "${github.event.pullrequest.title}"
+              git tag "${github.event.pull_request.title}"
               git push
