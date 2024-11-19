@@ -31,17 +31,6 @@ jobs:
       commit-sha: ${{ github.sha }}
       commit-date: ${{ needs.setup.outputs.commit-date }}
 
-  deploy_uat_old:
-    needs: 
-      - build
-      - publish
-    uses: ./.github/workflows/deploy.yml
-    with:
-      environment-name: 'UAT'
-      app-name: 'CourageScores'
-    secrets:
-      publish-profile: ${{ secrets.PUBLISHPROFILE_UAT }}
-
   deploy_uat:
     needs: 
       - build
@@ -51,7 +40,7 @@ jobs:
       environment-name: 'UAT'
       app-name: 'CourageLeagueUat'
     secrets:
-      publish-profile: ${{ secrets.PUBLISHPROFILE_UAT1 }}
+      publish-profile: ${{ secrets.PUBLISHPROFILE_UAT }}
 
   report:
     needs: 

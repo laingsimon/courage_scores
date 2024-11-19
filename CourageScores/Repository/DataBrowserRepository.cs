@@ -8,12 +8,10 @@ namespace CourageScores.Repository;
 public class DataBrowserRepository<T> : IDataBrowserRepository<T>
 {
     private readonly Database _database;
-    private readonly ICosmosTableNameResolver _tableNameResolver;
 
-    public DataBrowserRepository(Database database, ICosmosTableNameResolver tableNameResolver)
+    public DataBrowserRepository(Database database)
     {
         _database = database;
-        _tableNameResolver = tableNameResolver;
     }
 
     public async IAsyncEnumerable<T> GetAll(string tableName, [EnumeratorCancellation] CancellationToken token)
@@ -36,17 +34,15 @@ public class DataBrowserRepository<T> : IDataBrowserRepository<T>
 
     public Task<bool> TableExists(string tableName)
     {
-        var actualTableName = _tableNameResolver.GetTableName(tableName);
-        var container = _database.GetContainer(actualTableName);
+        var container = _database.GetContainer(tableName);
         return Task.FromResult(container != null);
     }
 
     private async IAsyncEnumerable<T> Query(string tableName, string? whereClause, [EnumeratorCancellation] CancellationToken token)
     {
-        var actualTableName = _tableNameResolver.GetTableName(tableName);
-        Container container = await _database.CreateContainerIfNotExistsAsync(actualTableName, "/id", cancellationToken: token);
+        Container container = await _database.CreateContainerIfNotExistsAsync(tableName, "/id", cancellationToken: token);
 
-        var iterator = container.GetItemQueryIterator<T>($"select * from {_tableNameResolver.GetTableName(tableName)} t {whereClause}");
+        var iterator = container.GetItemQueryIterator<T>($"select * from {tableName} t {whereClause}");
         while (iterator.HasMoreResults && !token.IsCancellationRequested)
         {
             var nextResult = await iterator.ReadNextAsync(token);

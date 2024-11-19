@@ -66,8 +66,8 @@ describe('ImportData', () => {
 
     const props: IAdminContainerProps = {
         tables: [
-            {name: 'Table 1', canImport: true, environmentalName: '', partitionKey: ''},
-            {name: 'Table 2', canImport: false, environmentalName: '', partitionKey: ''}
+            {name: 'Table 1', canImport: true, partitionKey: ''},
+            {name: 'Table 2', canImport: false, partitionKey: ''}
         ],
         accounts: [],
     };
