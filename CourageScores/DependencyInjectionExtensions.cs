@@ -45,7 +45,6 @@ using CourageScores.Services.Season.Creation;
 using CourageScores.Services.Season.Creation.CompatibilityCheck;
 using CourageScores.Services.Status;
 using CourageScores.Services.Team;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -69,7 +68,6 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IZipBuilderFactory, ZipBuilderFactory>();
         services.AddScoped<IZipFileReaderFactory, ZipFileReaderFactory>();
         services.AddScoped<IDataImporterFactory, DataImporterFactory>();
-        services.AddSingleton<ICosmosTableNameResolver, CosmosTableNameResolver>();
         services.AddSingleton(new JsonSerializer
         {
             Converters =

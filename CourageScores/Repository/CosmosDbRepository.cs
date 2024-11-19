@@ -11,9 +11,9 @@ public abstract class CosmosDbRepository<T> where T : CosmosEntity
     private readonly Lazy<Container> _container;
     protected readonly string TableName;
 
-    protected CosmosDbRepository(Database database, ICosmosTableNameResolver tableNameResolver)
+    protected CosmosDbRepository(Database database)
     {
-        TableName = tableNameResolver.GetTableName<T>();
+        TableName = typeof(T).Name.ToLower();
         _container = new Lazy<Container>(() => database.CreateContainerIfNotExistsAsync(TableName, "/id").Result);
     }
 

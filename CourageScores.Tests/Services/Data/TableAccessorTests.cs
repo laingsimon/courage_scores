@@ -17,7 +17,6 @@ public class TableAccessorTests
     private readonly TableAccessor _accessor = new(new TableDto
     {
         Name = "TABLE",
-        EnvironmentalName = "TABLE_dev",
         PartitionKey = "/id",
     });
     private Mock<Database> _database = null!;
@@ -40,7 +39,7 @@ public class TableAccessorTests
             .Setup(c => c.GetItemQueryIterator<JObject>(It.IsAny<string>(), null, null))
             .Returns(() => _iterator);
         _database
-            .Setup(d => d.CreateContainerIfNotExistsAsync("TABLE_dev", "/id", null, null, It.IsAny<CancellationToken>()))
+            .Setup(d => d.CreateContainerIfNotExistsAsync("TABLE", "/id", null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new MockContainerResponse(_container));
     }
 

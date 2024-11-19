@@ -1,6 +1,5 @@
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Models.Dtos.Identity;
-using CourageScores.Repository;
 using CourageScores.Services;
 using CourageScores.Services.Data;
 using CourageScores.Services.Identity;
@@ -17,7 +16,6 @@ public class CosmosTableServiceTests
     private Mock<Database> _database = null!;
     private Mock<IUserService> _userService = null!;
     private Mock<IJsonSerializerService> _jsonSerializer = null!;
-    private Mock<ICosmosTableNameResolver> _tableNameResolver = null!;
     private UserDto? _user;
     private List<string> _tables = null!;
     private CosmosTableService _service = null!;
@@ -27,21 +25,19 @@ public class CosmosTableServiceTests
     {
         _tables = new List<string>
         {
-            "game_dev",
-            "tournamentgame_dev",
-            "team_dev",
+            "game",
+            "tournamentgame",
+            "team",
         };
         _database = new Mock<Database>();
         _userService = new Mock<IUserService>();
         _jsonSerializer = new Mock<IJsonSerializerService>();
-        _tableNameResolver = new Mock<ICosmosTableNameResolver>();
-        _service = new CosmosTableService(_database.Object, _userService.Object, _jsonSerializer.Object, _tableNameResolver.Object);
+        _service = new CosmosTableService(_database.Object, _userService.Object, _jsonSerializer.Object);
         _user = _user.SetAccess(exportData: true, importData: true);
         _database
             .Setup(d => d.GetContainerQueryStreamIterator((string?)null, null, null))
             .Returns(() => new MockFeedIterator(_jsonSerializer, _tables.ToArray()));
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _tableNameResolver.Setup(r => r.GetTableTypeName(It.IsAny<string>())).Returns((string table) => table.Replace("_dev", ""));
     }
 
     [TestCase(true)]
@@ -134,12 +130,6 @@ public class CosmosTableServiceTests
             "tournamentgame",
             "team",
         }));
-        Assert.That(tables.Select(a => a.EnvironmentalName), Is.EquivalentTo(new[]
-        {
-            "game_dev",
-            "tournamentgame_dev",
-            "team_dev",
-        }));
     }
 
     [Test]
@@ -152,12 +142,6 @@ public class CosmosTableServiceTests
             "game",
             "tournamentgame",
             "team",
-        }));
-        Assert.That(tables.Select(a => a.EnvironmentalName), Is.EquivalentTo(new[]
-        {
-            "game_dev",
-            "tournamentgame_dev",
-            "team_dev",
         }));
         Assert.That(tables.Select(a => a.PartitionKey), Has.All.EqualTo("/id"));
         Assert.That(tables.Select(a => a.DataType), Has.All.Not.Null);
