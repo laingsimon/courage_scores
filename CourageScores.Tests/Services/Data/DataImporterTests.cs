@@ -45,17 +45,16 @@ public class DataImporterTests
             new()
             {
                 Name = "TABLE",
-                EnvironmentalName = "TABLE_dev",
                 PartitionKey = "/id",
             },
         };
         _upsertResult = new MockItemResponse<JObject>(statusCode: HttpStatusCode.Created);
         _importer = new DataImporter(_database.Object, _request, _result, _currentTables, _flags);
         _database
-            .Setup(d => d.CreateContainerIfNotExistsAsync("TABLE_dev", "/id", null, null, _token))
+            .Setup(d => d.CreateContainerIfNotExistsAsync("TABLE", "/id", null, null, _token))
             .ReturnsAsync(new MockContainerResponse(_container));
         _database
-            .Setup(d => d.CreateContainerIfNotExistsAsync("TABLE_dev_import", "/id", null, null, _token))
+            .Setup(d => d.CreateContainerIfNotExistsAsync("TABLE_import", "/id", null, null, _token))
             .ReturnsAsync(new MockContainerResponse(_container));
         _zip.Setup(z => z.EnumerateFiles("TABLE")).Returns(() => _zipFiles);
         _zip.Setup(z => z.ReadJson<JObject>(It.IsAny<string>())).ReturnsAsync(() => _fileContent);
@@ -109,7 +108,7 @@ public class DataImporterTests
 
         var result = await _importer.ImportData(Array.Empty<string>(), _zip.Object, _token).ToList();
 
-        _database.Verify(d => d.CreateContainerIfNotExistsAsync("TABLE_dev_import", "/id", null, null, _token));
+        _database.Verify(d => d.CreateContainerIfNotExistsAsync("TABLE_import", "/id", null, null, _token));
         Assert.That(result, Is.Not.Empty);
         Assert.That(result, Has.None.StartsWith("ERROR"));
     }
@@ -132,7 +131,7 @@ public class DataImporterTests
 
         var result = await _importer.ImportData(Array.Empty<string>(), _zip.Object, _token).ToList();
 
-        _database.Verify(d => d.CreateContainerIfNotExistsAsync("TABLE_dev", "/id", null, null, _token));
+        _database.Verify(d => d.CreateContainerIfNotExistsAsync("TABLE", "/id", null, null, _token));
         Assert.That(result, Is.Not.Empty);
         Assert.That(result, Has.None.StartsWith("ERROR"));
     }
@@ -231,7 +230,7 @@ public class DataImporterTests
     public async Task PurgeData_GivenMatchedTable_PurgesData(string tableToImport)
     {
         _request.DryRun = false;
-        _database.Setup(d => d.GetContainer("TABLE_dev")).Returns(_container.Object);
+        _database.Setup(d => d.GetContainer("TABLE")).Returns(_container.Object);
         var tablesToImport = new[]
         {
             tableToImport,
@@ -249,7 +248,7 @@ public class DataImporterTests
     public async Task PurgeData_GivenMatchedTableAndDryRun_DoesNotPurgeData(string tableToImport)
     {
         _request.DryRun = true;
-        _database.Setup(d => d.GetContainer("TABLE_dev")).Returns(_container.Object);
+        _database.Setup(d => d.GetContainer("TABLE")).Returns(_container.Object);
         var tablesToImport = new[]
         {
             tableToImport,
@@ -266,7 +265,7 @@ public class DataImporterTests
     public async Task PurgeData_GivenNoTableFilter_PurgesData()
     {
         _request.DryRun = false;
-        _database.Setup(d => d.GetContainer("TABLE_dev")).Returns(_container.Object);
+        _database.Setup(d => d.GetContainer("TABLE")).Returns(_container.Object);
 
         var result = await _importer.PurgeData(Array.Empty<string>(), _token).ToList();
 

@@ -10,9 +10,9 @@ public class UserRepository : IUserRepository
     private readonly Lazy<Container> _container;
     private readonly string _tableName;
 
-    public UserRepository(Database database, ICosmosTableNameResolver tableNameResolver)
+    public UserRepository(Database database)
     {
-        _tableName = tableNameResolver.GetTableName<User>();
+        _tableName = nameof(User).ToLower();
         _container = new Lazy<Container>(() =>
             database.CreateContainerIfNotExistsAsync(_tableName, "/emailAddress").Result);
     }

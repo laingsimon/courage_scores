@@ -1,7 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos.Data;
-using CourageScores.Repository;
 using CourageScores.Services.Identity;
 using Microsoft.Azure.Cosmos;
 
@@ -11,15 +10,13 @@ public class CosmosTableService : ICosmosTableService
 {
     private readonly Database _database;
     private readonly IJsonSerializerService _serializer;
-    private readonly ICosmosTableNameResolver _tableNameResolver;
     private readonly IUserService _userService;
 
-    public CosmosTableService(Database database, IUserService userService, IJsonSerializerService serializer, ICosmosTableNameResolver tableNameResolver)
+    public CosmosTableService(Database database, IUserService userService, IJsonSerializerService serializer)
     {
         _database = database;
         _userService = userService;
         _serializer = serializer;
-        _tableNameResolver = tableNameResolver;
     }
 
     public async IAsyncEnumerable<ITableAccessor> GetTables(ExportDataRequestDto request, [EnumeratorCancellation] CancellationToken token)
@@ -52,9 +49,9 @@ public class CosmosTableService : ICosmosTableService
                 var tableName = table.Id;
 
                 var partitionKey = table.PartitionKey.Paths.Single();
-                typeLookup.TryGetValue(_tableNameResolver.GetTableTypeName(tableName), out var dataType);
+                typeLookup.TryGetValue(tableName, out var dataType);
 
-                if (dataType == null && tableName.Contains("_") && _tableNameResolver.GetTableTypeName(tableName) == tableName)
+                if (dataType == null && tableName.Contains('_'))
                 {
                     // this table doesn't have a related dotnet type and appears to be for a different environment (it contains an _, but doesn't have this environment's suffix)
                     continue;
@@ -62,8 +59,7 @@ public class CosmosTableService : ICosmosTableService
 
                 yield return new TableDto
                 {
-                    Name = _tableNameResolver.GetTableTypeName(tableName),
-                    EnvironmentalName = tableName,
+                    Name = tableName,
                     PartitionKey = partitionKey,
                     DataType = dataType,
                     CanImport = await CanImportDataType(dataType, token),

@@ -22,7 +22,7 @@ public class TableAccessor : ITableAccessor
         request.CaseInsensitiveTables.TryGetValue(TableName, out var ids);
         var idsToReturn = ids?.Select(id => id.ToString()).ToHashSet(StringComparer.OrdinalIgnoreCase) ?? new HashSet<string>();
 
-        Container container = await database.CreateContainerIfNotExistsAsync(_table.EnvironmentalName, _table.PartitionKey, cancellationToken: token);
+        Container container = await database.CreateContainerIfNotExistsAsync(_table.Name, _table.PartitionKey, cancellationToken: token);
 
         var records = container.GetItemQueryIterator<JObject>();
 

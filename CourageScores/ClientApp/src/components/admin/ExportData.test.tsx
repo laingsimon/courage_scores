@@ -53,8 +53,8 @@ describe('ExportData', () => {
 
     const props: IAdminContainerProps = {
         tables: [
-            {name: 'Table 1', canExport: true, environmentalName: '', partitionKey: ''},
-            {name: 'Table 2', canExport: false, environmentalName: '', partitionKey: ''}
+            {name: 'Table 1', canExport: true, partitionKey: ''},
+            {name: 'Table 2', canExport: false, partitionKey: ''}
         ],
         accounts: [],
     };

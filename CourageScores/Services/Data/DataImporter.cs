@@ -47,8 +47,8 @@ public class DataImporter : IDataImporter
             }
 
             var tableName = _request.DryRun
-                ? table.EnvironmentalName + DryRunTableSuffix
-                : table.EnvironmentalName;
+                ? table.Name + DryRunTableSuffix
+                : table.Name;
 
             if (!_request.DryRun)
             {
@@ -104,7 +104,7 @@ public class DataImporter : IDataImporter
                 continue;
             }
 
-            yield return $"{(_request.DryRun ? "DRY RUN: " : "")}Purging data in {table.EnvironmentalName}";
+            yield return $"{(_request.DryRun ? "DRY RUN: " : "")}Purging data in {table.Name}";
             if (!_request.DryRun)
             {
                 await PurgeData(table, token);
@@ -163,7 +163,7 @@ public class DataImporter : IDataImporter
 
     private async Task PurgeData(TableDto table, CancellationToken token)
     {
-        var container = _database.GetContainer(table.EnvironmentalName);
+        var container = _database.GetContainer(table.Name);
         await container.DeleteContainerAsync(cancellationToken: token);
     }
 }

@@ -41,21 +41,18 @@ describe('TableSelection', () => {
         name: 'A',
         canImport: true,
         canExport: true,
-        environmentalName: '',
         partitionKey: '',
     };
     const tableB: TableDto = {
         name: 'B',
         canImport: true,
         canExport: true,
-        environmentalName: '',
         partitionKey: '',
     };
     const tableC: TableDto = {
         name: 'C',
         canImport: false,
         canExport: false,
-        environmentalName: '',
         partitionKey: '',
     };
 
