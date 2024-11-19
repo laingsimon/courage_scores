@@ -13,8 +13,7 @@
     <meta content="https://couragescores.azurewebsites.net/social.png" property="og:image"/>
     <meta content="https://couragescores.azurewebsites.net/social.png" name="twitter:image"/>
     <meta content="summary_large_image" name="twitter:card"/>
-    <script>
-        /* this content is not included in white-labelled deployments - as it is before the <title/> tag */
+    <script data-type="local-only">
         window.branding = {
             name: 'Courage Scores',
             email: 'info@couragescores.co.uk',
@@ -42,7 +41,7 @@
             }
         }
     </script>
-    <link rel="stylesheet" type="text/css" href="/public/dev/dev.css" about="Only included in local dev environments" />
+    <!-- <link rel="stylesheet" type="text/css" href="/public/dev/dev.css" data-type="local-only" /> -->
     <title>Courage Scores</title>
     <base href="/"/>
     <link href="/layout.css" rel="stylesheet"/>
