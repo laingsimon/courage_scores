@@ -16,7 +16,7 @@ body .nav-link:focus {
 }
 
 h1 {
-    color: #218CFF !important;
+    color: #218CFF;
 }
 
 body.darts-background {

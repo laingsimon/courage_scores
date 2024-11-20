@@ -24,6 +24,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Remove local only content
+        shell: pwsh
+        working-directory: ./CourageScores/ClientApp
+        run: ../../Scripts/Remove-LocalOnlyContent.ps1 -FilePath index.html
+
       - name: dotnet publish
         run: dotnet publish --configuration Release --property PublishDir=myapp
         env:
