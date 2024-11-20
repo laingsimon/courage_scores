@@ -38,27 +38,27 @@ jobs:
       - name: Check .tsx file sizes
         if: ${{ github.event.inputs.ignore_sizes != 'true' }}
         shell: pwsh
-        run: ./BuildChecks.ps1 -ErrorThreshold 1000 -Extension '.tsx'
+        run: ./Scripts/BuildChecks.ps1 -ErrorThreshold 1000 -Extension '.tsx'
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Check .ts file sizes
         if: ${{ github.event.inputs.ignore_sizes != 'true' }}
         shell: pwsh
-        run: ./BuildChecks.ps1 -ErrorThreshold 500 -Extension '.ts'
+        run: ./Scripts/BuildChecks.ps1 -ErrorThreshold 500 -Extension '.ts'
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Run npm audit
         shell: pwsh
-        run: ../../NpmAudit.ps1
+        run: ../../Scripts/NpmAudit.ps1
         working-directory: ./CourageScores/ClientApp
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Setup whitelabel variants
         shell: pwsh
-        run: ./WhiteLabel-Publish.ps1 -PublishDir ../myapp/wwwroot
+        run: ../../Scripts/WhiteLabel-Publish.ps1 -PublishDir ../myapp/wwwroot
         working-directory: ./CourageScores/ClientApp
 
       - name: Publish react coverage
