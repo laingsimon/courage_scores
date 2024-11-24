@@ -42,9 +42,9 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
 
     function getFilterByDateUrl(date: string): string {
         const filters = new URLSearchParams(location.search);
-        filters.set('date', date);
+        filters.set('date', date.substring(0, 10));
 
-        return `${location.pathname}${filters}`;
+        return `${location.pathname}?${filters}`;
     }
 
     async function toggleShowPlayers(date: string) {
@@ -146,7 +146,7 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
     return (<div key={date.date} className={`${getClassName()}${date.isNew ? ' alert-success pt-3 mb-3' : ''}`}>
         <div data-fixture-date={date.date} className="bg-light"></div>
         <h4>
-            <Link to={filterByDateUrl}>📅 {renderDate(date.date)}</Link>
+            📅 <Link to={filterByDateUrl}>{renderDate(date.date)}</Link>
             {isNoteAdmin
                 ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(date.date)}>
                     📌 Add note
