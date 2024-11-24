@@ -20,7 +20,7 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
         var matches = game.Matches.Where(m => m.Deleted == null).ToArray();
         var numberOfMatchesWithPlayers = matches.Count(m => m.HomePlayers.Any() && m.AwayPlayers.Any());
         var showScores = game.IsKnockout
-            ? numberOfMatchesWithPlayers >= 7 // the triples match isn't played in knockout fixtures
+            ? numberOfMatchesWithPlayers >= 4 // knockouts can be won, potentially, after 4 matches have been played
             : numberOfMatchesWithPlayers == matches.Length;
 
         return new DivisionFixtureDto
