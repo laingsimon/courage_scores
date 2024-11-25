@@ -32,13 +32,14 @@ public class TeamPlayerAdapterTests
         var model = new TeamPlayer
         {
             EmailAddress = "email@somewhere.com",
+            Name = "name   ",
         };
         _user = _user.SetAccess(manageTeams: true);
 
         var result = await _adapter.Adapt(model, _token);
 
         Assert.That(result.Id, Is.EqualTo(model.Id));
-        Assert.That(result.Name, Is.EqualTo(model.Name));
+        Assert.That(result.Name, Is.EqualTo("name"));
         Assert.That(result.Captain, Is.EqualTo(model.Captain));
         Assert.That(result.EmailAddress, Is.EqualTo(model.EmailAddress));
     }
