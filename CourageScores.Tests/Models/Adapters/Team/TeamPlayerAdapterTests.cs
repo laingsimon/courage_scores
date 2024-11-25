@@ -50,6 +50,7 @@ public class TeamPlayerAdapterTests
         var model = new TeamPlayer
         {
             EmailAddress = "email@somewhere.com",
+            Name = "name",
         };
         _user = null;
 
@@ -64,6 +65,7 @@ public class TeamPlayerAdapterTests
         var model = new TeamPlayer
         {
             EmailAddress = "email@somewhere.com",
+            Name = "name",
         };
         _user = _user.SetAccess(manageTeams: false);
 
