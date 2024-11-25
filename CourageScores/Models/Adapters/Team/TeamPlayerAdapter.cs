@@ -21,7 +21,7 @@ public class TeamPlayerAdapter : IAdapter<TeamPlayer, TeamPlayerDto>
         {
             Captain = model.Captain,
             Id = model.Id,
-            Name = model.Name,
+            Name = model.Name.Trim(),
             EmailAddress = canShowEmailAddress
                 ? model.EmailAddress
                 : null,

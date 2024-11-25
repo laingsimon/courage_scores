@@ -18,6 +18,7 @@ import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDt
 import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDateNoteDto";
 import {NewTournamentFixture} from "./NewTournamentFixture";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {Link} from "react-router-dom";
 
 export interface IDivisionFixtureDateProps {
     date: IEditableDivisionFixtureDateDto;
@@ -37,6 +38,14 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
     const canManageTournaments: boolean = account && account.access && account.access.manageTournaments;
     const canManageGames: boolean = account && account.access && account.access.manageGames;
     const isNoteAdmin: boolean = account && account.access && account.access.manageNotes;
+    const filterByDateUrl: string = getFilterByDateUrl(date.date);
+
+    function getFilterByDateUrl(date: string): string {
+        const filters = new URLSearchParams(location.search);
+        filters.set('date', date.substring(0, 10));
+
+        return `${location.pathname}?${filters}`;
+    }
 
     async function toggleShowPlayers(date: string) {
         const newShowPlayers = Object.assign({}, showPlayers);
@@ -137,7 +146,7 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
     return (<div key={date.date} className={`${getClassName()}${date.isNew ? ' alert-success pt-3 mb-3' : ''}`}>
         <div data-fixture-date={date.date} className="bg-light"></div>
         <h4>
-            📅 {renderDate(date.date)}
+            📅 <Link to={filterByDateUrl}>{renderDate(date.date)}</Link>
             {isNoteAdmin
                 ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(date.date)}>
                     📌 Add note
