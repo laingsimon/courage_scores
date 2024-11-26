@@ -172,7 +172,8 @@ function Create-PullRequest($NameAndMilestone, $Description, $Head, $Base)
         "`"title`":`"$($NameAndMilestone)`"," +
         "`"body`":`"$($Description.Trim().Replace("`n", "\n"))`"," +
         "`"head`":`"$($Head)`"," +
-        "`"base`":`"$($Base)`"" +
+        "`"base`":`"$($Base)`"," +
+        "`"milestone`": `"$($NameAndMilestone)`"" +
     "}"
 
     Write-Host -ForegroundColor Yellow "Body = $($Json)"
