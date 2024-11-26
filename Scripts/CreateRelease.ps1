@@ -181,7 +181,8 @@ function Create-PullRequest($Milestone, $Description, $Head, $Base)
         "`"title`":`"$($Milestone.title)`"," +
         "`"body`":`"$($Description.Trim().Replace('`"', '\"').Replace("`n", "\n"))`"," +
         "`"head`":`"$($Head)`"," +
-        "`"base`":`"$($Base)`"" +
+        "`"base`":`"$($Base)`"," +
+        "`"milestone`":`"$($Milestone.number)`"" +
     "}"
 
     $Response = Invoke-WebRequest `
