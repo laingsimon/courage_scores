@@ -1,0 +1,21 @@
+name: Auto-create release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create release if none exists
+        shell: pwsh
+        run: ./Scripts/CreateRelease.ps1
+        env:
+          GITHUB_TOKEN: ${{ secrets.CREATE_RELEASE_PAT }}
