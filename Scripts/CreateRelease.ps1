@@ -165,7 +165,8 @@ function Format-ReleaseDescription($Commits)
 
 function Create-PullRequest($NameAndMilestone, $Description, $Compare, $Base)
 {
-    Write-Host "Create pull request from $($Compare) -> $($Base) for $($NameAndMilestone)"
+    $Url = "https://api.github.com/repos/$($Repo)/pulls"
+    Write-Host "Create pull request from $($Compare) -> $($Base) for $($NameAndMilestone) via $($Url)"
 
     $Json = "{"
         "`"title`":`"$($NameAndMilestone)`"," +
@@ -178,7 +179,7 @@ function Create-PullRequest($NameAndMilestone, $Description, $Compare, $Base)
     Write-Host -ForegroundColor Yellow "Body = $($Json)"
 
     return Invoke-WebRequest `
-        -Uri "https://api.github.com/repos/$($Repo)/pulls" `
+        -Uri $Url `
         -Method Post `
         -ContentType "application/json" `
         -Body "$($Json)"
