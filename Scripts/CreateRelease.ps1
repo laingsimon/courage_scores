@@ -179,7 +179,7 @@ function Create-PullRequest($NameAndMilestone, $Description, $Head, $Base)
 
     $Json = "{" +
         "`"title`":`"$($NameAndMilestone.title)`"," +
-        "`"body`":`"$($Description.Trim().Replace("`n", "\n"))`"," +
+        "`"body`":`"$($Description.Trim().Replace('`"', '\"').Replace("`n", "\n"))`"," +
         "`"head`":`"$($Head)`"," +
         "`"base`":`"$($Base)`"," +
         "`"milestone`": $($NameAndMilestone.id)" +
