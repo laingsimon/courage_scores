@@ -139,7 +139,6 @@ function Format-ReleaseDescription($Commits)
             $ChangeDescription = "### Changes`n"
         }
 
-        Write-Host "'$($_)'"
         $ChangeDescription = "$($ChangeDescription)- #$($_)`n"
     }
 
