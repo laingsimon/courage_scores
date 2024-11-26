@@ -12,6 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Checkout all branches
+        run: git fetch --depth=1
+
       - name: Create release if none exists
         shell: pwsh
         run: ./Scripts/CreateRelease.ps1
