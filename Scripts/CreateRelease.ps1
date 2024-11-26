@@ -163,15 +163,15 @@ function Format-ReleaseDescription($Commits)
     return "$($ChangeDescription)`n$($BugFixDescription)`n$($AncillaryDescription)`n"
 }
 
-function Create-PullRequest($NameAndMilestone, $Description, $Compare, $Base)
+function Create-PullRequest($NameAndMilestone, $Description, $Head, $Base)
 {
     $Url = "https://api.github.com/repos/$($Repo)/pulls"
-    Write-Host "Create pull request from $($Compare) -> $($Base) for $($NameAndMilestone) via $($Url)"
+    Write-Host "Create pull request from $($Head) -> $($Base) for $($NameAndMilestone) via $($Url)"
 
     $Json = "{" +
         "`"title`":`"$($NameAndMilestone)`"," +
         "`"body`":`"$($Description.Trim().Replace("`n", "\n"))`"," +
-        "`"head`":`"$($Compare)`"," +
+        "`"head`":`"$($Head)`"," +
         "`"base`":`"$($Base)`"" +
     "}"
 
@@ -212,4 +212,4 @@ $Description = Format-ReleaseDescription -Commits $Commits
 
 # Write-Host "Description: $($Description)"
 
-Create-PullRequest -NameAndMilestone $OldestMilestone.title -Description $Description -Compare "main" -Base "release"
+Create-PullRequest -NameAndMilestone $OldestMilestone.title -Description $Description -Head "main" -Base "release"
