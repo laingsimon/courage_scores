@@ -179,7 +179,7 @@ function Create-PullRequest($Milestone, $Description, $Head, $Base)
 
     $Json = "{" +
         "`"title`":`"$($Milestone.title)`"," +
-        "`"body`":`"$($Description.Trim().Replace('`"', '\"').Replace("`n", "\n"))`"," +
+        "`"body`":`"$($Description)`"," +
         "`"head`":`"$($Head)`"," +
         "`"base`":`"$($Base)`"," +
         "`"milestone`":`"$($Milestone.number)`"" +
@@ -210,28 +210,47 @@ function Create-PullRequest($Milestone, $Description, $Head, $Base)
         }
 }
 
+function Update-PullRequestDescription($Url, $Description)
+{
+    $Json = "{" +
+        "`"body`": `"$($Description)`"" +
+    "}"
+
+    Write-Host "Updating pull request description"
+
+    $Response = Invoke-WebRequest `
+        -Uri $Url `
+        -Method Patch `
+        -Body $Json `
+        -Headers @{
+            "X-GitHub-Api-Version"="2022-11-28";
+            "Accept"="application/vnd.github+json";
+            "Authorization"="Bearer $($Token)";
+        }
+}
+
+$Commits = Get-CommitsBetween -Base "origin/release" -Compare "origin/main"
+$Description = (Format-ReleaseDescription -Commits $Commits).Trim().Replace('`"', '\"').Replace("`n", "\n")
+
 $ReleasePullRequests = Get-PullRequests -Base "release"
 if ($ReleasePullRequests.Length -gt 0)
 {
     # release PR already exists
     Write-Host "Release Pull request already exists: $($ReleasePullRequests)"
-    Exit
+    Update-PullRequestDescription -Url $ReleasePullRequests[0].url -Description $Description
 }
-
-$Milestones = Get-OpenMilestones
-if ($Milestones.Length -eq 0)
+else
 {
-    # No milestones
-    Write-Host "No milestones exist"
-    Exit
+    $Milestones = Get-OpenMilestones
+    if ($Milestones.Length -eq 0)
+    {
+        # No milestones
+        Write-Host "No milestones exist"
+        Exit
+    }
+
+    $OldestMilestone = Get-OldestMilestone -Milestones $Milestones
+    Write-Host "Oldest milestone: $($OldestMilestone.title)"
+
+    Create-PullRequest -Milestone $OldestMilestone -Description $Description -Head "main" -Base "release"
 }
-
-$OldestMilestone = Get-OldestMilestone -Milestones $Milestones
-Write-Host "Oldest milestone: $($OldestMilestone.title)"
-
-$Commits = Get-CommitsBetween -Base "origin/release" -Compare "origin/main"
-$Description = Format-ReleaseDescription -Commits $Commits
-
-# Write-Host "Description: $($Description)"
-
-Create-PullRequest -Milestone $OldestMilestone -Description $Description -Head "main" -Base "release"
