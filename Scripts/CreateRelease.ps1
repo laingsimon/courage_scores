@@ -35,8 +35,9 @@ function Get-OpenMilestones()
 
     $title = @{label='title';expression={$_.title}}
     $url = @{label='url';expression={$_.url}}
+    $id = @{label='id';expression={$_.id}}
 
-    return (ConvertFrom-Json -InputObject $Response) | Select-Object -Property $title,$url
+    return (ConvertFrom-Json -InputObject $Response) | Select-Object -Property $title,$url,$id
 }
 
 function Get-OldestMilestone($Milestones)
@@ -177,11 +178,11 @@ function Create-PullRequest($NameAndMilestone, $Description, $Head, $Base)
     Write-Host "Create pull request from $($Head) -> $($Base) for $($NameAndMilestone) via $($Url)"
 
     $Json = "{" +
-        "`"title`":`"$($NameAndMilestone)`"," +
+        "`"title`":`"$($NameAndMilestone.title)`"," +
         "`"body`":`"$($Description.Trim().Replace("`n", "\n"))`"," +
         "`"head`":`"$($Head)`"," +
         "`"base`":`"$($Base)`"," +
-        "`"milestone`": `"$($NameAndMilestone)`"" +
+        "`"milestone`": $($NameAndMilestone.id)" +
     "}"
 
     Write-Host -ForegroundColor Yellow "Body = $($Json)"
@@ -221,4 +222,4 @@ $Description = Format-ReleaseDescription -Commits $Commits
 
 # Write-Host "Description: $($Description)"
 
-Create-PullRequest -NameAndMilestone $OldestMilestone.title -Description $Description -Head "main" -Base "release"
+Create-PullRequest -NameAndMilestone $OldestMilestone -Description $Description -Head "main" -Base "release"
