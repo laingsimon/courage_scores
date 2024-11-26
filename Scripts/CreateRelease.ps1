@@ -168,7 +168,7 @@ function Create-PullRequest($NameAndMilestone, $Description, $Compare, $Base)
     $Url = "https://api.github.com/repos/$($Repo)/pulls"
     Write-Host "Create pull request from $($Compare) -> $($Base) for $($NameAndMilestone) via $($Url)"
 
-    $Json = "{"
+    $Json = "{" +
         "`"title`":`"$($NameAndMilestone)`"," +
         "`"body`":`"$($Description.Replace("`n", "\n"))`"," +
         "`"head`":`"$($Compare)`"," +
