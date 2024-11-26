@@ -139,28 +139,37 @@ function Format-ReleaseDescription($Commits)
             $ChangeDescription = "### Changes`n"
         }
 
-        $ChangeDescription = "$($ChangeDescription)`n- #$($_)`n"
+        Write-Host "'$($_)'"
+        $ChangeDescription = "$($ChangeDescription)- #$($_)`n"
     }
 
     $BugFixes.Keys | ForEach-Object {
         if ($BugFixDescription -eq "")
         {
-            $BugFixDescription = "### Bug Fixes`n"
+            if ($ChangeDescription -ne "")
+            {
+                $BugFixDescription = "`n"
+            }
+            $BugFixDescription = "$($BugFixDescription)### Bug Fixes`n"
         }
 
-        $BugFixDescription = "$($BugFixDescription)`n- #$($_)`n"
+        $BugFixDescription = "$($BugFixDescription)- #$($_)`n"
     }
 
     $Ancillary | ForEach-Object {
         if ($AncillaryDescription -eq "")
         {
-            $AncillaryDescription = "### Ancillary`n"
+            if ($ChangeDescription -ne "" -or $BugFixDescription -ne "")
+            {
+                $AncillaryDescription = "`n"
+            }
+            $AncillaryDescription = "$($AncillaryDescription)### Ancillary`n"
         }
 
-        $AncillaryDescription = "$($AncillaryDescription)`n- $($_)`n"
+        $AncillaryDescription = "$($AncillaryDescription)- $($_)`n"
     }
 
-    return "$($ChangeDescription)`n$($BugFixDescription)`n$($AncillaryDescription)`n"
+    return "$($ChangeDescription)$($BugFixDescription)$($AncillaryDescription)`n"
 }
 
 function Create-PullRequest($NameAndMilestone, $Description, $Head, $Base)
