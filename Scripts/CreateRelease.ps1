@@ -175,7 +175,7 @@ function Format-ReleaseDescription($Commits)
 function Create-PullRequest($Milestone, $Description, $Head, $Base)
 {
     $Url = "https://api.github.com/repos/$($Repo)/pulls"
-    Write-Host "Create pull request from $($Head) -> $($Base) for $($Milestone) via $($Url)"
+    Write-Host "Create pull request from $($Head) -> $($Base) for $($Milestone.title) via $($Url)"
 
     $Json = "{" +
         "`"title`":`"$($Milestone.title)`"," +
@@ -196,6 +196,7 @@ function Create-PullRequest($Milestone, $Description, $Head, $Base)
 
     $PullRequestUrl = (ConvertFrom-Json -InputObject $Response).issue_url
     $UpdateMilestoneBody = "{`"milestone`": $($Milestone.id)}"
+    Write-Host "Update pull request at $($PullRequestUrl) to have $($UpdateMilestoneBody)"
 
     Invoke-WebRequest `
         -Uri $PullRequestUrl `
