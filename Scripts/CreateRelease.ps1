@@ -1,4 +1,4 @@
-﻿$Token=$env:GITHUB_TOKEN
+﻿$Token = $env:GITHUB_TOKEN
 $Repo = $env:GITHUB_REPOSITORY
 
 if ($Repo -eq "" -or $Repo -eq $null)
@@ -181,11 +181,11 @@ function Create-PullRequest($NameAndMilestone, $Description, $Compare, $Base)
     return Invoke-WebRequest `
         -Uri $Url `
         -Method Post `
-        -ContentType "application/json" `
-        -Body "$($Json)"
+        -Body $Json
         -Headers @{
-            Accept="application/vnd.github+json";
-            Authorization="Bearer $($Token)";
+            "X-GitHub-Api-Version"="2022-11-28";
+            "Accept"="application/vnd.github+json";
+            "Authorization"="Bearer $($Token)";
         }
 }
 
