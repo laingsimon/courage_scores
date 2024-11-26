@@ -180,7 +180,7 @@ function Create-PullRequest($NameAndMilestone, $Description, $Head, $Base)
     return Invoke-WebRequest `
         -Uri $Url `
         -Method Post `
-        -Body $Json
+        -Body $Json `
         -Headers @{
             "X-GitHub-Api-Version"="2022-11-28";
             "Accept"="application/vnd.github+json";
