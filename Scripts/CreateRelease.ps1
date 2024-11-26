@@ -212,4 +212,4 @@ $Description = Format-ReleaseDescription -Commits $Commits
 
 # Write-Host "Description: $($Description)"
 
-Create-PullRequest -NameAndMilestone $OldestMilestone -Description $Description -Compare "main" -Base "release"
+Create-PullRequest -NameAndMilestone $OldestMilestone.title -Description $Description -Compare "main" -Base "release"
