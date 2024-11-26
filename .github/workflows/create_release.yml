@@ -19,4 +19,4 @@ jobs:
         shell: pwsh
         run: ./Scripts/CreateRelease.ps1
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.CREATE_RELEASE_PAT }}
