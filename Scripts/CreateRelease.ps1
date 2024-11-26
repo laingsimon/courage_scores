@@ -177,6 +177,8 @@ function Create-PullRequest($NameAndMilestone, $Description, $Compare, $Base)
     }
 "@
 
+    Write-Host -ForegroundColor Yellow "Body = $($Json)"
+
     return Invoke-WebRequest `
         -Uri "https://api.github.com/repos/$($Repo)/pulls" `
         -Method Post `
