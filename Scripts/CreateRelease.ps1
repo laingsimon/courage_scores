@@ -35,9 +35,9 @@ function Get-OpenMilestones()
 
     $title = @{label='title';expression={$_.title}}
     $url = @{label='url';expression={$_.url}}
-    $id = @{label='id';expression={$_.id}}
+    $number = @{label='number';expression={$_.number}}
 
-    return (ConvertFrom-Json -InputObject $Response) | Select-Object -Property $title,$url,$id
+    return (ConvertFrom-Json -InputObject $Response) | Select-Object -Property $title,$url,$number
 }
 
 function Get-OldestMilestone($Milestones)
@@ -195,7 +195,7 @@ function Create-PullRequest($Milestone, $Description, $Head, $Base)
         }
 
     $PullRequestUrl = (ConvertFrom-Json -InputObject $Response).issue_url
-    $UpdateMilestoneBody = "{`"milestone`": $($Milestone.id)}"
+    $UpdateMilestoneBody = "{`"milestone`": $($Milestone.number)}"
     Write-Host "Update pull request at $($PullRequestUrl) to have $($UpdateMilestoneBody)"
 
     Invoke-WebRequest `
