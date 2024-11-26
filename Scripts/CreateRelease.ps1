@@ -172,25 +172,35 @@ function Format-ReleaseDescription($Commits)
     return "$($ChangeDescription)$($BugFixDescription)$($AncillaryDescription)`n"
 }
 
-function Create-PullRequest($NameAndMilestone, $Description, $Head, $Base)
+function Create-PullRequest($Milestone, $Description, $Head, $Base)
 {
     $Url = "https://api.github.com/repos/$($Repo)/pulls"
-    Write-Host "Create pull request from $($Head) -> $($Base) for $($NameAndMilestone) via $($Url)"
+    Write-Host "Create pull request from $($Head) -> $($Base) for $($Milestone) via $($Url)"
 
     $Json = "{" +
-        "`"title`":`"$($NameAndMilestone.title)`"," +
+        "`"title`":`"$($Milestone.title)`"," +
         "`"body`":`"$($Description.Trim().Replace('`"', '\"').Replace("`n", "\n"))`"," +
         "`"head`":`"$($Head)`"," +
-        "`"base`":`"$($Base)`"," +
-        "`"milestone`": $($NameAndMilestone.id)" +
+        "`"base`":`"$($Base)`"" +
     "}"
 
-    Write-Host -ForegroundColor Yellow "Body = $($Json)"
-
-    return Invoke-WebRequest `
+    $Response = Invoke-WebRequest `
         -Uri $Url `
         -Method Post `
         -Body $Json `
+        -Headers @{
+            "X-GitHub-Api-Version"="2022-11-28";
+            "Accept"="application/vnd.github+json";
+            "Authorization"="Bearer $($Token)";
+        }
+
+    $PullRequestUrl = (ConvertFrom-Json -InputObject $Response).issue_url
+    $UpdateMilestoneBody = "{`"milestone`": $($Milestone.id)}"
+
+    Invoke-WebRequest `
+        -Uri $PullRequestUrl `
+        -Method Patch `
+        -Body $UpdateMilestoneBody `
         -Headers @{
             "X-GitHub-Api-Version"="2022-11-28";
             "Accept"="application/vnd.github+json";
@@ -222,4 +232,4 @@ $Description = Format-ReleaseDescription -Commits $Commits
 
 # Write-Host "Description: $($Description)"
 
-Create-PullRequest -NameAndMilestone $OldestMilestone -Description $Description -Head "main" -Base "release"
+Create-PullRequest -Milestone $OldestMilestone -Description $Description -Head "main" -Base "release"
