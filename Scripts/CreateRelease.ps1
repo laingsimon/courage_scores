@@ -167,15 +167,13 @@ function Create-PullRequest($NameAndMilestone, $Description, $Compare, $Base)
 {
     Write-Host "Create pull request from $($Compare) -> $($Base) for $($NameAndMilestone)"
 
-    $Json = @"
-    {
-        "title":"$($NameAndMilestone)",
-        "body":"$($Description)",
-        "head":"$($Compare)",
-        "base":"$($Base)",
-        "milestone": "$($NameAndMilestone)"
-    }
-"@
+    $Json = "{"
+        "`"title`":`"$($NameAndMilestone)`"," +
+        "`"body`":`"$($Description.Replace("`n", "\n"))`"," +
+        "`"head`":`"$($Compare)`"," +
+        "`"base`":`"$($Base)`"," +
+        "`"milestone`": `"$($NameAndMilestone)`"" +
+    "}"
 
     Write-Host -ForegroundColor Yellow "Body = $($Json)"
 
