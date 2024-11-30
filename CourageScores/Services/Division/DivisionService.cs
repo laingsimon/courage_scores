@@ -117,6 +117,7 @@ public class DivisionService : IDivisionService
 
         var notes = await _noteService.GetWhere($"t.SeasonId = '{season.Id}'", token)
             .WhereAsync(n => !filter.DivisionId.Any() || n.DivisionId == null || filter.DivisionId.Contains(n.DivisionId.Value))
+            .WhereAsync(n => filter.IncludeNote(n))
             .ToList();
         var games = await GetGames(filter, season, token);
         var tournamentGames = await _tournamentGameRepository

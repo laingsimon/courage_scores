@@ -33,6 +33,11 @@ public class DivisionDataFilter : IEquatable<DivisionDataFilter>
                && (TeamId == null || game.Sides.Any(s => s.TeamId != null && s.TeamId == TeamId));
     }
 
+    public bool IncludeNote(FixtureDateNoteDto note)
+    {
+        return (Date == null || note.Date == Date.Value);
+    }
+
     public bool Equals(DivisionDataFilter? other)
     {
         return other != null
