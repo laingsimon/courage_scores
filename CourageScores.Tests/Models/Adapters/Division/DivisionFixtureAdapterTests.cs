@@ -1,9 +1,14 @@
-﻿using CourageScores.Models.Adapters.Division;
+﻿using CourageScores.Models;
+using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Team;
+using CourageScores.Repository;
+using CourageScores.Services;
 using CourageScores.Tests.Models.Cosmos.Game;
 using CourageScores.Tests.Services;
+using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
@@ -20,12 +25,18 @@ public class DivisionFixtureAdapterTests
     private TeamDto _awayTeam = null!;
     private DivisionFixtureTeamDto _homeTeamDto = null!;
     private DivisionFixtureTeamDto _awayTeamDto = null!;
+    private Mock<IFeatureService> _featureService = null!;
+    private Mock<ISystemClock> _clock = null!;
+    private DateTimeOffset _now;
 
     [SetUp]
     public void SetupEachTest()
     {
         _divisionFixtureTeamAdapter = new Mock<IDivisionFixtureTeamAdapter>();
-        _adapter = new DivisionFixtureAdapter(_divisionFixtureTeamAdapter.Object);
+        _featureService = new Mock<IFeatureService>();
+        _clock = new Mock<ISystemClock>();
+        _adapter = new DivisionFixtureAdapter(_divisionFixtureTeamAdapter.Object, _featureService.Object, _clock.Object);
+        _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, 07, TimeSpan.Zero);
         _homeTeam = new TeamDto
         {
             Id = Guid.NewGuid(),
@@ -51,6 +62,7 @@ public class DivisionFixtureAdapterTests
         _divisionFixtureTeamAdapter
             .Setup(a => a.Adapt(It.Is<GameTeam>(t => t.Id == _awayTeam.Id), It.IsAny<string>(), _token))
             .ReturnsAsync(_awayTeamDto);
+        _clock.Setup(c => c.UtcNow).Returns(() => _now);
     }
 
     [Test]
@@ -111,6 +123,32 @@ public class DivisionFixtureAdapterTests
         Assert.That(result.HomeTeam, Is.EqualTo(_homeTeamDto));
         Assert.That(result.AwayTeam, Is.EqualTo(_awayTeamDto));
         Assert.That(result.IsKnockout, Is.EqualTo(game.IsKnockout));
+    }
+
+    [Test]
+    public async Task Adapt_WithScoresObscured_SetsHomeAndAwayScoresToNull()
+    {
+        var game = new GameBuilder()
+            .WithAddress("address")
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithMatch(m => m
+                .WithScores(1, 2)
+                .WithHomePlayers(new GamePlayer())
+                .WithAwayPlayers(new GamePlayer()))
+            .WithTeams(_homeTeam, _awayTeam)
+            .WithMatchOption(b => b.NumberOfLegs(3))
+            .Build();
+        var featureValue = new ConfiguredFeatureDto
+        {
+            ConfiguredValue = TimeSpan.FromDays(10).ToString(),
+            ValueType = Feature.FeatureValueType.TimeSpan,
+        };
+        _featureService.Setup(s => s.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(featureValue);
+
+        var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, null, null, _token);
+
+        Assert.That(result.HomeScore, Is.Null);
+        Assert.That(result.AwayScore, Is.Null);
     }
 
     [Test]

@@ -2,6 +2,9 @@ using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
+using CourageScores.Repository;
+using CourageScores.Services;
+using Microsoft.AspNetCore.Authentication;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Models.Adapters.Division;
@@ -9,16 +12,21 @@ namespace CourageScores.Models.Adapters.Division;
 public class DivisionFixtureAdapter : IDivisionFixtureAdapter
 {
     private readonly IDivisionFixtureTeamAdapter _divisionFixtureTeamAdapter;
+    private readonly IFeatureService _featureService;
+    private readonly ISystemClock _clock;
 
-    public DivisionFixtureAdapter(IDivisionFixtureTeamAdapter divisionFixtureTeamAdapter)
+    public DivisionFixtureAdapter(IDivisionFixtureTeamAdapter divisionFixtureTeamAdapter, IFeatureService featureService, ISystemClock clock)
     {
         _divisionFixtureTeamAdapter = divisionFixtureTeamAdapter;
+        _featureService = featureService;
+        _clock = clock;
     }
 
     public async Task<DivisionFixtureDto> Adapt(CosmosGame game, TeamDto? homeTeam, TeamDto? awayTeam, DivisionDto? homeDivision, DivisionDto? awayDivision, CancellationToken token)
     {
         var matches = game.Matches.Where(m => m.Deleted == null).ToArray();
         var numberOfMatchesWithPlayers = matches.Count(m => m.HomePlayers.Any() && m.AwayPlayers.Any());
+        var scoresAreVetoed = await ShouldObscureScores(game, token);
         var showScores = game.IsKnockout
             ? numberOfMatchesWithPlayers >= 4 // knockouts can be won, potentially, after 4 matches have been played
             : numberOfMatchesWithPlayers == matches.Length;
@@ -28,10 +36,10 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
             Id = game.Id,
             HomeTeam = await _divisionFixtureTeamAdapter.Adapt(game.Home, homeTeam?.Address, token),
             AwayTeam = await _divisionFixtureTeamAdapter.Adapt(game.Away, awayTeam?.Address, token),
-            HomeScore = game.Matches.Any() && showScores
+            HomeScore = game.Matches.Any() && showScores && !scoresAreVetoed
                 ? matches.Where((m, index) => IsWinner(m.HomeScore, index, game)).Count()
                 : null,
-            AwayScore = game.Matches.Any() && showScores
+            AwayScore = game.Matches.Any() && showScores && !scoresAreVetoed
                 ? matches.Where((m, index) => IsWinner(m.AwayScore, index, game)).Count()
                 : null,
             Postponed = game.Postponed,
@@ -89,5 +97,13 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
                 Name = game.Away.Name,
             },
         };
+    }
+
+    private async Task<bool> ShouldObscureScores(CosmosGame game, CancellationToken token)
+    {
+        var delayScoresBy = await _featureService.GetFeatureValue(FeatureLookup.VetoScores, token, TimeSpan.Zero);
+        var earliestTimeForScores = game.Date.Add(delayScoresBy);
+
+        return _clock.UtcNow.UtcDateTime < earliestTimeForScores;
     }
 }
