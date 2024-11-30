@@ -174,6 +174,11 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable, IPhotoEn
 
         public void Accept(IVisitorScope scope, IGameVisitor visitor)
         {
+            if (scope.ObscureScores)
+            {
+                return;
+            }
+
             if (_homeScore > _awayScore)
             {
                 visitor.VisitGameWinner(scope, _home);
