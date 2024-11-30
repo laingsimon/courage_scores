@@ -2,7 +2,8 @@ namespace CourageScores.Models.Cosmos.Game;
 
 public interface IVisitorScope
 {
-    Game? Game { get; init; }
-    TournamentGame? Tournament { get; init; }
+    Game? Game { get; }
+    TournamentGame? Tournament { get; }
+    bool ObscureScores { get; }
     IVisitorScope With(IVisitorScope visitorScope);
 }
