@@ -267,6 +267,20 @@ public class GameTests
     }
 
     [Test]
+    public void Accept_GivenVetoedScores_DoesNotVisit180s()
+    {
+        var visitor = new Mock<IGameVisitor>();
+        var player = new GamePlayer();
+        _game.AccoladesCount = true;
+        _game.OneEighties.Add(player);
+        _visitorScope.Setup(s => s.ObscureScores).Returns(true);
+
+        _game.Accept(_visitorScope.Object, visitor.Object);
+
+        visitor.Verify(v => v.VisitOneEighty(It.IsAny<IVisitorScope>(), It.IsAny<IGamePlayer>()), Times.Never);
+    }
+
+    [Test]
     public void Accept_GivenAccoladesCount_VisitsHiChecks()
     {
         var visitor = new Mock<IGameVisitor>();
@@ -277,6 +291,20 @@ public class GameTests
         _game.Accept(_visitorScope.Object, visitor.Object);
 
         visitor.Verify(v => v.VisitHiCheckout(_visitorScope.Object, player));
+    }
+
+    [Test]
+    public void Accept_GivenVetoedScores_DoesNotVisitHiChecks()
+    {
+        var visitor = new Mock<IGameVisitor>();
+        var player = new NotablePlayer();
+        _game.AccoladesCount = true;
+        _game.Over100Checkouts.Add(player);
+        _visitorScope.Setup(s => s.ObscureScores).Returns(true);
+
+        _game.Accept(_visitorScope.Object, visitor.Object);
+
+        visitor.Verify(v => v.VisitHiCheckout(It.IsAny<IVisitorScope>(), It.IsAny<NotablePlayer>()), Times.Never);
     }
 
     [Test]

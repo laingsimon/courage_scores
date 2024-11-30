@@ -127,7 +127,7 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable, IPhotoEn
 
         gameScore.Accept(scope, visitor);
 
-        if (AccoladesCount)
+        if (AccoladesCount && !scope.ObscureScores)
         {
             foreach (var player in OneEighties)
             {
