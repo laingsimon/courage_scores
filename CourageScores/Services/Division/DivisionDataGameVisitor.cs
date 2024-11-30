@@ -40,11 +40,11 @@ public class DivisionDataGameVisitor : IGameVisitor
         game.Accept(new VisitorScope(), playerGamesVisitor);
     }
 
-    public void VisitGame(TournamentGame game)
+    public void VisitGame(TournamentGame tournament)
     {
         _lastGame = null;
-        var playerGamesVisitor = new PlayersToFixturesLookupVisitor(game.Id, game.Date, _divisionData);
-        game.Accept(new VisitorScope(), playerGamesVisitor);
+        var playerGamesVisitor = new PlayersToFixturesLookupVisitor(tournament.Id, tournament.Date, _divisionData);
+        tournament.Accept(new VisitorScope(), playerGamesVisitor);
     }
 
     public void VisitMatchWin(IVisitorScope scope, IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winningScore, int losingScore)
