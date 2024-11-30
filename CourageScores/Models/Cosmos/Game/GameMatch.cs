@@ -58,17 +58,17 @@ public class GameMatch : AuditedEntity, IGameVisitable
 
         if (HomeScore.HasValue && AwayScore.HasValue)
         {
-            if (HomeScore > AwayScore)
+            if (HomeScore > AwayScore && !scope.ObscureScores)
             {
                 visitor.VisitMatchWin(scope, HomePlayers, TeamDesignation.Home, HomeScore.Value, AwayScore.Value);
                 visitor.VisitMatchLost(scope, AwayPlayers, TeamDesignation.Away, AwayScore.Value, HomeScore.Value);
             }
-            else if (AwayScore > HomeScore)
+            if (AwayScore > HomeScore && !scope.ObscureScores)
             {
                 visitor.VisitMatchWin(scope, AwayPlayers, TeamDesignation.Away, AwayScore.Value, HomeScore.Value);
                 visitor.VisitMatchLost(scope, HomePlayers, TeamDesignation.Home, HomeScore.Value, AwayScore.Value);
             }
-            else
+            if (AwayScore == HomeScore)
             {
                 visitor.VisitDataError(scope, $"Match between {string.Join(", ", HomePlayers.Select(p => p.Name))} and {string.Join(", ", AwayPlayers.Select(p => p.Name))} is a {HomeScore}-{AwayScore} draw, scores won't count on players table");
             }

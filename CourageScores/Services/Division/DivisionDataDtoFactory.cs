@@ -8,7 +8,9 @@ using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
+using CourageScores.Repository;
 using CourageScores.Services.Identity;
+using Microsoft.AspNetCore.Authentication;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Services.Division;
@@ -20,19 +22,25 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     private readonly IDivisionPlayerAdapter _divisionPlayerAdapter;
     private readonly IDivisionTeamAdapter _divisionTeamAdapter;
     private readonly IUserService _userService;
+    private readonly ISystemClock _clock;
+    private readonly IFeatureService _featureService;
 
     public DivisionDataDtoFactory(
         IDivisionPlayerAdapter divisionPlayerAdapter,
         IDivisionTeamAdapter divisionTeamAdapter,
         IDivisionDataSeasonAdapter divisionDataSeasonAdapter,
         IDivisionFixtureDateAdapter divisionFixtureDateAdapter,
-        IUserService userService)
+        IUserService userService,
+        ISystemClock clock,
+        IFeatureService featureService)
     {
         _divisionPlayerAdapter = divisionPlayerAdapter;
         _divisionTeamAdapter = divisionTeamAdapter;
         _divisionDataSeasonAdapter = divisionDataSeasonAdapter;
         _divisionFixtureDateAdapter = divisionFixtureDateAdapter;
         _userService = userService;
+        _clock = clock;
+        _featureService = featureService;
     }
 
     public async Task<DivisionDataDto> CreateDivisionDataDto(DivisionDataContext context, IReadOnlyCollection<DivisionDto?> divisions, bool includeProposals, CancellationToken token)
@@ -44,7 +52,13 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         {
             foreach (var game in context.AllGames(division?.Id))
             {
-                game.Accept(visitorScope, gameVisitor);
+                var obscureScores = await ShouldObscureScores(game, token);
+                var scope = new VisitorScope
+                {
+                    ObscureScores = obscureScores,
+                    Game = game,
+                };
+                game.Accept(visitorScope.With(scope), gameVisitor);
             }
         }
         foreach (var tournamentGame in context.AllTournamentGames(divisions.Where(d => d != null).Select(d => d!.Id).ToArray()))
@@ -141,6 +155,14 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             default:
                 return string.Join(" & ", divisions.OrderBy(d => d?.Name).Select(d => d?.Name ?? d?.Id.ToString()));
         }
+    }
+
+    private async Task<bool> ShouldObscureScores(CosmosGame game, CancellationToken token)
+    {
+        var delayScoresBy = await _featureService.GetFeatureValue(FeatureLookup.VetoScores, token, TimeSpan.Zero);
+        var earliestTimeForScores = game.Date.Add(delayScoresBy);
+
+        return _clock.UtcNow.UtcDateTime < earliestTimeForScores;
     }
 
     private async Task<IReadOnlyCollection<DivisionPlayerDto>> AddAllPlayersIfAdmin(IReadOnlyCollection<DivisionPlayerDto> players,
