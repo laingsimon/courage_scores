@@ -76,23 +76,6 @@ public class GameMatchTests
     }
 
     [Test]
-    public void Accept_GivenObscureScoresAndEqualPlayerCountsAndHomeWinner_VisitsMatchHomeWinAndAwayLoss()
-    {
-        var visitor = new Mock<IGameVisitor>();
-        var homePlayer = new GamePlayer();
-        var awayPlayer = new GamePlayer();
-        _match.HomePlayers.Add(homePlayer);
-        _match.AwayPlayers.Add(awayPlayer);
-        _match.HomeScore = 3;
-        _match.AwayScore = 1;
-
-        _match.Accept(ObscureScoresVisitorScope, visitor.Object);
-
-        visitor.Verify(v => v.VisitMatchWin(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
-        visitor.Verify(v => v.VisitMatchLost(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
-    }
-
-    [Test]
     public void Accept_GivenEqualPlayerCountsAndAwayWinner_VisitsMatchHomeLossAndAwayWin()
     {
         var visitor = new Mock<IGameVisitor>();
@@ -107,23 +90,6 @@ public class GameMatchTests
 
         visitor.Verify(v => v.VisitMatchLost(VisitorScope, _match.HomePlayers, TeamDesignation.Home, 1, 3));
         visitor.Verify(v => v.VisitMatchWin(VisitorScope, _match.AwayPlayers, TeamDesignation.Away, 3, 1));
-    }
-
-    [Test]
-    public void Accept_GivenObscureScoresAndEqualPlayerCountsAndAwayWinner_VisitsMatchHomeLossAndAwayWin()
-    {
-        var visitor = new Mock<IGameVisitor>();
-        var homePlayer = new GamePlayer();
-        var awayPlayer = new GamePlayer();
-        _match.HomePlayers.Add(homePlayer);
-        _match.AwayPlayers.Add(awayPlayer);
-        _match.HomeScore = 1;
-        _match.AwayScore = 3;
-
-        _match.Accept(ObscureScoresVisitorScope, visitor.Object);
-
-        visitor.Verify(v => v.VisitMatchWin(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
-        visitor.Verify(v => v.VisitMatchLost(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
     }
 
     [Test]

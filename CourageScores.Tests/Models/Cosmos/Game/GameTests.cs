@@ -154,31 +154,6 @@ public class GameTests
     }
 
     [Test]
-    public void Accept_GivenAwayWinnerAndObscuredScores_DoesNotVisitAwayWinnerOrHomeLoser()
-    {
-        var visitor = new Mock<IGameVisitor>();
-        _game.Matches.Add(new GameMatch
-        {
-            HomePlayers =
-            {
-                new GamePlayer(),
-            },
-            HomeScore = 1,
-            AwayPlayers =
-            {
-                new GamePlayer(),
-            },
-            AwayScore = 2,
-        });
-        _visitorScope.Setup(s => s.ObscureScores).Returns(true);
-
-        _game.Accept(_visitorScope.Object, visitor.Object);
-
-        visitor.Verify(v => v.VisitGameLoser(It.IsAny<IVisitorScope>(), It.IsAny<GameTeam>()), Times.Never);
-        visitor.Verify(v => v.VisitGameWinner(It.IsAny<IVisitorScope>(), It.IsAny<GameTeam>()), Times.Never);
-    }
-
-    [Test]
     public void Accept_GivenHomeWinner_VisitsAwayLoserAndHomeWinner()
     {
         var visitor = new Mock<IGameVisitor>();
@@ -200,31 +175,6 @@ public class GameTests
 
         visitor.Verify(v => v.VisitGameWinner(_visitorScope.Object, _game.Home));
         visitor.Verify(v => v.VisitGameLoser(_visitorScope.Object, _game.Away));
-    }
-
-    [Test]
-    public void Accept_GivenHomeWinnerAndObscuredScores_DoesNotVisitAwayLoserOrHomeWinner()
-    {
-        var visitor = new Mock<IGameVisitor>();
-        _game.Matches.Add(new GameMatch
-        {
-            HomePlayers =
-            {
-                new GamePlayer(),
-            },
-            HomeScore = 2,
-            AwayPlayers =
-            {
-                new GamePlayer(),
-            },
-            AwayScore = 1,
-        });
-        _visitorScope.Setup(s => s.ObscureScores).Returns(true);
-
-        _game.Accept(_visitorScope.Object, visitor.Object);
-
-        visitor.Verify(v => v.VisitGameLoser(It.IsAny<IVisitorScope>(), It.IsAny<GameTeam>()), Times.Never);
-        visitor.Verify(v => v.VisitGameWinner(It.IsAny<IVisitorScope>(), It.IsAny<GameTeam>()), Times.Never);
     }
 
     [Test]
@@ -261,44 +211,6 @@ public class GameTests
         _game.Accept(_visitorScope.Object, visitor.Object);
 
         visitor.Verify(v => v.VisitGameDraw(_visitorScope.Object, _game.Home, _game.Away));
-    }
-
-    [Test]
-    public void Accept_GivenDrawAndObscuredScores_DoesNotVisitDraw()
-    {
-        var visitor = new Mock<IGameVisitor>();
-        _game.Matches.Add(new GameMatch
-        {
-            HomePlayers =
-            {
-                new GamePlayer(),
-            },
-            HomeScore = 3,
-            AwayPlayers =
-            {
-                new GamePlayer(),
-            },
-            AwayScore = 1,
-        });
-        _game.Matches.Add(new GameMatch
-        {
-            HomePlayers =
-            {
-                new GamePlayer(),
-            },
-            HomeScore = 0,
-            AwayPlayers =
-            {
-                new GamePlayer(),
-            },
-            AwayScore = 3,
-        });
-        _visitorScope.Setup(s => s.ObscureScores).Returns(true);
-
-        _game.Accept(_visitorScope.Object, visitor.Object);
-
-        visitor.Verify(v => v.VisitGameLoser(It.IsAny<IVisitorScope>(), It.IsAny<GameTeam>()), Times.Never);
-        visitor.Verify(v => v.VisitGameWinner(It.IsAny<IVisitorScope>(), It.IsAny<GameTeam>()), Times.Never);
     }
 
     [Test]
@@ -355,20 +267,6 @@ public class GameTests
     }
 
     [Test]
-    public void Accept_GivenObscuredScores_DoesNotVisit180s()
-    {
-        var visitor = new Mock<IGameVisitor>();
-        var player = new GamePlayer();
-        _game.AccoladesCount = true;
-        _game.OneEighties.Add(player);
-        _visitorScope.Setup(s => s.ObscureScores).Returns(true);
-
-        _game.Accept(_visitorScope.Object, visitor.Object);
-
-        visitor.Verify(v => v.VisitOneEighty(It.IsAny<IVisitorScope>(), It.IsAny<IGamePlayer>()), Times.Never);
-    }
-
-    [Test]
     public void Accept_GivenAccoladesCount_VisitsHiChecks()
     {
         var visitor = new Mock<IGameVisitor>();
@@ -379,20 +277,6 @@ public class GameTests
         _game.Accept(_visitorScope.Object, visitor.Object);
 
         visitor.Verify(v => v.VisitHiCheckout(_visitorScope.Object, player));
-    }
-
-    [Test]
-    public void Accept_GivenObscuredScores_DoesNotVisitHiChecks()
-    {
-        var visitor = new Mock<IGameVisitor>();
-        var player = new NotablePlayer();
-        _game.AccoladesCount = true;
-        _game.Over100Checkouts.Add(player);
-        _visitorScope.Setup(s => s.ObscureScores).Returns(true);
-
-        _game.Accept(_visitorScope.Object, visitor.Object);
-
-        visitor.Verify(v => v.VisitHiCheckout(It.IsAny<IVisitorScope>(), It.IsAny<NotablePlayer>()), Times.Never);
     }
 
     [Test]

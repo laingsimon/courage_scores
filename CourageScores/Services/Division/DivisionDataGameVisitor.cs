@@ -1,12 +1,13 @@
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Division;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Services.Division;
 
 public class DivisionDataGameVisitor : IGameVisitor
 {
     private readonly DivisionData _divisionData;
-    private Models.Cosmos.Game.Game? _lastGame;
+    private CosmosGame? _lastGame;
 
     public DivisionDataGameVisitor(DivisionData divisionData)
     {
@@ -28,7 +29,7 @@ public class DivisionDataGameVisitor : IGameVisitor
         _divisionData.DataErrors.Add(error);
     }
 
-    public void VisitGame(Models.Cosmos.Game.Game game)
+    public void VisitGame(CosmosGame game)
     {
         _lastGame = game;
         if (game.Postponed)
@@ -325,6 +326,11 @@ public class DivisionDataGameVisitor : IGameVisitor
 
         public void VisitPlayer(IVisitorScope scope, GamePlayer player, int matchPlayerCount)
         {
+            if (scope.ObscureScores)
+            {
+                return;
+            }
+
             if (!_divisionData.PlayersToFixtures.TryGetValue(player.Id, out var gameLookup))
             {
                 gameLookup = new Dictionary<DateTime, Guid>();

@@ -46,27 +46,24 @@ public class GameMatch : AuditedEntity, IGameVisitable
             return;
         }
 
-        if (!scope.ObscureScores)
+        foreach (var player in HomePlayers)
         {
-            foreach (var player in HomePlayers)
-            {
-                visitor.VisitPlayer(scope, player, HomePlayers.Count);
-            }
+            visitor.VisitPlayer(scope, player, HomePlayers.Count);
+        }
 
-            foreach (var player in AwayPlayers)
-            {
-                visitor.VisitPlayer(scope, player, AwayPlayers.Count);
-            }
+        foreach (var player in AwayPlayers)
+        {
+            visitor.VisitPlayer(scope, player, AwayPlayers.Count);
         }
 
         if (HomeScore.HasValue && AwayScore.HasValue)
         {
-            if (HomeScore > AwayScore && !scope.ObscureScores)
+            if (HomeScore > AwayScore)
             {
                 visitor.VisitMatchWin(scope, HomePlayers, TeamDesignation.Home, HomeScore.Value, AwayScore.Value);
                 visitor.VisitMatchLost(scope, AwayPlayers, TeamDesignation.Away, AwayScore.Value, HomeScore.Value);
             }
-            if (AwayScore > HomeScore && !scope.ObscureScores)
+            if (AwayScore > HomeScore)
             {
                 visitor.VisitMatchWin(scope, AwayPlayers, TeamDesignation.Away, AwayScore.Value, HomeScore.Value);
                 visitor.VisitMatchLost(scope, HomePlayers, TeamDesignation.Home, HomeScore.Value, AwayScore.Value);

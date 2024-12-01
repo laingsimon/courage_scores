@@ -127,7 +127,7 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable, IPhotoEn
 
         gameScore.Accept(scope, visitor);
 
-        if (AccoladesCount && !scope.ObscureScores)
+        if (AccoladesCount)
         {
             foreach (var player in OneEighties)
             {
@@ -174,11 +174,6 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable, IPhotoEn
 
         public void Accept(IVisitorScope scope, IGameVisitor visitor)
         {
-            if (scope.ObscureScores)
-            {
-                return;
-            }
-
             if (_homeScore > _awayScore)
             {
                 visitor.VisitGameWinner(scope, _home);
