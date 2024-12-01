@@ -13,30 +13,11 @@ namespace CourageScores.Tests.Services.Division;
 public class DivisionDataGameVisitorTests
 {
     private static readonly SeasonDto Season = new SeasonDtoBuilder().Build();
-    private static readonly GamePlayer HomePlayer1 = new GamePlayer
-    {
-        Id = Guid.NewGuid(),
-        Name = "home_player",
-    };
-    private static readonly GamePlayer HomePlayer2 = new GamePlayer
-    {
-        Id = Guid.NewGuid(),
-    };
-    private static readonly GamePlayer AwayPlayer1 = new GamePlayer
-    {
-        Id = Guid.NewGuid(),
-        Name = "away_player",
-    };
-    private static readonly TeamPlayerDto HomeTeamPlayer = new()
-    {
-        Id = HomePlayer1.Id,
-        Name = "home_player",
-    };
-    private static readonly TeamPlayerDto AwayTeamPlayer = new()
-    {
-        Id = AwayPlayer1.Id,
-        Name = "away_player",
-    };
+    private static readonly GamePlayer HomePlayer1 = DivisionDataGameVisitorTestHelpers.GamePlayer("home_player");
+    private static readonly GamePlayer HomePlayer2 = DivisionDataGameVisitorTestHelpers.GamePlayer("");
+    private static readonly GamePlayer AwayPlayer1 = DivisionDataGameVisitorTestHelpers.GamePlayer("away_player");
+    private static readonly TeamPlayerDto HomeTeamPlayer = DivisionDataGameVisitorTestHelpers.TeamPlayerDto(HomePlayer1);
+    private static readonly TeamPlayerDto AwayTeamPlayer = DivisionDataGameVisitorTestHelpers.TeamPlayerDto(AwayPlayer1);
     private static readonly TeamDto Home = new TeamDtoBuilder()
         .WithName("home")
         .WithSeason(s => s.ForSeason(Season).WithPlayers(HomePlayer1))
@@ -174,14 +155,8 @@ public class DivisionDataGameVisitorTests
         AssertPlayerIds(_divisionData.Players, HomePlayer1, HomePlayer2);
         var player1Scores = _divisionData.Players[HomePlayer1.Id];
         var player2Scores = _divisionData.Players[HomePlayer2.Id];
-        Assert.That(player1Scores.PlayerPlayCount[2].MatchesWon, Is.EqualTo(1));
-        Assert.That(player1Scores.PlayerPlayCount[2].MatchesPlayed, Is.EqualTo(1));
-        Assert.That(player1Scores.PlayerPlayCount[2].PlayerWinRate, Is.EqualTo(3));
-        Assert.That(player1Scores.PlayerPlayCount[2].PlayerLossRate, Is.EqualTo(2));
-        Assert.That(player1Scores.PlayerPlayCount[2].MatchesPlayed, Is.EqualTo(1));
-        Assert.That(player2Scores.PlayerPlayCount[2].MatchesWon, Is.EqualTo(1));
-        Assert.That(player2Scores.PlayerPlayCount[2].PlayerWinRate, Is.EqualTo(3));
-        Assert.That(player2Scores.PlayerPlayCount[2].PlayerLossRate, Is.EqualTo(2));
+        player1Scores.PlayerPlayCount[2].AssertScoreIsEqual(matchesWon: 1, matchesPlayed: 1, playerWinRate: 3, playerLossRate: 2);
+        player2Scores.PlayerPlayCount[2].AssertScoreIsEqual(matchesWon: 1, playerWinRate: 3, playerLossRate: 2);
     }
 
     [Test]
@@ -192,10 +167,8 @@ public class DivisionDataGameVisitorTests
         AssertPlayerIds(_divisionData.Players, HomePlayer1, HomePlayer2);
         var player1Scores = _divisionData.Players[HomePlayer1.Id];
         var player2Scores = _divisionData.Players[HomePlayer2.Id];
-        Assert.That(player1Scores.PlayerPlayCount[2].TeamWinRate, Is.EqualTo(3));
-        Assert.That(player1Scores.PlayerPlayCount[2].TeamLossRate, Is.EqualTo(2));
-        Assert.That(player2Scores.PlayerPlayCount[2].TeamWinRate, Is.EqualTo(0));
-        Assert.That(player2Scores.PlayerPlayCount[2].TeamLossRate, Is.EqualTo(0));
+        player1Scores.PlayerPlayCount[2].AssertScoreIsEqual(teamWinRate: 3, teamLossRate: 2);
+        player2Scores.PlayerPlayCount[2].AssertScoreIsEqual(teamWinRate: 0, teamLossRate: 0);
     }
 
     [Test]
@@ -206,18 +179,8 @@ public class DivisionDataGameVisitorTests
 
         AssertPlayerIds(_divisionData.Players, HomePlayer1, HomePlayer2);
         var player1Scores = _divisionData.Players[HomePlayer1.Id];
-        Assert.That(player1Scores.PlayerPlayCount[2].MatchesWon, Is.EqualTo(1));
-        Assert.That(player1Scores.PlayerPlayCount[2].MatchesPlayed, Is.EqualTo(1));
-        Assert.That(player1Scores.PlayerPlayCount[2].PlayerWinRate, Is.EqualTo(3));
-        Assert.That(player1Scores.PlayerPlayCount[2].PlayerLossRate, Is.EqualTo(2));
-        Assert.That(player1Scores.PlayerPlayCount[2].TeamWinRate, Is.EqualTo(3));
-        Assert.That(player1Scores.PlayerPlayCount[2].TeamLossRate, Is.EqualTo(2));
-        Assert.That(player1Scores.PlayerPlayCount[1].MatchesPlayed, Is.EqualTo(1));
-        Assert.That(player1Scores.PlayerPlayCount[1].MatchesWon, Is.EqualTo(1));
-        Assert.That(player1Scores.PlayerPlayCount[1].PlayerWinRate, Is.EqualTo(3));
-        Assert.That(player1Scores.PlayerPlayCount[1].PlayerLossRate, Is.EqualTo(1));
-        Assert.That(player1Scores.PlayerPlayCount[1].TeamWinRate, Is.EqualTo(3));
-        Assert.That(player1Scores.PlayerPlayCount[1].TeamLossRate, Is.EqualTo(1));
+        player1Scores.PlayerPlayCount[2].AssertScoreIsEqual(matchesWon: 1, matchesPlayed: 1, playerWinRate: 3, playerLossRate: 2, teamWinRate: 3, teamLossRate: 2);
+        player1Scores.PlayerPlayCount[1].AssertScoreIsEqual(matchesWon: 1, matchesPlayed: 1, playerWinRate: 3, playerLossRate: 1, teamWinRate: 3, teamLossRate: 1);
     }
 
     [Test]
@@ -228,14 +191,8 @@ public class DivisionDataGameVisitorTests
         AssertPlayerIds(_divisionData.Players, HomePlayer1, HomePlayer2);
         var player1Scores = _divisionData.Players[HomePlayer1.Id];
         var player2Scores = _divisionData.Players[HomePlayer2.Id];
-        Assert.That(player1Scores.PlayerPlayCount[2].MatchesLost, Is.EqualTo(1));
-        Assert.That(player1Scores.PlayerPlayCount[2].MatchesPlayed, Is.EqualTo(1));
-        Assert.That(player1Scores.PlayerPlayCount[2].PlayerWinRate, Is.EqualTo(2));
-        Assert.That(player1Scores.PlayerPlayCount[2].PlayerLossRate, Is.EqualTo(3));
-        Assert.That(player1Scores.PlayerPlayCount[2].MatchesPlayed, Is.EqualTo(1));
-        Assert.That(player2Scores.PlayerPlayCount[2].MatchesLost, Is.EqualTo(1));
-        Assert.That(player2Scores.PlayerPlayCount[2].PlayerWinRate, Is.EqualTo(2));
-        Assert.That(player2Scores.PlayerPlayCount[2].PlayerLossRate, Is.EqualTo(3));
+        player1Scores.PlayerPlayCount[2].AssertScoreIsEqual(matchesLost: 1, matchesPlayed: 1, playerWinRate: 2, playerLossRate: 3);
+        player2Scores.PlayerPlayCount[2].AssertScoreIsEqual(matchesLost: 1, playerWinRate: 2, playerLossRate: 3);
     }
 
     [Test]
@@ -262,10 +219,8 @@ public class DivisionDataGameVisitorTests
         AssertPlayerIds(_divisionData.Players, HomePlayer1, HomePlayer2);
         var player1Scores = _divisionData.Players[HomePlayer1.Id];
         var player2Scores = _divisionData.Players[HomePlayer2.Id];
-        Assert.That(player1Scores.PlayerPlayCount[2].TeamWinRate, Is.EqualTo(2));
-        Assert.That(player1Scores.PlayerPlayCount[2].TeamLossRate, Is.EqualTo(3));
-        Assert.That(player2Scores.PlayerPlayCount[2].TeamWinRate, Is.EqualTo(0));
-        Assert.That(player2Scores.PlayerPlayCount[2].TeamLossRate, Is.EqualTo(0));
+        player1Scores.PlayerPlayCount[2].AssertScoreIsEqual(teamWinRate: 2, teamLossRate: 3);
+        player2Scores.PlayerPlayCount[2].AssertScoreIsEqual(teamWinRate: 0, teamLossRate: 0);
     }
 
     [Test]
@@ -276,18 +231,8 @@ public class DivisionDataGameVisitorTests
 
         AssertPlayerIds(_divisionData.Players, HomePlayer1, HomePlayer2);
         var player1Scores = _divisionData.Players[HomePlayer1.Id];
-        Assert.That(player1Scores.PlayerPlayCount[2].MatchesLost, Is.EqualTo(1));
-        Assert.That(player1Scores.PlayerPlayCount[2].MatchesPlayed, Is.EqualTo(1));
-        Assert.That(player1Scores.PlayerPlayCount[2].PlayerWinRate, Is.EqualTo(2));
-        Assert.That(player1Scores.PlayerPlayCount[2].PlayerLossRate, Is.EqualTo(3));
-        Assert.That(player1Scores.PlayerPlayCount[2].TeamWinRate, Is.EqualTo(2));
-        Assert.That(player1Scores.PlayerPlayCount[2].TeamLossRate, Is.EqualTo(3));
-        Assert.That(player1Scores.PlayerPlayCount[1].MatchesPlayed, Is.EqualTo(1));
-        Assert.That(player1Scores.PlayerPlayCount[1].MatchesLost, Is.EqualTo(1));
-        Assert.That(player1Scores.PlayerPlayCount[1].PlayerWinRate, Is.EqualTo(1));
-        Assert.That(player1Scores.PlayerPlayCount[1].PlayerLossRate, Is.EqualTo(3));
-        Assert.That(player1Scores.PlayerPlayCount[1].TeamWinRate, Is.EqualTo(1));
-        Assert.That(player1Scores.PlayerPlayCount[1].TeamLossRate, Is.EqualTo(3));
+        player1Scores.PlayerPlayCount[2].AssertScoreIsEqual(matchesLost: 1, matchesPlayed: 1, playerWinRate: 2, playerLossRate: 3);
+        player1Scores.PlayerPlayCount[1].AssertScoreIsEqual(matchesLost: 1, playerWinRate: 1, playerLossRate: 3);
     }
 
     [Test]
