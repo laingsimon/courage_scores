@@ -46,14 +46,17 @@ public class GameMatch : AuditedEntity, IGameVisitable
             return;
         }
 
-        foreach (var player in HomePlayers)
+        if (!scope.ObscureScores)
         {
-            visitor.VisitPlayer(scope, player, HomePlayers.Count);
-        }
+            foreach (var player in HomePlayers)
+            {
+                visitor.VisitPlayer(scope, player, HomePlayers.Count);
+            }
 
-        foreach (var player in AwayPlayers)
-        {
-            visitor.VisitPlayer(scope, player, AwayPlayers.Count);
+            foreach (var player in AwayPlayers)
+            {
+                visitor.VisitPlayer(scope, player, AwayPlayers.Count);
+            }
         }
 
         if (HomeScore.HasValue && AwayScore.HasValue)

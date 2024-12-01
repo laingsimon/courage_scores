@@ -49,7 +49,7 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     public void VisitMatchWin(IVisitorScope scope, IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winningScore, int losingScore)
     {
-        if (scope.Game?.IsKnockout == true)
+        if (scope.Game?.IsKnockout == true || scope.ObscureScores)
         {
             // don't include knockout wins/losses in players table
             return;
@@ -86,7 +86,7 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     public void VisitMatchLost(IVisitorScope scope, IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int losingScore, int winningScore)
     {
-        if (scope.Game?.IsKnockout == true)
+        if (scope.Game?.IsKnockout == true || scope.ObscureScores)
         {
             // don't include knockout wins/losses in players table
             return;
@@ -123,6 +123,11 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     public void VisitOneEighty(IVisitorScope scope, IGamePlayer player)
     {
+        if (scope.ObscureScores)
+        {
+            return;
+        }
+
         if (!_divisionData.Players.TryGetValue(player.Id, out var score))
         {
             score = new DivisionData.PlayerScore
@@ -147,6 +152,11 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     public void VisitHiCheckout(IVisitorScope scope, INotablePlayer player)
     {
+        if (scope.ObscureScores)
+        {
+            return;
+        }
+
         if (!int.TryParse(player.Notes, out var hiCheck))
         {
             return;
@@ -180,7 +190,7 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     public void VisitTeam(IVisitorScope scope, GameTeam team, GameState gameState)
     {
-        if (scope.Game?.IsKnockout == true)
+        if (scope.Game?.IsKnockout == true || scope.ObscureScores)
         {
             // don't include knockout plays in teams table
             return;
@@ -202,7 +212,7 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     public void VisitGameDraw(IVisitorScope scope, GameTeam home, GameTeam away)
     {
-        if (scope.Game?.IsKnockout == true)
+        if (scope.Game?.IsKnockout == true || scope.ObscureScores)
         {
             // don't include knockout draws in teams table
             return;
@@ -227,7 +237,7 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     public void VisitGameWinner(IVisitorScope scope, GameTeam team)
     {
-        if (scope.Game?.IsKnockout == true)
+        if (scope.Game?.IsKnockout == true || scope.ObscureScores)
         {
             // don't include knockout wins in teams table
             return;
@@ -244,7 +254,7 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     public void VisitGameLoser(IVisitorScope scope, GameTeam team)
     {
-        if (scope.Game?.IsKnockout == true)
+        if (scope.Game?.IsKnockout == true || scope.ObscureScores)
         {
             // don't include knockout losses in teams table
             return;
