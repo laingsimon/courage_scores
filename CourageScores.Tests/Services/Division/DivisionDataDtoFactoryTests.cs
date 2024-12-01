@@ -1,3 +1,4 @@
+using CourageScores.Models;
 using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
@@ -5,6 +6,7 @@ using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
+using CourageScores.Repository;
 using CourageScores.Services;
 using CourageScores.Services.Division;
 using CourageScores.Services.Identity;
@@ -201,6 +203,42 @@ public class DivisionDataDtoFactoryTests
         var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
 
         Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[] { InDivisionGame.Date }));
+    }
+
+    [Test]
+    public async Task CreateDivisionDataDto_GivenFixturesAndScoresVetoed_HidesScores()
+    {
+        var vetoedFeature = new ConfiguredFeatureDto
+        {
+            ConfiguredValue = TimeSpan.FromDays(5).ToString(),
+            ValueType = Feature.FeatureValueType.TimeSpan,
+        };
+        _user.SetAccess(manageScores: false);
+        _featureService.Setup(s => s.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(vetoedFeature);
+        var context = Helper.DivisionDataContextBuilder(game: InDivisionGame, tournamentGame: TournamentGame).WithTeam(Team1, Team2).Build();
+
+        var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
+
+        Assert.That(result.Fixtures.SelectMany(f => f.Fixtures).Select(f => f.HomeScore), Has.All.Null);
+        Assert.That(result.Fixtures.SelectMany(f => f.Fixtures).Select(f => f.AwayScore), Has.All.Null);
+    }
+
+    [Test]
+    public async Task CreateDivisionDataDto_GivenFixturesAndScoresVetoedButPermittedToManageScores_ShowsScores()
+    {
+        var vetoedFeature = new ConfiguredFeatureDto
+        {
+            ConfiguredValue = TimeSpan.FromDays(5).ToString(),
+            ValueType = Feature.FeatureValueType.TimeSpan,
+        };
+        _user.SetAccess(manageScores: true);
+        _featureService.Setup(s => s.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(vetoedFeature);
+        var context = Helper.DivisionDataContextBuilder(game: InDivisionGame, tournamentGame: TournamentGame).WithTeam(Team1, Team2).Build();
+
+        var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
+
+        Assert.That(result.Fixtures.SelectMany(f => f.Fixtures).Select(f => f.HomeScore), Has.All.Not.Null);
+        Assert.That(result.Fixtures.SelectMany(f => f.Fixtures).Select(f => f.AwayScore), Has.All.Not.Null);
     }
 
     [Test]

@@ -4,6 +4,7 @@ using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services;
+using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Authentication;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
@@ -14,12 +15,18 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
     private readonly IDivisionFixtureTeamAdapter _divisionFixtureTeamAdapter;
     private readonly IFeatureService _featureService;
     private readonly ISystemClock _clock;
+    private readonly IUserService _userService;
 
-    public DivisionFixtureAdapter(IDivisionFixtureTeamAdapter divisionFixtureTeamAdapter, IFeatureService featureService, ISystemClock clock)
+    public DivisionFixtureAdapter(
+        IDivisionFixtureTeamAdapter divisionFixtureTeamAdapter,
+        IFeatureService featureService,
+        ISystemClock clock,
+        IUserService userService)
     {
         _divisionFixtureTeamAdapter = divisionFixtureTeamAdapter;
         _featureService = featureService;
         _clock = clock;
+        _userService = userService;
     }
 
     public async Task<DivisionFixtureDto> Adapt(CosmosGame game, TeamDto? homeTeam, TeamDto? awayTeam, DivisionDto? homeDivision, DivisionDto? awayDivision, CancellationToken token)
@@ -101,6 +108,14 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
 
     private async Task<bool> ShouldObscureScores(CosmosGame game, CancellationToken token)
     {
+        var user = await _userService.GetUser(token);
+        var canInputResultsForHomeOrAwayTeam = user?.Access?.InputResults == true && (user.TeamId == game.Home.Id || user.TeamId == game.Away.Id);
+        var canRecordScoresForFixture = user?.Access?.ManageScores == true || canInputResultsForHomeOrAwayTeam;
+        if (canRecordScoresForFixture)
+        {
+            return false;
+        }
+
         var delayScoresBy = await _featureService.GetFeatureValue(FeatureLookup.VetoScores, token, TimeSpan.Zero);
         var earliestTimeForScores = game.Date.Add(delayScoresBy);
 

@@ -159,6 +159,14 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
 
     private async Task<bool> ShouldObscureScores(CosmosGame game, CancellationToken token)
     {
+        var user = await _userService.GetUser(token);
+        var canInputResultsForHomeOrAwayTeam = user?.Access?.InputResults == true && (user.TeamId == game.Home.Id || user.TeamId == game.Away.Id);
+        var canRecordScoresForFixture = user?.Access?.ManageScores == true || canInputResultsForHomeOrAwayTeam;
+        if (canRecordScoresForFixture)
+        {
+            return false;
+        }
+
         var delayScoresBy = await _featureService.GetFeatureValue(FeatureLookup.VetoScores, token, TimeSpan.Zero);
         var earliestTimeForScores = game.Date.Add(delayScoresBy);
 

@@ -3,9 +3,11 @@ using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services;
+using CourageScores.Services.Identity;
 using CourageScores.Tests.Models.Cosmos.Game;
 using CourageScores.Tests.Services;
 using Microsoft.AspNetCore.Authentication;
@@ -28,6 +30,8 @@ public class DivisionFixtureAdapterTests
     private Mock<IFeatureService> _featureService = null!;
     private Mock<ISystemClock> _clock = null!;
     private DateTimeOffset _now;
+    private Mock<IUserService> _userService = null!;
+    private UserDto? _user;
 
     [SetUp]
     public void SetupEachTest()
@@ -35,7 +39,8 @@ public class DivisionFixtureAdapterTests
         _divisionFixtureTeamAdapter = new Mock<IDivisionFixtureTeamAdapter>();
         _featureService = new Mock<IFeatureService>();
         _clock = new Mock<ISystemClock>();
-        _adapter = new DivisionFixtureAdapter(_divisionFixtureTeamAdapter.Object, _featureService.Object, _clock.Object);
+        _userService = new Mock<IUserService>();
+        _adapter = new DivisionFixtureAdapter(_divisionFixtureTeamAdapter.Object, _featureService.Object, _clock.Object, _userService.Object);
         _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, 07, TimeSpan.Zero);
         _homeTeam = new TeamDto
         {
@@ -63,6 +68,7 @@ public class DivisionFixtureAdapterTests
             .Setup(a => a.Adapt(It.Is<GameTeam>(t => t.Id == _awayTeam.Id), It.IsAny<string>(), _token))
             .ReturnsAsync(_awayTeamDto);
         _clock.Setup(c => c.UtcNow).Returns(() => _now);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
     }
 
     [Test]
@@ -149,6 +155,39 @@ public class DivisionFixtureAdapterTests
 
         Assert.That(result.HomeScore, Is.Null);
         Assert.That(result.AwayScore, Is.Null);
+    }
+
+    [Test]
+    public async Task Adapt_WithScoresObscuredButUserCanManageScores_SetsHomeAndAwayScoresToResults()
+    {
+        var game = new GameBuilder()
+            .WithAddress("address")
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithMatch(m => m
+                .WithScores(1, 2)
+                .WithHomePlayers(new GamePlayer())
+                .WithAwayPlayers(new GamePlayer()))
+            .WithTeams(_homeTeam, _awayTeam)
+            .WithMatchOption(b => b.NumberOfLegs(3))
+            .Build();
+        var featureValue = new ConfiguredFeatureDto
+        {
+            ConfiguredValue = TimeSpan.FromDays(10).ToString(),
+            ValueType = Feature.FeatureValueType.TimeSpan,
+        };
+        _featureService.Setup(s => s.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(featureValue);
+        _user = new UserDto
+        {
+            Access = new AccessDto
+            {
+                ManageScores = true,
+            }
+        };
+
+        var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, null, null, _token);
+
+        Assert.That(result.HomeScore, Is.EqualTo(0));
+        Assert.That(result.AwayScore, Is.EqualTo(1));
     }
 
     [Test]
