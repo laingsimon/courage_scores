@@ -211,7 +211,7 @@ public class DivisionDataDtoFactoryTests
     public async Task CreateDivisionDataDto_GivenFixturesAndScoresVetoed_HidesScores()
     {
         _vetoedFeature = Helper.GetVetoedFeature(5);
-        _user.SetAccess(manageScores: false);
+        _user = _user.SetAccess(manageScores: false);
         var context = Helper.DivisionDataContextBuilder(game: InDivisionGame, tournamentGame: TournamentGame).WithTeam(Team1, Team2).Build();
 
         var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
@@ -224,7 +224,7 @@ public class DivisionDataDtoFactoryTests
     public async Task CreateDivisionDataDto_GivenFixturesAndScoresVetoedButPermittedToManageScores_ShowsScores()
     {
         _vetoedFeature = Helper.GetVetoedFeature(5);
-        _user.SetAccess(manageScores: true);
+        _user = _user.SetAccess(manageScores: true);
         var context = Helper.DivisionDataContextBuilder(game: InDivisionGame, tournamentGame: TournamentGame).WithTeam(Team1, Team2).Build();
 
         var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
@@ -255,7 +255,7 @@ public class DivisionDataDtoFactoryTests
         var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
 
         Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[] { InDivisionGame.Date }));
-        VerifyFixtureDateAdapterCall(new DateTime(2001, 02, 03), true, new[] { InDivisionGame }, new[] { OutOfDivisionGame });
+        _divisionFixtureDateAdapter.VerifyFixtureDateAdapterCall(_token, new DateTime(2001, 02, 03), true, new[] { InDivisionGame }, new[] { OutOfDivisionGame });
     }
 
     [Test]
@@ -273,7 +273,7 @@ public class DivisionDataDtoFactoryTests
         var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
 
         Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[] { homeTeamInDivisionFixture.Date }));
-        VerifyFixtureDateAdapterCall(new DateTime(2001, 02, 03), true, new[] { homeTeamInDivisionFixture, awayTeamInDivisionFixture });
+        _divisionFixtureDateAdapter.VerifyFixtureDateAdapterCall(_token, new DateTime(2001, 02, 03), true, new[] { homeTeamInDivisionFixture, awayTeamInDivisionFixture });
     }
 
     [Test]
@@ -290,7 +290,7 @@ public class DivisionDataDtoFactoryTests
         var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
 
         Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[] { homeTeamInDivisionFixture.Date }));
-        VerifyFixtureDateAdapterCall(new DateTime(2001, 02, 03), true, Array.Empty<CosmosGame>());
+        _divisionFixtureDateAdapter.VerifyFixtureDateAdapterCall(_token, new DateTime(2001, 02, 03), true, Array.Empty<CosmosGame>());
     }
 
     [Test]
@@ -304,7 +304,7 @@ public class DivisionDataDtoFactoryTests
         var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
 
         Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[] { InDivisionGame.Date }));
-        VerifyFixtureDateAdapterCall(new DateTime(2001, 02, 03), true, new[] { InDivisionGame, OutOfDivisionGame });
+        _divisionFixtureDateAdapter.VerifyFixtureDateAdapterCall(_token, new DateTime(2001, 02, 03), true, new[] { InDivisionGame, OutOfDivisionGame });
     }
 
     [Test]
@@ -531,19 +531,5 @@ public class DivisionDataDtoFactoryTests
         Assert.That(
             result.DataErrors.Select(de => de.Message),
             Is.EquivalentTo(new[] { $"Requested division ({Division1.Id}) was not found, Requested division ({Division2.Id}) was not found" }));
-    }
-
-    private void VerifyFixtureDateAdapterCall(DateTime date, bool includeProposals, CosmosGame[] gamesForDate, CosmosGame[]? otherFixturesForDate = null)
-    {
-        _divisionFixtureDateAdapter.Verify(a => a.Adapt(
-            date,
-            It.Is<CosmosGame[]>(g => g.SequenceEqual(gamesForDate)),
-            It.IsAny<TournamentGame[]>(),
-            It.IsAny<FixtureDateNoteDto[]>(),
-            It.IsAny<IReadOnlyCollection<TeamDto>>(),
-            It.Is<CosmosGame[]>(games => otherFixturesForDate == null || games.SequenceEqual(otherFixturesForDate)),
-            includeProposals,
-            It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
-            _token));
     }
 }

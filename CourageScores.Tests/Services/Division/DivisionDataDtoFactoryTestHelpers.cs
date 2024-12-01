@@ -1,8 +1,11 @@
 using CourageScores.Models;
+using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Season;
+using CourageScores.Models.Dtos.Team;
 using CourageScores.Tests.Models.Cosmos.Game;
+using Moq;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Tests.Services.Division;
@@ -59,12 +62,26 @@ public static class DivisionDataDtoFactoryTestHelpers
         return builder;
     }
 
-    public static ConfiguredFeatureDto? GetVetoedFeature(int days)
+    public static ConfiguredFeatureDto GetVetoedFeature(int days)
     {
         return new ConfiguredFeatureDto
         {
             ConfiguredValue = TimeSpan.FromDays(days).ToString(),
             ValueType = Feature.FeatureValueType.TimeSpan,
         };
+    }
+
+    public static void VerifyFixtureDateAdapterCall(this Mock<IDivisionFixtureDateAdapter> divisionFixtureDateAdapter, CancellationToken token, DateTime date, bool includeProposals, CosmosGame[] gamesForDate, CosmosGame[]? otherFixturesForDate = null)
+    {
+        divisionFixtureDateAdapter.Verify(a => a.Adapt(
+            date,
+            It.Is<CosmosGame[]>(g => g.SequenceEqual(gamesForDate)),
+            It.IsAny<TournamentGame[]>(),
+            It.IsAny<FixtureDateNoteDto[]>(),
+            It.IsAny<IReadOnlyCollection<TeamDto>>(),
+            It.Is<CosmosGame[]>(games => otherFixturesForDate == null || games.SequenceEqual(otherFixturesForDate)),
+            includeProposals,
+            It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
+            token));
     }
 }
