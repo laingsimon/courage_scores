@@ -1,4 +1,3 @@
-using CourageScores.Models;
 using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
@@ -78,6 +77,7 @@ public class DivisionDataDtoFactoryTests
     private Mock<IFeatureService> _featureService = null!;
     private UserDto? _user;
     private DateTimeOffset _now;
+    private ConfiguredFeatureDto? _vetoedFeature;
 
     [SetUp]
     public void SetupEachTest()
@@ -118,8 +118,10 @@ public class DivisionDataDtoFactoryTests
                 {
                     Date = date,
                 });
+        _vetoedFeature = null;
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        _featureService.Setup(s => s.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(() => _vetoedFeature);
     }
 
     [Test]
@@ -208,13 +210,8 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenFixturesAndScoresVetoed_HidesScores()
     {
-        var vetoedFeature = new ConfiguredFeatureDto
-        {
-            ConfiguredValue = TimeSpan.FromDays(5).ToString(),
-            ValueType = Feature.FeatureValueType.TimeSpan,
-        };
+        _vetoedFeature = Helper.GetVetoedFeature(5);
         _user.SetAccess(manageScores: false);
-        _featureService.Setup(s => s.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(vetoedFeature);
         var context = Helper.DivisionDataContextBuilder(game: InDivisionGame, tournamentGame: TournamentGame).WithTeam(Team1, Team2).Build();
 
         var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
@@ -226,13 +223,8 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenFixturesAndScoresVetoedButPermittedToManageScores_ShowsScores()
     {
-        var vetoedFeature = new ConfiguredFeatureDto
-        {
-            ConfiguredValue = TimeSpan.FromDays(5).ToString(),
-            ValueType = Feature.FeatureValueType.TimeSpan,
-        };
+        _vetoedFeature = Helper.GetVetoedFeature(5);
         _user.SetAccess(manageScores: true);
-        _featureService.Setup(s => s.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(vetoedFeature);
         var context = Helper.DivisionDataContextBuilder(game: InDivisionGame, tournamentGame: TournamentGame).WithTeam(Team1, Team2).Build();
 
         var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);

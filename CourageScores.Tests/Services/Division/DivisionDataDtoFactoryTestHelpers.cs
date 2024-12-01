@@ -1,3 +1,4 @@
+using CourageScores.Models;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Season;
@@ -56,5 +57,14 @@ public static class DivisionDataDtoFactoryTestHelpers
             .WithTeams(DivisionDataDtoFactoryTests.Team1, DivisionDataDtoFactoryTests.Team2);
 
         return builder;
+    }
+
+    public static ConfiguredFeatureDto? GetVetoedFeature(int days)
+    {
+        return new ConfiguredFeatureDto
+        {
+            ConfiguredValue = TimeSpan.FromDays(days).ToString(),
+            ValueType = Feature.FeatureValueType.TimeSpan,
+        };
     }
 }
