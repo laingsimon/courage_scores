@@ -21,10 +21,10 @@ public class FindMatchVisitor : IGameVisitor
         }
     }
 
-    public static TournamentMatch? FindMatch(TournamentGame model, Guid matchId)
+    public static TournamentMatch? FindMatch(TournamentGame tournament, Guid matchId)
     {
         var visitor = new FindMatchVisitor(matchId);
-        model.Accept(new VisitorScope(), visitor);
+        tournament.Accept(new VisitorScope(), visitor);
         return visitor.Match;
     }
 }

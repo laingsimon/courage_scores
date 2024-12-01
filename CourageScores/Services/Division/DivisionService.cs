@@ -89,7 +89,7 @@ public class DivisionService : IDivisionService
         var allTeamsInSeason = await _genericTeamService.GetAll(token)
             .WhereAsync(t => t.Seasons.Any(ts => ts.SeasonId == season.Id && ts.Deleted == null) || !t.Seasons.Any()).ToList();
         var context = await CreateDivisionDataContext(filter, season, allTeamsInSeason, divisions, token);
-        return await _divisionDataDtoFactory.CreateDivisionDataDto(context, divisions, !filter.ExcludeProposals, token);
+        return await _divisionDataDtoFactory.CreateDivisionDataDto(context, divisions, !filter.ExcludeProposals && filter.Date == null, token);
     }
 
     private static bool HasAnyDivision(SeasonDto season, IReadOnlyCollection<DivisionDto> divisions)
@@ -117,6 +117,7 @@ public class DivisionService : IDivisionService
 
         var notes = await _noteService.GetWhere($"t.SeasonId = '{season.Id}'", token)
             .WhereAsync(n => !filter.DivisionId.Any() || n.DivisionId == null || filter.DivisionId.Contains(n.DivisionId.Value))
+            .WhereAsync(n => filter.IncludeNote(n))
             .ToList();
         var games = await GetGames(filter, season, token);
         var tournamentGames = await _tournamentGameRepository
