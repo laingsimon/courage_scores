@@ -61,7 +61,8 @@
 
     <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
         <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
-        <Exec WorkingDirectory="$(SpaRoot)" Command="npm install --no-audit --no-fund"/>
+        <!-- legacy-peer-deps is provided to silence the warnings when installing reactstrap which depends on react-popper which has a conflicting peer dependency with react/react-dom -->
+        <Exec WorkingDirectory="$(SpaRoot)" Command="npm install --no-audit --no-fund --legacy-peer-deps"/>
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --outDir $(ProjectDir)$(PublishDir)wwwroot"/>
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm test -- --coverage --reporters=jest-junit --reporters=default" UseUtf8Encoding="Always"/>
 
