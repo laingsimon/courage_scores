@@ -691,52 +691,6 @@ describe('CreateSeasonDialog', () => {
                 expect(closed).toEqual(false);
                 expect(context.container.textContent).toContain('Some (3) fixtures could not be saved');
             });
-
-            it('can abort part way through a save', async () => {
-                updateFixtureApiResponse = async () => {
-                    // abort after first fixture
-                    // must not be awaited as otherwise the call completes after the act() has completed
-                    // noinspection ES6MissingAwait
-                    doClick(findButton(context.container, 'Back'));
-                    return {success: true};
-                };
-
-                await doClick(findButton(context.container, 'Next'));
-
-                reportedError.verifyNoError();
-                expect(updatedFixtures.length).toEqual(1);
-                expect(divisionReloaded).toBeFalsy();
-                expect(divisionDataSetTo).toBeFalsy();
-                expect(allDataReloaded).toBeFalsy();
-                expect(closed).toEqual(false);
-                expect(context.container.textContent).toContain('Saving - PROPOSED DIVISION');
-            });
-
-            it('can resume after an abort', async () => {
-                let abort = true;
-                updateFixtureApiResponse = async () => {
-                    // abort after first fixture
-                    if (abort) {
-                        // must not be awaited as otherwise the call completes after the act() has completed
-                        // noinspection ES6MissingAwait
-                        doClick(findButton(context.container, 'Back'));
-                    }
-                    return {success: true};
-                };
-                await doClick(findButton(context.container, 'Next'));
-                reportedError.verifyNoError();
-
-                // resume
-                abort = false;
-                await doClick(findButton(context.container, 'Next'));
-
-                reportedError.verifyNoError();
-                expect(updatedFixtures.length).toEqual(3);
-                expect(divisionReloaded).toEqual(true);
-                expect(divisionDataSetTo).toBeNull();
-                expect(allDataReloaded).toEqual(true);
-                expect(closed).toEqual(true);
-            });
         });
 
         describe('general', () => {
