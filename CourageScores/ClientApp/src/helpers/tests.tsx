@@ -15,7 +15,6 @@ import {MessageType} from "../interfaces/models/dtos/MessageType";
 import {IPreferenceData, PreferencesContainer} from "../components/common/PreferencesContainer";
 import {Cookies, useCookies} from "react-cookie";
 import {UntypedPromise} from "../interfaces/UntypedPromise";
-import {RouterFutureConfig} from "./router";
 
 /* istanbul ignore file */
 
@@ -256,7 +255,7 @@ export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBr
     const currentPathAsInitialEntry: any = currentPath;
     let root: ReactDOM.Root;
     await act(async () => {
-        const component = (<MemoryRouter initialEntries={[currentPathAsInitialEntry]} future={RouterFutureConfig}>
+        const component = (<MemoryRouter initialEntries={[currentPathAsInitialEntry]}>
             <Routes>
                 <Route path={route} element={<IocContainer {...iocProps}>
                     <BrandingContainer {...brandingProps}>
