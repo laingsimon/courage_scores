@@ -62,6 +62,9 @@
       "!dist/**/*.*",
       "!src/interfaces/apis/**/*.ts",
       "!src/interfaces/models/**/*.ts"
+    ],
+    "setupFiles": [
+      "<rootDir>/setup.jest.js"
     ]
   },
   "scripts": {
