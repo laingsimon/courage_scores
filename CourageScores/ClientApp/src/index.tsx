@@ -1,6 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import {createRoot} from 'react-dom/client';
-import {BrowserRouter} from 'react-router-dom';
+import {BrowserRouter} from 'react-router';
 import {App} from './App';
 import {IIocContainerProps, IocContainer} from "./components/common/IocContainer";
 import {BrandingContainer} from "./components/common/BrandingContainer";

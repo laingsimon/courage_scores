@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import {Link} from "react-router-dom";
+import {Link} from "react-router";
 import {NavLink} from "reactstrap";
 import {DivisionTeams} from "../division_teams/DivisionTeams";
 import {DivisionFixtures} from "../division_fixtures/DivisionFixtures";

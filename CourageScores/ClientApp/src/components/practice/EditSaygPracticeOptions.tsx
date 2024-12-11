@@ -3,7 +3,7 @@ import {ShareButton} from "../common/ShareButton";
 import {useSayg} from "../sayg/SaygLoadingContainer";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {useEditableSayg} from "../sayg/EditableSaygContainer";
-import {useLocation, useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router";
 import {useApp} from "../common/AppContainer";
 
 export function EditSaygPracticeOptions() {

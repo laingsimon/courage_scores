@@ -12,7 +12,7 @@ import {useApp} from "../common/AppContainer";
 import {ReportCollectionDto} from "../../interfaces/models/dtos/Report/ReportCollectionDto";
 import {ReportDto} from "../../interfaces/models/dtos/Report/ReportDto";
 import {ReportRequestDto} from "../../interfaces/models/dtos/Report/ReportRequestDto";
-import {useLocation, useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router";
 import {useBranding} from "../common/BrandingContainer";
 import {IServerSideError} from "../../interfaces/IServerSideError";
 

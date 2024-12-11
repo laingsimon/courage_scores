@@ -10,7 +10,7 @@ import {EditTeamDto} from "../../interfaces/models/dtos/Team/EditTeamDto";
 import {ToggleFavouriteTeam} from "../common/ToggleFavouriteTeam";
 import {usePreferences} from "../common/PreferencesContainer";
 import {any} from "../../helpers/collections";
-import {Link} from "react-router-dom";
+import {Link} from "react-router";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 
 export interface IDivisionTeamProps {

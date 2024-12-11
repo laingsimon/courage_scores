@@ -1,6 +1,6 @@
 ﻿import {act, fireEvent} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {MemoryRouter, Route, Routes} from "react-router-dom";
+import {MemoryRouter, Route, Routes} from "react-router";
 import {IocContainer, IIocContainerProps} from "../components/common/IocContainer";
 import {AppContainer, IAppContainerProps} from "../components/common/AppContainer";
 import ReactDOM from "react-dom/client";

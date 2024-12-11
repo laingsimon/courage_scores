@@ -9,7 +9,7 @@ import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {GamePlayerDto} from "../../interfaces/models/dtos/Game/GamePlayerDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
-import {Link} from "react-router-dom";
+import {Link} from "react-router";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IMultiPlayerSelectionProps {
