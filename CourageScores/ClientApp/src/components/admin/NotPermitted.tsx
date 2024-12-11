@@ -1,6 +1,6 @@
 import {useDependencies} from "../common/IocContainer";
 import {useApp} from "../common/AppContainer";
-import {useLocation} from "react-router-dom";
+import {useLocation} from "react-router";
 
 export function NotPermitted() {
     const {settings} = useDependencies();

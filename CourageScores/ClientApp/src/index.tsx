@@ -1,11 +1,10 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import {createRoot} from 'react-dom/client';
-import {BrowserRouter} from 'react-router-dom';
+import {BrowserRouter} from 'react-router';
 import {App} from './App';
 import {IIocContainerProps, IocContainer} from "./components/common/IocContainer";
 import {BrandingContainer} from "./components/common/BrandingContainer";
 import {IBrandingData} from "./components/common/IBrandingData";
-import {RouterFutureConfig} from "./helpers/router";
 
     interface IConfiguredPage {
     branding?: IBrandingData;
@@ -27,7 +26,7 @@ const branding: IBrandingData = configuredPage.branding || {
 const noServices: IIocContainerProps = null;
 
 root.render(
-    <BrowserRouter basename={baseUrl} future={RouterFutureConfig}>
+    <BrowserRouter basename={baseUrl}>
         <IocContainer {...noServices}>
             <BrandingContainer {...branding}>
                 <App embed={embed} controls={controls}/>

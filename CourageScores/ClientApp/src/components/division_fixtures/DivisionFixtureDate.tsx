@@ -4,7 +4,7 @@ import {FixtureDateNote} from "./FixtureDateNote";
 import {DivisionFixture, IEditableDivisionFixtureDto} from "./DivisionFixture";
 import {TournamentFixture} from "./TournamentFixture";
 import {useApp} from "../common/AppContainer";
-import {useLocation, useNavigate} from "react-router-dom";
+import {useLocation, useNavigate, Link} from "react-router";
 import {useDivisionData} from "../league/DivisionDataContainer";
 import {isInPast, isToday} from "../../helpers/dates";
 import {DivisionFixtureDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDto";
@@ -18,7 +18,6 @@ import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDt
 import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDateNoteDto";
 import {NewTournamentFixture} from "./NewTournamentFixture";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
-import {Link} from "react-router-dom";
 
 export interface IDivisionFixtureDateProps {
     date: IEditableDivisionFixtureDateDto;

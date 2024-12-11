@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react';
 import {Collapse, Navbar, NavbarBrand, NavLink} from 'reactstrap';
-import {Link, useLocation} from 'react-router-dom';
+import {Link, useLocation} from 'react-router';
 import './NavMenu.css';
 import {any, isEmpty} from "../../helpers/collections";
 import {useDependencies} from "../common/IocContainer";

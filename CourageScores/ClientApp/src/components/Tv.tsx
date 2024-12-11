@@ -5,7 +5,7 @@ import {LoadingSpinnerSmall} from "./common/LoadingSpinnerSmall";
 import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
 import {PublicationMode} from "../interfaces/models/dtos/Live/PublicationMode";
 import {useApp} from "./common/AppContainer";
-import {useLocation} from "react-router-dom";
+import {useLocation} from "react-router";
 
 export function Tv() {
     const {liveApi, settings} = useDependencies();

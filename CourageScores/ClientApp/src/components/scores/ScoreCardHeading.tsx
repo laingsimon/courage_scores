@@ -5,7 +5,7 @@ import {count} from "../../helpers/collections";
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {GameMatchDto} from "../../interfaces/models/dtos/Game/GameMatchDto";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
-import {Link} from "react-router-dom";
+import {Link} from "react-router";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 

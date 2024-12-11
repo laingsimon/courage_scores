@@ -6,7 +6,7 @@ import {useDivisionData} from "../league/DivisionDataContainer";
 import {useApp} from "../common/AppContainer";
 import {useBranding} from "../common/BrandingContainer";
 import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
-import {Link} from "react-router-dom";
+import {Link} from "react-router";
 
 export interface ITeamOverviewProps {
     teamId: string;

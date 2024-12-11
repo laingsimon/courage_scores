@@ -1,5 +1,5 @@
 import {ButtonDropdown, DropdownMenu, DropdownToggle} from "reactstrap";
-import {Link, useLocation, useNavigate, useParams} from "react-router-dom";
+import {Link, useLocation, useNavigate, useParams} from "react-router";
 import {useState} from "react";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {Dialog} from "../common/Dialog";
