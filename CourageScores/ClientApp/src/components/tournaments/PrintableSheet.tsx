@@ -28,7 +28,7 @@ import {MultiPlayerSelection} from "../common/MultiPlayerSelection";
 import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
-import {Link} from "react-router-dom";
+import {Link} from "react-router";
 import {ILayoutDataForRound} from "./layout/ILayoutDataForRound";
 import {ILayoutDataForMatch} from "./layout/ILayoutDataForMatch";
 

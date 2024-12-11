@@ -1,7 +1,7 @@
 import {useDependencies} from "./components/common/IocContainer";
 import React, {useEffect, useState} from "react";
 import {Layout} from "./components/layout/Layout";
-import {Route, Routes} from "react-router-dom";
+import {Route, Routes} from "react-router";
 import {Home} from "./components/Home";
 import {Score} from "./components/scores/Score";
 import {AdminHome} from "./components/admin/AdminHome";

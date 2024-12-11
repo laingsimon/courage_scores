@@ -7,7 +7,7 @@ import {valueChanged} from "../../helpers/events";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {TemplateTextEditor} from "./TemplateTextEditor";
 import {TemplateVisualEditor} from "./TemplateVisualEditor";
-import {useLocation} from "react-router-dom";
+import {useLocation} from "react-router";
 import {TemplateDto} from "../../interfaces/models/dtos/Season/Creation/TemplateDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {SeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto";
