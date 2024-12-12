@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react';
-import {Collapse, Navbar, NavbarBrand, NavLink} from 'reactstrap';
-import {Link, useLocation} from 'react-router';
+import {Collapse, Navbar, NavbarBrand} from 'reactstrap';
+import {useLocation} from 'react-router';
 import './NavMenu.css';
 import {any, isEmpty} from "../../helpers/collections";
 import {useDependencies} from "../common/IocContainer";
@@ -12,6 +12,7 @@ import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {AccessDto} from "../../interfaces/models/dtos/Identity/AccessDto";
 import {IError} from "../common/IError";
+import {NavLink} from "../common/NavLink";
 
 export function NavMenu() {
     const {settings} = useDependencies();
@@ -70,14 +71,14 @@ export function NavMenu() {
     function renderMenuItem(menuItem: IMenuItem, index: number, location: string) {
         if (menuItem.url.startsWith('/')) {
             return (<li key={location + '_' + index} className="nav-item">
-                <NavLink tag={Link} className={getClassName(menuItem.url)} onClick={navigate} to={menuItem.url}>
+                <NavLink className={getClassName(menuItem.url)} onClick={navigate} to={menuItem.url}>
                     {menuItem.text}
                 </NavLink>
             </li>);
         }
 
         return (<li key={location + '_' + index} className="nav-item">
-            <NavLink className="nav-link" href={menuItem.url}>{menuItem.text}</NavLink>
+            <a className="nav-link" href={menuItem.url}>{menuItem.text}</a>
         </li>);
     }
 
@@ -123,15 +124,19 @@ export function NavMenu() {
                         {fullScreen ? null : renderItems('beforeDivisions')}
                         {!appLoading && divisions.filter(shouldShowDivision).map((division: DivisionDto) => (
                             <li className="nav-item" key={division.id}>
-                                <NavLink tag={Link} onClick={navigate} to={getDivisionAddress(division)}>
+                                <NavLink onClick={navigate} to={getDivisionAddress(division)}>
                                     {division.name}
                                 </NavLink>
                             </li>))}
                         {fullScreen ? null : renderItems('afterDivisions')}
-                        {appLoading ? (<li className="nav-item"><NavLink><LoadingSpinnerSmall/></NavLink></li>) : null}
+                        {appLoading ? (<li className="nav-item">
+                            <a className="nav-link">
+                                <LoadingSpinnerSmall/>
+                            </a>
+                        </li>) : null}
                         {!appLoading && account && account.access && hasAdminAccess(account.access)
                             ? (<li className="nav-item">
-                                <NavLink tag={Link} onClick={navigate} className={getClassName('/admin')} to={`/admin`}>
+                                <NavLink onClick={navigate} className={getClassName('/admin')} to={`/admin`}>
                                     Admin
                                 </NavLink>
                             </li>)

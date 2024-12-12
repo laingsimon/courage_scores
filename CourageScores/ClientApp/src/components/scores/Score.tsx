@@ -1,7 +1,6 @@
 import {useEffect, useState} from 'react';
-import {Link, useParams} from "react-router";
+import {useParams} from "react-router";
 import {MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
-import {NavLink} from "reactstrap";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {DivisionControls} from "../league/DivisionControls";
 import {any, elementAt, isEmpty, sortBy} from "../../helpers/collections";
@@ -50,6 +49,7 @@ import {PhotoManager} from "../common/PhotoManager";
 import {UploadPhotoDto} from "../../interfaces/models/dtos/UploadPhotoDto";
 import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
 import {useBranding} from "../common/BrandingContainer";
+import {NavLink} from "../common/NavLink";
 
 export interface ICreatePlayerFor {
     side: string;
@@ -593,18 +593,16 @@ export function Score() {
                 overrideMode="fixtures"/>
             <ul className="nav nav-tabs">
                 <li className="nav-item">
-                    <NavLink tag={Link} to={`/teams/${season.name}/?division=${division.name}`}>Teams</NavLink>
+                    <NavLink to={`/teams/${season.name}/?division=${division.name}`}>Teams</NavLink>
                 </li>
                 <li className="nav-item">
-                    <NavLink tag={Link}
-                             to={`/fixtures/${season.name}/?division=${division.name}`}>Fixtures</NavLink>
+                    <NavLink to={`/fixtures/${season.name}/?division=${division.name}`}>Fixtures</NavLink>
                 </li>
                 <li className="nav-item">
-                    <NavLink tag={Link} className="active" to={`/score/${fixtureId}`}>{renderDate(data.date)}</NavLink>
+                    <NavLink className="active" to={`/score/${fixtureId}`}>{renderDate(data.date)}</NavLink>
                 </li>
                 <li className="nav-item">
-                    <NavLink tag={Link}
-                             to={`/players/${season.name}/?division=${division.name}`}>Players</NavLink>
+                    <NavLink to={`/players/${season.name}/?division=${division.name}`}>Players</NavLink>
                 </li>
             </ul>
             <LeagueFixtureContainer {...leagueFixtureData}>

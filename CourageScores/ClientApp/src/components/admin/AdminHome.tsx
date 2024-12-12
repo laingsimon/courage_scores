@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Link, useParams} from "react-router";
-import {NavLink} from "reactstrap";
+import {useParams} from "react-router";
 import {UserAdmin} from "./UserAdmin";
 import {ImportData} from "./ImportData";
 import {ExportData} from "./ExportData";
@@ -17,6 +16,7 @@ import {TableDto} from "../../interfaces/models/dtos/Data/TableDto";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {FeatureAdmin} from "./FeatureAdmin";
 import {useBranding} from "../common/BrandingContainer";
+import {NavLink} from "../common/NavLink";
 
 export function AdminHome() {
     const {mode} = useParams();
@@ -68,36 +68,28 @@ export function AdminHome() {
             {appLoading ? (<Loading/>) : null}
             {!appLoading && account ? (<ul className="nav nav-tabs">
                 {access.manageAccess ? (<li className="nav-item">
-                    <NavLink tag={Link} className={effectiveTab === 'user' ? ' active' : ''}
-                             to={`/admin/user`}>User admin</NavLink>
+                    <NavLink className={effectiveTab === 'user' ? ' active' : ''} to={`/admin/user`}>User admin</NavLink>
                 </li>) : null}
                 {access.importData ? (<li className="nav-item">
-                    <NavLink tag={Link} className={effectiveTab === 'import' ? ' active' : ''}
-                             to={`/admin/import`}>Import data</NavLink>
+                    <NavLink className={effectiveTab === 'import' ? ' active' : ''} to={`/admin/import`}>Import data</NavLink>
                 </li>) : null}
                 {access.exportData ? (<li className="nav-item">
-                    <NavLink tag={Link} className={effectiveTab === 'export' ? ' active' : ''}
-                             to={`/admin/export`}>Export data</NavLink>
+                    <NavLink className={effectiveTab === 'export' ? ' active' : ''} to={`/admin/export`}>Export data</NavLink>
                 </li>) : null}
                 {access.viewExceptions ? (<li className="nav-item">
-                    <NavLink tag={Link} className={effectiveTab === 'errors' ? '  active' : ''}
-                             to={`/admin/errors`}>Errors</NavLink>
+                    <NavLink className={effectiveTab === 'errors' ? '  active' : ''} to={`/admin/errors`}>Errors</NavLink>
                 </li>) : null}
                 {access.manageSeasonTemplates ? (<li className="nav-item">
-                    <NavLink tag={Link} className={effectiveTab === 'templates' ? '  active' : ''}
-                             to={`/admin/templates`}>Templates</NavLink>
+                    <NavLink className={effectiveTab === 'templates' ? '  active' : ''} to={`/admin/templates`}>Templates</NavLink>
                 </li>) : null}
                 {access.manageSockets ? (<li className="nav-item">
-                    <NavLink tag={Link} className={effectiveTab === 'sockets' ? '  active' : ''}
-                             to={`/admin/sockets`}>Sockets</NavLink>
+                    <NavLink className={effectiveTab === 'sockets' ? '  active' : ''} to={`/admin/sockets`}>Sockets</NavLink>
                 </li>) : null}
                 {access.exportData ? (<li className="nav-item">
-                    <NavLink tag={Link} className={effectiveTab === 'browser' ? '  active' : ''}
-                             to={`/admin/browser`}>Data Browser</NavLink>
+                    <NavLink className={effectiveTab === 'browser' ? '  active' : ''} to={`/admin/browser`}>Data Browser</NavLink>
                 </li>) : null}
                 {access.manageFeatures ? (<li className="nav-item">
-                    <NavLink tag={Link} className={effectiveTab === 'features' ? '  active' : ''}
-                             to={`/admin/features`}>Features</NavLink>
+                    <NavLink className={effectiveTab === 'features' ? '  active' : ''} to={`/admin/features`}>Features</NavLink>
                 </li>) : null}
             </ul>) : null}
             {!appLoading && adminLoading ? <Loading/> : (<AdminContainer tables={dataTables} accounts={accounts}>
