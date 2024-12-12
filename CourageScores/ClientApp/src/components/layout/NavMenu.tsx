@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react';
-import {Collapse, Navbar, NavbarBrand} from 'reactstrap';
 import {useLocation} from 'react-router';
 import './NavMenu.css';
 import {any, isEmpty} from "../../helpers/collections";
@@ -112,14 +111,15 @@ export function NavMenu() {
 
     try {
         return (<header className="d-print-none" data-state={collapsed ? 'collapsed' : 'expanded'}>
-            <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container>
-                {fullScreen ? null : (<NavbarBrand onClick={() => setCollapsed(!collapsed)} className="me-auto">Menu</NavbarBrand>)}
+            <nav className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3 navbar">
+                <div className="container">
+                {fullScreen ? null : (<span onClick={() => setCollapsed(!collapsed)} className="me-auto navbar-brand">Menu</span>)}
                 <button onClick={() => setCollapsed(!collapsed)} type="button" className="mr-2 navbar-toggler">
                     {appLoading
                         ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>)
                         : (<span className="navbar-toggler-icon"></span>)}
                 </button>
-                <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!collapsed} navbar>
+                <div className={`d-sm-inline-flex flex-sm-row-reverse collapse${collapsed ? '' : ' show'} navbar-collapse`}>
                     <ul className="navbar-nav flex-grow">
                         {fullScreen ? null : renderItems('beforeDivisions')}
                         {!appLoading && divisions.filter(shouldShowDivision).map((division: DivisionDto) => (
@@ -149,8 +149,9 @@ export function NavMenu() {
                                 <a className="nav-link" href={`${getAccountUrl('Login')}`}>Login</a> : null}
                         </li>) : null}
                     </ul>
-                </Collapse>
-            </Navbar>
+                </div>
+                </div>
+            </nav>
         </header>);
     } catch (e) {
         const error: Error = e as Error;
