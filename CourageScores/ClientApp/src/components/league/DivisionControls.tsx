@@ -1,4 +1,4 @@
-import {ButtonDropdown, DropdownMenu, DropdownToggle} from "reactstrap";
+import {ButtonDropdown, DropdownMenu, DropdownToggle} from "../common/ButtonDropdown";
 import {Link, useLocation, useNavigate, useParams} from "react-router";
 import {useState} from "react";
 import {ErrorDisplay} from "../common/ErrorDisplay";
@@ -188,7 +188,7 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
                     {isSeasonAdmin && originalSeasonData ? '✏' : ''}
                 </button>
                 {seasons.length
-                    ? (<DropdownToggle caret color={isSeasonAdmin ? 'info' : 'light'}></DropdownToggle>)
+                    ? (<DropdownToggle color={isSeasonAdmin ? 'info' : 'light'}></DropdownToggle>)
                     : null}
                 {seasons.length ? (<DropdownMenu>
                     {seasons.sort(sortBy('startDate', true)).map(renderSeasonOption)}
@@ -209,7 +209,7 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
                         {isDivisionAdmin ? '✏' : ''}
                     </button>
                     {divisions.filter(shouldShowDivision).length > 1 || isDivisionAdmin ? (
-                        <DropdownToggle caret color={isDivisionAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
+                        <DropdownToggle color={isDivisionAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
                     {divisions.filter(shouldShowDivision).length > 1 || isDivisionAdmin ? (<DropdownMenu>
                         {divisions.filter(shouldShowDivision).sort(sortBy('name')).map(renderDivisionOption)}
                         {isDivisionAdmin ? (<button className="dropdown-item" onClick={() => setDivisionData({} as DivisionDto)}>
