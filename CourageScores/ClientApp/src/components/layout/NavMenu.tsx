@@ -1,6 +1,5 @@
 import {useEffect, useState} from 'react';
-import {Collapse, Navbar, NavbarBrand, NavLink} from 'reactstrap';
-import {Link, useLocation} from 'react-router';
+import {useLocation} from 'react-router';
 import './NavMenu.css';
 import {any, isEmpty} from "../../helpers/collections";
 import {useDependencies} from "../common/IocContainer";
@@ -12,6 +11,7 @@ import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {AccessDto} from "../../interfaces/models/dtos/Identity/AccessDto";
 import {IError} from "../common/IError";
+import {NavLink} from "../common/NavLink";
 
 export function NavMenu() {
     const {settings} = useDependencies();
@@ -70,14 +70,14 @@ export function NavMenu() {
     function renderMenuItem(menuItem: IMenuItem, index: number, location: string) {
         if (menuItem.url.startsWith('/')) {
             return (<li key={location + '_' + index} className="nav-item">
-                <NavLink tag={Link} className={getClassName(menuItem.url)} onClick={navigate} to={menuItem.url}>
+                <NavLink className={getClassName(menuItem.url)} onClick={navigate} to={menuItem.url}>
                     {menuItem.text}
                 </NavLink>
             </li>);
         }
 
         return (<li key={location + '_' + index} className="nav-item">
-            <NavLink className="nav-link" href={menuItem.url}>{menuItem.text}</NavLink>
+            <a className="nav-link" href={menuItem.url}>{menuItem.text}</a>
         </li>);
     }
 
@@ -111,27 +111,32 @@ export function NavMenu() {
 
     try {
         return (<header className="d-print-none" data-state={collapsed ? 'collapsed' : 'expanded'}>
-            <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container>
-                {fullScreen ? null : (<NavbarBrand onClick={() => setCollapsed(!collapsed)} className="me-auto">Menu</NavbarBrand>)}
+            <nav className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3 navbar">
+                <div className="container">
+                {fullScreen ? null : (<span onClick={() => setCollapsed(!collapsed)} className="me-auto navbar-brand">Menu</span>)}
                 <button onClick={() => setCollapsed(!collapsed)} type="button" className="mr-2 navbar-toggler">
                     {appLoading
                         ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>)
                         : (<span className="navbar-toggler-icon"></span>)}
                 </button>
-                <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!collapsed} navbar>
+                <div className={`d-sm-inline-flex flex-sm-row-reverse collapse${collapsed ? '' : ' show'} navbar-collapse`}>
                     <ul className="navbar-nav flex-grow">
                         {fullScreen ? null : renderItems('beforeDivisions')}
                         {!appLoading && divisions.filter(shouldShowDivision).map((division: DivisionDto) => (
                             <li className="nav-item" key={division.id}>
-                                <NavLink tag={Link} onClick={navigate} to={getDivisionAddress(division)}>
+                                <NavLink onClick={navigate} to={getDivisionAddress(division)}>
                                     {division.name}
                                 </NavLink>
                             </li>))}
                         {fullScreen ? null : renderItems('afterDivisions')}
-                        {appLoading ? (<li className="nav-item"><NavLink><LoadingSpinnerSmall/></NavLink></li>) : null}
+                        {appLoading ? (<li className="nav-item">
+                            <a className="nav-link">
+                                <LoadingSpinnerSmall/>
+                            </a>
+                        </li>) : null}
                         {!appLoading && account && account.access && hasAdminAccess(account.access)
                             ? (<li className="nav-item">
-                                <NavLink tag={Link} onClick={navigate} className={getClassName('/admin')} to={`/admin`}>
+                                <NavLink onClick={navigate} className={getClassName('/admin')} to={`/admin`}>
                                     Admin
                                 </NavLink>
                             </li>)
@@ -144,8 +149,9 @@ export function NavMenu() {
                                 <a className="nav-link" href={`${getAccountUrl('Login')}`}>Login</a> : null}
                         </li>) : null}
                     </ul>
-                </Collapse>
-            </Navbar>
+                </div>
+                </div>
+            </nav>
         </header>);
     } catch (e) {
         const error: Error = e as Error;
