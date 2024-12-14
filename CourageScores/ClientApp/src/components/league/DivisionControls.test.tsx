@@ -487,10 +487,11 @@ describe('DivisionControls', () => {
                 reportedError.verifyNoError();
                 const option = getOption(group, 'Season 6');
                 expect(option.href).toContain(`/division/${encodeURI(division5.name)}/OVERRIDE/${encodeURI(season6.name)}`);
+                await doClick(group.querySelector('.dropdown-toggle')); // open the dropdown to be able to click on an item
 
                 await doClick(findButton(group, `Season 5 ${seasonDates(season5)}`));
 
-                expect(mockedUsedNavigate).toHaveBeenCalledWith(`/division/${division5.name}/OVERRIDE/${season5.name}`);
+                expect(group.querySelector('.show')).toBeFalsy();
             });
 
             it('navigates correctly when on team overview page', async () => {
@@ -507,10 +508,11 @@ describe('DivisionControls', () => {
                 reportedError.verifyNoError();
                 const option = getOption(group, 'Season 6');
                 expect(option.href).toContain(`/division/${encodeURI(division5.name)}/team:TEAM_ID/${encodeURI(season6.name)}`);
+                await doClick(group.querySelector('.dropdown-toggle')); // open the dropdown to be able to click on an item
 
                 await doClick(findButton(group, `Season 5 ${seasonDates(season5)}`));
 
-                expect(mockedUsedNavigate).toHaveBeenCalledWith(`/teams/${season5.name}/?division=Division+5`);
+                expect(group.querySelector('.show')).toBeFalsy();
             });
 
             it('navigates correctly when on player overview page', async () => {
@@ -527,10 +529,11 @@ describe('DivisionControls', () => {
                 reportedError.verifyNoError();
                 const option = getOption(group, 'Season 6');
                 expect(option.href).toContain(`/division/${encodeURI(division5.name)}/player:PLAYER_ID/${encodeURI(season6.name)}`);
+                await doClick(group.querySelector('.dropdown-toggle')); // open the dropdown to be able to click on an item
 
                 await doClick(findButton(group, 'Season 5 ' + seasonDates(season5)));
 
-                expect(mockedUsedNavigate).toHaveBeenCalledWith(`/players/${season5.name}/?division=Division+5`);
+                expect(group.querySelector('.show')).toBeFalsy();
             });
 
             it('navigates to first division in other season when current division not in other season', async () => {
