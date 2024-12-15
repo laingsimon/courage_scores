@@ -23,13 +23,6 @@ import {seasonBuilder} from "../../helpers/builders/seasons";
 import {IDivisionApi} from "../../interfaces/apis/IDivisionApi";
 import {ISeasonApi} from "../../interfaces/apis/ISeasonApi";
 
-const mockedUsedNavigate = jest.fn();
-
-jest.mock('react-router', () => ({
-    ...jest.requireActual('react-router'),
-    useNavigate: () => mockedUsedNavigate,
-}));
-
 describe('DivisionControls', () => {
     let context: TestContext;
     let reportedError: ErrorState;
