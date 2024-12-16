@@ -1,15 +1,14 @@
 using CourageScores.Models.Cosmos;
 using CourageScores.Services.Identity;
-using Microsoft.Extensions.Internal;
 
 namespace CourageScores.Services;
 
 public class AuditingHelper : IAuditingHelper
 {
-    private readonly ISystemClock _clock;
+    private readonly TimeProvider _clock;
     private readonly IUserService _userService;
 
-    public AuditingHelper(ISystemClock clock, IUserService userService)
+    public AuditingHelper(TimeProvider clock, IUserService userService)
     {
         _clock = clock;
         _userService = userService;
@@ -24,7 +23,7 @@ public class AuditingHelper : IAuditingHelper
             model.Remover = user.Name;
         }
 
-        model.Deleted = _clock.UtcNow.UtcDateTime;
+        model.Deleted = _clock.GetUtcNow().UtcDateTime;
     }
 
     public async Task SetUpdated<T>(T model, CancellationToken token)
@@ -42,11 +41,11 @@ public class AuditingHelper : IAuditingHelper
             }
         }
 
-        model.Updated = _clock.UtcNow.UtcDateTime;
+        model.Updated = _clock.GetUtcNow().UtcDateTime;
         if (model.Created == default)
         {
             // upon creation of an entity
-            model.Created = _clock.UtcNow.UtcDateTime;
+            model.Created = _clock.GetUtcNow().UtcDateTime;
         }
 
         // If something is being edited, then it shouldn't be deleted.

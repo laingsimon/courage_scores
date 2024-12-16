@@ -10,7 +10,6 @@ using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services.Identity;
-using Microsoft.AspNetCore.Authentication;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Services.Division;
@@ -22,7 +21,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     private readonly IDivisionPlayerAdapter _divisionPlayerAdapter;
     private readonly IDivisionTeamAdapter _divisionTeamAdapter;
     private readonly IUserService _userService;
-    private readonly ISystemClock _clock;
+    private readonly TimeProvider _clock;
     private readonly IFeatureService _featureService;
 
     public DivisionDataDtoFactory(
@@ -31,7 +30,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         IDivisionDataSeasonAdapter divisionDataSeasonAdapter,
         IDivisionFixtureDateAdapter divisionFixtureDateAdapter,
         IUserService userService,
-        ISystemClock clock,
+        TimeProvider clock,
         IFeatureService featureService)
     {
         _divisionPlayerAdapter = divisionPlayerAdapter;
@@ -170,7 +169,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         var delayScoresBy = await _featureService.GetFeatureValue(FeatureLookup.VetoScores, token, TimeSpan.Zero);
         var earliestTimeForScores = game.Date.Add(delayScoresBy);
 
-        return _clock.UtcNow.UtcDateTime < earliestTimeForScores;
+        return _clock.GetUtcNow().UtcDateTime < earliestTimeForScores;
     }
 
     private async Task<IReadOnlyCollection<DivisionPlayerDto>> AddAllPlayersIfAdmin(IReadOnlyCollection<DivisionPlayerDto> players,

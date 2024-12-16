@@ -1,7 +1,6 @@
 using CourageScores.Models.Adapters.Season;
 using CourageScores.Models.Dtos;
 using CourageScores.Tests.Services;
-using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
 
@@ -13,7 +12,7 @@ public class SeasonAdapterTests
     private static readonly CourageScores.Models.Cosmos.Division Division = new();
     private static readonly DivisionDto DivisionDto = new();
     private readonly CancellationToken _token = new();
-    private Mock<ISystemClock> _clock = null!;
+    private Mock<TimeProvider> _clock = null!;
     private SeasonAdapter _adapter = null!;
     private DateTimeOffset _now;
 
@@ -21,12 +20,12 @@ public class SeasonAdapterTests
     public void SetupEachTest()
     {
         _now = new DateTimeOffset(2001, 02, 03, 0, 0, 0, TimeSpan.Zero);
-        _clock = new Mock<ISystemClock>();
+        _clock = new Mock<TimeProvider>();
         _adapter = new SeasonAdapter(
             new MockAdapter<CourageScores.Models.Cosmos.Division, DivisionDto>(Division, DivisionDto),
             _clock.Object);
 
-        _clock.Setup(c => c.UtcNow).Returns(() => _now);
+        _clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
     }
 
     [Test]

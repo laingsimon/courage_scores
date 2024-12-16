@@ -5,7 +5,6 @@ using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 using CourageScores.Repository;
 using CourageScores.Services.Identity;
-using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services;
 
@@ -18,7 +17,7 @@ public class FeatureService : IFeatureService
     private readonly IUserService _userService;
     private readonly IFeatureLookup _featureLookup;
     private readonly LoadedFeatures _loadedFeatures;
-    private readonly ISystemClock _clock;
+    private readonly TimeProvider _clock;
 
     public FeatureService(
         IGenericRepository<ConfiguredFeature> repository,
@@ -28,7 +27,7 @@ public class FeatureService : IFeatureService
         IUserService userService,
         IFeatureLookup featureLookup,
         LoadedFeatures loadedFeatures,
-        ISystemClock clock)
+        TimeProvider clock)
     {
         _repository = repository;
         _featureAdapter = featureAdapter;
@@ -97,20 +96,20 @@ public class FeatureService : IFeatureService
         {
             // creation of the configuration
             configuredFeature.Author = user.Name;
-            configuredFeature.Created = _clock.UtcNow.UtcDateTime;
+            configuredFeature.Created = _clock.GetUtcNow().UtcDateTime;
         }
 
         if (string.IsNullOrEmpty(configuredFeature.ConfiguredValue))
         {
             // delete the existing configuration
-            configuredFeature.Deleted = _clock.UtcNow.UtcDateTime;
+            configuredFeature.Deleted = _clock.GetUtcNow().UtcDateTime;
             configuredFeature.Remover = user.Name;
         }
         else
         {
             // update an existing configuration and/or undelete it
             configuredFeature.Editor = user.Name;
-            configuredFeature.Updated = _clock.UtcNow.UtcDateTime;
+            configuredFeature.Updated = _clock.GetUtcNow().UtcDateTime;
             configuredFeature.Deleted = null;
             configuredFeature.Remover = null;
         }

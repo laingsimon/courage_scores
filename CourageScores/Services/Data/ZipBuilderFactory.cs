@@ -1,17 +1,16 @@
 using CourageScores.Models.Dtos.Data;
-using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Data;
 
 public class ZipBuilderFactory : IZipBuilderFactory
 {
-    private readonly ISystemClock _clock;
+    private readonly TimeProvider _clock;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IJsonSerializerService _serializer;
 
     public ZipBuilderFactory(
         IHttpContextAccessor httpContextAccessor,
-        ISystemClock clock,
+        TimeProvider clock,
         IJsonSerializerService serializer)
     {
         _httpContextAccessor = httpContextAccessor;
@@ -29,7 +28,7 @@ public class ZipBuilderFactory : IZipBuilderFactory
         var apiRequest = _httpContextAccessor.HttpContext?.Request;
         var metaData = new ExportMetaData
         {
-            Created = _clock.UtcNow.UtcDateTime,
+            Created = _clock.GetUtcNow().UtcDateTime,
             Creator = userName,
             Hostname = apiRequest!.Host.ToString(),
 #pragma warning disable CS0618

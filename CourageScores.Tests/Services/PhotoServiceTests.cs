@@ -5,7 +5,6 @@ using CourageScores.Models.Dtos.Identity;
 using CourageScores.Repository;
 using CourageScores.Services;
 using CourageScores.Services.Identity;
-using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
 
@@ -18,7 +17,7 @@ public class PhotoServiceTests
     private Mock<IUserService> _userService = null!;
     private Mock<IPhotoRepository> _photoRepository = null!;
     private Mock<IPhotoHelper> _photoHelper = null!;
-    private Mock<ISystemClock> _clock = null!;
+    private Mock<TimeProvider> _clock = null!;
     private Mock<IFeatureService> _featureService = null!;
     private UserDto? _user;
 
@@ -37,7 +36,7 @@ public class PhotoServiceTests
         _photoRepository = new Mock<IPhotoRepository>();
         _photoHelper = new Mock<IPhotoHelper>();
         _featureService = new Mock<IFeatureService>();
-        _clock = new Mock<ISystemClock>();
+        _clock = new Mock<TimeProvider>();
         _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         _resizedBytes = new byte[] { 5, 6, 7, 8 };
         _settings = new MutablePhotoSettings
@@ -67,7 +66,7 @@ public class PhotoServiceTests
             ConfiguredValue = "true",
         };
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _clock.Setup(c => c.UtcNow).Returns(_now);
+        _clock.Setup(c => c.GetUtcNow()).Returns(_now);
         _photoRepository.Setup(r => r.Get(_existingPhoto.Id, _token)).ReturnsAsync(_existingPhoto);
         _featureService.Setup(s => s.Get(FeatureLookup.Photos, _token)).ReturnsAsync(() => _featureState);
 

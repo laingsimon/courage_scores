@@ -71,7 +71,7 @@ public class ExceptionHandler
             return false;
         }
 
-        var debugQueryString = (string)httpContext.Request.Query["debugToken"];
+        var debugQueryString = (string?)httpContext.Request.Query["debugToken"];
         return !string.IsNullOrEmpty(debugQueryString)
                && debugQueryString.Equals(_debugToken, StringComparison.OrdinalIgnoreCase);
     }

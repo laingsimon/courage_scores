@@ -2,20 +2,19 @@ using CourageScores.Models.Adapters;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Repository;
 using CourageScores.Services.Identity;
-using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Season;
 
 public class SeasonService : GenericDataService<Models.Cosmos.Season.Season, SeasonDto>, ISeasonService
 {
-    private readonly ISystemClock _clock;
+    private readonly TimeProvider _clock;
 
     public SeasonService(
         IGenericRepository<Models.Cosmos.Season.Season> repository,
         IAdapter<Models.Cosmos.Season.Season, SeasonDto> adapter,
         IUserService userService,
         IAuditingHelper auditingHelper,
-        ISystemClock clock,
+        TimeProvider clock,
         IActionResultAdapter actionResultAdapter)
         : base(repository, adapter, userService, auditingHelper, actionResultAdapter)
     {
@@ -24,7 +23,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season.Season, Sea
 
     public async Task<SeasonDto?> GetLatest(CancellationToken token)
     {
-        var today = _clock.UtcNow.Date;
+        var today = _clock.GetUtcNow().Date;
         return await GetForDate(today, token);
     }
 

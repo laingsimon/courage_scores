@@ -4,13 +4,12 @@ using CourageScores.Repository;
 using CourageScores.Services.Division;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
-using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Report;
 
 public class ReportService : IReportService
 {
-    private readonly ISystemClock _clock;
+    private readonly TimeProvider _clock;
     private readonly IReportFactory _reportFactory;
     private readonly ICachingDivisionService _divisionService;
     private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
@@ -24,7 +23,7 @@ public class ReportService : IReportService
         ICachingDivisionService divisionService,
         IGenericRepository<Models.Cosmos.Game.Game> gameRepository,
         IGenericRepository<TournamentGame> tournamentRepository,
-        ISystemClock clock,
+        TimeProvider clock,
         IReportFactory reportFactory)
     {
         _userService = userService;
@@ -85,7 +84,7 @@ public class ReportService : IReportService
             {
                 $"{gameCount} games inspected",
             },
-            Created = _clock.UtcNow.UtcDateTime,
+            Created = _clock.GetUtcNow().UtcDateTime,
         };
     }
 
@@ -99,7 +98,7 @@ public class ReportService : IReportService
             {
                 reason,
             },
-            Created = _clock.UtcNow.UtcDateTime,
+            Created = _clock.GetUtcNow().UtcDateTime,
         };
     }
 }
