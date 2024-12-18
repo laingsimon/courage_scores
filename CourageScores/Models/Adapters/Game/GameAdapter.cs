@@ -6,7 +6,6 @@ using CourageScores.Models.Dtos.Game;
 using CourageScores.Repository;
 using CourageScores.Services;
 using CourageScores.Services.Identity;
-using Microsoft.AspNetCore.Authentication;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Models.Adapters.Game;
@@ -20,7 +19,7 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
     private readonly ISimpleAdapter<PhotoReference, PhotoReferenceDto> _photoReferenceAdapter;
     private readonly IFeatureService _featureService;
     private readonly IUserService _userService;
-    private readonly ISystemClock _clock;
+    private readonly TimeProvider _clock;
     private readonly IAdapter<NotablePlayer, NotablePlayerDto> _notablePlayerAdapter;
     private readonly Random _random;
 
@@ -33,7 +32,7 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
         ISimpleAdapter<PhotoReference, PhotoReferenceDto> photoReferenceAdapter,
         IFeatureService featureService,
         IUserService userService,
-        ISystemClock clock,
+        TimeProvider clock,
         Random random)
     {
         _gameMatchAdapter = gameMatchAdapter;
@@ -138,6 +137,6 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
         var delayScoresBy = await _featureService.GetFeatureValue(FeatureLookup.VetoScores, token, TimeSpan.Zero);
         var earliestTimeForScores = game.Date.Add(delayScoresBy);
 
-        return _clock.UtcNow.UtcDateTime < earliestTimeForScores;
+        return _clock.GetUtcNow().UtcDateTime < earliestTimeForScores;
     }
 }

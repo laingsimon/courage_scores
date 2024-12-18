@@ -2,7 +2,7 @@ import {useState} from "react";
 import {valueChanged} from "../../helpers/events";
 import {useDependencies} from "../common/IocContainer";
 import {useApp} from "../common/AppContainer";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";

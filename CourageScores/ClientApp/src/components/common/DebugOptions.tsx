@@ -1,4 +1,4 @@
-import {ButtonDropdown, DropdownMenu, DropdownToggle} from "reactstrap";
+import {ButtonDropdown, DropdownMenu, DropdownToggle} from "./ButtonDropdown";
 import React, {useState} from "react";
 import {useApp} from "./AppContainer";
 
@@ -16,7 +16,7 @@ export function DebugOptions({ children }: IDebugOptionsProps) {
     }
 
     return (<ButtonDropdown isOpen={open} toggle={() => setOpen(!open)} datatype="debug-options">
-        <DropdownToggle caret color="info">
+        <DropdownToggle color="info">
             Debug options
         </DropdownToggle>
         <DropdownMenu>

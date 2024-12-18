@@ -1,4 +1,4 @@
-import {Link} from "react-router-dom";
+import {Link} from "react-router";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {useState} from "react";
 import {CreateTournamentSaygDto} from "../../interfaces/models/dtos/Game/CreateTournamentSaygDto";

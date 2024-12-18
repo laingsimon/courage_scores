@@ -10,7 +10,7 @@ If ($NpmOutdatedResult.ExitCode -ne 0)
 }
 else
 {
-    $Output = "no outdated modules"
+    $Output = "#### $($OutdatedCommentHeading)`nno outdated modules"
 }
 
 Write-Output $Output

@@ -2,7 +2,6 @@ using System.Net.WebSockets;
 using System.Text;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Live;
-using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Live;
 
@@ -10,7 +9,7 @@ public class WebSocketContract : IWebSocketContract
 {
     private readonly IJsonSerializerService _serializerService;
     private readonly IWebSocketMessageProcessor _processor;
-    private readonly ISystemClock _systemClock;
+    private readonly TimeProvider _systemClock;
     private readonly WebSocket _socket;
     private readonly HashSet<Guid> _subscribedIds = new HashSet<Guid>();
 
@@ -19,7 +18,7 @@ public class WebSocketContract : IWebSocketContract
         IJsonSerializerService serializerService,
         IWebSocketMessageProcessor processor,
         WebSocketDetail details,
-        ISystemClock systemClock)
+        TimeProvider systemClock)
     {
         Details = details;
         _socket = socket;
@@ -98,7 +97,7 @@ public class WebSocketContract : IWebSocketContract
         {
             await _socket.SendAsync(segment, WebSocketMessageType.Text, true, token);
             Details.SentMessages++;
-            Details.LastSent = _systemClock.UtcNow;
+            Details.LastSent = _systemClock.GetUtcNow();
         }
         catch (WebSocketException)
         {
@@ -126,7 +125,7 @@ public class WebSocketContract : IWebSocketContract
 
     private async Task ProcessMessage(byte[] messageBytes, CancellationToken token)
     {
-        Details.LastReceipt = _systemClock.UtcNow;
+        Details.LastReceipt = _systemClock.GetUtcNow();
         Details.ReceivedMessages++;
         var dto = _serializerService.DeserialiseTo<LiveMessageDto>(Encoding.UTF8.GetString(messageBytes));
         switch (dto.Type)

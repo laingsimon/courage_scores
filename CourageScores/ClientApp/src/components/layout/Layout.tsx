@@ -1,4 +1,3 @@
-import {Container} from 'reactstrap';
 import {NavMenu} from './NavMenu';
 import {Heading} from "./Heading";
 import {PageError} from "../common/PageError";
@@ -20,9 +19,9 @@ export function Layout({children}: ILayoutProps) {
 
     if (embed) {
         return (<div>
-            {error ? renderError() : (<Container>
+            {error ? renderError() : (<div className="container">
                 {children}
-            </Container>)}
+            </div>)}
         </div>);
     }
 
@@ -31,9 +30,9 @@ export function Layout({children}: ILayoutProps) {
             <div>
                 {hideHeaderAndFooter ? null : (<Heading/>)}
                 <NavMenu/>
-                {error ? renderError() : (<Container className="full-screen-print-mode">
+                {error ? renderError() : (<div className="full-screen-print-mode container">
                     {children}
-                </Container>)}
+                </div>)}
                 {hideHeaderAndFooter ? null : (<Footer/>)}
             </div>
         );

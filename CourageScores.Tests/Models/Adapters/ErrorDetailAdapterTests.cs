@@ -1,7 +1,6 @@
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -16,7 +15,7 @@ public class ErrorDetailAdapterTests
     private Mock<IHttpContextAccessor> _httpContextAccessor = null!;
     private DefaultHttpContext _httpContext = null!;
     private ErrorDetailAdapter _adapter = null!;
-    private Mock<ISystemClock> _clock = null!;
+    private Mock<TimeProvider> _clock = null!;
     private DateTimeOffset _now;
 
     [SetUp]
@@ -37,12 +36,12 @@ public class ErrorDetailAdapterTests
                 QueryString = new QueryString("?some-queryString"),
             },
         };
-        _clock = new Mock<ISystemClock>();
+        _clock = new Mock<TimeProvider>();
         _now = new DateTimeOffset(new DateTime(2001, 02, 03), TimeSpan.Zero);
         _adapter = new ErrorDetailAdapter(_httpContextAccessor.Object, _clock.Object);
 
         _httpContextAccessor.Setup(a => a.HttpContext).Returns(() => _httpContext);
-        _clock.Setup(c => c.UtcNow).Returns(_now);
+        _clock.Setup(c => c.GetUtcNow()).Returns(_now);
     }
 
     [Test]

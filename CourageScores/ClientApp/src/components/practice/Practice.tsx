@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {useLocation, useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router";
 import {useApp} from "../common/AppContainer";
 import {ILoadedScoreAsYouGoDto, SaygLoadingContainer} from "../sayg/SaygLoadingContainer";
 import {EditSaygPracticeOptions} from "./EditSaygPracticeOptions";

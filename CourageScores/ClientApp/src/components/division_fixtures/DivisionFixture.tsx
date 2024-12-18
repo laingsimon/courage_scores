@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {Link} from "react-router-dom";
+import {Link} from "react-router";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {renderDate} from "../../helpers/rendering";
