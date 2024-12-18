@@ -9,10 +9,10 @@ namespace CourageScores;
 
 public class ExceptionHandler
 {
-    private readonly string _debugToken;
+    private readonly string? _debugToken;
     private readonly bool _includeErrorDetails;
 
-    public ExceptionHandler(bool includeErrorDetails, string debugToken)
+    public ExceptionHandler(bool includeErrorDetails, string? debugToken)
     {
         _includeErrorDetails = includeErrorDetails;
         _debugToken = debugToken;
