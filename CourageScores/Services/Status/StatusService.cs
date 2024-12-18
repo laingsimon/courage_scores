@@ -3,7 +3,6 @@ using CourageScores.Models.Dtos.Status;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Live;
 using CourageScores.Services.Season;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace CourageScores.Services.Status;
 
