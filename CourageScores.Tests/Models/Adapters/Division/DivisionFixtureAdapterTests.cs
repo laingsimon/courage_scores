@@ -10,7 +10,6 @@ using CourageScores.Services;
 using CourageScores.Services.Identity;
 using CourageScores.Tests.Models.Cosmos.Game;
 using CourageScores.Tests.Services;
-using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
@@ -28,7 +27,7 @@ public class DivisionFixtureAdapterTests
     private DivisionFixtureTeamDto _homeTeamDto = null!;
     private DivisionFixtureTeamDto _awayTeamDto = null!;
     private Mock<IFeatureService> _featureService = null!;
-    private Mock<ISystemClock> _clock = null!;
+    private Mock<TimeProvider> _clock = null!;
     private DateTimeOffset _now;
     private Mock<IUserService> _userService = null!;
     private UserDto? _user;
@@ -38,7 +37,7 @@ public class DivisionFixtureAdapterTests
     {
         _divisionFixtureTeamAdapter = new Mock<IDivisionFixtureTeamAdapter>();
         _featureService = new Mock<IFeatureService>();
-        _clock = new Mock<ISystemClock>();
+        _clock = new Mock<TimeProvider>();
         _userService = new Mock<IUserService>();
         _adapter = new DivisionFixtureAdapter(_divisionFixtureTeamAdapter.Object, _featureService.Object, _clock.Object, _userService.Object);
         _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, 07, TimeSpan.Zero);
@@ -67,7 +66,7 @@ public class DivisionFixtureAdapterTests
         _divisionFixtureTeamAdapter
             .Setup(a => a.Adapt(It.Is<GameTeam>(t => t.Id == _awayTeam.Id), It.IsAny<string>(), _token))
             .ReturnsAsync(_awayTeamDto);
-        _clock.Setup(c => c.UtcNow).Returns(() => _now);
+        _clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
     }
 

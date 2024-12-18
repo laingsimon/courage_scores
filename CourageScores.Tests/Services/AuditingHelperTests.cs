@@ -2,7 +2,6 @@ using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services;
 using CourageScores.Services.Identity;
-using Microsoft.Extensions.Internal;
 using Moq;
 using NUnit.Framework;
 
@@ -12,7 +11,7 @@ namespace CourageScores.Tests.Services;
 public class AuditingHelperTests
 {
 #pragma warning disable CS8618
-    private Mock<ISystemClock> _clock;
+    private Mock<TimeProvider> _clock;
     private Mock<IUserService> _userService;
     private AuditingHelper _helper;
     private CancellationToken _token;
@@ -21,7 +20,7 @@ public class AuditingHelperTests
     [SetUp]
     public void Setup()
     {
-        _clock = new Mock<ISystemClock>();
+        _clock = new Mock<TimeProvider>();
         _token = new CancellationToken();
         _userService = new Mock<IUserService>();
         _helper = new AuditingHelper(_clock.Object, _userService.Object);
@@ -38,7 +37,7 @@ public class AuditingHelperTests
         };
         var now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => loggedIn ? user : null);
-        _clock.Setup(c => c.UtcNow).Returns(now);
+        _clock.Setup(c => c.GetUtcNow()).Returns(now);
 
         await _helper.SetUpdated(model, _token);
 
@@ -61,7 +60,7 @@ public class AuditingHelperTests
         };
         var now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => loggedIn ? user : null);
-        _clock.Setup(c => c.UtcNow).Returns(now);
+        _clock.Setup(c => c.GetUtcNow()).Returns(now);
 
         await _helper.SetUpdated(model, _token);
 
@@ -87,7 +86,7 @@ public class AuditingHelperTests
         };
         var now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
-        _clock.Setup(c => c.UtcNow).Returns(now);
+        _clock.Setup(c => c.GetUtcNow()).Returns(now);
 
         await _helper.SetUpdated(model, _token);
 
@@ -111,7 +110,7 @@ public class AuditingHelperTests
         };
         var now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
-        _clock.Setup(c => c.UtcNow).Returns(now);
+        _clock.Setup(c => c.GetUtcNow()).Returns(now);
 
         await _helper.SetDeleted(model, _token);
 
@@ -129,7 +128,7 @@ public class AuditingHelperTests
         };
         var now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => null);
-        _clock.Setup(c => c.UtcNow).Returns(now);
+        _clock.Setup(c => c.GetUtcNow()).Returns(now);
 
         await _helper.SetDeleted(model, _token);
 

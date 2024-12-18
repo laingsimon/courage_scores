@@ -83,7 +83,7 @@ public class CachingDataService<TModel, TDto> : IGenericDataService<TModel, TDto
                 key,
             });
         }
-        return await _cache.GetOrCreateAsync(key, _ => provider());
+        return (await _cache.GetOrCreateAsync(key, _ => provider()))!;
     }
 
     private bool IsNoCacheRequest()

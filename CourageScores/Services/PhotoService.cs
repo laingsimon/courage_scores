@@ -3,7 +3,6 @@ using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 using CourageScores.Repository;
 using CourageScores.Services.Identity;
-using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services;
 
@@ -12,7 +11,7 @@ public class PhotoService : IPhotoService
     private readonly IUserService _userService;
     private readonly IPhotoRepository _photoRepository;
     private readonly IPhotoHelper _photoHelper;
-    private readonly ISystemClock _clock;
+    private readonly TimeProvider _clock;
     private readonly IPhotoSettings _settings;
     private readonly IFeatureService _featureService;
 
@@ -20,7 +19,7 @@ public class PhotoService : IPhotoService
         IUserService userService,
         IPhotoRepository photoRepository,
         IPhotoHelper photoHelper,
-        ISystemClock clock,
+        TimeProvider clock,
         IPhotoSettings settings,
         IFeatureService featureService)
     {
@@ -55,10 +54,10 @@ public class PhotoService : IPhotoService
             ? user.Name
             : photo.Author;
         photo.Created = photo.Created == default
-            ? _clock.UtcNow.UtcDateTime
+            ? _clock.GetUtcNow().UtcDateTime
             : photo.Created;
         photo.Editor = user.Name;
-        photo.Updated = _clock.UtcNow.UtcDateTime;
+        photo.Updated = _clock.GetUtcNow().UtcDateTime;
         photo.PhotoBytes = resizedPhoto.Result;
 
         await _photoRepository.Upsert(photo, token);
@@ -69,7 +68,7 @@ public class PhotoService : IPhotoService
             {
                 Id = photo.Id,
                 Author = user.Name,
-                Created = _clock.UtcNow,
+                Created = _clock.GetUtcNow(),
                 FileSize = resizedPhoto.Result.Length,
                 ContentType = photo.ContentType,
                 FileName = photo.FileName,
@@ -132,7 +131,7 @@ public class PhotoService : IPhotoService
             return Warning<Photo>("You can only delete your own photos");
         }
 
-        currentPhoto.Deleted = _clock.UtcNow.UtcDateTime;
+        currentPhoto.Deleted = _clock.GetUtcNow().UtcDateTime;
         currentPhoto.Remover = user!.Name;
         await _photoRepository.Upsert(currentPhoto, token);
 

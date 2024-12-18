@@ -32,7 +32,7 @@ public class InterceptingMemoryCache : ICache
         _keys.Remove(key, out _);
     }
 
-    public bool TryGetValue(object key, out object value)
+    public bool TryGetValue(object key, out object? value)
     {
         return _cache.TryGetValue(key, out value);
     }

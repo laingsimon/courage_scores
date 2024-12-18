@@ -3,16 +3,15 @@ using System.Runtime.CompilerServices;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Live;
 using CourageScores.Models.Live;
-using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Live;
 
 public class PublishUpdatesProcessor : IWebSocketMessageProcessor
 {
     private readonly ICollection<IWebSocketContract> _sockets;
-    private readonly ISystemClock _clock;
+    private readonly TimeProvider _clock;
 
-    public PublishUpdatesProcessor(ICollection<IWebSocketContract> sockets, ISystemClock clock)
+    public PublishUpdatesProcessor(ICollection<IWebSocketContract> sockets, TimeProvider clock)
     {
         _sockets = sockets;
         _clock = clock;
@@ -89,6 +88,6 @@ public class PublishUpdatesProcessor : IWebSocketMessageProcessor
             details.Publishing.Add(existingDetails);
         }
 
-        existingDetails.LastUpdate = _clock.UtcNow;
+        existingDetails.LastUpdate = _clock.GetUtcNow();
     }
 }

@@ -9,10 +9,10 @@ namespace CourageScores;
 
 public class ExceptionHandler
 {
-    private readonly string _debugToken;
+    private readonly string? _debugToken;
     private readonly bool _includeErrorDetails;
 
-    public ExceptionHandler(bool includeErrorDetails, string debugToken)
+    public ExceptionHandler(bool includeErrorDetails, string? debugToken)
     {
         _includeErrorDetails = includeErrorDetails;
         _debugToken = debugToken;
@@ -71,7 +71,7 @@ public class ExceptionHandler
             return false;
         }
 
-        var debugQueryString = (string)httpContext.Request.Query["debugToken"];
+        var debugQueryString = (string?)httpContext.Request.Query["debugToken"];
         return !string.IsNullOrEmpty(debugQueryString)
                && debugQueryString.Equals(_debugToken, StringComparison.OrdinalIgnoreCase);
     }

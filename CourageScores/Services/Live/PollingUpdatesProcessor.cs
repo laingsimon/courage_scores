@@ -3,17 +3,16 @@ using System.Runtime.CompilerServices;
 using CourageScores.Models.Dtos.Live;
 using CourageScores.Models.Live;
 using CourageScores.Services.Identity;
-using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Live;
 
 public class PollingUpdatesProcessor : IWebSocketMessageProcessor, IUpdatedDataSource
 {
     private readonly ConcurrentDictionary<Guid, UpdateData> _dataStore;
-    private readonly ISystemClock _clock;
+    private readonly TimeProvider _clock;
     private readonly IUserService _userService;
 
-    public PollingUpdatesProcessor(ConcurrentDictionary<Guid, UpdateData> dataStore, ISystemClock clock, IUserService userService)
+    public PollingUpdatesProcessor(ConcurrentDictionary<Guid, UpdateData> dataStore, TimeProvider clock, IUserService userService)
     {
         _dataStore = dataStore;
         _clock = clock;
@@ -29,7 +28,7 @@ public class PollingUpdatesProcessor : IWebSocketMessageProcessor, IUpdatedDataS
     {
         var user = await _userService.GetUser(token);
 
-        var record = new UpdateData(dataType, id, dto, _clock.UtcNow, user?.Name);
+        var record = new UpdateData(dataType, id, dto, _clock.GetUtcNow(), user?.Name);
         _dataStore.AddOrUpdate(id, record, (_, _) => record);
     }
 
