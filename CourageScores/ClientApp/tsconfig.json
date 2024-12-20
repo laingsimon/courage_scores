@@ -14,7 +14,7 @@
     "alwaysStrict": true,
     "strict": false,
     "strictBindCallApply": true,
-    "strictFunctionTypes": false,
+    "strictFunctionTypes": true,
     "noUnusedLocals": true,
     "strictNullChecks": false,
     "strictPropertyInitialization": false,

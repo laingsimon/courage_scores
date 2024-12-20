@@ -90,7 +90,7 @@ ${newNewMatch.sideA ? newNewMatch.sideA.name : ''} vs ${newNewMatch.sideB ? newN
         }
     }
 
-    function sideSelection(side: { id: string, name: string}): IBootstrapDropdownItem {
+    function sideSelection(side: TournamentSideDto): IBootstrapDropdownItem {
         return {
             value: side.id,
             text: side.name

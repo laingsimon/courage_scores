@@ -30,7 +30,7 @@ export function valueChanged<T>(get: T, set: Dispatch<SetStateAction<T>> | ((val
 * Returned function will return the newly set data
 * */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export function propChanged<T>(get: T, set: Dispatch<SetStateAction<T>>, prop?: string): (x: any, y?: any) => UntypedPromise {
+export function propChanged<T>(get: T, set: Dispatch<SetStateAction<T>> | ((value: T) => UntypedPromise), prop?: string): (x: any, y?: any) => UntypedPromise {
     /* eslint-disable @typescript-eslint/no-explicit-any */
     const setProp = (prop: string, value: any) => {
         /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -51,7 +51,7 @@ export function propChanged<T>(get: T, set: Dispatch<SetStateAction<T>>, prop?: 
 /*
 * Set a state property based on an input changing
 * */
-export function stateChanged<T>(set: Dispatch<SetStateAction<T>>) {
+export function stateChanged<T>(set: Dispatch<SetStateAction<T>> | ((value: T) => UntypedPromise) | ((value: T) => void)) {
     /* eslint-disable @typescript-eslint/no-explicit-any */
     return (event: any) => {
         /* eslint-disable @typescript-eslint/no-explicit-any */

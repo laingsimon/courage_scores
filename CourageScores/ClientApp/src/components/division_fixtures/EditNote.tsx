@@ -13,7 +13,7 @@ import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IEditNoteProps {
     note: EditFixtureDateNoteDto;
-    onNoteChanged(newNote: FixtureDateNoteDto): UntypedPromise;
+    onNoteChanged(newNote: EditFixtureDateNoteDto): UntypedPromise;
     onClose(): UntypedPromise;
     onSaved?(): UntypedPromise;
 }
