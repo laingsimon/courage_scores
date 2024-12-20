@@ -265,7 +265,7 @@ describe('DivisionReports', () => {
             await doClick(findButton(context.container, '📊 Get reports...'));
 
             reportedError.verifyNoError();
-            const reportOptions = Array.from(context.container.querySelectorAll('.content-background div.btn-group > div[role="menu"] > button')) as HTMLButtonElement[];
+            const reportOptions = Array.from(context.container.querySelectorAll('.content-background div.btn-group div[role="menu"] > button')) as HTMLButtonElement[];
             expect(reportOptions.map(li => li.textContent)).toEqual(['A report description', 'Another report description']);
         });
 

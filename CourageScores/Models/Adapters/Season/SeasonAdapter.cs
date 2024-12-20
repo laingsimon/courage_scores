@@ -1,16 +1,15 @@
 ﻿using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Services;
-using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Models.Adapters.Season;
 
 public class SeasonAdapter : IAdapter<Cosmos.Season.Season, SeasonDto>
 {
-    private readonly ISystemClock _clock;
+    private readonly TimeProvider _clock;
     private readonly IAdapter<Cosmos.Division, DivisionDto> _divisionAdapter;
 
-    public SeasonAdapter(IAdapter<Cosmos.Division, DivisionDto> divisionAdapter, ISystemClock clock)
+    public SeasonAdapter(IAdapter<Cosmos.Division, DivisionDto> divisionAdapter, TimeProvider clock)
     {
         _divisionAdapter = divisionAdapter;
         _clock = clock;
@@ -18,7 +17,7 @@ public class SeasonAdapter : IAdapter<Cosmos.Season.Season, SeasonDto>
 
     public async Task<SeasonDto> Adapt(Cosmos.Season.Season model, CancellationToken token)
     {
-        var now = _clock.UtcNow.UtcDateTime.Date;
+        var now = _clock.GetUtcNow().UtcDateTime.Date;
 
         return new SeasonDto
         {

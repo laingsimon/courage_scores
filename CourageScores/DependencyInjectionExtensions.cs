@@ -45,7 +45,6 @@ using CourageScores.Services.Season.Creation;
 using CourageScores.Services.Season.Creation.CompatibilityCheck;
 using CourageScores.Services.Status;
 using CourageScores.Services.Team;
-using Microsoft.Extensions.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -60,9 +59,9 @@ public static class DependencyInjectionExtensions
         services.AddScoped(p => p.GetService<ICosmosDatabaseFactory>()!.CreateDatabase().Result);
         services.AddScoped<IAuditingHelper, AuditingHelper>();
         services.AddHttpContextAccessor();
-        services.AddSingleton<ISystemClock, SystemClock>();
         services.AddScoped<ICommandFactory, CommandFactory>();
         services.AddMemoryCache();
+        services.AddSingleton(TimeProvider.System);
         services.AddSingleton<ICache, InterceptingMemoryCache>();
         services.AddScoped<ScopedCacheManagementFlags>();
         services.AddScoped<IZipBuilderFactory, ZipBuilderFactory>();

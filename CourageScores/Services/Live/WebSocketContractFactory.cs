@@ -2,7 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.WebSockets;
 using CourageScores.Models.Live;
 using CourageScores.Services.Identity;
-using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Live;
 
@@ -11,13 +10,13 @@ public class WebSocketContractFactory : IWebSocketContractFactory
 {
     private readonly IJsonSerializerService _serializerService;
     private readonly IWebSocketMessageProcessor _processor;
-    private readonly ISystemClock _systemClock;
+    private readonly TimeProvider _systemClock;
     private readonly IUserService _userService;
 
     public WebSocketContractFactory(
         IJsonSerializerService serializerService,
         IWebSocketMessageProcessor processor,
-        ISystemClock systemClock,
+        TimeProvider systemClock,
         IUserService userService)
     {
         _serializerService = serializerService;
@@ -33,7 +32,7 @@ public class WebSocketContractFactory : IWebSocketContractFactory
         var dto = new WebSocketDetail
         {
             Id = Guid.NewGuid(),
-            Connected = _systemClock.UtcNow,
+            Connected = _systemClock.GetUtcNow(),
             UserName = user?.Name,
             OriginatingUrl = originatingUrl,
         };

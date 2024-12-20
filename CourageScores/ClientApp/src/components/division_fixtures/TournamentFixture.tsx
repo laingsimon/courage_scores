@@ -14,7 +14,7 @@ import {
 } from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
 import {usePreferences} from "../common/PreferencesContainer";
 import {ToggleFavouriteTeam} from "../common/ToggleFavouriteTeam";
-import {Link} from "react-router-dom";
+import {Link} from "react-router";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";

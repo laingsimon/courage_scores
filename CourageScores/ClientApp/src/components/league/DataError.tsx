@@ -1,4 +1,4 @@
-import {Link} from "react-router-dom";
+import {Link} from "react-router";
 import {useDivisionData} from "./DivisionDataContainer";
 import {DataErrorDto} from "../../interfaces/models/dtos/Division/DataErrorDto";
 

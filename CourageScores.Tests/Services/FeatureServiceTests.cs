@@ -7,7 +7,6 @@ using CourageScores.Repository;
 using CourageScores.Services;
 using CourageScores.Services.Identity;
 using CourageScores.Tests.Models.Adapters;
-using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
 
@@ -35,7 +34,7 @@ public class FeatureServiceTests
     private Mock<IFeatureLookup> _featureLookup = null!;
     private Mock<ISimpleOnewayAdapter<ReconfigureFeatureDto,ConfiguredFeature>> _reconfigureAdapter = null!;
     private Mock<ISimpleOnewayAdapter<Guid,ConfiguredFeatureDto>> _unconfiguredAdapter = null!;
-    private Mock<ISystemClock> _clock = null!;
+    private Mock<TimeProvider> _clock = null!;
     private UserDto? _user;
     private ConfiguredFeature _untypedFeature = new ConfiguredFeature
     {
@@ -58,7 +57,7 @@ public class FeatureServiceTests
         _reconfigureAdapter = new Mock<ISimpleOnewayAdapter<ReconfigureFeatureDto, ConfiguredFeature>>();
         _unconfiguredAdapter = new Mock<ISimpleOnewayAdapter<Guid, ConfiguredFeatureDto>>();
         _adapter = new MockAdapter<ConfiguredFeature, ConfiguredFeatureDto>();
-        _clock = new Mock<ISystemClock>();
+        _clock = new Mock<TimeProvider>();
         _service = new FeatureService(
             _repository.Object,
             _adapter,
@@ -81,7 +80,7 @@ public class FeatureServiceTests
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _unconfiguredAdapter.Setup(a => a.Adapt(_configuredBoolFeature.Id, _token)).ReturnsAsync(_configuredBoolFeatureDto);
-        _clock.Setup(c => c.UtcNow).Returns(_now);
+        _clock.Setup(c => c.GetUtcNow()).Returns(_now);
         _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_configuredBoolFeature));
         _adapter.AddMapping(_configuredBoolFeature, _configuredBoolFeatureDto);
         _featureLookup.Setup(l => l.Get(BooleanFeature.Id)).Returns(BooleanFeature);
