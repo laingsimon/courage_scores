@@ -32,8 +32,8 @@ import {IAppContainerProps} from "../common/AppContainer";
 
 describe('TournamentDetails', () => {
     let context: TestContext;
-    let exportRequest: ExportDataRequestDto;
-    let updatedTournamentData: TournamentGameDto;
+    let exportRequest: ExportDataRequestDto | null;
+    let updatedTournamentData: TournamentGameDto | null;
 
     const dataApi = api<IDataApi>({
         export: async (request: ExportDataRequestDto) => {
@@ -109,27 +109,27 @@ describe('TournamentDetails', () => {
             // address
             const address = context.container.querySelector('div[datatype="address"]');
             expect(address).toBeTruthy();
-            expect(address.textContent).toContain('Address');
-            expect(address.querySelector('input').value).toEqual('ADDRESS');
+            expect(address!.textContent).toContain('Address');
+            expect(address!.querySelector('input')!.value).toEqual('ADDRESS');
             // type
             const type = context.container.querySelector('div[datatype="type"]');
             expect(type).toBeTruthy();
-            expect(type.textContent).toContain('Type');
-            expect(type.querySelector('input').value).toEqual('TYPE');
+            expect(type!.textContent).toContain('Type');
+            expect(type!.querySelector('input')!.value).toEqual('TYPE');
             // notes
             const notes = context.container.querySelector('div[datatype="notes"]');
             expect(notes).toBeTruthy();
-            expect(notes.textContent).toContain('Notes');
-            expect(notes.querySelector('textarea').value).toEqual('NOTES');
+            expect(notes!.textContent).toContain('Notes');
+            expect(notes!.querySelector('textarea')!.value).toEqual('NOTES');
             // accolades qualify
             const accoladesCount = context.container.querySelector('div[datatype="accolades-count"]');
             expect(accoladesCount).toBeTruthy();
-            expect(accoladesCount.textContent).toContain('Include 180s and Hi-checks in players table?');
-            expect(accoladesCount.querySelector('input').checked).toEqual(true);
+            expect(accoladesCount!.textContent).toContain('Include 180s and Hi-checks in players table?');
+            expect(accoladesCount!.querySelector('input')!.checked).toEqual(true);
             // division
             const divisionAndBestOf = context.container.querySelector('div[datatype="tournament-division"]');
-            expect(divisionAndBestOf.textContent).toContain('Division');
-            expect(divisionAndBestOf.querySelector('.dropdown-item.active').textContent).toEqual('DIVISION');
+            expect(divisionAndBestOf!.textContent).toContain('Division');
+            expect(divisionAndBestOf!.querySelector('.dropdown-item.active')!.textContent).toEqual('DIVISION');
         });
 
         it('super league options when single round', async () => {
@@ -156,13 +156,13 @@ describe('TournamentDetails', () => {
 
             const superLeagueOptions = context.container.querySelector('div[datatype="tournament-options"]');
             expect(superLeagueOptions).toBeTruthy();
-            const hostInput = superLeagueOptions.querySelector('input[name="host"]') as HTMLInputElement;
-            const opponentInput = superLeagueOptions.querySelector('input[name="opponent"]') as HTMLInputElement;
+            const hostInput = superLeagueOptions!.querySelector('input[name="host"]') as HTMLInputElement;
+            const opponentInput = superLeagueOptions!.querySelector('input[name="opponent"]') as HTMLInputElement;
             expect(hostInput).toBeTruthy();
             expect(hostInput.value).toEqual('HOST');
             expect(opponentInput).toBeTruthy();
             expect(opponentInput.value).toEqual('OPPONENT');
-            expect(superLeagueOptions.querySelector('div[datatype="superleague-gender"] .dropdown-menu .active').textContent).toEqual('Men');
+            expect(superLeagueOptions!.querySelector('div[datatype="superleague-gender"] .dropdown-menu .active')!.textContent).toEqual('Men');
         });
 
         it('no super league options when not single round', async () => {
@@ -233,9 +233,9 @@ describe('TournamentDetails', () => {
             }));
 
             const accoladesCountAndDivision = context.container.querySelector('div:nth-child(3)');
-            await doClick(accoladesCountAndDivision, 'input[type="checkbox"]');
+            await doClick(accoladesCountAndDivision!, 'input[type="checkbox"]');
 
-            expect(updatedTournamentData.singleRound).toEqual(false);
+            expect(updatedTournamentData!.singleRound).toEqual(false);
         });
 
         it('can update accolades count', async () => {
@@ -258,7 +258,7 @@ describe('TournamentDetails', () => {
 
             await doClick(context.container, 'input[name="accoladesCount"]');
 
-            expect(updatedTournamentData.accoladesCount).toEqual(false);
+            expect(updatedTournamentData!.accoladesCount).toEqual(false);
         });
 
         it('can update division', async () => {
@@ -282,7 +282,7 @@ describe('TournamentDetails', () => {
 
             await doSelectOption(context.container.querySelector('div[datatype="tournament-division"] .dropdown-menu'), 'All divisions');
 
-            expect(updatedTournamentData.divisionId).toEqual(null);
+            expect(updatedTournamentData!.divisionId).toEqual(null);
         });
 
         it('can update gender', async () => {
@@ -305,9 +305,9 @@ describe('TournamentDetails', () => {
             }));
 
             const superLeagueOptions = context.container.querySelector('div[datatype="tournament-options"]');
-            await doSelectOption(superLeagueOptions.querySelector('div[datatype="superleague-gender"] .dropdown-menu'), 'Women');
+            await doSelectOption(superLeagueOptions!.querySelector('div[datatype="superleague-gender"] .dropdown-menu'), 'Women');
 
-            expect(updatedTournamentData.gender).toEqual('women');
+            expect(updatedTournamentData!.gender).toEqual('women');
         });
 
         it('can update host', async () => {
@@ -330,9 +330,9 @@ describe('TournamentDetails', () => {
             }));
 
             const superLeagueOptions = context.container.querySelector('div[datatype="tournament-options"]');
-            await doChange(superLeagueOptions, 'input[name="host"]', 'HOST', context.user);
+            await doChange(superLeagueOptions!, 'input[name="host"]', 'HOST', context.user);
 
-            expect(updatedTournamentData.host).toEqual('HOST');
+            expect(updatedTournamentData!.host).toEqual('HOST');
         });
 
         it('can update opponent', async () => {
@@ -355,9 +355,9 @@ describe('TournamentDetails', () => {
             }));
 
             const superLeagueOptions = context.container.querySelector('div[datatype="tournament-options"]');
-            await doChange(superLeagueOptions, 'input[name="opponent"]', 'OPPONENT', context.user);
+            await doChange(superLeagueOptions!, 'input[name="opponent"]', 'OPPONENT', context.user);
 
-            expect(updatedTournamentData.opponent).toEqual('OPPONENT');
+            expect(updatedTournamentData!.opponent).toEqual('OPPONENT');
         });
 
         it('can update notes', async () => {
@@ -379,9 +379,9 @@ describe('TournamentDetails', () => {
             }));
 
             const notes = context.container.querySelector('div[datatype="notes"]');
-            await doChange(notes, 'textarea', 'NEW NOTES', context.user);
+            await doChange(notes!, 'textarea', 'NEW NOTES', context.user);
 
-            expect(updatedTournamentData.notes).toEqual('NEW NOTES');
+            expect(updatedTournamentData!.notes).toEqual('NEW NOTES');
         });
 
         it('can update details', async () => {
@@ -404,9 +404,9 @@ describe('TournamentDetails', () => {
             }));
 
             const type = context.container.querySelector('div[datatype="type"]');
-            await doChange(type, 'input', 'NEW TYPE', context.user);
+            await doChange(type!, 'input', 'NEW TYPE', context.user);
 
-            expect(updatedTournamentData.type).toEqual('NEW TYPE');
+            expect(updatedTournamentData!.type).toEqual('NEW TYPE');
         });
 
         it('can update address', async () => {
@@ -429,9 +429,9 @@ describe('TournamentDetails', () => {
             }));
 
             const address = context.container.querySelector('div[datatype="address"]');
-            await doChange(address, 'input', 'NEW ADDRESS', context.user);
+            await doChange(address!, 'input', 'NEW ADDRESS', context.user);
 
-            expect(updatedTournamentData.address).toEqual('NEW ADDRESS');
+            expect(updatedTournamentData!.address).toEqual('NEW ADDRESS');
         });
 
         it('can export tournament and sayg data with no round', async () => {

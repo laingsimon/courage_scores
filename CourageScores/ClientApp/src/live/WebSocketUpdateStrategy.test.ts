@@ -9,7 +9,7 @@ import {MessageType} from "../interfaces/models/dtos/MessageType";
 import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
 
 describe('WebSocketUpdateStrategy', () => {
-    let newContext: IWebSocketContext;
+    let newContext: IWebSocketContext | null;
 
     async function setContext(context: IWebSocketContext) {
         newContext = context;
@@ -42,30 +42,34 @@ describe('WebSocketUpdateStrategy', () => {
         };
     }
 
+    function noWebSocketFactory(): WebSocket {
+        return null as any;
+    }
+
     describe('refresh', () => {
         it('accepts no websocket', async () => {
-            const strategy = new WebSocketUpdateStrategy(null);
+            const strategy = new WebSocketUpdateStrategy(noWebSocketFactory);
             const context: IWebSocketContext = createWebSocketContext();
 
             strategy.refresh({context, subscriptions: {}, setContext, setSubscriptions: noop});
         });
 
         it('binds websocket onmessage', async () => {
-            const strategy = new WebSocketUpdateStrategy(null);
+            const strategy = new WebSocketUpdateStrategy(noWebSocketFactory);
             const context: IWebSocketContext = createWebSocketContext(createMockWebSocket(1));
 
             strategy.refresh({context, subscriptions: {}, setContext, setSubscriptions: noop});
 
-            expect(context.webSocket.onmessage).toBeTruthy();
+            expect(context.webSocket?.onmessage).toBeTruthy();
         });
 
         it('binds websocket onclose', async () => {
-            const strategy = new WebSocketUpdateStrategy(null);
+            const strategy = new WebSocketUpdateStrategy(noWebSocketFactory);
             const context: IWebSocketContext = createWebSocketContext(createMockWebSocket(1));
 
             strategy.refresh({context, subscriptions: {}, setContext, setSubscriptions: noop});
 
-            expect(context.webSocket.onclose).toBeTruthy();
+            expect(context.webSocket?.onclose).toBeTruthy();
         });
     });
 
@@ -77,21 +81,21 @@ describe('WebSocketUpdateStrategy', () => {
             const mockWebSocket = createMockWebSocket(1);
             const strategy = new WebSocketUpdateStrategy(() => mockWebSocket);
 
-            const result: IWebSocketContext = await strategy.publish(
+            const result: IWebSocketContext | null = await strategy.publish(
                 {context: disconnectedContext, subscriptions: {}, setContext, setSubscriptions: noop},
                 id,
                 LiveDataType.sayg,
                 'data');
 
             expect(result).toBeTruthy();
-            expect(result.webSocket).toEqual(mockWebSocket);
+            expect(result?.webSocket).toEqual(mockWebSocket);
         });
 
         it('returns null if new socket is unable to connect', async () => {
             const mockWebSocket = createMockWebSocket(2);
             const strategy = new WebSocketUpdateStrategy(() => mockWebSocket);
 
-            const result: IWebSocketContext = await strategy.publish(
+            const result: IWebSocketContext | null = await strategy.publish(
                 {context: disconnectedContext, subscriptions: {}, setContext, setSubscriptions: noop},
                 id,
                 LiveDataType.sayg,
@@ -122,7 +126,7 @@ describe('WebSocketUpdateStrategy', () => {
         it('sends update to existing socket and returns true', async () => {
             const sent: string[] = [];
             const mockWebSocket = createMockWebSocket(1, sent);
-            const strategy = new WebSocketUpdateStrategy(null);
+            const strategy = new WebSocketUpdateStrategy(noWebSocketFactory);
             const context: IWebSocketContext = createWebSocketContext(mockWebSocket);
 
             await strategy.publish(
@@ -144,7 +148,7 @@ describe('WebSocketUpdateStrategy', () => {
         const id = createTemporaryId();
 
         it('does nothing if no websocket', async () => {
-            const strategy = new WebSocketUpdateStrategy(null);
+            const strategy = new WebSocketUpdateStrategy(noWebSocketFactory);
             const context: IWebSocketContext = createWebSocketContext();
 
             const result: IWebSocketContext = await strategy.unsubscribe(
@@ -172,7 +176,7 @@ describe('WebSocketUpdateStrategy', () => {
 
         it('closes websocket if no subscriptions', async () => {
             let closed: boolean = false;
-            const mockWebSocket = createMockWebSocket(1, null, () => closed = true);
+            const mockWebSocket = createMockWebSocket(1, [], () => closed = true);
             const strategy = new WebSocketUpdateStrategy(() => mockWebSocket);
             const context: IWebSocketContext = createWebSocketContext(mockWebSocket);
 
@@ -189,15 +193,15 @@ describe('WebSocketUpdateStrategy', () => {
 
         it('leaves websocket open if subscriptions remain', async () => {
             let closed: boolean = false;
-            const mockWebSocket = createMockWebSocket(1, null, () => closed = true);
+            const mockWebSocket = createMockWebSocket(1, [], () => closed = true);
             const strategy = new WebSocketUpdateStrategy(() => mockWebSocket);
             const context: IWebSocketContext = createWebSocketContext(mockWebSocket);
             const subscriptions: ISubscriptions = {
                 anotherId: {
                     type: LiveDataType.sayg,
                     id: 'anotherId',
-                    errorHandler: null,
-                    updateHandler: null,
+                    errorHandler: noop,
+                    updateHandler: noop,
                 },
             };
 
@@ -224,12 +228,12 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(() => mockWebSocket);
             const context: IWebSocketContext = createWebSocketContext();
 
-            const result: IWebSocketContext = await strategy.subscribe(
+            const result: IWebSocketContext | null = await strategy.subscribe(
                 {context, subscriptions: {}, setContext, setSubscriptions: noop},
                 request);
 
             expect(result).toBeTruthy();
-            expect(result.webSocket).toEqual(mockWebSocket);
+            expect(result!.webSocket).toEqual(mockWebSocket);
         });
 
         it('returns null if new socket is unable to connect', async () => {
@@ -237,7 +241,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(() => mockWebSocket);
             const context: IWebSocketContext = createWebSocketContext();
 
-            const result: IWebSocketContext = await strategy.subscribe(
+            const result: IWebSocketContext | null = await strategy.subscribe(
                 {context, subscriptions: {}, setContext, setSubscriptions: noop},
                 request);
 
@@ -279,14 +283,14 @@ describe('WebSocketUpdateStrategy', () => {
 
     describe('server-side messages', () => {
         let sent: string[];
-        let mockWebSocket: WebSocket;
+        let mockWebSocket: WebSocket | null = null;
         let strategy: WebSocketUpdateStrategy;
         let context: IWebSocketContext;
 
         beforeEach(() => {
             sent = [];
             mockWebSocket = createMockWebSocket(1, sent);
-            strategy = new WebSocketUpdateStrategy(null);
+            strategy = new WebSocketUpdateStrategy(noWebSocketFactory);
             context = createWebSocketContext(mockWebSocket);
         });
 
@@ -299,10 +303,10 @@ describe('WebSocketUpdateStrategy', () => {
 
         it('ignores non-message events', async () => {
             strategy.refresh({context, subscriptions: {}, setContext, setSubscriptions: noop});
-            let log: string;
+            let log: string = '';
             console.log = (msg: string) => log = msg;
 
-            await mockWebSocket.onmessage(message('data', 'anything'));
+            await mockWebSocket!.onmessage(message('data', 'anything'));
 
             expect(log).toEqual(`Unhandled message: ${JSON.stringify({
                 type: 'anything',
@@ -343,7 +347,7 @@ describe('WebSocketUpdateStrategy', () => {
                 type: 'updated-data',
             };
 
-            await mockWebSocket.onmessage(message({
+            await mockWebSocket!.onmessage(message({
                 type: MessageType.update,
                 id: null,
                 data
@@ -389,7 +393,7 @@ describe('WebSocketUpdateStrategy', () => {
                 type: 'updated-data',
             };
 
-            await mockWebSocket.onmessage(message({
+            await mockWebSocket!.onmessage(message({
                 type: MessageType.update,
                 id: '1234',
                 data
@@ -403,7 +407,7 @@ describe('WebSocketUpdateStrategy', () => {
         it('responds with polo to Marco messages', async () => {
             strategy.refresh({context, subscriptions: {}, setContext, setSubscriptions: noop});
 
-            await mockWebSocket.onmessage(message({
+            await mockWebSocket!.onmessage(message({
                 type: MessageType.marco,
             }));
 
@@ -415,7 +419,7 @@ describe('WebSocketUpdateStrategy', () => {
         it('does nothing when Polo message received', async () => {
             strategy.refresh({context, subscriptions: {}, setContext, setSubscriptions: noop});
 
-            await mockWebSocket.onmessage(message({
+            await mockWebSocket!.onmessage(message({
                 type: MessageType.polo,
             }));
 
@@ -453,7 +457,7 @@ describe('WebSocketUpdateStrategy', () => {
             strategy.refresh({context, subscriptions, setContext, setSubscriptions: noop});
             console.error = noop;
 
-            await mockWebSocket.onmessage(message({
+            await mockWebSocket!.onmessage(message({
                 type: MessageType.error,
                 id: null,
                 message: 'SOME ERROR'
@@ -497,7 +501,7 @@ describe('WebSocketUpdateStrategy', () => {
             strategy.refresh({context, subscriptions, setContext, setSubscriptions: noop});
             console.error = noop;
 
-            await mockWebSocket.onmessage(message({
+            await mockWebSocket!.onmessage(message({
                 type: MessageType.error,
                 id: '1234',
                 message: 'SOME ERROR'
@@ -510,10 +514,10 @@ describe('WebSocketUpdateStrategy', () => {
 
         it('handles unknown message type', async () => {
             strategy.refresh({context, subscriptions: {}, setContext, setSubscriptions: noop});
-            let log: string;
+            let log: string = '';
             console.log = (msg: string) => log = msg;
 
-            await mockWebSocket.onmessage(message({
+            await mockWebSocket!.onmessage(message({
                 type: 'foo',
             }));
 
@@ -522,10 +526,10 @@ describe('WebSocketUpdateStrategy', () => {
 
         it('removes webSocket from context', async () => {
             strategy.refresh({context, subscriptions: {}, setContext, setSubscriptions: noop});
-            let error: string;
+            let error: string = '';
             console.error = (msg: string) => error = msg;
 
-            await mockWebSocket.onclose(null);
+            await mockWebSocket!.onclose(null);
 
             expect(error).toEqual('Socket disconnected');
             expect(newContext).toEqual({

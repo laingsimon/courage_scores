@@ -14,7 +14,7 @@ export interface ITournament {
     alreadyPlaying?: ITournamentPlayerMap;
     allPlayers?: ISelectablePlayer[];
     saveTournament?(preventLoading?: boolean): Promise<TournamentGameDto>;
-    setWarnBeforeEditDialogClose?(warning: string): UntypedPromise;
+    setWarnBeforeEditDialogClose?(warning: string | null): UntypedPromise;
     matchOptionDefaults?: GameMatchOptionDto;
     saving?: boolean;
     editTournament?: string;

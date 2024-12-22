@@ -15,6 +15,7 @@ import {MessageType} from "../interfaces/models/dtos/MessageType";
 import {IPreferenceData, PreferencesContainer} from "../components/common/PreferencesContainer";
 import {Cookies, useCookies} from "react-cookie";
 import {UntypedPromise} from "../interfaces/UntypedPromise";
+import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
 
 /* istanbul ignore file */
 
@@ -172,7 +173,7 @@ export class ErrorState {
 export class MockSocketFactory {
     subscriptions: ISubscriptions = {};
     sent: any[] = [];
-    socket: WebSocket = null;
+    socket: WebSocket | null = null;
     createSocket = this.__createSocket.bind(this);
     socketWasCreated = this.__socketWasCreated.bind(this);
 
@@ -183,7 +184,7 @@ export class MockSocketFactory {
             send: (data: any) => {
                 const message = JSON.parse(data);
                 if (message.type === MessageType.subscribed) {
-                    this.subscriptions[message.id] = { id: null, type: null, errorHandler: null, updateHandler: null };
+                    this.subscriptions[message.id] = { id: '', type: LiveDataType.sayg, errorHandler: noop, updateHandler: noop };
                 } else if (message.type === MessageType.unsubscribed) {
                     delete this.subscriptions[message.id];
                 }
@@ -209,7 +210,7 @@ export function appProps(props?: any, errorState?: ErrorState): IAppContainerPro
                 errorState.setError(err);
             }
         },
-        error: null,
+        error: undefined,
         build: {
             version: '',
             branch: '',

@@ -71,11 +71,11 @@ export function tournamentBuilder(id?: string): ITournamentBuilder {
             const side = sideOrBuilderFunc instanceof Function
                 ? sideOrBuilderFunc(sideBuilder())
                 : sideOrBuilderFunc;
-            tournament.sides.push(side.build ? side.build() : side);
+            tournament.sides?.push(side.build ? side.build() : side);
             return builder;
         },
         withPlayer: (playerOrId: any) => {
-            tournament.players.push(playerOrId.id ? playerOrId.id : playerOrId);
+            tournament.players?.push(playerOrId.id ? playerOrId.id : playerOrId);
             return builder;
         },
         date: (date: string) => {
@@ -143,9 +143,9 @@ export function tournamentBuilder(id?: string): ITournamentBuilder {
         },
         withOneEighty: (playerOrName: any) => {
             if (playerOrName.id) {
-                tournament.oneEighties.push(playerOrName);
+                tournament.oneEighties?.push(playerOrName);
             } else {
-                tournament.oneEighties.push({
+                tournament.oneEighties?.push({
                     id: createTemporaryId(),
                     name: playerOrName,
                 });
@@ -154,9 +154,9 @@ export function tournamentBuilder(id?: string): ITournamentBuilder {
         },
         withHiCheck: (playerOrName: any, score: number) => {
             if (playerOrName.id) {
-                tournament.over100Checkouts.push(Object.assign({}, playerOrName, {score}));
+                tournament.over100Checkouts?.push(Object.assign({}, playerOrName, {score}));
             } else {
-                tournament.over100Checkouts.push({
+                tournament.over100Checkouts?.push({
                     id: createTemporaryId(),
                     name: playerOrName,
                     score: score,
@@ -213,7 +213,7 @@ export function sideBuilder(name?: string, id?: string): ITournamentSideBuilder 
                 name: nameOrPlayer,
                 divisionId,
             };
-            side.players.push(player);
+            side.players?.push(player);
             return builder;
         },
     };
@@ -231,7 +231,7 @@ export function roundBuilder(): ITournamentRoundBuilder {
     const round: TournamentRoundDto = {
         matches: [],
         matchOptions: [],
-        nextRound: null,
+        nextRound: undefined,
     };
 
     const builder: ITournamentRoundBuilder = {
@@ -240,7 +240,7 @@ export function roundBuilder(): ITournamentRoundBuilder {
             const match = matchOrBuilderFunc instanceof Function
                 ? matchOrBuilderFunc(tournamentMatchBuilder(id))
                 : matchOrBuilderFunc;
-            round.matches.push(match.build ? match.build() : match);
+            round.matches?.push(match.build ? match.build() : match);
             return builder;
         },
         round: (roundOrBuilderFunc: any) => {
@@ -254,7 +254,7 @@ export function roundBuilder(): ITournamentRoundBuilder {
             const matchOption = matchOptionOrBuilderFunc instanceof Function
                 ? matchOptionOrBuilderFunc(matchOptionsBuilder())
                 : matchOptionOrBuilderFunc;
-            round.matchOptions.push(matchOption.build ? matchOption.build() : matchOption);
+            round.matchOptions?.push(matchOption.build ? matchOption.build() : matchOption);
             return builder;
         }
     };
@@ -272,10 +272,10 @@ export interface ITournamentMatchBuilder extends IBuilder<TournamentMatchDto> {
 export function tournamentMatchBuilder(id?: string): ITournamentMatchBuilder {
     const match: TournamentMatchDto = {
         id: id || createTemporaryId(),
-        sideA: null,
-        sideB: null,
-        scoreA: null,
-        scoreB: null,
+        sideA: { id: '' },
+        sideB: { id: '' },
+        scoreA: undefined,
+        scoreB: undefined,
     };
 
     const builder: ITournamentMatchBuilder = {
@@ -303,7 +303,7 @@ export function tournamentMatchBuilder(id?: string): ITournamentMatchBuilder {
             return builder;
         },
         noId: () => {
-            match.id = null;
+            match.id = '';
             return builder;
         },
     };

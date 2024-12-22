@@ -21,7 +21,7 @@ export interface ITeamBuilder extends IAddableBuilder<TeamDto & EditTeamDto & Ga
 export function teamBuilder(name?: string, id?: string): ITeamBuilder {
     const team: TeamDto & EditTeamDto & GameTeamDto = {
         id: id || createTemporaryId(),
-        name,
+        name: name || '',
         address: '',
         seasons: [],
     };
@@ -41,7 +41,7 @@ export function teamBuilder(name?: string, id?: string): ITeamBuilder {
             if (deleted) {
                 teamSeason.deleted = '2020-01-03T04:05:06Z';
             }
-            team.seasons.push(teamSeason);
+            team.seasons?.push(teamSeason);
             return builder;
         },
         address: (address: string) => {
@@ -65,7 +65,7 @@ export function teamBuilder(name?: string, id?: string): ITeamBuilder {
             return builder;
         },
         noId: () => {
-            delete team.id;
+            team.id = '';
             return builder;
         },
     };

@@ -21,7 +21,7 @@ export function TournamentContainer(props: ITournamentContainerProps) {
     delete data.children;
     delete data.liveOptions;
 
-    return (<LiveContainer liveOptions={props.liveOptions} onDataUpdate={props.setTournamentData}>
+    return (<LiveContainer liveOptions={props.liveOptions!} onDataUpdate={props.setTournamentData}>
         <TournamentContext.Provider value={data}>
             {props.children}
         </TournamentContext.Provider>

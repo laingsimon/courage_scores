@@ -35,8 +35,8 @@ export async function checkoutWith(context: TestContext, noOfDarts: string, dial
 
 export function getScoreFromThrows(startingScore: number, throws: LegThrowDto[]): number {
     return throws.reduce(
-        (total: number, thr: LegThrowDto) => (total + thr.score) > startingScore
+        (total: number, thr: LegThrowDto) => (total + (thr.score || 0)) > startingScore
             ? total /* bust */
-            : total + thr.score,
+            : total + (thr.score || 0),
         0);
 }

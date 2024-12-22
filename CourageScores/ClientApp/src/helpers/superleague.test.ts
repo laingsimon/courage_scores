@@ -43,7 +43,7 @@ describe('superleague', () => {
 
     function score(...throws: LegThrowDto[]): LegCompetitorScoreDto {
         return {
-            noOfDarts: sum(throws, thr => thr.noOfDarts),
+            noOfDarts: sum(throws, (thr: LegThrowDto) => thr.noOfDarts || 0),
             throws: throws,
             score: getScoreFromThrows(501, throws),
         };
@@ -52,7 +52,7 @@ describe('superleague', () => {
     function leg(homeThrows: LegCompetitorScoreDto, awayThrows?: LegCompetitorScoreDto, isLastLeg?: boolean): LegDto {
         return {
             home: homeThrows,
-            away: awayThrows,
+            away: awayThrows || {},
             startingScore: 501,
             isLastLeg
         };
@@ -87,7 +87,7 @@ describe('superleague', () => {
         });
 
         it('should return null when no legs', () => {
-            const result = countMatch100({legs: null}, 'home');
+            const result = countMatch100({legs: {}}, 'home');
 
             expect(result).toBeNull();
         });
@@ -118,7 +118,7 @@ describe('superleague', () => {
         });
 
         it('should return null when no legs', () => {
-            const result = countMatch140({legs: null}, 'home');
+            const result = countMatch140({legs: {}}, 'home');
 
             expect(result).toBeNull();
         });
@@ -149,7 +149,7 @@ describe('superleague', () => {
         });
 
         it('should return null when no legs', () => {
-            const result = countMatch180({legs: null}, 'home');
+            const result = countMatch180({legs: {}}, 'home');
 
             expect(result).toBeNull();
         });
@@ -180,7 +180,7 @@ describe('superleague', () => {
         });
 
         it('should return 0 when no legs', () => {
-            const result = matchTons({legs: null}, 'home');
+            const result = matchTons({legs: {}}, 'home');
 
             expect(result).toEqual(0);
         });
@@ -207,7 +207,7 @@ describe('superleague', () => {
         });
 
         it('should return 0 if no legs data', () => {
-            const result = getNoOfLegs({legs: null});
+            const result = getNoOfLegs({legs: {}});
 
             expect(result).toEqual(0);
         });
@@ -235,7 +235,7 @@ describe('superleague', () => {
         });
 
         it('should return 0 given no legs', () => {
-            const result = sumOverThrows({legs: null}, 'home', 'noOfDarts');
+            const result = sumOverThrows({legs: {}}, 'home', 'noOfDarts');
 
             expect(result).toEqual(0);
         });
@@ -379,7 +379,7 @@ describe('superleague', () => {
         });
 
         it('should return 0 when no data for matches', () => {
-            const result = legsWon([{saygData: null}], 'home');
+            const result = legsWon([{saygData: undefined}], 'home');
 
             expect(result).toEqual(0);
         });
@@ -394,8 +394,8 @@ describe('superleague', () => {
         it('should return number of won legs for side', () => {
             const saygData: ScoreAsYouGoDto = {
                 legs: {
-                    0: leg(score(thr(501)), null, false),
-                    1: leg(score(thr(501)), null, false)
+                    0: leg(score(thr(501)), {}, false),
+                    1: leg(score(thr(501)), {}, false)
                 }
             }
 
@@ -407,8 +407,8 @@ describe('superleague', () => {
         it('should return 0 if not won any legs', () => {
             const saygData: ScoreAsYouGoDto = {
                 legs: {
-                    0: leg(score(thr(0)), null, false),
-                    1: leg(score(thr(0)), null, false)
+                    0: leg(score(thr(0)), {}, false),
+                    1: leg(score(thr(0)), {}, false)
                 }
             }
 

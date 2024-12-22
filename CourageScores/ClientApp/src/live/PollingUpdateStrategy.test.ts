@@ -75,8 +75,8 @@ describe('PollingUpdateStrategy', () => {
                 anotherId: {
                     id: 'anotherId',
                     type: LiveDataType.sayg,
-                    errorHandler: null,
-                    updateHandler: null,
+                    errorHandler: noop,
+                    updateHandler: noop,
                 },
             };
 
@@ -96,8 +96,8 @@ describe('PollingUpdateStrategy', () => {
                 anotherId: {
                     id: 'anotherId',
                     type: LiveDataType.sayg,
-                    errorHandler: null,
-                    updateHandler: null,
+                    errorHandler: noop,
+                    updateHandler: noop,
                 },
             };
 
@@ -121,7 +121,7 @@ describe('PollingUpdateStrategy', () => {
                 {context, subscriptions: {}, setContext: noop, setSubscriptions: noop},
                 createTemporaryId());
 
-            expect(clearedTimeout).toEqual(1);
+            expect(clearedTimeout!).toEqual(1);
             expect(result).toEqual({
                 pollingHandle: null,
                 modes: [],
@@ -172,15 +172,15 @@ describe('PollingUpdateStrategy', () => {
 
     describe('polling interval', () => {
         const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
-        const context: IWebSocketContext = createWebSocketContext(null, WebSocketMode.polling);
+        const context: IWebSocketContext = createWebSocketContext(0, WebSocketMode.polling);
 
         let timerCallback: () => Promise<void>;
         let timerHandle: number;
-        let newContext: IWebSocketContext;
+        let newContext: IWebSocketContext | null;
 
         beforeEach(() => {
             timerHandle = 0;
-            timerCallback = null;
+            timerCallback = async () => {};
             newContext = null;
             window.setTimeout = ((handler: any) => {
                 timerCallback = handler;
@@ -207,7 +207,7 @@ describe('PollingUpdateStrategy', () => {
             await strategy.subscribe(
                 {context, subscriptions: {}, setContext: noop, setSubscriptions: noop},
                 null);
-            let log: string;
+            let log: string = '';
             console.log = (msg: string) => log = msg;
 
             expect(timerCallback).toBeTruthy();
@@ -361,7 +361,6 @@ describe('PollingUpdateStrategy', () => {
                     success: true,
                     result: {
                         lastUpdate: '2021-01-02',
-                        data: null,
                     }
                 };
             };
@@ -387,21 +386,20 @@ describe('PollingUpdateStrategy', () => {
             expect(timerHandle).toEqual(1);
             updateLookup['1234'] = (): IClientActionResultDto<UpdatedDataDto> => {
                 return {
-                    success: true,
-                    result: null, // null here means the data isn't tracked
+                    success: true
                 };
             };
 
             expect(timerCallback).toBeTruthy();
             await timerCallback();
 
-            expect(newSubscriptions).toEqual({});
+            expect(newSubscriptions!).toEqual({});
         });
 
         it('should call errorHandler if request fails', async () => {
             let errorData: any;
             const subscriptions: ISubscriptions = {
-                '1234': subscription('1234', null, (error) => {
+                '1234': subscription('1234', noop, (error) => {
                     errorData = error;
                 }),
             };
@@ -445,13 +443,13 @@ describe('PollingUpdateStrategy', () => {
             expect(timerCallback).toBeTruthy();
             await timerCallback();
 
-            expect(newSubscriptions).toEqual({});
+            expect(newSubscriptions!).toEqual({});
         });
 
         it('should call errorHandler if exception thrown when sending request', async () => {
             let errorData: any;
             const subscriptions: ISubscriptions = {
-                '1234': subscription('1234', null, (error) => {
+                '1234': subscription('1234', noop, (error) => {
                     errorData = error;
                 }),
             };

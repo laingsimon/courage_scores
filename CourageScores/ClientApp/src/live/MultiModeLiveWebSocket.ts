@@ -57,7 +57,7 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
         }
 
         for (const strategy of strategies) {
-            const published: IWebSocketContext = await strategy.publish(strategyProps, id, type, data);
+            const published: IWebSocketContext | null = await strategy.publish(strategyProps, id, type, data);
             if (published) {
                 await this.setSocketContext(published);
                 return true;
@@ -131,14 +131,14 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
         };
 
         for (const mode of this.socketContext.modes) {
-            const strategy: IUpdateStrategy = this.getStrategy(mode);
+            const strategy: IUpdateStrategy | null = this.getStrategy(mode);
             if (!strategy) {
                 /* istanbul ignore next */
                 continue; // null strategy
             }
 
             strategy.refresh(strategyProps);
-            const result: IWebSocketContext = await strategy.subscribe(strategyProps, request);
+            const result: IWebSocketContext | null = await strategy.subscribe(strategyProps, request);
             if (result) {
                 newSocketContext = result;
                 newSubscription.method = mode;
@@ -160,11 +160,11 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
 
     private getAllStrategies(context: IWebSocketContext): IUpdateStrategy[] {
         return context.modes
-            .map((mode: WebSocketMode): IUpdateStrategy => this.getStrategy(mode))
-            .filter((m: IUpdateStrategy) => !!m);
+            .map((mode: WebSocketMode): IUpdateStrategy | null => this.getStrategy(mode))
+            .filter((m: IUpdateStrategy | null) => m !== null);
     }
 
-    private getStrategy(mode: WebSocketMode): IUpdateStrategy {
+    private getStrategy(mode: WebSocketMode): IUpdateStrategy | null {
         switch (mode) {
             case WebSocketMode.polling:
                 return this.pollingStrategy;

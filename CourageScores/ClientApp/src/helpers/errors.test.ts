@@ -61,7 +61,7 @@ describe('errors', () => {
         });
 
         it('accepts logged out user', () => {
-            const account = null;
+            const account = undefined;
             const result = mapForLogging({message: 'MESSAGE', stack: 'FRAME1\nFRAME2', type: 'TYPE'}, account);
 
             expect(result.userName).toBeNull();
