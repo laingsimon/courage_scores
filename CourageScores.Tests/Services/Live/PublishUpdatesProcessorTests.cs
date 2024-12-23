@@ -4,7 +4,6 @@ using CourageScores.Models.Dtos.Live;
 using CourageScores.Models.Live;
 using CourageScores.Services;
 using CourageScores.Services.Live;
-using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
 using DateTimeOffset = System.DateTimeOffset;
@@ -21,7 +20,7 @@ public class PublishUpdatesProcessorTests
     private PublishUpdatesProcessor _processor = null!;
     private Guid _key;
     private WebSocketDetail _publisherDetails = null!;
-    private Mock<ISystemClock> _clock = null!;
+    private Mock<TimeProvider> _clock = null!;
     private DateTimeOffset _now;
 
     [SetUp]
@@ -33,7 +32,7 @@ public class PublishUpdatesProcessorTests
         {
             _publisherSocket.Object, _subscriberSocket.Object
         });
-        _clock = new Mock<ISystemClock>();
+        _clock = new Mock<TimeProvider>();
         _processor = new PublishUpdatesProcessor(_sockets, _clock.Object);
         _key = Guid.NewGuid();
         _publisherDetails = new WebSocketDetail();
@@ -41,7 +40,7 @@ public class PublishUpdatesProcessorTests
         _publisherSocket.Setup(s => s.IsSubscribedTo(_key)).Returns(true);
         _subscriberSocket.Setup(s => s.IsSubscribedTo(_key)).Returns(true);
         _publisherSocket.Setup(s => s.Details).Returns(_publisherDetails);
-        _clock.Setup(c => c.UtcNow).Returns(() => _now);
+        _clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
     }
 
     [Test]

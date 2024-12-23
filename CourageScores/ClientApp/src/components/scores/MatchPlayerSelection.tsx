@@ -16,7 +16,7 @@ import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOpt
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {LiveContainer} from "../../live/LiveContainer";
 import {ILiveOptions} from "../../live/ILiveOptions";
-import {Link} from "react-router-dom";
+import {Link} from "react-router";
 import {EditableSaygContainer} from "../sayg/EditableSaygContainer";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 

@@ -2,7 +2,6 @@ using System.IO.Compression;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Services;
 using CourageScores.Services.Data;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using Newtonsoft.Json;
@@ -16,7 +15,7 @@ public class ZipBuilderFactoryTests
     private readonly CancellationToken _token = new();
     private readonly DateTimeOffset _utcNow = DateTimeOffset.UtcNow;
     private readonly IJsonSerializerService _serializer = new JsonSerializerService(new JsonSerializer());
-    private Mock<ISystemClock> _clock = null!;
+    private Mock<TimeProvider> _clock = null!;
     private Mock<IHttpContextAccessor> _httpContextAccessor = null!;
     private HttpContext _httpContext = null!;
     private ZipBuilderFactory _factory = null!;
@@ -25,12 +24,12 @@ public class ZipBuilderFactoryTests
     public void SetupEachTest()
     {
         _httpContextAccessor = new Mock<IHttpContextAccessor>();
-        _clock = new Mock<ISystemClock>();
+        _clock = new Mock<TimeProvider>();
         _httpContext = new DefaultHttpContext();
         _factory = new ZipBuilderFactory(_httpContextAccessor.Object, _clock.Object, _serializer);
 
         _httpContextAccessor.Setup(a => a.HttpContext).Returns(_httpContext);
-        _clock.Setup(c => c.UtcNow).Returns(_utcNow);
+        _clock.Setup(c => c.GetUtcNow()).Returns(_utcNow);
     }
 
     [Test]

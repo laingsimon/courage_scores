@@ -4,7 +4,6 @@ using CourageScores.Models.Dtos.Live;
 using CourageScores.Services;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Live;
-using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
 
@@ -17,7 +16,7 @@ public class PollingUpdatesProcessorTests
     private PollingUpdatesProcessor _processor = null!;
     private ConcurrentDictionary<Guid, PollingUpdatesProcessor.UpdateData> _data = null!;
     private Mock<IWebSocketContract> _socket = null!;
-    private Mock<ISystemClock> _clock = null!;
+    private Mock<TimeProvider> _clock = null!;
     private Mock<IUserService> _userService = null!;
     private UserDto? _user;
 
@@ -26,7 +25,7 @@ public class PollingUpdatesProcessorTests
     {
         _socket = new Mock<IWebSocketContract>();
         _data = new ConcurrentDictionary<Guid, PollingUpdatesProcessor.UpdateData>();
-        _clock = new Mock<ISystemClock>();
+        _clock = new Mock<TimeProvider>();
         _userService = new Mock<IUserService>();
 
         _processor = new PollingUpdatesProcessor(_data, _clock.Object, _userService.Object);
@@ -49,7 +48,7 @@ public class PollingUpdatesProcessorTests
             now,
         });
         var id = Guid.NewGuid();
-        _clock.Setup(c => c.UtcNow).Returns(() => times.Dequeue());
+        _clock.Setup(c => c.GetUtcNow()).Returns(() => times.Dequeue());
         _user = new UserDto { Name = "USER" };
 
         await _processor.PublishUpdate(_socket.Object, id, LiveDataType.Sayg, "DATA", _token);
@@ -72,7 +71,7 @@ public class PollingUpdatesProcessorTests
             next,
         });
         var id = Guid.NewGuid();
-        _clock.Setup(c => c.UtcNow).Returns(() => times.Dequeue());
+        _clock.Setup(c => c.GetUtcNow()).Returns(() => times.Dequeue());
         _user = new UserDto { Name = "USER" };
 
         await _processor.PublishUpdate(_socket.Object, id, LiveDataType.Tournament, "DATA", _token);
@@ -107,7 +106,7 @@ public class PollingUpdatesProcessorTests
             now,
         });
         var id = Guid.NewGuid();
-        _clock.Setup(c => c.UtcNow).Returns(() => times.Dequeue());
+        _clock.Setup(c => c.GetUtcNow()).Returns(() => times.Dequeue());
         await _processor.PublishUpdate(_socket.Object, id, LiveDataType.Sayg, "DATA", _token); // @ then
 
         var update = await _processor.GetUpdate(id, LiveDataType.Sayg, now);
@@ -128,7 +127,7 @@ public class PollingUpdatesProcessorTests
             now,
         });
         var id = Guid.NewGuid();
-        _clock.Setup(c => c.UtcNow).Returns(() => times.Dequeue());
+        _clock.Setup(c => c.GetUtcNow()).Returns(() => times.Dequeue());
         await _processor.PublishUpdate(_socket.Object, id, LiveDataType.Sayg, "DATA", _token); // @ then
 
         var update = await _processor.GetUpdate(id, LiveDataType.Sayg, null);
@@ -149,7 +148,7 @@ public class PollingUpdatesProcessorTests
             now,
         });
         var id = Guid.NewGuid();
-        _clock.Setup(c => c.UtcNow).Returns(() => times.Dequeue());
+        _clock.Setup(c => c.GetUtcNow()).Returns(() => times.Dequeue());
         await _processor.PublishUpdate(_socket.Object, id, LiveDataType.Sayg, "DATA", _token); // @ then
 
         var update = await _processor.GetUpdate(id, LiveDataType.Sayg, then.AddMinutes(-1));
@@ -176,7 +175,7 @@ public class PollingUpdatesProcessorTests
             updateTime,
         });
         var id = Guid.NewGuid();
-        _clock.Setup(c => c.UtcNow).Returns(() => times.Dequeue());
+        _clock.Setup(c => c.GetUtcNow()).Returns(() => times.Dequeue());
         _user = new UserDto { Name = "USER" };
 
         await _processor.PublishUpdate(_socket.Object, id, LiveDataType.Sayg, "DATA", _token);

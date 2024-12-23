@@ -9,7 +9,7 @@ import {DivisionTeamDto} from "../../interfaces/models/dtos/Division/DivisionTea
 import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
 import {DivisionFixtureDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDto";
 import {DivisionTournamentFixtureDetailsDto} from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
-import {Link} from "react-router-dom";
+import {Link} from "react-router";
 
 export interface IPlayerOverviewProps {
     playerId: string;

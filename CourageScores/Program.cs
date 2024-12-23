@@ -17,8 +17,8 @@ builder.Services
     })
     .AddGoogle(options =>
     {
-        options.ClientId = configuration["GoogleAuth_ClientId"];
-        options.ClientSecret = configuration["GoogleAuth_Secret"];
+        options.ClientId = configuration["GoogleAuth_ClientId"]!;
+        options.ClientSecret = configuration["GoogleAuth_Secret"]!;
     });
 
 // Add services to the container.
@@ -74,12 +74,9 @@ app.UseCors(cors =>
 });
 
 app.UseWebSockets(); // must be before UseEndPoints - see https://stackoverflow.com/a/74285430
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllerRoute(
-        "default",
-        "{controller}/{action=Index}/{id?}");
-});
+app.MapControllerRoute(
+    "default",
+    "{controller}/{action=Index}/{id?}");
 
 app.MapFallbackToFile("index.html");
 

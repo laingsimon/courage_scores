@@ -5,7 +5,7 @@ import {any} from "../../helpers/collections";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {useApp} from "../common/AppContainer";
-import {useLocation, useParams} from "react-router-dom";
+import {useLocation, useParams} from "react-router";
 
 function makeIdish(item: { id: string, name?: string}): IIdish {
     return {

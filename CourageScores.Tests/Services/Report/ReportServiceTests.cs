@@ -8,7 +8,6 @@ using CourageScores.Services.Division;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Report;
 using CourageScores.Services.Season;
-using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
@@ -23,7 +22,7 @@ public class ReportServiceTests
     private Mock<ICachingSeasonService> _seasonService = null!;
     private Mock<ICachingDivisionService> _divisionService = null!;
     private Mock<IGenericRepository<CosmosGame>> _gameRepository = null!;
-    private Mock<ISystemClock> _clock = null!;
+    private Mock<TimeProvider> _clock = null!;
     private Mock<IGenericRepository<TournamentGame>> _tournamentRepository = null!;
     private Mock<IReportFactory> _reportFactory = null!;
     private Mock<IReport> _report = null!;
@@ -43,7 +42,7 @@ public class ReportServiceTests
         _divisionService = new Mock<ICachingDivisionService>();
         _gameRepository = new Mock<IGenericRepository<CosmosGame>>();
         _tournamentRepository = new Mock<IGenericRepository<TournamentGame>>();
-        _clock = new Mock<ISystemClock>();
+        _clock = new Mock<TimeProvider>();
         _reportFactory = new Mock<IReportFactory>();
         _report = new Mock<IReport>();
         _service = new ReportService(

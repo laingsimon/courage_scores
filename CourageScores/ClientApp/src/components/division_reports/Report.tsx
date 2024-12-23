@@ -2,7 +2,7 @@ import {isEmpty} from "../../helpers/collections";
 import {NoRows} from "./NoRows";
 import {ReportRowDto} from "../../interfaces/models/dtos/Report/ReportRowDto";
 import {ReportCellDto} from "../../interfaces/models/dtos/Report/ReportCellDto";
-import {Link} from "react-router-dom";
+import {Link} from "react-router";
 import {useDivisionData} from "../league/DivisionDataContainer";
 import {repeat} from "../../helpers/projection";
 import {ReactNode} from "react";

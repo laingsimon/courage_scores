@@ -5,7 +5,6 @@ using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services;
 using CourageScores.Services.Identity;
-using Microsoft.AspNetCore.Authentication;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Models.Adapters.Division;
@@ -14,13 +13,13 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
 {
     private readonly IDivisionFixtureTeamAdapter _divisionFixtureTeamAdapter;
     private readonly IFeatureService _featureService;
-    private readonly ISystemClock _clock;
+    private readonly TimeProvider _clock;
     private readonly IUserService _userService;
 
     public DivisionFixtureAdapter(
         IDivisionFixtureTeamAdapter divisionFixtureTeamAdapter,
         IFeatureService featureService,
-        ISystemClock clock,
+        TimeProvider clock,
         IUserService userService)
     {
         _divisionFixtureTeamAdapter = divisionFixtureTeamAdapter;
@@ -119,6 +118,6 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
         var delayScoresBy = await _featureService.GetFeatureValue(FeatureLookup.VetoScores, token, TimeSpan.Zero);
         var earliestTimeForScores = game.Date.Add(delayScoresBy);
 
-        return _clock.UtcNow.UtcDateTime < earliestTimeForScores;
+        return _clock.GetUtcNow().UtcDateTime < earliestTimeForScores;
     }
 }

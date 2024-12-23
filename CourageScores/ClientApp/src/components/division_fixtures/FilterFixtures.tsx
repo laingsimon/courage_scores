@@ -6,7 +6,7 @@ import {useDivisionData} from "../league/DivisionDataContainer";
 import {useBranding} from "../common/BrandingContainer";
 import {getFilter, IInitialisedFilters} from "./filters";
 import {usePreferences} from "../common/PreferencesContainer";
-import {Link, useLocation} from "react-router-dom";
+import {Link, useLocation} from "react-router";
 
 export function FilterFixtures() {
     const {teams, favouritesEnabled, superleague} = useDivisionData();

@@ -1,5 +1,5 @@
-import {ButtonDropdown, DropdownMenu, DropdownToggle} from "reactstrap";
-import {Link, useLocation, useNavigate, useParams} from "react-router-dom";
+import {ButtonDropdown, DropdownMenu, DropdownToggle} from "../common/ButtonDropdown";
+import {Link, useLocation, useParams} from "react-router";
 import {useState} from "react";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {Dialog} from "../common/Dialog";
@@ -35,7 +35,6 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
     const [seasonData, setSeasonData] = useState<DivisionDataSeasonDto | null>(null);
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
     const [divisionData, setDivisionData] = useState<DivisionDataDto | null>(null);
-    const navigate = useNavigate();
     const location = useLocation();
 
     function toggleDropdown(name: string) {
@@ -44,17 +43,6 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
         } else {
             setOpenDropdown(null);
         }
-    }
-
-    function stripIdFromMode(mode?: string) {
-        if (!mode) {
-            return mode;
-        }
-
-        const index = mode.indexOf(':');
-        return index === -1
-            ? mode
-            : mode.substring(0, index) + 's';
     }
 
     function renderEditDivisionDialog() {
@@ -122,11 +110,6 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
         return null;
     }
 
-    function navigateToSeason() {
-        const url: string = getDivisionUrl(originalDivisionData.name, originalSeasonData.name, stripIdFromMode(mode));
-        navigate(url);
-    }
-
     function renderSeasonOption(season: SeasonDto) {
         const url: string = getDivisionUrl(firstValidDivisionNameForSeason(season), season.name, mode);
 
@@ -179,7 +162,7 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
                 }
             }}>
                 <button className={`btn ${isSeasonAdmin ? 'btn-info' : 'btn-light'} text-nowrap`}
-                        onClick={isSeasonAdmin ? () => setSeasonData(toEditableSeason(originalSeasonData)) : navigateToSeason}>
+                        onClick={isSeasonAdmin ? () => setSeasonData(toEditableSeason(originalSeasonData)) : () => toggleDropdown('season')}>
                     {originalSeasonData
                         ? (<span>
                             {originalSeasonData.name} ({renderDate(originalSeasonData.startDate)} - {renderDate(originalSeasonData.endDate)})
@@ -188,7 +171,7 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
                     {isSeasonAdmin && originalSeasonData ? '✏' : ''}
                 </button>
                 {seasons.length
-                    ? (<DropdownToggle caret color={isSeasonAdmin ? 'info' : 'light'}></DropdownToggle>)
+                    ? (<DropdownToggle color={isSeasonAdmin ? 'info' : 'light'}></DropdownToggle>)
                     : null}
                 {seasons.length ? (<DropdownMenu>
                     {seasons.sort(sortBy('startDate', true)).map(renderSeasonOption)}
@@ -204,12 +187,12 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
                     }
                 }}>
                     <button className={`btn ${isDivisionAdmin ? 'btn-info' : 'btn-light'} text-nowrap`}
-                            onClick={isDivisionAdmin ? () => setDivisionData(Object.assign({}, originalDivisionData)) : navigateToSeason}>
+                            onClick={isDivisionAdmin ? () => setDivisionData(Object.assign({}, originalDivisionData)) : () => toggleDropdown('division')}>
                         {originalDivisionData.name}
                         {isDivisionAdmin ? '✏' : ''}
                     </button>
                     {divisions.filter(shouldShowDivision).length > 1 || isDivisionAdmin ? (
-                        <DropdownToggle caret color={isDivisionAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
+                        <DropdownToggle color={isDivisionAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
                     {divisions.filter(shouldShowDivision).length > 1 || isDivisionAdmin ? (<DropdownMenu>
                         {divisions.filter(shouldShowDivision).sort(sortBy('name')).map(renderDivisionOption)}
                         {isDivisionAdmin ? (<button className="dropdown-item" onClick={() => setDivisionData({} as DivisionDto)}>
