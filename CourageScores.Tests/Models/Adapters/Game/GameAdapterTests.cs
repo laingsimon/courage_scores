@@ -9,7 +9,6 @@ using CourageScores.Services;
 using CourageScores.Services.Identity;
 using CourageScores.Tests.Models.Cosmos.Game;
 using CourageScores.Tests.Services;
-using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
@@ -50,7 +49,7 @@ public class GameAdapterTests
     private UserDto? _user;
     private MockAdapter<GameMatch,GameMatchDto> _matchAdapter = null!;
     private DateTimeOffset _now;
-    private Mock<ISystemClock> _clock = null!;
+    private Mock<TimeProvider> _clock = null!;
     private Mock<Random> _random = null!;
     private Queue<int> _randomValues = null!;
 
@@ -60,7 +59,7 @@ public class GameAdapterTests
         _user = _user.SetAccess(manageScores: true);
         _featureService = new Mock<IFeatureService>();
         _userService = new Mock<IUserService>();
-        _clock = new Mock<ISystemClock>();
+        _clock = new Mock<TimeProvider>();
         _random = new Mock<Random>();
         _randomValues = new Queue<int>();
         _matchAdapter = new MockAdapter<GameMatch, GameMatchDto>(
@@ -82,7 +81,7 @@ public class GameAdapterTests
             _random.Object);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _clock.Setup(c => c.UtcNow).Returns(() => _now);
+        _clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
         _random.Setup(r => r.Next()).Returns(() => _randomValues.Dequeue());
     }
 

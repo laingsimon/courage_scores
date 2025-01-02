@@ -6,10 +6,11 @@ import {PlayedEngine} from "./layout/PlayedEngine";
 import {UnplayedEngine} from "./layout/UnplayedEngine";
 import {ILayoutEngine} from "./layout/ILayoutEngine";
 import {ILayoutDataForRound} from "./layout/ILayoutDataForRound";
+import {ReactElement} from "react";
 
 export interface ITournamentLayoutGenerationContext {
     matchOptionDefaults: GameMatchOptionDto;
-    getLinkToSide(side: TournamentSideDto): JSX.Element;
+    getLinkToSide(side: TournamentSideDto): ReactElement;
 }
 
 export function getLayoutData(round: TournamentRoundDto, sides: TournamentSideDto[], context: ITournamentLayoutGenerationContext): ILayoutDataForRound[] {

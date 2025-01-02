@@ -1,4 +1,4 @@
-import {useParams} from "react-router-dom";
+import {useParams} from "react-router";
 import {SaygLoadingContainer} from "./SaygLoadingContainer";
 import {ILiveOptions} from "../../live/ILiveOptions";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";

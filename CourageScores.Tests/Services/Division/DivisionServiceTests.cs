@@ -12,7 +12,6 @@ using CourageScores.Services.Identity;
 using CourageScores.Services.Team;
 using CourageScores.Tests.Models.Cosmos.Game;
 using CourageScores.Tests.Models.Dtos;
-using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
@@ -78,7 +77,7 @@ public class DivisionServiceTests
     private Mock<IGenericRepository<CosmosGame>> _gameRepository = null!;
     private Mock<IGenericRepository<TournamentGame>> _tournamentGameRepository = null!;
     private Mock<IGenericDataService<FixtureDateNote, FixtureDateNoteDto>> _noteService = null!;
-    private Mock<ISystemClock> _clock = null!;
+    private Mock<TimeProvider> _clock = null!;
     private Mock<IDivisionDataDtoFactory> _divisionDataDtoFactory = null!;
     private Mock<IUserService> _userService = null!;
     private DivisionDataContext? _divisionDataContext;
@@ -95,7 +94,7 @@ public class DivisionServiceTests
         _tournamentGameRepository = new Mock<IGenericRepository<TournamentGame>>();
         _noteService = new Mock<IGenericDataService<FixtureDateNote, FixtureDateNoteDto>>();
         _userService = new Mock<IUserService>();
-        _clock = new Mock<ISystemClock>();
+        _clock = new Mock<TimeProvider>();
         _divisionDataDtoFactory = new Mock<IDivisionDataDtoFactory>();
         _someGames.Clear();
         _someNotes.Clear();
@@ -129,7 +128,7 @@ public class DivisionServiceTests
         _genericService.Setup(s => s.Get(Division1.Id, _token)).ReturnsAsync(Division1);
         _genericService.Setup(s => s.Get(Division2.Id, _token)).ReturnsAsync(Division2);
         _genericSeasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(Season));
-        _clock.Setup(c => c.UtcNow).Returns(() => _now);
+        _clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
     }
 
     [Test]

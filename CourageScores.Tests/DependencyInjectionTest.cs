@@ -1,6 +1,5 @@
 ﻿using CourageScores.Repository;
 using CourageScores.Services.Command;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
@@ -33,7 +32,6 @@ public class DependencyInjectionTest
         services.RegisterServices();
         services.AddScoped<ICosmosDatabaseFactory, MockCosmosDatabaseFactory>();
         services.AddSingleton<IConfiguration>(configuration);
-        services.AddSingleton<ISystemClock>(new SystemClock());
         services.AddSingleton(new Mock<IBlobStorageRepository>().Object);
 
         _serviceProvider = services.BuildServiceProvider();

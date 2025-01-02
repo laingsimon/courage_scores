@@ -40,7 +40,7 @@ describe('LegStatistics', () => {
             'tbody');
     }
 
-    function getCellContent(tr: HTMLTableRowElement) {
+    function getCellContent(tr: Element) {
         return Array.from(tr.querySelectorAll('td')).map(td => {
             let content = td.textContent;
 

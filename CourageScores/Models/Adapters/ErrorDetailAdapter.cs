@@ -1,6 +1,5 @@
 ﻿using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http.Extensions;
 
@@ -8,10 +7,10 @@ namespace CourageScores.Models.Adapters;
 
 public class ErrorDetailAdapter : IAdapter<ErrorDetail, ErrorDetailDto>, IErrorDetailAdapter
 {
-    private readonly ISystemClock _clock;
+    private readonly TimeProvider _clock;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public ErrorDetailAdapter(IHttpContextAccessor httpContextAccessor, ISystemClock clock)
+    public ErrorDetailAdapter(IHttpContextAccessor httpContextAccessor, TimeProvider clock)
     {
         _httpContextAccessor = httpContextAccessor;
         _clock = clock;
@@ -54,7 +53,7 @@ public class ErrorDetailAdapter : IAdapter<ErrorDetail, ErrorDetailDto>, IErrorD
         return Task.FromResult(new ErrorDetailDto
         {
             Source = SourceSystem.Api,
-            Time = _clock.UtcNow.UtcDateTime,
+            Time = _clock.GetUtcNow().UtcDateTime,
             UserAgent = _httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString(),
             Stack = errorDetails.Error.StackTrace?.Split(new[]
             {

@@ -64,7 +64,7 @@ public class CachingDivisionService : ICachingDivisionService
         var key = GetKey(filter, "GetDivisionData");
         InvalidateCacheIfCacheControlHeaderPresent(key);
         CacheKeys.TryAdd(key, new object());
-        return await _cache.GetOrCreateAsync(key, _ => _divisionService.GetDivisionData(filter, token));
+        return (await _cache.GetOrCreateAsync(key, _ => _divisionService.GetDivisionData(filter, token)))!;
     }
 
     public async Task<DivisionDto?> Get(Guid id, CancellationToken token)
@@ -84,7 +84,7 @@ public class CachingDivisionService : ICachingDivisionService
         InvalidateCacheIfCacheControlHeaderPresent(key);
         CacheKeys.TryAdd(key, new object());
 
-        foreach (var division in await _cache.GetOrCreateAsync(key, async _ => await _divisionService.GetAll(token).ToList()))
+        foreach (var division in (await _cache.GetOrCreateAsync(key, async _ => await _divisionService.GetAll(token).ToList()))!)
         {
             yield return division;
         }

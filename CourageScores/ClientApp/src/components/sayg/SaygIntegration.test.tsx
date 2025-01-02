@@ -81,23 +81,23 @@ describe('SaygIntegrationTest', () => {
         expect(element.textContent).toContain(side);
     }
 
-    function homeScore(ps: HTMLDivElement) {
+    function homeScore(ps: Element) {
         return ps.querySelector('div:nth-child(1)').textContent;
     }
 
-    function homeRemaining(ps: HTMLDivElement) {
+    function homeRemaining(ps: Element) {
         return ps.querySelector('div:nth-child(2)').textContent;
     }
 
-    function noOfDarts(ps: HTMLDivElement) {
+    function noOfDarts(ps: Element) {
         return ps.querySelector('div:nth-child(3)').textContent;
     }
 
-    function awayScore(ps: HTMLDivElement) {
+    function awayScore(ps: Element) {
         return ps.querySelector('div:nth-child(4)').textContent;
     }
 
-    function awayRemaining(ps: HTMLDivElement) {
+    function awayRemaining(ps: Element) {
         return ps.querySelector('div:nth-child(5)').textContent;
     }
 

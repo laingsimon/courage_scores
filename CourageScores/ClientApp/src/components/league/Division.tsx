@@ -1,6 +1,4 @@
 import {useEffect, useState} from 'react';
-import {Link} from "react-router-dom";
-import {NavLink} from "reactstrap";
 import {DivisionTeams} from "../division_teams/DivisionTeams";
 import {DivisionFixtures} from "../division_fixtures/DivisionFixtures";
 import {DivisionPlayers} from "../division_players/DivisionPlayers";
@@ -27,6 +25,7 @@ import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatu
 import {INVALID, useDivisionUri} from "./DivisionUriContainer";
 import {IIdish} from "./IDivisionUri";
 import {IError} from "../common/IError";
+import {NavLink} from "../common/NavLink";
 
 export interface IRequestedDivisionDataDto extends DivisionDataDto, IFailedRequest {
     requested?: { divisionId: string[], seasonId: string };
@@ -257,39 +256,35 @@ export function Division() {
             />) : null}
             {controls ? (<ul className="nav nav-tabs d-print-none">
                 <li className="nav-item">
-                    <NavLink tag={Link}
-                             className={effectiveTab === 'teams' ? 'active' : ''}
+                    <NavLink className={effectiveTab === 'teams' ? 'active' : ''}
                              to={`/teams${requestedSeason ? '/' + requestedSeason : ''}/${toQueryString(requestedDivisions)}`}>Teams</NavLink>
                 </li>
                 {effectiveTab.startsWith('team:') ? (<li className="nav-item">
-                    <NavLink tag={Link}
-                             className="active"
+                    <NavLink className="active"
                              to={`/teams${requestedSeason ? '/' + requestedSeason : ''}/${toQueryString(requestedDivisions)}`}>
                         Team Details
                     </NavLink>
                 </li>) : null}
                 <li className="nav-item">
-                    <NavLink tag={Link} className={effectiveTab === 'fixtures' ? 'active' : ''}
+                    <NavLink className={effectiveTab === 'fixtures' ? 'active' : ''}
                              to={`/fixtures${requestedSeason ? '/' + requestedSeason : ''}/${toQueryString(requestedDivisions)}`}>Fixtures</NavLink>
                 </li>
                 {divisionData.superleague ? null : (<li className="nav-item">
-                    <NavLink tag={Link}
-                             className={effectiveTab === 'players' ? 'active' : ''}
+                    <NavLink className={effectiveTab === 'players' ? 'active' : ''}
                              to={`/players${requestedSeason ? '/' + requestedSeason : ''}/${toQueryString(requestedDivisions)}`}>Players</NavLink>
                 </li>)}
                 {effectiveTab.startsWith('player:') ? (<li className="nav-item">
-                    <NavLink tag={Link}
-                             className="active"
+                    <NavLink className="active"
                              to={`/teams${requestedSeason ? '/' + requestedSeason : ''}/${toQueryString(requestedDivisions)}`}>
                         {getPlayerProps(effectiveTab.substring('player:'.length)).playerName || 'Player Details'}
                     </NavLink>
                 </li>) : null}
                 {account && account.access && account.access.runReports && requestedDivisions.length === 1 && !divisionData.superleague ? (<li className="nav-item">
-                    <NavLink tag={Link} className={effectiveTab === 'reports' ? 'active' : ''}
+                    <NavLink className={effectiveTab === 'reports' ? 'active' : ''}
                              to={`/division/${requestedDivisions}/reports${requestedSeason ? '/' + requestedSeason : ''}`}>Reports</NavLink>
                 </li>) : null}
                 {account && account.access && account.access.runHealthChecks && requestedDivisions.length === 1 && !divisionData.superleague ? (<li className="nav-item">
-                    <NavLink tag={Link} className={effectiveTab === 'health' ? 'active' : ''}
+                    <NavLink className={effectiveTab === 'health' ? 'active' : ''}
                              to={`/division/${requestedDivisions}/health${requestedSeason ? '/' + requestedSeason : ''}`}>Health</NavLink>
                 </li>) : null}
             </ul>) : null}

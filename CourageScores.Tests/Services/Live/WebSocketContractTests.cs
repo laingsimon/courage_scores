@@ -7,7 +7,6 @@ using CourageScores.Models.Dtos.Live;
 using CourageScores.Models.Live;
 using CourageScores.Services;
 using CourageScores.Services.Live;
-using Microsoft.AspNetCore.Authentication;
 using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -22,7 +21,7 @@ public class WebSocketContractTests
     private Mock<WebSocket> _socket = null!;
     private RecordingSerializerService _serializerService = null!;
     private Mock<IWebSocketMessageProcessor> _processor = null!;
-    private Mock<ISystemClock> _clock = null!;
+    private Mock<TimeProvider> _clock = null!;
 
     private WebSocketContract _contract = null!;
     private Guid _key;
@@ -36,7 +35,7 @@ public class WebSocketContractTests
         _socket = new Mock<WebSocket>();
         _serializerService = new RecordingSerializerService();
         _processor = new Mock<IWebSocketMessageProcessor>();
-        _clock = new Mock<ISystemClock>();
+        _clock = new Mock<TimeProvider>();
         _details = new WebSocketDetail();
         _key = Guid.NewGuid();
         _contract = new WebSocketContract(_socket.Object, _serializerService, _processor.Object, _details, _clock.Object);
@@ -159,7 +158,7 @@ public class WebSocketContractTests
         _receiveResults.Enqueue(CreateReceiveResult(data: jsonData, endOfMessage: true));
         _receiveResults.Enqueue(CreateReceiveResult(closeStatus: WebSocketCloseStatus.NormalClosure));
         var now = DateTimeOffset.UtcNow;
-        _clock.Setup(c => c.UtcNow).Returns(now);
+        _clock.Setup(c => c.GetUtcNow()).Returns(now);
 
         await _contract.Accept(_token);
 
@@ -178,7 +177,7 @@ public class WebSocketContractTests
         _receiveResults.Enqueue(CreateReceiveResult(data: jsonData, endOfMessage: true));
         _receiveResults.Enqueue(CreateReceiveResult(closeStatus: WebSocketCloseStatus.NormalClosure));
         var now = DateTimeOffset.UtcNow;
-        _clock.Setup(c => c.UtcNow).Returns(now);
+        _clock.Setup(c => c.GetUtcNow()).Returns(now);
 
         await _contract.Accept(_token);
 
@@ -416,7 +415,7 @@ public class WebSocketContractTests
             Type = MessageType.Marco,
         };
         var now = DateTimeOffset.UtcNow;
-        _clock.Setup(c => c.UtcNow).Returns(now);
+        _clock.Setup(c => c.GetUtcNow()).Returns(now);
 
         await _contract.Send(messageDto, _token);
 
@@ -431,7 +430,7 @@ public class WebSocketContractTests
             Type = MessageType.Marco,
         };
         var now = DateTimeOffset.UtcNow;
-        _clock.Setup(c => c.UtcNow).Returns(now);
+        _clock.Setup(c => c.GetUtcNow()).Returns(now);
 
         await _contract.Send(messageDto, _token);
 

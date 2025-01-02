@@ -9,6 +9,7 @@ import {TournamentMatchDto} from "../../../interfaces/models/dtos/Game/Tournamen
 import {ILayoutDataForSide} from "./ILayoutDataForSide";
 import {ILayoutDataForMatch} from "./ILayoutDataForMatch";
 import {ILayoutDataForRound} from "./ILayoutDataForRound";
+import {ReactElement} from "react";
 
 interface ISideLayoutInfo {
     side?: ILayoutDataForSide;
@@ -20,7 +21,7 @@ describe('PlayedEngine', () => {
         numberOfLegs: 5,
     };
 
-    function getLinkToSide(side: TournamentSideDto): JSX.Element {
+    function getLinkToSide(side: TournamentSideDto): ReactElement {
         return {
             key: 'link',
             type: null,
