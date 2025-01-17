@@ -9,13 +9,12 @@ using CourageScores.Repository;
 using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Team;
-using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Division;
 
 public class DivisionService : IDivisionService
 {
-    private readonly ISystemClock _clock;
+    private readonly TimeProvider _clock;
     private readonly IDivisionDataDtoFactory _divisionDataDtoFactory;
     private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
     private readonly IGenericDataService<Models.Cosmos.Division, DivisionDto> _genericDivisionService;
@@ -32,7 +31,7 @@ public class DivisionService : IDivisionService
         IGenericRepository<Models.Cosmos.Game.Game> gameRepository,
         IGenericRepository<TournamentGame> tournamentGameRepository,
         IGenericDataService<FixtureDateNote, FixtureDateNoteDto> noteService,
-        ISystemClock clock,
+        TimeProvider clock,
         IDivisionDataDtoFactory divisionDataDtoFactory,
         IUserService userService)
     {
@@ -77,8 +76,9 @@ public class DivisionService : IDivisionService
         }
 
         var allSeasons = await _genericSeasonService.GetAll(token).ToList();
+        var now = _clock.GetUtcNow().Date;
         var season = filter.SeasonId == null
-            ? allSeasons.Where(s => s.StartDate <= _clock.UtcNow.Date && s.EndDate >= _clock.UtcNow.Date && HasAnyDivision(s, divisions)).MaxBy(s => s.EndDate)
+            ? allSeasons.Where(s => s.StartDate <= now && s.EndDate >= now && HasAnyDivision(s, divisions)).MaxBy(s => s.EndDate)
             : allSeasons.SingleOrDefault(s => s.Id == filter.SeasonId);
 
         if (season == null)

@@ -2,7 +2,7 @@ import {PlayLeg} from "./PlayLeg";
 import {MatchStatistics} from "./MatchStatistics";
 import {useApp} from "../common/AppContainer";
 import {WidescreenMatchStatistics} from "./WidescreenMatchStatistics";
-import {Location, useLocation} from "react-router-dom";
+import {Location, useLocation} from "react-router";
 import {useState} from "react";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";

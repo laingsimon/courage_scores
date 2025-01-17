@@ -3,7 +3,6 @@ using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Live;
-using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
 
@@ -16,7 +15,7 @@ public class WebSocketContractFactoryTests
     private Mock<IUserService> _userService = null!;
     private Mock<IJsonSerializerService> _serializerService = null!;
     private Mock<IWebSocketMessageProcessor> _processor = null!;
-    private Mock<ISystemClock> _clock = null!;
+    private Mock<TimeProvider> _clock = null!;
     private Mock<WebSocket> _webSocket = null!;
     private WebSocketContractFactory _factory = null!;
     private UserDto? _user;
@@ -27,7 +26,7 @@ public class WebSocketContractFactoryTests
         _userService = new Mock<IUserService>();
         _serializerService = new Mock<IJsonSerializerService>();
         _processor = new Mock<IWebSocketMessageProcessor>();
-        _clock = new Mock<ISystemClock>();
+        _clock = new Mock<TimeProvider>();
         _user = new UserDto
         {
             Name = "USER",
@@ -61,7 +60,7 @@ public class WebSocketContractFactoryTests
     public async Task Create_WhenCalled_SetsConnectedTime()
     {
         var now = DateTimeOffset.UtcNow;
-        _clock.Setup(c => c.UtcNow).Returns(now);
+        _clock.Setup(c => c.GetUtcNow()).Returns(now);
 
         var result = await _factory.Create(_webSocket.Object, "originatingUrl", _token);
 

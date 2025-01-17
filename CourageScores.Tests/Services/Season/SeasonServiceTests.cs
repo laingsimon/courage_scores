@@ -6,7 +6,6 @@ using CourageScores.Services;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
 using CourageScores.Tests.Models.Adapters;
-using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
 using CosmosSeason = CourageScores.Models.Cosmos.Season.Season;
@@ -21,7 +20,7 @@ public class SeasonServiceTests
     private IAdapter<CosmosSeason, SeasonDto> _adapter = null!;
     private Mock<IAuditingHelper> _auditingHelper = null!;
     private Mock<IUserService> _userService = null!;
-    private Mock<ISystemClock> _clock = null!;
+    private Mock<TimeProvider> _clock = null!;
     private UserDto? _user;
     private SeasonService _service = null!;
     private CosmosSeason _season = null!;
@@ -43,7 +42,7 @@ public class SeasonServiceTests
         _adapter = new MockAdapter<CosmosSeason, SeasonDto>(_season, _seasonDto);
         _auditingHelper = new Mock<IAuditingHelper>();
         _userService = new Mock<IUserService>();
-        _clock = new Mock<ISystemClock>();
+        _clock = new Mock<TimeProvider>();
 
         _service = new SeasonService(
             _repository.Object,
@@ -61,7 +60,7 @@ public class SeasonServiceTests
     public async Task GetLatest_WhenNoSeasons_ReturnsNull()
     {
         var today = new DateTime(2001, 02, 03);
-        _clock.Setup(c => c.UtcNow).Returns(new DateTimeOffset(today, TimeSpan.Zero));
+        _clock.Setup(c => c.GetUtcNow()).Returns(new DateTimeOffset(today, TimeSpan.Zero));
         _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosSeason>());
 
         var result = await _service.GetLatest(_token);
@@ -75,7 +74,7 @@ public class SeasonServiceTests
         var today = new DateTime(2001, 02, 03);
         _seasonDto.StartDate = today;
         _seasonDto.EndDate = today.AddDays(10);
-        _clock.Setup(c => c.UtcNow).Returns(new DateTimeOffset(today, TimeSpan.Zero));
+        _clock.Setup(c => c.GetUtcNow()).Returns(new DateTimeOffset(today, TimeSpan.Zero));
         _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_season));
 
         var result = await _service.GetLatest(_token);
@@ -89,7 +88,7 @@ public class SeasonServiceTests
         var today = new DateTime(2001, 02, 03);
         _seasonDto.StartDate = today.AddDays(-10);
         _seasonDto.EndDate = today;
-        _clock.Setup(c => c.UtcNow).Returns(new DateTimeOffset(today, TimeSpan.Zero));
+        _clock.Setup(c => c.GetUtcNow()).Returns(new DateTimeOffset(today, TimeSpan.Zero));
         _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_season));
 
         var result = await _service.GetLatest(_token);
@@ -103,7 +102,7 @@ public class SeasonServiceTests
         var today = new DateTime(2001, 02, 03);
         _seasonDto.StartDate = today.AddDays(-10);
         _seasonDto.EndDate = today.AddDays(10);
-        _clock.Setup(c => c.UtcNow).Returns(new DateTimeOffset(today, TimeSpan.Zero));
+        _clock.Setup(c => c.GetUtcNow()).Returns(new DateTimeOffset(today, TimeSpan.Zero));
         _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_season));
 
         var result = await _service.GetLatest(_token);
@@ -117,7 +116,7 @@ public class SeasonServiceTests
         var today = new DateTime(2001, 02, 03);
         _seasonDto.StartDate = today.AddDays(1);
         _seasonDto.EndDate = today.AddDays(10);
-        _clock.Setup(c => c.UtcNow).Returns(new DateTimeOffset(today, TimeSpan.Zero));
+        _clock.Setup(c => c.GetUtcNow()).Returns(new DateTimeOffset(today, TimeSpan.Zero));
         _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_season));
 
         var result = await _service.GetLatest(_token);
@@ -131,7 +130,7 @@ public class SeasonServiceTests
         var today = new DateTime(2001, 02, 03);
         _seasonDto.StartDate = today.AddDays(-10);
         _seasonDto.EndDate = today.AddDays(-1);
-        _clock.Setup(c => c.UtcNow).Returns(new DateTimeOffset(today, TimeSpan.Zero));
+        _clock.Setup(c => c.GetUtcNow()).Returns(new DateTimeOffset(today, TimeSpan.Zero));
         _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_season));
 
         var result = await _service.GetLatest(_token);

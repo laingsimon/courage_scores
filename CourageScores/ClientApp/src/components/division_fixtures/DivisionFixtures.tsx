@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import {FilterFixtures} from "./FilterFixtures";
-import {useLocation} from "react-router-dom";
+import {useLocation} from "react-router";
 import {EditNote} from "./EditNote";
 import {any, isEmpty, sortBy} from "../../helpers/collections";
 import {asyncCallback, stateChanged} from "../../helpers/events";

@@ -72,7 +72,7 @@ public class CommaDelimitedModelBinder : IModelBinder
                 return Task.CompletedTask;
             }
 
-            var values = providerValue.Values.SelectMany(s => s.Trim().Split(',', StringSplitOptions.RemoveEmptyEntries)).ToList();
+            var values = providerValue.Values.SelectMany(s => s!.Trim().Split(',', StringSplitOptions.RemoveEmptyEntries)).ToList();
 
             if (bindingContext.ModelType == typeof(List<T>))
             {

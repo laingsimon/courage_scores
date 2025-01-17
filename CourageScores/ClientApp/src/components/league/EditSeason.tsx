@@ -4,7 +4,7 @@ import {propChanged, valueChanged} from "../../helpers/events";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {useDependencies} from "../common/IocContainer";
 import {useApp} from "../common/AppContainer";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {DivisionDataSeasonDto} from "../../interfaces/models/dtos/Division/DivisionDataSeasonDto";
 import {EditSeasonDto} from "../../interfaces/models/dtos/Season/EditSeasonDto";

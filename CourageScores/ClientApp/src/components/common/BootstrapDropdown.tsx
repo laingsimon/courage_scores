@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {ButtonDropdown, DropdownItem, DropdownMenu, DropdownToggle} from "reactstrap";
+import {ButtonDropdown, DropdownMenu, DropdownToggle} from "./ButtonDropdown";
 import {isEmpty} from "../../helpers/collections";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
@@ -62,15 +62,16 @@ export function BootstrapDropdown({value, onChange, options, color, className, d
     }
 
     return (<ButtonDropdown isOpen={dropdownOpen} toggle={toggleOpen} className={className} datatype={datatype}>
-        <DropdownToggle caret color={color || 'outline-light'} className="btn-sm text-dark border-dark" tabIndex={-1}>
+        <DropdownToggle color={color || 'outline-light'} className="btn-sm text-dark border-dark">
             <span
                 className={`text-dark${slim ? '' : ' dropdown-text-min-width'}`}>{selectedOption ? (selectedOption.collapsedText || selectedOption.text) || value : value}</span>
         </DropdownToggle>
         <DropdownMenu className="max-height-250 overflow-auto">
-            {options.map((o: IBootstrapDropdownItem) => (<DropdownItem key={o.value}
+            {options.map((o: IBootstrapDropdownItem) => (<button key={o.value}
                                                                        disabled={o.disabled || false}
-                                                                       className={getItemClassName(o)}
-                                                                       onClick={async () => onChange ? await onChange(o.value) : null}>{o.text || o.value}</DropdownItem>))}
+                                                                       role="menuitem"
+                                                                       className={`dropdown-item ${getItemClassName(o)}`}
+                                                                       onClick={async () => onChange ? await onChange(o.value) : null}>{o.text || o.value}</button>))}
         </DropdownMenu>
     </ButtonDropdown>);
 }

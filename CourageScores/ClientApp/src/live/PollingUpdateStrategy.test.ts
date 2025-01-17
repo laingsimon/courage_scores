@@ -113,7 +113,7 @@ describe('PollingUpdateStrategy', () => {
         it('should clear timeout if no subscriptions and polling handle', async () => {
             let clearedTimeout: number;
             const context: IWebSocketContext = createWebSocketContext(1);
-            window.clearTimeout = (id: number) => {
+            window.clearTimeout = (id: number | any) => {
                 clearedTimeout = id;
             }
 

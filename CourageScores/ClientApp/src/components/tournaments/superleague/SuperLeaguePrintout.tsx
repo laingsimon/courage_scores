@@ -7,7 +7,7 @@ import {any, max} from "../../../helpers/collections";
 import {useDependencies} from "../../common/IocContainer";
 import {useApp} from "../../common/AppContainer";
 import {useTournament} from "../TournamentContainer";
-import {useLocation} from "react-router-dom";
+import {useLocation} from "react-router";
 import {getNoOfLegs, maxNoOfThrowsAllMatches} from "../../../helpers/superleague";
 import {RefreshControl} from "../../common/RefreshControl";
 import {useLive} from "../../../live/LiveContainer";

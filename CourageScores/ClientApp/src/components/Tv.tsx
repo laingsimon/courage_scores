@@ -1,11 +1,11 @@
 import {useDependencies} from "./common/IocContainer";
-import {useEffect, useState} from "react";
+import {ReactElement, useEffect, useState} from "react";
 import {WatchableDataDto} from "../interfaces/models/dtos/Live/WatchableDataDto";
 import {LoadingSpinnerSmall} from "./common/LoadingSpinnerSmall";
 import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
 import {PublicationMode} from "../interfaces/models/dtos/Live/PublicationMode";
 import {useApp} from "./common/AppContainer";
-import {useLocation} from "react-router-dom";
+import {useLocation} from "react-router";
 
 export function Tv() {
     const {liveApi, settings} = useDependencies();
@@ -62,7 +62,7 @@ export function Tv() {
         }
     }
 
-    function getPublicationMode(connection: WatchableDataDto): JSX.Element {
+    function getPublicationMode(connection: WatchableDataDto): ReactElement {
         const lastUpdate: Date = connection.lastUpdate
             ? new Date(connection.lastUpdate)
             : null;

@@ -1,7 +1,7 @@
 import {api, cleanUp, doClick, findButton, iocProps, noop, TestContext} from "./helpers/tests";
 import {App} from "./App";
 import {act} from "@testing-library/react";
-import {MemoryRouter, Route} from "react-router-dom";
+import {MemoryRouter, Route} from "react-router";
 import {IocContainer, IIocContainerProps} from "./components/common/IocContainer";
 import ReactDOM from "react-dom/client";
 import {useApp} from "./components/common/AppContainer";
@@ -20,7 +20,6 @@ import {IDivisionApi} from "./interfaces/apis/IDivisionApi";
 import {ISeasonApi} from "./interfaces/apis/ISeasonApi";
 import {ITeamApi} from "./interfaces/apis/ITeamApi";
 import React from "react";
-import {RouterFutureConfig} from "./helpers/router";
 
 describe('App', () => {
     let context: TestContext;
@@ -88,7 +87,7 @@ describe('App', () => {
 
         let root: ReactDOM.Root;
         await act(async () => {
-            const component = (<MemoryRouter initialEntries={[currentPath || '/']} future={RouterFutureConfig}>
+            const component = (<MemoryRouter initialEntries={[currentPath || '/']}>
                 <IocContainer {...iocProps}>{content}</IocContainer>
             </MemoryRouter>);
             root = ReactDOM.createRoot(container)
