@@ -131,7 +131,7 @@ describe('events', () => {
 
     describe('handleChange', () => {
         it('should return canceling event-handler if no callback provided', async () => {
-            const eventHandler = handleChange(null);
+            const eventHandler = handleChange();
             const event = {
                 target: {
                     name: 'foo',

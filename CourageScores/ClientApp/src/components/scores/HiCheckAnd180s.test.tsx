@@ -18,7 +18,7 @@ import {playerBuilder} from "../../helpers/builders/players";
 
 describe('HiCheckAnd180s', () => {
     let context: TestContext;
-    let updatedFixtureData: GameDto;
+    let updatedFixtureData: GameDto | null;
 
     async function setFixtureData(newFixtureData: GameDto) {
         updatedFixtureData = newFixtureData;
@@ -38,8 +38,8 @@ describe('HiCheckAnd180s', () => {
             brandingProps(),
             appProps(),
             (<HiCheckAnd180s {...props} />),
-            null,
-            null,
+            undefined,
+            undefined,
             'tbody');
     }
 
@@ -324,13 +324,13 @@ describe('HiCheckAnd180s', () => {
                     setFixtureData,
                 });
                 const td180s = context.container.querySelectorAll('td')[0];
-                const addPlayerContainer = td180s.querySelector('ol li:last-child');
-                await doSelectOption(addPlayerContainer.querySelector('.dropdown-menu'), 'AWAY player');
+                const addPlayerContainer = td180s.querySelector('ol li:last-child')!;
+                await doSelectOption(addPlayerContainer.querySelector('.dropdown-menu')!, 'AWAY player');
                 await doClick(findButton(addPlayerContainer, '➕'));
 
                 expect(updatedFixtureData).toBeTruthy();
-                expect(updatedFixtureData.oneEighties).toEqual([
-                    {id: homePlayer.id, name: homePlayer.name, team: null},
+                expect(updatedFixtureData!.oneEighties).toEqual([
+                    {id: homePlayer.id, name: homePlayer.name},
                     {id: awayPlayer.id, name: awayPlayer.name}
                 ]);
             });
@@ -356,7 +356,7 @@ describe('HiCheckAnd180s', () => {
                 await doClick(findButton(td180s, 'HOME player 🗑'));
 
                 expect(updatedFixtureData).toBeTruthy();
-                expect(updatedFixtureData.oneEighties).toEqual([]);
+                expect(updatedFixtureData!.oneEighties).toEqual([]);
             });
 
             it('add a hi-check', async () => {
@@ -376,14 +376,14 @@ describe('HiCheckAnd180s', () => {
                     setFixtureData,
                 });
                 const tdHiChecks = context.container.querySelectorAll('td')[2];
-                const addPlayerContainer = tdHiChecks.querySelector('ol li:last-child');
+                const addPlayerContainer = tdHiChecks.querySelector('ol li:last-child')!;
                 await doChange(addPlayerContainer, 'input', '140', context.user);
-                await doSelectOption(addPlayerContainer.querySelector('.dropdown-menu'), 'AWAY player')
+                await doSelectOption(addPlayerContainer.querySelector('.dropdown-menu')!, 'AWAY player')
                 await doClick(findButton(addPlayerContainer, '➕'));
 
                 expect(updatedFixtureData).toBeTruthy();
-                expect(updatedFixtureData.over100Checkouts).toEqual([
-                    {id: homePlayer.id, name: homePlayer.name, score: 100, team: null},
+                expect(updatedFixtureData!.over100Checkouts).toEqual([
+                    {id: homePlayer.id, name: homePlayer.name, score: 100},
                     {id: awayPlayer.id, name: awayPlayer.name, score: 140}
                 ]);
             });
@@ -409,7 +409,7 @@ describe('HiCheckAnd180s', () => {
                 await doClick(findButton(tdHiChecks, 'HOME player (100) 🗑'));
 
                 expect(updatedFixtureData).toBeTruthy();
-                expect(updatedFixtureData.over100Checkouts).toEqual([]);
+                expect(updatedFixtureData!.over100Checkouts).toEqual([]);
             });
         });
     });

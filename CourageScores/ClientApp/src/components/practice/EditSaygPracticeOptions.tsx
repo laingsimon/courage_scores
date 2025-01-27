@@ -20,7 +20,7 @@ export function EditSaygPracticeOptions() {
         newSayg.homeScore = 0;
         newSayg.awayScore = 0;
         await setSayg(newSayg);
-        await setEditScore(null);
+        await setEditScore();
         if (account && account.access && account.access.kioskMode) {
             await enterFullScreen();
         }
@@ -66,10 +66,10 @@ export function EditSaygPracticeOptions() {
         for (const entry of query.entries()) {
             newQuery.set(entry[0], entry[1]);
         }
-        setQueryString(newQuery, 'yourName', newSayg.yourName);
-        setQueryString(newQuery, 'opponentName', newSayg.opponentName);
-        setQueryNumber(newQuery, 'startingScore', newSayg.startingScore);
-        setQueryNumber(newQuery, 'numberOfLegs', newSayg.numberOfLegs);
+        setQueryString(newQuery, 'yourName', newSayg!.yourName!);
+        setQueryString(newQuery, 'opponentName', newSayg!.opponentName!);
+        setQueryNumber(newQuery, 'startingScore', newSayg!.startingScore!);
+        setQueryNumber(newQuery, 'numberOfLegs', newSayg!.numberOfLegs!);
 
         const to: string = '/practice?' + newQuery + location.hash;
         navigate(to);

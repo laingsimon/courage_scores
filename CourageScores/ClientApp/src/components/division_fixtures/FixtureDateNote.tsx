@@ -8,6 +8,7 @@ import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
 import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDateNoteDto";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {hasAccess} from "../../helpers/conditions";
 
 export interface IFixtureDateNoteProps {
     note: EditFixtureDateNoteDto;
@@ -20,7 +21,7 @@ export function FixtureDateNote({note, setEditNote, preventDelete}: IFixtureDate
     const {account, onError} = useApp();
     const {noteApi} = useDependencies();
     const [deletingNote, setDeletingNote] = useState<boolean>(false);
-    const isNoteAdmin: boolean = account && account.access && account.access.manageNotes;
+    const isNoteAdmin: boolean = hasAccess(account, access => access.manageNotes);
 
     async function deleteNote() {
         /* istanbul ignore next */
@@ -35,7 +36,7 @@ export function FixtureDateNote({note, setEditNote, preventDelete}: IFixtureDate
 
         setDeletingNote(true);
         try {
-            const response: IClientActionResultDto<FixtureDateNoteDto> = await noteApi.delete(note.id);
+            const response: IClientActionResultDto<FixtureDateNoteDto> = await noteApi.delete(note.id!);
 
             if (response.success) {
                 await onReloadDivision();

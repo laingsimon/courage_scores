@@ -50,6 +50,7 @@ import {UploadPhotoDto} from "../../interfaces/models/dtos/UploadPhotoDto";
 import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
 import {useBranding} from "../common/BrandingContainer";
 import {NavLink} from "../common/NavLink";
+import {hasAccess} from "../../helpers/conditions";
 
 export interface ICreatePlayerFor {
     side: string;
@@ -65,34 +66,39 @@ interface ICaptainMatchPlayer extends GamePlayerDto {
     captain?: boolean;
 }
 
+interface IEditableMatchPlayer {
+    name: string;
+    captain?: boolean;
+}
+
 export function Score() {
     const {fixtureId} = useParams();
     const {gameApi, featureApi} = useDependencies();
     const {appLoading, account, divisions, seasons, onError, teams, reloadTeams} = useApp();
-    const [loading, setLoading] = useState('init');
+    const [loading, setLoading] = useState<'init' | 'loading' | 'ready'>('init');
     const [data, setData] = useState<GameDto | null>(null);
     const [fixtureData, setFixtureData] = useState<GameDto | null>(null);
     const [homeTeam, setHomeTeam] = useState<(TeamPlayerDto & ISelectablePlayer & IRenamedPlayer)[]>([]);
     const [awayTeam, setAwayTeam] = useState<(TeamPlayerDto & ISelectablePlayer & IRenamedPlayer)[]>([]);
     const [allPlayers, setAllPlayers] = useState<ISelectablePlayer[]>([]);
-    const [saving, setSaving] = useState(false);
-    const [saveError, setSaveError] = useState<IClientActionResultDto<GameDto> | null>(null);
-    const [submission, setSubmission] = useState<string | null>(null);
+    const [saving, setSaving] = useState<boolean>(false);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<GameDto> | undefined>(undefined);
+    const [submission, setSubmission] = useState<string | undefined>(undefined);
     const [createPlayerFor, setCreatePlayerFor] = useState<ICreatePlayerFor | null>(null);
-    const [newPlayerDetails, setNewPlayerDetails] = useState({name: '', captain: false});
-    const [showPhotoManager, setShowPhotoManager] = useState(false);
+    const [newPlayerDetails, setNewPlayerDetails] = useState<IEditableMatchPlayer>({name: ''});
+    const [showPhotoManager, setShowPhotoManager] = useState<boolean>(false);
     const access = getAccess();
-    const [photosEnabled, setPhotosEnabled] = useState(false);
+    const [photosEnabled, setPhotosEnabled] = useState<boolean>(false);
     const {setTitle} = useBranding();
 
     function renderCreatePlayerDialog() {
-        const team: GameTeamDto = createPlayerFor.side === 'home' ? fixtureData.home : fixtureData.away;
+        const team: GameTeamDto = createPlayerFor!.side === 'home' ? fixtureData!.home : fixtureData!.away;
 
         async function playerCreated(updatedTeamDetails: TeamDto) {
             await reloadTeams();
 
             try {
-                const updatedTeamSeason: TeamSeasonDto = updatedTeamDetails.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === fixtureData.seasonId && !ts.deleted)[0];
+                const updatedTeamSeason: TeamSeasonDto = updatedTeamDetails.seasons!.filter((ts: TeamSeasonDto) => ts.seasonId === fixtureData!.seasonId && !ts.deleted)[0];
                 if (!updatedTeamSeason) {
                     /* istanbul ignore next */
                     console.log(updatedTeamDetails);
@@ -100,7 +106,7 @@ export function Score() {
                     return;
                 }
 
-                const newPlayers: TeamPlayerDto[] = updatedTeamSeason.players.filter((p: TeamPlayerDto) => p.name === newPlayerDetails.name);
+                const newPlayers: TeamPlayerDto[] = updatedTeamSeason.players!.filter((p: TeamPlayerDto) => p.name === newPlayerDetails.name);
                 if (!any(newPlayers)) {
                     /* istanbul ignore next */
                     console.log(updatedTeamSeason);
@@ -109,15 +115,15 @@ export function Score() {
                 }
 
                 const newPlayer: TeamPlayerDto = newPlayers[0];
-                const match: GameMatchDto = fixtureData.matches[createPlayerFor.matchIndex];
+                const match: GameMatchDto = fixtureData!.matches![createPlayerFor!.matchIndex!];
                 const newMatch: GameMatchDto = Object.assign({}, match);
-                newMatch[createPlayerFor.side + 'Players'][createPlayerFor.index] = {
+                newMatch[createPlayerFor!.side + 'Players'][createPlayerFor!.index] = {
                     id: newPlayer.id,
                     name: newPlayer.name
                 };
 
                 const newFixtureData: GameDto = Object.assign({}, fixtureData);
-                fixtureData.matches[createPlayerFor.matchIndex] = newMatch;
+                fixtureData!.matches![createPlayerFor!.matchIndex!] = newMatch;
                 setFixtureData(newFixtureData);
             } catch (e) {
                 /* istanbul ignore next */
@@ -128,13 +134,13 @@ export function Score() {
             }
         }
 
-        return (<Dialog title={`Create ${createPlayerFor.side} player...`}>
+        return (<Dialog title={`Create ${createPlayerFor!.side} player...`}>
             <EditPlayerDetails
                 player={newPlayerDetails}
-                seasonId={fixtureData.seasonId}
-                gameId={fixtureData.id}
+                seasonId={fixtureData!.seasonId!}
+                gameId={fixtureData!.id}
                 team={team}
-                divisionId={fixtureData.divisionId}
+                divisionId={fixtureData!.divisionId}
                 onChange={propChanged(newPlayerDetails, setNewPlayerDetails)}
                 onCancel={async () => setCreatePlayerFor(null)}
                 onSaved={playerCreated}/>
@@ -208,7 +214,7 @@ export function Score() {
         // eslint-disable-next-line
         [appLoading, seasons, teams, divisions]);
 
-    function loadTeamPlayers(teamId: string, seasonId: string, teamType: string, matches: GameMatchDto[]): (TeamPlayerDto & ISelectablePlayer)[] {
+    function loadTeamPlayers(teamId: string, seasonId: string, teamType: string, matches: GameMatchDto[]): (TeamPlayerDto & ISelectablePlayer)[] | undefined {
         const teamData: TeamDto = teams.filter((t: TeamDto) => t.id === teamId)[0];
 
         if (!teamData) {
@@ -228,7 +234,7 @@ export function Score() {
             return;
         }
 
-        const players: (ISelectablePlayer & IRenamedPlayer)[] = teamSeasons[seasonId].players.map((p: TeamPlayerDto) => p as ISelectablePlayer & IRenamedPlayer); // copy the players list
+        const players: (ISelectablePlayer & IRenamedPlayer)[] = teamSeasons[seasonId].players!.map((p: TeamPlayerDto) => p as ISelectablePlayer & IRenamedPlayer); // copy the players list
 
         for (const match of matches) {
             const matchPlayers: ICaptainMatchPlayer[] = match[teamType + 'Players'];
@@ -261,8 +267,8 @@ export function Score() {
         [teams]);
 
     function loadPlayerData(gameData: GameDto) {
-        const homeTeamPlayers: (TeamPlayerDto & ISelectablePlayer)[] = loadTeamPlayers(gameData.home.id, gameData.seasonId, 'home', gameData.matches) || [];
-        const awayTeamPlayers: (TeamPlayerDto & ISelectablePlayer)[] = loadTeamPlayers(gameData.away.id, gameData.seasonId, 'away', gameData.matches) || [];
+        const homeTeamPlayers: (TeamPlayerDto & ISelectablePlayer)[] = loadTeamPlayers(gameData.home.id, gameData.seasonId!, 'home', gameData.matches!) || [];
+        const awayTeamPlayers: (TeamPlayerDto & ISelectablePlayer)[] = loadTeamPlayers(gameData.away.id, gameData.seasonId!, 'away', gameData.matches!) || [];
 
         setHomeTeam(homeTeamPlayers);
         setAwayTeam(awayTeamPlayers);
@@ -275,7 +281,7 @@ export function Score() {
     }
 
     async function loadFixtureData() {
-        const gameData: GameDto = await gameApi.get(fixtureId);
+        const gameData: GameDto | null = await gameApi.get(fixtureId!);
 
         try {
             if (!gameData) {
@@ -287,7 +293,7 @@ export function Score() {
             if (failedRequest.status) {
                 /* istanbul ignore next */
                 console.log(gameData);
-                const suffix: string = failedRequest.errors ? ' -- ' + Object.keys(failedRequest.errors).map((key: string) => `${key}: ${failedRequest.errors[key]}`).join(', ') : '';
+                const suffix: string = failedRequest.errors ? ' -- ' + Object.keys(failedRequest.errors).map((key: string) => `${key}: ${failedRequest.errors![key]}`).join(', ') : '';
                 onError(`Error accessing fixture: Code: ${failedRequest.status}${suffix}`);
                 return;
             }
@@ -314,7 +320,7 @@ export function Score() {
 
     function addMatchesAndMatchOptions(gameData: GameDto): GameDto {
         if (!gameData.matchOptions || isEmpty(gameData.matchOptions)) {
-            const matchOptions: IMatchOptionsLookup = getMatchOptionsLookup(gameData.matchOptions, gameData.isKnockout);
+            const matchOptions: IMatchOptionsLookup = getMatchOptionsLookup(gameData.matchOptions!, gameData.isKnockout);
             gameData.matchOptions = [
                 getMatchOptionDefaults(0, matchOptions),
                 getMatchOptionDefaults(1, matchOptions),
@@ -343,14 +349,14 @@ export function Score() {
         try {
             setSaving(true);
             const update: RecordScoresDto = fixtureData as RecordScoresDto;
-            update.lastUpdated = fixtureData.updated;
-            const response: IClientActionResultDto<GameDto> = await gameApi.updateScores(fixtureId, update);
+            update.lastUpdated = fixtureData!.updated;
+            const response: IClientActionResultDto<GameDto> = await gameApi.updateScores(fixtureId!, update);
 
             if (!response.success) {
                 setSaveError(response);
             } else {
-                setData(response.result);
-                setFixtureData(response.result);
+                setData(response.result!);
+                setFixtureData(response.result!);
             }
         } catch (e) {
             /* istanbul ignore next */
@@ -372,8 +378,8 @@ export function Score() {
 
             const newData: GameDto = Object.assign({}, data);
             newData.matches = [{}, {}, {}, {}, {}, {}, {}, {}];
-            newData.home.manOfTheMatch = null;
-            newData.away.manOfTheMatch = null;
+            newData.home.manOfTheMatch = undefined;
+            newData.away.manOfTheMatch = undefined;
             newData.oneEighties = [];
             newData.over100Checkouts = [];
             newData.resultsPublished = false;
@@ -394,22 +400,22 @@ export function Score() {
     }
 
     function renderMatchPlayerSelection(index: number, _: number, playerCount: number) {
-        const matchesExceptIndex: GameMatchDto[] = fixtureData.matches.filter((_: GameMatchDto, matchIndex: number) => {
-            const matchOptions: GameMatchOptionDto = getMatchOptionDefaults(matchIndex, getMatchOptionsLookup(fixtureData.matchOptions, fixtureData.isKnockout))
+        const matchesExceptIndex: GameMatchDto[] = fixtureData!.matches!.filter((_: GameMatchDto, matchIndex: number) => {
+            const matchOptions: GameMatchOptionDto = getMatchOptionDefaults(matchIndex, getMatchOptionsLookup(fixtureData!.matchOptions!, fixtureData!.isKnockout))
 
             return matchIndex !== index && matchOptions.playerCount === playerCount;
         });
 
         function onMatchChanged(newMatch: GameMatchDto, index: number) {
             const newFixtureData: GameDto = Object.assign({}, fixtureData);
-            newFixtureData.matches[index] = newMatch;
+            newFixtureData.matches![index] = newMatch;
 
             setFixtureData(newFixtureData);
         }
 
         async function onMatchOptionsChanged(newMatchOptions: GameMatchOptionDto) {
             const newFixtureData: GameDto = Object.assign({}, fixtureData);
-            newFixtureData.matchOptions[index] = newMatchOptions;
+            newFixtureData.matchOptions![index] = newMatchOptions;
 
             setFixtureData(newFixtureData);
         }
@@ -420,7 +426,7 @@ export function Score() {
         }
 
         const matchTypeProps: IMatchTypeContainerProps = {
-            matchOptions: elementAt(fixtureData.matchOptions, index) || getMatchOptionDefaults(index, getMatchOptionsLookup(fixtureData.matchOptions, fixtureData.isKnockout)),
+            matchOptions: elementAt(fixtureData!.matchOptions || [], index) || getMatchOptionDefaults(index, getMatchOptionsLookup(fixtureData!.matchOptions!, fixtureData!.isKnockout)),
             otherMatches: matchesExceptIndex,
             setCreatePlayerFor: onCreatePlayer,
             homePlayers: homeTeam,
@@ -429,33 +435,33 @@ export function Score() {
 
         return (<MatchTypeContainer {...matchTypeProps}>
             <MatchPlayerSelection
-                match={fixtureData.matches[index]}
+                match={fixtureData!.matches![index]}
                 onMatchChanged={async (newMatch: GameMatchDto) => onMatchChanged(newMatch, index)}
                 onMatchOptionsChanged={onMatchOptionsChanged}
-                on180={add180(fixtureData, asyncCallback<GameDto>(setFixtureData))}
-                onHiCheck={addHiCheck(fixtureData, asyncCallback<GameDto>(setFixtureData))} />
+                on180={add180(fixtureData!, asyncCallback<GameDto>(setFixtureData))}
+                onHiCheck={addHiCheck(fixtureData!, asyncCallback<GameDto>(setFixtureData))} />
         </MatchTypeContainer>);
     }
 
     function renderMergeMatch(index: number) {
-        if (!fixtureData.resultsPublished && access === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission)) {
+        if (!fixtureData!.resultsPublished && access === 'admin' && submission === null && (data?.homeSubmission || data?.awaySubmission)) {
             return (<MergeMatch
                 readOnly={saving}
                 matchIndex={index}
-                matches={fixtureData.matches}
-                homeSubmission={fixtureData.homeSubmission}
-                awaySubmission={fixtureData.awaySubmission}
+                matches={fixtureData!.matches}
+                homeSubmission={fixtureData!.homeSubmission}
+                awaySubmission={fixtureData!.awaySubmission}
                 setFixtureData={asyncCallback<GameDto>(setFixtureData)}
-                fixtureData={fixtureData}/>);
+                fixtureData={fixtureData!}/>);
         }
 
         return null;
     }
 
     function renderManOfTheMatchInput() {
-        if (access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin')) {
+        if (access !== 'readonly' && (!fixtureData?.resultsPublished || access === 'admin')) {
             return (<ManOfTheMatchInput
-                fixtureData={fixtureData}
+                fixtureData={fixtureData!}
                 saving={saving}
                 access={access}
                 disabled={access === 'admin' && !!submission}
@@ -470,19 +476,19 @@ export function Score() {
             return null;
         }
 
-        function hasManOfTheMatch(data: GameDto, side: string): string {
+        function hasManOfTheMatch(data: GameDto | undefined, side: string): string | undefined {
             if (!data) {
-                return null;
+                return undefined;
             }
 
             const dataSide: GameTeamDto = data[side] || {};
             return dataSide.manOfTheMatch;
         }
 
-        if (!fixtureData.resultsPublished
+        if (!fixtureData!.resultsPublished
             && access === 'admin'
-            && (data.homeSubmission || data.awaySubmission)
-            && ((!hasManOfTheMatch(data, 'home') && hasManOfTheMatch(data.homeSubmission, 'home')) || (!hasManOfTheMatch(data, 'away') && hasManOfTheMatch(data.awaySubmission, 'away')))) {
+            && (data?.homeSubmission || data?.awaySubmission)
+            && ((!hasManOfTheMatch(data, 'home') && hasManOfTheMatch(data?.homeSubmission, 'home')) || (!hasManOfTheMatch(data, 'away') && hasManOfTheMatch(data?.awaySubmission, 'away')))) {
             return (<MergeManOfTheMatch data={data} setData={asyncCallback<GameDto>(setData)} allPlayers={allPlayers}/>);
         }
 
@@ -493,13 +499,13 @@ export function Score() {
         return (<HiCheckAnd180s
             saving={saving || (access === 'admin' && !!submission)}
             access={access}
-            fixtureData={fixtureData}
+            fixtureData={fixtureData!}
             setFixtureData={asyncCallback<GameDto>(setFixtureData)} />);
     }
 
     function renderMerge180sAndHiCheck() {
-        if (!fixtureData.resultsPublished && access === 'admin' && (data.homeSubmission || data.awaySubmission)) {
-            return (<MergeHiCheckAnd180s data={data} fixtureData={fixtureData} setFixtureData={asyncCallback<GameDto>(setFixtureData)}/>);
+        if (!fixtureData?.resultsPublished && access === 'admin' && (data?.homeSubmission || data?.awaySubmission)) {
+            return (<MergeHiCheckAnd180s data={data} fixtureData={fixtureData!} setFixtureData={asyncCallback<GameDto>(setFixtureData)}/>);
         }
 
         return null;
@@ -512,7 +518,7 @@ export function Score() {
         const result: IClientActionResultDto<GameDto> = await gameApi.uploadPhoto(request, file);
 
         if (result.success) {
-            const patchedGameData: GameDto = addMatchesAndMatchOptions(result.result);
+            const patchedGameData: GameDto = addMatchesAndMatchOptions(result.result!);
             setFixtureData(patchedGameData);
             setData(patchedGameData);
             return true;
@@ -523,10 +529,10 @@ export function Score() {
     }
 
     async function deletePhotos(id: string): Promise<boolean> {
-        const result: IClientActionResultDto<GameDto> = await gameApi.deletePhoto(fixtureId, id);
+        const result: IClientActionResultDto<GameDto> = await gameApi.deletePhoto(fixtureId!, id);
 
         if (result.success) {
-            const patchedGameData: GameDto = addMatchesAndMatchOptions(result.result);
+            const patchedGameData: GameDto = addMatchesAndMatchOptions(result.result!);
             setFixtureData(patchedGameData);
             setData(patchedGameData);
             return true;
@@ -537,7 +543,7 @@ export function Score() {
     }
 
     function fixtureDetailsChanged(details: GameDto) {
-        const wasKnockout = fixtureData.isKnockout;
+        const wasKnockout = fixtureData!.isKnockout;
 
         if (details.isKnockout !== wasKnockout) {
             const matchOptionsLookup: IMatchOptionsLookup = getMatchOptionsLookup([], details.isKnockout);
@@ -547,7 +553,7 @@ export function Score() {
 
             for (const index in numberOfLegsPerMatch) {
                 const numberOfLegs: number = numberOfLegsPerMatch[index];
-                const matchOptions: GameMatchOptionDto = details.matchOptions[index];
+                const matchOptions: GameMatchOptionDto = details.matchOptions![index];
                 matchOptions.numberOfLegs = numberOfLegs;
             }
         }
@@ -563,13 +569,13 @@ export function Score() {
         return (<PageError error="Unable to load score card, fixture data not loaded"/>);
     }
 
-    const hasBeenPlayed: boolean = any(fixtureData.matches, (m: GameMatchDto) => m.homeScore + m.awayScore > 0);
+    const hasBeenPlayed: boolean = any(fixtureData.matches, (m: GameMatchDto) => (m.homeScore || 0) + (m.awayScore || 0) > 0);
 
     try {
         const season: SeasonDto = seasons.filter(s => s.id === fixtureData.seasonId)[0] || {id: EMPTY_ID, name: 'Not found'};
         const division: DivisionDto = divisions.filter(d => d.id === fixtureData.divisionId)[0] || {id: EMPTY_ID, name: 'Not found'};
 
-        const editable: boolean = !saving && ((access === 'admin' && !submission) || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true));
+        const editable: boolean = (!saving && ((access === 'admin' && !submission) || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true))) || false;
         const leagueFixtureData: ILeagueFixtureContainerProps = {
             season: season,
             division: division,
@@ -577,8 +583,8 @@ export function Score() {
             awayPlayers: awayTeam,
             readOnly: !editable,
             disabled: access === 'readonly' || (fixtureData.resultsPublished && access !== 'admin') || (access === 'admin' && !!submission),
-            home: data.home,
-            away: data.away,
+            home: data!.home,
+            away: data!.away,
         }
 
         setTitle(`${fixtureData.home.name} vs ${fixtureData.away.name} - ${renderDate(fixtureData.date)}`);
@@ -599,7 +605,7 @@ export function Score() {
                     <NavLink to={`/fixtures/${season.name}/?division=${division.name}`}>Fixtures</NavLink>
                 </li>
                 <li className="nav-item">
-                    <NavLink className="active" to={`/score/${fixtureId}`}>{renderDate(data.date)}</NavLink>
+                    <NavLink className="active" to={`/score/${fixtureId}`}>{renderDate(data!.date)}</NavLink>
                 </li>
                 <li className="nav-item">
                     <NavLink to={`/players/${season.name}/?division=${division.name}`}>Players</NavLink>
@@ -612,8 +618,8 @@ export function Score() {
                                         fixtureData={fixtureData}/>)
                         : null}
                     <table className={`table${(access === 'admin' && !submission) || access === 'clerk' ? ' minimal-padding' : ''}`}>
-                        <ScoreCardHeading access={access} data={data} setSubmission={async (value: string) => setSubmission(value)} setFixtureData={async (value: GameDto) => setFixtureData(value)} submission={submission} />
-                        {hasBeenPlayed || access === 'admin' || (account && access === 'clerk' && ((data.away && account.teamId === data.away.id) || (account.teamId === data.home.id))) ? (
+                        <ScoreCardHeading access={access} data={data!} setSubmission={async (value: string) => setSubmission(value)} setFixtureData={async (value: GameDto) => setFixtureData(value)} submission={submission} />
+                        {hasBeenPlayed || access === 'admin' || (account && access === 'clerk' && ((data!.away && account.teamId === data!.away.id) || (account.teamId === data!.home.id))) ? (
                             <tbody>
                             <tr>
                                 <td colSpan={5} className="text-primary fw-bold text-center">Singles</td>
@@ -654,12 +660,12 @@ export function Score() {
                         </tr>
                         </tbody>)}
                     </table>
-                    {access !== 'readonly' && ((!data.resultsPublished && access === 'clerk') || (access === 'admin' && !submission)) ? (
+                    {access !== 'readonly' && ((!data?.resultsPublished && access === 'clerk') || (access === 'admin' && !submission)) ? (
                         <button className="btn btn-primary margin-right" onClick={saveScores}>
                             {saving ? (<LoadingSpinnerSmall/>) : null}
                             Save
                         </button>) : null}
-                    {access === 'admin' && data.resultsPublished && (data.homeSubmission || data.awaySubmission)
+                    {access === 'admin' && data?.resultsPublished && (data?.homeSubmission || data?.awaySubmission)
                         ? (<button className="btn btn-warning margin-right" onClick={unpublish}>Unpublish</button>)
                         : null}
                     {account && account.access && (account.access.uploadPhotos || account.access.viewAnyPhoto) && photosEnabled
@@ -682,12 +688,12 @@ export function Score() {
             {createPlayerFor ? renderCreatePlayerDialog() : null}
             {showPhotoManager ? (<PhotoManager
                 doUpload={uploadPhotos}
-                photos={fixtureData.photos}
+                photos={fixtureData.photos || []}
                 onClose={async () => setShowPhotoManager(false)}
                 doDelete={deletePhotos}
-                canUploadPhotos={account && account.access && account.access.uploadPhotos}
-                canDeletePhotos={(account && account.access && (account.access.uploadPhotos || account.access.deleteAnyPhoto)) || access === 'admin'}
-                canViewAllPhotos={access === 'admin' || (account && account.access && account.access.viewAnyPhoto)}
+                canUploadPhotos={hasAccess(account, access => access.uploadPhotos)}
+                canDeletePhotos={hasAccess(account, access => access.uploadPhotos || access.deleteAnyPhoto) || access === 'admin'}
+                canViewAllPhotos={access === 'admin' || hasAccess(account, access => access.viewAnyPhoto)}
             />) : null}
             {saveError ? (
                 <ErrorDisplay {...saveError} onClose={asyncClear(setSaveError)} title="Could not save score"/>) : null}

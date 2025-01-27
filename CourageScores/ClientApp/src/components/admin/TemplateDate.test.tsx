@@ -11,14 +11,15 @@ import {
 } from "../../helpers/tests";
 import {ITemplateDateProps, TemplateDate} from "./TemplateDate";
 import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
+import {FixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto";
 
 describe('TemplateDate', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let update: DateTemplateDto;
-    let deleted: boolean;
-    let highlightedMnemonic: string;
-    let deleteDatesContaining: string;
+    let update: DateTemplateDto | null;
+    let deleted: boolean | null;
+    let highlightedMnemonic: string | undefined;
+    let deleteDatesContaining: string | null;
 
     afterEach(async () => {
         await cleanUp(context);
@@ -28,7 +29,7 @@ describe('TemplateDate', () => {
         reportedError = new ErrorState();
         update = null;
         deleted = null;
-        highlightedMnemonic = null;
+        highlightedMnemonic = undefined;
         deleteDatesContaining = null;
     });
 
@@ -100,9 +101,8 @@ describe('TemplateDate', () => {
         });
 
         it('existing bye', async () => {
-            const fixture = {
+            const fixture: FixtureTemplateDto = {
                 home: 'A',
-                away: null,
             };
             await renderComponent({
                 date: {
@@ -122,9 +122,8 @@ describe('TemplateDate', () => {
         });
 
         it('fixture with home template shared address', async () => {
-            const fixture = {
+            const fixture: FixtureTemplateDto = {
                 home: 'A',
-                away: null,
             };
             await renderComponent({
                 date: {
@@ -140,14 +139,13 @@ describe('TemplateDate', () => {
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
-            const fixtureElement = fixtures[0].querySelector('span:first-child');
+            const fixtureElement = fixtures[0].querySelector('span:first-child')!;
             expect(fixtureElement.className).toContain('bg-warning text-light');
         });
 
         it('fixture with home division shared address', async () => {
-            const fixture = {
+            const fixture: FixtureTemplateDto = {
                 home: 'A',
-                away: null,
             };
             await renderComponent({
                 date: {
@@ -163,14 +161,13 @@ describe('TemplateDate', () => {
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
-            const fixtureElement = fixtures[0].querySelector('span:first-child');
+            const fixtureElement = fixtures[0].querySelector('span:first-child')!;
             expect(fixtureElement.className).toContain('bg-secondary text-light');
         });
 
         it('fixture with home division and template shared address', async () => {
-            const fixture = {
+            const fixture: FixtureTemplateDto = {
                 home: 'A',
-                away: null,
             };
             await renderComponent({
                 date: {
@@ -186,14 +183,13 @@ describe('TemplateDate', () => {
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
-            const fixtureElement = fixtures[0].querySelector('span:first-child');
+            const fixtureElement = fixtures[0].querySelector('span:first-child')!;
             expect(fixtureElement.className).toContain('bg-secondary text-light');
         });
 
         it('highlights home mnemonic', async () => {
-            const fixture = {
+            const fixture: FixtureTemplateDto = {
                 home: 'A',
-                away: null,
             };
             await renderComponent({
                 date: {
@@ -209,7 +205,7 @@ describe('TemplateDate', () => {
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
-            const fixtureElement = fixtures[0].querySelector('span:first-child');
+            const fixtureElement = fixtures[0].querySelector('span:first-child')!;
             expect(fixtureElement.className).toContain('bg-danger');
         });
 
@@ -232,7 +228,7 @@ describe('TemplateDate', () => {
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
-            const fixtureElement = fixtures[0].querySelector('span:nth-child(3)');
+            const fixtureElement = fixtures[0].querySelector('span:nth-child(3)')!;
             expect(fixtureElement.className).toContain('bg-danger');
         });
     });
@@ -280,7 +276,7 @@ describe('TemplateDate', () => {
 
             await doChange(context.container, 'input[name="home"]', 'A', context.user);
             await doChange(context.container, 'input[name="away"]', 'B', context.user);
-            await context.user.type(context.container.querySelector('input[name="away"]'), '{Enter}');
+            await context.user!.type(context.container.querySelector('input[name="away"]')!, '{Enter}');
 
             expect(update).toEqual({
                 fixtures: [{
@@ -303,8 +299,8 @@ describe('TemplateDate', () => {
                 setHighlight,
                 deleteDates,
             });
-            let alert: string;
-            window.alert = (msg) => alert = msg;
+            let alert: string | undefined;
+            window.alert = (msg: string) => alert = msg;
 
             await doChange(context.container, 'input[name="home"]', 'A', context.user);
             await doChange(context.container, 'input[name="home"]', '', context.user);
@@ -328,13 +324,13 @@ describe('TemplateDate', () => {
                 setHighlight,
                 deleteDates,
             });
-            let alert: string;
-            window.alert = (msg) => alert = msg;
+            let alert: string | undefined;
+            window.alert = (msg: string) => alert = msg;
 
             await doChange(context.container, 'input[name="home"]', 'A', context.user);
             await doChange(context.container, 'input[name="home"]', '', context.user);
             await doChange(context.container, 'input[name="away"]', 'B', context.user);
-            await context.user.type(context.container.querySelector('input[name="home"]'), '{Enter}');
+            await context.user!.type(context.container.querySelector('input[name="home"]')!, '{Enter}');
 
             expect(alert).toEqual('Enter at least a home team');
             expect(update).toBeNull();
@@ -360,7 +356,6 @@ describe('TemplateDate', () => {
             expect(update).toEqual({
                 fixtures: [{
                     home: 'A',
-                    away: null,
                 }],
             });
         });
@@ -394,7 +389,6 @@ describe('TemplateDate', () => {
                 date: {
                     fixtures: [{
                         home: 'A',
-                        away: null,
                     }]
                 },
                 divisionSharedAddresses: [],
@@ -452,7 +446,7 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            await triggerMouseMove(context.container.querySelector('button.badge > span:first-child'), true);
+            await triggerMouseMove(context.container.querySelector('button.badge > span:first-child')!, true);
 
             expect(highlightedMnemonic).toEqual('A');
         });
@@ -474,7 +468,7 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            await triggerMouseMove(context.container.querySelector('button.badge > span:nth-child(3)'), true);
+            await triggerMouseMove(context.container.querySelector('button.badge > span:nth-child(3)')!, true);
 
             expect(highlightedMnemonic).toEqual('B');
         });
@@ -497,9 +491,9 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            await triggerMouseLeave(context.container.querySelector('button.badge > span:first-child'), true);
+            await triggerMouseLeave(context.container.querySelector('button.badge > span:first-child')!, true);
 
-            expect(highlightedMnemonic).toBeNull();
+            expect(highlightedMnemonic).toBeUndefined();
         });
 
         it('removes highlight when mouse moves and ctrl not pressed', async () => {
@@ -520,9 +514,9 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            await triggerMouseMove(context.container.querySelector('button.badge > span:first-child'), false);
+            await triggerMouseMove(context.container.querySelector('button.badge > span:first-child')!, false);
 
-            expect(highlightedMnemonic).toBeNull();
+            expect(highlightedMnemonic).toBeUndefined();
         });
 
         it('can delete all fixtures for the home mnemonic', async () => {
@@ -548,7 +542,7 @@ describe('TemplateDate', () => {
 
             expect(update).toBeNull();
             expect(deleteDatesContaining).toEqual('A');
-            expect(highlightedMnemonic).toBeNull();
+            expect(highlightedMnemonic).toBeUndefined();
         });
 
         it('can delete all fixtures for the away mnemonic', async () => {
@@ -574,7 +568,7 @@ describe('TemplateDate', () => {
 
             expect(update).toBeNull();
             expect(deleteDatesContaining).toEqual('B');
-            expect(highlightedMnemonic).toBeNull();
+            expect(highlightedMnemonic).toBeUndefined();
         });
     });
 });

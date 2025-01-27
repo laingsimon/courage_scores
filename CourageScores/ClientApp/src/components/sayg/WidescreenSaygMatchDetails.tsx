@@ -2,7 +2,7 @@ import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 
 export interface IWidescreenSaygMatchDetailsProps {
     legs: { [legKey: number]: LegDto };
-    numberOfLegs: number;
+    numberOfLegs?: number;
 }
 
 export function WidescreenSaygMatchDetails({ legs, numberOfLegs }: IWidescreenSaygMatchDetailsProps) {

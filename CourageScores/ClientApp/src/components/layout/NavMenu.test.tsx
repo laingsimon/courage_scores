@@ -34,7 +34,7 @@ describe('NavMenu', () => {
     }
 
     function isExpanded() {
-        const header = context.container.querySelector('header');
+        const header = context.container.querySelector('header')!;
         expect(header).toBeTruthy();
         const state = header.getAttribute('data-state');
         expect(state).toBeTruthy();
@@ -42,7 +42,7 @@ describe('NavMenu', () => {
     }
 
     function getDivisionItems() {
-        const menu = context.container.querySelector('nav');
+        const menu = context.container.querySelector('nav')!;
         const items = Array.from(menu.querySelectorAll('li'));
         items.pop(); // login
 
@@ -65,7 +65,7 @@ describe('NavMenu', () => {
         }
         const seasons = [currentSeason, otherSeason];
         const divisions = [division];
-        const account: UserDto = null;
+        const account: UserDto | null = null;
 
         it('when app loading', async () => {
             await renderComponent(settings, appProps({
@@ -77,7 +77,7 @@ describe('NavMenu', () => {
             }));
 
             expect(context.container.textContent).not.toContain('ERROR:');
-            const menu = context.container.querySelector('nav');
+            const menu = context.container.querySelector('nav')!;
             const items = Array.from(menu.querySelectorAll('li'));
             const lastMenuItem = items[items.length - 1];
             expect(lastMenuItem.querySelector('.spinner-border')).toBeTruthy();
@@ -108,7 +108,7 @@ describe('NavMenu', () => {
             expect(context.container.textContent).not.toContain('ERROR:');
             const listItems = Array.from(context.container.querySelectorAll('nav li'));
             expect(listItems.map(li => li.textContent)).toEqual(['BEFORE 1', 'BEFORE 2', 'DIVISION', 'AFTER 1', 'AFTER 2', 'Login']);
-            expect(listItems.map(li => li.querySelector('a').href)).toEqual([
+            expect(listItems.map(li => li.querySelector('a')!.href)).toEqual([
                 'https://localhost/BEFORE1',
                 'https://localhost/BEFORE2',
                 'http://localhost/teams/' + currentSeason.name + '/?division=' + division.name,
@@ -143,7 +143,7 @@ describe('NavMenu', () => {
             }));
 
             expect(context.container.textContent).not.toContain('ERROR:');
-            const menu = context.container.querySelector('nav');
+            const menu = context.container.querySelector('nav')!;
             const items = Array.from(menu.querySelectorAll('li'));
             const loginItem = items[items.length - 1];
             expect(loginItem.textContent).toEqual('Login');
@@ -158,11 +158,11 @@ describe('NavMenu', () => {
                 clearError,
             }));
             expect(context.container.textContent).not.toContain('ERROR:');
-            const menu = context.container.querySelector('nav');
+            const menu = context.container.querySelector('nav')!;
             const items = Array.from(menu.querySelectorAll('li'));
             const loginItem = items[items.length - 1];
 
-            const link = loginItem.querySelector('a');
+            const link = loginItem.querySelector('a')!;
             expect(link).toBeTruthy();
             expect(link.href).toEqual(`https://localhost/api/Account/Login/?redirectUrl=${encodeURIComponent('https://localhost/practice?q=value')}`);
         });
@@ -185,12 +185,12 @@ describe('NavMenu', () => {
                 }
             });
             expect(context.container.textContent).not.toContain('ERROR:');
-            const menu = context.container.querySelector('nav');
+            const menu = context.container.querySelector('nav')!;
             const practiceItem = Array.from(menu.querySelectorAll('li'))
                 .filter(li => li.textContent === 'Practice')[0];
             expect(practiceItem).toBeTruthy();
 
-            const link = practiceItem.querySelector('a');
+            const link = practiceItem.querySelector('a')!;
             link.href = '#';
             await doClick(link);
 
@@ -227,14 +227,14 @@ describe('NavMenu', () => {
                 }
             });
             expect(context.container.textContent).not.toContain('ERROR:');
-            const menu = context.container.querySelector('nav');
-            await doClick(context.container.querySelector('.navbar-toggler'));
+            const menu = context.container.querySelector('nav')!;
+            await doClick(context.container.querySelector('.navbar-toggler')!);
             expect(isExpanded()).toEqual(true);
             const practiceItem = Array.from(menu.querySelectorAll('li'))
                 .filter(li => li.textContent === 'Practice')[0];
             expect(practiceItem).toBeTruthy();
 
-            const link = practiceItem.querySelector('a');
+            const link = practiceItem.querySelector('a')!;
             link.href = '#';
             await doClick(link); // click Practice
 
@@ -250,10 +250,10 @@ describe('NavMenu', () => {
                 clearError,
             }));
             expect(context.container.textContent).not.toContain('ERROR:');
-            await doClick(context.container.querySelector('.navbar-brand'));
+            await doClick(context.container.querySelector('.navbar-brand')!);
             expect(isExpanded()).toEqual(true);
 
-            await doClick(context.container.querySelector('.navbar-brand'));
+            await doClick(context.container.querySelector('.navbar-brand')!);
 
             expect(isExpanded()).toEqual(false);
         });
@@ -277,11 +277,11 @@ describe('NavMenu', () => {
             });
             expect(context.container.textContent).not.toContain('ERROR:');
 
-            const menu = context.container.querySelector('nav');
+            const menu = context.container.querySelector('nav')!;
             const practiceItem = Array.from(menu.querySelectorAll('li'))
                 .filter(li => li.textContent === 'Practice')[0];
             expect(practiceItem).toBeTruthy();
-            const link = practiceItem.querySelector('a');
+            const link = practiceItem.querySelector('a')!;
             expect(link.className).toContain('nav-item-active');
         });
 
@@ -307,7 +307,7 @@ describe('NavMenu', () => {
                     appLoading: false,
                     clearError,
                 }),
-                null,
+                undefined,
                 '/teams/:seasonId',
                 `/teams/${onlyDivision1SeasonCurrent.id}?division=${division1.id}`);
             expect(context.container.textContent).not.toContain('ERROR:');
@@ -334,7 +334,7 @@ describe('NavMenu', () => {
                     appLoading: false,
                     clearError,
                 }),
-                null,
+                undefined,
                 '/teams/:seasonId',
                 `/teams/${bothDivisionsSeasonsNotCurrent.id}/?division=${division1.id}`);
             expect(context.container.textContent).not.toContain('ERROR:');
@@ -384,7 +384,7 @@ describe('NavMenu', () => {
             }));
             expect(context.container.textContent).not.toContain('ERROR:');
 
-            const menu = context.container.querySelector('nav');
+            const menu = context.container.querySelector('nav')!;
             const items = Array.from(menu.querySelectorAll('li'));
             const itemsText = items.map(li => li.textContent);
             expect(itemsText.filter(t => t === 'Admin')).toEqual([]);
@@ -400,7 +400,7 @@ describe('NavMenu', () => {
             }));
             expect(context.container.textContent).not.toContain('ERROR:');
 
-            const menu = context.container.querySelector('nav');
+            const menu = context.container.querySelector('nav')!;
             const items = Array.from(menu.querySelectorAll('li'));
             const adminItem = items[items.length - 2];
             expect(adminItem.textContent).toEqual('Admin');
@@ -416,7 +416,7 @@ describe('NavMenu', () => {
             }));
             expect(context.container.textContent).not.toContain('ERROR:');
 
-            const menu = context.container.querySelector('nav');
+            const menu = context.container.querySelector('nav')!;
             const items = Array.from(menu.querySelectorAll('li'));
             const logoutItem = items[items.length - 1];
             expect(logoutItem.textContent).toEqual('Logout (Simon)');
@@ -432,10 +432,10 @@ describe('NavMenu', () => {
             }));
             expect(context.container.textContent).not.toContain('ERROR:');
 
-            const menu = context.container.querySelector('nav');
+            const menu = context.container.querySelector('nav')!;
             const items = Array.from(menu.querySelectorAll('li'));
             const logoutItem = items[items.length - 1];
-            const link = logoutItem.querySelector('a');
+            const link = logoutItem.querySelector('a')!;
             expect(link).toBeTruthy();
             expect(link.href).toEqual(`https://localhost/api/Account/Logout/?redirectUrl=${encodeURIComponent('https://localhost/practice?q=value')}`);
         });

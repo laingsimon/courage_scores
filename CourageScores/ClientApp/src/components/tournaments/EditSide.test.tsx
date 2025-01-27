@@ -36,18 +36,18 @@ import {
 describe('EditSide', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedData: TournamentSideDto;
+    let updatedData: TournamentSideDto | null;
     let closed: boolean;
     let applied: boolean;
     let deleted: boolean;
     let teamsReloaded: boolean;
-    let applyOptions: ISaveSideOptions;
+    let applyOptions: ISaveSideOptions | null;
     let createdPlayer: {
         divisionId: string,
         seasonId: string,
         teamId: string,
         playerDetails: EditTeamPlayerDto,
-    };
+    } | null;
     let preventScroll: boolean;
     let divisions: DivisionDto[];
     const playerApi = api<IPlayerApi>({
@@ -196,7 +196,7 @@ describe('EditSide', () => {
             .build();
 
         it('new side', async () => {
-            await renderComponent(containerProps(tournamentData, season), props(sideBuilder().build()), null);
+            await renderComponent(containerProps(tournamentData, season), props(sideBuilder().build()));
 
             reportedError.verifyNoError();
             const nameInput = context.container.querySelector('input[name="name"]') as HTMLInputElement;
@@ -217,7 +217,7 @@ describe('EditSide', () => {
             expect(nameInput.value).toEqual('SIDE NAME');
             expect(context.container.querySelector('.dropdown-menu')).toBeNull();
             expect(context.container.querySelector('ol.list-group')).not.toBeNull();
-            expect(context.container.querySelector('ol.list-group li.list-group-item.active').textContent).toEqual('PLAYER');
+            expect(context.container.querySelector('ol.list-group li.list-group-item.active')!.textContent).toEqual('PLAYER');
         });
 
         it('excludes players from deleted team seasons', async () => {
@@ -233,7 +233,7 @@ describe('EditSide', () => {
             expect(nameInput.value).toEqual('SIDE NAME');
             expect(context.container.querySelector('.dropdown-menu')).toBeNull();
             expect(context.container.querySelector('ol.list-group')).not.toBeNull();
-            expect(context.container.querySelector('ol.list-group').textContent).not.toContain('DELETED PLAYER');
+            expect(context.container.querySelector('ol.list-group')!.textContent).not.toContain('DELETED PLAYER');
         });
 
         it('players filtered by player name', async () => {
@@ -283,7 +283,7 @@ describe('EditSide', () => {
             const nameInput = context.container.querySelector('input[name="name"]') as HTMLInputElement;
             expect(nameInput.value).toEqual('SIDE NAME');
             expect(context.container.querySelector('.dropdown-menu .active')).not.toBeNull();
-            expect(context.container.querySelector('.dropdown-menu .active').textContent).toEqual('TEAM');
+            expect(context.container.querySelector('.dropdown-menu .active')!.textContent).toEqual('TEAM');
         });
 
         it('side which did not show', async () => {
@@ -420,7 +420,7 @@ describe('EditSide', () => {
         });
 
         it('selectable players when selected in this side', async () => {
-            await renderComponent(containerProps(tournamentData, season), props(tournamentData.sides[0]), [anotherTeam]);
+            await renderComponent(containerProps(tournamentData, season), props(tournamentData.sides![0]), [anotherTeam]);
 
             reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
@@ -432,11 +432,11 @@ describe('EditSide', () => {
 
             reportedError.verifyNoError();
             expect(context.container.querySelector('.btn-danger')).toBeTruthy();
-            expect(context.container.querySelector('.btn-danger').textContent).toEqual('Delete side');
+            expect(context.container.querySelector('.btn-danger')!.textContent).toEqual('Delete side');
         });
 
         it('no delete button when side is new', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME').id(undefined).build();
+            const side: TournamentSideDto = sideBuilder('SIDE NAME').noId().build();
 
             await renderComponent(containerProps(tournamentData, season), props(side), [team]);
 
@@ -446,7 +446,7 @@ describe('EditSide', () => {
 
         it('add player button when permitted and new side', async () => {
             const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .id(undefined)
+                .noId()
                 .build();
 
             await renderComponent(containerProps(tournamentData, season), props(side), [team], user(true));
@@ -576,7 +576,6 @@ describe('EditSide', () => {
             expect(updatedData).toEqual({
                 id: expect.any(String),
                 name: 'SIDE NAME',
-                teamId: undefined,
                 players: [],
             });
         });
@@ -600,7 +599,7 @@ describe('EditSide', () => {
         });
 
         it('sets side name to player name when player selected for new side', async () => {
-            const side: TournamentSideDto = sideBuilder(undefined).build();
+            const side: TournamentSideDto = sideBuilder().build();
             await renderComponent(containerProps(tournamentData, season), props(side), [team]);
             const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
 
@@ -657,7 +656,6 @@ describe('EditSide', () => {
                 }, {
                     id: player.id,
                     name: 'PLAYER',
-                    team: null,
                 }],
             });
         });
@@ -678,7 +676,6 @@ describe('EditSide', () => {
                 players: [{
                     id: player.id,
                     name: 'PLAYER',
-                    team: null,
                 }, {
                     id: anotherPlayer.id,
                     name: 'ANOTHER PLAYER',
@@ -709,8 +706,8 @@ describe('EditSide', () => {
 
         it('can delete side', async () => {
             await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team]);
-            let confirm: string;
-            window.confirm = (msg) => {
+            let confirm: string | undefined;
+            window.confirm = (msg: string | undefined) => {
                 confirm = msg;
                 return true;
             }
@@ -724,8 +721,8 @@ describe('EditSide', () => {
 
         it('does not delete side when rejected', async () => {
             await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team]);
-            let confirm: string;
-            window.confirm = (msg) => {
+            let confirm: string | undefined;
+            window.confirm = (msg: string | undefined) => {
                 confirm = msg;
                 return false;
             }
@@ -740,8 +737,8 @@ describe('EditSide', () => {
         it('cannot save side if no name', async () => {
             const side: TournamentSideDto = sideBuilder('').teamId(team.id).build();
             await renderComponent(containerProps(tournamentData, season), props(side), [team]);
-            let alert: string;
-            window.alert = (msg) => {
+            let alert: string | undefined;
+            window.alert = (msg: string) => {
                 alert = msg;
             };
 
@@ -856,14 +853,14 @@ describe('EditSide', () => {
             await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team], user(true));
             await doClick(findButton(context.container, 'Add player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
-            const dialog = headingForDialog.closest('.modal-dialog');
+            const dialog = headingForDialog.closest('.modal-dialog')!;
 
             await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
             await doSelectOption(dialog.querySelector('div[datatype="team-selection-team"] .dropdown-menu'), team.name);
             await doClick(findButton(dialog, 'Add player'));
 
             expect(createdPlayer).not.toBeNull();
-            expect(updatedData.players).toEqual([player, {
+            expect(updatedData!.players).toEqual([player, {
                 name: 'NAME',
                 id: expect.any(String),
                 divisionId: division.id,
@@ -878,14 +875,14 @@ describe('EditSide', () => {
             await renderComponent(containerProps(multiDivisionTournament, season), props(sideWithPlayer), [team], user(true));
             await doClick(findButton(context.container, 'Add player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
-            const dialog = headingForDialog.closest('.modal-dialog');
+            const dialog = headingForDialog.closest('.modal-dialog')!;
 
             await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
             await doSelectOption(dialog.querySelector('div[datatype="team-selection-team"] .dropdown-menu'), team.name);
             await doClick(findButton(dialog, 'Add player'));
 
             expect(createdPlayer).not.toBeNull();
-            expect(updatedData.players).toEqual([player, {
+            expect(updatedData!.players).toEqual([player, {
                 name: 'NAME',
                 id: expect.any(String),
                 divisionId: division.id,
@@ -896,7 +893,7 @@ describe('EditSide', () => {
             await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team], user(true));
             await doClick(findButton(context.container, 'Add player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
-            const dialog = headingForDialog.closest('.modal-dialog');
+            const dialog = headingForDialog.closest('.modal-dialog')!;
 
             await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
             await doSelectOption(dialog.querySelector('.dropdown-menu'), team.name);
@@ -918,7 +915,7 @@ describe('EditSide', () => {
             await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team], user(true));
             await doClick(findButton(context.container, 'Add player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
-            const dialog = headingForDialog.closest('.modal-dialog');
+            const dialog = headingForDialog.closest('.modal-dialog')!;
 
             await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
             await doSelectOption(dialog.querySelector('.dropdown-menu'), team.name);
@@ -931,7 +928,7 @@ describe('EditSide', () => {
             await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team], user(true));
             await doClick(findButton(context.container, 'Add player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
-            const dialog = headingForDialog.closest('.modal-dialog');
+            const dialog = headingForDialog.closest('.modal-dialog')!;
 
             await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
             await doSelectOption(dialog.querySelector('.dropdown-menu'), team.name);

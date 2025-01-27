@@ -37,7 +37,7 @@ export function SharedAddress({ address, onUpdate, onDelete, className, highligh
     async function highlightIfCtrlDown(event: React.MouseEvent<HTMLSpanElement>, mnemonic: string) {
         if (!event.ctrlKey) {
             if (highlight) {
-                await setHighlight(null);
+                await setHighlight();
             }
             return;
         }
@@ -57,7 +57,7 @@ export function SharedAddress({ address, onUpdate, onDelete, className, highligh
             onClick={() => deleteAddress(index)}
             className={`btn btn-sm margin-right badge py-1 ${className}${getHighlightClassName(a)}`}
             onMouseMove={async (event) => await highlightIfCtrlDown(event, a)}
-            onMouseLeave={async () => await setHighlight(null)}>{a} &times;</button>)}
+            onMouseLeave={async () => await setHighlight()}>{a} &times;</button>)}
         <span className={`margin-right badge ${className}`}>
             <input className="width-20 outline-0 border-0" value={newAddress} onKeyUp={onKeyUp} onChange={stateChanged(setNewAddress)} />
             <button className={`${className} ms-1 border-0 px-0`} onClick={addAddress}>➕</button>

@@ -16,22 +16,23 @@ import {usePreferences} from "../common/PreferencesContainer";
 import {any} from "../../helpers/collections";
 import {Link} from "react-router";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
+import {hasAccess} from "../../helpers/conditions";
 
 export interface IDivisionPlayerProps {
     player: DivisionPlayerDto;
-    hideVenue: boolean;
+    hideVenue?: boolean;
 }
 
 export function DivisionPlayer({player, hideVenue}: IDivisionPlayerProps) {
     const {account, reloadTeams} = useApp();
     const {id: divisionId, season, onReloadDivision, name: divisionName, favouritesEnabled} = useDivisionData();
-    const [playerDetails, setPlayerDetails] = useState(Object.assign({}, player));
+    const [playerDetails, setPlayerDetails] = useState<DivisionPlayerDto>(Object.assign({}, player));
     const [editPlayer, setEditPlayer] = useState<boolean>(false);
     const [deleting, setDeleting] = useState<boolean>(false);
     const [saveError, setSaveError] = useState<IClientActionResultDto<TeamDto> | null>(null);
-    const isAdmin: boolean = account && account.access && account.access.managePlayers;
+    const isAdmin: boolean = hasAccess(account, access => access.managePlayers);
     const team: TeamDto = {
-        id: player.teamId,
+        id: player.teamId!,
         name: player.team,
         address: '',
     };
@@ -54,11 +55,11 @@ export function DivisionPlayer({player, hideVenue}: IDivisionPlayerProps) {
     function renderEditPlayer() {
         return (<Dialog title={`Edit player: ${player.name}`}>
             <EditPlayerDetails
-                gameId={null}
+                gameId={undefined}
                 player={playerDetails}
                 team={team}
-                seasonId={season.id}
-                divisionId={divisionId}
+                seasonId={season!.id!}
+                divisionId={divisionId!}
                 onCancel={async () => setEditPlayer(false)}
                 onChange={propChanged(playerDetails, setPlayerDetails)}
                 onSaved={playerDetailSaved}
@@ -79,7 +80,7 @@ export function DivisionPlayer({player, hideVenue}: IDivisionPlayerProps) {
 
         setDeleting(true);
         try {
-            const response: IClientActionResultDto<TeamDto> = await playerApi.delete(season.id, player.teamId, player.id);
+            const response: IClientActionResultDto<TeamDto> = await playerApi.delete(season!.id!, player.teamId!, player.id!);
             if (response.success) {
                 await onReloadDivision();
                 await reloadTeams();
@@ -91,7 +92,7 @@ export function DivisionPlayer({player, hideVenue}: IDivisionPlayerProps) {
         }
     }
 
-    const division: DivisionDto = player.division || { id: divisionId, name: divisionName };
+    const division: DivisionDto = player.division || { id: divisionId!, name: divisionName };
 
     return (<tr className={(notAFavourite && favouritesEnabled && !isAdmin ? ' opacity-25' : '')}>
         <td>{player.rank}</td>
@@ -108,7 +109,7 @@ export function DivisionPlayer({player, hideVenue}: IDivisionPlayerProps) {
                 : null}
             {deleting
                 ? (<s>{player.name}</s>)
-                : (<Link to={`/division/${division.name || division.id}/player:${player.name}@${player.team}/${season.name}`}>
+                : (<Link to={`/division/${division.name || division.id}/player:${player.name}@${player.team}/${season!.name}`}>
                     {player.captain ? (<span>🤴 </span>) : null}
                     {player.name}
                 </Link>)}
@@ -122,14 +123,14 @@ export function DivisionPlayer({player, hideVenue}: IDivisionPlayerProps) {
                 {team.id === EMPTY_ID
                     ? (<span className="text-warning">{player.team}</span>)
                     : (<>
-                        {isAdmin ? null : (<ToggleFavouriteTeam teamId={player.teamId} />)}
-                        <Link to={`/division/${division.name || division.id}/team:${team.name}/${season.name}`} className="margin-right">
+                        {isAdmin ? null : (<ToggleFavouriteTeam teamId={player.teamId!} />)}
+                        <Link to={`/division/${division.name || division.id}/team:${team.name}/${season!.name}`} className="margin-right">
                             {deleting ? (<s>{player.team}</s>) : player.team}
                         </Link></>)}
             </td>)}
-        <td>{player.singles.matchesPlayed}</td>
-        <td>{player.singles.matchesWon}</td>
-        <td>{player.singles.matchesLost}</td>
+        <td>{player.singles?.matchesPlayed}</td>
+        <td>{player.singles?.matchesWon}</td>
+        <td>{player.singles?.matchesLost}</td>
         <td>{player.points}</td>
         <td>{player.winPercentage}</td>
         <td>{player.oneEighties}</td>

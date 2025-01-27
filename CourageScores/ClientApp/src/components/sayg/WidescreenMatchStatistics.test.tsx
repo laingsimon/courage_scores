@@ -37,7 +37,7 @@ describe('WidescreenMatchStatistics', () => {
         beforeEach(() => {
             sayg = saygBuilder()
                 .yourName('HOME')
-                .opponentName(null)
+                .opponentName()
                 .scores(1, 2)
                 .numberOfLegs(5)
                 .withLeg(0, (l: ILegBuilder) => l.startingScore(501).home((c: ILegCompetitorScoreBuilder) => c.withThrow(100)))
@@ -54,8 +54,8 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]');
-            const headingElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerHeading"]');
+            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
+            const headingElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerHeading"]')!;
             expect(headingElement.textContent).toContain('HOME');
         });
 
@@ -68,8 +68,8 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]');
-            const playerElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayer"]');
+            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
+            const playerElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayer"]')!;
             expect(playerElement.textContent).toContain('401');
         });
 
@@ -82,8 +82,8 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]');
-            const statisticsElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerStatistic"]');
+            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
+            const statisticsElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerStatistic"]')!;
             expect(statisticsElement.textContent).toContain('Darts3');
         });
 
@@ -96,8 +96,8 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]');
-            const detailsElement = homeColumn.querySelector('div[datatype="WidescreenSaygMatchDetails"]');
+            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
+            const detailsElement = homeColumn.querySelector('div[datatype="WidescreenSaygMatchDetails"]')!;
             expect(detailsElement.textContent).toContain('Best of 5');
         });
 
@@ -154,8 +154,8 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]');
-            const headingElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerHeading"]');
+            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
+            const headingElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerHeading"]')!;
             expect(headingElement.textContent).toContain('HOME');
         });
 
@@ -168,8 +168,8 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]');
-            const headingElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayer"]');
+            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
+            const headingElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayer"]')!;
             expect(headingElement.textContent).toContain('401');
         });
 
@@ -182,8 +182,8 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]');
-            const statisticsElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerStatistic"]');
+            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
+            const statisticsElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerStatistic"]')!;
             expect(statisticsElement.textContent).toContain('Darts3');
         });
 
@@ -196,8 +196,8 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]');
-            const detailsElement = homeColumn.querySelector('div[datatype="WidescreenSaygMatchDetails"]');
+            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
+            const detailsElement = homeColumn.querySelector('div[datatype="WidescreenSaygMatchDetails"]')!;
             expect(detailsElement.textContent).toContain('Best of 5');
         });
 
@@ -223,8 +223,8 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const awayColumn = context.container.querySelector('div[datatype="away-column"]');
-            const headingElement = awayColumn.querySelector('div[datatype="WidescreenSaygPlayerHeading"]');
+            const awayColumn = context.container.querySelector('div[datatype="away-column"]')!;
+            const headingElement = awayColumn.querySelector('div[datatype="WidescreenSaygPlayerHeading"]')!;
             expect(headingElement.textContent).toContain('AWAY');
         });
 
@@ -237,8 +237,8 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const awayColumn = context.container.querySelector('div[datatype="away-column"]');
-            const headingElement = awayColumn.querySelector('div[datatype="WidescreenSaygPlayer"]');
+            const awayColumn = context.container.querySelector('div[datatype="away-column"]')!;
+            const headingElement = awayColumn.querySelector('div[datatype="WidescreenSaygPlayer"]')!;
             expect(headingElement.textContent).toContain('301');
         });
 
@@ -251,8 +251,8 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const awayColumn = context.container.querySelector('div[datatype="away-column"]');
-            const statisticsElement = awayColumn.querySelector('div[datatype="WidescreenSaygPlayerStatistic"]');
+            const awayColumn = context.container.querySelector('div[datatype="away-column"]')!;
+            const statisticsElement = awayColumn.querySelector('div[datatype="WidescreenSaygPlayerStatistic"]')!;
             expect(statisticsElement.textContent).toContain('Darts6');
         });
 
@@ -265,8 +265,8 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]');
-            const detailsElement = homeColumn.querySelector('div[datatype="WidescreenSaygMatchDetails"]');
+            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
+            const detailsElement = homeColumn.querySelector('div[datatype="WidescreenSaygMatchDetails"]')!;
             expect(detailsElement.textContent).toContain('Best of 5');
         });
     });
@@ -293,8 +293,8 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]');
-            const playerElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayer"]');
+            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
+            const playerElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayer"]')!;
             expect(playerElement.textContent).toContain('🎉');
         });
 
@@ -319,8 +319,8 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const awayColumn = context.container.querySelector('div[datatype="away-column"]');
-            const playerElement = awayColumn.querySelector('div[datatype="WidescreenSaygPlayer"]');
+            const awayColumn = context.container.querySelector('div[datatype="away-column"]')!;
+            const playerElement = awayColumn.querySelector('div[datatype="WidescreenSaygPlayer"]')!;
             expect(playerElement.textContent).toContain('🎉');
         });
     });
@@ -350,14 +350,14 @@ describe('WidescreenMatchStatistics', () => {
                     canSubscribe: true,
                 },
             });
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]');
-            const statisticsElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerStatistic"]');
-            const sup = statisticsElement.querySelector('sup');
+            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
+            const statisticsElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerStatistic"]')!;
+            const sup = statisticsElement.querySelector('sup')!;
             expect(sup.textContent).toEqual('3');
 
             await doClick(sup);
 
-            expect(statisticsElement.querySelector('sup').textContent).toEqual('1');
+            expect(statisticsElement.querySelector('sup')!.textContent).toEqual('1');
         });
 
         it('can switch to 1 dart average - via away', async () => {
@@ -368,14 +368,14 @@ describe('WidescreenMatchStatistics', () => {
                     canSubscribe: true,
                 },
             });
-            const homeColumn = context.container.querySelector('div[datatype="away-column"]');
-            const statisticsElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerStatistic"]');
-            const sup = statisticsElement.querySelector('sup');
+            const homeColumn = context.container.querySelector('div[datatype="away-column"]')!;
+            const statisticsElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerStatistic"]')!;
+            const sup = statisticsElement.querySelector('sup')!;
             expect(sup.textContent).toEqual('3');
 
             await doClick(sup);
 
-            expect(statisticsElement.querySelector('sup').textContent).toEqual('1');
+            expect(statisticsElement.querySelector('sup')!.textContent).toEqual('1');
         });
 
         it('can switch to 3 dart average', async () => {
@@ -386,16 +386,16 @@ describe('WidescreenMatchStatistics', () => {
                     canSubscribe: true,
                 },
             });
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]');
-            const statisticsElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerStatistic"]');
-            const sup = statisticsElement.querySelector('sup');
+            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
+            const statisticsElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerStatistic"]')!;
+            const sup = statisticsElement.querySelector('sup')!;
             expect(sup.textContent).toEqual('3');
             await doClick(sup);
             expect(sup.textContent).toEqual('1');
 
             await doClick(sup);
 
-            expect(statisticsElement.querySelector('sup').textContent).toEqual('3');
+            expect(statisticsElement.querySelector('sup')!.textContent).toEqual('3');
         });
     })
 });

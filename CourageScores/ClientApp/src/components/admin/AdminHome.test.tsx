@@ -103,7 +103,7 @@ describe('AdminHome', () => {
         );
 
         reportedError.verifyNoError();
-        const content = context.container.querySelector(`div.content-background`);
+        const content = context.container.querySelector(`div.content-background`)!;
         expect(content).not.toBeNull();
         expect(content.innerHTML).toContain(expectContent);
     }

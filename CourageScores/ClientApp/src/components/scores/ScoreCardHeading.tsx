@@ -13,14 +13,14 @@ export interface IScoreCardHeadingProps {
     data: GameDto;
     access: string;
     submission?: string;
-    setSubmission(submissionToShow: string): UntypedPromise;
+    setSubmission(submissionToShow?: string): UntypedPromise;
     setFixtureData(data: GameDto): UntypedPromise;
 }
 
 export function ScoreCardHeading({data, access, submission, setSubmission, setFixtureData}: IScoreCardHeadingProps) {
     const {account, onError, teams} = useApp();
     const {division, season} = useLeagueFixture();
-    const submissionTeam: TeamDto = account && access === 'clerk' && account.teamId
+    const submissionTeam: TeamDto | null = account && access === 'clerk' && account.teamId
         ? teams.filter(t => t.id === account.teamId)[0]
         : null;
     const opposingTeam = submissionTeam && data.home.id === submissionTeam.id ? data.away : data.home;
@@ -36,7 +36,7 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
     async function toggleSubmission(submissionToShow: string) {
         try {
             if (submissionToShow === submission) {
-                await setSubmission(null);
+                await setSubmission();
                 await setFixtureData(data);
                 return;
             }
@@ -49,29 +49,29 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
         }
     }
 
-    function canShowSubmissionToggle(submission: GameDto) {
+    function canShowSubmissionToggle(submission?: GameDto) {
         return submission
             && (access === 'admin' || (account && submission && account.teamId === submission.id && access === 'clerk'));
     }
 
-    function getScore(data: GameDto, side: string): number {
-        function sideWonMatch(match: GameMatchDto, index: number): boolean {
-            const matchOptions: GameMatchOptionDto = data.matchOptions[index];
+    function getScore(data: GameDto | undefined, side: string): number {
+        function sideWonMatch(match: GameMatchDto | undefined, index?: number): boolean {
+            const matchOptions: GameMatchOptionDto | undefined = data?.matchOptions![index!];
             const defaultNumberOfLegs: number = 5;
-            const numberOfLegs: number = matchOptions ? matchOptions.numberOfLegs : defaultNumberOfLegs;
+            const numberOfLegs: number = matchOptions ? matchOptions.numberOfLegs! : defaultNumberOfLegs;
 
             switch (side) {
                 case 'home':
-                    return match.homeScore > (numberOfLegs / 2.0);
+                    return (match?.homeScore || 0) > (numberOfLegs / 2.0);
                 case 'away':
-                    return match.awayScore > (numberOfLegs / 2.0);
+                    return (match?.awayScore || 0) > (numberOfLegs / 2.0);
                 default:
                     /* istanbul ignore next */
                     return false;
             }
         }
 
-        return count(data.matches, sideWonMatch);
+        return count(data?.matches, sideWonMatch);
     }
 
     return (<thead>

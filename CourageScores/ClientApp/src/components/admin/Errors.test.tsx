@@ -20,7 +20,7 @@ import {IErrorApi} from "../../interfaces/apis/IErrorApi";
 describe('Errors', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let errorToThrow = null;
+    let errorToThrow: Error | null = null;
     const recentMap: { [key: string]: ErrorDetailDto[] } = {};
     const errorApi = api<IErrorApi>({
         getRecent: async (since: string): Promise<ErrorDetailDto[]> => {
@@ -143,7 +143,7 @@ describe('Errors', () => {
         expect(li.innerHTML).toContain(message);
         expect(li.innerHTML).toContain(new Date(time).toLocaleTimeString());
         expect(li.innerHTML).toContain(new Date(time).toLocaleDateString());
-        expect(li.querySelector('.badge').innerHTML).toEqual(source);
+        expect(li.querySelector('.badge')!.innerHTML).toEqual(source);
     }
 
     it('shows no results on load', async () => {

@@ -34,7 +34,7 @@ import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
 describe('TournamentRoundMatch', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedRound: TournamentRoundDto;
+    let updatedRound: TournamentRoundDto | null;
     let saygApiData: { [id: string]: RecordedScoreAsYouGoDto };
     const tournamentApi = api<ITournamentGameApi>({
     });
@@ -58,7 +58,11 @@ describe('TournamentRoundMatch', () => {
     }
 
     async function saveTournament(): Promise<TournamentGameDto> {
-        return null;
+        return {
+            date: '',
+            id: '',
+            address: '',
+        };
     }
 
     async function onMatchOptionsChanged(_: GameMatchOptionDto) {
@@ -81,15 +85,15 @@ describe('TournamentRoundMatch', () => {
             (<TournamentContainer {...containerProps}>
                 <TournamentRoundMatch {...props} />
             </TournamentContainer>),
-            null,
-            null,
+            undefined,
+            undefined,
             'tbody');
     }
 
     function assertDropdown(cell: Element, selected: string, optionsText: string[]) {
         const dropdownToggle = cell.querySelector('.dropdown-toggle');
         expect(dropdownToggle).toBeTruthy();
-        expect(dropdownToggle.textContent).toEqual(selected);
+        expect(dropdownToggle!.textContent).toEqual(selected);
 
         const options = Array.from(cell.querySelectorAll('.dropdown-item'));
         expect(options.map(o => o.textContent)).toEqual(optionsText);
@@ -119,7 +123,7 @@ describe('TournamentRoundMatch', () => {
         });
 
         describe('when logged out', () => {
-            const account = null;
+            const account = undefined;
             const defaultTournamentContainerProps: ITournamentContainerProps = {
                 tournamentData: tournamentBuilder().build(),
                 saveTournament,
@@ -495,7 +499,7 @@ describe('TournamentRoundMatch', () => {
             reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
-            expect(dialog.textContent).toContain('Edit match options');
+            expect(dialog!.textContent).toContain('Edit match options');
         });
 
         it('can close match options dialog', async () => {
@@ -545,7 +549,6 @@ describe('TournamentRoundMatch', () => {
             expect(updatedRound).toEqual({
                 matches: [Object.assign({}, match, {sideA: sideC})],
                 matchOptions: [],
-                nextRound: null,
             });
         });
 
@@ -573,7 +576,6 @@ describe('TournamentRoundMatch', () => {
             expect(updatedRound).toEqual({
                 matches: [Object.assign({}, match, {sideB: sideC})],
                 matchOptions: [],
-                nextRound: null,
             });
         });
 
@@ -594,8 +596,8 @@ describe('TournamentRoundMatch', () => {
                 onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
-            let confirm: string;
-            window.confirm = (message) => {
+            let confirm: string | undefined;
+            window.confirm = (message: string | undefined) => {
                 confirm = message;
                 return true;
             };
@@ -607,7 +609,6 @@ describe('TournamentRoundMatch', () => {
             expect(updatedRound).toEqual({
                 matches: [],
                 matchOptions: [],
-                nextRound: null,
             });
         });
 
@@ -628,8 +629,8 @@ describe('TournamentRoundMatch', () => {
                 onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
-            let confirm: string;
-            window.confirm = (message) => {
+            let confirm: string | undefined;
+            window.confirm = (message: string | undefined) => {
                 confirm = message;
                 return false;
             };

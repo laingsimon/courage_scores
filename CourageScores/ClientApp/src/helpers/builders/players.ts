@@ -20,8 +20,8 @@ export interface IPlayerBuilder extends IAddableBuilder<TeamPlayerDto & Division
 export function playerBuilder(name?: string, id?: string): IPlayerBuilder {
     const player: TeamPlayerDto & DivisionPlayerDto & NotablePlayerDto & ISelectablePlayer = {
         id: id || createTemporaryId(),
-        name,
-        team: null,
+        name: name || '',
+        team: undefined!,
     };
 
     const builder: IPlayerBuilder = {
@@ -39,7 +39,7 @@ export function playerBuilder(name?: string, id?: string): IPlayerBuilder {
             return builder;
         },
         noId: () => {
-            delete player.id;
+            player.id = '';
             return builder;
         },
         email: (email?: string) => {

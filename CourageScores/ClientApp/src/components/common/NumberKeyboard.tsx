@@ -45,7 +45,7 @@ export function NumberKeyboard({ value, onChange, maxValue, onEnter }: INumberKe
 
     async function numberClick(event: MouseEvent<HTMLButtonElement>) {
         const button: HTMLButtonElement = event.target as HTMLButtonElement;
-        const buttonValue: string = button.textContent;
+        const buttonValue: string = button.textContent!;
 
         const newValue: number = Number.parseInt(value + buttonValue);
         await onChange(newValue.toString());
@@ -54,7 +54,7 @@ export function NumberKeyboard({ value, onChange, maxValue, onEnter }: INumberKe
 
     async function quickButtonClick(event: MouseEvent<HTMLButtonElement>) {
         const button: HTMLButtonElement = event.target as HTMLButtonElement;
-        const buttonValue: string = button.textContent;
+        const buttonValue: string = button.textContent!;
         await hapticFeedback();
         await onEnter(buttonValue);
     }

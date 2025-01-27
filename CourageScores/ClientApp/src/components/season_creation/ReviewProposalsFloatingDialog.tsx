@@ -27,15 +27,15 @@ export function ReviewProposalsFloatingDialog({ proposalResult, changeVisibleDiv
             return {value: d.id, text: d.name};
         });
 
-    const template: TemplateDto = proposalResult.template;
+    const template: TemplateDto = proposalResult.template!;
     const selectedDivisionIndex: number = divisionOptions.map((o: IBootstrapDropdownItem) => o.value).indexOf(selectedDivisionId);
-    const templateDivision: DivisionTemplateDto = template.divisions[selectedDivisionIndex];
-    const placeholdersToRender: string[] = distinct(templateDivision.dates
-        .flatMap((d: DateTemplateDto) => d.fixtures
+    const templateDivision: DivisionTemplateDto = template.divisions![selectedDivisionIndex];
+    const placeholdersToRender: string[] = distinct(templateDivision.dates!
+        .flatMap((d: DateTemplateDto) => d.fixtures!
             .flatMap((f: FixtureTemplateDto) => [f.home, f.away])
-            .filter((p: string) => p)));
-    const templateSharedAddresses: string[] = template.sharedAddresses.flatMap((a: string[]) => a);
-    const divisionSharedAddresses: string[] = templateDivision.sharedAddresses.flatMap((a: string[]) => a);
+            .filter((p?: string) => !!p)));
+    const templateSharedAddresses: string[] = template.sharedAddresses!.flatMap((a: string[]) => a);
+    const divisionSharedAddresses: string[] = templateDivision.sharedAddresses!.flatMap((a: string[]) => a);
     return (<>
         <div style={{zIndex: '1051'}}
              className="position-fixed p-3 top-0 right-0 bg-white border-2 border-solid border-success box-shadow me-3 mt-3">
@@ -54,7 +54,7 @@ export function ReviewProposalsFloatingDialog({ proposalResult, changeVisibleDiv
                     }
 
                     return (<li key={key}>
-                        <span className={`px-2 ${className}`}>{key}</span> &rarr; {proposalResult.placeholderMappings[key].name}
+                        <span className={`px-2 ${className}`}>{key}</span> &rarr; {proposalResult.placeholderMappings![key].name}
                     </li>);
                 })}
             </ul>

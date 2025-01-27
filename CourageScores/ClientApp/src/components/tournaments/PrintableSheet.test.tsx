@@ -47,8 +47,8 @@ interface ISideInfo {
 describe('PrintableSheet', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedTournament: TournamentGameDto;
-    let editTournament: string;
+    let updatedTournament: TournamentGameDto | null;
+    let editTournament: string | null;
 
     afterEach(async () => {
         await cleanUp(context);
@@ -104,7 +104,7 @@ describe('PrintableSheet', () => {
                         //element: round.querySelector('div[data-accolades="hi-checks"]'),
                         players: Array.from(round.querySelectorAll('div[data-accolades="180s"] div')).map(e => e.textContent),
                     } : null,
-                    heading: round.querySelector('h5[datatype="round-name"]').textContent,
+                    heading: round.querySelector('h5[datatype="round-name"]')!.textContent,
                     matches: Array.from(round.querySelectorAll('div[datatype="match"]'))
                         .map((match: Element): ISideInfo => {
                             function setInfo(selector: string, name: string, getter: (element: Element) => any) {
@@ -119,7 +119,7 @@ describe('PrintableSheet', () => {
 
                             const info: ISideInfo = {
                                 saygLink: match.querySelector('a')
-                                    ? match.querySelector('a').href
+                                    ? match.querySelector('a')!.href
                                     : undefined,
                             };
 
@@ -134,27 +134,27 @@ describe('PrintableSheet', () => {
                             setInfo(
                                 'span[datatype="sideAname"]',
                                 'sideAname',
-                                (e: Element) => e.textContent.trim());
+                                (e: Element) => e.textContent!.trim());
                             setInfo(
                                 'span[datatype="sideBname"]',
                                 'sideBname',
-                                (e: Element) => e.textContent.trim());
+                                (e: Element) => e.textContent!.trim());
                             setInfo(
                                 'span[datatype="sideAmnemonic"]',
                                 'sideAmnemonic',
-                                (e: Element) => e.textContent.trim());
+                                (e: Element) => e.textContent!.trim());
                             setInfo(
                                 'span[datatype="sideBmnemonic"]',
                                 'sideBmnemonic',
-                                (e: Element) => e.textContent.trim());
+                                (e: Element) => e.textContent!.trim());
                             setInfo(
                                 'div[datatype="scoreA"]',
                                 'scoreA',
-                                (e: Element) => e.textContent.trim());
+                                (e: Element) => e.textContent!.trim());
                             setInfo(
                                 'div[datatype="scoreB"]',
                                 'scoreB',
-                                (e: Element) => e.textContent.trim());
+                                (e: Element) => e.textContent!.trim());
 
                             return info;
                         }),
@@ -170,10 +170,10 @@ describe('PrintableSheet', () => {
     function whoIsPlayingText(li: Element): string {
         return li.className.indexOf('text-decoration-line-through') !== -1
             ? '-' + li.textContent + '-'
-            : li.textContent;
+            : li.textContent!;
     }
 
-    function linkHref(container: Element): string {
+    function linkHref(container: Element): string | null {
         const link = container.querySelector('a');
         return link ? link.href : null;
     }
@@ -184,13 +184,13 @@ describe('PrintableSheet', () => {
     }
 
     function getWinner(): { name: string, link?: string } {
-        const winnerElement = context.container.querySelector('div[datatype="winner"]');
+        const winnerElement = context.container.querySelector('div[datatype="winner"]')!;
 
         return {
-            name: winnerElement.querySelector('span').textContent,
+            name: winnerElement.querySelector('span')!.textContent!,
             link: winnerElement.querySelector('a')
-                ? winnerElement.querySelector('a').href
-                : null,
+                ? winnerElement.querySelector('a')!.href
+                : undefined,
         };
     }
 
@@ -290,7 +290,7 @@ describe('PrintableSheet', () => {
 
         it('renders tournament with sayg id', async () => {
             const saygId = createTemporaryId();
-            oneRoundTournament2Sides.round.matches[0].saygId = saygId;
+            oneRoundTournament2Sides.round!.matches![0].saygId = saygId;
 
             await renderComponent(
                 {tournamentData: oneRoundTournament2Sides, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
@@ -451,7 +451,7 @@ describe('PrintableSheet', () => {
         });
 
         it('does not render winner when insufficient legs played', async () => {
-            oneRoundTournament2Sides.round.matchOptions[0].numberOfLegs = 5;
+            oneRoundTournament2Sides.round!.matchOptions![0].numberOfLegs = 5;
 
             await renderComponent(
                 {tournamentData: oneRoundTournament2Sides, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
@@ -460,7 +460,6 @@ describe('PrintableSheet', () => {
 
             const winner = getWinner();
             expect(winner).toEqual({
-                link: null,
                 name: ' ',
             });
         });
@@ -492,7 +491,6 @@ describe('PrintableSheet', () => {
                 appProps({teams: [player2Team], divisions: [division]}, reportedError));
 
             expect(getWinner()).toEqual({
-                link: null,
                 name: ' ',
             });
         });
@@ -510,7 +508,7 @@ describe('PrintableSheet', () => {
 
         it('renders winner when cross-divisional', async () => {
             await renderComponent(
-                {tournamentData: oneRoundTournament2Sides, season, division: null, matchOptionDefaults, preventScroll: false, setPreventScroll},
+                {tournamentData: oneRoundTournament2Sides, season, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({ teams: [player2Team], divisions: [division] }, reportedError));
 
@@ -567,7 +565,7 @@ describe('PrintableSheet', () => {
 
         it('renders who is playing when cross-divisional', async () => {
             await renderComponent(
-                {tournamentData: singlePlayerTournament, season: anotherSeason, division: null, matchOptionDefaults, preventScroll: false, setPreventScroll},
+                {tournamentData: singlePlayerTournament, season: anotherSeason, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({ teams: [noPlayerTeam], divisions: [division] }, reportedError));
 
@@ -581,7 +579,7 @@ describe('PrintableSheet', () => {
                 .build();
 
             await renderComponent(
-                {tournamentData: singlePlayerTournament, season, division: null, matchOptionDefaults, preventScroll: false, setPreventScroll},
+                {tournamentData: singlePlayerTournament, season, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({ teams: [team], divisions: [division] }, reportedError));
 
@@ -590,7 +588,7 @@ describe('PrintableSheet', () => {
         });
 
         it('renders who is playing with no shows', async () => {
-            oneRoundTournament2Sides.sides.push(sideBuilder('C').noShow().build());
+            oneRoundTournament2Sides.sides!.push(sideBuilder('C').noShow().build());
 
             await renderComponent(
                 {tournamentData: oneRoundTournament2Sides, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
@@ -614,12 +612,12 @@ describe('PrintableSheet', () => {
                 {},
                 appProps({}, reportedError));
 
-            const heading = context.container.querySelector('div[datatype="heading"]');
+            const heading = context.container.querySelector('div[datatype="heading"]')!;
             expect(heading.textContent).toEqual(`TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES🔗🖨️`);
         });
 
         it('renders 180s', async () => {
-            oneRoundTournament2Sides.oneEighties.push(player1, player2, player1, player1);
+            oneRoundTournament2Sides.oneEighties!.push(player1, player2, player1, player1);
             await renderComponent(
                 {tournamentData: oneRoundTournament2Sides, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
@@ -631,9 +629,9 @@ describe('PrintableSheet', () => {
         });
 
         it('renders 180s when cross-divisional', async () => {
-            oneRoundTournament2Sides.oneEighties.push(player1, player2, player1, player1);
+            oneRoundTournament2Sides.oneEighties!.push(player1, player2, player1, player1);
             await renderComponent(
-                {tournamentData: oneRoundTournament2Sides, season, division: null, matchOptionDefaults, preventScroll: false, setPreventScroll},
+                {tournamentData: oneRoundTournament2Sides, season, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({ teams: [player1Team], divisions: [division] }, reportedError));
 
@@ -642,7 +640,7 @@ describe('PrintableSheet', () => {
         });
 
         it('renders 180s where team division cannot be found', async () => {
-            oneRoundTournament2Sides.oneEighties.push(player1, player2, player1, player1);
+            oneRoundTournament2Sides.oneEighties!.push(player1, player2, player1, player1);
             const team: TeamDto = teamBuilder('TEAM')
                 .forSeason(season, null, [player1])
                 .build();
@@ -658,8 +656,8 @@ describe('PrintableSheet', () => {
         });
 
         it('renders hi checks', async () => {
-            oneRoundTournament2Sides.over100Checkouts.push(Object.assign({}, player1, {score: 100}));
-            oneRoundTournament2Sides.over100Checkouts.push(Object.assign({}, player2, {score: 120}));
+            oneRoundTournament2Sides.over100Checkouts!.push(Object.assign({}, player1, {score: 100}));
+            oneRoundTournament2Sides.over100Checkouts!.push(Object.assign({}, player2, {score: 120}));
 
             await renderComponent(
                 {tournamentData: oneRoundTournament2Sides, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
@@ -672,11 +670,11 @@ describe('PrintableSheet', () => {
         });
 
         it('renders hi checks when cross-divisional', async () => {
-            oneRoundTournament2Sides.over100Checkouts.push(Object.assign({}, player1, {score: 100}));
-            oneRoundTournament2Sides.over100Checkouts.push(Object.assign({}, player2, {score: 120}));
+            oneRoundTournament2Sides.over100Checkouts!.push(Object.assign({}, player1, {score: 100}));
+            oneRoundTournament2Sides.over100Checkouts!.push(Object.assign({}, player2, {score: 120}));
 
             await renderComponent(
-                {tournamentData: oneRoundTournament2Sides, season, division: null, matchOptionDefaults, preventScroll: false, setPreventScroll},
+                {tournamentData: oneRoundTournament2Sides, season, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({ teams: [player1Team], divisions: [division] }, reportedError));
 
@@ -690,27 +688,27 @@ describe('PrintableSheet', () => {
                 {editable: false},
                 appProps({}, reportedError));
 
-            await doClick(context.container.querySelector('div[datatype="sideA"]'));
+            await doClick(context.container.querySelector('div[datatype="sideA"]')!);
 
             expect(context.container.querySelector('div.modal-dialog')).toBeFalsy();
         });
 
         it('can edit match side a', async () => {
-            twoRoundTournament4Sides.sides.push(sideE);
+            twoRoundTournament4Sides.sides!.push(sideE);
             await renderComponent(
                 {tournamentData: twoRoundTournament4Sides, season, division, matchOptionDefaults, setTournamentData, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({}, reportedError));
 
-            await doClick(context.container.querySelector('div[datatype="sideA"]'));
-            const dialog = context.container.querySelector('div.modal-dialog');
-            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), sideE.name); // side
+            await doClick(context.container.querySelector('div[datatype="sideA"]')!);
+            const dialog = context.container.querySelector('div.modal-dialog')!;
+            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), sideE.name!); // side
             await doSelectOption(dialog.querySelector('div.btn-group:nth-child(4) .dropdown-menu'), '2'); // score
             await doClick(findButton(dialog, 'Save'));
 
             expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament.round.matches[0].sideA.id).toEqual(sideE.id);
-            expect(updatedTournament.round.matches[0].scoreA).toEqual(2);
+            expect(updatedTournament!.round!.matches![0].sideA.id).toEqual(sideE.id);
+            expect(updatedTournament!.round!.matches![0].scoreA).toEqual(2);
         });
 
         it('can remove match side a', async () => {
@@ -718,31 +716,31 @@ describe('PrintableSheet', () => {
                 {tournamentData: twoRoundTournament4Sides, season, division, matchOptionDefaults, setTournamentData, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({}, reportedError));
-            await doClick(context.container.querySelector('div[datatype="sideA"]'));
+            await doClick(context.container.querySelector('div[datatype="sideA"]')!);
 
             await doClick(findButton(context.container, 'Remove'));
 
             expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament.round.matches[0].sideA.id).toBeFalsy();
-            expect(updatedTournament.round.matches[0].scoreA).toBeNull();
+            expect(updatedTournament!.round!.matches![0].sideA.id).toBeFalsy();
+            expect(updatedTournament!.round!.matches![0].scoreA).toBeNull();
         });
 
         it('can edit match side b', async () => {
-            twoRoundTournament4Sides.sides.push(sideE);
+            twoRoundTournament4Sides.sides!.push(sideE);
             await renderComponent(
                 {tournamentData: twoRoundTournament4Sides, season, division, matchOptionDefaults, setTournamentData, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({}, reportedError));
 
-            await doClick(context.container.querySelector('div[datatype="sideB"]'));
-            const dialog = context.container.querySelector('div.modal-dialog');
-            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), sideE.name); // side
+            await doClick(context.container.querySelector('div[datatype="sideB"]')!);
+            const dialog = context.container.querySelector('div.modal-dialog')!;
+            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), sideE.name!); // side
             await doSelectOption(dialog.querySelector('div.btn-group:nth-child(4) .dropdown-menu'), '2'); // score
             await doClick(findButton(dialog, 'Save'));
 
             expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament.round.matches[0].sideB.id).toEqual(sideE.id);
-            expect(updatedTournament.round.matches[0].scoreB).toEqual(2);
+            expect(updatedTournament!.round!.matches![0].sideB.id).toEqual(sideE.id);
+            expect(updatedTournament!.round!.matches![0].scoreB).toEqual(2);
         });
 
         it('can remove match side b', async () => {
@@ -750,13 +748,13 @@ describe('PrintableSheet', () => {
                 {tournamentData: twoRoundTournament4Sides, season, division, matchOptionDefaults, setTournamentData, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({}, reportedError));
-            await doClick(context.container.querySelector('div[datatype="sideB"]'));
+            await doClick(context.container.querySelector('div[datatype="sideB"]')!);
 
             await doClick(findButton(context.container, 'Remove'));
 
             expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament.round.matches[0].sideB.id).toBeFalsy();
-            expect(updatedTournament.round.matches[0].scoreB).toBeNull();
+            expect(updatedTournament!.round!.matches![0].sideB.id).toBeFalsy();
+            expect(updatedTournament!.round!.matches![0].scoreB).toBeNull();
         });
 
         it('can edit 180s', async () => {
@@ -765,13 +763,13 @@ describe('PrintableSheet', () => {
                 {editable: true},
                 appProps({}, reportedError));
 
-            await doClick(context.container.querySelector('div[data-accolades="180s"]'));
-            const dialog = context.container.querySelector('div.modal-dialog');
+            await doClick(context.container.querySelector('div[data-accolades="180s"]')!);
+            const dialog = context.container.querySelector('div.modal-dialog')!;
             await doSelectOption(dialog.querySelector('.dropdown-menu'), player1.name);
             await doClick(findButton(dialog, '➕'));
 
             expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament.oneEighties).toEqual([
+            expect(updatedTournament!.oneEighties).toEqual([
                 { id: player1.id, name: player1.name }
             ]);
         });
@@ -782,14 +780,14 @@ describe('PrintableSheet', () => {
                 {editable: true},
                 appProps({}, reportedError));
 
-            await doClick(context.container.querySelector('div[data-accolades="hi-checks"]'));
-            const dialog = context.container.querySelector('div.modal-dialog');
+            await doClick(context.container.querySelector('div[data-accolades="hi-checks"]')!);
+            const dialog = context.container.querySelector('div.modal-dialog')!;
             await doSelectOption(dialog.querySelector('.dropdown-menu'), player1.name);
             await doChange(dialog, 'input', '123', context.user);
             await doClick(findButton(dialog, '➕'));
 
             expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament.over100Checkouts).toEqual([
+            expect(updatedTournament!.over100Checkouts).toEqual([
                 { id: player1.id, name: player1.name, score: 123 }
             ]);
         });
@@ -801,14 +799,14 @@ describe('PrintableSheet', () => {
                 {editable: true},
                 appProps({account}, reportedError));
 
-            const playing = context.container.querySelector('div[datatype="playing"]');
-            await doClick(playing.querySelector('li'));
-            const dialog = context.container.querySelector('div.modal-dialog');
+            const playing = context.container.querySelector('div[datatype="playing"]')!;
+            await doClick(playing.querySelector('li')!);
+            const dialog = context.container.querySelector('div.modal-dialog')!;
             await doChange(dialog, 'input[name="name"]', 'NEW SIDE A', context.user);
             await doClick(findButton(dialog, 'Save'));
 
             expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament.sides.map((s: TournamentSideDto) => s.name))
+            expect(updatedTournament!.sides!.map((s: TournamentSideDto) => s.name))
                 .toEqual([sideB.name, sideC.name, sideD.name, 'NEW SIDE A']);
         });
 
@@ -818,8 +816,8 @@ describe('PrintableSheet', () => {
                 {editable: true},
                 appProps({account}, reportedError));
 
-            const playing = context.container.querySelector('div[datatype="playing"]');
-            await doClick(playing.querySelector('li'));
+            const playing = context.container.querySelector('div[datatype="playing"]')!;
+            await doClick(playing.querySelector('li')!);
             const dialog = context.container.querySelector('div.modal-dialog');
             await doClick(findButton(dialog, 'Close'));
 
@@ -841,15 +839,15 @@ describe('PrintableSheet', () => {
                 {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers: [player1, player2, player3], alreadyPlaying: {}, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({account, teams: [player1Team, player2Team, player3Team]}, reportedError));
-            await doClick(context.container.querySelector('li[datatype="add-side"]'));
+            await doClick(context.container.querySelector('li[datatype="add-side"]')!);
 
-            const dialog = context.container.querySelector('div.modal-dialog');
+            const dialog = context.container.querySelector('div.modal-dialog')!;
             await doChange(dialog, 'input[name="name"]', 'NEW SIDE', context.user);
-            await doClick(dialog.querySelector('.list-group li.list-group-item:not(.disabled)')); // select a player
+            await doClick(dialog.querySelector('.list-group li.list-group-item:not(.disabled)')!); // select a player
             await doClick(findButton(dialog, 'Save'));
 
             expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament.sides.map((s: TournamentSideDto) => s.name))
+            expect(updatedTournament!.sides!.map((s: TournamentSideDto) => s.name))
                 .toEqual([sideASinglePlayer.name, sideBSinglePlayer.name, 'NEW SIDE']);
         });
 
@@ -859,13 +857,13 @@ describe('PrintableSheet', () => {
                 {editable: true},
                 appProps({account}, reportedError));
 
-            const playing = context.container.querySelector('div[datatype="playing"]');
-            await doClick(playing.querySelector('li.list-group-item'));
-            const dialog = context.container.querySelector('div.modal-dialog');
+            const playing = context.container.querySelector('div[datatype="playing"]')!;
+            await doClick(playing.querySelector('li.list-group-item')!);
+            const dialog = context.container.querySelector('div.modal-dialog')!;
             await doClick(findButton(dialog, 'Delete side'));
 
             expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament.sides.map((s: TournamentSideDto) => s.name))
+            expect(updatedTournament!.sides!.map((s: TournamentSideDto) => s.name))
                 .toEqual([sideBSinglePlayer.name]);
         });
     });
@@ -943,7 +941,7 @@ describe('PrintableSheet', () => {
 
         it('renders who is playing when cross-divisional', async () => {
             await renderComponent(
-                {tournamentData: sideAandBTournament, season, division: null, matchOptionDefaults, preventScroll: false, setPreventScroll},
+                {tournamentData: sideAandBTournament, season, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({}, reportedError));
 
@@ -963,7 +961,7 @@ describe('PrintableSheet', () => {
                 {},
                 appProps({}, reportedError));
 
-            const heading = context.container.querySelector('div[datatype="heading"]');
+            const heading = context.container.querySelector('div[datatype="heading"]')!;
             expect(heading.textContent).toEqual(`TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES🔗🖨️`);
         });
 
@@ -973,15 +971,15 @@ describe('PrintableSheet', () => {
                 {editable: true},
                 appProps({}, reportedError));
 
-            await doClick(context.container.querySelector('div[datatype="sideA"]'));
-            const dialog = context.container.querySelector('div.modal-dialog');
-            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), sideA.name); // side
+            await doClick(context.container.querySelector('div[datatype="sideA"]')!);
+            const dialog = context.container.querySelector('div.modal-dialog')!;
+            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), sideA.name!); // side
             await doSelectOption(dialog.querySelector('div.btn-group:nth-child(4) .dropdown-menu'), '2'); // score
             await doClick(findButton(dialog, 'Save'));
 
             expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament.round.matches[0].sideA.id).toEqual(sideA.id);
-            expect(updatedTournament.round.matches[0].scoreA).toEqual(2);
+            expect(updatedTournament!.round!.matches![0].sideA.id).toEqual(sideA.id);
+            expect(updatedTournament!.round!.matches![0].scoreA).toEqual(2);
         });
 
         it('can set match side b', async () => {
@@ -990,15 +988,15 @@ describe('PrintableSheet', () => {
                 {editable: true},
                 appProps({}, reportedError));
 
-            await doClick(context.container.querySelector('div[datatype="sideB"]'));
-            const dialog = context.container.querySelector('div.modal-dialog');
-            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), sideA.name); // side
+            await doClick(context.container.querySelector('div[datatype="sideB"]')!);
+            const dialog = context.container.querySelector('div.modal-dialog')!;
+            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), sideA.name!); // side
             await doSelectOption(dialog.querySelector('div.btn-group:nth-child(4) .dropdown-menu'), '2'); // score
             await doClick(findButton(dialog, 'Save'));
 
             expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament.round.matches[0].sideB.id).toEqual(sideA.id);
-            expect(updatedTournament.round.matches[0].scoreB).toEqual(2);
+            expect(updatedTournament!.round!.matches![0].sideB.id).toEqual(sideA.id);
+            expect(updatedTournament!.round!.matches![0].scoreB).toEqual(2);
         });
 
         it('cannot set match side to no-show side', async () => {
@@ -1014,9 +1012,9 @@ describe('PrintableSheet', () => {
                 {editable: true},
                 appProps({}, reportedError));
 
-            await doClick(context.container.querySelector('div[datatype="sideB"]'));
+            await doClick(context.container.querySelector('div[datatype="sideB"]')!);
 
-            const dialog = context.container.querySelector('div.modal-dialog');
+            const dialog = context.container.querySelector('div.modal-dialog')!;
             const sides = Array.from(dialog.querySelectorAll('div.btn-group:nth-child(2) .dropdown-menu .dropdown-item'));
             expect(sides.map(s => s.textContent)).toEqual([ 'A', 'B' ]);
         });
@@ -1027,14 +1025,14 @@ describe('PrintableSheet', () => {
                 {editable: true},
                 appProps({teams: [player1Team], account}, reportedError));
 
-            await doClick(context.container.querySelector('li[datatype="add-side"]'));
-            const dialog = context.container.querySelector('div.modal-dialog');
+            await doClick(context.container.querySelector('li[datatype="add-side"]')!);
+            const dialog = context.container.querySelector('div.modal-dialog')!;
             await doChange(dialog, 'input[name="name"]', 'NEW SIDE', context.user);
-            await doClick(dialog.querySelector('.list-group li.list-group-item')); // select a player
+            await doClick(dialog.querySelector('.list-group li.list-group-item')!); // select a player
             await doClick(findButton(dialog, 'Save'));
 
             expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament.sides.map((s: TournamentSideDto) => s.name)).toEqual(['NEW SIDE']);
+            expect(updatedTournament!.sides!.map((s: TournamentSideDto) => s.name)).toEqual(['NEW SIDE']);
         });
 
         it('can add sides from hint', async () => {
@@ -1043,7 +1041,7 @@ describe('PrintableSheet', () => {
                 {editable: true},
                 appProps({teams: [player1Team], account}, reportedError));
 
-            await doClick(context.container.querySelector('div[datatype="add-sides-hint"] > span'));
+            await doClick(context.container.querySelector('div[datatype="add-sides-hint"] > span')!);
 
             expect(context.container.querySelector('div.modal-dialog')).toBeTruthy();
         });
@@ -1063,8 +1061,8 @@ describe('PrintableSheet', () => {
                 {editable: true},
                 appProps({teams: [player1Team], account}, reportedError));
 
-            await doClick(context.container.querySelector('li[datatype="add-side"]'));
-            const dialog = context.container.querySelector('div.modal-dialog');
+            await doClick(context.container.querySelector('li[datatype="add-side"]')!);
+            const dialog = context.container.querySelector('div.modal-dialog')!;
             await doClick(findButton(dialog, 'Close'));
 
             expect(updatedTournament).toBeNull();
@@ -1077,13 +1075,13 @@ describe('PrintableSheet', () => {
                 {editable: true},
                 appProps({account}, reportedError));
 
-            const playing = context.container.querySelector('div[datatype="playing"]');
-            await doClick(playing.querySelector('li.list-group-item'));
+            const playing = context.container.querySelector('div[datatype="playing"]')!;
+            await doClick(playing.querySelector('li.list-group-item')!);
             const dialog = context.container.querySelector('div.modal-dialog');
             await doClick(findButton(dialog, 'Delete side'));
 
             expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament.sides.map((s: TournamentSideDto) => s.name))
+            expect(updatedTournament!.sides!.map((s: TournamentSideDto) => s.name))
                 .toEqual([sideB.name]);
         });
     });
@@ -1104,7 +1102,7 @@ describe('PrintableSheet', () => {
                 {editable: true},
                 appProps({}, reportedError));
 
-            await doClick(context.container.querySelector('div[datatype="heading"]'));
+            await doClick(context.container.querySelector('div[datatype="heading"]')!);
 
             expect(editTournament).toEqual('details');
         });
@@ -1115,7 +1113,7 @@ describe('PrintableSheet', () => {
                 {editable: true},
                 appProps({}, reportedError));
 
-            await doClick(context.container.querySelector('div[datatype="heading"]'));
+            await doClick(context.container.querySelector('div[datatype="heading"]')!);
 
             expect(editTournament).toEqual(null);
         });

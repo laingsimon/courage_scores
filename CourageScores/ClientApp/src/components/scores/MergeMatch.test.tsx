@@ -17,7 +17,7 @@ import {GameMatchDto} from "../../interfaces/models/dtos/Game/GameMatchDto";
 describe('MergeMatch', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedData: GameDto;
+    let updatedData: GameDto | null;
 
     afterEach(async () => {
         await cleanUp(context);
@@ -38,8 +38,8 @@ describe('MergeMatch', () => {
             brandingProps(),
             appProps({}, reportedError),
             (<MergeMatch {...props} />),
-            null,
-            null,
+            undefined,
+            undefined,
             'tbody');
     }
 
@@ -86,10 +86,10 @@ describe('MergeMatch', () => {
             });
 
             reportedError.verifyNoError();
-            const td = context.container.querySelector('td');
+            const td = context.container.querySelector('td')!;
             expect(td.colSpan).toEqual(5);
             expect(td.querySelector('button')).toBeTruthy();
-            expect(td.querySelector('span > div').textContent).toEqual('HOME: 1 - AWAY: 2');
+            expect(td.querySelector('span > div')!.textContent).toEqual('HOME: 1 - AWAY: 2');
         });
 
         it('when home and away submissions match and readonly', async () => {
@@ -113,11 +113,11 @@ describe('MergeMatch', () => {
             });
 
             reportedError.verifyNoError();
-            const td = context.container.querySelector('td');
+            const td = context.container.querySelector('td')!;
             expect(td.colSpan).toEqual(5);
             expect(td.querySelector('button')).toBeTruthy();
-            expect(td.querySelector('span > div').textContent).toEqual('HOME: 1 - AWAY: 2');
-            expect(td.querySelector('button').disabled).toEqual(true);
+            expect(td.querySelector('span > div')!.textContent).toEqual('HOME: 1 - AWAY: 2');
+            expect(td.querySelector('button')!.disabled).toEqual(true);
         });
 
         it('when home but no away submission match', async () => {
@@ -142,7 +142,7 @@ describe('MergeMatch', () => {
             reportedError.verifyNoError();
             const td = context.container.querySelector('td:nth-child(3)') as HTMLTableCellElement;
             expect(td.colSpan).toEqual(2);
-            expect(td.querySelector('span').textContent).toEqual('No match');
+            expect(td.querySelector('span')!.textContent).toEqual('No match');
         });
 
         it('when nothing to merge for either home or away', async () => {
@@ -221,7 +221,7 @@ describe('MergeMatch', () => {
             reportedError.verifyNoError();
             const homeSubmission = context.container.querySelector('td:nth-child(1)') as HTMLTableCellElement
             expect(homeSubmission.colSpan).toEqual(2);
-            expect(homeSubmission.querySelector('button').disabled).toEqual(true);
+            expect(homeSubmission.querySelector('button')!.disabled).toEqual(true);
         });
 
         it('when away unmerged', async () => {
@@ -281,7 +281,7 @@ describe('MergeMatch', () => {
             reportedError.verifyNoError();
             const awaySubmission = context.container.querySelector('td:nth-child(3)') as HTMLTableCellElement;
             expect(awaySubmission.colSpan).toEqual(2);
-            expect(awaySubmission.querySelector('button').disabled).toEqual(true);
+            expect(awaySubmission.querySelector('button')!.disabled).toEqual(true);
         });
     });
 
@@ -317,7 +317,7 @@ describe('MergeMatch', () => {
             await doClick(findButton(homeSubmission, 'Accept'));
 
             reportedError.verifyNoError();
-            expect(updatedData.matches[0]).toEqual({
+            expect(updatedData!.matches![0]).toEqual({
                 awayPlayers: [awayPlayer],
                 homePlayers: [homePlayer],
                 awayScore: 2,
@@ -356,7 +356,7 @@ describe('MergeMatch', () => {
             await doClick(findButton(awaySubmission, 'Accept'));
 
             reportedError.verifyNoError();
-            expect(updatedData.matches[0]).toEqual({
+            expect(updatedData!.matches![0]).toEqual({
                 awayPlayers: [awayPlayer],
                 homePlayers: [homePlayer],
                 awayScore: 2,
@@ -395,7 +395,7 @@ describe('MergeMatch', () => {
             await doClick(findButton(homeSubmission, 'Accept'));
 
             reportedError.verifyNoError();
-            expect(updatedData.matches[0]).toEqual({
+            expect(updatedData!.matches![0]).toEqual({
                 awayPlayers: [awayPlayer],
                 homePlayers: [homePlayer],
                 awayScore: 2,

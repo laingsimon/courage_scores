@@ -70,7 +70,7 @@ describe('AssignTeamToSeasons', () => {
                 teams,
                 seasons,
             }, reportedError),
-            (<DivisionDataContainer season={currentSeason} onReloadDivision={onReloadDivision} name={division.name} setDivisionData={null} id={division.id}>
+            (<DivisionDataContainer season={currentSeason} onReloadDivision={onReloadDivision} name={division.name} id={division.id}>
                 <AssignTeamToSeasons teamOverview={teamOverview} onClose={onClose}/>
             </DivisionDataContainer>));
     }
@@ -129,7 +129,7 @@ describe('AssignTeamToSeasons', () => {
             reportedError.verifyNoError();
             expect(apiDeleted).toEqual([]);
             expect(apiAdded.length).toEqual(2);
-            expect(apiAdded[1].copyPlayersFromSeasonId).toEqual(null);
+            expect(apiAdded[1].copyPlayersFromSeasonId).toBeUndefined();
             expect(apiAdded[1].divisionId).toEqual(division.id);
         });
 
@@ -178,8 +178,8 @@ describe('AssignTeamToSeasons', () => {
                 .starting('2023-02-01T00:00:00')
                 .build();
             await renderComponent(team, [team], [season, otherSeason], season, division);
-            let alert: string;
-            window.alert = (msg) => alert = msg;
+            let alert: string | undefined;
+            window.alert = (msg: string) => alert = msg;
             console.error = () => {};
             await doClick(context.container, '.list-group .list-group-item:not(.active)');
             apiResponse = {

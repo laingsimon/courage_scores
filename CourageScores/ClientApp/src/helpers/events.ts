@@ -4,7 +4,7 @@
 import {Dispatch, SetStateAction} from "react";
 import {UntypedPromise} from "../interfaces/UntypedPromise";
 
-export function valueChanged<T>(get: T, set: Dispatch<SetStateAction<T>> | ((value: T) => UntypedPromise), nullIf?: string) {
+export function valueChanged<T>(get: T, set: Dispatch<SetStateAction<T>> | Dispatch<SetStateAction<T | null>> | ((value: T) => UntypedPromise) | ((value: T | null) => UntypedPromise), nullIf?: string) {
     /* eslint-disable @typescript-eslint/no-explicit-any */
     return async (event: any) => {
         /* eslint-disable @typescript-eslint/no-explicit-any */

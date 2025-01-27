@@ -22,20 +22,20 @@ export function TeamOverview({teamId}: ITeamOverviewProps) {
     } = useDivisionData();
     const {teams} = useApp();
     const team = teams.filter(t => t.id === teamId)[0];
-    const fixtures = divisionDataFixtures.map(fixtureDate => {
+    const fixtures = divisionDataFixtures!.map(fixtureDate => {
         return {
             date: fixtureDate.date,
-            fixtures: fixtureDate.fixtures.filter(f => f.awayTeam && (f.awayTeam.id === teamId || f.homeTeam.id === teamId))
+            fixtures: fixtureDate.fixtures!.filter(f => f.awayTeam && (f.awayTeam.id === teamId || f.homeTeam.id === teamId))
         };
     }).filter(fixtureDate => any(fixtureDate.fixtures));
-    const players = divisionDataPlayers.filter(p => p.teamId === teamId);
+    const players = divisionDataPlayers!.filter(p => p.teamId === teamId);
 
-    function renderScore(score: number | null, postponed: boolean) {
+    function renderScore(score?: number, postponed?: boolean) {
         if (postponed) {
             return 'P';
         }
 
-        if (score === null) {
+        if (score === undefined) {
             return '-';
         }
 
@@ -43,7 +43,7 @@ export function TeamOverview({teamId}: ITeamOverviewProps) {
     }
 
     function renderFixtureAndDate(fixtureDate: DivisionFixtureDateDto) {
-        const fixture = fixtureDate.fixtures[0];
+        const fixture = fixtureDate.fixtures![0];
 
         return (<tr key={fixture.id}>
             <td>
@@ -55,7 +55,7 @@ export function TeamOverview({teamId}: ITeamOverviewProps) {
                 <div className="mt-4">
                     {fixture.homeTeam.id === teamId
                         ? (<strong className="margin-right text-nowrap">{fixture.homeTeam.name}</strong>)
-                        : (<Link to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`}
+                        : (<Link to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season!.name}`}
                                            className="margin-right text-nowrap">{fixture.homeTeam.name}</Link>)}
                 </div>
             </td>
@@ -64,10 +64,10 @@ export function TeamOverview({teamId}: ITeamOverviewProps) {
             <td className="align-middle">{renderScore(fixture.awayScore, fixture.postponed)}</td>
             <td>
                 <div className="mt-4">
-                    {fixture.awayTeam.id === teamId
-                        ? (<strong className="margin-right text-nowrap">{fixture.awayTeam.name}</strong>)
-                        : (<Link to={`/division/${divisionName}/team:${fixture.awayTeam.name}/${season.name}`}
-                                           className="margin-right text-nowrap">{fixture.awayTeam.name}</Link>)}
+                    {fixture.awayTeam?.id === teamId
+                        ? (<strong className="margin-right text-nowrap">{fixture.awayTeam!.name}</strong>)
+                        : (<Link to={`/division/${divisionName}/team:${fixture.awayTeam!.name}/${season!.name}`}
+                                           className="margin-right text-nowrap">{fixture.awayTeam!.name}</Link>)}
                 </div>
             </td>
         </tr>);
@@ -77,7 +77,7 @@ export function TeamOverview({teamId}: ITeamOverviewProps) {
         return <div className="content-background p-3">
             <h5 className="text-danger">⚠ Team could not be found</h5>
             <Link className="btn btn-primary"
-                            to={`/teams/${season.name}/?division=${divisionName}`}>Teams</Link>
+                            to={`/teams/${season!.name}/?division=${divisionName}`}>Teams</Link>
         </div>
     }
 

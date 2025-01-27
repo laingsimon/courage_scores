@@ -12,22 +12,24 @@ import {IShareButtonProps, ShareButton} from "./ShareButton";
 
 describe('ShareButton', () => {
     let context: TestContext;
-    let shareData: ShareData;
+    let shareData: ShareData | null;
 
     afterEach(async () => {
         await cleanUp(context);
     });
 
-    async function renderComponent(props: IShareButtonProps, name?: string, currentPath?: string) {
-        // noinspection JSValidateTypes
-        (navigator as any).share = async (data: ShareData) => shareData = data;
+    beforeEach(() => {
         shareData = null;
+        (navigator as any).share = async (data: ShareData) => shareData = data;
+    })
+
+    async function renderComponent(props: IShareButtonProps, name?: string, currentPath?: string) {
         context = await renderApp(
             iocProps(),
             brandingProps({name}),
             appProps(),
             (<ShareButton {...props} />),
-            null,
+            undefined,
             currentPath);
     }
 
@@ -42,10 +44,10 @@ describe('ShareButton', () => {
             await doClick(findButton(context.container, '🔗'));
 
             expect(shareData).toBeTruthy();
-            expect(shareData.text).toEqual('TEXT');
-            expect(shareData.title).toEqual('TITLE');
-            expect(shareData.url).toContain('/test');
-            expect(shareData.url).toContain('#HASH');
+            expect(shareData?.text).toEqual('TEXT');
+            expect(shareData?.title).toEqual('TITLE');
+            expect(shareData?.url).toContain('/test');
+            expect(shareData?.url).toContain('#HASH');
         });
 
         it('shares page with default title and text', async () => {
@@ -56,10 +58,10 @@ describe('ShareButton', () => {
             await doClick(findButton(context.container, '🔗'));
 
             expect(shareData).toBeTruthy();
-            expect(shareData.text).toEqual('Courage Scores');
-            expect(shareData.title).toEqual('Courage Scores');
-            expect(shareData.url).toContain('/test');
-            expect(shareData.url).toContain('#HASH');
+            expect(shareData?.text).toEqual('Courage Scores');
+            expect(shareData?.title).toEqual('Courage Scores');
+            expect(shareData?.url).toContain('/test');
+            expect(shareData?.url).toContain('#HASH');
         });
 
         it('shares page without any hash', async () => {
@@ -70,14 +72,14 @@ describe('ShareButton', () => {
             await doClick(findButton(context.container, '🔗'));
 
             expect(shareData).toBeTruthy();
-            expect(shareData.text).toEqual('Courage Scores');
-            expect(shareData.title).toEqual('Courage Scores');
-            expect(shareData.url).toContain('/test');
+            expect(shareData?.text).toEqual('Courage Scores');
+            expect(shareData?.title).toEqual('Courage Scores');
+            expect(shareData?.url).toContain('/test');
         });
 
-        it('does not share page with null hash', async () => {
+        it('does not share page with undefined hash', async () => {
             await renderComponent({
-                getHash: async () => null,
+                getHash: async () => undefined,
             });
 
             await doClick(findButton(context.container, '🔗'));
@@ -96,10 +98,10 @@ describe('ShareButton', () => {
             await doClick(findButton(context.container, '🔗'));
 
             expect(shareData).toBeTruthy();
-            expect(shareData.text).toEqual('TEXT');
-            expect(shareData.title).toEqual('TITLE');
-            expect(shareData.url).toContain('/test');
-            expect(shareData.url).toContain('#HASH');
+            expect(shareData?.text).toEqual('TEXT');
+            expect(shareData?.title).toEqual('TITLE');
+            expect(shareData?.url).toContain('/test');
+            expect(shareData?.url).toContain('#HASH');
         });
 
         it('shares page with default title and text', async () => {
@@ -108,10 +110,10 @@ describe('ShareButton', () => {
             await doClick(findButton(context.container, '🔗'));
 
             expect(shareData).toBeTruthy();
-            expect(shareData.text).toEqual('Courage Scores');
-            expect(shareData.title).toEqual('Courage Scores');
-            expect(shareData.url).toContain('/test');
-            expect(shareData.url).toContain('#HASH');
+            expect(shareData?.text).toEqual('Courage Scores');
+            expect(shareData?.title).toEqual('Courage Scores');
+            expect(shareData?.url).toContain('/test');
+            expect(shareData?.url).toContain('#HASH');
         });
 
         it('shares page without any hash', async () => {
@@ -122,9 +124,9 @@ describe('ShareButton', () => {
             await doClick(findButton(context.container, '🔗'));
 
             expect(shareData).toBeTruthy();
-            expect(shareData.text).toEqual('Courage Scores');
-            expect(shareData.title).toEqual('Courage Scores');
-            expect(shareData.url).toContain('/test');
+            expect(shareData?.text).toEqual('Courage Scores');
+            expect(shareData?.title).toEqual('Courage Scores');
+            expect(shareData?.url).toContain('/test');
         });
     });
 });

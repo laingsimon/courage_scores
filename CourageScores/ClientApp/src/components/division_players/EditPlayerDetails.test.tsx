@@ -27,11 +27,11 @@ describe('EditPlayerDetails', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let createdPlayers: {divisionId: string, seasonId: string, teamId: string, playerDetails: EditTeamPlayerDto}[];
-    let updatedPlayer: {seasonId: string, teamId: string, playerId: string, playerDetails: EditTeamPlayerDto};
-    let saved: {result: TeamDto, newPlayers: TeamPlayerDto[] | null};
-    let change: {name: string, value: string};
+    let updatedPlayer: {seasonId: string, teamId: string, playerId: string, playerDetails: EditTeamPlayerDto} | null;
+    let saved: {result: TeamDto, newPlayers: TeamPlayerDto[] | null} | null;
+    let change: {name: string, value: string} | null;
     let canceled: boolean;
-    let apiResponse: () => IClientActionResultDto<TeamDto>;
+    let apiResponse: (() => IClientActionResultDto<TeamDto>) | null;
     let cumulativeCreatedPlayers: EditTeamPlayerDto[];
 
     const playerApi = api<IPlayerApi>({
@@ -123,8 +123,6 @@ describe('EditPlayerDetails', () => {
                 player: playerBuilder('NAME').captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
-                gameId: null,
-                newTeamId: null,
                 divisionId: division.id,
                 onCancel,
                 onSaved,
@@ -135,8 +133,8 @@ describe('EditPlayerDetails', () => {
             expect(findInput('name').value).toEqual('NAME');
             expect(findInput('emailAddress').value).toEqual('EMAIL');
             expect(findInput('captain').checked).toEqual(true);
-            expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
-            expect(findNewTeamDropdown().querySelector('.dropdown-item.active').textContent).toEqual('TEAM');
+            expect(findNewTeamDropdown()!.querySelector('.dropdown-item.active')).toBeTruthy();
+            expect(findNewTeamDropdown()!.querySelector('.dropdown-item.active')!.textContent).toEqual('TEAM');
         });
 
         it('new player details', async () => {
@@ -144,8 +142,6 @@ describe('EditPlayerDetails', () => {
                 player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
-                gameId: null,
-                newTeamId: null,
                 divisionId: division.id,
                 onCancel,
                 onSaved,
@@ -156,8 +152,8 @@ describe('EditPlayerDetails', () => {
             expect(findInput('name').value).toEqual('NAME');
             expect(findInput('emailAddress').value).toEqual('EMAIL');
             expect(findInput('captain').checked).toEqual(true);
-            expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
-            expect(findNewTeamDropdown().querySelector('.dropdown-item.active').textContent).toEqual('TEAM');
+            expect(findNewTeamDropdown()!.querySelector('.dropdown-item.active')).toBeTruthy();
+            expect(findNewTeamDropdown()!.querySelector('.dropdown-item.active')!.textContent).toEqual('TEAM');
         });
 
         it('new player details with no division id', async () => {
@@ -165,9 +161,6 @@ describe('EditPlayerDetails', () => {
                 player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
-                gameId: null,
-                newTeamId: null,
-                divisionId: null,
                 onCancel,
                 onSaved,
                 onChange,
@@ -177,8 +170,8 @@ describe('EditPlayerDetails', () => {
             expect(findInput('name').value).toEqual('NAME');
             expect(findInput('emailAddress').value).toEqual('EMAIL');
             expect(findInput('captain').checked).toEqual(true);
-            expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
-            expect(findNewTeamDropdown().querySelector('.dropdown-item.active').textContent).toEqual('TEAM');
+            expect(findNewTeamDropdown()!.querySelector('.dropdown-item.active')).toBeTruthy();
+            expect(findNewTeamDropdown()!.querySelector('.dropdown-item.active')!.textContent).toEqual('TEAM');
         });
 
         it('excludes teams where not selected for current season', async () => {
@@ -190,36 +183,32 @@ describe('EditPlayerDetails', () => {
                 player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
-                gameId: null,
-                newTeamId: null,
                 divisionId: division.id,
                 onCancel,
                 onSaved,
                 onChange,
             }, [team, differentSeasonTeam], [division]);
 
-            const items = Array.from(findNewTeamDropdown().querySelectorAll('.dropdown-item'));
+            const items = Array.from(findNewTeamDropdown()!.querySelectorAll('.dropdown-item'));
             expect(items.map(i => i.textContent)).toEqual([ 'Select team', 'TEAM' ]);
         });
 
         it('excludes teams where not deleted for current season', async () => {
             const differentSeasonTeam = teamBuilder('DELETED TEAM')
-                .forSeason(season, division, null, true)
+                .forSeason(season, division, undefined, true)
                 .build();
 
             await renderComponent({
                 player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
-                gameId: null,
-                newTeamId: null,
                 divisionId: division.id,
                 onCancel,
                 onSaved,
                 onChange,
             }, [team, differentSeasonTeam], [division]);
 
-            const items = Array.from(findNewTeamDropdown().querySelectorAll('.dropdown-item'));
+            const items = Array.from(findNewTeamDropdown()!.querySelectorAll('.dropdown-item'));
             expect(items.map(i => i.textContent)).toEqual([ 'Select team', 'TEAM' ]);
         });
 
@@ -228,8 +217,6 @@ describe('EditPlayerDetails', () => {
                 player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
-                gameId: null,
-                newTeamId: null,
                 divisionId: division.id,
                 onCancel,
                 onSaved,
@@ -246,8 +233,6 @@ describe('EditPlayerDetails', () => {
                 player: playerBuilder('NAME').captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
-                gameId: null,
-                newTeamId: null,
                 divisionId: division.id,
                 onCancel,
                 onSaved,
@@ -272,17 +257,17 @@ describe('EditPlayerDetails', () => {
         const otherTeam: TeamDto = teamBuilder('OTHER TEAM')
             .forSeason(season, division)
             .build();
-        let alert: string;
+        let alert: string | undefined;
         let response = false;
         window.confirm = () => {
             return response
         };
-        window.alert = (message) => {
+        window.alert = (message: string) => {
             alert = message
         };
 
         beforeEach(() => {
-            alert = null;
+            alert = undefined;
         });
 
         it('can change team for new player', async () => {
@@ -290,21 +275,19 @@ describe('EditPlayerDetails', () => {
                 player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
-                gameId: null,
-                newTeamId: null,
                 divisionId: division.id,
                 onCancel,
                 onSaved,
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
             reportedError.verifyNoError();
-            expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
+            expect(findNewTeamDropdown()!.querySelector('.dropdown-item.active')).toBeTruthy();
 
             await doSelectOption(findNewTeamDropdown(), 'OTHER TEAM');
 
             expect(change).not.toBeNull();
-            expect(change.name).toEqual('teamId');
-            expect(change.value).toEqual(otherTeam.id);
+            expect(change!.name).toEqual('teamId');
+            expect(change!.value).toEqual(otherTeam.id);
         });
 
         it('can change team for existing player', async () => {
@@ -312,21 +295,19 @@ describe('EditPlayerDetails', () => {
                 player: playerBuilder('NAME').captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
-                gameId: null,
-                newTeamId: null,
                 divisionId: division.id,
                 onCancel,
                 onSaved,
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
             reportedError.verifyNoError();
-            expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
+            expect(findNewTeamDropdown()!.querySelector('.dropdown-item.active')).toBeTruthy();
 
             await doSelectOption(findNewTeamDropdown(), 'OTHER TEAM');
 
             expect(change).not.toBeNull();
-            expect(change.name).toEqual('newTeamId');
-            expect(change.value).toEqual(otherTeam.id);
+            expect(change!.name).toEqual('newTeamId');
+            expect(change!.value).toEqual(otherTeam.id);
         });
 
         it('can change to multi-add for new player', async () => {
@@ -334,8 +315,6 @@ describe('EditPlayerDetails', () => {
                 player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
-                gameId: null,
-                newTeamId: null,
                 divisionId: division.id,
                 onCancel,
                 onSaved,
@@ -345,7 +324,7 @@ describe('EditPlayerDetails', () => {
 
             await doClick(context.container, 'input[name="multiple"]');
 
-            const name = context.container.querySelector('textarea');
+            const name = context.container.querySelector('textarea')!;
             expect(name.value).toEqual('NAME');
             expect(context.container.querySelector('input[name="captain"]')).toBeFalsy();
             expect(context.container.querySelector('input[name="emailAddress"]')).toBeFalsy();
@@ -356,8 +335,6 @@ describe('EditPlayerDetails', () => {
                 player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
-                gameId: null,
-                newTeamId: null,
                 divisionId: division.id,
                 onCancel,
                 onSaved,
@@ -369,8 +346,8 @@ describe('EditPlayerDetails', () => {
 
             await doClick(context.container, 'input[name="multiple"]');
 
-            expect(change.name).toEqual('name');
-            expect(change.value).toEqual('');
+            expect(change!.name).toEqual('name');
+            expect(change!.value).toEqual('');
             expect(context.container.querySelector('input[name="captain"]')).toBeTruthy();
             expect(context.container.querySelector('input[name="emailAddress"]')).toBeTruthy();
         });
@@ -380,8 +357,6 @@ describe('EditPlayerDetails', () => {
                 player: playerBuilder('NAME').captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
-                gameId: null,
-                newTeamId: null,
                 divisionId: division.id,
                 onCancel,
                 onSaved,
@@ -392,17 +367,14 @@ describe('EditPlayerDetails', () => {
             await doClick(findInput('captain'));
 
             expect(change).not.toBeNull();
-            expect(change.name).toEqual('captain');
-            expect(change.value).toEqual(false);
+            expect(change!.name).toEqual('captain');
+            expect(change!.value).toEqual(false);
         });
 
         it('requires team to be selected', async () => {
             await renderComponent({
                 player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
                 seasonId: season.id,
-                team: null,
-                gameId: null,
-                newTeamId: null,
                 divisionId: division.id,
                 onCancel,
                 onSaved,
@@ -420,8 +392,6 @@ describe('EditPlayerDetails', () => {
                 player: playerBuilder('').noId().captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
-                gameId: null,
-                newTeamId: null,
                 divisionId: division.id,
                 onCancel,
                 onSaved,
@@ -439,8 +409,6 @@ describe('EditPlayerDetails', () => {
                 player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
-                gameId: null,
-                newTeamId: null,
                 divisionId: division.id,
                 onCancel,
                 onSaved,
@@ -457,7 +425,7 @@ describe('EditPlayerDetails', () => {
             expect(createdPlayer.playerDetails.name).toEqual('NAME');
             expect(createdPlayer.playerDetails.emailAddress).toEqual('EMAIL');
             expect(createdPlayer.playerDetails.captain).toEqual(true);
-            expect(createdPlayer.playerDetails.newTeamId).toEqual(null);
+            expect(createdPlayer.playerDetails.newTeamId).toBeUndefined();
         });
 
         it('identifies new player', async () => {
@@ -465,8 +433,6 @@ describe('EditPlayerDetails', () => {
                 player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
-                gameId: null,
-                newTeamId: null,
                 divisionId: division.id,
                 onCancel,
                 onSaved,
@@ -478,12 +444,11 @@ describe('EditPlayerDetails', () => {
 
             reportedError.verifyNoError();
             expect(saved).not.toBeNull();
-            expect(saved.newPlayers).toEqual([{
+            expect(saved!.newPlayers).toEqual([{
                 name: 'NAME',
                 captain: true,
                 emailAddress: 'EMAIL',
                 id: expect.any(String),
-                newTeamId: null,
             }]);
         });
 
@@ -497,8 +462,6 @@ describe('EditPlayerDetails', () => {
                 player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: teamWithDeletedSeason,
-                gameId: null,
-                newTeamId: null,
                 divisionId: division.id,
                 onCancel,
                 onSaved,
@@ -510,14 +473,14 @@ describe('EditPlayerDetails', () => {
                     success: true,
                     result: {
                         id: teamWithDeletedSeason.id,
-                        seasons: teamWithDeletedSeason.seasons.map((ts: TeamSeasonDto) => {
+                        seasons: teamWithDeletedSeason!.seasons!.map((ts: TeamSeasonDto) => {
                             if (ts.deleted) {
                                 return ts;
                             }
 
                             const newTeamSeason: TeamSeasonDto = Object.assign({}, ts);
                             for (const p of cumulativeCreatedPlayers) {
-                                newTeamSeason.players = ts.players.concat(p as TeamPlayerDto);
+                                newTeamSeason.players = ts.players!.concat(p as TeamPlayerDto);
                             }
                             return newTeamSeason;
                         }),
@@ -531,14 +494,13 @@ describe('EditPlayerDetails', () => {
 
             reportedError.verifyNoError();
             expect(saved).not.toBeNull();
-            expect(saved.newPlayers).toEqual([{
+            expect(saved!.newPlayers).toEqual([{
                 name: 'NAME',
                 captain: true,
                 emailAddress: 'EMAIL',
                 id: expect.any(String),
-                newTeamId: null,
             }]);
-            expect(saved.newPlayers[0].id).not.toEqual(deletedPlayer.id);
+            expect(saved!.newPlayers![0].id).not.toEqual(deletedPlayer.id);
         });
 
         it('creates multiple players', async () => {
@@ -546,8 +508,6 @@ describe('EditPlayerDetails', () => {
                 player: playerBuilder('NAME 1\nNAME 2').noId().build(),
                 seasonId: season.id,
                 team: team,
-                gameId: null,
-                newTeamId: null,
                 divisionId: division.id,
                 onCancel,
                 onSaved,
@@ -564,12 +524,12 @@ describe('EditPlayerDetails', () => {
             expect(createdPlayer1.seasonId).toEqual(season.id);
             expect(createdPlayer1.teamId).toEqual(team.id);
             expect(createdPlayer1.playerDetails.name).toEqual('NAME 1');
-            expect(createdPlayer1.playerDetails.newTeamId).toEqual(null);
+            expect(createdPlayer1.playerDetails.newTeamId).toBeUndefined();
             expect(createdPlayer1.playerDetails.captain).toEqual(false);
             expect(createdPlayer2.seasonId).toEqual(season.id);
             expect(createdPlayer2.teamId).toEqual(team.id);
             expect(createdPlayer2.playerDetails.name).toEqual('NAME 2');
-            expect(createdPlayer2.playerDetails.newTeamId).toEqual(null);
+            expect(createdPlayer2.playerDetails.newTeamId).toBeUndefined();
             expect(createdPlayer2.playerDetails.captain).toEqual(false);
         });
 
@@ -578,8 +538,6 @@ describe('EditPlayerDetails', () => {
                 player: playerBuilder('NAME 1\nNAME 2').noId().build(),
                 seasonId: season.id,
                 team: team,
-                gameId: null,
-                newTeamId: null,
                 divisionId: division.id,
                 onCancel,
                 onSaved,
@@ -592,18 +550,14 @@ describe('EditPlayerDetails', () => {
 
             reportedError.verifyNoError();
             expect(saved).not.toBeNull();
-            expect(saved.newPlayers).toEqual([{
+            expect(saved!.newPlayers).toEqual([{
                 id: expect.any(String),
                 captain: false,
                 name: 'NAME 1',
-                newTeamId: null,
-                emailAddress: null,
             }, {
                 id: expect.any(String),
                 captain: false,
                 name: 'NAME 2',
-                newTeamId: null,
-                emailAddress: null,
             }])
         });
 
@@ -613,7 +567,6 @@ describe('EditPlayerDetails', () => {
                 player: playerBuilder('NAME', playerId).captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
-                gameId: null,
                 newTeamId: otherTeam.id,
                 divisionId: division.id,
                 onCancel,
@@ -626,16 +579,16 @@ describe('EditPlayerDetails', () => {
 
             reportedError.verifyNoError();
             expect(updatedPlayer).not.toBeNull();
-            expect(updatedPlayer.playerId).toEqual(playerId);
-            expect(updatedPlayer.seasonId).toEqual(season.id);
-            expect(updatedPlayer.teamId).toEqual(team.id);
-            expect(updatedPlayer.playerDetails.gameId).toBeFalsy();
-            expect(updatedPlayer.playerDetails.name).toEqual('NAME');
-            expect(updatedPlayer.playerDetails.emailAddress).toEqual('EMAIL');
-            expect(updatedPlayer.playerDetails.captain).toEqual(true);
-            expect(updatedPlayer.playerDetails.newTeamId).toEqual(otherTeam.id);
+            expect(updatedPlayer!.playerId).toEqual(playerId);
+            expect(updatedPlayer!.seasonId).toEqual(season.id);
+            expect(updatedPlayer!.teamId).toEqual(team.id);
+            expect(updatedPlayer!.playerDetails.gameId).toBeFalsy();
+            expect(updatedPlayer!.playerDetails.name).toEqual('NAME');
+            expect(updatedPlayer!.playerDetails.emailAddress).toEqual('EMAIL');
+            expect(updatedPlayer!.playerDetails.captain).toEqual(true);
+            expect(updatedPlayer!.playerDetails.newTeamId).toEqual(otherTeam.id);
             expect(saved).not.toBeNull();
-            expect(saved.newPlayers).toBeNull();
+            expect(saved!.newPlayers).toBeNull();
         });
 
         it('updates existing player in given game', async () => {
@@ -658,16 +611,16 @@ describe('EditPlayerDetails', () => {
 
             reportedError.verifyNoError();
             expect(updatedPlayer).not.toBeNull();
-            expect(updatedPlayer.playerId).toEqual(playerId);
-            expect(updatedPlayer.seasonId).toEqual(season.id);
-            expect(updatedPlayer.teamId).toEqual(team.id);
-            expect(updatedPlayer.playerDetails.gameId).toEqual(gameId);
-            expect(updatedPlayer.playerDetails.name).toEqual('NAME');
-            expect(updatedPlayer.playerDetails.emailAddress).toEqual('EMAIL');
-            expect(updatedPlayer.playerDetails.captain).toEqual(true);
-            expect(updatedPlayer.playerDetails.newTeamId).toEqual(otherTeam.id);
+            expect(updatedPlayer!.playerId).toEqual(playerId);
+            expect(updatedPlayer!.seasonId).toEqual(season.id);
+            expect(updatedPlayer!.teamId).toEqual(team.id);
+            expect(updatedPlayer!.playerDetails.gameId).toEqual(gameId);
+            expect(updatedPlayer!.playerDetails.name).toEqual('NAME');
+            expect(updatedPlayer!.playerDetails.emailAddress).toEqual('EMAIL');
+            expect(updatedPlayer!.playerDetails.captain).toEqual(true);
+            expect(updatedPlayer!.playerDetails.newTeamId).toEqual(otherTeam.id);
             expect(saved).not.toBeNull();
-            expect(saved.newPlayers).toBeNull();
+            expect(saved!.newPlayers).toBeNull();
         });
 
         it('handles errors during save', async () => {
@@ -675,7 +628,6 @@ describe('EditPlayerDetails', () => {
                 player: playerBuilder('NAME').captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
-                gameId: null,
                 newTeamId: otherTeam.id,
                 divisionId: division.id,
                 onCancel,
@@ -696,7 +648,6 @@ describe('EditPlayerDetails', () => {
                 player: playerBuilder('NAME').captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
-                gameId: null,
                 newTeamId: otherTeam.id,
                 divisionId: division.id,
                 onCancel,
@@ -718,7 +669,6 @@ describe('EditPlayerDetails', () => {
                 player: playerBuilder('NAME').captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
-                gameId: null,
                 newTeamId: otherTeam.id,
                 divisionId: division.id,
                 onCancel,

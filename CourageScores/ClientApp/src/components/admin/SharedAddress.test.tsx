@@ -14,9 +14,9 @@ import {ISharedAddressProps, SharedAddress} from "./SharedAddress";
 
 describe('SharedAddress', () => {
     let context: TestContext;
-    let updatedAddresses: string[];
+    let updatedAddresses: string[] | null;
     let deleted: boolean;
-    let highlightedMnemonic: string;
+    let highlightedMnemonic: string | undefined;
 
     afterEach(async () => {
         await cleanUp(context);
@@ -37,7 +37,7 @@ describe('SharedAddress', () => {
     beforeEach(() => {
         updatedAddresses = null;
         deleted = false;
-        highlightedMnemonic = null;
+        highlightedMnemonic = undefined;
     });
 
     async function renderComponent(props: ISharedAddressProps) {
@@ -109,7 +109,7 @@ describe('SharedAddress', () => {
 
             const addressBadges = Array.from(context.container.querySelectorAll('button.badge')) as HTMLButtonElement[];
             expect(addressBadges.map(b => b.className.indexOf(' bg-warning') !== -1)).toEqual([ true ]);
-            const newAddressBadge = context.container.querySelector('span.badge');
+            const newAddressBadge = context.container.querySelector('span.badge')!;
             expect(newAddressBadge.className).toContain(' bg-warning');
         });
 
@@ -123,7 +123,7 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            const newAddressBadge = context.container.querySelector('button.badge');
+            const newAddressBadge = context.container.querySelector('button.badge')!;
             expect(newAddressBadge.className).toContain(' bg-danger');
         });
     });
@@ -156,7 +156,7 @@ describe('SharedAddress', () => {
             });
 
             await doChange(context.container, 'input', 'B', context.user);
-            await context.user.type(context.container.querySelector('input'), '{Enter}');
+            await context.user!.type(context.container.querySelector('input')!, '{Enter}');
 
             expect(updatedAddresses).toEqual(['A', 'B']);
         });
@@ -174,7 +174,7 @@ describe('SharedAddress', () => {
             await doChange(context.container, 'input', 'B', context.user);
             await doClick(findButton(context.container, '➕'));
 
-            expect(context.container.querySelector('input').value).toEqual('');
+            expect(context.container.querySelector('input')!.value).toEqual('');
         });
 
         it('cannot add address with empty code (Button click)', async () => {
@@ -186,8 +186,8 @@ describe('SharedAddress', () => {
                 highlight: '',
                 setHighlight,
             });
-            let alert: string;
-            window.alert = (msg) => alert = msg;
+            let alert: string | undefined;
+            window.alert = (msg: string) => alert = msg;
 
             await doChange(context.container, 'input', '', context.user);
             await doClick(findButton(context.container, '➕'));
@@ -204,11 +204,11 @@ describe('SharedAddress', () => {
                 highlight: '',
                 setHighlight,
             });
-            let alert: string;
-            window.alert = (msg) => alert = msg;
+            let alert: string | undefined;
+            window.alert = (msg: string) => alert = msg;
 
             await doChange(context.container, 'input', '', context.user);
-            await context.user.type(context.container.querySelector('input'), '{Enter}');
+            await context.user!.type(context.container.querySelector('input')!, '{Enter}');
 
             expect(alert).toEqual('Enter a code for the team');
         });
@@ -268,7 +268,7 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            await triggerMouseMove(context.container.querySelector('button.badge'), true);
+            await triggerMouseMove(context.container.querySelector('button.badge')!, true);
 
             expect(highlightedMnemonic).toEqual('A');
         });
@@ -284,9 +284,9 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            await triggerMouseLeave(context.container.querySelector('button.badge'), true);
+            await triggerMouseLeave(context.container.querySelector('button.badge')!, true);
 
-            expect(highlightedMnemonic).toBeNull();
+            expect(highlightedMnemonic).toBeUndefined();
         });
 
         it('removes highlight when mouse moves and ctrl not pressed', async () => {
@@ -300,9 +300,9 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            await triggerMouseMove(context.container.querySelector('button.badge'), false);
+            await triggerMouseMove(context.container.querySelector('button.badge')!, false);
 
-            expect(highlightedMnemonic).toBeNull();
+            expect(highlightedMnemonic).toBeUndefined();
         });
     });
 });

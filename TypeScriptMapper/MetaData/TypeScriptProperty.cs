@@ -54,7 +54,7 @@ public class TypeScriptProperty : ITypeScriptMember
     private bool IsPrimitiveType()
     {
         return _property.PropertyType.IsValueType
-                || Nullable.GetUnderlyingType(_property.PropertyType) != null;
+               || Nullable.GetUnderlyingType(_property.PropertyType) != null;
     }
 
     private bool HasDefaultValue()

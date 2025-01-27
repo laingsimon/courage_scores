@@ -10,12 +10,13 @@ import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 import {asyncCallback} from "../../helpers/events";
+import {ifUndefined} from "../../helpers/rendering";
 
 export interface IMatchStatisticsProps {
     saygId: string;
     legs: { [key: number]: LegDto };
     homeScore: number;
-    awayScore: number;
+    awayScore?: number;
     home: string;
     away?: string;
     singlePlayer?: boolean;
@@ -33,7 +34,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
     const [oneDartAverage, setOneDartAverage] = useState<boolean>(false);
     const {subscriptions, liveOptions} = useLive();
     const [legDisplayOptionsState, setLegDisplayOptions] = useState<ILegDisplayOptionsLookup>(getLegDisplayOptions(legs));
-    const finished: boolean = (homeScore > numberOfLegs / 2.0) || (awayScore > numberOfLegs / 2.0);
+    const finished: boolean = ((homeScore || 0) > numberOfLegs / 2.0) || ((awayScore || 0) > numberOfLegs / 2.0);
     const isSubscribed: boolean = !!(saygId && subscriptions[saygId]);
     const legDisplayOptions: ILegDisplayOptionsLookup = isSubscribed && !finished
         ? getLegDisplayOptions(legs, true)
@@ -41,7 +42,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
 
     function getLegDisplayOptions(legs: { [key: number]: LegDto }, showThrowsOnLastLeg?: boolean): ILegDisplayOptionsLookup {
         const options: ILegDisplayOptionsLookup = {};
-        let lastLegIndex = null;
+        let lastLegIndex: string | null = null;
         for (const legIndex of Object.keys(legs)) {
             options[legIndex] = {
                 showThrows: false,
@@ -69,7 +70,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
     }
 
     function sumOf(player: 'home' | 'away', prop: string) {
-        const value = sum(Object.values(legs), (leg: LegDto) => leg[player][prop]);
+        const value: number = sum(Object.values(legs), (leg: LegDto) => leg[player][prop]);
         if (!Number.isNaN(value)) {
             return value;
         }
@@ -87,18 +88,18 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
             <thead>
             {singlePlayer ? null : (<tr>
                 <th></th>
-                <th className={homeScore > awayScore ? 'text-primary' : ''}>{home}</th>
-                <th className={homeScore > awayScore ? '' : 'text-primary'}>{away}</th>
+                <th className={homeScore > ifUndefined(awayScore) ? 'text-primary' : ''}>{home}</th>
+                <th className={homeScore > ifUndefined(awayScore) ? '' : 'text-primary'}>{away}</th>
             </tr>)}
             </thead>
             <tbody>
             <tr>
                 <td>Score</td>
-                <td className={`${homeScore > awayScore ? 'bg-winner text-primary' : ''} text-center`}>
+                <td className={`${!singlePlayer && homeScore > ifUndefined(awayScore) ? 'bg-winner text-primary' : ''} text-center`}>
                     <strong>{homeScore || '0'}</strong></td>
                 {singlePlayer
                     ? null
-                    : (<td className={`${homeScore > awayScore ? '' : 'bg-winner text-primary'} text-center`}>
+                    : (<td className={`${homeScore > ifUndefined(awayScore) ? '' : 'bg-winner text-primary'} text-center`}>
                         <strong>{awayScore || '0'}</strong>
                     </td>)}
             </tr>
@@ -114,8 +115,8 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
                     singlePlayer={singlePlayer}
                     oneDartAverage={oneDartAverage}
                     legDisplayOptions={legDisplayOptions[legKey] || getLegDisplayOptions(legs)[legKey]}
-                    updateLegDisplayOptions={isSubscribed && !finished ? null : async (options: ILegDisplayOptions) => updateLegDisplayOptions(legKey, options)}
-                    onChangeLeg={legChanged ? ((newLeg: LegDto) => legChanged(newLeg, legKey)) : null}
+                    updateLegDisplayOptions={isSubscribed && !finished ? undefined : async (options: ILegDisplayOptions) => updateLegDisplayOptions(legKey, options)}
+                    onChangeLeg={legChanged ? ((newLeg: LegDto) => legChanged(newLeg, legKey)) : undefined}
                 />);
             })}
             </tbody>

@@ -25,7 +25,7 @@ export interface IDivisionFixtureProps {
     fixture: IEditableDivisionFixtureDto;
     date: string;
     readOnly?: boolean;
-    onUpdateFixtures(adaptFixtures: (currentFixtureDates: IEditableDivisionFixtureDateDto[]) => DivisionFixtureDateDto[]): UntypedPromise;
+    onUpdateFixtures(adaptFixtures: (currentFixtureDates: IEditableDivisionFixtureDateDto[]) => DivisionFixtureDateDto[] | null): UntypedPromise;
     beforeReloadDivision?(): UntypedPromise;
 }
 
@@ -47,10 +47,10 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     const [saveError, setSaveError] = useState<IClientActionResultDto<GameDto> | null>(null);
     const [clipCellRegion, setClipCellRegion] = useState<boolean>(true);
     const {gameApi} = useDependencies();
-    const awayTeamId: string = fixture.awayTeam ? fixture.awayTeam.id : '';
+    const awayTeamId: string = fixture.awayTeam ? fixture.awayTeam.id! : '';
     const favouriteTeamIds: string[] = getPreference<string[]>('favouriteTeamIds') || [];
     const homeTeamIsFavourite: boolean = any(favouriteTeamIds) && any(favouriteTeamIds, id => id === fixture.homeTeam.id);
-    const awayTeamIsFavourite: boolean = any(favouriteTeamIds) && fixture.awayTeam && any(favouriteTeamIds, id => id === fixture.awayTeam.id);
+    const awayTeamIsFavourite: boolean = (any(favouriteTeamIds) && fixture.awayTeam && any(favouriteTeamIds, id => id === fixture.awayTeam?.id)) || false;
     const notAFavourite: boolean = any(favouriteTeamIds) && !homeTeamIsFavourite && !awayTeamIsFavourite;
 
     async function doReloadDivision() {
@@ -61,40 +61,42 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         await onReloadDivision();
     }
 
-    function isSelectedInAnotherFixtureOnThisDate(t: DivisionTeamDto): DivisionFixtureDto {
-        const fixturesForThisDate: DivisionFixtureDateDto = fixtures.filter((f: DivisionFixtureDateDto) => f.date === date)[0];
+    function isSelectedInAnotherFixtureOnThisDate(t: DivisionTeamDto): DivisionFixtureDto | null {
+        const fixturesForThisDate: DivisionFixtureDateDto = fixtures!.filter((f: DivisionFixtureDateDto) => f.date === date)[0];
         if (!fixturesForThisDate || !fixturesForThisDate.fixtures) {
             return null;
         }
 
         // intentionally looks at qualifier games
         const realFixtures: DivisionFixtureDto[] = fixturesForThisDate.fixtures.filter((f: DivisionFixtureDto) => f.awayTeam && f.homeTeam && f.id !== fixture.id);
-        const selected: DivisionFixtureDto[] = realFixtures.filter((f: DivisionFixtureDto) => f.homeTeam.id === t.id || f.awayTeam.id === t.id);
+        const selected: DivisionFixtureDto[] = realFixtures.filter((f: DivisionFixtureDto) => f.homeTeam.id === t.id || f.awayTeam?.id === t.id);
         return any(selected)
             ? selected[0]
             : null;
     }
 
-    function isSelectedInSameFixtureOnAnotherDate(t: DivisionTeamDto): string {
-        const matching: DivisionFixtureDateDto[] = fixtures.filter((fixtureDate: DivisionFixtureDateDto) => {
+    function isSelectedInSameFixtureOnAnotherDate(t: DivisionTeamDto): string | null {
+        const matching: DivisionFixtureDateDto[] = fixtures!.filter((fixtureDate: DivisionFixtureDateDto) => {
             if (fixtureDate.date === date) {
                 return null;
             }
 
-            return any(fixtureDate.fixtures, (f: DivisionFixtureDto) => !f.isKnockout && f.homeTeam.id === fixture.homeTeam.id && f.awayTeam && f.awayTeam.id === t.id);
+            return any(
+                fixtureDate.fixtures,
+                (f: DivisionFixtureDto) => (!f.isKnockout && f.homeTeam.id === fixture.homeTeam.id && f.awayTeam && f.awayTeam.id === t.id) || false);
         });
 
         return any(matching) ? matching[0].date : null;
     }
 
-    function getUnavailableReason(t: DivisionTeamDto): string {
-        const otherFixtureSameDate: DivisionFixtureDto = isSelectedInAnotherFixtureOnThisDate(t);
+    function getUnavailableReason(t: DivisionTeamDto): string | null {
+        const otherFixtureSameDate: DivisionFixtureDto | null = isSelectedInAnotherFixtureOnThisDate(t);
         if (otherFixtureSameDate) {
-            return otherFixtureSameDate.awayTeam.id === t.id
+            return otherFixtureSameDate.awayTeam!.id === t.id
                 ? `Already playing against ${otherFixtureSameDate.homeTeam.name}`
-                : `Already playing against ${otherFixtureSameDate.awayTeam.name}`;
+                : `Already playing against ${otherFixtureSameDate.awayTeam!.name}`;
         }
-        const sameFixtureDifferentDate: string = isSelectedInSameFixtureOnAnotherDate(t);
+        const sameFixtureDifferentDate: string | null = isSelectedInSameFixtureOnAnotherDate(t);
         if (sameFixtureDifferentDate) {
             return `Already playing same leg on ${renderDate(sameFixtureDifferentDate)}`;
         }
@@ -131,10 +133,10 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
 
             const newFixture: IEditableDivisionFixtureDto = Object.assign({}, fixtureDateFixture) as IEditableDivisionFixtureDto;
             newFixture.originalAwayTeamId = newFixture.originalAwayTeamId || (newFixture.awayTeam ? newFixture.awayTeam.id : 'unset');
-            const team: DivisionTeamDto = teams.filter((t: DivisionTeamDto) => t.id === teamId)[0];
+            const team: DivisionTeamDto = teams!.filter((t: DivisionTeamDto) => t.id === teamId)[0];
             newFixture.awayTeam = teamId
                 ? {id: teamId, name: team ? team.name : '<unknown>'}
-                : null;
+                : undefined;
             fixtureDate.fixtures = fixtureDate.fixtures.filter((f: DivisionFixtureDto) => f.id !== fixture.id).concat([newFixture]).sort(sortBy('homeTeam.name'));
 
             return currentFixtureDates;
@@ -144,13 +146,13 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     function renderKnockoutAwayTeams() {
         const options: IBootstrapDropdownItem[] = allTeams
             .filter((t: TeamDto) => t.id !== fixture.homeTeam.id)
-            .filter((t: TeamDto) => any(t.seasons, (ts: TeamSeasonDto) => ts.seasonId === season.id && !ts.deleted))
+            .filter((t: TeamDto) => any(t.seasons!, (ts: TeamSeasonDto) => ts.seasonId === season!.id && !ts.deleted))
             .map((t: TeamDto): IBootstrapDropdownItem => {
-                const otherFixtureSameDate: DivisionFixtureDto = isSelectedInAnotherFixtureOnThisDate(t);
-                const unavailableReason: string = otherFixtureSameDate
-                    ? otherFixtureSameDate.awayTeam.id === t.id
+                const otherFixtureSameDate: DivisionFixtureDto | null = isSelectedInAnotherFixtureOnThisDate(t);
+                const unavailableReason: string | null = otherFixtureSameDate
+                    ? otherFixtureSameDate.awayTeam?.id === t.id
                         ? `Already playing against ${otherFixtureSameDate.homeTeam.name}`
-                        : `Already playing against ${otherFixtureSameDate.awayTeam.name}`
+                        : `Already playing against ${otherFixtureSameDate.awayTeam?.name}`
                     : null;
 
                 return {
@@ -172,10 +174,10 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
 
     function renderLeagueAwayTeams() {
         const byeOption: IBootstrapDropdownItem[] = fixture.id !== fixture.homeTeam.id ? [] : [bye];
-        const options: IBootstrapDropdownItem[] = byeOption.concat(teams
+        const options: IBootstrapDropdownItem[] = byeOption.concat(teams!
             .filter((t: DivisionTeamDto) => t.id !== fixture.homeTeam.id)
             .map((t: DivisionTeamDto) => {
-                const unavailableReason: string = getUnavailableReason(t);
+                const unavailableReason: string | null = getUnavailableReason(t);
 
                 return {
                     value: t.id,
@@ -199,7 +201,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
             return (fixture.awayTeam
                 ? awayTeamId && (fixture.id !== fixture.homeTeam.id)
                     ? (<>
-                        {isAdmin ? null : <ToggleFavouriteTeam teamId={fixture.awayTeam.id} />}
+                        {isAdmin ? null : <ToggleFavouriteTeam teamId={fixture.awayTeam!.id!} />}
                         <Link to={`/score/${fixture.id}`} className="margin-right">
                             {fixture.awayTeam.name}
                         </Link>
@@ -210,9 +212,9 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
 
         if (any(fixture.fixturesUsingAddress)) {
             return (<div>
-                {fixture.fixturesUsingAddress.map((otherFixture, index) => {
+                {fixture.fixturesUsingAddress!.map((otherFixture, index) => {
                     return (<div key={index}>🚫 <Link
-                        to={`/score/${otherFixture.id}`}><strong>{otherFixture.home.name}</strong> vs <strong>{otherFixture.away.name}</strong> using
+                        to={`/score/${otherFixture.id}`}><strong>{otherFixture.home?.name}</strong> vs <strong>{otherFixture.away?.name}</strong> using
                         this venue</Link></div>)
                 })}
             </div>);
@@ -237,14 +239,13 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
 
             setSaving(true);
             const result: IClientActionResultDto<GameDto> = await gameApi.update({
-                id: undefined,
-                address: fixture.homeTeam.address,
+                address: fixture.homeTeam.address!,
                 divisionId: divisionId,
                 homeTeamId: fixture.homeTeam.id,
                 awayTeamId: awayTeamId,
                 date: date,
                 isKnockout: fixture.isKnockout,
-                seasonId: season.id,
+                seasonId: season!.id,
                 accoladesCount: fixture.accoladesCount,
             });
 
@@ -266,13 +267,13 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
                 return;
             }
 
-            if (!window.confirm(`Are you sure you want to delete this fixture?\n\n${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`)) {
+            if (!window.confirm(`Are you sure you want to delete this fixture?\n\n${fixture.homeTeam.name} vs ${fixture.awayTeam!.name}`)) {
                 return;
             }
 
             setDeleting(true);
             try {
-                const result: IClientActionResultDto<GameDto> = await gameApi.delete(fixture.id);
+                const result: IClientActionResultDto<GameDto> = await gameApi.delete(fixture.id!);
                 if (result.success) {
                     await doReloadDivision();
                 } else {
@@ -288,16 +289,16 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     }
 
     try {
-        const homeDivision: DivisionDto = fixture.homeDivision || { id: divisionId, name: divisionName };
+        const homeDivision: DivisionDto = fixture.homeDivision || { id: divisionId!, name: divisionName };
 
         return (<tr className={(deleting ? 'text-decoration-line-through' : '') + (notAFavourite && favouritesEnabled && !isAdmin ? ' opacity-25' : '')}>
             <td className="text-end">
                 {awayTeamId && (fixture.id !== fixture.homeTeam.id)
                     ? (<Link to={`/score/${fixture.id}`}
                                        className="margin-right">{fixture.homeTeam.name}</Link>)
-                    : (<Link to={`/division/${homeDivision.name || homeDivision.id}/team:${fixture.homeTeam.name}/${season.name}`}
+                    : (<Link to={`/division/${homeDivision.name || homeDivision.id}/team:${fixture.homeTeam.name}/${season!.name}`}
                                        className="margin-right">{fixture.homeTeam.name}</Link>)}
-                {isAdmin ? null : <ToggleFavouriteTeam teamId={fixture.homeTeam.id} />}
+                {isAdmin ? null : <ToggleFavouriteTeam teamId={fixture.homeTeam.id!} />}
             </td>
             <td className="narrow-column text-primary fw-bolder">{fixture.postponed
                 ? (<span className="text-danger">P</span>)

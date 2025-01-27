@@ -34,7 +34,7 @@ describe('MatchReport', () => {
     }
 
     function getRowContent(row: HTMLTableRowElement, tagName: string): string[] {
-        return Array.from(row.querySelectorAll(tagName)).map(th => th.textContent);
+        return Array.from(row.querySelectorAll(tagName)).map(th => th.textContent!);
     }
 
     function createLeg(homeWinner: boolean, awayWinner: boolean) {
@@ -67,7 +67,6 @@ describe('MatchReport', () => {
         it('correct headings', async () => {
             await renderComponent({
                 division: divisionBuilder('DIVISION').build(),
-                showWinner: false,
                 noOfThrows: 3,
                 noOfLegs: 3,
                 gender: 'GENDER',
@@ -77,14 +76,13 @@ describe('MatchReport', () => {
             });
 
             reportedError.verifyNoError();
-            expect(context.container.querySelector('h2').textContent).toEqual('SOMERSET DARTS ORGANISATION');
-            expect(context.container.querySelector('h3').textContent).toEqual('DIVISION (GENDER)');
+            expect(context.container.querySelector('h2')!.textContent).toEqual('SOMERSET DARTS ORGANISATION');
+            expect(context.container.querySelector('h3')!.textContent).toEqual('DIVISION (GENDER)');
         });
 
         it('correct heading rows', async () => {
             await renderComponent({
                 division: divisionBuilder('DIVISION').build(),
-                showWinner: false,
                 noOfThrows: 3,
                 noOfLegs: 3,
                 gender: 'GENDER',
@@ -97,7 +95,7 @@ describe('MatchReport', () => {
             const rows = Array.from(context.container.querySelectorAll('thead tr')) as HTMLTableRowElement[];
             expect(rows.length).toEqual(3);
             expect(getRowContent(rows[0], 'th')).toEqual(['HOSTvOPPONENT']);
-            expect(rows[0].querySelector('th').colSpan).toEqual(23);
+            expect(rows[0].querySelector('th')!.colSpan).toEqual(23);
             expect(getRowContent(rows[1], 'th')).toEqual(['', 'Scores', '', '', 'Scores', '']);
             expect(rows[1].querySelectorAll('th')[1].colSpan).toEqual(4);
             expect(rows[1].querySelectorAll('th')[4].colSpan).toEqual(4);
@@ -119,7 +117,6 @@ describe('MatchReport', () => {
 
             await renderComponent({
                 division: divisionBuilder('DIVISION').build(),
-                showWinner: false,
                 noOfThrows: 3,
                 noOfLegs: 3,
                 gender: 'GENDER',
@@ -148,7 +145,6 @@ describe('MatchReport', () => {
 
             await renderComponent({
                 division: divisionBuilder('DIVISION').build(),
-                showWinner: false,
                 noOfThrows: 3,
                 noOfLegs: 3,
                 gender: 'GENDER',
@@ -158,7 +154,7 @@ describe('MatchReport', () => {
             });
 
             reportedError.verifyNoError();
-            const legsWonContainer = context.container.querySelector('table.table + div');
+            const legsWonContainer = context.container.querySelector('table.table + div')!;
             expect(legsWonContainer).toBeTruthy();
             const legsWon = Array.from(legsWonContainer.querySelectorAll('div'));
             expect(legsWon[0].textContent).toEqual('Legs won: 2');
@@ -167,8 +163,7 @@ describe('MatchReport', () => {
 
         it('when no division', async () => {
             await renderComponent({
-                division: null,
-                showWinner: false,
+                division: null!,
                 noOfThrows: 3,
                 noOfLegs: 3,
                 gender: 'GENDER',
@@ -178,8 +173,8 @@ describe('MatchReport', () => {
             });
 
             reportedError.verifyNoError();
-            expect(context.container.querySelector('h2').textContent).toEqual('SOMERSET DARTS ORGANISATION');
-            expect(context.container.querySelector('h3').textContent).toEqual('(GENDER)');
+            expect(context.container.querySelector('h2')!.textContent).toEqual('SOMERSET DARTS ORGANISATION');
+            expect(context.container.querySelector('h3')!.textContent).toEqual('(GENDER)');
         });
     });
 });

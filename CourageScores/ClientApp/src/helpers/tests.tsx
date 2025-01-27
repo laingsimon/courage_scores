@@ -15,6 +15,7 @@ import {MessageType} from "../interfaces/models/dtos/MessageType";
 import {IPreferenceData, PreferencesContainer} from "../components/common/PreferencesContainer";
 import {Cookies, useCookies} from "react-cookie";
 import {UntypedPromise} from "../interfaces/UntypedPromise";
+import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
 
 /* istanbul ignore file */
 
@@ -34,7 +35,7 @@ export async function doClick(container: Element, selector?: string, ignoreDisab
     });
 }
 
-export async function doChange(container: Element, selector: string, text: string, user: UserEvent) {
+export async function doChange(container: Element, selector: string, text: string, user?: UserEvent) {
     const input = container.querySelector(selector);
     if (!input) {
         throw new Error(`Could not find element with selector ${selector} in ${container.innerHTML}`);
@@ -55,7 +56,7 @@ export async function doKeyPress(container: Element, key: string) {
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export async function setFile(container: Element, selector: string, file: any, user: UserEvent) {
+export async function setFile(container: Element, selector: string, file: any, user?: UserEvent) {
     const input = container.querySelector(selector);
     if (!input) {
         throw new Error(`Could not find element with selector ${selector} in ${container.innerHTML}`);
@@ -85,8 +86,8 @@ export async function triggerMouseLeave(element: Element, ctrlDown: boolean) {
 export interface TestContext {
     container: HTMLElement;
     cleanUp(): UntypedPromise;
-    user: UserEvent;
-    cookies: Cookies;
+    user?: UserEvent;
+    cookies?: Cookies;
 }
 
 export function api<T>(methods: Partial<T>): T {
@@ -172,7 +173,7 @@ export class ErrorState {
 export class MockSocketFactory {
     subscriptions: ISubscriptions = {};
     sent: any[] = [];
-    socket: WebSocket = null;
+    socket: WebSocket | null = null;
     createSocket = this.__createSocket.bind(this);
     socketWasCreated = this.__socketWasCreated.bind(this);
 
@@ -183,7 +184,7 @@ export class MockSocketFactory {
             send: (data: any) => {
                 const message = JSON.parse(data);
                 if (message.type === MessageType.subscribed) {
-                    this.subscriptions[message.id] = { id: null, type: null, errorHandler: null, updateHandler: null };
+                    this.subscriptions[message.id] = { id: '', type: LiveDataType.sayg, errorHandler: noop, updateHandler: noop };
                 } else if (message.type === MessageType.unsubscribed) {
                     delete this.subscriptions[message.id];
                 }
@@ -202,14 +203,12 @@ export class MockSocketFactory {
 
 export function appProps(props?: any, errorState?: ErrorState): IAppContainerProps {
     const defaultProps: IAppContainerProps = {
-        account: null,
         appLoading: false,
         onError: (err: IError | string) => {
             if (errorState) {
                 errorState.setError(err);
             }
         },
-        error: null,
         build: {
             version: '',
             branch: '',

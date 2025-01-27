@@ -35,8 +35,8 @@ describe('ReviewProposalHealth', () => {
                 }
             });
 
-            const heading = context.container.querySelector('h4');
-            const alert = context.container.querySelector('.alert');
+            const heading = context.container.querySelector('h4')!;
+            const alert = context.container.querySelector('.alert')!;
             expect(heading.textContent).toEqual('✔ Fixtures have been proposed');
             expect(alert.className).toContain('alert-success');
             expect(context.container.querySelector('div[datatype="view-health-check"]')).toBeTruthy();
@@ -60,8 +60,8 @@ describe('ReviewProposalHealth', () => {
                 }
             });
 
-            const heading = context.container.querySelector('h4');
-            const alert = context.container.querySelector('.alert');
+            const heading = context.container.querySelector('h4')!;
+            const alert = context.container.querySelector('.alert')!;
             expect(heading.textContent).toEqual('⚠ There was an issue proposing fixtures');
             expect(alert.className).toContain('alert-warning');
             expect(context.container.querySelector('div[datatype="view-health-check"]')).toBeFalsy();
@@ -85,7 +85,7 @@ describe('ReviewProposalHealth', () => {
                 }
             });
 
-            const alert = context.container.querySelector('.alert');
+            const alert = context.container.querySelector('.alert')!;
             const errors = Array.from(alert.querySelectorAll('ol:nth-child(1) li'));
             expect(errors.map(li => li.textContent)).toEqual(['ERROR']);
         });
@@ -108,7 +108,7 @@ describe('ReviewProposalHealth', () => {
                 }
             });
 
-            const alert = context.container.querySelector('.alert');
+            const alert = context.container.querySelector('.alert')!;
             const warnings = Array.from(alert.querySelectorAll('ol:nth-child(1) li'));
             expect(warnings.map(li => li.textContent)).toEqual(['WARNING']);
         });
@@ -131,7 +131,7 @@ describe('ReviewProposalHealth', () => {
                 }
             });
 
-            const alert = context.container.querySelector('.alert');
+            const alert = context.container.querySelector('.alert')!;
             const messages = Array.from(alert.querySelectorAll('ol:nth-child(1) li'));
             expect(messages.map(li => li.textContent)).toEqual(['MESSAGE']);
         });

@@ -39,8 +39,8 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeH
     }
 
     try {
-        const oneEightiesNotRecorded: boolean = isEmpty(fixtureData.oneEighties || []);
-        const hiChecksNotRecorded: boolean = isEmpty(fixtureData.over100Checkouts || []);
+        const oneEightiesNotRecorded: boolean = isEmpty(fixtureData.oneEighties);
+        const hiChecksNotRecorded: boolean = isEmpty(fixtureData.over100Checkouts);
 
         return (<>
         {oneEightiesNotRecorded && (any(getRecordsToMerge('home', 'oneEighties')) || any(getRecordsToMerge('away', 'oneEighties')))

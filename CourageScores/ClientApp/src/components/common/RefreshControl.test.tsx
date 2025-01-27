@@ -16,11 +16,12 @@ import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {ILive} from "../../live/ILive";
 import {act} from "@testing-library/react";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
+import {ILiveOptions} from "../../live/ILiveOptions";
 
 describe('RefreshControl', () => {
     let context: TestContext;
     let socketFactory: MockSocketFactory;
-    let liveContainer: ILive;
+    let liveContainer: ILive | null;
 
     beforeEach(() => {
         liveContainer = null;
@@ -32,13 +33,15 @@ describe('RefreshControl', () => {
     });
 
     async function renderComponent(props: IRefreshControlProps, account?: UserDto) {
+        const liveOptions: ILiveOptions = {};
+
         context = await renderApp(
             iocProps({socketFactory: socketFactory.createSocket}),
             brandingProps(),
             appProps({
                 account,
             }),
-            (<LiveContainer liveOptions={null} onDataUpdate={noop}>
+            (<LiveContainer liveOptions={liveOptions} onDataUpdate={noop}>
                 <GetLiveContainer onLoad={(live: ILive) => liveContainer = live}>
                     <RefreshControl {...props} />
                 </GetLiveContainer>
@@ -87,11 +90,11 @@ describe('RefreshControl', () => {
 
             await renderComponent({ id, type: LiveDataType.sayg }, account);
             await act(async () => {
-                await liveContainer.enableLiveUpdates(true, { id, type: LiveDataType.sayg });
+                await liveContainer!.enableLiveUpdates(true, { id, type: LiveDataType.sayg });
                 expect(socketFactory.socketWasCreated()).toEqual(true);
             });
 
-            const selectedItem = context.container.querySelector('.dropdown-menu .dropdown-item.active')
+            const selectedItem = context.container.querySelector('.dropdown-menu .dropdown-item.active')!;
             expect(selectedItem.textContent).toEqual('▶️ Live');
         });
 
@@ -100,7 +103,7 @@ describe('RefreshControl', () => {
 
             await renderComponent({ id, type: LiveDataType.sayg }, account);
 
-            const selectedItem = context.container.querySelector('.dropdown-menu .dropdown-item.active')
+            const selectedItem = context.container.querySelector('.dropdown-menu .dropdown-item.active')!;
             expect(selectedItem.textContent).toEqual('⏸️ Paused');
         });
     });
@@ -130,7 +133,7 @@ describe('RefreshControl', () => {
 
             await renderComponent({ id, type: LiveDataType.sayg }, account);
             await act(async () => {
-                await liveContainer.enableLiveUpdates(true, { id, type: LiveDataType.sayg });
+                await liveContainer!.enableLiveUpdates(true, { id, type: LiveDataType.sayg });
             });
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), '⏸️ Paused');

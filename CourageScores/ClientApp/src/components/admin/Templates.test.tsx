@@ -22,9 +22,9 @@ describe('Templates', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let templates: TemplateDto[];
-    let apiResponse: IClientActionResultDto<any>;
-    let deleted: string;
-    let updated: EditTemplateDto;
+    let apiResponse: IClientActionResultDto<any> | null;
+    let deleted: string | null;
+    let updated: EditTemplateDto | null;
     const templateApi = api<ISeasonTemplateApi>({
         getAll: async (): Promise<TemplateDto[]> => {
             return templates;
@@ -81,8 +81,8 @@ describe('Templates', () => {
 
             reportedError.verifyNoError();
             const templateItems = Array.from(context.container.querySelectorAll('ul[datatype="templates"] .list-group-item'));
-            expect(templateItems.map(li => li.querySelector('label').textContent)).toEqual(['TEMPLATE']);
-            expect(templateItems.map(li => li.querySelector('small').textContent)).toEqual(['DESCRIPTION']);
+            expect(templateItems.map(li => li.querySelector('label')!.textContent)).toEqual(['TEMPLATE']);
+            expect(templateItems.map(li => li.querySelector('small')!.textContent)).toEqual(['DESCRIPTION']);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-danger')).map(s => s.textContent))).toEqual([[]]);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-warning')).map(s => s.textContent))).toEqual([[]]);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-success')).map(s => s.textContent))).toEqual([[]]);
@@ -133,7 +133,7 @@ describe('Templates', () => {
 
             reportedError.verifyNoError();
             const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(templateItems.map(li => li.querySelector('label').textContent)).toEqual(['TEMPLATE']);
+            expect(templateItems.map(li => li.querySelector('label')!.textContent)).toEqual(['TEMPLATE']);
             expect(templateItems.map(li => li.querySelector('small'))).toEqual([null]);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-danger')).map(s => s.textContent))).toEqual([[]]);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-warning')).map(s => s.textContent))).toEqual([[]]);
@@ -155,7 +155,7 @@ describe('Templates', () => {
 
             reportedError.verifyNoError();
             const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(templateItems.map(li => li.querySelector('label').textContent)).toEqual(['TEMPLATE']);
+            expect(templateItems.map(li => li.querySelector('label')!.textContent)).toEqual(['TEMPLATE']);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-danger')).map(s => s.textContent))).toEqual([['1']]);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-warning')).map(s => s.textContent))).toEqual([[]]);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-success')).map(s => s.textContent))).toEqual([[]]);
@@ -182,7 +182,7 @@ describe('Templates', () => {
 
             reportedError.verifyNoError();
             const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(templateItems.map(li => li.querySelector('label').textContent)).toEqual(['TEMPLATE']);
+            expect(templateItems.map(li => li.querySelector('label')!.textContent)).toEqual(['TEMPLATE']);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-danger')).map(s => s.textContent))).toEqual([['1']]);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-warning')).map(s => s.textContent))).toEqual([[]]);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-success')).map(s => s.textContent))).toEqual([[]]);
@@ -209,7 +209,7 @@ describe('Templates', () => {
 
             reportedError.verifyNoError();
             const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(templateItems.map(li => li.querySelector('label').textContent)).toEqual(['TEMPLATE']);
+            expect(templateItems.map(li => li.querySelector('label')!.textContent)).toEqual(['TEMPLATE']);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-danger')).map(s => s.textContent))).toEqual([[]]);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-warning')).map(s => s.textContent))).toEqual([['1']]);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-success')).map(s => s.textContent))).toEqual([[]]);
@@ -236,7 +236,7 @@ describe('Templates', () => {
 
             reportedError.verifyNoError();
             const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(templateItems.map(li => li.querySelector('label').textContent)).toEqual(['TEMPLATE']);
+            expect(templateItems.map(li => li.querySelector('label')!.textContent)).toEqual(['TEMPLATE']);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-danger')).map(s => s.textContent))).toEqual([[]]);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-warning')).map(s => s.textContent))).toEqual([[]]);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-success')).map(s => s.textContent))).toEqual([['1']]);
@@ -352,7 +352,7 @@ describe('Templates', () => {
             await doChange(context.container, 'textarea', '{}', context.user);
 
             reportedError.verifyNoError();
-            const healthCheck = context.container.querySelector('div[datatype="view-health-check"]');
+            const healthCheck = context.container.querySelector('div[datatype="view-health-check"]')!;
             expect(healthCheck.textContent).toContain('UPDATED HEALTH');
         });
 
@@ -403,8 +403,8 @@ describe('Templates', () => {
             templates = [template];
             await renderComponent();
             await doClick(context.container, '.list-group .list-group-item:first-child');
-            let confirm: string;
-            window.confirm = (msg) => {
+            let confirm: string | undefined;
+            window.confirm = (msg: string | undefined) => {
                 confirm = msg;
                 return true;
             };
@@ -430,7 +430,7 @@ describe('Templates', () => {
             await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
 
             reportedError.verifyNoError();
-            expect(JSON.parse(context.container.querySelector('textarea').value)).toEqual({ sharedAddresses: [], divisions: [] });
+            expect(JSON.parse(context.container.querySelector('textarea')!.value)).toEqual({ sharedAddresses: [], divisions: [] });
             expect(context.container.querySelector('button.bg-danger')).toBeFalsy();
         });
 
@@ -445,7 +445,6 @@ describe('Templates', () => {
                 name: '',
                 divisions: [],
                 sharedAddresses: [],
-                lastUpdated: undefined,
             });
         });
 

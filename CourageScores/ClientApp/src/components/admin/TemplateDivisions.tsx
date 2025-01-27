@@ -36,8 +36,8 @@ export function TemplateDivisions({ divisions, onUpdate, templateSharedAddresses
             if (index === destinationDivisionIndex) {
                 const newPrefix: string = (destinationDivisionIndex + 1).toString();
                 const newDivision: DivisionTemplateDto = Object.assign({}, division);
-                newDivision.dates = prefixDateMnemonics(sourceDivision.dates, newPrefix);
-                newDivision.sharedAddresses = prefixSharedAddressMnemonics(sourceDivision.sharedAddresses, newPrefix);
+                newDivision.dates = prefixDateMnemonics(sourceDivision.dates!, newPrefix);
+                newDivision.sharedAddresses = prefixSharedAddressMnemonics(sourceDivision.sharedAddresses!, newPrefix);
                 return newDivision;
             }
 
@@ -50,7 +50,7 @@ export function TemplateDivisions({ divisions, onUpdate, templateSharedAddresses
     function prefixDateMnemonics(dates: DateTemplateDto[], prefix: string): DateTemplateDto[] {
         return dates.map((d: DateTemplateDto): DateTemplateDto => {
             return {
-                fixtures: d.fixtures.map((f: FixtureTemplateDto): FixtureTemplateDto => {
+                fixtures: d.fixtures!.map((f: FixtureTemplateDto): FixtureTemplateDto => {
                     return {
                         home: f.home ? prefix + f.home : f.home,
                         away: f.away ? prefix + f.away : f.away,

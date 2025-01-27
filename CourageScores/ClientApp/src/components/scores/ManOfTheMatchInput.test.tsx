@@ -16,7 +16,7 @@ import {playerBuilder} from "../../helpers/builders/players";
 describe('ManOfTheMatchInput', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedFixtureData: GameDto;
+    let updatedFixtureData: GameDto | null;
 
     async function setFixtureData(newFixtureData: GameDto) {
         updatedFixtureData = newFixtureData;
@@ -31,7 +31,7 @@ describe('ManOfTheMatchInput', () => {
         updatedFixtureData = null;
     });
 
-    async function renderComponent(account: UserDto, props: IManOfTheMatchInputProps) {
+    async function renderComponent(account: UserDto | null, props: IManOfTheMatchInputProps) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
@@ -39,8 +39,8 @@ describe('ManOfTheMatchInput', () => {
                 account: account,
             }, reportedError),
             (<ManOfTheMatchInput {...props} />),
-            null,
-            null,
+            undefined,
+            undefined,
             'tbody');
     }
 
@@ -48,8 +48,8 @@ describe('ManOfTheMatchInput', () => {
         names.unshift(' ');
 
         const players = Array.from(container.querySelectorAll('div.btn-group div[role="menu"] button[role="menuitem"]')) as HTMLButtonElement[];
-        const displayedPlayer = container.querySelector('div.btn-group > button > span');
-        const selectedPlayer = container.querySelector('div.btn-group div[role="menu"] button[role="menuitem"].active');
+        const displayedPlayer = container.querySelector('div.btn-group > button > span')!;
+        const selectedPlayer = container.querySelector('div.btn-group div[role="menu"] button[role="menuitem"].active')!;
         expect(players.map(span => span.textContent)).toEqual(names);
         expect(displayedPlayer.textContent).toEqual(displayed);
         if (selected) {
@@ -63,7 +63,7 @@ describe('ManOfTheMatchInput', () => {
     }
 
     describe('when logged out', () => {
-        const account = null;
+        const account: UserDto | null = null;
         const saving = false;
         const access = '';
 
@@ -152,8 +152,8 @@ describe('ManOfTheMatchInput', () => {
                 reportedError.verifyNoError();
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
-                assertPlayers(cells[0], [], ' ', null);
-                assertPlayers(cells[2], [], ' ', null);
+                assertPlayers(cells[0], [], ' ', undefined);
+                assertPlayers(cells[2], [], ' ', undefined);
             });
 
             it('when disabled', async () => {
@@ -170,8 +170,8 @@ describe('ManOfTheMatchInput', () => {
                 reportedError.verifyNoError();
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
-                expect(cells[0].querySelector('.dropdown-toggle').textContent).toEqual('AWAY player');
-                expect(cells[2].querySelector('.dropdown-toggle').textContent).toEqual('HOME player');
+                expect(cells[0].querySelector('.dropdown-toggle')!.textContent).toEqual('AWAY player');
+                expect(cells[2].querySelector('.dropdown-toggle')!.textContent).toEqual('HOME player');
             });
 
             it('when no selected players', async () => {
@@ -185,8 +185,8 @@ describe('ManOfTheMatchInput', () => {
                 reportedError.verifyNoError();
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
-                assertPlayers(cells[0], [], ' ', null);
-                assertPlayers(cells[2], [], ' ', null);
+                assertPlayers(cells[0], [], ' ', undefined);
+                assertPlayers(cells[2], [], ' ', undefined);
             });
 
             it('when no man-of-the-match', async () => {
@@ -202,8 +202,8 @@ describe('ManOfTheMatchInput', () => {
                 reportedError.verifyNoError();
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
-                assertPlayers(cells[0], ['AWAY player'], ' ', null);
-                assertPlayers(cells[2], ['HOME player'], ' ', null);
+                assertPlayers(cells[0], ['AWAY player'], ' ', undefined);
+                assertPlayers(cells[2], ['HOME player'], ' ', undefined);
             });
 
             it('when home man-of-the-match', async () => {
@@ -256,7 +256,7 @@ describe('ManOfTheMatchInput', () => {
                 await doSelectOption(homeMOM.querySelector('.dropdown-menu'), 'AWAY player')
 
                 expect(updatedFixtureData).toBeTruthy();
-                expect(updatedFixtureData.home.manOfTheMatch).toEqual(awayPlayer.id);
+                expect(updatedFixtureData!.home.manOfTheMatch).toEqual(awayPlayer.id);
             });
 
             it('unset home man-of-the-match', async () => {
@@ -275,7 +275,7 @@ describe('ManOfTheMatchInput', () => {
                 await doSelectOption(homeMOM.querySelector('.dropdown-menu'), ' ');
 
                 expect(updatedFixtureData).toBeTruthy();
-                expect(updatedFixtureData.home.manOfTheMatch).toBeUndefined();
+                expect(updatedFixtureData!.home.manOfTheMatch).toBeUndefined();
             });
 
             it('set away man-of-the-match', async () => {
@@ -293,7 +293,7 @@ describe('ManOfTheMatchInput', () => {
                 await doSelectOption(awayMOM.querySelector('.dropdown-menu'), 'HOME player');
 
                 expect(updatedFixtureData).toBeTruthy();
-                expect(updatedFixtureData.away.manOfTheMatch).toEqual(homePlayer.id);
+                expect(updatedFixtureData!.away.manOfTheMatch).toEqual(homePlayer.id);
             });
 
             it('unset away man-of-the-match', async () => {
@@ -312,7 +312,7 @@ describe('ManOfTheMatchInput', () => {
                 await doSelectOption(awayMOM.querySelector('.dropdown-menu'), ' ');
 
                 expect(updatedFixtureData).toBeTruthy();
-                expect(updatedFixtureData.away.manOfTheMatch).toBeUndefined();
+                expect(updatedFixtureData!.away.manOfTheMatch).toBeUndefined();
             });
         });
     });

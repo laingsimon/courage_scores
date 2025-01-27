@@ -16,7 +16,7 @@ import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 
 describe('LiveSayg', () => {
     let context: TestContext;
-    let requestedSaygId: string;
+    let requestedSaygId: string | null;
     let saygData: RecordedScoreAsYouGoDto;
     let reportedError: ErrorState;
     let socketFactory: MockSocketFactory;

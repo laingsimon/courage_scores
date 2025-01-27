@@ -17,10 +17,10 @@ import {createTemporaryId} from "../../helpers/projection";
 describe('FeatureAdmin', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let features: ConfiguredFeatureDto[];
+    let features: ConfiguredFeatureDto[] | null;
     const featureApi = api<IFeatureApi>({
         async getFeatures(): Promise<ConfiguredFeatureDto[]> {
-            return features;
+            return features!;
         }
     });
 

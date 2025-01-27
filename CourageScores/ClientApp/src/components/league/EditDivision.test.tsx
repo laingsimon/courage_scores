@@ -29,14 +29,14 @@ describe('EditDivision', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let saved: boolean;
-    let saveError: IClientActionResultDto<DivisionDto>;
-    let updatedDivision: EditDivisionDto;
-    let alert: string;
-    let confirm: string;
+    let saveError: IClientActionResultDto<DivisionDto> | null;
+    let updatedDivision: EditDivisionDto | null;
+    let alert: string | undefined;
+    let confirm: string | undefined;
     let confirmResponse: boolean;
     let apiResponse: IClientActionResultDto<DivisionDto>;
-    let deletedId: string;
-    let updatedData: DivisionDataDto;
+    let deletedId: string | null;
+    let updatedData: DivisionDataDto | null;
     const divisionApi = api<IDivisionApi>({
         update: async (data: EditDivisionDto) => {
             updatedDivision = data;
@@ -54,15 +54,15 @@ describe('EditDivision', () => {
 
     beforeEach(() => {
         reportedError = new ErrorState();
-        window.alert = (message) => {
+        window.alert = (message: string) => {
             alert = message
         };
-        window.confirm = (message) => {
+        window.confirm = (message: string | undefined) => {
             confirm = message;
             return confirmResponse
         };
-        alert = null;
-        confirm = null;
+        alert = undefined;
+        confirm = undefined;
         saved = false;
         confirmResponse = false;
         saveError = null;
@@ -112,8 +112,8 @@ describe('EditDivision', () => {
         await doChange(context.container, 'input[name="name"]', 'NEW DIVISION NAME', context.user);
 
         reportedError.verifyNoError();
-        expect(updatedData.id).toEqual(division.id);
-        expect(updatedData.name).toEqual('NEW DIVISION NAME');
+        expect(updatedData!.id).toEqual(division.id);
+        expect(updatedData!.name).toEqual('NEW DIVISION NAME');
     });
 
     it('prevents save when division name is empty', async () => {
@@ -146,7 +146,7 @@ describe('EditDivision', () => {
         await doClick(context.container, 'input[name="superleague"]');
 
         reportedError.verifyNoError();
-        expect(updatedData.superleague).toEqual(true);
+        expect(updatedData!.superleague).toEqual(true);
     });
 
     it('saves division updates', async () => {
@@ -163,10 +163,10 @@ describe('EditDivision', () => {
         await doClick(findButton(context.container, 'Update division'));
 
         reportedError.verifyNoError();
-        expect(alert).toBeNull();
+        expect(alert).toBeUndefined();
         expect(saved).toEqual(true);
         expect(updatedDivision).not.toBeNull();
-        expect(updatedDivision.lastUpdated).toEqual(division.updated);
+        expect(updatedDivision!.lastUpdated).toEqual(division.updated);
     });
 
     it('reports saveError if an error during save', async () => {

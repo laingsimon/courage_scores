@@ -25,8 +25,8 @@ export interface ITournamentRoundMatchProps {
 export function TournamentRoundMatch({ readOnly, match, hasNextRound, sides, exceptSelected, matchIndex, onChange,
                                          round, matchOptions, onMatchOptionsChanged }: ITournamentRoundMatchProps) {
     const {onError} = useApp();
-    const scoreA: number = match.scoreA;
-    const scoreB: number = match.scoreB;
+    const scoreA: number | undefined = match.scoreA;
+    const scoreB: number | undefined = match.scoreB;
     const scoreARecorded: boolean = hasScore(match.scoreA);
     const scoreBRecorded: boolean = hasScore(match.scoreB);
     const hasBothScores: boolean = scoreARecorded && scoreBRecorded;
@@ -39,14 +39,14 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sides, exc
         };
     }
 
-    function hasScore(score: number) {
+    function hasScore(score?: number) {
         return score !== null && score !== undefined;
     }
 
     async function updateMatch(property: string, sideId: string) {
         try {
             const newRound = Object.assign({}, round);
-            const match = newRound.matches[matchIndex];
+            const match = newRound.matches![matchIndex];
             match[property] = sides.filter(s => s.id === sideId)[0];
 
             if (onChange) {
@@ -81,9 +81,9 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sides, exc
         </Dialog>);
     }
 
-    function isWinner(scoreA: number): boolean {
-        const numberOfLegs: number = matchOptions ? matchOptions.numberOfLegs : 5;
-        return scoreA > (numberOfLegs / 2.0);
+    function isWinner(scoreA?: number): boolean {
+        const numberOfLegs: number = matchOptions ? matchOptions.numberOfLegs! : 5;
+        return (scoreA !== undefined && scoreA > (numberOfLegs / 2.0)) || false;
     }
 
     return (<tr className="bg-light">

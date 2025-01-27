@@ -7,8 +7,8 @@ export interface IPageErrorProps {
 }
 
 export function PageError({error}: IPageErrorProps) {
-    const [showStack, setShowStack] = useState(false);
-    const [errorReported, setErrorReported] = useState(false);
+    const [showStack, setShowStack] = useState<boolean>(false);
+    const [errorReported, setErrorReported] = useState<boolean>(false);
     const {clearError, reportClientSideException, invalidateCacheAndTryAgain} = useApp();
 
     useEffect(() => {

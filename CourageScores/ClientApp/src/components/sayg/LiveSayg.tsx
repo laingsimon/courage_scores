@@ -8,12 +8,12 @@ export function LiveSayg() {
     const liveOptions: ILiveOptions = {
         publish: false,
         canSubscribe: true,
-        subscribeAtStartup: [{ id, type: LiveDataType.sayg }],
+        subscribeAtStartup: [{ id: id!, type: LiveDataType.sayg }],
     };
 
     return (<div className="content-background p-3 pb-1">
         <SaygLoadingContainer
-            id={id}
+            id={id!}
             matchStatisticsOnly={true}
             autoSave={false}
             liveOptions={liveOptions}

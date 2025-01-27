@@ -15,7 +15,7 @@ export interface IApp {
     divisions: DivisionDto[];
     seasons: SeasonDto[];
     teams: TeamDto[];
-    account?: UserDto | null;
+    account?: UserDto;
     appLoading?: boolean;
     controls?: boolean;
     reloadDivisions(): UntypedPromise;

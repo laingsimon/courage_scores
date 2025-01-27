@@ -15,7 +15,7 @@ import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 describe('GameDetails', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedFixtureData: GameDto;
+    let updatedFixtureData: GameDto | null;
 
     async function setFixtureData(newFixtureData: GameDto) {
         updatedFixtureData = newFixtureData;
@@ -248,7 +248,7 @@ describe('GameDetails', () => {
                 await doChange(context.container, 'input[name="date"]', '2023-05-01', context.user);
 
                 expect(updatedFixtureData).toBeTruthy();
-                expect(updatedFixtureData.date).toEqual('2023-05-01');
+                expect(updatedFixtureData!.date).toEqual('2023-05-01');
             });
 
             it('address', async () => {
@@ -266,7 +266,7 @@ describe('GameDetails', () => {
                 await doChange(context.container, 'input[name="address"]', 'NEW ADDRESS', context.user);
 
                 expect(updatedFixtureData).toBeTruthy();
-                expect(updatedFixtureData.address).toEqual('NEW ADDRESS');
+                expect(updatedFixtureData!.address).toEqual('NEW ADDRESS');
             });
 
             it('postponed', async () => {
@@ -285,7 +285,7 @@ describe('GameDetails', () => {
                 await doClick(context.container, 'input[name="postponed"]');
 
                 expect(updatedFixtureData).toBeTruthy();
-                expect(updatedFixtureData.postponed).toEqual(false);
+                expect(updatedFixtureData!.postponed).toEqual(false);
             });
 
             it('isKnockout', async () => {
@@ -304,7 +304,7 @@ describe('GameDetails', () => {
                 await doClick(context.container, 'input[name="isKnockout"]');
 
                 expect(updatedFixtureData).toBeTruthy();
-                expect(updatedFixtureData.isKnockout).toEqual(false);
+                expect(updatedFixtureData!.isKnockout).toEqual(false);
             });
 
             it('accoladesCount', async () => {
@@ -323,7 +323,7 @@ describe('GameDetails', () => {
                 await doClick(context.container, 'input[name="accoladesCount"]');
 
                 expect(updatedFixtureData).toBeTruthy();
-                expect(updatedFixtureData.accoladesCount).toEqual(false);
+                expect(updatedFixtureData!.accoladesCount).toEqual(false);
             });
         });
     });

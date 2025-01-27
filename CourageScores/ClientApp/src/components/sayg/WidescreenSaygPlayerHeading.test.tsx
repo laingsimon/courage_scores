@@ -24,7 +24,7 @@ describe('WidescreenSaygPlayerHeading', () => {
                 scoreFirst: true,
             });
 
-            const firstElement = context.container.querySelector('h1:nth-child(1)');
+            const firstElement = context.container.querySelector('h1:nth-child(1)')!;
             expect(firstElement.textContent).toEqual('123');
         });
 
@@ -35,7 +35,7 @@ describe('WidescreenSaygPlayerHeading', () => {
                 scoreFirst: true,
             });
 
-            const firstElement = context.container.querySelector('h1:nth-child(2)');
+            const firstElement = context.container.querySelector('h1:nth-child(2)')!;
             expect(firstElement.textContent).toEqual('NAME');
         });
 
@@ -58,7 +58,7 @@ describe('WidescreenSaygPlayerHeading', () => {
                 scoreFirst: false,
             });
 
-            const firstElement = context.container.querySelector('h1:nth-child(1)');
+            const firstElement = context.container.querySelector('h1:nth-child(1)')!;
             expect(firstElement.textContent).toEqual('NAME');
         });
 
@@ -69,7 +69,7 @@ describe('WidescreenSaygPlayerHeading', () => {
                 scoreFirst: false,
             });
 
-            const firstElement = context.container.querySelector('h1:nth-child(2)');
+            const firstElement = context.container.querySelector('h1:nth-child(2)')!;
             expect(firstElement.textContent).toEqual('123');
         });
 

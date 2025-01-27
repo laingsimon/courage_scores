@@ -36,10 +36,10 @@ describe('CreateSeasonDialog', () => {
     let closed: boolean;
     let compatibilityResponses: { [ seasonId: string]: IClientActionResultDto<ActionResultDto<TemplateDto>[]> };
     let allDataReloaded: boolean;
-    let apiResponse: IClientActionResultDto<ProposalResultDto>;
-    let proposalRequest: ProposalRequestDto;
+    let apiResponse: IClientActionResultDto<ProposalResultDto> | null;
+    let proposalRequest: ProposalRequestDto | null;
     let updatedFixtures: EditGameDto[];
-    let updateFixtureApiResponse: (fixture: EditGameDto) => Promise<IClientActionResultDto<GameDto>>;
+    let updateFixtureApiResponse: ((fixture: EditGameDto) => Promise<IClientActionResultDto<GameDto>>) | null;
     let divisionReloaded: boolean;
 
     const templateApi = api<ISeasonTemplateApi>({
@@ -64,7 +64,7 @@ describe('CreateSeasonDialog', () => {
         allDataReloaded = true;
     }
 
-    async function onReloadDivision() {
+    async function onReloadDivision(_?: boolean): Promise<DivisionDataDto | null> {
         divisionReloaded = true;
         return null;
     }
@@ -90,11 +90,15 @@ describe('CreateSeasonDialog', () => {
     });
 
     async function renderComponent(appContainerProps: IAppContainerProps, divisionDataProps: IDivisionDataContainerProps | null, props: ICreateSeasonDialogProps) {
+        const fallbackProps: IDivisionDataContainerProps = {
+            name: '',
+            onReloadDivision,
+        };
         context = await renderApp(
             iocProps({templateApi, gameApi}),
             brandingProps(),
             appContainerProps,
-            (<DivisionDataContainer {...divisionDataProps}>
+            (<DivisionDataContainer {...(divisionDataProps || fallbackProps)}>
                 <CreateSeasonDialog {...props} />
             </DivisionDataContainer>));
     }
@@ -107,7 +111,7 @@ describe('CreateSeasonDialog', () => {
 
     function addIncompatibleResponse(seasonId: string, templateId: string): IClientActionResultDto<ActionResultDto<TemplateDto>[]> {
         const response: IClientActionResultDto<ActionResultDto<TemplateDto>[]> = getCompatibleResponse(seasonId, templateId);
-        response.result[0].success = false;
+        response.result![0].success = false;
         compatibilityResponses[seasonId] = response;
         return response;
     }
@@ -212,12 +216,13 @@ describe('CreateSeasonDialog', () => {
                         getSeason(seasonId, divisionId, anotherDivisionId)
                     ],
                     teams: [team1, team2],
-                    reloadAll,
+                    reloadAll
                 }, reportedError), {
                     id: divisionId,
                     name: '',
                     setDivisionData: noop,
-                    onReloadDivision}, {
+                    onReloadDivision
+                }, {
                     seasonId: seasonId,
                     onClose,
                 });
@@ -281,8 +286,8 @@ describe('CreateSeasonDialog', () => {
                     seasonId: seasonId,
                     onClose,
                 });
-                let alert: string;
-                window.alert = (msg) => alert = msg;
+                let alert: string | undefined;
+                window.alert = (msg: string) => alert = msg;
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '🚫 TEMPLATE');
                 reportedError.verifyNoError();
 
@@ -358,15 +363,15 @@ describe('CreateSeasonDialog', () => {
 
             beforeEach(async () => {
                 const response: IClientActionResultDto<ActionResultDto<TemplateDto>[]> = addCompatibleResponse(seasonId, templateId);
-                const template: TemplateDto = response.result[0].result;
-                const anotherDivisionTemplate: DivisionTemplateDto = template.divisions[0];
-                const division1Template: DivisionTemplateDto = template.divisions[1];
+                const template: TemplateDto = response.result![0].result!;
+                const anotherDivisionTemplate: DivisionTemplateDto = template.divisions![0];
+                const division1Template: DivisionTemplateDto = template.divisions![1];
                 template.sharedAddresses = [ [ 'A', 'B' ] ];
                 anotherDivisionTemplate.sharedAddresses = [ [ 'A', 'C' ] ];
                 anotherDivisionTemplate.dates = [
                     { fixtures: [
                             { home: 'A', away: 'C' },
-                            { home: 'D', away: null },
+                            { home: 'D' },
                         ] }
                 ];
                 division1Template.sharedAddresses = [ [ 'E', 'F' ] ];
@@ -408,7 +413,7 @@ describe('CreateSeasonDialog', () => {
             it('can navigate backwards to (1) pick', async () => {
                 await doClick(findButton(context.container, 'Back'));
 
-                const templateSelection = context.container.querySelector('.dropdown-menu');
+                const templateSelection = context.container.querySelector('.dropdown-menu')!;
                 expect(templateSelection).toBeTruthy();
                 expect(Array.from(templateSelection.querySelectorAll('.dropdown-item')).map(li => li.textContent))
                     .toEqual([ 'TEMPLATE' ]);
@@ -425,10 +430,10 @@ describe('CreateSeasonDialog', () => {
             const team2: TeamDto = teamBuilder('TEAM 2')
                 .forSeason(seasonId, divisionId)
                 .build();
-            let divisionDataSetTo: DivisionDataDto;
+            let divisionDataSetTo: DivisionDataDto | undefined;
 
             beforeEach(async () => {
-                divisionDataSetTo = null;
+                divisionDataSetTo = undefined;
 
                 addCompatibleResponse(seasonId, templateId);
 
@@ -440,7 +445,7 @@ describe('CreateSeasonDialog', () => {
                 }), {
                     id: divisionId,
                     name: '',
-                    setDivisionData: async (d) => {
+                    setDivisionData: async (d?: DivisionDataDto) => {
                         divisionDataSetTo = d;
                     },
                     onReloadDivision,
@@ -480,7 +485,7 @@ describe('CreateSeasonDialog', () => {
                     name: 'PROPOSED DIVISION',
                     sharedAddresses: [],
                 });
-                expect(context.container.querySelector('div').className).toContain('position-fixed');
+                expect(context.container.querySelector('div')!.className).toContain('position-fixed');
             });
         });
 
@@ -577,10 +582,10 @@ describe('CreateSeasonDialog', () => {
             const team2: TeamDto = teamBuilder('TEAM 2')
                 .forSeason(seasonId, anotherDivisionId)
                 .build();
-            let divisionDataSetTo: DivisionDataDto;
+            let divisionDataSetTo: DivisionDataDto | undefined;
 
             beforeEach(async () => {
-                divisionDataSetTo = null;
+                divisionDataSetTo = undefined;
 
                 addCompatibleResponse(seasonId, templateId);
                 await renderComponent(appProps({
@@ -594,7 +599,7 @@ describe('CreateSeasonDialog', () => {
                 }), {
                     id: divisionId,
                     name: '',
-                    setDivisionData: async (d) => {
+                    setDivisionData: async (d?: DivisionDataDto) => {
                         divisionDataSetTo = d;
                     },
                     onReloadDivision,
@@ -650,7 +655,7 @@ describe('CreateSeasonDialog', () => {
                 reportedError.verifyNoError();
                 expect(updatedFixtures.length).toEqual(3);
                 expect(divisionReloaded).toEqual(true);
-                expect(divisionDataSetTo).toBeNull();
+                expect(divisionDataSetTo).toBeUndefined();
                 expect(allDataReloaded).toEqual(true);
                 expect(closed).toEqual(true);
             });
@@ -670,7 +675,7 @@ describe('CreateSeasonDialog', () => {
                 reportedError.verifyNoError();
                 expect(updatedFixtures.length).toEqual(3);
                 expect(divisionReloaded).toEqual(true);
-                expect(divisionDataSetTo).toBeNull();
+                expect(divisionDataSetTo).toBeUndefined();
                 expect(allDataReloaded).toEqual(true);
                 expect(closed).toEqual(false);
                 expect(context.container.textContent).toContain('Some (3) fixtures could not be saved');
@@ -686,7 +691,7 @@ describe('CreateSeasonDialog', () => {
                 reportedError.verifyNoError();
                 expect(updatedFixtures.length).toEqual(3);
                 expect(divisionReloaded).toEqual(true);
-                expect(divisionDataSetTo).toBeNull();
+                expect(divisionDataSetTo).toBeUndefined();
                 expect(allDataReloaded).toEqual(true);
                 expect(closed).toEqual(false);
                 expect(context.container.textContent).toContain('Some (3) fixtures could not be saved');
@@ -697,7 +702,7 @@ describe('CreateSeasonDialog', () => {
             it('can close the dialog', async () => {
                 const seasonId = createTemporaryId();
                 const templateId = createTemporaryId();
-                let divisionDataResetTo: DivisionDataDto;
+                let divisionDataResetTo: DivisionDataDto | undefined;
                 addCompatibleResponse(seasonId, templateId);
                 await renderComponent(appProps({
                     divisions: [],
@@ -705,10 +710,9 @@ describe('CreateSeasonDialog', () => {
                     teams: [],
                     reloadAll,
                 }), {
-                    id: null,
                     name: '',
                     onReloadDivision,
-                    setDivisionData: async (d) => {
+                    setDivisionData: async (d?: DivisionDataDto) => {
                         divisionDataResetTo = d;
                     }
                 }, {
@@ -720,7 +724,7 @@ describe('CreateSeasonDialog', () => {
                 await doClick(findButton(context.container, 'Close'));
 
                 reportedError.verifyNoError();
-                expect(divisionDataResetTo).toEqual(null);
+                expect(divisionDataResetTo).toBeUndefined();
                 expect(closed).toEqual(true);
             });
         });

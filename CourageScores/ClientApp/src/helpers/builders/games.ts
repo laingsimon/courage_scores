@@ -34,15 +34,15 @@ export interface IFixtureBuilder extends IAddableBuilder<IDatedDivisionFixtureDt
 export function fixtureBuilder(date?: string, id?: string): IFixtureBuilder {
     const fixture: IDatedDivisionFixtureDto & GameDto = {
         id: id || createTemporaryId(),
-        date: date,
+        date: date || '',
         oneEighties: [],
         over100Checkouts: [],
         matches: [],
         matchOptions: [],
-        homeTeam: null,
-        away: null,
-        address: null,
-        home: null,
+        homeTeam: { name: '' },
+        away: null!,
+        address: '',
+        home: null!,
     };
 
     const teamFactory = (t?: any, id?: string) => {
@@ -73,7 +73,7 @@ export function fixtureBuilder(date?: string, id?: string): IFixtureBuilder {
         },
         bye: (venue: any, id?: string) => {
             fixture.homeTeam = teamFactory(venue, id);
-            fixture.awayTeam = null;
+            fixture.awayTeam = undefined;
             return builder;
         },
         manOfTheMatch: (homePlayerOrId: string | TeamPlayerDto | null, awayPlayerOrId: string | TeamPlayerDto | null) => {
@@ -119,7 +119,7 @@ export function fixtureBuilder(date?: string, id?: string): IFixtureBuilder {
             return builder;
         },
         with180: (playerOrName: any) => {
-            fixture.oneEighties.push(!playerOrName || playerOrName.name ? playerOrName : {
+            fixture.oneEighties?.push(!playerOrName || playerOrName.name ? playerOrName : {
                 id: createTemporaryId(),
                 name: playerOrName,
             });
@@ -131,21 +131,21 @@ export function fixtureBuilder(date?: string, id?: string): IFixtureBuilder {
                 name: playerOrName
             };
 
-            fixture.over100Checkouts.push(Object.assign({}, player, { score }));
+            fixture.over100Checkouts?.push(Object.assign({}, player, { score }));
             return builder;
         },
         withMatch: (matchOrBuilderFunc: any) => {
             const match = matchOrBuilderFunc instanceof Function
                 ? matchOrBuilderFunc(matchBuilder())
                 : matchOrBuilderFunc;
-            fixture.matches.push(match.build ? match.build() : match);
+            fixture.matches?.push(match.build ? match.build() : match);
             return builder;
         },
         withMatchOption: (matchOptionOrBuilderFunc: any) => {
             const matchOption = matchOptionOrBuilderFunc instanceof Function
                 ? matchOptionOrBuilderFunc(matchOptionsBuilder())
                 : matchOptionOrBuilderFunc;
-            fixture.matchOptions.push(matchOption.build ? matchOption.build() : matchOption);
+            fixture.matchOptions?.push(matchOption.build ? matchOption.build() : matchOption);
             return builder;
         },
         editor: (name: string) => {
@@ -231,10 +231,7 @@ export interface IMatchOptionsBuilder extends IBuilder<GameMatchOptionDto>{
 }
 
 export function matchOptionsBuilder(): IMatchOptionsBuilder {
-    const options: GameMatchOptionDto = {
-        startingScore: null,
-        numberOfLegs: null,
-    };
+    const options: GameMatchOptionDto = {};
 
     const builder: IMatchOptionsBuilder = {
         build: () => options,

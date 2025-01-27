@@ -20,11 +20,11 @@ export interface IPlayerOverviewProps {
 export function PlayerOverview({playerId, playerName, teamName}: IPlayerOverviewProps) {
     const {name} = useBranding();
     const {players, teams, fixtures: divisionDataFixtures, season, name: divisionName} = useDivisionData();
-    const player: DivisionPlayerDto = players.filter(p => p.id === playerId)[0] || {id: null, name: 'Unknown', fixtures: {}, teamId: null, team: 'Unknown'};
-    const team: DivisionTeamDto = teams.filter(t => t.id === player.teamId)[0] || {id: null, name: 'Unknown', address: ''};
-    const fixtures = divisionDataFixtures.map(fixtureDate => {
-        const fixtureId: string = player.fixtures[fixtureDate.date];
-        const tournamentFixtures: DivisionTournamentFixtureDetailsDto[] = fixtureDate.tournamentFixtures
+    const player: DivisionPlayerDto = players!.filter(p => p.id === playerId)[0] || {id: null, name: 'Unknown', fixtures: {}, teamId: null, team: 'Unknown'};
+    const team: DivisionTeamDto = teams!.filter(t => t.id === player.teamId)[0] || {id: null, name: 'Unknown', address: ''};
+    const fixtures = divisionDataFixtures!.map(fixtureDate => {
+        const fixtureId: string = player.fixtures![fixtureDate.date];
+        const tournamentFixtures: DivisionTournamentFixtureDetailsDto[] = fixtureDate.tournamentFixtures!
             .filter((tournament: DivisionTournamentFixtureDetailsDto) => !tournament.proposed)
             .filter((tournament: DivisionTournamentFixtureDetailsDto) => {
                 return any(tournament.players, (id: string) => id === playerId);
@@ -32,17 +32,17 @@ export function PlayerOverview({playerId, playerName, teamName}: IPlayerOverview
 
         return {
             date: fixtureDate.date,
-            fixtures: fixtureId ? fixtureDate.fixtures.filter(f => f.id === fixtureId) : [],
+            fixtures: fixtureId ? fixtureDate.fixtures!.filter(f => f.id === fixtureId) : [],
             tournamentFixtures: tournamentFixtures
         };
     }).filter(d => any(d.fixtures) || any(d.tournamentFixtures));
 
-    function renderScore(score: number, postponed: boolean) {
+    function renderScore(score?: number, postponed?: boolean) {
         if (postponed) {
             return 'P';
         }
 
-        if (score === null) {
+        if (score === undefined) {
             return '-';
         }
 
@@ -50,8 +50,8 @@ export function PlayerOverview({playerId, playerName, teamName}: IPlayerOverview
     }
 
     function renderFixtureAndDate(fixtureDate: DivisionFixtureDateDto) {
-        const fixture: DivisionFixtureDto = fixtureDate.fixtures[0];
-        const tournamentFixture: DivisionTournamentFixtureDetailsDto = fixtureDate.tournamentFixtures[0];
+        const fixture: DivisionFixtureDto = fixtureDate.fixtures![0];
+        const tournamentFixture: DivisionTournamentFixtureDetailsDto = fixtureDate.tournamentFixtures![0];
 
         return fixture
             ? renderLeagueFixture(fixture, fixtureDate.date)
@@ -69,7 +69,7 @@ export function PlayerOverview({playerId, playerName, teamName}: IPlayerOverview
                 <div className="mt-4">
                     {fixture.homeTeam.id === team.id
                         ? (<strong className="margin-right text-nowrap">{fixture.homeTeam.name}</strong>)
-                        : (<Link to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`}
+                        : (<Link to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season!.name}`}
                                            className="margin-right">{fixture.homeTeam.name}</Link>)}
                 </div>
             </td>
@@ -78,10 +78,10 @@ export function PlayerOverview({playerId, playerName, teamName}: IPlayerOverview
             <td className="align-middle">{renderScore(fixture.awayScore, fixture.postponed)}</td>
             <td>
                 <div className="mt-4">
-                    {fixture.awayTeam.id === team.id
-                        ? (<strong className="margin-right text-nowrap">{fixture.awayTeam.name}</strong>)
-                        : (<Link to={`/division/${divisionName}/team:${fixture.awayTeam.name}/${season.name}`}
-                                           className="margin-right">{fixture.awayTeam.name}</Link>)}
+                    {fixture.awayTeam?.id === team.id
+                        ? (<strong className="margin-right text-nowrap">{fixture.awayTeam!.name}</strong>)
+                        : (<Link to={`/division/${divisionName}/team:${fixture.awayTeam!.name}/${season!.name}`}
+                                           className="margin-right">{fixture.awayTeam!.name}</Link>)}
                 </div>
             </td>
         </tr>);
@@ -115,7 +115,7 @@ export function PlayerOverview({playerId, playerName, teamName}: IPlayerOverview
     if (!player.id) {
         return (<div className="content-background p-3">
             <h5 className="text-danger">⚠ {playerName ? playerName : 'Player'} could not be found</h5>
-            {teamName ? (<p>View <Link to={`/division/${divisionName}/team:${teamName}/${season.name}`}>{teamName}</Link> team</p>) : null}
+            {teamName ? (<p>View <Link to={`/division/${divisionName}/team:${teamName}/${season!.name}`}>{teamName}</Link> team</p>) : null}
         </div>)
     }
 
@@ -123,7 +123,7 @@ export function PlayerOverview({playerId, playerName, teamName}: IPlayerOverview
         <h3>
             {player.name}
             <span className="h6 margin-left">
-                <Link to={`/division/${divisionName}/team:${team.name}/${season.name}`} className="margin-right">
+                <Link to={`/division/${divisionName}/team:${team.name}/${season!.name}`} className="margin-right">
                     {team.name}
                 </Link>
             </span>

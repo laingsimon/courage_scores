@@ -37,11 +37,11 @@ describe('DivisionFixture', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let divisionReloaded: boolean;
-    let updatedFixtures: (x: IEditableDivisionFixtureDateDto[]) => DivisionFixtureDateDto[];
+    let updatedFixtures: ((x: IEditableDivisionFixtureDateDto[]) => DivisionFixtureDateDto[]) | null;
     let beforeReloadDivisionCalled: boolean;
-    let savedFixture: EditGameDto;
-    let deletedFixture: string;
-    let apiResponse: IClientActionResultDto<GameDto>;
+    let savedFixture: EditGameDto | null;
+    let deletedFixture: string | null;
+    let apiResponse: IClientActionResultDto<GameDto> | null;
 
     const gameApi = api<IGameApi>({
         update: async (fixture: EditGameDto) => {
@@ -81,13 +81,13 @@ describe('DivisionFixture', () => {
         reportedError = new ErrorState();
         divisionReloaded = false;
         updatedFixtures = null;
-        beforeReloadDivisionCalled = null;
+        beforeReloadDivisionCalled = false;
         savedFixture = null;
         deletedFixture = null;
         apiResponse = null;
     });
 
-    async function renderComponent(props: IDivisionFixtureProps, divisionData: IDivisionDataContainerProps, account: UserDto, teams: TeamDto[], preferenceData?: IPreferenceData) {
+    async function renderComponent(props: IDivisionFixtureProps, divisionData: IDivisionDataContainerProps, account: UserDto | undefined, teams: TeamDto[], preferenceData?: IPreferenceData) {
         context = await renderApp(
             iocProps({gameApi}),
             brandingProps(),
@@ -98,8 +98,8 @@ describe('DivisionFixture', () => {
             (<DivisionDataContainer {...divisionData} onReloadDivision={onReloadDivision}>
                 <DivisionFixture {...props} />
             </DivisionDataContainer>),
-            null,
-            null,
+            undefined,
+            undefined,
             'tbody',
             preferenceData);
     }
@@ -108,7 +108,7 @@ describe('DivisionFixture', () => {
         const season: SeasonDto = seasonBuilder('SEASON').build();
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const team: TeamDto = teamBuilder('TEAM').build();
-        const account: UserDto = null;
+        const account: UserDto | undefined = undefined;
         const date: string = '2023-05-06T00:00:00';
 
         it('renders unplayed fixture', async () => {
@@ -129,9 +129,9 @@ describe('DivisionFixture', () => {
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', '', 'vs', '', 'AWAY']);
-            const linkToHome = cells[0].querySelector('a');
+            const linkToHome = cells[0].querySelector('a')!;
             expect(linkToHome.href).toEqual(`http://localhost/score/${fixture.id}`);
-            const linkToAway = cells[4].querySelector('a');
+            const linkToAway = cells[4].querySelector('a')!;
             expect(linkToAway.href).toEqual(`http://localhost/score/${fixture.id}`);
         });
 
@@ -154,9 +154,9 @@ describe('DivisionFixture', () => {
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', 'P', 'vs', 'P', 'AWAY']);
-            const linkToHome = cells[0].querySelector('a');
+            const linkToHome = cells[0].querySelector('a')!;
             expect(linkToHome.href).toEqual(`http://localhost/score/${fixture.id}`);
-            const linkToAway = cells[4].querySelector('a');
+            const linkToAway = cells[4].querySelector('a')!;
             expect(linkToAway.href).toEqual(`http://localhost/score/${fixture.id}`);
         });
 
@@ -179,9 +179,9 @@ describe('DivisionFixture', () => {
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', '', 'vs', '', 'AWAY']);
-            const linkToHome = cells[0].querySelector('a');
+            const linkToHome = cells[0].querySelector('a')!;
             expect(linkToHome.href).toEqual(`http://localhost/score/${fixture.id}`);
-            const linkToAway = cells[4].querySelector('a');
+            const linkToAway = cells[4].querySelector('a')!;
             expect(linkToAway.href).toEqual(`http://localhost/score/${fixture.id}`);
         });
 
@@ -203,9 +203,9 @@ describe('DivisionFixture', () => {
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', '', 'vs', '', 'Bye']);
-            const linkToHome = cells[0].querySelector('a');
+            const linkToHome = cells[0].querySelector('a')!;
             expect(linkToHome.href).toEqual(`http://localhost/division/${division.name}/team:${fixture.homeTeam.name}/${season.name}`);
-            const linkToAway = cells[4].querySelector('a');
+            const linkToAway = cells[4].querySelector('a')!;
             expect(linkToAway).toBeFalsy();
         });
 
@@ -226,7 +226,7 @@ describe('DivisionFixture', () => {
                 { });
 
             reportedError.verifyNoError();
-            const row = context.container.querySelector('tr');
+            const row = context.container.querySelector('tr')!;
             expect(row.className).not.toContain('opacity-25');
         });
 
@@ -249,7 +249,7 @@ describe('DivisionFixture', () => {
                 });
 
             reportedError.verifyNoError();
-            const row = context.container.querySelector('tr');
+            const row = context.container.querySelector('tr')!;
             expect(row.className).toContain('opacity-25');
         });
 
@@ -272,7 +272,7 @@ describe('DivisionFixture', () => {
                 });
 
             reportedError.verifyNoError();
-            const row = context.container.querySelector('tr');
+            const row = context.container.querySelector('tr')!;
             expect(row.className).not.toContain('opacity-25');
         });
 
@@ -295,7 +295,7 @@ describe('DivisionFixture', () => {
                 });
 
             reportedError.verifyNoError();
-            const row = context.container.querySelector('tr');
+            const row = context.container.querySelector('tr')!;
             expect(row.className).not.toContain('opacity-25');
         });
 
@@ -314,11 +314,11 @@ describe('DivisionFixture', () => {
                 account,
                 [team],
                 {
-                    favouriteTeamIds: [fixture.awayTeam.id],
+                    favouriteTeamIds: [fixture!.awayTeam!.id],
                 });
 
             reportedError.verifyNoError();
-            const row = context.container.querySelector('tr');
+            const row = context.container.querySelector('tr')!;
             expect(row.className).not.toContain('opacity-25');
         });
 
@@ -337,12 +337,12 @@ describe('DivisionFixture', () => {
                 account,
                 [team],
                 { favouriteTeamIds: [] });
-            const row = context.container.querySelector('tr');
+            const row = context.container.querySelector('tr')!;
             const favouriteToggles = Array.from(row.querySelectorAll('button[datatype="toggle-favourite"]'));
 
             await doClick(favouriteToggles[0]);
 
-            const favouriteTeamIds = context.cookies.get('preferences').favouriteTeamIds;
+            const favouriteTeamIds = context.cookies!.get('preferences').favouriteTeamIds;
             expect(favouriteTeamIds).toEqual([fixture.homeTeam.id]);
         });
 
@@ -361,12 +361,12 @@ describe('DivisionFixture', () => {
                 account,
                 [team],
                 { favouriteTeamIds: [fixture.homeTeam.id] });
-            const row = context.container.querySelector('tr');
+            const row = context.container.querySelector('tr')!;
             const favouriteToggles = Array.from(row.querySelectorAll('button[datatype="toggle-favourite"]'));
 
             await doClick(favouriteToggles[0]);
 
-            const favouriteTeamIds = context.cookies.get('preferences').favouriteTeamIds;
+            const favouriteTeamIds = context.cookies!.get('preferences').favouriteTeamIds;
             expect(favouriteTeamIds).toEqual([]);
         });
     });
@@ -416,7 +416,7 @@ describe('DivisionFixture', () => {
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', '', 'vs', '', 'AWAYAWAY', '🗑']);
-            const linkToHome = cells[0].querySelector('a');
+            const linkToHome = cells[0].querySelector('a')!;
             expect(linkToHome.href).toEqual(`http://localhost/score/${fixture.id}`);
         });
 
@@ -439,7 +439,7 @@ describe('DivisionFixture', () => {
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', 'P', 'vs', 'P', 'AWAYAWAY', '🗑']);
-            const linkToHome = cells[0].querySelector('a');
+            const linkToHome = cells[0].querySelector('a')!;
             expect(linkToHome.href).toEqual(`http://localhost/score/${fixture.id}`);
         });
 
@@ -462,7 +462,7 @@ describe('DivisionFixture', () => {
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', '', 'vs', '', 'AWAYAWAY', '🗑']);
-            const linkToHome = cells[0].querySelector('a');
+            const linkToHome = cells[0].querySelector('a')!;
             expect(linkToHome.href).toEqual(`http://localhost/score/${fixture.id}`);
         });
 
@@ -484,7 +484,7 @@ describe('DivisionFixture', () => {
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', '', 'vs', '', 'AWAY', '']);
-            const linkToHome = cells[0].querySelector('a');
+            const linkToHome = cells[0].querySelector('a')!;
             expect(linkToHome.href).toEqual(`http://localhost/division/${division.name}/team:${fixture.homeTeam.name}/${season.name}`);
         });
 
@@ -506,7 +506,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam, anotherTeamAtHomeAddress]);
 
             reportedError.verifyNoError();
-            const awayCell = context.container.querySelector('td:nth-child(5)');
+            const awayCell = context.container.querySelector('td:nth-child(5)')!;
             expect(awayCell.textContent).toContain('ANOTHER TEAM');
             expect(awayCell.textContent).not.toContain('🚫');
         });
@@ -526,7 +526,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam]);
 
             reportedError.verifyNoError();
-            const awayCell = context.container.querySelector('td:nth-child(5)');
+            const awayCell = context.container.querySelector('td:nth-child(5)')!;
             expect(awayCell.textContent).toContain('🚫 AWAY (Already playing against HOME)');
         });
 
@@ -549,7 +549,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam]);
 
             reportedError.verifyNoError();
-            const awayCell = context.container.querySelector('td:nth-child(5)');
+            const awayCell = context.container.querySelector('td:nth-child(5)')!;
             expect(awayCell.textContent).toContain(`🚫 AWAY (Already playing same leg on ${renderDate(anotherFixture.date)})`);
         });
 
@@ -573,7 +573,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam]);
 
             reportedError.verifyNoError();
-            const awayCell = context.container.querySelector('td:nth-child(5)');
+            const awayCell = context.container.querySelector('td:nth-child(5)')!;
             expect(awayCell.textContent).toEqual(`AWAY`);
         });
 
@@ -597,13 +597,13 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam, anotherTeamAtHomeAddress]);
 
             reportedError.verifyNoError();
-            const awayCell = context.container.querySelector('td:nth-child(5)');
+            const awayCell = context.container.querySelector('td:nth-child(5)')!;
             expect(awayCell.textContent).toEqual(`AWAYANOTHER TEAM`);
         });
 
         it('does not render team with deleted team season', async () => {
             const deletedAwayTeam: TeamDto = teamBuilder('DELETED AWAY')
-                .forSeason(season, division, null, true)
+                .forSeason(season, division, undefined, true)
                 .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
@@ -620,7 +620,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, deletedAwayTeam]);
 
             reportedError.verifyNoError();
-            const awayCell = context.container.querySelector('td:nth-child(5)');
+            const awayCell = context.container.querySelector('td:nth-child(5)')!;
             expect(awayCell.textContent).not.toContain(`DELETED AWAY`);
         });
 
@@ -644,7 +644,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam]);
 
             reportedError.verifyNoError();
-            const awayCell = context.container.querySelector('td:nth-child(5)');
+            const awayCell = context.container.querySelector('td:nth-child(5)')!;
             expect(awayCell.textContent).toContain('🚫 AWAY (Already playing against HOME)');
         });
 
@@ -663,7 +663,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam]);
 
             reportedError.verifyNoError();
-            const awayCell = context.container.querySelector('td:nth-child(5)');
+            const awayCell = context.container.querySelector('td:nth-child(5)')!;
             expect(awayCell.textContent).not.toContain('🚫');
         });
 
@@ -684,10 +684,10 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam]);
 
             reportedError.verifyNoError();
-            const awayCell = context.container.querySelector('td:nth-child(5)');
+            const awayCell = context.container.querySelector('td:nth-child(5)')!;
             expect(awayCell.querySelector('.dropdown-menu')).toBeFalsy();
             expect(awayCell.textContent).toContain('🚫 HOME - SAME ADDRESS vs AWAY using this venue');
-            const linkToOtherFixture = awayCell.querySelector('a');
+            const linkToOtherFixture = awayCell.querySelector('a')!;
             expect(linkToOtherFixture.href).toEqual(`http://localhost/score/${otherFixtureId}`);
         });
 
@@ -712,7 +712,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam]);
 
             reportedError.verifyNoError();
-            const awayCell = context.container.querySelector('td:nth-child(5)');
+            const awayCell = context.container.querySelector('td:nth-child(5)')!;
             expect(awayCell.textContent).toEqual('AWAY');
         });
 
@@ -729,13 +729,13 @@ describe('DivisionFixture', () => {
                     .build(),
                 account,
                 [homeTeam, awayTeam, anotherTeam]);
-            const awayCell = context.container.querySelector('td:nth-child(5)');
+            const awayCell = context.container.querySelector('td:nth-child(5)')!;
 
             await doSelectOption(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
 
             reportedError.verifyNoError();
             expect(updatedFixtures).not.toBeNull();
-            expect(updatedFixtures([{date, fixtures: [fixture]}])).toEqual([{
+            expect(updatedFixtures!([{date, fixtures: [fixture]}])).toEqual([{
                 date,
                 fixtures: [{
                     id: fixture.id,
@@ -764,13 +764,13 @@ describe('DivisionFixture', () => {
                     .build(),
                 account,
                 [homeTeam, awayTeam, anotherTeam]);
-            const awayCell = context.container.querySelector('td:nth-child(5)');
+            const awayCell = context.container.querySelector('td:nth-child(5)')!;
 
             await doSelectOption(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
 
             reportedError.verifyNoError();
             expect(updatedFixtures).not.toBeNull();
-            expect(updatedFixtures([{date, fixtures: [fixture], isKnockout: true}])).toEqual([{
+            expect(updatedFixtures!([{date, fixtures: [fixture], isKnockout: true}])).toEqual([{
                 date,
                 fixtures: [{
                     date,
@@ -801,7 +801,7 @@ describe('DivisionFixture', () => {
                     .build(),
                 account,
                 [homeTeam, awayTeam, anotherTeam]);
-            const saveCell = context.container.querySelector('td:nth-child(6)');
+            const saveCell = context.container.querySelector('td:nth-child(6)')!;
             expect(saveCell.textContent).toContain('💾');
 
             await doClick(findButton(saveCell, '💾'));
@@ -827,7 +827,7 @@ describe('DivisionFixture', () => {
                     .build(),
                 account,
                 [homeTeam, awayTeam, anotherTeam]);
-            const saveCell = context.container.querySelector('td:nth-child(6)');
+            const saveCell = context.container.querySelector('td:nth-child(6)')!;
             expect(saveCell.textContent).toContain('💾');
 
             await doClick(findButton(saveCell, '💾'));
@@ -853,7 +853,7 @@ describe('DivisionFixture', () => {
                     .build(),
                 account,
                 [homeTeam, awayTeam, anotherTeam]);
-            const saveCell = context.container.querySelector('td:nth-child(6)');
+            const saveCell = context.container.querySelector('td:nth-child(6)')!;
             expect(saveCell.textContent).toContain('💾');
             apiResponse = {success: false, errors: ['SOME ERROR']};
 
@@ -861,7 +861,7 @@ describe('DivisionFixture', () => {
 
             reportedError.verifyNoError();
             expect(savedFixture).not.toBeNull();
-            expect(beforeReloadDivisionCalled).toEqual(null);
+            expect(beforeReloadDivisionCalled).toEqual(false);
             expect(divisionReloaded).toEqual(false);
             expect(context.container.textContent).toContain('Could not save fixture details');
             expect(context.container.textContent).toContain('SOME ERROR');
@@ -877,10 +877,10 @@ describe('DivisionFixture', () => {
                     .build(),
                 account,
                 [homeTeam, awayTeam, anotherTeam]);
-            const saveCell = context.container.querySelector('td:nth-child(6)');
+            const saveCell = context.container.querySelector('td:nth-child(6)')!;
             expect(saveCell.textContent).toContain('🗑');
-            let confirm: string;
-            window.confirm = (message) => {
+            let confirm: string | undefined;
+            window.confirm = (message: string | undefined) => {
                 confirm = message;
                 return true;
             }
@@ -904,7 +904,7 @@ describe('DivisionFixture', () => {
                     .build(),
                 account,
                 [homeTeam, awayTeam, anotherTeam]);
-            const saveCell = context.container.querySelector('td:nth-child(6)');
+            const saveCell = context.container.querySelector('td:nth-child(6)')!;
             expect(saveCell.textContent).toContain('🗑');
             window.confirm = () => {
                 return false;
@@ -925,7 +925,7 @@ describe('DivisionFixture', () => {
                     .build(),
                 account,
                 [homeTeam, awayTeam, anotherTeam]);
-            const saveCell = context.container.querySelector('td:nth-child(6)');
+            const saveCell = context.container.querySelector('td:nth-child(6)')!;
             expect(saveCell.textContent).toContain('🗑');
             window.confirm = () => false;
 
@@ -933,7 +933,7 @@ describe('DivisionFixture', () => {
 
             reportedError.verifyNoError();
             expect(deletedFixture).toBeNull();
-            expect(beforeReloadDivisionCalled).toEqual(null);
+            expect(beforeReloadDivisionCalled).toEqual(false);
             expect(divisionReloaded).toEqual(false);
         });
 
@@ -947,7 +947,7 @@ describe('DivisionFixture', () => {
                     .build(),
                 account,
                 [homeTeam, awayTeam, anotherTeam]);
-            const saveCell = context.container.querySelector('td:nth-child(6)');
+            const saveCell = context.container.querySelector('td:nth-child(6)')!;
             expect(saveCell.textContent).toContain('🗑');
             window.confirm = () => true;
             apiResponse = {success: false, errors: ['SOME ERROR']};
@@ -956,7 +956,7 @@ describe('DivisionFixture', () => {
 
             reportedError.verifyNoError();
             expect(deletedFixture).toEqual(fixture.id);
-            expect(beforeReloadDivisionCalled).toEqual(null);
+            expect(beforeReloadDivisionCalled).toEqual(false);
             expect(divisionReloaded).toEqual(false);
             expect(context.container.textContent).toContain('Could not save fixture details');
             expect(context.container.textContent).toContain('SOME ERROR');
@@ -972,7 +972,7 @@ describe('DivisionFixture', () => {
                     .build(),
                 account,
                 [homeTeam, awayTeam, anotherTeam]);
-            const saveCell = context.container.querySelector('td:nth-child(6)');
+            const saveCell = context.container.querySelector('td:nth-child(6)')!;
             expect(saveCell.textContent).toContain('🗑');
             window.confirm = () => true;
             apiResponse = {success: false, errors: ['SOME ERROR']};
@@ -998,10 +998,10 @@ describe('DivisionFixture', () => {
                     .build(),
                 account,
                 [homeTeam, awayTeam, anotherTeam]);
-            const saveCell = context.container.querySelector('td:nth-child(6)');
+            const saveCell = context.container.querySelector('td:nth-child(6)')!;
             expect(saveCell.textContent).toContain('🗑');
-            let confirm: string;
-            window.confirm = (message) => {
+            let confirm: string | undefined;
+            window.confirm = (message: string | undefined) => {
                 confirm = message;
                 return true;
             }
@@ -1064,7 +1064,7 @@ describe('DivisionFixture', () => {
                     .build(),
                 account,
                 [homeTeam, awayTeam, anotherTeam]);
-            const awayCell = context.container.querySelector('td:nth-child(5)');
+            const awayCell = context.container.querySelector('td:nth-child(5)')!;
 
             await doSelectOption(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
 
@@ -1091,7 +1091,7 @@ describe('DivisionFixture', () => {
                 });
 
             reportedError.verifyNoError();
-            const row = context.container.querySelector('tr');
+            const row = context.container.querySelector('tr')!;
             expect(row.className).not.toContain('opacity-25');
         });
     });

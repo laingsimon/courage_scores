@@ -71,7 +71,7 @@ export function MultiPlayerSelection({
 
     function renderLinkToPlayer(p: NotablePlayerDto) {
         if (division && season) {
-            const teamName: string = getTeamName(p.id);
+            const teamName: string | null = getTeamName(p.id);
             const playerLink: string = teamName ? `${p.name}@${teamName}` : p.id;
 
             return (<Link to={`/division/${division.name}/player:${playerLink}/${season.name}`}>
@@ -82,14 +82,14 @@ export function MultiPlayerSelection({
         return playerName(p);
     }
 
-    function getTeamName(playerId: string): string {
+    function getTeamName(playerId: string): string | null {
         const team: TeamDto = teams.filter(t => {
-            const teamSeason: TeamSeasonDto = t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id && !ts.deleted)[0];
+            const teamSeason: TeamSeasonDto = t.seasons!.filter((ts: TeamSeasonDto) => ts.seasonId === season!.id && !ts.deleted)[0];
             if (!teamSeason) {
                 return null;
             }
 
-            return any(teamSeason.players, (p: TeamPlayerDto) => p.id === playerId);
+            return any(teamSeason.players!, (p: TeamPlayerDto) => p.id === playerId);
         })[0];
 
         return team ? team.name : null;
@@ -120,7 +120,7 @@ export function MultiPlayerSelection({
                         disabled={disabled}
                         readOnly={readOnly}
                         players={allPlayers}
-                        selected={player}
+                        selected={player!}
                         onChange={async (_, p: ISelectablePlayer) => setPlayer(p)}
                         className={dropdownClassName}
                         placeholder={placeholder}/>) : null}

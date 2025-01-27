@@ -229,8 +229,8 @@ describe('SuperLeaguePrintout', () => {
                     setPreventScroll,
                 }, { division }, access);
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
-                expect(context.container.querySelector('div[datatype="match-report"] > div > div:nth-child(1)').textContent).toEqual('Legs won: 2');
-                expect(context.container.querySelector('div[datatype="match-report"] > div > div:nth-child(2)').textContent).toEqual('Legs won: 2');
+                expect(context.container.querySelector('div[datatype="match-report"] > div > div:nth-child(1)')!.textContent).toEqual('Legs won: 2');
+                expect(context.container.querySelector('div[datatype="match-report"] > div > div:nth-child(2)')!.textContent).toEqual('Legs won: 2');
 
                 //send through some data
                 const newSaygData = saygBuilder(saygData1.id)
@@ -239,7 +239,7 @@ describe('SuperLeaguePrintout', () => {
                     .withLeg(2, createLeg(false, true))
                     .build();
                 await act(async () => {
-                    socketFactory.socket.onmessage({
+                    socketFactory.socket!.onmessage!({
                         type: 'message',
                         data: JSON.stringify({
                             type: MessageType.update,
@@ -249,8 +249,8 @@ describe('SuperLeaguePrintout', () => {
                     } as MessageEvent<string>);
                 });
 
-                expect(context.container.querySelector('div[datatype="match-report"] > div > div:nth-child(1)').textContent).toEqual('Legs won: 2');
-                expect(context.container.querySelector('div[datatype="match-report"] > div > div:nth-child(2)').textContent).toEqual('Legs won: 3');
+                expect(context.container.querySelector('div[datatype="match-report"] > div > div:nth-child(1)')!.textContent).toEqual('Legs won: 2');
+                expect(context.container.querySelector('div[datatype="match-report"] > div > div:nth-child(2)')!.textContent).toEqual('Legs won: 3');
             });
 
             it('can stop live updates', async () => {
@@ -351,9 +351,9 @@ describe('SuperLeaguePrintout', () => {
                     tournamentData,
                     preventScroll: false,
                     setPreventScroll,
-                }, { division, patchData: null }, access);
+                }, { division }, access);
                 await doClick(findButton(context.container, START_SCORING));
-                const dialog = context.container.querySelector('div.modal-dialog');
+                const dialog = context.container.querySelector('div.modal-dialog')!;
                 expect(saygDataRequests[saygData1.id]).toEqual(2); // data is loaded as the dialog opens
                 patchSuccess = false;
 
@@ -366,7 +366,7 @@ describe('SuperLeaguePrintout', () => {
                 expect(dialog.textContent).toContain('Match statistics');
                 await doClick(findButton(dialog, 'Close')); // close the match statistics dialog
 
-                const summary = context.container.querySelector('div[datatype="summary"]');
+                const summary = context.container.querySelector('div[datatype="summary"]')!;
                 expect(summary.textContent).toContain('PLAYER A'); // player should be shown in the table
                 expect(saygDataRequests[saygData1.id]).toEqual(2); // data isn't reloaded if the patch fails
             });
@@ -394,7 +394,7 @@ describe('SuperLeaguePrintout', () => {
                     setPreventScroll,
                 }, { division, patchData }, access);
                 await doClick(findButton(context.container, START_SCORING));
-                const dialog = context.container.querySelector('div.modal-dialog');
+                const dialog = context.container.querySelector('div.modal-dialog')!;
                 expect(saygDataRequests[saygData1.id]).toEqual(2); // data is loaded as the dialog opens
                 patchSuccess = false;
 
@@ -407,7 +407,7 @@ describe('SuperLeaguePrintout', () => {
                 expect(dialog.textContent).toContain('Match statistics');
                 await doClick(findButton(dialog, 'Close')); // close the match statistics dialog
 
-                const summary = context.container.querySelector('div[datatype="summary"]');
+                const summary = context.container.querySelector('div[datatype="summary"]')!;
                 expect(summary.textContent).toContain('PLAYER A'); // player should be shown in the table
                 expect(saygDataRequests[saygData1.id]).toEqual(2); // data isn't reloaded if the patch fails
             });

@@ -23,7 +23,7 @@ export function saygBuilder(id?: string): IRecordedSaygBuilder {
     const sayg: RecordedScoreAsYouGoDto & UpdateRecordedScoreAsYouGoDto = {
         id: id || createTemporaryId(),
         legs: {},
-        yourName: null,
+        yourName: '',
     };
 
     const builder: IRecordedSaygBuilder = {
@@ -69,7 +69,7 @@ export function saygBuilder(id?: string): IRecordedSaygBuilder {
             return builder;
         },
         noId: () => {
-            delete sayg.id;
+            sayg.id = undefined!;
             return builder;
         }
     };
@@ -88,8 +88,8 @@ export interface ILegBuilder extends IBuilder<LegDto> {
 
 export function legBuilder(): ILegBuilder {
     const leg: LegDto = {
-        home: null,
-        away: null,
+        home: {},
+        away: {},
         isLastLeg: false,
     };
 
@@ -147,10 +147,12 @@ export function saygCompetitorBuilder(): ILegCompetitorScoreBuilder {
     const builder: ILegCompetitorScoreBuilder = {
         build: () => competitor,
         withThrow: (score: number, noOfDarts?: number) => {
-            competitor.throws.push({
+            competitor.throws?.push({
                 score: score,
                 noOfDarts: noOfDarts || 3,
             });
+            competitor.noOfDarts = competitor.noOfDarts || 0;
+            competitor.score = competitor.score || 0;
             competitor.noOfDarts += (noOfDarts || 3);
             competitor.score += score;
             return builder;

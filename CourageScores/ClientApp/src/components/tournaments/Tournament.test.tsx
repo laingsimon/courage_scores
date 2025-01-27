@@ -68,17 +68,17 @@ describe('Tournament', () => {
     let updatedTournamentData: EditTournamentGameDto[];
     let patchedTournamentData: {id: string, data: PatchTournamentDto}[];
     let saygDataLookup: { [id: string]: RecordedScoreAsYouGoDto };
-    let createdPlayer: {divisionId: string, seasonId: string, teamId: string, playerDetails: EditTeamPlayerDto};
-    let apiResponse: IClientActionResultDto<any>;
-    let uploadedPhoto: { request: UploadPhotoDto, file: File };
-    let uploadPhotoResponse: IClientActionResultDto<TournamentGameDto>;
-    let deletedPhoto: { id: string, photoId: string };
-    let deletePhotoResponse: IClientActionResultDto<TournamentGameDto>;
+    let createdPlayer: {divisionId: string, seasonId: string, teamId: string, playerDetails: EditTeamPlayerDto} | null;
+    let apiResponse: IClientActionResultDto<any> | null;
+    let uploadedPhoto: { request: UploadPhotoDto, file: File } | null;
+    let uploadPhotoResponse: IClientActionResultDto<TournamentGameDto> | null;
+    let deletedPhoto: { id: string, photoId: string } | null;
+    let deletePhotoResponse: IClientActionResultDto<TournamentGameDto> | null;
 
     const divisionApi = api<IDivisionApi>({
         data: async (filter: DivisionDataFilter) => {
             const seasonId = filter.seasonId;
-            const divisionId: string = filter.divisionId.join(',');
+            const divisionId: string = filter.divisionId?.join(',') || '';
             const key: string = `${divisionId}_${seasonId}`;
             if (any(Object.keys(divisionDataLookup), k => k === key)) {
                 return divisionDataLookup[key];
@@ -105,11 +105,11 @@ describe('Tournament', () => {
         },
         async uploadPhoto(request: UploadPhotoDto, file: File): Promise<IClientActionResultDto<TournamentGameDto>> {
             uploadedPhoto = {request, file};
-            return uploadPhotoResponse;
+            return uploadPhotoResponse!;
         },
         async deletePhoto(id: string, photoId: string): Promise<IClientActionResultDto<TournamentGameDto>> {
             deletedPhoto = { id, photoId };
-            return deletePhotoResponse;
+            return deletePhotoResponse!;
         }
     });
     const playerApi = api<IPlayerApi>({
@@ -235,8 +235,8 @@ describe('Tournament', () => {
                 .build();
 
             divisionData = divisionDataBuilder().build();
-            expectDivisionDataRequest(tournamentData.divisionId, tournamentData.seasonId, divisionData);
-            expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
+            expectDivisionDataRequest(tournamentData.divisionId!, tournamentData.seasonId!, divisionData);
+            expectDivisionDataRequest('', tournamentData.seasonId!, divisionData);
         });
 
         describe('when logged out', () => {
@@ -245,9 +245,9 @@ describe('Tournament', () => {
                 .forSeason(season, division, [ teamPlayer ])
                 .build();
 
-            async function renderComponentForTest(season?: SeasonDto, team?: TeamDto, appLoading?: boolean) {
+            async function renderComponentForTest(season?: SeasonDto, team?: TeamDto | null, appLoading?: boolean) {
                 await renderComponent(tournamentData.id, {
-                    account: null,
+                    account: null!,
                     seasons: season ? [season] : [],
                     teams: team ? [team] : [],
                     divisions: [division],
@@ -266,11 +266,11 @@ describe('Tournament', () => {
                 reportedError.verifyNoError();
                 const container = context.container.querySelector('.content-background');
                 expect(container).toBeTruthy();
-                expect(container.className).toContain('loading-background');
+                expect(container!.className).toContain('loading-background');
             });
 
             it('when tournament not found', async () => {
-                tournamentDataLookup[tournamentData.id] = null;
+                tournamentDataLookup[tournamentData.id] = null!;
 
                 await renderComponentForTest(season);
 
@@ -296,22 +296,22 @@ describe('Tournament', () => {
                 reportedError.verifyNoError();
                 const heading = context.container.querySelector('.content-background div[datatype="heading"]');
                 expect(heading).toBeTruthy();
-                expect(heading.textContent).toContain('TYPE at ADDRESS on 2 Jan - NOTES🔗🖨️');
+                expect(heading!.textContent).toContain('TYPE at ADDRESS on 2 Jan - NOTES🔗🖨️');
             });
 
             it('tournament with team sides only', async () => {
-                tournamentData.sides.push(sideBuilder().teamId(team.id).build());
+                tournamentData.sides!.push(sideBuilder().teamId(team.id).build());
 
                 await renderComponentForTest(season, team);
 
                 reportedError.verifyNoError();
                 const heading = context.container.querySelector('.content-background div[datatype="heading"]');
                 expect(heading).toBeTruthy();
-                expect(heading.textContent).toContain('TYPE at ADDRESS on 2 Jan - NOTES🔗🖨️');
+                expect(heading!.textContent).toContain('TYPE at ADDRESS on 2 Jan - NOTES🔗🖨️');
             });
 
             it('tournament with sides and players', async () => {
-                tournamentData.sides.push(sideBuilder()
+                tournamentData.sides!.push(sideBuilder()
                     .name('SIDE 1')
                     .teamId(team.id)
                     .withPlayer('PLAYER', teamPlayer.id, division.id)
@@ -331,7 +331,7 @@ describe('Tournament', () => {
                 managePlayers: true,
             });
 
-            async function renderComponentForTest(season?: SeasonDto, team?: TeamDto, appLoading?: boolean) {
+            async function renderComponentForTest(season?: SeasonDto, team?: TeamDto | null, appLoading?: boolean) {
                 await renderComponent(tournamentData.id, {
                     account,
                     seasons: season ? [season] : [],
@@ -347,28 +347,28 @@ describe('Tournament', () => {
             });
 
             it('loading', async () => {
-                await renderComponentForTest(season, null,true);
+                await renderComponentForTest(season, null, true);
 
                 reportedError.verifyNoError();
                 const container = context.container.querySelector('.content-background');
-                expect(container.className).toContain('loading-background');
+                expect(container!.className).toContain('loading-background');
             });
 
             it('tournament with sides and players', async () => {
                 tournamentData.singleRound = true;
-                tournamentData.sides.push(sideBuilder()
+                tournamentData.sides!.push(sideBuilder()
                     .name('SIDE 1')
-                    .withPlayer('PLAYER', null, division.id)
+                    .withPlayer('PLAYER', undefined, division.id)
                     .build());
 
                 await renderComponentForTest(season);
 
-                await doClick(context.container.querySelector('div[datatype="master-draw"] table tr'));
+                await doClick(context.container.querySelector('div[datatype="master-draw"] table tr')!);
 
                 reportedError.verifyNoError();
-                const editTournamentComponent = context.container.querySelector('.content-background > div:nth-child(1)');
+                const editTournamentComponent = context.container.querySelector('.content-background > div:nth-child(1)')!;
                 expect(editTournamentComponent.textContent).toContain('Playing:');
-                const sides = editTournamentComponent.querySelector('div:nth-child(2)');
+                const sides = editTournamentComponent.querySelector('div:nth-child(2)')!;
                 expect(sides.textContent).toContain('SIDE 1');
             });
         });
@@ -401,7 +401,7 @@ describe('Tournament', () => {
         const notPermittedAccount: UserDto = user({});
         let tournamentData: TournamentGameDto;
         let divisionData: DivisionDataDto;
-        let alert: string;
+        let alert: string | null;
 
         beforeEach(() => {
             tournamentDataLookup = {};
@@ -419,17 +419,17 @@ describe('Tournament', () => {
                 .build();
 
             divisionData = divisionDataBuilder().build();
-            expectDivisionDataRequest(tournamentData.divisionId, tournamentData.seasonId, divisionData);
-            expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
+            expectDivisionDataRequest(tournamentData.divisionId!, tournamentData.seasonId!, divisionData);
+            expectDivisionDataRequest('', tournamentData.seasonId!, divisionData);
 
             alert = null;
             window.confirm = () => true;
-            window.alert = (msg) => alert = msg;
+            window.alert = (msg: string) => alert = msg;
         });
 
-        async function renderComponentForTest(team?: TeamDto, useAccount?: UserDto) {
+        async function renderComponentForTest(team?: TeamDto | null, useAccount?: UserDto | null) {
             await renderComponent(tournamentData.id, {
-                account: useAccount === undefined ? account : useAccount,
+                account: useAccount === undefined ? account : useAccount!,
                 seasons: [season],
                 teams: team ? [team] : [],
                 divisions: [division],
@@ -446,6 +446,7 @@ describe('Tournament', () => {
                     .playerSequence('home', 'away'))
                 .scores(0, 0)
                 .startingScore(501)
+                .numberOfLegs(3)
                 .addTo(saygDataLookup)
                 .build();
         }
@@ -456,7 +457,7 @@ describe('Tournament', () => {
             await doClick(findButton(context.container, 'Add player'));
 
             const addPlayerDialog = context.container.querySelector('.modal-dialog');
-            expect(addPlayerDialog.textContent).toContain('Add player');
+            expect(addPlayerDialog!.textContent).toContain('Add player');
         });
 
         it('can add players', async () => {
@@ -464,7 +465,7 @@ describe('Tournament', () => {
             expectDivisionDataRequest(division.id, season.id, divisionData);
             await renderComponentForTest(teamNoPlayers);
             await doClick(findButton(context.container, 'Add player'));
-            const addPlayerDialog = context.container.querySelector('.modal-dialog');
+            const addPlayerDialog = context.container.querySelector('.modal-dialog')!;
 
             await doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER', context.user);
             await doSelectOption(addPlayerDialog.querySelector('.dropdown-menu'), 'TEAM');
@@ -472,12 +473,10 @@ describe('Tournament', () => {
 
             reportedError.verifyNoError();
             expect(createdPlayer).not.toBeNull();
-            expect(createdPlayer.teamId).toEqual(teamNoPlayers.id);
-            expect(createdPlayer.seasonId).toEqual(tournamentData.seasonId);
-            expect(createdPlayer.playerDetails).toEqual({
+            expect(createdPlayer!.teamId).toEqual(teamNoPlayers.id);
+            expect(createdPlayer!.seasonId).toEqual(tournamentData.seasonId);
+            expect(createdPlayer!.playerDetails).toEqual({
                 captain: false,
-                newTeamId: undefined,
-                emailAddress: undefined,
                 name: 'NEW PLAYER',
             });
         });
@@ -496,8 +495,8 @@ describe('Tournament', () => {
             tournamentData.singleRound = true;
             await renderComponentForTest();
 
-            await doClick(context.container.querySelector('div[datatype="details"] > div.alert'));
-            const dialog = context.container.querySelector('div.modal-dialog');
+            await doClick(context.container.querySelector('div[datatype="details"] > div.alert')!);
+            const dialog = context.container.querySelector('div.modal-dialog')!;
             await doChange(dialog, 'input[name="type"]', 'NEW TYPE', context.user);
             await doClick(findButton(dialog, 'Close'));
 
@@ -536,9 +535,9 @@ describe('Tournament', () => {
 
         it('cannot save changes when match not added', async () => {
             tournamentData.singleRound = true;
-            tournamentData.sides.push(sideA, sideB);
+            tournamentData.sides!.push(sideA, sideB);
             await renderComponentForTest();
-            await doClick(context.container.querySelector('div[datatype="master-draw"] table tr'));
+            await doClick(context.container.querySelector('div[datatype="master-draw"] table tr')!);
             await doSelectOption(context.container.querySelector('table tr td:nth-child(1) .dropdown-menu'), 'A');
             await doSelectOption(context.container.querySelector('table tr td:nth-child(5) .dropdown-menu'), 'B');
 
@@ -551,9 +550,9 @@ describe('Tournament', () => {
 
         it('can save changes after match added', async () => {
             tournamentData.singleRound = true;
-            tournamentData.sides.push(sideA, sideB);
+            tournamentData.sides!.push(sideA, sideB);
             await renderComponentForTest();
-            await doClick(context.container.querySelector('div[datatype="master-draw"] table tr'));
+            await doClick(context.container.querySelector('div[datatype="master-draw"] table tr')!);
             await doSelectOption(context.container.querySelector('table tr td:nth-child(1) .dropdown-menu'), 'A');
             await doSelectOption(context.container.querySelector('table tr td:nth-child(5) .dropdown-menu'), 'B');
             await doClick(findButton(context.container.querySelector('table tr td:nth-child(6)'), '➕'));
@@ -566,9 +565,9 @@ describe('Tournament', () => {
 
         it('produces correct match option defaults when no bestOf (1)', async () => {
             tournamentData.singleRound = true;
-            tournamentData.sides.push(sideA, sideB);
+            tournamentData.sides!.push(sideA, sideB);
             await renderComponentForTest();
-            await doClick(context.container.querySelector('div[datatype="master-draw"] table tr'));
+            await doClick(context.container!.querySelector('div[datatype="master-draw"] table tr')!);
             await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(1) .dropdown-menu'), 'A');
             await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(5) .dropdown-menu'), 'B');
             await doClick(findButton(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(6)'), '➕'));
@@ -576,16 +575,16 @@ describe('Tournament', () => {
             await doClick(findButton(context.container, 'Close'));
 
             expect(alert).toBeFalsy();
-            const round = updatedTournamentData[0].round;
+            const round = updatedTournamentData[0].round!;
             expect(round.matchOptions).toEqual([{ numberOfLegs: 5, startingScore: 501 }]);
         });
 
         it('produces correct match option defaults (1)', async () => {
             tournamentData.singleRound = true;
-            tournamentData.sides.push(sideA, sideB);
+            tournamentData.sides!.push(sideA, sideB);
             tournamentData.bestOf = 7;
             await renderComponentForTest();
-            await doClick(context.container.querySelector('div[datatype="master-draw"] table tr'));
+            await doClick(context.container.querySelector('div[datatype="master-draw"] table tr')!);
             await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(1) .dropdown-menu'), 'A');
             await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(5) .dropdown-menu'), 'B');
             await doClick(findButton(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(6)'), '➕'));
@@ -593,14 +592,14 @@ describe('Tournament', () => {
             await doClick(findButton(context.container, 'Close'));
 
             expect(alert).toBeFalsy();
-            const round = updatedTournamentData[0].round;
+            const round = updatedTournamentData[0].round!;
             expect(round.matchOptions).toEqual([{ numberOfLegs: 7, startingScore: 501 }]);
         });
 
         it('can patch data with sayg score for match', async () => {
             const sayg = getSayg(451, 200);
             tournamentData.singleRound = true;
-            tournamentData.sides.push(sideA, sideB);
+            tournamentData.sides!.push(sideA, sideB);
             tournamentData.round = roundBuilder()
                 .withMatch((m: ITournamentMatchBuilder) => m
                     .saygId(sayg.id)
@@ -634,7 +633,7 @@ describe('Tournament', () => {
 
         it('can patch data with sayg 180 for match', async () => {
             const sayg = getSayg(100, 200);
-            tournamentData.sides.push(sideA, sideB);
+            tournamentData.sides!.push(sideA, sideB);
             tournamentData.round = roundBuilder()
                 .withMatch((m: ITournamentMatchBuilder) => m
                     .saygId(sayg.id)
@@ -660,7 +659,7 @@ describe('Tournament', () => {
 
         it('can patch data with sayg hi-check for match', async () => {
             const sayg = getSayg(401, 200);
-            tournamentData.sides.push(sideA, sideB);
+            tournamentData.sides!.push(sideA, sideB);
             tournamentData.round = roundBuilder()
                 .withMatch((m: ITournamentMatchBuilder) => m
                     .saygId(sayg.id)
@@ -683,7 +682,6 @@ describe('Tournament', () => {
                         id: playerA.id,
                         name: playerA.name,
                         score: 100,
-                        team: null,
                     },
                 },
                 id: tournamentData.id,
@@ -704,7 +702,7 @@ describe('Tournament', () => {
 
         it('can handle error during patch', async () => {
             const sayg = getSayg(100, 200);
-            tournamentData.sides.push(sideA, sideB);
+            tournamentData.sides!.push(sideA, sideB);
             tournamentData.round = roundBuilder()
                 .withMatch((m: ITournamentMatchBuilder) => m
                     .saygId(sayg.id)
@@ -726,110 +724,110 @@ describe('Tournament', () => {
         });
 
         it('can add 180 for player in newly added side', async () => {
-            tournamentData.sides.push(sideA);
+            tournamentData.sides!.push(sideA);
             const team = teamBuilder('TEAM')
                 .forSeason(season, division, [ playerA, playerB ])
                 .build();
             await renderComponentForTest(team);
 
             reportedError.verifyNoError();
-            await doClick(context.container.querySelector('li[datatype="add-side"]'));
+            await doClick(context.container.querySelector('li[datatype="add-side"]')!);
             reportedError.verifyNoError();
-            const editSideDialog = context.container.querySelector('.modal-dialog');
-            await doClick(editSideDialog.querySelector('.list-group-item:nth-child(2)')); // click on a player
+            const editSideDialog = context.container.querySelector('.modal-dialog')!;
+            await doClick(editSideDialog.querySelector('.list-group-item:nth-child(2)')!); // click on a player
             await doClick(findButton(editSideDialog, 'Save')); // close the dialog
             reportedError.verifyNoError();
 
             // open the 180s dialog
-            await doClick(context.container.querySelector('div[data-accolades="180s"]'));
-            const oneEightiesDialog = context.container.querySelector('.modal-dialog');
-            const oneEightiesDropdown = oneEightiesDialog.querySelector('.dropdown-menu');
+            await doClick(context.container.querySelector('div[data-accolades="180s"]')!);
+            const oneEightiesDialog = context.container.querySelector('.modal-dialog')!;
+            const oneEightiesDropdown = oneEightiesDialog.querySelector('.dropdown-menu')!;
             const oneEightyPlayers = Array.from(oneEightiesDropdown.querySelectorAll('.dropdown-item'));
             expect(oneEightyPlayers.map(p => p.textContent)).toContain('PLAYER A');
         });
 
         it('can add hi-check for player in newly added side', async () => {
-            tournamentData.sides.push(sideA);
+            tournamentData.sides!.push(sideA);
             tournamentData.round = roundBuilder().build();
             const team = teamBuilder('TEAM')
                 .forSeason(season, division, [ playerA, playerB ])
                 .build();
             await renderComponentForTest(team);
 
-            await doClick(context.container.querySelector('li[datatype="add-side"]'));
+            await doClick(context.container.querySelector('li[datatype="add-side"]')!);
             reportedError.verifyNoError();
-            const addSideDialog = context.container.querySelector('.modal-dialog');
-            await doClick(addSideDialog.querySelector('.list-group-item:nth-child(2)')); // click on a player
+            const addSideDialog = context.container.querySelector('.modal-dialog')!;
+            await doClick(addSideDialog.querySelector('.list-group-item:nth-child(2)')!); // click on a player
             await doClick(findButton(addSideDialog, 'Save')); // close the dialog
             reportedError.verifyNoError();
 
             // open the hi-checks dialog
-            await doClick(context.container.querySelector('div[data-accolades="hi-checks"]'));
-            const hiCheckDialog = context.container.querySelector('.modal-dialog');
-            const hiCheckDropdown = hiCheckDialog.querySelector('.dropdown-menu');
+            await doClick(context.container.querySelector('div[data-accolades="hi-checks"]')!);
+            const hiCheckDialog = context.container.querySelector('.modal-dialog')!;
+            const hiCheckDropdown = hiCheckDialog.querySelector('.dropdown-menu')!;
             const hiCheckPlayers = Array.from(hiCheckDropdown.querySelectorAll('.dropdown-item'));
             expect(hiCheckPlayers.map(p => p.textContent)).toContain('PLAYER A');
         });
 
         it('cannot add 180 for player in newly removed side', async () => {
-            tournamentData.sides.push(sideA, sideB, sideC);
+            tournamentData.sides!.push(sideA, sideB, sideC);
             tournamentData.round = roundBuilder().build();
             await renderComponentForTest(teamWithPlayersABC);
             // verify that all 3 players CAN be selected before the side is removed
-            await doClick(context.container.querySelector('div[data-accolades="180s"]'));
-            let oneEightiesDialog = context.container.querySelector('.modal-dialog');
-            let oneEightiesDropdown = oneEightiesDialog.querySelector('.dropdown-menu');
+            await doClick(context.container.querySelector('div[data-accolades="180s"]')!);
+            let oneEightiesDialog = context.container.querySelector('.modal-dialog')!;
+            let oneEightiesDropdown = oneEightiesDialog.querySelector('.dropdown-menu')!;
             let oneEightyPlayers = Array.from(oneEightiesDropdown.querySelectorAll('.dropdown-item'));
             expect(oneEightyPlayers.map(p => p.textContent)).toEqual([ ' ', 'PLAYER A', 'PLAYER B', 'PLAYER C' ]);
             await doClick(findButton(oneEightiesDialog, 'Close')); // close the dialog
 
-            const playing = context.container.querySelector('div[datatype="playing"]');
-            await doClick(playing.querySelector('li:nth-child(1)')); // open edit side dialog
+            const playing = context.container.querySelector('div[datatype="playing"]')!;
+            await doClick(playing.querySelector('li:nth-child(1)')!); // open edit side dialog
             const dialog = context.container.querySelector('.modal-dialog');
             await doClick(findButton(dialog, 'Delete side')); // delete side A
             reportedError.verifyNoError();
 
             // open the 180s dialog
             // verify that only the 2 remaining players can be selected after a side has been removed
-            await doClick(context.container.querySelector('div[data-accolades="180s"]'));
-            oneEightiesDialog = context.container.querySelector('.modal-dialog');
-            oneEightiesDropdown = oneEightiesDialog.querySelector('.dropdown-menu');
+            await doClick(context.container.querySelector('div[data-accolades="180s"]')!);
+            oneEightiesDialog = context.container.querySelector('.modal-dialog')!;
+            oneEightiesDropdown = oneEightiesDialog.querySelector('.dropdown-menu')!;
             oneEightyPlayers = Array.from(oneEightiesDropdown.querySelectorAll('.dropdown-item'));
             expect(oneEightyPlayers.map(p => p.textContent)).toEqual([ ' ', 'PLAYER B', 'PLAYER C' ]);
         });
 
         it('cannot add hi-check for player in newly removed side', async () => {
-            tournamentData.sides.push(sideA, sideB, sideC);
+            tournamentData.sides!.push(sideA, sideB, sideC);
             tournamentData.round = roundBuilder().build();
             await renderComponentForTest(teamWithPlayersABC);
             // verify that all 3 players CAN be selected before the side is removed
-            await doClick(context.container.querySelector('div[data-accolades="hi-checks"]'));
-            let hiChecksDialog = context.container.querySelector('.modal-dialog');
-            let hiChecksDropdown = hiChecksDialog.querySelector('.dropdown-menu');
+            await doClick(context.container.querySelector('div[data-accolades="hi-checks"]')!);
+            let hiChecksDialog = context.container.querySelector('.modal-dialog')!;
+            let hiChecksDropdown = hiChecksDialog.querySelector('.dropdown-menu')!;
             let hiCheckPlayers = Array.from(hiChecksDropdown.querySelectorAll('.dropdown-item'));
             expect(hiCheckPlayers.map(p => p.textContent)).toEqual([ ' ', 'PLAYER A', 'PLAYER B', 'PLAYER C' ]);
             await doClick(findButton(hiChecksDialog, 'Close')); // close the dialog
 
-            const playing = context.container.querySelector('div[datatype="playing"]');
-            await doClick(playing.querySelector('li:nth-child(1)')); // open edit side dialog
+            const playing = context.container.querySelector('div[datatype="playing"]')!;
+            await doClick(playing.querySelector('li:nth-child(1)')!); // open edit side dialog
             const dialog = context.container.querySelector('.modal-dialog');
             await doClick(findButton(dialog, 'Delete side')); // delete side A
             reportedError.verifyNoError();
 
             // open the 180s dialog
             // verify that only the 2 remaining players can be selected after a side has been removed
-            await doClick(context.container.querySelector('div[data-accolades="hi-checks"]'));
-            hiChecksDialog = context.container.querySelector('.modal-dialog');
-            hiChecksDropdown = hiChecksDialog.querySelector('.dropdown-menu');
+            await doClick(context.container.querySelector('div[data-accolades="hi-checks"]')!);
+            hiChecksDialog = context.container.querySelector('.modal-dialog')!;
+            hiChecksDropdown = hiChecksDialog.querySelector('.dropdown-menu')!;
             hiCheckPlayers = Array.from(hiChecksDropdown.querySelectorAll('.dropdown-item'));
             expect(hiCheckPlayers.map(p => p.textContent)).toEqual([ ' ', 'PLAYER B', 'PLAYER C' ]);
         });
 
         it('produces correct match option defaults when no bestOf (2)', async () => {
-            tournamentData.sides.push(sideA, sideB);
+            tournamentData.sides!.push(sideA, sideB);
             tournamentData.singleRound = true;
             await renderComponentForTest();
-            await doClick(context.container.querySelector('div[datatype="master-draw"] table tr'));
+            await doClick(context.container.querySelector('div[datatype="master-draw"] table tr')!);
             await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(1) .dropdown-menu'), 'A');
             await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(5) .dropdown-menu'), 'B');
             await doClick(findButton(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(6)'), '➕')); // add match
@@ -837,16 +835,16 @@ describe('Tournament', () => {
             await doClick(findButton(context.container, 'Close'));
 
             expect(alert).toBeFalsy();
-            const round = updatedTournamentData[0].round;
+            const round = updatedTournamentData[0].round!;
             expect(round.matchOptions).toEqual([{ numberOfLegs: 5, startingScore: 501 }]);
         });
 
         it('produces correct match option defaults (2)', async () => {
-            tournamentData.sides.push(sideA, sideB);
+            tournamentData.sides!.push(sideA, sideB);
             tournamentData.singleRound = true;
             tournamentData.bestOf = 7;
             await renderComponentForTest();
-            await doClick(context.container.querySelector('div[datatype="master-draw"] table tr'));
+            await doClick(context.container.querySelector('div[datatype="master-draw"] table tr')!);
             await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(1) .dropdown-menu'), 'A');
             await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(5) .dropdown-menu'), 'B');
             await doClick(findButton(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(6)'), '➕')); // add match
@@ -854,61 +852,61 @@ describe('Tournament', () => {
             await doClick(findButton(context.container, 'Close'));
 
             expect(alert).toBeFalsy();
-            const round = updatedTournamentData[0].round;
+            const round = updatedTournamentData[0].round!;
             expect(round.matchOptions).toEqual([{ numberOfLegs: 7, startingScore: 501 }]);
         });
 
         it('excludes no-show sides from 180 selection', async () => {
-            tournamentData.sides.push(sideA, sideB, sideC);
+            tournamentData.sides!.push(sideA, sideB, sideC);
             await renderComponentForTest(teamWithPlayersABC);
             // verify that all 3 players CAN be selected before the side is removed
-            await doClick(context.container.querySelector('div[data-accolades="180s"]'));
-            let oneEightiesDialog = context.container.querySelector('.modal-dialog');
-            let oneEightiesDropdown = oneEightiesDialog.querySelector('.dropdown-menu');
+            await doClick(context.container.querySelector('div[data-accolades="180s"]')!);
+            let oneEightiesDialog = context.container.querySelector('.modal-dialog')!;
+            let oneEightiesDropdown = oneEightiesDialog.querySelector('.dropdown-menu')!;
             let oneEightyPlayers = Array.from(oneEightiesDropdown.querySelectorAll('.dropdown-item'));
             expect(oneEightyPlayers.map(p => p.textContent)).toEqual([ ' ', 'PLAYER A', 'PLAYER B', 'PLAYER C' ]);
             await doClick(findButton(oneEightiesDialog, 'Close')); // close the dialog
 
-            const playing = context.container.querySelector('div[datatype="playing"]');
-            await doClick(playing.querySelector('li:nth-child(1)')); // open edit side dialog
-            const dialog = context.container.querySelector('.modal-dialog');
-            await doClick(dialog.querySelector('input[name="noShow"]'));
+            const playing = context.container.querySelector('div[datatype="playing"]')!;
+            await doClick(playing.querySelector('li:nth-child(1)')!); // open edit side dialog
+            const dialog = context.container.querySelector('.modal-dialog')!;
+            await doClick(dialog.querySelector('input[name="noShow"]')!);
             await doClick(findButton(dialog, 'Save'));
             reportedError.verifyNoError();
 
             // open the 180s dialog
             // verify that only the 2 remaining players can be selected after a side has been removed
-            await doClick(context.container.querySelector('div[data-accolades="180s"]'));
-            oneEightiesDialog = context.container.querySelector('.modal-dialog');
-            oneEightiesDropdown = oneEightiesDialog.querySelector('.dropdown-menu');
+            await doClick(context.container.querySelector('div[data-accolades="180s"]')!);
+            oneEightiesDialog = context.container.querySelector('.modal-dialog')!;
+            oneEightiesDropdown = oneEightiesDialog.querySelector('.dropdown-menu')!;
             oneEightyPlayers = Array.from(oneEightiesDropdown.querySelectorAll('.dropdown-item'));
             expect(oneEightyPlayers.map(p => p.textContent)).toEqual([ ' ', 'PLAYER B', 'PLAYER C' ]);
         });
 
         it('excludes no-show sides from hi-check selection', async () => {
-            tournamentData.sides.push(sideA, sideB, sideC);
+            tournamentData.sides!.push(sideA, sideB, sideC);
             tournamentData.round = roundBuilder().build();
             await renderComponentForTest(teamWithPlayersABC);
             // verify that all 3 players CAN be selected before the side is removed
-            await doClick(context.container.querySelector('div[data-accolades="hi-checks"]'));
-            let hiChecksDialog = context.container.querySelector('.modal-dialog');
-            let hiChecksDropdown = hiChecksDialog.querySelector('.dropdown-menu');
+            await doClick(context.container.querySelector('div[data-accolades="hi-checks"]')!);
+            let hiChecksDialog = context.container.querySelector('.modal-dialog')!;
+            let hiChecksDropdown = hiChecksDialog.querySelector('.dropdown-menu')!;
             let hiCheckPlayers = Array.from(hiChecksDropdown.querySelectorAll('.dropdown-item'));
             expect(hiCheckPlayers.map(p => p.textContent)).toEqual([ ' ', 'PLAYER A', 'PLAYER B', 'PLAYER C' ]);
             await doClick(findButton(hiChecksDialog, 'Close')); // close the dialog
 
-            const playing = context.container.querySelector('div[datatype="playing"]');
-            await doClick(playing.querySelector('li:nth-child(1)')); // open edit side dialog
-            const dialog = context.container.querySelector('.modal-dialog');
-            await doClick(dialog.querySelector('input[name="noShow"]'));
+            const playing = context.container.querySelector('div[datatype="playing"]')!;
+            await doClick(playing.querySelector('li:nth-child(1)')!); // open edit side dialog
+            const dialog = context.container.querySelector('.modal-dialog')!;
+            await doClick(dialog.querySelector('input[name="noShow"]')!);
             await doClick(findButton(dialog, 'Save'));
             reportedError.verifyNoError();
 
             // open the 180s dialog
             // verify that only the 2 remaining players can be selected after a side has been removed
-            await doClick(context.container.querySelector('div[data-accolades="hi-checks"]'));
-            hiChecksDialog = context.container.querySelector('.modal-dialog');
-            hiChecksDropdown = hiChecksDialog.querySelector('.dropdown-menu');
+            await doClick(context.container.querySelector('div[data-accolades="hi-checks"]')!);
+            hiChecksDialog = context.container.querySelector('.modal-dialog')!;
+            hiChecksDropdown = hiChecksDialog.querySelector('.dropdown-menu')!;
             hiCheckPlayers = Array.from(hiChecksDropdown.querySelectorAll('.dropdown-item'));
             expect(hiCheckPlayers.map(p => p.textContent)).toEqual([ ' ', 'PLAYER B', 'PLAYER C' ]);
         });
@@ -917,7 +915,7 @@ describe('Tournament', () => {
             tournamentData.round = roundBuilder().build();
             await renderComponentForTest(teamNoPlayers, null);
 
-            await doClick(context.container.querySelector('div[datatype="heading"]'));
+            await doClick(context.container.querySelector('div[datatype="heading"]')!);
 
             reportedError.verifyNoError();
             const editTournamentDialog = context.container.querySelector('.modal-dialog');
@@ -928,7 +926,7 @@ describe('Tournament', () => {
             tournamentData.round = roundBuilder().build();
             await renderComponentForTest(teamNoPlayers, notPermittedAccount);
 
-            await doClick(context.container.querySelector('div[datatype="heading"]'));
+            await doClick(context.container.querySelector('div[datatype="heading"]')!);
 
             reportedError.verifyNoError();
             const editTournamentDialog = context.container.querySelector('.modal-dialog');
@@ -939,7 +937,7 @@ describe('Tournament', () => {
             tournamentData.round = roundBuilder().build();
             await renderComponentForTest(teamNoPlayers);
 
-            await doClick(context.container.querySelector('div[datatype="heading"]'));
+            await doClick(context.container.querySelector('div[datatype="heading"]')!);
 
             reportedError.verifyNoError();
             const editTournamentDialog = context.container.querySelector('.modal-dialog');
@@ -954,17 +952,17 @@ describe('Tournament', () => {
             await renderComponentForTest(teamNoPlayers);
             reportedError.verifyNoError();
 
-            await doClick(context.container.querySelector('div[datatype="heading"]'));
+            await doClick(context.container.querySelector('div[datatype="heading"]')!);
             reportedError.verifyNoError();
-            const editTournamentDialog = context.container.querySelector('.modal-dialog');
+            const editTournamentDialog = context.container.querySelector('.modal-dialog')!;
             await doChange(editTournamentDialog, 'input[name="bestOf"]', '9', context.user);
             await doClick(findButton(context.container, 'Save'));
 
             expect(updatedTournamentData.length).toEqual(1);
             const firstUpdate = updatedTournamentData[0];
             expect(firstUpdate.bestOf).toEqual(9);
-            expect(firstUpdate.round.matchOptions.map(mo => mo.numberOfLegs)).toEqual([ 9 ]);
-            expect(firstUpdate.round.nextRound.matchOptions.map(mo => mo.numberOfLegs)).toEqual([ 9 ]);
+            expect(firstUpdate.round!.matchOptions!.map(mo => mo.numberOfLegs)).toEqual([ 9 ]);
+            expect(firstUpdate.round!.nextRound!.matchOptions!.map(mo => mo.numberOfLegs)).toEqual([ 9 ]);
         });
 
         it('cannot edit tournament details via superleague printable sheet when logged out', async () => {
@@ -972,7 +970,7 @@ describe('Tournament', () => {
             tournamentData.singleRound = true;
             await renderComponentForTest(teamNoPlayers, null);
 
-            await doClick(context.container.querySelector('div[datatype="details"]'));
+            await doClick(context.container.querySelector('div[datatype="details"]')!);
 
             reportedError.verifyNoError();
             const editTournamentDialog = context.container.querySelector('.modal-dialog');
@@ -984,7 +982,7 @@ describe('Tournament', () => {
             tournamentData.round = roundBuilder().build();
             await renderComponentForTest(teamNoPlayers, notPermittedAccount);
 
-            await doClick(context.container.querySelector('div[datatype="master-draw"] > h2'));
+            await doClick(context.container.querySelector('div[datatype="master-draw"] > h2')!);
 
             reportedError.verifyNoError();
             const editTournamentDialog = context.container.querySelector('.modal-dialog');
@@ -996,7 +994,7 @@ describe('Tournament', () => {
             tournamentData.singleRound = true;
             await renderComponentForTest(teamNoPlayers);
 
-            await doClick(context.container.querySelector('div[datatype="master-draw"] div[datatype="details"]'));
+            await doClick(context.container.querySelector('div[datatype="master-draw"] div[datatype="details"]')!);
 
             reportedError.verifyNoError();
             const editTournamentDialog = context.container.querySelector('.modal-dialog');
@@ -1008,14 +1006,14 @@ describe('Tournament', () => {
             const deletedTeam = teamBuilder('DELETED TEAM')
                 .forSeason(season, division, [ playerA ], true)
                 .build();
-            tournamentData.sides.push(sideBuilder('SIDE A').teamId(deletedTeam.id).build());
-            tournamentData.sides.push(sideBuilder('SIDE B').build());
+            tournamentData.sides!.push(sideBuilder('SIDE A').teamId(deletedTeam.id).build());
+            tournamentData.sides!.push(sideBuilder('SIDE B').build());
             tournamentData.round = roundBuilder().build();
             await renderComponentForTest(deletedTeam);
 
-            await doClick(context.container.querySelector('div[data-accolades="180s"]'));
+            await doClick(context.container.querySelector('div[data-accolades="180s"]')!);
 
-            const oneEightiesDialog = context.container.querySelector('.modal-dialog');
+            const oneEightiesDialog = context.container.querySelector('.modal-dialog')!;
             const oneEightiesDropdownItems = Array.from(oneEightiesDialog.querySelectorAll('.dropdown-menu .dropdown-item'));
             expect(oneEightiesDropdownItems.map(i => i.textContent)).not.toContain('DELETED PLAYER A');
         });
@@ -1026,21 +1024,21 @@ describe('Tournament', () => {
             const team = teamBuilder('TEAM')
                 .forSeason(season, division, [ playerA ])
                 .build();
-            tournamentData.sides.push(sideA);
-            tournamentData.sides.push(sideBuilder('SIDE C').teamId(team.id).build());
+            tournamentData.sides!.push(sideA);
+            tournamentData.sides!.push(sideBuilder('SIDE C').teamId(team.id).build());
             tournamentData.round = roundBuilder().build();
             await renderComponentForTest(team);
-            await doClick(context.container.querySelector('li[datatype="add-side"]'));
+            await doClick(context.container.querySelector('li[datatype="add-side"]')!);
             reportedError.verifyNoError();
-            const dialog = context.container.querySelector('div.modal-dialog');
+            const dialog = context.container.querySelector('div.modal-dialog')!;
             await doSelectOption(dialog.querySelector('.dropdown-menu'), 'TEAM');
             await doClick(findButton(dialog, 'Save'));
             reportedError.verifyNoError();
 
-            await doClick(context.container.querySelector('div[data-accolades="180s"]'));
+            await doClick(context.container.querySelector('div[data-accolades="180s"]')!);
 
             reportedError.verifyNoError();
-            const oneEightiesDialog = context.container.querySelector('.modal-dialog');
+            const oneEightiesDialog = context.container.querySelector('.modal-dialog')!;
             const oneEightiesDropdownItems = Array.from(oneEightiesDialog.querySelectorAll('.dropdown-menu .dropdown-item'));
             expect(oneEightiesDropdownItems.map(i => i.textContent)).toEqual([' ', 'PLAYER A']);
         });
@@ -1059,7 +1057,7 @@ describe('Tournament', () => {
 
             await doClick(findButton(context.container, '📷 Photos'));
 
-            const dialog = context.container.querySelector('.modal-dialog');
+            const dialog = context.container.querySelector('.modal-dialog')!;
             expect(dialog.querySelector('div[datatype="upload-control"]')).toBeTruthy();
         });
 
@@ -1078,7 +1076,7 @@ describe('Tournament', () => {
             tournamentData.round = roundBuilder().build();
             await renderComponentForTest(null, permitted);
             await doClick(findButton(context.container, '📷 Photos'));
-            const dialog = context.container.querySelector('.modal-dialog');
+            const dialog = context.container.querySelector('.modal-dialog')!;
             uploadPhotoResponse = {
                 success: true,
                 result: tournamentData,
@@ -1099,7 +1097,7 @@ describe('Tournament', () => {
             tournamentData.round = roundBuilder().build();
             await renderComponentForTest(null, permitted);
             await doClick(findButton(context.container, '📷 Photos'));
-            const dialog = context.container.querySelector('.modal-dialog');
+            const dialog = context.container.querySelector('.modal-dialog')!;
             uploadPhotoResponse = {
                 success: false,
                 errors: [ 'SOME ERROR' ]
@@ -1118,6 +1116,7 @@ describe('Tournament', () => {
                 author: permitted.name,
                 contentType: 'image/png',
                 fileSize: 123,
+                created: '',
             };
             tournamentData.round = roundBuilder().build();
             tournamentData.photos = [photo];
@@ -1143,12 +1142,13 @@ describe('Tournament', () => {
                 author: permitted.name,
                 contentType: 'image/png',
                 fileSize: 123,
+                created: '',
             };
             tournamentData.round = roundBuilder().build();
             tournamentData.photos = [photo];
             await renderComponentForTest(null, permitted);
             await doClick(findButton(context.container, '📷 Photos'));
-            const dialog = context.container.querySelector('.modal-dialog');
+            const dialog = context.container.querySelector('.modal-dialog')!;
             deletePhotoResponse = {
                 success: false,
                 errors: [ 'SOME ERROR' ]

@@ -26,7 +26,7 @@ export function ExportData() {
     const [saveError, setSaveError] = useState<IClientActionResultDto<ExportDataResultDto> | null>(null);
 
     useEffect(() => {
-            const selected: TableDto[] = tables.filter((t: TableDto) => t.canExport);
+            const selected: TableDto[] = tables!.filter((t: TableDto) => t.canExport);
             const newExportRequest: ExportDataRequestDto = Object.assign({}, exportRequest);
             newExportRequest.tables = toDictionary(selected, (t: TableDto) => t.name, () => []);
             setExportRequest(newExportRequest);
@@ -41,7 +41,7 @@ export function ExportData() {
             return;
         }
 
-        if (!any(Object.keys(exportRequest.tables))) {
+        if (!any(Object.keys(exportRequest.tables!))) {
             alert('Select some tables to export');
             return;
         }
@@ -51,7 +51,7 @@ export function ExportData() {
         try {
             const response: IClientActionResultDto<ExportDataResultDto> = await dataApi.export(exportRequest);
             if (response.success) {
-                setZipContent(response.result.zip);
+                setZipContent(response.result!.zip!);
             } else {
                 setSaveError(response);
             }
@@ -88,7 +88,7 @@ export function ExportData() {
                 <label className="form-check-label" htmlFor="includeDeletedEntries">Include deleted entries</label>
             </div>
         </div>
-        <TableSelection allTables={tables} selected={Object.keys(exportRequest.tables)} onTableChange={tableChanged}
+        <TableSelection allTables={tables!} selected={Object.keys(exportRequest.tables!)} onTableChange={tableChanged}
                         requireCanExport={true}/>
         <div>
             <button className="btn btn-primary margin-right" onClick={startExport} disabled={exporting}>

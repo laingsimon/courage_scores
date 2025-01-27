@@ -25,9 +25,9 @@ import {ISaveSideOptions} from "./EditSide";
 describe('TournamentSide', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedData: TournamentSideDto;
+    let updatedData: TournamentSideDto | null;
     let removed: boolean;
-    let changeOptions: ISaveSideOptions;
+    let changeOptions: ISaveSideOptions | null;
 
     afterEach(async () => {
         await cleanUp(context);
@@ -52,6 +52,14 @@ describe('TournamentSide', () => {
     function setPreventScroll(_: boolean) {
     }
 
+    function nullTournamentData(): TournamentGameDto {
+        return {
+            date: '',
+            id: '',
+            address: '',
+        }
+    }
+
     async function renderComponent(containerProps: ITournamentContainerProps, props: ITournamentSideProps, teams?: TeamDto[]) {
         context = await renderApp(
             iocProps(),
@@ -73,11 +81,10 @@ describe('TournamentSide', () => {
         const team: TeamDto = teamBuilder('TEAM').build();
 
         it('single player (with not found division id) side', async () => {
-            await renderComponent({season, tournamentData: null, preventScroll: false, setPreventScroll}, {
+            await renderComponent({season, tournamentData: nullTournamentData(), preventScroll: false, setPreventScroll}, {
                 side: sideBuilder('SIDE NAME')
-                    .withPlayer('PLAYER', null, division.id)
+                    .withPlayer('PLAYER', undefined, division.id)
                     .build(),
-                winner: null,
                 readOnly: false,
                 onChange,
                 onRemove,
@@ -85,9 +92,9 @@ describe('TournamentSide', () => {
 
             reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
-            const sideLink = sideName.querySelector('a');
+            const sideLink = sideName!.querySelector('a');
             expect(sideLink).toBeFalsy();
-            expect(sideName.textContent).toEqual('SIDE NAME');
+            expect(sideName!.textContent).toEqual('SIDE NAME');
             const teamName = context.container.querySelector('div[data-name="team-name"]');
             expect(teamName).toBeFalsy();
             const players = Array.from(context.container.querySelectorAll('ol li'));
@@ -95,11 +102,10 @@ describe('TournamentSide', () => {
         });
 
         it('single player (with found division id) side', async () => {
-            await renderComponent({season, tournamentData: null, preventScroll: false, setPreventScroll}, {
+            await renderComponent({season, tournamentData: nullTournamentData(), preventScroll: false, setPreventScroll}, {
                 side: sideBuilder('SIDE NAME')
-                    .withPlayer('PLAYER', null, division.id)
+                    .withPlayer('PLAYER', undefined, division.id)
                     .build(),
-                winner: null,
                 readOnly: false,
                 onChange,
                 onRemove,
@@ -107,7 +113,7 @@ describe('TournamentSide', () => {
 
             reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
-            expect(sideName.textContent).toEqual('SIDE NAME');
+            expect(sideName!.textContent).toEqual('SIDE NAME');
             const teamName = context.container.querySelector('div[data-name="team-name"]');
             expect(teamName).toBeFalsy();
             const players = Array.from(context.container.querySelectorAll('ol li'));
@@ -115,11 +121,10 @@ describe('TournamentSide', () => {
         });
 
         it('single player (without division id) side', async () => {
-            await renderComponent({season, tournamentData: null, preventScroll: false, setPreventScroll}, {
+            await renderComponent({season, tournamentData: nullTournamentData(), preventScroll: false, setPreventScroll}, {
                 side: sideBuilder('SIDE NAME')
                     .withPlayer('PLAYER')
                     .build(),
-                winner: null,
                 readOnly: false,
                 onChange,
                 onRemove,
@@ -127,7 +132,7 @@ describe('TournamentSide', () => {
 
             reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
-            expect(sideName.textContent).toEqual('SIDE NAME');
+            expect(sideName!.textContent).toEqual('SIDE NAME');
             const teamName = context.container.querySelector('div[data-name="team-name"]');
             expect(teamName).toBeFalsy();
             const players = Array.from(context.container.querySelectorAll('ol li'));
@@ -135,11 +140,10 @@ describe('TournamentSide', () => {
         });
 
         it('single player with side name same as player name', async () => {
-            await renderComponent({season, tournamentData: null, preventScroll: false, setPreventScroll}, {
+            await renderComponent({season, tournamentData: nullTournamentData(), preventScroll: false, setPreventScroll}, {
                 side: sideBuilder('PLAYER A')
                     .withPlayer('PLAYER A')
                     .build(),
-                winner: null,
                 readOnly: false,
                 onChange,
                 onRemove,
@@ -147,7 +151,7 @@ describe('TournamentSide', () => {
 
             reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
-            expect(sideName.textContent).toEqual('PLAYER A');
+            expect(sideName!.textContent).toEqual('PLAYER A');
             const teamName = context.container.querySelector('div[data-name="team-name"]');
             expect(teamName).toBeFalsy();
             const players = context.container.querySelector('ol');
@@ -156,13 +160,12 @@ describe('TournamentSide', () => {
 
         it('multi player side', async () => {
             const side = sideBuilder('SIDE NAME')
-                .withPlayer('PLAYER 1', null, division.id)
-                .withPlayer('PLAYER 2', null, division.id)
+                .withPlayer('PLAYER 1', undefined, division.id)
+                .withPlayer('PLAYER 2', undefined, division.id)
                 .build();
 
-            await renderComponent({season, tournamentData: null, preventScroll: false, setPreventScroll}, {
+            await renderComponent({season, tournamentData: nullTournamentData(), preventScroll: false, setPreventScroll}, {
                 side: side,
-                winner: null,
                 readOnly: false,
                 onChange,
                 onRemove,
@@ -170,7 +173,7 @@ describe('TournamentSide', () => {
 
             reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
-            expect(sideName.textContent).toEqual('SIDE NAME');
+            expect(sideName!.textContent).toEqual('SIDE NAME');
             const teamName = context.container.querySelector('div[data-name="team-name"]');
             expect(teamName).toBeFalsy();
             const players = Array.from(context.container.querySelectorAll('ol li'));
@@ -179,14 +182,13 @@ describe('TournamentSide', () => {
 
         it('no-show multi player side', async () => {
             const side = sideBuilder('SIDE NAME')
-                .withPlayer('PLAYER 1', null, division.id)
-                .withPlayer('PLAYER 2', null, division.id)
+                .withPlayer('PLAYER 1', undefined, division.id)
+                .withPlayer('PLAYER 2', undefined, division.id)
                 .noShow()
                 .build();
 
-            await renderComponent({season, tournamentData: null, preventScroll: false, setPreventScroll}, {
+            await renderComponent({season, tournamentData: nullTournamentData(), preventScroll: false, setPreventScroll}, {
                 side: side,
-                winner: null,
                 readOnly: false,
                 onChange,
                 onRemove,
@@ -194,7 +196,7 @@ describe('TournamentSide', () => {
 
             reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
-            expect(sideName.textContent).toEqual('SIDE NAME');
+            expect(sideName!.textContent).toEqual('SIDE NAME');
             const teamName = context.container.querySelector('div[data-name="team-name"]');
             expect(teamName).toBeFalsy();
             const players = Array.from(context.container.querySelectorAll('ol li'));
@@ -203,11 +205,10 @@ describe('TournamentSide', () => {
         });
 
         it('team (with different side name) side', async () => {
-            await renderComponent({season, tournamentData: null, preventScroll: false, setPreventScroll}, {
+            await renderComponent({season, tournamentData: nullTournamentData(), preventScroll: false, setPreventScroll}, {
                 side: sideBuilder('SIDE NAME')
                     .teamId(team.id)
                     .build(),
-                winner: null,
                 readOnly: false,
                 onChange,
                 onRemove,
@@ -215,17 +216,16 @@ describe('TournamentSide', () => {
 
             reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
-            expect(sideName.textContent).toEqual('SIDE NAME');
+            expect(sideName!.textContent).toEqual('SIDE NAME');
             const players = context.container.querySelector('ol');
             expect(players).toBeFalsy();
         });
 
         it('team (with not-found division and different side name) side', async () => {
-            await renderComponent({season, tournamentData: null, preventScroll: false, setPreventScroll}, {
+            await renderComponent({season, tournamentData: nullTournamentData(), preventScroll: false, setPreventScroll}, {
                 side: sideBuilder('SIDE NAME')
                     .teamId(team.id)
                     .build(),
-                winner: null,
                 readOnly: false,
                 onChange,
                 onRemove,
@@ -233,7 +233,7 @@ describe('TournamentSide', () => {
 
             reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
-            expect(sideName.textContent).toEqual('SIDE NAME');
+            expect(sideName!.textContent).toEqual('SIDE NAME');
             const players = context.container.querySelector('ol');
             expect(players).toBeFalsy();
         });
@@ -244,9 +244,8 @@ describe('TournamentSide', () => {
                 .noShow()
                 .build();
 
-            await renderComponent({season, tournamentData: null, preventScroll: false, setPreventScroll}, {
+            await renderComponent({season, tournamentData: nullTournamentData(), preventScroll: false, setPreventScroll}, {
                 side: side,
-                winner: null,
                 readOnly: false,
                 onChange,
                 onRemove,
@@ -254,18 +253,17 @@ describe('TournamentSide', () => {
 
             reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
-            expect(sideName.textContent).toEqual('SIDE NAME');
-            expect(sideName.className).toContain('text-decoration-line-through');
+            expect(sideName!.textContent).toEqual('SIDE NAME');
+            expect(sideName!.className).toContain('text-decoration-line-through');
             const players = context.container.querySelector('ol');
             expect(players).toBeFalsy();
         });
 
         it('team (with same side name) side', async () => {
-            await renderComponent({season, tournamentData: null, preventScroll: false, setPreventScroll}, {
+            await renderComponent({season, tournamentData: nullTournamentData(), preventScroll: false, setPreventScroll}, {
                 side: sideBuilder(team.name)
                     .teamId(team.id)
                     .build(),
-                winner: null,
                 readOnly: false,
                 onChange,
                 onRemove,
@@ -273,7 +271,7 @@ describe('TournamentSide', () => {
 
             reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
-            expect(sideName.textContent).toEqual(team.name);
+            expect(sideName!.textContent).toEqual(team.name);
             const teamName = context.container.querySelector('div[data-name="team-name"]');
             expect(teamName).toBeFalsy();
             const players = context.container.querySelector('ol');
@@ -281,12 +279,11 @@ describe('TournamentSide', () => {
         });
 
         it('no-show team (with same side name) side', async () => {
-            await renderComponent({season, tournamentData: null, preventScroll: false, setPreventScroll}, {
+            await renderComponent({season, tournamentData: nullTournamentData(), preventScroll: false, setPreventScroll}, {
                 side: sideBuilder(team.name)
                     .teamId(team.id)
                     .noShow()
                     .build(),
-                winner: null,
                 readOnly: false,
                 onChange,
                 onRemove,
@@ -294,8 +291,8 @@ describe('TournamentSide', () => {
 
             reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
-            expect(sideName.textContent).toEqual(team.name);
-            expect(sideName.className).toContain('text-decoration-line-through');
+            expect(sideName!.textContent).toEqual(team.name);
+            expect(sideName!.className).toContain('text-decoration-line-through');
             const teamName = context.container.querySelector('div[data-name="team-name"]');
             expect(teamName).toBeFalsy();
             const players = context.container.querySelector('ol');
@@ -304,11 +301,10 @@ describe('TournamentSide', () => {
 
         it('team (with missing team data) side', async () => {
             const missingTeam = teamBuilder('MISSING').build();
-            await renderComponent({season, tournamentData: null, preventScroll: false, setPreventScroll}, {
+            await renderComponent({season, tournamentData: nullTournamentData(), preventScroll: false, setPreventScroll}, {
                 side: sideBuilder(team.name)
                     .teamId(missingTeam.id)
                     .build(),
-                winner: null,
                 readOnly: false,
                 onChange,
                 onRemove,
@@ -316,9 +312,9 @@ describe('TournamentSide', () => {
 
             reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
-            const sideLink = sideName.querySelector('a');
+            const sideLink = sideName!.querySelector('a');
             expect(sideLink).toBeFalsy();
-            expect(sideName.textContent).toEqual(team.name);
+            expect(sideName!.textContent).toEqual(team.name);
             const teamName = context.container.querySelector('div[data-name="team-name"]');
             expect(teamName).toBeFalsy();
             const players = context.container.querySelector('ol');
@@ -336,7 +332,6 @@ describe('TournamentSide', () => {
                 side: sideBuilder('SIDE NAME')
                     .teamId(team.id)
                     .build(),
-                winner: null,
                 readOnly: false,
                 onChange,
                 onRemove,
@@ -350,11 +345,10 @@ describe('TournamentSide', () => {
         });
 
         it('cannot edit side when readonly', async () => {
-            await renderComponent({season, tournamentData: null, preventScroll: false, setPreventScroll}, {
+            await renderComponent({season, tournamentData: nullTournamentData(), preventScroll: false, setPreventScroll}, {
                 side: sideBuilder('SIDE NAME')
                     .teamId(team.id)
                     .build(),
-                winner: null,
                 readOnly: true,
                 onChange,
                 onRemove,
@@ -370,7 +364,6 @@ describe('TournamentSide', () => {
                 side: sideBuilder('SIDE NAME', sideId)
                     .teamId(team.id)
                     .build(),
-                winner: null,
                 readOnly: false,
                 onChange,
                 onRemove,
@@ -378,7 +371,7 @@ describe('TournamentSide', () => {
 
             await doClick(findButton(context.container, '✏️'));
             const dialog = context.container.querySelector('.modal-dialog');
-            await doChange(dialog, 'input[name="name"]', 'NEW NAME', context.user);
+            await doChange(dialog!, 'input[name="name"]', 'NEW NAME', context.user);
             await doClick(findButton(dialog, 'Save'));
 
             reportedError.verifyNoError();
@@ -400,7 +393,6 @@ describe('TournamentSide', () => {
                 side: sideBuilder('SIDE NAME')
                     .teamId(team.id)
                     .build(),
-                winner: null,
                 readOnly: false,
                 onChange,
                 onRemove,
@@ -420,7 +412,6 @@ describe('TournamentSide', () => {
                 side: sideBuilder('SIDE NAME')
                     .teamId(team.id)
                     .build(),
-                winner: null,
                 readOnly: false,
                 onChange,
                 onRemove,

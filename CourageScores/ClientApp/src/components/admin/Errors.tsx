@@ -36,7 +36,7 @@ export function Errors() {
         }
     }
 
-    let errorToShow = null;
+    let errorToShow: ErrorDetailDto | undefined;
     return (<div className="content-background p-3">
         <h3>View recent errors</h3>
         <div className="input-group mb-3">
@@ -55,7 +55,7 @@ export function Errors() {
         <div>
             <ul className="list-group mb-3">
                 {errors.sort(sortBy('time', true)).map(error => {
-                    const time = new Date(error.time);
+                    const time = new Date(error.time!);
                     const isFocused = focusedError === error.id;
                     if (isFocused) {
                         errorToShow = error;
@@ -74,7 +74,7 @@ export function Errors() {
             </ul>
         </div>
         {focusedError && errorToShow ? (<div className="overflow-auto">
-            <h6>Error details @ {new Date(errorToShow.time).toLocaleString()}</h6>
+            <h6>Error details @ {new Date(errorToShow.time!).toLocaleString()}</h6>
             {errorToShow.url ? (<p>Url: <a href={errorToShow.url}>{errorToShow.url}</a></p>) : null}
             {errorToShow.type ? (<p>Type: {errorToShow.type}</p>) : null}
             {errorToShow.stack ? (<ol>

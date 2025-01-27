@@ -43,7 +43,7 @@ export function ButtonDropdown(props: IButtonDropdownProps) {
 export function DropdownMenu({children, className}: IDropdownMenuProps) {
     const {isOpen, toggle} = useButtonDropdown();
 
-    return (<div className={`position-absolute bottom-0 ${isOpen ? '' : ' d-none'}`} onClick={() => toggle()}>
+    return (<div className={`position-absolute bottom-0 ${isOpen ? '' : ' d-none'}`} onClick={toggle}>
         <div tabIndex={-1}
              role="menu"
              className={`dropdown-menu${isOpen ? ' show' : ''} ${className || ''}`}

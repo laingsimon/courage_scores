@@ -24,6 +24,7 @@ import {add180, addHiCheck} from "../common/Accolades";
 import {START_SCORING} from "./tournaments";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 import {asyncClear} from "../../helpers/events";
+import {hasAccess} from "../../helpers/conditions";
 
 export interface IMatchSaygProps {
     match: TournamentMatchDto;
@@ -42,12 +43,12 @@ export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly
     const {tournamentApi, settings} = useDependencies();
     const [saygOpen, setSaygOpen] = useState<boolean>(false);
     const [creatingSayg, setCreatingSayg] = useState<boolean>(false);
-    const [saveError, setSaveError] = useState<IClientActionResultDto<TournamentGameDto> | null>(null);
-    const saygId: string = match.saygId;
-    const scoreA: number = match.scoreA;
-    const scoreB: number = match.scoreB;
-    const onHiCheck: (player: TournamentPlayerDto, score: number) => UntypedPromise = addHiCheck(tournamentData, setTournamentData);
-    const on180: (player: TournamentPlayerDto) => UntypedPromise = add180(tournamentData, setTournamentData);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<TournamentGameDto> | undefined>(undefined);
+    const saygId: string = match.saygId!;
+    const scoreA: number = match.scoreA!;
+    const scoreB: number = match.scoreB!;
+    const onHiCheck: (player: TournamentPlayerDto, score: number) => UntypedPromise = addHiCheck(tournamentData, setTournamentData!);
+    const on180: (player: TournamentPlayerDto) => UntypedPromise = add180(tournamentData, setTournamentData!);
 
     function changeDialogState(state: boolean) {
         setPreventScroll(state);
@@ -74,7 +75,7 @@ export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly
         setCreatingSayg(true);
 
         // save any existing data, to ensure any pending changes aren't lost.
-        await saveTournament(true); // prevent a loading display; which will corrupt the state of this component instance
+        await saveTournament!(true); // prevent a loading display; which will corrupt the state of this component instance
 
         try {
             const request: CreateTournamentSaygDto = {
@@ -83,7 +84,7 @@ export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly
             };
             const response: IClientActionResultDto<TournamentGameDto> = await tournamentApi.addSayg(tournamentData.id, request);
             if (response.success) {
-                await setTournamentData(response.result);
+                await setTournamentData!(response.result!);
                 changeDialogState(true);
             } else {
                 setSaveError(response);
@@ -104,7 +105,7 @@ export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly
     }
 
     function canOpenSaygDialog(): boolean {
-        const isPermitted: boolean = account && account.access && account.access.recordScoresAsYouGo;
+        const isPermitted: boolean = hasAccess(account, access => access.recordScoresAsYouGo);
         const hasSaygData: boolean = !!saygId;
         const hasSidesSelected: boolean = match.sideA !== null && match.sideB !== null;
 
@@ -138,7 +139,7 @@ export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly
     }
 
     function renderSaygDialog() {
-        const numberOfLegs: number = matchOptions.numberOfLegs;
+        const numberOfLegs: number = matchOptions.numberOfLegs!;
         const finished: boolean = (scoreA > numberOfLegs / 2.0) || (scoreB > numberOfLegs / 2.0);
         const liveOptions: ILiveOptions = {
             publish: true,
@@ -160,7 +161,7 @@ export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly
                             scoreB: data.awayScore,
                         }
                     }, true, saygId);
-                }): null}
+                }): undefined}
                 firstLegPlayerSequence={firstLegPlayerSequence}
                 finalLegPlayerSequence={finalLegPlayerSequence}
                 minimisePlayerNames={false}>
@@ -198,11 +199,13 @@ export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly
 
         const side: TournamentSideDto = sideName === 'home' ? match.sideA : match.sideB;
         if (count(side.players) === 1) {
-            await onHiCheck(side.players[0], score);
+            await onHiCheck(side.players![0], score);
 
-            await patchData({
-                additionalOver100Checkout: Object.assign({}, side.players[0], {score}),
-            });
+            if (patchData) {
+                await patchData({
+                    additionalOver100Checkout: Object.assign({}, side.players![0], {score}),
+                });
+            }
         }
     }
 
@@ -213,11 +216,13 @@ export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly
 
         const side: TournamentSideDto = sideName === 'home' ? match.sideA : match.sideB;
         if (count(side.players) === 1) {
-            await on180(side.players[0]);
+            await on180(side.players![0]);
 
-            await patchData({
-                additional180: side.players[0],
-            });
+            if (patchData) {
+                await patchData({
+                    additional180: side.players![0],
+                });
+            }
         }
     }
 
@@ -235,16 +240,16 @@ export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly
 
             const clearScores = window.confirm('Clear match score (to allow scores to be re-recorded?)');
             if (clearScores) {
-                const responseRound = response.result.round;
-                const responseMatch = responseRound.matches[matchIndex];
+                const responseRound = response.result!.round!;
+                const responseMatch = responseRound.matches![matchIndex];
 
                 responseMatch.scoreA = 0;
                 responseMatch.scoreB = 0;
             }
 
-            await setTournamentData(response.result);
+            await setTournamentData!(response.result!);
             if (clearScores) {
-                await saveTournament(true); // prevent a loading display; which will corrupt the state of this component instance
+                await saveTournament!(true); // prevent a loading display; which will corrupt the state of this component instance
             }
             changeDialogState(false);
         } catch (e) {

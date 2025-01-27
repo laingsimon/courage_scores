@@ -29,10 +29,12 @@ export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeason
     const {seasons, teams, onError, reloadAll} = useApp();
     const {teamApi} = useDependencies();
     const team: TeamDto = teams.filter((t: TeamDto) => t.id === teamOverview.id)[0];
-    const initialSeasonIds: string[] = team ? team.seasons.filter(ts => !ts.deleted).map((ts: TeamSeasonDto) => ts.seasonId) : [];
-    const [selectedSeasonIds, setSelectedSeasonIds]: [string[], (value: (((prevState: string[]) => string[]) | string[])) => void] = useState(initialSeasonIds);
-    const [saving, setSaving] = useState(false);
-    const [copyTeamFromCurrentSeason, setCopyTeamFromCurrentSeason] = useState(true);
+    const initialSeasonIds: string[] = team
+        ? team.seasons!.filter(ts => !ts.deleted).map((ts: TeamSeasonDto) => ts.seasonId!)
+        : [];
+    const [selectedSeasonIds, setSelectedSeasonIds]: [string[], (value: (((prevState: string[]) => string[]) | string[])) => void] = useState<string[]>(initialSeasonIds);
+    const [saving, setSaving] = useState<boolean>(false);
+    const [copyTeamFromCurrentSeason, setCopyTeamFromCurrentSeason] = useState<boolean>(true);
     const changes: IChanges = getChanges(initialSeasonIds, selectedSeasonIds);
 
     async function saveChanges() {
@@ -54,14 +56,16 @@ export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeason
                 const details: ModifyTeamSeasonDto = {
                     id: team.id,
                     seasonId: seasonId,
-                    copyPlayersFromSeasonId: copyTeamFromCurrentSeason ? currentSeason.id : null,
+                    copyPlayersFromSeasonId: copyTeamFromCurrentSeason
+                        ? currentSeason!.id
+                        : undefined,
                     divisionId: divisionId,
                 };
                 const result: IClientActionResultDto<TeamDto> = await teamApi.add(details);
                 results.push(result);
             }
 
-            const allSuccess: boolean = all(results, (r: IClientActionResultDto<TeamDto>) => r.success);
+            const allSuccess: boolean = all(results, (r: IClientActionResultDto<TeamDto>) => r.success!);
             if (allSuccess) {
                 await reloadAll();
                 await onReloadDivision();
@@ -131,7 +135,7 @@ export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeason
                     <input disabled={saving} className="form-check-input" type="checkbox" id="copyTeamFromCurrentSeason"
                            checked={copyTeamFromCurrentSeason} onChange={stateChanged(setCopyTeamFromCurrentSeason)}/>
                     <label className="form-check-label" htmlFor="copyTeamFromCurrentSeason">Copy players
-                        from <strong>{currentSeason.name}</strong></label>
+                        from <strong>{currentSeason!.name}</strong></label>
                 </div>
             </div>
             <ul className="list-group mb-3">

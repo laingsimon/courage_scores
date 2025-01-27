@@ -12,7 +12,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
     });
 
     beforeEach(() => {
-        newOneDartAverage = null;
+        newOneDartAverage = false;
     });
 
     async function setOneDartAverage(newValue: boolean) {
@@ -87,7 +87,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
             });
 
             expect(context.container.textContent).toContain('Leg Avg61.2');
-            expect(context.container.querySelector('sup').textContent).toEqual('3');
+            expect(context.container.querySelector('sup')!.textContent).toEqual('3');
         });
 
         it('1-dart leg average', async () => {
@@ -99,7 +99,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
             });
 
             expect(context.container.textContent).toContain('Leg Avg20.4');
-            expect(context.container.querySelector('sup').textContent).toEqual('1');
+            expect(context.container.querySelector('sup')!.textContent).toEqual('1');
         });
 
         it('NaN match average', async () => {
@@ -124,7 +124,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
             });
 
             expect(context.container.textContent).toContain('Match Avg75.75');
-            expect(context.container.querySelector('sup').textContent).toEqual('3');
+            expect(context.container.querySelector('sup')!.textContent).toEqual('3');
         });
 
         it('1-dart match average', async () => {
@@ -136,7 +136,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
             });
 
             expect(context.container.textContent).toContain('Match Avg25.25');
-            expect(context.container.querySelector('sup').textContent).toEqual('1');
+            expect(context.container.querySelector('sup')!.textContent).toEqual('1');
         });
     });
 
@@ -157,9 +157,9 @@ describe('WidescreenSaygPlayerStatistic', () => {
                 oneDartAverage: false,
                 setOneDartAverage,
             });
-            expect(context.container.querySelector('sup').textContent).toEqual('3');
+            expect(context.container.querySelector('sup')!.textContent).toEqual('3');
 
-            await doClick(context.container.querySelector('div:nth-child(2)'));
+            await doClick(context.container.querySelector('div:nth-child(2)')!);
 
             expect(newOneDartAverage).toEqual(true);
         });
@@ -171,9 +171,9 @@ describe('WidescreenSaygPlayerStatistic', () => {
                 oneDartAverage: true,
                 setOneDartAverage,
             });
-            expect(context.container.querySelector('sup').textContent).toEqual('1');
+            expect(context.container.querySelector('sup')!.textContent).toEqual('1');
 
-            await doClick(context.container.querySelector('div:nth-child(3)'));
+            await doClick(context.container.querySelector('div:nth-child(3)')!);
 
             expect(newOneDartAverage).toEqual(false);
         });

@@ -29,7 +29,7 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
     async publish(props: IStrategyData, id: string, type: LiveDataType, data: any): Promise<IWebSocketContext | null> {
-        let context: IWebSocketContext = props.context;
+        let context: IWebSocketContext | null = props.context;
         if (!props.context.webSocket) {
             context = await this.createSocketAndWaitForReady(props);
             if (!context) {
@@ -43,7 +43,7 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
             data: data,
             dataType: type,
         };
-        context.webSocket.send(JSON.stringify(update));
+        context.webSocket?.send(JSON.stringify(update));
         return context;
     }
 
@@ -64,12 +64,12 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
 
         const newContext: IWebSocketContext = Object.assign({}, props.context);
         props.context.webSocket.close();
-        newContext.webSocket = null;
+        newContext.webSocket = undefined;
         return newContext;
     }
 
-    async subscribe(props: IStrategyData, request: ISubscriptionRequest): Promise<IWebSocketContext | null> {
-        let context: IWebSocketContext = props.context;
+    async subscribe(props: IStrategyData, request?: ISubscriptionRequest): Promise<IWebSocketContext | null> {
+        let context: IWebSocketContext | null = props.context;
         if (!context.webSocket) {
             context = await this.createSocketAndWaitForReady(props);
             if (!context) {
@@ -80,7 +80,7 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         if (context.webSocket) {
             context.webSocket.send(JSON.stringify({
                 type: MessageType.subscribed,
-                id: request.id,
+                id: request!.id,
             }));
         }
 
@@ -105,7 +105,7 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
                     if (context.webSocket && context.webSocket.readyState === 1) {
                         /* istanbul ignore next */
                         resolve(context);
-                    } else {
+                    } else if (context.webSocket) {
                         context.webSocket.close(); // Assume closing the socket is good practice, even though it isn't at an applicable ready state
                         resolve(null); // report that this strategy was unable to connect
                     }
@@ -172,7 +172,7 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
             }
             case MessageType.marco: {
                 // send back polo
-                props.context.webSocket.send(JSON.stringify({
+                props.context.webSocket?.send(JSON.stringify({
                     type: MessageType.polo,
                 }));
                 break;
@@ -198,7 +198,7 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
     private async handleDisconnect(context: IWebSocketContext): Promise<IWebSocketContext> {
         console.error('Socket disconnected');
         const newContext: IWebSocketContext = Object.assign({}, context);
-        newContext.webSocket = null;
+        newContext.webSocket = undefined;
         return newContext;
     }
 }

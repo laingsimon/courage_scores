@@ -31,13 +31,13 @@ describe('MatchReportRow', () => {
             brandingProps(),
             appProps({}, reportedError),
             (<MatchReportRow {...props} />),
-            null,
-            null,
+            undefined,
+            undefined,
             'tbody');
     }
 
     function getRowContent(row: HTMLTableRowElement): string[] {
-        return Array.from(row.querySelectorAll('td')).map(th => th.textContent);
+        return Array.from(row.querySelectorAll('td')).map(th => th.textContent!);
     }
 
     function createLeg(homeWinner?: boolean, awayWinner?: boolean): LegDto {
@@ -71,10 +71,9 @@ describe('MatchReportRow', () => {
         it('when no sayg data', async () => {
             await renderComponent({
                 matchIndex: 1,
-                saygData: null,
+                saygData: null!,
                 noOfThrows: 3,
                 noOfLegs: 3,
-                showWinner: false,
                 hostPlayerName: 'HOST',
                 opponentPlayerName: 'OPPONENT',
             });
@@ -87,10 +86,9 @@ describe('MatchReportRow', () => {
         it('when no sayg legs', async () => {
             await renderComponent({
                 matchIndex: 1,
-                saygData: {legs: null},
+                saygData: {legs: null!},
                 noOfThrows: 3,
                 noOfLegs: 3,
-                showWinner: false,
                 hostPlayerName: 'HOST',
                 opponentPlayerName: 'OPPONENT',
             });
@@ -112,7 +110,6 @@ describe('MatchReportRow', () => {
                 saygData,
                 noOfThrows: 3,
                 noOfLegs: 3,
-                showWinner: false,
                 hostPlayerName: 'HOST',
                 opponentPlayerName: 'OPPONENT',
             });
@@ -132,7 +129,6 @@ describe('MatchReportRow', () => {
                 saygData,
                 noOfThrows: 3,
                 noOfLegs: 1,
-                showWinner: false,
                 hostPlayerName: 'HOST',
                 opponentPlayerName: 'OPPONENT',
             });
@@ -157,7 +153,6 @@ describe('MatchReportRow', () => {
                 saygData,
                 noOfThrows: 3,
                 noOfLegs: 2,
-                showWinner: false,
                 hostPlayerName: 'HOST',
                 opponentPlayerName: 'OPPONENT',
             });
@@ -174,15 +169,14 @@ describe('MatchReportRow', () => {
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, createLeg(true, false))
                 .build();
-            saygData.legs[0].home.throws.forEach((thr, index) => thr.score = 100 + (index * 10));
-            saygData.legs[0].away.throws.forEach(thr => thr.score = 99);
+            saygData.legs[0].home.throws!.forEach((thr, index) => thr.score = 100 + (index * 10));
+            saygData.legs[0].away.throws!.forEach(thr => thr.score = 99);
 
             await renderComponent({
                 matchIndex: 0,
                 saygData,
                 noOfThrows: 3,
                 noOfLegs: 2,
-                showWinner: false,
                 hostPlayerName: 'HOST',
                 opponentPlayerName: 'OPPONENT',
             });
@@ -199,15 +193,14 @@ describe('MatchReportRow', () => {
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, createLeg(true, false))
                 .build();
-            saygData.legs[0].home.throws.forEach(thr => thr.score = 180);
-            saygData.legs[0].away.throws.forEach(thr => thr.score = 179);
+            saygData.legs[0].home.throws!.forEach(thr => thr.score = 180);
+            saygData.legs[0].away.throws!.forEach(thr => thr.score = 179);
 
             await renderComponent({
                 matchIndex: 0,
                 saygData,
                 noOfThrows: 3,
                 noOfLegs: 2,
-                showWinner: false,
                 hostPlayerName: 'HOST',
                 opponentPlayerName: 'OPPONENT',
             });
@@ -224,15 +217,14 @@ describe('MatchReportRow', () => {
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, createLeg(true, false))
                 .build();
-            saygData.legs[0].home.throws.forEach(thr => thr.score = 120);
-            saygData.legs[0].away.throws.forEach(thr => thr.score = 130);
+            saygData.legs[0].home.throws!.forEach(thr => thr.score = 120);
+            saygData.legs[0].away.throws!.forEach(thr => thr.score = 130);
 
             await renderComponent({
                 matchIndex: 0,
                 saygData,
                 noOfThrows: 3,
                 noOfLegs: 2,
-                showWinner: false,
                 hostPlayerName: 'HOST',
                 opponentPlayerName: 'OPPONENT',
             });
@@ -249,15 +241,14 @@ describe('MatchReportRow', () => {
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, createLeg(true, false))
                 .build();
-            saygData.legs[0].home.throws.forEach(thr => thr.score = 180);
-            saygData.legs[0].away.throws.forEach(thr => thr.score = 180);
+            saygData.legs[0].home.throws!.forEach(thr => thr.score = 180);
+            saygData.legs[0].away.throws!.forEach(thr => thr.score = 180);
 
             await renderComponent({
                 matchIndex: 0,
                 saygData,
                 noOfThrows: 3,
                 noOfLegs: 2,
-                showWinner: false,
                 hostPlayerName: 'HOST',
                 opponentPlayerName: 'OPPONENT',
             });

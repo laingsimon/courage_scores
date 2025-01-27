@@ -25,20 +25,22 @@ export function TournamentRound({ round, onChange, sides, readOnly }: ITournamen
         const newNewMatch: TournamentMatchDto = Object.assign({}, newMatch);
         newNewMatch[property] = sides.filter(s => s.id === sideId)[0];
         setNewMatch(newNewMatch);
-        await setWarnBeforeEditDialogClose(`Add the (new) match before saving, otherwise it would be lost.
+        if (setWarnBeforeEditDialogClose) {
+            await setWarnBeforeEditDialogClose(`Add the (new) match before saving, otherwise it would be lost.
 
 ${newNewMatch.sideA ? newNewMatch.sideA.name : ''} vs ${newNewMatch.sideB ? newNewMatch.sideB.name : ''}`);
+        }
     }
 
     function createNewMatch(): TournamentMatchDto {
         return {
-            sideA: null,
-            sideB: null,
+            sideA: null!,
+            sideB: null!,
             id: createTemporaryId(),
         };
     }
 
-    function exceptSelected(side: TournamentSideDto, matchIndex: number, property: string): boolean {
+    function exceptSelected(side: TournamentSideDto, matchIndex: number | undefined, property: string): boolean {
         let allowedSideId = null;
 
         if (matchIndex === undefined) {
@@ -72,9 +74,13 @@ ${newNewMatch.sideA ? newNewMatch.sideA.name : ''} vs ${newNewMatch.sideB ? newN
 
         const newRound: TournamentRoundDto = Object.assign({}, round);
         newRound.matches = (round.matches || []).concat(newMatch);
-        newRound.matchOptions = (newRound.matchOptions || []).concat(matchOptionDefaults);
+        newRound.matchOptions = matchOptionDefaults
+            ? (newRound.matchOptions || []).concat(matchOptionDefaults)
+            : (newRound.matchOptions || []);
         setNewMatch(createNewMatch());
-        await setWarnBeforeEditDialogClose(null);
+        if (setWarnBeforeEditDialogClose) {
+            await setWarnBeforeEditDialogClose(null);
+        }
 
         if (onChange) {
             await onChange(newRound);
@@ -83,7 +89,7 @@ ${newNewMatch.sideA ? newNewMatch.sideA.name : ''} vs ${newNewMatch.sideB ? newN
 
     async function onMatchOptionsChanged(newMatchOptions: GameMatchOptionDto, matchIndex: number) {
         const newRound: TournamentRoundDto = Object.assign({}, round);
-        newRound.matchOptions[matchIndex] = newMatchOptions;
+        newRound.matchOptions![matchIndex] = newMatchOptions;
 
         if (onChange) {
             await onChange(newRound);
@@ -97,8 +103,8 @@ ${newNewMatch.sideA ? newNewMatch.sideA.name : ''} vs ${newNewMatch.sideB ? newN
         };
     }
 
-    const allSidesSelected: boolean = round.matches && round.matches.length * 2 === sides.length;
-    const hasNextRound: boolean = round.nextRound && round.nextRound.matches && any(round.nextRound.matches);
+    const allSidesSelected: boolean = (round.matches && round.matches.length * 2 === sides.length) || false;
+    const hasNextRound: boolean = (round.nextRound && round.nextRound.matches && any(round.nextRound.matches)) || false;
 
     if ((!round.matches || isEmpty(round.matches)) && readOnly) {
         return <div className="alert-warning p-3 mb-2">No matches defined</div>
@@ -118,7 +124,7 @@ ${newNewMatch.sideA ? newNewMatch.sideA.name : ''} vs ${newNewMatch.sideB ? newN
                     exceptSelected={exceptSelected}
                     matchIndex={matchIndex}
                     onChange={onChange}
-                    matchOptions={elementAt(round.matchOptions || [], matchIndex) || matchOptionDefaults}
+                    matchOptions={elementAt(round.matchOptions, matchIndex) || matchOptionDefaults}
                     onMatchOptionsChanged={async (newMatchOptions: GameMatchOptionDto) => await onMatchOptionsChanged(newMatchOptions, matchIndex)}/>);
             })}
             {readOnly || allSidesSelected || hasNextRound ? null : (<tr className="bg-yellow p-1">

@@ -18,18 +18,18 @@ export interface IMergeMatchProps {
 
 export function MergeMatch({readOnly, matches, matchIndex, homeSubmission, awaySubmission, setFixtureData, fixtureData}: IMergeMatchProps) {
     const {onError} = useApp();
-    const homeSubmissionMatch: GameMatchDto = homeSubmission && homeSubmission.matches && homeSubmission.matches[matchIndex];
-    const awaySubmissionMatch: GameMatchDto = awaySubmission && awaySubmission.matches && awaySubmission.matches[matchIndex];
-    const publishedMatch: GameMatchDto = matches && matches[matchIndex];
-    const isPublished: boolean = publishedMatch && ((!!publishedMatch.homeScore) || (!!publishedMatch.awayScore));
+    const homeSubmissionMatch: GameMatchDto | undefined = homeSubmission && homeSubmission.matches && homeSubmission.matches[matchIndex];
+    const awaySubmissionMatch: GameMatchDto | undefined = awaySubmission && awaySubmission.matches && awaySubmission.matches[matchIndex];
+    const publishedMatch: GameMatchDto | undefined = matches && matches[matchIndex];
+    const isPublished: boolean = (publishedMatch && ((!!publishedMatch.homeScore) || (!!publishedMatch.awayScore))) || false;
     const submissionsMatch: boolean = matchEquals(homeSubmissionMatch, awaySubmissionMatch);
 
-    async function acceptSubmission(match: GameMatchDto) {
+    async function acceptSubmission(match?: GameMatchDto) {
         try {
             const newFixtureData: GameDto = Object.assign({}, fixtureData);
             const matchOnlyProperties: GameMatchDto = Object.assign({}, match);
 
-            newFixtureData.matches[matchIndex] = Object.assign({}, matchOnlyProperties, newFixtureData.matches[matchIndex]);
+            newFixtureData.matches![matchIndex] = Object.assign({}, matchOnlyProperties, newFixtureData.matches![matchIndex]);
 
             await setFixtureData(newFixtureData);
         } catch (e) {
@@ -38,21 +38,24 @@ export function MergeMatch({readOnly, matches, matchIndex, homeSubmission, awayS
         }
     }
 
-    function combinePlayers(homePlayers: GamePlayerDto[], awayPlayers: GamePlayerDto[]): {homePlayer: GamePlayerDto, awayPlayer: GamePlayerDto}[] {
+    function combinePlayers(homePlayers?: GamePlayerDto[], awayPlayers?: GamePlayerDto[]): {homePlayer: GamePlayerDto, awayPlayer: GamePlayerDto}[] {
         return repeat(
-            Math.max(homePlayers.length, awayPlayers.length),
+            Math.max(homePlayers?.length || 0, awayPlayers?.length || 0),
             (index: number) => {
-                return {homePlayer: homePlayers[index], awayPlayer: awayPlayers[index]}
+                return {
+                    homePlayer: homePlayers ? homePlayers[index] : undefined,
+                    awayPlayer: awayPlayers ? awayPlayers[index] : undefined,
+                };
             });
     }
 
-    function renderSubmissionMatch(match: GameMatchDto) {
+    function renderSubmissionMatch(match?: GameMatchDto) {
         if (!match) {
             return (<span className="text-danger">No match</span>);
         }
 
         return (<span>
-            <div>{homeSubmission.home.name}: {match.homeScore} - {awaySubmission.away.name}: {match.awayScore}</div>
+            <div>{homeSubmission!.home.name}: {match.homeScore} - {awaySubmission!.away.name}: {match.awayScore}</div>
             <ol className="d-inline-block">
                 {combinePlayers(match.homePlayers, match.awayPlayers).map(p => (
                     <li key={p.homePlayer.id || p.awayPlayer.id}>
@@ -92,7 +95,7 @@ export function MergeMatch({readOnly, matches, matchIndex, homeSubmission, awayS
     try {
         return (<tr>
             <td colSpan={2} className="hover-highlight pe-3 text-end">
-                <strong>from {homeSubmission.author}</strong>
+                <strong>from {homeSubmission!.author}</strong>
                 {renderSubmissionMatch(homeSubmissionMatch)}
                 <div className="text-center">
                     <button disabled={readOnly} onClick={async () => await acceptSubmission(homeSubmissionMatch)}
@@ -107,7 +110,7 @@ export function MergeMatch({readOnly, matches, matchIndex, homeSubmission, awayS
                 </div>
             </td>
             <td colSpan={2} className="hover-highlight ps-3">
-                <strong>from {awaySubmission.author}</strong>
+                <strong>from {awaySubmission!.author}</strong>
                 {renderSubmissionMatch(awaySubmissionMatch)}
                 <div className="text-center">
                     <button disabled={readOnly} onClick={async () => await acceptSubmission(awaySubmissionMatch)}

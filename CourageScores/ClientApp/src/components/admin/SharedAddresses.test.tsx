@@ -13,7 +13,7 @@ import {ISharedAddressesProps, SharedAddresses} from "./SharedAddresses";
 
 describe('SharedAddresses', () => {
     let context: TestContext;
-    let updatedAddresses: string[][];
+    let updatedAddresses: string[][] | null;
 
     afterEach(async () => {
         await cleanUp(context);
@@ -50,7 +50,7 @@ describe('SharedAddresses', () => {
                 setHighlight,
             });
 
-            const heading = context.container.querySelector('ul li.list-group-item:first-child');
+            const heading = context.container.querySelector('ul li.list-group-item:first-child')!;
             expect(heading.className).toEqual('list-group-item bg-warning text-light');
         });
 
@@ -137,7 +137,7 @@ describe('SharedAddresses', () => {
                 mnemonicsThatCanShareAddresses: [ [ 'C', 'D' ] ],
             });
 
-            await doClick(context.container.querySelector('ul[datatype="shareable-addresses"] > li'));
+            await doClick(context.container.querySelector('ul[datatype="shareable-addresses"] > li')!);
 
             expect(updatedAddresses).toEqual([ [ 'A', 'B' ], [ 'C', 'D' ] ]);
         });

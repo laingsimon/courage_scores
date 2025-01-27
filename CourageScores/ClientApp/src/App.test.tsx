@@ -78,10 +78,10 @@ describe('App', () => {
             (<BrandingContainer name='COURAGE LEAGUE'>
                 <App controls={true} embed={embed} testRoute={testRoute}/>
             </BrandingContainer>),
-            testRoute ? '/test' : null);
+            testRoute ? '/test' : undefined);
     }
 
-    async function renderApp(iocProps: IIocContainerProps, content: React.ReactNode, currentPath: string): Promise<TestContext> {
+    async function renderApp(iocProps: IIocContainerProps, content: React.ReactNode, currentPath?: string): Promise<TestContext> {
         const container = document.createElement('div');
         document.body.appendChild(container);
 
@@ -104,16 +104,14 @@ describe('App', () => {
                     document.body.removeChild(container);
                 }
             },
-            user: null,
-            cookies: null,
         };
     }
 
     function createBuildElements(build: IBuild) {
-        createBuildElement('build:branch', build.branch);
-        createBuildElement('build:sha', build.version);
-        createBuildElement('build:date', build.date);
-        createBuildElement('build:pr_name', build.prName);
+        createBuildElement('build:branch', build.branch!);
+        createBuildElement('build:sha', build.version!);
+        createBuildElement('build:date', build.date!);
+        createBuildElement('build:pr_name', build.prName!);
     }
 
     function createBuildElement(name: string, value: string) {
@@ -124,7 +122,7 @@ describe('App', () => {
     }
 
     function isForDomain(a: HTMLAnchorElement, domain: string) {
-        const href = a.getAttribute('href');
+        const href = a.getAttribute('href')!;
         const url = new URL(href);
 
         return url.host === domain;
@@ -133,7 +131,7 @@ describe('App', () => {
     function assertSocialLinks() {
         const socialLinks = Array.from(context.container.querySelectorAll('div.social-header a[href]')) as HTMLAnchorElement[];
         expect(socialLinks.length).toEqual(3);
-        const email = socialLinks.filter(a => a.getAttribute('href').indexOf('mailto:') !== -1)[0];
+        const email = socialLinks.filter(a => a.getAttribute('href')!.indexOf('mailto:') !== -1)[0];
         const facebook = socialLinks.filter(a => isForDomain(a, 'www.facebook.com'))[0];
         const twitter = socialLinks.filter(a => isForDomain(a, 'twitter.com'))[0];
         expect(email).toBeTruthy();
@@ -142,18 +140,18 @@ describe('App', () => {
     }
 
     function assertHeading() {
-        const heading = context.container.querySelector('h1.heading');
+        const heading = context.container.querySelector('h1.heading')!;
         expect(heading).toBeTruthy();
         expect(heading.textContent).toEqual('COURAGE LEAGUE');
     }
 
     function assertMenu(loading?: boolean) {
-        const header = context.container.querySelector('header');
+        const header = context.container.querySelector('header')!;
         expect(header).toBeTruthy();
         const menuItems = Array.from(header.querySelectorAll('li.nav-item'));
         const menuItemText = menuItems.map(li => li.textContent);
         const divisionMenuItems = loading ? [] : allDivisions.map((d: DivisionDto) => d.name);
-        const expectedMenuItemsAfterDivisions = [];
+        const expectedMenuItemsAfterDivisions: string[] = [];
 
         if (!loading) {
             if (account) {
@@ -203,7 +201,7 @@ describe('App', () => {
         });
 
         it('embedded', async () => {
-            await renderComponent(null, true);
+            await renderComponent(undefined, true);
 
             const socialLinks = Array.from(context.container.querySelectorAll('div.social-header a[href]'));
             expect(socialLinks.length).toEqual(0);
@@ -220,7 +218,7 @@ describe('App', () => {
                 emailAddress: '',
             };
 
-            await renderComponent(null);
+            await renderComponent();
 
             assertSocialLinks();
             assertHeading();
@@ -233,7 +231,7 @@ describe('App', () => {
                 divisionBuilder('Division Two').build()
             ];
 
-            await renderComponent(null);
+            await renderComponent();
 
             assertSocialLinks();
             assertHeading();
@@ -254,7 +252,7 @@ describe('App', () => {
     describe('functionality', () => {
         it('can report client side exception via onError', async () => {
             await renderComponent(
-                null,
+                undefined,
                 false,
                 (<Route path='/test' element={<TestElement/>}/>));
             console.error = noop;
@@ -270,7 +268,7 @@ describe('App', () => {
 
         it('can report client side exception directly', async () => {
             await renderComponent(
-                null,
+                undefined,
                 false,
                 (<Route path='/test' element={<TestElement/>}/>));
 
@@ -285,7 +283,7 @@ describe('App', () => {
 
         it('can invalidate caches', async () => {
             await renderComponent(
-                null,
+                undefined,
                 false,
                 (<Route path='/test' element={<TestElement/>}/>));
 
@@ -297,7 +295,7 @@ describe('App', () => {
 
         it('can clear error', async () => {
             await renderComponent(
-                null,
+                undefined,
                 false,
                 (<Route path='/test' element={<TestElement/>}/>));
             await doClick(findButton(context.container, 'onError'));

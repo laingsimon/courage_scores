@@ -28,7 +28,7 @@ export function getMatchOptionDefaults(legIndex: number, matchOptions: IMatchOpt
     };
 }
 
-export function getMatchOptionsLookup(matchOptions: GameMatchOptionDto[], isKnockout: boolean): IMatchOptionsLookup {
+export function getMatchOptionsLookup(matchOptions: GameMatchOptionDto[], isKnockout?: boolean): IMatchOptionsLookup {
     return {
         playerCount: {
             0: elementAt(matchOptions, 0, op => op.playerCount) || 1,

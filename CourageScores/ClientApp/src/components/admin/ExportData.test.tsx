@@ -20,8 +20,8 @@ import {IDataApi} from "../../interfaces/apis/IDataApi";
 describe('ExportData', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let exportRequest: ExportDataRequestDto;
-    let apiResponse: IClientActionResultDto<ExportDataResultDto>;
+    let exportRequest: ExportDataRequestDto | null;
+    let apiResponse: IClientActionResultDto<ExportDataResultDto> | null;
     const dataApi = api<IDataApi>({
         export: async (request: ExportDataRequestDto): Promise<IClientActionResultDto<ExportDataResultDto>> => {
             exportRequest = request;
@@ -71,7 +71,7 @@ describe('ExportData', () => {
         await renderComponent(props);
         reportedError.verifyNoError();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
+        const table1 = tables.filter(t => t.textContent!.indexOf('Table 1') !== -1)[0];
         expect(table1).toBeTruthy();
         expect(table1.className).toContain('active');
 
@@ -84,7 +84,7 @@ describe('ExportData', () => {
         await renderComponent(props);
         reportedError.verifyNoError();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table2 = tables.filter(t => t.textContent.indexOf('Table 2') !== -1)[0];
+        const table2 = tables.filter(t => t.textContent!.indexOf('Table 2') !== -1)[0];
         expect(table2).toBeTruthy();
         expect(table2.className).not.toContain('active');
 
@@ -96,10 +96,10 @@ describe('ExportData', () => {
     it('cannot export when no tables selected', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        let alert: string;
-        window.alert = (msg) => alert = msg;
+        let alert: string | undefined;
+        window.alert = (msg: string) => alert = msg;
         const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
+        const table1 = tables.filter(t => t.textContent!.indexOf('Table 1') !== -1)[0];
         expect(table1.className).toContain('active');
         await doClick(table1); // deselect table 1
 

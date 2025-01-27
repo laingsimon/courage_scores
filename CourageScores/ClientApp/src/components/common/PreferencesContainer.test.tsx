@@ -3,7 +3,7 @@ import {
     brandingProps,
     cleanUp,
     ErrorState,
-    iocProps,
+    iocProps, noop,
     renderApp,
     TestContext
 } from "../../helpers/tests";
@@ -40,11 +40,11 @@ describe('PreferencesContainer', () => {
     describe('interactivity', () => {
         it('can get preference when no cookie defined', async () => {
             const accessor: IPreferences = {
-                getPreference: null,
-                upsertPreference: null,
+                getPreference: () => null,
+                upsertPreference: noop,
             };
             await renderComponent(accessor);
-            context.cookies.remove('preferences');
+            context.cookies!.remove('preferences');
 
             const result = accessor.getPreference('anything');
 
@@ -53,11 +53,11 @@ describe('PreferencesContainer', () => {
 
         it('can get preference when cookie is empty', async () => {
             const accessor: IPreferences = {
-                getPreference: null,
-                upsertPreference: null,
+                getPreference: () => null,
+                upsertPreference: noop,
             };
             await renderComponent(accessor);
-            context.cookies.set('preferences', { });
+            context.cookies!.set('preferences', { });
 
             const result = accessor.getPreference('anything');
 
@@ -68,8 +68,8 @@ describe('PreferencesContainer', () => {
             const cookies = new Cookies();
             cookies.set('preferences', { anything: 'else' });
             const accessor: IPreferences = {
-                getPreference: null,
-                upsertPreference: null,
+                getPreference: () => null,
+                upsertPreference: noop,
             };
             await renderComponent(accessor);
 
@@ -80,65 +80,65 @@ describe('PreferencesContainer', () => {
 
         it('can create cookie with preference', async () => {
             const accessor: IPreferences = {
-                getPreference: null,
-                upsertPreference: null,
+                getPreference: () => null,
+                upsertPreference: noop,
             };
             await renderComponent(accessor);
-            context.cookies.remove('preferences');
+            context.cookies!.remove('preferences');
 
             await act(async () => {
                 accessor.upsertPreference('anything', 'else');
             });
 
-            const cookie = context.cookies.get('preferences');
+            const cookie = context.cookies!.get('preferences');
             expect(cookie).toEqual({ anything: 'else' });
         });
 
         it('can replace preference in cookie', async () => {
             const accessor: IPreferences = {
-                getPreference: null,
-                upsertPreference: null,
+                getPreference: () => null,
+                upsertPreference: noop,
             };
             await renderComponent(accessor);
-            context.cookies.set('preferences', { anything: 'else' });
+            context.cookies!.set('preferences', { anything: 'else' });
 
             await act(async () => {
                 accessor.upsertPreference('anything', 'ELSE');
             });
 
-            const cookie = context.cookies.get('preferences');
+            const cookie = context.cookies!.get('preferences');
             expect(cookie).toEqual({ anything: 'ELSE' });
         });
 
         it('can remove preference from cookie', async () => {
             const accessor: IPreferences = {
-                getPreference: null,
-                upsertPreference: null,
+                getPreference: () => null,
+                upsertPreference: noop,
             };
             await renderComponent(accessor);
-            context.cookies.set('preferences', { anything: 'else' });
+            context.cookies!.set('preferences', { anything: 'else' });
 
             await act(async () => {
                 accessor.upsertPreference('anything', null);
             });
 
-            const cookie = context.cookies.get('preferences');
+            const cookie = context.cookies!.get('preferences');
             expect(cookie).toEqual({ });
         });
 
         it('can replace preference with different type of object', async () => {
             const accessor: IPreferences = {
-                getPreference: null,
-                upsertPreference: null,
+                getPreference: () => null,
+                upsertPreference: noop,
             };
             await renderComponent(accessor);
-            context.cookies.set('preferences', { anything: 'else' });
+            context.cookies!.set('preferences', { anything: 'else' });
 
             await act(async () => {
                 accessor.upsertPreference('anything', [ 1, 2, 3 ]);
             });
 
-            const cookie = context.cookies.get('preferences');
+            const cookie = context.cookies!.get('preferences');
             expect(cookie).toEqual({ anything: [ 1, 2, 3 ] });
         });
     });

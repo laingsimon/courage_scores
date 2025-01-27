@@ -14,8 +14,8 @@ describe('MatchDartCount', () => {
             brandingProps(),
             appProps(),
             <MatchDartCount {...props} />,
-            null,
-            null,
+            undefined,
+            undefined,
             'tbody');
     }
 
@@ -34,8 +34,8 @@ describe('MatchDartCount', () => {
             awayCount: 12,
         });
 
-        const homeCount = context.container.querySelector('td:nth-child(2)');
-        const awayCount = context.container.querySelector('td:nth-child(3)');
+        const homeCount = context.container.querySelector('td:nth-child(2)')!;
+        const awayCount = context.container.querySelector('td:nth-child(3)')!;
         expect(homeCount.textContent).toEqual('10');
         expect(awayCount.textContent).toEqual('12');
     });
@@ -43,12 +43,12 @@ describe('MatchDartCount', () => {
     it('renders single player dart count', async () => {
         await renderComponent({
             homeCount: 15,
-            awayCount: null,
+            awayCount: 0,
             singlePlayer: true,
         });
 
-        const homeCount = context.container.querySelector('td:nth-child(2)');
-        const awayCount = context.container.querySelector('td:nth-child(3)');
+        const homeCount = context.container.querySelector('td:nth-child(2)')!;
+        const awayCount = context.container.querySelector('td:nth-child(3)')!;
         expect(homeCount.textContent).toEqual('15');
         expect(awayCount).toBeFalsy();
     });
@@ -59,8 +59,8 @@ describe('MatchDartCount', () => {
             awayCount: 15,
         });
 
-        const homeCount = context.container.querySelector('td:nth-child(2)');
-        const awayCount = context.container.querySelector('td:nth-child(3)');
+        const homeCount = context.container.querySelector('td:nth-child(2)')!;
+        const awayCount = context.container.querySelector('td:nth-child(3)')!;
         expect(homeCount.className).toContain('bg-winner');
         expect(awayCount.className).not.toContain('bg-winner');
     });
@@ -71,8 +71,8 @@ describe('MatchDartCount', () => {
             awayCount: 10,
         });
 
-        const homeCount = context.container.querySelector('td:nth-child(2)');
-        const awayCount = context.container.querySelector('td:nth-child(3)');
+        const homeCount = context.container.querySelector('td:nth-child(2)')!;
+        const awayCount = context.container.querySelector('td:nth-child(3)')!;
         expect(homeCount.className).not.toContain('bg-winner');
         expect(awayCount.className).toContain('bg-winner');
     });

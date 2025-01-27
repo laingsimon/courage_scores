@@ -25,19 +25,19 @@ import {Division} from "./components/league/Division";
 import {IError} from "./components/common/IError";
 
 export interface IAppProps {
-    embed: boolean;
-    controls: boolean;
+    embed?: boolean;
+    controls?: boolean;
     testRoute?: React.ReactNode;
 }
 
 export function App({embed, controls, testRoute}: IAppProps) {
     const {divisionApi, accountApi, seasonApi, teamApi, errorApi, settings, parentHeight} = useDependencies();
-    const [account, setAccount] = useState<UserDto | null>(null);
+    const [account, setAccount] = useState<UserDto | undefined>(undefined);
     const [divisions, setDivisions] = useState<DivisionDto[]>([]);
     const [seasons, setSeasons] = useState<SeasonDto[]>([]);
     const [teams, setTeams] = useState<TeamDto[]>([]);
     const [appLoading, setAppLoading] = useState<boolean | null>(null);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<IError | undefined>(undefined);
 
     useEffect(() => {
             // should only fire on componentDidMount
@@ -60,7 +60,7 @@ export function App({embed, controls, testRoute}: IAppProps) {
     }
 
     async function clearError() {
-        setError(null);
+        setError(undefined);
     }
 
     async function invalidateCacheAndTryAgain() {
@@ -100,11 +100,11 @@ export function App({embed, controls, testRoute}: IAppProps) {
 
     async function reloadAccount() {
         const account = await accountApi.account();
-        setAccount(account);
+        setAccount(account || undefined);
     }
 
     async function reportClientSideException(error: IError) {
-        await errorApi.add(mapForLogging(error, account));
+        await errorApi.add(mapForLogging(error, account || undefined));
     }
 
     const browser: IBrowserType = {
@@ -165,7 +165,7 @@ export function App({embed, controls, testRoute}: IAppProps) {
         </AppContainer>);
     } catch (e) {
         /* istanbul ignore next */
-        onError(e);
+        onError(e!);
         /* istanbul ignore next */
         return (<AppContainer {...appData}>
             <span>Error</span>

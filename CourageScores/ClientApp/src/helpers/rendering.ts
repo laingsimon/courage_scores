@@ -19,8 +19,17 @@ export function renderDate(dateStr: string): string {
 * */
 export function ifNaN(value?: number | null, valueIfNaN?: string): string | number {
     if (Number.isNaN(value) || value === null || value === undefined) {
-        return valueIfNaN;
+        return valueIfNaN || '';
     }
 
     return value;
+}
+
+/*
+* Return the default value if the value is undefined
+* */
+export function ifUndefined(value?: number, valueIfUndefined?: number): number {
+    return value === undefined
+        ? (valueIfUndefined || 0)
+        : value;
 }

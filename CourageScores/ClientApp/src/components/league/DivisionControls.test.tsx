@@ -26,13 +26,13 @@ import {ISeasonApi} from "../../interfaces/apis/ISeasonApi";
 describe('DivisionControls', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let changedDivisionOrSeason: boolean;
+    let changedDivisionOrSeason: boolean | undefined;
     let reloadSeasonsCalled: boolean;
     let reloadDivisionsCalled: boolean;
-    let updatedSeason: EditSeasonDto;
-    let updatedDivision: EditDivisionDto;
-    let seasonApiResult: IClientActionResultDto<SeasonDto>;
-    let divisionApiResult: IClientActionResultDto<DivisionDto>;
+    let updatedSeason: EditSeasonDto | null;
+    let updatedDivision: EditDivisionDto | null;
+    let seasonApiResult: IClientActionResultDto<SeasonDto> | null;
+    let divisionApiResult: IClientActionResultDto<DivisionDto> | null;
 
     const seasonApi = api<ISeasonApi>({
         update: async (data: EditSeasonDto): Promise<IClientActionResultDto<SeasonDto>> => {
@@ -57,7 +57,7 @@ describe('DivisionControls', () => {
 
     beforeEach(() => {
         reportedError = new ErrorState();
-        changedDivisionOrSeason = null;
+        changedDivisionOrSeason = undefined;
         reloadDivisionsCalled = false;
         reloadSeasonsCalled = false;
         updatedSeason = null;
@@ -70,7 +70,7 @@ describe('DivisionControls', () => {
         changedDivisionOrSeason = preventReloadIfIdsAreTheSame;
     }
 
-    async function renderComponent(props: IDivisionControlsProps, account: UserDto, seasons: SeasonDto[], divisions: DivisionDto[], route?: string, currentPath?: string) {
+    async function renderComponent(props: IDivisionControlsProps, account: UserDto | null, seasons: SeasonDto[], divisions: DivisionDto[], route?: string, currentPath?: string) {
         context = await renderApp(
             iocProps({seasonApi, divisionApi}),
             brandingProps(),
@@ -99,17 +99,17 @@ describe('DivisionControls', () => {
 
     function getOption(group: Element, containingText: string) {
         const items = Array.from(group.querySelectorAll('div.dropdown-menu .dropdown-item')) as HTMLAnchorElement[];
-        const item = items.filter(i => i.textContent.indexOf(containingText) !== -1)[0];
+        const item = items.filter(i => i.textContent!.indexOf(containingText) !== -1)[0];
         expect(item).toBeTruthy();
         return item;
     }
 
     function getSeasonButtonGroup() {
-        return context.container.querySelector('div.btn-group > div.btn-group:nth-child(1)');
+        return context.container.querySelector('div.btn-group > div.btn-group:nth-child(1)')!;
     }
 
     function getDivisionButtonGroup() {
-        return context.container.querySelector('div.btn-group > div.btn-group:nth-child(2)');
+        return context.container.querySelector('div.btn-group > div.btn-group:nth-child(2)')!;
     }
 
     function getDate(monthOffset: number) {
@@ -129,11 +129,11 @@ describe('DivisionControls', () => {
     }
 
     async function toggleDropdown(group: Element) {
-        await doClick(group.querySelector('.dropdown-toggle'));
+        await doClick(group.querySelector('.dropdown-toggle')!);
     }
 
     function assertDropdownOpen(group: Element, expectOpen: boolean) {
-        const menu = group.querySelector('.dropdown-menu');
+        const menu = group.querySelector('.dropdown-menu')!;
         expect(menu).toBeTruthy();
         if (expectOpen) {
             expect(menu.className).toContain('show');
@@ -143,7 +143,7 @@ describe('DivisionControls', () => {
     }
 
     describe('when logged out', () => {
-        const account = null;
+        const account: UserDto | null = null;
         const division1: DivisionDto = divisionBuilder('Division 1').build();
         const division2: DivisionDto = divisionBuilder('Division 2').build();
         const season1: SeasonDto = seasonBuilder('Season 1')
@@ -165,7 +165,6 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season1,
                     originalDivisionData: division1,
-                    overrideMode: null,
                 }, account, seasons, divisions);
 
                 reportedError.verifyNoError();
@@ -178,7 +177,6 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season1,
                     originalDivisionData: division1,
-                    overrideMode: null,
                 }, account, seasons, divisions);
 
                 reportedError.verifyNoError();
@@ -191,7 +189,6 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season1,
                     originalDivisionData: division1,
-                    overrideMode: null,
                 }, account, seasons, divisions);
 
                 reportedError.verifyNoError();
@@ -203,7 +200,6 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season1,
                     originalDivisionData: division1,
-                    overrideMode: null,
                 }, account, seasons, divisions);
 
                 reportedError.verifyNoError();
@@ -216,9 +212,7 @@ describe('DivisionControls', () => {
         describe('when out of season', () => {
             it('prompts user to select a season', async () => {
                 await renderComponent({
-                    originalSeasonData: null,
                     originalDivisionData: division1,
-                    overrideMode: null,
                 }, account, seasons, divisions);
 
                 reportedError.verifyNoError();
@@ -229,9 +223,7 @@ describe('DivisionControls', () => {
 
             it('shows other seasons', async () => {
                 await renderComponent({
-                    originalSeasonData: null,
                     originalDivisionData: division1,
-                    overrideMode: null,
                 }, account, seasons, divisions);
 
                 reportedError.verifyNoError();
@@ -242,9 +234,7 @@ describe('DivisionControls', () => {
 
             it('shows all divisions', async () => {
                 await renderComponent({
-                    originalSeasonData: null,
                     originalDivisionData: division1,
-                    overrideMode: null,
                 }, account, seasons, divisions);
 
                 reportedError.verifyNoError();
@@ -254,9 +244,7 @@ describe('DivisionControls', () => {
 
             it('shows no divisions', async () => {
                 await renderComponent({
-                    originalSeasonData: null,
                     originalDivisionData: division1,
-                    overrideMode: null,
                 }, account, seasons, divisions);
 
                 reportedError.verifyNoError();
@@ -296,7 +284,6 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season3,
                     originalDivisionData: division3,
-                    overrideMode: null,
                 }, account, seasons, divisions);
 
                 reportedError.verifyNoError();
@@ -310,7 +297,6 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season3,
                     originalDivisionData: division3,
-                    overrideMode: null,
                 }, account, seasons, divisions);
 
                 reportedError.verifyNoError();
@@ -324,7 +310,6 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season3,
                     originalDivisionData: division3,
-                    overrideMode: null,
                 }, account, seasons, divisions);
 
                 reportedError.verifyNoError();
@@ -336,7 +321,6 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season3,
                     originalDivisionData: division3,
-                    overrideMode: null,
                 }, account, seasons, divisions);
 
                 reportedError.verifyNoError();
@@ -350,9 +334,7 @@ describe('DivisionControls', () => {
         describe('when out of season', () => {
             it('prompts user to select a season', async () => {
                 await renderComponent({
-                    originalSeasonData: null,
                     originalDivisionData: division3,
-                    overrideMode: null,
                 }, account, seasons, divisions);
 
                 reportedError.verifyNoError();
@@ -363,9 +345,7 @@ describe('DivisionControls', () => {
 
             it('shows other seasons', async () => {
                 await renderComponent({
-                    originalSeasonData: null,
                     originalDivisionData: division3,
-                    overrideMode: null,
                 }, account, seasons, divisions);
 
                 reportedError.verifyNoError();
@@ -377,9 +357,7 @@ describe('DivisionControls', () => {
 
             it('shows all divisions', async () => {
                 await renderComponent({
-                    originalSeasonData: null,
                     originalDivisionData: division3,
-                    overrideMode: null,
                 }, account, seasons, divisions);
 
                 reportedError.verifyNoError();
@@ -389,9 +367,7 @@ describe('DivisionControls', () => {
 
             it('shows no divisions', async () => {
                 await renderComponent({
-                    originalSeasonData: null,
                     originalDivisionData: division3,
-                    overrideMode: null,
                 }, account, seasons, divisions);
 
                 reportedError.verifyNoError();
@@ -424,7 +400,6 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season5,
                     originalDivisionData: division5,
-                    overrideMode: null,
                 }, account, seasons, divisions);
                 reportedError.verifyNoError();
                 const group = getSeasonButtonGroup();
@@ -439,7 +414,6 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season5,
                     originalDivisionData: division5,
-                    overrideMode: null,
                 }, account, seasons, divisions);
                 reportedError.verifyNoError();
                 const group = getDivisionButtonGroup();
@@ -454,7 +428,6 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season5,
                     originalDivisionData: division5,
-                    overrideMode: null,
                 }, account, seasons, divisions);
                 reportedError.verifyNoError();
                 const group = getSeasonButtonGroup();
@@ -480,7 +453,7 @@ describe('DivisionControls', () => {
                 reportedError.verifyNoError();
                 const option = getOption(group, 'Season 6');
                 expect(option.href).toContain(`/division/${encodeURI(division5.name)}/OVERRIDE/${encodeURI(season6.name)}`);
-                await doClick(group.querySelector('.dropdown-toggle')); // open the dropdown to be able to click on an item
+                await doClick(group.querySelector('.dropdown-toggle')!); // open the dropdown to be able to click on an item
 
                 await doClick(findButton(group, `Season 5 ${seasonDates(season5)}`));
 
@@ -494,14 +467,13 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season5,
                     originalDivisionData: division5,
-                    overrideMode: null,
                 }, account, seasons, divisions, route, currentPath);
 
                 const group = getSeasonButtonGroup();
                 reportedError.verifyNoError();
                 const option = getOption(group, 'Season 6');
                 expect(option.href).toContain(`/division/${encodeURI(division5.name)}/team:TEAM_ID/${encodeURI(season6.name)}`);
-                await doClick(group.querySelector('.dropdown-toggle')); // open the dropdown to be able to click on an item
+                await doClick(group.querySelector('.dropdown-toggle')!); // open the dropdown to be able to click on an item
 
                 await doClick(findButton(group, `Season 5 ${seasonDates(season5)}`));
 
@@ -515,14 +487,13 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season5,
                     originalDivisionData: division5,
-                    overrideMode: null,
                 }, account, seasons, divisions, route, currentPath);
 
                 const group = getSeasonButtonGroup();
                 reportedError.verifyNoError();
                 const option = getOption(group, 'Season 6');
                 expect(option.href).toContain(`/division/${encodeURI(division5.name)}/player:PLAYER_ID/${encodeURI(season6.name)}`);
-                await doClick(group.querySelector('.dropdown-toggle')); // open the dropdown to be able to click on an item
+                await doClick(group.querySelector('.dropdown-toggle')!); // open the dropdown to be able to click on an item
 
                 await doClick(findButton(group, 'Season 5 ' + seasonDates(season5)));
 
@@ -536,7 +507,6 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season5,
                     originalDivisionData: division6,
-                    overrideMode: null,
                 }, account, seasons, divisions, route, currentPath);
 
                 const group = getSeasonButtonGroup();
@@ -593,13 +563,12 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season5,
                     originalDivisionData: division5,
-                    overrideMode: null,
                 }, account, seasons, divisions);
                 reportedError.verifyNoError();
 
                 await doClick(findButton(getSeasonButtonGroup(), `Season 5 ${seasonDates(season5)}✏`));
 
-                const dialog = context.container.querySelector('.btn-group .modal-dialog');
+                const dialog = context.container.querySelector('.btn-group .modal-dialog')!;
                 expect(dialog).toBeTruthy();
                 expect(dialog.textContent).toContain('Edit a season');
             });
@@ -608,13 +577,12 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season5,
                     originalDivisionData: division5,
-                    overrideMode: null,
                 }, account, seasons, divisions);
                 reportedError.verifyNoError();
 
                 await doSelectOption(getSeasonButtonGroup().querySelector('.dropdown-menu'), '➕ New season');
 
-                const dialog = context.container.querySelector('.btn-group .modal-dialog');
+                const dialog = context.container.querySelector('.btn-group .modal-dialog')!;
                 expect(dialog).toBeTruthy();
                 expect(dialog.textContent).toContain('Create a season');
             });
@@ -623,24 +591,22 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season5,
                     originalDivisionData: division5,
-                    overrideMode: null,
                 }, account, seasons, divisions);
                 reportedError.verifyNoError();
                 await doClick(findButton(getSeasonButtonGroup(), `Season 5 ${seasonDates(season5)}✏`));
-                const dialog = context.container.querySelector('.btn-group .modal-dialog');
+                const dialog = context.container.querySelector('.btn-group .modal-dialog')!;
 
                 await doChange(dialog, 'input[name="name"]', 'NEW SEASON', context.user);
                 await doClick(findButton(context.container, 'Update season'));
 
                 reportedError.verifyNoError();
-                expect(updatedSeason.name).toEqual('NEW SEASON');
+                expect(updatedSeason!.name).toEqual('NEW SEASON');
             });
 
             it('can save season details', async () => {
                 await renderComponent({
                     originalSeasonData: season5,
                     originalDivisionData: division5,
-                    overrideMode: null,
                 }, account, seasons, divisions);
                 reportedError.verifyNoError();
                 await doClick(findButton(getSeasonButtonGroup(), `Season 5 ${seasonDates(season5)}✏`));
@@ -659,7 +625,6 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season5,
                     originalDivisionData: division5,
-                    overrideMode: null,
                 }, account, seasons, divisions);
                 reportedError.verifyNoError();
                 await doClick(findButton(getSeasonButtonGroup(), `Season 5 ${seasonDates(season5)}✏`));
@@ -682,7 +647,6 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season5,
                     originalDivisionData: division5,
-                    overrideMode: null,
                 }, account, seasons, divisions);
                 reportedError.verifyNoError();
                 await doClick(findButton(getSeasonButtonGroup(), `Season 5 ${seasonDates(season5)}✏`));
@@ -697,13 +661,12 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season5,
                     originalDivisionData: division5,
-                    overrideMode: null,
                 }, account, seasons, divisions);
                 reportedError.verifyNoError();
 
                 await doClick(findButton(getDivisionButtonGroup(), 'Division 5✏'));
 
-                const dialog = context.container.querySelector('.btn-group .modal-dialog');
+                const dialog = context.container.querySelector('.btn-group .modal-dialog')!;
                 expect(dialog).toBeTruthy();
                 expect(dialog.textContent).toContain('Edit a division');
             });
@@ -712,13 +675,12 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season5,
                     originalDivisionData: division5,
-                    overrideMode: null,
                 }, account, seasons, divisions);
                 reportedError.verifyNoError();
 
                 await doSelectOption(getDivisionButtonGroup().querySelector('.dropdown-menu'), '➕ New division');
 
-                const dialog = context.container.querySelector('.btn-group .modal-dialog');
+                const dialog = context.container.querySelector('.btn-group .modal-dialog')!;
                 expect(dialog).toBeTruthy();
                 expect(dialog.textContent).toContain('Create a division');
             });
@@ -727,24 +689,22 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season5,
                     originalDivisionData: division5,
-                    overrideMode: null,
                 }, account, seasons, divisions);
                 reportedError.verifyNoError();
                 await doClick(findButton(getDivisionButtonGroup(), 'Division 5✏'));
-                const dialog = context.container.querySelector('.btn-group .modal-dialog');
+                const dialog = context.container.querySelector('.btn-group .modal-dialog')!;
 
                 await doChange(dialog, 'input[name="name"]', 'NEW DIVISION', context.user);
                 await doClick(findButton(context.container, 'Update division'));
 
                 reportedError.verifyNoError();
-                expect(updatedDivision.name).toEqual('NEW DIVISION');
+                expect(updatedDivision!.name).toEqual('NEW DIVISION');
             });
 
             it('can save division details', async () => {
                 await renderComponent({
                     originalSeasonData: season5,
                     originalDivisionData: division5,
-                    overrideMode: null,
                 }, account, seasons, divisions);
                 reportedError.verifyNoError();
                 await doClick(findButton(getDivisionButtonGroup(), 'Division 5✏'));
@@ -763,7 +723,6 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season5,
                     originalDivisionData: division5,
-                    overrideMode: null,
                 }, account, seasons, divisions);
                 reportedError.verifyNoError();
                 await doClick(findButton(getDivisionButtonGroup(), 'Division 5✏'));
@@ -786,7 +745,6 @@ describe('DivisionControls', () => {
                 await renderComponent({
                     originalSeasonData: season5,
                     originalDivisionData: division5,
-                    overrideMode: null,
                 }, account, seasons, divisions);
                 reportedError.verifyNoError();
                 await doClick(findButton(getDivisionButtonGroup(), 'Division 5✏'));

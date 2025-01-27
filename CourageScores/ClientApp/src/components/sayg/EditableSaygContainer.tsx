@@ -10,7 +10,7 @@ export function useEditableSayg(): IEditableSayg {
 
 export interface IEditableSayg {
     editScore?: IEditingThrow;
-    setEditScore(edit: IEditingThrow): UntypedPromise;
+    setEditScore(edit?: IEditingThrow): UntypedPromise;
 }
 
 export interface IEditableSaygContainerProps {
@@ -18,7 +18,7 @@ export interface IEditableSaygContainerProps {
 }
 
 export function EditableSaygContainer({children}: IEditableSaygContainerProps) {
-    const [editScore, setEditScore] = useState<IEditingThrow>(null);
+    const [editScore, setEditScore] = useState<IEditingThrow | undefined>(undefined);
 
     const props: IEditableSayg = {
         editScore,

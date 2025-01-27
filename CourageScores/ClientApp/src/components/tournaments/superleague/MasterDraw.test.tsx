@@ -33,8 +33,8 @@ import {UntypedPromise} from "../../../interfaces/UntypedPromise";
 describe('MasterDraw', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let editTournament: string;
-    let saygDeleted: { id: string, matchId: string };
+    let editTournament: string | null;
+    let saygDeleted: { id: string, matchId: string } | null;
 
     const tournamentApi = api<ITournamentGameApi>({
         async update(_: EditTournamentGameDto): Promise<IClientActionResultDto<TournamentGameDto>> {
@@ -78,8 +78,8 @@ describe('MasterDraw', () => {
         editTournament = value;
     }
 
-    async function saveTournament(_?: boolean): Promise<TournamentGameDto> {
-        return null;
+    async function saveTournament(_?: boolean): Promise<TournamentGameDto | undefined> {
+        return undefined;
     }
 
     async function setTournamentData(_: TournamentGameDto): UntypedPromise {
@@ -101,8 +101,6 @@ describe('MasterDraw', () => {
     describe('renders', () => {
         const defaultContainerProps: ITournamentContainerProps = {
             tournamentData: tournamentBuilder().build(),
-            setEditTournament: null,
-            setTournamentData: null,
             preventScroll: false,
             setPreventScroll(_: boolean) {},
         };
@@ -122,7 +120,7 @@ describe('MasterDraw', () => {
             }, defaultContainerProps);
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table.table');
+            const table = context.container.querySelector('table.table')!;
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             expect(rows.length).toEqual(2);
             expect(Array.from(rows[0].querySelectorAll('td')).map(td => td.textContent)).toEqual(['1', 'A', 'v', 'B', '']);
@@ -140,7 +138,7 @@ describe('MasterDraw', () => {
             }, defaultContainerProps);
 
             reportedError.verifyNoError();
-            const tournamentProperties = context.container.querySelector('div.d-flex > div:nth-child(2)');
+            const tournamentProperties = context.container.querySelector('div.d-flex > div:nth-child(2)')!;
             expect(tournamentProperties.textContent).toContain('Gender: GENDER');
             expect(tournamentProperties.textContent).toContain('Date: ' + renderDate('2023-05-06'));
             expect(tournamentProperties.textContent).toContain('Notes: Board 1');
@@ -157,7 +155,7 @@ describe('MasterDraw', () => {
             }, defaultContainerProps);
 
             reportedError.verifyNoError();
-            const tournamentProperties = context.container.querySelector('div.d-flex > div:nth-child(2)');
+            const tournamentProperties = context.container.querySelector('div.d-flex > div:nth-child(2)')!;
             expect(tournamentProperties.textContent).toContain('Gender: GENDER');
             expect(tournamentProperties.textContent).not.toContain('Notes:');
         });
@@ -180,7 +178,7 @@ describe('MasterDraw', () => {
             });
             reportedError.verifyNoError();
 
-            await doClick(context.container.querySelector('div[datatype="master-draw"] > h2'));
+            await doClick(context.container.querySelector('div[datatype="master-draw"] > h2')!);
 
             reportedError.verifyNoError();
             expect(editTournament).toEqual('matches');
@@ -202,7 +200,7 @@ describe('MasterDraw', () => {
             });
             reportedError.verifyNoError();
 
-            await doClick(context.container.querySelector('div[datatype="master-draw"] thead tr:first-child'));
+            await doClick(context.container.querySelector('div[datatype="master-draw"] thead tr:first-child')!);
 
             reportedError.verifyNoError();
             expect(editTournament).toEqual('matches');
@@ -228,7 +226,7 @@ describe('MasterDraw', () => {
             });
             reportedError.verifyNoError();
 
-            await doClick(context.container.querySelector('div[datatype="master-draw"] tbody td:nth-child(1)'));
+            await doClick(context.container.querySelector('div[datatype="master-draw"] tbody td:nth-child(1)')!);
 
             reportedError.verifyNoError();
             expect(editTournament).toEqual('matches');
@@ -254,7 +252,7 @@ describe('MasterDraw', () => {
             });
             reportedError.verifyNoError();
 
-            await doClick(context.container.querySelector('div[datatype="master-draw"] tbody tr:first-child td:nth-child(2)'));
+            await doClick(context.container.querySelector('div[datatype="master-draw"] tbody tr:first-child td:nth-child(2)')!);
 
             reportedError.verifyNoError();
             expect(editTournament).toEqual('matches');
@@ -280,7 +278,7 @@ describe('MasterDraw', () => {
             });
             reportedError.verifyNoError();
 
-            await doClick(context.container.querySelector('div[datatype="master-draw"] tbody tr:first-child td:nth-child(3)'));
+            await doClick(context.container.querySelector('div[datatype="master-draw"] tbody tr:first-child td:nth-child(3)')!);
 
             reportedError.verifyNoError();
             expect(editTournament).toEqual('matches');
@@ -306,7 +304,7 @@ describe('MasterDraw', () => {
             });
             reportedError.verifyNoError();
 
-            await doClick(context.container.querySelector('div[datatype="master-draw"] tbody tr:first-child td:nth-child(4)'));
+            await doClick(context.container.querySelector('div[datatype="master-draw"] tbody tr:first-child td:nth-child(4)')!);
 
             reportedError.verifyNoError();
             expect(editTournament).toEqual('matches');
@@ -328,7 +326,7 @@ describe('MasterDraw', () => {
             });
             reportedError.verifyNoError();
 
-            await doClick(context.container.querySelector('div[datatype="master-draw"] tfoot td'));
+            await doClick(context.container.querySelector('div[datatype="master-draw"] tfoot td')!);
 
             reportedError.verifyNoError();
             expect(editTournament).toEqual('matches');
@@ -350,7 +348,7 @@ describe('MasterDraw', () => {
             });
             reportedError.verifyNoError();
 
-            await doClick(context.container.querySelector('div[datatype="details"]'));
+            await doClick(context.container.querySelector('div[datatype="details"]')!);
 
             reportedError.verifyNoError();
             expect(editTournament).toEqual('details');
@@ -365,14 +363,13 @@ describe('MasterDraw', () => {
                 date: '2023-05-06',
                 type: 'TYPE',
             }, {
-                setEditTournament: null,
                 tournamentData: tournamentBuilder().build(),
                 preventScroll: false,
                 setPreventScroll,
             });
             reportedError.verifyNoError();
 
-            await doClick(context.container.querySelector('div[datatype="master-draw"] > h2'));
+            await doClick(context.container.querySelector('div[datatype="master-draw"] > h2')!);
 
             reportedError.verifyNoError();
             expect(editTournament).toEqual(null);
@@ -387,14 +384,13 @@ describe('MasterDraw', () => {
                 date: '2023-05-06',
                 type: 'TYPE',
             }, {
-                setEditTournament: null,
                 tournamentData: tournamentBuilder().build(),
                 preventScroll: false,
                 setPreventScroll,
             });
             reportedError.verifyNoError();
 
-            await doClick(context.container.querySelector('div[datatype="master-draw"] > div'));
+            await doClick(context.container.querySelector('div[datatype="master-draw"] > div')!);
 
             reportedError.verifyNoError();
             expect(editTournament).toEqual(null);
@@ -473,7 +469,7 @@ describe('MasterDraw', () => {
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), START_SCORING));
             reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
-            window.confirm = (_: string) => true;
+            window.confirm = (_: string | undefined) => true;
             window.alert = noop;
 
             await doClick(findButton(dialog, 'Delete sayg'));

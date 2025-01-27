@@ -16,7 +16,7 @@ import {ActionResultDto} from "../../interfaces/models/dtos/ActionResultDto";
 describe('PickTemplate', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let selectedTemplate: ActionResultDto<TemplateDto>;
+    let selectedTemplate: ActionResultDto<TemplateDto> | null;
 
     async function setSelectedTemplate(template: ActionResultDto<TemplateDto>) {
         selectedTemplate = template;
@@ -79,7 +79,7 @@ describe('PickTemplate', () => {
             await renderComponent({
                 selectedTemplate: null,
                 loading: true,
-                templates: null,
+                templates: null!,
                 setSelectedTemplate,
             });
 
@@ -98,7 +98,7 @@ describe('PickTemplate', () => {
             });
 
             reportedError.verifyNoError();
-            const dropdown = context.container.querySelector('.dropdown-menu');
+            const dropdown = context.container.querySelector('.dropdown-menu')!;
             expect(dropdown).toBeTruthy();
             expect(dropdown.querySelector('.active')).toBeFalsy();
         });
@@ -114,9 +114,9 @@ describe('PickTemplate', () => {
             });
 
             reportedError.verifyNoError();
-            const dropdown = context.container.querySelector('.dropdown-menu');
+            const dropdown = context.container.querySelector('.dropdown-menu')!;
             expect(dropdown).toBeTruthy();
-            expect(dropdown.querySelector('.active').textContent).toEqual('COMPATIBLECOMPATIBLE DESCRIPTION');
+            expect(dropdown.querySelector('.active')!.textContent).toEqual('COMPATIBLECOMPATIBLE DESCRIPTION');
         });
 
         it('compatible template errors, warnings and messages', async () => {
@@ -130,10 +130,10 @@ describe('PickTemplate', () => {
             });
 
             reportedError.verifyNoError();
-            const alert = context.container.querySelector('.alert');
+            const alert = context.container.querySelector('.alert')!;
             expect(alert).toBeTruthy();
             expect(alert.className).toContain('alert-success');
-            expect(alert.querySelector('h4').textContent).toEqual('✔ Compatible with this season');
+            expect(alert.querySelector('h4')!.textContent).toEqual('✔ Compatible with this season');
             expect(Array.from(alert.querySelectorAll('ol:nth-child(2) li')).map(li => li.textContent)).toEqual(['ERROR']);
             expect(Array.from(alert.querySelectorAll('ol:nth-child(3) li')).map(li => li.textContent)).toEqual(['WARNING']);
             expect(Array.from(alert.querySelectorAll('ol:nth-child(4) li')).map(li => li.textContent)).toEqual(['MESSAGE']);
@@ -151,10 +151,10 @@ describe('PickTemplate', () => {
             });
 
             reportedError.verifyNoError();
-            const alert = context.container.querySelector('.alert');
+            const alert = context.container.querySelector('.alert')!;
             expect(alert).toBeTruthy();
             expect(alert.className).toContain('alert-warning');
-            expect(alert.querySelector('h4').textContent).toEqual('🚫 Incompatible with this season');
+            expect(alert.querySelector('h4')!.textContent).toEqual('🚫 Incompatible with this season');
             expect(Array.from(alert.querySelectorAll('ol:nth-child(2) li')).map(li => li.textContent)).toEqual(['ERROR']);
             expect(Array.from(alert.querySelectorAll('ol:nth-child(3) li')).map(li => li.textContent)).toEqual(['WARNING']);
             expect(Array.from(alert.querySelectorAll('ol:nth-child(4) li')).map(li => li.textContent)).toEqual(['MESSAGE']);
@@ -190,7 +190,7 @@ describe('PickTemplate', () => {
             });
 
             reportedError.verifyNoError();
-            const alert = context.container.querySelector('.alert');
+            const alert = context.container.querySelector('.alert')!;
             expect(alert).toBeTruthy();
             expect(alert.className).toContain('alert-success');
             expect(context.container.querySelectorAll('.alert > ol').length).toEqual(0);

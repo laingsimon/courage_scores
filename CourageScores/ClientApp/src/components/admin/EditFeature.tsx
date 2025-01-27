@@ -31,7 +31,7 @@ export function EditFeature({ feature, onChanged }: IEditFeatureProps) {
             const request: ReconfigureFeatureDto = {
                 id: feature.id,
                 configuredValue: reconfigure === '' || reconfigure === feature.defaultValue
-                    ? null
+                    ? undefined
                     : reconfigure,
             };
             const result: IClientActionResultDto<ConfiguredFeatureDto> = await featureApi.updateFeature(request);
@@ -141,7 +141,7 @@ export function EditFeature({ feature, onChanged }: IEditFeatureProps) {
                   name="configuredValue"
                   type="text"
                   value={reconfigure || ''}
-                  placeholder={getPlaceholder(feature.valueType)}
+                  placeholder={getPlaceholder(feature.valueType!)}
                   onChange={configurationChanged}/>) : null}
             <button onClick={saveConfiguration} className="btn btn-sm btn-primary">
                 {saving ? <LoadingSpinnerSmall/> : '💾'}

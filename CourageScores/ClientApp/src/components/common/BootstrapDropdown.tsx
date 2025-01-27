@@ -29,7 +29,7 @@ export interface IBootstrapDropdownProps {
 }
 
 export function BootstrapDropdown({value, onChange, options, color, className, disabled, readOnly, onOpen, slim, datatype}: IBootstrapDropdownProps) {
-    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
     if (!options || isEmpty(options)) {
         return (<button className={`btn btn-sm btn-${color || 'light'} dropdown-toggle`} disabled>&nbsp;</button>)
