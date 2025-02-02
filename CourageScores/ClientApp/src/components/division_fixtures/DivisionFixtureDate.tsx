@@ -180,7 +180,7 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
                 onUpdateFixtures={onUpdateFixtures}/>))}
             {date.tournamentFixtures?.filter((t: DivisionTournamentFixtureDetailsDto) => !date.isKnockout && !t.proposed).map((tournament: DivisionTournamentFixtureDetailsDto) => (
                 <TournamentFixture
-                    key={tournament.address + '-' + tournament.date}
+                    key={`${tournament.address}-${tournament.date}-${tournament.type}`}
                     tournament={tournament}
                     onTournamentChanged={onTournamentChanged}
                     expanded={showPlayers[date.date]}/>))}
