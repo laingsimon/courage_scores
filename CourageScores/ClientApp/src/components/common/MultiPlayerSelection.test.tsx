@@ -348,10 +348,6 @@ describe('MultiPlayerSelection', () => {
 
     describe('interactivity', () => {
         const player: ISelectablePlayer = playerBuilder('PLAYER').score(123).build();
-        let alert: string;
-        window.alert = (message: string) => {
-            alert = message;
-        }
 
         it('does not permit removal of players when readonly', async () => {
             await renderComponent({
@@ -400,7 +396,7 @@ describe('MultiPlayerSelection', () => {
             await doClick(findButton(context.container, '➕'));
 
             expect(addedPlayer).toBeNull();
-            expect(alert).toEqual('Ensure a player is selected first');
+            context.prompts.alertWasShown('Ensure a player is selected first');
         });
 
         it('allows players to be added with notes', async () => {
@@ -437,7 +433,7 @@ describe('MultiPlayerSelection', () => {
             await doClick(findButton(context.container, '➕'));
 
             expect(addedPlayer).toBeNull();
-            expect(alert).toEqual('Enter the score first');
+            context.prompts.alertWasShown('Enter the score first');
         });
 
         it('players not added when notes are non numeric', async () => {
@@ -455,7 +451,7 @@ describe('MultiPlayerSelection', () => {
             await doClick(findButton(context.container, '➕'));
 
             expect(addedPlayer).toBeNull();
-            expect(alert).toEqual('Enter the score first');
+            context.prompts.alertWasShown('Enter the score first');
         });
 
         it('allows players to be removed', async () => {

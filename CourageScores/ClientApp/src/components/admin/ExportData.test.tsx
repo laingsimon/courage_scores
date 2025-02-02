@@ -96,8 +96,6 @@ describe('ExportData', () => {
     it('cannot export when no tables selected', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        let alert: string | undefined;
-        window.alert = (msg: string) => alert = msg;
         const tables = Array.from(context.container.querySelectorAll('ul li'));
         const table1 = tables.filter(t => t.textContent!.indexOf('Table 1') !== -1)[0];
         expect(table1.className).toContain('active');
@@ -107,7 +105,7 @@ describe('ExportData', () => {
 
         reportedError.verifyNoError();
         expect(exportRequest).toBeNull();
-        expect(alert).toEqual('Select some tables to export');
+        context.prompts.alertWasShown('Select some tables to export');
     });
 
     it('can export data with password', async () => {

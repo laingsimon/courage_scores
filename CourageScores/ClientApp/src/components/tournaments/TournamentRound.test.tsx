@@ -326,7 +326,7 @@ describe('TournamentRound', () => {
                     });
                 reportedError!.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
-                window.confirm = () => true;
+                context.prompts.respondToConfirm('Are you sure you want to remove this match?', true);
 
                 await doClick(findButton(matchRow, '🗑'));
 
@@ -480,14 +480,12 @@ describe('TournamentRound', () => {
                 });
                 reportedError!.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)')!;
-                let message: string | undefined;
-                window.alert = (msg: string) => message = msg;
 
                 await doSelectOption(matchRow.querySelector('td:nth-child(1) .dropdown-menu'), 'SIDE 1');
                 await doClick(findButton(matchRow, '➕'));
 
                 expect(updatedRound).toBeFalsy();
-                expect(message).toEqual('Select the sides first');
+                context.prompts.alertWasShown('Select the sides first');
             });
 
             it('cannot add match with only sideB', async () => {
@@ -499,14 +497,12 @@ describe('TournamentRound', () => {
                 });
                 reportedError!.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)')!;
-                let message: string | undefined;
-                window.alert = (msg: string) => message = msg;
 
                 await doSelectOption(matchRow.querySelector('td:nth-child(1) .dropdown-menu'), 'SIDE 1');
                 await doClick(findButton(matchRow, '➕'));
 
                 expect(updatedRound).toBeFalsy();
-                expect(message).toEqual('Select the sides first');
+                context.prompts.alertWasShown('Select the sides first');
             });
 
             it('can add match', async () => {

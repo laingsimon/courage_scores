@@ -416,7 +416,7 @@ describe('TournamentSide', () => {
                 onChange,
                 onRemove,
             }, [team]);
-            window.confirm = () => true;
+            context.prompts.respondToConfirm('Are you sure you want to remove SIDE NAME?', true);
 
             await doClick(findButton(context.container, '✏️'));
             const dialog = context.container.querySelector('.modal-dialog');

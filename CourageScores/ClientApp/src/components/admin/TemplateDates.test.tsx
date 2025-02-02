@@ -378,7 +378,7 @@ describe('TemplateDates', () => {
                 highlight: 'C',
                 setHighlight,
             });
-            window.confirm = () => true;
+            context.prompts.respondToConfirm('Are you sure you want to delete all fixtures where C are playing?', true);
 
             await doClick(findButton(context.container, 'A - C ×'));
 

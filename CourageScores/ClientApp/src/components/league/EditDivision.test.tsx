@@ -31,9 +31,6 @@ describe('EditDivision', () => {
     let saved: boolean;
     let saveError: IClientActionResultDto<DivisionDto> | null;
     let updatedDivision: EditDivisionDto | null;
-    let alert: string | undefined;
-    let confirm: string | undefined;
-    let confirmResponse: boolean;
     let apiResponse: IClientActionResultDto<DivisionDto>;
     let deletedId: string | null;
     let updatedData: DivisionDataDto | null;
@@ -54,17 +51,7 @@ describe('EditDivision', () => {
 
     beforeEach(() => {
         reportedError = new ErrorState();
-        window.alert = (message: string) => {
-            alert = message
-        };
-        window.confirm = (message: string | undefined) => {
-            confirm = message;
-            return confirmResponse
-        };
-        alert = undefined;
-        confirm = undefined;
         saved = false;
-        confirmResponse = false;
         saveError = null;
         updatedDivision = null;
         deletedId = null;
@@ -128,7 +115,7 @@ describe('EditDivision', () => {
 
         await doClick(findButton(context.container, 'Update division'));
 
-        expect(alert).toEqual('Enter a division name');
+        context.prompts.alertWasShown('Enter a division name');
         expect(saved).toEqual(false);
     });
 
@@ -163,7 +150,7 @@ describe('EditDivision', () => {
         await doClick(findButton(context.container, 'Update division'));
 
         reportedError.verifyNoError();
-        expect(alert).toBeUndefined();
+        context.prompts.noAlerts();
         expect(saved).toEqual(true);
         expect(updatedDivision).not.toBeNull();
         expect(updatedDivision!.lastUpdated).toEqual(division.updated);
@@ -199,10 +186,11 @@ describe('EditDivision', () => {
             setSaveError,
         });
         reportedError.verifyNoError();
+        context.prompts.respondToConfirm('Are you sure you want to delete the DIVISION division?', true);
 
         await doClick(findButton(context.container, 'Delete division'));
 
-        expect(confirm).toEqual('Are you sure you want to delete the DIVISION division?');
+        context.prompts.confirmWasShown('Are you sure you want to delete the DIVISION division?');
         expect(saved).toEqual(false);
     });
 
@@ -216,7 +204,7 @@ describe('EditDivision', () => {
             setSaveError,
         });
         reportedError.verifyNoError();
-        confirmResponse = true;
+        context.prompts.respondToConfirm('Are you sure you want to delete the DIVISION division?', true);
 
         await doClick(findButton(context.container, 'Delete division'));
 
@@ -234,7 +222,7 @@ describe('EditDivision', () => {
             setSaveError,
         });
         reportedError.verifyNoError();
-        confirmResponse = true;
+        context.prompts.respondToConfirm('Are you sure you want to delete the DIVISION division?', true);
         apiResponse = {
             success: false
         };
@@ -256,7 +244,7 @@ describe('EditDivision', () => {
             setSaveError,
         });
         reportedError.verifyNoError();
-        confirmResponse = true;
+        context.prompts.respondToConfirm('Are you sure you want to delete the DIVISION division?', true);
 
         await doClick(findButton(context.container, 'Delete division'));
 

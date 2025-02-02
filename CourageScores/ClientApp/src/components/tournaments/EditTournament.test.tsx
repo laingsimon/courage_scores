@@ -417,9 +417,6 @@ describe('EditTournament', () => {
             expect(playing.textContent).toEqual('Playing:');
             const sides = context.container.querySelector('div > div > div:nth-child(2)')!;
             const sideElement = sides.querySelector('div');
-            window.confirm = (_) => {
-                return true;
-            }
 
             await doClick(findButton(sideElement, '✏️'));
             const dialog = sides.querySelector('.modal-dialog');
@@ -453,9 +450,7 @@ describe('EditTournament', () => {
             expect(playing.textContent).toEqual('Playing:');
             const sides = context.container.querySelector('div > div > div:nth-child(2)')!;
             const sideElement = sides.querySelector('div');
-            window.confirm = (_) => {
-                return true;
-            }
+            context.prompts.respondToConfirm('Are you sure you want to remove SIDE 1?', true);
 
             await doClick(findButton(sideElement, '✏️'));
             const dialog = sides.querySelector('.modal-dialog');

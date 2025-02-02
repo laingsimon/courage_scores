@@ -732,13 +732,11 @@ describe('Score', () => {
             fixtureData.awaySubmission = getPlayedFixtureData(appData);
             await renderComponent(fixtureData.id, appData);
             reportedError.verifyNoError();
-            let alert: string | undefined;
-            window.alert = (msg: string) => alert = msg;
 
             await doClick(findButton(context.container, 'Unpublish'));
 
             reportedError.verifyNoError();
-            expect(alert).toEqual('Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved');
+            context.prompts.alertWasShown('Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved');
             const matches = Array.from(context.container.querySelectorAll('table tbody tr'));
             const allScores = matches.flatMap(match => {
                 const tds = Array.from(match.querySelectorAll('td')).filter(td => td.colSpan !== 2);
@@ -766,15 +764,13 @@ describe('Score', () => {
             }
             await renderComponent(fixtureData.id, appData);
             reportedError.verifyNoError();
-            let alert: string | undefined;
-            window.alert = (msg: string) => alert = msg;
             await doClick(context.container, 'span[title="See home submission"]');
             reportedError.verifyNoError();
 
             await doClick(findButton(context.container, 'Unpublish'));
 
             reportedError.verifyNoError();
-            expect(alert).toEqual('Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved');
+            context.prompts.alertWasShown('Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved');
             const matches = Array.from(context.container.querySelectorAll('table tbody tr'));
             const allScores = matches.flatMap(match => {
                 const tds = Array.from(match.querySelectorAll('td')).filter(td => td.colSpan !== 2);
@@ -794,15 +790,13 @@ describe('Score', () => {
             }
             await renderComponent(fixtureData.id, appData);
             reportedError.verifyNoError();
-            let alert: string | undefined;
-            window.alert = (msg: string) => alert = msg;
             await doClick(context.container, 'span[title="See away submission"]');
             reportedError.verifyNoError();
 
             await doClick(findButton(context.container, 'Unpublish'));
 
             reportedError.verifyNoError();
-            expect(alert).toEqual('Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved');
+            context.prompts.alertWasShown('Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved');
             const matches = Array.from(context.container.querySelectorAll('table tbody tr'));
             const allScores = matches.flatMap(match => {
                 const tds = Array.from(match.querySelectorAll('td')).filter(td => td.colSpan !== 2);
@@ -948,7 +942,7 @@ describe('Score', () => {
                 success: true,
                 result: fixtureData,
             };
-            window.confirm = () => true;
+            context.prompts.respondToConfirm('Are you sure you want to delete this photo?', true);
 
             await doClick(findButton(dialog, '🗑'));
 
@@ -978,7 +972,7 @@ describe('Score', () => {
                 success: false,
                 errors: [ 'SOME ERROR' ]
             };
-            window.confirm = () => true;
+            context.prompts.respondToConfirm('Are you sure you want to delete this photo?', true);
 
             await doClick(findButton(dialog, '🗑'));
 

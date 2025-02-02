@@ -178,8 +178,6 @@ describe('AssignTeamToSeasons', () => {
                 .starting('2023-02-01T00:00:00')
                 .build();
             await renderComponent(team, [team], [season, otherSeason], season, division);
-            let alert: string | undefined;
-            window.alert = (msg: string) => alert = msg;
             console.error = () => {};
             await doClick(context.container, '.list-group .list-group-item:not(.active)');
             apiResponse = {
@@ -188,7 +186,7 @@ describe('AssignTeamToSeasons', () => {
 
             await doClick(findButton(context.container, 'Apply changes'));
 
-            expect(alert).toEqual('There were 1 error/s when applying these changes; some changes may not have been saved');
+            context.prompts.alertWasShown('There were 1 error/s when applying these changes; some changes may not have been saved');
         });
 
         it('can close', async () => {

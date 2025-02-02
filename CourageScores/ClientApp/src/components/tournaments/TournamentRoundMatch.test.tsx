@@ -596,16 +596,12 @@ describe('TournamentRoundMatch', () => {
                 onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
-            let confirm: string | undefined;
-            window.confirm = (message: string | undefined) => {
-                confirm = message;
-                return true;
-            };
+            context.prompts.respondToConfirm('Are you sure you want to remove this match?', true);
 
             await doClick(findButton(cells[5], '🗑'));
 
             reportedError.verifyNoError();
-            expect(confirm).toEqual('Are you sure you want to remove this match?');
+            context.prompts.confirmWasShown('Are you sure you want to remove this match?');
             expect(updatedRound).toEqual({
                 matches: [],
                 matchOptions: [],
@@ -629,16 +625,12 @@ describe('TournamentRoundMatch', () => {
                 onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
-            let confirm: string | undefined;
-            window.confirm = (message: string | undefined) => {
-                confirm = message;
-                return false;
-            };
+            context.prompts.respondToConfirm('Are you sure you want to remove this match?', false);
 
             await doClick(findButton(cells[5], '🗑'));
 
             reportedError.verifyNoError();
-            expect(confirm).toEqual('Are you sure you want to remove this match?');
+            context.prompts.confirmWasShown('Are you sure you want to remove this match?');
             expect(updatedRound).toBeNull();
         });
     });

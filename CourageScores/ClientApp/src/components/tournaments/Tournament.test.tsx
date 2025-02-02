@@ -401,7 +401,6 @@ describe('Tournament', () => {
         const notPermittedAccount: UserDto = user({});
         let tournamentData: TournamentGameDto;
         let divisionData: DivisionDataDto;
-        let alert: string | null;
 
         beforeEach(() => {
             tournamentDataLookup = {};
@@ -421,10 +420,6 @@ describe('Tournament', () => {
             divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(tournamentData.divisionId!, tournamentData.seasonId!, divisionData);
             expectDivisionDataRequest('', tournamentData.seasonId!, divisionData);
-
-            alert = null;
-            window.confirm = () => true;
-            window.alert = (msg: string) => alert = msg;
         });
 
         async function renderComponentForTest(team?: TeamDto | null, useAccount?: UserDto | null) {
@@ -543,7 +538,7 @@ describe('Tournament', () => {
 
             await doClick(findButton(context.container, 'Close'));
 
-            expect(alert).toEqual('Add the (new) match before saving, otherwise it would be lost.\n' +
+            context.prompts.alertWasShown('Add the (new) match before saving, otherwise it would be lost.\n' +
                 '\n' +
                 'A vs B');
         });
@@ -559,7 +554,7 @@ describe('Tournament', () => {
 
             await doClick(findButton(context.container, 'Close'));
 
-            expect(alert).toBeFalsy();
+            context.prompts.noAlerts();
             expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
         });
 
@@ -574,7 +569,7 @@ describe('Tournament', () => {
 
             await doClick(findButton(context.container, 'Close'));
 
-            expect(alert).toBeFalsy();
+            context.prompts.noAlerts();
             const round = updatedTournamentData[0].round!;
             expect(round.matchOptions).toEqual([{ numberOfLegs: 5, startingScore: 501 }]);
         });
@@ -591,7 +586,7 @@ describe('Tournament', () => {
 
             await doClick(findButton(context.container, 'Close'));
 
-            expect(alert).toBeFalsy();
+            context.prompts.noAlerts();
             const round = updatedTournamentData[0].round!;
             expect(round.matchOptions).toEqual([{ numberOfLegs: 7, startingScore: 501 }]);
         });
@@ -773,6 +768,7 @@ describe('Tournament', () => {
             tournamentData.sides!.push(sideA, sideB, sideC);
             tournamentData.round = roundBuilder().build();
             await renderComponentForTest(teamWithPlayersABC);
+            context.prompts.respondToConfirm('Are you sure you want to remove A?', true);
             // verify that all 3 players CAN be selected before the side is removed
             await doClick(context.container.querySelector('div[data-accolades="180s"]')!);
             let oneEightiesDialog = context.container.querySelector('.modal-dialog')!;
@@ -800,6 +796,7 @@ describe('Tournament', () => {
             tournamentData.sides!.push(sideA, sideB, sideC);
             tournamentData.round = roundBuilder().build();
             await renderComponentForTest(teamWithPlayersABC);
+            context.prompts.respondToConfirm('Are you sure you want to remove A?', true);
             // verify that all 3 players CAN be selected before the side is removed
             await doClick(context.container.querySelector('div[data-accolades="hi-checks"]')!);
             let hiChecksDialog = context.container.querySelector('.modal-dialog')!;
@@ -834,7 +831,7 @@ describe('Tournament', () => {
 
             await doClick(findButton(context.container, 'Close'));
 
-            expect(alert).toBeFalsy();
+            context.prompts.noAlerts();
             const round = updatedTournamentData[0].round!;
             expect(round.matchOptions).toEqual([{ numberOfLegs: 5, startingScore: 501 }]);
         });
@@ -851,7 +848,7 @@ describe('Tournament', () => {
 
             await doClick(findButton(context.container, 'Close'));
 
-            expect(alert).toBeFalsy();
+            context.prompts.noAlerts();
             const round = updatedTournamentData[0].round!;
             expect(round.matchOptions).toEqual([{ numberOfLegs: 7, startingScore: 501 }]);
         });
@@ -1127,6 +1124,7 @@ describe('Tournament', () => {
                 success: true,
                 result: tournamentData,
             };
+            context.prompts.respondToConfirm('Are you sure you want to delete this photo?', true);
 
             await doClick(findButton(dialog, '🗑'));
 
@@ -1153,6 +1151,7 @@ describe('Tournament', () => {
                 success: false,
                 errors: [ 'SOME ERROR' ]
             };
+            context.prompts.respondToConfirm('Are you sure you want to delete this photo?', true);
 
             await doClick(findButton(dialog, '🗑'));
 

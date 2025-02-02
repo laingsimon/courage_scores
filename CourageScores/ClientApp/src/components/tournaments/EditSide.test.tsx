@@ -706,46 +706,34 @@ describe('EditSide', () => {
 
         it('can delete side', async () => {
             await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team]);
-            let confirm: string | undefined;
-            window.confirm = (msg: string | undefined) => {
-                confirm = msg;
-                return true;
-            }
+            context.prompts.respondToConfirm('Are you sure you want to remove SIDE NAME?', true);
 
             await doClick(findButton(context.container, 'Delete side'));
 
             reportedError.verifyNoError();
-            expect(confirm).toEqual('Are you sure you want to remove SIDE NAME?');
+            context.prompts.confirmWasShown('Are you sure you want to remove SIDE NAME?');
             expect(deleted).toEqual(true);
         });
 
         it('does not delete side when rejected', async () => {
             await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team]);
-            let confirm: string | undefined;
-            window.confirm = (msg: string | undefined) => {
-                confirm = msg;
-                return false;
-            }
+            context.prompts.respondToConfirm('Are you sure you want to remove SIDE NAME?', false);
 
             await doClick(findButton(context.container, 'Delete side'));
 
             reportedError.verifyNoError();
-            expect(confirm).toEqual('Are you sure you want to remove SIDE NAME?');
+            context.prompts.confirmWasShown('Are you sure you want to remove SIDE NAME?');
             expect(deleted).toEqual(false);
         });
 
         it('cannot save side if no name', async () => {
             const side: TournamentSideDto = sideBuilder('').teamId(team.id).build();
             await renderComponent(containerProps(tournamentData, season), props(side), [team]);
-            let alert: string | undefined;
-            window.alert = (msg: string) => {
-                alert = msg;
-            };
 
             await doClick(findButton(context.container, 'Save'));
 
             reportedError.verifyNoError();
-            expect(alert).toEqual('Please enter a name for this side');
+            context.prompts.alertWasShown('Please enter a name for this side');
             expect(applied).toEqual(false);
         });
 

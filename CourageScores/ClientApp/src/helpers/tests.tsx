@@ -88,6 +88,7 @@ export interface TestContext {
     cleanUp(): UntypedPromise;
     user?: UserEvent;
     cookies?: Cookies;
+    prompts: Prompts;
 }
 
 export function api<T>(methods: Partial<T>): T {
@@ -285,6 +286,7 @@ export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBr
         },
         user,
         cookies: cookies,
+        prompts: new Prompts(),
     };
 }
 
@@ -356,4 +358,61 @@ export async function doSelectOption(container: Element | undefined | null, text
 
 export async function noop(): UntypedPromise {
     // do nothing
+}
+
+export class Prompts {
+    private readonly alerts: string[] = [];
+    private readonly confirms: (string | undefined)[] = [];
+    private readonly responses: { [message: string]: boolean } = {};
+
+    constructor() {
+        this.init();
+    }
+
+    public alertWasShown(message: string) {
+        expect(this.alerts).toContain(message);
+    }
+
+    public alertWasNotShown(message: string) {
+        expect(this.alerts).not.toContain(message);
+    }
+
+    public confirmWasShown(message?: string) {
+        expect(this.confirms).toContain(message);
+    }
+
+    public confirmWasNotShown(message?: string) {
+        expect(this.confirms).not.toContain(message);
+    }
+
+    public noAlerts() {
+        expect(this.alerts).toEqual([]);
+    }
+
+    public noConfirms() {
+        expect(this.confirms).toEqual([]);
+    }
+
+    public respondToConfirm(message: string, response: boolean) {
+        this.responses[message] = response;
+    }
+
+    private init(): void {
+        window.alert = (msg: string) => {
+            this.alerts.push(msg);
+        };
+
+        window.confirm = (msg?: string) => {
+            this.confirms.push(msg);
+
+            if (msg && this.responses[msg] !== undefined) {
+                return this.responses[msg];
+            }
+
+
+            throw new Error(`Unexpected confirmation: '${msg?.replaceAll('\n', '\\n')}', add the following setup to the test
+
+context.prompts.respondToConfirm('${msg?.replaceAll('\n', '\\n')}', true);`);
+        };
+    }
 }

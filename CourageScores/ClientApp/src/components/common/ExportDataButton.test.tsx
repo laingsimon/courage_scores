@@ -5,7 +5,6 @@ import {
     cleanUp,
     doClick,
     iocProps,
-    noop,
     renderApp,
     TestContext
 } from "../../helpers/tests";
@@ -106,7 +105,6 @@ describe('ExportDataButton', () => {
                 }
             }, account);
             const button = context.container.querySelector('button')!;
-            window.alert = noop;
 
             await doClick(button);
 
@@ -128,13 +126,11 @@ describe('ExportDataButton', () => {
                 }
             }, account);
             const button = context.container.querySelector('button')!;
-            let alert: string | undefined;
-            window.alert = (msg: string) => alert = msg;
 
             await doClick(button);
 
             expect(exportRequest).not.toBeNull();
-            expect(alert).toEqual('Unable to export data');
+            context.prompts.alertWasShown('Unable to export data');
         });
 
         it('when clicked, allows download of content', async () => {

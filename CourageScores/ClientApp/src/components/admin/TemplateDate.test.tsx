@@ -299,15 +299,13 @@ describe('TemplateDate', () => {
                 setHighlight,
                 deleteDates,
             });
-            let alert: string | undefined;
-            window.alert = (msg: string) => alert = msg;
 
             await doChange(context.container, 'input[name="home"]', 'A', context.user);
             await doChange(context.container, 'input[name="home"]', '', context.user);
             await doChange(context.container, 'input[name="away"]', 'B', context.user);
             await doClick(findButton(context.container, '➕'));
 
-            expect(alert).toEqual('Enter at least a home team');
+            context.prompts.alertWasShown('Enter at least a home team');
             expect(update).toBeNull();
         });
 
@@ -324,15 +322,13 @@ describe('TemplateDate', () => {
                 setHighlight,
                 deleteDates,
             });
-            let alert: string | undefined;
-            window.alert = (msg: string) => alert = msg;
 
             await doChange(context.container, 'input[name="home"]', 'A', context.user);
             await doChange(context.container, 'input[name="home"]', '', context.user);
             await doChange(context.container, 'input[name="away"]', 'B', context.user);
             await context.user!.type(context.container.querySelector('input[name="home"]')!, '{Enter}');
 
-            expect(alert).toEqual('Enter at least a home team');
+            context.prompts.alertWasShown('Enter at least a home team');
             expect(update).toBeNull();
         });
 
@@ -536,7 +532,7 @@ describe('TemplateDate', () => {
                 setHighlight,
                 deleteDates,
             });
-            window.confirm = () => true;
+            context.prompts.respondToConfirm('Are you sure you want to delete all fixtures where A are playing?', true);
 
             await doClick(findButton(context.container, 'A - B ×'));
 
@@ -562,7 +558,7 @@ describe('TemplateDate', () => {
                 setHighlight,
                 deleteDates,
             });
-            window.confirm = () => true;
+            context.prompts.respondToConfirm('Are you sure you want to delete all fixtures where B are playing?', true);
 
             await doClick(findButton(context.container, 'A - B ×'));
 

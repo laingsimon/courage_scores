@@ -188,8 +188,8 @@ describe('SocketAdmin', () => {
                 sentMessages: 2,
             };
             allSockets = [ socket ];
-            window.confirm = () => true;
             await renderComponent();
+            context.prompts.respondToConfirm('Are you sure you want to close this socket', true);
 
             await doClick(findButton(context.container, '🗑'));
 
@@ -206,8 +206,8 @@ describe('SocketAdmin', () => {
                 sentMessages: 2,
             };
             allSockets = [ socket ];
-            window.confirm = () => false;
             await renderComponent();
+            context.prompts.respondToConfirm('Are you sure you want to close this socket', false);
 
             await doClick(findButton(context.container, '🗑'));
 
@@ -234,8 +234,8 @@ describe('SocketAdmin', () => {
                 sentMessages: 2,
             };
             allSockets = [ socketToDelete ];
-            window.confirm = () => true;
             await renderComponent();
+            context.prompts.respondToConfirm('Are you sure you want to close this socket', true);
             expect(context.container.textContent).toContain('TO DELETE');
 
             allSockets = [ newSocket ];
@@ -254,12 +254,12 @@ describe('SocketAdmin', () => {
                 sentMessages: 2,
             };
             allSockets = [ socket ];
-            window.confirm = () => true;
             apiResult = {
                 success: false,
                 errors: [ 'ERROR' ],
             };
             await renderComponent();
+            context.prompts.respondToConfirm('Are you sure you want to close this socket', true);
 
             await doClick(findButton(context.container, '🗑'));
 

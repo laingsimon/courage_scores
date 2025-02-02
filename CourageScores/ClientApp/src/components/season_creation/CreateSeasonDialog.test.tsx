@@ -286,15 +286,13 @@ describe('CreateSeasonDialog', () => {
                     seasonId: seasonId,
                     onClose,
                 });
-                let alert: string | undefined;
-                window.alert = (msg: string) => alert = msg;
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '🚫 TEMPLATE');
                 reportedError.verifyNoError();
 
                 await doClick(findButton(context.container, 'Next'));
 
                 reportedError.verifyNoError();
-                expect(alert).toEqual('This template is not compatible with this season, pick another template');
+                context.prompts.alertWasShown('This template is not compatible with this season, pick another template');
                 expect(proposalRequest).toBeNull();
             });
 

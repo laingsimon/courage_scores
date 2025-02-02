@@ -245,15 +245,11 @@ describe('EditTeamDetails', () => {
                 onChange,
                 onCancel,
             }, [division]);
-            let alert: string | undefined;
-            window.alert = (message: string) => {
-                alert = message
-            };
 
             await doClick(findButton(context.container, 'Save team'));
 
             expect(saved).toEqual(false);
-            expect(alert).toEqual('You must enter a team name');
+            context.prompts.alertWasShown('You must enter a team name');
         });
 
         it('can save team changes', async () => {

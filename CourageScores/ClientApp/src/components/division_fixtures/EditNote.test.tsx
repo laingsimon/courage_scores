@@ -216,13 +216,6 @@ describe('EditNote', () => {
         const division = divisionBuilder('DIVISION').build();
         const divisions = [division];
         const seasons = [season];
-        let alert: string | undefined;
-
-        window.alert = (message: string) => alert = message;
-
-        beforeEach(() => {
-            alert = undefined;
-        })
 
         it('can change date', async () => {
             await renderComponent(
@@ -317,7 +310,7 @@ describe('EditNote', () => {
 
             await doClick(findButton(context.container, 'Save'));
 
-            expect(alert).toEqual('You must enter a note');
+            context.prompts.alertWasShown('You must enter a note');
             expect(savedNote).toBeNull();
         });
 
@@ -332,7 +325,7 @@ describe('EditNote', () => {
 
             await doClick(findButton(context.container, 'Save'));
 
-            expect(alert).toEqual('You must enter a date');
+            context.prompts.alertWasShown('You must enter a date');
             expect(savedNote).toBeNull();
         });
 
@@ -349,7 +342,7 @@ describe('EditNote', () => {
 
             await doClick(findButton(context.container, 'Save'));
 
-            expect(alert).toBeUndefined();
+            context.prompts.noAlerts();
             expect(createdNote).not.toBeNull();
             expect(saved).toEqual(true);
         });
@@ -366,7 +359,7 @@ describe('EditNote', () => {
 
             await doClick(findButton(context.container, 'Save'));
 
-            expect(alert).toBeUndefined();
+            context.prompts.noAlerts();
             expect(savedNote).not.toBeNull();
             expect(savedNote!.note.lastUpdated).toEqual('2023-07-01T00:00:00');
             expect(saved).toEqual(true);
@@ -386,7 +379,7 @@ describe('EditNote', () => {
 
             await doClick(findButton(context.container, 'Save'));
 
-            expect(alert).toBeUndefined();
+            context.prompts.noAlerts();
             expect(savedNote).not.toBeNull();
             expect(saved).toEqual(false);
             expect(context.container.textContent).toContain('Could not save note');

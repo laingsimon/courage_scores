@@ -445,15 +445,11 @@ describe('TournamentFixture', () => {
                 {id: division.id, season, players: [player], onReloadDivision, name: '', setDivisionData: noop},
                 account);
             const adminCell = context.container.querySelector('td:nth-child(2)')!;
-            let confirm: string | undefined;
-            window.confirm = (message: string | undefined) => {
-                confirm = message;
-                return true;
-            };
+            context.prompts.respondToConfirm('Are you sure you want to delete this tournament fixture?', true);
 
             await doClick(findButton(adminCell, '🗑'));
 
-            expect(confirm).toEqual('Are you sure you want to delete this tournament fixture?');
+            context.prompts.confirmWasShown('Are you sure you want to delete this tournament fixture?');
             reportedError.verifyNoError();
             expect(deletedId).toEqual(tournament.id);
             expect(tournamentChanged).toEqual(true);
@@ -470,15 +466,11 @@ describe('TournamentFixture', () => {
                 {id: division.id, season, players: [player], onReloadDivision, name: '', setDivisionData: noop},
                 account);
             const adminCell = context.container.querySelector('td:nth-child(2)')!;
-            let confirm: string | undefined;
-            window.confirm = (message: string | undefined) => {
-                confirm = message;
-                return false;
-            };
+            context.prompts.respondToConfirm('Are you sure you want to delete this tournament fixture?', false);
 
             await doClick(findButton(adminCell, '🗑'));
 
-            expect(confirm).toEqual('Are you sure you want to delete this tournament fixture?');
+            context.prompts.confirmWasShown('Are you sure you want to delete this tournament fixture?');
             reportedError.verifyNoError();
             expect(deletedId).toBeNull();
             expect(tournamentChanged).toEqual(false);
@@ -495,9 +487,7 @@ describe('TournamentFixture', () => {
                 {id: division.id, season, players: [player], onReloadDivision, name: '', setDivisionData: noop},
                 account);
             const adminCell = context.container.querySelector('td:nth-child(2)');
-            window.confirm = () => {
-                return true;
-            };
+            context.prompts.respondToConfirm('Are you sure you want to delete this tournament fixture?', true);
             apiResponse = {success: false, errors: ['SOME ERROR']};
 
             await doClick(findButton(adminCell, '🗑'));
@@ -519,9 +509,7 @@ describe('TournamentFixture', () => {
                 {id: division.id, season, players: [player], onReloadDivision, name: '', setDivisionData: noop},
                 account);
             const adminCell = context.container.querySelector('td:nth-child(2)');
-            window.confirm = () => {
-                return true;
-            };
+            context.prompts.respondToConfirm('Are you sure you want to delete this tournament fixture?', true);
             apiResponse = {success: false, errors: ['SOME ERROR']};
             await doClick(findButton(adminCell, '🗑'));
             expect(context.container.textContent).toContain('Could not delete tournament');

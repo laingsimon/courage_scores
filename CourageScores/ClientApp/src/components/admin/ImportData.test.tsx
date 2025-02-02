@@ -109,21 +109,17 @@ describe('ImportData', () => {
     it('cannot import when no file selected', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        let alert: string | undefined;
-        window.alert = (msg: string) => alert = msg;
 
         await doClick(findButton(context.container, 'Import data'));
 
         reportedError.verifyNoError();
         expect(importRequest).toBeNull();
-        expect(alert).toEqual('Select a file first');
+        context.prompts.alertWasShown('Select a file first');
     });
 
     it('cannot import when no tables selected', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        let alert: string | undefined;
-        window.alert = (msg: string) => alert = msg;
         const tables = Array.from(context.container.querySelectorAll('ul li'));
         const table1 = tables.filter(t => t.textContent!.indexOf('Table 1') !== -1)[0];
         if (table1.className.indexOf('active') !== -1) {
@@ -135,7 +131,7 @@ describe('ImportData', () => {
 
         reportedError.verifyNoError();
         expect(importRequest).toBeNull();
-        expect(alert).toEqual('Select some tables to import');
+        context.prompts.alertWasShown('Select some tables to import');
     });
 
     it('can import data with password', async () => {

@@ -392,12 +392,6 @@ describe('MatchSayg', () => {
         const pairB = sideBuilder('PAIR B').withPlayer('PLAYER B 1').withPlayer('PLAYER B 2').build();
         const permitted: UserDto = user(true);
         const permittedWithDebug: UserDto = user(true, true);
-        let message: string | undefined;
-
-        beforeEach(() => {
-            message = undefined;
-            window.alert = (msg: string) => message = msg;
-        });
 
         async function enterScore(score: number, noOfDarts?: number) {
             await keyPad(context, score.toString().split('').concat(ENTER_SCORE_BUTTON));
@@ -483,7 +477,7 @@ describe('MatchSayg', () => {
 
             await doClick(createDataButton);
 
-            expect(message).toEqual('Save the tournament first');
+            context.prompts.alertWasShown('Save the tournament first');
             expect(tournamentSaved).toBeNull();
             reportedError.verifyNoError();
         });
@@ -505,7 +499,7 @@ describe('MatchSayg', () => {
             await doClick(createDataButton);
 
             reportedError.verifyNoError();
-            expect(message).toBeFalsy();
+            context.prompts.alertWasNotShown('');
             expect(tournamentSaved).toEqual({
                 preventLoading: true,
             });
@@ -900,11 +894,7 @@ describe('MatchSayg', () => {
             expect(createDataButton.textContent).toEqual(START_SCORING);
             await doClick(createDataButton);
             const dialog = context.container.querySelector('.modal-dialog')!;
-            let confirm: string | undefined;
-            window.confirm = (msg: string | undefined) => {
-                confirm = msg;
-                return false;
-            }
+            context.prompts.respondToConfirm('Are you sure you want to delete the sayg data for this match?', false);
 
             await doClick(findButton(dialog, 'Debug options'));
             const deleteButton = dialog.querySelector('.dropdown-item.text-danger')!;
@@ -912,7 +902,7 @@ describe('MatchSayg', () => {
             await doClick(deleteButton);
 
             reportedError.verifyNoError();
-            expect(confirm).toEqual('Are you sure you want to delete the sayg data for this match?');
+            context.prompts.confirmWasShown('Are you sure you want to delete the sayg data for this match?');
         });
 
         it('can delete sayg then close dialog and update tournament data', async () => {
@@ -939,7 +929,8 @@ describe('MatchSayg', () => {
             expect(createDataButton.textContent).toEqual(START_SCORING);
             await doClick(createDataButton);
             const dialog = context.container.querySelector('.modal-dialog')!;
-            window.confirm = () => true;
+            context.prompts.respondToConfirm('Are you sure you want to delete the sayg data for this match?', true);
+            context.prompts.respondToConfirm('Clear match score (to allow scores to be re-recorded?)', true);
             apiResponse = {
                 result: tournamentData,
                 success: true,
@@ -983,7 +974,7 @@ describe('MatchSayg', () => {
             expect(createDataButton.textContent).toEqual(START_SCORING);
             await doClick(createDataButton);
             const dialog = context.container.querySelector('.modal-dialog')!;
-            window.confirm = () => true;
+            context.prompts.respondToConfirm('Are you sure you want to delete the sayg data for this match?', true);
             apiResponse = {
                 success: false,
                 errors: [ 'SOME ERROR' ],

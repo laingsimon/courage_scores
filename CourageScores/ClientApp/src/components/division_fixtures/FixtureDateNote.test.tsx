@@ -150,15 +150,11 @@ describe('FixtureDateNote', () => {
             };
             const note = noteBuilder().note('**some markdown**').build();
             await renderComponent({ note, setEditNote }, account);
-            let confirm: string | undefined;
-            window.confirm = (message: string | undefined) => {
-                confirm = message;
-                return true;
-            }
+            context.prompts.respondToConfirm('Are you sure you want to delete this note?', true);
 
             await doClick(context.container.querySelector('button.btn-close')!);
 
-            expect(confirm).toEqual('Are you sure you want to delete this note?');
+            context.prompts.confirmWasShown('Are you sure you want to delete this note?');
             expect(deletedNoteId).toEqual(note.id);
         });
 
@@ -173,15 +169,11 @@ describe('FixtureDateNote', () => {
             };
             const note = noteBuilder().note('**some markdown**').build();
             await renderComponent({ note, setEditNote }, account);
-            let confirm: string | undefined;
-            window.confirm = (message: string | undefined) => {
-                confirm = message;
-                return false;
-            }
+            context.prompts.respondToConfirm('Are you sure you want to delete this note?', false);
 
             await doClick(context.container.querySelector('button.btn-close')!);
 
-            expect(confirm).toEqual('Are you sure you want to delete this note?');
+            context.prompts.confirmWasShown('Are you sure you want to delete this note?');
             expect(deletedNoteId).toBeNull();
         });
 
@@ -196,14 +188,12 @@ describe('FixtureDateNote', () => {
             };
             const note = noteBuilder().note('**some markdown**').build();
             await renderComponent({ note, setEditNote }, account);
-            let alert: string | undefined;
-            window.confirm = () => true;
-            window.alert = (message: string) => alert = message;
             deleteResult = {success: false};
+            context.prompts.respondToConfirm('Are you sure you want to delete this note?', true);
 
             await doClick(context.container.querySelector('button.btn-close')!);
 
-            expect(alert).toEqual('Could not delete note');
+            context.prompts.alertWasShown('Could not delete note');
         });
 
         it('can edit note', async () => {

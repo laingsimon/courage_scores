@@ -879,16 +879,12 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam, anotherTeam]);
             const saveCell = context.container.querySelector('td:nth-child(6)')!;
             expect(saveCell.textContent).toContain('🗑');
-            let confirm: string | undefined;
-            window.confirm = (message: string | undefined) => {
-                confirm = message;
-                return true;
-            }
+            context.prompts.respondToConfirm('Are you sure you want to delete this fixture?\n\nHOME vs AWAY', true);
 
             await doClick(findButton(saveCell, '🗑'));
 
             reportedError.verifyNoError();
-            expect(confirm).toEqual('Are you sure you want to delete this fixture?\n\nHOME vs AWAY');
+            context.prompts.confirmWasShown('Are you sure you want to delete this fixture?\n\nHOME vs AWAY');
             expect(deletedFixture).toEqual(fixture.id);
             expect(beforeReloadDivisionCalled).toEqual(true);
             expect(divisionReloaded).toEqual(true);
@@ -906,9 +902,6 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam, anotherTeam]);
             const saveCell = context.container.querySelector('td:nth-child(6)')!;
             expect(saveCell.textContent).toContain('🗑');
-            window.confirm = () => {
-                return false;
-            };
 
             const button = findButton(saveCell, '🗑');
 
@@ -927,7 +920,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam, anotherTeam]);
             const saveCell = context.container.querySelector('td:nth-child(6)')!;
             expect(saveCell.textContent).toContain('🗑');
-            window.confirm = () => false;
+            context.prompts.respondToConfirm('Are you sure you want to delete this fixture?\n\nHOME vs AWAY', false);
 
             await doClick(findButton(saveCell, '🗑'));
 
@@ -949,7 +942,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam, anotherTeam]);
             const saveCell = context.container.querySelector('td:nth-child(6)')!;
             expect(saveCell.textContent).toContain('🗑');
-            window.confirm = () => true;
+            context.prompts.respondToConfirm('Are you sure you want to delete this fixture?\n\nHOME vs AWAY', true);
             apiResponse = {success: false, errors: ['SOME ERROR']};
 
             await doClick(findButton(saveCell, '🗑'));
@@ -974,7 +967,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam, anotherTeam]);
             const saveCell = context.container.querySelector('td:nth-child(6)')!;
             expect(saveCell.textContent).toContain('🗑');
-            window.confirm = () => true;
+            context.prompts.respondToConfirm('Are you sure you want to delete this fixture?\n\nHOME vs AWAY', true);
             apiResponse = {success: false, errors: ['SOME ERROR']};
             await doClick(findButton(saveCell, '🗑'));
             expect(context.container.textContent).toContain('Could not save fixture details');
@@ -1000,16 +993,12 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam, anotherTeam]);
             const saveCell = context.container.querySelector('td:nth-child(6)')!;
             expect(saveCell.textContent).toContain('🗑');
-            let confirm: string | undefined;
-            window.confirm = (message: string | undefined) => {
-                confirm = message;
-                return true;
-            }
+            context.prompts.respondToConfirm('Are you sure you want to delete this fixture?\n\nHOME vs AWAY', true);
 
             await doClick(findButton(saveCell, '🗑'));
 
             reportedError.verifyNoError();
-            expect(confirm).toEqual('Are you sure you want to delete this fixture?\n\nHOME vs AWAY');
+            context.prompts.confirmWasShown('Are you sure you want to delete this fixture?\n\nHOME vs AWAY');
             expect(deletedFixture).toEqual(fixture.id);
             expect(beforeReloadDivisionCalled).toEqual(true);
             expect(divisionReloaded).toEqual(true);

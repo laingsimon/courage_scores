@@ -250,8 +250,6 @@ describe('PrintableSheet', () => {
         let oneRoundTournament2Sides: TournamentGameDto;
 
         beforeEach(() => {
-            window.confirm = () => true;
-
             twoRoundTournament4Sides = tournamentBuilder()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2))
@@ -856,6 +854,7 @@ describe('PrintableSheet', () => {
                 {tournamentData: oneRoundTournament2Sides, season, division, matchOptionDefaults, setTournamentData, alreadyPlaying: {}, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({account}, reportedError));
+            context.prompts.respondToConfirm('Are you sure you want to remove A?', true);
 
             const playing = context.container.querySelector('div[datatype="playing"]')!;
             await doClick(playing.querySelector('li.list-group-item')!);
@@ -1074,6 +1073,7 @@ describe('PrintableSheet', () => {
                 {tournamentData: sideAandBTournament, season, division, matchOptionDefaults, setTournamentData, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({account}, reportedError));
+            context.prompts.respondToConfirm('Are you sure you want to remove A?', true);
 
             const playing = context.container.querySelector('div[datatype="playing"]')!;
             await doClick(playing.querySelector('li.list-group-item')!);

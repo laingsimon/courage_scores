@@ -4,7 +4,7 @@ import {
     brandingProps,
     cleanUp, doClick,
     ErrorState, findButton,
-    iocProps, noop,
+    iocProps,
     renderApp,
     TestContext
 } from "../../../helpers/tests";
@@ -469,8 +469,8 @@ describe('MasterDraw', () => {
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), START_SCORING));
             reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
-            window.confirm = (_: string | undefined) => true;
-            window.alert = noop;
+            context.prompts.respondToConfirm('Are you sure you want to delete the sayg data for this match?', true);
+            context.prompts.respondToConfirm('Clear match score (to allow scores to be re-recorded?)', true);
 
             await doClick(findButton(dialog, 'Delete sayg'));
 

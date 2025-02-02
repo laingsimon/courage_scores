@@ -186,13 +186,11 @@ describe('SharedAddress', () => {
                 highlight: '',
                 setHighlight,
             });
-            let alert: string | undefined;
-            window.alert = (msg: string) => alert = msg;
 
             await doChange(context.container, 'input', '', context.user);
             await doClick(findButton(context.container, '➕'));
 
-            expect(alert).toEqual('Enter a code for the team');
+            context.prompts.alertWasShown('Enter a code for the team');
         });
 
         it('cannot add address with empty code (Enter key press)', async () => {
@@ -204,13 +202,11 @@ describe('SharedAddress', () => {
                 highlight: '',
                 setHighlight,
             });
-            let alert: string | undefined;
-            window.alert = (msg: string) => alert = msg;
 
             await doChange(context.container, 'input', '', context.user);
             await context.user!.type(context.container.querySelector('input')!, '{Enter}');
 
-            expect(alert).toEqual('Enter a code for the team');
+            context.prompts.alertWasShown('Enter a code for the team');
         });
 
         it('can remove address', async () => {

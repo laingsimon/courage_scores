@@ -385,13 +385,11 @@ describe('PrintableSheetMatch', () => {
             const side = context.container.querySelector('div[datatype="sideB"]')!;
             await doClick(side);
             const dialog = context.container.querySelector('.modal-dialog')!;
-            let alert: string | undefined;
-            window.alert = (msg: string) => alert = msg;
 
             await doChange(dialog, 'input[name="bestOf"]', '', context.user);
             await doClick(findButton(dialog, 'Save'));
 
-            expect(alert).toEqual('Best of is invalid');
+            context.prompts.alertWasShown('Best of is invalid');
             expect(updatedTournament).toBeNull();
         });
 
@@ -413,11 +411,9 @@ describe('PrintableSheetMatch', () => {
                 containerProps(tournamentData, matchOptionDefaults),
                 withRoundIndex(props(nestedMatchData, true), 1),
                 appProps({}, reportedError));
-            let alert: string | undefined;
-            window.alert = (msg: string) => alert = msg;
             await doClick(context.container.querySelector('div[datatype="sideB"]')!);
 
-            expect(alert).toEqual('Finish entering data for the previous rounds first');
+            context.prompts.alertWasShown('Finish entering data for the previous rounds first');
         });
 
         it('can change side properties for match in subsequent round', async () => {
@@ -496,14 +492,12 @@ describe('PrintableSheetMatch', () => {
                 containerProps(tournamentData, matchOptionDefaults),
                 props(matchData, true, sideA, sideB, sideC),
                 appProps({}, reportedError));
-            let alert: string | undefined;
-            window.alert = (msg: string) => alert = msg;
             await doClick(context.container.querySelector('div[datatype="sideA"]')!);
             const dialog = context.container.querySelector('.modal-dialog')!;
             await doSelectOption(dialog.querySelector('.form-group :nth-child(4) div.dropdown-menu'), '1');
             await doClick(findButton(dialog, 'Save'));
 
-            expect(alert).toEqual('Select a side first');
+            context.prompts.alertWasShown('Select a side first');
             expect(updatedTournament).toEqual(null);
         });
 
@@ -896,7 +890,8 @@ describe('PrintableSheetMatch', () => {
                 containerProps(tournamentDataWithMatch, matchOptionDefaults),
                 withRound(patchable(props(matchData, true)), tournamentDataWithMatch!.round!),
                 appProps({ account: user(true, true) }, reportedError));
-            window.confirm = (msg: string | undefined) => msg === 'Are you sure you want to delete the sayg data for this match?';
+            context.prompts.respondToConfirm('Are you sure you want to delete the sayg data for this match?', true);
+            context.prompts.respondToConfirm('Clear match score (to allow scores to be re-recorded?)', false);
             deletedSaygResponse = {
                 success: true,
                 result: tournamentDataWithoutSayg,
@@ -939,7 +934,8 @@ describe('PrintableSheetMatch', () => {
                 containerProps(tournamentDataWithMatch, matchOptionDefaults),
                 withRound(patchable(props(matchData, true)), tournamentDataWithMatch!.round!),
                 appProps({ account: user(true, true) }, reportedError));
-            window.confirm = (msg: string | undefined) => msg === 'Are you sure you want to delete the sayg data for this match?' || msg === 'Clear match score (to allow scores to be re-recorded?)';
+            context.prompts.respondToConfirm('Are you sure you want to delete the sayg data for this match?', true);
+            context.prompts.respondToConfirm('Clear match score (to allow scores to be re-recorded?)', true);
             deletedSaygResponse = {
                 success: true,
                 result: tournamentDataWithoutSayg,
@@ -976,7 +972,7 @@ describe('PrintableSheetMatch', () => {
                 containerProps(tournamentDataWithMatch, matchOptionDefaults),
                 withRound(patchable(props(matchData, true)), tournamentDataWithMatch!.round!),
                 appProps({ account: user(true, true) }, reportedError));
-            window.confirm = (msg: string | undefined) => msg === 'Are you sure you want to delete the sayg data for this match?';
+            context.prompts.respondToConfirm('Are you sure you want to delete the sayg data for this match?', true);
             deletedSaygResponse = {
                 success: false,
             }

@@ -677,14 +677,12 @@ describe('DivisionFixtures', () => {
             await renderComponent(divisionData, account);
             await doClick(findButton(context.container.querySelector('div[datatype="fixture-management-1"]'), '➕ Add date'));
             const dialog = context.container.querySelector('.modal-dialog')!;
-            let alert: string | undefined;
-            window.alert = (message: string) => alert = message;
 
             await doClick(findButton(dialog, 'Add date'));
 
             reportedError.verifyNoError();
             expect(newFixtures).toBeNull();
-            expect(alert).toEqual('Select a date first');
+            context.prompts.alertWasShown('Select a date first');
         });
 
         it('does not add date if already exists', async () => {

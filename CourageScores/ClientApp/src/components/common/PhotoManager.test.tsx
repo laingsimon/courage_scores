@@ -360,15 +360,11 @@ describe('PhotoManager', () => {
                 onClose,
                 doDelete,
             });
-            let confirm: string | undefined;
-            window.confirm = (msg: string | undefined) => {
-                confirm = msg;
-                return false;
-            };
+            context.prompts.respondToConfirm('Are you sure you want to delete this photo?', false);
 
             await doClick(findButton(context.container, '🗑'));
 
-            expect(confirm).toEqual('Are you sure you want to delete this photo?');
+            context.prompts.confirmWasShown('Are you sure you want to delete this photo?');
             expect(deleteId).toBeNull();
         });
 
@@ -385,7 +381,7 @@ describe('PhotoManager', () => {
                 onClose,
                 doDelete,
             });
-            window.confirm = () => true;
+            context.prompts.respondToConfirm('Are you sure you want to delete this photo?', true);
 
             await doClick(findButton(context.container, '🗑'));
 

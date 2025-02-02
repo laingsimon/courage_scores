@@ -34,9 +34,6 @@ describe('EditSeason', () => {
     let saved: boolean;
     let saveError: IClientActionResultDto<SeasonDto> | null;
     let updatedSeason: EditSeasonDto | null;
-    let alert: string | undefined;
-    let confirm: string | undefined;
-    let confirmResponse: boolean;
     let apiResponse: IClientActionResultDto<SeasonDto>;
     let deletedId: string | null;
     const seasonApi = api<ISeasonApi>({
@@ -72,17 +69,7 @@ describe('EditSeason', () => {
 
     beforeEach(() => {
         reportedError = new ErrorState();
-        window.alert = (message: string) => {
-            alert = message
-        };
-        window.confirm = (message: string | undefined) => {
-            confirm = message;
-            return confirmResponse
-        };
-        alert = undefined;
-        confirm = undefined;
         saved = false;
-        confirmResponse = false;
         saveError = null;
         updatedSeason = null;
         deletedId = null;
@@ -238,7 +225,7 @@ describe('EditSeason', () => {
 
         await doClick(findButton(context.container, 'Update season'));
 
-        expect(alert).toEqual('Enter a season name');
+        context.prompts.alertWasShown('Enter a season name');
         expect(saved).toEqual(false);
     });
 
@@ -255,7 +242,7 @@ describe('EditSeason', () => {
         await doClick(findButton(context.container, 'Update season'));
 
         reportedError.verifyNoError();
-        expect(alert).toBeUndefined();
+        context.prompts.noAlerts();
         expect(saved).toEqual(true);
         expect(updatedSeason).not.toBeNull();
         expect(updatedSeason!.lastUpdated).toEqual(season.updated);
@@ -289,10 +276,11 @@ describe('EditSeason', () => {
             onUpdateData,
         }, [season], divisions);
         reportedError.verifyNoError();
+        context.prompts.respondToConfirm('Are you sure you want to delete the SEASON season?', true);
 
         await doClick(findButton(context.container, 'Delete season'));
 
-        expect(confirm).toEqual('Are you sure you want to delete the SEASON season?');
+        context.prompts.confirmWasShown('Are you sure you want to delete the SEASON season?');
         expect(saved).toEqual(false);
     });
 
@@ -305,7 +293,7 @@ describe('EditSeason', () => {
             onUpdateData,
         }, [season], divisions);
         reportedError.verifyNoError();
-        confirmResponse = true;
+        context.prompts.respondToConfirm('Are you sure you want to delete the SEASON season?', true);
 
         await doClick(findButton(context.container, 'Delete season'));
 
@@ -322,7 +310,7 @@ describe('EditSeason', () => {
             onUpdateData,
         }, [season], divisions);
         reportedError.verifyNoError();
-        confirmResponse = true;
+        context.prompts.respondToConfirm('Are you sure you want to delete the SEASON season?', true);
         apiResponse = {
             success: false
         };
@@ -343,7 +331,7 @@ describe('EditSeason', () => {
             onUpdateData,
         }, [season], divisions);
         reportedError.verifyNoError();
-        confirmResponse = true;
+        context.prompts.respondToConfirm('Are you sure you want to delete the SEASON season?', true);
 
         await doClick(findButton(context.container, 'Delete season'));
 

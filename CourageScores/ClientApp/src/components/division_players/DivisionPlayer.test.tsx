@@ -380,16 +380,6 @@ describe('DivisionPlayer', () => {
             oneEighties: 7,
             over100Checkouts: 8,
         };
-        let confirm: string | undefined;
-        let response: boolean = false;
-        window.confirm = (message: string | undefined) => {
-            confirm = message;
-            return response
-        };
-
-        beforeEach(() => {
-            confirm = undefined;
-        });
 
         describe('interactivity', () => {
             it('can show edit player dialog', async () => {
@@ -451,11 +441,11 @@ describe('DivisionPlayer', () => {
                     },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
-                response = false;
+                context.prompts.respondToConfirm('Are you sure you want to delete NAME?', false);
 
                 await doClick(findButton(nameCell, '🗑️'));
 
-                expect(confirm).toEqual('Are you sure you want to delete NAME?');
+                context.prompts.confirmWasShown('Are you sure you want to delete NAME?');
                 expect(deletedPlayer).toBeNull();
                 expect(divisionReloaded).toEqual(false);
                 expect(teamsReloaded).toEqual(false);
@@ -475,11 +465,11 @@ describe('DivisionPlayer', () => {
                     },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
-                response = true;
+                context.prompts.respondToConfirm('Are you sure you want to delete NAME?', true);
 
                 await doClick(findButton(nameCell, '🗑️'));
 
-                expect(confirm).toEqual('Are you sure you want to delete NAME?');
+                context.prompts.confirmWasShown('Are you sure you want to delete NAME?');
                 expect(deletedPlayer).not.toBeNull();
                 expect(divisionReloaded).toEqual(true);
                 expect(teamsReloaded).toEqual(true);
@@ -499,7 +489,7 @@ describe('DivisionPlayer', () => {
                     },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
-                response = true;
+                context.prompts.respondToConfirm('Are you sure you want to delete NAME?', true);
                 apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
 
                 await doClick(findButton(nameCell, '🗑️'));
@@ -525,7 +515,7 @@ describe('DivisionPlayer', () => {
                     },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
-                response = true;
+                context.prompts.respondToConfirm('Are you sure you want to delete NAME?', true);
                 apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
                 await doClick(findButton(nameCell, '🗑️'));
                 expect(context.container.textContent).toContain('Could not delete player');

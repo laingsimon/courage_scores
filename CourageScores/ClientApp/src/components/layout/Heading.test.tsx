@@ -97,14 +97,10 @@ describe('Heading', () => {
                 date: '2023-04-05T06:07:08',
                 prName: 'my PR title',
             }, { name: '' });
-            let alert: string | undefined;
-            window.alert = (message: string) => {
-                alert = message
-            };
 
             await doClick(context.container.querySelector('span.bg-warning')!);
 
-            expect(alert).toEqual('Branch: main\nSHA: 01234567\nPR: my PR title');
+            context.prompts.alertWasShown('Branch: main\nSHA: 01234567\nPR: my PR title');
         });
 
         it('when undefined', async () => {

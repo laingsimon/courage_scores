@@ -411,15 +411,11 @@ describe('FilterFixtures', () => {
                     favouriteTeamIds: [ '1234' ],
                     someOtherPreference: 'FOO',
                 });
-            let confirm: string | undefined = undefined;
-            window.confirm = (msg: string | undefined) => {
-                confirm = msg;
-                return false;
-            };
+            context.prompts.respondToConfirm('Are you sure you want to clear your favourites?', false);
 
             await doClick(findButton(context.container, '🌟'));
 
-            expect(confirm).toEqual('Are you sure you want to clear your favourites?');
+            context.prompts.confirmWasShown('Are you sure you want to clear your favourites?');
             expect(context.cookies!.get('preferences')).toEqual({
                 favouriteTeamIds: [ '1234' ],
                 someOtherPreference: 'FOO',
@@ -439,7 +435,7 @@ describe('FilterFixtures', () => {
                     favouriteTeamIds: [ '1234' ],
                     someOtherPreference: 'FOO',
                 });
-            window.confirm = () => true;
+            context.prompts.respondToConfirm('Are you sure you want to clear your favourites?', true);
 
             await doClick(findButton(context.container, '🌟'));
 

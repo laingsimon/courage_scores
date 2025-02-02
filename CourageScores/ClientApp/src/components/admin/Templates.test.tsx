@@ -386,7 +386,7 @@ describe('Templates', () => {
             templates = [template];
             await renderComponent();
             await doClick(context.container, '.list-group .list-group-item:first-child');
-            window.confirm = () => false;
+            context.prompts.respondToConfirm('Are you sure you want to delete this template?', false);
 
             await doClick(findButton(context.container, 'Delete'));
 
@@ -403,16 +403,12 @@ describe('Templates', () => {
             templates = [template];
             await renderComponent();
             await doClick(context.container, '.list-group .list-group-item:first-child');
-            let confirm: string | undefined;
-            window.confirm = (msg: string | undefined) => {
-                confirm = msg;
-                return true;
-            };
+            context.prompts.respondToConfirm('Are you sure you want to delete this template?', true);
 
             await doClick(findButton(context.container, 'Delete'));
 
             reportedError.verifyNoError();
-            expect(confirm).toEqual('Are you sure you want to delete this template?');
+            context.prompts.confirmWasShown('Are you sure you want to delete this template?');
             expect(deleted).toEqual(template.id);
         });
 
@@ -489,9 +485,7 @@ describe('Templates', () => {
             templates = [template];
             await renderComponent();
             await doClick(context.container, '.list-group .list-group-item:first-child');
-            window.confirm = () => {
-                return true;
-            };
+            context.prompts.respondToConfirm('Are you sure you want to delete this template?', true);
             apiResponse = {success: false, errors: ['ERROR ']};
 
             await doClick(findButton(context.container, 'Delete'));

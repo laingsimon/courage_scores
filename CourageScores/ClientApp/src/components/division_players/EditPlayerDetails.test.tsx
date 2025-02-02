@@ -257,18 +257,6 @@ describe('EditPlayerDetails', () => {
         const otherTeam: TeamDto = teamBuilder('OTHER TEAM')
             .forSeason(season, division)
             .build();
-        let alert: string | undefined;
-        let response = false;
-        window.confirm = () => {
-            return response
-        };
-        window.alert = (message: string) => {
-            alert = message
-        };
-
-        beforeEach(() => {
-            alert = undefined;
-        });
 
         it('can change team for new player', async () => {
             await renderComponent({
@@ -384,7 +372,7 @@ describe('EditPlayerDetails', () => {
 
             await doClick(findButton(context.container, 'Add player'));
 
-            expect(alert).toEqual('Please select a team');
+            context.prompts.alertWasShown('Please select a team');
         });
 
         it('requires name to be entered', async () => {
@@ -401,7 +389,7 @@ describe('EditPlayerDetails', () => {
 
             await doClick(findButton(context.container, 'Add player'));
 
-            expect(alert).toEqual('Please enter a name');
+            context.prompts.alertWasShown('Please enter a name');
         });
 
         it('creates new player', async () => {

@@ -1,4 +1,4 @@
-import {api, cleanUp, doClick, findButton, iocProps, noop, TestContext} from "./helpers/tests";
+import {api, cleanUp, doClick, findButton, iocProps, noop, Prompts, TestContext} from "./helpers/tests";
 import {App} from "./App";
 import {act} from "@testing-library/react";
 import {MemoryRouter, Route} from "react-router";
@@ -104,6 +104,7 @@ describe('App', () => {
                     document.body.removeChild(container);
                 }
             },
+            prompts: new Prompts(),
         };
     }
 

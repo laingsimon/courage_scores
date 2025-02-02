@@ -341,12 +341,10 @@ describe('DataBrowser', () => {
             await renderComponent(appProps({
                 account: {},
             }, reportedError));
-            let alert: string | undefined;
-            window.alert = (msg: string) => alert = msg;
 
             await doClick(findButton(context.container, 'Fetch'));
 
-            expect(alert).toEqual('Enter a table name (and optionally an id) first');
+            context.prompts.alertWasShown('Enter a table name (and optionally an id) first');
         });
 
         it('fetches when only table name supplied', async () => {

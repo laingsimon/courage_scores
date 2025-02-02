@@ -1041,7 +1041,7 @@ describe('Division', () => {
                 ]); // data loaded once
                 reportedError.verifyNoError();
                 const fixtureContainer = (context.container.querySelector('div[data-fixture-date="2023-07-01"]') as HTMLElement).parentElement as HTMLElement;
-                window.confirm = () => true;
+                context.prompts.respondToConfirm('Are you sure you want to delete this fixture?\n\nHOME vs AWAY', true);
 
                 await doClick(findButton(fixtureContainer, '🗑'));
 
