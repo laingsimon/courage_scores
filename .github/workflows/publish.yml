@@ -70,7 +70,7 @@ jobs:
         working-directory: ./CourageScores/ClientApp
 
       - name: Publish react coverage
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@v2.3.6
         with:
           file: ./CourageScores/ClientApp/coverage/lcov.info
           base-path: ./CourageScores/ClientApp
