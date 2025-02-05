@@ -127,7 +127,7 @@ public class DataService : IDataService
             return Unsuccessful<IReadOnlyCollection<SingleDataResultDto>>("Table not supplied");
         }
 
-        var tableExists = await _dataBrowserRepository.TableExists(table);
+        var tableExists = await _dataBrowserRepository.TableExists(table, token);
         if (!tableExists)
         {
             return Unsuccessful<IReadOnlyCollection<SingleDataResultDto>>($"Table not found: {table}");
@@ -158,7 +158,7 @@ public class DataService : IDataService
             return Unsuccessful<object>("Table not supplied");
         }
 
-        var tableExists = await _dataViewRepository.TableExists(table);
+        var tableExists = await _dataViewRepository.TableExists(table, token);
         if (!tableExists)
         {
             return Unsuccessful<object>($"Table not found: {table}");
