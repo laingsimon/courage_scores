@@ -32,17 +32,19 @@ export function MasterDraw({matches, host, opponent, gender, date, type, patchDa
         }
 
         const roundPatch: PatchTournamentRoundDto = patch as PatchTournamentRoundDto;
-        await patchData(roundPatch, nestInRound, saygId);
+        if (patchData) {
+            await patchData(roundPatch, nestInRound, saygId);
+        }
     }
 
     try {
         return (<div className="page-break-after" datatype="master-draw">
-            <h2 onClick={setEditTournament ? async () => await setEditTournament('matches') : null}>Master draw</h2>
+            <h2 onClick={setEditTournament ? async () => await setEditTournament('matches') : undefined}>Master draw</h2>
             <div className="d-flex flex-row">
                 <div>
                     <table className={`table${preventScroll ? ' max-height-100' : ''}`}>
                         {preventScroll ? null : (<thead>
-                        <tr onClick={setEditTournament ? async () => await setEditTournament('matches') : null}>
+                        <tr onClick={setEditTournament ? async () => await setEditTournament('matches') : undefined}>
                             <th>#</th>
                             <th>{host}</th>
                             <th>v</th>
@@ -55,10 +57,10 @@ export function MasterDraw({matches, host, opponent, gender, date, type, patchDa
                             const oddNumberedMatch: boolean = (index + 1) % 2 !== 0;
 
                             return (<tr key={index}>
-                                <td onClick={setEditTournament ? async () => await setEditTournament('matches') : null}>{index + 1}</td>
-                                <td onClick={setEditTournament ? async () => await setEditTournament('matches') : null}>{preventScroll ? '' : m.sideA.name}</td>
-                                <td onClick={setEditTournament ? async () => await setEditTournament('matches') : null}>v</td>
-                                <td onClick={setEditTournament ? async () => await setEditTournament('matches') : null}>{preventScroll ? '' : m.sideB.name}</td>
+                                <td onClick={setEditTournament ? async () => await setEditTournament('matches') : undefined}>{index + 1}</td>
+                                <td onClick={setEditTournament ? async () => await setEditTournament('matches') : undefined}>{preventScroll ? '' : m.sideA.name}</td>
+                                <td onClick={setEditTournament ? async () => await setEditTournament('matches') : undefined}>v</td>
+                                <td onClick={setEditTournament ? async () => await setEditTournament('matches') : undefined}>{preventScroll ? '' : m.sideB.name}</td>
                                 <td className="d-print-none">
                                     <MatchSayg
                                         match={m}
@@ -84,7 +86,7 @@ export function MasterDraw({matches, host, opponent, gender, date, type, patchDa
                         </tfoot>) : null}
                     </table>
                 </div>
-                {preventScroll ? null : (<div className="px-5" datatype="details" onClick={setEditTournament ? async () => await setEditTournament('details') : null}>
+                {preventScroll ? null : (<div className="px-5" datatype="details" onClick={setEditTournament ? async () => await setEditTournament('details') : undefined}>
                     <div>Gender: <span className="fw-bold">{gender}</span></div>
                     <div>Date: <span className="fw-bold">{renderDate(date)}</span></div>
                     {type ? (<div>Notes: <span className="fw-bold">{type}</span></div>) : null}

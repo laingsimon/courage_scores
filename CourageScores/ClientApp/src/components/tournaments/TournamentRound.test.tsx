@@ -33,9 +33,9 @@ import {CreateTournamentSaygDto} from "../../interfaces/models/dtos/Game/CreateT
 
 describe('TournamentRound', () => {
     let context: TestContext;
-    let reportedError: ErrorState;
-    let updatedRound: TournamentRoundDto;
-    let warnBeforeEditDialogClose: string;
+    let reportedError: ErrorState | null;
+    let updatedRound: TournamentRoundDto | null;
+    let warnBeforeEditDialogClose: string | null;
     let saygApiData: { [id: string]: RecordedScoreAsYouGoDto };
     const tournamentApi = api<ITournamentGameApi>({
         addSayg: async (id: string, _: CreateTournamentSaygDto): Promise<IClientActionResultDto<TournamentGameDto>> => {
@@ -44,6 +44,7 @@ describe('TournamentRound', () => {
                 result: {
                     id,
                     address: '',
+                    date: '',
                 }
             };
         }
@@ -87,8 +88,8 @@ describe('TournamentRound', () => {
         warnBeforeEditDialogClose = msg;
     }
 
-    async function saveTournament() {
-        return null;
+    async function saveTournament(): Promise<TournamentGameDto> {
+        return null!;
     }
 
     function setPreventScroll(_: boolean) {
@@ -100,27 +101,27 @@ describe('TournamentRound', () => {
             brandingProps(),
             appProps({
                 account
-            }, reportedError),
+            }, reportedError!),
             (<TournamentContainer {...containerProps} >
                 <TournamentRound {...props} />
             </TournamentContainer>));
     }
 
     function assertMatch(table: Element, ordinal: number, expectedText: string[]) {
-        const matchRow = table.querySelector(`tr:nth-child(${ordinal})`);
+        const matchRow = table.querySelector(`tr:nth-child(${ordinal})`)!;
         const cells = Array.from(matchRow.querySelectorAll('td'));
         expect(cells.map(td => td.textContent)).toEqual(expectedText);
     }
 
     function assertEditableMatch(table: Element, ordinal: number, expectedText: string[]) {
-        const matchRow = table.querySelector(`tr:nth-child(${ordinal})`);
+        const matchRow = table.querySelector(`tr:nth-child(${ordinal})`)!;
         const cells = Array.from(matchRow.querySelectorAll('td'));
         expect(cells.map(td => {
             if (td.querySelector('.dropdown-toggle')) {
-                return td.querySelector('.dropdown-toggle').textContent;
+                return td.querySelector('.dropdown-toggle')!.textContent;
             }
             if (td.querySelector('input')) {
-                return td.querySelector('input').value;
+                return td.querySelector('input')!.value;
             }
 
             return td.textContent;
@@ -152,7 +153,7 @@ describe('TournamentRound', () => {
                     onChange,
                 });
 
-                reportedError.verifyNoError();
+                reportedError!.verifyNoError();
                 expect(context.container.textContent).toContain('No matches defined');
             });
 
@@ -167,8 +168,8 @@ describe('TournamentRound', () => {
                     onChange,
                 });
 
-                reportedError.verifyNoError();
-                const table = context.container.querySelector('table');
+                reportedError!.verifyNoError();
+                const table = context.container.querySelector('table')!;
                 assertMatch(table, 1, ['SIDE 1', '', 'vs', '', 'SIDE 2']);
             });
 
@@ -184,8 +185,8 @@ describe('TournamentRound', () => {
                     onChange,
                 });
 
-                reportedError.verifyNoError();
-                const table = context.container.querySelector('table');
+                reportedError!.verifyNoError();
+                const table = context.container.querySelector('table')!;
                 assertMatch(table, 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2']);
                 assertMatch(table, 2, ['SIDE 3', '2', 'vs', '1', 'SIDE 4']);
             });
@@ -206,7 +207,7 @@ describe('TournamentRound', () => {
                 onChange,
             });
 
-            reportedError.verifyNoError();
+            reportedError!.verifyNoError();
             const roundTables = context.container.querySelectorAll('table');
             expect(roundTables.length).toEqual(1);
         });
@@ -237,7 +238,7 @@ describe('TournamentRound', () => {
                     onChange,
                 });
 
-                reportedError.verifyNoError();
+                reportedError!.verifyNoError();
                 expect(context.container.querySelector('table')).toBeTruthy();
             });
 
@@ -252,8 +253,8 @@ describe('TournamentRound', () => {
                     onChange,
                 });
 
-                reportedError.verifyNoError();
-                const table = context.container.querySelector('table');
+                reportedError!.verifyNoError();
+                const table = context.container.querySelector('table')!;
                 assertEditableMatch(table, 1, ['SIDE 1', '', 'vs', '', 'SIDE 2', '🗑🛠']);
             });
 
@@ -277,8 +278,8 @@ describe('TournamentRound', () => {
                         onChange,
                     });
 
-                reportedError.verifyNoError();
-                const table = context.container.querySelector('table');
+                reportedError!.verifyNoError();
+                const table = context.container.querySelector('table')!;
                 assertEditableMatch(table, 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2', '🗑🛠']);
                 assertEditableMatch(table, 2, ['SIDE 3', '2', 'vs', '1', 'SIDE 4', '🗑🛠']);
             });
@@ -298,7 +299,7 @@ describe('TournamentRound', () => {
                     onChange,
                 });
 
-                reportedError.verifyNoError();
+                reportedError!.verifyNoError();
                 const roundTables = context.container.querySelectorAll('table');
                 expect(roundTables.length).toEqual(1);
             });
@@ -323,17 +324,16 @@ describe('TournamentRound', () => {
                         readOnly,
                         onChange,
                     });
-                reportedError.verifyNoError();
+                reportedError!.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
-                window.confirm = () => true;
+                context.prompts.respondToConfirm('Are you sure you want to remove this match?', true);
 
                 await doClick(findButton(matchRow, '🗑'));
 
-                reportedError.verifyNoError();
+                reportedError!.verifyNoError();
                 expect(updatedRound).toEqual({
                     matches: [],
                     matchOptions: [],
-                    nextRound: null,
                 });
             });
 
@@ -354,18 +354,18 @@ describe('TournamentRound', () => {
                         readOnly,
                         onChange,
                     });
-                reportedError.verifyNoError();
+                reportedError!.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
 
                 await doClick(findButton(matchRow, '🛠'));
                 const matchOptionsDialog = context.container.querySelector('.modal-dialog');
                 expect(matchOptionsDialog).toBeTruthy();
-                await doChange(matchOptionsDialog, 'input[name="startingScore"]', '123', context.user);
+                await doChange(matchOptionsDialog!, 'input[name="startingScore"]', '123', context.user);
                 await doClick(findButton(matchOptionsDialog, 'Close'));
                 expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
-                reportedError.verifyNoError();
+                reportedError!.verifyNoError();
                 expect(updatedRound).not.toBeNull();
-                expect(updatedRound.matchOptions).toEqual([{
+                expect(updatedRound!.matchOptions).toEqual([{
                     startingScore: 123,
                     numberOfLegs: 5,
                 }]);
@@ -397,8 +397,8 @@ describe('TournamentRound', () => {
                         onChange,
                     },
                     permittedAccount);
-                reportedError.verifyNoError();
-                const matchRow = context.container.querySelector('table tr:nth-child(1)');
+                reportedError!.verifyNoError();
+                const matchRow = context.container.querySelector('table tr:nth-child(1)')!;
 
                 expect(matchRow.textContent).not.toContain('📊');
             });
@@ -420,23 +420,20 @@ describe('TournamentRound', () => {
                         readOnly,
                         onChange,
                     });
-                reportedError.verifyNoError();
-                const matchRow = context.container.querySelector('table tr:nth-child(1)');
-                const sideA = matchRow.querySelector('td:nth-child(1)');
+                reportedError!.verifyNoError();
+                const matchRow = context.container.querySelector('table tr:nth-child(1)')!;
+                const sideA = matchRow.querySelector('td:nth-child(1)')!;
 
                 await doSelectOption(sideA.querySelector('.dropdown-menu'), 'SIDE 3');
 
-                reportedError.verifyNoError();
+                reportedError!.verifyNoError();
                 expect(updatedRound).toEqual({
                     matches: [{
                         id: match.id,
-                        scoreA: null,
-                        scoreB: null,
                         sideA: side3,
                         sideB: side2,
                     }],
                     matchOptions: [],
-                    nextRound: null,
                 });
             });
 
@@ -457,23 +454,20 @@ describe('TournamentRound', () => {
                         readOnly,
                         onChange,
                     });
-                reportedError.verifyNoError();
-                const matchRow = context.container.querySelector('table tr:nth-child(1)');
-                const sideB = matchRow.querySelector('td:nth-child(5)');
+                reportedError!.verifyNoError();
+                const matchRow = context.container.querySelector('table tr:nth-child(1)')!;
+                const sideB = matchRow.querySelector('td:nth-child(5)')!;
 
                 await doSelectOption(sideB.querySelector('.dropdown-menu'), 'SIDE 3');
 
-                reportedError.verifyNoError();
+                reportedError!.verifyNoError();
                 expect(updatedRound).toEqual({
                     matches: [{
                         id: match.id,
-                        scoreA: null,
-                        scoreB: null,
                         sideA: side1,
                         sideB: side3,
                     }],
                     matchOptions: [],
-                    nextRound: null,
                 });
             });
 
@@ -484,16 +478,14 @@ describe('TournamentRound', () => {
                     readOnly,
                     onChange,
                 });
-                reportedError.verifyNoError();
-                const matchRow = context.container.querySelector('table tr:nth-child(1)');
-                let message: string;
-                window.alert = (msg) => message = msg;
+                reportedError!.verifyNoError();
+                const matchRow = context.container.querySelector('table tr:nth-child(1)')!;
 
                 await doSelectOption(matchRow.querySelector('td:nth-child(1) .dropdown-menu'), 'SIDE 1');
                 await doClick(findButton(matchRow, '➕'));
 
                 expect(updatedRound).toBeFalsy();
-                expect(message).toEqual('Select the sides first');
+                context.prompts.alertWasShown('Select the sides first');
             });
 
             it('cannot add match with only sideB', async () => {
@@ -503,16 +495,14 @@ describe('TournamentRound', () => {
                     readOnly,
                     onChange,
                 });
-                reportedError.verifyNoError();
-                const matchRow = context.container.querySelector('table tr:nth-child(1)');
-                let message: string;
-                window.alert = (msg) => message = msg;
+                reportedError!.verifyNoError();
+                const matchRow = context.container.querySelector('table tr:nth-child(1)')!;
 
                 await doSelectOption(matchRow.querySelector('td:nth-child(1) .dropdown-menu'), 'SIDE 1');
                 await doClick(findButton(matchRow, '➕'));
 
                 expect(updatedRound).toBeFalsy();
-                expect(message).toEqual('Select the sides first');
+                context.prompts.alertWasShown('Select the sides first');
             });
 
             it('can add match', async () => {
@@ -531,20 +521,20 @@ describe('TournamentRound', () => {
                         readOnly,
                         onChange,
                     });
-                reportedError.verifyNoError();
-                const matchRow = context.container.querySelector('table tr:nth-child(1)');
+                reportedError!.verifyNoError();
+                const matchRow = context.container.querySelector('table tr:nth-child(1)')!;
 
                 await doSelectOption(matchRow.querySelector('td:nth-child(1) .dropdown-menu'), 'SIDE 1');
                 await doSelectOption(matchRow.querySelector('td:nth-child(5) .dropdown-menu'), 'SIDE 2');
                 await doClick(findButton(matchRow, '➕'));
 
                 expect(updatedRound).not.toBeNull();
-                expect(updatedRound.matches).toEqual([{
+                expect(updatedRound!.matches).toEqual([{
                     id: expect.any(String),
                     sideA: side1,
                     sideB: side2,
                 }]);
-                expect(updatedRound.matchOptions).toEqual([{
+                expect(updatedRound!.matchOptions).toEqual([{
                     startingScore: 501,
                     numberOfLegs: 3,
                 }]);
@@ -557,8 +547,8 @@ describe('TournamentRound', () => {
                     readOnly,
                     onChange,
                 });
-                reportedError.verifyNoError();
-                const matchRow = context.container.querySelector('table tr:nth-child(1)');
+                reportedError!.verifyNoError();
+                const matchRow = context.container.querySelector('table tr:nth-child(1)')!;
 
                 await doSelectOption(matchRow.querySelector('td:nth-child(1) .dropdown-menu'), 'SIDE 1');
                 await doSelectOption(matchRow.querySelector('td:nth-child(5) .dropdown-menu'), 'SIDE 2');

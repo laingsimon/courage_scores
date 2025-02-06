@@ -7,6 +7,12 @@ namespace TypeScriptMapper.MetaData;
 [ExcludeFromCodeCoverage]
 public class TypeScriptProperty : ITypeScriptMember
 {
+    private static readonly Type[] NonNullableTypes = [
+        typeof(DateTime),
+        typeof(DateTimeOffset),
+        typeof(TimeSpan)
+    ];
+
     private readonly PropertyInfo _property;
     private readonly IMetaDataHelper _helper;
     private readonly HelperContext _context;
@@ -40,7 +46,7 @@ public class TypeScriptProperty : ITypeScriptMember
             || HasDefaultValue()
             || IsPrimitiveType();
 
-        var required = requiredProperties.PropertyNames.Contains(_property.Name);
+        var required = requiredProperties.PropertyNames.Contains(_property.Name) || NonNullableTypes.Contains(_property.PropertyType);
 
         return optional && !required;
     }

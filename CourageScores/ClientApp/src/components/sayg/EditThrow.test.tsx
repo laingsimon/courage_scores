@@ -12,11 +12,12 @@ import {EditThrow, IEditThrowProps} from "./EditThrow";
 import {toDictionary} from "../../helpers/collections";
 import {valueChanged} from "../../helpers/events";
 import {LegThrowDto} from "../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
+import React from "react";
 
 describe('EditThrow', () => {
     let context: TestContext;
     let closed: boolean;
-    let changed: { [key: string]: LegThrowDto };
+    let changed: { [key: string]: LegThrowDto } | null;
     let saved: boolean;
 
     afterEach(async () => {
@@ -26,7 +27,7 @@ describe('EditThrow', () => {
     beforeEach(() => {
         closed = false;
         changed = null;
-        saved = null;
+        saved = false;
     });
 
     async function onClose() {
@@ -95,15 +96,13 @@ describe('EditThrow', () => {
             });
 
             const inputs = Array.from(context.container.querySelectorAll('input'));
-            const inputMap = toDictionary(inputs, i => i.getAttribute('name'));
+            const inputMap = toDictionary(inputs, i => i.getAttribute('name')!);
             expect(inputMap['score'].value).toEqual('1');
             expect(inputMap['noOfDarts'].value).toEqual('2');
         });
 
         it('null score and noOfDarts', async () => {
             await renderComponent({
-                score: null,
-                noOfDarts: null,
                 home: 'HOME',
                 away: 'AWAY',
                 competitor: 'away',
@@ -114,7 +113,7 @@ describe('EditThrow', () => {
             });
 
             const inputs = Array.from(context.container.querySelectorAll('input'));
-            const inputMap = toDictionary(inputs, i => i.getAttribute('name'));
+            const inputMap = toDictionary(inputs, i => i.getAttribute('name')!);
             expect(inputMap['score'].value).toEqual('');
             expect(inputMap['noOfDarts'].value).toEqual('');
         });

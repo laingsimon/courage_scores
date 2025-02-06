@@ -97,14 +97,10 @@ describe('Heading', () => {
                 date: '2023-04-05T06:07:08',
                 prName: 'my PR title',
             }, { name: '' });
-            let alert: string;
-            window.alert = (message) => {
-                alert = message
-            };
 
-            await doClick(context.container.querySelector('span.bg-warning'));
+            await doClick(context.container.querySelector('span.bg-warning')!);
 
-            expect(alert).toEqual('Branch: main\nSHA: 01234567\nPR: my PR title');
+            context.prompts.alertWasShown('Branch: main\nSHA: 01234567\nPR: my PR title');
         });
 
         it('when undefined', async () => {
@@ -117,7 +113,6 @@ describe('Heading', () => {
         it('when no version', async () => {
             await renderComponent({
                 branch: 'main',
-                version: null,
                 date: '2023-04-05T06:07:08',
             }, { name: '' });
 
@@ -127,7 +122,6 @@ describe('Heading', () => {
 
         it('when no branch', async () => {
             await renderComponent({
-                branch: null,
                 version: '0123456789abcdef',
                 date: '2023-04-05T06:07:08',
             }, { name: '' });

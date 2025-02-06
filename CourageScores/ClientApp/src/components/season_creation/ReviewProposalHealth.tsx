@@ -26,16 +26,16 @@ export function ReviewProposalHealth({ response }: IReviewProposalHealthProps) {
         <p>Press <kbd>Next</kbd> to review the fixtures in the divisions before saving</p>
         <div
             className={`overflow-auto max-height-250 alert mt-3 ${response.success ? 'alert-success' : 'alert-warning'}`}>
-            {any(response.errors || [])
-                ? (<ol>{response.errors.map(renderError)}</ol>)
+            {any(response.errors)
+                ? (<ol>{response.errors!.map(renderError)}</ol>)
                 : null}
-            {any(response.warnings || [])
-                ? (<ol>{response.warnings.map(renderWarning)}</ol>)
+            {any(response.warnings)
+                ? (<ol>{response.warnings!.map(renderWarning)}</ol>)
                 : null}
-            {any(response.messages || [])
-                ? (<ol>{response.messages.map(renderMessage)}</ol>)
+            {any(response.messages)
+                ? (<ol>{response.messages!.map(renderMessage)}</ol>)
                 : null}
-            {response.success ? (<ViewHealthCheck result={response.result.proposalHealth}/>) : null}
+            {response.success ? (<ViewHealthCheck result={response!.result!.proposalHealth!}/>) : null}
         </div>
     </div>);
 }

@@ -17,8 +17,10 @@ export interface ISeasonBuilder extends IAddableBuilder<SeasonDto & EditSeasonDt
 export function seasonBuilder(name?: string, id?: string): ISeasonBuilder {
     const season: SeasonDto & EditSeasonDto = {
         id: id || createTemporaryId(),
-        name,
+        name: name || '',
         divisions: [],
+        startDate: '',
+        endDate: '',
     };
 
     const builder: ISeasonBuilder = {
@@ -28,9 +30,8 @@ export function seasonBuilder(name?: string, id?: string): ISeasonBuilder {
             return builder;
         },
         withDivision: (divisionOrId: any) => {
-            season.divisions.push(divisionOrId.id ? divisionOrId : {
+            season.divisions?.push(divisionOrId.id ? divisionOrId : {
                 id: divisionOrId,
-                name: undefined
             });
             return builder;
         },

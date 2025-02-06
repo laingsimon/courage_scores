@@ -13,7 +13,7 @@ import {ErrorDisplay, IErrorDisplayProps} from "./ErrorDisplay";
 describe('ErrorDisplay', () => {
     let context: TestContext;
     let closed: boolean;
-    let reportedClientSideException: Error;
+    let reportedClientSideException: Error | null;
 
     async function onClose() {
         closed = true;
@@ -44,7 +44,6 @@ describe('ErrorDisplay', () => {
                 messages: [],
                 warnings: [],
                 title: '',
-                Exception: null,
                 onClose,
             });
 
@@ -57,7 +56,6 @@ describe('ErrorDisplay', () => {
                 messages: [],
                 warnings: [],
                 title: '',
-                Exception: null,
                 onClose,
             });
 
@@ -71,11 +69,10 @@ describe('ErrorDisplay', () => {
                 messages: ['message1'],
                 warnings: ['warning1'],
                 title: '',
-                Exception: null,
                 onClose,
             });
 
-            const dialog = context.container.querySelector('div.modal-dialog');
+            const dialog = context.container.querySelector('div.modal-dialog')!;
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('message1');
             expect(dialog.textContent).toContain('warning1');
@@ -86,11 +83,10 @@ describe('ErrorDisplay', () => {
                 messages: ['message1'],
                 errors: ['error1'],
                 title: '',
-                Exception: null,
                 onClose,
             });
 
-            const dialog = context.container.querySelector('div.modal-dialog');
+            const dialog = context.container.querySelector('div.modal-dialog')!;
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('message1');
             expect(dialog.textContent).toContain('error1');
@@ -101,11 +97,10 @@ describe('ErrorDisplay', () => {
                 errors: ['error1'],
                 warnings: ['warning1'],
                 title: '',
-                Exception: null,
                 onClose,
             });
 
-            const dialog = context.container.querySelector('div.modal-dialog');
+            const dialog = context.container.querySelector('div.modal-dialog')!;
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('error1');
             expect(dialog.textContent).toContain('warning1');
@@ -148,7 +143,7 @@ describe('ErrorDisplay', () => {
                 onClose,
             });
 
-            const dialog = context.container.querySelector('div.modal-dialog');
+            const dialog = context.container.querySelector('div.modal-dialog')!;
             expect(dialog.textContent).toContain('Server side error');
             expect(dialog.textContent).toContain('dotnet type');
             expect(dialog.textContent).toContain('dotnet message');
@@ -170,7 +165,7 @@ describe('ErrorDisplay', () => {
                 onClose,
             });
 
-            const dialog = context.container.querySelector('div.modal-dialog');
+            const dialog = context.container.querySelector('div.modal-dialog')!;
             expect(dialog.textContent).toContain('Server side error');
             expect(dialog.textContent).toContain('dotnet type');
             expect(dialog.textContent).toContain('dotnet message');
@@ -186,11 +181,10 @@ describe('ErrorDisplay', () => {
                 messages: [],
                 warnings: [],
                 title: '',
-                Exception: null,
                 onClose,
             });
 
-            const dialog = context.container.querySelector('div.modal-dialog');
+            const dialog = context.container.querySelector('div.modal-dialog')!;
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('The property field is required');
         });
@@ -206,11 +200,10 @@ describe('ErrorDisplay', () => {
                 messages: [],
                 warnings: [],
                 title: '',
-                Exception: null,
                 onClose,
             });
 
-            const dialog = context.container.querySelector('div.modal-dialog');
+            const dialog = context.container.querySelector('div.modal-dialog')!;
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('System.NullReferenceException');
         });
@@ -221,11 +214,10 @@ describe('ErrorDisplay', () => {
                 messages: [],
                 warnings: [],
                 title: '',
-                Exception: null,
                 onClose,
             });
 
-            const dialog = context.container.querySelector('div.modal-dialog');
+            const dialog = context.container.querySelector('div.modal-dialog')!;
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('There was an error');
         });

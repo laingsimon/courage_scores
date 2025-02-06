@@ -23,7 +23,7 @@ describe('ReviewProposalsFloatingDialog', () => {
     let context: TestContext;
     let next: boolean;
     let previous: boolean;
-    let visibleDivision: string;
+    let visibleDivision: string | null;
 
     async function onPrevious() {
         previous = true;
@@ -96,16 +96,16 @@ describe('ReviewProposalsFloatingDialog', () => {
                 onPrevious,
             });
 
-            const divisionDropdown = context.container.querySelector('.dropdown-menu');
+            const divisionDropdown = context.container.querySelector('.dropdown-menu')!;
             const divisionItems = Array.from(divisionDropdown.querySelectorAll('.dropdown-item'));
             expect(divisionItems.map(li => li.textContent)).toEqual([ 'DIVISION 1', 'DIVISION 2' ]);
         });
 
         it('placeholder mappings', async () => {
             const proposalResult = getProposalResult([division2, division1]);
-            proposalResult.template.sharedAddresses = [ [ 'A', 'B' ] ];
-            proposalResult.template.divisions[0].sharedAddresses = [ [ 'B', 'C' ] ];
-            proposalResult.template.divisions[0].dates = [{
+            proposalResult.template!.sharedAddresses = [ [ 'A', 'B' ] ];
+            proposalResult.template!.divisions![0].sharedAddresses = [ [ 'B', 'C' ] ];
+            proposalResult.template!.divisions![0].dates = [{
                 fixtures: [
                     { home: 'A' },
                     { home: 'C', away: 'D' },
@@ -131,7 +131,7 @@ describe('ReviewProposalsFloatingDialog', () => {
 
             const placeholderItems = toDictionary(
                 Array.from(context.container.querySelectorAll('ul li')),
-                li => li.querySelector('span').textContent);
+                li => li.querySelector('span')!.textContent!);
             expect(Object.keys(placeholderItems)).toEqual(['A', 'B', 'C', 'D']);
             expect(placeholderItems['A'].textContent).toEqual('A → TEAM A');
             expect(placeholderItems['B'].textContent).toEqual('B → TEAM B');
@@ -146,7 +146,7 @@ describe('ReviewProposalsFloatingDialog', () => {
 
         it('link to template', async () => {
             const proposalResult = getProposalResult([division1]);
-            const templateId = proposalResult.template.id;
+            const templateId = proposalResult!.template!.id;
 
             await renderComponent(appProps({
                 divisions: [ division1 ],

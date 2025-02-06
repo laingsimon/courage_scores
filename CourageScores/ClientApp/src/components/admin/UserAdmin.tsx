@@ -18,7 +18,7 @@ export function UserAdmin() {
     const {accounts} = useAdmin();
     const [saving, setSaving] = useState<boolean>(false);
     const [userAccount, setUserAccount] = useState<UserDto | null>(null);
-    const [emailAddress, setEmailAddress] = useState<string>(account.emailAddress);
+    const [emailAddress, setEmailAddress] = useState<string>(account?.emailAddress || '');
     const [loading, setLoading] = useState<boolean>(true);
     const [saveError, setSaveError] = useState<IClientActionResultDto<UserDto> | null>(null);
     const [showEmailAddress, setShowEmailAddress] = useState<boolean>(false);
@@ -81,12 +81,12 @@ export function UserAdmin() {
         try {
             const update: UpdateAccessDto = {
                 emailAddress: emailAddress,
-                access: userAccount.access,
+                access: userAccount?.access,
             };
             const result: IClientActionResultDto<UserDto> = await accountApi.update(update);
             if (!result.success) {
                 setSaveError(result);
-            } else if (account.emailAddress === update.emailAddress) {
+            } else if (account?.emailAddress === update.emailAddress) {
                 await reloadAccount();
             }
         } catch (e) {
@@ -103,9 +103,9 @@ export function UserAdmin() {
         showAccess(accounts, emailAddress);
     }
 
-    function showAccess(accounts: UserDto[], emailAddress: string) {
-        const userAccount: UserDto = accounts.filter(a => a.emailAddress === emailAddress)[0];
-        setUserAccount(userAccount);
+    function showAccess(accounts: UserDto[] | null, emailAddress: string) {
+        const userAccount: UserDto | undefined = accounts?.filter(a => a.emailAddress === emailAddress)[0];
+        setUserAccount(userAccount || null);
     }
 
     function renderAccessOption(name: string, description: string, explanation?: string) {
@@ -124,10 +124,10 @@ export function UserAdmin() {
     }
 
     function toOption(acc: UserDto): IBootstrapDropdownItem {
-        const name: string = acc.emailAddress === account.emailAddress
+        const name: string = acc.emailAddress === account?.emailAddress
             ? `You`
             : acc.name;
-        const className: string = acc.emailAddress === account.emailAddress
+        const className: string | undefined = acc.emailAddress === account?.emailAddress
             ? 'fw-bold'
             : undefined;
 

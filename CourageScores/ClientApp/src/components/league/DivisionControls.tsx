@@ -18,7 +18,7 @@ import {UntypedPromise} from "../../interfaces/UntypedPromise";
 import {asyncClear} from "../../helpers/events";
 
 export interface IDivisionControlsProps {
-    originalSeasonData: DivisionDataSeasonDto;
+    originalSeasonData?: DivisionDataSeasonDto;
     onDivisionOrSeasonChanged?(preventReloadIfIdsAreTheSame?: boolean): UntypedPromise;
     originalDivisionData: DivisionDataDto;
     overrideMode?: string;
@@ -31,7 +31,7 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
     const isDivisionAdmin = account && account.access && account.access.manageDivisions;
     // noinspection JSUnresolvedVariable
     const isSeasonAdmin = account && account.access && account.access.manageSeasons;
-    const [saveError, setSaveError] = useState(null);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<DivisionDto> | undefined>(undefined);
     const [seasonData, setSeasonData] = useState<DivisionDataSeasonDto | null>(null);
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
     const [divisionData, setDivisionData] = useState<DivisionDataDto | null>(null);
@@ -46,9 +46,9 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
     }
 
     function renderEditDivisionDialog() {
-        return (<Dialog title={divisionData.id ? 'Edit a division' : 'Create a division'} slim={true}>
+        return (<Dialog title={divisionData!.id ? 'Edit a division' : 'Create a division'} slim={true}>
             <EditDivision
-                data={divisionData}
+                data={divisionData!}
                 onUpdateData={async (data: DivisionDataDto) => setDivisionData(data)}
                 onClose={async () => setDivisionData(null)}
                 onSave={async () => {
@@ -63,9 +63,9 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
     }
 
     function renderEditSeasonDialog() {
-        return (<Dialog title={seasonData.id ? 'Edit a season' : 'Create a season'} slim={true}>
+        return (<Dialog title={seasonData!.id ? 'Edit a season' : 'Create a season'} slim={true}>
             <EditSeason
-                data={seasonData}
+                data={seasonData!}
                 onUpdateData={async (season: SeasonDto) => setSeasonData(season)}
                 onClose={async () => setSeasonData(null)}
                 onSave={async () => {
@@ -98,20 +98,20 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
         return data;
     }
 
-    function firstValidDivisionNameForSeason(season: DivisionDataSeasonDto) {
+    function firstValidDivisionNameForSeason(season: DivisionDataSeasonDto): string | null {
         if (originalDivisionData && (isEmpty(season.divisions) || any(season.divisions, d => d.id === originalDivisionData.id))) {
             return originalDivisionData.name;
         }
 
         if (any(season.divisions)) {
-            return season.divisions[0].name;
+            return season.divisions![0].name;
         }
 
         return null;
     }
 
     function renderSeasonOption(season: SeasonDto) {
-        const url: string = getDivisionUrl(firstValidDivisionNameForSeason(season), season.name, mode);
+        const url: string = getDivisionUrl(firstValidDivisionNameForSeason(season)!, season.name, mode);
 
         return (<Link
             key={season.id}
@@ -122,7 +122,7 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
     }
 
     function renderDivisionOption(division: DivisionDto) {
-        const url: string = getDivisionUrl(division.name, originalSeasonData.name, mode);
+        const url: string = getDivisionUrl(division.name, originalSeasonData!.name, mode);
 
         return (<Link
             key={division.id}
@@ -132,7 +132,7 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
         </Link>);
     }
 
-    function getDivisionUrl(divisionName: string, seasonName: string, mode: string): string {
+    function getDivisionUrl(divisionName: string, seasonName: string, mode?: string): string {
         const navigateToMode: string = overrideMode || mode || 'teams';
         const search: string = location.search;
 
@@ -162,7 +162,7 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
                 }
             }}>
                 <button className={`btn ${isSeasonAdmin ? 'btn-info' : 'btn-light'} text-nowrap`}
-                        onClick={isSeasonAdmin ? () => setSeasonData(toEditableSeason(originalSeasonData)) : () => toggleDropdown('season')}>
+                        onClick={isSeasonAdmin ? () => setSeasonData(toEditableSeason(originalSeasonData!)) : () => toggleDropdown('season')}>
                     {originalSeasonData
                         ? (<span>
                             {originalSeasonData.name} ({renderDate(originalSeasonData.startDate)} - {renderDate(originalSeasonData.endDate)})

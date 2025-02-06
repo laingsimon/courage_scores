@@ -146,6 +146,11 @@ public class DtoStrategy: IStrategy
                 break;
             }
 
+            if (import.Name == type.Name)
+            {
+                continue;
+            }
+
             await writer.WriteLineAsync($"import {{{import.Name}}} from '{import.RelativePath}';");
             importWritten = true;
         }

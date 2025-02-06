@@ -14,7 +14,7 @@ import {IError} from "./IError";
 describe('PageError', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let appError: IError;
+    let appError: IError | null;
     let reportedClientSideException: IError[];
 
     afterEach(async () => {
@@ -60,7 +60,7 @@ describe('PageError', () => {
         it('shows error details', async () => {
             await renderComponent(error);
 
-            const message = context.container.querySelector('div.content-background > p > span:first-child');
+            const message = context.container.querySelector('div.content-background > p > span:first-child')!;
             expect(message).toBeTruthy();
             expect(message.textContent).toEqual(error.message);
         });
@@ -68,12 +68,12 @@ describe('PageError', () => {
         it('shows stack toggle', async () => {
             await renderComponent(error);
 
-            const toggle = context.container.querySelector('div.content-background > p > span.form-switch');
+            const toggle = context.container.querySelector('div.content-background > p > span.form-switch')!;
             expect(toggle).toBeTruthy();
         });
 
         it('does not show stack toggle', async () => {
-            error.stack = null;
+            error.stack = undefined;
 
             await renderComponent(error);
 
@@ -86,7 +86,7 @@ describe('PageError', () => {
 
             await doClick(context.container, 'div.content-background > p > span.form-switch > input');
 
-            const stack = context.container.querySelector('div.content-background > pre');
+            const stack = context.container.querySelector('div.content-background > pre')!;
             expect(stack).toBeTruthy();
             expect(stack.textContent).toEqual(error.stack);
         });
@@ -132,7 +132,7 @@ describe('PageError', () => {
         it('shows error details', async () => {
             await renderComponent(error as IError);
 
-            const message = context.container.querySelector('div.content-background > p > span:first-child');
+            const message = context.container.querySelector('div.content-background > p > span:first-child')!;
             expect(message).toBeTruthy();
             expect(message.textContent).toEqual('MESSAGE');
         });

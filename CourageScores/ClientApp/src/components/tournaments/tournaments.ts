@@ -11,14 +11,14 @@ export const START_SCORING: string = '📊 Start scoring...';
 export function sideChanged(tournamentData: TournamentGameDto, newSide: TournamentSideDto, sideIndex: number, /* eslint-disable @typescript-eslint/no-unused-vars */ _options: ISaveSideOptions): TournamentGameDto {
     const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
     newSide.name = (newSide.name || '').trim();
-    newTournamentData.sides[sideIndex] = newSide;
+    newTournamentData.sides![sideIndex] = newSide;
     updateSideDataInRound(newTournamentData.round, newSide);
     return newTournamentData;
 }
 
 export function removeSide(tournamentData: TournamentGameDto, side: TournamentSideDto): TournamentGameDto {
     const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
-    newTournamentData.sides = tournamentData.sides.filter((s: TournamentSideDto) => s.id !== side.id);
+    newTournamentData.sides = tournamentData.sides?.filter((s: TournamentSideDto) => s.id !== side.id);
     return newTournamentData;
 }
 
@@ -27,7 +27,7 @@ export function addSide(tournamentData: TournamentGameDto, newSide: TournamentSi
     let sidesToAdd: TournamentSideDto[];
 
     if (options.addAsIndividuals) {
-        sidesToAdd = newSide.players.map((player: TournamentPlayerDto): TournamentSideDto => {
+        sidesToAdd = newSide.players!.map((player: TournamentPlayerDto): TournamentSideDto => {
             return {
                 id: createTemporaryId(),
                 name: player.name.trim(),
@@ -40,11 +40,11 @@ export function addSide(tournamentData: TournamentGameDto, newSide: TournamentSi
         sidesToAdd = [newSide];
     }
 
-    newTournamentData.sides = newTournamentData.sides.concat(sidesToAdd).sort(sortBy('name'));
+    newTournamentData.sides = newTournamentData.sides?.concat(sidesToAdd).sort(sortBy('name'));
     return newTournamentData;
 }
 
-function updateSideDataInRound(round: TournamentRoundDto, side: TournamentSideDto) {
+function updateSideDataInRound(round: TournamentRoundDto | undefined, side: TournamentSideDto) {
     if (!round) {
         return;
     }
@@ -61,4 +61,3 @@ function updateSideDataInRound(round: TournamentRoundDto, side: TournamentSideDt
 
     updateSideDataInRound(round.nextRound, side);
 }
-

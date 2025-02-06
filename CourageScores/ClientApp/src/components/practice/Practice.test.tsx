@@ -72,7 +72,7 @@ describe('Practice', () => {
         (navigator as any).share = (data: ShareData) => shareData = data;
     });
 
-    async function renderComponent(account: UserDto, hash?: string, appLoading?: boolean) {
+    async function renderComponent(account?: UserDto, hash?: string, appLoading?: boolean) {
         context = await renderApp(
             iocProps({saygApi}),
             brandingProps(),
@@ -103,7 +103,7 @@ describe('Practice', () => {
     }
 
     describe('logged out', () => {
-        const account = null;
+        const account: UserDto | undefined = undefined;
 
         it('renders when app is loading', async () => {
             await renderComponent(account, '', true);
@@ -164,7 +164,6 @@ describe('Practice', () => {
                     .away((c: ILegCompetitorScoreBuilder) => c))
                 .scores(1)
                 .yourName('Simon')
-                .opponentName('')
                 .addTo(saygData)
                 .build();
 
@@ -199,7 +198,7 @@ describe('Practice', () => {
             assertInputValue('startingScore', '123');
             assertInputValue('numberOfLegs', '1');
             assertInputValue('opponentName', 'them');
-            const matchStatistics = context.container.querySelector('h4');
+            const matchStatistics = context.container.querySelector('h4')!;
             expect(matchStatistics).toBeTruthy();
             expect(matchStatistics.textContent).toEqual('Match statistics');
         });
@@ -213,7 +212,6 @@ describe('Practice', () => {
                     .away((c: ILegCompetitorScoreBuilder) => c))
                 .scores(1)
                 .yourName('Simon')
-                .opponentName('')
                 .addTo(saygData)
                 .build();
             await renderComponent(account, '#' + jsonData.id);
@@ -391,7 +389,6 @@ describe('Practice', () => {
                     .away((c: ILegCompetitorScoreBuilder) => c))
                 .scores(1)
                 .yourName('Simon')
-                .opponentName('')
                 .addTo(saygData)
                 .build();
 
@@ -426,7 +423,7 @@ describe('Practice', () => {
             assertInputValue('startingScore', '123');
             assertInputValue('numberOfLegs', '1');
             assertInputValue('opponentName', 'them');
-            const matchStatistics = context.container.querySelector('h4');
+            const matchStatistics = context.container.querySelector('h4')!;
             expect(matchStatistics).toBeTruthy();
             expect(matchStatistics.textContent).toEqual('Match statistics');
         });

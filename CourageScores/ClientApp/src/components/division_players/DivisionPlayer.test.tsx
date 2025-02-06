@@ -30,9 +30,9 @@ describe('DivisionPlayer', () => {
     let reportedError: ErrorState;
     let teamsReloaded: boolean;
     let divisionReloaded: boolean;
-    let deletedPlayer: { seasonId: string, teamId: string, playerId: string };
-    let updatedPlayer: {seasonId: string, teamId: string, playerId: string, playerDetails: EditTeamPlayerDto};
-    let apiResponse: IClientActionResultDto<TeamDto>;
+    let deletedPlayer: { seasonId: string, teamId: string, playerId: string } | null;
+    let updatedPlayer: {seasonId: string, teamId: string, playerId: string, playerDetails: EditTeamPlayerDto} | null;
+    let apiResponse: IClientActionResultDto<TeamDto> | null;
     const playerApi = api<IPlayerApi>({
         delete: async (seasonId: string, teamId: string, playerId: string): Promise<IClientActionResultDto<TeamDto>> => {
             deletedPlayer = {seasonId, teamId, playerId};
@@ -80,14 +80,14 @@ describe('DivisionPlayer', () => {
             }}>
                 <DivisionPlayer {...props} />
             </DivisionDataContainer>),
-            null,
-            null,
+            undefined,
+            undefined,
             'tbody',
             preferenceData);
     }
 
     describe('when logged out', () => {
-        const account: UserDto = null;
+        const account: UserDto | undefined = undefined;
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const season: SeasonDto = seasonBuilder('SEASON')
             .withDivision(division)
@@ -229,7 +229,7 @@ describe('DivisionPlayer', () => {
                 reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('td'));
                 const playerLinkCell = cells[1];
-                const link = playerLinkCell.querySelector('a');
+                const link = playerLinkCell.querySelector('a')!;
                 expect(link).toBeTruthy();
                 expect(link.href).toEqual(`http://localhost/division/${division.name}/player:${player.name}@${player.team}/${season.name}`);
             });
@@ -251,7 +251,7 @@ describe('DivisionPlayer', () => {
                 reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('td'));
                 const teamLinkCell = cells[2];
-                const link = teamLinkCell.querySelector('a');
+                const link = teamLinkCell.querySelector('a')!;
                 expect(link).toBeTruthy();
                 expect(link.href).toEqual(`http://localhost/division/${division.name}/team:${player.team}/${season.name}`);
             });
@@ -299,7 +299,7 @@ describe('DivisionPlayer', () => {
                     });
 
                 reportedError.verifyNoError();
-                const row = context.container.querySelector('tr');
+                const row = context.container.querySelector('tr')!;
                 expect(row.className).not.toContain('opacity-25');
             });
 
@@ -322,7 +322,7 @@ describe('DivisionPlayer', () => {
                     });
 
                 reportedError.verifyNoError();
-                const row = context.container.querySelector('tr');
+                const row = context.container.querySelector('tr')!;
                 expect(row.className).toContain('opacity-25');
             });
 
@@ -345,7 +345,7 @@ describe('DivisionPlayer', () => {
                     });
 
                 reportedError.verifyNoError();
-                const row = context.container.querySelector('tr');
+                const row = context.container.querySelector('tr')!;
                 expect(row.className).not.toContain('opacity-25');
             });
         });
@@ -380,16 +380,6 @@ describe('DivisionPlayer', () => {
             oneEighties: 7,
             over100Checkouts: 8,
         };
-        let confirm: string;
-        let response: boolean = false;
-        window.confirm = (message) => {
-            confirm = message;
-            return response
-        };
-
-        beforeEach(() => {
-            confirm = null;
-        });
 
         describe('interactivity', () => {
             it('can show edit player dialog', async () => {
@@ -405,12 +395,12 @@ describe('DivisionPlayer', () => {
                         onReloadDivision,
                     },
                     account);
-                const nameCell = context.container.querySelector('td:nth-child(2)');
+                const nameCell = context.container.querySelector('td:nth-child(2)')!;
                 expect(nameCell.textContent).toContain('NAME');
 
                 await doClick(findButton(nameCell, '✏️'));
 
-                const dialog = nameCell.querySelector('.modal-dialog');
+                const dialog = nameCell.querySelector('.modal-dialog')!;
                 expect(dialog).toBeTruthy();
                 expect(dialog.textContent).toContain('Edit player: NAME');
             });
@@ -428,11 +418,11 @@ describe('DivisionPlayer', () => {
                         onReloadDivision,
                     },
                     account);
-                const nameCell = context.container.querySelector('td:nth-child(2)');
+                const nameCell = context.container.querySelector('td:nth-child(2)')!;
                 await doClick(findButton(nameCell, '✏️'));
                 expect(nameCell.querySelector('.modal-dialog')).toBeTruthy();
 
-                await doClick(findButton(nameCell.querySelector('.modal-dialog'), 'Cancel'));
+                await doClick(findButton(nameCell.querySelector('.modal-dialog')!, 'Cancel'));
 
                 expect(nameCell.querySelector('.modal-dialog')).toBeFalsy();
             });
@@ -451,11 +441,11 @@ describe('DivisionPlayer', () => {
                     },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
-                response = false;
+                context.prompts.respondToConfirm('Are you sure you want to delete NAME?', false);
 
                 await doClick(findButton(nameCell, '🗑️'));
 
-                expect(confirm).toEqual('Are you sure you want to delete NAME?');
+                context.prompts.confirmWasShown('Are you sure you want to delete NAME?');
                 expect(deletedPlayer).toBeNull();
                 expect(divisionReloaded).toEqual(false);
                 expect(teamsReloaded).toEqual(false);
@@ -475,11 +465,11 @@ describe('DivisionPlayer', () => {
                     },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
-                response = true;
+                context.prompts.respondToConfirm('Are you sure you want to delete NAME?', true);
 
                 await doClick(findButton(nameCell, '🗑️'));
 
-                expect(confirm).toEqual('Are you sure you want to delete NAME?');
+                context.prompts.confirmWasShown('Are you sure you want to delete NAME?');
                 expect(deletedPlayer).not.toBeNull();
                 expect(divisionReloaded).toEqual(true);
                 expect(teamsReloaded).toEqual(true);
@@ -499,7 +489,7 @@ describe('DivisionPlayer', () => {
                     },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
-                response = true;
+                context.prompts.respondToConfirm('Are you sure you want to delete NAME?', true);
                 apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
 
                 await doClick(findButton(nameCell, '🗑️'));
@@ -525,7 +515,7 @@ describe('DivisionPlayer', () => {
                     },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
-                response = true;
+                context.prompts.respondToConfirm('Are you sure you want to delete NAME?', true);
                 apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
                 await doClick(findButton(nameCell, '🗑️'));
                 expect(context.container.textContent).toContain('Could not delete player');
@@ -548,16 +538,16 @@ describe('DivisionPlayer', () => {
                         onReloadDivision,
                     },
                     account);
-                const nameCell = context.container.querySelector('td:nth-child(2)');
+                const nameCell = context.container.querySelector('td:nth-child(2)')!;
                 await doClick(findButton(nameCell, '✏️'));
-                const dialog = nameCell.querySelector('.modal-dialog');
+                const dialog = nameCell.querySelector('.modal-dialog')!;
                 await doChange(dialog, 'input[name="name"]', 'NEW NAME', context.user);
 
                 await doClick(findButton(dialog, 'Save player'));
 
                 reportedError.verifyNoError();
                 expect(updatedPlayer).not.toBeNull();
-                expect(updatedPlayer.playerDetails.name).toEqual('NEW NAME');
+                expect(updatedPlayer!.playerDetails.name).toEqual('NEW NAME');
                 expect(divisionReloaded).toEqual(true);
                 expect(teamsReloaded).toEqual(true);
             });
@@ -575,9 +565,9 @@ describe('DivisionPlayer', () => {
                         onReloadDivision,
                     },
                     account);
-                const nameCell = context.container.querySelector('td:nth-child(2)');
+                const nameCell = context.container.querySelector('td:nth-child(2)')!;
                 await doClick(findButton(nameCell, '✏️'));
-                const dialog = nameCell.querySelector('.modal-dialog');
+                const dialog = nameCell.querySelector('.modal-dialog')!;
                 await doChange(dialog, 'input[name="name"]', 'NEW NAME', context.user);
                 apiResponse = {success: false};
 
@@ -611,7 +601,7 @@ describe('DivisionPlayer', () => {
                     });
 
                 reportedError.verifyNoError();
-                const row = context.container.querySelector('tr');
+                const row = context.container.querySelector('tr')!;
                 expect(row.className).not.toContain('opacity-25');
             });
         })

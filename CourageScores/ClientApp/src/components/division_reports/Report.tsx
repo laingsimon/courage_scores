@@ -22,16 +22,16 @@ export function Report({rows, columns}: IReportProps) {
     function renderReportCell(cell: ReportCellDto, cellIndex: number) {
         let content: string | ReactNode = cell.text;
 
-        const player: string = cell.playerName || cell.playerId;
-        const team: string = cell.teamName || cell.teamId;
-        const division: string = cell.divisionName || cell.divisionId;
+        const player: string | undefined = cell.playerName || cell.playerId;
+        const team: string | undefined = cell.teamName || cell.teamId;
+        const division: string | undefined = cell.divisionName || cell.divisionId;
 
         if (cell.tournamentId) {
             content = (<Link to={`/tournament/${cell.tournamentId}`}>{cell.text}</Link>);
         } else if (player && team && division) {
-            content = (<Link to={`/division/${division}/player:${player}@${team}/${season.name}`}>{cell.text}</Link>);
+            content = (<Link to={`/division/${division}/player:${player}@${team}/${season!.name}`}>{cell.text}</Link>);
         } else if (team && division) {
-            content = (<Link to={`/division/${division}/team:${team}/${season.name}`}>{cell.text}</Link>);
+            content = (<Link to={`/division/${division}/team:${team}/${season!.name}`}>{cell.text}</Link>);
         }
 
         return (<td key={cellIndex}>
@@ -51,8 +51,8 @@ export function Report({rows, columns}: IReportProps) {
             <tbody>
             {rows.map((row: ReportRowDto, rowIndex: number) => (<tr key={rowIndex}>
                 <td>{rowIndex + 1}</td>
-                {row.cells.map(renderReportCell)}
-                {repeat(maxColumnWidth - row.cells.length, (index: number) => <td key={`empty_${index}`}></td>)}
+                {row.cells!.map(renderReportCell)}
+                {repeat(maxColumnWidth - row.cells!.length, (index: number) => <td key={`empty_${index}`}></td>)}
             </tr>))}
             </tbody>
         </table>

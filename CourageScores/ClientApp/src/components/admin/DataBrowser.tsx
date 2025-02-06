@@ -15,11 +15,11 @@ export function DataBrowser() {
     const location = useLocation();
     const navigate = useNavigate();
     const search = new URLSearchParams(location.search);
-    const [table, setTable] = useState<string>(search.has('table') ? search.get('table') : '');
-    const [id, setId] = useState<string>(search.has('id') ? search.get('id') : '');
+    const [table, setTable] = useState<string>(search.has('table') ? search.get('table')! : '');
+    const [id, setId] = useState<string>(search.has('id') ? search.get('id')! : '');
     const [loading, setLoading] = useState<boolean>(false);
     const [response, setResponse] = useState<IClientActionResultDto<SingleDataResultDto[]> | IClientActionResultDto<object> | null>(null);
-    const [lastRequest, setLastRequest] = useState<{ table: string, id: string } | null>(null);
+    const [lastRequest, setLastRequest] = useState<{ table: string, id: string | null } | null>(null);
     const pageSize: number = getViewParameter('pageSize', 10);
     const showEmptyValues = getViewParameter('showEmptyValues', false);
     const showAuditValues = getViewParameter('showAuditValues', false);
@@ -38,7 +38,7 @@ export function DataBrowser() {
             return defaultValue;
         }
 
-        const value: string = search.get(name).toLowerCase().trim();
+        const value: string = search.get(name)!.toLowerCase().trim();
         if (typeof defaultValue === 'boolean') {
             return (value === 'true' || value === '1') as T;
         }
@@ -54,8 +54,8 @@ export function DataBrowser() {
     }
 
     async function fetchData() {
-        const table = search.has('table') ? search.get('table') : '';
-        const id = search.has('id') ? search.get('id') : '';
+        const table: string = search.has('table') ? search.get('table')! : '';
+        const id: string = search.has('id') ? search.get('id')! : '';
 
         const newRequest = {table, id: id ? id : null};
         if (!newRequest.table) {
@@ -95,7 +95,7 @@ export function DataBrowser() {
     }
 
     function getPages() {
-        const noOfItems = (response as IClientActionResultDto<SingleDataResultDto[]>).result.length;
+        const noOfItems = (response as IClientActionResultDto<SingleDataResultDto[]>).result!.length;
         const noOfPages = Math.ceil(noOfItems / pageSize);
 
         return repeat(noOfPages);
@@ -197,17 +197,17 @@ export function DataBrowser() {
     function renderResponse() {
         const maybeSingleResponse: IClientActionResultDto<object & { id: string }> = response as IClientActionResultDto<object & { id: string }>;
         if (maybeSingleResponse && maybeSingleResponse.result && maybeSingleResponse.result.id) {
-            return renderItem((response as IClientActionResultDto<object>).result, 1);
+            return renderItem((response as IClientActionResultDto<object>).result!, 1);
         }
 
-        const pageIndex = search.has('page') ? Number.parseInt(search.get('page')) : 0;
+        const pageIndex = search.has('page') ? Number.parseInt(search.get('page')!) : 0;
         const minIndexInclusive = pageIndex * pageSize;
         const maxIndexExclusive = minIndexInclusive + pageSize;
         const allItems = response as IClientActionResultDto<SingleDataResultDto[]>;
 
         return (<>
             <ul className="list-group">
-                {allItems.result.map((item: SingleDataResultDto, index: number) => index >= minIndexInclusive && index < maxIndexExclusive ? (<Link to={`/admin/browser?table=${table}&id=${item.id}`} key={item.id} className="list-group-item d-flex justify-content-between" onClick={() => updateSearch(id)}>
+                {allItems.result!.map((item: SingleDataResultDto, index: number) => index >= minIndexInclusive && index < maxIndexExclusive ? (<Link to={`/admin/browser?table=${table}&id=${item.id}`} key={item.id} className="list-group-item d-flex justify-content-between" onClick={() => updateSearch(id)}>
                     <span>{item.id}</span>
                     {item.name ? (<span>{item.name}</span>) : null}
                     {item.date ? (<span>{renderDate(item.date)}</span>) : null}
@@ -250,7 +250,7 @@ export function DataBrowser() {
                 {response.errors && response.status ? (<div className="text-danger">
                     Status: {response.status}
                     {Object.keys(response.errors).map((key: string) => (
-                        <li key={key}>{key}: {response.errors[key]}</li>))}
+                        <li key={key}>{key}: {response.errors![key]}</li>))}
                 </div>) : null}
             </div>)}
         </div>);

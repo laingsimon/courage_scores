@@ -47,8 +47,8 @@ describe('Division', () => {
 
     const divisionApi = api<IDivisionApi>({
         data: async (filter: DivisionDataFilter): Promise<DivisionDataDto> => {
-            const seasonId: string = filter.seasonId;
-            const divisionId: string = filter.divisionId.join(',');
+            const seasonId: string = filter.seasonId!;
+            const divisionId: string = filter.divisionId!.join(',');
             const key: string = `${divisionId}${seasonId ? ':' + seasonId : ''}`;
 
             if (!any(Object.keys(divisionDataMap), (k: string) => k === key)) {
@@ -106,7 +106,7 @@ describe('Division', () => {
         const divisionId = divisionData.id;
 
         beforeEach(() => {
-            divisionDataMap[divisionData.id] = divisionData;
+            divisionDataMap[divisionData.id!] = divisionData;
         });
 
         it('renders prompt for season', async () => {
@@ -1041,7 +1041,7 @@ describe('Division', () => {
                 ]); // data loaded once
                 reportedError.verifyNoError();
                 const fixtureContainer = (context.container.querySelector('div[data-fixture-date="2023-07-01"]') as HTMLElement).parentElement as HTMLElement;
-                window.confirm = () => true;
+                context.prompts.respondToConfirm('Are you sure you want to delete this fixture?\n\nHOME vs AWAY', true);
 
                 await doClick(findButton(fixtureContainer, '🗑'));
 

@@ -1,4 +1,13 @@
-import {api, appProps, cleanUp, doClick, iocProps, noop, renderApp, TestContext} from "../../helpers/tests";
+import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../helpers/tests";
 import {ExportDataButton, IExportDataButtonProps} from "./ExportDataButton";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {ExportDataRequestDto} from "../../interfaces/models/dtos/Data/ExportDataRequestDto";
@@ -8,8 +17,8 @@ import {IDataApi} from "../../interfaces/apis/IDataApi";
 
 describe('ExportDataButton', () => {
     let context: TestContext;
-    let exportRequest: ExportDataRequestDto;
-    let apiResult: IClientActionResultDto<ExportDataResultDto>;
+    let exportRequest: ExportDataRequestDto | null;
+    let apiResult: IClientActionResultDto<ExportDataResultDto> | null;
 
     const dataApi = api<IDataApi>({
         export: async (request: ExportDataRequestDto): Promise<IClientActionResultDto<ExportDataResultDto>> => {
@@ -22,18 +31,18 @@ describe('ExportDataButton', () => {
         await cleanUp(context);
     });
 
-    async function renderComponent(props: IExportDataButtonProps, account: UserDto) {
+    async function renderComponent(props: IExportDataButtonProps, account?: UserDto) {
         exportRequest = null;
         apiResult = null;
         context = await renderApp(
             iocProps({dataApi}),
-            null,
+            brandingProps(),
             appProps({account}),
             (<ExportDataButton {...props} />));
     }
 
     describe('when logged out', () => {
-        const account: UserDto = null;
+        const account: UserDto | undefined = undefined;
 
         it('renders nothing', async () => {
             await renderComponent({}, account);
@@ -83,7 +92,7 @@ describe('ExportDataButton', () => {
                 }
             }, account);
 
-            const button = context.container.querySelector('button');
+            const button = context.container.querySelector('button')!;
             expect(button).toBeTruthy();
             expect(button.textContent).toEqual('🛒');
         });
@@ -95,8 +104,7 @@ describe('ExportDataButton', () => {
                     recordedScoreAsYouGo: ['id2', 'id3'],
                 }
             }, account);
-            const button = context.container.querySelector('button');
-            window.alert = noop;
+            const button = context.container.querySelector('button')!;
 
             await doClick(button);
 
@@ -117,14 +125,12 @@ describe('ExportDataButton', () => {
                     recordedScoreAsYouGo: ['id2', 'id3'],
                 }
             }, account);
-            const button = context.container.querySelector('button');
-            let alert: string;
-            window.alert = (msg) => alert = msg;
+            const button = context.container.querySelector('button')!;
 
             await doClick(button);
 
             expect(exportRequest).not.toBeNull();
-            expect(alert).toEqual('Unable to export data');
+            context.prompts.alertWasShown('Unable to export data');
         });
 
         it('when clicked, allows download of content', async () => {
@@ -134,14 +140,14 @@ describe('ExportDataButton', () => {
                     recordedScoreAsYouGo: ['id2', 'id3'],
                 }
             }, account);
-            const button = context.container.querySelector('button');
+            const button = context.container.querySelector('button')!;
             apiResult = {
                 success: true,
                 result: {
                     zip: 'ZIP CONTENT'
                 },
             };
-            let openedWindow: string;
+            let openedWindow: string | undefined;
             (window as any).open = (url: string) => {
                 openedWindow = url;
             }

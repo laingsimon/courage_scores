@@ -16,8 +16,8 @@ export function playerOverallAverage(saygData: ScoreAsYouGoDto | null | undefine
         const side = leg[sideName];
 
         return {
-            score: getScoreFromThrows(leg.startingScore, side.throws),
-            noOfDarts: sum(side.throws, (thr: LegThrowDto) => thr.noOfDarts),
+            score: getScoreFromThrows(leg.startingScore || 0, side.throws),
+            noOfDarts: sum(side.throws, (thr: LegThrowDto) => thr.noOfDarts || 0),
         };
     });
 
@@ -48,7 +48,7 @@ export function getNoOfLegs(saygData: ScoreAsYouGoDto | null | undefined): numbe
     return Object.keys(saygData.legs || {})
         .map((legKey: string): LegDto => saygData.legs![legKey])
         .filter((leg: LegDto): number => {
-            return leg.home!.noOfDarts || (leg.away ? leg.away.noOfDarts : 0);
+            return leg.home!.noOfDarts || (leg.away ? leg.away.noOfDarts || 0 : 0);
         })
         .length;
 }
@@ -111,12 +111,12 @@ export function getMatchWinner(saygData: ScoreAsYouGoDto) {
 
 export function isLegWinner(leg: LegDto, accumulatorName: string): boolean {
     const accumulator = leg[accumulatorName];
-    return getScoreFromThrows(leg.startingScore, accumulator.throws) === leg.startingScore;
+    return getScoreFromThrows(leg.startingScore || 0, accumulator.throws) === leg.startingScore;
 }
 
 export function legsWon(saygMatches: ISuperleagueSayg[], accumulatorName: string): number {
     return sum(saygMatches, (map: ISuperleagueSayg) => {
-        const saygData: ScoreAsYouGoDto = map.saygData;
+        const saygData: ScoreAsYouGoDto | undefined = map.saygData;
         if (!saygData || !saygData.legs) {
             return 0;
         }
@@ -131,7 +131,7 @@ export function legsWon(saygMatches: ISuperleagueSayg[], accumulatorName: string
 export function countLegThrowsBetween(leg: LegDto, accumulatorName: string, lowerInclusive: number, upperExclusive?: number): number {
     const accumulator: LegCompetitorScoreDto = leg[accumulatorName] || {};
     const throws = accumulator.throws || [];
-    return count(throws, thr => thr.score >= lowerInclusive && (!upperExclusive || thr.score < upperExclusive));
+    return count(throws, thr => (thr.score || 0) >= lowerInclusive && (!upperExclusive || (thr.score || 0) < upperExclusive));
 }
 
 export function legTons(leg: LegDto, accumulatorName: string): number {
@@ -159,7 +159,7 @@ export function legActualDarts(leg: LegDto, accumulatorName: string): number {
         return 0;
     }
 
-    return sum(accumulator.throws, (thr: LegThrowDto) => thr.noOfDarts);
+    return sum(accumulator.throws, (thr: LegThrowDto) => thr.noOfDarts || 0);
 }
 
 export function legGameShot(leg: LegDto, accumulatorName: string): number | null {
@@ -169,7 +169,9 @@ export function legGameShot(leg: LegDto, accumulatorName: string): number | null
     }
 
     const lastThrow = accumulator.throws[accumulator.throws.length - 1];
-    return isLegWinner(leg, accumulatorName) && lastThrow ? lastThrow.score : null;
+    return isLegWinner(leg, accumulatorName) && lastThrow
+        ? lastThrow.score || 0
+        : null;
 }
 
 export function legScoreLeft(leg: LegDto, accumulatorName: string): number | null {
@@ -180,7 +182,7 @@ export function legScoreLeft(leg: LegDto, accumulatorName: string): number | nul
 
     return isLegWinner(leg, accumulatorName)
         ? null
-        : leg.startingScore - getScoreFromThrows(leg.startingScore, accumulator.throws);
+        : (leg.startingScore || 0) - getScoreFromThrows(leg.startingScore || 0, accumulator.throws);
 }
 
 function countMatchThrowsBetween(saygData: ScoreAsYouGoDto | null | undefined, accumulatorName: string, lowerInclusive: number, upperExclusive?: number): number | null {
@@ -194,6 +196,6 @@ function countMatchThrowsBetween(saygData: ScoreAsYouGoDto | null | undefined, a
 
         return count(
             accumulator.throws!,
-            (thr: LegThrowDto) => thr.score >= lowerInclusive && (!upperExclusive || thr.score < upperExclusive));
+            (thr: LegThrowDto) => (thr.score || 0) >= lowerInclusive && (!upperExclusive || (thr.score || 0) < upperExclusive));
     }));
 }

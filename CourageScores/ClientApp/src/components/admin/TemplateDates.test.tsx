@@ -15,8 +15,8 @@ import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/Date
 describe('TemplateDates', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let update: DateTemplateDto[];
-    let copyToDivisionIndex: number;
+    let update: DateTemplateDto[] | null;
+    let copyToDivisionIndex: number | null;
 
     afterEach(async () => {
         await cleanUp(context);
@@ -65,7 +65,7 @@ describe('TemplateDates', () => {
                 setHighlight,
             });
 
-            const prefix = context.container.querySelector('ul li:first-child');
+            const prefix = context.container.querySelector('ul li:first-child')!;
             expect(prefix.textContent).toEqual('WeeksLeague fixtures (or byes) per-week');
         });
 
@@ -84,7 +84,7 @@ describe('TemplateDates', () => {
                 setHighlight,
             });
 
-            const prefix = context.container.querySelector('ul li:first-child');
+            const prefix = context.container.querySelector('ul li:first-child')!;
             expect(Array.from(prefix.querySelectorAll('button'))).toEqual([]);
         });
 
@@ -101,7 +101,7 @@ describe('TemplateDates', () => {
                 setHighlight,
             });
 
-            const prefix = context.container.querySelector('ul li:first-child');
+            const prefix = context.container.querySelector('ul li:first-child')!;
             expect(Array.from(prefix.querySelectorAll('button'))).toEqual([]);
         });
 
@@ -120,7 +120,7 @@ describe('TemplateDates', () => {
                 setHighlight,
             });
 
-            const prefix = context.container.querySelector('ul li:first-child');
+            const prefix = context.container.querySelector('ul li:first-child')!;
             const copyButtons = Array.from(prefix.querySelectorAll('button'));
             expect(copyButtons.map(b => b.textContent)).toEqual([ 'Copy to division 1', 'Copy to division 3' ]);
         });
@@ -160,7 +160,7 @@ describe('TemplateDates', () => {
                 setHighlight,
             });
 
-            const dateElement = context.container.querySelector('ul li:nth-child(2)');
+            const dateElement = context.container.querySelector('ul li:nth-child(2)')!;
             expect(dateElement.textContent).toContain('A - B ×');
         });
     });
@@ -378,7 +378,7 @@ describe('TemplateDates', () => {
                 highlight: 'C',
                 setHighlight,
             });
-            window.confirm = () => true;
+            context.prompts.respondToConfirm('Are you sure you want to delete all fixtures where C are playing?', true);
 
             await doClick(findButton(context.container, 'A - C ×'));
 

@@ -50,10 +50,10 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
     const {name} = useBranding();
     const {onError, teams, divisions} = useApp();
     const {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, setEditTournament } = useTournament();
-    const layoutData: ILayoutDataForRound[] = getLayoutData(tournamentData.round, tournamentData.sides, { matchOptionDefaults, getLinkToSide });
-    const [editSide, setEditSide] = useState<TournamentSideDto>(null);
-    const [newSide, setNewSide] = useState<TournamentSideDto>(null);
-    const [editAccolades, setEditAccolades] = useState<string>(null);
+    const layoutData: ILayoutDataForRound[] = getLayoutData(tournamentData.round, tournamentData.sides || [], { matchOptionDefaults: matchOptionDefaults!, getLinkToSide });
+    const [editSide, setEditSide] = useState<TournamentSideDto | null>(null);
+    const [newSide, setNewSide] = useState<TournamentSideDto | null>(null);
+    const [editAccolades, setEditAccolades] = useState<string | null>(null);
     const winner = getWinner();
 
     useEffect(() => {
@@ -64,27 +64,29 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
 
     function renderEditSide() {
         return (<EditSide
-            side={editSide}
+            side={editSide!}
             onChange={async (side: TournamentSideDto) => setEditSide(side)}
             onClose={async () => setEditSide(null)}
             onApply={async (options: ISaveSideOptions) => {
-                const sideIndex: number = tournamentData.sides.map((side: TournamentSideDto, index: number) => side.id === editSide.id ? index : null).filter((index: number) => index !== null)[0];
-                await setTournamentData(sideChanged(tournamentData, editSide, sideIndex, options));
+                const sideIndex: number = tournamentData.sides!
+                    .map((side: TournamentSideDto, index: number) => side.id === editSide!.id ? index : null)
+                    .filter((index: number | null) => index !== null)[0];
+                await setTournamentData!(sideChanged(tournamentData, editSide!, sideIndex, options));
                 setEditSide(null);
             }}
             onDelete={async () => {
-                await setTournamentData(removeSide(tournamentData, editSide));
+                await setTournamentData!(removeSide(tournamentData, editSide!));
                 setEditSide(null);
             }}/>);
     }
 
     function renderEditNewSide() {
         return (<EditSide
-            side={newSide}
+            side={newSide!}
             onChange={async (side: TournamentSideDto) => setNewSide(side)}
             onClose={async () => setNewSide(null)}
             onApply={async (options: ISaveSideOptions) => {
-                await setTournamentData(addSide(tournamentData, newSide, options));
+                await setTournamentData!(addSide(tournamentData, newSide!, options));
                 setNewSide(null);
             }}
             initialAddAsIndividuals={tournamentData.singleRound}
@@ -93,7 +95,6 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
 
     function setupWiggle() {
         const wiggler: IWiggler = {
-            handle: null,
             movements: getWiggleMovements(),
         };
 
@@ -101,30 +102,30 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
             try {
                 if (!any(wiggler.movements)) {
                     window.clearInterval(wiggler.handle);
-                    wiggler.handle = null;
+                    wiggler.handle = undefined;
                     return;
                 }
 
                 const element = document.querySelector('div[datatype="rounds-and-players"]');
                 if (!element) {
                     window.clearInterval(wiggler.handle);
-                    wiggler.handle = null;
+                    wiggler.handle = undefined;
                     return;
                 }
 
-                const movement = wiggler.movements.shift();
+                const movement = wiggler.movements.shift()!;
                 element.scrollLeft = movement.scrollLeft;
             } catch (e) {
                 /* istanbul ignore next */
                 console.error(e);
                 window.clearInterval(wiggler.handle);
-                wiggler.handle = null;
+                wiggler.handle = undefined;
             }
         }, 10);
     }
 
     function getWiggleMovements(): IMovement[] {
-        const element = document.querySelector('div[datatype="rounds-and-players"]');
+        const element = document.querySelector('div[datatype="rounds-and-players"]')!;
         if (!element) {
             /* istanbul ignore next */
             return [];
@@ -158,15 +159,15 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
             const team: TeamDto = teams.filter(t => t.id === side.teamId)[0];
 
             return (<Link
-                to={`/division/${division.name}/team:${team ? team.name : side.teamId}/${season.name}`}>{side.name}</Link>);
+                to={`/division/${division.name}/team:${team ? team.name : side.teamId}/${season!.name}`}>{side.name}</Link>);
         }
 
-        const teamAndDivision = side && count(side.players || []) === 1
-            ? findTeamAndDivisionForPlayer(side.players[0])
+        const teamAndDivision = side && count(side.players) === 1
+            ? findTeamAndDivisionForPlayer(side.players![0])
             : null;
         if (side && teamAndDivision && teamAndDivision.division) {
             return (<Link
-                to={`/division/${teamAndDivision.division.name}/player:${side.players[0].name}@${teamAndDivision.team.name}/${season.name}`}>{side.name}</Link>);
+                to={`/division/${teamAndDivision.division.name}/player:${side.players![0].name}@${teamAndDivision.team!.name}/${season!.name}`}>{side.name}</Link>);
         }
 
         return (<span>{(side || {}).name || (<>&nbsp;</>)}</span>);
@@ -174,7 +175,7 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
 
     function findTeamAndDivisionForPlayer(player: TournamentPlayerDto): { team?: TeamDto, division?: DivisionDto } {
         const teamAndDivisionMapping = teams.map(t => {
-            const teamSeason: TeamSeasonDto = t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id && !ts.deleted)[0];
+            const teamSeason: TeamSeasonDto = t.seasons!.filter((ts: TeamSeasonDto) => ts.seasonId === season!.id && !ts.deleted)[0];
             if (!teamSeason) {
                 return null;
             }
@@ -202,14 +203,14 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
     }
 
     function render180s() {
-        return (<div data-accolades="180s" className="border-1 border-solid my-2 min-height-100 p-2 mb-5" onClick={editable ? () => setEditAccolades('one-eighties') : null}>
+        return (<div data-accolades="180s" className="border-1 border-solid my-2 min-height-100 p-2 mb-5" onClick={editable ? () => setEditAccolades('one-eighties') : undefined}>
             <h5>180s</h5>
             {groupAndSortByOccurrences(tournamentData.oneEighties, 'id').map((player: TournamentPlayerDto & IFrequency, index: number) => {
                 const { team, division } = findTeamAndDivisionForPlayer(player);
 
                 if (division && team) {
                     return (<div key={index} className="p-1 no-wrap">
-                        <Link to={`/division/${division.name}/player:${player.name}@${team.name}/${season.name}`}>
+                        <Link to={`/division/${division.name}/player:${player.name}@${team.name}/${season!.name}`}>
                             {player.name}
                         </Link> x {player.occurrences}
                     </div>);
@@ -225,24 +226,24 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
     function renderEdit180s() {
         return <Dialog title="Edit 180s" onClose={async () => setEditAccolades(null)} className="d-print-none">
             <MultiPlayerSelection
-                allPlayers={allPlayers}
+                allPlayers={allPlayers!}
                 division={division}
                 season={season}
                 players={tournamentData.oneEighties || []}
-                onRemovePlayer={remove180(tournamentData, setTournamentData)}
-                onAddPlayer={add180(tournamentData, setTournamentData)}/>
+                onRemovePlayer={remove180(tournamentData, setTournamentData!)}
+                onAddPlayer={add180(tournamentData, setTournamentData!)}/>
         </Dialog>
     }
 
     function renderHiChecks() {
-        return (<div data-accolades="hi-checks" className="border-1 border-solid my-2 min-height-100 p-2 mt-5" onClick={editable ? () => setEditAccolades('hi-checks') : null}>
+        return (<div data-accolades="hi-checks" className="border-1 border-solid my-2 min-height-100 p-2 mt-5" onClick={editable ? () => setEditAccolades('hi-checks') : undefined}>
             <h5>Hi-checks</h5>
-            {tournamentData.over100Checkouts.map((player: NotableTournamentPlayerDto, index: number) => {
+            {tournamentData.over100Checkouts!.map((player: NotableTournamentPlayerDto, index: number) => {
                 const { team, division } = findTeamAndDivisionForPlayer(player);
 
                 if (division && team) {
                     return (<div key={index} className="p-1 no-wrap">
-                        <Link to={`/division/${division.name}/player:${player.name}@${team.name}/${season.name}`}>
+                        <Link to={`/division/${division.name}/player:${player.name}@${team.name}/${season!.name}`}>
                             {player.name}
                         </Link> ({player.score})
                     </div>);
@@ -258,12 +259,12 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
     function renderEditHiChecks() {
         return <Dialog title="Edit hi-hecks" onClose={async () => setEditAccolades(null)} className="d-print-none">
             <MultiPlayerSelection
-                allPlayers={allPlayers}
+                allPlayers={allPlayers!}
                 division={division}
                 season={season}
                 players={tournamentData.over100Checkouts || []}
-                onRemovePlayer={removeHiCheck(tournamentData, setTournamentData)}
-                onAddPlayer={addHiCheck(tournamentData, setTournamentData)}
+                onRemovePlayer={removeHiCheck(tournamentData, setTournamentData!)}
+                onAddPlayer={addHiCheck(tournamentData, setTournamentData!)}
                 showScore={true}/>
         </Dialog>
     }
@@ -274,7 +275,7 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
         }
 
         const finalRound: ILayoutDataForRound = layoutData[layoutData.length - 1];
-        if (!finalRound || count(finalRound.matches || []) !== 1) {
+        if (!finalRound || count(finalRound.matches) !== 1) {
             return null;
         }
 
@@ -288,8 +289,8 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
     }
 
     function getPossibleSides(matchData: ILayoutDataForMatch, roundData: ILayoutDataForRound): TournamentSideDto[] {
-        const sideAId: string = matchData.sideA ? matchData.sideA.id : null;
-        const sideBId: string = matchData.sideB ? matchData.sideB.id : null;
+        const sideAId: string | undefined = matchData.sideA ? matchData.sideA.id : undefined;
+        const sideBId: string | undefined = matchData.sideB ? matchData.sideB.id : undefined;
 
         return roundData.possibleSides
             .filter((s: TournamentSideDto) => !s.noShow)
@@ -304,7 +305,7 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
             {winner ? null : (<div className="float-end d-print-none">
                 <RefreshControl id={tournamentData.id} type={LiveDataType.tournament} />
             </div>)}
-            <div datatype="heading" className="border-1 border-solid border-secondary p-3 text-center" onClick={setEditTournament ? async () => await setEditTournament('details') : null}>
+            <div datatype="heading" className="border-1 border-solid border-secondary p-3 text-center" onClick={setEditTournament ? async () => await setEditTournament('details') : undefined}>
                 {tournamentData.type || 'tournament'} at <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong>
                 {tournamentData.notes ? (<> - <strong>{tournamentData.notes}</strong></>) : null}
                 <span className="d-print-none margin-left">
@@ -342,19 +343,19 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
                 </div>) : null}
                 {!any(tournamentData.sides) && editable
                     ? (<div datatype="add-sides-hint" className="alert alert-warning m-3 d-print-none">
-                        Add who's playing by clicking <span className="text-secondary" onClick={() => setNewSide({ id: null })}>Add a side</span> &rarr;
+                        Add who's playing by clicking <span className="text-secondary" onClick={() => setNewSide({ id: '' })}>Add a side</span> &rarr;
                     </div>)
                     : null}
                 {any(tournamentData.sides) || editable ? (<div datatype="playing" className="ms-5">
                     <h4>Playing</h4>
                     <ul className="list-group">
-                        {tournamentData.sides.sort(sortBy('name')).map((side: TournamentSideDto, index: number) => <li
+                        {tournamentData.sides!.sort(sortBy('name')).map((side: TournamentSideDto, index: number) => <li
                             key={side.id}
-                            onClick={editable ? () => setEditSide(side) : null}
+                            onClick={editable ? () => setEditSide(side) : undefined}
                             className={`list-group-item no-wrap${side.noShow ? ' text-decoration-line-through' : ''}`}>
                             {index + 1} - {editable ? side.name : getLinkToSide(side)}
                         </li>)}
-                        {editable ? (<li datatype="add-side" className="list-group-item text-secondary opacity-50 d-print-none" onClick={() => setNewSide({ id: null })}>
+                        {editable ? (<li datatype="add-side" className="list-group-item text-secondary opacity-50 d-print-none" onClick={() => setNewSide({ id: '' })}>
                             Add a side
                         </li>) : null}
                     </ul>

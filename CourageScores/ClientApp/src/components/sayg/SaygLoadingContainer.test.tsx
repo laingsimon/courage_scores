@@ -38,10 +38,10 @@ import {UntypedPromise} from "../../interfaces/UntypedPromise";
 describe('SaygLoadingContainer', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let saved: ILoadedScoreAsYouGoDto;
-    let loadError: string;
+    let saved: ILoadedScoreAsYouGoDto | null;
+    let loadError: string | null;
     let saygDataMap: { [id: string]: RecordedScoreAsYouGoDto };
-    let apiResponse: IClientActionResultDto<RecordedScoreAsYouGoDto>;
+    let apiResponse: IClientActionResultDto<RecordedScoreAsYouGoDto> | null;
     let socketFactory: MockSocketFactory;
 
     const saygApi = api<ISaygApi>({
@@ -111,7 +111,6 @@ describe('SaygLoadingContainer', () => {
             await renderComponent({
                 children: (<TestComponent onLoaded={(data: IExtractedProps) => containerProps = data}/>),
                 id: saygData.id,
-                defaultData: null,
                 autoSave: false,
                 on180,
                 onHiCheck,
@@ -122,7 +121,7 @@ describe('SaygLoadingContainer', () => {
             });
 
             reportedError.verifyNoError();
-            expect(containerProps).toEqual({
+            expect(containerProps!).toEqual({
                 subscriptions: {},
                 enableLiveUpdates: expect.any(Function),
                 sayg: saygDataMap[saygData.id],
@@ -136,7 +135,7 @@ describe('SaygLoadingContainer', () => {
             let containerProps: IExtractedProps;
             await renderComponent({
                 children: (<TestComponent onLoaded={(data: IExtractedProps) => containerProps = data}/>),
-                id: null,
+                id: '',
                 defaultData: saygBuilder()
                     .noId()
                     .yourName('HOME')
@@ -155,7 +154,7 @@ describe('SaygLoadingContainer', () => {
             });
 
             reportedError.verifyNoError();
-            expect(containerProps).toEqual({
+            expect(containerProps!).toEqual({
                 subscriptions: {},
                 liveOptions: expect.any(Object),
                 enableLiveUpdates: expect.any(Function),
@@ -176,11 +175,10 @@ describe('SaygLoadingContainer', () => {
 
         it('reports load error if no sayg data returned', async () => {
             const id = 'NO_DATA_ID';
-            saygDataMap[id] = null;
+            saygDataMap[id] = null!;
             await renderComponent({
                 children: (<TestComponent onLoaded={noop}/>),
                 id: id,
-                defaultData: null,
                 autoSave: false,
                 on180,
                 onHiCheck,
@@ -199,12 +197,11 @@ describe('SaygLoadingContainer', () => {
             saygDataMap[id] = {
                 id,
                 yourName: '',
-                legs: null,
+                legs: null!,
             };
             await renderComponent({
                 children: (<TestComponent onLoaded={noop} />),
                 id: id,
-                defaultData: null,
                 autoSave: false,
                 on180,
                 onHiCheck,
@@ -231,7 +228,6 @@ describe('SaygLoadingContainer', () => {
             await renderComponent({
                 children: (<TestComponent onLoaded={(data: IExtractedProps) => sayg = data.sayg }/>),
                 id: saygData.id,
-                defaultData: null,
                 autoSave: false,
                 on180,
                 onHiCheck,
@@ -242,14 +238,14 @@ describe('SaygLoadingContainer', () => {
             });
 
             reportedError.verifyNoError();
-            expect(sayg.lastUpdated).toEqual('2023-07-21');
+            expect(sayg!.lastUpdated).toEqual('2023-07-21');
         });
 
         it('should be able to update sayg data', async () => {
             let containerProps: IExtractedProps;
             await renderComponent({
                 children: (<TestComponent onLoaded={(data: IExtractedProps) => containerProps = data }/>),
-                id: null,
+                id: '',
                 defaultData: saygBuilder()
                     .yourName('DEFAULT')
                     .withLeg(0, (l: ILegBuilder) => l
@@ -265,7 +261,7 @@ describe('SaygLoadingContainer', () => {
                 onLoadError,
                 onSaved,
             });
-            expect(containerProps.sayg.yourName).toEqual('DEFAULT');
+            expect(containerProps!.sayg.yourName).toEqual('DEFAULT');
 
             await act(async () => {
                 await containerProps.setSayg(saygBuilder()
@@ -279,14 +275,14 @@ describe('SaygLoadingContainer', () => {
             });
 
             reportedError.verifyNoError();
-            expect(containerProps.sayg.lastUpdated).toEqual('2023-07-21');
+            expect(containerProps!.sayg.lastUpdated).toEqual('2023-07-21');
         });
 
         it('should be able to save data and get id', async () => {
             let containerProps: IExtractedProps;
             await renderComponent({
                 children: (<TestComponent onLoaded={(data: IExtractedProps) => containerProps = data}/>),
-                id: null,
+                id: '',
                 defaultData: saygBuilder()
                     .yourName('HOME')
                     .withLeg(0, (l: ILegBuilder) => l
@@ -302,22 +298,22 @@ describe('SaygLoadingContainer', () => {
                 onSaved,
                 liveOptions: {},
             });
-            let result: string;
+            let result: string | undefined;
 
             await act(async () => {
                 result = await containerProps.saveDataAndGetId();
             });
 
             expect(saved).not.toBeNull();
-            expect(result).toEqual('#' + saved.id);
-            expect(containerProps.sayg).toEqual(saved);
+            expect(result!).toEqual('#' + saved!.id);
+            expect(containerProps!.sayg).toEqual(saved);
         });
 
         it('should handle error during upsert', async () => {
             let containerProps: IExtractedProps;
             await renderComponent({
                 children: (<TestComponent onLoaded={(data: IExtractedProps) => containerProps = data}/>),
-                id: null,
+                id: '',
                 defaultData: saygBuilder()
                     .noId()
                     .yourName('HOME')
@@ -335,15 +331,15 @@ describe('SaygLoadingContainer', () => {
                 liveOptions: {},
             });
             apiResponse = {success: false, errors: ['SOME ERROR']};
-            let result: string;
+            let result: string | undefined;
 
             await act(async () => {
                 result = await containerProps.saveDataAndGetId();
             });
 
             expect(saved).toBeNull();
-            expect(result).toBeNull();
-            expect(containerProps.sayg.id).toBeUndefined();
+            expect(result).toBeUndefined();
+            expect(containerProps!.sayg.id).toBeUndefined();
             expect(context.container.textContent).toContain('Could not save data');
             expect(context.container.textContent).toContain('SOME ERROR');
         });
@@ -352,7 +348,7 @@ describe('SaygLoadingContainer', () => {
             let containerProps: IExtractedProps;
             await renderComponent({
                 children: (<TestComponent onLoaded={(data: IExtractedProps) => containerProps = data}/>),
-                id: null,
+                id: '',
                 defaultData: saygBuilder()
                     .yourName('HOME')
                     .withLeg(0, (l: ILegBuilder) => l
@@ -383,7 +379,7 @@ describe('SaygLoadingContainer', () => {
             let containerProps: IExtractedProps;
             await renderComponent({
                 children: (<TestComponent onLoaded={(data: IExtractedProps) => containerProps = data}/>),
-                id: null,
+                id: '',
                 defaultData: saygBuilder()
                     .noId()
                     .yourName('HOME')
@@ -404,15 +400,15 @@ describe('SaygLoadingContainer', () => {
                 success: true,
                 result: ('SOMETHING THAT WILL TRIGGER AN EXCEPTION' as unknown) as RecordedScoreAsYouGoDto,
             } as IClientActionResultDto<RecordedScoreAsYouGoDto>;
-            let result: string;
+            let result: string | undefined;
 
             await act(async () => {
                 result = await containerProps.saveDataAndGetId();
             });
 
             expect(saved).toBeNull();
-            expect(result).toBeNull();
-            expect(containerProps.sayg.id).toBeUndefined();
+            expect(result).toBeUndefined();
+            expect(containerProps!.sayg.id).toBeUndefined();
             reportedError.verifyErrorEquals({
                 message: 'Cannot create property \'lastUpdated\' on string \'SOMETHING THAT WILL TRIGGER AN EXCEPTION\'',
                 stack: expect.any(String),
@@ -441,7 +437,6 @@ describe('SaygLoadingContainer', () => {
                     enableLiveUpdates = data.enableLiveUpdates;
                 }} />),
                 id: saygData.id,
-                defaultData: null,
                 autoSave: false,
                 on180,
                 onHiCheck,
@@ -479,7 +474,6 @@ describe('SaygLoadingContainer', () => {
                     enableLiveUpdates = data.enableLiveUpdates;
                 }} />),
                 id: saygData.id,
-                defaultData: null,
                 autoSave: false,
                 on180,
                 onHiCheck,
@@ -496,7 +490,7 @@ describe('SaygLoadingContainer', () => {
                 console.error = () => {};
 
                 expect(socketFactory.socketWasCreated()).toEqual(true);
-                socketFactory.socket.onmessage({
+                socketFactory.socket!.onmessage!({
                     type: 'message',
                     data: JSON.stringify({
                         type: 'Error',
@@ -536,7 +530,6 @@ describe('SaygLoadingContainer', () => {
                     renderedData = data.sayg;
                 }} />),
                 id: saygData.id,
-                defaultData: null,
                 autoSave: false,
                 on180,
                 onHiCheck,
@@ -545,14 +538,14 @@ describe('SaygLoadingContainer', () => {
                 onSaved,
                 liveOptions: {},
             }, appProps({ account }, reportedError));
-            expect(renderedData).toEqual(saygData);
+            expect(renderedData!).toEqual(saygData);
 
             await act(async () => {
                 await enableLiveUpdates(true, { id: saygData.id, type: LiveDataType.sayg });
             });
             await act(async () => {
                 expect(socketFactory.socketWasCreated()).toEqual(true);
-                socketFactory.socket.onmessage({
+                socketFactory.socket!.onmessage!({
                     type: 'message',
                     data: JSON.stringify({
                         type: MessageType.update,
@@ -563,7 +556,7 @@ describe('SaygLoadingContainer', () => {
             });
 
             reportedError.verifyNoError();
-            expect(renderedData).toEqual(newSaygData);
+            expect(renderedData!).toEqual(newSaygData);
         });
 
         it('given no socket, when disabling, does nothing', async () => {
@@ -580,7 +573,6 @@ describe('SaygLoadingContainer', () => {
                     enableLiveUpdates = data.enableLiveUpdates;
                 }} />),
                 id: saygData.id,
-                defaultData: null,
                 autoSave: false,
                 on180,
                 onHiCheck,
@@ -617,7 +609,6 @@ describe('SaygLoadingContainer', () => {
                     enableLiveUpdates = data.enableLiveUpdates;
                 }} />),
                 id: saygData.id,
-                defaultData: null,
                 autoSave: false,
                 on180,
                 onHiCheck,
@@ -643,7 +634,7 @@ describe('SaygLoadingContainer', () => {
     interface IExtractedProps {
         sayg: ILoadedScoreAsYouGoDto,
         setSayg(newData: ILoadedScoreAsYouGoDto): Promise<ILoadedScoreAsYouGoDto>,
-        saveDataAndGetId(useData?: ILoadedScoreAsYouGoDto): Promise<string>,
+        saveDataAndGetId(useData?: ILoadedScoreAsYouGoDto): Promise<string | undefined>,
         enableLiveUpdates(enabled: boolean, request: ISubscriptionRequest): UntypedPromise,
         subscriptions: ISubscriptions,
         liveOptions: ILiveOptions

@@ -27,13 +27,13 @@ describe('MatchLogTableHeading', () => {
             brandingProps(),
             appProps({}, reportedError),
             (<MatchLogTableHeading {...props} />),
-            null,
-            null,
+            undefined,
+            undefined,
             'tbody');
     }
 
     function getRowContent(row: HTMLTableRowElement): string[] {
-        return Array.from(row.querySelectorAll('th')).map(th => th.textContent);
+        return Array.from(row.querySelectorAll('th')).map(th => th.textContent!);
     }
 
     describe('renders', () => {

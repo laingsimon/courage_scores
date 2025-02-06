@@ -4,6 +4,7 @@ import {PageError} from "../common/PageError";
 import {useApp} from "../common/AppContainer";
 import {Footer} from "./Footer";
 import React from "react";
+import {hasAccess} from "../../helpers/conditions";
 
 export interface ILayoutProps {
     children?: React.ReactNode;
@@ -11,10 +12,10 @@ export interface ILayoutProps {
 
 export function Layout({children}: ILayoutProps) {
     const {error, onError, embed, account} = useApp();
-    const hideHeaderAndFooter = account && account.access && account.access.kioskMode;
+    const hideHeaderAndFooter = hasAccess(account, access => access.kioskMode);
 
     function renderError() {
-        return (<PageError error={error}/>)
+        return (<PageError error={error!}/>)
     }
 
     if (embed) {

@@ -29,14 +29,11 @@ describe('EditDivision', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let saved: boolean;
-    let saveError: IClientActionResultDto<DivisionDto>;
-    let updatedDivision: EditDivisionDto;
-    let alert: string;
-    let confirm: string;
-    let confirmResponse: boolean;
+    let saveError: IClientActionResultDto<DivisionDto> | null;
+    let updatedDivision: EditDivisionDto | null;
     let apiResponse: IClientActionResultDto<DivisionDto>;
-    let deletedId: string;
-    let updatedData: DivisionDataDto;
+    let deletedId: string | null;
+    let updatedData: DivisionDataDto | null;
     const divisionApi = api<IDivisionApi>({
         update: async (data: EditDivisionDto) => {
             updatedDivision = data;
@@ -54,17 +51,7 @@ describe('EditDivision', () => {
 
     beforeEach(() => {
         reportedError = new ErrorState();
-        window.alert = (message) => {
-            alert = message
-        };
-        window.confirm = (message) => {
-            confirm = message;
-            return confirmResponse
-        };
-        alert = null;
-        confirm = null;
         saved = false;
-        confirmResponse = false;
         saveError = null;
         updatedDivision = null;
         deletedId = null;
@@ -112,8 +99,8 @@ describe('EditDivision', () => {
         await doChange(context.container, 'input[name="name"]', 'NEW DIVISION NAME', context.user);
 
         reportedError.verifyNoError();
-        expect(updatedData.id).toEqual(division.id);
-        expect(updatedData.name).toEqual('NEW DIVISION NAME');
+        expect(updatedData!.id).toEqual(division.id);
+        expect(updatedData!.name).toEqual('NEW DIVISION NAME');
     });
 
     it('prevents save when division name is empty', async () => {
@@ -128,7 +115,7 @@ describe('EditDivision', () => {
 
         await doClick(findButton(context.container, 'Update division'));
 
-        expect(alert).toEqual('Enter a division name');
+        context.prompts.alertWasShown('Enter a division name');
         expect(saved).toEqual(false);
     });
 
@@ -146,7 +133,7 @@ describe('EditDivision', () => {
         await doClick(context.container, 'input[name="superleague"]');
 
         reportedError.verifyNoError();
-        expect(updatedData.superleague).toEqual(true);
+        expect(updatedData!.superleague).toEqual(true);
     });
 
     it('saves division updates', async () => {
@@ -163,10 +150,10 @@ describe('EditDivision', () => {
         await doClick(findButton(context.container, 'Update division'));
 
         reportedError.verifyNoError();
-        expect(alert).toBeNull();
+        context.prompts.noAlerts();
         expect(saved).toEqual(true);
         expect(updatedDivision).not.toBeNull();
-        expect(updatedDivision.lastUpdated).toEqual(division.updated);
+        expect(updatedDivision!.lastUpdated).toEqual(division.updated);
     });
 
     it('reports saveError if an error during save', async () => {
@@ -199,10 +186,11 @@ describe('EditDivision', () => {
             setSaveError,
         });
         reportedError.verifyNoError();
+        context.prompts.respondToConfirm('Are you sure you want to delete the DIVISION division?', true);
 
         await doClick(findButton(context.container, 'Delete division'));
 
-        expect(confirm).toEqual('Are you sure you want to delete the DIVISION division?');
+        context.prompts.confirmWasShown('Are you sure you want to delete the DIVISION division?');
         expect(saved).toEqual(false);
     });
 
@@ -216,7 +204,7 @@ describe('EditDivision', () => {
             setSaveError,
         });
         reportedError.verifyNoError();
-        confirmResponse = true;
+        context.prompts.respondToConfirm('Are you sure you want to delete the DIVISION division?', true);
 
         await doClick(findButton(context.container, 'Delete division'));
 
@@ -234,7 +222,7 @@ describe('EditDivision', () => {
             setSaveError,
         });
         reportedError.verifyNoError();
-        confirmResponse = true;
+        context.prompts.respondToConfirm('Are you sure you want to delete the DIVISION division?', true);
         apiResponse = {
             success: false
         };
@@ -256,7 +244,7 @@ describe('EditDivision', () => {
             setSaveError,
         });
         reportedError.verifyNoError();
-        confirmResponse = true;
+        context.prompts.respondToConfirm('Are you sure you want to delete the DIVISION division?', true);
 
         await doClick(findButton(context.container, 'Delete division'));
 

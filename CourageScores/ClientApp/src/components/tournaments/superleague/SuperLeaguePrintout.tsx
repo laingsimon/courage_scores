@@ -27,7 +27,7 @@ export interface ISuperLeaguePrintoutProps {
 }
 
 interface ISaygDataMap {
-    [saygId: string]: RecordedScoreAsYouGoDto;
+    [saygId: string]: RecordedScoreAsYouGoDto | undefined;
 }
 
 export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeaguePrintoutProps) {
@@ -40,7 +40,9 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
     const [loading, setLoading] = useState<boolean>(false);
     const [finishedLoading, setFinishedLoading] = useState<boolean>(false);
     const matches: TournamentMatchDto[] = (tournamentData.round || {}).matches || [];
-    const unloadedIds: string[] = matches.map((m: TournamentMatchDto) => m.saygId).filter((id: string) => id && !any(Object.keys(saygDataMap), (key: string) => key === id));
+    const unloadedIds: string[] = matches
+        .map((m: TournamentMatchDto) => m.saygId!)
+        .filter((id: string) => id && !any(Object.keys(saygDataMap), (key: string) => key === id));
     const showWinner: boolean = location.search.indexOf('winner') !== -1;
 
     useEffect(() => {
@@ -99,9 +101,9 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
         try {
             setLoading(true);
             const firstId: string = ids[0];
-            const result: RecordedScoreAsYouGoDto = await saygApi.get(firstId);
+            const result: RecordedScoreAsYouGoDto | null = await saygApi.get(firstId);
             const newSaygDataMap: ISaygDataMap = Object.assign({}, saygDataMap);
-            newSaygDataMap[firstId] = result;
+            newSaygDataMap[firstId] = result || undefined;
             setSaygDataMap(newSaygDataMap);
             setLoading(false);
         } catch (e) {
@@ -134,7 +136,7 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
     const saygMatches: ISuperleagueSaygMatchMapping[] = matches.map((m: TournamentMatchDto): ISuperleagueSaygMatchMapping => {
         return {
             match: m,
-            saygData: saygDataMap[m.saygId],
+            saygData: saygDataMap[m.saygId!],
         };
     });
     const noOfThrows: number = maxNoOfThrowsAllMatches(saygMatches);
@@ -147,16 +149,16 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
             </div>
             <MasterDraw
                 matches={matches}
-                host={tournamentData.host}
-                opponent={tournamentData.opponent}
+                host={tournamentData.host!}
+                opponent={tournamentData.opponent!}
                 date={tournamentData.date}
-                gender={tournamentData.gender}
-                type={tournamentData.type}
+                gender={tournamentData.gender!}
+                type={tournamentData.type!}
                 patchData={patchDataAndTriggerSaygReload}
                 readOnly={readOnly} />
             {preventScroll ? null : (<MatchLog
-                host={tournamentData.host}
-                opponent={tournamentData.opponent}
+                host={tournamentData.host!}
+                opponent={tournamentData.opponent!}
                 showWinner={showWinner}
                 noOfThrows={noOfThrows}
                 saygMatches={saygMatches}/>)}
@@ -164,12 +166,12 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
                 showWinner={showWinner}
                 noOfLegs={noOfLegs}
                 saygMatches={saygMatches}
-                host={tournamentData.host}
-                opponent={tournamentData.opponent}/>)}
+                host={tournamentData.host!}
+                opponent={tournamentData.opponent!}/>)}
             {preventScroll ? null : (<MatchReport
-                gender={tournamentData.gender}
-                host={tournamentData.host}
-                opponent={tournamentData.opponent}
+                gender={tournamentData.gender!}
+                host={tournamentData.host!}
+                opponent={tournamentData.opponent!}
                 saygMatches={saygMatches}
                 division={division}
                 showWinner={showWinner}

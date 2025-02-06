@@ -13,7 +13,7 @@ import {ifNaN, round2dp} from "../../../helpers/rendering";
 import {ISuperleagueSaygMatchMapping} from "./ISuperleagueSaygMatchMapping";
 
 export interface ISummaryProps {
-    showWinner: boolean;
+    showWinner?: boolean;
     saygMatches: ISuperleagueSaygMatchMapping[];
     noOfLegs: number;
     host: string;
@@ -24,8 +24,8 @@ export function Summary({showWinner, saygMatches, noOfLegs, host, opponent}: ISu
     const {onError} = useApp();
 
     function renderDartsForWindowsAverage(side: string) {
-        const sumOfScores = sum(saygMatches, (s: ISuperleagueSaygMatchMapping) => sumOverThrows(s.saygData, side, 'score'));
-        const sumOfDarts = sum(saygMatches, (s: ISuperleagueSaygMatchMapping) => sumOverThrows(s.saygData, side, 'noOfDarts'));
+        const sumOfScores = sum(saygMatches, (s: ISuperleagueSaygMatchMapping) => sumOverThrows(s.saygData, side, 'score') || 0);
+        const sumOfDarts = sum(saygMatches, (s: ISuperleagueSaygMatchMapping) => sumOverThrows(s.saygData, side, 'noOfDarts') || 0);
 
         return (<td title={round2dp(sumOfScores) + ' / ' + round2dp(sumOfDarts)}>
             {ifNaN(round2dp(sumOfScores / sumOfDarts), '-')}
@@ -33,7 +33,7 @@ export function Summary({showWinner, saygMatches, noOfLegs, host, opponent}: ISu
     }
 
     function renderPlayerAverage(side: string) {
-        const average = sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => playerOverallAverage(map.saygData, side));
+        const average = sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => playerOverallAverage(map.saygData, side) || 0);
 
         return (<td title={round2dp(average) + ' / ' + noOfLegs}>
             {ifNaN(round2dp(average / noOfLegs), '-')}
@@ -73,29 +73,29 @@ export function Summary({showWinner, saygMatches, noOfLegs, host, opponent}: ISu
                 <tbody>
                 {saygMatches.map((map: ISuperleagueSaygMatchMapping, index: number) => (<SummaryDataRow
                     key={index}
-                    saygData={map.saygData}
+                    saygData={map.saygData!}
                     matchNo={index + 1}
                     showWinner={showWinner}
-                    hostPlayerName={map.match.sideA.name}
-                    hostScore={map.match.scoreA}
-                    opponentPlayerName={map.match.sideB.name}
-                    opponentScore={map.match.scoreB}/>))}
+                    hostPlayerName={map.match.sideA.name!}
+                    hostScore={map.match.scoreA!}
+                    opponentPlayerName={map.match.sideB.name!}
+                    opponentScore={map.match.scoreB!}/>))}
                 <tr className="fw-bold">
                     <td></td>
                     <td>Total</td>
-                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => map.match.scoreA), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => map.match.scoreA!), '-')}</td>
                     <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => matchTons(map.saygData, 'home')), '-')}</td>
-                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => countMatch100(map.saygData, 'home')), '-')}</td>
-                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => countMatch140(map.saygData, 'home')), '-')}</td>
-                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => countMatch180(map.saygData, 'home')), '-')}</td>
-                    <td>{ifNaN(round2dp(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => playerOverallAverage(map.saygData, 'home'))), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => countMatch100(map.saygData, 'home') || 0), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => countMatch140(map.saygData, 'home') || 0), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => countMatch180(map.saygData, 'home') || 0), '-')}</td>
+                    <td>{ifNaN(round2dp(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => playerOverallAverage(map.saygData, 'home') || 0)), '-')}</td>
                     <td>Total</td>
-                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => map.match.scoreB), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => map.match.scoreB!), '-')}</td>
                     <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => matchTons(map.saygData, 'away')), '-')}</td>
-                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => countMatch100(map.saygData, 'away')), '-')}</td>
-                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => countMatch140(map.saygData, 'away')), '-')}</td>
-                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => countMatch180(map.saygData, 'away')), '-')}</td>
-                    <td>{ifNaN(round2dp(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => playerOverallAverage(map.saygData, 'away'))), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => countMatch100(map.saygData, 'away') || 0), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => countMatch140(map.saygData, 'away') || 0), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => countMatch180(map.saygData, 'away') || 0), '-')}</td>
+                    <td>{ifNaN(round2dp(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => playerOverallAverage(map.saygData, 'away') || 0)), '-')}</td>
                 </tr>
                 </tbody>
                 <tfoot>

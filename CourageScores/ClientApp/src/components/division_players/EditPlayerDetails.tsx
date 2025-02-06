@@ -21,7 +21,7 @@ export interface IEditPlayerDetailsProps {
     team?: { id: string };
     gameId?: string;
     newTeamId?: string;
-    divisionId: string;
+    divisionId?: string;
     player: IEditPlayerDetailsPlayer;
     initialMultiple?: boolean;
 }
@@ -77,7 +77,6 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                 captain: player.captain,
                 emailAddress: player.emailAddress,
                 newTeamId: newTeamId,
-                gameId: null,
             };
 
             if (player.id) {
@@ -89,13 +88,13 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
             }
 
             const response: IClientActionResultDto<TeamDto> = player.id
-                ? await playerApi.update(seasonId, player.teamId || team.id, player.id, playerDetails)
+                ? await playerApi.update(seasonId, player.teamId || team!.id, player.id, playerDetails)
                 : await createMultiple();
 
             if (response.success) {
                 if (onSaved) {
                     await onSaved(
-                        response.result,
+                        response.result!,
                         player.id
                             ? null
                             : getNewPlayers(response));
@@ -119,9 +118,9 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                 return [];
             }
 
-            const teamSeason: TeamSeasonDto = response.result.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === seasonId && !ts.deleted)[0];
+            const teamSeason: TeamSeasonDto = response.result!.seasons!.filter((ts: TeamSeasonDto) => ts.seasonId === seasonId && !ts.deleted)[0];
             const newPlayers: TeamPlayerDto[] = multiCreationResponse.playerDetails.map((request: IEditPlayerDetailsPlayer) => {
-                return teamSeason.players.filter((p: TeamPlayerDto) => p.name === request.name)[0];
+                return teamSeason.players!.filter((p: TeamPlayerDto) => p.name === request.name)[0];
             });
 
             return newPlayers.filter((p: TeamPlayerDto) => !!p); // filter out any players that could not be found
@@ -134,7 +133,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
     function getDivisionIdForTeam(): string {
         const teamId = newTeamId || (team ? team.id : null) || player.teamId;
         const theTeam: TeamDto = teams.filter((t: TeamDto) => t.id === teamId)[0];
-        const teamSeason: TeamSeasonDto = theTeam.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === seasonId)[0];
+        const teamSeason: TeamSeasonDto = theTeam.seasons!.filter((ts: TeamSeasonDto) => ts.seasonId === seasonId)[0];
         if (teamSeason && teamSeason.divisionId) {
             return teamSeason.divisionId;
         }
@@ -148,7 +147,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
             .map((name: string): IEditPlayerDetailsPlayer => {
                 return {
                     name: name,
-                    emailAddress: multiple ? null : player.emailAddress,
+                    emailAddress: multiple ? undefined : player.emailAddress,
                     captain: multiple ? false : player.captain,
                     newTeamId: newTeamId,
                 };
@@ -158,7 +157,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
         let success: boolean = true;
         for (const playerDetails of multiPlayerDetails) {
             const createForDivisionId: string = getDivisionIdForTeam();
-            const response: ICreatedPlayerResponse = await playerApi.create(createForDivisionId, seasonId, player.teamId || team.id, playerDetails);
+            const response: ICreatedPlayerResponse = await playerApi.create(createForDivisionId, seasonId, player.teamId || team!.id, playerDetails);
             results.push(response);
             response.playerDetails = playerDetails;
             success = success && (response.success || false);
@@ -167,11 +166,11 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
         return {
             success: success,
             result: results[results.length - 1].result,
-            errors: results.flatMap(r => r.errors),
-            warnings: results.flatMap(r => r.warnings),
-            messages: results.flatMap(r => r.messages),
-            trace: results.flatMap(r => r.trace),
-            playerDetails: results.map(r => r.playerDetails),
+            errors: results.flatMap(r => r.errors || []),
+            warnings: results.flatMap(r => r.warnings || []),
+            messages: results.flatMap(r => r.messages || []),
+            trace: results.flatMap(r => r.trace || []),
+            playerDetails: results.map(r => r.playerDetails!),
         };
     }
 
@@ -185,7 +184,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
     }
 
     function teamSeasonForSameDivision(team: TeamDto): boolean {
-        const teamSeason: TeamSeasonDto = team.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === seasonId && !ts.deleted)[0];
+        const teamSeason: TeamSeasonDto = team.seasons!.filter((ts: TeamSeasonDto) => ts.seasonId === seasonId && !ts.deleted)[0];
         if (!teamSeason) {
             return false;
         }
@@ -232,7 +231,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
             <BootstrapDropdown
                 datatype="team-selection-team"
                 onChange={(value: string) => onChange('newTeamId', value)}
-                value={newTeamId || team.id}
+                value={newTeamId || team!.id}
                 options={getTeamOptions()}/>
             <BootstrapDropdown
                 datatype="team-selection-division"

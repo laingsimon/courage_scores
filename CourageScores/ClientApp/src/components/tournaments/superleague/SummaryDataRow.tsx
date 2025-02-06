@@ -12,7 +12,7 @@ import {ScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/ScoreAs
 export interface ISummaryDataRowProps {
     matchNo: number;
     saygData: ScoreAsYouGoDto;
-    showWinner: boolean;
+    showWinner?: boolean;
     hostScore: number;
     opponentScore: number;
     hostPlayerName: string;
@@ -31,14 +31,14 @@ export function SummaryDataRow({matchNo, saygData, showWinner, hostScore, oppone
             <td>{countMatch100(saygData, 'home')}</td>
             <td>{countMatch140(saygData, 'home')}</td>
             <td>{countMatch180(saygData, 'home')}</td>
-            <td>{ifNaN(round2dp(playerOverallAverage(saygData, 'home')), '-')}</td>
+            <td>{ifNaN(round2dp(playerOverallAverage(saygData, 'home') || 0), '-')}</td>
             <td className={opponentScore > hostScore && showWinner ? 'bg-winner' : ''}>{opponentPlayerName}</td>
             <td>{opponentScore}</td>
             <td>{matchTons(saygData, 'away')}</td>
             <td>{countMatch100(saygData, 'away')}</td>
             <td>{countMatch140(saygData, 'away')}</td>
             <td>{countMatch180(saygData, 'away')}</td>
-            <td>{ifNaN(round2dp(playerOverallAverage(saygData, 'away')), '-')}</td>
+            <td>{ifNaN(round2dp(playerOverallAverage(saygData, 'away') || 0), '-')}</td>
         </tr>);
     } catch (e) {
         /* istanbul ignore next */

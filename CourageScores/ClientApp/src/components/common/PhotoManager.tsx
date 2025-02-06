@@ -22,11 +22,11 @@ export interface IPhotoManagerProps {
 export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canUploadPhotos, canDeletePhotos, doDelete }: IPhotoManagerProps) {
     const { settings } = useDependencies();
     const { account } = useApp();
-    const [uploading, setUploading] = useState(false);
-    const [deleting, setDeleting] = useState(null);
-    const myPhotos: PhotoReferenceDto[] = (photos || []).filter((p: PhotoReferenceDto) => p.author === account.name);
+    const [uploading, setUploading] = useState<boolean>(false);
+    const [deleting, setDeleting] = useState<string | null>(null);
+    const myPhotos: PhotoReferenceDto[] = (photos || []).filter((p: PhotoReferenceDto) => p.author === account?.name);
     const photosToShow: PhotoReferenceDto[] = canViewAllPhotos ? (photos || []) : myPhotos;
-    const showPhotoSize: boolean = account && account.access && (account.access.viewAnyPhoto || account.access.deleteAnyPhoto);
+    const showPhotoSize: boolean = !!(account && account.access && (account.access.viewAnyPhoto || account.access.deleteAnyPhoto));
 
     function getDownloadAddress(photo: PhotoReferenceDto, height?: number): string {
         return `${settings.apiHost}/api/Photo/${photo.id}/${height ? height : ''}`;
@@ -43,8 +43,10 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
 
         try {
             const input = event.target;
-            if (await doUpload(input.files[0])) {
-                await onClose();
+            if (await doUpload(input.files![0])) {
+                if (onClose) {
+                    await onClose();
+                }
             }
         } finally {
             setUploading(false);
@@ -68,7 +70,9 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
 
         try {
             if (await doDelete(id)) {
-                await onClose();
+                if (onClose) {
+                    await onClose();
+                }
             }
         } finally {
             setDeleting(null);
@@ -84,7 +88,7 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
             return true;
         }
 
-        return photo.author === account.name;
+        return photo.author === account?.name;
     }
 
     function getFileSize(bytes: number): string {
@@ -116,14 +120,14 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
             {any(photosToShow) ? (<div>Click to open in new tab</div>) : null}
             {photosToShow.map((photo: PhotoReferenceDto) => (
                 <a href={getDownloadAddress(photo)} className="list-group-item ps-2" target="_blank" rel="noreferrer"
-                   key={photo.id} title={`${photo.fileName}: ${getFileSize(photo.fileSize)}`}>
+                   key={photo.id} title={`${photo.fileName}: ${getFileSize(photo.fileSize!)}`}>
                     {canDeletePhoto(photo)
                         ? (<button className="btn btn-sm btn-danger float-start margin-right"
-                                   onClick={async (event) => await deletePhoto(event, photo.id)}>
+                                   onClick={async (event) => await deletePhoto(event, photo.id!)}>
                             {deleting === photo.id ? (<LoadingSpinnerSmall/>) : '🗑'}
                         </button>)
                         : null}
-                    {photo.author} on {renderDate(photo.created)}
+                    {photo.author} on {renderDate(photo.created!)}
 
                     <img  className="float-end" height="50"
                           src={getDownloadAddress(photo, 50)}
@@ -132,7 +136,7 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
                           loading="lazy" />
 
                     {showPhotoSize ? (<div className="ps-2 small">
-                        {getFileSize(photo.fileSize)}
+                        {getFileSize(photo.fileSize!)}
                     </div>) : null}
                 </a>))}
         </div>

@@ -23,7 +23,7 @@ export interface IMatchLogRowProps {
 export function MatchLogRow({leg, legNo, accumulatorName, player, noOfThrows, playerOverallAverage, noOfLegs, showWinner, teamAverage}: IMatchLogRowProps) {
     const {onError} = useApp();
     const accumulator: LegCompetitorScoreDto = leg[accumulatorName];
-    const lastThrow: LegThrowDto = accumulator.throws[accumulator.throws.length - 1];
+    const lastThrow: LegThrowDto = accumulator.throws![accumulator.throws!.length - 1];
     const winner: boolean = isLegWinner(leg, accumulatorName);
 
     if (!accumulator.noOfDarts) {
@@ -36,9 +36,9 @@ export function MatchLogRow({leg, legNo, accumulatorName, player, noOfThrows, pl
                 ? (<td rowSpan={noOfLegs} className="align-middle bg-white page-break-avoid">{player}</td>)
                 : null}
             <td>{legNo}</td>
-            <td datatype="actual-darts">{sum(accumulator.throws, thr => thr.noOfDarts)}</td>
+            <td datatype="actual-darts">{sum(accumulator.throws, (thr: LegThrowDto) => thr.noOfDarts!)}</td>
             <td datatype="game-shot">{winner && lastThrow ? lastThrow.score : null}</td>
-            <td datatype="score-left">{winner || !lastThrow ? null : leg.startingScore - getScoreFromThrows(leg.startingScore, accumulator.throws)}</td>
+            <td datatype="score-left">{winner || !lastThrow ? null : leg.startingScore! - getScoreFromThrows(leg.startingScore!, accumulator.throws)}</td>
             <td>{countLegThrowsBetween(leg, accumulatorName, 100, 140)}</td>
             <td>{countLegThrowsBetween(leg, accumulatorName, 140, 180)}</td>
             <td>{countLegThrowsBetween(leg, accumulatorName, 180)}</td>
@@ -55,10 +55,10 @@ export function MatchLogRow({leg, legNo, accumulatorName, player, noOfThrows, pl
                 : null}
             <td datatype="game-dart">{winner && lastThrow ? lastThrow.noOfDarts : null}</td>
             {repeat(noOfThrows + 1, i => {
-                const playerThrow = accumulator.throws[i] || {};
+                const playerThrow = accumulator.throws![i] || {};
                 const score = playerThrow.score;
 
-                return (<td key={i} className={(score >= 100 ? ' text-danger' : '') + (score >= 180 ? ' fw-bold' : '')}>
+                return (<td key={i} className={(score! >= 100 ? ' text-danger' : '') + (score! >= 180 ? ' fw-bold' : '')}>
                     {score}
                 </td>)
             })}

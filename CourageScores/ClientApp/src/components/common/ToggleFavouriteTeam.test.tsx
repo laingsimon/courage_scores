@@ -2,7 +2,7 @@ import {
     appProps,
     brandingProps,
     cleanUp, doClick, findButton,
-    iocProps,
+    iocProps, noop,
     renderApp, TestContext
 } from "../../helpers/tests";
 import {IToggleFavouriteTeamProps, ToggleFavouriteTeam} from "./ToggleFavouriteTeam";
@@ -25,15 +25,15 @@ describe('ToggleFavouriteTeam', () => {
             iocProps(),
             brandingProps(),
             appProps(),
-            (<DivisionDataContainer onReloadDivision={null}
-                                    setDivisionData={null}
+            (<DivisionDataContainer onReloadDivision={noop}
+                                    setDivisionData={noop}
                                     name="DIVISION"
                                     favouritesEnabled={favouritesEnabled}>
                 <ToggleFavouriteTeam {...props} />
             </DivisionDataContainer>),
-            null,
-            null,
-            null,
+            undefined,
+            undefined,
+            undefined,
             initialPreferences);
     }
 
@@ -43,7 +43,7 @@ describe('ToggleFavouriteTeam', () => {
 
             await renderComponent({ teamId }, true, { favouriteTeamIds: [ teamId ]});
 
-            expect(context.container.querySelector('button').className).not.toContain('opacity-25');
+            expect(context.container.querySelector('button')!.className).not.toContain('opacity-25');
         });
 
         it('when team is not a favourite', async () => {
@@ -51,7 +51,7 @@ describe('ToggleFavouriteTeam', () => {
 
             await renderComponent({ teamId }, true, { favouriteTeamIds: [ ]});
 
-            expect(context.container.querySelector('button').className).toContain('opacity-25');
+            expect(context.container.querySelector('button')!.className).toContain('opacity-25');
         });
 
         it('nothing when favourites not enabled', async () => {
@@ -71,7 +71,7 @@ describe('ToggleFavouriteTeam', () => {
 
             await doClick(findButton(context.container, '⭐'));
 
-            expect(context.cookies.get('preferences')).toEqual({
+            expect(context.cookies!.get('preferences')).toEqual({
                 favouriteTeamIds: [ otherTeamId, teamId ],
             });
         });
@@ -83,7 +83,7 @@ describe('ToggleFavouriteTeam', () => {
 
             await doClick(findButton(context.container, '⭐'));
 
-            expect(context.cookies.get('preferences')).toEqual({
+            expect(context.cookies!.get('preferences')).toEqual({
                 favouriteTeamIds: [ otherTeamId ],
             });
         });

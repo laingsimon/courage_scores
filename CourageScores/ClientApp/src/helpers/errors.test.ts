@@ -57,14 +57,13 @@ describe('errors', () => {
             };
             const result = mapForLogging({message: 'MESSAGE', type: 'TYPE'}, account);
 
-            expect(result.stack).toBeNull();
+            expect(result.stack).toBeUndefined();
         });
 
         it('accepts logged out user', () => {
-            const account = null;
-            const result = mapForLogging({message: 'MESSAGE', stack: 'FRAME1\nFRAME2', type: 'TYPE'}, account);
+            const result = mapForLogging({message: 'MESSAGE', stack: 'FRAME1\nFRAME2', type: 'TYPE'});
 
-            expect(result.userName).toBeNull();
+            expect(result.userName).toBeUndefined();
         });
 
         it('accepts no type', () => {
@@ -75,7 +74,7 @@ describe('errors', () => {
             };
             const result = mapForLogging({message: 'MESSAGE', stack: 'FRAME1\nFRAME2'}, account);
 
-            expect(result.type).toBeNull();
+            expect(result.type).toBeUndefined();
         });
     });
 });

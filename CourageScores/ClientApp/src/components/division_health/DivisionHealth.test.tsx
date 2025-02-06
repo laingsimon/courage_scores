@@ -52,7 +52,7 @@ describe('DivisionHealth', () => {
     }
 
     function assertHeading(text: string, className: string) {
-        const heading = context.container.querySelector('h3');
+        const heading = context.container.querySelector('h3')!;
         expect(heading.textContent).toEqual(text);
         expect(heading.className).toContain(className);
     }
@@ -66,7 +66,9 @@ describe('DivisionHealth', () => {
             name: '',
             season: {
                 name: '',
-                id: createTemporaryId()
+                id: createTemporaryId(),
+                endDate: '',
+                startDate: '',
             },
             setDivisionData,
             onReloadDivision,
@@ -84,7 +86,9 @@ describe('DivisionHealth', () => {
             name: '',
             season: {
                 name: '',
-                id: createTemporaryId()
+                id: createTemporaryId(),
+                endDate: '',
+                startDate: '',
             },
             setDivisionData,
             onReloadDivision,
@@ -110,7 +114,9 @@ describe('DivisionHealth', () => {
             name: '',
             season: {
                 name: '',
-                id: createTemporaryId()
+                id: createTemporaryId(),
+                endDate: '',
+                startDate: '',
             },
             setDivisionData,
             onReloadDivision,
@@ -136,7 +142,9 @@ describe('DivisionHealth', () => {
             name: '',
             season: {
                 name: '',
-                id: createTemporaryId()
+                id: createTemporaryId(),
+                endDate: '',
+                startDate: '',
             },
             setDivisionData,
             onReloadDivision,
@@ -162,7 +170,9 @@ describe('DivisionHealth', () => {
             name: '',
             season: {
                 name: '',
-                id: createTemporaryId()
+                id: createTemporaryId(),
+                endDate: '',
+                startDate: '',
             },
             setDivisionData,
             onReloadDivision,
@@ -188,7 +198,9 @@ describe('DivisionHealth', () => {
             name: '',
             season: {
                 name: '',
-                id: createTemporaryId()
+                id: createTemporaryId(),
+                endDate: '',
+                startDate: '',
             },
             setDivisionData,
             onReloadDivision,
@@ -214,7 +226,9 @@ describe('DivisionHealth', () => {
             name: '',
             season: {
                 name: '',
-                id: createTemporaryId()
+                id: createTemporaryId(),
+                endDate: '',
+                startDate: '',
             },
             setDivisionData,
             onReloadDivision,

@@ -32,7 +32,7 @@ export function MergeManOfTheMatch({data, setData, allPlayers}: IMergeManOfTheMa
     return (<tr>
         {data.home.manOfTheMatch ? (<td colSpan={2}>Merged</td>) : (<td colSpan={2} className="text-end">
             {data.homeSubmission && data.homeSubmission.home.manOfTheMatch
-                ? (<button className="btn btn-success btn-sm" onClick={async () => await setManOfMatch('home', data.homeSubmission.home.manOfTheMatch)}>
+                ? (<button className="btn btn-success btn-sm" onClick={async () => await setManOfMatch('home', data.homeSubmission!.home.manOfTheMatch!)}>
                     Use {getName(data.homeSubmission.home.manOfTheMatch)}
                 </button>)
                 : (<button className="btn btn-secondary btn-sm" disabled={true}>Nothing to merge</button>)}
@@ -40,7 +40,7 @@ export function MergeManOfTheMatch({data, setData, allPlayers}: IMergeManOfTheMa
         <td className="width-1 p-0 middle-vertical-line width-1"></td>
         {data.away.manOfTheMatch ? (<td colSpan={2}>Merged</td>) : (<td colSpan={2}>
             {data.awaySubmission && data.awaySubmission.away.manOfTheMatch
-                ? (<button className="btn btn-success btn-sm" onClick={async () => await setManOfMatch('away', data.awaySubmission.away.manOfTheMatch)}>
+                ? (<button className="btn btn-success btn-sm" onClick={async () => await setManOfMatch('away', data.awaySubmission!.away.manOfTheMatch!)}>
                     Use {getName(data.awaySubmission.away.manOfTheMatch)}
                 </button>)
                 : (<button className="btn btn-secondary btn-sm" disabled={true}>Nothing to merge</button>)}

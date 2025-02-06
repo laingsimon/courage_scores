@@ -54,8 +54,8 @@ export function Tournament() {
     const {tournamentId} = useParams();
     const {appLoading, account, seasons, onError, teams, reloadTeams, divisions} = useApp();
     const {divisionApi, tournamentApi, webSocket, featureApi} = useDependencies();
-    const canManageTournaments: boolean = account && account.access && account.access.manageTournaments;
-    const canManagePlayers: boolean = account && account.access && account.access.managePlayers;
+    const canManageTournaments: boolean = !!(account && account.access && account.access.manageTournaments);
+    const canManagePlayers: boolean = !!(account && account.access && account.access.managePlayers);
     const canEnterTournamentResults = account && account.access && account.access.enterTournamentResults;
     const [loading, setLoading] = useState<string>('init');
     const [saving, setSaving] = useState<boolean>(false);
@@ -67,11 +67,13 @@ export function Tournament() {
     const [alreadyPlaying, setAlreadyPlaying] = useState<ITournamentPlayerMap | null>(null);
     const [addPlayerDialogOpen, setAddPlayerDialogOpen] = useState<boolean>(false);
     const [newPlayerDetails, setNewPlayerDetails] = useState<EditTeamPlayerDto>({name: '', captain: false});
-    const [warnBeforeEditDialogClose, setWarnBeforeEditDialogClose] = useState(null);
-    const division: DivisionDto = tournamentData && tournamentData.divisionId ? divisions.filter(d => d.id === tournamentData.divisionId)[0] : null;
-    const [editTournament, setEditTournament] = useState<string>(null);
-    const [showPhotoManager, setShowPhotoManager] = useState(false);
-    const [photosEnabled, setPhotosEnabled] = useState(false);
+    const [warnBeforeEditDialogClose, setWarnBeforeEditDialogClose] = useState<string | null>(null);
+    const division: DivisionDto | null = tournamentData && tournamentData.divisionId
+        ? divisions.filter(d => d.id === tournamentData.divisionId)[0]
+        : null;
+    const [editTournament, setEditTournament] = useState<string | undefined>(undefined);
+    const [showPhotoManager, setShowPhotoManager] = useState<boolean>(false);
+    const [photosEnabled, setPhotosEnabled] = useState<boolean>(false);
     const {setTitle} = useBranding();
 
     useEffect(() => {
@@ -104,7 +106,7 @@ export function Tournament() {
 
     async function loadFixtureData() {
         try {
-            const tournamentData: TournamentGameDto = await tournamentApi.get(tournamentId);
+            const tournamentData: TournamentGameDto | null = await tournamentApi.get(tournamentId!);
 
             if (!tournamentData) {
                 onError('Tournament could not be found');
@@ -117,16 +119,16 @@ export function Tournament() {
             if (canManageTournaments) {
                 const filter: DivisionDataFilter = {
                     seasonId: tournamentData.seasonId,
-                    divisionId: [ tournamentData.divisionId ].filter((id: string) => !!id),
+                    divisionId: [ tournamentData.divisionId ].filter((id?: string) => !!id).map((id?: string) => id!),
                 };
 
                 const divisionData: DivisionDataDto = await divisionApi.data(filter);
-                const fixtureDate: DivisionFixtureDateDto = divisionData.fixtures.filter(f => f.date === tournamentData.date)[0];
+                const fixtureDate: DivisionFixtureDateDto | undefined = divisionData.fixtures!.filter(f => f.date === tournamentData.date)[0];
                 if (fixtureDate) {
-                    const tournamentFixtures: DivisionTournamentFixtureDetailsDto[] = fixtureDate.tournamentFixtures
+                    const tournamentFixtures: DivisionTournamentFixtureDetailsDto[] = fixtureDate!.tournamentFixtures!
                         .filter((f: DivisionTournamentFixtureDetailsDto) => !f.proposed && f.id !== tournamentData.id);
                     for (const tournamentFixture of tournamentFixtures) {
-                        tournamentFixture.players.forEach((playerId: string) => {
+                        tournamentFixture.players!.forEach((playerId: string) => {
                             tournamentPlayerMap[playerId] = tournamentFixture;
                         });
                     }
@@ -161,23 +163,23 @@ export function Tournament() {
         }
 
         const selectedTournamentTeams: string[] = tournamentData.sides
-            ? tournamentData.sides.filter((s: TournamentSideDto) => !s.noShow).map((side: TournamentSideDto) => side.teamId)
+            ? tournamentData.sides.filter((s: TournamentSideDto) => !s.noShow).map((side: TournamentSideDto) => side.teamId!)
             : [];
 
         const players: ISelectablePlayer[] = teams
             .filter((t: TeamDto) => any(selectedTournamentTeams, (id: string) => id === t.id))
-            .map((t: TeamDto) => t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === tournamentData.seasonId && !ts.deleted)[0])
+            .map((t: TeamDto) => t.seasons!.filter((ts: TeamSeasonDto) => ts.seasonId === tournamentData.seasonId && !ts.deleted)[0])
             .filter((teamSeasonDto: TeamSeasonDto) => teamSeasonDto)
-            .flatMap((teamSeason: TeamSeasonDto) => teamSeason.players.map((p: TeamPlayerDto) => p as ISelectablePlayer));
+            .flatMap((teamSeason: TeamSeasonDto) => teamSeason.players!.map((p: TeamPlayerDto) => p as ISelectablePlayer));
 
         return players.sort(sortBy('name'));
     }
 
-    async function saveTournament(preventLoading?: boolean | React.MouseEvent): Promise<TournamentGameDto> {
+    async function saveTournament(preventLoading?: boolean | React.MouseEvent): Promise<TournamentGameDto | undefined> {
         /* istanbul ignore next */
         if (saving || patching) {
             /* istanbul ignore next */
-            return;
+            return undefined;
         }
 
         if (preventLoading !== true) {
@@ -185,16 +187,16 @@ export function Tournament() {
         }
 
         try {
-            const update: EditTournamentGameDto = tournamentData;
-            update.lastUpdated = tournamentData.updated;
+            const update: EditTournamentGameDto = tournamentData!;
+            update.lastUpdated = tournamentData!.updated;
 
             const response: IClientActionResultDto<TournamentGameDto> = await tournamentApi.update(update);
             if (!response.success) {
                 setSaveError(response);
             } else {
-                await updateTournamentData(response.result);
-                await publishLiveUpdate(response.result);
-                return response.result;
+                await updateTournamentData(response.result!);
+                await publishLiveUpdate(response.result!);
+                return response.result!;
             }
         } finally {
             if (preventLoading !== true) {
@@ -214,15 +216,15 @@ export function Tournament() {
 
         try {
             const response: IClientActionResultDto<TournamentGameDto> = await tournamentApi.patch(
-                tournamentId,
+                tournamentId!,
                 nestInRound ? ({round: patch} as PatchTournamentDto) : patch as PatchTournamentDto);
 
             if (!response.success) {
                 setSaveError(response);
                 return false;
             } else {
-                await updateTournamentData(response.result);
-                await publishLiveUpdate(response.result);
+                await updateTournamentData(response.result!);
+                await publishLiveUpdate(response.result!);
                 return true;
             }
         } finally {
@@ -232,7 +234,7 @@ export function Tournament() {
 
     async function publishLiveUpdate(data: TournamentGameDto) {
         if (canManageTournaments) {
-            if (!await webSocket.publish(tournamentId, LiveDataType.tournament, data)) {
+            if (!await webSocket.publish(tournamentId!, LiveDataType.tournament, data)) {
                 window.alert('Unable to publish updated data');
             }
         }
@@ -243,7 +245,7 @@ export function Tournament() {
             <EditPlayerDetails
                 player={newPlayerDetails}
                 seasonId={season.id}
-                divisionId={tournamentData.divisionId}
+                divisionId={tournamentData!.divisionId!}
                 onChange={propChanged(newPlayerDetails, setNewPlayerDetails)}
                 onCancel={async () => setAddPlayerDialogOpen(false)}
                 onSaved={reloadPlayers}
@@ -261,7 +263,7 @@ export function Tournament() {
         try {
             const matchOptionsHaveChanged = tournamentData && tournamentData.bestOf !== newData.bestOf;
             if (matchOptionsHaveChanged && newData.round) {
-                updateMatchOptions(newData.round, newData.bestOf);
+                updateMatchOptions(newData.round, newData.bestOf!);
             }
 
             setTournamentData(newData);
@@ -273,7 +275,7 @@ export function Tournament() {
     }
 
     function updateMatchOptions(round: TournamentRoundDto, numberOfLegs: number) {
-        for (const matchOptions of round.matchOptions) {
+        for (const matchOptions of round.matchOptions!) {
             matchOptions.numberOfLegs = numberOfLegs;
         }
 
@@ -284,12 +286,12 @@ export function Tournament() {
 
     async function uploadPhotos(file: File): Promise<boolean> {
         const request: UploadPhotoDto = {
-            id: tournamentData.id,
+            id: tournamentData!.id,
         };
         const result: IClientActionResultDto<TournamentGameDto> = await tournamentApi.uploadPhoto(request, file);
 
         if (result.success) {
-            await updateTournamentData(result.result);
+            await updateTournamentData(result.result!);
             return true;
         }
 
@@ -298,10 +300,10 @@ export function Tournament() {
     }
 
     async function deletePhotos(id: string): Promise<boolean> {
-        const result: IClientActionResultDto<TournamentGameDto> = await tournamentApi.deletePhoto(tournamentData.id, id);
+        const result: IClientActionResultDto<TournamentGameDto> = await tournamentApi.deletePhoto(tournamentData!.id, id);
 
         if (result.success) {
-            await updateTournamentData(result.result);
+            await updateTournamentData(result.result!);
             return true;
         }
 
@@ -317,7 +319,7 @@ export function Tournament() {
         }
 
         await saveTournament();
-        setEditTournament(null);
+        setEditTournament(undefined);
     }
 
     if (loading !== 'ready') {
@@ -327,7 +329,7 @@ export function Tournament() {
     try {
         const season: SeasonDto = tournamentData
             ? seasons.filter(s => s.id === tournamentData.seasonId)[0]
-            : {id: EMPTY_ID, name: 'Not found'};
+            : { id: EMPTY_ID, name: 'Not found', endDate: '', startDate: '' };
         if (!season) {
             // noinspection ExceptionCaughtLocallyJS
             throw new Error('Could not find the season for this tournament');
@@ -340,15 +342,15 @@ export function Tournament() {
         };
 
         if (tournamentData && tournamentData.singleRound) {
-            setTitle(`${tournamentData.host} vs ${tournamentData.opponent} - ${renderDate(tournamentData.date)}`);
+            setTitle(`${tournamentData.host} vs ${tournamentData.opponent} - ${renderDate(tournamentData!.date)}`);
         } else if (tournamentData) {
-            setTitle(`${tournamentData.type || 'tournament'} at ${tournamentData.address} - ${renderDate(tournamentData.date)}`);
+            setTitle(`${tournamentData.type || 'tournament'} at ${tournamentData.address} - ${renderDate(tournamentData!.date)}`);
         }
 
         return (<div className="landscape">
             <DivisionControls
                 originalSeasonData={season}
-                originalDivisionData={division}
+                originalDivisionData={division!}
                 overrideMode="fixtures"/>
             {canManageTournaments && tournamentData && editTournament === 'details'
                 ? (<Dialog onClose={closeEditTournamentDialog} className="d-print-none">
@@ -363,15 +365,15 @@ export function Tournament() {
                     tournamentData={tournamentData}
                     setTournamentData={updateTournamentData}
                     season={season}
-                    division={division}
-                    alreadyPlaying={alreadyPlaying}
+                    division={division!}
+                    alreadyPlaying={alreadyPlaying!}
                     allPlayers={allPlayers}
                     saveTournament={saveTournament}
                     setWarnBeforeEditDialogClose={async (warning: string) => setWarnBeforeEditDialogClose(warning)}
                     matchOptionDefaults={getMatchOptionDefaults(tournamentData)}
                     saving={saving}
                     editTournament={editTournament}
-                    setEditTournament={canManageTournaments ? async (value: string) => setEditTournament(value) : null}
+                    setEditTournament={canManageTournaments ? async (value: string) => setEditTournament(value) : undefined}
                     liveOptions={liveOptions}
                     preventScroll={preventScroll}
                     setPreventScroll={setPreventScroll}>
@@ -380,9 +382,9 @@ export function Tournament() {
                             <EditTournament canSave={true} saving={saving} />
                         </Dialog>)
                         : null}
-                    {tournamentData.singleRound && !canManageTournaments ? (<SuperLeaguePrintout division={division} readOnly={true}/>) : null}
+                    {tournamentData.singleRound && !canManageTournaments ? (<SuperLeaguePrintout division={division!} readOnly={true}/>) : null}
                     {tournamentData.singleRound && canManageTournaments ? (<div>
-                        <SuperLeaguePrintout division={division} patchData={applyPatch} />
+                        <SuperLeaguePrintout division={division!} patchData={applyPatch} />
                     </div>) : null}
                     {tournamentData.singleRound
                         ? null
@@ -404,12 +406,12 @@ export function Tournament() {
             </div>) : (<div>Tournament not found</div>)}
             {showPhotoManager ? (<PhotoManager
                 doUpload={uploadPhotos}
-                photos={tournamentData.photos}
+                photos={tournamentData!.photos!}
                 onClose={async () => setShowPhotoManager(false)}
                 doDelete={deletePhotos}
-                canUploadPhotos={account && account.access && account.access.uploadPhotos}
-                canDeletePhotos={account && account.access && (account.access.uploadPhotos || account.access.deleteAnyPhoto)}
-                canViewAllPhotos={account && account.access && account.access.viewAnyPhoto}
+                canUploadPhotos={!!(account && account.access && account.access.uploadPhotos)}
+                canDeletePhotos={!!(account && account.access && (account.access.uploadPhotos || account.access.deleteAnyPhoto))}
+                canViewAllPhotos={!!(account && account.access && account.access.viewAnyPhoto)}
             />) : null}
             {saveError ? (<ErrorDisplay {...saveError} onClose={async () => setSaveError(null)}
                                         title="Could not save tournament details"/>) : null}

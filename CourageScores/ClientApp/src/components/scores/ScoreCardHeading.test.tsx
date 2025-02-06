@@ -15,8 +15,8 @@ import {teamBuilder} from "../../helpers/builders/teams";
 
 describe('ScoreCardHeading', () => {
     let context: TestContext;
-    let updatedFixtureData: GameDto;
-    let updatedSubmission: string;
+    let updatedFixtureData: GameDto | null;
+    let updatedSubmission: string | null;
     async function setFixtureData(newFixtureData: GameDto){
         updatedFixtureData = newFixtureData;
     }
@@ -33,7 +33,7 @@ describe('ScoreCardHeading', () => {
         updatedSubmission = null;
     });
 
-    async function renderComponent(containerProps: ILeagueFixtureContainerProps, props: IScoreCardHeadingProps, account: UserDto, teams?: TeamDto[]) {
+    async function renderComponent(containerProps: ILeagueFixtureContainerProps, props: IScoreCardHeadingProps, account?: UserDto, teams?: TeamDto[]) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
@@ -44,51 +44,51 @@ describe('ScoreCardHeading', () => {
             (<LeagueFixtureContainer {...containerProps}>
                 <ScoreCardHeading {...props} />
             </LeagueFixtureContainer>),
-            null,
-            null,
+            undefined,
+            undefined,
             'table');
     }
 
     function assertToggleNotShown(home?: boolean) {
-        const heading = context.container.querySelector(`thead > tr > td:nth-child(${home ? 1 : 3})`);
+        const heading = context.container.querySelector(`thead > tr > td:nth-child(${home ? 1 : 3})`)!;
         expect(heading).toBeTruthy();
-        const headingLink = heading.querySelector('a');
+        const headingLink = heading.querySelector('a')!;
         expect(headingLink.textContent).toContain(home ? 'HOME' : 'AWAY');
         expect(heading.querySelectorAll('span').length).toEqual(0);
     }
 
     function assertToggleShown(home: boolean, text: string) {
-        const heading = context.container.querySelector(`thead > tr > td:nth-child(${home ? 1 : 3})`);
+        const heading = context.container.querySelector(`thead > tr > td:nth-child(${home ? 1 : 3})`)!;
         expect(heading).toBeTruthy();
-        const toggleButton = heading.querySelector('.btn');
+        const toggleButton = heading.querySelector('.btn')!;
         expect(toggleButton.textContent).toContain(home ? 'HOME' : 'AWAY');
         expect(toggleButton.textContent).toContain('📬');
         expect(toggleButton.textContent).toContain(text);
     }
 
     async function assertRevertToFixtureData(home: boolean, data: GameDto) {
-        const heading = context.container.querySelector(`thead > tr > td:nth-child(${home ? 1 : 3})`);
+        const heading = context.container.querySelector(`thead > tr > td:nth-child(${home ? 1 : 3})`)!;
         expect(heading).toBeTruthy();
 
-        await doClick(heading.querySelector('span'));
+        await doClick(heading.querySelector('span')!);
 
-        expect(updatedSubmission).toEqual(null);
+        expect(updatedSubmission).toBeUndefined();
         expect(updatedFixtureData).toEqual(data);
     }
 
     async function assertDisplayOfSubmissionData(home: boolean, data: GameDto) {
-        const heading = context.container.querySelector(`thead > tr > td:nth-child(${home ? 1 : 3})`);
+        const heading = context.container.querySelector(`thead > tr > td:nth-child(${home ? 1 : 3})`)!;
         expect(heading).toBeTruthy();
 
-        await doClick(heading.querySelector('span'));
+        await doClick(heading.querySelector('span')!);
 
         expect(updatedSubmission).toEqual(home ? 'home' : 'away');
         expect(updatedFixtureData).toEqual(home ? data.homeSubmission : data.awaySubmission);
     }
 
     function assertWinner(winner: 'home' | 'away' | '') {
-        const homeHeading = context.container.querySelector(`thead > tr > td:nth-child(1)`);
-        const awayHeading = context.container.querySelector(`thead > tr > td:nth-child(3)`);
+        const homeHeading = context.container.querySelector(`thead > tr > td:nth-child(1)`)!;
+        const awayHeading = context.container.querySelector(`thead > tr > td:nth-child(3)`)!;
 
         if (winner === 'home') {
             expect(homeHeading.className).toContain('bg-winner');
@@ -105,17 +105,17 @@ describe('ScoreCardHeading', () => {
 
     function assertLinkAddress(home: boolean, data: GameDto, fixtureData: ILeagueFixtureContainerProps) {
         const team: GameTeamDto = home ? data.home : data.away;
-        const heading = context.container.querySelector(`thead > tr > td:nth-child(${home ? 1 : 3})`);
+        const heading = context.container.querySelector(`thead > tr > td:nth-child(${home ? 1 : 3})`)!;
         expect(heading).toBeTruthy();
-        const linkToTeam = heading.querySelector('a');
+        const linkToTeam = heading.querySelector('a')!;
         expect(linkToTeam).toBeTruthy();
         expect(linkToTeam.href).toContain(`/division/${fixtureData.division.name}/team:${team.name}/${fixtureData.season.name}`);
     }
 
     function assertLinkText(home: boolean, text: string) {
-        const heading = context.container.querySelector(`thead > tr > td:nth-child(${home ? 1 : 3})`);
+        const heading = context.container.querySelector(`thead > tr > td:nth-child(${home ? 1 : 3})`)!;
         expect(heading).toBeTruthy();
-        const linkToTeam = heading.querySelector('a');
+        const linkToTeam = heading.querySelector('a')!;
         expect(linkToTeam).toBeTruthy();
         expect(linkToTeam.textContent).toEqual(text);
     }
@@ -132,7 +132,7 @@ describe('ScoreCardHeading', () => {
 
     describe('when logged out', () => {
         const access = '';
-        const account = null;
+        const account: UserDto | undefined = undefined;
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const season: SeasonDto = seasonBuilder('SEASON').build();
 
@@ -148,12 +148,12 @@ describe('ScoreCardHeading', () => {
             const fixtureData: ILeagueFixtureContainerProps = {
                 division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
                 season: seasonBuilder('SEASON', submissionData.seasonId).build(),
-                home: null,
-                away: null,
+                home: null!,
+                away: null!,
                 disabled: false,
                 readOnly: false,
-                awayPlayers: null,
-                homePlayers: null,
+                awayPlayers: [],
+                homePlayers: [],
             };
 
             it('renders home team details', async () => {
@@ -199,12 +199,12 @@ describe('ScoreCardHeading', () => {
             const fixtureData: ILeagueFixtureContainerProps = {
                 division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
                 season: seasonBuilder('SEASON', submissionData.seasonId).build(),
-                home: null,
-                away: null,
+                home: null!,
+                away: null!,
                 disabled: false,
                 readOnly: false,
-                awayPlayers: null,
-                homePlayers: null,
+                awayPlayers: [],
+                homePlayers: [],
             };
 
             it('renders home team details', async () => {
@@ -250,12 +250,12 @@ describe('ScoreCardHeading', () => {
             const fixtureData: ILeagueFixtureContainerProps = {
                 division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
                 season: seasonBuilder('SEASON', submissionData.seasonId).build(),
-                home: null,
-                away: null,
+                home: null!,
+                away: null!,
                 disabled: false,
                 readOnly: false,
-                awayPlayers: null,
-                homePlayers: null,
+                awayPlayers: [],
+                homePlayers: [],
             };
 
             it('renders home team details', async () => {
@@ -307,12 +307,12 @@ describe('ScoreCardHeading', () => {
             const fixtureData: ILeagueFixtureContainerProps = {
                 division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
                 season: seasonBuilder('SEASON', submissionData.seasonId).build(),
-                home: null,
-                away: null,
+                home: null!,
+                away: null!,
                 disabled: false,
                 readOnly: false,
-                awayPlayers: null,
-                homePlayers: null,
+                awayPlayers: [],
+                homePlayers: [],
             };
 
             it('does not show home submission toggle', async () => {
@@ -354,18 +354,18 @@ describe('ScoreCardHeading', () => {
             const fixtureData: ILeagueFixtureContainerProps = {
                 division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
                 season: seasonBuilder('SEASON', submissionData.seasonId).build(),
-                home: null,
-                away: null,
+                home: null!,
+                away: null!,
                 disabled: false,
                 readOnly: false,
-                awayPlayers: null,
-                homePlayers: null,
+                awayPlayers: [],
+                homePlayers: [],
             };
 
             it('shows unpublished alert when submission team identified', async () => {
                 const updated = '2023-04-05';
-                submissionData['homeSubmission'].editor = 'EDITOR';
-                submissionData['homeSubmission'].updated = updated;
+                submissionData['homeSubmission']!.editor = 'EDITOR';
+                submissionData['homeSubmission']!.updated = updated;
 
                 await renderComponent(
                     fixtureData,
@@ -373,7 +373,7 @@ describe('ScoreCardHeading', () => {
                     account,
                     [team]);
 
-                const alert = context.container.querySelector('.alert');
+                const alert = context.container.querySelector('.alert')!;
                 expect(alert).toBeTruthy();
                 expect(alert.textContent).toContain('You are viewing the submission from HOME, created by EDITOR as of ' + renderDate(updated));
             });
@@ -426,12 +426,12 @@ describe('ScoreCardHeading', () => {
             const fixtureData: ILeagueFixtureContainerProps = {
                 division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
                 season: seasonBuilder('SEASON', submissionData.seasonId).build(),
-                home: null,
-                away: null,
+                home: null!,
+                away: null!,
                 disabled: false,
                 readOnly: false,
-                awayPlayers: null,
-                homePlayers: null,
+                awayPlayers: [],
+                homePlayers: [],
             };
 
             it('shows away submission toggle', async () => {
@@ -487,12 +487,12 @@ describe('ScoreCardHeading', () => {
                 const fixtureData: ILeagueFixtureContainerProps = {
                     division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
                     season: seasonBuilder('SEASON', submissionData.seasonId).build(),
-                    home: null,
-                    away: null,
+                    home: null!,
+                    away: null!,
                     disabled: false,
                     readOnly: false,
-                    awayPlayers: null,
-                    homePlayers: null,
+                    awayPlayers: [],
+                    homePlayers: [],
                 };
 
                 it('does not show home submission toggle', async () => {
@@ -525,12 +525,12 @@ describe('ScoreCardHeading', () => {
                 const fixtureData: ILeagueFixtureContainerProps = {
                     division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
                     season: seasonBuilder('SEASON', submissionData.seasonId).build(),
-                    home: null,
-                    away: null,
+                    home: null!,
+                    away: null!,
                     disabled: false,
                     readOnly: false,
-                    awayPlayers: null,
-                    homePlayers: null,
+                    awayPlayers: [],
+                    homePlayers: [],
                 };
 
                 it('shows unpublished alert when submission team identified', async () => {
@@ -541,7 +541,7 @@ describe('ScoreCardHeading', () => {
                         account,
                         teams);
 
-                    const alert = context.container.querySelector('.alert');
+                    const alert = context.container.querySelector('.alert')!;
                     expect(alert.textContent).toContain('⚠ You are editing the submission from TEAM, they are not visible on the website.');
                     expect(alert.textContent).toContain('The results will be published by an administrator, or automatically if someone from HOME submits matching results.');
                 });
@@ -552,7 +552,7 @@ describe('ScoreCardHeading', () => {
                         props(access, submissionData),
                         account);
 
-                    const alert = context.container.querySelector('.alert');
+                    const alert = context.container.querySelector('.alert')!;
                     expect(alert.textContent).toContain('⚠ You are editing your submission, they are not visible on the website.');
                     expect(alert.textContent).toContain('The results will be published by an administrator, or automatically if someone from HOME submits matching results.');
                 });
@@ -587,12 +587,12 @@ describe('ScoreCardHeading', () => {
                 const fixtureData: ILeagueFixtureContainerProps = {
                     division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
                     season: seasonBuilder('SEASON', submissionData.seasonId).build(),
-                    home: null,
-                    away: null,
+                    home: null!,
+                    away: null!,
                     disabled: false,
                     readOnly: false,
-                    awayPlayers: null,
-                    homePlayers: null,
+                    awayPlayers: [],
+                    homePlayers: [],
                 };
 
                 it('does not show home submission toggle', async () => {
@@ -627,12 +627,12 @@ describe('ScoreCardHeading', () => {
                 const fixtureData: ILeagueFixtureContainerProps = {
                     division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
                     season: seasonBuilder('SEASON', submissionData.seasonId).build(),
-                    home: null,
-                    away: null,
+                    home: null!,
+                    away: null!,
                     disabled: false,
                     readOnly: false,
-                    awayPlayers: null,
-                    homePlayers: null,
+                    awayPlayers: [],
+                    homePlayers: [],
                 };
 
                 it('does not show home submission toggle', async () => {
@@ -674,12 +674,12 @@ describe('ScoreCardHeading', () => {
                 const fixtureData: ILeagueFixtureContainerProps = {
                     division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
                     season: seasonBuilder('SEASON', submissionData.seasonId).build(),
-                    home: null,
-                    away: null,
+                    home: null!,
+                    away: null!,
                     disabled: false,
                     readOnly: false,
-                    awayPlayers: null,
-                    homePlayers: null,
+                    awayPlayers: [],
+                    homePlayers: [],
                 };
 
                 it('shows home submission toggle', async () => {
@@ -730,12 +730,12 @@ describe('ScoreCardHeading', () => {
                 const fixtureData: ILeagueFixtureContainerProps = {
                     division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
                     season: seasonBuilder('SEASON', submissionData.seasonId).build(),
-                    home: null,
-                    away: null,
+                    home: null!,
+                    away: null!,
                     disabled: false,
                     readOnly: false,
-                    awayPlayers: null,
-                    homePlayers: null,
+                    awayPlayers: [],
+                    homePlayers: [],
                 };
 
                 it('does not show home submission toggle', async () => {
@@ -770,12 +770,12 @@ describe('ScoreCardHeading', () => {
                 const fixtureData: ILeagueFixtureContainerProps = {
                     division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
                     season: seasonBuilder('SEASON', submissionData.seasonId).build(),
-                    home: null,
-                    away: null,
+                    home: null!,
+                    away: null!,
                     disabled: false,
                     readOnly: false,
-                    awayPlayers: null,
-                    homePlayers: null,
+                    awayPlayers: [],
+                    homePlayers: [],
                 };
 
                 it('does not show home submission toggle', async () => {
@@ -808,12 +808,12 @@ describe('ScoreCardHeading', () => {
                 const fixtureData: ILeagueFixtureContainerProps = {
                     division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
                     season: seasonBuilder('SEASON', submissionData.seasonId).build(),
-                    home: null,
-                    away: null,
+                    home: null!,
+                    away: null!,
                     disabled: false,
                     readOnly: false,
-                    awayPlayers: null,
-                    homePlayers: null,
+                    awayPlayers: [],
+                    homePlayers: [],
                 };
 
                 it('does not show home submission toggle', async () => {
@@ -855,12 +855,12 @@ describe('ScoreCardHeading', () => {
                 const fixtureData: ILeagueFixtureContainerProps = {
                     division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
                     season: seasonBuilder('SEASON', submissionData.seasonId).build(),
-                    home: null,
-                    away: null,
+                    home: null!,
+                    away: null!,
                     disabled: false,
                     readOnly: false,
-                    awayPlayers: null,
-                    homePlayers: null,
+                    awayPlayers: [],
+                    homePlayers: [],
                 };
 
                 it('shows away submission toggle', async () => {

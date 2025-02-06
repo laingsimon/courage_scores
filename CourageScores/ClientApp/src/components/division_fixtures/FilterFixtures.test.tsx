@@ -28,7 +28,7 @@ describe('FilterFixtures', () => {
         return null;
     }
 
-    async function setDivisionData(_: DivisionDataDto): UntypedPromise {
+    async function setDivisionData(_?: DivisionDataDto): UntypedPromise {
         return null;
     }
 
@@ -41,13 +41,13 @@ describe('FilterFixtures', () => {
                 <FilterFixtures />
             </DivisionDataContainer>),
             '/fixtures',
-            `/fixtures?${new URLSearchParams(filter).toString()}`,
-            null,
+            `/fixtures?${new URLSearchParams(filter as Record<string, string>).toString()}`,
+            undefined,
             initialPreferences);
     }
 
     function getFilterOptionLink(filterType: string, text: string): HTMLAnchorElement {
-        const filterDropDown = context.container.querySelector(`[datatype="${filterType}"] .dropdown-menu`);
+        const filterDropDown = context.container.querySelector(`[datatype="${filterType}"] .dropdown-menu`)!;
         const items: HTMLElement[] = Array.from(filterDropDown.querySelectorAll('.dropdown-item')) as HTMLElement[];
         const item: HTMLElement = items.filter((i: HTMLElement) => i.textContent === text)[0];
         const link: HTMLAnchorElement = item.childNodes[0] as HTMLAnchorElement;
@@ -66,10 +66,10 @@ describe('FilterFixtures', () => {
                     setDivisionData,
                 });
 
-            const dropDown = context.container.querySelector('.btn-group:nth-child(1)');
+            const dropDown = context.container.querySelector('.btn-group:nth-child(1)')!;
             expect(dropDown).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active')).toBeTruthy();
-            expect(dropDown.querySelector('.dropdown-item.active').textContent).toEqual('League fixtures');
+            expect(dropDown.querySelector('.dropdown-item.active')!.textContent).toEqual('League fixtures');
         });
 
         it('when unrecognised', async () => {
@@ -82,7 +82,7 @@ describe('FilterFixtures', () => {
                     setDivisionData,
                 });
 
-            const dropDown = context.container.querySelector('.btn-group:nth-child(1)');
+            const dropDown = context.container.querySelector('.btn-group:nth-child(1)')!;
             expect(dropDown).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active')).toBeFalsy();
         });
@@ -97,10 +97,10 @@ describe('FilterFixtures', () => {
                     setDivisionData,
                 });
 
-            const dropDown = context.container.querySelector(`[datatype="type-filter"]`);
+            const dropDown = context.container.querySelector(`[datatype="type-filter"]`)!;
             expect(dropDown).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active')).toBeTruthy();
-            expect(dropDown.querySelector('.dropdown-item.active').textContent).toEqual('All fixtures');
+            expect(dropDown.querySelector('.dropdown-item.active')!.textContent).toEqual('All fixtures');
         });
 
         it('changes url to include filter', async () => {
@@ -145,10 +145,10 @@ describe('FilterFixtures', () => {
                     setDivisionData,
                 });
 
-            const dropDown = context.container.querySelector('.btn-group:nth-child(2)');
+            const dropDown = context.container.querySelector('.btn-group:nth-child(2)')!;
             expect(dropDown).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active')).toBeTruthy();
-            expect(dropDown.querySelector('.dropdown-item.active').textContent).toEqual('Past dates');
+            expect(dropDown.querySelector('.dropdown-item.active')!.textContent).toEqual('Past dates');
         });
 
         it('when specific 3-part date', async () => {
@@ -163,10 +163,10 @@ describe('FilterFixtures', () => {
                     setDivisionData,
                 });
 
-            const dropDown = context.container.querySelector('.btn-group:nth-child(2)');
+            const dropDown = context.container.querySelector('.btn-group:nth-child(2)')!;
             expect(dropDown).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active')).toBeTruthy();
-            expect(dropDown.querySelector('.dropdown-item.active').textContent).toEqual(expectedDate);
+            expect(dropDown.querySelector('.dropdown-item.active')!.textContent).toEqual(expectedDate);
         });
 
         it('when unrecognised', async () => {
@@ -179,10 +179,10 @@ describe('FilterFixtures', () => {
                     setDivisionData,
                 });
 
-            const dropDown = context.container.querySelector('.btn-group:nth-child(2)');
+            const dropDown = context.container.querySelector('.btn-group:nth-child(2)')!;
             expect(dropDown).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active')).toBeTruthy();
-            expect(dropDown.querySelector('.dropdown-item.active').textContent).toEqual('foo');
+            expect(dropDown.querySelector('.dropdown-item.active')!.textContent).toEqual('foo');
         });
 
         it('when unselected', async () => {
@@ -195,10 +195,10 @@ describe('FilterFixtures', () => {
                     setDivisionData,
                 });
 
-            const dropDown = context.container.querySelector(`[datatype="date-filter"]`);
+            const dropDown = context.container.querySelector(`[datatype="date-filter"]`)!;
             expect(dropDown).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active')).toBeTruthy();
-            expect(dropDown.querySelector('.dropdown-item.active').textContent).toEqual('All dates');
+            expect(dropDown.querySelector('.dropdown-item.active')!.textContent).toEqual('All dates');
         });
 
         it('changes url to include filter', async () => {
@@ -244,10 +244,10 @@ describe('FilterFixtures', () => {
                     setDivisionData,
                 });
 
-            const dropDown = context.container.querySelector('.btn-group:nth-child(3)');
+            const dropDown = context.container.querySelector('.btn-group:nth-child(3)')!;
             expect(dropDown).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active')).toBeTruthy();
-            expect(dropDown.querySelector('.dropdown-item.active').textContent).toEqual('TEAM');
+            expect(dropDown.querySelector('.dropdown-item.active')!.textContent).toEqual('TEAM');
         });
 
         it('when unrecognised', async () => {
@@ -261,7 +261,7 @@ describe('FilterFixtures', () => {
                     setDivisionData,
                 });
 
-            const dropDown = context.container.querySelector('.btn-group:nth-child(3)');
+            const dropDown = context.container.querySelector('.btn-group:nth-child(3)')!;
             expect(dropDown).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active')).toBeFalsy();
         });
@@ -276,10 +276,10 @@ describe('FilterFixtures', () => {
                     setDivisionData,
                 });
 
-            const dropDown = context.container.querySelector(`[datatype="team-filter"]`);
+            const dropDown = context.container.querySelector(`[datatype="team-filter"]`)!;
             expect(dropDown).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active')).toBeTruthy();
-            expect(dropDown.querySelector('.dropdown-item.active').textContent).toEqual('All teams');
+            expect(dropDown.querySelector('.dropdown-item.active')!.textContent).toEqual('All teams');
         });
 
         it('changes url to include filter', async () => {
@@ -411,16 +411,12 @@ describe('FilterFixtures', () => {
                     favouriteTeamIds: [ '1234' ],
                     someOtherPreference: 'FOO',
                 });
-            let confirm: string = null;
-            window.confirm = (msg) => {
-                confirm = msg;
-                return false;
-            };
+            context.prompts.respondToConfirm('Are you sure you want to clear your favourites?', false);
 
             await doClick(findButton(context.container, '🌟'));
 
-            expect(confirm).toEqual('Are you sure you want to clear your favourites?');
-            expect(context.cookies.get('preferences')).toEqual({
+            context.prompts.confirmWasShown('Are you sure you want to clear your favourites?');
+            expect(context.cookies!.get('preferences')).toEqual({
                 favouriteTeamIds: [ '1234' ],
                 someOtherPreference: 'FOO',
             });
@@ -439,11 +435,11 @@ describe('FilterFixtures', () => {
                     favouriteTeamIds: [ '1234' ],
                     someOtherPreference: 'FOO',
                 });
-            window.confirm = () => true;
+            context.prompts.respondToConfirm('Are you sure you want to clear your favourites?', true);
 
             await doClick(findButton(context.container, '🌟'));
 
-            expect(context.cookies.get('preferences')).toEqual({
+            expect(context.cookies!.get('preferences')).toEqual({
                 someOtherPreference: 'FOO',
             });
         });

@@ -20,7 +20,7 @@ export interface IEditNoteProps {
 
 export function EditNote({note, onNoteChanged, onClose, onSaved}: IEditNoteProps) {
     const [savingNote, setSavingNote] = useState<boolean>(false);
-    const [saveError, setSaveError] = useState<IClientActionResultDto<EditFixtureDateNoteDto>>(null);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<EditFixtureDateNoteDto> | null>(null);
     const {noteApi} = useDependencies();
     const {divisions, seasons, onError} = useApp();
 
@@ -72,7 +72,7 @@ export function EditNote({note, onNoteChanged, onClose, onSaved}: IEditNoteProps
                 <div className="input-group-prepend">
                     <span className="input-group-text">Date</span>
                 </div>
-                <input type="date" className="form-control" value={note.date.substring(0, 10)} name="date"
+                <input type="date" className="form-control" value={note.date!.substring(0, 10)} name="date"
                        onChange={valueChanged(note, onNoteChanged)}/>
             </div>
             <div className="form-group my-3 d-flex">

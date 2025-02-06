@@ -80,7 +80,7 @@ export function Templates() {
 
     async function refreshHealth() {
         setShouldRefreshHealth(false);
-        const response: IClientActionResultDto<SeasonHealthCheckResultDto> = await templateApi.health(selected);
+        const response: IClientActionResultDto<SeasonHealthCheckResultDto> = await templateApi.health(selected!);
 
         if (selected && response && response.result) {
             const newTemplate: EditTemplateDto = Object.assign({}, selected);
@@ -116,7 +116,7 @@ export function Templates() {
 
     function renderTemplates() {
         return (<ul className="list-group mb-2" datatype="templates">
-            {templates.map(t => (<li key={t.id}
+            {templates!.map(t => (<li key={t.id}
                                      className={`list-group-item flex-column${isSelected(t) ? ' active' : ''}`}
                                      onClick={toggleSelected(t)}>
                 <div className="d-flex w-100 justify-content-between">
@@ -133,9 +133,9 @@ export function Templates() {
             return null;
         }
 
-        const success: number = Object.values(templateHealth.checks).filter(c => c.success).length;
-        const fail: number = Object.values(templateHealth.checks).filter(c => !c.success && c.errors.length === 0).length;
-        const error: number = Object.values(templateHealth.checks).filter(c => c.errors.length > 0).length + templateHealth.errors.length;
+        const success: number = Object.values(templateHealth.checks!).filter(c => c.success).length;
+        const fail: number = Object.values(templateHealth.checks!).filter(c => !c.success && c.errors!.length === 0).length;
+        const error: number = Object.values(templateHealth.checks!).filter(c => c.errors!.length > 0).length + templateHealth.errors!.length;
 
         return (<span>
             {success ? (<span className="badge rounded-pill bg-success margin-left">{success}</span>) : null}
@@ -155,7 +155,7 @@ export function Templates() {
 
         try {
             const template: EditTemplateDto = Object.assign({}, selected);
-            template.lastUpdated = selected.updated;
+            template.lastUpdated = selected!.updated;
             const result: IClientActionResultDto<TemplateDto> = await templateApi.update(template);
             if (result.success) {
                 await loadTemplates();
@@ -183,7 +183,7 @@ export function Templates() {
 
         setDeleting(true);
         try {
-            const result = await templateApi.delete(selected.id);
+            const result = await templateApi.delete(selected!.id!);
             if (result.success) {
                 setSelected(null);
                 await loadTemplates();

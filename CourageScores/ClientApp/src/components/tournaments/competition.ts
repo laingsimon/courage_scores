@@ -13,9 +13,9 @@ export interface ITournamentLayoutGenerationContext {
     getLinkToSide(side: TournamentSideDto): ReactElement;
 }
 
-export function getLayoutData(round: TournamentRoundDto, sides: TournamentSideDto[], context: ITournamentLayoutGenerationContext): ILayoutDataForRound[] {
+export function getLayoutData(round: TournamentRoundDto | undefined, sides: TournamentSideDto[], context: ITournamentLayoutGenerationContext): ILayoutDataForRound[] {
     const unplayedEngine: ILayoutEngine = new UnplayedEngine();
-    const engine: ILayoutEngine = round && any(round.matches)
+    const engine: ILayoutEngine = round && any(round.matches || [])
         ? new PlayedEngine(unplayedEngine)
         : unplayedEngine;
 

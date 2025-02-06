@@ -27,8 +27,8 @@ import {IPreferenceData} from "../common/PreferencesContainer";
 describe('DivisionTeam', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedTeam: EditTeamDto;
-    let apiResponse: IClientActionResultDto<TeamDto>;
+    let updatedTeam: EditTeamDto |  null;
+    let apiResponse: IClientActionResultDto<TeamDto> | undefined;
 
     const teamApi = api<ITeamApi>({
         update: async (team: EditTeamDto): Promise<IClientActionResultDto<TeamDto>> => {
@@ -47,10 +47,11 @@ describe('DivisionTeam', () => {
 
     beforeEach(() => {
         reportedError = new ErrorState();
+        apiResponse = undefined;
         updatedTeam = null;
     });
 
-    async function renderComponent(team: DivisionTeamDto, account: UserDto, divisionData: IDivisionDataContainerProps, teams?: TeamDto[], preferenceData?: IPreferenceData) {
+    async function renderComponent(team: DivisionTeamDto, account: UserDto | null, divisionData: IDivisionDataContainerProps, teams?: TeamDto[], preferenceData?: IPreferenceData) {
         context = await renderApp(
             iocProps({teamApi}),
             brandingProps(),
@@ -63,14 +64,14 @@ describe('DivisionTeam', () => {
             (<DivisionDataContainer {...divisionData} >
                 <DivisionTeam team={team}/>
             </DivisionDataContainer>),
-            null,
-            null,
+            undefined,
+            undefined,
             'tbody',
             preferenceData);
     }
 
     describe('when logged out', () => {
-        const account = null;
+        const account: UserDto | null = null;
         const division = divisionBuilder('DIVISION').build();
         const season = seasonBuilder('SEASON')
             .build();
@@ -88,7 +89,7 @@ describe('DivisionTeam', () => {
                 address: '',
             };
 
-            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: '', setDivisionData: null});
+            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: ''});
             reportedError.verifyNoError();
 
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -117,10 +118,10 @@ describe('DivisionTeam', () => {
                 address: '',
             };
 
-            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: '', setDivisionData: null});
+            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: ''});
             reportedError.verifyNoError();
 
-            const firstCell = context.container.querySelector('td:first-child');
+            const firstCell = context.container.querySelector('td:first-child')!;
             expect(firstCell.textContent).toEqual('TEAM');
             expect(firstCell.querySelector('button')).toBeFalsy();
         });
@@ -146,16 +147,15 @@ describe('DivisionTeam', () => {
                     season,
                     onReloadDivision,
                     name: '',
-                    setDivisionData: null,
                     favouritesEnabled: true
                 },
-                null,
+                undefined,
                 {
                     favouriteTeamIds: [ team.id ],
                 });
             reportedError.verifyNoError();
 
-            const row = context.container.querySelector('tr');
+            const row = context.container.querySelector('tr')!;
             expect(row.className).not.toContain('opacity-25');
         });
 
@@ -180,16 +180,15 @@ describe('DivisionTeam', () => {
                     season,
                     onReloadDivision,
                     name: '',
-                    setDivisionData: null,
                     favouritesEnabled: true
                 },
-                null,
+                undefined,
                 {
                     favouriteTeamIds: [ '1234' ],
                 });
             reportedError.verifyNoError();
 
-            const row = context.container.querySelector('tr');
+            const row = context.container.querySelector('tr')!;
             expect(row.className).toContain('opacity-25');
         });
 
@@ -214,16 +213,15 @@ describe('DivisionTeam', () => {
                     season,
                     onReloadDivision,
                     name: '',
-                    setDivisionData: null,
                     favouritesEnabled: true
                 },
-                null,
+                undefined,
                 {
                     favouriteTeamIds: [],
                 });
             reportedError.verifyNoError();
 
-            const row = context.container.querySelector('tr');
+            const row = context.container.querySelector('tr')!;
             expect(row.className).not.toContain('opacity-25');
         });
     });
@@ -254,14 +252,14 @@ describe('DivisionTeam', () => {
                 difference: 6,
                 address: '',
             };
-            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: '', setDivisionData: null});
+            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: ''});
             reportedError.verifyNoError();
             const firstCell = context.container.querySelector('td:first-child');
 
             await doClick(findButton(firstCell, '✏️'));
 
             reportedError.verifyNoError();
-            const dialog = context.container.querySelector('.modal-dialog');
+            const dialog = context.container.querySelector('.modal-dialog')!;
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('Edit team: TEAM');
         });
@@ -279,19 +277,19 @@ describe('DivisionTeam', () => {
                 updated: '2023-07-01T00:00:00',
                 address: '',
             };
-            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: '', setDivisionData: null});
+            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: ''});
             reportedError.verifyNoError();
-            const firstCell = context.container.querySelector('td:first-child');
+            const firstCell = context.container.querySelector('td:first-child')!;
             await doClick(findButton(firstCell, '✏️'));
-            const dialog = context.container.querySelector('.modal-dialog');
+            const dialog = context.container.querySelector('.modal-dialog')!;
 
             await doChange(dialog, 'input[name="name"]', 'NEW TEAM', context.user);
             await doClick(findButton(dialog, 'Save team'));
 
             reportedError.verifyNoError();
             expect(updatedTeam).not.toBeNull();
-            expect(updatedTeam.lastUpdated).toEqual('2023-07-01T00:00:00');
-            expect(updatedTeam.name).toEqual('NEW TEAM');
+            expect(updatedTeam!.lastUpdated).toEqual('2023-07-01T00:00:00');
+            expect(updatedTeam!.name).toEqual('NEW TEAM');
         });
 
         it('can close edit dialog', async () => {
@@ -306,7 +304,7 @@ describe('DivisionTeam', () => {
                 difference: 6,
                 address: '',
             };
-            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: '', setDivisionData: null});
+            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: ''});
             reportedError.verifyNoError();
             const firstCell = context.container.querySelector('td:first-child');
             await doClick(findButton(firstCell, '✏️'));
@@ -330,14 +328,14 @@ describe('DivisionTeam', () => {
                 address: '',
                 seasons: [],
             };
-            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: '', setDivisionData: null}, [team]);
+            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: ''}, [team]);
             reportedError.verifyNoError();
-            const firstCell = context.container.querySelector('td:first-child');
+            const firstCell = context.container.querySelector('td:first-child')!;
 
             await doClick(findButton(firstCell, '➕'));
 
             reportedError.verifyNoError();
-            const dialog = context.container.querySelector('.modal-dialog');
+            const dialog = context.container.querySelector('.modal-dialog')!;
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('Assign seasons');
         });
@@ -355,7 +353,7 @@ describe('DivisionTeam', () => {
                 address: '',
                 seasons: [],
             };
-            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: '', setDivisionData: null}, [team]);
+            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: ''}, [team]);
             reportedError.verifyNoError();
             const firstCell = context.container.querySelector('td:first-child');
             await doClick(findButton(firstCell, '➕'));
@@ -387,16 +385,15 @@ describe('DivisionTeam', () => {
                     season,
                     onReloadDivision,
                     name: '',
-                    setDivisionData: null,
                     favouritesEnabled: true
                 },
-                null,
+                undefined,
                 {
                     favouriteTeamIds: [ '1234' ],
                 });
             reportedError.verifyNoError();
 
-            const row = context.container.querySelector('tr');
+            const row = context.container.querySelector('tr')!;
             expect(row.className).not.toContain('opacity-25');
         });
     });

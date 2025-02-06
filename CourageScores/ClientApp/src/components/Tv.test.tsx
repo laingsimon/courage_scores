@@ -22,7 +22,7 @@ describe('Tv', () => {
     let context: TestContext;
     let request: {
         type: string,
-    };
+    } | null;
     let connections: WatchableDataDto[] = [];
 
     const liveApi = api<ILiveApi>({
@@ -134,6 +134,7 @@ describe('Tv', () => {
                     type: 'TYPE',
                     venue: 'VENUE',
                 },
+                lastUpdate: '',
             }];
 
             await renderComponent(appProps({account}));
@@ -153,6 +154,7 @@ describe('Tv', () => {
                     venue: 'VENUE',
                     opponents: [ 'CHALLENGER', 'OPPONENT' ],
                 },
+                lastUpdate: '',
             }];
 
             await renderComponent(appProps({account}));
@@ -170,6 +172,7 @@ describe('Tv', () => {
                 eventDetails: {
                     opponents: [ 'CHALLENGER', 'OPPONENT' ],
                 },
+                lastUpdate: '',
             }];
 
             await renderComponent(appProps({account}));
@@ -184,6 +187,7 @@ describe('Tv', () => {
                 dataType: LiveDataType.sayg,
                 absoluteUrl: 'http://somewhere/match/ID',
                 relativeUrl: '/match/ID',
+                lastUpdate: '',
             }];
 
             await renderComponent(appProps({account}));
@@ -196,8 +200,8 @@ describe('Tv', () => {
             connections = [{
                 id: createTemporaryId(),
                 dataType: LiveDataType.sayg,
-                absoluteUrl: null,
                 relativeUrl: '/match/ID',
+                lastUpdate: '',
             }];
 
             await renderComponent(appProps({account}));
@@ -218,8 +222,8 @@ describe('Tv', () => {
             await renderComponent(appProps({account}));
 
             const item = context.container.querySelector('.list-group-item') as HTMLAnchorElement;
-            expect(item.querySelector('.badge').className).toEqual('badge rounded-pill bg-primary');
-            expect(item.querySelector('.badge').textContent).toEqual(' @ ' + new Date('2024-02-26T11:27:07+00:00').toLocaleTimeString());
+            expect(item.querySelector('.badge')!.className).toEqual('badge rounded-pill bg-primary');
+            expect(item.querySelector('.badge')!.textContent).toEqual(' @ ' + new Date('2024-02-26T11:27:07+00:00').toLocaleTimeString());
         });
 
         it('renders polling connections', async () => {
@@ -234,8 +238,8 @@ describe('Tv', () => {
             await renderComponent(appProps({account}));
 
             const item = context.container.querySelector('.list-group-item') as HTMLAnchorElement;
-            expect(item.querySelector('.badge').className).toEqual('badge rounded-pill bg-secondary');
-            expect(item.querySelector('.badge').textContent).toEqual(' @ ' + new Date('2024-02-26T11:27:07+00:00').toLocaleTimeString());
+            expect(item.querySelector('.badge')!.className).toEqual('badge rounded-pill bg-secondary');
+            expect(item.querySelector('.badge')!.textContent).toEqual(' @ ' + new Date('2024-02-26T11:27:07+00:00').toLocaleTimeString());
         });
 
         it('renders sayg connections', async () => {
@@ -243,6 +247,7 @@ describe('Tv', () => {
                 id: createTemporaryId(),
                 dataType: LiveDataType.sayg,
                 relativeUrl: '/match/ID',
+                lastUpdate: '',
             }];
 
             await renderComponent(appProps({account}));
@@ -256,6 +261,7 @@ describe('Tv', () => {
                 id: createTemporaryId(),
                 dataType: LiveDataType.tournament,
                 relativeUrl: '/match/ID',
+                lastUpdate: '',
             }];
 
             await renderComponent(appProps({account}));
@@ -269,6 +275,7 @@ describe('Tv', () => {
                 id: createTemporaryId(),
                 dataType: LiveDataType.sayg,
                 relativeUrl: '/match/ID',
+                lastUpdate: '',
             }];
 
             await renderComponent(appProps({account}));
@@ -282,6 +289,7 @@ describe('Tv', () => {
                 id: createTemporaryId(),
                 dataType: 'foo',
                 relativeUrl: '/match/ID',
+                lastUpdate: '',
             }];
 
             await renderComponent(appProps({account}));
@@ -298,6 +306,7 @@ describe('Tv', () => {
                 id: createTemporaryId(),
                 dataType: 'foo',
                 relativeUrl: '/match/ID',
+                lastUpdate: '',
             }];
             await doClick(findButton(context.container, 'Refresh'));
 

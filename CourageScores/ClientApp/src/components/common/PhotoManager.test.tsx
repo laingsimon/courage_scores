@@ -17,10 +17,10 @@ import {createTemporaryId} from "../../helpers/projection";
 describe('PhotoManager', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let upload: File;
+    let upload: File | null;
     let uploadResult: boolean;
     let closed: boolean;
-    let deleteId: string;
+    let deleteId: string | null;
     let deleteResult: boolean;
 
     afterEach(async () => {
@@ -103,8 +103,8 @@ describe('PhotoManager', () => {
 
             const photos = Array.from(context.container.querySelectorAll('.list-group .list-group-item')) as HTMLAnchorElement[];
             expect(photos.map(p => p.textContent)).toEqual([
-                `${myPhoto.author} on ${renderDate(myPhoto.created)}1kb`,
-                `${anotherPhoto.author} on ${renderDate(anotherPhoto.created)}1kb`
+                `${myPhoto.author} on ${renderDate(myPhoto.created!)}1kb`,
+                `${anotherPhoto.author} on ${renderDate(anotherPhoto.created!)}1kb`
             ]);
         });
 
@@ -121,7 +121,7 @@ describe('PhotoManager', () => {
 
             const photos = Array.from(context.container.querySelectorAll('.list-group .list-group-item')) as HTMLAnchorElement[];
             expect(photos.map(p => p.textContent)).toEqual([
-                `${myPhoto.author} on ${renderDate(myPhoto.created)}1kb`,
+                `${myPhoto.author} on ${renderDate(myPhoto.created!)}1kb`,
             ]);
         });
 
@@ -285,7 +285,7 @@ describe('PhotoManager', () => {
                 doDelete,
             });
 
-            const visibleUploadContainer = context.container.querySelector('div[datatype="upload-control"]');
+            const visibleUploadContainer = context.container.querySelector('div[datatype="upload-control"]')!;
             expect(visibleUploadContainer).toBeTruthy();
             await doClick(visibleUploadContainer);
 
@@ -360,15 +360,11 @@ describe('PhotoManager', () => {
                 onClose,
                 doDelete,
             });
-            let confirm: string;
-            window.confirm = (msg: string) => {
-                confirm = msg;
-                return false;
-            };
+            context.prompts.respondToConfirm('Are you sure you want to delete this photo?', false);
 
             await doClick(findButton(context.container, '🗑'));
 
-            expect(confirm).toEqual('Are you sure you want to delete this photo?');
+            context.prompts.confirmWasShown('Are you sure you want to delete this photo?');
             expect(deleteId).toBeNull();
         });
 
@@ -385,7 +381,7 @@ describe('PhotoManager', () => {
                 onClose,
                 doDelete,
             });
-            window.confirm = () => true;
+            context.prompts.respondToConfirm('Are you sure you want to delete this photo?', true);
 
             await doClick(findButton(context.container, '🗑'));
 

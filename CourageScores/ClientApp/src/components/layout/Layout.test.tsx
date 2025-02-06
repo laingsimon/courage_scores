@@ -26,7 +26,7 @@ describe('Layout', () => {
 
             expect(context.container.querySelector('.heading')).toBeTruthy();
             expect(context.container.querySelector('header')).toBeTruthy();
-            const content = context.container.querySelector('div.content-background');
+            const content = context.container.querySelector('div.content-background')!;
             expect(content).toBeTruthy();
             expect(content.textContent).toContain('some error');
         });
@@ -36,7 +36,7 @@ describe('Layout', () => {
 
             expect(context.container.querySelector('.heading')).toBeTruthy();
             expect(context.container.querySelector('header')).toBeTruthy();
-            const content = context.container.querySelector('div.container');
+            const content = context.container.querySelector('div.container')!;
             expect(content).toBeTruthy();
         });
     });
@@ -47,7 +47,7 @@ describe('Layout', () => {
 
             expect(context.container.querySelector('.heading')).toBeFalsy();
             expect(context.container.querySelector('header')).toBeFalsy();
-            const content = context.container.querySelector('div.content-background');
+            const content = context.container.querySelector('div.content-background')!;
             expect(content).toBeTruthy();
             expect(content.textContent).toContain('some error');
         });
@@ -57,7 +57,7 @@ describe('Layout', () => {
 
             expect(context.container.querySelector('.heading')).toBeFalsy();
             expect(context.container.querySelector('header')).toBeFalsy();
-            const content = context.container.querySelector('div.container');
+            const content = context.container.querySelector('div.container')!;
             expect(content).toBeTruthy();
         });
     });

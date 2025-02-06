@@ -18,7 +18,7 @@ export interface ILegStatisticsProps {
     singlePlayer?: boolean;
     oneDartAverage?: boolean;
     onChangeLeg?(newLeg: LegDto): UntypedPromise;
-    updateLegDisplayOptions(options: ILegDisplayOptions): UntypedPromise;
+    updateLegDisplayOptions?(options: ILegDisplayOptions): UntypedPromise;
     legDisplayOptions: ILegDisplayOptions;
 }
 
@@ -41,29 +41,29 @@ interface ILegStatisticsDetail {
 export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDartAverage, onChangeLeg, updateLegDisplayOptions, legDisplayOptions }: ILegStatisticsProps) {
     const homeStats: LegCompetitorScoreDto = leg.home;
     const awayStats: LegCompetitorScoreDto = leg.away;
-    const [throwUnderEdit, setThrowUnderEdit] = useState<IEditableLegThrowDto>(null);
+    const [throwUnderEdit, setThrowUnderEdit] = useState<IEditableLegThrowDto | null>(null);
 
-    if (homeStats.noOfDarts + awayStats.noOfDarts === 0) {
+    if ((homeStats.noOfDarts || 0) + (awayStats.noOfDarts || 0) === 0) {
         return null;
     }
 
-    function getLegStatistics(throws: LegThrowDto[]): ILegStatisticsDetail[] {
+    function getLegStatistics(throws?: LegThrowDto[]): ILegStatisticsDetail[] {
         let score: number = 0;
         let noOfDarts: number = 0;
 
-        return throws.map((thr: LegThrowDto) => {
-            score += (score + thr.score) > leg.startingScore
+        return (throws || []).map((thr: LegThrowDto) => {
+            score += (score + (thr.score || 0)) > (leg.startingScore || 0)
                 ? 0 /* bust */
-                : thr.score;
-            noOfDarts += thr.noOfDarts;
+                : (thr.score || 0);
+            noOfDarts += (thr.noOfDarts || 0);
             const threeDartAverage = score / (noOfDarts / 3);
 
             return {
-                thisScore: thr.score,
-                thisNoOfDarts: thr.noOfDarts,
+                thisScore: thr.score || 0,
+                thisNoOfDarts: thr.noOfDarts || 0,
                 totalScore: score,
                 noOfDarts: noOfDarts,
-                remaining: leg.startingScore - score,
+                remaining: (leg.startingScore || 0) - score,
                 threeDartRunningAverage: threeDartAverage,
                 oneDartRunningAverage: threeDartAverage / 3,
                 checkout: score === leg.startingScore,
@@ -86,23 +86,27 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
 
     async function saveThrowChange() {
         const newLeg: LegDto = Object.assign({}, leg);
-        const competitor: LegCompetitorScoreDto = Object.assign({}, leg[throwUnderEdit.competitor]);
+        const competitor: LegCompetitorScoreDto = Object.assign({}, leg[throwUnderEdit!.competitor!]);
         const newThrow: IEditableLegThrowDto = Object.assign({}, throwUnderEdit);
+        // @ts-ignore
         delete newThrow.competitor;
+        // @ts-ignore
         delete newThrow.index;
 
-        newLeg[throwUnderEdit.competitor] = competitor;
-        competitor.throws = competitor.throws
-            .map((thr: LegThrowDto, index: number) => index === throwUnderEdit.index ? newThrow : thr)
-            .filter((thr: LegThrowDto) => thr.noOfDarts > 0);
-        competitor.score = sum(competitor.throws, (thr: LegThrowDto) => thr.score);
-        competitor.noOfDarts = sum(competitor.throws, (thr: LegThrowDto) => thr.noOfDarts);
+        newLeg[throwUnderEdit!.competitor!] = competitor;
+        competitor.throws = (competitor.throws || [])
+            .map((thr: LegThrowDto, index: number) => index === throwUnderEdit!.index ? newThrow : thr)
+            .filter((thr: LegThrowDto) => (thr.noOfDarts || 0) > 0);
+        competitor.score = sum(competitor.throws, (thr: LegThrowDto) => thr.score || 0);
+        competitor.noOfDarts = sum(competitor.throws, (thr: LegThrowDto) => thr.noOfDarts || 0);
 
-        await onChangeLeg(newLeg);
+        if (onChangeLeg) {
+            await onChangeLeg(newLeg);
+        }
         setThrowUnderEdit(null);
     }
 
-    function renderThrows(throws: LegThrowDto[], competitor: string) {
+    function renderThrows(throws: LegThrowDto[] | undefined, competitor: string) {
         const legStatistics: ILegStatisticsDetail[] = getLegStatistics(throws);
 
         return (<table className="table-sm">
@@ -132,7 +136,9 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
     async function toggleShowAverage() {
         const options: ILegDisplayOptions = Object.assign({}, legDisplayOptions);
         options.showAverage = !legDisplayOptions.showAverage;
-        await updateLegDisplayOptions(options);
+        if (updateLegDisplayOptions) {
+            await updateLegDisplayOptions(options);
+        }
     }
 
     const homeWinner = isLegWinner(leg, 'home');
@@ -167,18 +173,18 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
                 : null}
         </td>
         <td className={(homeWinner || leg.home.score === leg.startingScore) ? 'bg-winner' : ''}>
-            <span>Average: <strong>{ifNaN(round2dp(homeStats.score / (homeStats.noOfDarts / 3) / (oneDartAverage ? 3 : 1)), '-')}</strong> ({homeStats.noOfDarts} darts)<br/>
+            <span>Average: <strong>{ifNaN(round2dp((homeStats.score || 0) / ((homeStats.noOfDarts || 0) / 3) / (oneDartAverage ? 3 : 1)), '-')}</strong> ({homeStats.noOfDarts} darts)<br/>
             {homeWinner
-                ? (<div>Checkout: <strong>{leg.home.throws[leg.home.throws.length - 1].score}</strong></div>)
-                : (<div>Remaining: <strong>{leg.startingScore - homeStats.score}</strong></div>)}
+                ? (<div>Checkout: <strong>{leg.home.throws![leg.home.throws!.length - 1].score}</strong></div>)
+                : (<div>Remaining: <strong>{(leg.startingScore || 0) - (homeStats.score || 0)}</strong></div>)}
             </span>
             {legDisplayOptions.showThrows ? (renderThrows(leg.home.throws, 'home')) : null}
         </td>
         {singlePlayer ? null : (<td className={(awayWinner || leg.away.score === leg.startingScore) ? 'bg-winner' : ''}>
-            <span>Average: <strong>{ifNaN(round2dp(awayStats.score / (awayStats.noOfDarts / 3) / (oneDartAverage ? 3 : 1)), '-')}</strong> ({awayStats.noOfDarts} darts)<br/>
+            <span>Average: <strong>{ifNaN(round2dp((awayStats.score || 0) / ((awayStats.noOfDarts || 0) / 3) / (oneDartAverage ? 3 : 1)), '-')}</strong> ({awayStats.noOfDarts} darts)<br/>
             {awayWinner
-                ? (<div>Checkout: <strong>{leg.away.throws[leg.away.throws.length - 1].score}</strong></div>)
-                : (<div>Remaining: <strong>{leg.startingScore - awayStats.score}</strong></div>)}</span>
+                ? (<div>Checkout: <strong>{leg.away.throws![leg.away.throws!.length - 1].score}</strong></div>)
+                : (<div>Remaining: <strong>{(leg.startingScore || 0) - (awayStats.score || 0)}</strong></div>)}</span>
             {legDisplayOptions.showThrows ? (renderThrows(leg.away.throws, 'away')) : null}
         </td>)}
     </tr>);

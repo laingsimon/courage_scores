@@ -13,9 +13,9 @@ export function FilterFixtures() {
     const {getPreference, upsertPreference} = usePreferences();
     const {name} = useBranding();
     const location = useLocation();
-    const teamFilters: IBootstrapDropdownItem[] = teams.sort(sortBy('name')).map(t => {
+    const teamFilters: IBootstrapDropdownItem[] = teams?.sort(sortBy('name')).map(t => {
         return getFilterOption('team', t.name, t.name.trim().toLowerCase());
-    });
+    }) || [];
     teamFilters.unshift(getFilterOption('team', 'All teams'));
     const favouriteTeamIds: string[] = getPreference<string[]>('favouriteTeamIds') || [];
     const filter: IInitialisedFilters = getFilter(location);

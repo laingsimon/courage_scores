@@ -41,7 +41,7 @@ export function ExportDataButton({tables}: IExportDataButtonProps) {
 
             const response: IClientActionResultDto<ExportDataResultDto> = await dataApi.export(request);
             if (response.success) {
-                window.open(`data:application/zip;base64,${response.result.zip}`);
+                window.open(`data:application/zip;base64,${response.result!.zip}`);
             } else {
                 window.alert('Unable to export data');
             }

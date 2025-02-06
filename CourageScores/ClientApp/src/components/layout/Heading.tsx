@@ -9,11 +9,11 @@ export function Heading() {
     const version = build && build.branch && build.version && build.branch !== 'release' && build.date;
 
     function showVersion() {
-        window.alert(`Branch: ${build.branch}\nSHA: ${build.version.substring(0, 8)}\nPR: ${build.prName}`);
+        window.alert(`Branch: ${build.branch}\nSHA: ${build.version!.substring(0, 8)}\nPR: ${build.prName}`);
     }
 
     function renderTime(): string {
-        const time: string = build.date.substring(build.date.length - 8);
+        const time: string = build.date!.substring(build.date!.length - 8);
         return time.substring(0, 5); // trim off the seconds
     }
 

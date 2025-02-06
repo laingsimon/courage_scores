@@ -21,8 +21,8 @@ export function ImportData() {
         purgeData: false,
         tables: []
     });
-    const [response, setResponse] = useState<IClientActionResultDto<ImportDataResultDto>>(null);
-    const [saveError, setSaveError] = useState(null);
+    const [response, setResponse] = useState<IClientActionResultDto<ImportDataResultDto> | null>(null);
+    const [saveError, setSaveError] = useState<object | string | undefined>(undefined);
 
     useEffect(() => {
             if (!tables) {
@@ -45,12 +45,12 @@ export function ImportData() {
         }
 
         const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-        if (input.files.length === 0) {
+        if (input!.files!.length === 0) {
             window.alert(`Select a file first`);
             return;
         }
 
-        if (!any(importRequest.tables)) {
+        if (!any(importRequest.tables!)) {
             window.alert(`Select some tables to import`);
             return;
         }
@@ -58,15 +58,15 @@ export function ImportData() {
         setImporting(true);
         setResponse(null);
         try {
-            const response: IClientActionResultDto<ImportDataResultDto> = await dataApi.import(importRequest, input.files[0]);
+            const response: IClientActionResultDto<ImportDataResultDto> = await dataApi.import(importRequest, input.files![0]);
 
             if (response.success) {
                 setResponse(response);
             } else if (response.body) {
-                if (response.status === 500) {
-                    const textResponse = await response.text();
+                if (response.status === 500 && response.text) {
+                    const textResponse: string = await response.text();
                     setSaveError({errors: [textResponse]});
-                } else {
+                } else if (response.json) {
                     const jsonResponse = await response.json();
                     setSaveError(jsonResponse);
                 }
@@ -76,7 +76,7 @@ export function ImportData() {
         } catch (e) {
             /* istanbul ignore next */
             console.error(e);
-            setSaveError(e.toString());
+            setSaveError(`${e}`);
         } finally {
             setImporting(false);
         }
@@ -111,7 +111,7 @@ export function ImportData() {
                 <label className="form-check-label" htmlFor="dryRun">Dry run</label>
             </div>
         </div>
-        <TableSelection allTables={tables} selected={importRequest.tables}
+        <TableSelection allTables={tables!} selected={importRequest.tables!}
                         onTableChange={propChanged(importRequest, setImportRequest, 'tables')} requireCanImport={true}/>
         <div>
             <button className="btn btn-primary margin-right" onClick={startImport} disabled={importing}>
@@ -122,21 +122,21 @@ export function ImportData() {
         {response ? (<div className="py-3">
             <h5>Output</h5>
             <ul>
-                {Object.keys(response.result.tables).map((t: string) => (
-                    <li key={t}><strong>{t}</strong>: {response.result.tables[t]} row/s imported</li>))}
+                {Object.keys(response.result!.tables!).map((t: string) => (
+                    <li key={t}><strong>{t}</strong>: {response.result!.tables![t]} row/s imported</li>))}
             </ul>
             <strong>Messages</strong>
             <div className="overflow-auto max-scroll-height">
-                {response.errors.map((error, index) => (
+                {response.errors!.map((error, index) => (
                     <div key={index + '_error'} className="text-danger">{error}</div>))}
-                {response.warnings.map((warning, index) => (
+                {response.warnings!.map((warning, index) => (
                     <div key={index + '_warning'} className="text-warning">{warning}</div>))}
-                {response.messages.map((message, index) => (
+                {response.messages!.map((message, index) => (
                     <div key={index + '_message'} className="text-secondary">{message}</div>))}
             </div>
         </div>) : null}
         {saveError
-            ? (<ErrorDisplay {...saveError} onClose={asyncClear(setSaveError)} title="Could not import data"/>)
+            ? (<ErrorDisplay {...(saveError as any)} onClose={asyncClear(setSaveError)} title="Could not import data"/>)
             : null}
     </div>);
 }

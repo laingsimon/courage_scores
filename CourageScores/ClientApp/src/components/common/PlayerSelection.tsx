@@ -10,7 +10,7 @@ export interface IPlayerSelectionProps {
     players: ISelectablePlayer[];
     disabled?: boolean;
     selected?: { id: string };
-    onChange?(element: Element, selected: ISelectablePlayer): UntypedPromise;
+    onChange?(element: Element, selected: ISelectablePlayer | null): UntypedPromise;
     except?: string[];
     readOnly?: boolean;
     className?: string;

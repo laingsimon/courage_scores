@@ -44,7 +44,7 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
     const [proposing, setProposing] = useState<boolean>(false);
     const [stage, setStage] = useState<string>('1-pick');
     const [response, setResponse] = useState<IClientActionResultDto<ProposalResultDto> | null>(null);
-    const [selectedDivisionId, setSelectedDivisionId] = useState<string>(id);
+    const [selectedDivisionId, setSelectedDivisionId] = useState<string>(id!);
     const [saveMessage, setSaveMessage] = useState<string | null>(null);
     const [fixturesToSave, setFixturesToSave] = useState<IFixtureToSave[]>([]);
     const [savingProposal, setSavingProposal] = useState<boolean>(false);
@@ -78,7 +78,7 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
                 setStage('1-pick');
                 break;
             case '3-review':
-                await setDivisionData(null);
+                await setDivisionData!();
                 setStage('2-assign-placeholders');
                 return;
             case '4-review-proposals':
@@ -96,7 +96,7 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
     async function onNext() {
         switch (stage) {
             case '1-pick': {
-                if (!selectedTemplate.success) {
+                if (!selectedTemplate!.success) {
                     alert('This template is not compatible with this season, pick another template');
                     return;
                 }
@@ -114,8 +114,8 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
                 return;
             }
             case '4-review-proposals': {
-                const toSave: IFixtureToSave[] = response.result.divisions
-                    .flatMap((d: DivisionDataDto) => d.fixtures.flatMap((fd: DivisionFixtureDateDto) => fd.fixtures.map((f: DivisionFixtureDto) => {
+                const toSave: IFixtureToSave[] = response!.result!.divisions!
+                    .flatMap((d: DivisionDataDto) => d.fixtures!.flatMap((fd: DivisionFixtureDateDto) => fd.fixtures!.map((f: DivisionFixtureDto) => {
                         return {fixture: f, date: fd, division: d}
                     })))
                     .filter((f: IFixtureToSave) => f.fixture.proposal && f.fixture.awayTeam);
@@ -127,7 +127,7 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
             case '5-confirm-save': {
                 setSaveMessage(`Starting save...`);
                 setStage('6-saving');
-                await setDivisionData(null);
+                await setDivisionData!();
                 return;
             }
             case 'aborted': {
@@ -152,7 +152,7 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
         setProposing(true);
         try {
             const response: IClientActionResultDto<ProposalResultDto> = await templateApi.propose({
-                templateId: selectedTemplate.result.id,
+                templateId: selectedTemplate!.result!.id,
                 seasonId: seasonId,
                 placeholderMappings: placeholderMappings || {},
             });
@@ -168,8 +168,8 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
 
     async function changeVisibleDivision(id: string) {
         setSelectedDivisionId(id);
-        const newDivision: DivisionDataDto = response.result.divisions.filter((d: DivisionDataDto) => d.id === id)[0];
-        await setDivisionData(newDivision);
+        const newDivision: DivisionDataDto = response!.result!.divisions!.filter((d: DivisionDataDto) => d.id === id)[0];
+        await setDivisionData!(newDivision);
     }
 
     useEffect(() => {
@@ -194,7 +194,7 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
         setSaveMessage('Reloading division data...');
         await reloadAll();
         await onReloadDivision();
-        await setDivisionData(null);
+        await setDivisionData!();
         setStage('saved');
 
         const errors = saveResults.filter(r => !r.success);
@@ -220,13 +220,12 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
             const date = fixtureToSave.date;
             const division = fixtureToSave.division;
 
-            setSaveMessage(`Saving - ${division.name}: ${renderDate(date.date)}, ${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`);
+            setSaveMessage(`Saving - ${division.name}: ${renderDate(date.date)}, ${fixture.homeTeam.name} vs ${fixture.awayTeam!.name}`);
             const result: IClientActionResultDto<GameDto> = await gameApi.update({
-                id: undefined,
-                address: fixture.homeTeam.address,
+                address: fixture.homeTeam.address!,
                 divisionId: division.id,
                 homeTeamId: fixture.homeTeam.id,
-                awayTeamId: fixture.awayTeam.id,
+                awayTeamId: fixture.awayTeam!.id,
                 date: date.date,
                 isKnockout: false,
                 seasonId: seasonId,
@@ -256,7 +255,7 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
 
     if (stage === '4-review-proposals') {
         return (<ReviewProposalsFloatingDialog
-            proposalResult={response.result}
+            proposalResult={response!.result!}
             onNext={onNext}
             onPrevious={onPrevious}
             changeVisibleDivision={changeVisibleDivision}
@@ -271,30 +270,30 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
     try {
         return (<Dialog title="Create season fixtures...">
             {stage === '1-pick' ? (<PickTemplate
-                templates={templates}
+                templates={templates!}
                 setSelectedTemplate={changeTemplate}
                 loading={loading}
                 selectedTemplate={selectedTemplate} />) : null}
             {stage === '2-assign-placeholders' ? (<AssignPlaceholders
                 seasonId={seasonId}
-                selectedTemplate={selectedTemplate}
+                selectedTemplate={selectedTemplate!}
                 placeholderMappings={placeholderMappings || {}}
                 setPlaceholderMappings={asyncCallback(setPlaceholderMappings)} />) : null}
-            {stage === '3-review' ? (<ReviewProposalHealth response={response} />) : null}
+            {stage === '3-review' ? (<ReviewProposalHealth response={response!} />) : null}
             {stage === '5-confirm-save'
                 ? (<ConfirmSave noOfFixturesToSave={fixturesToSave.length} noOfDivisions={divisions.length} />)
                 : null}
             {stage === '6-saving' || stage === 'aborted' || stage === 'saved'
                 ? (<SavingProposals
                     noOfFixturesToSave={fixturesToSave.length}
-                    saveMessage={saveMessage}
+                    saveMessage={saveMessage!}
                     saveResults={saveResults}
                     saving={stage === '6-saving'} />)
                 : null}
             <div className="modal-footer px-0 mt-3 pb-0">
                 <div className="left-aligned">
                     <button className="btn btn-secondary" onClick={async () => {
-                        await setDivisionData(null);
+                        await setDivisionData!();
                         await onClose();
                     }} disabled={stage === '6-saving'}>
                         Close

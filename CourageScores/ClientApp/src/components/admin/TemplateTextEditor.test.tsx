@@ -12,12 +12,13 @@ import {
 import {ITemplateTextEditorProps, TemplateTextEditor} from "./TemplateTextEditor";
 import {createTemporaryId} from "../../helpers/projection";
 import {TemplateDto} from "../../interfaces/models/dtos/Season/Creation/TemplateDto";
+import {EditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/EditTemplateDto";
 
 describe('TemplateTextEditor', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let update: TemplateDto;
-    let valid: boolean;
+    let update: TemplateDto | null;
+    let valid: boolean | null;
 
     afterEach(async () => {
         await cleanUp(context);
@@ -116,17 +117,14 @@ describe('TemplateTextEditor', () => {
         });
 
         it('excludes non-editable properties', async () => {
-            const template = {
+            const template: EditTemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 description: 'DESCRIPTION',
-                someProperty: 'something',
                 updated: '2023-01-02',
                 created: '2023-01-01',
                 author: 'Simon',
                 editor: 'Simon',
-                deleted: null,
-                remover: null,
                 templateHealth: {
                     checks: {},
                     success: true,
@@ -145,7 +143,6 @@ describe('TemplateTextEditor', () => {
             });
 
             const editableTemplate = {
-                someProperty: 'something',
                 sharedAddresses: [],
                 divisions: [],
             };

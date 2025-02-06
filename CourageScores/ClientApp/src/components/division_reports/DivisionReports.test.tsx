@@ -49,7 +49,7 @@ describe('DivisionReports', () => {
                 <DivisionReports/>
             </DivisionDataContainer>),
             '/division/:divisionId/reports/:seasonId',
-            `/division/${divisionData.name}/reports/${divisionData.season.name}/`);
+            `/division/${divisionData.name}/reports/${divisionData.season!.name}/`);
     }
 
     function createDivisionData(divisionId: string): IDivisionDataContainerProps {
@@ -104,7 +104,8 @@ describe('DivisionReports', () => {
                     columns: [],
                     rows: []
                 }],
-                messages: []
+                messages: [],
+                created: '',
             }
 
             await doClick(findButton(context.container, '📊 Get reports...'));
@@ -119,7 +120,9 @@ describe('DivisionReports', () => {
             returnReport = {
                 Exception: {
                     Message: 'Some server side error',
+                    created: '',
                 },
+                created: '',
             } as ReportCollectionDto;
 
             await doClick(findButton(context.container, '📊 Get reports...'));
@@ -145,14 +148,15 @@ describe('DivisionReports', () => {
             await renderComponent(account, divisionData);
             returnReport = {
                 reports: [report1, report2],
-                messages: []
+                messages: [],
+                created: '',
             }
             await doClick(findButton(context.container, '📊 Get reports...'));
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Report 2');
             await doClick(findButton(context.container, '📊 Get reports...'));
 
-            const activeItem = context.container.querySelector('.dropdown-menu .dropdown-item.active');
+            const activeItem = context.container.querySelector('.dropdown-menu .dropdown-item.active')!;
             expect(activeItem.textContent).toEqual('Report 2');
         });
 
@@ -174,18 +178,20 @@ describe('DivisionReports', () => {
             await renderComponent(account, divisionData);
             returnReport = {
                 reports: [report1, report2],
-                messages: []
+                messages: [],
+                created: '',
             }
             await doClick(findButton(context.container, '📊 Get reports...'));
             await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Report 2');
 
             returnReport = {
                 reports: [report1],
-                messages: []
+                messages: [],
+                created: '',
             }
             await doClick(findButton(context.container, '📊 Get reports...'));
 
-            const activeItem = context.container.querySelector('.dropdown-menu .dropdown-item.active');
+            const activeItem = context.container.querySelector('.dropdown-menu .dropdown-item.active')!;
             expect(activeItem.textContent).toEqual('Report 1');
         });
 
@@ -207,14 +213,16 @@ describe('DivisionReports', () => {
             await renderComponent(account, divisionData);
             returnReport = {
                 reports: [report1, report2],
-                messages: []
+                messages: [],
+                created: '',
             }
             await doClick(findButton(context.container, '📊 Get reports...'));
             await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Report 2');
 
             returnReport = {
                 reports: [],
-                messages: []
+                messages: [],
+                created: '',
             }
             await doClick(findButton(context.container, '📊 Get reports...'));
 
@@ -233,7 +241,8 @@ describe('DivisionReports', () => {
                     columns: [],
                     rows: []
                 }],
-                messages: ['A message']
+                messages: ['A message'],
+                created: '',
             }
 
             await doClick(findButton(context.container, '📊 Get reports...'));
@@ -259,7 +268,8 @@ describe('DivisionReports', () => {
                     columns: [],
                     rows: []
                 }],
-                messages: []
+                messages: [],
+                created: '',
             }
 
             await doClick(findButton(context.container, '📊 Get reports...'));
@@ -296,13 +306,14 @@ describe('DivisionReports', () => {
                         } ],
                     }],
                 }],
-                messages: []
+                messages: [],
+                created: '',
             }
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
             reportedError.verifyNoError();
-            const reportTable = context.container.querySelector('.content-background table');
+            const reportTable = context.container.querySelector('.content-background table')!;
             expect(reportTable).toBeTruthy();
             const reportHeadings = Array.from(reportTable.querySelectorAll('thead tr th')) as HTMLTableCellElement[];
             expect(Array.from(reportHeadings).map(li => li.textContent)).toEqual(['', 'A team heading', 'A player heading', 'A value heading']);
@@ -340,13 +351,14 @@ describe('DivisionReports', () => {
                     }],
                     thisDivisionOnly: true,
                 }],
-                messages: []
+                messages: [],
+                created: '',
             }
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
             reportedError.verifyNoError();
-            const heading = context.container.querySelector('div[datatype="print-division-heading"]');
+            const heading = context.container.querySelector('div[datatype="print-division-heading"]')!;
             expect(heading).toBeTruthy();
             expect(heading.textContent).toEqual('DIVISION, A season');
         });
@@ -379,13 +391,14 @@ describe('DivisionReports', () => {
                     }],
                     thisDivisionOnly: false,
                 }],
-                messages: []
+                messages: [],
+                created: '',
             }
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
             reportedError.verifyNoError();
-            const heading = context.container.querySelector('div[datatype="print-division-heading"]');
+            const heading = context.container.querySelector('div[datatype="print-division-heading"]')!;
             expect(heading).toBeTruthy();
             expect(heading.textContent).toEqual('A season');
         });
@@ -407,17 +420,18 @@ describe('DivisionReports', () => {
                         }],
                     }],
                 }],
-                messages: []
+                messages: [],
+                created: '',
             }
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
             reportedError.verifyNoError();
-            const reportTable = context.container.querySelector('.content-background table');
+            const reportTable = context.container.querySelector('.content-background table')!;
             expect(reportTable).toBeTruthy();
             const reportRows = Array.from(reportTable.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
             expect(reportRows.length).toEqual(1);
-            const link: HTMLAnchorElement = reportRows[0].querySelector('a');
+            const link: HTMLAnchorElement = reportRows[0].querySelector('a')!;
             expect(link.href).toEqual(`http://localhost/tournament/${tournamentId}`);
             expect(link.text).toEqual('TEXT');
         });
@@ -440,17 +454,18 @@ describe('DivisionReports', () => {
                         }],
                     }],
                 }],
-                messages: []
+                messages: [],
+                created: '',
             }
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
             reportedError.verifyNoError();
-            const reportTable = context.container.querySelector('.content-background table');
+            const reportTable = context.container.querySelector('.content-background table')!;
             expect(reportTable).toBeTruthy();
             const reportRows = Array.from(reportTable.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
             expect(reportRows.length).toEqual(1);
-            const link: HTMLAnchorElement = reportRows[0].querySelector('a');
+            const link: HTMLAnchorElement = reportRows[0].querySelector('a')!;
             expect(link.href).toEqual(`http://localhost/division/DIVISION/player:PLAYER@TEAM/A%20season`);
             expect(link.text).toEqual('TEXT');
         });
@@ -472,17 +487,18 @@ describe('DivisionReports', () => {
                         }],
                     }],
                 }],
-                messages: []
+                messages: [],
+                created: '',
             }
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
             reportedError.verifyNoError();
-            const reportTable = context.container.querySelector('.content-background table');
+            const reportTable = context.container.querySelector('.content-background table')!;
             expect(reportTable).toBeTruthy();
             const reportRows = Array.from(reportTable.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
             expect(reportRows.length).toEqual(1);
-            const link: HTMLAnchorElement = reportRows[0].querySelector('a');
+            const link: HTMLAnchorElement = reportRows[0].querySelector('a')!;
             expect(link.href).toEqual(`http://localhost/division/DIVISION/team:TEAM/A%20season`);
             expect(link.text).toEqual('TEXT');
         });
@@ -505,17 +521,18 @@ describe('DivisionReports', () => {
                         }],
                     }],
                 }],
-                messages: []
+                messages: [],
+                created: '',
             }
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
             reportedError.verifyNoError();
-            const reportTable = context.container.querySelector('.content-background table');
+            const reportTable = context.container.querySelector('.content-background table')!;
             expect(reportTable).toBeTruthy();
             const reportRows = Array.from(reportTable.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
             expect(reportRows.length).toEqual(1);
-            const link: HTMLAnchorElement = reportRows[0].querySelector('a');
+            const link: HTMLAnchorElement = reportRows[0].querySelector('a')!;
             expect(link.href).toEqual(`http://localhost/division/DIVISION_ID/player:PLAYER_ID@TEAM_ID/A%20season`);
             expect(link.text).toEqual('TEXT');
         });
@@ -537,17 +554,18 @@ describe('DivisionReports', () => {
                         }],
                     }],
                 }],
-                messages: []
+                messages: [],
+                created: '',
             }
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
             reportedError.verifyNoError();
-            const reportTable = context.container.querySelector('.content-background table');
+            const reportTable = context.container.querySelector('.content-background table')!;
             expect(reportTable).toBeTruthy();
             const reportRows = Array.from(reportTable.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
             expect(reportRows.length).toEqual(1);
-            const link: HTMLAnchorElement = reportRows[0].querySelector('a');
+            const link: HTMLAnchorElement = reportRows[0].querySelector('a')!;
             expect(link.href).toEqual(`http://localhost/division/DIVISION_ID/team:TEAM_ID/A%20season`);
             expect(link.text).toEqual('TEXT');
         });
@@ -567,13 +585,14 @@ describe('DivisionReports', () => {
                         }],
                     }],
                 }],
-                messages: []
+                messages: [],
+                created: '',
             }
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
             reportedError.verifyNoError();
-            const reportTable = context.container.querySelector('.content-background table');
+            const reportTable = context.container.querySelector('.content-background table')!;
             expect(reportTable).toBeTruthy();
             const reportRows = Array.from(reportTable.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
             expect(reportRows.length).toEqual(1);

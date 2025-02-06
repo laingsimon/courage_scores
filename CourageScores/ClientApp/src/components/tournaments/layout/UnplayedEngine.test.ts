@@ -7,7 +7,7 @@ import {ILayoutDataForMatch} from "./ILayoutDataForMatch";
 import {ILayoutDataForRound} from "./ILayoutDataForRound";
 
 describe('UnplayedEngine', () => {
-    let possibleSides: TournamentSideDto[];
+    let possibleSides: TournamentSideDto[] | null;
     const engine: ILayoutEngine = new UnplayedEngine();
 
     function getSides(count: number): TournamentSideDto[] {
@@ -21,8 +21,8 @@ describe('UnplayedEngine', () => {
 
     function match(a: string, vs: string, m: string, otn?: string, showMnemonic?: string): ILayoutDataForMatch {
         return {
-            scoreA: null,
-            scoreB: null,
+            scoreA: '',
+            scoreB: '',
             sideA: side(a, getShowMnemonic('a', showMnemonic)),
             sideB: side(vs, getShowMnemonic('vs', showMnemonic)),
             mnemonic: m,
@@ -30,7 +30,7 @@ describe('UnplayedEngine', () => {
         };
     }
 
-    function getShowMnemonic(side: string, instruction?: string): boolean {
+    function getShowMnemonic(side: string, instruction?: string): boolean | undefined {
         if (instruction && instruction.indexOf('!' + side) !== -1) {
             return false;
         }
@@ -44,10 +44,9 @@ describe('UnplayedEngine', () => {
     function side(mnemonic: string, showMnemonic?: boolean): ILayoutDataForSide {
         return {
             mnemonic,
-            name: null,
+            name: '',
             showMnemonic,
-            link: null,
-            id: null,
+            id: '',
         }
     }
 
@@ -55,7 +54,7 @@ describe('UnplayedEngine', () => {
         return {
             matches,
             preRound: false,
-            possibleSides,
+            possibleSides: possibleSides!,
             name: name,
             alreadySelectedSides: [],
         };
@@ -65,7 +64,7 @@ describe('UnplayedEngine', () => {
         return {
             matches,
             preRound: true,
-            possibleSides,
+            possibleSides: possibleSides!,
             name: 'Preliminary',
             alreadySelectedSides: [],
         };

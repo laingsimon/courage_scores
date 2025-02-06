@@ -20,9 +20,9 @@ describe('SocketAdmin', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let allSockets: WebSocketDto[];
-    let closedSocket: string;
-    let apiResult: IClientActionResultDto<WebSocketDto>;
-    let getSocketsApiResult: IClientActionResultDto<WebSocketDto[]>;
+    let closedSocket: string | null;
+    let apiResult: IClientActionResultDto<WebSocketDto> | null;
+    let getSocketsApiResult: IClientActionResultDto<WebSocketDto[]> | null;
 
     const liveApi = api<ILiveApi>({
         getAll: async () => {
@@ -86,18 +86,16 @@ describe('SocketAdmin', () => {
         it('open socket for logged out user', async () => {
             const socket = {
                 id: createTemporaryId(),
-                userName: null,
                 connected: '2023-11-08T10:06:21+00:00',
                 lastReceipt: '2023-11-08T10:07:21+00:00',
                 receivedMessages: 1,
                 sentMessages: 2,
-                lastSent: null,
             };
             allSockets = [ socket ];
 
             await renderComponent();
 
-            const socketItem = context.container.querySelector('li[title="' + socket.id + '"]');
+            const socketItem = context.container.querySelector('li[title="' + socket.id + '"]')!;
             expect(socketItem.textContent).toContain('Logged out user');
             expect(socketItem.textContent).toContain('▶ 10:06:21');
             expect(socketItem.textContent).toContain('⬆ 1');
@@ -107,18 +105,16 @@ describe('SocketAdmin', () => {
         it('when socket has no connected value', async () => {
             const socket = {
                 id: createTemporaryId(),
-                userName: null,
                 connected: '',
                 lastReceipt: '2023-11-08T10:07:21+00:00',
                 receivedMessages: 1,
                 sentMessages: 2,
-                lastSent: null,
             };
             allSockets = [ socket ];
 
             await renderComponent();
 
-            const socketItem = context.container.querySelector('li[title="' + socket.id + '"]');
+            const socketItem = context.container.querySelector('li[title="' + socket.id + '"]')!;
             expect(socketItem.textContent).toContain('▶ -');
         });
 
@@ -130,20 +126,18 @@ describe('SocketAdmin', () => {
                 lastReceipt: '2023-11-08T10:07:21+00:00',
                 receivedMessages: 1,
                 sentMessages: 0,
-                lastSent: null,
             };
             allSockets = [ socket ];
 
             await renderComponent();
 
-            const socketItem = context.container.querySelector('li[title="' + socket.id + '"]');
+            const socketItem = context.container.querySelector('li[title="' + socket.id + '"]')!;
             expect(socketItem.textContent).toContain('USER');
         });
 
         it('open socket with sent data', async () => {
             const socket = {
                 id: createTemporaryId(),
-                userName: null,
                 connected: '2023-11-08T10:06:21+00:00',
                 lastReceipt: '2023-11-08T10:07:21+00:00',
                 lastSent: '2023-11-08T10:08:21+00:00',
@@ -154,26 +148,22 @@ describe('SocketAdmin', () => {
 
             await renderComponent();
 
-            const socketItem = context.container.querySelector('li[title="' + socket.id + '"]');
+            const socketItem = context.container.querySelector('li[title="' + socket.id + '"]')!;
             expect(socketItem.textContent).toContain('⬇ 2');
         });
 
         it('open sockets in connected descending order', async () => {
             const socket1 = {
                 id: createTemporaryId(),
-                userName: null,
                 connected: '2023-11-08T10:06:21+00:00',
                 lastReceipt: '2023-11-08T10:07:21+00:00',
-                lastSent: null,
                 receivedMessages: 1,
                 sentMessages: 0,
             };
             const socket2 = {
                 id: createTemporaryId(),
-                userName: null,
                 connected: '2023-12-08T10:06:21+00:00',
                 lastReceipt: '2023-12-08T10:07:21+00:00',
-                lastSent: null,
                 receivedMessages: 1,
                 sentMessages: 0,
             };
@@ -191,7 +181,6 @@ describe('SocketAdmin', () => {
         it('can close a socket', async () => {
             const socket = {
                 id: createTemporaryId(),
-                userName: null,
                 connected: '2023-11-08T10:06:21+00:00',
                 lastReceipt: '2023-11-08T10:07:21+00:00',
                 lastSent: '2023-11-08T10:08:21+00:00',
@@ -199,8 +188,8 @@ describe('SocketAdmin', () => {
                 sentMessages: 2,
             };
             allSockets = [ socket ];
-            window.confirm = () => true;
             await renderComponent();
+            context.prompts.respondToConfirm('Are you sure you want to close this socket', true);
 
             await doClick(findButton(context.container, '🗑'));
 
@@ -210,7 +199,6 @@ describe('SocketAdmin', () => {
         it('does not close a socket', async () => {
             const socket = {
                 id: createTemporaryId(),
-                userName: null,
                 connected: '2023-11-08T10:06:21+00:00',
                 lastReceipt: '2023-11-08T10:07:21+00:00',
                 lastSent: '2023-11-08T10:08:21+00:00',
@@ -218,8 +206,8 @@ describe('SocketAdmin', () => {
                 sentMessages: 2,
             };
             allSockets = [ socket ];
-            window.confirm = () => false;
             await renderComponent();
+            context.prompts.respondToConfirm('Are you sure you want to close this socket', false);
 
             await doClick(findButton(context.container, '🗑'));
 
@@ -246,8 +234,8 @@ describe('SocketAdmin', () => {
                 sentMessages: 2,
             };
             allSockets = [ socketToDelete ];
-            window.confirm = () => true;
             await renderComponent();
+            context.prompts.respondToConfirm('Are you sure you want to close this socket', true);
             expect(context.container.textContent).toContain('TO DELETE');
 
             allSockets = [ newSocket ];
@@ -259,7 +247,6 @@ describe('SocketAdmin', () => {
         it('reports an error if socket cannot be closed', async () => {
             const socket = {
                 id: createTemporaryId(),
-                userName: null,
                 connected: '2023-11-08T10:06:21+00:00',
                 lastReceipt: '2023-11-08T10:07:21+00:00',
                 lastSent: '2023-11-08T10:08:21+00:00',
@@ -267,12 +254,12 @@ describe('SocketAdmin', () => {
                 sentMessages: 2,
             };
             allSockets = [ socket ];
-            window.confirm = () => true;
             apiResult = {
                 success: false,
                 errors: [ 'ERROR' ],
             };
             await renderComponent();
+            context.prompts.respondToConfirm('Are you sure you want to close this socket', true);
 
             await doClick(findButton(context.container, '🗑'));
 

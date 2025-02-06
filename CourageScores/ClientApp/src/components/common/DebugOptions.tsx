@@ -10,7 +10,7 @@ export function DebugOptions({ children }: IDebugOptionsProps) {
     const [open, setOpen] = useState<boolean>(false);
     const {account} = useApp();
 
-    const canDisplay: boolean = account && account.access && account.access.showDebugOptions;
+    const canDisplay: boolean = !!(account && account.access && account.access.showDebugOptions);
     if (!canDisplay) {
         return null;
     }

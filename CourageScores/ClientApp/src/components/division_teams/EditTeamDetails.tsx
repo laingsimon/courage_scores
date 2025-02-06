@@ -25,7 +25,7 @@ export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, season
     const {divisions, onError} = useApp();
     const {teamApi} = useDependencies();
     const [saving, setSaving] = useState<boolean>(false);
-    const [saveError, setSaveError] = useState(null);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<TeamDto> | null>(null);
     const divisionOptions: IBootstrapDropdownItem[] = divisions.map((division: DivisionDto) => {
         return {value: division.id, text: division.name};
     });
@@ -57,10 +57,10 @@ export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, season
 
             if (response.success) {
                 if (onChange) {
-                    await onChange('updated', response.result.updated);
+                    await onChange('updated', response.result!.updated!);
                 }
                 if (onSaved) {
-                    await onSaved(response.result);
+                    await onSaved(response.result!);
                 }
             } else {
                 setSaveError(response);
@@ -97,7 +97,7 @@ export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, season
                 disabled={saving || !team.id || !onChange}
                 options={divisionOptions}
                 value={team.newDivisionId}
-                onChange={(newDivisionId) => onChange ? onChange('newDivisionId', newDivisionId) : null}/>
+                onChange={onChange ? ((newDivisionId) => onChange('newDivisionId', newDivisionId)) : undefined}/>
         </div>
         <div className="modal-footer px-0 pb-0">
             <div className="left-aligned">
@@ -111,7 +111,7 @@ export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, season
             </button>
         </div>
         {saveError
-            ? (<ErrorDisplay {...saveError} onClose={async () => setSaveError(null)} title="Could not save team details"/>)
+            ? (<ErrorDisplay {...(saveError as object)} onClose={async () => setSaveError(null)} title="Could not save team details"/>)
             : null}
     </div>)
 }

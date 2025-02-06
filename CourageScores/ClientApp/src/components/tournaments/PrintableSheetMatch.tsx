@@ -35,8 +35,8 @@ interface IEditSide {
 
 export function PrintableSheetMatch({ round, matchData, possibleSides, roundIndex, matchIndex, editable, patchData } : IPrintableSheetMatchProps) {
     const { tournamentData, setTournamentData, matchOptionDefaults } = useTournament();
-    const matchOptions = matchData.matchOptions || { numberOfLegs: tournamentData.bestOf || matchOptionDefaults.numberOfLegs || 5 };
-    const [ editSide, setEditSide ] = useState<IEditSide>(null);
+    const matchOptions = matchData.matchOptions || { numberOfLegs: tournamentData.bestOf || matchOptionDefaults?.numberOfLegs || 5 };
+    const [ editSide, setEditSide ] = useState<IEditSide | undefined>(undefined);
     const [ bestOf, setBestOf ] = useState<string>(matchOptions.numberOfLegs ? matchOptions.numberOfLegs.toString() : '5');
     const possibleSideOptions: IBootstrapDropdownItem[] = possibleSides.sort(sortBy('name')).map((side: TournamentSideDto): IBootstrapDropdownItem => { return {
         value: side.id,
@@ -52,7 +52,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
 
     function beginEditSide(designation: 'A' | 'B') {
         // check that the round exists...
-        let round: TournamentRoundDto = tournamentData.round;
+        let round: TournamentRoundDto | undefined = tournamentData.round;
         let highestRoundIndex: number = 0;
 
         for (let index = 0; index < roundIndex; index++) {
@@ -60,7 +60,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
                 highestRoundIndex++;
             }
 
-            round = round ? round.nextRound : null;
+            round = round ? round.nextRound : undefined;
         }
 
         if (roundIndex > highestRoundIndex) {
@@ -70,7 +70,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
 
         const side: ILayoutDataForSide = matchData['side' + designation];
         const editSide: IEditSide = {
-            sideId: side.id,
+            sideId: side.id!,
             score: (designation === 'A' ? matchData.scoreA : matchData.scoreB) || '0',
             designation: designation,
         };
@@ -120,7 +120,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
     }
 
     async function onSave() {
-        if (!editSide.sideId) {
+        if (!editSide?.sideId) {
             window.alert('Select a side first');
             return;
         }
@@ -136,18 +136,18 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
 
         let currentMatch: TournamentMatchDto;
         let currentMatchOptions: GameMatchOptionDto;
-        if (matchIndex >= newRound.matches.length) {
+        if (matchIndex >= newRound.matches!.length) {
             currentMatch = {
                 id: createTemporaryId(),
-                sideB: { id: null, name: null },
-                sideA: { id: null, name: null },
+                sideB: { id: undefined! },
+                sideA: { id: undefined! },
             };
             currentMatchOptions = Object.assign({}, matchOptionDefaults);
-            newRound.matches.push(currentMatch);
-            newRound.matchOptions.push(currentMatchOptions);
+            newRound.matches!.push(currentMatch);
+            newRound.matchOptions!.push(currentMatchOptions);
         } else {
-            currentMatch = newRound.matches[matchIndex];
-            currentMatchOptions = newRound.matchOptions[matchIndex];
+            currentMatch = newRound.matches![matchIndex];
+            currentMatchOptions = newRound.matchOptions![matchIndex];
         }
         const newMatch: TournamentMatchDto = Object.assign({}, currentMatch);
         const newMatchOptions: GameMatchOptionDto = Object.assign({}, currentMatchOptions);
@@ -156,38 +156,38 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
         newMatch['score' + editSide.designation] = Number.parseInt(editSide.score);
         newMatchOptions.numberOfLegs = newBestOf;
 
-        newRound.matches[matchIndex] = newMatch;
-        newRound.matchOptions[matchIndex] = newMatchOptions;
+        newRound.matches![matchIndex] = newMatch;
+        newRound.matchOptions![matchIndex] = newMatchOptions;
 
-        await setTournamentData(newTournamentData);
-        setEditSide(null);
+        await setTournamentData!(newTournamentData);
+        setEditSide(undefined);
     }
 
     async function onRemove() {
         const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
         const newRound: TournamentRoundDto = getEditableRound(newTournamentData, true);
 
-        const currentMatch: TournamentMatchDto = newRound.matches[matchIndex];
+        const currentMatch: TournamentMatchDto = newRound.matches![matchIndex];
         const newMatch: TournamentMatchDto = Object.assign({}, currentMatch);
 
-        newMatch['side' + editSide.designation] = { players: [] };
-        newMatch['score' + editSide.designation] = null;
+        newMatch['side' + editSide?.designation] = { players: [] };
+        newMatch['score' + editSide?.designation] = null;
 
         if ((!newMatch.sideA || !newMatch.sideA.id) && (!newMatch.sideB || !newMatch.sideB.id)) {
             // match is empty, it can be removed
-            newRound.matches = newRound.matches.filter((_: TournamentMatchDto, index: number) => index !== matchIndex);
+            newRound.matches = newRound.matches!.filter((_: TournamentMatchDto, index: number) => index !== matchIndex);
         } else {
-            newRound.matches[matchIndex] = newMatch;
+            newRound.matches![matchIndex] = newMatch;
         }
 
-        await setTournamentData(newTournamentData);
-        setEditSide(null);
+        await setTournamentData!(newTournamentData);
+        setEditSide(undefined);
     }
 
     async function patchRoundData(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) {
         if (!nestInRound) {
             // e.g. 180s/hi-checks, which don't apply to rounds, so can be pass up without including the nested round info.
-            await patchData(patch, nestInRound);
+            await patchData!(patch, nestInRound);
             return;
         }
 
@@ -198,11 +198,11 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
             };
         }
 
-        await patchData(nestedPatch, nestInRound);
+        await patchData!(nestedPatch, nestInRound);
     }
 
     function renderEditSideDialog() {
-        const oppositeSideId = editSide.designation === 'A'
+        const oppositeSideId = editSide?.designation === 'A'
             ? matchData.sideB ? matchData.sideB.id : null
             : matchData.sideA ? matchData.sideA.id : null;
 
@@ -212,7 +212,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
                     <span className="input-group-text">Side</span>
                 </div>
                 <BootstrapDropdown
-                    value={editSide.sideId}
+                    value={editSide!.sideId}
                     options={possibleSideOptions.filter((s: IBootstrapDropdownItem) => s.value !== oppositeSideId)}
                     onChange={propChanged(editSide, setEditSide, 'sideId')}
                     className="margin-right" />
@@ -221,7 +221,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
                     <span className="input-group-text">Score</span>
                 </div>
                 <BootstrapDropdown
-                    value={editSide.score}
+                    value={editSide!.score}
                     options={possibleScoreOptions}
                     slim={true}
                     onChange={propChanged(editSide, setEditSide, 'score')} />
@@ -233,7 +233,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
                 <div className="left-aligned mx-0">
                     <button className="btn btn-secondary" onClick={asyncClear(setEditSide)}>Close</button>
                 </div>
-                {matchData['side' + editSide.designation] && matchData['side' + editSide.designation].id ? (<button className="btn btn-danger" onClick={onRemove}>
+                {matchData['side' + editSide?.designation] && matchData['side' + editSide?.designation].id ? (<button className="btn btn-danger" onClick={onRemove}>
                     Remove
                 </button>) : null}
                 <button className="btn btn-primary" onClick={onSave}>
@@ -265,7 +265,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
                     </span>)
                 : null}
             <div datatype="sideA"
-                 onClick={editable ? () => beginEditSide('A') : null}
+                 onClick={editable ? () => beginEditSide('A') : undefined}
                  className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideA' ? 'bg-winner fw-bold' : ''}`}>
                 {renderSide(matchData.sideA, 'A')}
                 <div datatype="scoreA">{matchData.scoreA || ''}</div>
@@ -283,7 +283,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
                         </span>
             </div>
             <div datatype="sideB"
-                 onClick={editable ? () => beginEditSide('B') : null}
+                 onClick={editable ? () => beginEditSide('B') : undefined}
                  className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideB' ? 'bg-winner fw-bold' : ''}`}>
                 {renderSide(matchData.sideB, 'B')}
                 <div datatype="scoreB">{matchData.scoreB || ''}</div>
