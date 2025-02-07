@@ -1,4 +1,5 @@
 using CourageScores.Repository;
+using CourageScores.Tests.Services.Data;
 using Microsoft.Azure.Cosmos;
 using Moq;
 using NUnit.Framework;
@@ -8,17 +9,25 @@ namespace CourageScores.Tests.Repository;
 [TestFixture]
 public class DataBrowserRepositoryTests
 {
-    [Test]
-    public async Task TableExists_WhenContainerFound_ReturnsTrue()
+    private readonly CancellationToken _token = CancellationToken.None;
+
+    [TestCase("name")]
+    [TestCase("NAME")]
+    public async Task TableExists_WhenContainerFound_ReturnsTrue(string name)
     {
         var database = new Mock<Database>();
-        var container = new Mock<Container>();
+        var container = new ContainerProperties
+        {
+            Id = "name",
+        };
         var repository = new DataBrowserRepository<object>(database.Object);
-        database.Setup(d => d.GetContainer("name")).Returns(container.Object);
+        var iterator = new MockFeedIterator<ContainerProperties>(container);
+        database
+            .Setup(d => d.GetContainerQueryIterator<ContainerProperties>((string?)null, null, null))
+            .Returns(iterator);
 
-        var result = await repository.TableExists("name");
+        var result = await repository.TableExists(name, _token);
 
-        database.Verify(d => d.GetContainer("name"));
         Assert.That(result, Is.True);
     }
 
@@ -27,10 +36,13 @@ public class DataBrowserRepositoryTests
     {
         var database = new Mock<Database>();
         var repository = new DataBrowserRepository<object>(database.Object);
+        var iterator = new MockFeedIterator<ContainerProperties>();
+        database
+            .Setup(d => d.GetContainerQueryIterator<ContainerProperties>((string?)null, null, null))
+            .Returns(iterator);
 
-        var result = await repository.TableExists("name");
+        var result = await repository.TableExists("name", _token);
 
-        database.Verify(d => d.GetContainer("name"));
         Assert.That(result, Is.False);
     }
 }

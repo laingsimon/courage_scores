@@ -32,10 +32,22 @@ public class DataBrowserRepository<T> : IDataBrowserRepository<T>
         return default;
     }
 
-    public Task<bool> TableExists(string tableName)
+    public async Task<bool> TableExists(string tableName, CancellationToken token)
     {
-        var container = _database.GetContainer(tableName);
-        return Task.FromResult(container != null);
+        var iterator = _database.GetContainerQueryIterator<ContainerProperties>();
+        while (iterator.HasMoreResults && !token.IsCancellationRequested)
+        {
+            var response = await iterator.ReadNextAsync(token);
+            foreach (var container in response)
+            {
+                if (container.Id.Equals(tableName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private async IAsyncEnumerable<T> Query(string tableName, string? whereClause, [EnumeratorCancellation] CancellationToken token)
