@@ -32,10 +32,6 @@ export function BootstrapDropdown({value, onChange, options, color, className, d
     const element = useRef<HTMLDivElement>(null);
     const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
-    if (!options || isEmpty(options)) {
-        return (<button className={`btn btn-sm btn-${color || 'light'} dropdown-toggle`} disabled>&nbsp;</button>)
-    }
-
     useEffect(() => {
         function closeDropdownIfClickIsOutside(event: MouseEvent) {
             let currentElement: HTMLElement | null = event.target as HTMLElement | null;
@@ -57,6 +53,10 @@ export function BootstrapDropdown({value, onChange, options, color, className, d
             return () => document.removeEventListener('click', closeDropdownIfClickIsOutside);
         }
     }, [dropdownOpen]);
+
+    if (!options || isEmpty(options)) {
+        return (<button className={`btn btn-sm btn-${color || 'light'} dropdown-toggle`} disabled>&nbsp;</button>)
+    }
 
     const selectedOption = options.filter(o => o.value === value)[0];
 
