@@ -1,4 +1,4 @@
-﻿import React, {createContext, useContext} from "react";
+﻿import React, {createContext, Ref, useContext} from "react";
 
 export interface IButtonDropdown {
     isOpen?: boolean;
@@ -6,6 +6,7 @@ export interface IButtonDropdown {
 }
 
 export interface IButtonDropdownProps extends IButtonDropdown {
+    ref?: Ref<HTMLDivElement>;
     children: React.ReactNode[];
     datatype?: string;
     className?: string;
@@ -34,7 +35,7 @@ export function ButtonDropdown(props: IButtonDropdownProps) {
         : '';
 
     return (<ButtonDropdownContext.Provider value={props}>
-        <div className={`btn-group${className}${props.isOpen ? ' show' : ''}`} style={{ position: 'relative' }} datatype={props.datatype}>
+        <div ref={props.ref} className={`btn-group${className}${props.isOpen ? ' show' : ''}`} style={{ position: 'relative' }} datatype={props.datatype}>
             {props.children}
         </div>
     </ButtonDropdownContext.Provider>);
