@@ -20,9 +20,9 @@ import {INoteApi} from "../../interfaces/apis/INoteApi";
 
 describe('FixtureDateNote', () => {
     let context: TestContext;
-    let editNote: FixtureDateNoteDto;
-    let deletedNoteId: string;
-    let deleteResult: IClientActionResultDto<FixtureDateNoteDto>;
+    let editNote: FixtureDateNoteDto | null;
+    let deletedNoteId: string | null;
+    let deleteResult: IClientActionResultDto<FixtureDateNoteDto> | null;
 
     const noteApi = api<INoteApi>({
         delete: async (id: string) => {
@@ -71,7 +71,7 @@ describe('FixtureDateNote', () => {
                 setEditNote,
             });
 
-            const markdown = context.container.querySelector('p');
+            const markdown = context.container.querySelector('p')!;
             expect(markdown).toBeTruthy();
             expect(markdown.textContent).toContain('some markdown');
         });
@@ -150,15 +150,11 @@ describe('FixtureDateNote', () => {
             };
             const note = noteBuilder().note('**some markdown**').build();
             await renderComponent({ note, setEditNote }, account);
-            let confirm: string;
-            window.confirm = (message) => {
-                confirm = message;
-                return true;
-            }
+            context.prompts.respondToConfirm('Are you sure you want to delete this note?', true);
 
-            await doClick(context.container.querySelector('button.btn-close'));
+            await doClick(context.container.querySelector('button.btn-close')!);
 
-            expect(confirm).toEqual('Are you sure you want to delete this note?');
+            context.prompts.confirmWasShown('Are you sure you want to delete this note?');
             expect(deletedNoteId).toEqual(note.id);
         });
 
@@ -173,15 +169,11 @@ describe('FixtureDateNote', () => {
             };
             const note = noteBuilder().note('**some markdown**').build();
             await renderComponent({ note, setEditNote }, account);
-            let confirm: string;
-            window.confirm = (message) => {
-                confirm = message;
-                return false;
-            }
+            context.prompts.respondToConfirm('Are you sure you want to delete this note?', false);
 
-            await doClick(context.container.querySelector('button.btn-close'));
+            await doClick(context.container.querySelector('button.btn-close')!);
 
-            expect(confirm).toEqual('Are you sure you want to delete this note?');
+            context.prompts.confirmWasShown('Are you sure you want to delete this note?');
             expect(deletedNoteId).toBeNull();
         });
 
@@ -196,14 +188,12 @@ describe('FixtureDateNote', () => {
             };
             const note = noteBuilder().note('**some markdown**').build();
             await renderComponent({ note, setEditNote }, account);
-            let alert: string;
-            window.confirm = () => true;
-            window.alert = (message) => alert = message;
             deleteResult = {success: false};
+            context.prompts.respondToConfirm('Are you sure you want to delete this note?', true);
 
-            await doClick(context.container.querySelector('button.btn-close'));
+            await doClick(context.container.querySelector('button.btn-close')!);
 
-            expect(alert).toEqual('Could not delete note');
+            context.prompts.alertWasShown('Could not delete note');
         });
 
         it('can edit note', async () => {

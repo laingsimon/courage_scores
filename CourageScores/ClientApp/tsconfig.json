@@ -16,7 +16,7 @@
     "strictBindCallApply": true,
     "strictFunctionTypes": true,
     "noUnusedLocals": true,
-    "strictNullChecks": false,
+    "strictNullChecks": true,
     "strictPropertyInitialization": false,
     "useUnknownInCatchVariables": true,
     "forceConsistentCasingInFileNames": true,

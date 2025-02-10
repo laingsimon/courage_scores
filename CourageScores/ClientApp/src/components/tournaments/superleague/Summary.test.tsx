@@ -33,7 +33,7 @@ describe('Summary', () => {
     }
 
     function getRowContent(row: HTMLTableRowElement, tagName: string): string[] {
-        return Array.from(row.querySelectorAll(tagName)).map(th => th.textContent);
+        return Array.from(row.querySelectorAll(tagName)).map(th => th.textContent!);
     }
 
     function createLeg(homeWinner?: boolean, awayWinner?: boolean): LegDto {
@@ -65,7 +65,6 @@ describe('Summary', () => {
     describe('renders', () => {
         it('when no sayg matches', async () => {
             await renderComponent({
-                showWinner: false,
                 saygMatches: [],
                 noOfLegs: 3,
                 host: 'HOST',
@@ -86,7 +85,6 @@ describe('Summary', () => {
             }
 
             await renderComponent({
-                showWinner: false,
                 saygMatches: [saygMatch],
                 noOfLegs: 3,
                 host: 'HOST',
@@ -113,7 +111,6 @@ describe('Summary', () => {
             }
 
             await renderComponent({
-                showWinner: false,
                 saygMatches: [saygMatch],
                 noOfLegs: 3,
                 host: 'HOST',
@@ -139,7 +136,6 @@ describe('Summary', () => {
             }
 
             await renderComponent({
-                showWinner: false,
                 saygMatches: [saygMatch],
                 noOfLegs: 3,
                 host: 'HOST',
@@ -166,7 +162,6 @@ describe('Summary', () => {
             }
 
             await renderComponent({
-                showWinner: false,
                 saygMatches: [saygMatch],
                 noOfLegs: 3,
                 host: 'HOST',
@@ -195,7 +190,6 @@ describe('Summary', () => {
             }
 
             await renderComponent({
-                showWinner: false,
                 saygMatches: [saygMatch],
                 noOfLegs: 3,
                 host: 'HOST',

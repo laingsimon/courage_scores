@@ -31,13 +31,13 @@ describe('SummaryDataRow', () => {
             brandingProps(),
             appProps({}, reportedError),
             (<SummaryDataRow {...props} />),
-            null,
-            null,
+            undefined,
+            undefined,
             'tbody');
     }
 
     function getRowContent(row: HTMLTableRowElement, tagName: string): string[] {
-        return Array.from(row.querySelectorAll(tagName)).map(th => th.textContent);
+        return Array.from(row.querySelectorAll(tagName)).map(th => th.textContent!);
     }
 
     function createLeg(homeWinner?: boolean, awayWinner?: boolean): LegDto {
@@ -77,7 +77,6 @@ describe('SummaryDataRow', () => {
             await renderComponent({
                 matchNo: 1,
                 saygData,
-                showWinner: false,
                 hostScore: 2,
                 opponentScore: 3,
                 hostPlayerName: 'HOST',
@@ -85,7 +84,7 @@ describe('SummaryDataRow', () => {
             });
 
             reportedError.verifyNoError();
-            const row = context.container.querySelector('tr');
+            const row = context.container.querySelector('tr')!;
             expect(getRowContent(row, 'td')).toEqual([
                 '1', 'HOST', '2', '6', '6', '0', '0', '33.4',
                 'OPPONENT', '3', '0', '0', '0', '0', '30',
@@ -109,7 +108,7 @@ describe('SummaryDataRow', () => {
             });
 
             reportedError.verifyNoError();
-            const row = context.container.querySelector('tr');
+            const row = context.container.querySelector('tr')!;
             const cells = Array.from(row.querySelectorAll('td'));
             expect(cells[1].className).toEqual('bg-winner');
             expect(cells[8].className).toEqual('');
@@ -132,7 +131,7 @@ describe('SummaryDataRow', () => {
             });
 
             reportedError.verifyNoError();
-            const row = context.container.querySelector('tr');
+            const row = context.container.querySelector('tr')!;
             const cells = Array.from(row.querySelectorAll('td'));
             expect(cells[1].className).toEqual('');
             expect(cells[8].className).toEqual('bg-winner');

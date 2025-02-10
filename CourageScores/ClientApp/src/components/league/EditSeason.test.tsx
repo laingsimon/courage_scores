@@ -19,6 +19,7 @@ import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {ISeasonApi} from "../../interfaces/apis/ISeasonApi";
+import {DivisionDataSeasonDto} from "../../interfaces/models/dtos/Division/DivisionDataSeasonDto";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -31,13 +32,10 @@ describe('EditSeason', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let saved: boolean;
-    let saveError: IClientActionResultDto<SeasonDto>;
-    let updatedSeason: EditSeasonDto;
-    let alert: string;
-    let confirm: string;
-    let confirmResponse: boolean;
+    let saveError: IClientActionResultDto<SeasonDto> | null;
+    let updatedSeason: EditSeasonDto | null;
     let apiResponse: IClientActionResultDto<SeasonDto>;
-    let deletedId: string;
+    let deletedId: string | null;
     const seasonApi = api<ISeasonApi>({
         update: async (data: EditSeasonDto): Promise<IClientActionResultDto<SeasonDto>> => {
             updatedSeason = data;
@@ -71,17 +69,7 @@ describe('EditSeason', () => {
 
     beforeEach(() => {
         reportedError = new ErrorState();
-        window.alert = (message) => {
-            alert = message
-        };
-        window.confirm = (message) => {
-            confirm = message;
-            return confirmResponse
-        };
-        alert = null;
-        confirm = null;
         saved = false;
-        confirmResponse = false;
         saveError = null;
         updatedSeason = null;
         deletedId = null;
@@ -128,8 +116,8 @@ describe('EditSeason', () => {
         await doChange(context.container, 'input[name="name"]', 'NEW SEASON NAME', context.user);
 
         reportedError.verifyNoError();
-        expect(updatedData.id).toEqual(season.id);
-        expect(updatedData.name).toEqual('NEW SEASON NAME');
+        expect(updatedData!.id).toEqual(season.id);
+        expect(updatedData!.name).toEqual('NEW SEASON NAME');
     });
 
     it('updates season dates', async () => {
@@ -147,13 +135,13 @@ describe('EditSeason', () => {
 
         await doChange(context.container, 'input[name="startDate"]', '2023-06-01', context.user);
         reportedError.verifyNoError();
-        expect(updatedData.id).toEqual(season.id);
-        expect(updatedData.startDate).toEqual('2023-06-01');
+        expect(updatedData!.id).toEqual(season.id);
+        expect(updatedData!.startDate).toEqual('2023-06-01');
 
         await doChange(context.container, 'input[name="endDate"]', '2023-09-01', context.user);
         reportedError.verifyNoError();
-        expect(updatedData.id).toEqual(season.id);
-        expect(updatedData.endDate).toEqual('2023-09-01');
+        expect(updatedData!.id).toEqual(season.id);
+        expect(updatedData!.endDate).toEqual('2023-09-01');
     });
 
     it('can select a division', async () => {
@@ -175,8 +163,8 @@ describe('EditSeason', () => {
         await doClick(unselectedDivision);
 
         reportedError.verifyNoError();
-        expect(updatedData.id).toEqual(season.id);
-        expect(updatedData.divisionIds).toEqual([division1.id, division2.id]);
+        expect(updatedData!.id).toEqual(season.id);
+        expect(updatedData!.divisionIds).toEqual([division1.id, division2.id]);
     });
 
     it('can unselect a division', async () => {
@@ -198,17 +186,17 @@ describe('EditSeason', () => {
         await doClick(selectedDivision);
 
         reportedError.verifyNoError();
-        expect(updatedData.id).toEqual(season.id);
-        expect(updatedData.divisionIds).toEqual([]);
+        expect(updatedData!.id).toEqual(season.id);
+        expect(updatedData!.divisionIds).toEqual([]);
     });
 
     it('updates copy teams from when no id', async () => {
-        const seasonWithoutId = Object.assign({}, season);
-        seasonWithoutId.id = null;
+        const seasonWithoutId: EditSeasonDto = Object.assign({}, season);
+        seasonWithoutId.id = undefined;
         const otherSeason = seasonBuilder('OTHER SEASON').build();
         let updatedData: EditSeasonDto;
         await renderComponent({
-            data: seasonWithoutId,
+            data: seasonWithoutId as EditSeasonDto & DivisionDataSeasonDto,
             onUpdateData: async (update: EditSeasonDto) => {
                 updatedData = update;
             },
@@ -221,7 +209,7 @@ describe('EditSeason', () => {
         await doSelectOption(context.container.querySelector('.dropdown-menu'), 'OTHER SEASON');
 
         reportedError.verifyNoError();
-        expect(updatedData.copyTeamsFromSeasonId).toEqual(otherSeason.id);
+        expect(updatedData!.copyTeamsFromSeasonId).toEqual(otherSeason.id);
     });
 
     it('prevents save when season name is empty', async () => {
@@ -237,7 +225,7 @@ describe('EditSeason', () => {
 
         await doClick(findButton(context.container, 'Update season'));
 
-        expect(alert).toEqual('Enter a season name');
+        context.prompts.alertWasShown('Enter a season name');
         expect(saved).toEqual(false);
     });
 
@@ -254,10 +242,10 @@ describe('EditSeason', () => {
         await doClick(findButton(context.container, 'Update season'));
 
         reportedError.verifyNoError();
-        expect(alert).toBeNull();
+        context.prompts.noAlerts();
         expect(saved).toEqual(true);
         expect(updatedSeason).not.toBeNull();
-        expect(updatedSeason.lastUpdated).toEqual(season.updated);
+        expect(updatedSeason!.lastUpdated).toEqual(season.updated);
     });
 
     it('reports saveError if an error during save', async () => {
@@ -288,10 +276,11 @@ describe('EditSeason', () => {
             onUpdateData,
         }, [season], divisions);
         reportedError.verifyNoError();
+        context.prompts.respondToConfirm('Are you sure you want to delete the SEASON season?', true);
 
         await doClick(findButton(context.container, 'Delete season'));
 
-        expect(confirm).toEqual('Are you sure you want to delete the SEASON season?');
+        context.prompts.confirmWasShown('Are you sure you want to delete the SEASON season?');
         expect(saved).toEqual(false);
     });
 
@@ -304,7 +293,7 @@ describe('EditSeason', () => {
             onUpdateData,
         }, [season], divisions);
         reportedError.verifyNoError();
-        confirmResponse = true;
+        context.prompts.respondToConfirm('Are you sure you want to delete the SEASON season?', true);
 
         await doClick(findButton(context.container, 'Delete season'));
 
@@ -321,7 +310,7 @@ describe('EditSeason', () => {
             onUpdateData,
         }, [season], divisions);
         reportedError.verifyNoError();
-        confirmResponse = true;
+        context.prompts.respondToConfirm('Are you sure you want to delete the SEASON season?', true);
         apiResponse = {
             success: false
         };
@@ -342,7 +331,7 @@ describe('EditSeason', () => {
             onUpdateData,
         }, [season], divisions);
         reportedError.verifyNoError();
-        confirmResponse = true;
+        context.prompts.respondToConfirm('Are you sure you want to delete the SEASON season?', true);
 
         await doClick(findButton(context.container, 'Delete season'));
 

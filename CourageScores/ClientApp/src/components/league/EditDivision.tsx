@@ -18,8 +18,8 @@ export interface IEditDivisionProps {
 }
 
 export function EditDivision({onClose, onSave, setSaveError, data, onUpdateData}: IEditDivisionProps) {
-    const [saving, setSaving] = useState(false);
-    const [deleting, setDeleting] = useState(false);
+    const [saving, setSaving] = useState<boolean>(false);
+    const [deleting, setDeleting] = useState<boolean>(false);
     const {divisionApi} = useDependencies();
     const {onError} = useApp();
     const navigate = useNavigate();
@@ -66,7 +66,7 @@ export function EditDivision({onClose, onSave, setSaveError, data, onUpdateData}
 
         try {
             setDeleting(true);
-            const result = await divisionApi.delete(data.id);
+            const result = await divisionApi.delete(data.id!);
 
             if (result.success) {
                 navigate(`https://${document.location.host}`);

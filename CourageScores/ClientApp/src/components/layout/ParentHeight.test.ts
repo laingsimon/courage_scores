@@ -23,8 +23,8 @@ describe('ParentHeight', () => {
     };
 
     beforeEach(() => {
-        intervalCreated = null;
-        intervalCleared = null;
+        intervalCreated = undefined;
+        intervalCleared = undefined;
         postedMessage = null;
     });
 
@@ -48,11 +48,11 @@ describe('ParentHeight', () => {
         });
 
         it('should not setup interval if no parent', () => {
-            const sut = new ParentHeight(100, () => 100, () => null);
+            const sut = new ParentHeight(100, () => 100, () => null!);
 
             sut.setupInterval(200);
 
-            expect(intervalCreated).toBeNull();
+            expect(intervalCreated).toBeUndefined();
         });
 
         it('should not setup interval if already setup', () => {
@@ -72,7 +72,7 @@ describe('ParentHeight', () => {
 
             sut.cancelInterval();
 
-            expect(intervalCleared).toBeNull();
+            expect(intervalCleared).toBeUndefined();
         });
 
         it('should clear interval', () => {

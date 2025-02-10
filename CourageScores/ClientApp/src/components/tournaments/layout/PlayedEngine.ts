@@ -31,7 +31,7 @@ export class PlayedEngine implements ILayoutEngine {
             }
 
             const winners: TournamentSideDto[] = [];
-            const round: ILayoutDataForRound = this.createRound(request.context, playedRound, unplayedRound, winners, remainingSides, unplayedRounds[index + 1]);
+            const round: ILayoutDataForRound = this.createRound(request.context!, playedRound, unplayedRound, winners, remainingSides, unplayedRounds[index + 1]);
             const unselectedSides: TournamentSideDto[] = remainingSides.filter((remainingSide: TournamentSideDto) => {
                 return !any(round.alreadySelectedSides, (s: TournamentSideDto) => s.id === remainingSide.id); // exclude any already selected side
             });
@@ -41,7 +41,7 @@ export class PlayedEngine implements ILayoutEngine {
     }
 
     private flattenAllRounds(request: ILayoutRequest): TournamentRoundDto[] {
-        let currentRound: TournamentRoundDto = request.round;
+        let currentRound: TournamentRoundDto | undefined = request.round;
         const rounds: TournamentRoundDto[] = [];
 
         while (currentRound) {
@@ -63,11 +63,11 @@ export class PlayedEngine implements ILayoutEngine {
             possibleSides: remainingSides,
             alreadySelectedSides: alreadySelectedSides,
             matches: unplayedRound.matches.map((unplayedMatch: ILayoutDataForMatch, index: number): ILayoutDataForMatch => {
-                const playedMatch: TournamentMatchDto = playedRound ? playedRound.matches[index] : null;
+                const playedMatch: TournamentMatchDto | null = playedRound ? playedRound.matches![index] : null;
                 if (!playedMatch) {
                     // add to unplayed sides
                     const unplayedMatchWithoutOnTheNightMnemonic: ILayoutDataForMatch = Object.assign({}, unplayedMatch);
-                    if (any(playedRound.matches, (m: TournamentMatchDto) => !!m.sideA || !!m.sideB)) {
+                    if (any(playedRound.matches || [], (m: TournamentMatchDto) => !!m.sideA || !!m.sideB)) {
                         unplayedMatchWithoutOnTheNightMnemonic.numberOfSidesOnTheNight = undefined;
                     }
                     return unplayedMatchWithoutOnTheNightMnemonic;
@@ -81,8 +81,8 @@ export class PlayedEngine implements ILayoutEngine {
     private createMatch(context: ITournamentLayoutGenerationContext, playedRound: TournamentRoundDto, unplayedMatch: ILayoutDataForMatch,
                          playedMatch: TournamentMatchDto, index: number, alreadySelectedSides: TournamentSideDto[], winners: TournamentSideDto[],
                          nextRound?: ILayoutDataForRound): ILayoutDataForMatch {
-        const matchOptions: GameMatchOptionDto = playedRound.matchOptions[index] || context.matchOptionDefaults;
-        const winner: string = this.getMatchWinner(
+        const matchOptions: GameMatchOptionDto = playedRound.matchOptions![index] || context.matchOptionDefaults;
+        const winner: string | undefined = this.getMatchWinner(
             matchOptions,
             winners,
             playedMatch,
@@ -104,7 +104,6 @@ export class PlayedEngine implements ILayoutEngine {
             winner: winner,
             mnemonic: unplayedMatch.mnemonic,
             hideMnemonic: unplayedMatch.hideMnemonic,
-            numberOfSidesOnTheNight: undefined,
             matchOptions: matchOptions,
             saygId: playedMatch.saygId,
         };
@@ -112,12 +111,12 @@ export class PlayedEngine implements ILayoutEngine {
 
     private getExtraMatches(context: ITournamentLayoutGenerationContext, playedRound: TournamentRoundDto, offset: number,
                             alreadySelectedSides: TournamentSideDto[], winners: TournamentSideDto[]): ILayoutDataForMatch[] {
-        const extraMatches: TournamentMatchDto[] = skip(playedRound.matches, offset);
+        const extraMatches: TournamentMatchDto[] = skip(playedRound.matches || [], offset);
 
         return extraMatches.map((playedMatch: TournamentMatchDto, extraMatchIndex: number): ILayoutDataForMatch => {
             const overallIndex: number = extraMatchIndex + offset;
-            const winner: string = this.getMatchWinner(
-                playedRound.matchOptions[overallIndex] || context.matchOptionDefaults,
+            const winner: string | undefined = this.getMatchWinner(
+                playedRound.matchOptions![overallIndex] || context.matchOptionDefaults,
                 winners,
                 playedMatch);
             if (playedMatch.sideA) {
@@ -128,59 +127,56 @@ export class PlayedEngine implements ILayoutEngine {
             }
 
             return {
-                sideA: this.getSide(context, playedMatch.sideA, null),
-                sideB: this.getSide(context, playedMatch.sideB, null),
+                sideA: this.getSide(context, playedMatch.sideA),
+                sideB: this.getSide(context, playedMatch.sideB),
                 scoreA: (playedMatch.scoreA ? playedMatch.scoreA.toString() : null) || '0',
                 scoreB: (playedMatch.scoreB ? playedMatch.scoreB.toString() : null) || '0',
                 match: playedMatch,
                 winner: winner,
-                numberOfSidesOnTheNight: undefined,
                 saygId: playedMatch.saygId,
             };
         });
     }
 
     private getMatchWinner(matchOptions: GameMatchOptionDto, winners: TournamentSideDto[],
-                           playedMatch: TournamentMatchDto, unplayedMatch?: ILayoutDataForMatch, nextRound?: ILayoutDataForRound): string {
-        const numberOfLegs: number = matchOptions.numberOfLegs;
-        if (playedMatch.scoreA > (numberOfLegs / 2.0)) {
+                           playedMatch: TournamentMatchDto, unplayedMatch?: ILayoutDataForMatch, nextRound?: ILayoutDataForRound): string | undefined {
+        const numberOfLegs: number = matchOptions.numberOfLegs || 5;
+        if (playedMatch.scoreA! > (numberOfLegs / 2.0)) {
             winners.push(playedMatch.sideA);
             this.setSidePlayingInNextRound(playedMatch.sideA, nextRound, unplayedMatch);
             return 'sideA';
-        } else if (playedMatch.scoreB > (numberOfLegs / 2.0)) {
+        } else if (playedMatch.scoreB! > (numberOfLegs / 2.0)) {
             winners.push(playedMatch.sideB);
             this.setSidePlayingInNextRound(playedMatch.sideB, nextRound, unplayedMatch);
             return 'sideB';
         }
-
-        return null;
     }
 
     private getSide(context: ITournamentLayoutGenerationContext, side?: TournamentSideDto, mnemonic?: string): ILayoutDataForSide {
         return {
-            id: side ? side.id : null,
-            name: side ? side.name: null,
-            link: side ? context.getLinkToSide(side) : null,
+            id: side ? side.id : '',
+            name: side ? side.name! : '',
+            link: side ? context.getLinkToSide(side) : undefined,
             mnemonic: side && side.id
-                ? null
+                ? undefined
                 : mnemonic
         };
     }
 
-    private setSidePlayingInNextRound(side: TournamentSideDto, nextRound: ILayoutDataForRound, unplayedMatch: ILayoutDataForMatch) {
+    private setSidePlayingInNextRound(side: TournamentSideDto, nextRound?: ILayoutDataForRound, unplayedMatch?: ILayoutDataForMatch) {
         if (!nextRound) {
             return;
         }
 
         for (const match of nextRound.matches) {
-            if (match.sideA.mnemonic === `winner(${unplayedMatch.mnemonic})`) {
+            if (match.sideA.mnemonic === `winner(${unplayedMatch?.mnemonic})`) {
                 match.sideA.mnemonic = side.name;
-                unplayedMatch.mnemonic = undefined;
+                unplayedMatch!.mnemonic = undefined;
                 return;
             }
-            if (match.sideB.mnemonic === `winner(${unplayedMatch.mnemonic})`) {
+            if (match.sideB.mnemonic === `winner(${unplayedMatch?.mnemonic})`) {
                 match.sideB.mnemonic = side.name;
-                unplayedMatch.mnemonic = undefined;
+                unplayedMatch!.mnemonic = undefined;
                 return;
             }
         }

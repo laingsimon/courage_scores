@@ -51,7 +51,7 @@ export function AdminHome() {
         // eslint-disable-next-line
         []);
 
-    function renderIfPermitted(component: React.ReactNode, permitted: boolean) {
+    function renderIfPermitted(component: React.ReactNode, permitted?: boolean) {
         if (!account) {
             return null;
         }

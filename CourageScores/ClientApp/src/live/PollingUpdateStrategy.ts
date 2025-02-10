@@ -50,12 +50,14 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
         }
 
         const newContext: IWebSocketContext = Object.assign({}, props.context);
-        window.clearTimeout(props.context.pollingHandle);
-        newContext.pollingHandle = null;
+        if (props.context.pollingHandle) {
+            window.clearTimeout(props.context.pollingHandle);
+        }
+        newContext.pollingHandle = undefined;
         return newContext;
     }
 
-    async subscribe(props: IStrategyData, /* eslint-disable @typescript-eslint/no-unused-vars */ _request: ISubscriptionRequest): Promise<IWebSocketContext | null> {
+    async subscribe(props: IStrategyData, /* eslint-disable @typescript-eslint/no-unused-vars */ _request?: ISubscriptionRequest): Promise<IWebSocketContext | null> {
         if (props.context.pollingHandle) {
             return props.context;
         }
@@ -115,7 +117,7 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
         }
         newContext.pollingHandle = any(Object.keys(allSubscriptions)) && successes > 0
             ? window.setTimeout(this.pollingIteration.bind(this), this.subsequentDelay)
-            : null;
+            : undefined;
 
         await setContext(newContext);
         if (subscriptionsChanged) {
@@ -125,8 +127,8 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
 
     private async requestLatestData(subscription: ISubscription): Promise<PollResult> {
         try {
-            const latestData: IClientActionResultDto<UpdatedDataDto> = await this.liveApi.getUpdate(subscription.id, subscription.type, subscription.lastUpdate);
-            if (latestData.success) {
+            const latestData: IClientActionResultDto<UpdatedDataDto> | null = await this.liveApi.getUpdate(subscription.id, subscription.type, subscription.lastUpdate || '');
+            if (latestData?.success) {
                 if (!latestData.result) {
                     return PollResult.NotTracked;
                 }
@@ -142,7 +144,7 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
 
             const message: string = `Error polling for updates: ${subscription.id} (${subscription.type})`;
             subscription.errorHandler({
-                message: message + (latestData.errors ? '\n' + latestData.errors.join('\n'): ''),
+                message: message + (latestData?.errors ? '\n' + latestData.errors.join('\n'): ''),
             });
             return PollResult.Error;
         } catch (e) {

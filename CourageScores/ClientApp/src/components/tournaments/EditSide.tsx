@@ -18,6 +18,7 @@ import {
     DivisionTournamentFixtureDetailsDto
 } from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {hasAccess} from "../../helpers/conditions";
 
 export interface IEditSideProps {
     side: TournamentSideDto;
@@ -30,7 +31,7 @@ export interface IEditSideProps {
 }
 
 export interface ISaveSideOptions {
-    addAsIndividuals: boolean;
+    addAsIndividuals?: boolean;
 }
 
 interface ITeamPlayerMap {
@@ -40,34 +41,34 @@ interface ITeamPlayerMap {
 }
 
 interface ITournamentSideType {
-    canSelectPlayers: boolean;
-    canSelectTeams: boolean;
+    canSelectPlayers?: boolean;
+    canSelectTeams?: boolean;
 }
 
 export function EditSide({side, onChange, onClose, onApply, onDelete, initialAddAsIndividuals, initialAddMultiplePlayers }: IEditSideProps) {
     const {teams, onError, account, reloadTeams} = useApp();
     const {tournamentData, season, alreadyPlaying} = useTournament();
-    const [playerFilter, setPlayerFilter] = useState('');
+    const [playerFilter, setPlayerFilter] = useState<string>('');
     const [addPlayerDialogOpen, setAddPlayerDialogOpen] = useState<boolean>(false);
     const [saveOptions, setSaveOptions] = useState<ISaveSideOptions>({addAsIndividuals: initialAddAsIndividuals || false});
     const [newPlayerDetails, setNewPlayerDetails] = useState<EditTeamPlayerDto>({name: '', captain: false});
-    const divisionId: string = tournamentData.divisionId;
+    const divisionId: string = tournamentData.divisionId!;
     const selectATeam: IBootstrapDropdownItem = {value: '', text: 'Select team', className: 'text-warning'};
     const teamOptions: IBootstrapDropdownItem[] = [selectATeam].concat(teams.filter(teamSeasonForSameDivision).map((t: TeamDto) => {
         return {value: t.id, text: t.name};
     }).sort(sortBy('text')));
     const allPossiblePlayers: ITeamPlayerMap[] = teams
         .flatMap((t: TeamDto) => {
-            const teamSeason: TeamSeasonDto = t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id && !ts.deleted)[0];
+            const teamSeason: TeamSeasonDto = t.seasons!.filter((ts: TeamSeasonDto) => ts.seasonId === season!.id && !ts.deleted)[0];
             if (teamSeason && isTeamSeasonForDivision(teamSeason)) {
-                return teamSeason.players.map((p: TeamPlayerDto): ITeamPlayerMap => {
+                return teamSeason.players!.map((p: TeamPlayerDto): ITeamPlayerMap => {
                     return {id: p.id, name: p.name, team: t}
                 }) || [];
             }
 
             return [];
         });
-    const canAddPlayers: boolean = account && account.access && account.access.managePlayers && !side.teamId;
+    const canAddPlayers: boolean = hasAccess(account, access => access.managePlayers) && !side.teamId;
     const tournamentSideType: ITournamentSideType = getTournamentSideType(tournamentData);
 
     function getTournamentSideType(tournamentData: TournamentGameDto): ITournamentSideType {
@@ -80,12 +81,12 @@ export function EditSide({side, onChange, onClose, onApply, onDelete, initialAdd
 
         return {
             canSelectTeams: any(tournamentData.sides, (s: TournamentSideDto) => !!s.teamId),
-            canSelectPlayers: any(tournamentData.sides, (s: TournamentSideDto) => any(s.players || [])),
+            canSelectPlayers: any(tournamentData.sides, (s: TournamentSideDto) => any(s.players)),
         };
     }
 
     function teamSeasonForSameDivision(team: TeamDto): boolean {
-        const teamSeason: TeamSeasonDto = team.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id && !ts.deleted)[0];
+        const teamSeason: TeamSeasonDto = team.seasons!.filter((ts: TeamSeasonDto) => ts.seasonId === season!.id && !ts.deleted)[0];
         if (!teamSeason) {
             return false;
         }
@@ -98,13 +99,13 @@ export function EditSide({side, onChange, onClose, onApply, onDelete, initialAdd
     }
 
     function getOtherSidePlayerSelectedIn(player: TournamentPlayerDto): TournamentSideDto {
-        return tournamentData.sides.flatMap((s: TournamentSideDto) => {
+        return tournamentData.sides!.flatMap((s: TournamentSideDto) => {
             if (s.id === side.id) {
                 // same side as being edited
                 return [];
             }
 
-            return any(s.players || [], (p: TournamentPlayerDto) => p.id === player.id)
+            return any(s.players, (p: TournamentPlayerDto) => p.id === player.id)
                 ? [s]
                 : [];
         })[0];
@@ -114,7 +115,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete, initialAdd
         const newSide = Object.assign({}, side);
         newSide.players = (newSide.players || []).filter(p => p.id !== playerId);
 
-        const oldSidePlayerName = side.players.sort(sortBy('name')).map(p => p.name).join(', ');
+        const oldSidePlayerName = side.players!.sort(sortBy('name')).map(p => p.name).join(', ');
         if (side.name === oldSidePlayerName) {
             newSide.name = newSide.players.sort(sortBy('name')).map(p => p.name).join(', ');
         }
@@ -150,11 +151,11 @@ export function EditSide({side, onChange, onClose, onApply, onDelete, initialAdd
             if (teamId) {
                 const team = teams.filter((t: TeamDto) => t.id === teamId)[0];
                 newSide.name = newSide.name || team.name;
-            } else {
-                teamId = undefined;
-            }
 
-            newSide.teamId = teamId;
+                newSide.teamId = team.id;
+            } else {
+                newSide.teamId = undefined;
+            }
 
             if (onChange) {
                 await onChange(newSide);
@@ -166,7 +167,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete, initialAdd
     }
 
     async function togglePlayer(player: TournamentPlayerDto) {
-        if (any(side.players || [], (p: TournamentPlayerDto) => p.id === player.id)) {
+        if (any(side.players, (p: TournamentPlayerDto) => p.id === player.id)) {
             await onDeselectPlayer(player.id);
             return;
         }
@@ -182,7 +183,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete, initialAdd
             return;
         }
 
-        await onDelete(side);
+        await onDelete!(side);
     }
 
     async function onSave() {
@@ -234,11 +235,11 @@ export function EditSide({side, onChange, onClose, onApply, onDelete, initialAdd
             }, true, newSide);
         }
 
-        await onChange(newSide);
+        await onChange!(newSide);
     }
 
     function getDivisionForTeamSeason(team: TeamDto): string {
-        const teamSeason: TeamSeasonDto = team.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id)[0];
+        const teamSeason: TeamSeasonDto = team.seasons!.filter((ts: TeamSeasonDto) => ts.seasonId === season!.id)[0];
         if (teamSeason && teamSeason.divisionId) {
             return teamSeason.divisionId;
         }
@@ -255,15 +256,15 @@ export function EditSide({side, onChange, onClose, onApply, onDelete, initialAdd
                     <label htmlFor="name" className="input-group-text">Name</label>
                 </div>
                 <input className="form-control" value={side.name || ''} name="name" id="name"
-                       onChange={valueChanged(side, onChange)}/>
+                       onChange={valueChanged(side, onChange!)}/>
             </div>)}
             <div className="form-switch margin-right my-1 me-2">
                 <input type="checkbox" className="form-check-input margin-right" checked={side.noShow || false} name="noShow"
                        id="noShow"
-                       onChange={valueChanged(side, onChange)}/>
+                       onChange={valueChanged(side, onChange!)}/>
                 <label className="form-check-label" htmlFor="noShow">No show on the night?</label>
             </div>
-            {any(side.players || []) || !tournamentSideType.canSelectTeams ? null : (
+            {any(side.players) || !tournamentSideType.canSelectTeams ? null : (
                 <div className="form-group input-group mb-3 d-print-none">
                     <div className="input-group-prepend">
                         <span className="input-group-text">Team</span>
@@ -287,8 +288,8 @@ export function EditSide({side, onChange, onClose, onApply, onDelete, initialAdd
                 <div className="max-scroll-height overflow-auto height-250">
                     <ol className="list-group mb-3">
                         {filteredPlayers.sort(sortBy('name')).map((player: ITeamPlayerMap) => {
-                            const selected: boolean = any(side.players || [], (p: TournamentPlayerDto) => p.id === player.id);
-                            const playingInAnotherTournament: DivisionTournamentFixtureDetailsDto = alreadyPlaying[player.id];
+                            const selected: boolean = any(side.players, (p: TournamentPlayerDto) => p.id === player.id);
+                            const playingInAnotherTournament: DivisionTournamentFixtureDetailsDto = alreadyPlaying![player.id];
                             const selectedInAnotherSide: TournamentSideDto = getOtherSidePlayerSelectedIn(player);
                             const hasSameNameAsAnotherPlayer: boolean = allPossiblePlayers.filter((p: ITeamPlayerMap) => p.name === player.name).length > 1;
 
@@ -323,7 +324,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete, initialAdd
                 </button>) : null}
                 <button className="btn btn-primary" onClick={onSave}>Save</button>
             </div>
-            {addPlayerDialogOpen ? renderCreatePlayerDialog(season) : null}
+            {addPlayerDialogOpen ? renderCreatePlayerDialog(season!) : null}
         </Dialog>);
     } catch (e) {
         /* istanbul ignore next */

@@ -20,8 +20,8 @@ describe('UserAdmin', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let accountReloaded: boolean;
-    let updatedAccess: UpdateAccessDto;
-    let apiResponse: IClientActionResultDto<UserDto>;
+    let updatedAccess: UpdateAccessDto | null;
+    let apiResponse: IClientActionResultDto<UserDto> | null;
 
     const accountApi = api<IAccountApi>({
         update: async (update: UpdateAccessDto) => {

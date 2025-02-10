@@ -23,10 +23,10 @@ import {ITeamApi} from "../../interfaces/apis/ITeamApi";
 
 describe('EditTeamDetails', () => {
     let context: TestContext;
-    let updatedTeam: EditTeamDto;
-    let apiResponse: IClientActionResultDto<TeamDto>;
+    let updatedTeam: EditTeamDto | null;
+    let apiResponse: IClientActionResultDto<TeamDto> | null;
     let saved: boolean;
-    let change: {name: string, value: string};
+    let change: {name: string, value: string} | null;
     let canceled: boolean;
 
     const teamApi = api<ITeamApi>({
@@ -79,10 +79,10 @@ describe('EditTeamDetails', () => {
                 onCancel,
             }, [division]);
 
-            const nameGroup = context.container.querySelector('div.input-group:nth-child(2)');
+            const nameGroup = context.container.querySelector('div.input-group:nth-child(2)')!;
             expect(nameGroup).toBeTruthy();
             expect(nameGroup.textContent).toContain('Name');
-            const input = nameGroup.querySelector('input');
+            const input = nameGroup.querySelector('input')!;
             expect(input).toBeTruthy();
             expect(input.value).toEqual('TEAM');
         });
@@ -98,10 +98,10 @@ describe('EditTeamDetails', () => {
                 onCancel,
             }, [division]);
 
-            const addressGroup = context.container.querySelector('div.input-group:nth-child(3)');
+            const addressGroup = context.container.querySelector('div.input-group:nth-child(3)')!;
             expect(addressGroup).toBeTruthy();
             expect(addressGroup.textContent).toContain('Address');
-            const input = addressGroup.querySelector('input');
+            const input = addressGroup.querySelector('input')!;
             expect(input).toBeTruthy();
             expect(input.value).toEqual('ADDRESS');
         });
@@ -117,10 +117,10 @@ describe('EditTeamDetails', () => {
                 onCancel,
             }, [division]);
 
-            const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)');
+            const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)')!;
             expect(divisionGroup).toBeTruthy();
             expect(divisionGroup.textContent).toContain('Division');
-            const selectedDivision = divisionGroup.querySelector('.dropdown-menu .active');
+            const selectedDivision = divisionGroup.querySelector('.dropdown-menu .active')!;
             expect(selectedDivision).toBeTruthy();
             expect(selectedDivision.textContent).toEqual('DIVISION');
         });
@@ -137,10 +137,10 @@ describe('EditTeamDetails', () => {
                 onCancel,
             }, [division, otherDivision]);
 
-            const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)');
+            const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)')!;
             expect(divisionGroup).toBeTruthy();
             expect(divisionGroup.textContent).toContain('Division');
-            const selectedDivision = divisionGroup.querySelector('.btn-group .dropdown-item.active');
+            const selectedDivision = divisionGroup.querySelector('.btn-group .dropdown-item.active')!;
             expect(selectedDivision).toBeTruthy();
             expect(selectedDivision.textContent).toEqual('OTHER DIVISION');
         });
@@ -157,13 +157,13 @@ describe('EditTeamDetails', () => {
                 onChange,
                 onCancel,
             }, [division]);
-            const nameGroup = context.container.querySelector('div.input-group:nth-child(2)');
+            const nameGroup = context.container.querySelector('div.input-group:nth-child(2)')!;
 
             await doChange(nameGroup, 'input', 'NEW', context.user);
 
             expect(change).toBeTruthy();
-            expect(change.name).toEqual('name');
-            expect(change.value).toEqual('NEW');
+            expect(change!.name).toEqual('name');
+            expect(change!.value).toEqual('NEW');
         });
 
         it('address can be changed', async () => {
@@ -176,13 +176,13 @@ describe('EditTeamDetails', () => {
                 onChange,
                 onCancel,
             }, [division]);
-            const addressGroup = context.container.querySelector('div.input-group:nth-child(3)');
+            const addressGroup = context.container.querySelector('div.input-group:nth-child(3)')!;
 
             await doChange(addressGroup, 'input', 'NEW', context.user);
 
             expect(change).toBeTruthy();
-            expect(change.name).toEqual('address');
-            expect(change.value).toEqual('NEW');
+            expect(change!.name).toEqual('address');
+            expect(change!.value).toEqual('NEW');
         });
 
         it('division can be changed', async () => {
@@ -196,13 +196,13 @@ describe('EditTeamDetails', () => {
                 onChange,
                 onCancel,
             }, [division, otherDivision]);
-            const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)');
+            const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)')!;
 
             await doSelectOption(divisionGroup.querySelector('.dropdown-menu'), 'OTHER DIVISION');
 
             expect(change).toBeTruthy();
-            expect(change.name).toEqual('newDivisionId');
-            expect(change.value).toEqual(otherDivision.id);
+            expect(change!.name).toEqual('newDivisionId');
+            expect(change!.value).toEqual(otherDivision.id);
         });
 
         it('division cannot be changed when new team', async () => {
@@ -218,7 +218,7 @@ describe('EditTeamDetails', () => {
                 onCancel,
             }, [division, otherDivision]);
 
-            const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)');
+            const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)')!;
             const dropdown = divisionGroup.querySelector('button.dropdown-toggle') as HTMLButtonElement;
             expect(dropdown).toBeTruthy();
             expect(dropdown.disabled).toEqual(true);
@@ -239,21 +239,17 @@ describe('EditTeamDetails', () => {
                     address: team.address,
                     newDivisionId: division.id,
                 },
-                divisionId: team.divisionId,
-                seasonId: team.seasonId,
+                divisionId: team.divisionId!,
+                seasonId: team.seasonId!,
                 onSaved,
                 onChange,
                 onCancel,
             }, [division]);
-            let alert: string;
-            window.alert = (message) => {
-                alert = message
-            };
 
             await doClick(findButton(context.container, 'Save team'));
 
             expect(saved).toEqual(false);
-            expect(alert).toEqual('You must enter a team name');
+            context.prompts.alertWasShown('You must enter a team name');
         });
 
         it('can save team changes', async () => {
@@ -270,8 +266,8 @@ describe('EditTeamDetails', () => {
                     .address(team.address)
                     .newDivisionId(otherDivision.id)
                     .build(),
-                divisionId: team.divisionId,
-                seasonId: team.seasonId,
+                divisionId: team.divisionId!,
+                seasonId: team.seasonId!,
                 onSaved,
                 onChange,
                 onCancel,
@@ -281,7 +277,7 @@ describe('EditTeamDetails', () => {
             await doClick(findButton(context.container, 'Save team'));
 
             expect(saved).toEqual(true);
-            expect(updatedTeam.lastUpdated).toEqual(updated);
+            expect(updatedTeam!.lastUpdated).toEqual(updated);
             expect(updatedTeam).toEqual({
                 id: team.id,
                 name: team.name,
@@ -307,8 +303,8 @@ describe('EditTeamDetails', () => {
                     address: team.address,
                     newDivisionId: division.id,
                 },
-                divisionId: team.divisionId,
-                seasonId: team.seasonId,
+                divisionId: team.divisionId!,
+                seasonId: team.seasonId!,
                 onSaved,
                 onChange,
                 onCancel,
@@ -317,9 +313,8 @@ describe('EditTeamDetails', () => {
             await doClick(findButton(context.container, 'Add team'));
 
             expect(saved).toEqual(true);
-            expect(updatedTeam.lastUpdated).toBeFalsy();
+            expect(updatedTeam!.lastUpdated).toBeFalsy();
             expect(updatedTeam).toEqual({
-                id: undefined,
                 name: team.name,
                 address: team.address,
                 divisionId: team.divisionId,
@@ -342,8 +337,8 @@ describe('EditTeamDetails', () => {
                     address: team.address,
                     newDivisionId: division.id,
                 },
-                divisionId: team.divisionId,
-                seasonId: team.seasonId,
+                divisionId: team.divisionId!,
+                seasonId: team.seasonId!,
                 onSaved,
                 onChange,
                 onCancel,
@@ -372,8 +367,8 @@ describe('EditTeamDetails', () => {
                     address: team.address,
                     newDivisionId: division.id,
                 },
-                divisionId: team.divisionId,
-                seasonId: team.seasonId,
+                divisionId: team.divisionId!,
+                seasonId: team.seasonId!,
                 onSaved,
                 onChange,
                 onCancel,
@@ -400,8 +395,8 @@ describe('EditTeamDetails', () => {
                     address: team.address,
                     newDivisionId: division.id,
                 },
-                divisionId: team.divisionId,
-                seasonId: team.seasonId,
+                divisionId: team.divisionId!,
+                seasonId: team.seasonId!,
                 onSaved,
                 onChange,
                 onCancel,

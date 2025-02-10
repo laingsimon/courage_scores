@@ -22,8 +22,8 @@ export interface IPlayLegProps {
     onChange(newLeg: LegDto): UntypedPromise;
     onChangePrevious(newLeg: LegDto): UntypedPromise;
     onLegComplete(accumulatorName: string, leg: LegDto): UntypedPromise;
-    on180(accumulatorName: string): UntypedPromise;
-    onHiCheck(accumulatorName: string, score: number): UntypedPromise;
+    on180?(accumulatorName: string): UntypedPromise;
+    onHiCheck?(accumulatorName: string, score: number): UntypedPromise;
     homeScore: number;
     awayScore?: number;
     singlePlayer?: boolean;
@@ -33,13 +33,13 @@ export interface IPlayLegProps {
 
 export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCheck, homeScore, awayScore, singlePlayer, previousLeg, onChangePrevious, minimisePlayerNames}: IPlayLegProps) {
     const [savingInput, setSavingInput] = useState<boolean>(false);
-    const [showCheckout, setShowCheckout] = useState<'home' | 'away'>(null);
-    const [score, setScore] = useState('');
+    const [showCheckout, setShowCheckout] = useState<'home' | 'away' | null>(null);
+    const [score, setScore] = useState<string>('');
     const {onError} = useApp();
     const {editScore, setEditScore} = useEditableSayg();
-    const accumulator: LegCompetitorScoreDto = leg.currentThrow ? leg[leg.currentThrow] : null;
-    const remainingScore: number = accumulator ? leg.startingScore - accumulator.score : -1;
-    const canEditPreviousCheckout: boolean = !score && previousLeg && isEmpty(leg.home.throws) && (singlePlayer || isEmpty(leg.away.throws));
+    const accumulator: LegCompetitorScoreDto = leg!.currentThrow ? leg![leg!.currentThrow] : null;
+    const remainingScore: number = accumulator ? (leg!.startingScore || 0) - (accumulator.score || 0) : -1;
+    const canEditPreviousCheckout: boolean = (!score && previousLeg && isEmpty(leg!.home.throws) && (singlePlayer || isEmpty(leg!.away.throws))) || false;
 
     useEffect(() => {
         setScore('');
@@ -73,8 +73,8 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
 
         if (editScore) {
             const newPlayerScores: LegCompetitorScoreDto = await changeScore(score);
-            const newRemainingScore: number = leg.startingScore - newPlayerScores.score;
-            await setEditScore(null);
+            const newRemainingScore: number = (leg!.startingScore || 0) - (newPlayerScores.score || 0);
+            await setEditScore();
 
             if (newRemainingScore === 0) {
                 setShowCheckout(editScore.player);
@@ -86,17 +86,17 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             await addThrow(score);
 
             if (score === remainingScore) {
-                setShowCheckout(leg.currentThrow as 'home' | 'away');
+                setShowCheckout(leg!.currentThrow as 'home' | 'away');
             }
         }
     }
 
     async function changeScore(score: number): Promise<LegCompetitorScoreDto> {
         const newLeg: LegDto = Object.assign({}, leg);
-        const playerThrows: LegCompetitorScoreDto = newLeg[editScore.player];
-        const thr: LegThrowDto = playerThrows.throws[editScore.throwIndex];
+        const playerThrows: LegCompetitorScoreDto = newLeg[editScore!.player];
+        const thr: LegThrowDto = playerThrows.throws![editScore!.throwIndex];
         thr.score = score;
-        playerThrows.score = getScoreFromThrows(newLeg.startingScore, playerThrows.throws);
+        playerThrows.score = getScoreFromThrows(newLeg.startingScore || 0, playerThrows.throws);
 
         await onChange(newLeg);
         setScore('');
@@ -106,21 +106,21 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
     async function addThrow(score: number) {
         try {
             setSavingInput(true);
-            const accumulatorName = leg.currentThrow as 'home' | 'away';
+            const accumulatorName = leg!.currentThrow as 'home' | 'away';
             const newLeg: LegDto = Object.assign({}, leg);
             const accumulator: LegCompetitorScoreDto = newLeg[accumulatorName];
-            const remainingScore: number = leg.startingScore - (accumulator.score + score);
+            const remainingScore: number = (leg!.startingScore || 0) - ((accumulator.score || 0) + score);
             const bust: boolean = remainingScore <= 1;
 
-            accumulator.throws.push({
+            accumulator.throws!.push({
                 score,
                 noOfDarts: 3,
             });
 
-            accumulator.noOfDarts += 3;
+            accumulator.noOfDarts! += 3;
 
             if (!bust) {
-                accumulator.score += score;
+                accumulator.score! += score;
 
                 if (score === 180) {
                     // Assume these don't count if the score is bust, as it was by accident, not design
@@ -146,11 +146,11 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
 
     async function setLastThrowNoOfDarts(noOfDarts: number) {
         const legToEdit = canEditPreviousCheckout ? previousLeg : leg;
-        const accumulatorName: 'home' | 'away' = showCheckout;
+        const accumulatorName: 'home' | 'away' = showCheckout!;
         const newLeg: LegDto = Object.assign({}, legToEdit);
         const accumulator: LegCompetitorScoreDto = newLeg[accumulatorName];
-        const lastThrow: LegThrowDto = accumulator.throws[accumulator.throws.length - 1];
-        const lastScore: number = lastThrow.score;
+        const lastThrow: LegThrowDto = accumulator.throws![accumulator.throws!.length - 1];
+        const lastScore: number = lastThrow.score || 0;
 
         if (lastScore >= 100 && !canEditPreviousCheckout) {
             // hi-check
@@ -160,7 +160,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         }
 
         lastThrow.noOfDarts = noOfDarts;
-        accumulator.noOfDarts = sum(accumulator.throws, (thr: LegThrowDto) => thr.noOfDarts);
+        accumulator.noOfDarts = sum(accumulator.throws, (thr: LegThrowDto) => thr.noOfDarts || 0);
         if (canEditPreviousCheckout) {
             await onChangePrevious(newLeg);
         } else {
@@ -170,11 +170,11 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
     }
 
     async function cancelCheckout() {
-        const accumulatorName: 'home' | 'away' = showCheckout;
+        const accumulatorName: 'home' | 'away' = showCheckout!;
         const newLeg: LegDto = Object.assign({}, leg);
         const accumulator: LegCompetitorScoreDto = newLeg[accumulatorName];
-        accumulator.throws.pop(); // remove the last throw
-        accumulator.score = getScoreFromThrows(newLeg.startingScore, accumulator.throws);
+        accumulator.throws!.pop(); // remove the last throw
+        accumulator.score = getScoreFromThrows(newLeg.startingScore || 0, accumulator.throws);
         newLeg.currentThrow = accumulatorName;
 
         await onChange(newLeg);
@@ -182,12 +182,12 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
     }
 
     function renderEditCheckoutDarts() {
-        const previousLegWonByHome = isLegWinner(previousLeg, 'home');
-        const previousLegWonByAway = isLegWinner(previousLeg, 'away');
+        const previousLegWonByHome = isLegWinner(previousLeg!, 'home');
+        const previousLegWonByAway = isLegWinner(previousLeg!, 'away');
         const previousWinner = previousLegWonByHome
             ? 'home'
             : (previousLegWonByAway ? 'away' : null);
-        const winner: LegCompetitorScoreDto = previousLeg[previousWinner];
+        const winner: LegCompetitorScoreDto = previousLeg![previousWinner!];
         if (!winner || !winner.throws || isEmpty(winner.throws)) {
             return null;
         }
@@ -206,24 +206,24 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
     }
 
     return (<div className="position-relative">
-        {leg.playerSequence && leg.currentThrow ? null : (<div className="text-center" datatype="bull-up">
-            {leg.isLastLeg && homeScore === awayScore && homeScore > 0 ? (<p>Who won the bull?</p>) : (
+        {leg!.playerSequence && leg!.currentThrow ? null : (<div className="text-center" datatype="bull-up">
+            {leg!.isLastLeg && homeScore === awayScore && homeScore > 0 ? (<p>Who won the bull?</p>) : (
                 <p>Who plays first?</p>)}
             {playerOptions().map((op: IBootstrapDropdownItem) => (<button key={op.value} className="btn btn-primary margin-right"
                                                                           onClick={() => firstPlayerChanged(op.value)}>🎯<br/>{op.text}</button>))}
         </div>)}
-        {leg.playerSequence && leg.currentThrow ? (<PreviousPlayerScore
-            leg={leg}
+        {leg!.playerSequence && leg!.currentThrow ? (<PreviousPlayerScore
+            leg={leg!}
             homeScore={homeScore}
             awayScore={awayScore}
             singlePlayer={singlePlayer}
             home={home}
             away={away}
-            currentScore={score ? Number.parseInt(score) : null}
+            currentScore={score ? Number.parseInt(score) : undefined}
             minimisePlayerNames={minimisePlayerNames}
         />) : null}
         {canEditPreviousCheckout ? renderEditCheckoutDarts() : null}
-        {leg.playerSequence && leg.currentThrow ? (<div className={editScore ? ' bg-warning' : ''}>
+        {leg!.playerSequence && leg!.currentThrow ? (<div className={editScore ? ' bg-warning' : ''}>
             <PlayerInput
                 score={score}
                 setScore={async (v: string) => setScore(v)}

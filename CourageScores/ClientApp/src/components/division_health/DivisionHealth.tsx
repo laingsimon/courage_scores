@@ -10,11 +10,11 @@ import {useBranding} from "../common/BrandingContainer";
 
 export function DivisionHealth() {
     const [result, setResult] = useState<SeasonHealthCheckResultDto | null>(null);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState<boolean>(false);
     const {onError} = useApp();
     const {seasonApi} = useDependencies();
     const {season, name} = useDivisionData();
-    const healthy: boolean = result && result.success && isEmpty(result.errors) && isEmpty(result.warnings);
+    const healthy: boolean = (result && result.success && isEmpty(result.errors) && isEmpty(result.warnings)) || false;
     const {setTitle} = useBranding();
 
     async function loadHealthCheck() {
@@ -27,7 +27,7 @@ export function DivisionHealth() {
         try {
             setLoading(true);
 
-            const result: SeasonHealthCheckResultDto = await seasonApi.getHealth(season.id);
+            const result: SeasonHealthCheckResultDto = await seasonApi.getHealth(season!.id!);
             setResult(result);
         } catch (e) {
             onError(e);

@@ -1,10 +1,10 @@
-import {ifNaN, round2dp} from "../../helpers/rendering";
+import {ifNaN, ifUndefined, round2dp} from "../../helpers/rendering";
 import {stateChanged} from "../../helpers/events";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IMatchAverageProps {
-    homeAverage: number;
-    awayAverage: number;
+    homeAverage?: number;
+    awayAverage?: number;
     singlePlayer?: boolean;
     oneDartAverage?: boolean;
     setOneDartAverage(onDartAverage: boolean): UntypedPromise;
@@ -24,11 +24,11 @@ export function MatchAverage({homeAverage, awayAverage, singlePlayer, oneDartAve
                 <label className="form-check-label" htmlFor="oneDartAverage">{oneDartAverage ? '1️⃣' : '3️⃣'}</label>
             </div>
         </td>
-        <td className={`${homeAverage > awayAverage ? 'bg-winner' : ''} fw-bold`}>
-            {ifNaN(round2dp(homeAverage / (oneDartAverage ? 3 : 1)), '-')}
+        <td className={`${ifUndefined(homeAverage) > ifUndefined(awayAverage) ? 'bg-winner' : ''} fw-bold`}>
+            {ifNaN(round2dp(ifUndefined(homeAverage) / (oneDartAverage ? 3 : 1)), '-')}
         </td>
-        {singlePlayer ? null : (<td className={`${homeAverage > awayAverage ? '' : 'bg-winner'} fw-bold`}>
-            {ifNaN(round2dp(awayAverage / (oneDartAverage ? 3 : 1)), '-')}
+        {singlePlayer ? null : (<td className={`${ifUndefined(homeAverage) > ifUndefined(awayAverage) ? '' : 'bg-winner'} fw-bold`}>
+            {ifNaN(round2dp(ifUndefined(awayAverage) / (oneDartAverage ? 3 : 1)), '-')}
         </td>)}
     </tr>);
 }

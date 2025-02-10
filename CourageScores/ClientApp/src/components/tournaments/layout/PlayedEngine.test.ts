@@ -24,7 +24,7 @@ describe('PlayedEngine', () => {
     function getLinkToSide(side: TournamentSideDto): ReactElement {
         return {
             key: 'link',
-            type: null,
+            type: '',
             props: {side},
         }
     }
@@ -53,8 +53,8 @@ describe('PlayedEngine', () => {
     function playedMatch(sideA?: TournamentSideDto, scoreA?: number, sideB?: TournamentSideDto, scoreB?: number): TournamentMatchDto {
         return {
             id: createTemporaryId(),
-            sideA: sideA,
-            sideB: sideB,
+            sideA: sideA!,
+            sideB: sideB!,
             scoreA: scoreA,
             scoreB: scoreB,
         };
@@ -80,8 +80,8 @@ describe('PlayedEngine', () => {
 
     function unplayedMatch(a: string, vs: string, m: string, otn?: string, showMnemonic?: string): ILayoutDataForMatch {
         return {
-            scoreA: null,
-            scoreB: null,
+            scoreA: '',
+            scoreB: '',
             sideA: unplayedSide(a, getShowMnemonic('a', showMnemonic)),
             sideB: unplayedSide(vs, getShowMnemonic('vs', showMnemonic)),
             mnemonic: m,
@@ -92,10 +92,9 @@ describe('PlayedEngine', () => {
     function unplayedSide(mnemonic: string, showMnemonic?: boolean): ILayoutDataForSide {
         return {
             mnemonic,
-            name: null,
+            name: '',
             showMnemonic,
-            link: null,
-            id: null,
+            id: '',
         }
     }
 
@@ -112,55 +111,48 @@ describe('PlayedEngine', () => {
 
     function expectedMatch(a?: ISideLayoutInfo, vs?: ISideLayoutInfo, m?: string, otn?: string, matchOptions?: GameMatchOptionDto): ILayoutDataForMatch {
         return {
-            hideMnemonic: undefined,
             matchOptions,
-            saygId: undefined,
-            scoreA: a ? a.score : null,
-            scoreB: vs ? vs.score : null,
-            sideA: a ? a.side : null,
-            sideB: vs ? vs.side : null,
+            scoreA: a ? a.score!.toString() : '',
+            scoreB: vs ? vs.score!.toString() : '',
+            sideA: a ? a.side! : { id: '', name: '' },
+            sideB: vs ? vs.side! : { id: '', name: '' },
             mnemonic: m,
             numberOfSidesOnTheNight: otn,
             match: expect.any(Object),
-            winner: null,
         };
     }
 
     function expectedMatchFromMatch(match: TournamentMatchDto, winner?: string, m?: string, otn?: string, matchOptions?: GameMatchOptionDto): ILayoutDataForMatch {
         return {
-            hideMnemonic: undefined,
             matchOptions,
-            saygId: undefined,
-            scoreA: match.scoreA.toString(),
-            scoreB: match.scoreB.toString(),
+            scoreA: match.scoreA!.toString(),
+            scoreB: match.scoreB!.toString(),
             sideA: {
                 id: match.sideA.id,
-                name: match.sideA.name,
+                name: match.sideA.name!,
                 link: {
                     key: 'link',
                     props: { side: match.sideA },
-                    type: null,
+                    type: '',
                 },
-                mnemonic: null,
             },
             sideB: {
                 id: match.sideB.id,
-                name: match.sideB.name,
+                name: match.sideB.name!,
                 link: {
                     key: 'link',
                     props: { side: match.sideB },
-                    type: null,
+                    type: '',
                 },
-                mnemonic: null,
             },
             mnemonic: m,
             numberOfSidesOnTheNight: otn,
             match: match,
-            winner: winner || null,
+            winner: winner,
         };
     }
 
-    function getShowMnemonic(side: string, instruction?: string): boolean {
+    function getShowMnemonic(side: string, instruction?: string): boolean | undefined {
         if (instruction && instruction.indexOf('!' + side) !== -1) {
             return false;
         }
@@ -175,9 +167,8 @@ describe('PlayedEngine', () => {
         return {
             side: {
                 mnemonic: side,
-                name: null,
-                link: null,
-                id: null,
+                name: '',
+                id: '',
             },
             score: score || '0',
         };
@@ -215,7 +206,7 @@ describe('PlayedEngine', () => {
                 ),
                 expectedRound(
                     'Final',
-                    unplayedMatch(side1.name, 'winner(M2)', 'M3'),
+                    unplayedMatch(side1.name!, 'winner(M2)', 'M3'),
                 ),
             ]);
         });
@@ -251,7 +242,7 @@ describe('PlayedEngine', () => {
                 ),
                 expectedRound(
                     'Final',
-                    unplayedMatch(side2.name, 'winner(M2)', 'M3'),
+                    unplayedMatch(side2.name!, 'winner(M2)', 'M3'),
                 ),
             ]);
         });
@@ -334,7 +325,7 @@ describe('PlayedEngine', () => {
                 ),
                 expectedRound(
                     'Final',
-                    unplayedMatch(side2.name, side3.name, 'M3'),
+                    unplayedMatch(side2.name!, side3.name!, 'M3'),
                 ),
             ]);
         });

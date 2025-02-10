@@ -46,6 +46,7 @@ describe('filters', () => {
 
     function fixtureDate(note?: string, fixture?: DivisionFixtureDto, tournament?: DivisionTournamentFixtureDetailsDto, isNew?: boolean): IEditableDivisionFixtureDateDto {
         return {
+            date: '',
             notes: note ? [noteBuilder().note(note).build()] : [],
             fixtures: fixture ? [fixture] : [],
             tournamentFixtures: tournament ? [tournament] : [],
@@ -152,12 +153,12 @@ describe('filters', () => {
     });
 
     describe('optionallyInvertFilter', () => {
-        const getFilter = (filter: string, context: IRenderContext, fixtures: DivisionFixtureDateDto[]) => {
+        const getFilter = (filter: string | undefined, context: IRenderContext, fixtures: DivisionFixtureDateDto[]) => {
             call = {filter, context, fixtures};
-            return stubFilter;
+            return stubFilter!;
         };
-        let call: {filter: string, context: IRenderContext, fixtures: DivisionFixtureDateDto[]};
-        let stubFilter: IFilter<string>;
+        let call: {filter: string | undefined, context: IRenderContext, fixtures: DivisionFixtureDateDto[]} | null;
+        let stubFilter: IFilter<string> | null;
 
         beforeEach(() => {
             call = null;
@@ -361,7 +362,9 @@ describe('filters', () => {
             const filter: IFilter<IEditableDivisionFixtureDateDto> = getDateFilter('foo', {}, []);
 
             expect(filter).not.toBeNull();
-            expect(filter.apply({})).toEqual(true);
+            expect(filter.apply({
+                date: ''
+            })).toEqual(true);
         });
     });
 
@@ -371,7 +374,7 @@ describe('filters', () => {
 
             expect(filter.apply(fixtureMapping(fixture))).toEqual(true);
             expect(filter.apply(fixtureMapping())).toEqual(false);
-            expect(filter.apply(fixtureMapping(null, tournament))).toEqual(false);
+            expect(filter.apply(fixtureMapping(undefined, tournament))).toEqual(false);
         });
 
         it('when qualifier', () => {
@@ -385,8 +388,8 @@ describe('filters', () => {
         it('when tournament', () => {
             const filter: IFilter<IFixtureMapping> = getTypeFilter('tournament');
 
-            expect(filter.apply(fixtureMapping(null, tournament))).toEqual(true);
-            expect(filter.apply(fixtureMapping(null, tournamentBuilder().proposed().build()))).toEqual(true);
+            expect(filter.apply(fixtureMapping(undefined, tournament))).toEqual(true);
+            expect(filter.apply(fixtureMapping(undefined, tournamentBuilder().proposed().build()))).toEqual(true);
         });
 
         it('otherwise', () => {
@@ -414,7 +417,7 @@ describe('filters', () => {
             const awayAbcd = divisionFixtureBuilder().playing('HOME', teamBuilder('AWAY', 'abcd').build()).build();
             expect(filter.apply(fixtureMapping(byeAbcd))).toEqual(true);
             expect(filter.apply(fixtureMapping(awayAbcd))).toEqual(true);
-            expect(filter.apply(fixtureMapping(null, tournamentWithAbcdTeamPlaying))).toEqual(true);
+            expect(filter.apply(fixtureMapping(undefined, tournamentWithAbcdTeamPlaying))).toEqual(true);
         });
 
         it('when name provided', () => {
@@ -422,7 +425,7 @@ describe('filters', () => {
 
             expect(filter.apply(fixtureMapping(byeAbcd))).toEqual(true);
             expect(filter.apply(fixtureMapping(homeAbcd))).toEqual(true);
-            expect(filter.apply(fixtureMapping(null, tournamentWithAbcdTeamPlaying))).toEqual(true);
+            expect(filter.apply(fixtureMapping(undefined, tournamentWithAbcdTeamPlaying))).toEqual(true);
         });
 
         it('when name provided ignores case', () => {
@@ -430,7 +433,7 @@ describe('filters', () => {
 
             expect(filter.apply(fixtureMapping(byeAbcd))).toEqual(true);
             expect(filter.apply(fixtureMapping(homeAbcd))).toEqual(true);
-            expect(filter.apply(fixtureMapping(null, tournamentWithAbcdTeamPlaying))).toEqual(true);
+            expect(filter.apply(fixtureMapping(undefined, tournamentWithAbcdTeamPlaying))).toEqual(true);
         });
     });
 
@@ -457,6 +460,7 @@ describe('filters', () => {
             const filter: IFilter<IEditableDivisionFixtureDateDto> = getNotesFilter('abc;efg');
 
             expect(filter.apply({
+                date: '',
                 notes: [noteBuilder().note('another note').build(), noteBuilder().note('efgh').build()],
                 fixtures: [],
                 tournamentFixtures: [],
@@ -530,7 +534,7 @@ describe('filters', () => {
         it('returns positive when no notes, fixtures or tournaments and new', () => {
             const filter: IFilter<IEditableDivisionFixtureDateDto> = getFixtureDateFilters({}, {}, []);
 
-            expect(filter.apply(fixtureDate(null, null, null, true))).toEqual(true);
+            expect(filter.apply(fixtureDate(undefined, undefined, undefined, true))).toEqual(true);
         });
 
         it('returns positive when notes but no fixtures or tournaments', () => {
@@ -542,7 +546,7 @@ describe('filters', () => {
         it('returns positive when no notes but has fixtures and tournaments', () => {
             const filter: IFilter<IEditableDivisionFixtureDateDto> = getFixtureDateFilters({}, {}, []);
 
-            expect(filter.apply(fixtureDate(null, fixture, tournament))).toEqual(true);
+            expect(filter.apply(fixtureDate(undefined, fixture, tournament))).toEqual(true);
         });
 
         it('returns negative when notes but no fixtures or tournaments', () => {

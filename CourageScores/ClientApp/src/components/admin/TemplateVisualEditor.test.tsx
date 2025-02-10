@@ -16,7 +16,7 @@ import {createTemporaryId} from "../../helpers/projection";
 describe('TemplateVisualEditor', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let update: TemplateDto;
+    let update: TemplateDto | null;
 
     afterEach(async () => {
         await cleanUp(context);
@@ -53,9 +53,9 @@ describe('TemplateVisualEditor', () => {
                 onUpdate,
             });
 
-            const sharedAddresses = context.container.querySelector('div > ul:nth-child(1)');
+            const sharedAddresses = context.container.querySelector('div > ul:nth-child(1)')!;
             expect(sharedAddresses.querySelectorAll('li').length).toEqual(1); // heading, no addresses
-            const divisions = context.container.querySelector('div > ul:nth-child(2)');
+            const divisions = context.container.querySelector('div > ul:nth-child(2)')!;
             expect(divisions.querySelectorAll('li').length).toEqual(1); //heading, no divisions
         });
 
@@ -70,7 +70,7 @@ describe('TemplateVisualEditor', () => {
                 onUpdate,
             });
 
-            const sharedAddresses = context.container.querySelector('div > ul:nth-child(1)');
+            const sharedAddresses = context.container.querySelector('div > ul:nth-child(1)')!;
             expect(sharedAddresses.textContent).toContain('A ×');
         });
 
@@ -88,7 +88,7 @@ describe('TemplateVisualEditor', () => {
                 onUpdate,
             });
 
-            const divisions = context.container.querySelector('div > ul:nth-child(2)');
+            const divisions = context.container.querySelector('div > ul:nth-child(2)')!;
             expect(divisions.textContent).toContain('B ×');
         });
     });

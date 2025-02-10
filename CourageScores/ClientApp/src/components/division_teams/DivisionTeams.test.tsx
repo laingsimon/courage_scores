@@ -26,7 +26,7 @@ describe('DivisionTeams', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let divisionReloaded: boolean = false;
-    let account: UserDto;
+    let account: UserDto | null;
     const teamApi = api<ITeamApi>({
         update: async (team: EditTeamDto): Promise<IClientActionResultDto<TeamDto>> => {
             return {
@@ -186,7 +186,7 @@ describe('DivisionTeams', () => {
             await doClick(findButton(context.container, 'Add team'));
 
             reportedError.verifyNoError();
-            const dialog = context.container.querySelector('.modal-dialog');
+            const dialog = context.container.querySelector('.modal-dialog')!;
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('Create a new team...');
         });
@@ -210,7 +210,7 @@ describe('DivisionTeams', () => {
             await renderComponent(
                 {...divisionData, onReloadDivision, setDivisionData});
             await doClick(findButton(context.container, 'Add team'));
-            const dialog = context.container.querySelector('.modal-dialog');
+            const dialog = context.container.querySelector('.modal-dialog')!;
             expect(dialog.textContent).toContain('Create a new team...');
 
             await doChange(dialog, 'input[name="name"]', 'NEW TEAM', context.user);

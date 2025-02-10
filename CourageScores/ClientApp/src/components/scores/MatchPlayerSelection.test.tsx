@@ -31,15 +31,18 @@ import {ILegBuilder, ILegCompetitorScoreBuilder, IRecordedSaygBuilder} from "../
 import {createTemporaryId} from "../../helpers/projection";
 import {CHECKOUT_3_DART, ENTER_SCORE_BUTTON} from "../../helpers/constants";
 import {checkoutWith, keyPad} from "../../helpers/sayg";
+import {GameTeamDto} from "../../interfaces/models/dtos/Game/GameTeamDto";
 
 describe('MatchPlayerSelection', () => {
+    const emptyTeam: GameTeamDto = {id: '', name: ''};
+
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedMatch: GameMatchDto;
-    let updatedMatchOptions: GameMatchOptionDto;
-    let additional180: GamePlayerDto;
-    let additionalHiCheck: {notablePlayer: GamePlayerDto, score: number};
-    let createPlayerFor: ICreatePlayerFor;
+    let updatedMatch: GameMatchDto | null;
+    let updatedMatchOptions: GameMatchOptionDto | null;
+    let additional180: GamePlayerDto | null;
+    let additionalHiCheck: {notablePlayer: GamePlayerDto, score: number} | null;
+    let createPlayerFor: ICreatePlayerFor | null;
 
     async function onMatchChanged(newMatch: GameMatchDto){
         updatedMatch = newMatch;
@@ -82,30 +85,30 @@ describe('MatchPlayerSelection', () => {
                     <MatchPlayerSelection {...props} />
                 </MatchTypeContainer>
             </LeagueFixtureContainer>),
-            null,
-            null,
+            undefined,
+            undefined,
             'tbody');
     }
 
     function assertSelectedPlayer(cell: HTMLTableCellElement, expected?: string) {
-        const displayedItem = cell.querySelector('.btn-group .dropdown-toggle');
+        const displayedItem = cell.querySelector('.btn-group .dropdown-toggle')!;
         expect(displayedItem).toBeTruthy();
 
         if (expected) {
             expect(displayedItem.textContent).toEqual(expected);
         } else {
-            expect(displayedItem.textContent.trim()).toEqual('');
+            expect(displayedItem.textContent!.trim()).toEqual('');
         }
     }
 
     function assertSelectablePlayers(cell: HTMLTableCellElement, expected: string[]) {
         const menuItems = Array.from(cell.querySelectorAll('.btn-group .dropdown-item'));
-        const menuItemText = menuItems.map(item => item.textContent.trim());
+        const menuItemText = menuItems.map(item => item.textContent!.trim());
         expect(menuItemText).toEqual([''].concat(expected));
     }
 
     function assertScore(cell: HTMLTableCellElement, expected: string) {
-        const input = cell.querySelector('input');
+        const input = cell.querySelector('input')!;
         expect(input).toBeTruthy();
         expect(input.value).toEqual(expected);
     }
@@ -146,9 +149,9 @@ describe('MatchPlayerSelection', () => {
         const defaultMatchType: IMatchTypeContainerProps = {
             otherMatches: [],
             matchOptions: matchOptionsBuilder().numberOfLegs(5).playerCount(1).build(),
-            homePlayers: null,
-            awayPlayers: null,
-            setCreatePlayerFor: null,
+            homePlayers: [],
+            awayPlayers: [],
+            setCreatePlayerFor,
         };
         const defaultContainerProps: ILeagueFixtureContainerProps = {
             disabled: false,
@@ -157,8 +160,8 @@ describe('MatchPlayerSelection', () => {
             division: division,
             homePlayers: [homePlayer, newPlayer],
             awayPlayers: [awayPlayer, newPlayer],
-            home: null,
-            away: null,
+            home: emptyTeam,
+            away: emptyTeam,
         };
 
         it('when no players selected', async () => {
@@ -166,10 +169,10 @@ describe('MatchPlayerSelection', () => {
 
             reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
-            assertSelectedPlayer(cells[0], null);
+            assertSelectedPlayer(cells[0], undefined);
             assertScore(cells[1], '');
             assertScore(cells[3], '');
-            assertSelectedPlayer(cells[4], null);
+            assertSelectedPlayer(cells[4], undefined);
         });
 
         it('when no scores', async () => {
@@ -284,8 +287,8 @@ describe('MatchPlayerSelection', () => {
                 division: division,
                 homePlayers: [homePlayer, anotherHomePlayer],
                 awayPlayers: [awayPlayer],
-                home: null,
-                away: null,
+                home: emptyTeam,
+                away: emptyTeam,
             };
 
             await renderComponent(account, props(matchBuilder()
@@ -308,8 +311,8 @@ describe('MatchPlayerSelection', () => {
                 division: division,
                 homePlayers: [homePlayer],
                 awayPlayers: [awayPlayer, anotherAwayPlayer],
-                home: null,
-                away: null,
+                home: emptyTeam,
+                away: emptyTeam,
             };
 
             await renderComponent(account, props(matchBuilder()
@@ -332,8 +335,8 @@ describe('MatchPlayerSelection', () => {
                 division: division,
                 homePlayers: [homePlayer, anotherHomePlayer],
                 awayPlayers: [awayPlayer],
-                home: null,
-                away: null,
+                home: emptyTeam,
+                away: emptyTeam,
             };
             const matchTypeProps: IMatchTypeContainerProps = {
                 otherMatches: [{
@@ -344,9 +347,9 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [],
                 }],
                 matchOptions: matchOptionsBuilder().playerCount(1).numberOfLegs(5).build(),
-                setCreatePlayerFor: null,
-                awayPlayers: null,
-                homePlayers: null,
+                setCreatePlayerFor,
+                awayPlayers: [],
+                homePlayers: [],
             };
 
             await renderComponent(account, props(matchBuilder()
@@ -369,8 +372,8 @@ describe('MatchPlayerSelection', () => {
                 division: division,
                 homePlayers: [homePlayer],
                 awayPlayers: [awayPlayer, anotherAwayPlayer],
-                home: null,
-                away: null,
+                home: emptyTeam,
+                away: emptyTeam,
             };
             const matchTypeProps: IMatchTypeContainerProps = {
                 otherMatches: [{
@@ -381,9 +384,9 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [anotherAwayPlayer],
                 }],
                 matchOptions: matchOptionsBuilder().playerCount(1).numberOfLegs(5).build(),
-                setCreatePlayerFor: null,
-                awayPlayers: null,
-                homePlayers: null,
+                setCreatePlayerFor,
+                awayPlayers: [],
+                homePlayers: [],
             };
 
             await renderComponent(account, props(matchBuilder()
@@ -430,9 +433,9 @@ describe('MatchPlayerSelection', () => {
         const defaultMatchType: IMatchTypeContainerProps = {
             otherMatches: [],
             matchOptions: matchOptionsBuilder().playerCount(1).numberOfLegs(5).startingScore(501).build(),
-            setCreatePlayerFor: null,
-            awayPlayers: null,
-            homePlayers: null,
+            setCreatePlayerFor,
+            awayPlayers: [],
+            homePlayers: [],
         };
         const defaultContainerProps: ILeagueFixtureContainerProps = {
             disabled: false,
@@ -441,8 +444,8 @@ describe('MatchPlayerSelection', () => {
             division: division,
             homePlayers: [homePlayer, newPlayer],
             awayPlayers: [awayPlayer, newPlayer],
-            away: null,
-            home: null,
+            away: emptyTeam,
+            home: emptyTeam,
         };
 
         it('can set home player', async () => {
@@ -456,10 +459,10 @@ describe('MatchPlayerSelection', () => {
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
-            expect(updatedMatch.homePlayers).toEqual([homePlayer]);
-            expect(updatedMatch.awayPlayers).toEqual([]);
-            expect(updatedMatch.awayScore).toBeFalsy();
-            expect(updatedMatch.awayScore).toBeFalsy();
+            expect(updatedMatch!.homePlayers).toEqual([homePlayer]);
+            expect(updatedMatch!.awayPlayers).toEqual([]);
+            expect(updatedMatch!.awayScore).toBeFalsy();
+            expect(updatedMatch!.awayScore).toBeFalsy();
         });
 
         it('can add a home player', async () => {
@@ -490,10 +493,10 @@ describe('MatchPlayerSelection', () => {
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
-            expect(updatedMatch.homePlayers).toEqual([]);
-            expect(updatedMatch.awayPlayers).toEqual([]);
-            expect(updatedMatch.homeScore).toEqual(null);
-            expect(updatedMatch.awayScore).toBeFalsy();
+            expect(updatedMatch!.homePlayers).toEqual([]);
+            expect(updatedMatch!.awayPlayers).toEqual([]);
+            expect(updatedMatch!.homeScore).toEqual(null);
+            expect(updatedMatch!.awayScore).toBeFalsy();
         });
 
         it('can set away player', async () => {
@@ -507,10 +510,10 @@ describe('MatchPlayerSelection', () => {
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
-            expect(updatedMatch.homePlayers).toEqual([]);
-            expect(updatedMatch.awayPlayers).toEqual([awayPlayer]);
-            expect(updatedMatch.homeScore).toBeFalsy();
-            expect(updatedMatch.awayScore).toBeFalsy();
+            expect(updatedMatch!.homePlayers).toEqual([]);
+            expect(updatedMatch!.awayPlayers).toEqual([awayPlayer]);
+            expect(updatedMatch!.homeScore).toBeFalsy();
+            expect(updatedMatch!.awayScore).toBeFalsy();
         });
 
         it('can add an away player', async () => {
@@ -541,10 +544,10 @@ describe('MatchPlayerSelection', () => {
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
-            expect(updatedMatch.homePlayers).toEqual([]);
-            expect(updatedMatch.awayPlayers).toEqual([]);
-            expect(updatedMatch.homeScore).toBeFalsy();
-            expect(updatedMatch.awayScore).toEqual(null);
+            expect(updatedMatch!.homePlayers).toEqual([]);
+            expect(updatedMatch!.awayPlayers).toEqual([]);
+            expect(updatedMatch!.homeScore).toBeFalsy();
+            expect(updatedMatch!.awayScore).toEqual(null);
         });
 
         it('can update home score', async () => {
@@ -558,10 +561,10 @@ describe('MatchPlayerSelection', () => {
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
-            expect(updatedMatch.homePlayers).toEqual([]);
-            expect(updatedMatch.awayPlayers).toEqual([]);
-            expect(updatedMatch.homeScore).toEqual(3);
-            expect(updatedMatch.awayScore).toBeFalsy();
+            expect(updatedMatch!.homePlayers).toEqual([]);
+            expect(updatedMatch!.awayPlayers).toEqual([]);
+            expect(updatedMatch!.homeScore).toEqual(3);
+            expect(updatedMatch!.awayScore).toBeFalsy();
         });
 
         it('can update away score', async () => {
@@ -575,10 +578,10 @@ describe('MatchPlayerSelection', () => {
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
-            expect(updatedMatch.homePlayers).toEqual([]);
-            expect(updatedMatch.awayPlayers).toEqual([]);
-            expect(updatedMatch.homeScore).toBeFalsy();
-            expect(updatedMatch.awayScore).toEqual(3);
+            expect(updatedMatch!.homePlayers).toEqual([]);
+            expect(updatedMatch!.awayPlayers).toEqual([]);
+            expect(updatedMatch!.homeScore).toBeFalsy();
+            expect(updatedMatch!.awayScore).toEqual(3);
         });
 
         it('sets homeScore to numberOfLegs if greater than numberOfLegs', async () => {
@@ -592,10 +595,10 @@ describe('MatchPlayerSelection', () => {
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
-            expect(updatedMatch.homePlayers).toEqual([]);
-            expect(updatedMatch.awayPlayers).toEqual([]);
-            expect(updatedMatch.homeScore).toEqual(5);
-            expect(updatedMatch.awayScore).toBeFalsy();
+            expect(updatedMatch!.homePlayers).toEqual([]);
+            expect(updatedMatch!.awayPlayers).toEqual([]);
+            expect(updatedMatch!.homeScore).toEqual(5);
+            expect(updatedMatch!.awayScore).toBeFalsy();
         });
 
         it('sets awayScore to numberOfLegs if greater than numberOfLegs', async () => {
@@ -609,10 +612,10 @@ describe('MatchPlayerSelection', () => {
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
-            expect(updatedMatch.homePlayers).toEqual([]);
-            expect(updatedMatch.awayPlayers).toEqual([]);
-            expect(updatedMatch.homeScore).toBeFalsy();
-            expect(updatedMatch.awayScore).toEqual(5);
+            expect(updatedMatch!.homePlayers).toEqual([]);
+            expect(updatedMatch!.awayPlayers).toEqual([]);
+            expect(updatedMatch!.homeScore).toBeFalsy();
+            expect(updatedMatch!.awayScore).toEqual(5);
         });
 
         it('changes away score down if entered home score + existing away score > numberOfLegs', async () => {
@@ -627,10 +630,10 @@ describe('MatchPlayerSelection', () => {
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
-            expect(updatedMatch.homePlayers).toEqual([]);
-            expect(updatedMatch.awayPlayers).toEqual([]);
-            expect(updatedMatch.homeScore).toEqual(3);
-            expect(updatedMatch.awayScore).toEqual(2);
+            expect(updatedMatch!.homePlayers).toEqual([]);
+            expect(updatedMatch!.awayPlayers).toEqual([]);
+            expect(updatedMatch!.homeScore).toEqual(3);
+            expect(updatedMatch!.awayScore).toEqual(2);
         });
 
         it('changes home score down if entered away score + existing home score > numberOfLegs', async () => {
@@ -645,10 +648,10 @@ describe('MatchPlayerSelection', () => {
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
-            expect(updatedMatch.homePlayers).toEqual([]);
-            expect(updatedMatch.awayPlayers).toEqual([]);
-            expect(updatedMatch.homeScore).toEqual(2);
-            expect(updatedMatch.awayScore).toEqual(3);
+            expect(updatedMatch!.homePlayers).toEqual([]);
+            expect(updatedMatch!.awayPlayers).toEqual([]);
+            expect(updatedMatch!.homeScore).toEqual(2);
+            expect(updatedMatch!.awayScore).toEqual(3);
         });
 
         it('can update match options [playerCount]', async () => {
@@ -659,7 +662,7 @@ describe('MatchPlayerSelection', () => {
             reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[4], '🛠'));
-            const matchOptionsDialog = cells[4].querySelector('div.modal-dialog');
+            const matchOptionsDialog = cells[4].querySelector('div.modal-dialog')!;
             expect(matchOptionsDialog).toBeTruthy();
 
             await doChange(matchOptionsDialog, 'input[name="playerCount"]', '3', context.user);
@@ -679,7 +682,7 @@ describe('MatchPlayerSelection', () => {
             reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[4], '🛠'));
-            const matchOptionsDialog = cells[4].querySelector('div.modal-dialog');
+            const matchOptionsDialog = cells[4].querySelector('div.modal-dialog')!;
             expect(matchOptionsDialog).toBeTruthy();
 
             await doChange(matchOptionsDialog, 'input[name="numberOfLegs"]', '3', context.user);
@@ -699,7 +702,7 @@ describe('MatchPlayerSelection', () => {
             reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[4], '🛠'));
-            const matchOptionsDialog = cells[4].querySelector('div.modal-dialog');
+            const matchOptionsDialog = cells[4].querySelector('div.modal-dialog')!;
             expect(matchOptionsDialog).toBeTruthy();
 
             await doChange(matchOptionsDialog, 'input[name="startingScore"]', '601', context.user);
@@ -736,8 +739,8 @@ describe('MatchPlayerSelection', () => {
                 division: division,
                 homePlayers: [homePlayer, newPlayer],
                 awayPlayers: [awayPlayer, newPlayer],
-                home: null,
-                away: null,
+                home: emptyTeam,
+                away: emptyTeam,
             };
             await renderComponent(account, props(matchBuilder()
                 .withHome()
@@ -764,8 +767,8 @@ describe('MatchPlayerSelection', () => {
                 division: division,
                 homePlayers: [homePlayer, newPlayer],
                 awayPlayers: [awayPlayer, newPlayer],
-                away: null,
-                home: null,
+                away: emptyTeam,
+                home: emptyTeam,
             };
             await renderComponent(account, props(matchBuilder()
                 .withHome()
@@ -856,14 +859,13 @@ describe('MatchPlayerSelection', () => {
             reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[0], '📊'));
-            const saygDialog = cells[0].querySelector('div.modal-dialog');
+            const saygDialog = cells[0].querySelector('div.modal-dialog')!;
 
             await keyPad(context, ['1', '8', '0', ENTER_SCORE_BUTTON], saygDialog);
 
             expect(additional180).toEqual({
                 name: 'HOME',
                 id: homePlayer.id,
-                team: null,
             });
         });
 
@@ -883,14 +885,13 @@ describe('MatchPlayerSelection', () => {
             reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[0], '📊'));
-            const saygDialog = cells[0].querySelector('div.modal-dialog');
+            const saygDialog = cells[0].querySelector('div.modal-dialog')!;
 
             await keyPad(context, ['1', '8', '0', ENTER_SCORE_BUTTON], saygDialog);
 
             expect(additional180).toEqual({
                 name: 'AWAY',
                 id: awayPlayer.id,
-                team: null,
             });
         });
 
@@ -910,7 +911,7 @@ describe('MatchPlayerSelection', () => {
             reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[0], '📊'));
-            const saygDialog = cells[0].querySelector('div.modal-dialog');
+            const saygDialog = cells[0].querySelector('div.modal-dialog')!;
 
             await keyPad(context, ['1', '0', '1', ENTER_SCORE_BUTTON], saygDialog);
             await checkoutWith(context, CHECKOUT_3_DART, saygDialog);
@@ -919,12 +920,11 @@ describe('MatchPlayerSelection', () => {
                 notablePlayer: {
                     name: 'HOME',
                     id: homePlayer.id,
-                    team: null,
                 },
                 score: 101,
             });
-            expect(updatedMatch.homeScore).toEqual(1);
-            expect(updatedMatch.awayScore).toEqual(0);
+            expect(updatedMatch!.homeScore).toEqual(1);
+            expect(updatedMatch!.awayScore).toEqual(0);
         });
 
         it('can record away sayg hi-check', async () => {
@@ -943,7 +943,7 @@ describe('MatchPlayerSelection', () => {
             reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[0], '📊'));
-            const saygDialog = cells[0].querySelector('div.modal-dialog');
+            const saygDialog = cells[0].querySelector('div.modal-dialog')!;
 
             await keyPad(context, ['1', '0', '1', ENTER_SCORE_BUTTON], saygDialog);
             await checkoutWith(context, CHECKOUT_3_DART, saygDialog);
@@ -952,12 +952,11 @@ describe('MatchPlayerSelection', () => {
                 notablePlayer: {
                     name: 'AWAY',
                     id: awayPlayer.id,
-                    team: null,
                 },
                 score: 101,
             });
-            expect(updatedMatch.homeScore).toEqual(0);
-            expect(updatedMatch.awayScore).toEqual(1);
+            expect(updatedMatch!.homeScore).toEqual(0);
+            expect(updatedMatch!.awayScore).toEqual(1);
         });
 
         it('can show match statistics', async () => {

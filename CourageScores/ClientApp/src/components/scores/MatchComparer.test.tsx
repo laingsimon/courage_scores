@@ -6,19 +6,19 @@ import {playerBuilder} from "../../helpers/builders/players";
 describe('MatchComparer', () => {
     describe('matchEquals', () => {
         it('when both are null', () => {
-            const result = matchEquals(null, null);
+            const result = matchEquals();
 
             expect(result).toEqual(true);
         });
 
         it('when x is null and y is not null', () => {
-            const result = matchEquals(null, matchBuilder().build());
+            const result = matchEquals(undefined, matchBuilder().build());
 
             expect(result).toEqual(false);
         });
 
         it('when x is not null and y is null', () => {
-            const result = matchEquals(matchBuilder().build(), null);
+            const result = matchEquals(matchBuilder().build());
 
             expect(result).toEqual(false);
         });

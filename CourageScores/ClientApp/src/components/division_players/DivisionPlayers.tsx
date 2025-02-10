@@ -5,6 +5,7 @@ import {useApp} from "../common/AppContainer";
 import {PrintDivisionHeading} from "../league/PrintDivisionHeading";
 import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
 import {useBranding} from "../common/BrandingContainer";
+import {hasAccess} from "../../helpers/conditions";
 
 export interface IDivisionPlayersProps {
     hideVenue?: boolean;
@@ -14,7 +15,7 @@ export interface IDivisionPlayersProps {
 
 export function DivisionPlayers({hideVenue, hideHeading, players}: IDivisionPlayersProps) {
     const {account} = useApp();
-    const isAdmin: boolean = account && account.access && account.access.managePlayers;
+    const isAdmin: boolean = hasAccess(account, access => access.managePlayers);
     const {players: divisionDataPlayers, name} = useDivisionData();
     const playersToShow = players || divisionDataPlayers;
     const {setTitle} = useBranding();
@@ -43,8 +44,8 @@ export function DivisionPlayers({hideVenue, hideHeading, players}: IDivisionPlay
                 </tr>
                 </thead>
                 <tbody>
-                {playersToShow
-                    .filter(p => isAdmin || p.singles.matchesPlayed > 0 || p.oneEighties > 0 || p.over100Checkouts > 0)
+                {playersToShow!
+                    .filter(p => isAdmin || p.singles?.matchesPlayed! > 0 || p.oneEighties! > 0 || p.over100Checkouts! > 0)
                     .sort(sortBy('rank'))
                     .map(player => (<DivisionPlayer
                         key={player.id}

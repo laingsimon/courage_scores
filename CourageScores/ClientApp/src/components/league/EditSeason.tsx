@@ -20,8 +20,8 @@ export interface IEditSeasonProps {
 }
 
 export function EditSeason({onClose, onSave, setSaveError, data, onUpdateData}: IEditSeasonProps) {
-    const [saving, setSaving] = useState(false);
-    const [deleting, setDeleting] = useState(false);
+    const [saving, setSaving] = useState<boolean>(false);
+    const [deleting, setDeleting] = useState<boolean>(false);
     const {seasonApi} = useDependencies();
     const {seasons, divisions, onError} = useApp();
     const navigate = useNavigate();
@@ -68,7 +68,7 @@ export function EditSeason({onClose, onSave, setSaveError, data, onUpdateData}: 
 
         try {
             setDeleting(true);
-            const result = await seasonApi.delete(data.id);
+            const result = await seasonApi.delete(data.id!);
 
             if (result.success) {
                 navigate(`https://${document.location.host}`);
@@ -84,7 +84,7 @@ export function EditSeason({onClose, onSave, setSaveError, data, onUpdateData}: 
         const newData = Object.assign({}, data);
 
         if (isDivisionSelected(divisionId)) {
-            newData.divisionIds = newData.divisionIds.filter(id => id !== divisionId);
+            newData.divisionIds = newData.divisionIds!.filter(id => id !== divisionId);
         } else {
             newData.divisionIds = (newData.divisionIds || []).concat(divisionId);
         }
@@ -93,7 +93,7 @@ export function EditSeason({onClose, onSave, setSaveError, data, onUpdateData}: 
     }
 
     function isDivisionSelected(divisionId: string): boolean {
-        return any(data.divisionIds || [], id => id === divisionId);
+        return any(data.divisionIds, id => id === divisionId);
     }
 
     return (<div>

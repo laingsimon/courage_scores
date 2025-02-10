@@ -1,4 +1,4 @@
-import {appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestContext} from "../../helpers/tests";
+import {api, appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
 import {DivisionPlayers, IDivisionPlayersProps} from "./DivisionPlayers";
@@ -6,12 +6,13 @@ import {seasonBuilder} from "../../helpers/builders/seasons";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
+import {IPlayerApi} from "../../interfaces/apis/IPlayerApi";
 
 describe('DivisionPlayers', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let account: UserDto;
-    const playerApi = {};
+    let account: UserDto | undefined;
+    const playerApi = api<IPlayerApi>({});
 
     afterEach(async () => {
         await cleanUp(context);
@@ -92,7 +93,7 @@ describe('DivisionPlayers', () => {
 
     describe('when logged out', () => {
         beforeEach(() => {
-            account = null;
+            account = undefined;
         });
 
         it('renders players with heading and venue', async () => {
@@ -101,14 +102,14 @@ describe('DivisionPlayers', () => {
 
             await renderComponent(
                 {...divisionData, onReloadDivision, setDivisionData},
-                {hideVenue: undefined, hideHeading: undefined});
+                {});
 
             reportedError.verifyNoError();
             const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[];
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], ['1', '🤴 A captain', 'A team', '6', '7', '8', '2', '3', '4', '5']);
             assertPlayer(playersRows[1], ['11', 'A player', 'A team', '16', '17', '18', '12', '13', '14', '15']);
-            const heading = context.container.querySelector('.content-background > div > p');
+            const heading = context.container.querySelector('.content-background > div > p')!;
             expect(heading).toBeTruthy();
             expect(heading.textContent).toEqual('Only players that have played a singles match will appear here');
         });
@@ -116,16 +117,16 @@ describe('DivisionPlayers', () => {
         it('excludes players who have not played a singles match', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
-            const captain = divisionData.players.filter(p => p.name === 'A captain')[0];
-            captain.singles.matchesPlayed = 0;
-            captain.singles.matchesWon = 0;
-            captain.singles.matchesLost = 0;
+            const captain = divisionData.players!.filter(p => p.name === 'A captain')[0];
+            captain.singles!.matchesPlayed = 0;
+            captain.singles!.matchesWon = 0;
+            captain.singles!.matchesLost = 0;
             captain.over100Checkouts = 0;
             captain.oneEighties = 0;
 
             await renderComponent(
                 {...divisionData, onReloadDivision, setDivisionData},
-                {hideVenue: undefined, hideHeading: undefined});
+                {});
 
             reportedError.verifyNoError();
             const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[];
@@ -136,16 +137,16 @@ describe('DivisionPlayers', () => {
         it('includes players who have not played a singles match but have 180', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
-            const captain = divisionData.players.filter(p => p.name === 'A captain')[0];
-            captain.singles.matchesPlayed = 0;
-            captain.singles.matchesWon = 0;
-            captain.singles.matchesLost = 0;
+            const captain = divisionData.players!.filter(p => p.name === 'A captain')[0];
+            captain.singles!.matchesPlayed = 0;
+            captain.singles!.matchesWon = 0;
+            captain.singles!.matchesLost = 0;
             captain.oneEighties = 1;
             captain.over100Checkouts = 0;
 
             await renderComponent(
                 {...divisionData, onReloadDivision, setDivisionData},
-                {hideVenue: undefined, hideHeading: undefined});
+                {});
 
             reportedError.verifyNoError();
             const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[];
@@ -157,16 +158,16 @@ describe('DivisionPlayers', () => {
         it('includes players who have not played a singles match but have a hi-check', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
-            const captain = divisionData.players.filter(p => p.name === 'A captain')[0];
-            captain.singles.matchesPlayed = 0;
-            captain.singles.matchesWon = 0;
-            captain.singles.matchesLost = 0;
+            const captain = divisionData.players!.filter(p => p.name === 'A captain')[0];
+            captain.singles!.matchesPlayed = 0;
+            captain.singles!.matchesWon = 0;
+            captain.singles!.matchesLost = 0;
             captain.oneEighties = 0;
             captain.over100Checkouts = 1;
 
             await renderComponent(
                 {...divisionData, onReloadDivision, setDivisionData},
-                {hideVenue: undefined, hideHeading: undefined});
+                {});
 
             reportedError.verifyNoError();
             const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[];
@@ -181,7 +182,7 @@ describe('DivisionPlayers', () => {
 
             await renderComponent(
                 {...divisionData, onReloadDivision, setDivisionData},
-                {hideVenue: undefined, hideHeading: true});
+                {hideHeading: true});
 
             reportedError.verifyNoError();
             const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[]
@@ -196,7 +197,7 @@ describe('DivisionPlayers', () => {
 
             await renderComponent(
                 {...divisionData, onReloadDivision, setDivisionData},
-                {hideVenue: true, hideHeading: undefined});
+                {hideVenue: true});
 
             reportedError.verifyNoError();
             const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[]
@@ -226,14 +227,14 @@ describe('DivisionPlayers', () => {
 
             await renderComponent(
                 {...divisionData, onReloadDivision, setDivisionData},
-                {hideVenue: undefined, hideHeading: undefined});
+                {});
 
             reportedError.verifyNoError();
             const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[]
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], ['1', '✏️🗑️🤴 A captain', 'A team', '6', '7', '8', '2', '3', '4', '5']);
             assertPlayer(playersRows[1], ['11', '✏️🗑️A player', 'A team', '16', '17', '18', '12', '13', '14', '15']);
-            const heading = context.container.querySelector('.content-background > div > p');
+            const heading = context.container.querySelector('.content-background > div > p')!;
             expect(heading).toBeTruthy();
             expect(heading.textContent).toEqual('Only players that have played a singles match will appear here');
         });
@@ -241,14 +242,14 @@ describe('DivisionPlayers', () => {
         it('includes players who have not played a singles match', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
-            const captain = divisionData.players.filter(p => p.name === 'A captain')[0];
-            captain.singles.matchesPlayed = 0;
-            captain.singles.matchesWon = 0;
-            captain.singles.matchesLost = 0;
+            const captain = divisionData.players!.filter(p => p.name === 'A captain')[0];
+            captain.singles!.matchesPlayed = 0;
+            captain.singles!.matchesWon = 0;
+            captain.singles!.matchesLost = 0;
 
             await renderComponent(
                 {...divisionData, onReloadDivision, setDivisionData},
-                {hideVenue: undefined, hideHeading: undefined});
+                {});
 
             reportedError.verifyNoError();
             const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[]
@@ -263,7 +264,7 @@ describe('DivisionPlayers', () => {
 
             await renderComponent(
                 {...divisionData, onReloadDivision, setDivisionData},
-                {hideVenue: undefined, hideHeading: true});
+                {hideHeading: true});
 
             reportedError.verifyNoError();
             const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[]
@@ -278,7 +279,7 @@ describe('DivisionPlayers', () => {
 
             await renderComponent(
                 {...divisionData, onReloadDivision, setDivisionData},
-                {hideVenue: true, hideHeading: undefined});
+                {hideVenue: true});
 
             reportedError.verifyNoError();
             const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[]

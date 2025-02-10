@@ -32,13 +32,13 @@ import {MessageType} from "../../interfaces/models/dtos/MessageType";
 describe('MatchStatistics', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let saygData: RecordedScoreAsYouGoDto;
-    let updatedSayg: UpdateRecordedScoreAsYouGoDto;
+    let saygData: RecordedScoreAsYouGoDto | undefined;
+    let updatedSayg: UpdateRecordedScoreAsYouGoDto | null;
     let socketFactory: MockSocketFactory;
 
     const saygApi = api<ISaygApi>({
         get: async (): Promise<RecordedScoreAsYouGoDto | null> => {
-            return saygData;
+            return saygData || null;
         },
         upsert: async (data: UpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> => {
             updatedSayg = data;
@@ -69,44 +69,44 @@ describe('MatchStatistics', () => {
     }
 
     function assertHeaderText(expected: string[], homeWinner?: boolean, awayWinner?: boolean) {
-        const table = context.container.querySelector('table');
-        const row = table.querySelector('thead tr');
+        const table = context.container.querySelector('table')!;
+        const row = table.querySelector('thead tr')!;
         if (expected.length === 0) {
             expect(row).toBeFalsy();
             return;
         }
 
-        const headerText: string[] = Array.from(row.querySelectorAll('th')).map(th => th.textContent);
+        const headerText: string[] = Array.from(row.querySelectorAll('th')).map(th => th.textContent!);
         expect(headerText).toEqual(expected);
         assertColumnClassNames(row, 'th', 'text-primary', homeWinner, awayWinner);
     }
 
     function assertMatchAverage(expected: string[], homeWinner?: boolean, awayWinner?: boolean) {
-        const table = context.container.querySelector('table');
-        const row = table.querySelector('tfoot tr:nth-child(1)');
-        const rowText: string[] = Array.from(row.querySelectorAll('td')).map(th => th.textContent);
+        const table = context.container.querySelector('table')!;
+        const row = table.querySelector('tfoot tr:nth-child(1)')!;
+        const rowText: string[] = Array.from(row.querySelectorAll('td')).map(th => th.textContent!);
         expect(rowText).toEqual(expected);
         assertColumnClassNames(row, 'td', 'bg-winner', homeWinner, awayWinner);
     }
 
     function assertMatchDartCount(expected: string[], homeWinner?: boolean, awayWinner?: boolean) {
-        const table = context.container.querySelector('table');
-        const row = table.querySelector('tfoot tr:nth-child(2)');
-        const rowText: string[] = Array.from(row.querySelectorAll('td')).map(th => th.textContent);
+        const table = context.container.querySelector('table')!;
+        const row = table.querySelector('tfoot tr:nth-child(2)')!;
+        const rowText: string[] = Array.from(row.querySelectorAll('td')).map(th => th.textContent!);
         expect(rowText).toEqual(expected);
         assertColumnClassNames(row, 'td', 'bg-winner', homeWinner, awayWinner);
     }
 
     function assertScoreRow(expected: string[], homeWinner?: boolean, awayWinner?: boolean) {
-        const table = context.container.querySelector('table');
-        const row = table.querySelector('tbody tr:nth-child(1)');
-        const rowText: string[] = Array.from(row.querySelectorAll('td')).map(th => th.textContent);
+        const table = context.container.querySelector('table')!;
+        const row = table.querySelector('tbody tr:nth-child(1)')!;
+        const rowText: string[] = Array.from(row.querySelectorAll('td')).map(th => th.textContent!);
         expect(rowText).toEqual(expected);
         assertColumnClassNames(row, 'td', 'bg-winner text-primary', homeWinner, awayWinner);
     }
 
-    function assertColumnClassNames(row: Element, nodeName: string, className: string, home: boolean, away?: boolean) {
-        const homeCell = row.querySelector(nodeName + ':nth-child(2)');
+    function assertColumnClassNames(row: Element, nodeName: string, className: string, home?: boolean, away?: boolean) {
+        const homeCell = row.querySelector(nodeName + ':nth-child(2)')!;
         expect(homeCell).toBeTruthy();
         if (home) {
             expect(homeCell.className).toContain(className);
@@ -115,7 +115,7 @@ describe('MatchStatistics', () => {
         }
 
         if (away !== null && away !== undefined) {
-            const awayCell = row.querySelector(nodeName + ':nth-child(3)');
+            const awayCell = row.querySelector(nodeName + ':nth-child(3)')!;
             expect(awayCell).toBeTruthy();
             if (away) {
                 expect(awayCell.className).toContain(className);
@@ -126,10 +126,10 @@ describe('MatchStatistics', () => {
     }
 
     function assertLegRow(legIndex: number, expected: string[], homeWinner?: boolean, awayWinner?: boolean) {
-        const table = context.container.querySelector('table');
+        const table = context.container.querySelector('table')!;
         const rowOrdinal: number = legIndex + 2;
-        const row = table.querySelector(`tbody tr:nth-child(${rowOrdinal})`);
-        const rowText: string[] = Array.from(row.querySelectorAll('td')).map(th => th.textContent);
+        const row = table.querySelector(`tbody tr:nth-child(${rowOrdinal})`)!;
+        const rowText: string[] = Array.from(row.querySelectorAll('td')).map(th => th.textContent!);
         expect(rowText).toEqual(expected);
         assertColumnClassNames(row, 'td', 'bg-winner text-primary', homeWinner, awayWinner);
     }
@@ -222,7 +222,7 @@ describe('MatchStatistics', () => {
             liveOptions: emptyLiveOptions(),
         }, saygData);
 
-        await doClick(context.container.querySelector('input[name="showThrows"]'));
+        await doClick(context.container.querySelector('input[name="showThrows"]')!);
 
         assertLegRow(
             0,
@@ -254,7 +254,7 @@ describe('MatchStatistics', () => {
             liveOptions: emptyLiveOptions(),
         }, saygData);
 
-        await doClick(context.container.querySelector('input[name="showThrows"]'));
+        await doClick(context.container.querySelector('input[name="showThrows"]')!);
         await doClick(findButton(context.container, 'Click to show running average'));
 
         assertLegRow(
@@ -296,12 +296,12 @@ describe('MatchStatistics', () => {
         }, saygData, appProps({
             account,
         }));
-        await doClick(context.container.querySelector('input[name="showThrows"]'));
-        const legRow = context.container.querySelector('table tbody tr:nth-child(2)');
+        await doClick(context.container.querySelector('input[name="showThrows"]')!);
+        const legRow = context.container.querySelector('table tbody tr:nth-child(2)')!;
 
         await doClick(legRow, 'table tbody tr:nth-child(2)');
         expect(context.container.querySelector('.modal-dialog')).toBeTruthy();
-        expect(context.container.querySelector('.modal-dialog').textContent).toContain('Edit throw');
+        expect(context.container.querySelector('.modal-dialog')!.textContent).toContain('Edit throw');
         await doClick(findButton(legRow, 'Save changes'));
 
         reportedError.verifyNoError();
@@ -326,8 +326,8 @@ describe('MatchStatistics', () => {
             id: saygData.id,
             liveOptions: emptyLiveOptions(),
         }, saygData);
-        await doClick(context.container.querySelector('input[name="showThrows"]'));
-        const legRow = context.container.querySelector('table tbody tr:nth-child(2)');
+        await doClick(context.container.querySelector('input[name="showThrows"]')!);
+        const legRow = context.container.querySelector('table tbody tr:nth-child(2)')!;
 
         await doClick(legRow, 'table tbody tr:nth-child(2)');
 
@@ -355,7 +355,7 @@ describe('MatchStatistics', () => {
         }, saygData);
 
         expect(context.container.querySelector('h4 .dropdown-menu')).toBeFalsy();
-        expect(context.container.querySelector('h4').textContent).not.toContain('⏸️');
+        expect(context.container.querySelector('h4')!.textContent).not.toContain('⏸️');
     });
 
     it('does not render refresh options when home has won', async () => {
@@ -385,7 +385,7 @@ describe('MatchStatistics', () => {
         }, saygData);
 
         expect(context.container.querySelector('h4 .dropdown-menu')).toBeFalsy();
-        expect(context.container.querySelector('h4').textContent).not.toContain('⏸️');
+        expect(context.container.querySelector('h4')!.textContent).not.toContain('⏸️');
     });
 
     it('does not render refresh options when away has won', async () => {
@@ -415,7 +415,7 @@ describe('MatchStatistics', () => {
         }, saygData);
 
         expect(context.container.querySelector('h4 .dropdown-menu')).toBeFalsy();
-        expect(context.container.querySelector('h4').textContent).not.toContain('⏸️');
+        expect(context.container.querySelector('h4')!.textContent).not.toContain('⏸️');
     });
 
     it('enables live updates by default', async () => {
@@ -490,9 +490,9 @@ describe('MatchStatistics', () => {
             account,
         }));
 
-        const selectedOption = context.container.querySelector('h4 .dropdown-menu .active');
+        const selectedOption = context.container.querySelector('h4 .dropdown-menu .active')!;
         expect(selectedOption).toBeTruthy();
-        expect(selectedOption.textContent).toEqual('⏸️ Paused');
+        expect(selectedOption!.textContent).toEqual('⏸️ Paused');
         expect(socketFactory.socketWasCreated()).toEqual(false);
     });
 
@@ -682,7 +682,7 @@ describe('MatchStatistics', () => {
             .build();
         expect(socketFactory.socketWasCreated()).toEqual(true);
         await act(async () => {
-            socketFactory.socket.onmessage({
+            socketFactory.socket!.onmessage!({
                 type: 'message',
                 data: JSON.stringify({
                     type: MessageType.update,
@@ -693,7 +693,7 @@ describe('MatchStatistics', () => {
         });
 
         reportedError.verifyNoError();
-        const firstRow = context.container.querySelector('table tbody tr:first-child');
+        const firstRow = context.container.querySelector('table tbody tr:first-child')!;
         const finishedHeadings = Array.from(firstRow.querySelectorAll('td'));
         expect(finishedHeadings.map(th => th.textContent)).toEqual(['Score', '2', '0']);
     });

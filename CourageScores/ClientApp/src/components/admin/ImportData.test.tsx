@@ -22,8 +22,8 @@ import {IDataApi} from "../../interfaces/apis/IDataApi";
 describe('ImportData', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let importRequest: ImportDataRequestDto;
-    let apiResponse: IClientActionResultDto<ImportDataResultDto>;
+    let importRequest: ImportDataRequestDto | null;
+    let apiResponse: IClientActionResultDto<ImportDataResultDto> | null;
     const dataApi = api<IDataApi>({
         import: async (request: ImportDataRequestDto): Promise<IClientActionResultDto<ImportDataResultDto>> => {
             importRequest = request;
@@ -84,7 +84,7 @@ describe('ImportData', () => {
         await renderComponent(props);
         reportedError.verifyNoError();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
+        const table1 = tables.filter(t => t.textContent!.indexOf('Table 1') !== -1)[0];
         expect(table1).toBeTruthy();
         expect(table1.className).toContain('active');
 
@@ -97,7 +97,7 @@ describe('ImportData', () => {
         await renderComponent(props);
         reportedError.verifyNoError();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table2 = tables.filter(t => t.textContent.indexOf('Table 2') !== -1)[0];
+        const table2 = tables.filter(t => t.textContent!.indexOf('Table 2') !== -1)[0];
         expect(table2).toBeTruthy();
         expect(table2.className).not.toContain('active');
 
@@ -109,23 +109,19 @@ describe('ImportData', () => {
     it('cannot import when no file selected', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        let alert: string;
-        window.alert = (msg) => alert = msg;
 
         await doClick(findButton(context.container, 'Import data'));
 
         reportedError.verifyNoError();
         expect(importRequest).toBeNull();
-        expect(alert).toEqual('Select a file first');
+        context.prompts.alertWasShown('Select a file first');
     });
 
     it('cannot import when no tables selected', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        let alert: string;
-        window.alert = (msg) => alert = msg;
         const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
+        const table1 = tables.filter(t => t.textContent!.indexOf('Table 1') !== -1)[0];
         if (table1.className.indexOf('active') !== -1) {
             await doClick(table1);
         }
@@ -135,14 +131,14 @@ describe('ImportData', () => {
 
         reportedError.verifyNoError();
         expect(importRequest).toBeNull();
-        expect(alert).toEqual('Select some tables to import');
+        context.prompts.alertWasShown('Select some tables to import');
     });
 
     it('can import data with password', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
+        const table1 = tables.filter(t => t.textContent!.indexOf('Table 1') !== -1)[0];
         if (table1.className.indexOf('active') === -1) {
             await doClick(table1);
         }
@@ -164,7 +160,7 @@ describe('ImportData', () => {
         await renderComponent(props);
         reportedError.verifyNoError();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
+        const table1 = tables.filter(t => t.textContent!.indexOf('Table 1') !== -1)[0];
         if (table1.className.indexOf('active') === -1) {
             await doClick(table1);
         }
@@ -185,7 +181,7 @@ describe('ImportData', () => {
         await renderComponent(props);
         reportedError.verifyNoError();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
+        const table1 = tables.filter(t => t.textContent!.indexOf('Table 1') !== -1)[0];
         if (table1.className.indexOf('active') === -1) {
             await doClick(table1);
         }
@@ -208,7 +204,7 @@ describe('ImportData', () => {
         await renderComponent(props);
         reportedError.verifyNoError();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
+        const table1 = tables.filter(t => t.textContent!.indexOf('Table 1') !== -1)[0];
         if (table1.className.indexOf('active') === -1) {
             await doClick(table1);
         }
@@ -238,7 +234,7 @@ describe('ImportData', () => {
         await renderComponent(props);
         reportedError.verifyNoError();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
+        const table1 = tables.filter(t => t.textContent!.indexOf('Table 1') !== -1)[0];
         if (table1.className.indexOf('active') === -1) {
             await doClick(table1);
         }
@@ -256,7 +252,7 @@ describe('ImportData', () => {
         await renderComponent(props);
         reportedError.verifyNoError();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
+        const table1 = tables.filter(t => t.textContent!.indexOf('Table 1') !== -1)[0];
         if (table1.className.indexOf('active') === -1) {
             await doClick(table1);
         }
@@ -278,7 +274,7 @@ describe('ImportData', () => {
         await renderComponent(props);
         reportedError.verifyNoError();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
+        const table1 = tables.filter(t => t.textContent!.indexOf('Table 1') !== -1)[0];
         if (table1.className.indexOf('active') === -1) {
             await doClick(table1);
         }
@@ -302,7 +298,7 @@ describe('ImportData', () => {
         await renderComponent(props);
         reportedError.verifyNoError();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
+        const table1 = tables.filter(t => t.textContent!.indexOf('Table 1') !== -1)[0];
         if (table1.className.indexOf('active') === -1) {
             await doClick(table1);
         }

@@ -54,15 +54,15 @@ export function About() {
                     {build.version || build.prLink
                         ? (<a href={build.prLink || `https://github.com/laingsimon/courage_scores/commit/${build.version}`}>
                             {build.prName
-                                ? `${build.prName} (${build.version.substring(0, 8)})`
-                                : `${build.version.substring(0, 8)}`}
+                                ? `${build.prName} (${build.version!.substring(0, 8)})`
+                                : `${build.version!.substring(0, 8)}`}
                         </a>)
                         : <span>Unknown</span>}
                 </td>
             </tr>
             <tr>
                 <th>Date</th>
-                <td title={build.date!}>{renderDate(build.date!)} {new Date(build.date!).toLocaleTimeString()}</td>
+                <td title={build.date}>{renderDate(build.date!)} {new Date(build.date!).toLocaleTimeString()}</td>
             </tr>
             </tbody>
             <tfoot>

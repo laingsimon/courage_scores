@@ -15,7 +15,7 @@ import {DivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/
 describe('TemplateDivisions', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let update: DivisionTemplateDto[];
+    let update: DivisionTemplateDto[] | null;
 
     afterEach(async () => {
         await cleanUp(context);
@@ -53,7 +53,7 @@ describe('TemplateDivisions', () => {
                 setHighlight,
             });
 
-            const prefix = context.container.querySelector('ul li:first-child');
+            const prefix = context.container.querySelector('ul li:first-child')!;
             expect(prefix.textContent).toEqual('Divisions');
         });
 
@@ -82,7 +82,7 @@ describe('TemplateDivisions', () => {
                 setHighlight,
             });
 
-            const divisionElement = context.container.querySelector('ul li:nth-child(2)');
+            const divisionElement = context.container.querySelector('ul li:nth-child(2)')!;
             expect(divisionElement.textContent).toContain('Division 1 (click to collapse)');
         });
     });

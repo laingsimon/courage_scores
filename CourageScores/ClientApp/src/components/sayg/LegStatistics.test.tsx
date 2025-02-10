@@ -15,7 +15,7 @@ import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 
 describe('LegStatistics', () => {
     let context: TestContext;
-    let newLegDisplayOptions: ILegDisplayOptions;
+    let newLegDisplayOptions: ILegDisplayOptions | null;
 
     afterEach(async () => {
         await cleanUp(context);
@@ -35,8 +35,8 @@ describe('LegStatistics', () => {
             brandingProps(),
             appProps(),
             <LegStatistics {...props} />,
-            null,
-            null,
+            undefined,
+            undefined,
             'tbody');
     }
 
@@ -428,9 +428,9 @@ describe('LegStatistics', () => {
                 },
                 updateLegDisplayOptions,
             });
-            const firstCell = context.container.querySelector('tr td:first-child');
+            const firstCell = context.container.querySelector('tr td:first-child')!;
 
-            await doClick(firstCell.querySelector('input[name="showThrows"]'));
+            await doClick(firstCell.querySelector('input[name="showThrows"]')!);
 
             expect(newLegDisplayOptions).toEqual({
                 showThrows: true,
@@ -547,7 +547,7 @@ describe('LegStatistics', () => {
             await doChange(context.container, 'input[name="noOfDarts"]', '2', context.user);
             await doClick(findButton(context.container, 'Save changes'));
 
-            expect(newLeg.home).toEqual({
+            expect(newLeg!.home).toEqual({
                 noOfDarts: 2,
                 score: 105,
                 throws: [
@@ -582,7 +582,7 @@ describe('LegStatistics', () => {
             await doChange(context.container, 'input[name="noOfDarts"]', '0', context.user);
             await doClick(findButton(context.container, 'Save changes'));
 
-            expect(newLeg.home).toEqual({
+            expect(newLeg!.home).toEqual({
                 noOfDarts: 0,
                 score: 0,
                 throws: [],

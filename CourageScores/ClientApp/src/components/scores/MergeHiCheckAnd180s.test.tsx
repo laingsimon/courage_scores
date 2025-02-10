@@ -16,7 +16,7 @@ import {playerBuilder} from "../../helpers/builders/players";
 describe('MergeHiCheckAnd180s', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedData: GameDto;
+    let updatedData: GameDto | null;
 
     afterEach(async () => {
         await cleanUp(context);
@@ -37,8 +37,8 @@ describe('MergeHiCheckAnd180s', () => {
             brandingProps(),
             appProps({}, reportedError),
             (<MergeHiCheckAnd180s {...props} />),
-            null,
-            null,
+            undefined,
+            undefined,
             'tbody');
     }
 
@@ -54,7 +54,7 @@ describe('MergeHiCheckAnd180s', () => {
                 await renderComponent({ data, fixtureData, setFixtureData });
 
                 reportedError.verifyNoError();
-                const homeSubmission = context.container.querySelector('div[datatype="home-180s"]');
+                const homeSubmission = context.container.querySelector('div[datatype="home-180s"]')!;
                 expect(homeSubmission).not.toBeNull();
                 const oneEighties = Array.from(homeSubmission.querySelectorAll('ol > li')).map(li => li.textContent);
                 expect(oneEighties).toEqual(['NAME']);
@@ -70,7 +70,7 @@ describe('MergeHiCheckAnd180s', () => {
                 await renderComponent({ data, fixtureData, setFixtureData });
 
                 reportedError.verifyNoError();
-                const awaySubmission = context.container.querySelector('div[datatype="away-180s"]');
+                const awaySubmission = context.container.querySelector('div[datatype="away-180s"]')!;
                 expect(awaySubmission).not.toBeNull();
                 const oneEighties = Array.from(awaySubmission.querySelectorAll('ol > li')).map(li => li.textContent);
                 expect(oneEighties).toEqual(['NAME']);
@@ -171,7 +171,7 @@ describe('MergeHiCheckAnd180s', () => {
 
                 reportedError.verifyNoError();
                 expect(updatedData).not.toBeNull();
-                expect(updatedData.oneEighties).toEqual([player]);
+                expect(updatedData!.oneEighties).toEqual([player]);
             });
 
             it('can merge away submission', async () => {
@@ -189,7 +189,7 @@ describe('MergeHiCheckAnd180s', () => {
 
                 reportedError.verifyNoError();
                 expect(updatedData).not.toBeNull();
-                expect(updatedData.oneEighties).toEqual([player]);
+                expect(updatedData!.oneEighties).toEqual([player]);
             });
         });
     });
@@ -207,7 +207,7 @@ describe('MergeHiCheckAnd180s', () => {
                 await renderComponent({ data, fixtureData, setFixtureData });
 
                 reportedError.verifyNoError();
-                const homeSubmission = context.container.querySelector('div[datatype="home-hichecks"]');
+                const homeSubmission = context.container.querySelector('div[datatype="home-hichecks"]')!;
                 expect(homeSubmission).not.toBeNull();
                 const hiChecks = Array.from(homeSubmission.querySelectorAll('ol > li')).map(li => li.textContent);
                 expect(hiChecks).toEqual(['NAME (120)']);
@@ -224,7 +224,7 @@ describe('MergeHiCheckAnd180s', () => {
                 await renderComponent({ data, fixtureData, setFixtureData });
 
                 reportedError.verifyNoError();
-                const awaySubmission = context.container.querySelector('div[datatype="away-hichecks"]');
+                const awaySubmission = context.container.querySelector('div[datatype="away-hichecks"]')!;
                 expect(awaySubmission).not.toBeNull();
                 const hiChecks = Array.from(awaySubmission.querySelectorAll('ol > li')).map(li => li.textContent);
                 expect(hiChecks).toEqual(['NAME (120)']);
@@ -326,7 +326,7 @@ describe('MergeHiCheckAnd180s', () => {
 
                 reportedError.verifyNoError();
                 expect(updatedData).not.toBeNull();
-                expect(updatedData.over100Checkouts).toEqual([player]);
+                expect(updatedData!.over100Checkouts).toEqual([player]);
             });
 
             it('can merge away submission', async () => {
@@ -338,13 +338,13 @@ describe('MergeHiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder('2023-05-06')
                     .build();
                 await renderComponent({ data, fixtureData, setFixtureData });
-                const awaySubmission = context.container.querySelector('div[datatype="away-hichecks"]');
+                const awaySubmission = context.container.querySelector('div[datatype="away-hichecks"]')!;
 
                 await doClick(findButton(awaySubmission, 'Merge'));
 
                 reportedError.verifyNoError();
                 expect(updatedData).not.toBeNull();
-                expect(updatedData.over100Checkouts).toEqual([player]);
+                expect(updatedData!.over100Checkouts).toEqual([player]);
             });
         });
     })

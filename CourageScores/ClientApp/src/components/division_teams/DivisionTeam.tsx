@@ -12,6 +12,7 @@ import {usePreferences} from "../common/PreferencesContainer";
 import {any} from "../../helpers/collections";
 import {Link} from "react-router";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
+import {hasAccess} from "../../helpers/conditions";
 
 export interface IDivisionTeamProps {
     team: DivisionTeamDto;
@@ -23,7 +24,7 @@ export function DivisionTeam({team}: IDivisionTeamProps) {
     const [teamDetails, setTeamDetails] = useState<EditTeamDto>(Object.assign({newDivisionId: divisionId}, team));
     const [editTeam, setEditTeam] = useState<boolean>(false);
     const [addTeamToSeason, setAddTeamToSeason] = useState<boolean>(false);
-    const isAdmin = account && account.access && account.access.manageTeams;
+    const isAdmin = hasAccess(account, access => access.manageTeams);
     const {getPreference} = usePreferences();
     const favouriteTeamIds: string[] = getPreference<string[]>('favouriteTeamIds') || [];
     const teamIsFavourite: boolean = any(favouriteTeamIds, id => id === team.id);
@@ -39,8 +40,8 @@ export function DivisionTeam({team}: IDivisionTeamProps) {
         try {
             return (<Dialog title={`Edit team: ${team.name}`}>
                 <EditTeamDetails
-                    divisionId={divisionId}
-                    seasonId={season.id}
+                    divisionId={divisionId!}
+                    seasonId={season!.id!}
                     team={teamDetails}
                     lastUpdated={team.updated}
                     onCancel={async () => setEditTeam(false)}
@@ -65,7 +66,7 @@ export function DivisionTeam({team}: IDivisionTeamProps) {
         }
     }
 
-    const division: DivisionDto = team.division || { id: divisionId, name: divisionName };
+    const division: DivisionDto = team.division || { id: divisionId!, name: divisionName };
 
     try {
         return (<tr className={(notAFavourite && favouritesEnabled && !isAdmin ? ' opacity-25' : '')}>
@@ -74,8 +75,8 @@ export function DivisionTeam({team}: IDivisionTeamProps) {
                                     className="btn btn-sm btn-primary margin-right d-print-none">✏️</button>) : null}
                 {isAdmin ? (<button onClick={() => setAddTeamToSeason(true)}
                                     className="btn btn-sm btn-primary margin-right d-print-none">➕</button>) : null}
-                {isAdmin ? null : (<ToggleFavouriteTeam teamId={team.id} />)}
-                <Link to={`/division/${division.name || division.id}/team:${team.name}/${season.name}`}>
+                {isAdmin ? null : (<ToggleFavouriteTeam teamId={team.id!} />)}
+                <Link to={`/division/${division.name || division.id}/team:${team.name}/${season!.name}`}>
                     {team.name}
                 </Link>
                 {editTeam && isAdmin ? renderEditTeam() : null}

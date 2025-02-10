@@ -163,7 +163,7 @@ public class ControllerStrategy: IStrategy
         builder.AppendLine();
 
         builder.AppendLine($"{methodIndent}if (response.status === 204) {{");
-        builder.AppendLine($"{methodIndent}{functionIndent}return null;");
+        builder.AppendLine($"{methodIndent}{functionIndent}return {{}};");
         builder.AppendLine($"{methodIndent}}}");
         builder.AppendLine();
 

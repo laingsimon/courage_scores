@@ -82,7 +82,7 @@ describe('SavingProposals', () => {
                 saving: true,
             });
 
-            const progressStatement = context.container.querySelector('div > div:nth-child(2)');
+            const progressStatement = context.container.querySelector('div > div:nth-child(2)')!;
             const progressBar = context.container.querySelector('.progress .progress-bar') as HTMLElement;
             expect(progressStatement.textContent).toEqual('1 fixtures of 3 saved');
             expect(progressBar.style.width).toEqual('33.33%');

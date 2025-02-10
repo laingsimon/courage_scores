@@ -14,14 +14,14 @@ export interface ITournamentSideProps {
 }
 
 export function TournamentSide({side, onChange, winner, readOnly, onRemove}: ITournamentSideProps) {
-    const [editSide, setEditSide] = useState<TournamentSideDto>(null);
+    const [editSide, setEditSide] = useState<TournamentSideDto | null>(null);
 
     function renderPlayers() {
-        if (isEmpty(side.players || [])) {
+        if (isEmpty(side.players)) {
             return null;
         }
 
-        if (count(side.players || []) === 1 && side.players[0].name === side.name) {
+        if (count(side.players) === 1 && side.players![0].name === side.name) {
             return null;
         }
 
@@ -38,12 +38,12 @@ export function TournamentSide({side, onChange, winner, readOnly, onRemove}: ITo
 
     function renderEditSide() {
         return (<EditSide
-            side={editSide}
+            side={editSide!}
             onChange={async (side: TournamentSideDto) => setEditSide(side)}
             onClose={async () => setEditSide(null)}
             onApply={async (options: ISaveSideOptions) => {
                 if (onChange) {
-                    await onChange(editSide, options);
+                    await onChange(editSide!, options);
                 }
                 setEditSide(null);
             }}

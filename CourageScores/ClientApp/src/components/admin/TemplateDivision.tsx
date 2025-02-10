@@ -35,17 +35,17 @@ export function TemplateDivision({ divisionNo, division, onUpdate, onDelete, tem
     }
 
     function findMnemonicsThatNeverPlayAtTheSameVenueAcrossAnyDate(): string[][] {
-        let allMnemonics: string[] = distinct(division.dates
+        let allMnemonics: string[] = distinct(division.dates!
             .flatMap((d: DateTemplateDto) => d.fixtures)
-            .flatMap((f: FixtureTemplateDto) => [ f.home, f.away ])
-            .filter((mnemonic: string) => !!mnemonic));
+            .flatMap((f: FixtureTemplateDto | undefined) => [ f?.home, f?.away ])
+            .filter((mnemonic: string | undefined) => !!mnemonic));
         const mnemonics: string[][] = [];
 
         for (const mnemonic of allMnemonics) {
             let mnemonicsThatArePlayingAlwaysAtDifferentVenues: string[] = allMnemonics.filter((m: string) => !!m); // copy the array of all mnemonics
 
-            for (const date of division.dates) {
-                const mnemonicsThatAreAtHome: string[] = date.fixtures.map((f: FixtureTemplateDto) => f.home);
+            for (const date of division.dates!) {
+                const mnemonicsThatAreAtHome: string[] = date.fixtures!.map((f: FixtureTemplateDto) => f.home);
                 if (!any(mnemonicsThatAreAtHome, m => m === mnemonic)) {
                     continue;
                 }
@@ -72,16 +72,16 @@ export function TemplateDivision({ divisionNo, division, onUpdate, onDelete, tem
             {expanded ? ' (click to collapse)' : ' (click to expand)'}
         </h6>
         {expanded ? (<SharedAddresses
-            addresses={division.sharedAddresses}
+            addresses={division.sharedAddresses!}
             onUpdate={updateSharedAddresses}
             className="bg-secondary"
             highlight={highlight}
             setHighlight={setHighlight}
             mnemonicsThatCanShareAddresses={findMnemonicsThatNeverPlayAtTheSameVenueAcrossAnyDate()} />) : null}
         {expanded ? (<TemplateDates
-            dates={division.dates}
+            dates={division.dates!}
             onUpdate={updateDates}
-            divisionSharedAddresses={division.sharedAddresses.flatMap((a: string[]) => a)}
+            divisionSharedAddresses={division.sharedAddresses!.flatMap((a: string[]) => a)}
             templateSharedAddresses={templateSharedAddresses}
             divisionNo={divisionNo}
             divisionCount={divisionCount}

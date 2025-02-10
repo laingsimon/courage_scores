@@ -37,7 +37,7 @@ describe('WidescreenSaygPlayer', () => {
 
     beforeEach(() => {
         reportedError = new ErrorState();
-        newStatisticsView = null;
+        newStatisticsView = false;
     });
 
     async function changeStatisticsView(newValue: boolean) {
@@ -92,7 +92,7 @@ describe('WidescreenSaygPlayer', () => {
                     finished: false,
                     showOptions: false,
                     changeStatisticsView,
-                    saygId: null,
+                    saygId: '',
                 });
 
             reportedError.verifyNoError();
@@ -110,12 +110,12 @@ describe('WidescreenSaygPlayer', () => {
                     finished: false,
                     showOptions: false,
                     changeStatisticsView,
-                    saygId: null,
+                    saygId: '',
                 });
 
             reportedError.verifyNoError();
-            const scoreElement = context.container.querySelector('div:nth-child(1)');
-            expect(scoreElement.querySelector('h1').textContent).toEqual('401');
+            const scoreElement = context.container.querySelector('div:nth-child(1)')!;
+            expect(scoreElement.querySelector('h1')!.textContent).toEqual('401');
         });
 
         it('score second', async () => {
@@ -128,12 +128,12 @@ describe('WidescreenSaygPlayer', () => {
                     finished: false,
                     showOptions: false,
                     changeStatisticsView,
-                    saygId: null,
+                    saygId: '',
                 });
 
             reportedError.verifyNoError();
-            const scoreElement = context.container.querySelector('div:nth-child(2)');
-            expect(scoreElement.querySelector('h1').textContent).toEqual('401');
+            const scoreElement = context.container.querySelector('div:nth-child(2)')!;
+            expect(scoreElement.querySelector('h1')!.textContent).toEqual('401');
         });
 
         it('no options', async () => {
@@ -146,7 +146,7 @@ describe('WidescreenSaygPlayer', () => {
                     finished: false,
                     showOptions: false,
                     changeStatisticsView,
-                    saygId: null,
+                    saygId: '',
                 });
 
             reportedError.verifyNoError();
@@ -166,15 +166,15 @@ describe('WidescreenSaygPlayer', () => {
                     finished: false,
                     showOptions: true,
                     changeStatisticsView,
-                    saygId: null,
+                    saygId: '',
                 }, {
                     defaultData: sayg,
-                    id: null,
+                    id: '',
                     liveOptions: {},
                 });
 
             reportedError.verifyNoError();
-            const optionsContainer = context.container.querySelector('div:nth-child(3)');
+            const optionsContainer = context.container.querySelector('div:nth-child(3)')!;
             expect(optionsContainer).toBeTruthy();
             expect(optionsContainer.textContent).toContain('⏸️ Paused');
         });
@@ -191,15 +191,15 @@ describe('WidescreenSaygPlayer', () => {
                     finished: false,
                     showOptions: true,
                     changeStatisticsView,
-                    saygId: null,
+                    saygId: '',
                 }, {
                     defaultData: sayg,
-                    id: null,
+                    id: '',
                     liveOptions: {},
                 });
 
             reportedError.verifyNoError();
-            const optionsContainer = context.container.querySelector('div:nth-child(3)');
+            const optionsContainer = context.container.querySelector('div:nth-child(3)')!;
             expect(optionsContainer).toBeTruthy();
             expect(optionsContainer.textContent).not.toContain('⏸️ Paused');
         });
@@ -216,15 +216,15 @@ describe('WidescreenSaygPlayer', () => {
                     finished: true,
                     showOptions: true,
                     changeStatisticsView,
-                    saygId: null,
+                    saygId: '',
                 }, {
                     defaultData: sayg,
-                    id: null,
+                    id: '',
                     liveOptions: {},
                 });
 
             reportedError.verifyNoError();
-            const optionsContainer = context.container.querySelector('div:nth-child(3)');
+            const optionsContainer = context.container.querySelector('div:nth-child(3)')!;
             expect(optionsContainer).toBeTruthy();
             expect(optionsContainer.textContent).not.toContain('⏸️ Paused');
         });
@@ -239,12 +239,12 @@ describe('WidescreenSaygPlayer', () => {
                     finished: false,
                     showOptions: true,
                     changeStatisticsView,
-                    saygId: null,
+                    saygId: '',
                 });
 
             reportedError.verifyNoError();
-            const optionsContainer = context.container.querySelector('div:nth-child(3)');
-            const changeButton = optionsContainer.querySelector('button');
+            const optionsContainer = context.container.querySelector('div:nth-child(3)')!;
+            const changeButton = optionsContainer.querySelector('button')!;
             expect(changeButton.textContent).toEqual('📊');
         });
 
@@ -257,13 +257,12 @@ describe('WidescreenSaygPlayer', () => {
                     player: 'home',
                     finished: false,
                     showOptions: true,
-                    changeStatisticsView: null,
-                    saygId: null,
+                    saygId: '',
                 });
 
             reportedError.verifyNoError();
-            const optionsContainer = context.container.querySelector('div:nth-child(3)');
-            const changeButton = optionsContainer.querySelector('button');
+            const optionsContainer = context.container.querySelector('div:nth-child(3)')!;
+            const changeButton = optionsContainer.querySelector('button')!;
             expect(changeButton).toBeFalsy();
         });
 
@@ -278,12 +277,11 @@ describe('WidescreenSaygPlayer', () => {
                     player: 'home',
                     finished: true,
                     showOptions: true,
-                    changeStatisticsView: null,
-                    saygId: null,
+                    saygId: '',
                 });
 
             reportedError.verifyNoError();
-            const scoreElement = context.container.querySelector('h1');
+            const scoreElement = context.container.querySelector('h1')!;
             expect(scoreElement.textContent).toEqual('🎉');
         });
 
@@ -298,12 +296,11 @@ describe('WidescreenSaygPlayer', () => {
                     player: 'home',
                     finished: false,
                     showOptions: true,
-                    changeStatisticsView: null,
-                    saygId: null,
+                    saygId: '',
                 });
 
             reportedError.verifyNoError();
-            const scoreElement = context.container.querySelector('h1');
+            const scoreElement = context.container.querySelector('h1')!;
             expect(scoreElement.textContent).toEqual('0');
         });
 
@@ -333,12 +330,11 @@ describe('WidescreenSaygPlayer', () => {
                     player: 'home',
                     finished: false,
                     showOptions: true,
-                    changeStatisticsView: null,
                     saygId: sayg.id,
                 });
 
             reportedError.verifyNoError();
-            const throwsElement = context.container.querySelector('div[datatype="WidescreenSaygPlayer"] > div:nth-child(1)');
+            const throwsElement = context.container.querySelector('div[datatype="WidescreenSaygPlayer"] > div:nth-child(1)')!;
             const throws = Array.from(throwsElement.querySelectorAll('div'));
             expect(throws.map(thr => thr.textContent)).toEqual([ '12', '10', '8', '6', '4' ]);
         });
@@ -379,12 +375,11 @@ describe('WidescreenSaygPlayer', () => {
                     player: 'home',
                     finished: false,
                     showOptions: true,
-                    changeStatisticsView: null,
                     saygId: sayg.id,
                 });
 
             reportedError.verifyNoError();
-            const throwsElement = context.container.querySelector('div[datatype="WidescreenSaygPlayer"] > div:nth-child(1)');
+            const throwsElement = context.container.querySelector('div[datatype="WidescreenSaygPlayer"] > div:nth-child(1)')!;
             const throws = Array.from(throwsElement.querySelectorAll('div'));
             expect(throws.map(thr => thr.textContent)).toEqual([ '112', '110', '18', '16', '14' ]);
         });
@@ -412,12 +407,11 @@ describe('WidescreenSaygPlayer', () => {
                     player: 'home',
                     finished: false,
                     showOptions: true,
-                    changeStatisticsView: null,
                     saygId: sayg.id,
                 });
 
             reportedError.verifyNoError();
-            const throwsElement = context.container.querySelector('div[datatype="WidescreenSaygPlayer"] > div:nth-child(1)');
+            const throwsElement = context.container.querySelector('div[datatype="WidescreenSaygPlayer"] > div:nth-child(1)')!;
             const throws = Array.from(throwsElement.querySelectorAll('div'));
             expect(throws.map(thr => thr.textContent)).toEqual([ '6', '4', '2' ]);
         });

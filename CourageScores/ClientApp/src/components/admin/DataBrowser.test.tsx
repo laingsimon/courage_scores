@@ -29,10 +29,10 @@ jest.mock('react-router', () => ({
 describe('DataBrowser', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let requestedData: { table: string, id?: string };
-    let singleApiResult: IClientActionResultDto<object>;
-    let multiApiResult: IClientActionResultDto<SingleDataResultDto[]>;
-    let apiException: IError;
+    let requestedData: { table: string, id: string | null } | null;
+    let singleApiResult: IClientActionResultDto<object> | null;
+    let multiApiResult: IClientActionResultDto<SingleDataResultDto[]> | null;
+    let apiException: IError | null;
     const dataApi = api<IDataApi>({
         view: async (table: string, id: string): Promise<IClientActionResultDto<object>> => {
             requestedData = { table, id };
@@ -149,8 +149,8 @@ describe('DataBrowser', () => {
             const table = context.container.querySelector('table') as HTMLTableElement;
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
-            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['id', 'date', 'name']);
-            expect(rows.map(row => row.querySelector('td:nth-child(2)').textContent)).toEqual([game.id, renderDate(game.date), game.name]);
+            expect(rows.map(row => row.querySelector('td:nth-child(1)')!.textContent)).toEqual(['id', 'date', 'name']);
+            expect(rows.map(row => row.querySelector('td:nth-child(2)')!.textContent)).toEqual([game.id, renderDate(game.date), game.name]);
         });
 
         it('single record excluding cosmos properties', async () => {
@@ -167,7 +167,7 @@ describe('DataBrowser', () => {
             const table = context.container.querySelector('table') as HTMLTableElement;
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
-            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['id']);
+            expect(rows.map(row => row.querySelector('td:nth-child(1)')!.textContent)).toEqual(['id']);
         });
 
         it('single record including empty values', async () => {
@@ -184,7 +184,7 @@ describe('DataBrowser', () => {
             const table = context.container.querySelector('table') as HTMLTableElement;
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
-            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['empty', 'id']);
+            expect(rows.map(row => row.querySelector('td:nth-child(1)')!.textContent)).toEqual(['empty', 'id']);
         });
 
         it('single record including null values', async () => {
@@ -201,7 +201,7 @@ describe('DataBrowser', () => {
             const table = context.container.querySelector('table') as HTMLTableElement;
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
-            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['nullValue', 'id']);
+            expect(rows.map(row => row.querySelector('td:nth-child(1)')!.textContent)).toEqual(['nullValue', 'id']);
         });
 
         it('single record including undefined values', async () => {
@@ -218,7 +218,7 @@ describe('DataBrowser', () => {
             const table = context.container.querySelector('table') as HTMLTableElement;
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
-            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['undefinedValue', 'id']);
+            expect(rows.map(row => row.querySelector('td:nth-child(1)')!.textContent)).toEqual(['undefinedValue', 'id']);
         });
 
         it('single record including audit values', async () => {
@@ -235,8 +235,8 @@ describe('DataBrowser', () => {
             const table = context.container.querySelector('table') as HTMLTableElement;
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
-            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['Remover', 'Deleted', 'Editor', 'Updated', 'Author', 'Created', 'id']);
-            expect(rows.map(row => row.querySelector('td:nth-child(2)').textContent)).toEqual(['REMOVER', 'DELETED', 'EDITOR', 'UPDATED', 'AUTHOR', 'CREATED', game.id]);
+            expect(rows.map(row => row.querySelector('td:nth-child(1)')!.textContent)).toEqual(['Remover', 'Deleted', 'Editor', 'Updated', 'Author', 'Created', 'id']);
+            expect(rows.map(row => row.querySelector('td:nth-child(2)')!.textContent)).toEqual(['REMOVER', 'DELETED', 'EDITOR', 'UPDATED', 'AUTHOR', 'CREATED', game.id]);
         });
 
         it('single record including id', async () => {
@@ -251,9 +251,9 @@ describe('DataBrowser', () => {
             }, reportedError), '?table=game&id=' + createTemporaryId() + '&showIdsUptoDepth=2');
 
             const rows = Array.from(context.container.querySelectorAll('div > table > tbody > tr')) as HTMLTableRowElement[];
-            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['id', 'child']);
+            expect(rows.map(row => row.querySelector('td:nth-child(1)')!.textContent)).toEqual(['id', 'child']);
             const childRows = Array.from(rows[1].querySelectorAll('table > tbody > tr')) as HTMLTableRowElement[];
-            expect(childRows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['id', 'grandChild']);
+            expect(childRows.map(row => row.querySelector('td:nth-child(1)')!.textContent)).toEqual(['id', 'grandChild']);
             expect(context.container.textContent).not.toContain('GRANDCHILD_ID');
         });
 
@@ -341,12 +341,10 @@ describe('DataBrowser', () => {
             await renderComponent(appProps({
                 account: {},
             }, reportedError));
-            let alert: string;
-            window.alert = (msg) => alert = msg;
 
             await doClick(findButton(context.container, 'Fetch'));
 
-            expect(alert).toEqual('Enter a table name (and optionally an id) first');
+            context.prompts.alertWasShown('Enter a table name (and optionally an id) first');
         });
 
         it('fetches when only table name supplied', async () => {

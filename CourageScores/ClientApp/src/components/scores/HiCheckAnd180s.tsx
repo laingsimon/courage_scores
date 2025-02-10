@@ -21,7 +21,7 @@ export function HiCheckAnd180s({access, saving, fixtureData, setFixtureData}: IH
     const {division, season} = useLeagueFixture();
 
     function getApplicablePlayers(): ISelectablePlayer[] {
-        const players: GamePlayerDto[] = fixtureData.matches.flatMap((match: GameMatchDto) =>
+        const players: GamePlayerDto[] = fixtureData.matches!.flatMap((match: GameMatchDto) =>
             (match.homePlayers || []).concat(match.awayPlayers || []));
 
         return distinct(players, 'id').sort(sortBy('name'));

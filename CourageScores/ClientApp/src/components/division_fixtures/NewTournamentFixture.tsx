@@ -31,12 +31,12 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
     const {id, season, fixtures: fixtureDates} = useDivisionData();
     const {tournamentApi} = useDependencies();
     const {divisions} = useApp();
-    const [copySidesFrom, setCopySidesFrom] = useState<string>(null);
-    const [address, setAddress] = useState<string>(null);
+    const [copySidesFrom, setCopySidesFrom] = useState<string | null>(null);
+    const [address, setAddress] = useState<string>('');
     const [creating, setCreating] = useState<boolean>(false);
     const [saveError, setSaveError] = useState<IClientActionResultDto<TournamentGameDto> | null>(null);
-    const [divisionId, setDivisionId] = useState<string>(id);
-    const [customAddress, setCustomAddress] = useState<string>(null);
+    const [divisionId, setDivisionId] = useState<string>(id!);
+    const [customAddress, setCustomAddress] = useState<string | undefined>(undefined);
     const [editCustomAddress, setEditCustomAddress] = useState<boolean>(false);
     const addressOptions: IBootstrapDropdownItem[] = getCustomAddressItem(customAddress).concat(distinct(tournamentFixtures, 'address')
         .map(f => {
@@ -46,7 +46,7 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
                     : `⚠ ${f.address} (Already in use)`,
                 value: f.address,
                 className: f.proposed
-                    ? null
+                    ? undefined
                     : 'text-secondary',
             }
         }));
@@ -67,7 +67,7 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
     };
     const copySidesFromOptions: IBootstrapDropdownItem[] = [dontCopy].concat((fixtureDates || [])
         .filter(fd => fd.date !== date)
-        .filter(fd => any(fd.tournamentFixtures || [], t => !!t.winningSide))
+        .filter(fd => any(fd.tournamentFixtures, t => !!t.winningSide))
         .map(fd => {
             const type = getTypeName(fd);
             const prefix: string = type
@@ -80,7 +80,7 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
             }
         }));
 
-    function getCustomAddressItem(address: string): IBootstrapDropdownItem[] {
+    function getCustomAddressItem(address?: string): IBootstrapDropdownItem[] {
         if (!address) {
             return [ {
                 text: '➕ Enter address',
@@ -96,12 +96,12 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
 
     async function useCustomAddress() {
         setEditCustomAddress(false);
-        setAddress(customAddress);
+        setAddress(customAddress || '');
     }
 
     async function closeCustomAddressDialog() {
         setEditCustomAddress(false);
-        setCustomAddress(null);
+        setCustomAddress(undefined);
     }
 
     async function changeAddress(address: string) {
@@ -113,37 +113,37 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
         setAddress(address);
     }
 
-    function getTypeName(fixtureDate: DivisionFixtureDateDto): string {
+    function getTypeName(fixtureDate: DivisionFixtureDateDto): string | undefined {
         const uniqueFixtureType: TournamentGameDto[] = distinct(fixtureDate.tournamentFixtures, 'type');
-        const notes: string[] = fixtureDate.notes.map((n: FixtureDateNoteDto) => n.note);
+        const notes: string[] = fixtureDate.notes?.map((n: FixtureDateNoteDto) => n.note) || [];
         return uniqueFixtureType.length === 1
             ? uniqueFixtureType[0].type
             : notes.length === 1
                 ? notes[0]
-                : null;
+                : undefined;
     }
 
     function getSides(date: string): TournamentSideDto[] {
-        const fixtureDate: DivisionFixtureDateDto = fixtureDates.filter((fd: DivisionFixtureDateDto) => fd.date === date)[0];
+        const fixtureDate: DivisionFixtureDateDto | undefined = fixtureDates?.filter((fd: DivisionFixtureDateDto) => fd.date === date)[0];
         if (!fixtureDate) {
             return [];
         }
 
         return fixtureDate.tournamentFixtures
-            .filter((tf: DivisionTournamentFixtureDetailsDto) => !!tf.winningSide)
-            .map((tf: DivisionTournamentFixtureDetailsDto) => tf.winningSide);
+            ?.filter((tf: DivisionTournamentFixtureDetailsDto) => !!tf.winningSide)
+            .map((tf: DivisionTournamentFixtureDetailsDto) => tf.winningSide!) || [];
     }
 
-    function getType(date: string): string {
-        const fixtureDate: DivisionFixtureDateDto = fixtureDates.filter((fd: DivisionFixtureDateDto) => fd.date === date)[0];
+    function getType(date: string): string | undefined {
+        const fixtureDate: DivisionFixtureDateDto | undefined = fixtureDates?.filter((fd: DivisionFixtureDateDto) => fd.date === date)[0];
         if (!fixtureDate) {
-            return null
+            return undefined;
         }
 
         const type = getTypeName(fixtureDate);
         return type
             ? `${type} final`
-            : null;
+            : undefined;
     }
 
     async function createFixture() {
@@ -160,16 +160,16 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
                 id: createTemporaryId(),
                 date: date,
                 address: address,
-                divisionId: division ? division.id : null,
-                seasonId: season.id,
+                divisionId: division ? division.id : undefined,
+                seasonId: season!.id,
                 sides: copySidesFrom ? getSides(copySidesFrom) : [],
-                type: copySidesFrom ? getType(copySidesFrom) : null,
+                type: copySidesFrom ? getType(copySidesFrom) : undefined,
                 singleRound: division ? division.superleague : false,
             });
 
             if (response.success) {
-                setAddress(null);
-                setCustomAddress(null);
+                setAddress('');
+                setCustomAddress(undefined);
                 await onTournamentChanged();
             } else {
                 setSaveError(response);
@@ -201,7 +201,7 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
                 onChange={async (v) => setCopySidesFrom(v)}/>
         </td>
         <td className="medium-column-width text-end">
-            <button className="btn btn-sm btn-primary" onClick={createFixture} disabled={address == null}>
+            <button className="btn btn-sm btn-primary" onClick={createFixture} disabled={!address}>
                 {creating
                     ? (<LoadingSpinnerSmall/>)
                     : '➕'}

@@ -45,7 +45,7 @@ export function DivisionUriContainer({ children, urlStyle, mode: overrideMode }:
 
     function getDivisionIdIsh(idish?: string): IIdish {
         if (isGuid(idish)) {
-            return makeIdish({ id: idish });
+            return makeIdish({ id: idish! });
         }
 
         if (!divisions || !any(divisions) || !idish) {
@@ -67,13 +67,13 @@ export function DivisionUriContainer({ children, urlStyle, mode: overrideMode }:
         return divisions.map(getDivisionIdIsh);
     }
 
-    function getSeasonId(idish?: string): IIdish {
+    function getSeasonId(idish?: string): IIdish | undefined {
         if (isGuid(idish)) {
-            return makeIdish({ id: idish });
+            return makeIdish({ id: idish! });
         }
 
         if (!seasons || !any(seasons) || !idish) {
-            return null;
+            return undefined;
         }
 
         const season: SeasonDto = seasons.filter((s: SeasonDto) => s.name.toLowerCase() === idish.toLowerCase())[0];

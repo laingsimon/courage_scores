@@ -1,4 +1,4 @@
-﻿import React, {createContext, useContext} from "react";
+﻿import React, {createContext, Ref, useContext} from "react";
 
 export interface IButtonDropdown {
     isOpen?: boolean;
@@ -6,6 +6,7 @@ export interface IButtonDropdown {
 }
 
 export interface IButtonDropdownProps extends IButtonDropdown {
+    ref?: Ref<HTMLDivElement>;
     children: React.ReactNode[];
     datatype?: string;
     className?: string;
@@ -34,7 +35,7 @@ export function ButtonDropdown(props: IButtonDropdownProps) {
         : '';
 
     return (<ButtonDropdownContext.Provider value={props}>
-        <div className={`btn-group${className}${props.isOpen ? ' show' : ''}`} style={{ position: 'relative' }} datatype={props.datatype}>
+        <div ref={props.ref} className={`btn-group${className}${props.isOpen ? ' show' : ''}`} style={{ position: 'relative' }} datatype={props.datatype}>
             {props.children}
         </div>
     </ButtonDropdownContext.Provider>);
@@ -43,7 +44,7 @@ export function ButtonDropdown(props: IButtonDropdownProps) {
 export function DropdownMenu({children, className}: IDropdownMenuProps) {
     const {isOpen, toggle} = useButtonDropdown();
 
-    return (<div className={`position-absolute bottom-0 ${isOpen ? '' : ' d-none'}`} onClick={() => toggle()}>
+    return (<div className={`position-absolute bottom-0 ${isOpen ? '' : ' d-none'}`} onClick={toggle}>
         <div tabIndex={-1}
              role="menu"
              className={`dropdown-menu${isOpen ? ' show' : ''} ${className || ''}`}

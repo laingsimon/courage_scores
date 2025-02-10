@@ -41,7 +41,11 @@ export interface IFrequency {
 /*
 * Group items in a collections by the given property and return them in order of occurrences, descending
 * */
-export function groupAndSortByOccurrences<T>(items: T[], property: string): (T & IFrequency)[] {
+export function groupAndSortByOccurrences<T>(items: T[] | undefined, property: string): (T & IFrequency)[] {
+    if (!items) {
+        return [];
+    }
+
     const oneEightyMap: { [id: string]: number } = {};
     const itemLookup: { [id: string]: T } = {};
 
@@ -84,38 +88,45 @@ export function groupAndSortByOccurrences<T>(items: T[], property: string): (T &
 /*
 * Return true if there are any items (that match the optional predicate)
 * */
-export function any<T>(iterable: T[], predicate?: (a: T) => boolean): boolean {
+export function any<T>(iterable?: T[], predicate?: (a: T) => boolean): boolean {
     return count(iterable, predicate) > 0;
 }
 
 /*
 * Return true if all of the items are true (or match the optional predicate)
 * */
-export function all<T>(iterable: T[], predicate?: (a: T) => boolean): boolean {
-    return count(iterable, predicate) === iterable.length;
+export function all<T>(iterable?: T[], predicate?: (a: T) => boolean): boolean {
+    return count(iterable, predicate) === (iterable?.length || 0);
 }
 
 /*
 * Return true if there are no items (that match the optional predicate)
 * */
-export function isEmpty<T>(iterable: T[], predicate?: (a: T) => boolean): boolean {
+export function isEmpty<T>(iterable?: T[], predicate?: (a: T) => boolean): boolean {
     return count(iterable, predicate) === 0;
 }
 
 /*
 * Return the number of items (that match the optional predicate)
 * */
-export function count<T>(iterable: T[], predicate?: (a: T, index?: number) => boolean): number {
+export function count<T>(iterable?: T[], predicate?: (a: T, index?: number) => boolean): number {
+    if (!iterable) {
+        return 0;
+    }
+
     return iterable.filter(predicate || (() => true)).length;
 }
 
 /*
 * Return the sum of the given items (using the optional selector)
 * */
-export function sum<T>(iterable: T[], selector?: (a: T) => number): number {
+export function sum<T>(iterable?: T[], selector?: (a: T) => number): number {
+    if (!iterable) {
+        return undefined!;
+    }
+
     return iterable.reduce((prev: number, current: T) => {
-        /* eslint-disable @typescript-eslint/no-explicit-any */
-        const next: any = (selector ? selector(current) : current);
+        const next: number = (selector ? selector(current) : current) as number;
         return prev + next;
     }, 0);
 }
@@ -123,7 +134,11 @@ export function sum<T>(iterable: T[], selector?: (a: T) => number): number {
 /*
 * Return the value of the item that is greater than all others (using the optional selector)
 * */
-export function max<T>(iterable: T[], selector?: (a: T) => number): number {
+export function max<T>(iterable?: T[], selector?: (a: T) => number): number {
+    if (!iterable) {
+        return 0;
+    }
+
     return iterable.reduce((prev: number, current: T) => {
         /* eslint-disable @typescript-eslint/no-explicit-any */
         const currentValue: any = selector ? selector(current) : current;
@@ -136,7 +151,11 @@ export function max<T>(iterable: T[], selector?: (a: T) => number): number {
 /*
 * Return the item at the given index (using the optional selector)
 * */
-export function elementAt<T>(items: T[], index: number, selector?: (a: T) => any): any {
+export function elementAt<T>(items: T[] | undefined, index: number, selector?: (a: T) => any): any {
+    if (!items) {
+        return null;
+    }
+
     if (items.length > index && items[index]) {
         return selector ? selector(items[index]) : items[index];
     }
@@ -148,7 +167,11 @@ export function elementAt<T>(items: T[], index: number, selector?: (a: T) => any
 * Reduce the given items to have only one with the given property value
 * */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export function distinct(items: any[], property?: string): any[] {
+export function distinct(items?: any[], property?: string): any[] {
+    if (!items) {
+        return [];
+    }
+
     /* eslint-disable @typescript-eslint/no-explicit-any */
     function getValue(item: any, property: string | undefined): any {
         if (!property) {
@@ -186,7 +209,11 @@ export function distinct(items: any[], property?: string): any[] {
 * Produce a map of items keyed on the given selector
 * */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export function toDictionary<T>(items: T[], keySelector: ((a: T) => string), valueSelector?: (a: T) => any): StringMapObject {
+export function toDictionary<T>(items: T[] | undefined, keySelector: ((a: T) => string), valueSelector?: (a: T) => any): StringMapObject {
+    if (!items) {
+        return {};
+    }
+
     const dict: StringMapObject = {};
 
     for (const item of items) {
@@ -204,7 +231,11 @@ export function toDictionary<T>(items: T[], keySelector: ((a: T) => string), val
 /*
 * Reverse a collection of items
 * */
-export function reverse<T>(items: T[]): T[] {
+export function reverse<T>(items?: T[]): T[] {
+    if (!items) {
+        return [];
+    }
+
     const backwards: T[] = [];
     for (const item of items) {
         backwards.unshift(item);
@@ -216,13 +247,21 @@ export function reverse<T>(items: T[]): T[] {
 /*
 * Return the first <count> items from the given list
 * */
-export function take<T>(items: T[], count: number): T[] {
+export function take<T>(items: T[] | undefined, count: number): T[] {
+    if (!items) {
+        return [];
+    }
+
     return items.filter((_, index) => index < count);
 }
 
 /*
 * Return all but the first <count> items from the given list
 * */
-export function skip<T>(items: T[], count: number): T[] {
+export function skip<T>(items: T[] | undefined, count: number): T[] {
+    if (!items) {
+        return [];
+    }
+
     return items.filter((_, index) => index >= count);
 }

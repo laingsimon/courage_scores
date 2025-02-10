@@ -43,13 +43,13 @@ export function SavingProposals({ saveMessage, noOfFixturesToSave, saveResults, 
         {any(saveResults, (r: IClientActionResultDto<GameDto>) => !r.success) ? (<div className="overflow-auto max-height-250">
             {saveResults.filter((r: IClientActionResultDto<GameDto>) => !r.success).map((r: IClientActionResultDto<GameDto>, index: number) => (<div key={index}>
                 {any(r.errors)
-                    ? (<ol>{r.errors.map(renderError)}</ol>)
+                    ? (<ol>{r.errors!.map(renderError)}</ol>)
                     : null}
                 {any(r.warnings)
-                    ? (<ol>{r.warnings.map(renderWarning)}</ol>)
+                    ? (<ol>{r.warnings!.map(renderWarning)}</ol>)
                     : null}
                 {any(r.messages)
-                    ? (<ol>{r.messages.map(renderMessage)}</ol>)
+                    ? (<ol>{r.messages!.map(renderMessage)}</ol>)
                     : null}
             </div>))}
         </div>) : null}

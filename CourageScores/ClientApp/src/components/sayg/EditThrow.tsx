@@ -15,7 +15,7 @@ export interface IEditThrowProps {
 }
 
 export function EditThrow({ score, noOfDarts, home, away, competitor, index, onClose, onChange, onSave }: IEditThrowProps) {
-    const competitorName: { away: string; home: string } = {
+    const competitorName: { home: string, away?: string } = {
         home,
         away,
     };

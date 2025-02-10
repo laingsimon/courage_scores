@@ -17,9 +17,9 @@ import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/Date
 describe('TemplateDivision', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let update: DivisionTemplateDto;
-    let deleted: boolean;
-    let copyToDivisionIndex: number;
+    let update: DivisionTemplateDto | null;
+    let deleted: boolean | null;
+    let copyToDivisionIndex: number | null;
 
     afterEach(async () => {
         await cleanUp(context);
@@ -74,7 +74,7 @@ describe('TemplateDivision', () => {
                 setHighlight,
             });
 
-            const heading = context.container.querySelector('h6');
+            const heading = context.container.querySelector('h6')!;
             expect(heading.textContent).toEqual('⬆️ Division 1 (click to collapse)');
         });
 
@@ -94,7 +94,7 @@ describe('TemplateDivision', () => {
                 setHighlight,
             });
 
-            const divisionSharedAddresses = context.container.querySelector('div > ul:nth-child(2)');
+            const divisionSharedAddresses = context.container.querySelector('div > ul:nth-child(2)')!;
             expect(divisionSharedAddresses.textContent).toContain('A ×');
         });
 
@@ -119,7 +119,7 @@ describe('TemplateDivision', () => {
                 setHighlight,
             });
 
-            const dates = context.container.querySelector('div > ul:nth-child(3)');
+            const dates = context.container.querySelector('div > ul:nth-child(3)')!;
             expect(dates.textContent).toContain('A - B ×');
         });
 
@@ -180,7 +180,7 @@ describe('TemplateDivision', () => {
                 highlight: '',
                 setHighlight,
             });
-            const heading = context.container.querySelector('h6');
+            const heading = context.container.querySelector('h6')!;
 
             await doClick(heading);
 
@@ -202,7 +202,7 @@ describe('TemplateDivision', () => {
                 highlight: '',
                 setHighlight,
             });
-            const heading = context.container.querySelector('h6');
+            const heading = context.container.querySelector('h6')!;
 
             await doClick(heading);
             await doClick(heading);

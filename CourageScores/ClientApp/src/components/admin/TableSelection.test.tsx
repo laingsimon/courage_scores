@@ -14,7 +14,7 @@ import {TableDto} from "../../interfaces/models/dtos/Data/TableDto";
 describe('TableSelection', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let tableChanged: string[];
+    let tableChanged: string[] | null;
 
     afterEach(async () => {
         await cleanUp(context);
@@ -85,7 +85,6 @@ describe('TableSelection', () => {
 
     it('renders tables loading', async () => {
         await renderComponent({
-            allTables: null,
             selected: [],
             requireCanExport: false,
             requireCanImport: false,

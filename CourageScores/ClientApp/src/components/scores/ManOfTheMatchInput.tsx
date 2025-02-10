@@ -32,7 +32,7 @@ export function ManOfTheMatchInput({fixtureData, access, saving, setFixtureData,
     function applicablePlayers(side: string): ISelectablePlayer[] {
         const property: string = side + 'Players';
 
-        const players: ISelectablePlayer[] = fixtureData.matches.flatMap((match: GameMatchDto) => {
+        const players: ISelectablePlayer[] = fixtureData.matches!.flatMap((match: GameMatchDto) => {
             return match[property] || [] as ISelectablePlayer[];
         });
 
@@ -51,7 +51,7 @@ export function ManOfTheMatchInput({fixtureData, access, saving, setFixtureData,
                     players={applicablePlayers('away')}
                     disabled={disabled || access === 'readonly'}
                     readOnly={saving}
-                    selected={{id: fixtureData.home.manOfTheMatch}}
+                    selected={{id: fixtureData.home.manOfTheMatch!}}
                     onChange={(_, player: ISelectablePlayer) => manOfTheMatchChanged(player, 'home')}/>) : (<span>n/a</span>)}
             </td>
             <td className="width-1 p-0 middle-vertical-line width-1"></td>
@@ -60,7 +60,7 @@ export function ManOfTheMatchInput({fixtureData, access, saving, setFixtureData,
                     players={applicablePlayers('home')}
                     disabled={disabled || access === 'readonly'}
                     readOnly={saving}
-                    selected={{id: fixtureData.away.manOfTheMatch}}
+                    selected={{id: fixtureData.away.manOfTheMatch!}}
                     onChange={(_, player: ISelectablePlayer) => manOfTheMatchChanged(player, 'away')}/>) : (<span>n/a</span>)}
             </td>
         </tr>);

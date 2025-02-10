@@ -49,7 +49,7 @@ export interface ILoadedScoreAsYouGoDto extends UpdateRecordedScoreAsYouGoDto {
 export function SaygLoadingContainer({ children, id, defaultData, autoSave, on180, onHiCheck, onScoreChange, onSaved,
                                          onLoadError, matchStatisticsOnly, lastLegDisplayOptions, liveOptions,
                                         firstLegPlayerSequence, finalLegPlayerSequence, minimisePlayerNames }: ISaygLoadingContainerProps) {
-    const [sayg, setSayg] = useState<ILoadedScoreAsYouGoDto>(defaultData);
+    const [sayg, setSayg] = useState<ILoadedScoreAsYouGoDto | undefined>(defaultData);
     const [saveError, setSaveError] = useState<IClientActionResultDto<ILoadedScoreAsYouGoDto> | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const {saygApi, webSocket} = useDependencies();
@@ -76,7 +76,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
                 return;
             }
 
-            const saygData: ILoadedScoreAsYouGoDto = await saygApi.get(id);
+            const saygData: ILoadedScoreAsYouGoDto | null = await saygApi.get(id);
 
             if (!saygData || !saygData.legs) {
                 if (onLoadError) {
@@ -102,18 +102,18 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         }
     }
 
-    async function saveDataAndGetId(useData?: UpdateRecordedScoreAsYouGoDto) {
+    async function saveDataAndGetId(useData?: UpdateRecordedScoreAsYouGoDto): Promise<string | undefined> {
         try {
-            const response: IClientActionResultDto<ILoadedScoreAsYouGoDto> = await saygApi.upsert(useData || sayg);
+            const response: IClientActionResultDto<ILoadedScoreAsYouGoDto> = await saygApi.upsert(useData || sayg!);
             if (response.success) {
-                response.result.lastUpdated = response.result.updated;
+                response.result!.lastUpdated = response.result!.updated;
                 setSayg(response.result);
 
                 if (onSaved) {
-                    await onSaved(response.result);
+                    await onSaved(response.result!);
                 }
 
-                return '#' + response.result.id;
+                return '#' + response.result!.id;
             } else {
                 setSaveError(response);
             }
@@ -122,7 +122,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
             onError(e);
         }
 
-        return null;
+        return undefined;
     }
 
     async function onChange(newData: ILoadedScoreAsYouGoDto) {
@@ -133,9 +133,9 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         }
 
         const newFirstLeg: LegDto = newData.legs[0];
-        const oldFirstLeg: LegDto = sayg.legs[0];
+        const oldFirstLeg: LegDto = sayg!.legs[0];
         const newLastLeg: LegDto = newData.legs[Object.keys(newData.legs).length - 1];
-        const oldLastLeg: LegDto = sayg.legs[Object.keys(sayg.legs).length - 1];
+        const oldLastLeg: LegDto = sayg!.legs[Object.keys(sayg!.legs).length - 1];
         const newLastLegHasWinner: boolean = newLastLeg && (isLegWinner(newLastLeg, 'home') || isLegWinner(newLastLeg, 'away'));
         const oldLastLegHasWinner: boolean = oldLastLeg && (isLegWinner(oldLastLeg, 'home') || isLegWinner(oldLastLeg, 'away'));
 
@@ -162,7 +162,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
     }
 
     const saygProps: ISayg = {
-        sayg,
+        sayg: sayg!,
         setSayg: updateSayg,
         saveDataAndGetId,
     };
@@ -176,15 +176,15 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
                 {sayg ? (<div>
                     {children}
                     <ScoreAsYouGo
-                        startingScore={sayg.startingScore}
-                        numberOfLegs={sayg.numberOfLegs}
-                        onHiCheck={onHiCheck}
-                        on180={on180}
+                        startingScore={sayg.startingScore || 0}
+                        numberOfLegs={sayg.numberOfLegs || 0}
+                        onHiCheck={onHiCheck!}
+                        on180={on180!}
                         onChange={onChange}
                         homeScore={sayg.homeScore}
                         awayScore={sayg.awayScore}
                         away={sayg.opponentName}
-                        home={sayg.yourName}
+                        home={sayg.yourName || ''}
                         data={sayg}
                         singlePlayer={!sayg.opponentName}
                         onLegComplete={async (homeScore: number, awayScore: number) => {

@@ -42,7 +42,7 @@ describe('MatchLog', () => {
     }
 
     function rowContent(row: HTMLTableRowElement, tagName: string): string[] {
-        return Array.from(row.querySelectorAll(tagName)).map(cell => cell.textContent);
+        return Array.from(row.querySelectorAll(tagName)).map(cell => cell.textContent!);
     }
 
     function* after(iterable: string[], afterText: string) {
@@ -64,11 +64,9 @@ describe('MatchLog', () => {
         it('when no sayg data', async () => {
             const saygMatch: ISuperleagueSaygMatchMapping = {
                 match: tournamentMatchBuilder().sideA('A').sideB('B').build(),
-                saygData: null,
             };
 
             await renderComponent({
-                showWinner: false,
                 noOfThrows: 5,
                 host: 'HOST',
                 opponent: 'OPPONENT',
@@ -82,11 +80,10 @@ describe('MatchLog', () => {
         it('when no sayg legs', async () => {
             const saygMatch: ISuperleagueSaygMatchMapping = {
                 match: tournamentMatchBuilder().sideA('A').sideB('B').build(),
-                saygData: {legs: null},
+                saygData: {legs: null!},
             };
 
             await renderComponent({
-                showWinner: false,
                 noOfThrows: 5,
                 host: 'HOST',
                 opponent: 'OPPONENT',
@@ -106,7 +103,6 @@ describe('MatchLog', () => {
             };
 
             await renderComponent({
-                showWinner: false,
                 noOfThrows: 5,
                 host: 'HOST',
                 opponent: 'OPPONENT',
@@ -134,7 +130,6 @@ describe('MatchLog', () => {
             };
 
             await renderComponent({
-                showWinner: false,
                 noOfThrows: 5,
                 host: 'HOST',
                 opponent: 'OPPONENT',
@@ -164,7 +159,6 @@ describe('MatchLog', () => {
             };
 
             await renderComponent({
-                showWinner: false,
                 noOfThrows: 5,
                 host: 'HOST',
                 opponent: 'OPPONENT',
@@ -172,7 +166,7 @@ describe('MatchLog', () => {
             });
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table.table');
+            const table = context.container.querySelector('table.table')!;
             const rows = Array.from(table.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
             /* 2 heading rows, 3 data rows - repeated for home and away */
             expect(rows.length).toEqual(2 + 3 + 2 + 3);
@@ -198,7 +192,6 @@ describe('MatchLog', () => {
             };
 
             await renderComponent({
-                showWinner: false,
                 noOfThrows: 5,
                 host: 'HOST',
                 opponent: 'OPPONENT',
@@ -236,7 +229,6 @@ describe('MatchLog', () => {
             };
 
             await renderComponent({
-                showWinner: false,
                 noOfThrows: 5,
                 host: 'HOST',
                 opponent: 'OPPONENT',

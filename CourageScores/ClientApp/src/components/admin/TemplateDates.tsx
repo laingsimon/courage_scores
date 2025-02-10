@@ -53,7 +53,7 @@ export function TemplateDates({ dates, onUpdate, divisionSharedAddresses, templa
     async function deleteDates(mnemonic: string) {
         const newDates: DateTemplateDto[] = dates.map((date: DateTemplateDto) => {
             const newDate: DateTemplateDto = Object.assign({}, date);
-            newDate.fixtures = date.fixtures.filter((f: FixtureTemplateDto) => f.home !== mnemonic && f.away !== mnemonic);
+            newDate.fixtures = date.fixtures!.filter((f: FixtureTemplateDto) => f.home !== mnemonic && f.away !== mnemonic);
             return newDate;
         });
         await onUpdate(newDates);
@@ -75,8 +75,8 @@ export function TemplateDates({ dates, onUpdate, divisionSharedAddresses, templa
                 onUpdate={(update) => updateDate(update, index)}
                 divisionSharedAddresses={divisionSharedAddresses}
                 templateSharedAddresses={templateSharedAddresses}
-                moveEarlier={index > 0 ? () => moveDate(index, -1) : null}
-                moveLater={index < (dates.length - 1) ? () => moveDate(index, 1) : null}
+                moveEarlier={index > 0 ? () => moveDate(index, -1) : undefined}
+                moveLater={index < (dates.length - 1) ? () => moveDate(index, 1) : undefined}
                 highlight={highlight}
                 setHighlight={setHighlight}
                 deleteDates={deleteDates} />

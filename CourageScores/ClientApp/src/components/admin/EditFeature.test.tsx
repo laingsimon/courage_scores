@@ -19,8 +19,8 @@ import {createTemporaryId} from "../../helpers/projection";
 describe('EditFeature', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updateRequest: ReconfigureFeatureDto;
-    let apiResponse: IClientActionResultDto<ConfiguredFeatureDto>;
+    let updateRequest: ReconfigureFeatureDto | null;
+    let apiResponse: IClientActionResultDto<ConfiguredFeatureDto> | null;
     let changed: boolean;
     const featureApi = api<IFeatureApi>({
         async updateFeature(update: ReconfigureFeatureDto): Promise<IClientActionResultDto<ConfiguredFeatureDto>> {
@@ -70,7 +70,7 @@ describe('EditFeature', () => {
 
             expect(context.container.textContent).toContain('FEATURE 1');
             expect(context.container.textContent).toContain('FEATURE DESC');
-            expect(context.container.querySelector('input').value).toEqual('FOO');
+            expect(context.container.querySelector('input')!.value).toEqual('FOO');
         });
 
         it('when unconfigured', async () => {
@@ -78,7 +78,6 @@ describe('EditFeature', () => {
                 name: 'FEATURE 1',
                 description: 'FEATURE DESC',
                 id: createTemporaryId(),
-                configuredValue: null,
                 valueType: 'String',
             };
 
@@ -86,7 +85,7 @@ describe('EditFeature', () => {
 
             expect(context.container.textContent).toContain('FEATURE 1');
             expect(context.container.textContent).toContain('FEATURE DESC');
-            expect(context.container.querySelector('input').value).toEqual('');
+            expect(context.container.querySelector('input')!.value).toEqual('');
         });
 
         it('boolean feature', async () => {
@@ -100,7 +99,7 @@ describe('EditFeature', () => {
 
             await renderComponent({ feature, onChanged });
 
-            const input = context.container.querySelector('input');
+            const input = context.container.querySelector('input')!;
             expect(input.type).toEqual('checkbox');
             expect(input.checked).toEqual(true);
         });
@@ -110,14 +109,13 @@ describe('EditFeature', () => {
                 name: 'FEATURE 1',
                 description: 'FEATURE DESC',
                 id: createTemporaryId(),
-                configuredValue: null,
                 defaultValue: 'true',
                 valueType: 'Boolean',
             };
 
             await renderComponent({ feature, onChanged });
 
-            const input = context.container.querySelector('input');
+            const input = context.container.querySelector('input')!;
             expect(input.type).toEqual('checkbox');
             expect(input.checked).toEqual(true);
         });
@@ -133,7 +131,7 @@ describe('EditFeature', () => {
 
             await renderComponent({ feature, onChanged });
 
-            const input = context.container.querySelector('input');
+            const input = context.container.querySelector('input')!;
             expect(input.type).toEqual('number');
             expect(input.value).toEqual('5');
         });
@@ -149,7 +147,7 @@ describe('EditFeature', () => {
 
             await renderComponent({ feature, onChanged });
 
-            const input = context.container.querySelector('input');
+            const input = context.container.querySelector('input')!;
             expect(input.type).toEqual('text');
             expect(input.value).toEqual('5.3');
             expect(input.placeholder).toEqual('A decimal number');
@@ -166,7 +164,7 @@ describe('EditFeature', () => {
 
             await renderComponent({ feature, onChanged });
 
-            const input = context.container.querySelector('input');
+            const input = context.container.querySelector('input')!;
             expect(input.type).toEqual('text');
             expect(input.value).toEqual('FOO');
             expect(input.placeholder).toEqual('text');
@@ -183,8 +181,8 @@ describe('EditFeature', () => {
 
             await renderComponent({ feature, onChanged });
 
-            const day: HTMLInputElement = context.container.querySelector('input[name="day"]');
-            const time: HTMLInputElement = context.container.querySelector('input[name="time"]');
+            const day: HTMLInputElement = context.container.querySelector('input[name="day"]')!;
+            const time: HTMLInputElement = context.container.querySelector('input[name="time"]')!;
             expect(day.type).toEqual('number');
             expect(day.value).toEqual('0');
             expect(day.placeholder).toEqual('days');
@@ -203,8 +201,8 @@ describe('EditFeature', () => {
 
             await renderComponent({ feature, onChanged });
 
-            const day: HTMLInputElement = context.container.querySelector('input[name="day"]');
-            const time: HTMLInputElement = context.container.querySelector('input[name="time"]');
+            const day: HTMLInputElement = context.container.querySelector('input[name="day"]')!;
+            const time: HTMLInputElement = context.container.querySelector('input[name="time"]')!;
             expect(day.type).toEqual('number');
             expect(day.value).toEqual('1');
             expect(day.placeholder).toEqual('days');
@@ -223,7 +221,7 @@ describe('EditFeature', () => {
 
             await renderComponent({ feature, onChanged });
 
-            const input = context.container.querySelector('input');
+            const input = context.container.querySelector('input')!;
             expect(input.type).toEqual('text');
             expect(input.value).toEqual('FOO');
             expect(input.placeholder).toEqual('A unknown');
@@ -236,7 +234,6 @@ describe('EditFeature', () => {
                 name: 'FEATURE 1',
                 description: 'FEATURE DESC',
                 id: createTemporaryId(),
-                configuredValue: null,
                 valueType: 'String',
             };
             await renderComponent({ feature, onChanged });
@@ -284,7 +281,6 @@ describe('EditFeature', () => {
 
             expect(updateRequest).toEqual({
                 id: feature.id,
-                configuredValue: null,
             });
         });
 
@@ -304,7 +300,6 @@ describe('EditFeature', () => {
 
             expect(updateRequest).toEqual({
                 id: feature.id,
-                configuredValue: null,
             });
         });
 
@@ -313,7 +308,6 @@ describe('EditFeature', () => {
                 name: 'FEATURE 1',
                 description: 'FEATURE DESC',
                 id: createTemporaryId(),
-                configuredValue: null,
                 defaultValue: 'false',
                 valueType: 'Boolean',
             };
@@ -334,7 +328,6 @@ describe('EditFeature', () => {
                 description: 'FEATURE DESC',
                 id: createTemporaryId(),
                 configuredValue: 'true',
-                defaultValue: null,
                 valueType: 'Boolean',
             };
             await renderComponent({ feature, onChanged });
@@ -354,7 +347,6 @@ describe('EditFeature', () => {
                 description: 'FEATURE DESC',
                 id: createTemporaryId(),
                 configuredValue: '00:00:00',
-                defaultValue: null,
                 valueType: 'TimeSpan',
             };
             await renderComponent({ feature, onChanged });
@@ -374,7 +366,6 @@ describe('EditFeature', () => {
                 description: 'FEATURE DESC',
                 id: createTemporaryId(),
                 configuredValue: '00:00:00',
-                defaultValue: null,
                 valueType: 'TimeSpan',
             };
             await renderComponent({ feature, onChanged });
@@ -393,7 +384,6 @@ describe('EditFeature', () => {
                 name: 'FEATURE 1',
                 description: 'FEATURE DESC',
                 id: createTemporaryId(),
-                configuredValue: null,
                 valueType: 'String',
             };
             await renderComponent({ feature, onChanged });
@@ -409,7 +399,6 @@ describe('EditFeature', () => {
                 name: 'FEATURE 1',
                 description: 'FEATURE DESC',
                 id: createTemporaryId(),
-                configuredValue: null,
                 valueType: 'String',
             };
             await renderComponent({ feature, onChanged });

@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {ButtonDropdown, DropdownMenu, DropdownToggle} from "./ButtonDropdown";
 import {isEmpty} from "../../helpers/collections";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
@@ -29,7 +29,30 @@ export interface IBootstrapDropdownProps {
 }
 
 export function BootstrapDropdown({value, onChange, options, color, className, disabled, readOnly, onOpen, slim, datatype}: IBootstrapDropdownProps) {
-    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const element = useRef<HTMLDivElement>(null);
+    const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+
+    useEffect(() => {
+        function closeDropdownIfClickIsOutside(event: MouseEvent) {
+            let currentElement: HTMLElement | null = event.target as HTMLElement | null;
+            while (currentElement) {
+                if (currentElement === element.current) {
+                    // current element is this bootstrap dropdown parent, don't close the expander
+                    return;
+                }
+
+                currentElement = currentElement.parentElement;
+            }
+
+            setDropdownOpen(false);
+        }
+
+        if (dropdownOpen) {
+            document.addEventListener('click', closeDropdownIfClickIsOutside);
+
+            return () => document.removeEventListener('click', closeDropdownIfClickIsOutside);
+        }
+    }, [dropdownOpen]);
 
     if (!options || isEmpty(options)) {
         return (<button className={`btn btn-sm btn-${color || 'light'} dropdown-toggle`} disabled>&nbsp;</button>)
@@ -61,7 +84,7 @@ export function BootstrapDropdown({value, onChange, options, color, className, d
             : o.className || '';
     }
 
-    return (<ButtonDropdown isOpen={dropdownOpen} toggle={toggleOpen} className={className} datatype={datatype}>
+    return (<ButtonDropdown ref={element} isOpen={dropdownOpen} toggle={toggleOpen} className={className} datatype={datatype}>
         <DropdownToggle color={color || 'outline-light'} className="btn-sm text-dark border-dark">
             <span
                 className={`text-dark${slim ? '' : ' dropdown-text-min-width'}`}>{selectedOption ? (selectedOption.collapsedText || selectedOption.text) || value : value}</span>

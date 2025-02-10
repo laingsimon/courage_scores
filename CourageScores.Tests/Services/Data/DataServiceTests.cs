@@ -435,7 +435,7 @@ public class DataServiceTests
     [Test]
     public async Task BrowseAllItems_WhenTableNotFound_ReturnsTableNotFound()
     {
-        _dataBrowserRepository.Setup(r => r.TableExists("table")).ReturnsAsync(false);
+        _dataBrowserRepository.Setup(r => r.TableExists("table", _token)).ReturnsAsync(false);
 
         var result = await _dataService.Browse("table", _token);
 
@@ -446,7 +446,7 @@ public class DataServiceTests
     public async Task BrowseAllItems_WhenCalled_ReturnsAllItems()
     {
         var item = new SingleDataResultDto();
-        _dataBrowserRepository.Setup(r => r.TableExists("table")).ReturnsAsync(true);
+        _dataBrowserRepository.Setup(r => r.TableExists("table", _token)).ReturnsAsync(true);
         _dataBrowserRepository.Setup(r => r.GetAll("table", _token)).Returns(TestUtilities.AsyncEnumerable(item));
 
         var result = await _dataService.Browse("table", _token);
@@ -551,7 +551,7 @@ public class DataServiceTests
     private Guid SetupDataView(object? item = null, bool tableExists = true)
     {
         var id = Guid.NewGuid();
-        _dataViewRepository.Setup(r => r.TableExists("table")).ReturnsAsync(tableExists);
+        _dataViewRepository.Setup(r => r.TableExists("table", _token)).ReturnsAsync(tableExists);
         _dataViewRepository.Setup(r => r.GetItem("table", id, _token)).ReturnsAsync(() => item);
 
         return id;

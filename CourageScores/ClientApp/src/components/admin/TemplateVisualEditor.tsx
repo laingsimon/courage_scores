@@ -12,7 +12,7 @@ export interface ITemplateVisualEditorProps {
 }
 
 export function TemplateVisualEditor({ template, onUpdate }: ITemplateVisualEditorProps) {
-    const [highlight, setHighlight] = useState<string>(null);
+    const [highlight, setHighlight] = useState<string | undefined>(undefined);
 
     async function updateTemplateSharedAddress(updatedAddresses: string[][]) {
         const newTemplate: EditTemplateDto = Object.assign({}, template);
@@ -29,14 +29,14 @@ export function TemplateVisualEditor({ template, onUpdate }: ITemplateVisualEdit
     return (<div>
         <SharedAddresses
             onUpdate={updateTemplateSharedAddress}
-            addresses={template.sharedAddresses}
-            highlight={highlight}
+            addresses={template.sharedAddresses!}
+            highlight={highlight!}
             setHighlight={asyncCallback(setHighlight)}
             className="bg-warning" />
         <TemplateDivisions
             onUpdate={updateDivisions}
-            divisions={template.divisions}
-            templateSharedAddresses={template.sharedAddresses.flatMap((a: string[]) => a)}
+            divisions={template.divisions!}
+            templateSharedAddresses={template.sharedAddresses!.flatMap((a: string[]) => a)}
             highlight={highlight}
             setHighlight={asyncCallback(setHighlight)} />
     </div>);

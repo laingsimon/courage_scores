@@ -10,8 +10,8 @@ import {IBrandingData} from "./components/common/IBrandingData";
     branding?: IBrandingData;
 }
 
-const baseUrl: string = document.getElementsByTagName('base')[0].getAttribute('href');
-const rootElement: HTMLElement = document.getElementById('root');
+const baseUrl: string | null = document.getElementsByTagName('base')[0].getAttribute('href');
+const rootElement: HTMLElement | null = document.getElementById('root');
 const root = createRoot(rootElement);
 const search: string = document.location.search;
 const hash: string = document.location.hash;
@@ -21,12 +21,15 @@ const controls: boolean = (search.indexOf('controls=') === -1 || search.indexOf(
 const configuredPage: IConfiguredPage = window as IConfiguredPage;
 const branding: IBrandingData = configuredPage.branding || {
     name: 'unknown',
-    menu: null,
+    menu: {
+        beforeDivisions: [],
+        afterDivisions: [],
+    },
 };
-const noServices: IIocContainerProps = null;
+const noServices: IIocContainerProps | null = {};
 
 root.render(
-    <BrowserRouter basename={baseUrl}>
+    <BrowserRouter basename={baseUrl || ''}>
         <IocContainer {...noServices}>
             <BrandingContainer {...branding}>
                 <App embed={embed} controls={controls}/>

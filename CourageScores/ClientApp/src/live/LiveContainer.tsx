@@ -5,6 +5,7 @@ import {ILive} from "./ILive";
 import {ILiveOptions} from "./ILiveOptions";
 import {ISubscriptionRequest} from "./ISubscriptionRequest";
 import {UntypedPromise} from "../interfaces/UntypedPromise";
+import {hasAccess} from "../helpers/conditions";
 
 const LiveContext = createContext({});
 
@@ -22,7 +23,7 @@ export interface ILiveContainerProps {
 export function LiveContainer({children, onDataUpdate, liveOptions}: ILiveContainerProps) {
     const {webSocket} = useDependencies();
     const {onError, account} = useApp();
-    const canConnect: boolean = account && account.access && account.access.useWebSockets;
+    const canConnect: boolean = hasAccess(account, access => access.useWebSockets);
 
     useEffect(() => {
         if (liveOptions && liveOptions.subscribeAtStartup) {

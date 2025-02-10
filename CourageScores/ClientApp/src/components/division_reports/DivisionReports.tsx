@@ -25,14 +25,16 @@ export function DivisionReports() {
     const [gettingData, setGettingData] = useState<boolean>(false);
     const {reportApi} = useDependencies();
     const topCount: number = getParameterDefault('top', 15, Number.parseInt);
-    const activeReport: string = getParameterDefault<string | null>('report',null, (x: string) => x);
+    const activeReport: string | null = getParameterDefault<string | null>('report', null, (x: string) => x);
     const {setTitle} = useBranding();
 
     function getParameterDefault<T>(name: string, defaultValue: T, converter: (value: string) => T): T {
         const search: URLSearchParams = new URLSearchParams(location.search);
         if (search.has(name)) {
-            const value: string = search.get(name);
-            return converter(value);
+            const value: string | null = search.get(name);
+            if (value) {
+                return converter(value);
+            }
         }
 
         return defaultValue;
@@ -42,7 +44,7 @@ export function DivisionReports() {
         const newSearch: URLSearchParams = new URLSearchParams(location.search);
         newSearch.set(name, value);
 
-        navigate(`/division/${divisionName}/reports/${season.name}/?${newSearch}`);
+        navigate(`/division/${divisionName}/reports/${season!.name}/?${newSearch}`);
     }
 
     useEffect(() => {
@@ -68,7 +70,7 @@ export function DivisionReports() {
         try {
             const request: ReportRequestDto = {
                 divisionId: divisionId,
-                seasonId: season.id,
+                seasonId: season!.id,
                 topCount: getParameterDefault('top', 15, Number.parseInt),
             };
             const result: ReportCollectionDto = await reportApi.getReport(request);
@@ -79,9 +81,9 @@ export function DivisionReports() {
                     setActiveReport(result.reports[0].name);
                 }
             } else if ((result as IServerSideError).Exception) {
-                onError((result as IServerSideError).Exception.Message);
+                onError((result as IServerSideError).Exception!.Message);
             } else {
-                setActiveReport(null);
+                setActiveReport('');
             }
         } catch (e) {
             // istanbul ignore next
@@ -92,7 +94,7 @@ export function DivisionReports() {
     }
 
     function renderReportNames() {
-        if (isEmpty(reportData.reports || [])) {
+        if (isEmpty(reportData!.reports)) {
             return null;
         }
 
@@ -100,7 +102,7 @@ export function DivisionReports() {
             <span className="margin-right">Show:</span>
             <BootstrapDropdown
                 onChange={async (v: string) => setActiveReport(v)}
-                options={reportData.reports.sort(sortBy('name')).map((report: ReportDto) => {
+                options={reportData!.reports!.sort(sortBy('name')).map((report: ReportDto) => {
                     return {value: report.name, text: report.description}
                 })}
                 value={activeReport}
@@ -110,9 +112,9 @@ export function DivisionReports() {
 
     setTitle(`${name}: Reports`);
 
-    const report: ReportDto | null = activeReport && reportData ? reportData.reports.filter((r: ReportDto) => r.name === activeReport)[0] : null;
+    const report: ReportDto | null = activeReport && reportData ? reportData.reports!.filter((r: ReportDto) => r.name === activeReport)[0] : null;
     return (<div className="content-background p-3">
-        <PrintDivisionHeading hideDivision={report && !report.thisDivisionOnly}/>
+        <PrintDivisionHeading hideDivision={(report && !report.thisDivisionOnly) || false}/>
         <div className="input-group d-print-none">
             <div className="input-group-prepend">
                 <label htmlFor="topCount" className="input-group-text">Return top </label>
@@ -136,8 +138,8 @@ export function DivisionReports() {
                 <strong className="fs-3 float-left">{activeReport}</strong>
             </div>) : null}
             {report && !gettingData ? (<Report
-                rows={report.rows}
-                columns={report.columns}
+                rows={report.rows!}
+                columns={report.columns!}
             />) : null}
         </div>
     </div>);

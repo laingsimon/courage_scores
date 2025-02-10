@@ -16,21 +16,21 @@ export function Practice() {
     const [dataError, setDataError] = useState<string | null>(null);
     const location = useLocation();
     const navigate = useNavigate();
-    const hasHash: boolean = location.hash && location.hash !== '#';
+    const hasHash: boolean = (location.hash && location.hash !== '#') || false;
     const query: URLSearchParams = new URLSearchParams(location.search);
 
     if (appLoading) {
         return (<Loading/>);
     }
 
-    function getInteger(key: string): number {
+    function getInteger(key: string): number | null {
         const value = query.get(key);
         return value ? Number.parseInt(value) : null;
     }
 
     const defaultSaygData: IPracticeScoreAsYouGoDto = {
         yourName: query.get('yourName') || (account ? account.givenName : 'you'),
-        opponentName: query.get('opponentName'),
+        opponentName: query.get('opponentName') || undefined,
         homeScore: 0,
         awayScore: 0,
         numberOfLegs: getInteger('numberOfLegs') || 3,
@@ -65,7 +65,7 @@ export function Practice() {
 
         return (<div className="p-3 content-background">
             <SaygLoadingContainer
-                id={hasHash ? location.hash.substring(1) : null}
+                id={hasHash ? location.hash.substring(1) : ''}
                 on180={noop}
                 onHiCheck={noop}
                 defaultData={defaultSaygData}

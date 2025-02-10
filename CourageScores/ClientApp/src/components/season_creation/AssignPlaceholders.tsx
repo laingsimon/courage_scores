@@ -27,11 +27,11 @@ export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMapp
     const {divisions, seasons, teams} = useApp();
     const season: SeasonDto = seasons.filter(s => s.id === seasonId)[0];
     const applicableDivisions: DivisionDto[] = divisions.filter((division: DivisionDto) => any(season.divisions, (d: DivisionDto) => d.id === division.id));
-    const template: TemplateDto = selectedTemplate.result;
-    const templateSharedAddresses: string[] = template.sharedAddresses.flatMap((a: string[]) => a);
+    const template: TemplateDto = selectedTemplate.result!;
+    const templateSharedAddresses: string[] = template.sharedAddresses!.flatMap((a: string[]) => a);
 
     function getPlaceholdersForTemplateDivision(templateDivision: DivisionTemplateDto): string[] {
-        return distinct(templateDivision.dates.flatMap((d: DateTemplateDto) => d.fixtures.flatMap((f: FixtureTemplateDto) => [ f.home, f.away ]).filter((placeholder: string) => placeholder)));
+        return distinct(templateDivision.dates!.flatMap((d: DateTemplateDto) => d.fixtures!.flatMap((f: FixtureTemplateDto) => [ f.home, f.away ]).filter((placeholder: string | undefined) => !!placeholder)));
     }
 
     function getTeamsWithUniqueAddresses(division: DivisionDto): IBootstrapDropdownItem[] {
@@ -88,7 +88,7 @@ export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMapp
 
     async function setSelectedSharedAddressPlaceholder(divisionIndex: number, teamId: string, placeholder: string) {
         const newMappings: IPlaceholderMappings = Object.assign({}, placeholderMappings);
-        const allSharedAddressPlaceholders: string[] = template.divisions[divisionIndex].sharedAddresses
+        const allSharedAddressPlaceholders: string[] = template.divisions![divisionIndex].sharedAddresses!
             .filter((sa: string[]) => any(sa, (a: string) => a === placeholder))[0] || [];
         const otherSharedAddressPlaceholders: string[] = allSharedAddressPlaceholders.filter((a: string) => a !== placeholder);
         const division = divisions[divisionIndex];
@@ -100,7 +100,7 @@ export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMapp
 
             newMappings[placeholder] = teamId;
             for (const otherPlaceholder of otherSharedAddressPlaceholders) {
-                const otherTeam: TeamDto = otherTeamsWithSameAddress.shift();
+                const otherTeam: TeamDto = otherTeamsWithSameAddress.shift()!;
                 newMappings[otherPlaceholder] = otherTeam.id;
             }
         } else {
@@ -114,7 +114,7 @@ export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMapp
 
     return (<div>
         {applicableDivisions.sort(sortBy('name')).map((division: DivisionDto, index: number) => {
-            const templateDivision: DivisionTemplateDto = template.divisions[index];
+            const templateDivision: DivisionTemplateDto = template.divisions![index];
             const templatePlaceholders: string[] = getPlaceholdersForTemplateDivision(templateDivision);
             const teamsWithUniqueAddresses: IBootstrapDropdownItem[] = getTeamsWithUniqueAddresses(division);
 
@@ -122,7 +122,7 @@ export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMapp
                 <h6>{division.name}</h6>
                 <ul>
                     {templatePlaceholders.sort().map((placeholder: string) => {
-                        const divisionSharedAddresses: string[] = (templateDivision.sharedAddresses.filter((sa: string[]) => any(sa, (a: string) => a === placeholder))[0]) || [];
+                        const divisionSharedAddresses: string[] = (templateDivision.sharedAddresses!.filter((sa: string[]) => any(sa, (a: string) => a === placeholder))[0]) || [];
                         const hasDivisionSharedAddress: boolean = divisionSharedAddresses.length > 1
                         const hasTemplateSharedAddress: boolean = any(templateSharedAddresses, (a: string) => a === placeholder);
                         let className: string = '';

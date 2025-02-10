@@ -6,7 +6,7 @@ import {LoadingSpinnerSmall} from "./LoadingSpinnerSmall";
 export interface IShareButtonProps {
     title?: string;
     text?: string;
-    getHash?(): Promise<string | null>;
+    getHash?(): Promise<string | undefined>;
     buttonText?: string;
 }
 
@@ -18,8 +18,8 @@ export function ShareButton({title, text, getHash, buttonText}: IShareButtonProp
     async function share() {
         try {
             setGettingShareLink(true);
-            const hash: string | null = getHash ? await getHash() : location.hash;
-            if (hash === null && getHash) {
+            const hash: string | undefined = getHash ? await getHash() : location.hash;
+            if (hash === undefined && getHash) {
                 return;
             }
 

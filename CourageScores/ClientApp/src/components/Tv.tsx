@@ -10,8 +10,8 @@ import {useLocation} from "react-router";
 export function Tv() {
     const {liveApi, settings} = useDependencies();
     const {account, appLoading} = useApp();
-    const [loading, setLoading] = useState(false);
-    const [connections, setConnections] = useState(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [connections, setConnections] = useState<WatchableDataDto[]>([]);
     const location = useLocation();
 
     useEffect(() => {
@@ -62,11 +62,11 @@ export function Tv() {
         }
     }
 
-    function getPublicationMode(connection: WatchableDataDto): ReactElement {
-        const lastUpdate: Date = connection.lastUpdate
+    function getPublicationMode(connection: WatchableDataDto): ReactElement | null {
+        const lastUpdate: Date | null = connection.lastUpdate
             ? new Date(connection.lastUpdate)
             : null;
-        const lastUpdateTime: string = lastUpdate
+        const lastUpdateTime: string | null = lastUpdate
             ? ' @ ' + lastUpdate.toLocaleTimeString()
             : null;
 
@@ -87,7 +87,7 @@ export function Tv() {
                 {!c.eventDetails ? (getDataType(c.dataType as LiveDataType)) : null}
                 {c.dataType === LiveDataType.sayg && c.eventDetails
                     ? (<span>
-                        🎯 {c.eventDetails.opponents[0]} vs {c.eventDetails.opponents[1]}{c.eventDetails.venue ? ` at ${c.eventDetails.venue}` : ''}
+                        🎯 {c.eventDetails.opponents![0]} vs {c.eventDetails.opponents![1]}{c.eventDetails.venue ? ` at ${c.eventDetails.venue}` : ''}
                     </span>)
                     : null}
                 {c.dataType === LiveDataType.tournament && c.eventDetails

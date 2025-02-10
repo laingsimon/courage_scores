@@ -7,7 +7,7 @@ import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
 
 export interface IMatchReportProps {
     division: DivisionDto;
-    showWinner: boolean;
+    showWinner?: boolean;
     noOfThrows: number;
     noOfLegs: number;
     gender: string;
@@ -66,10 +66,10 @@ export function MatchReport({division, showWinner, noOfThrows, noOfLegs, gender,
                         showWinner={showWinner}
                         matchIndex={matchIndex}
                         noOfLegs={noOfLegs}
-                        saygData={map.saygData}
+                        saygData={map.saygData!}
                         noOfThrows={noOfThrows}
-                        hostPlayerName={map.match.sideA!.name}
-                        opponentPlayerName={map.match.sideB!.name}/>);
+                        hostPlayerName={map.match.sideA!.name!}
+                        opponentPlayerName={map.match.sideB!.name!}/>);
                 })}
                 </tbody>
             </table>

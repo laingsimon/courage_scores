@@ -13,8 +13,8 @@ import {DELETE_SCORE_BUTTON, ENTER_SCORE_BUTTON} from "../../helpers/constants";
 describe('NumberKeyboard', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let newValue: string;
-    let enteredValue: string;
+    let newValue: string | null;
+    let enteredValue: string | null;
 
     async function onChange(value: string) {
         newValue = value;
@@ -44,7 +44,7 @@ describe('NumberKeyboard', () => {
 
     function assertEnabledButtons(buttonText: string[]) {
         const buttons: HTMLButtonElement[] = Array.from(context.container.querySelectorAll('button'));
-        const buttonLookup: StringMapObject = toDictionary(buttons, (b: HTMLButtonElement) => b.textContent);
+        const buttonLookup: StringMapObject = toDictionary(buttons, (b: HTMLButtonElement) => b.textContent!);
 
         for (const text of buttonText) {
             const button = buttonLookup[text];
@@ -58,7 +58,7 @@ describe('NumberKeyboard', () => {
 
     function assertDisabledButtons(buttonText: string[]) {
         const buttons: HTMLButtonElement[] = Array.from(context.container.querySelectorAll('button'));
-        const buttonLookup: StringMapObject = toDictionary(buttons, (b: HTMLButtonElement) => b.textContent);
+        const buttonLookup: StringMapObject = toDictionary(buttons, (b: HTMLButtonElement) => b.textContent!);
 
         for (const text of buttonText) {
             const button = buttonLookup[text];

@@ -8,11 +8,12 @@ import {sortBy} from "../../helpers/collections";
 import {PrintDivisionHeading} from "../league/PrintDivisionHeading";
 import {EditTeamDto} from "../../interfaces/models/dtos/Team/EditTeamDto";
 import {useBranding} from "../common/BrandingContainer";
+import {hasAccess} from "../../helpers/conditions";
 
 export function DivisionTeams() {
     const {id: divisionId, name, season, teams, onReloadDivision} = useDivisionData();
     const {account} = useApp();
-    const isAdmin = account && account.access && account.access.manageTeams;
+    const isAdmin = hasAccess(account, access => access.manageTeams);
     const [newTeam, setNewTeam] = useState<boolean>(false);
     const [teamDetails, setTeamDetails] = useState<EditTeamDto>({
         name: '',
@@ -36,8 +37,8 @@ export function DivisionTeams() {
     function renderNewTeamDialog() {
         return (<Dialog title="Create a new team...">
             <EditTeamDetails
-                divisionId={divisionId}
-                seasonId={season.id}
+                divisionId={divisionId!}
+                seasonId={season!.id!}
                 team={teamDetails}
                 onCancel={async () => setNewTeam(false)}
                 onSaved={onTeamCreated}
@@ -63,7 +64,7 @@ export function DivisionTeams() {
                 </tr>
                 </thead>
                 <tbody>
-                {teams.sort(sortBy('rank')).map(team => (<DivisionTeam
+                {teams!.sort(sortBy('rank')).map(team => (<DivisionTeam
                     key={team.id}
                     team={team}/>))}
                 </tbody>

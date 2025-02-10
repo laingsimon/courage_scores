@@ -67,7 +67,7 @@ describe('PlayerOverview', () => {
 
         it('player and team details', async () => {
             await renderComponent(
-                { playerId: player.id },
+                { playerId: player.id! },
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
@@ -75,11 +75,11 @@ describe('PlayerOverview', () => {
                     .build());
 
             reportedError.verifyNoError();
-            const heading = context.container.querySelector('h3');
+            const heading = context.container.querySelector('h3')!;
             expect(heading).toBeTruthy();
             expect(heading.textContent).toContain(player.name);
             expect(heading.textContent).toContain(team.name);
-            const linkToTeam = heading.querySelector('a');
+            const linkToTeam = heading.querySelector('a')!;
             expect(linkToTeam).toBeTruthy();
             expect(linkToTeam.href).toEqual(`http://localhost/division/${division.name}/team:${team.name}/${season.name}`);
         });
@@ -126,7 +126,7 @@ describe('PlayerOverview', () => {
 
         it('table headings', async () => {
             await renderComponent(
-                { playerId: player.id },
+                { playerId: player.id! },
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
@@ -134,7 +134,7 @@ describe('PlayerOverview', () => {
                     .build());
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table.table');
+            const table = context.container.querySelector('table.table')!;
             expect(table).toBeTruthy();
             const headings = Array.from(table.querySelectorAll('thead tr th')).map(th => th.textContent);
             expect(headings).toEqual(['Date', 'Home', '', 'vs', '', 'Away']);
@@ -146,9 +146,9 @@ describe('PlayerOverview', () => {
                 .withFixture((f: IDivisionFixtureBuilder) => f.playing(teamBuilder('HOME'), team).scores(3, 1), fixtureId)
                 .build();
             const playerWithLeagueFixture = Object.assign({}, player);
-            playerWithLeagueFixture.fixtures[fixtureDate.date] = fixtureId;
+            playerWithLeagueFixture.fixtures![fixtureDate.date] = fixtureId;
             await renderComponent(
-                { playerId: playerWithLeagueFixture.id },
+                { playerId: playerWithLeagueFixture.id! },
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(playerWithLeagueFixture)
@@ -157,7 +157,7 @@ describe('PlayerOverview', () => {
                     .build());
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table.table');
+            const table = context.container.querySelector('table.table')!;
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             expect(rows.length).toEqual(1);
@@ -170,25 +170,25 @@ describe('PlayerOverview', () => {
                 '1',
                 'TEAM',
             ]);
-            const linkToFixture = cells[0].querySelector('a');
+            const linkToFixture = cells[0].querySelector('a')!;
             expect(linkToFixture).toBeTruthy();
             expect(linkToFixture.href).toEqual(`http://localhost/score/${fixtureId}`);
-            const linkToHomeTeam = cells[1].querySelector('a');
+            const linkToHomeTeam = cells[1].querySelector('a')!;
             expect(linkToHomeTeam).toBeTruthy();
             expect(linkToHomeTeam.href).toEqual(`http://localhost/division/${division.name}/team:HOME/${season.name}`);
-            const linkToAwayTeam = cells[5].querySelector('a');
+            const linkToAwayTeam = cells[5].querySelector('a')!;
             expect(linkToAwayTeam).toBeFalsy();
         });
 
         it('league fixture with no scores', async () => {
             const fixtureId = createTemporaryId();
             const fixtureDate: DivisionFixtureDateDto = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.playing(teamBuilder('HOME'), team).scores(null, null), fixtureId)
+                .withFixture((f: IDivisionFixtureBuilder) => f.playing(teamBuilder('HOME'), team).scores(undefined, undefined), fixtureId)
                 .build();
             const playerWithLeagueFixture = Object.assign({}, player);
-            playerWithLeagueFixture.fixtures[fixtureDate.date] = fixtureId;
+            playerWithLeagueFixture.fixtures![fixtureDate.date] = fixtureId;
             await renderComponent(
-                { playerId: playerWithLeagueFixture.id },
+                { playerId: playerWithLeagueFixture.id! },
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(playerWithLeagueFixture)
@@ -197,7 +197,7 @@ describe('PlayerOverview', () => {
                     .build());
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table.table');
+            const table = context.container.querySelector('table.table')!;
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             expect(rows.length).toEqual(1);
@@ -210,13 +210,13 @@ describe('PlayerOverview', () => {
                 '-',
                 'TEAM',
             ]);
-            const linkToFixture = cells[0].querySelector('a');
+            const linkToFixture = cells[0].querySelector('a')!;
             expect(linkToFixture).toBeTruthy();
             expect(linkToFixture.href).toEqual(`http://localhost/score/${fixtureId}`);
-            const linkToHomeTeam = cells[1].querySelector('a');
+            const linkToHomeTeam = cells[1].querySelector('a')!;
             expect(linkToHomeTeam).toBeTruthy();
             expect(linkToHomeTeam.href).toEqual(`http://localhost/division/${division.name}/team:HOME/${season.name}`);
-            const linkToAwayTeam = cells[5].querySelector('a');
+            const linkToAwayTeam = cells[5].querySelector('a')!;
             expect(linkToAwayTeam).toBeFalsy();
         });
 
@@ -228,9 +228,9 @@ describe('PlayerOverview', () => {
                     .scores(3, 1), fixtureId)
                 .build();
             const playerWithLeagueFixture = Object.assign({}, player);
-            playerWithLeagueFixture.fixtures[fixtureDate.date] = fixtureId;
+            playerWithLeagueFixture.fixtures![fixtureDate.date] = fixtureId;
             await renderComponent(
-                { playerId: playerWithLeagueFixture.id },
+                { playerId: playerWithLeagueFixture.id! },
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(playerWithLeagueFixture)
@@ -239,7 +239,7 @@ describe('PlayerOverview', () => {
                     .build());
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table.table');
+            const table = context.container.querySelector('table.table')!;
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             expect(rows.length).toEqual(1);
@@ -252,12 +252,12 @@ describe('PlayerOverview', () => {
                 '1',
                 'AWAY',
             ]);
-            const linkToFixture = cells[0].querySelector('a');
+            const linkToFixture = cells[0].querySelector('a')!;
             expect(linkToFixture).toBeTruthy();
             expect(linkToFixture.href).toEqual(`http://localhost/score/${fixtureId}`);
-            const linkToHomeTeam = cells[1].querySelector('a');
+            const linkToHomeTeam = cells[1].querySelector('a')!;
             expect(linkToHomeTeam).toBeFalsy();
-            const linkToAwayTeam = cells[5].querySelector('a');
+            const linkToAwayTeam = cells[5].querySelector('a')!;
             expect(linkToAwayTeam).toBeTruthy();
             expect(linkToAwayTeam.href).toEqual(`http://localhost/division/${division.name}/team:AWAY/${season.name}`);
         });
@@ -270,9 +270,9 @@ describe('PlayerOverview', () => {
                     .postponed(), fixtureId)
                 .build();
             const playerWithLeagueFixture = Object.assign({}, player);
-            playerWithLeagueFixture.fixtures[fixtureDate.date] = fixtureId;
+            playerWithLeagueFixture.fixtures![fixtureDate.date] = fixtureId;
             await renderComponent(
-                { playerId: playerWithLeagueFixture.id },
+                { playerId: playerWithLeagueFixture.id! },
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(playerWithLeagueFixture)
@@ -281,7 +281,7 @@ describe('PlayerOverview', () => {
                     .build());
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table.table');
+            const table = context.container.querySelector('table.table')!;
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             expect(rows.length).toEqual(1);
@@ -294,12 +294,12 @@ describe('PlayerOverview', () => {
                 'P',
                 'AWAY',
             ]);
-            const linkToFixture = cells[0].querySelector('a');
+            const linkToFixture = cells[0].querySelector('a')!;
             expect(linkToFixture).toBeTruthy();
             expect(linkToFixture.href).toEqual(`http://localhost/score/${fixtureId}`);
-            const linkToHomeTeam = cells[1].querySelector('a');
+            const linkToHomeTeam = cells[1].querySelector('a')!;
             expect(linkToHomeTeam).toBeFalsy();
-            const linkToAwayTeam = cells[5].querySelector('a');
+            const linkToAwayTeam = cells[5].querySelector('a')!;
             expect(linkToAwayTeam).toBeTruthy();
             expect(linkToAwayTeam.href).toEqual(`http://localhost/division/${division.name}/team:AWAY/${season.name}`);
         });
@@ -312,7 +312,7 @@ describe('PlayerOverview', () => {
                     .address('ADDRESS'), tournamentId)
                 .build();
             await renderComponent(
-                { playerId: player.id },
+                { playerId: player.id! },
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
@@ -321,7 +321,7 @@ describe('PlayerOverview', () => {
                     .build());
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table.table');
+            const table = context.container.querySelector('table.table')!;
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             expect(rows.length).toEqual(1);
@@ -331,7 +331,7 @@ describe('PlayerOverview', () => {
                 'TYPE at ADDRESS',
                 ''
             ]);
-            const linkToFixture = cells[0].querySelector('a');
+            const linkToFixture = cells[0].querySelector('a')!;
             expect(linkToFixture).toBeTruthy();
             expect(linkToFixture.href).toEqual(`http://localhost/tournament/${tournamentId}`);
         });
@@ -345,7 +345,7 @@ describe('PlayerOverview', () => {
                     .winner('WINNER'), tournamentId)
                 .build();
             await renderComponent(
-                { playerId: player.id },
+                { playerId: player.id! },
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
@@ -354,7 +354,7 @@ describe('PlayerOverview', () => {
                     .build());
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table.table');
+            const table = context.container.querySelector('table.table')!;
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             expect(rows.length).toEqual(1);
@@ -364,7 +364,7 @@ describe('PlayerOverview', () => {
                 'TYPE at ADDRESS',
                 'Winner: WINNER',
             ]);
-            const linkToFixture = cells[0].querySelector('a');
+            const linkToFixture = cells[0].querySelector('a')!;
             expect(linkToFixture).toBeTruthy();
             expect(linkToFixture.href).toEqual(`http://localhost/tournament/${tournamentId}`);
         });
@@ -378,7 +378,7 @@ describe('PlayerOverview', () => {
                     .proposed())
                 .build();
             await renderComponent(
-                { playerId: player.id },
+                { playerId: player.id! },
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
@@ -387,7 +387,7 @@ describe('PlayerOverview', () => {
                     .build());
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table.table');
+            const table = context.container.querySelector('table.table')!;
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             expect(rows.length).toEqual(0);

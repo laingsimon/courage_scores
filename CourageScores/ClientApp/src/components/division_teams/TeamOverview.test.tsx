@@ -15,7 +15,7 @@ import {IFixtureBuilder} from "../../helpers/builders/games";
 describe('TeamOverview', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let account: UserDto;
+    let account: UserDto | undefined;
 
     afterEach(async () => {
         await cleanUp(context);
@@ -113,8 +113,8 @@ describe('TeamOverview', () => {
             await renderComponent(divisionData, teams, teamId);
 
             reportedError.verifyNoError();
-            const heading = context.container.querySelector('.content-background > h3');
-            const address = context.container.querySelector('.content-background > p');
+            const heading = context.container.querySelector('.content-background > h3')!;
+            const address = context.container.querySelector('.content-background > p')!;
             expect(heading).toBeTruthy();
             expect(address).toBeTruthy();
             expect(heading.textContent).toEqual('A team 🔗');
@@ -137,7 +137,7 @@ describe('TeamOverview', () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
             const team = createTeam(createTemporaryId());
-            divisionData.fixtures.push(...createHomeAndAwayFixtureDates(team));
+            divisionData.fixtures!.push(...createHomeAndAwayFixtureDates(team));
 
             await renderComponent(divisionData, [team], team.id);
 
@@ -155,8 +155,8 @@ describe('TeamOverview', () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
             const team = createTeam(createTemporaryId());
-            divisionData.fixtures.push(...createHomeAndAwayFixtureDates(team));
-            divisionData.fixtures[0].fixtures[0].postponed = true;
+            divisionData.fixtures!.push(...createHomeAndAwayFixtureDates(team));
+            divisionData.fixtures![0].fixtures![0].postponed = true;
 
             await renderComponent(divisionData, [team], team.id);
 
@@ -175,9 +175,9 @@ describe('TeamOverview', () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
             const team = createTeam(createTemporaryId());
-            divisionData.fixtures.push(...createHomeAndAwayFixtureDates(team));
-            divisionData.fixtures[0].fixtures[0].homeScore = null;
-            divisionData.fixtures[0].fixtures[0].awayScore = null;
+            divisionData.fixtures!.push(...createHomeAndAwayFixtureDates(team));
+            divisionData.fixtures![0].fixtures![0].homeScore = undefined;
+            divisionData.fixtures![0].fixtures![0].awayScore = undefined;
 
             await renderComponent(divisionData, [team], team.id);
 
@@ -197,7 +197,7 @@ describe('TeamOverview', () => {
             const divisionData = createDivisionData(divisionId);
             const team = createTeam(createTemporaryId());
             const player = createPlayer(team);
-            divisionData.players.push(player);
+            divisionData.players!.push(player);
 
             await renderComponent(divisionData, [team], team.id);
 
@@ -221,8 +221,8 @@ describe('TeamOverview', () => {
             await renderComponent(divisionData, teams, teamId);
 
             reportedError.verifyNoError();
-            const heading = context.container.querySelector('.content-background > h3');
-            const address = context.container.querySelector('.content-background > p');
+            const heading = context.container.querySelector('.content-background > h3')!;
+            const address = context.container.querySelector('.content-background > p')!;
             expect(heading).toBeTruthy();
             expect(address).toBeTruthy();
             expect(heading.textContent).toEqual('A team 🔗');

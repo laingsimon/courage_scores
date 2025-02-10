@@ -32,7 +32,7 @@ export function remove180<T extends IAccoladeFixtureData>(fixtureData: T, setFix
     return async (_: string, index: number) => {
         const newFixtureData: T = Object.assign({}, fixtureData);
 
-        newFixtureData.oneEighties.splice(index, 1);
+        newFixtureData.oneEighties!.splice(index, 1);
 
         setFixtureData(newFixtureData);
     }
@@ -62,9 +62,8 @@ export function removeHiCheck<T extends IAccoladeFixtureData>(fixtureData: T, se
     return async (_: string, index: number) => {
         const newFixtureData: T = Object.assign({}, fixtureData);
 
-        newFixtureData.over100Checkouts.splice(index, 1);
+        newFixtureData.over100Checkouts!.splice(index, 1);
 
         setFixtureData(newFixtureData);
     };
 }
-

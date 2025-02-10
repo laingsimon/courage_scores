@@ -21,6 +21,7 @@ export interface ITournamentDetailsProps {
 
 export function TournamentDetails({ tournamentData, disabled, setTournamentData }: ITournamentDetailsProps) {
     const {teams, divisions} = useApp();
+    const allDivisions: IBootstrapDropdownItem = {value: null, text: 'All divisions'};
 
     const genderOptions: IBootstrapDropdownItem[] = [
         {text: <>&nbsp;</>, value: null},
@@ -31,28 +32,28 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
     function getExportTables(): { [key: string]: string[] } {
         let saygDataIds: string[] = [];
         let teamIds: string[] = [];
-        let round: TournamentRoundDto = tournamentData.round;
+        let round: TournamentRoundDto | undefined = tournamentData.round;
         while (round) {
-            saygDataIds = saygDataIds.concat(round.matches.map((m: TournamentMatchDto) => m.saygId).filter((id?: string) => id));
-            round = round.nextRound;
+            saygDataIds = saygDataIds.concat(round!.matches!.filter((m: TournamentMatchDto) => m.saygId).map((m: TournamentMatchDto) => m.saygId!));
+            round = round!.nextRound;
         }
 
         const exportRequest: { [key: string]: string[] } = {
             tournamentGame: [tournamentData.id],
-            season: [tournamentData.seasonId],
+            season: [tournamentData.seasonId!],
         };
 
         if (tournamentData.divisionId) {
             exportRequest.division = [tournamentData.divisionId];
         }
 
-        for (const side of tournamentData.sides) {
+        for (const side of tournamentData.sides || []) {
             if (side.teamId) {
                 teamIds = teamIds.concat([side.teamId]);
-            } else if (any(side.players || [])) {
+            } else if (any(side.players)) {
                 // get the team ids for the players
                 // find the teamId for each player
-                teamIds = teamIds.concat(side.players.map(getTeamIdForPlayer));
+                teamIds = teamIds.concat((side.players || []).map(getTeamIdForPlayer).filter(id => id !== null));
             }
         }
 
@@ -68,15 +69,15 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
         return exportRequest;
     }
 
-    function getTeamIdForPlayer(player: TournamentPlayerDto): string {
+    function getTeamIdForPlayer(player: TournamentPlayerDto): string | null {
         const teamToSeasonMaps = teams.map((t: TeamDto) => {
             return {
-                teamSeason: t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === tournamentData.seasonId && !ts.deleted)[0],
+                teamSeason: t.seasons!.filter((ts: TeamSeasonDto) => ts.seasonId === tournamentData.seasonId && !ts.deleted)[0],
                 team: t,
             }
         });
         const teamsWithPlayer = teamToSeasonMaps
-            .filter(map => map.teamSeason && any(map.teamSeason.players, (p: TeamPlayerDto) => p.id === player.id));
+            .filter(map => map.teamSeason && any(map.teamSeason!.players!, (p: TeamPlayerDto) => p.id === player.id));
 
         if (any(teamsWithPlayer)) {
             return teamsWithPlayer[0].team.id
@@ -159,7 +160,7 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
                     <BootstrapDropdown
                         value={tournamentData.divisionId}
                         onChange={propChanged(tournamentData, setTournamentData, 'divisionId')}
-                        options={[{value: null, text: 'All divisions'}].concat(divisions.map(d => {
+                        options={[allDivisions].concat(divisions.map(d => {
                             return {value: d.id, text: d.name}
                         }))}
                         disabled={disabled} className="margin-right"/>

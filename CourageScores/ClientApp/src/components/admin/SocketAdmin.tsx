@@ -9,7 +9,7 @@ import {WebSocketDto} from "../../interfaces/models/dtos/Live/WebSocketDto";
 export function SocketAdmin() {
     const {liveApi} = useDependencies();
     const {onError} = useApp();
-    const [sockets, setSockets] = useState<WebSocketDto[] | null>(null);
+    const [sockets, setSockets] = useState<WebSocketDto[] | undefined>(undefined);
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
@@ -33,9 +33,9 @@ export function SocketAdmin() {
         try {
             const response: IClientActionResultDto<WebSocketDto[]> = await liveApi.getAll();
             if (response.success) {
-                setSockets(response.result);
+                setSockets(response.result!);
             } else {
-                onError(response.errors.join(','));
+                onError(response.errors!.join(','));
             }
         } finally {
             setLoading(false);
@@ -52,7 +52,7 @@ export function SocketAdmin() {
             if (response.success) {
                 await loadSockets();
             } else {
-                onError(response.errors.join(','));
+                onError(response.errors!.join(','));
             }
         } finally {
             setLoading(false);
@@ -74,7 +74,7 @@ export function SocketAdmin() {
             {loading ? <LoadingSpinnerSmall /> : null}
             {loading || !sockets ? null : (<div className="list-group">
                 {sockets.sort(sortBy('connected', true)).map((socket) => (<li key={socket.id} title={socket.id} className="list-group-item">
-                    <button className="btn btn-sm btn-danger margin-right" onClick={() => closeSocket(socket.id)}>🗑</button>
+                    <button className="btn btn-sm btn-danger margin-right" onClick={() => closeSocket(socket.id!)}>🗑</button>
                     <span>{socket.userName || 'Logged out user'}</span>
                     <span className="float-end">
                         <span className="margin-left" title={socket.connected}>▶ {renderTime(socket.connected)}</span>
@@ -84,7 +84,7 @@ export function SocketAdmin() {
                     </span>
                 </li>))}
             </div>)}
-            {!loading && !any(sockets || []) ? (<span>No open sockets</span>) : null}
+            {!loading && !any(sockets) ? (<span>No open sockets</span>) : null}
         </div>);
     } catch (e) {
         /* istanbul ignore next */

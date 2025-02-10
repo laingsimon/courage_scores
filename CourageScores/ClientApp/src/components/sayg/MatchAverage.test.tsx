@@ -10,7 +10,7 @@ describe('MatchAverage', () => {
     });
 
     beforeEach(() => {
-        oneDartAverage = null;
+        oneDartAverage = false;
     });
 
     async function setOneDartAverage(newValue: boolean) {
@@ -23,16 +23,13 @@ describe('MatchAverage', () => {
             brandingProps(),
             appProps(),
             <MatchAverage {...props} />,
-            null,
-            null,
+            undefined,
+            undefined,
             'tbody');
     }
 
     it('renders nothing when no averages', async () => {
         await renderComponent({
-            homeAverage: null,
-            awayAverage: null,
-            singlePlayer: null,
             oneDartAverage: false,
             setOneDartAverage,
         });
@@ -44,13 +41,12 @@ describe('MatchAverage', () => {
         await renderComponent({
             homeAverage: 30.3333,
             awayAverage: 20.5555,
-            singlePlayer: null,
             oneDartAverage: false,
             setOneDartAverage,
         });
 
-        const homeAverage = context.container.querySelector('td:nth-child(2)');
-        const awayAverage = context.container.querySelector('td:nth-child(3)');
+        const homeAverage = context.container.querySelector('td:nth-child(2)')!;
+        const awayAverage = context.container.querySelector('td:nth-child(3)')!;
         expect(homeAverage.textContent).toEqual('30.33');
         expect(awayAverage.textContent).toEqual('20.56');
     });
@@ -59,13 +55,12 @@ describe('MatchAverage', () => {
         await renderComponent({
             homeAverage: 30.3333,
             awayAverage: 20.5555,
-            singlePlayer: null,
             oneDartAverage: true,
             setOneDartAverage,
         });
 
-        const homeAverage = context.container.querySelector('td:nth-child(2)');
-        const awayAverage = context.container.querySelector('td:nth-child(3)');
+        const homeAverage = context.container.querySelector('td:nth-child(2)')!;
+        const awayAverage = context.container.querySelector('td:nth-child(3)')!;
         expect(homeAverage.textContent).toEqual('10.11');
         expect(awayAverage.textContent).toEqual('6.85');
     });
@@ -73,14 +68,13 @@ describe('MatchAverage', () => {
     it('renders single player average', async () => {
         await renderComponent({
             homeAverage: 30.3333,
-            awayAverage: null,
             singlePlayer: true,
             oneDartAverage: false,
             setOneDartAverage,
         });
 
-        const homeAverage = context.container.querySelector('td:nth-child(2)');
-        const awayAverage = context.container.querySelector('td:nth-child(3)');
+        const homeAverage = context.container.querySelector('td:nth-child(2)')!;
+        const awayAverage = context.container.querySelector('td:nth-child(3)')!;
         expect(homeAverage.textContent).toEqual('30.33');
         expect(awayAverage).toBeFalsy();
     });
@@ -94,7 +88,7 @@ describe('MatchAverage', () => {
             setOneDartAverage,
         });
 
-        const awayAverage = context.container.querySelector('td:nth-child(3)');
+        const awayAverage = context.container.querySelector('td:nth-child(3)')!;
         expect(awayAverage.textContent).toEqual('-');
     });
 
@@ -102,13 +96,12 @@ describe('MatchAverage', () => {
         await renderComponent({
             homeAverage: 30.3333,
             awayAverage: 20.5555,
-            singlePlayer: null,
             oneDartAverage: false,
             setOneDartAverage,
         });
 
-        const homeAverage = context.container.querySelector('td:nth-child(2)');
-        const awayAverage = context.container.querySelector('td:nth-child(3)');
+        const homeAverage = context.container.querySelector('td:nth-child(2)')!;
+        const awayAverage = context.container.querySelector('td:nth-child(3)')!;
         expect(homeAverage.className).toContain('bg-winner');
         expect(awayAverage.className).not.toContain('bg-winner');
     });
@@ -117,13 +110,12 @@ describe('MatchAverage', () => {
         await renderComponent({
             homeAverage: 20.5555,
             awayAverage: 30.3333,
-            singlePlayer: null,
             oneDartAverage: false,
             setOneDartAverage,
         });
 
-        const homeAverage = context.container.querySelector('td:nth-child(2)');
-        const awayAverage = context.container.querySelector('td:nth-child(3)');
+        const homeAverage = context.container.querySelector('td:nth-child(2)')!;
+        const awayAverage = context.container.querySelector('td:nth-child(3)')!;
         expect(homeAverage.className).not.toContain('bg-winner');
         expect(awayAverage.className).toContain('bg-winner');
     });
@@ -132,7 +124,6 @@ describe('MatchAverage', () => {
         await renderComponent({
             homeAverage: 30.3333,
             awayAverage: 20.5555,
-            singlePlayer: null,
             oneDartAverage: true,
             setOneDartAverage,
         });
