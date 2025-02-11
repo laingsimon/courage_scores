@@ -1,5 +1,6 @@
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
+using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Division;
@@ -35,7 +36,8 @@ public class DivisionDataContextTests
             Array.Empty<FixtureDateNoteDto>(),
             new SeasonDto(),
             new Dictionary<Guid, Guid?>(),
-            new Dictionary<Guid, DivisionDto>());
+            new Dictionary<Guid, DivisionDto>(),
+            new DivisionDataFilter());
 
         var result = context.AllGames(divisionId).ToArray();
 
@@ -69,7 +71,8 @@ public class DivisionDataContextTests
             Array.Empty<FixtureDateNoteDto>(),
             new SeasonDto(),
             new Dictionary<Guid, Guid?>(),
-            new Dictionary<Guid, DivisionDto>());
+            new Dictionary<Guid, DivisionDto>(),
+            new DivisionDataFilter());
 
         var result = context.AllGames(divisionId).ToArray();
 
@@ -116,7 +119,8 @@ public class DivisionDataContextTests
             Array.Empty<FixtureDateNoteDto>(),
             new SeasonDto(),
             new Dictionary<Guid, Guid?>(),
-            new Dictionary<Guid, DivisionDto>());
+            new Dictionary<Guid, DivisionDto>(),
+            new DivisionDataFilter());
 
         var result = context.AllGames(null).ToArray();
 
@@ -150,7 +154,8 @@ public class DivisionDataContextTests
             Array.Empty<FixtureDateNoteDto>(),
             new SeasonDto(),
             new Dictionary<Guid, Guid?>(),
-            new Dictionary<Guid, DivisionDto>());
+            new Dictionary<Guid, DivisionDto>(),
+            new DivisionDataFilter());
 
         var result = context.AllTournamentGames(Array.Empty<Guid>());
 
@@ -187,7 +192,8 @@ public class DivisionDataContextTests
             Array.Empty<FixtureDateNoteDto>(),
             new SeasonDto(),
             new Dictionary<Guid, Guid?>(),
-            new Dictionary<Guid, DivisionDto>());
+            new Dictionary<Guid, DivisionDto>(),
+            new DivisionDataFilter());
 
         var result = context.AllTournamentGames(new[] { tournamentInDivision.DivisionId.Value });
 
