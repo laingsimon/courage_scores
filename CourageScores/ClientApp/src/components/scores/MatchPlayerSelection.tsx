@@ -37,6 +37,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
     const {matchOptions, otherMatches, setCreatePlayerFor} = useMatchType();
     const [matchOptionsDialogOpen, setMatchOptionsDialogOpen] = useState<boolean>(false);
     const [saygOpen, setSaygOpen] = useState<boolean>(false);
+    const hasBothScores = hasScore(match.homeScore) && hasScore(match.awayScore);
 
     function player(index: number, side: 'home' | 'away'): GamePlayerDto {
         const matchPlayers: GamePlayerDto[] = match[side + 'Players'];
@@ -217,9 +218,13 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
             && score > (numberOfLegs / 2.0);
     }
 
+    function hasScore(score?: number): boolean {
+        return score !== null && score !== undefined;
+    }
+
     try {
         return (<tr>
-            <td className={`${isWinner(match.homeScore || 0, matchOptions.numberOfLegs || 0) ? 'bg-winner ' : ''}text-end width-50-pc position-relative`}>
+            <td className={`${isWinner(match.homeScore || 0, matchOptions.numberOfLegs || 0) ? 'bg-winner ' : ''}${hasBothScores || disabled ? '' : 'bg-warning '}text-end width-50-pc position-relative`}>
                 {canOpenSayg() ? (<button tabIndex={-1} className="btn btn-sm position-absolute left-0"
                                           onClick={() => setSaygOpen(!saygOpen)}>📊</button>) : null}
                 {saygOpen ? renderSaygDialog() : null}
@@ -233,7 +238,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                         except={exceptPlayers(index, 'home')}
                         onChange={(_, player: ISelectablePlayer) => playerChanged(index, player, 'home')}/></div>))}
             </td>
-            <td className={`narrow-column align-middle text-end ${isWinner(match.homeScore || 0, matchOptions.numberOfLegs || 0) ? 'bg-winner' : ''}`}>
+            <td className={`narrow-column align-middle text-end ${isWinner(match.homeScore || 0, matchOptions.numberOfLegs || 0) ? 'bg-winner' : ''}${hasBothScores || disabled ? '' : ' bg-warning'}`}>
                 {disabled
                     ? (<strong>{match.homeScore}</strong>)
                     : (<input
@@ -245,7 +250,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                         onChange={stateChanged(async (newScore: string) => await scoreChanged(newScore, 'home'))}/>)}
             </td>
             <td className="align-middle text-center width-1 middle-vertical-line p-0"></td>
-            <td className={`narrow-column align-middle text-start ${isWinner(match.awayScore || 0, matchOptions.numberOfLegs || 0) ? 'bg-winner' : ''}`}>
+            <td className={`narrow-column align-middle text-start ${isWinner(match.awayScore || 0, matchOptions.numberOfLegs || 0) ? 'bg-winner' : ''}${hasBothScores || disabled ? '' : ' bg-warning'}`}>
                 {disabled
                     ? (<strong>{match.awayScore}</strong>)
                     : (<input
@@ -256,7 +261,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                         value={match.awayScore === null || match.homeScore === undefined ? '' : match.awayScore}
                         onChange={stateChanged(async (newScore: string) => scoreChanged(newScore, 'away'))}/>)}
             </td>
-            <td className={`${isWinner(match.awayScore || 0, matchOptions.numberOfLegs || 0) ? 'bg-winner ' : ''}width-50-pc position-relative`}>
+            <td className={`${isWinner(match.awayScore || 0, matchOptions.numberOfLegs || 0) ? 'bg-winner ' : ''}width-50-pc position-relative${hasBothScores || disabled ? '' : ' bg-warning'}`}>
                 {matchOptionsDialogOpen ? renderMatchSettingsDialog() : null}
                 {readOnly ? null : (
                     <button tabIndex={-1} title={`${matchOptions.numberOfLegs} leg/s. Starting score: ${matchOptions.startingScore}`}
