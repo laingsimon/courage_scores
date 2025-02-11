@@ -21,7 +21,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^29.5.13",
     "@vitejs/plugin-legacy": "^6.0.1",
-    "eslint": "^9.19.0",
+    "eslint": "^9.20.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc-fb9a90fa48-20240614",
     "eslint-plugin-react-refresh": "^0.4.18",
     "globals": "^15.14.0",
