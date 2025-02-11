@@ -40,6 +40,11 @@ public class DivisionDataFilter : IEquatable<DivisionDataFilter>
         return (Date == null || note.Date == Date.Value);
     }
 
+    public bool IncludeTeam(Guid teamId)
+    {
+        return TeamId == null || teamId == TeamId.Value;
+    }
+
     public bool Equals(DivisionDataFilter? other)
     {
         return other != null
