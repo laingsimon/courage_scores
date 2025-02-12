@@ -1,5 +1,6 @@
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
+using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
@@ -17,7 +18,8 @@ public class DivisionDataContext
         IEnumerable<FixtureDateNoteDto> notes,
         SeasonDto season,
         IReadOnlyDictionary<Guid, Guid?> teamIdToDivisionIdLookup,
-        IReadOnlyDictionary<Guid, DivisionDto> divisions)
+        IReadOnlyDictionary<Guid, DivisionDto> divisions,
+        DivisionDataFilter filter)
     {
         GamesForDate = games.GroupBy(g => g.Date).ToDictionary(g => g.Key, g => g.ToArray());
         TeamsInSeasonAndDivision = teamsInSeasonAndDivision;
@@ -26,6 +28,7 @@ public class DivisionDataContext
         Notes = notes.GroupBy(n => n.Date).ToDictionary(g => g.Key, g => g.ToArray());
         _tournamentGames = tournamentGames;
         Divisions = divisions;
+        Filter = filter;
     }
 
     public IReadOnlyCollection<TeamDto> TeamsInSeasonAndDivision { get; }
@@ -34,6 +37,7 @@ public class DivisionDataContext
     public Dictionary<DateTime, FixtureDateNoteDto[]> Notes { get; }
     public Dictionary<DateTime, CosmosGame[]> GamesForDate { get; }
     public IReadOnlyDictionary<Guid, DivisionDto> Divisions { get; }
+    public DivisionDataFilter Filter { get; }
 
     public IEnumerable<CosmosGame> AllGames(Guid? divisionId)
     {

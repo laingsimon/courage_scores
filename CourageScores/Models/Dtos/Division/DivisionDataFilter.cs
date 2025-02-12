@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Season;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Models.Dtos.Division;
 
@@ -16,7 +18,7 @@ public class DivisionDataFilter : IEquatable<DivisionDataFilter>
     // ReSharper restore UnusedAutoPropertyAccessor.Global
     // ReSharper restore MemberCanBePrivate.Global
 
-    public bool IncludeGame(Cosmos.Game.Game game)
+    public bool IncludeGame(CosmosGame game)
     {
         return (Date == null || game.Date == Date.Value)
                && (TeamId == null || game.Home.Id == TeamId.Value || game.Away.Id == TeamId);
@@ -27,7 +29,7 @@ public class DivisionDataFilter : IEquatable<DivisionDataFilter>
         return IgnoreDates || (eventDate >= season.StartDate && eventDate <= season.EndDate);
     }
 
-    public bool IncludeTournament(Cosmos.Game.TournamentGame game)
+    public bool IncludeTournament(TournamentGame game)
     {
         return (Date == null || game.Date == Date.Value)
                && (TeamId == null || game.Sides.Any(s => s.TeamId != null && s.TeamId == TeamId));
@@ -36,6 +38,11 @@ public class DivisionDataFilter : IEquatable<DivisionDataFilter>
     public bool IncludeNote(FixtureDateNoteDto note)
     {
         return (Date == null || note.Date == Date.Value);
+    }
+
+    public bool IncludeTeam(Guid teamId)
+    {
+        return TeamId == null || teamId == TeamId.Value;
     }
 
     public bool Equals(DivisionDataFilter? other)
