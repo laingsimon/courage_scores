@@ -46,9 +46,10 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
             }
         }
 
+        var index = 0;
         foreach (var side in Sides)
         {
-            side.Accept(scope, visitor);
+            side.Accept(scope.With(new VisitorScope { Index = index++ }), visitor);
         }
 
         Round?.Accept(scope, visitor);

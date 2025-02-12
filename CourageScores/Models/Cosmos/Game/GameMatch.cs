@@ -58,12 +58,18 @@ public class GameMatch : AuditedEntity, IGameVisitable
 
         if (HomeScore.HasValue && AwayScore.HasValue)
         {
-            if (HomeScore > AwayScore)
+            var matchOptions = scope.Game != null && scope.Index != null
+                ? scope.Game.MatchOptions.ElementAtOrDefault(scope.Index.Value)
+                : null;
+            var homeWinningNumberOfLegs = (matchOptions?.NumberOfLegs / 2.0) ?? AwayScore;
+            var awayWinningNumberOfLegs = (matchOptions?.NumberOfLegs / 2.0) ?? HomeScore;
+
+            if (HomeScore > homeWinningNumberOfLegs)
             {
                 visitor.VisitMatchWin(scope, HomePlayers, TeamDesignation.Home, HomeScore.Value, AwayScore.Value);
                 visitor.VisitMatchLost(scope, AwayPlayers, TeamDesignation.Away, AwayScore.Value, HomeScore.Value);
             }
-            if (AwayScore > HomeScore)
+            if (AwayScore > awayWinningNumberOfLegs)
             {
                 visitor.VisitMatchWin(scope, AwayPlayers, TeamDesignation.Away, AwayScore.Value, HomeScore.Value);
                 visitor.VisitMatchLost(scope, HomePlayers, TeamDesignation.Home, HomeScore.Value, AwayScore.Value);
