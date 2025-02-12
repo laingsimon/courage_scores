@@ -76,8 +76,19 @@ public class GameMatch : AuditedEntity, IGameVisitable
             }
             if (AwayScore == HomeScore)
             {
-                visitor.VisitDataError(scope, $"Match between {string.Join(", ", HomePlayers.Select(p => p.Name))} and {string.Join(", ", AwayPlayers.Select(p => p.Name))} is a {HomeScore}-{AwayScore} draw, scores won't count on players table");
+                visitor.VisitDataError(
+                    scope,
+                    $"Match between {string.Join(", ", HomePlayers.Select(p => p.Name))} and {string.Join(", ", AwayPlayers.Select(p => p.Name))} is a {HomeScore}-{AwayScore} draw, scores won't count on players table");
             }
+
+            return;
+        }
+
+        if (HomeScore.HasValue || AwayScore.HasValue)
+        {
+            visitor.VisitDataError(
+                scope,
+                $"Match between {string.Join(", ", HomePlayers.Select(p => p.Name))} and {string.Join(", ", AwayPlayers.Select(p => p.Name))} has only one score {HomeScore}-{AwayScore}, both are required to ensure the team/players table are rendered correctly");
         }
     }
 }
