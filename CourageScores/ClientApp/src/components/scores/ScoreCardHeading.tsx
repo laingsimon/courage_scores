@@ -4,6 +4,7 @@ import {renderDate} from "../../helpers/rendering";
 import {count} from "../../helpers/collections";
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {GameMatchDto} from "../../interfaces/models/dtos/Game/GameMatchDto";
+import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
 import {Link} from "react-router";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
@@ -58,18 +59,22 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
     }
 
     function getScore(data: GameDto | undefined, side: string): number {
-        function sideWonMatch(match: GameMatchDto | undefined): boolean {
+        function sideWonMatch(match: GameMatchDto | undefined, index?: number): boolean {
             const hasBothScores: boolean = hasScore(match?.homeScore) && hasScore(match?.awayScore);
 
             if (!hasBothScores) {
                 return false;
             }
 
+            const matchOptions: GameMatchOptionDto | undefined = data?.matchOptions![index!];
+            const defaultNumberOfLegs: number = 5;
+            const numberOfLegs: number = matchOptions ? matchOptions.numberOfLegs! : defaultNumberOfLegs;
+
             switch (side) {
                 case 'home':
-                    return (match?.homeScore || 0) > (match?.awayScore || 0);
+                    return (match?.homeScore || 0) > (numberOfLegs / 2.0);
                 case 'away':
-                    return (match?.awayScore || 0) > (match?.homeScore || 0);
+                    return (match?.awayScore || 0) > (numberOfLegs / 2.0);
                 default:
                     /* istanbul ignore next */
                     return false;
