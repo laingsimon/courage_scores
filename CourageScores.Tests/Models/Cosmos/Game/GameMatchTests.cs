@@ -9,10 +9,6 @@ public class GameMatchTests
 {
     private GameMatch _match = null!;
     private static readonly IVisitorScope VisitorScope = new VisitorScope();
-    private static readonly IVisitorScope ObscureScoresVisitorScope = new VisitorScope
-    {
-        ObscureScores = true,
-    };
 
     [SetUp]
     public void SetupEachTest()
@@ -121,11 +117,11 @@ public class GameMatchTests
         _match.HomeScore = 1;
         _match.AwayScore = 1;
 
-        _match.Accept(ObscureScoresVisitorScope, visitor.Object);
+        _match.Accept(VisitorScope, visitor.Object);
 
         visitor.Verify(v => v.VisitMatchWin(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
         visitor.Verify(v => v.VisitMatchLost(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
-        visitor.Verify(v => v.VisitDataError(ObscureScoresVisitorScope, "Match between HOME and AWAY is a 1-1 draw, scores won't count on players table"));
+        visitor.Verify(v => v.VisitDataError(VisitorScope, "Match between HOME and AWAY is a 1-1 draw, scores won't count on players table"));
     }
 
     [Test]
