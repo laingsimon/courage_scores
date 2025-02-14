@@ -212,8 +212,8 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
         await patchData!(nestedPatch, nestInRound);
     }
 
-    function teamWinLose(score?: number): string {
-        if ((score || 0) > (Number.parseInt(bestOf) / 2.0)) {
+    function teamWinLose(score?: string): string {
+        if (Number.parseInt(score || '0') > (Number.parseInt(bestOf) / 2.0)) {
             return win.text;
         }
 
