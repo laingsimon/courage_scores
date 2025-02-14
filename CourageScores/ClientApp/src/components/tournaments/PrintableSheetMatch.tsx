@@ -213,7 +213,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
     }
 
     function teamWinLose(score?: number): string {
-        if ((score || 0) > (bestOf / 2.0)) {
+        if ((score || 0) > (Number.parseInt(bestOf) / 2.0)) {
             return win.text;
         }
 
