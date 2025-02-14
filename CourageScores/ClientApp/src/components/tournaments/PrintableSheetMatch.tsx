@@ -212,6 +212,14 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
         await patchData!(nestedPatch, nestInRound);
     }
 
+    function teamWinLose(score): string {
+        if ((score || 0) > (bestOf / 2.0)) {
+            return win.text;
+        }
+
+        return lose.text;
+    }
+
     function renderEditSideDialog() {
         const oppositeSideId = editSide?.designation === 'A'
             ? matchData.sideB ? matchData.sideB.id : null
@@ -279,7 +287,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
                  onClick={editable ? () => beginEditSide('A') : undefined}
                  className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideA' ? 'bg-winner fw-bold' : ''}`}>
                 {renderSide(matchData.sideA, 'A')}
-                <div datatype="scoreA">{matchData.scoreA || ''}</div>
+                <div datatype="scoreA">{teamSides ? teamWinLose(matchData.scoreA) : matchData.scoreA || ''}</div>
             </div>
             <div className="text-center dotted-line-through">
                         <span className="px-3 bg-white position-relative">
@@ -297,7 +305,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
                  onClick={editable ? () => beginEditSide('B') : undefined}
                  className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideB' ? 'bg-winner fw-bold' : ''}`}>
                 {renderSide(matchData.sideB, 'B')}
-                <div datatype="scoreB">{matchData.scoreB || ''}</div>
+                <div datatype="scoreB">{teamSides ? teamWinLose(matchData.scoreB) : matchData.scoreB || ''}</div>
             </div>
         </div>
     </>);
