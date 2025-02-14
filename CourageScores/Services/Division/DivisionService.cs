@@ -134,7 +134,8 @@ public class DivisionService : IDivisionService
             notes,
             season,
             teamIdToDivisionIdLookup,
-            divisions.ToDictionary(d => d.Id));
+            divisions.ToDictionary(d => d.Id),
+            filter);
     }
 
     private async Task<List<Models.Cosmos.Game.Game>> GetGames(DivisionDataFilter filter, SeasonDto season, CancellationToken token)

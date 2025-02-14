@@ -34,9 +34,10 @@ public class TournamentRound : AuditedEntity, IGameVisitable
     {
         visitor.VisitRound(scope, this);
 
+        var index = 0;
         foreach (var match in Matches)
         {
-            match.Accept(scope, visitor);
+            match.Accept(scope.With(new VisitorScope { Index = index++ }), visitor);
         }
 
         NextRound?.Accept(scope, visitor);

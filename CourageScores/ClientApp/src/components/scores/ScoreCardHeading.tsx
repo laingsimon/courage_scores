@@ -54,8 +54,18 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
             && (access === 'admin' || (account && submission && account.teamId === submission.id && access === 'clerk'));
     }
 
+    function hasScore(score?: number): boolean {
+        return score !== null && score !== undefined;
+    }
+
     function getScore(data: GameDto | undefined, side: string): number {
         function sideWonMatch(match: GameMatchDto | undefined, index?: number): boolean {
+            const hasBothScores: boolean = hasScore(match?.homeScore) && hasScore(match?.awayScore);
+
+            if (!hasBothScores) {
+                return false;
+            }
+
             const matchOptions: GameMatchOptionDto | undefined = data?.matchOptions![index!];
             const defaultNumberOfLegs: number = 5;
             const numberOfLegs: number = matchOptions ? matchOptions.numberOfLegs! : defaultNumberOfLegs;

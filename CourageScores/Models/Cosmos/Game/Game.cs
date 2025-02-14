@@ -119,10 +119,15 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable, IPhotoEn
         }
 
         var gameScore = new GameScoreVisitor(Home, Away);
+        var index = 0;
         foreach (var match in Matches)
         {
-            match.Accept(scope, gameScore);
-            match.Accept(scope, visitor);
+            var indexedScope = scope.With(new VisitorScope
+            {
+                Index = index++,
+            });
+            match.Accept(indexedScope, gameScore);
+            match.Accept(indexedScope, visitor);
         }
 
         gameScore.Accept(scope, visitor);
