@@ -1,6 +1,7 @@
 using CourageScores.Models.Cosmos.Game;
 using Moq;
 using NUnit.Framework;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Tests.Models.Cosmos.Game;
 
@@ -8,12 +9,30 @@ namespace CourageScores.Tests.Models.Cosmos.Game;
 public class GameMatchTests
 {
     private GameMatch _match = null!;
-    private static readonly IVisitorScope VisitorScope = new VisitorScope();
+    private CosmosGame _game = null!;
+    private GameMatchOption _matchOptions = null!;
+    private IVisitorScope _visitorScope = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
         _match = new GameMatch();
+        _matchOptions = new GameMatchOption
+        {
+            NumberOfLegs = 5,
+        };
+        _game = new CosmosGame
+        {
+            MatchOptions =
+            {
+                _matchOptions
+            }
+        };
+        _visitorScope = new VisitorScope
+        {
+            Index = 0,
+            Game = _game,
+        };
     }
 
     [Test]
@@ -21,9 +40,9 @@ public class GameMatchTests
     {
         var visitor = new Mock<IGameVisitor>();
 
-        _match.Accept(VisitorScope, visitor.Object);
+        _match.Accept(_visitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitMatch(VisitorScope, _match));
+        visitor.Verify(v => v.VisitMatch(_visitorScope, _match));
     }
 
     [Test]
@@ -35,10 +54,10 @@ public class GameMatchTests
         _match.HomePlayers.Add(homePlayer);
         _match.AwayPlayers.Add(awayPlayer);
 
-        _match.Accept(VisitorScope, visitor.Object);
+        _match.Accept(_visitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitPlayer(VisitorScope, homePlayer, 1));
-        visitor.Verify(v => v.VisitPlayer(VisitorScope, awayPlayer, 1));
+        visitor.Verify(v => v.VisitPlayer(_visitorScope, homePlayer, 1));
+        visitor.Verify(v => v.VisitPlayer(_visitorScope, awayPlayer, 1));
     }
 
     [Test]
@@ -49,43 +68,50 @@ public class GameMatchTests
         _match.AwayPlayers.Add(new GamePlayer());
         _match.AwayPlayers.Add(new GamePlayer());
 
-        _match.Accept(VisitorScope, visitor.Object);
+        _match.Accept(_visitorScope, visitor.Object);
 
         visitor.Verify(v => v.VisitPlayer(It.IsAny<IVisitorScope>(), It.IsAny<GamePlayer>(), It.IsAny<int>()), Times.Never);
     }
 
-    [Test]
-    public void Accept_GivenEqualPlayerCountsAndHomeWinner_VisitsMatchHomeWinAndAwayLoss()
+    [TestCase(3, 1, 5)]
+    [TestCase(4, 3, 7)]
+    [TestCase(4, 4, 7)] // this is specific to home, as it should prevent checking whether away won
+    [TestCase(3, 1, null)]
+    public void Accept_GivenEqualPlayerCountsAndHomeWinner_VisitsMatchHomeWinAndAwayLoss(int home, int away, int? numberOfLegs)
     {
         var visitor = new Mock<IGameVisitor>();
         var homePlayer = new GamePlayer();
         var awayPlayer = new GamePlayer();
         _match.HomePlayers.Add(homePlayer);
         _match.AwayPlayers.Add(awayPlayer);
-        _match.HomeScore = 3;
-        _match.AwayScore = 1;
+        _match.HomeScore = home;
+        _match.AwayScore = away;
+        _matchOptions.NumberOfLegs = numberOfLegs;
 
-        _match.Accept(VisitorScope, visitor.Object);
+        _match.Accept(_visitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitMatchWin(VisitorScope, _match.HomePlayers, TeamDesignation.Home, 3, 1));
-        visitor.Verify(v => v.VisitMatchLost(VisitorScope, _match.AwayPlayers, TeamDesignation.Away, 1, 3));
+        visitor.Verify(v => v.VisitMatchWin(_visitorScope, _match.HomePlayers, TeamDesignation.Home, home, away), Times.Once);
+        visitor.Verify(v => v.VisitMatchLost(_visitorScope, _match.AwayPlayers, TeamDesignation.Away, away, home), Times.Once);
     }
 
-    [Test]
-    public void Accept_GivenEqualPlayerCountsAndAwayWinner_VisitsMatchHomeLossAndAwayWin()
+    [TestCase(1, 3, 5)]
+    [TestCase(3, 4, 7)]
+    [TestCase(1, 3, null)]
+    public void Accept_GivenEqualPlayerCountsAndAwayWinner_VisitsMatchHomeLossAndAwayWin(int home, int away, int? numberOfLegs)
     {
         var visitor = new Mock<IGameVisitor>();
         var homePlayer = new GamePlayer();
         var awayPlayer = new GamePlayer();
         _match.HomePlayers.Add(homePlayer);
         _match.AwayPlayers.Add(awayPlayer);
-        _match.HomeScore = 1;
-        _match.AwayScore = 3;
+        _match.HomeScore = home;
+        _match.AwayScore = away;
+        _matchOptions.NumberOfLegs = numberOfLegs;
 
-        _match.Accept(VisitorScope, visitor.Object);
+        _match.Accept(_visitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitMatchLost(VisitorScope, _match.HomePlayers, TeamDesignation.Home, 1, 3));
-        visitor.Verify(v => v.VisitMatchWin(VisitorScope, _match.AwayPlayers, TeamDesignation.Away, 3, 1));
+        visitor.Verify(v => v.VisitMatchLost(_visitorScope, _match.HomePlayers, TeamDesignation.Home, home, away), Times.Once);
+        visitor.Verify(v => v.VisitMatchWin(_visitorScope, _match.AwayPlayers, TeamDesignation.Away, away, home), Times.Once);
     }
 
     [Test]
@@ -99,11 +125,11 @@ public class GameMatchTests
         _match.HomeScore = 1;
         _match.AwayScore = 1;
 
-        _match.Accept(VisitorScope, visitor.Object);
+        _match.Accept(_visitorScope, visitor.Object);
 
         visitor.Verify(v => v.VisitMatchWin(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
         visitor.Verify(v => v.VisitMatchLost(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
-        visitor.Verify(v => v.VisitDataError(VisitorScope, "Match between HOME and AWAY is a 1-1 draw, scores won't count on players table"));
+        visitor.Verify(v => v.VisitDataError(_visitorScope, "Match between HOME and AWAY is a 1-1 draw, scores won't count on players table"));
     }
 
     [Test]
@@ -117,11 +143,11 @@ public class GameMatchTests
         _match.HomeScore = 1;
         _match.AwayScore = 1;
 
-        _match.Accept(VisitorScope, visitor.Object);
+        _match.Accept(_visitorScope, visitor.Object);
 
         visitor.Verify(v => v.VisitMatchWin(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
         visitor.Verify(v => v.VisitMatchLost(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
-        visitor.Verify(v => v.VisitDataError(VisitorScope, "Match between HOME and AWAY is a 1-1 draw, scores won't count on players table"));
+        visitor.Verify(v => v.VisitDataError(_visitorScope, "Match between HOME and AWAY is a 1-1 draw, scores won't count on players table"));
     }
 
     [Test]
@@ -134,7 +160,7 @@ public class GameMatchTests
         _match.HomeScore = 1;
         _match.AwayScore = 0;
 
-        _match.Accept(VisitorScope, visitor.Object);
+        _match.Accept(_visitorScope, visitor.Object);
 
         visitor.Verify(v => v.VisitMatchWin(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
         visitor.Verify(v => v.VisitMatchLost(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
@@ -147,7 +173,7 @@ public class GameMatchTests
         _match.HomePlayers.Add(new GamePlayer());
         _match.AwayPlayers.Add(new GamePlayer());
 
-        _match.Accept(VisitorScope, visitor.Object);
+        _match.Accept(_visitorScope, visitor.Object);
 
         visitor.Verify(v => v.VisitMatchWin(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
         visitor.Verify(v => v.VisitMatchLost(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
