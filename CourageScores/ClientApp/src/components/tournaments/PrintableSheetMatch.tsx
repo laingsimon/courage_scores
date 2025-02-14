@@ -42,12 +42,22 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
         value: side.id,
         text: side.name,
     }});
-    const possibleScoreOptions: IBootstrapDropdownItem[] = repeat(Math.ceil(Number.parseInt(bestOf) / 2) + 1, (index: number): IBootstrapDropdownItem => {
-        return {
-            value: index,
-            text: index
-        };
-    })
+    const win = {
+        value: bestOf,
+        text: 'Win',
+    };
+    const lose = {
+       value: 0,
+       text: 'Lose',
+    };
+    const possibleScoreOptions: IBootstrapDropdownItem[] = teamSides 
+            ? [ win, lose ] 
+            : repeat(Math.ceil(Number.parseInt(bestOf) / 2) + 1, (index: number): IBootstrapDropdownItem => { 
+                 return { 
+                      value: index, 
+                      text: index 
+                 }; 
+           });
     const readOnly: boolean = !round;
     const teamSides = any(tournamentData.sides, side => side.teamId);
 
