@@ -132,6 +132,25 @@ public class GameMatchTests
         visitor.Verify(v => v.VisitDataError(_visitorScope, "Match between HOME and AWAY is a 1-1 draw, scores won't count on players table"));
     }
 
+    [TestCase(null, 3)]
+    [TestCase(3, null)]
+    public void Accept_GivenEqualPlayerCountsAndOneScoreEntered_VisitsDataError(int? home, int? away)
+    {
+        var visitor = new Mock<IGameVisitor>();
+        var homePlayer = new GamePlayer { Name = "HOME" };
+        var awayPlayer = new GamePlayer { Name = "AWAY" };
+        _match.HomePlayers.Add(homePlayer);
+        _match.AwayPlayers.Add(awayPlayer);
+        _match.HomeScore = home;
+        _match.AwayScore = away;
+
+        _match.Accept(_visitorScope, visitor.Object);
+
+        visitor.Verify(v => v.VisitMatchWin(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        visitor.Verify(v => v.VisitMatchLost(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        visitor.Verify(v => v.VisitDataError(_visitorScope, $"Match between HOME and AWAY has only one score {home}-{away}, both are required to ensure the team/players table are rendered correctly"));
+    }
+
     [Test]
     public void Accept_GivenObscureScoresAndEqualPlayerCountsAndDraw_VisitsDataError()
     {
