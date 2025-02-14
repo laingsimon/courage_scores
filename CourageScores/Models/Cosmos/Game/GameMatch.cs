@@ -69,7 +69,7 @@ public class GameMatch : AuditedEntity, IGameVisitable
                 visitor.VisitMatchWin(scope, HomePlayers, TeamDesignation.Home, HomeScore.Value, AwayScore.Value);
                 visitor.VisitMatchLost(scope, AwayPlayers, TeamDesignation.Away, AwayScore.Value, HomeScore.Value);
             }
-            if (AwayScore > awayWinningNumberOfLegs)
+            else if (AwayScore > awayWinningNumberOfLegs)
             {
                 visitor.VisitMatchWin(scope, AwayPlayers, TeamDesignation.Away, AwayScore.Value, HomeScore.Value);
                 visitor.VisitMatchLost(scope, HomePlayers, TeamDesignation.Home, HomeScore.Value, AwayScore.Value);
