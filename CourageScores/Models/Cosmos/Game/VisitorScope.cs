@@ -5,6 +5,7 @@ public class VisitorScope : IVisitorScope
     public Game? Game { get; init; }
     public TournamentGame? Tournament { get; init; }
     public bool ObscureScores { get; init; }
+    public int? Index { get; init; }
 
     public IVisitorScope With(IVisitorScope visitorScope)
     {
@@ -13,6 +14,7 @@ public class VisitorScope : IVisitorScope
             Game = visitorScope.Game ?? Game,
             Tournament = visitorScope.Tournament ?? Tournament,
             ObscureScores = ObscureScores || visitorScope.ObscureScores,
+            Index = visitorScope.Index ?? Index,
         };
     }
 }

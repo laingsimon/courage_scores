@@ -35,7 +35,7 @@ public class TournamentRoundTests
 
         _round.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitMatch(VisitorScope, match));
+        visitor.Verify(v => v.VisitMatch(It.IsAny<IVisitorScope>(), match));
     }
 
     [Test]

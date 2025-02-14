@@ -77,6 +77,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             Name = GetDivisionName(divisions),
             Superleague = divisions.All(d => d?.Superleague == true),
             Teams = teamResults
+                .Where(t => context.Filter.IncludeTeam(t.Id))
                 .OrderByDescending(t => t.Points)
                 .ThenByDescending(t => t.Difference)
                 .ThenBy(t => t.Name)
@@ -86,6 +87,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 .OrderByAsync(d => d.Date)
                 .ToList(),
             Players = (await AddAllPlayersIfAdmin(playerResults, user, context, token))
+                .Where(p => context.Filter.IncludeTeam(p.TeamId))
                 .OrderByDescending(p => p.Points)
                 .ThenByDescending(p => p.WinPercentage)
                 .ThenByDescending(p => p.Pairs.MatchesPlayed)

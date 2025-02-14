@@ -1,5 +1,6 @@
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
+using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Division;
@@ -13,9 +14,10 @@ public class DivisionDataContextBuilder
     private readonly List<TeamDto> _teams = new List<TeamDto>();
     private readonly List<TournamentGame> _tournamentGames = new List<TournamentGame>();
     private readonly List<FixtureDateNoteDto> _notes = new List<FixtureDateNoteDto>();
-    private SeasonDto _season = new SeasonDto();
     private readonly Dictionary<Guid, Guid?> _teamIdToDivisionIdLookup = new Dictionary<Guid, Guid?>();
     private readonly Dictionary<Guid, DivisionDto> _divisionLookup = new Dictionary<Guid, DivisionDto>();
+    private readonly DivisionDataFilter _filter = new DivisionDataFilter();
+    private SeasonDto _season = new SeasonDto();
 
     public DivisionDataContextBuilder WithGame(params CosmosGame[] games)
     {
@@ -77,6 +79,7 @@ public class DivisionDataContextBuilder
             _notes,
             _season,
             _teamIdToDivisionIdLookup,
-            _divisionLookup);
+            _divisionLookup,
+            _filter);
     }
 }
