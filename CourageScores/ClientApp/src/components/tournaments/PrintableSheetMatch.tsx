@@ -50,6 +50,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
        value: 0,
        text: 'Lose',
     };
+    const teamSides = any(tournamentData.sides, side => side.teamId ? true : false);
     const possibleScoreOptions: IBootstrapDropdownItem[] = teamSides 
             ? [ win, lose ] 
             : repeat(Math.ceil(Number.parseInt(bestOf) / 2) + 1, (index: number): IBootstrapDropdownItem => { 
@@ -59,7 +60,6 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
                  }; 
            });
     const readOnly: boolean = !round;
-    const teamSides = any(tournamentData.sides, side => side.teamId);
 
     function beginEditSide(designation: 'A' | 'B') {
         // check that the round exists...
