@@ -42,7 +42,7 @@ public class GameMatch : AuditedEntity, IGameVisitable
         {
             var homePlayerList = string.Join(", ", HomePlayers.Select(p => p.Name));
             var awayPlayerList = string.Join(", ", AwayPlayers.Select(p => p.Name));
-            visitor.VisitDataError(scope, $"Mismatching number of players: Home players ({HomePlayers.Count}): [{homePlayerList}] vs Away players ({AwayPlayers.Count}): [{awayPlayerList}]");
+            AddDataErrorWithMessage(visitor, scope, $"has mis-matching number of players: Home players ({HomePlayers.Count}): [{homePlayerList}] vs Away players ({AwayPlayers.Count}): [{awayPlayerList}]");
             return;
         }
 
@@ -76,9 +76,7 @@ public class GameMatch : AuditedEntity, IGameVisitable
             }
             if (AwayScore == HomeScore)
             {
-                visitor.VisitDataError(
-                    scope,
-                    $"Match between {string.Join(", ", HomePlayers.Select(p => p.Name))} and {string.Join(", ", AwayPlayers.Select(p => p.Name))} is a {HomeScore}-{AwayScore} draw, scores won't count on players table");
+                AddDataErrorWithMessage(visitor, scope, $"is a {HomeScore}-{AwayScore} draw, scores won't count on players table");
             }
 
             return;
@@ -86,9 +84,34 @@ public class GameMatch : AuditedEntity, IGameVisitable
 
         if (HomeScore.HasValue || AwayScore.HasValue)
         {
-            visitor.VisitDataError(
-                scope,
-                $"Match between {string.Join(", ", HomePlayers.Select(p => p.Name))} and {string.Join(", ", AwayPlayers.Select(p => p.Name))} has only one score {HomeScore}-{AwayScore}, both are required to ensure the team/players table are rendered correctly");
+            AddDataErrorWithMessage(visitor, scope, $"has only one score {HomeScore}-{AwayScore}, both are required to ensure the team/players table are rendered correctly");
         }
+    }
+
+    private void AddDataErrorWithMessage(IGameVisitor visitor, IVisitorScope scope, string message)
+    {
+        var game = scope.Game;
+        var prefix = $"{GetMatchType(scope.Index) ?? "Match"} between {game?.Home?.Name ?? "unknown"} and {game?.Away?.Name ?? "unknown"}";
+
+        visitor.VisitDataError(
+            scope,
+            $"{prefix} {message}");
+    }
+
+    private string? GetMatchType(int? scopeIndex)
+    {
+        if (scopeIndex == null)
+        {
+            return null;
+        }
+
+        var playerCount = (HomePlayers.Count + AwayPlayers.Count) / 2;
+        return playerCount switch
+        {
+            1 => $"Singles match {scopeIndex + 1}",
+            2 => "Pairs match",
+            3 => "Triples match",
+            _ => null,
+        };
     }
 }

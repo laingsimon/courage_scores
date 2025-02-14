@@ -23,10 +23,12 @@ public class GameMatchTests
         };
         _game = new CosmosGame
         {
+            Home = new GameTeam { Name = "HOME TEAM" },
+            Away = new GameTeam { Name = "AWAY TEAM" },
             MatchOptions =
             {
                 _matchOptions
-            }
+            },
         };
         _visitorScope = new VisitorScope
         {
@@ -129,7 +131,7 @@ public class GameMatchTests
 
         visitor.Verify(v => v.VisitMatchWin(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
         visitor.Verify(v => v.VisitMatchLost(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
-        visitor.Verify(v => v.VisitDataError(_visitorScope, "Match between HOME and AWAY is a 1-1 draw, scores won't count on players table"));
+        visitor.Verify(v => v.VisitDataError(_visitorScope, $"Singles match 1 between HOME TEAM and AWAY TEAM is a 1-1 draw, scores won't count on players table"));
     }
 
     [TestCase(null, 3)]
@@ -148,7 +150,7 @@ public class GameMatchTests
 
         visitor.Verify(v => v.VisitMatchWin(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
         visitor.Verify(v => v.VisitMatchLost(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
-        visitor.Verify(v => v.VisitDataError(_visitorScope, $"Match between HOME and AWAY has only one score {home}-{away}, both are required to ensure the team/players table are rendered correctly"));
+        visitor.Verify(v => v.VisitDataError(_visitorScope, $"Singles match 1 between HOME TEAM and AWAY TEAM has only one score {home}-{away}, both are required to ensure the team/players table are rendered correctly"));
     }
 
     [Test]
@@ -166,7 +168,7 @@ public class GameMatchTests
 
         visitor.Verify(v => v.VisitMatchWin(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
         visitor.Verify(v => v.VisitMatchLost(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
-        visitor.Verify(v => v.VisitDataError(_visitorScope, "Match between HOME and AWAY is a 1-1 draw, scores won't count on players table"));
+        visitor.Verify(v => v.VisitDataError(_visitorScope, "Singles match 1 between HOME TEAM and AWAY TEAM is a 1-1 draw, scores won't count on players table"));
     }
 
     [Test]
