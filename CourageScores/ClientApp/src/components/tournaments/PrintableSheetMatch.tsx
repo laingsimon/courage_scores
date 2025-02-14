@@ -49,6 +49,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
         };
     })
     const readOnly: boolean = !round;
+    const teamSides = any(tournamentData.sides, side => side.teamId);
 
     function beginEditSide(designation: 'A' | 'B') {
         // check that the round exists...
@@ -273,7 +274,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
             <div className="text-center dotted-line-through">
                         <span className="px-3 bg-white position-relative">
                             vs
-                            {matchData.match ? (<MatchSayg
+                            {matchData.match && !teamSides ? (<MatchSayg
                                 match={matchData.match}
                                 matchOptions={matchOptions}
                                 matchIndex={matchIndex}
