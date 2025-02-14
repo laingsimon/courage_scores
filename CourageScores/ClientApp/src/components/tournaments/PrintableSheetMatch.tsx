@@ -47,7 +47,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
         text: 'Win',
     };
     const lose = {
-       value: 0,
+       value: '0',
        text: 'Lose',
     };
     const teamSides = any(tournamentData.sides, side => side.teamId ? true : false);
