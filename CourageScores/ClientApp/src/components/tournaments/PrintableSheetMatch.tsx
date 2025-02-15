@@ -221,7 +221,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
             return win.text;
         }
 
-        return lose.text;
+        return '';
     }
 
     function renderEditSideDialog() {
