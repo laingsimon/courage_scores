@@ -106,6 +106,16 @@ Function Add-PullRequestComment($Markdown)
     }
 }
 
+function Get-PullRequests($Base)
+{
+    # find all pull requests that are targeting the $Base
+    Write-Host -ForegroundColor Cyan "Getting release pull requests..."
+
+    $Response = Invoke-GitHubApiGetRequest -Uri "https://api.github.com/repos/$($Repo)/pulls?state=open&base=release"
+
+    return $Response | ConvertFrom-Json | Select-Object @{ label='url'; expression={$_.url} }, @{ label='title'; expression={$_.title}, @{ label='number'; expression={$_.number} } }
+}
+
 $Repo = $env:GITHUB_REPOSITORY
 $RefName = $env:GITHUB_REF_NAME # will be in the format <pr_number>/merge
 $Token=$env:GITHUB_TOKEN
@@ -122,10 +132,25 @@ $GitHubRunAttempt = $env:GITHUB_RUN_ATTEMPT
 $GitHubRunId = $env:GITHUB_RUN_ID
 $GitHubRunNumber = $env:GITHUB_RUN_NUMBER
 $TestsCommentHeading = "Failed tests"
+$GitHubEvent = $env:GITHUB_EVENT_NAME
 
 Write-Host "GITHUB_JOB=$($GitHubJob), GITHUB_RUN_ATTEMPT=$($GitHubRunAttempt), GITHUB_RUN_ID=$($GitHubRunId), GITHUB_RUN_NUMBER=$($GitHubRunNumber)"
 
-$Comments = [array] (Get-PullRequestComments $TestsCommentHeading)
-Remove-ExistingComments -Comments $Comments
+if ($PullRequestNumber -eq "main" -and $GitHubEvent -eq "push")
+{
+    # find the pull request for main
+    $PullRequest = Get-PullRequestTo -BaseBranch "main"
+    if ($PullRequest -ne $null)
+    {
+        $PullRequestNumber = "$($PullRequest.number)"
+        $GitHubEvent = "pull_request"
+    }
+}
 
-Add-PullRequestComment "#### $($TestsCommentHeading)`n`nDetails of the failed tests (jest and dotnet)"
+if ($GitHubEvent -eq "pull_request" -and $PullRequestNumber -ne "")
+{
+    $Comments = [array] (Get-PullRequestComments $TestsCommentHeading)
+    Remove-ExistingComments -Comments $Comments
+
+    Add-PullRequestComment "#### $($TestsCommentHeading)`n`nDetails of the failed tests (jest and dotnet)"
+}
