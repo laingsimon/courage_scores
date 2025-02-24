@@ -13,5 +13,6 @@ jobs:
     steps:
       - name: Add comments with test failures
         shell: pwsh
-        run: ../../Scripts/ProcessTestFailures.ps1
-        working-directory: ./CourageScores/ClientApp
+        run: ./Scripts/ProcessTestFailures.ps1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
