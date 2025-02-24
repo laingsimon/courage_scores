@@ -99,4 +99,4 @@ jobs:
         shell: pwsh
         run: ./Scripts/ProcessTestFailures.ps1
         env:
-          GITHUB_TOKEN: ${{ secrets.COURAGESCORES_REPORT_TEST_FAILURES_PAT }}
+          GITHUB_TOKEN: ${{ secrets.REPORT_FAILURES_PAT }}
