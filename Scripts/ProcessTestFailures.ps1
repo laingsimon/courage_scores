@@ -108,7 +108,15 @@ Function Add-PullRequestComment($Markdown)
 
 $Repo = $env:GITHUB_REPOSITORY
 $RefName = $env:GITHUB_REF_NAME # will be in the format <pr_number>/merge
-$Token = $env:GITHUB_TOKEN
+$Token=$env:GITHUB_TOKEN
+If ($RefName -ne $null)
+{
+    $PullRequestNumber=$RefName.Replace("/merge", "")
+}
+else
+{
+    $PullRequestNumber = ""
+}
 $GitHubJob = $env:GITHUB_JOB
 $GitHubRunAttempt = $env:GITHUB_RUN_ATTEMPT
 $GitHubRunId = $env:GITHUB_RUN_ID
