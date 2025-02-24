@@ -14,3 +14,4 @@ jobs:
       - name: Add comments with test failures
         shell: pwsh
         run: ../../Scripts/ProcessTestFailures.ps1
+        working-directory: ./CourageScores/ClientApp
