@@ -1,0 +1,16 @@
+name: Add test result comments
+
+on:
+  workflow_run:
+    workflows: ['DEV', 'UAT']
+    types:
+      - completed
+
+jobs:
+  report:
+    name: 'Add PR comments about test failures'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add comments with test failures
+        shell: pwsh
+        run: ../../Scripts/ProcessTestFailures.ps1
