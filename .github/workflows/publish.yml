@@ -93,3 +93,10 @@ jobs:
           name: JestTestResults
           path: './CourageScores/ClientApp/junit.xml'
           if-no-files-found: ignore
+
+      - name: Add comments with test failures
+        if: success() || failure()
+        shell: pwsh
+        run: ./Scripts/ProcessTestFailures.ps1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
