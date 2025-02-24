@@ -30,7 +30,6 @@ Function Get-PullRequestComments()
 {
     If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
     {
-        [Console]::Error.WriteLine("Cannot add PR comment; workflow isn't running from a pull-request - $($env:GITHUB_EVENT_NAME)")
         $EmptyList = @()
         Return ,$EmptyList
     }
@@ -81,7 +80,6 @@ Function Remove-ExistingComments()
 {
     If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
     {
-        [Console]::Error.WriteLine("Cannot remove existing PR comments; workflow isn't running from a pull-request - $($env:GITHUB_EVENT_NAME)")
         Return
     }
 
@@ -98,7 +96,7 @@ Function Add-PullRequestComment($Markdown)
 {
     If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
     {
-        [Console]::Error.WriteLine("Cannot add PR comment; workflow isn't running from a pull-request - $($env:GITHUB_EVENT_NAME)")
+        [Console]::Error.WriteLine("Cannot add PR comment; workflow isn't running from a pull-request - $($env:GITHUB_EVENT_NAME) / $($PullRequestNumber)")
         Return
     }
 
