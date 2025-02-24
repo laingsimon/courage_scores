@@ -96,7 +96,7 @@ Function Add-PullRequestComment($Markdown)
 {
     If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
     {
-        [Console]::Error.WriteLine("Cannot add PR comment; workflow isn't running from a pull-request - $($env:GITHUB_EVENT_NAME) / $($PullRequestNumber)")
+        [Console]::Error.WriteLine("Cannot add PR comment; workflow isn't running from a pull-request - $($env:GITHUB_EVENT_NAME) / $($PullRequestNumber)`n`n$($Markdown)")
         Return
     }
 
