@@ -1,5 +1,10 @@
 param()
 
+Function Write-Message($Message)
+{
+    [Console]::Out.WriteLine($Message)
+}
+
 Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch) 
 {
     If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
@@ -109,11 +114,34 @@ Function Add-PullRequestComment($Markdown)
 function Get-PullRequests($Base)
 {
     # find all pull requests that are targeting the $Base
-    Write-Host -ForegroundColor Cyan "Getting release pull requests..."
+    Write-Message "Getting release pull requests..."
 
-    $Response = Invoke-GitHubApiGetRequest -Uri "https://api.github.com/repos/$($Repo)/pulls?state=open&base=release"
+    $Response = $Response = Invoke-WebRequest `
+        -Uri "https://api.github.com/repos/$($Repo)/pulls?state=open&base=release" `
+        -Method Get `
+        -Headers @{
+            Authorization="Bearer $($Token)";
+        }
 
     return $Response | ConvertFrom-Json | Select-Object @{ label='url'; expression={$_.url} }, @{ label='title'; expression={$_.title}, @{ label='number'; expression={$_.number} } }
+}
+
+function Get-TestFailures 
+{
+    Write-Message "Getting logs from $($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs..."
+
+    $Response = Invoke-WebRequest `
+        -Uri "https://api.github.com/repos/$($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs"
+        -Method Get `
+        -Headers @{
+            Authorization="Bearer $($Token)";
+        }
+    Write-Message $Response
+}
+
+function Format-TestFailures($Failures)
+{
+    return "There were $($Failures.Count) failure/s"
 }
 
 $Repo = $env:GITHUB_REPOSITORY
@@ -131,10 +159,10 @@ $GitHubJob = $env:GITHUB_JOB
 $GitHubRunAttempt = $env:GITHUB_RUN_ATTEMPT
 $GitHubRunId = $env:GITHUB_RUN_ID
 $GitHubRunNumber = $env:GITHUB_RUN_NUMBER
-$TestsCommentHeading = "Failed tests"
 $GitHubEvent = $env:GITHUB_EVENT_NAME
+$TestsCommentHeading = "Failed tests"
 
-Write-Host "GITHUB_JOB=$($GitHubJob), GITHUB_RUN_ATTEMPT=$($GitHubRunAttempt), GITHUB_RUN_ID=$($GitHubRunId), GITHUB_RUN_NUMBER=$($GitHubRunNumber)"
+Write-Message "GITHUB_JOB=$($GitHubJob), GITHUB_RUN_ATTEMPT=$($GitHubRunAttempt), GITHUB_RUN_ID=$($GitHubRunId), GITHUB_RUN_NUMBER=$($GitHubRunNumber)"
 
 if ($PullRequestNumber -eq "main" -and $GitHubEvent -eq "push")
 {
@@ -147,10 +175,16 @@ if ($PullRequestNumber -eq "main" -and $GitHubEvent -eq "push")
     }
 }
 
-if ($GitHubEvent -eq "pull_request" -and $PullRequestNumber -ne "")
+if ($GitHubEvent -ne "pull_request" -or $PullRequestNumber -eq "")
 {
-    $Comments = [array] (Get-PullRequestComments $TestsCommentHeading)
-    Remove-ExistingComments -Comments $Comments
-
-    Add-PullRequestComment "#### $($TestsCommentHeading)`n`nDetails of the failed tests (jest and dotnet)"
+    Write-Message "Not triggered (or able to find the relevant) pull request"
+    Exit
 }
+
+$Comments = [array] (Get-PullRequestComments $TestsCommentHeading)
+Remove-ExistingComments -Comments $Comments
+
+$TestFailures = Get-TestFailures
+$CommentText = Format-TestFailures -Failures $TestFailures 
+
+Add-PullRequestComment "#### $($TestsCommentHeading)`n`n$($CommentText)"
