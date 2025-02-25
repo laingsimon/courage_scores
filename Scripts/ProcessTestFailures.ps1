@@ -25,7 +25,6 @@ Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch)
 
     if ($Response.StatusCode -ne 200) 
     {
-        $Response
         Write-Error "Error getting comment"
     }
 
@@ -64,7 +63,6 @@ Function Remove-ExistingComment($Comment)
     if ($Response.StatusCode -ne 204) 
     {
         Write-Error "Error deleting comment at url $($Url)"
-        $Response
     }
 }
 
@@ -107,7 +105,6 @@ Function Add-PullRequestComment($Markdown)
     if ($Response.StatusCode -ne 201) 
     {
         Write-Error "Error creating comment at url $($Url)"
-        $Response
     }
 }
 
@@ -126,17 +123,24 @@ function Get-PullRequests($Base)
     return $Response | ConvertFrom-Json | Select-Object @{ label='url'; expression={$_.url} }, @{ label='title'; expression={$_.title}, @{ label='number'; expression={$_.number} } }
 }
 
-function Get-TestFailures 
+function Get-TestFailures
 {
     Write-Message "Getting logs from $($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs..."
 
-    $Response = Invoke-WebRequest `
-        -Uri "https://api.github.com/repos/$($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs"
-        -Method Get `
-        -Headers @{
-            Authorization="Bearer $($Token)";
-        }
-    Write-Message $Response
+    try
+    {
+        $Response = Invoke-WebRequest `
+            -Uri "https://api.github.com/repos/$($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs"
+            -Method Get `
+            -Headers @{
+                Authorization="Bearer $($Token)";
+            }
+        Write-Message $Response
+    }
+    catch
+    {
+        Write-Host "Unable to retrieve test failures: $($_.Message)"
+    }
 }
 
 function Format-TestFailures($Failures)
@@ -167,7 +171,7 @@ Write-Message "GITHUB_JOB=$($GitHubJob), GITHUB_RUN_ATTEMPT=$($GitHubRunAttempt)
 if ($PullRequestNumber -eq "main" -and $GitHubEvent -eq "push")
 {
     # find the pull request for main
-    $PullRequest = Get-PullRequestTo -BaseBranch "main"
+    $PullRequest = Get-PullRequests -Base "main"
     if ($PullRequest -ne $null)
     {
         $PullRequestNumber = "$($PullRequest.number)"
@@ -181,10 +185,17 @@ if ($GitHubEvent -ne "pull_request" -or $PullRequestNumber -eq "")
     Exit
 }
 
-$Comments = [array] (Get-PullRequestComments $TestsCommentHeading)
-Remove-ExistingComments -Comments $Comments
+try
+{
+    $Comments = [array] (Get-PullRequestComments $TestsCommentHeading)
+    Remove-ExistingComments -Comments $Comments
 
-$TestFailures = Get-TestFailures
-$CommentText = Format-TestFailures -Failures $TestFailures 
+    $TestFailures = Get-TestFailures
+    $CommentText = Format-TestFailures -Failures $TestFailures 
 
-Add-PullRequestComment "#### $($TestsCommentHeading)`n`n$($CommentText)"
+    Add-PullRequestComment "#### $($TestsCommentHeading)`n`n$($CommentText)"
+}
+catch
+{
+    Write-Host "Error processing failed tests"
+}
