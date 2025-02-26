@@ -130,6 +130,7 @@ function Get-TestFailures
     $Response = Invoke-WebRequest `
         -Uri "https://api.github.com/repos/$($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs"
         -Method Get `
+        -PreserveAuthorizationOnRedirect `
         -Headers @{
             Authorization="Bearer $($Token)";
         }
