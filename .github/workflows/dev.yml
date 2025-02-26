@@ -51,6 +51,7 @@ jobs:
 
   report_tests:
     runs-on: ubuntu-latest
+    name: report / test results
 
     needs:
      - publish
