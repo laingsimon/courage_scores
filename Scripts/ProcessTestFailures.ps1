@@ -165,7 +165,6 @@ $TestsCommentHeading = "Failed tests"
 
 # Write-Message "GITHUB_JOB=$($GitHubJob), GITHUB_RUN_ATTEMPT=$($GitHubRunAttempt), GITHUB_RUN_ID=$($GitHubRunId), GITHUB_RUN_NUMBER=$($GitHubRunNumber)"
 
-try
 {
     if ($PullRequestNumber -eq "main" -and $GitHubEvent -eq "push")
     {
@@ -191,8 +190,4 @@ try
     $CommentText = Format-TestFailures -Failures $TestFailures
 
     Add-PullRequestComment "#### $($TestsCommentHeading)`n`n$($CommentText)"
-}
-catch
-{
-    Write-Message "Error processing test results: $($_.Exception)"
 }
