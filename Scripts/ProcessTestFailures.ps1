@@ -163,27 +163,34 @@ $TestsCommentHeading = "Failed tests"
 
 # Write-Message "GITHUB_JOB=$($GitHubJob), GITHUB_RUN_ATTEMPT=$($GitHubRunAttempt), GITHUB_RUN_ID=$($GitHubRunId), GITHUB_RUN_NUMBER=$($GitHubRunNumber)"
 
-if ($PullRequestNumber -eq "main" -and $GitHubEvent -eq "push")
+try
 {
-    # find the pull request for main
-    $PullRequest = Get-PullRequests -Base "main"
-    if ($PullRequest -ne $null)
+    if ($PullRequestNumber -eq "main" -and $GitHubEvent -eq "push")
     {
-        $PullRequestNumber = "$($PullRequest.number)"
-        $GitHubEvent = "pull_request"
+        # find the pull request for main
+        $PullRequest = Get-PullRequests -Base "main"
+        if ($PullRequest -ne $null)
+        {
+            $PullRequestNumber = "$($PullRequest.number)"
+            $GitHubEvent = "pull_request"
+        }
     }
-}
 
-if ($GitHubEvent -ne "pull_request" -or $PullRequestNumber -eq "")
+    if ($GitHubEvent -ne "pull_request" -or $PullRequestNumber -eq "")
+    {
+        Write-Message "Not triggered (or able to find the relevant) pull request"
+        Exit
+    }
+
+    $Comments = [array] (Get-PullRequestComments $TestsCommentHeading)
+    Remove-ExistingComments -Comments $Comments
+
+    $TestFailures = Get-TestFailures
+    $CommentText = Format-TestFailures -Failures $TestFailures
+
+    Add-PullRequestComment "#### $($TestsCommentHeading)`n`n$($CommentText)"
+}
+catch
 {
-    Write-Message "Not triggered (or able to find the relevant) pull request"
-    Exit
+    Write-Message "Error processing test results: $($_.Exception)"
 }
-
-$Comments = [array] (Get-PullRequestComments $TestsCommentHeading)
-Remove-ExistingComments -Comments $Comments
-
-$TestFailures = Get-TestFailures
-$CommentText = Format-TestFailures -Failures $TestFailures 
-
-Add-PullRequestComment "#### $($TestsCommentHeading)`n`n$($CommentText)"
