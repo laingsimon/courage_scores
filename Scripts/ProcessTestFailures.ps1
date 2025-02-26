@@ -128,12 +128,13 @@ function Get-TestFailures
     Write-Message "Getting logs from $($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs..."
 
     $Response = Invoke-WebRequest `
-        -Uri "https://api.github.com/repos/$($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs"
+        -Uri "https://api.github.com/repos/$($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs" `
         -Method Get `
+        -PreserveAuthorizationOnRedirect `
         -Headers @{
+            Accept="application/vnd.github+json";
             Authorization="Bearer $($Token)";
         }
-    # Write-Message $Response
 
     Write-Message "Retrieved logs from workflow run"
 }
@@ -161,10 +162,6 @@ $GitHubRunNumber = $env:GITHUB_RUN_NUMBER
 $GitHubEvent = $env:GITHUB_EVENT_NAME
 $TestsCommentHeading = "Failed tests"
 
-# Write-Message "GITHUB_JOB=$($GitHubJob), GITHUB_RUN_ATTEMPT=$($GitHubRunAttempt), GITHUB_RUN_ID=$($GitHubRunId), GITHUB_RUN_NUMBER=$($GitHubRunNumber)"
-
-try
-{
     if ($PullRequestNumber -eq "main" -and $GitHubEvent -eq "push")
     {
         # find the pull request for main
@@ -189,8 +186,3 @@ try
     $CommentText = Format-TestFailures -Failures $TestFailures
 
     Add-PullRequestComment "#### $($TestsCommentHeading)`n`n$($CommentText)"
-}
-catch
-{
-    Write-Message "Error processing test results: $($_.Exception)"
-}
