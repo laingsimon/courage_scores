@@ -139,7 +139,7 @@ function Get-TestFailures
     }
     catch
     {
-        Write-Host "Unable to retrieve test failures: $($_.Message)"
+        Write-Error "Unable to retrieve test failures: $($_.Exception.Message)"
     }
 }
 
