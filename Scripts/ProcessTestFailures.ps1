@@ -127,20 +127,15 @@ function Get-TestFailures
 {
     Write-Message "Getting logs from $($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs..."
 
-    try
-    {
-        $Response = Invoke-WebRequest `
-            -Uri "https://api.github.com/repos/$($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs"
-            -Method Get `
-            -Headers @{
-                Authorization="Bearer $($Token)";
-            }
-        Write-Message $Response
-    }
-    catch
-    {
-        Write-Host "Unable to retrieve test failures: $($_.Message)"
-    }
+    $Response = Invoke-WebRequest `
+        -Uri "https://api.github.com/repos/$($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs"
+        -Method Get `
+        -Headers @{
+            Authorization="Bearer $($Token)";
+        }
+    # Write-Message $Response
+
+    Write-Message "Retrieved logs from workflow run"
 }
 
 function Format-TestFailures($Failures)
@@ -166,7 +161,7 @@ $GitHubRunNumber = $env:GITHUB_RUN_NUMBER
 $GitHubEvent = $env:GITHUB_EVENT_NAME
 $TestsCommentHeading = "Failed tests"
 
-Write-Message "GITHUB_JOB=$($GitHubJob), GITHUB_RUN_ATTEMPT=$($GitHubRunAttempt), GITHUB_RUN_ID=$($GitHubRunId), GITHUB_RUN_NUMBER=$($GitHubRunNumber)"
+# Write-Message "GITHUB_JOB=$($GitHubJob), GITHUB_RUN_ATTEMPT=$($GitHubRunAttempt), GITHUB_RUN_ID=$($GitHubRunId), GITHUB_RUN_NUMBER=$($GitHubRunNumber)"
 
 try
 {
@@ -191,11 +186,11 @@ try
     Remove-ExistingComments -Comments $Comments
 
     $TestFailures = Get-TestFailures
-    $CommentText = Format-TestFailures -Failures $TestFailures 
+    $CommentText = Format-TestFailures -Failures $TestFailures
 
     Add-PullRequestComment "#### $($TestsCommentHeading)`n`n$($CommentText)"
 }
 catch
 {
-    Write-Host "Error processing failed tests"
+    Write-Message "Error processing test results: $($_.Exception)"
 }
