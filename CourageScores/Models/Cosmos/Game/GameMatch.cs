@@ -91,7 +91,7 @@ public class GameMatch : AuditedEntity, IGameVisitable
     private void AddDataErrorWithMessage(IGameVisitor visitor, IVisitorScope scope, string message)
     {
         var game = scope.Game;
-        var prefix = $"{GetMatchType(scope.Index) ?? "Match"} between {game?.Home?.Name ?? "unknown"} and {game?.Away?.Name ?? "unknown"}";
+        var prefix = $"{GetMatchType(scope.Index) ?? "Match"} between {game?.Home.Name ?? "unknown"} and {game?.Away.Name ?? "unknown"}";
 
         visitor.VisitDataError(
             scope,

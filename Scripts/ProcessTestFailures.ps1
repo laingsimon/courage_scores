@@ -1,10 +1,9 @@
 param()
-$AuditCommentHeading = "npm audit report"
-$OutdatedCommentHeading = "npm outdated report"
-$BypassNpmAuditViaCommentCommentContent = "bypass npm audit"
-$GitHubMarkdownCodeBlock="``````"
 
-Import-Module -Name "$PSScriptRoot/NpmFunctions.psm1"
+Function Write-Message($Message)
+{
+    [Console]::Out.WriteLine($Message)
+}
 
 Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch) 
 {
@@ -26,7 +25,6 @@ Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch)
 
     if ($Response.StatusCode -ne 200) 
     {
-        $Response
         Write-Error "Error getting comment"
     }
 
@@ -65,7 +63,6 @@ Function Remove-ExistingComment($Comment)
     if ($Response.StatusCode -ne 204) 
     {
         Write-Error "Error deleting comment at url $($Url)"
-        $Response
     }
 }
 
@@ -81,11 +78,6 @@ Function Remove-ExistingComments($Comments)
         Write-Message "Remove existing comments: $($Comments.Count)"
         $Comments | ForEach-Object { Remove-ExistingComment -Comment $_ }
     }
-}
-
-Function Write-Message($Message)
-{
-    [Console]::Out.WriteLine($Message)
 }
 
 Function Add-PullRequestComment($Markdown)
@@ -113,11 +105,46 @@ Function Add-PullRequestComment($Markdown)
     if ($Response.StatusCode -ne 201) 
     {
         Write-Error "Error creating comment at url $($Url)"
-        $Response
     }
 }
 
-$RefName=$env:GITHUB_REF_NAME # will be in the format <pr_number>/merge
+function Get-PullRequests($Base)
+{
+    # find all pull requests that are targeting the $Base
+    Write-Message "Getting release pull requests..."
+
+    $Response = $Response = Invoke-WebRequest `
+        -Uri "https://api.github.com/repos/$($Repo)/pulls?state=open&base=release" `
+        -Method Get `
+        -Headers @{
+            Authorization="Bearer $($Token)";
+        }
+
+    return $Response | ConvertFrom-Json | Select-Object @{ label='url'; expression={$_.url} }, @{ label='title'; expression={$_.title}, @{ label='number'; expression={$_.number} } }
+}
+
+function Get-TestFailures
+{
+    Write-Message "Getting logs from $($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs..."
+
+    $Response = Invoke-WebRequest `
+        -Uri "https://api.github.com/repos/$($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs"
+        -Method Get `
+        -Headers @{
+            Authorization="Bearer $($Token)";
+        }
+    # Write-Message $Response
+
+    Write-Message "Retrieved logs from workflow run"
+}
+
+function Format-TestFailures($Failures)
+{
+    return "There were $($Failures.Count) failure/s"
+}
+
+$Repo = $env:GITHUB_REPOSITORY
+$RefName = $env:GITHUB_REF_NAME # will be in the format <pr_number>/merge
 $Token=$env:GITHUB_TOKEN
 If ($RefName -ne $null)
 {
@@ -127,43 +154,43 @@ else
 {
     $PullRequestNumber = ""
 }
-$Repo = $env:GITHUB_REPOSITORY
-$AuditComments = [array] (Get-PullRequestComments $AuditCommentHeading)
-$BypassNpmAuditViaCommentComments = [array] (Get-PullRequestComments $BypassNpmAuditViaCommentCommentContent -ExactMatch)
-Remove-ExistingComments -Comments $AuditComments
-$OutdatedComments = [array] (Get-PullRequestComments $OutdatedCommentHeading)
-Remove-ExistingComments -Comments $OutdatedComments
+$GitHubJob = $env:GITHUB_JOB
+$GitHubRunAttempt = $env:GITHUB_RUN_ATTEMPT
+$GitHubRunId = $env:GITHUB_RUN_ID
+$GitHubRunNumber = $env:GITHUB_RUN_NUMBER
+$GitHubEvent = $env:GITHUB_EVENT_NAME
+$TestsCommentHeading = "Failed tests"
 
-$NpmAuditResult = Invoke-NpmCommand -Command "audit"
-If ($NpmAuditResult.output -ne "")
+# Write-Message "GITHUB_JOB=$($GitHubJob), GITHUB_RUN_ATTEMPT=$($GitHubRunAttempt), GITHUB_RUN_ID=$($GitHubRunId), GITHUB_RUN_NUMBER=$($GitHubRunNumber)"
+
+try
 {
-    Write-Output $NpmAuditResult.output
-}
-If ($NpmAuditResult.error -ne "")
-{
-    Write-Error $NpmAuditResult.error
-}
-If ($NpmAuditResult.ExitCode -ne 0)
-{
-    $BypassInstruction="Add comment to this PR with the content **$($BypassNpmAuditViaCommentCommentContent)** to bypass these vulnerabilities when the workflow runs next"
-    if ($BypassNpmAuditViaCommentComments.Length -gt 0)
+    if ($PullRequestNumber -eq "main" -and $GitHubEvent -eq "push")
     {
-        $BypassInstruction="A comment exists with the wording **$($BypassNpmAuditViaCommentCommentContent)**; warnings are ignored for this PR"
+        # find the pull request for main
+        $PullRequest = Get-PullRequests -Base "main"
+        if ($PullRequest -ne $null)
+        {
+            $PullRequestNumber = "$($PullRequest.number)"
+            $GitHubEvent = "pull_request"
+        }
     }
 
-    Add-PullRequestComment "#### $($AuditCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($NpmAuditResult.output)`n$($NpmAuditResult.error)`n$($GitHubMarkdownCodeBlock)`n$($BypassInstruction)"
-}
+    if ($GitHubEvent -ne "pull_request" -or $PullRequestNumber -eq "")
+    {
+        Write-Message "Not triggered (or able to find the relevant) pull request"
+        Exit
+    }
 
-$OutdatedNpmModulesComment = Invoke-Expression "$($PSScriptRoot)/Format-OutdatedNpmModules.ps1 -OutdatedCommentHeading ""$OutdatedCommentHeading"""
-If ($OutdatedNpmModulesComment -ne "")
+    $Comments = [array] (Get-PullRequestComments $TestsCommentHeading)
+    Remove-ExistingComments -Comments $Comments
+
+    $TestFailures = Get-TestFailures
+    $CommentText = Format-TestFailures -Failures $TestFailures
+
+    Add-PullRequestComment "#### $($TestsCommentHeading)`n`n$($CommentText)"
+}
+catch
 {
-    Add-PullRequestComment $OutdatedNpmModulesComment
+    Write-Message "Error processing test results: $($_.Exception)"
 }
-
-If ($NpmAuditResult.ExitCode -ne 0 -and $BypassNpmAuditViaCommentComments.Length -gt 0)
-{
-    Write-Message "npm audit warnings have been bypassed by request"
-    Exit 0
-}
-
-Exit $NpmAuditResult.exitCode
