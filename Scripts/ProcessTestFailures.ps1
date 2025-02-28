@@ -125,16 +125,14 @@ function Get-PullRequests($Base)
 
 function Get-TestFailures
 {
-    Write-Message "Getting logs from $($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs..."
+    $Url = "https://api.github.com/repos/$($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs"
+    Write-Message "Getting logs $($Url)..."
+    $ZipFile = "./logs.zip"
 
-    $Response = Invoke-WebRequest `
-        -Uri "https://api.github.com/repos/$($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs" `
-        -Method Get `
-        -PreserveAuthorizationOnRedirect `
-        -Headers @{
-            Accept="application/vnd.github+json";
-            Authorization="Bearer $($Token)";
-        }
+    $Response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{ Authorization="Bearer $($Token)" } -OutFile $ZipFile
+
+    $ExtractPath = "./logs"
+    $ZipFile | Expand-Archive -Destination $ExtractPath
 
     Write-Message "Retrieved logs from workflow run"
 }
