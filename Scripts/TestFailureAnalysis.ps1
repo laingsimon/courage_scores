@@ -108,72 +108,63 @@ Function Add-PullRequestComment($Markdown)
     }
 }
 
-function Get-PullRequests($Base)
+function Get-CommentProperty($Comment, $Property)
 {
-    # find all pull requests that are targeting the $Base
-    Write-Message "Getting release pull requests..."
+    $body = $Comment.body
 
-    $Response = $Response = Invoke-WebRequest `
-        -Uri "https://api.github.com/repos/$($Repo)/pulls?state=open&base=release" `
-        -Method Get `
-        -Headers @{
-            Authorization="Bearer $($Token)";
-        }
+    $match = [System.Text.RegularExpressions.Regex]::Match($body, "\<!-- $($Property)=(.+?) --\>")
+    if ($Match.Success)
+    {
+        return $match.Groups[1].Value
+    }
 
-    return $Response | ConvertFrom-Json | Select-Object @{ label='url'; expression={$_.url}}, @{ label='title'; expression={$_.title}}, @{ label='number'; expression={$_.number}}
+    Write-Message "Could not find $(Property) in comment body $($body)"
 }
 
-function Get-PullRequestCommentText() 
+function Get-Logs($Url) 
 {
-    return "<!-- LogsUrl=https://api.github.com/repos/$($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs -->
-<!-- PullRequestNumber=$($PullRequestNumber) -->
-<!-- RefName=$($RefName) -->
-<!-- GitHubJob=$($GitHubJob) -->
-<!-- GitHubEvent=$($GitHubEvent) -->
-<!-- GitHubRunId=$($GitHubRunId) -->
-<!-- GitHubRunAttempt=$($GitHubRunAttempt) -->
+    Write-Message "Getting logs $($Url)..."
+    $ZipFile = "./logs.zip"
 
-⏱️ Collecting test results from run $($GitHubRunId)..."
+    $Response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{ Authorization="Bearer $($Token)" } -OutFile $ZipFile
+
+    $ExtractPath = "./logs"
+    $ZipFile | Expand-Archive -Destination $ExtractPath
+
+    Write-Message "Retrieved logs from workflow run"
 }
 
 $Repo = $env:GITHUB_REPOSITORY
-$RefName = $env:GITHUB_REF_NAME # will be in the format <pr_number>/merge
 $Token=$env:GITHUB_TOKEN
-If ($RefName -ne $null)
-{
-    $PullRequestNumber=$RefName.Replace("/merge", "")
-}
-else
-{
-    $PullRequestNumber = ""
-}
-$GitHubJob = $env:GITHUB_JOB
-$GitHubRunAttempt = $env:GITHUB_RUN_ATTEMPT
-$GitHubRunId = $env:GITHUB_RUN_ID
-$GitHubRunNumber = $env:GITHUB_RUN_NUMBER
-$GitHubEvent = $env:GITHUB_EVENT_NAME
 $TestsCommentHeading = "Test results"
 
-if ($PullRequestNumber -eq "main" -and $GitHubEvent -eq "push")
-{
-    # find the pull request for main
-    $PullRequest = Get-PullRequests -Base "main"
-    if ($PullRequest -ne $null)
-    {
-        $PullRequestNumber = "$($PullRequest.number)"
-        $GitHubEvent = "pull_request"
-    }
-}
-
-if ($GitHubEvent -ne "pull_request" -or $PullRequestNumber -eq "")
-{
-    Write-Message "Not triggered (or able to find the relevant) pull request"
-    Exit
-}
-
 $Comments = [array] (Get-PullRequestComments $TestsCommentHeading)
-Remove-ExistingComments -Comments $Comments
+$Comment = $Comments[0]
+if ($Comment -eq $null)
+{
+    Write-Message "Unable to find comment"
+    return
+}
 
-$CommentText = Get-PullRequestCommentText
+$GitHubJob = Get-CommentProperty -Comment $Comment -Property "GitHubJob"
+$GitHubRunAttempt = Get-CommentProperty -Comment $Comment -Property "GitHubRunAttempt"
+$GitHubRunId = Get-CommentProperty -Comment $Comment -Property "GitHubRunId"
+# $GitHubRunNumber = Get-CommentProperty -Comment $Comment -Property "GitHubRunNumber"
+$GitHubEvent = Get-CommentProperty -Comment $Comment -Property "GitHubEvent"
+$PullRequestNumber = Get-CommentProperty -Comment $Comment -Property "PullRequestNumber"
+$RefName = Get-CommentProperty -Comment $Comment -Property "RefName"
+$LogsUrl = Get-CommentProperty -Comment $Comment -Property "LogsUrl"
 
-Add-PullRequestComment "#### $($TestsCommentHeading)`n$($CommentText)"
+if ($LogsUrl -eq "" -or $LogsUrl -eq $null)
+{
+    Write-Message "The created comment is not a trigger"
+    return
+}
+
+Get-Logs -Url $LogsUrl
+
+# replace the comment to show this is working...
+$NewCommentText = "🫤 Now to process the test results for $($PullRequestNumber) from $($LogsUrl)"
+$NewCommentContent = "#### $($TestsCommentHeading)`n$($NewCommentText)"
+Remove-ExistingComments $Comments
+Add-PullRequestComment $NewCommentContent
