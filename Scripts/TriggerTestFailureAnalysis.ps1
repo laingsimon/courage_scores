@@ -176,4 +176,11 @@ Remove-ExistingComments -Comments $Comments
 
 $CommentText = Get-PullRequestCommentText
 
-Add-PullRequestComment "#### $($TestsCommentHeading)`n$($CommentText)"
+try
+{
+    Add-PullRequestComment "#### $($TestsCommentHeading)`n$($CommentText)"
+}
+catch
+{
+    Write-Message "Unable to add comment: $($_.Exception.Message)"
+}
