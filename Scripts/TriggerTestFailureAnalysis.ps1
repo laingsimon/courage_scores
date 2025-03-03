@@ -123,24 +123,17 @@ function Get-PullRequests($Base)
     return $Response | ConvertFrom-Json | Select-Object @{ label='url'; expression={$_.url} }, @{ label='title'; expression={$_.title}, @{ label='number'; expression={$_.number} } }
 }
 
-function Get-TestFailures
+function Get-PullRequestCommentText() 
 {
-    Write-Message "Getting logs from $($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs..."
+    return "<!-- LogsUrl=https://api.github.com/repos/$($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs -->
+<!-- PullRequestNumber=$($PullRequestNumber) -->
+<!-- RefName=$($RefName) -->
+<!-- GitHubJob=$($GitHubJob) -->
+<!-- GitHubEvent=$($GitHubEvent) -->
+<!-- GitHubRunId=$($GitHubRunId) -->
+<!-- GitHubRunAttempt=$($GitHubRunAttempt) -->
 
-    $Response = Invoke-WebRequest `
-        -Uri "https://api.github.com/repos/$($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs"
-        -Method Get `
-        -Headers @{
-            Authorization="Bearer $($Token)";
-        }
-    # Write-Message $Response
-
-    Write-Message "Retrieved logs from workflow run"
-}
-
-function Format-TestFailures($Failures)
-{
-    return "There were $($Failures.Count) failure/s"
+⏱️ Collecting test results from run $($GitHubRunId)..."
 }
 
 $Repo = $env:GITHUB_REPOSITORY
@@ -159,38 +152,28 @@ $GitHubRunAttempt = $env:GITHUB_RUN_ATTEMPT
 $GitHubRunId = $env:GITHUB_RUN_ID
 $GitHubRunNumber = $env:GITHUB_RUN_NUMBER
 $GitHubEvent = $env:GITHUB_EVENT_NAME
-$TestsCommentHeading = "Failed tests"
+$TestsCommentHeading = "Test results"
 
-# Write-Message "GITHUB_JOB=$($GitHubJob), GITHUB_RUN_ATTEMPT=$($GitHubRunAttempt), GITHUB_RUN_ID=$($GitHubRunId), GITHUB_RUN_NUMBER=$($GitHubRunNumber)"
-
-try
+if ($PullRequestNumber -eq "main" -and $GitHubEvent -eq "push")
 {
-    if ($PullRequestNumber -eq "main" -and $GitHubEvent -eq "push")
+    # find the pull request for main
+    $PullRequest = Get-PullRequests -Base "main"
+    if ($PullRequest -ne $null)
     {
-        # find the pull request for main
-        $PullRequest = Get-PullRequests -Base "main"
-        if ($PullRequest -ne $null)
-        {
-            $PullRequestNumber = "$($PullRequest.number)"
-            $GitHubEvent = "pull_request"
-        }
+        $PullRequestNumber = "$($PullRequest.number)"
+        $GitHubEvent = "pull_request"
     }
-
-    if ($GitHubEvent -ne "pull_request" -or $PullRequestNumber -eq "")
-    {
-        Write-Message "Not triggered (or able to find the relevant) pull request"
-        Exit
-    }
-
-    $Comments = [array] (Get-PullRequestComments $TestsCommentHeading)
-    Remove-ExistingComments -Comments $Comments
-
-    $TestFailures = Get-TestFailures
-    $CommentText = Format-TestFailures -Failures $TestFailures
-
-    Add-PullRequestComment "#### $($TestsCommentHeading)`n`n$($CommentText)"
 }
-catch
+
+if ($GitHubEvent -ne "pull_request" -or $PullRequestNumber -eq "")
 {
-    Write-Message "Error processing test results: $($_.Exception)"
+    Write-Message "Not triggered (or able to find the relevant) pull request"
+    Exit
 }
+
+$Comments = [array] (Get-PullRequestComments $TestsCommentHeading)
+Remove-ExistingComments -Comments $Comments
+
+$CommentText = Get-PullRequestCommentText
+
+Add-PullRequestComment "#### $($TestsCommentHeading)`n$($CommentText)"

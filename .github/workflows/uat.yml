@@ -46,7 +46,7 @@ jobs:
       - name: Add comments with test failures
         if: success() || failure()
         shell: pwsh
-        run: ./Scripts/ProcessTestFailures.ps1
+        run: ./Scripts/TriggerTestFailureAnalysis.ps1
         env:
           GITHUB_TOKEN: ${{ secrets.REPORT_FAILURES_PAT }}
 
