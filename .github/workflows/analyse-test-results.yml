@@ -10,7 +10,6 @@ jobs:
   report_tests:
     runs-on: ubuntu-latest
     name: Analyse test results (PRs only)
-    if: ${{ github.event.issue.pull_request }}
 
     steps:
       - uses: actions/checkout@v4
