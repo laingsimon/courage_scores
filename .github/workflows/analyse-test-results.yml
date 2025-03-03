@@ -1,0 +1,22 @@
+name: Analyse test results
+
+on:
+  issue_comment:
+    types: [created, edited]
+
+jobs:
+  report_tests:
+    runs-on: ubuntu-latest
+    name: Analyse test results (PRs only)
+    if: ${{ github.event.issue.pull_request }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Analyse test results
+        shell: pwsh
+        run: ./Scripts/TestFailureAnalysis.ps1
+        env:
+          GITHUB_TOKEN: ${{ secrets.REPORT_FAILURES_PAT }}

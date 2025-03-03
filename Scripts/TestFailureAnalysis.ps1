@@ -1,10 +1,9 @@
 param()
-$AuditCommentHeading = "npm audit report"
-$OutdatedCommentHeading = "npm outdated report"
-$BypassNpmAuditViaCommentCommentContent = "bypass npm audit"
-$GitHubMarkdownCodeBlock="``````"
 
-Import-Module -Name "$PSScriptRoot/NpmFunctions.psm1"
+Function Write-Message($Message)
+{
+    [Console]::Out.WriteLine($Message)
+}
 
 Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch) 
 {
@@ -26,7 +25,6 @@ Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch)
 
     if ($Response.StatusCode -ne 200) 
     {
-        $Response
         Write-Error "Error getting comment"
     }
 
@@ -65,7 +63,6 @@ Function Remove-ExistingComment($Comment)
     if ($Response.StatusCode -ne 204) 
     {
         Write-Error "Error deleting comment at url $($Url)"
-        $Response
     }
 }
 
@@ -81,11 +78,6 @@ Function Remove-ExistingComments($Comments)
         Write-Message "Remove existing comments: $($Comments.Count)"
         $Comments | ForEach-Object { Remove-ExistingComment -Comment $_ }
     }
-}
-
-Function Write-Message($Message)
-{
-    [Console]::Out.WriteLine($Message)
 }
 
 Function Add-PullRequestComment($Markdown)
@@ -113,57 +105,66 @@ Function Add-PullRequestComment($Markdown)
     if ($Response.StatusCode -ne 201) 
     {
         Write-Error "Error creating comment at url $($Url)"
-        $Response
     }
 }
 
-$RefName=$env:GITHUB_REF_NAME # will be in the format <pr_number>/merge
-$Token=$env:GITHUB_TOKEN
-If ($RefName -ne $null)
+function Get-CommentProperty($Comment, $Property)
 {
-    $PullRequestNumber=$RefName.Replace("/merge", "")
-}
-else
-{
-    $PullRequestNumber = ""
-}
-$Repo = $env:GITHUB_REPOSITORY
-$AuditComments = [array] (Get-PullRequestComments $AuditCommentHeading)
-$BypassNpmAuditViaCommentComments = [array] (Get-PullRequestComments $BypassNpmAuditViaCommentCommentContent -ExactMatch)
-Remove-ExistingComments -Comments $AuditComments
-$OutdatedComments = [array] (Get-PullRequestComments $OutdatedCommentHeading)
-Remove-ExistingComments -Comments $OutdatedComments
+    $body = $Comment.body
 
-$NpmAuditResult = Invoke-NpmCommand -Command "audit"
-If ($NpmAuditResult.output -ne "")
-{
-    Write-Output $NpmAuditResult.output
-}
-If ($NpmAuditResult.error -ne "")
-{
-    Write-Error $NpmAuditResult.error
-}
-If ($NpmAuditResult.ExitCode -ne 0)
-{
-    $BypassInstruction="Add comment to this PR with the content **$($BypassNpmAuditViaCommentCommentContent)** to bypass these vulnerabilities when the workflow runs next"
-    if ($BypassNpmAuditViaCommentComments.Length -gt 0)
+    $match = [System.Text.RegularExpressions.Regex]::Match($body, "\<!-- $($Property)=(.+?) --\>")
+    if ($Match.Success)
     {
-        $BypassInstruction="A comment exists with the wording **$($BypassNpmAuditViaCommentCommentContent)**; warnings are ignored for this PR"
+        return $match.Groups[1].Value
     }
 
-    Add-PullRequestComment "#### $($AuditCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($NpmAuditResult.output)`n$($NpmAuditResult.error)`n$($GitHubMarkdownCodeBlock)`n$($BypassInstruction)"
+    Write-Message "Could not find $(Property) in comment body $($body)"
 }
 
-$OutdatedNpmModulesComment = Invoke-Expression "$($PSScriptRoot)/Format-OutdatedNpmModules.ps1 -OutdatedCommentHeading ""$OutdatedCommentHeading"""
-If ($OutdatedNpmModulesComment -ne "")
+function Get-Logs($Url) 
 {
-    Add-PullRequestComment $OutdatedNpmModulesComment
+    Write-Message "Getting logs $($Url)..."
+    $ZipFile = "./logs.zip"
+
+    $Response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{ Authorization="Bearer $($Token)" } -OutFile $ZipFile
+
+    $ExtractPath = "./logs"
+    $ZipFile | Expand-Archive -Destination $ExtractPath
+
+    Write-Message "Retrieved logs from workflow run"
 }
 
-If ($NpmAuditResult.ExitCode -ne 0 -and $BypassNpmAuditViaCommentComments.Length -gt 0)
+$Repo = $env:GITHUB_REPOSITORY
+$Token=$env:GITHUB_TOKEN
+$TestsCommentHeading = "Test results"
+
+$Comments = [array] (Get-PullRequestComments $TestsCommentHeading)
+$Comment = $Comments[0]
+if ($Comment -eq $null)
 {
-    Write-Message "npm audit warnings have been bypassed by request"
-    Exit 0
+    Write-Message "Unable to find comment"
+    return
 }
 
-Exit $NpmAuditResult.exitCode
+$GitHubJob = Get-CommentProperty -Comment $Comment -Property "GitHubJob"
+$GitHubRunAttempt = Get-CommentProperty -Comment $Comment -Property "GitHubRunAttempt"
+$GitHubRunId = Get-CommentProperty -Comment $Comment -Property "GitHubRunId"
+# $GitHubRunNumber = Get-CommentProperty -Comment $Comment -Property "GitHubRunNumber"
+$GitHubEvent = Get-CommentProperty -Comment $Comment -Property "GitHubEvent"
+$PullRequestNumber = Get-CommentProperty -Comment $Comment -Property "PullRequestNumber"
+$RefName = Get-CommentProperty -Comment $Comment -Property "RefName"
+$LogsUrl = Get-CommentProperty -Comment $Comment -Property "LogsUrl"
+
+if ($LogsUrl -eq "" -or $LogsUrl -eq $null)
+{
+    Write-Message "The created comment is not a trigger"
+    return
+}
+
+Get-Logs -Url $LogsUrl
+
+# replace the comment to show this is working...
+$NewCommentText = "🫤 Now to process the test results for $($PullRequestNumber) from $($LogsUrl)"
+$NewCommentContent = "#### $($TestsCommentHeading)`n$($NewCommentText)"
+Remove-ExistingComments $Comments
+Add-PullRequestComment $NewCommentContent
