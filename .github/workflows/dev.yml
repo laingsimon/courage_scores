@@ -61,7 +61,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Add comments with test failures
+      - name: Trigger test analysis
         if: success() || failure()
         shell: pwsh
         run: ./Scripts/TriggerTestFailureAnalysis.ps1
