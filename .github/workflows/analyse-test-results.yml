@@ -25,6 +25,6 @@ jobs:
 
       - name: Analyse test results
         shell: pwsh
-        run: ./Scripts/TestFailureAnalysis.ps1
+        run: ./Scripts/TestFailureAnalysis.ps1 -CommentsUrl ${{ github.event.issue.comments_url }}
         env:
           GITHUB_TOKEN: ${{ secrets.REPORT_FAILURES_PAT }}

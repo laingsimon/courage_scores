@@ -1,4 +1,4 @@
-param()
+param($CommentsUrl)
 
 Function Write-Message($Message)
 {
@@ -7,17 +7,16 @@ Function Write-Message($Message)
 
 Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch) 
 {
-    If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
+    If ($GitHubEvent -ne "pull_request") 
     {
         $EmptyList = @()
         Return ,$EmptyList
     }
 
-    $Url="https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
     Write-Message "Get pull-request comments - $($CommentHeading)"
 
     $Response = Invoke-WebRequest `
-        -Uri $Url `
+        -Uri $CommentsUrl `
         -Method Get `
         -Headers @{
             Authorization="Bearer $($Token)";
@@ -68,7 +67,7 @@ Function Remove-ExistingComment($Comment)
 
 Function Remove-ExistingComments($Comments) 
 {
-    If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
+    If ($GitHubEvent -ne "pull_request") 
     {
         Return
     }
@@ -82,19 +81,18 @@ Function Remove-ExistingComments($Comments)
 
 Function Add-PullRequestComment($Markdown)
 {
-    If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
+    If ($GitHubEvent -ne "pull_request") 
     {
         [Console]::Error.WriteLine("Cannot add PR comment; workflow isn't running from a pull-request - $($env:GITHUB_EVENT_NAME) / $($PullRequestNumber)`n`n$($Markdown)")
         Return
     }
 
     $Body = "{""body"": ""$($Markdown.Replace("`n", "\n"))""}"
-    $Url="https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
 
     # Write-Message "Sending POST request to $($Url) with body $($Body)"
 
     $Response = Invoke-WebRequest `
-        -Uri $Url `
+        -Uri $CommentsUrl `
         -Headers @{
             Accept="application/vnd.github+json";
             Authorization="Bearer $($Token)";
@@ -142,7 +140,7 @@ $Comments = [array] (Get-PullRequestComments $TestsCommentHeading)
 $Comment = $Comments[0]
 if ($Comment -eq $null)
 {
-    Write-Message "Unable to find comment"
+    Write-Message "Unable to find comment via $($CommentsUrl)"
     return
 }
 
