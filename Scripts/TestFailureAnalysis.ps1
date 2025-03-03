@@ -7,7 +7,7 @@ Function Write-Message($Message)
 
 Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch) 
 {
-    If ($GitHubEvent -ne "pull_request") 
+    If ($GitHubEvent -ne "issue_comment")
     {
         $EmptyList = @()
         Return ,$EmptyList
@@ -22,7 +22,7 @@ Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch)
             Authorization="Bearer $($Token)";
         }
 
-    if ($Response.StatusCode -ne 200) 
+    if ($Response.StatusCode -ne 200)
     {
         Write-Error "Error getting comment"
     }
@@ -67,7 +67,7 @@ Function Remove-ExistingComment($Comment)
 
 Function Remove-ExistingComments($Comments) 
 {
-    If ($GitHubEvent -ne "pull_request") 
+    If ($GitHubEvent -ne "issue_comment")
     {
         Return
     }
@@ -81,7 +81,7 @@ Function Remove-ExistingComments($Comments)
 
 Function Add-PullRequestComment($Markdown)
 {
-    If ($GitHubEvent -ne "pull_request") 
+    If ($GitHubEvent -ne "issue_comment")
     {
         [Console]::Error.WriteLine("Cannot add PR comment; workflow isn't running from a pull-request - $($env:GITHUB_EVENT_NAME) / $($PullRequestNumber)`n`n$($Markdown)")
         Return
