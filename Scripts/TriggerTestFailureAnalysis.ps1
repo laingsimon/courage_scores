@@ -7,7 +7,7 @@ Function Write-Message($Message)
 
 Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch) 
 {
-    If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
+    If ($GitHubEvent -ne "pull_request") 
     {
         $EmptyList = @()
         Return ,$EmptyList
@@ -68,7 +68,7 @@ Function Remove-ExistingComment($Comment)
 
 Function Remove-ExistingComments($Comments) 
 {
-    If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
+    If ($GitHubEvent -ne "pull_request") 
     {
         Return
     }
@@ -82,7 +82,7 @@ Function Remove-ExistingComments($Comments)
 
 Function Add-PullRequestComment($Markdown)
 {
-    If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
+    If ($GitHubEvent -ne "pull_request") 
     {
         [Console]::Error.WriteLine("Cannot add PR comment; workflow isn't running from a pull-request - $($env:GITHUB_EVENT_NAME) / $($PullRequestNumber)`n`n$($Markdown)")
         Return
