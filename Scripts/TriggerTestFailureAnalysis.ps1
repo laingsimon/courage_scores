@@ -120,7 +120,7 @@ function Get-PullRequests($Base)
             Authorization="Bearer $($Token)";
         }
 
-    return $Response | ConvertFrom-Json | Select-Object @{ label='url'; expression={$_.url} }, @{ label='title'; expression={$_.title}, @{ label='number'; expression={$_.number} } }
+    return $Response | ConvertFrom-Json | Select-Object @{ label='url'; expression={$_.url}}, @{ label='title'; expression={$_.title}}, @{ label='number'; expression={$_.number}}
 }
 
 function Get-PullRequestCommentText() 
