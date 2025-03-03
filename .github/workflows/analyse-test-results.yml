@@ -3,9 +3,7 @@ name: Analyse test results
 on:
   issue_comment:
     types: [created, edited]
-  pull_request:
-    branches:
-      - '*'
+
 jobs:
   emit_variables:
     runs-on: ubuntu-latest
