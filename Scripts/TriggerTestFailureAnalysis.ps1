@@ -39,7 +39,7 @@ Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch)
         | Where-Object { $_.body -like "*$($CommentHeading)*" } `
 }
 
-Function Set-Comments($Comments, $Markdown)
+Function Set-Comment($Comments, $Markdown)
 {
     if ($Comments.Length -eq 1)
     {
