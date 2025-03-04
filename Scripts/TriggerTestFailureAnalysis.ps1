@@ -199,7 +199,7 @@ $TestsCommentHeading = "Test results"
 if ($PullRequestNumber -eq "main" -and $GitHubEvent -eq "push")
 {
     # find the pull request for main
-    $PullRequest = Get-PullRequests -Base "main"
+    $PullRequest = Get-PullRequests -Base "release"
     if ($PullRequest -ne $null)
     {
         $PullRequestNumber = "$($PullRequest.number)"
