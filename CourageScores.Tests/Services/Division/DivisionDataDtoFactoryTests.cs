@@ -1,7 +1,6 @@
 using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
-using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
@@ -75,7 +74,6 @@ public class DivisionDataDtoFactoryTests
     private Mock<TimeProvider> _clock = null!;
     private Mock<IFeatureService> _featureService = null!;
     private UserDto? _user;
-    private DateTimeOffset _now;
     private ConfiguredFeatureDto? _vetoedFeature;
 
     [SetUp]
@@ -89,34 +87,11 @@ public class DivisionDataDtoFactoryTests
         _clock = new Mock<TimeProvider>();
         _featureService = new Mock<IFeatureService>();
         _user = null;
-        _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
-        _factory = new DivisionDataDtoFactory(
-            _divisionPlayerAdapter,
-            _divisionTeamAdapter,
-            _divisionDataSeasonAdapter,
-            _divisionFixtureDateAdapter.Object,
-            _userService.Object,
-            _clock.Object,
-            _featureService.Object);
+        _factory = new DivisionDataDtoFactory(_divisionPlayerAdapter, _divisionTeamAdapter, _divisionDataSeasonAdapter,
+            _divisionFixtureDateAdapter.Object, _userService.Object, _clock.Object, _featureService.Object);
 
-        _clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
-        _divisionFixtureDateAdapter
-            .Setup(a => a.Adapt(
-                It.IsAny<DateTime>(),
-                It.IsAny<IReadOnlyCollection<CosmosGame>>(),
-                It.IsAny<IReadOnlyCollection<TournamentGame>>(),
-                It.IsAny<IReadOnlyCollection<FixtureDateNoteDto>>(),
-                It.IsAny<IReadOnlyCollection<TeamDto>>(),
-                It.IsAny<IReadOnlyCollection<CosmosGame>>(),
-                It.IsAny<bool>(),
-                It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
-                _token))
-            .ReturnsAsync(
-                (DateTime date, IReadOnlyCollection<CosmosGame> _, IReadOnlyCollection<TournamentGame> _,
-                    IReadOnlyCollection<FixtureDateNoteDto> _, IReadOnlyCollection<TeamDto> _, IReadOnlyCollection<CosmosGame> _, bool _, IReadOnlyDictionary<Guid, DivisionDto?> _, CancellationToken _) => new DivisionFixtureDateDto
-                {
-                    Date = date,
-                });
+        _clock.Setup(c => c.GetUtcNow()).Returns(new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero));
+        Helper.SetupDivisionFixtureDateDtoReturnWithDate(_divisionFixtureDateAdapter, _token);
         _vetoedFeature = null;
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
@@ -440,10 +415,9 @@ public class DivisionDataDtoFactoryTests
     public async Task CreateDivisionDataDto_GivenDataErrors_SetsDataErrorsCorrectly()
     {
         _user = _user.SetAccess(importData: true);
-        var division = new DivisionDto();
         var context = Helper.DivisionDataContextBuilder(game: GameWith2AwayPlayers).WithTeam(Team1, Team2).Build();
 
-        var result = await _factory.CreateDivisionDataDto(context, new[] { division }, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, new[] { new DivisionDto() }, true, _token);
 
         var dataError = result.DataErrors.Single();
         Assert.That(dataError.Message, Is.EqualTo($"Singles match 1 between Team 1 - Playing and Team 2 - Playing has mis-matching number of players: Home players (1): [{Player1.Name}] vs Away players (2): [{Player2.Name}, {NotPlaying.Name}]"));
