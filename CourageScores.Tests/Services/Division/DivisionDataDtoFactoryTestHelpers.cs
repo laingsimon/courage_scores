@@ -2,6 +2,7 @@ using CourageScores.Models;
 using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
+using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Tests.Models.Cosmos.Game;
@@ -83,5 +84,33 @@ public static class DivisionDataDtoFactoryTestHelpers
             includeProposals,
             It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
             token));
+    }
+
+    public static void SetupDivisionFixtureDateDtoReturnWithDate(Mock<IDivisionFixtureDateAdapter> divisionFixtureDateAdapter, CancellationToken token)
+    {
+        divisionFixtureDateAdapter
+            .Setup(a => a.Adapt(
+                It.IsAny<DateTime>(),
+                It.IsAny<IReadOnlyCollection<CosmosGame>>(),
+                It.IsAny<IReadOnlyCollection<TournamentGame>>(),
+                It.IsAny<IReadOnlyCollection<FixtureDateNoteDto>>(),
+                It.IsAny<IReadOnlyCollection<TeamDto>>(),
+                It.IsAny<IReadOnlyCollection<CosmosGame>>(),
+                It.IsAny<bool>(),
+                It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
+                token))
+            .ReturnsAsync((
+                DateTime date,
+                IReadOnlyCollection<CosmosGame> _,
+                IReadOnlyCollection<TournamentGame> _,
+                IReadOnlyCollection<FixtureDateNoteDto> _,
+                IReadOnlyCollection<TeamDto> _,
+                IReadOnlyCollection<CosmosGame> _,
+                bool _,
+                IReadOnlyDictionary<Guid, DivisionDto?> _,
+                CancellationToken _) => new DivisionFixtureDateDto
+                {
+                    Date = date,
+                });
     }
 }
