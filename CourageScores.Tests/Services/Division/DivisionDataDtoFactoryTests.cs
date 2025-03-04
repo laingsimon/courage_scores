@@ -156,16 +156,38 @@ public class DivisionDataDtoFactoryTests
     public async Task CreateDivisionDataDto_GivenTeams_SetsTeamsCorrectly()
     {
         var team3 = new TeamDtoBuilder().WithName("Team 3 - Not Playing").Build();
+        var team4 = new TeamDtoBuilder().WithName("Team 4 - More Wins").Build();
+        var team4Win = Helper.GameBuilder()
+            .WithTeams(team4, team3)
+            .WithAddress("team4-team3 (team4 win)")
+            .WithMatch(m => m.WithScores(3, 0).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
+            .Build();
+        var team1And2Draw = Helper.GameBuilder()
+            .WithTeams(Team1, Team2)
+            .WithAddress("team1-team2 draw")
+            .WithMatch(m => m.WithScores(3, 0).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
+            .WithMatch(m => m.WithScores(0, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
+            .Build();
         var context = Helper.DivisionDataContextBuilder(game: InDivisionGame, division: Division1)
-            .WithTeam(Team1, Team2, team3)
-            .WithAllTeamsInSameDivision(Division1, Team1, Team2, team3)
+            .WithGame(team1And2Draw)
+            .WithGame(team1And2Draw)
+            .WithGame(team4Win)
+            .WithGame(team4Win)
+            .WithTeam(Team1, Team2, team3, team4)
+            .WithAllTeamsInSameDivision(Division1, Team1, Team2, team3, team4)
             .Build();
 
         var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
 
-        Assert.That(
-            result.Teams.Select(t => t.Name),
-            Is.EqualTo(new[] { "Team 2 - Playing", /* more points */ "Team 1 - Playing", "Team 3 - Not Playing" }));
+        var teamDetails = result.Teams.Select(t => $"{t.Name} (pts={t.Points}, wins={t.FixturesWon}, draw={t.FixturesDrawn}, diff={t.Difference})");
+        var expectedTeams = new[]
+        {
+            "Team 4 - More Wins (pts=4, wins=2, draw=0, diff=0)",
+            "Team 2 - Playing (pts=4, wins=1, draw=2, diff=0)",
+            "Team 1 - Playing (pts=2, wins=0, draw=2, diff=0)",
+            "Team 3 - Not Playing (pts=0, wins=0, draw=0, diff=0)"
+        };
+        Assert.That(teamDetails, Is.EqualTo(expectedTeams));
         Assert.That(result.Teams.Select(t => t.Division), Has.All.EqualTo(Division1));
     }
 
