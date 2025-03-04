@@ -116,7 +116,7 @@ function Get-CommentProperty($Comment, $Property)
         return $match.Groups[1].Value
     }
 
-    Write-Message "Could not find $(Property) in comment body $($body)"
+    Write-Message "Could not find $($Property) in comment body $($body)"
 }
 
 function Get-Logs($Url) 
@@ -144,6 +144,7 @@ if ($Comment -eq $null)
     return
 }
 
+Write-Message "Found comment: $($Comment.id)"
 $GitHubJob = Get-CommentProperty -Comment $Comment -Property "GitHubJob"
 $GitHubRunAttempt = Get-CommentProperty -Comment $Comment -Property "GitHubRunAttempt"
 $GitHubRunId = Get-CommentProperty -Comment $Comment -Property "GitHubRunId"
