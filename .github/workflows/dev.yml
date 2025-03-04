@@ -67,6 +67,7 @@ jobs:
         run: ./Scripts/TriggerTestFailureAnalysis.ps1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ADD_COMMENT_TOKEN: ${{ secrets.REPORT_FAILURES_PAT }}
 
   deploy:
     if: ${{ needs.setup.outputs.deploy == 'true' }}

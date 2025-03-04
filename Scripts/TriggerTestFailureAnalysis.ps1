@@ -20,7 +20,7 @@ Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch)
         -Uri $Url `
         -Method Get `
         -Headers @{
-            Authorization="Bearer $($Token)";
+            Authorization="Bearer $($ReadToken)";
         }
 
     if ($Response.StatusCode -ne 200) 
@@ -56,7 +56,7 @@ Function Remove-ExistingComment($Comment)
         -Uri $Url `
         -Headers @{
             Accept="application/vnd.github+json";
-            Authorization="Bearer $($Token)";
+            Authorization="Bearer $($ReadToken)";
         } `
         -Method Delete
 
@@ -97,7 +97,7 @@ Function Add-PullRequestComment($Markdown)
         -Uri $Url `
         -Headers @{
             Accept="application/vnd.github+json";
-            Authorization="Bearer $($Token)";
+            Authorization="Bearer $($AddCommentToken)";
         } `
         -Method Post `
         -Body $Body
@@ -117,7 +117,7 @@ function Get-PullRequests($Base)
         -Uri "https://api.github.com/repos/$($Repo)/pulls?state=open&base=release" `
         -Method Get `
         -Headers @{
-            Authorization="Bearer $($Token)";
+            Authorization="Bearer $($ReadToken)";
         }
 
     return $Response | ConvertFrom-Json | Select-Object @{ label='url'; expression={$_.url}}, @{ label='title'; expression={$_.title}}, @{ label='number'; expression={$_.number}}
@@ -138,7 +138,8 @@ function Get-PullRequestCommentText()
 
 $Repo = $env:GITHUB_REPOSITORY
 $RefName = $env:GITHUB_REF_NAME # will be in the format <pr_number>/merge
-$Token=$env:GITHUB_TOKEN
+$ReadToken=$env:GITHUB_TOKEN
+$AddCommentToken=$env:ADD_COMMENT_TOKEN
 If ($RefName -ne $null)
 {
     $PullRequestNumber=$RefName.Replace("/merge", "")

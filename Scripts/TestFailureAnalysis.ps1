@@ -19,7 +19,7 @@ Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch)
         -Uri $CommentsUrl `
         -Method Get `
         -Headers @{
-            Authorization="Bearer $($Token)";
+            Authorization="Bearer $($GithubToken)";
         }
 
     if ($Response.StatusCode -ne 200)
@@ -55,7 +55,7 @@ Function Remove-ExistingComment($Comment)
         -Uri $Url `
         -Headers @{
             Accept="application/vnd.github+json";
-            Authorization="Bearer $($Token)";
+            Authorization="Bearer $($GithubToken)";
         } `
         -Method Delete
 
@@ -95,7 +95,7 @@ Function Add-PullRequestComment($Markdown)
         -Uri $CommentsUrl `
         -Headers @{
             Accept="application/vnd.github+json";
-            Authorization="Bearer $($Token)";
+            Authorization="Bearer $($GithubToken)";
         } `
         -Method Post `
         -Body $Body
@@ -124,7 +124,7 @@ function Get-Logs($Url)
     Write-Message "Getting logs $($Url)..."
     $ZipFile = "./logs.zip"
 
-    $Response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{ Authorization="Bearer $($Token)" } -OutFile $ZipFile
+    $Response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{ Authorization="Bearer $($ReadLogsToken)" } -OutFile $ZipFile
 
     $ExtractPath = "./logs"
     $ZipFile | Expand-Archive -Destination $ExtractPath
@@ -133,7 +133,8 @@ function Get-Logs($Url)
 }
 
 $Repo = $env:GITHUB_REPOSITORY
-$Token=$env:GITHUB_TOKEN
+$GithubToken=$env:GITHUB_TOKEN
+$ReadLogsToken=$env:READ_LOGS_TOKEN
 $TestsCommentHeading = "Test results"
 
 $Comments = [array] (Get-PullRequestComments $TestsCommentHeading)
