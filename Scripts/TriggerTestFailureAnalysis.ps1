@@ -63,7 +63,7 @@ Function Update-Comment($Comment, $Markdown)
     $Body = "{""body"": ""$($Markdown.Replace("`n", "\n"))""}"
     $Url="https://api.github.com/repos/$($Repo)/issues/comments/$($Comment.id)"
 
-    # Write-Message "Sending PATCH request to $($Url) with body $($Body)"
+    Write-Message "Sending PATCH request to $($Url) with body $($Body)"
 
     $Response = Invoke-WebRequest `
         -Uri $Url `
