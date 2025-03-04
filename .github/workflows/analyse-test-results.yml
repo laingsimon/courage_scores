@@ -3,10 +3,16 @@ name: Analyse test results
 on:
   issue_comment:
     types: [created, edited]
-  pull_request:
-    branches:
-      - '*'
+
 jobs:
+  emit_variables:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+    
   report_tests:
     runs-on: ubuntu-latest
     name: Analyse test results (PRs only)
@@ -19,6 +25,7 @@ jobs:
 
       - name: Analyse test results
         shell: pwsh
-        run: ./Scripts/TestFailureAnalysis.ps1
+        run: ./Scripts/TestFailureAnalysis.ps1 -CommentsUrl ${{ github.event.issue.comments_url }}
         env:
-          GITHUB_TOKEN: ${{ secrets.REPORT_FAILURES_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          READ_LOGS_TOKEN: ${{ secrets.REPORT_FAILURES_PAT }}

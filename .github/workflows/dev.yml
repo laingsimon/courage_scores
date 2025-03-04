@@ -61,12 +61,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Add comments with test failures
+      - name: Trigger test analysis
         if: success() || failure()
         shell: pwsh
         run: ./Scripts/TriggerTestFailureAnalysis.ps1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ADD_COMMENT_TOKEN: ${{ secrets.REPORT_FAILURES_PAT }}
 
   deploy:
     if: ${{ needs.setup.outputs.deploy == 'true' }}

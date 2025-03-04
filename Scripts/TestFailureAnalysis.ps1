@@ -1,4 +1,4 @@
-param()
+param($CommentsUrl)
 
 Function Write-Message($Message)
 {
@@ -7,23 +7,22 @@ Function Write-Message($Message)
 
 Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch) 
 {
-    If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
+    If ($env:GITHUB_EVENT_NAME -ne "issue_comment")
     {
         $EmptyList = @()
         Return ,$EmptyList
     }
 
-    $Url="https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
     Write-Message "Get pull-request comments - $($CommentHeading)"
 
     $Response = Invoke-WebRequest `
-        -Uri $Url `
+        -Uri $CommentsUrl `
         -Method Get `
         -Headers @{
-            Authorization="Bearer $($Token)";
+            Authorization="Bearer $($GithubToken)";
         }
 
-    if ($Response.StatusCode -ne 200) 
+    if ($Response.StatusCode -ne 200)
     {
         Write-Error "Error getting comment"
     }
@@ -39,72 +38,31 @@ Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch)
         | Where-Object { $_.body -like "*$($CommentHeading)*" } `
 }
 
-Function Remove-ExistingComment($Comment)
+Function Update-PullRequestComment($Comment, $Markdown)
 {
-    $CommentId = $Comment.id
-    $Url = $Comment.url
-
-    if ($CommentId -eq "" -or $CommentId -eq $null)
+    If ($GitHubEvent -ne "pull_request") 
     {
-        Write-Error "Cannot delete comment, no id: $($Comment)"
-        Return
-    }
-
-    Write-Message "Deleting comment '$($CommentId)'"
-
-    $Response = Invoke-WebRequest `
-        -Uri $Url `
-        -Headers @{
-            Accept="application/vnd.github+json";
-            Authorization="Bearer $($Token)";
-        } `
-        -Method Delete
-
-    if ($Response.StatusCode -ne 204) 
-    {
-        Write-Error "Error deleting comment at url $($Url)"
-    }
-}
-
-Function Remove-ExistingComments($Comments) 
-{
-    If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
-    {
-        Return
-    }
-
-    If ($Comments.Count -gt 0)
-    {
-        Write-Message "Remove existing comments: $($Comments.Count)"
-        $Comments | ForEach-Object { Remove-ExistingComment -Comment $_ }
-    }
-}
-
-Function Add-PullRequestComment($Markdown)
-{
-    If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
-    {
-        [Console]::Error.WriteLine("Cannot add PR comment; workflow isn't running from a pull-request - $($env:GITHUB_EVENT_NAME) / $($PullRequestNumber)`n`n$($Markdown)")
+        [Console]::Error.WriteLine("Cannot update PR comment; workflow isn't running from a pull-request - $($env:GITHUB_EVENT_NAME) / $($PullRequestNumber)`n`n$($Markdown)")
         Return
     }
 
     $Body = "{""body"": ""$($Markdown.Replace("`n", "\n"))""}"
-    $Url="https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
+    $Url="https://api.github.com/repos/$($Repo)/issues/comments/$($Comment.id)"
 
-    # Write-Message "Sending POST request to $($Url) with body $($Body)"
+    # Write-Message "Sending PATCH request to $($Url) with body $($Body)"
 
     $Response = Invoke-WebRequest `
         -Uri $Url `
         -Headers @{
             Accept="application/vnd.github+json";
-            Authorization="Bearer $($Token)";
+            Authorization="Bearer $($AddCommentToken)";
         } `
-        -Method Post `
+        -Method Patch `
         -Body $Body
 
-    if ($Response.StatusCode -ne 201) 
+    if ($Response.StatusCode -ne 200)
     {
-        Write-Error "Error creating comment at url $($Url)"
+        Write-Error "Error updating comment at url $($Url)"
     }
 }
 
@@ -118,7 +76,7 @@ function Get-CommentProperty($Comment, $Property)
         return $match.Groups[1].Value
     }
 
-    Write-Message "Could not find $(Property) in comment body $($body)"
+    Write-Message "Could not find $($Property) in comment body $($body)"
 }
 
 function Get-Logs($Url) 
@@ -126,7 +84,7 @@ function Get-Logs($Url)
     Write-Message "Getting logs $($Url)..."
     $ZipFile = "./logs.zip"
 
-    $Response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{ Authorization="Bearer $($Token)" } -OutFile $ZipFile
+    $Response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{ Authorization="Bearer $($ReadLogsToken)" } -OutFile $ZipFile
 
     $ExtractPath = "./logs"
     $ZipFile | Expand-Archive -Destination $ExtractPath
@@ -135,17 +93,19 @@ function Get-Logs($Url)
 }
 
 $Repo = $env:GITHUB_REPOSITORY
-$Token=$env:GITHUB_TOKEN
+$GithubToken=$env:GITHUB_TOKEN
+$ReadLogsToken=$env:READ_LOGS_TOKEN
 $TestsCommentHeading = "Test results"
 
 $Comments = [array] (Get-PullRequestComments $TestsCommentHeading)
 $Comment = $Comments[0]
 if ($Comment -eq $null)
 {
-    Write-Message "Unable to find comment"
+    Write-Message "Unable to find comment via $($CommentsUrl)"
     return
 }
 
+Write-Message "Found comment: $($Comment.id)"
 $GitHubJob = Get-CommentProperty -Comment $Comment -Property "GitHubJob"
 $GitHubRunAttempt = Get-CommentProperty -Comment $Comment -Property "GitHubRunAttempt"
 $GitHubRunId = Get-CommentProperty -Comment $Comment -Property "GitHubRunId"
@@ -166,5 +126,4 @@ Get-Logs -Url $LogsUrl
 # replace the comment to show this is working...
 $NewCommentText = "🫤 Now to process the test results for $($PullRequestNumber) from $($LogsUrl)"
 $NewCommentContent = "#### $($TestsCommentHeading)`n$($NewCommentText)"
-Remove-ExistingComments $Comments
-Add-PullRequestComment $NewCommentContent
+Update-PullRequestComment -Comment $Comment -Markdown $NewCommentContent
