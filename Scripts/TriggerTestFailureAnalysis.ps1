@@ -39,6 +39,47 @@ Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch)
         | Where-Object { $_.body -like "*$($CommentHeading)*" } `
 }
 
+Function Set-Comments($Comments, $Markdown)
+{
+    if ($Comments.Length -eq 1)
+    {
+        $Comment = $Comments[0]
+        Update-Comment -Comment $Comment -Markdown $Markdown 
+        return
+    }
+
+    Remove-ExistingComments $Comments
+    Add-PullRequestComment $Markdown
+}
+
+Function Update-Comment($Comment, $Markdown)
+{
+    If ($GitHubEvent -ne "pull_request") 
+    {
+        [Console]::Error.WriteLine("Cannot update PR comment; workflow isn't running from a pull-request - $($env:GITHUB_EVENT_NAME) / $($PullRequestNumber)`n`n$($Markdown)")
+        Return
+    }
+
+    $Body = "{""body"": ""$($Markdown.Replace("`n", "\n"))""}"
+    $Url="https://api.github.com/repos/$($Repo)/issues/comments/$($Comment.id)"
+
+    # Write-Message "Sending PATCH request to $($Url) with body $($Body)"
+
+    $Response = Invoke-WebRequest `
+        -Uri $Url `
+        -Headers @{
+            Accept="application/vnd.github+json";
+            Authorization="Bearer $($AddCommentToken)";
+        } `
+        -Method Patch `
+        -Body $Body
+
+    if ($Response.StatusCode -ne 200)
+    {
+        Write-Error "Error updating comment at url $($Url)"
+    }
+}
+
 Function Remove-ExistingComment($Comment)
 {
     $CommentId = $Comment.id
@@ -108,7 +149,7 @@ Function Add-PullRequestComment($Markdown)
     }
 }
 
-function Get-PullRequests($Base)
+Function Get-PullRequests($Base)
 {
     # find all pull requests that are targeting the $Base
     Write-Message "Getting release pull requests..."
@@ -123,7 +164,7 @@ function Get-PullRequests($Base)
     return $Response | ConvertFrom-Json | Select-Object @{ label='url'; expression={$_.url}}, @{ label='title'; expression={$_.title}}, @{ label='number'; expression={$_.number}}
 }
 
-function Get-PullRequestCommentText() 
+Function Get-PullRequestCommentText()
 {
     return "<!-- LogsUrl=https://api.github.com/repos/$($Repo)/actions/runs/$($GitHubRunId)/attempts/$($GitHubRunAttempt)/logs -->
 <!-- PullRequestNumber=$($PullRequestNumber) -->
@@ -173,13 +214,11 @@ if ($GitHubEvent -ne "pull_request" -or $PullRequestNumber -eq "")
 }
 
 $Comments = [array] (Get-PullRequestComments $TestsCommentHeading)
-Remove-ExistingComments -Comments $Comments
-
 $CommentText = Get-PullRequestCommentText
 
 try
 {
-    Add-PullRequestComment "#### $($TestsCommentHeading)`n$($CommentText)"
+    Set-Comment -Comments $Comments -Markdown "#### $($TestsCommentHeading)`n$($CommentText)"
 }
 catch
 {

@@ -38,71 +38,31 @@ Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch)
         | Where-Object { $_.body -like "*$($CommentHeading)*" } `
 }
 
-Function Remove-ExistingComment($Comment)
+Function Update-PullRequestComment($Comment, $Markdown)
 {
-    $CommentId = $Comment.id
-    $Url = $Comment.url
-
-    if ($CommentId -eq "" -or $CommentId -eq $null)
+    If ($GitHubEvent -ne "pull_request") 
     {
-        Write-Error "Cannot delete comment, no id: $($Comment)"
+        [Console]::Error.WriteLine("Cannot update PR comment; workflow isn't running from a pull-request - $($env:GITHUB_EVENT_NAME) / $($PullRequestNumber)`n`n$($Markdown)")
         Return
     }
 
-    Write-Message "Deleting comment '$($CommentId)'"
+    $Body = "{""body"": ""$($Markdown.Replace("`n", "\n"))""}"
+    $Url="https://api.github.com/repos/$($Repo)/issues/comments/$($Comment.id)"
+
+    # Write-Message "Sending PATCH request to $($Url) with body $($Body)"
 
     $Response = Invoke-WebRequest `
         -Uri $Url `
         -Headers @{
             Accept="application/vnd.github+json";
-            Authorization="Bearer $($GithubToken)";
+            Authorization="Bearer $($AddCommentToken)";
         } `
-        -Method Delete
-
-    if ($Response.StatusCode -ne 204) 
-    {
-        Write-Error "Error deleting comment at url $($Url)"
-    }
-}
-
-Function Remove-ExistingComments($Comments) 
-{
-    If ($env:GITHUB_EVENT_NAME -ne "issue_comment")
-    {
-        Return
-    }
-
-    If ($Comments.Count -gt 0)
-    {
-        Write-Message "Remove existing comments: $($Comments.Count)"
-        $Comments | ForEach-Object { Remove-ExistingComment -Comment $_ }
-    }
-}
-
-Function Add-PullRequestComment($Markdown)
-{
-    If ($env:GITHUB_EVENT_NAME -ne "issue_comment")
-    {
-        [Console]::Error.WriteLine("Cannot add PR comment; workflow isn't running from a pull-request - $($env:GITHUB_EVENT_NAME) / $($PullRequestNumber)`n`n$($Markdown)")
-        Return
-    }
-
-    $Body = "{""body"": ""$($Markdown.Replace("`n", "\n"))""}"
-
-    # Write-Message "Sending POST request to $($Url) with body $($Body)"
-
-    $Response = Invoke-WebRequest `
-        -Uri $CommentsUrl `
-        -Headers @{
-            Accept="application/vnd.github+json";
-            Authorization="Bearer $($GithubToken)";
-        } `
-        -Method Post `
+        -Method Patch `
         -Body $Body
 
-    if ($Response.StatusCode -ne 201) 
+    if ($Response.StatusCode -ne 200)
     {
-        Write-Error "Error creating comment at url $($Url)"
+        Write-Error "Error updating comment at url $($Url)"
     }
 }
 
@@ -166,5 +126,4 @@ Get-Logs -Url $LogsUrl
 # replace the comment to show this is working...
 $NewCommentText = "🫤 Now to process the test results for $($PullRequestNumber) from $($LogsUrl)"
 $NewCommentContent = "#### $($TestsCommentHeading)`n$($NewCommentText)"
-Remove-ExistingComments $Comments
-Add-PullRequestComment $NewCommentContent
+Update-PullRequestComment -Comment $Comment -Markdown $NewCommentContent
