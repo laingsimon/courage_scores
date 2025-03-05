@@ -30,7 +30,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "ts-jest": "^29.2.6",
-    "typescript": "^5.7.3",
+    "typescript": "^5.8.2",
     "typescript-eslint": "^8.26.0",
     "vite-plugin-circular-dependency": "^0.5.0"
   },
