@@ -2,6 +2,8 @@
 $Token = $env:GITHUB_TOKEN
 $Repo = $env:GITHUB_REPOSITORY
 
+Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1"
+
 if ($Repo -eq "" -or $Repo -eq $null)
 {
     $Repo = "laingsimon/courage_scores"
@@ -15,16 +17,6 @@ function Invoke-GitHubApiGetRequest($Uri)
             Accept="application/vnd.github+json";
             Authorization="Bearer $($Token)";
         }
-}
-
-function Get-PullRequests($Base)
-{
-    # find all pull requests that are targeting the $Base
-    Write-Host -ForegroundColor Cyan "Getting release pull requests..."
-
-    $Response = Invoke-GitHubApiGetRequest -Uri "https://api.github.com/repos/$($Repo)/pulls?state=open&base=release"
-
-    return $Response | ConvertFrom-Json | Select-Object @{ label='url'; expression={$_.url} }, @{ label='title'; expression={$_.title} }
 }
 
 function Get-OpenMilestones()
@@ -246,7 +238,7 @@ function Update-PullRequestDescription($Url, $Description)
 $Commits = Get-CommitsBetween -Base "origin/release" -Compare "origin/main"
 $Description = (Format-ReleaseDescription -Commits $Commits).Trim().Replace("`n", "\n")
 
-$ReleasePullRequests = Get-PullRequests -Base "release"
+$ReleasePullRequests = Get-PullRequests -GitHubToken $Token -Repo $Repo -Base "release"
 if ($ReleasePullRequests.Length -gt 0)
 {
     # release PR already exists

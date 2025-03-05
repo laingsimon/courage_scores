@@ -1,5 +1,7 @@
 param([int] $ErrorThreshold, [int] $WarningThreshold, [string] $Extension)
 
+Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1"
+
 Function Get-Files($MinLines, $MaxLines)
 {
     Write-Message "Finding $($Extension) files with > $($MinLines) lines and <= $($MaxLines)..."
@@ -12,7 +14,7 @@ Function Get-Files($MinLines, $MaxLines)
         | Select-Object @{ label='row'; expression = {"| $($_.name) | $($_.lines) |" } }
 }
 
-Function Print-Files($Heading, $Files) 
+Function Print-Files($Heading, $Files, $Comments) 
 {
     $Output=""
     $Output += "| File | Lines |`n"
@@ -23,102 +25,15 @@ Function Print-Files($Heading, $Files)
     [Console]::Error.WriteLine($Heading)
     [Console]::Error.WriteLine($Output)
 
-    Add-PullRequestComment -Markdown "### $($Heading)`n$($Output)"
-}
-
-Function Get-PullRequestComments() 
-{
-    If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
+    if ($env:GITHUB_EVENT_NAME -eq "pull_request")
     {
-        $EmptyList = @()
-        Return ,$EmptyList
+        Update-PullRequestComment -GitHubEvent $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $Comments -Markdown "### $($Heading)`n$($Output)"
     }
-
-    $Url="https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
-    Write-Message "Get pull-request comments"
-
-    $Response = Invoke-WebRequest `
-        -Uri $Url `
-        -Headers @{
-            Authorization="Bearer $($Token)";
-        } `
-        -Method Get `
-
-    if ($Response.StatusCode -ne 200) 
-    {
-        $Response
-        Write-Error "Error getting comment"
-    }
-
-    $Json = $Response | ConvertFrom-Json
-    Return $Json `
-        | Where-Object { $_.body -like "*$($Extension) file/s approaching*" -Or $_.body.Value -like "*$($Extension) file/s exceeding*" } `
-}
-
-Function Remove-ExistingComment($Comment)
-{
-    $CommentId = $Comment.id
-    $Url = $Comment.url
-    Write-Message "Deleting comment '$($CommentId)'"
-
-    $Response = Invoke-WebRequest `
-        -Uri $Url `
-        -Headers @{
-            Accept="application/vnd.github+json";
-            Authorization="Bearer $($Token)";
-        } `
-        -Method Delete
-
-    if ($Response.StatusCode -ne 204) 
-    {
-        Write-Error "Error deleting comment at url $($Url)"
-        $Response
-    }
-}
-
-Function Remove-ExistingComments() 
-{
-    If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
-    {
-        Return
-    }
-
-    Write-Message "Remove existing comments: $($Comments.Count)"
-    $Comments | ForEach-Object { Remove-ExistingComment -Comment $_ }
 }
 
 Function Write-Message($Message)
 {
     [Console]::Out.WriteLine($Message)
-}
-
-Function Add-PullRequestComment($Markdown)
-{
-    If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
-    {
-        [Console]::Error.WriteLine("Cannot add PR comment; workflow isn't running from a pull-request - $($env:GITHUB_EVENT_NAME) / $($PullRequestNumber)`n`n$($Markdown)")
-        Return
-    }
-
-    $Body = "{""body"": ""$($Markdown.Replace("`n", "\n"))""}"
-    $Url="https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
-
-    Write-Message "Sending POST request to $($Url) with body $($Body)"
-
-    $Response = Invoke-WebRequest `
-        -Uri $Url `
-        -Headers @{
-            Accept="application/vnd.github+json";
-            Authorization="Bearer $($Token)";
-        } `
-        -Method Post `
-        -Body $Body
-
-    if ($Response.StatusCode -ne 201) 
-    {
-        Write-Error "Error creating comment at url $($Url)"
-        $Response
-    }
 }
 
 If ($Extension -eq $null -or $Extension -eq "" -or $Extension -eq ".")
@@ -138,17 +53,25 @@ else
     $PullRequestNumber = ""
 }
 $Repo = $env:GITHUB_REPOSITORY
-$Comments = Get-PullRequestComments
+if ($env:GITHUB_EVENT_NAME -eq "pull_request")
+{
+    $CommentsUrl = "https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
+    $ApproachingComments = Get-PullRequestComments -GitHubToken $Token -CommentsUrl $CommentsUrl -CommentHeading "*$($Extension) file/s approaching*"
+    $ExceedingComments = Get-PullRequestComments -GitHubToken $Token -CommentsUrl $CommentsUrl -CommentHeading "*$($Extension) file/s exceeding*"
+}
 $MaxLines = [int]::MaxValue
-Remove-ExistingComments
 
 If ($ErrorThreshold -gt 0)
 {
     $FilesOverThreshold = [array] (Get-Files -MinLines $ErrorThreshold -MaxLines $MaxLines)
     If ($FilesOverThreshold.Length -gt 0)
     {
-        Print-Files -Heading "$($FilesOverThreshold.Length) file/s exceeding limit" -Files $FilesOverThreshold
+        Print-Files -Heading "$($FilesOverThreshold.Length) file/s exceeding limit" -Files $FilesOverThreshold -Comments $ExceedingComments
         [Console]::Error.WriteLine("There are $($FilesOverThreshold.Length) $($Extension) file/s that have more than $($ErrorThreshold) lines")
+    }
+    elseif ($env:GITHUB_EVENT_NAME -eq "pull_request")
+    {
+        Remove-ExistingComments -GitHubToken $Token -Comments $ExceedingComments
     }
 }
 
@@ -167,7 +90,11 @@ If ($WarningThreshold -gt 0)
 
     If ($FilesNearingLimit.Length -gt 0)
     {
-        Print-Files -Heading "$($FilesNearingLimit.Length) $($Extension) file/s $($Warning)" -Files $FilesNearingLimit
+        Print-Files -Heading "$($FilesNearingLimit.Length) $($Extension) file/s $($Warning)" -Files $FilesNearingLimit -Comments $ApproachingComments
+    }
+    elseif ($env:GITHUB_EVENT_NAME -eq "pull_request")
+    {
+        Remove-ExistingComments -GitHubToken $Token -Comments $ApproachingComments
     }
 }
 

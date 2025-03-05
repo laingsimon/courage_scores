@@ -1,69 +1,10 @@
 param($CommentsUrl)
 
+Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1"
+
 Function Write-Message($Message)
 {
     [Console]::Out.WriteLine($Message)
-}
-
-Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch) 
-{
-    If ($env:GITHUB_EVENT_NAME -ne "issue_comment")
-    {
-        $EmptyList = @()
-        Return ,$EmptyList
-    }
-
-    Write-Message "Get pull-request comments - $($CommentHeading)"
-
-    $Response = Invoke-WebRequest `
-        -Uri $CommentsUrl `
-        -Method Get `
-        -Headers @{
-            Authorization="Bearer $($GithubToken)";
-        }
-
-    if ($Response.StatusCode -ne 200)
-    {
-        Write-Error "Error getting comment"
-    }
-
-    $Json = $Response | ConvertFrom-Json
-    if ($ExactMatch)
-    {
-        Return $Json `
-        | Where-Object { $_.body -eq $CommentHeading } `
-    }
-
-    Return $Json `
-        | Where-Object { $_.body -like "*$($CommentHeading)*" } `
-}
-
-Function Update-PullRequestComment($Comment, $Markdown)
-{
-    If ($GitHubEvent -ne "pull_request") 
-    {
-        [Console]::Error.WriteLine("Cannot update PR comment; workflow isn't running from a pull-request - $($env:GITHUB_EVENT_NAME) / $($PullRequestNumber)`n`n$($Markdown)")
-        Return
-    }
-
-    $Body = "{""body"": ""$($Markdown.Replace("`n", "\n"))""}"
-    $Url="https://api.github.com/repos/$($Repo)/issues/comments/$($Comment.id)"
-
-    Write-Message "Sending PATCH request to $($Url) with body $($Body)"
-
-    $Response = Invoke-WebRequest `
-        -Uri $Url `
-        -Headers @{
-            Accept="application/vnd.github+json";
-            Authorization="Bearer $($GithubToken)";
-        } `
-        -Method Patch `
-        -Body $Body
-
-    if ($Response.StatusCode -ne 200)
-    {
-        Write-Error "Error updating comment at url $($Url)"
-    }
 }
 
 function Get-CommentProperty($Comment, $Property)
@@ -93,11 +34,11 @@ function Get-Logs($Url)
 }
 
 $Repo = $env:GITHUB_REPOSITORY
-$GithubToken=$env:GITHUB_TOKEN
+$GitHubToken=$env:GITHUB_TOKEN
 $ReadLogsToken=$env:READ_LOGS_TOKEN
 $TestsCommentHeading = "Test results"
 
-$Comments = [array] (Get-PullRequestComments $TestsCommentHeading)
+$Comments = [array] (Get-PullRequestComments -GitHubToken $GitHubToken -CommentsUrl $CommentsUrl -CommentHeading $TestsCommentHeading)
 $Comment = $Comments[0]
 if ($Comment -eq $null)
 {
@@ -109,7 +50,6 @@ Write-Message "Found comment: $($Comment.id)"
 $GitHubJob = Get-CommentProperty -Comment $Comment -Property "GitHubJob"
 $GitHubRunAttempt = Get-CommentProperty -Comment $Comment -Property "GitHubRunAttempt"
 $GitHubRunId = Get-CommentProperty -Comment $Comment -Property "GitHubRunId"
-# $GitHubRunNumber = Get-CommentProperty -Comment $Comment -Property "GitHubRunNumber"
 $GitHubEvent = Get-CommentProperty -Comment $Comment -Property "GitHubEvent"
 $PullRequestNumber = Get-CommentProperty -Comment $Comment -Property "PullRequestNumber"
 $RefName = Get-CommentProperty -Comment $Comment -Property "RefName"
@@ -126,4 +66,4 @@ Get-Logs -Url $LogsUrl
 # replace the comment to show this is working...
 $NewCommentText = "🫤 Now to process the test results for $($PullRequestNumber) from $($LogsUrl)"
 $NewCommentContent = "#### $($TestsCommentHeading)`n$($NewCommentText)"
-Update-PullRequestComment -Comment $Comment -Markdown $NewCommentContent
+Update-PullRequestComment -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $Comments -Markdown $NewCommentContent
