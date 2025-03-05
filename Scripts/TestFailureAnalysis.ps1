@@ -66,4 +66,4 @@ Get-Logs -Url $LogsUrl
 # replace the comment to show this is working...
 $NewCommentText = "🫤 Now to process the test results for $($PullRequestNumber) from $($LogsUrl)"
 $NewCommentContent = "#### $($TestsCommentHeading)`n$($NewCommentText)"
-Upsert-PullRequestComment -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $Comments -Markdown $NewCommentContent
+Update-PullRequestComment -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $Comments -Markdown $NewCommentContent

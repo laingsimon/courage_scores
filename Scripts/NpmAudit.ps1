@@ -47,7 +47,7 @@ If ($NpmAuditResult.ExitCode -ne 0)
 
     if ($env:GITHUB_EVENT_NAME -eq "pull_request")
     {
-        Upsert-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $AuditComments -Markdown "#### $($AuditCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($NpmAuditResult.output)`n$($NpmAuditResult.error)`n$($GitHubMarkdownCodeBlock)`n$($BypassInstruction)"
+        Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $AuditComments -Markdown "#### $($AuditCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($NpmAuditResult.output)`n$($NpmAuditResult.error)`n$($GitHubMarkdownCodeBlock)`n$($BypassInstruction)"
     }
 }
 elseif ($env:GITHUB_EVENT_NAME -eq "pull_request")
@@ -60,7 +60,7 @@ If ($OutdatedNpmModulesComment -ne "")
 {
     if ($env:GITHUB_EVENT_NAME -eq "pull_request")
     {
-        Upsert-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $OutdatedComments -Markdown $OutdatedNpmModulesComment
+        Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $OutdatedComments -Markdown $OutdatedNpmModulesComment
     }
 }
 elseif ($env:GITHUB_EVENT_NAME -eq "pull_request")

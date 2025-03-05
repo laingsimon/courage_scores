@@ -27,7 +27,7 @@ Function Print-Files($Heading, $Files, $Comments)
 
     if ($env:GITHUB_EVENT_NAME -eq "pull_request")
     {
-        Upsert-PullRequestComment -GitHubEvent $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $Comments -Markdown "### $($Heading)`n$($Output)"
+        Update-PullRequestComment -GitHubEvent $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $Comments -Markdown "### $($Heading)`n$($Output)"
     }
 }
 
