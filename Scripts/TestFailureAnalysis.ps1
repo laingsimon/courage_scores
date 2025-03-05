@@ -39,13 +39,13 @@ $ReadLogsToken=$env:READ_LOGS_TOKEN
 $TestsCommentHeading = "Test results"
 
 $Comments = [array] (Get-PullRequestComments -GitHubToken $GitHubToken -CommentsUrl $CommentsUrl -CommentHeading $TestsCommentHeading)
-$Comment = $Comments[0]
-if ($Comment -eq $null)
+if ($Comments -eq $null -or $Comments.Count -eq 0 -or $Comments[0] -eq $null)
 {
-    Write-Message "Unable to find comment via $($CommentsUrl)"
+    Write-Message "No matching comments via $($CommentsUrl)"
     return
 }
 
+$Comment = $Comments[0]
 Write-Message "Found comment: $($Comment.id)"
 $GitHubJob = Get-CommentProperty -Comment $Comment -Property "GitHubJob"
 $GitHubRunAttempt = Get-CommentProperty -Comment $Comment -Property "GitHubRunAttempt"
