@@ -12,12 +12,6 @@ Function Write-Message($Message)
     [Console]::Out.WriteLine($Message)
 }
 
-if ($env:GITHUB_EVENT_NAME -ne "pull_request")
-{
-    Write-Error "Not triggered from a pull request, cannot add comments"
-    return
-}
-
 $RefName=$env:GITHUB_REF_NAME # will be in the format <pr_number>/merge
 $Token=$env:GITHUB_TOKEN
 If ($RefName -ne $null)
@@ -29,10 +23,37 @@ else
     $PullRequestNumber = ""
 }
 $Repo = $env:GITHUB_REPOSITORY
-$CommentsUrl = "https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
-$AuditComments = [array] (Get-PullRequestComments -GitHubToken $Token -Repo $Repo -CommentsUrl $CommentsUrl -CommentHeading $AuditCommentHeading)
-$BypassNpmAuditViaCommentComments = [array] (Get-PullRequestComments -GitHubToken $Token -Repo $Repo -CommentsUrl $CommentsUrl -CommentHeading $BypassNpmAuditViaCommentCommentContent -ExactMatch)
-$OutdatedComments = [array] (Get-PullRequestComments -GitHubToken $Token -Repo $Repo -CommentsUrl $CommentsUrl -CommentHeading $OutdatedCommentHeading)
+$GitHubEvent = $env:GITHUB_EVENT_NAME
+
+if ($GitHubEvent -ne "pull_request")
+{
+    if ($PullRequestNumber -eq "main" -and $GitHubEvent -eq "push")
+    {
+        # find the pull request for main
+        $PullRequest = Get-PullRequests -GitHubToken $Token -Repo $Repo -Base "release"
+        if ($PullRequest -ne $null)
+        {
+            $PullRequestNumber = "$($PullRequest.number)"
+            $GitHubEvent = "pull_request"
+        }
+        else
+        {
+            Write-Host "Unable to find pull-request to release, unable to add npm-audit comments"
+        }
+    }
+    else
+    {
+        Write-Host "Not a push to main, unable to add npm-audit comments"
+    }
+}
+
+if ($GitHubEvent -eq "pull_request")
+{
+    $CommentsUrl = "https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
+    $AuditComments = [array] (Get-PullRequestComments -GitHubToken $Token -Repo $Repo -CommentsUrl $CommentsUrl -CommentHeading $AuditCommentHeading)
+    $BypassNpmAuditViaCommentComments = [array] (Get-PullRequestComments -GitHubToken $Token -Repo $Repo -CommentsUrl $CommentsUrl -CommentHeading $BypassNpmAuditViaCommentCommentContent -ExactMatch)
+    $OutdatedComments = [array] (Get-PullRequestComments -GitHubToken $Token -Repo $Repo -CommentsUrl $CommentsUrl -CommentHeading $OutdatedCommentHeading)
+}
 
 $NpmAuditResult = Invoke-NpmCommand -Command "audit"
 If ($NpmAuditResult.output -ne "")
@@ -51,9 +72,16 @@ If ($NpmAuditResult.ExitCode -ne 0)
         $BypassInstruction="A comment exists with the wording **$($BypassNpmAuditViaCommentCommentContent)**; warnings are ignored for this PR"
     }
 
-    Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $AuditComments -Markdown "#### $($AuditCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($NpmAuditResult.output)`n$($NpmAuditResult.error)`n$($GitHubMarkdownCodeBlock)`n$($BypassInstruction)"
+    if ($GitHubEvent -eq "pull_request")
+    {
+        Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $AuditComments -Markdown "#### $($AuditCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($NpmAuditResult.output)`n$($NpmAuditResult.error)`n$($GitHubMarkdownCodeBlock)`n$($BypassInstruction)"
+    }
+    else
+    {
+        Write-Host "#### $($AuditCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($NpmAuditResult.output)`n$($NpmAuditResult.error)`n$($GitHubMarkdownCodeBlock)`n$($BypassInstruction)"
+    }
 }
-else
+elseif ($GitHubEvent -eq "pull_request")
 {
     Remove-ExistingComments -GitHubToken $Token -Comments $AuditComments
 }
@@ -61,9 +89,16 @@ else
 $OutdatedNpmModulesComment = Invoke-Expression "$($PSScriptRoot)/Format-OutdatedNpmModules.ps1 -OutdatedCommentHeading ""$OutdatedCommentHeading"""
 If ($OutdatedNpmModulesComment -ne "")
 {
-    Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $OutdatedComments -Markdown $OutdatedNpmModulesComment
+    if ($GitHubEvent -eq "pull_request")
+    {
+        Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $OutdatedComments -Markdown $OutdatedNpmModulesComment
+    }
+    else
+    {
+        Write-Host $OutdatedNpmModulesComment
+    }
 }
-else
+elseif ($GitHubEvent -eq "pull_request")
 {
     Remove-ExistingComments -GitHubToken $Token -Comments $OutdatedComments
 }
@@ -74,4 +109,4 @@ If ($NpmAuditResult.ExitCode -ne 0 -and $BypassNpmAuditViaCommentComments.Length
     Exit 0
 }
 
-Exit $NpmAuditResult.exitCode
+Exit $NpmAuditResult.ExitCode

@@ -25,7 +25,7 @@ Function Print-Files($Heading, $Files, $Comments)
     [Console]::Error.WriteLine($Heading)
     [Console]::Error.WriteLine($Output)
 
-    if ($env:GITHUB_EVENT_NAME -eq "pull_request")
+    if ($GitHubEvent -eq "pull_request")
     {
         Update-PullRequestComment -GitHubEvent $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $Comments -Markdown "### $($Heading)`n$($Output)"
     }
@@ -53,7 +53,31 @@ else
     $PullRequestNumber = ""
 }
 $Repo = $env:GITHUB_REPOSITORY
-if ($env:GITHUB_EVENT_NAME -eq "pull_request")
+$GitHubEvent = $env:GITHUB_EVENT_NAME
+
+if ($GitHubEvent -ne "pull_request")
+{
+    if ($PullRequestNumber -eq "main" -and $GitHubEvent -eq "push")
+    {
+        # find the pull request for main
+        $PullRequest = Get-PullRequests -GitHubToken $Token -Repo $Repo -Base "release"
+        if ($PullRequest -ne $null)
+        {
+            $PullRequestNumber = "$($PullRequest.number)"
+            $GitHubEvent = "pull_request"
+        }
+        else
+        {
+            Write-Host "Unable to find pull-request to release, unable to add build-check comments"
+        }
+    }
+    else
+    {
+        Write-Host "Not a push to main, unable to add comments"
+    }
+}
+
+if ($GitHubEvent -eq "pull_request")
 {
     $CommentsUrl = "https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
     $ApproachingComments = Get-PullRequestComments -GitHubToken $Token -CommentsUrl $CommentsUrl -CommentHeading "*$($Extension) file/s approaching*"
@@ -69,7 +93,7 @@ If ($ErrorThreshold -gt 0)
         Print-Files -Heading "$($FilesOverThreshold.Length) file/s exceeding limit" -Files $FilesOverThreshold -Comments $ExceedingComments
         [Console]::Error.WriteLine("There are $($FilesOverThreshold.Length) $($Extension) file/s that have more than $($ErrorThreshold) lines")
     }
-    elseif ($env:GITHUB_EVENT_NAME -eq "pull_request")
+    elseif ($GitHubEvent -eq "pull_request")
     {
         Remove-ExistingComments -GitHubToken $Token -Comments $ExceedingComments
     }
@@ -92,7 +116,7 @@ If ($WarningThreshold -gt 0)
     {
         Print-Files -Heading "$($FilesNearingLimit.Length) $($Extension) file/s $($Warning)" -Files $FilesNearingLimit -Comments $ApproachingComments
     }
-    elseif ($env:GITHUB_EVENT_NAME -eq "pull_request")
+    elseif ($GitHubEvent -eq "pull_request")
     {
         Remove-ExistingComments -GitHubToken $Token -Comments $ApproachingComments
     }
