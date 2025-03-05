@@ -2,7 +2,7 @@ Import-Module -Name "$PSScriptRoot/PrivateGitHubFunctions.psm1"
 
 Function Get-PullRequestComments($GitHubToken, $CommentsUrl, $CommentHeading, [switch] $ExactMatch) 
 {
-    Write-Host "Get pull-request comments - $($CommentHeading)"
+    Write-Host "Get pull-request comments - $($CommentHeading) via $($CommentsUrl)"
 
     $Response = Invoke-WebRequest `
         -Uri $CommentsUrl `
@@ -13,7 +13,7 @@ Function Get-PullRequestComments($GitHubToken, $CommentsUrl, $CommentHeading, [s
 
     if ($Response.StatusCode -ne 200)
     {
-        Write-Error "Error getting comment"
+        Write-Error "Error getting comments"
     }
 
     $Json = $Response | ConvertFrom-Json
