@@ -29,6 +29,26 @@ jobs:
       commit-sha: ${{ github.sha }}
       commit-date: ${{ needs.setup.outputs.commit-date }}
 
+  report_tests:
+    runs-on: ubuntu-latest
+    name: report / test results
+
+    needs:
+     - publish
+     - build
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Trigger test analysis
+        if: success() || failure()
+        shell: pwsh
+        run: ./Scripts/TriggerTestFailureAnalysis.ps1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ADD_COMMENT_TOKEN: ${{ secrets.REPORT_FAILURES_PAT }}
+
   deploy:
     needs: 
       - build
