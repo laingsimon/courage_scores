@@ -12,6 +12,12 @@ Function Write-Message($Message)
     [Console]::Out.WriteLine($Message)
 }
 
+if ($env:GITHUB_EVENT_NAME -ne "pull_request")
+{
+    Write-Error "Not triggered from a pull request, cannot add comments"
+    return
+}
+
 $RefName=$env:GITHUB_REF_NAME # will be in the format <pr_number>/merge
 $Token=$env:GITHUB_TOKEN
 If ($RefName -ne $null)
@@ -45,12 +51,9 @@ If ($NpmAuditResult.ExitCode -ne 0)
         $BypassInstruction="A comment exists with the wording **$($BypassNpmAuditViaCommentCommentContent)**; warnings are ignored for this PR"
     }
 
-    if ($env:GITHUB_EVENT_NAME -eq "pull_request")
-    {
-        Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $AuditComments -Markdown "#### $($AuditCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($NpmAuditResult.output)`n$($NpmAuditResult.error)`n$($GitHubMarkdownCodeBlock)`n$($BypassInstruction)"
-    }
+    Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $AuditComments -Markdown "#### $($AuditCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($NpmAuditResult.output)`n$($NpmAuditResult.error)`n$($GitHubMarkdownCodeBlock)`n$($BypassInstruction)"
 }
-elseif ($env:GITHUB_EVENT_NAME -eq "pull_request")
+else
 {
     Remove-ExistingComments -GitHubToken $Token -Comments $AuditComments
 }
@@ -58,12 +61,9 @@ elseif ($env:GITHUB_EVENT_NAME -eq "pull_request")
 $OutdatedNpmModulesComment = Invoke-Expression "$($PSScriptRoot)/Format-OutdatedNpmModules.ps1 -OutdatedCommentHeading ""$OutdatedCommentHeading"""
 If ($OutdatedNpmModulesComment -ne "")
 {
-    if ($env:GITHUB_EVENT_NAME -eq "pull_request")
-    {
-        Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $OutdatedComments -Markdown $OutdatedNpmModulesComment
-    }
+    Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $OutdatedComments -Markdown $OutdatedNpmModulesComment
 }
-elseif ($env:GITHUB_EVENT_NAME -eq "pull_request")
+else
 {
     Remove-ExistingComments -GitHubToken $Token -Comments $OutdatedComments
 }
