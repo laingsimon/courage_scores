@@ -64,6 +64,14 @@ if ($LogsUrl -eq "" -or $LogsUrl -eq $null)
 Get-Logs -Url $LogsUrl
 
 # replace the comment to show this is working...
-$NewCommentText = "🫤 Now to process the test results for $($PullRequestNumber) from $($LogsUrl)"
+$NewCommentText = "<!-- LogsUrl=$($LogsUrl) -->
+<!-- PullRequestNumber=$($PullRequestNumber) -->
+<!-- RefName=$($RefName) -->
+<!-- GitHubJob=$($GitHubJob) -->
+<!-- GitHubEvent=$($GitHubEvent) -->
+<!-- GitHubRunId=$($GitHubRunId) -->
+<!-- GitHubRunAttempt=$($GitHubRunAttempt) -->
+
+🫤 Now to process the test results for $($PullRequestNumber) from $($LogsUrl)"
 $NewCommentContent = "#### $($TestsCommentHeading)`n$($NewCommentText)"
 Update-PullRequestComment -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $Comments -Markdown $NewCommentContent
