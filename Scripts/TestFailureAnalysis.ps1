@@ -17,7 +17,7 @@ function Get-CommentProperty($Comment, $Property)
         return $match.Groups[1].Value
     }
 
-    Write-Message "Could not find $($Property) in comment body $($body)"
+    Write-Message "Could not find $($Property) in comment body"
 }
 
 function Get-Logs($Url) 
