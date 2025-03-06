@@ -1,12 +1,8 @@
-Function Format-MarkdownAsJson($Markdown)
-{
-    $Empty = ""
-    return $Markdown.Replace("\", "\\").Replace("`n", "\n").Replace("`r", $Empty).Replace("""", "\""")
-}
-
 Function Add-PullRequestComment($GitHubToken, $Repo, $PullRequestNumber, $Markdown)
 {
-    $Body = "{""body"": ""$(Format-MarkdownAsJson $Markdown)""}"
+    $Body = @{
+        'body' = $Markdown
+    } | ConvertTo-Json
     $Url="https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
 
     Write-Host "Sending POST request to $($Url) with body`n`n$($Body)"
@@ -28,7 +24,9 @@ Function Add-PullRequestComment($GitHubToken, $Repo, $PullRequestNumber, $Markdo
 
 Function Set-PullRequestComment($GitHubToken, $Repo, $Comment, $Markdown)
 {
-    $Body = "{""body"": ""$(Format-MarkdownAsJson $Markdown)""}"
+    $Body = @{
+        'body' = $Markdown
+    } | ConvertTo-Json
     $Url="https://api.github.com/repos/$($Repo)/issues/comments/$($Comment.id)"
 
     Write-Host "Sending PATCH request to $($Url) with body $($Body)"
