@@ -84,7 +84,7 @@ public class ExceptionHandlerTests
         await exceptionHandler.HandleException(_context);
 
         Assert.That(_context.Response.StatusCode, Is.EqualTo(500));
-        Assert.That(_context.Response.ContentType, Is.EqualTo("application/json; charset=utf-8"));
+        Assert.That(_context.Response.ContentType, Is.EqualTo("application/json; charset=utf-8, WRONG"));
     }
 
     [Test]

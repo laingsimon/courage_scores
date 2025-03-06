@@ -264,7 +264,7 @@ describe('App', () => {
                 message: 'ERROR',
                 source: 'UI',
             });
-            expect(context.container.textContent).toContain('An error occurred');
+            expect(context.container.textContent).toContain('An error occurred WRONG');
         });
 
         it('can report client side exception directly', async () => {
