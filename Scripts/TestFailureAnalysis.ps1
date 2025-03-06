@@ -67,7 +67,7 @@ function Get-Logs($Url)
     return $DotNetResults,$JestResults
 }
 
-function Get-LinesBetween($Path, $Start, $End)
+function Get-LinesBetween($Path, $Start, $End, [switch] $Inclusive)
 {
     $HasCollected = $false
     $Collect = $false
@@ -79,18 +79,24 @@ function Get-LinesBetween($Path, $Start, $End)
         if ($Line -like $Start -and $HasCollected -eq $false)
         {
             $Collect = $true
-            # set $Collecting -> true if first line should be included
+            if ($Inclusive)
+            {
+                $Collecting = $true
+            }
         }
 
         if ($Line -like $End -and $Collecting -eq $true)
         {
             $Collect = $false
-            $Collecting = $false ## don't change $Collecting here to include the final line
+            if ($Inclusive -eq $false)
+            {
+                $Collecting = $false
+            }
             $HasCollected = $true
         }
 
         return $Collecting
-    }  
+    }
 }
 
 function Remove-Timestamp([Parameter(ValueFromPipeline)] $Line)
@@ -106,14 +112,16 @@ function Get-DotNetFailures([Parameter(ValueFromPipeline)] $Path)
     process {
         $RelevantLines = Get-LinesBetween -Path $Path -Start "*Starting test execution*" -End "*coverlet*" | Remove-Timestamp | Select-String -NotMatch -Pattern "Results File"
 
-        Write-Output "## DotNet tests:`n$($RelevantLines -join "`n")`n`n"
+        Write-Output "## DotNet tests:`n$($RelevantLines -join "`n")`n"
     }
 }
 
 function Get-JestFailures([Parameter(ValueFromPipeline)] $Path)
 {
     process {
-        return "## React tests: $Path`n`n"
+        $RelevantLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Test Suites:*" -End "*Ran all test suites." | Remove-Timestamp
+
+        Write-Output "## React tests:`n$($RelevantLines -join "`n")`n"
     }
 }
 
@@ -164,7 +172,7 @@ $NewCommentText = "<!-- LogsUrl=$($LogsUrl) -->
 <!-- GitHubRunAttempt=$($GitHubRunAttempt) -->
 <!-- AnalysisStatus=DONE -->
 
-$($CommentsToAdd)"
+$($CommentsToAdd -join "`n")"
 $NewCommentContent = "#### $($TestsCommentHeading)`n$($NewCommentText)"
 
 if ($Force)
