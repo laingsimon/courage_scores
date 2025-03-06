@@ -120,8 +120,11 @@ function Get-DotNetFailures([Parameter(ValueFromPipeline)] $Path)
 function Get-JestFailures([Parameter(ValueFromPipeline)] $Path)
 {
     process {
-        $RelevantLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Test Suites:*" -End "*Ran all test suites." | Remove-Timestamp
-
+        $RelevantLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Summary of all failing tests*" -End "*Ran all test suites." | Remove-Timestamp
+        if ($RelevantLines.Count -eq 0)
+        {
+            $RelevantLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Test Suites:*" -End "*Ran all test suites." | Remove-Timestamp
+        }
         Write-Output "## React tests:`n$($RelevantLines -join "`n")`n"
     }
 }
