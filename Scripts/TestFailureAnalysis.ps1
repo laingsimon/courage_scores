@@ -180,7 +180,9 @@ $NewCommentText = "<!-- LogsUrl=$($LogsUrl) -->
 <!-- GitHubRunAttempt=$($GitHubRunAttempt) -->
 <!-- AnalysisStatus=DONE -->
 
-$($CommentsToAdd -join "`n")"
+$($CommentsToAdd -join "`n")
+
+[Logs](https://github.com/laingsimon/courage_scores/actions/runs/$($GitHubRunId)?pr=$($PullRequestNumber))"
 $NewCommentContent = "#### $($TestsCommentHeading)`n$($NewCommentText)"
 
 if ($Force)
