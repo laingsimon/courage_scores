@@ -64,14 +64,14 @@ function Get-Logs($Url)
     return $DotNetResults,$JestResults
 }
 
-function Get-DotNetFailures()
+function Get-DotNetFailures([Parameter(ValueFromPipeline)] $Path)
 {
-    return "## DotNet tests: ???`n`n"
+    return "## DotNet tests: $Path`n`n"
 }
 
-function Get-JestFailures()
+function Get-JestFailures([Parameter(ValueFromPipeline)] $Path)
 {
-    return "## React tests: ???`n`n"
+    return "## React tests: $Path`n`n"
 }
 
 $Repo = $env:GITHUB_REPOSITORY
