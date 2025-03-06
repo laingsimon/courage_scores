@@ -25,7 +25,7 @@ function Get-Logs($Url)
     $ZipFile = "./logs.zip"
     $MaxAttempts = 5
 
-    For ($Attempt = 1; $Attempt -lt $MaxAttempts; $Attempt++)
+    For ($Attempt = 1; $Attempt -le $MaxAttempts; $Attempt++)
     {
         Try
         {
