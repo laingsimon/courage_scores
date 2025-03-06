@@ -22,10 +22,34 @@ function Get-CommentProperty($Comment, $Property)
 
 function Get-Logs($Url) 
 {
-    Write-Message "Getting logs $($Url)..."
     $ZipFile = "./logs.zip"
+    $MaxAttempts = 5
 
-    $Response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{ Authorization="Bearer $($ReadLogsToken)" } -OutFile $ZipFile
+    For ($Attempt = 1; $Attempt -lt $MaxAttempts; $Attempt++)
+    {
+        Try
+        {
+            Write-Message "[Attempt $($Attempt)] Getting logs $($Url)..."
+            $Response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{ Authorization="Bearer $($ReadLogsToken)" } -OutFile $ZipFile
+            Write-Message "Retrieved logs from workflow run"
+        }
+        Catch
+        {
+            $Exception = $_.Exception
+            if ($Attempt -eq $MaxAttempts)
+            {
+                ## rethrow the exception
+                Throw $Exception
+            }
+
+            if ($Exception.Message -like "*not_found*" -or $Exception.Message -like "*404*")
+            {
+                Write-Message "Failed to get logs, waiting for a bit"
+                ## maybe the run hasn't finished yet, give it some time
+                Start-Sleep -Seconds 3
+            }
+        }
+    }
 
     $ExtractPath = "./logs"
     $ZipFile | Expand-Archive -Destination $ExtractPath
