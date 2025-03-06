@@ -111,9 +111,9 @@ function Get-DotNetFailures([Parameter(ValueFromPipeline)] $Path)
 {
     process {
         $CodeBlock = "``````"
-        $RelevantLines = Get-LinesBetween -Path $Path -Start "*Starting test execution*" -End "*Process completed with exit code*" | Remove-Timestamp | Select-String -NotMatch -Pattern "Results File"
+        $RelevantLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Starting test execution*" -End "*Total: *" | Remove-Timestamp | Select-String -NotMatch -Pattern "Results File"
 
-        Write-Output "## DotNet tests:`n$($CodeBlock)`n$($RelevantLines -join "`n")$($CodeBlock)`n`n"
+        Write-Output "## DotNet tests:`n$($CodeBlock)`n$($RelevantLines -join "`n")`n$($CodeBlock)`n`n"
     }
 }
 
