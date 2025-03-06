@@ -32,6 +32,7 @@ function Get-Logs($Url)
             Write-Message "[Attempt $($Attempt)] Getting logs $($Url)..."
             $Response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{ Authorization="Bearer $($ReadLogsToken)" } -OutFile $ZipFile
             Write-Message "Retrieved logs from workflow run"
+            Break
         }
         Catch
         {
