@@ -1,6 +1,7 @@
 param($CommentsUrl, [switch] $Force)
 
 Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1" -Force
+$CodeBlock = "``````"
 
 Function Write-Message($Message)
 {
@@ -114,10 +115,9 @@ function Remove-Timestamp([Parameter(ValueFromPipeline)] $Line)
 function Get-DotNetFailures([Parameter(ValueFromPipeline)] $Path)
 {
     process {
-        $CodeBlock = "``````"
         $RelevantLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Starting test execution*" -End "*Total: *" | Remove-Timestamp | Select-String -NotMatch -Pattern "Results File"
 
-        Write-Output "## DotNet tests:`n$($CodeBlock)`n$($RelevantLines -join "`n")`n$($CodeBlock)`n`n"
+        Write-Output "#### DotNet tests:`n$($CodeBlock)`n$($RelevantLines -join "`n")`n$($CodeBlock)`n`n"
     }
 }
 
@@ -129,7 +129,7 @@ function Get-JestFailures([Parameter(ValueFromPipeline)] $Path)
         {
             $RelevantLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Test Suites:*" -End "*Ran all test suites." | Remove-Timestamp
         }
-        Write-Output "## React tests:`n$($RelevantLines -join "`n")`n"
+        Write-Output "#### React tests:`n$($CodeBlock)`n$($RelevantLines -join "`n")`n$($CodeBlock)`n`n"
     }
 }
 
