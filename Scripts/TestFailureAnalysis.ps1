@@ -53,6 +53,11 @@ function Get-Logs($Url)
     }
 
     $ExtractPath = "./logs"
+    if (Test-Path -Path $ExtractPath)
+    {
+        Remove-Item -Recurse $ExtractPath
+    }
+
     $ZipFile | Expand-Archive -Destination $ExtractPath
     Write-Message "Extracted logs archive"
 
