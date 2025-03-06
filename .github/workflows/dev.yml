@@ -52,6 +52,7 @@ jobs:
   report_tests:
     runs-on: ubuntu-latest
     name: report / test results
+    if: always()
 
     needs:
      - publish
@@ -62,7 +63,6 @@ jobs:
           fetch-depth: 0
 
       - name: Trigger test analysis
-        if: success() || failure()
         shell: pwsh
         run: ./Scripts/TriggerTestFailureAnalysis.ps1
         env:
