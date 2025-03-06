@@ -54,8 +54,9 @@ function Get-Logs($Url)
 
     $ExtractPath = "./logs"
     $ZipFile | Expand-Archive -Destination $ExtractPath
+    Write-Message "Extracted logs archive"
 
-    Write-Message "Retrieved logs from workflow run"
+    Get-ChildItem -Path $ExtractPath -Filter "*.txt" | Write-Host
 }
 
 $Repo = $env:GITHUB_REPOSITORY
