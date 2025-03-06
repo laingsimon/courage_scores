@@ -61,22 +61,60 @@ function Get-Logs($Url)
     $ZipFile | Expand-Archive -Destination $ExtractPath
     Write-Message "Extracted logs archive"
 
-    Get-ChildItem -Path $ExtractPath -Filter "*.txt" | Write-Host
-
     $DotNetResults = Get-ChildItem -Path $ExtractPath -Filter "*build*with-dotnet.txt" | Get-DotNetFailures
     $JestResults = Get-ChildItem -Path $ExtractPath -Filter "*publish*with-dotnet.txt" | Get-JestFailures
 
     return $DotNetResults,$JestResults
 }
 
+function Get-LinesBetween($Path, $Start, $End)
+{
+    $HasCollected = $false
+    $Collect = $false
+    Write-Host "Getting lines from $($Path) between '$($Start)' and '$($End)'"
+
+    return $Content = Get-Content -Path $Path | Where-Object {
+        $Line = $_
+        $Collecting = $Collect
+        if ($Line -like $Start -and $HasCollected -eq $false)
+        {
+            $Collect = $true
+            # set $Collecting -> true if first line should be included
+        }
+
+        if ($Line -like $End -and $Collecting -eq $true)
+        {
+            $Collect = $false
+            $Collecting = $false ## don't change $Collecting here to include the final line
+            $HasCollected = $true
+        }
+
+        return $Collecting
+    }  
+}
+
+function Remove-Timestamp([Parameter(ValueFromPipeline)] $Line)
+{
+    process {
+        $TimestampExample = "2025-03-06T12:25:17.9658730Z "
+        Write-Output $Line.Substring($TimestampExample.Length)
+    }
+}
+
 function Get-DotNetFailures([Parameter(ValueFromPipeline)] $Path)
 {
-    return "## DotNet tests: $Path`n`n"
+    process {
+        $RelevantLines = Get-LinesBetween -Path $Path -Start "*Starting test execution*" -End "*coverlet*" | Remove-Timestamp | Select-String -NotMatch -Pattern "Results File"
+
+        Write-Output "## DotNet tests:`n$($RelevantLines -join "`n")`n`n"
+    }
 }
 
 function Get-JestFailures([Parameter(ValueFromPipeline)] $Path)
 {
-    return "## React tests: $Path`n`n"
+    process {
+        return "## React tests: $Path`n`n"
+    }
 }
 
 $Repo = $env:GITHUB_REPOSITORY
