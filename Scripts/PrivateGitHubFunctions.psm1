@@ -1,7 +1,7 @@
 Function Format-MarkdownAsJson($Markdown)
 {
     $Empty = ""
-    return $Markdown.Replace("\", "\\").Replace("`n", "\n").Replace("`r", $Empty)
+    return $Markdown.Replace("\", "\\").Replace("`n", "\n").Replace("`r", $Empty).Replace("""", "\""")
 }
 
 Function Add-PullRequestComment($GitHubToken, $Repo, $PullRequestNumber, $Markdown)
