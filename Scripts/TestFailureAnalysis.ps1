@@ -58,8 +58,8 @@ function Get-Logs($Url)
 
     Get-ChildItem -Path $ExtractPath -Filter "*.txt" | Write-Host
 
-    $DotNetResults = Get-ChildItem -Path $ExtractPath -Filter "*with.dotnet.txt" | Get-DotNetFailures
-    $JestResults = Get-ChildItem -Path $ExtractPath -Filter "*dotnet.publish.txt" | Get-JestFailures
+    $DotNetResults = Get-ChildItem -Path $ExtractPath -Filter "*build*with-dotnet.txt" | Get-DotNetFailures
+    $JestResults = Get-ChildItem -Path $ExtractPath -Filter "*publish*with-dotnet.txt" | Get-JestFailures
 
     return $DotNetResults,$JestResults
 }
