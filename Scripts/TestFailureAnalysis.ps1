@@ -49,6 +49,10 @@ function Get-Logs($Url)
                 ## maybe the run hasn't finished yet, give it some time
                 Start-Sleep -Seconds 3
             }
+            else
+            {
+                Throw $Exception
+            }
         }
     }
 
