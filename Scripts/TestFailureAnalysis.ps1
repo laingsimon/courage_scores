@@ -128,4 +128,10 @@ $NewCommentText = "<!-- LogsUrl=$($LogsUrl) -->
 
 $($CommentsToAdd)"
 $NewCommentContent = "#### $($TestsCommentHeading)`n$($NewCommentText)"
+
+if ($Force)
+{
+    $Comments = $null
+}
+
 Update-PullRequestComment -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $Comments -Markdown $NewCommentContent
