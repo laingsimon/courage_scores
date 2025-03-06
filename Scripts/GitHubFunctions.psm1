@@ -1,4 +1,4 @@
-Import-Module -Name "$PSScriptRoot/PrivateGitHubFunctions.psm1"
+Import-Module -Name "$PSScriptRoot/PrivateGitHubFunctions.psm1" -Force
 
 Function Get-PullRequestComments($GitHubToken, $CommentsUrl, $CommentHeading, [switch] $ExactMatch) 
 {

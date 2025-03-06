@@ -1,6 +1,6 @@
 param($CommentsUrl, [switch] $Force)
 
-Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1"
+Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1" -Force
 
 Function Write-Message($Message)
 {

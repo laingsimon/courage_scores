@@ -1,6 +1,6 @@
 param()
 
-Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1"
+Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1" -Force
 
 Function Write-Message($Message)
 {
