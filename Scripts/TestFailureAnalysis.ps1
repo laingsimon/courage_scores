@@ -57,6 +57,21 @@ function Get-Logs($Url)
     Write-Message "Extracted logs archive"
 
     Get-ChildItem -Path $ExtractPath -Filter "*.txt" | Write-Host
+
+    $DotNetResults = Get-ChildItem -Path $ExtractPath -Filter "*with.dotnet.txt" | Get-DotNetFailures
+    $JestResults = Get-ChildItem -Path $ExtractPath -Filter "*dotnet.publish.txt" | Get-JestFailures
+
+    return $DotNetResults,$JestResults
+}
+
+function Get-DotNetFailures()
+{
+    return "## DotNet tests: ???`n`n"
+}
+
+function Get-JestFailures()
+{
+    return "## React tests: ???`n`n"
 }
 
 $Repo = $env:GITHUB_REPOSITORY
@@ -87,7 +102,7 @@ if ($LogsUrl -eq "" -or $LogsUrl -eq $null)
     return
 }
 
-Get-Logs -Url $LogsUrl
+$CommentsToAdd = Get-Logs -Url $LogsUrl
 
 # replace the comment to show this is working...
 $NewCommentText = "<!-- LogsUrl=$($LogsUrl) -->
@@ -98,6 +113,6 @@ $NewCommentText = "<!-- LogsUrl=$($LogsUrl) -->
 <!-- GitHubRunId=$($GitHubRunId) -->
 <!-- GitHubRunAttempt=$($GitHubRunAttempt) -->
 
-🫤 Now to process the test results for $($PullRequestNumber) from $($LogsUrl)"
+$($CommentsToAdd)"
 $NewCommentContent = "#### $($TestsCommentHeading)`n$($NewCommentText)"
 Update-PullRequestComment -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $Comments -Markdown $NewCommentContent
