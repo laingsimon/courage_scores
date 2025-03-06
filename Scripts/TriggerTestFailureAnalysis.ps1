@@ -16,6 +16,7 @@ Function Get-PullRequestCommentText()
 <!-- GitHubEvent=$($GitHubEvent) -->
 <!-- GitHubRunId=$($GitHubRunId) -->
 <!-- GitHubRunAttempt=$($GitHubRunAttempt) -->
+<!-- AnalysisStatus=TODO -->
 
 ⏱️ Collecting test results from run $($GitHubRunId)..."
 }

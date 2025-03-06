@@ -95,10 +95,17 @@ $GitHubEvent = Get-CommentProperty -Comment $Comment -Property "GitHubEvent"
 $PullRequestNumber = Get-CommentProperty -Comment $Comment -Property "PullRequestNumber"
 $RefName = Get-CommentProperty -Comment $Comment -Property "RefName"
 $LogsUrl = Get-CommentProperty -Comment $Comment -Property "LogsUrl"
+$AnalysisStatus = Get-CommentProperty -Comment $Comment -Property "AnalysisStatus"
 
 if ($LogsUrl -eq "" -or $LogsUrl -eq $null)
 {
     Write-Message "The created comment is not a trigger"
+    return
+}
+
+if ($AnalysisStatus -ne "TODO")
+{
+    Write-Message "Analysis already complete"
     return
 }
 
@@ -112,6 +119,7 @@ $NewCommentText = "<!-- LogsUrl=$($LogsUrl) -->
 <!-- GitHubEvent=$($GitHubEvent) -->
 <!-- GitHubRunId=$($GitHubRunId) -->
 <!-- GitHubRunAttempt=$($GitHubRunAttempt) -->
+<!-- AnalysisStatus=DONE -->
 
 $($CommentsToAdd)"
 $NewCommentContent = "#### $($TestsCommentHeading)`n$($NewCommentText)"
