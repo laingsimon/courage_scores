@@ -1,4 +1,4 @@
-param($CommentsUrl)
+param($CommentsUrl, [switch] $Force)
 
 Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1"
 
@@ -103,7 +103,7 @@ if ($LogsUrl -eq "" -or $LogsUrl -eq $null)
     return
 }
 
-if ($AnalysisStatus -ne "TODO")
+if ($AnalysisStatus -ne "TODO" -and $Force -ne $true)
 {
     Write-Message "Analysis already complete"
     return
