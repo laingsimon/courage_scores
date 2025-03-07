@@ -1,4 +1,4 @@
-Import-Module -Name "$PSScriptRoot/PrivateGitHubFunctions.psm1"
+Import-Module -Name "$PSScriptRoot/PrivateGitHubFunctions.psm1" -Force
 
 Function Get-PullRequestComments($GitHubToken, $CommentsUrl, $CommentHeading, [switch] $ExactMatch) 
 {
@@ -46,7 +46,7 @@ Function Remove-ExistingComments($GitHubToken, $Comments)
 {
     If ($Comments.Count -gt 0)
     {
-        Write-Error "Remove existing comments: $($Comments.Count)"
+        Write-Host "Remove existing comments: $($Comments.Count)"
         $Comments | ForEach-Object { Remove-ExistingComment -Comment $_ -GitHubToken $GitHubToken }
     }
 }
@@ -65,4 +65,26 @@ Function Update-PullRequestComment($GitHubToken, $Repo, $PullRequestNumber, $Com
         Remove-ExistingComments -GitHubToken $GitHubToken -Comments $Comments
     }
     Add-PullRequestComment -GitHubToken $GitHubToken -Repo $Repo -Markdown $Markdown -PullRequestNumber $PullRequestNumber
+}
+
+Function Get-JobId($GitHubToken, $Repo, $RunId, $Attempt, $Name)
+{
+    Write-Host "Get jobs for run $($RunId)/$($Attempt)..."
+
+    $Response = Invoke-WebRequest `
+        -Uri "https://api.github.com/repos/$($Repo)/actions/runs/$($RunId)/attempts/$($Attempt)/jobs" `
+        -Method Get `
+        -Headers @{
+            Authorization="Bearer $($GitHubToken)";
+        }
+
+    $Jobs = ($Response | ConvertFrom-Json).jobs
+    $Job = $Jobs | Where-Object { $_.name -eq $Name }
+
+    if ($Job -ne $null)
+    {
+        return $Job.id
+    }
+
+    Write-Error "Unable to find jobid for workflow $($Name) in list of jobs, names are: '$($Jobs.name -join "', '")'"
 }

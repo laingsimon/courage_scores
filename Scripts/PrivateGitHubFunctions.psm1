@@ -1,9 +1,11 @@
 Function Add-PullRequestComment($GitHubToken, $Repo, $PullRequestNumber, $Markdown)
 {
-    $Body = "{""body"": ""$($Markdown.Replace("`n", "\n"))""}"
+    $Body = (@{
+        'body' = $Markdown
+    } | ConvertTo-Json) -replace "\\u001b\[[0-9]+m",""
     $Url="https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
 
-    # Write-Host "Sending POST request to $($Url) with body $($Body)"
+    Write-Host "Sending POST request to $($Url) with body`n`n$($Body)"
 
     $Response = Invoke-WebRequest `
         -Uri $Url `
@@ -22,7 +24,9 @@ Function Add-PullRequestComment($GitHubToken, $Repo, $PullRequestNumber, $Markdo
 
 Function Set-PullRequestComment($GitHubToken, $Repo, $Comment, $Markdown)
 {
-    $Body = "{""body"": ""$($Markdown.Replace("`n", "\n"))""}"
+    $Body = (@{
+        'body' = $Markdown
+    } | ConvertTo-Json) -replace "\\u001b\[[0-9]+m",""
     $Url="https://api.github.com/repos/$($Repo)/issues/comments/$($Comment.id)"
 
     Write-Host "Sending PATCH request to $($Url) with body $($Body)"

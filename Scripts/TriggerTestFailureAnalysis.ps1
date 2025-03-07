@@ -1,6 +1,6 @@
 param()
 
-Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1"
+Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1" -Force
 
 Function Write-Message($Message)
 {
@@ -16,8 +16,9 @@ Function Get-PullRequestCommentText()
 <!-- GitHubEvent=$($GitHubEvent) -->
 <!-- GitHubRunId=$($GitHubRunId) -->
 <!-- GitHubRunAttempt=$($GitHubRunAttempt) -->
+<!-- AnalysisStatus=TODO -->
 
-⏱️ Collecting test results from run $($GitHubRunId)..."
+### ⏱️ Collecting test results..."
 }
 
 $Repo = $env:GITHUB_REPOSITORY
@@ -62,7 +63,7 @@ $CommentText = Get-PullRequestCommentText
 
 try
 {
-    Update-PullRequestComment -GitHubToken $AddCommentToken -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $Comments -Markdown "#### $($TestsCommentHeading)`n$($CommentText)"
+    Update-PullRequestComment -GitHubToken $AddCommentToken -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $Comments -Markdown "### $($TestsCommentHeading)`n$($CommentText)"
 }
 catch
 {

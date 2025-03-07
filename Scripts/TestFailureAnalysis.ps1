@@ -1,6 +1,7 @@
-param($CommentsUrl)
+param($CommentsUrl, [switch] $Force)
 
-Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1"
+Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1" -Force
+$CodeBlock = "``````"
 
 Function Write-Message($Message)
 {
@@ -17,20 +18,122 @@ function Get-CommentProperty($Comment, $Property)
         return $match.Groups[1].Value
     }
 
-    Write-Message "Could not find $($Property) in comment body $($body)"
+    Write-Message "Could not find $($Property) in comment body"
 }
 
 function Get-Logs($Url) 
 {
-    Write-Message "Getting logs $($Url)..."
     $ZipFile = "./logs.zip"
+    $MaxAttempts = 5
 
-    $Response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{ Authorization="Bearer $($ReadLogsToken)" } -OutFile $ZipFile
+    For ($Attempt = 1; $Attempt -le $MaxAttempts; $Attempt++)
+    {
+        Try
+        {
+            Write-Message "[Attempt $($Attempt)] Getting logs $($Url)..."
+            $Response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{ Authorization="Bearer $($ReadLogsToken)" } -OutFile $ZipFile
+            Write-Message "Retrieved logs from workflow run"
+            Break
+        }
+        Catch
+        {
+            $Exception = $_.Exception
+            if ($Attempt -eq $MaxAttempts)
+            {
+                ## rethrow the exception
+                Throw $Exception
+            }
+
+            if ($Exception.Message -like "*not_found*" -or $Exception.Message -like "*404*")
+            {
+                Write-Message "Failed to get logs, waiting for a bit"
+                ## maybe the run hasn't finished yet, give it some time
+                Start-Sleep -Seconds 3
+            }
+            else
+            {
+                Throw $Exception
+            }
+        }
+    }
 
     $ExtractPath = "./logs"
-    $ZipFile | Expand-Archive -Destination $ExtractPath
+    if (Test-Path -Path $ExtractPath)
+    {
+        Remove-Item -Recurse $ExtractPath
+    }
 
-    Write-Message "Retrieved logs from workflow run"
+    $ZipFile | Expand-Archive -Destination $ExtractPath
+    Write-Message "Extracted logs archive"
+
+    $DotNetResults = Get-ChildItem -Path $ExtractPath -Filter "*build*with-dotnet.txt" | Get-DotNetFailures
+    $JestResults = Get-ChildItem -Path $ExtractPath -Filter "*publish*with-dotnet.txt" | Get-JestFailures
+
+    return $DotNetResults,$JestResults
+}
+
+function Get-LinesBetween($Path, $Start, $End, [switch] $Inclusive)
+{
+    $HasCollected = $false
+    $Collect = $false
+    Write-Host "Getting lines from $($Path) between '$($Start)' and '$($End)'"
+
+    return $Content = Get-Content -Path $Path | Where-Object {
+        $Line = $_
+        $Collecting = $Collect
+        if ($Line -like $Start -and $HasCollected -eq $false)
+        {
+            $Collect = $true
+            if ($Inclusive)
+            {
+                $Collecting = $true
+            }
+        }
+
+        if ($Line -like $End -and $Collecting -eq $true)
+        {
+            $Collect = $false
+            if ($Inclusive -eq $false)
+            {
+                $Collecting = $false
+            }
+            $HasCollected = $true
+        }
+
+        return $Collecting
+    }
+}
+
+function Remove-Timestamp([Parameter(ValueFromPipeline)] $Line)
+{
+    process {
+        $TimestampExample = "2025-03-06T12:25:17.9658730Z "
+        Write-Output $Line.Substring($TimestampExample.Length)
+    }
+}
+
+function Get-DotNetFailures([Parameter(ValueFromPipeline)] $Path)
+{
+    process {
+        $RelevantLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Starting test execution*" -End "*Total: *" `
+            | Remove-Timestamp `
+            | Select-String -NotMatch -Pattern "Results File" `
+            | Select-String -NotMatch -Pattern "at NUnit.Framework.Internal."
+
+        Write-Output "#### DotNet tests:`n$($CodeBlock)`n$($RelevantLines -join "`n")`n$($CodeBlock)"
+    }
+}
+
+function Get-JestFailures([Parameter(ValueFromPipeline)] $Path)
+{
+    process {
+        $RelevantLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Summary of all failing tests*" -End "*Ran all test suites." | Remove-Timestamp
+        if ($RelevantLines.Count -eq 0)
+        {
+            $RelevantLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Test Suites:*" -End "*Ran all test suites." | Remove-Timestamp
+        }
+        Write-Output "#### React tests:`n$($CodeBlock)`n$($RelevantLines -join "`n")`n$($CodeBlock)"
+    }
 }
 
 $Repo = $env:GITHUB_REPOSITORY
@@ -54,6 +157,7 @@ $GitHubEvent = Get-CommentProperty -Comment $Comment -Property "GitHubEvent"
 $PullRequestNumber = Get-CommentProperty -Comment $Comment -Property "PullRequestNumber"
 $RefName = Get-CommentProperty -Comment $Comment -Property "RefName"
 $LogsUrl = Get-CommentProperty -Comment $Comment -Property "LogsUrl"
+$AnalysisStatus = Get-CommentProperty -Comment $Comment -Property "AnalysisStatus"
 
 if ($LogsUrl -eq "" -or $LogsUrl -eq $null)
 {
@@ -61,7 +165,21 @@ if ($LogsUrl -eq "" -or $LogsUrl -eq $null)
     return
 }
 
-Get-Logs -Url $LogsUrl
+if ($AnalysisStatus -ne "TODO" -and $Force -ne $true)
+{
+    Write-Message "Analysis already complete"
+    return
+}
+
+$CommentsToAdd = Get-Logs -Url $LogsUrl
+$DotNetJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "build / with-dotnet"
+$ReactJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "publish / with-dotnet"
+$AnalysisJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $env:GITHUB_RUN_ID -Attempt $env:GITHUB_RUN_ATTEMPT -Name "Analyse test results (PRs only)"
+$LogLinks = "[Dotnet Logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($DotNetJobId)?pr=$($PullRequestNumber))" + `
+" `| " + `
+"[React Logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($ReactJobId)?pr=$($PullRequestNumber))" + `
+" `| " + `
+"[Analysis](https://github.com/$($Repo)/actions/runs/$($env:GITHUB_RUN_ID)/job/$($AnalysisJobId))"
 
 # replace the comment to show this is working...
 $NewCommentText = "<!-- LogsUrl=$($LogsUrl) -->
@@ -71,7 +189,17 @@ $NewCommentText = "<!-- LogsUrl=$($LogsUrl) -->
 <!-- GitHubEvent=$($GitHubEvent) -->
 <!-- GitHubRunId=$($GitHubRunId) -->
 <!-- GitHubRunAttempt=$($GitHubRunAttempt) -->
+<!-- AnalysisStatus=DONE -->
 
-🫤 Now to process the test results for $($PullRequestNumber) from $($LogsUrl)"
+$($CommentsToAdd -join "`n")
+
+$($LogLinks)"
+
 $NewCommentContent = "#### $($TestsCommentHeading)`n$($NewCommentText)"
+
+if ($Force)
+{
+    $Comments = $null
+}
+
 Update-PullRequestComment -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $Comments -Markdown $NewCommentContent
