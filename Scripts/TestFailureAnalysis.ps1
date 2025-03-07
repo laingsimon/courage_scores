@@ -117,7 +117,7 @@ function Get-DotNetFailures([Parameter(ValueFromPipeline)] $Path)
     process {
         $RelevantLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Starting test execution*" -End "*Total: *" | Remove-Timestamp | Select-String -NotMatch -Pattern "Results File"
 
-        Write-Output "#### DotNet tests:`n$($CodeBlock)`n$($RelevantLines -join "`n")`n$($CodeBlock)`n`n"
+        Write-Output "#### DotNet tests:`n$($CodeBlock)`n$($RelevantLines -join "`n")`n$($CodeBlock)"
     }
 }
 
@@ -129,7 +129,7 @@ function Get-JestFailures([Parameter(ValueFromPipeline)] $Path)
         {
             $RelevantLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Test Suites:*" -End "*Ran all test suites." | Remove-Timestamp
         }
-        Write-Output "#### React tests:`n$($CodeBlock)`n$($RelevantLines -join "`n")`n$($CodeBlock)`n`n"
+        Write-Output "#### React tests:`n$($CodeBlock)`n$($RelevantLines -join "`n")`n$($CodeBlock)"
     }
 }
 
@@ -182,7 +182,7 @@ $NewCommentText = "<!-- LogsUrl=$($LogsUrl) -->
 
 $($CommentsToAdd -join "`n")
 
-[Logs](https://github.com/laingsimon/courage_scores/actions/runs/$($GitHubRunId)?pr=$($PullRequestNumber)) `| [Analysis](https://github.com/laingsimon/courage_scores/actions/runs/$($env:GITHUB_RUN_ID))"
+[Logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)?pr=$($PullRequestNumber)) `| [Analysis](https://github.com/$($Repo)/actions/runs/$($env:GITHUB_RUN_ID))"
 
 $NewCommentContent = "#### $($TestsCommentHeading)`n$($NewCommentText)"
 
