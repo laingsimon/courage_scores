@@ -182,7 +182,8 @@ $NewCommentText = "<!-- LogsUrl=$($LogsUrl) -->
 
 $($CommentsToAdd -join "`n")
 
-[Logs](https://github.com/laingsimon/courage_scores/actions/runs/$($GitHubRunId)?pr=$($PullRequestNumber))"
+[Logs](https://github.com/laingsimon/courage_scores/actions/runs/$($GitHubRunId)?pr=$($PullRequestNumber)) `| [Analysis](https://github.com/laingsimon/courage_scores/actions/runs/$($env:GITHUB_RUN_ID))"
+
 $NewCommentContent = "#### $($TestsCommentHeading)`n$($NewCommentText)"
 
 if ($Force)
