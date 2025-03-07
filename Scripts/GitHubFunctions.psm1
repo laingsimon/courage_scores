@@ -46,7 +46,7 @@ Function Remove-ExistingComments($GitHubToken, $Comments)
 {
     If ($Comments.Count -gt 0)
     {
-        Write-Error "Remove existing comments: $($Comments.Count)"
+        Write-Host "Remove existing comments: $($Comments.Count)"
         $Comments | ForEach-Object { Remove-ExistingComment -Comment $_ -GitHubToken $GitHubToken }
     }
 }
