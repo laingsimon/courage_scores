@@ -117,7 +117,7 @@ function Get-DotNetFailures([Parameter(ValueFromPipeline)] $Path)
     process {
         $RelevantLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Starting test execution*" -End "*Total: *" | Remove-Timestamp | Select-String -NotMatch -Pattern "Results File"
 
-        Write-Output "#### DotNet tests:`n$($CodeBlock)`n$($RelevantLines -join "`n")`n$($CodeBlock)`n`n"
+        Write-Output "#### DotNet tests:`n$($CodeBlock)`n$($RelevantLines -join "`n")`n$($CodeBlock)"
     }
 }
 
@@ -129,7 +129,7 @@ function Get-JestFailures([Parameter(ValueFromPipeline)] $Path)
         {
             $RelevantLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Test Suites:*" -End "*Ran all test suites." | Remove-Timestamp
         }
-        Write-Output "#### React tests:`n$($CodeBlock)`n$($RelevantLines -join "`n")`n$($CodeBlock)`n`n"
+        Write-Output "#### React tests:`n$($CodeBlock)`n$($RelevantLines -join "`n")`n$($CodeBlock)"
     }
 }
 
@@ -169,6 +169,14 @@ if ($AnalysisStatus -ne "TODO" -and $Force -ne $true)
 }
 
 $CommentsToAdd = Get-Logs -Url $LogsUrl
+$DotNetJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "build / with-dotnet"
+$ReactJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "publish / with-dotnet"
+$AnalysisJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $env:GITHUB_RUN_ID -Attempt $env:GITHUB_RUN_ATTEMPT -Name "Analyse test results (PRs only)"
+$LogLinks = "[Dotnet Logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($DotNetJobId)?pr=$($PullRequestNumber))" + `
+" `| " + `
+"[React Logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($ReactJobId)?pr=$($PullRequestNumber))" + `
+" `| " + `
+"[Analysis](https://github.com/$($Repo)/actions/runs/$($env:GITHUB_RUN_ID)/job/$($AnalysisJobId))"
 
 # replace the comment to show this is working...
 $NewCommentText = "<!-- LogsUrl=$($LogsUrl) -->
@@ -182,7 +190,7 @@ $NewCommentText = "<!-- LogsUrl=$($LogsUrl) -->
 
 $($CommentsToAdd -join "`n")
 
-[Logs](https://github.com/laingsimon/courage_scores/actions/runs/$($GitHubRunId)?pr=$($PullRequestNumber)) `| [Analysis](https://github.com/laingsimon/courage_scores/actions/runs/$($env:GITHUB_RUN_ID))"
+$($LogLinks)"
 
 $NewCommentContent = "#### $($TestsCommentHeading)`n$($NewCommentText)"
 
