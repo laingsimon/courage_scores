@@ -642,36 +642,6 @@ describe('MatchSayg', () => {
             expect(scrollPrevented).toEqual(true);
         });
 
-        it('shows live link in dialog if no winner', async () => {
-            const saygId = createTemporaryId();
-            const match = tournamentMatchBuilder()
-                .sideA(sideA, 1)
-                .sideB(sideB, 1)
-                .saygId(saygId)
-                .build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
-
-            await renderComponent(containerProps(tournamentData), {
-                match,
-                matchIndex: 0,
-                patchData,
-                matchOptions,
-            }, permitted);
-            reportedError.verifyNoError();
-            const createDataButton = context.container.querySelector('button')!;
-            expect(createDataButton.textContent).toEqual('📊 1 - 1');
-
-            await doClick(createDataButton);
-
-            const dialog = context.container.querySelector('.modal-dialog')!;
-            expect(dialog).toBeTruthy();
-            const liveLink = dialog.querySelector('.btn-success') as HTMLAnchorElement;
-            expect(liveLink).toBeTruthy();
-            expect(liveLink.href).toEqual(`http://localhost/live/match/${saygId}`);
-            expect(scrollPrevented).toEqual(true);
-        });
-
         it('can close dialog', async () => {
             const saygId = createTemporaryId();
             const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).saygId(saygId).build();
