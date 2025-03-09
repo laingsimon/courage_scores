@@ -36,7 +36,6 @@ export interface ISaygLoadingContainerProps {
     lastLegDisplayOptions?: ILegDisplayOptions;
     firstLegPlayerSequence?: ('home' | 'away')[];
     finalLegPlayerSequence?: ('home' | 'away')[];
-    minimisePlayerNames?: boolean;
     onFinished?(): UntypedPromise;
 
     // for testing only
@@ -49,7 +48,7 @@ export interface ILoadedScoreAsYouGoDto extends UpdateRecordedScoreAsYouGoDto {
 
 export function SaygLoadingContainer({ children, id, defaultData, autoSave, on180, onHiCheck, onScoreChange, onSaved,
                                          onLoadError, matchStatisticsOnly, lastLegDisplayOptions, liveOptions,
-                                        firstLegPlayerSequence, finalLegPlayerSequence, minimisePlayerNames, onFinished }: ISaygLoadingContainerProps) {
+                                        firstLegPlayerSequence, finalLegPlayerSequence, onFinished }: ISaygLoadingContainerProps) {
     const [sayg, setSayg] = useState<ILoadedScoreAsYouGoDto | undefined>(defaultData);
     const [saveError, setSaveError] = useState<IClientActionResultDto<ILoadedScoreAsYouGoDto> | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
@@ -202,7 +201,6 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
                         saveDataAndGetId={saveDataAndGetId}
                         firstLegPlayerSequence={firstLegPlayerSequence}
                         finalLegPlayerSequence={finalLegPlayerSequence}
-                        minimisePlayerNames={minimisePlayerNames}
                         onFinished={onFinished}
                     />
                 </div>) : null}

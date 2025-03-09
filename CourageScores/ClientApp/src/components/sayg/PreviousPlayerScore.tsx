@@ -15,7 +15,6 @@ export interface IPreviousPlayerScoreProps {
     home: string;
     away: string;
     currentScore?: number;
-    minimisePlayerNames?: boolean;
 }
 
 interface IRunningScore {
@@ -23,7 +22,7 @@ interface IRunningScore {
     away: number;
 }
 
-export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, singlePlayer, currentScore, minimisePlayerNames}: IPreviousPlayerScoreProps) {
+export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, singlePlayer, currentScore }: IPreviousPlayerScoreProps) {
     const homeThrows: LegThrowDto[] = leg.home ? leg.home.throws || [] : [];
     const awayThrows: LegThrowDto[] = leg.away ? leg.away.throws || [] : [];
     const {editScore, setEditScore} = useEditableSayg();
@@ -65,8 +64,8 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             ? 'alert alert-info'
             : 'alert';
         return (<div className={`flex-basis-0 flex-grow-1 flex-shrink-1 ${className} ${suffix}`} datatype={currentPlayer === leg.currentThrow ? 'current-player' : ''}>
-            <div className={`overflow-hidden no-wrap${minimisePlayerNames ? ' fs-4 d-block' : ''}`}>{firstNameOnly(currentPlayer === 'home' ? home : away)}</div>
-            <div>{(leg.startingScore || 0) - score}</div>
+            <div className="overflow-hidden no-wrap d-block fs-4">{firstNameOnly(currentPlayer === 'home' ? home : away)}</div>
+            <div className={`overflow-hidden no-wrap fw-bold ${largeScores ? 'super-size' : 'fs-4'}`}>{(leg.startingScore || 0) - score}</div>
         </div>);
     }
 
@@ -172,7 +171,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
                 ? (<div>Leg {homeScore + 1}</div>)
                 : (<div>{homeScore} - {awayScore || '0'}</div>)}
         </div>
-        <div className={`d-flex flex-row justify-content-stretch${largeScores ? ' super-size' : ''}`}>
+        <div className={`d-flex flex-row justify-content-stretch`}>
             {renderPlayer('home', leg.home.score || 0, 'text-center me-5')}
             {!singlePlayer ? renderPlayer('away', leg.away.score || 0, 'text-center ms-5') : null}
         </div>

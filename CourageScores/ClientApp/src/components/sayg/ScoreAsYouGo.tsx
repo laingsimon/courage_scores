@@ -32,15 +32,13 @@ export interface IScoreAsYouGoProps {
     saveDataAndGetId?(useData?: ScoreAsYouGoDto): Promise<string | undefined>;
     firstLegPlayerSequence?: ('home' | 'away')[];
     finalLegPlayerSequence?: ('home' | 'away')[];
-    minimisePlayerNames?: boolean;
     onFinished?(): UntypedPromise;
 }
 
 export function ScoreAsYouGo({
                                  data, home, away, onChange, onLegComplete, startingScore, numberOfLegs, awayScore,
                                  homeScore, on180, onHiCheck, singlePlayer, lastLegDisplayOptions, matchStatisticsOnly,
-                                 saveDataAndGetId, firstLegPlayerSequence, finalLegPlayerSequence, minimisePlayerNames,
-                                 onFinished
+                                 saveDataAndGetId, firstLegPlayerSequence, finalLegPlayerSequence, onFinished
                              }: IScoreAsYouGoProps) {
     const {onError, account, browser} = useApp();
     const canEditThrows: boolean = hasAccess(account, access => access.recordScoresAsYouGo);
@@ -205,6 +203,5 @@ export function ScoreAsYouGo({
             homeScore={homeScore || 0}
             awayScore={awayScore}
             singlePlayer={singlePlayer}
-            previousLeg={previousLeg}
-            minimisePlayerNames={minimisePlayerNames} />);
+            previousLeg={previousLeg} />);
 }
