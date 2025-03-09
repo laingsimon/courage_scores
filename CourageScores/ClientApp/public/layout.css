@@ -247,6 +247,14 @@ table td.middle-vertical-line {
     height: 250px;
 }
 
+.max-height-200 {
+    max-height: 200px;
+}
+
+.height-200 {
+    height: 200px;
+}
+
 .height-100 {
     height: 100px;
 }
@@ -423,4 +431,8 @@ body .width-50 {
 
 .super-size {
     font-size: 60px;
+}
+
+.medium-size {
+    font-size: 45px;
 }
