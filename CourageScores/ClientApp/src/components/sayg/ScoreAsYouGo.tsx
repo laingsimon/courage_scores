@@ -33,12 +33,14 @@ export interface IScoreAsYouGoProps {
     firstLegPlayerSequence?: ('home' | 'away')[];
     finalLegPlayerSequence?: ('home' | 'away')[];
     minimisePlayerNames?: boolean;
+    onFinished?(): UntypedPromise;
 }
 
 export function ScoreAsYouGo({
                                  data, home, away, onChange, onLegComplete, startingScore, numberOfLegs, awayScore,
                                  homeScore, on180, onHiCheck, singlePlayer, lastLegDisplayOptions, matchStatisticsOnly,
-                                 saveDataAndGetId, firstLegPlayerSequence, finalLegPlayerSequence, minimisePlayerNames
+                                 saveDataAndGetId, firstLegPlayerSequence, finalLegPlayerSequence, minimisePlayerNames,
+                                 onFinished
                              }: IScoreAsYouGoProps) {
     const {onError, account, browser} = useApp();
     const canEditThrows: boolean = hasAccess(account, access => access.recordScoresAsYouGo);
@@ -144,16 +146,23 @@ export function ScoreAsYouGo({
             if (onLegComplete) {
                 await onLegComplete(newHomeScore, newAwayScore);
             }
+
+            if (!hasFinished() && hasFinished(newHomeScore, newAwayScore) && onFinished) {
+                await onFinished();
+            }
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
         }
     }
 
+    function hasFinished(home?: number, away?: number) {
+        return ((home || homeScore || 0) > numberOfLegs / 2.0) || ((away || awayScore || 0) > numberOfLegs / 2.0);
+    }
+
     const legIndex: number = (homeScore || 0) + (awayScore || 0);
     const previousLeg: LegDto | undefined = legIndex > 0 ? data.legs[legIndex - 1] : undefined;
-    const hasFinished: boolean = ((homeScore || 0) > numberOfLegs / 2.0) || ((awayScore || 0) > numberOfLegs / 2.0);
-    if (matchStatisticsOnly || (singlePlayer && homeScore === numberOfLegs) || (!singlePlayer && (legIndex === numberOfLegs || hasFinished))) {
+    if (matchStatisticsOnly || (singlePlayer && homeScore === numberOfLegs) || (!singlePlayer && (legIndex === numberOfLegs || hasFinished()))) {
         if (useWidescreenStatistics) {
             return <WidescreenMatchStatistics
                 saygId={data.id!}
