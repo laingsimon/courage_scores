@@ -50,14 +50,38 @@ export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly
     const onHiCheck: (player: TournamentPlayerDto, score: number) => UntypedPromise = addHiCheck(tournamentData, setTournamentData!);
     const on180: (player: TournamentPlayerDto) => UntypedPromise = add180(tournamentData, setTournamentData!);
 
-    function changeDialogState(state: boolean) {
+    async function changeDialogState(state: boolean) {
         setPreventScroll(state);
         setSaygOpen(state);
+        const numberOfLegs: number = matchOptions.numberOfLegs!;
+        const finished: boolean = (scoreA > numberOfLegs / 2.0) || (scoreB > numberOfLegs / 2.0);
+
+        if (!state && document.fullscreenElement) {
+            await leaveFullScreen();
+        } else if (state && !finished) {
+            // enter full screen
+            await enterFullScreen();
+        }
+    }
+
+    async function enterFullScreen() {
+        if (document.fullscreenEnabled) {
+            await document.body.requestFullscreen();
+        }
+    }
+
+    async function leaveFullScreen() {
+        try {
+            await document.exitFullscreen();
+        } catch (e: any) {
+            /* istanbul ignore next */
+            console.error('Unable to leave fullscreen', e);
+        }
     }
 
     async function openSaygDialog() {
         if (saygId) {
-            changeDialogState(true);
+            await changeDialogState(true);
             return;
         }
 
@@ -85,7 +109,7 @@ export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly
             const response: IClientActionResultDto<TournamentGameDto> = await tournamentApi.addSayg(tournamentData.id, request);
             if (response.success) {
                 await setTournamentData!(response.result!);
-                changeDialogState(true);
+                await changeDialogState(true);
             } else {
                 setSaveError(response);
             }
@@ -164,12 +188,13 @@ export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly
                 }): undefined}
                 firstLegPlayerSequence={firstLegPlayerSequence}
                 finalLegPlayerSequence={finalLegPlayerSequence}
+                onFinished={leaveFullScreen}
                 minimisePlayerNames={false}>
                 <SuperleagueMatchHeading match={match} />
             </SaygLoadingContainer>
             <div className="modal-footer px-0 pb-0 mt-3">
                 <div className="left-aligned mx-0">
-                    <button className="btn btn-secondary" onClick={() => changeDialogState(false)}>Close</button>
+                    <button className="btn btn-secondary" onClick={async () => await changeDialogState(false)}>Close</button>
                 </div>
                 {finished
                     ? null
@@ -251,7 +276,7 @@ export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly
             if (clearScores) {
                 await saveTournament!(true); // prevent a loading display; which will corrupt the state of this component instance
             }
-            changeDialogState(false);
+            await changeDialogState(false);
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
