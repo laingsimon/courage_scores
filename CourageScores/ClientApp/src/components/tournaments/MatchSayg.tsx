@@ -191,15 +191,10 @@ export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly
                 onFinished={leaveFullScreen}>
                 {finished ? (<SuperleagueMatchHeading match={match} />) : null}
             </SaygLoadingContainer>
-            <div className="modal-footer px-0 pb-0 mt-3">
+            {finished || !document.fullscreenElement ? (<div className="modal-footer px-0 pb-0 mt-3">
                 <div className="left-aligned mx-0">
                     <button className="btn btn-secondary" onClick={async () => await changeDialogState(false)}>Close</button>
                 </div>
-                {finished
-                    ? null
-                    : (<a className="btn btn-success" target="_blank" rel="noreferrer" href={`/live/match/${saygId}`}>
-                        👁️ Live
-                    </a>)}
                 <DebugOptions>
                     <a target="_blank" rel="noreferrer" href={`${settings.apiHost}/api/Sayg/${saygId}`} className="dropdown-item">
                         <strong>Sayg data</strong><small className="d-block">{saygId}</small>
@@ -211,8 +206,11 @@ export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly
                     <a target="_blank" rel="noreferrer" href={`${settings.apiHost}/api/Tournament/${tournamentData.id}`} className="dropdown-item">
                         <strong>Tournament data</strong><small className="d-block">{tournamentData.id}</small>
                     </a>
+                    <a className="dropdown-item" target="_blank" rel="noreferrer" href={`/live/match/${saygId}`}>
+                        👁️ Live
+                    </a>
                 </DebugOptions>
-            </div>
+            </div>) : null}
         </Dialog>)
     }
 
