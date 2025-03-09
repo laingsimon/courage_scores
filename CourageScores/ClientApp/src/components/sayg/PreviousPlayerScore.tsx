@@ -84,7 +84,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center bg-warning${bustSuffix}`} onClick={() => setEditScore()}>
                 <span>{score}</span>
             </div>
-            <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center bg-warning`} onClick={() => setEditScore()}>
+            <div className="flex-basis-0 flex-grow-1 flex-shrink-0 text-center bg-warning" onClick={() => setEditScore()}>
                 {remaining > 1 || remaining === 0 ? remaining : null}
             </div>
         </>);
