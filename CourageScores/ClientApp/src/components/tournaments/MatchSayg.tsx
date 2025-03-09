@@ -189,7 +189,7 @@ export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly
                 firstLegPlayerSequence={firstLegPlayerSequence}
                 finalLegPlayerSequence={finalLegPlayerSequence}
                 onFinished={leaveFullScreen}>
-                <SuperleagueMatchHeading match={match} />
+                {finished ? (<SuperleagueMatchHeading match={match} />) : null}
             </SaygLoadingContainer>
             <div className="modal-footer px-0 pb-0 mt-3">
                 <div className="left-aligned mx-0">
