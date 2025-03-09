@@ -167,12 +167,13 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
         away: leg.startingScore || 0,
     };
     return (<div className="d-flex flex-column">
+        <div className="text-center super-size" datatype="match-score">
+            {singlePlayer
+                ? (<div>Leg {homeScore + 1}</div>)
+                : (<div>{homeScore} - {awayScore || '0'}</div>)}
+        </div>
         <div className={`d-flex flex-row justify-content-stretch${largeScores ? ' super-size' : ''}`}>
             {renderPlayer('home', leg.home.score || 0, 'text-center me-5')}
-            {singlePlayer
-                ? (<div className="flex-basis-0 flex-grow-1 flex-shrink-1 text-center">Leg {homeScore + 1}</div>)
-                : (<div>{homeScore} - {awayScore || '0'}</div>)}
-
             {!singlePlayer ? renderPlayer('away', leg.away.score || 0, 'text-center ms-5') : null}
         </div>
         <div className="d-flex flex-column overflow-auto height-100 max-height-100" datatype="previous-scores">
