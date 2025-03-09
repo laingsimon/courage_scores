@@ -28,10 +28,9 @@ export interface IPlayLegProps {
     awayScore?: number;
     singlePlayer?: boolean;
     previousLeg?: LegDto;
-    minimisePlayerNames?: boolean;
 }
 
-export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCheck, homeScore, awayScore, singlePlayer, previousLeg, onChangePrevious, minimisePlayerNames}: IPlayLegProps) {
+export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCheck, homeScore, awayScore, singlePlayer, previousLeg, onChangePrevious}: IPlayLegProps) {
     const [savingInput, setSavingInput] = useState<boolean>(false);
     const [showCheckout, setShowCheckout] = useState<'home' | 'away' | null>(null);
     const [score, setScore] = useState<string>('');
@@ -220,7 +219,6 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             home={home}
             away={away}
             currentScore={score ? Number.parseInt(score) : undefined}
-            minimisePlayerNames={minimisePlayerNames}
         />) : null}
         {canEditPreviousCheckout ? renderEditCheckoutDarts() : null}
         {leg!.playerSequence && leg!.currentThrow ? (<div className={editScore ? ' bg-warning' : ''}>
