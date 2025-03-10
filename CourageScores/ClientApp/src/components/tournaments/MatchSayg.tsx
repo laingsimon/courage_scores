@@ -286,7 +286,7 @@ export function MatchSayg({
 
     return (<>
         {canShowLiveSayg() && !canOpenSaygDialog() && showViewSayg
-            ? (<Link className="btn btn-sm float-start p-0" to={`/live/match/${saygId}`}>
+            ? (<Link className="btn btn-sm float-start p-0" to={`/live/match/${saygId}${initialOneDartAverage ? '?average=1' : ''}`}>
                 📊 {scoreA || scoreB ? (`${scoreA} - ${scoreB}`) : null}
             </Link>)
             : null}
