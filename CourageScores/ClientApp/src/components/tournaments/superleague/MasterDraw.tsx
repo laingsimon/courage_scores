@@ -71,7 +71,7 @@ export function MasterDraw({matches, host, opponent, gender, date, type, patchDa
                                         showViewSayg={true}
                                         firstLegPlayerSequence={oddNumberedMatch ? ['away', 'home'] : ['home', 'away']}
                                         finalLegPlayerSequence={oddNumberedMatch ? ['away', 'home'] : ['home', 'away']}
-                                        initialOneDartAverage="true" />
+                                        initialOneDartAverage={true} />
                                 </td>
                             </tr>);
                         })}
