@@ -24,14 +24,17 @@ export interface IMatchStatisticsProps {
     numberOfLegs: number;
     changeStatisticsView(widescreen: boolean): UntypedPromise;
     lastLegDisplayOptions: ILegDisplayOptions;
+    initialOneDartAverage?: boolean;
 }
 
 interface ILegDisplayOptionsLookup {
     [key: number]: ILegDisplayOptions
 }
 
-export function MatchStatistics({legs, homeScore, awayScore, home, away, singlePlayer, legChanged, numberOfLegs, changeStatisticsView, saygId, lastLegDisplayOptions }: IMatchStatisticsProps) {
-    const [oneDartAverage, setOneDartAverage] = useState<boolean>(false);
+export function MatchStatistics({
+            legs, homeScore, awayScore, home, away, singlePlayer, legChanged, numberOfLegs, 
+            changeStatisticsView, saygId, lastLegDisplayOptions, initialOneDartAverage }: IMatchStatisticsProps) {
+    const [oneDartAverage, setOneDartAverage] = useState<boolean>(initialOneDartAverage || false);
     const {subscriptions, liveOptions} = useLive();
     const [legDisplayOptionsState, setLegDisplayOptions] = useState<ILegDisplayOptionsLookup>(getLegDisplayOptions(legs));
     const finished: boolean = ((homeScore || 0) > numberOfLegs / 2.0) || ((awayScore || 0) > numberOfLegs / 2.0);
