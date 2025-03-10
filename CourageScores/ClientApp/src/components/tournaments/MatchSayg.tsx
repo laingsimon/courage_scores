@@ -35,9 +35,12 @@ export interface IMatchSaygProps {
     showViewSayg?: boolean;
     firstLegPlayerSequence?: ('home' | 'away')[];
     finalLegPlayerSequence?: ('home' | 'away')[];
+    initialOneDartAverage?: boolean;
 }
 
-export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly, showViewSayg, firstLegPlayerSequence, finalLegPlayerSequence } : IMatchSaygProps) {
+export function MatchSayg({
+                              match, matchIndex, matchOptions, patchData, readOnly, showViewSayg, firstLegPlayerSequence,
+                              finalLegPlayerSequence, initialOneDartAverage } : IMatchSaygProps) {
     const {tournamentData, setTournamentData, saveTournament, setPreventScroll} = useTournament();
     const {account, onError} = useApp();
     const {tournamentApi, settings} = useDependencies();
@@ -188,7 +191,8 @@ export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly
                 }): undefined}
                 firstLegPlayerSequence={firstLegPlayerSequence}
                 finalLegPlayerSequence={finalLegPlayerSequence}
-                onFinished={leaveFullScreen}>
+                onFinished={leaveFullScreen}
+                initialOneDartAverage={initialOneDartAverage}>
                 {finished ? (<SuperleagueMatchHeading match={match} />) : null}
             </SaygLoadingContainer>
             {finished || !document.fullscreenElement ? (<div className="modal-footer px-0 pb-0 mt-3">

@@ -33,12 +33,13 @@ export interface IScoreAsYouGoProps {
     firstLegPlayerSequence?: ('home' | 'away')[];
     finalLegPlayerSequence?: ('home' | 'away')[];
     onFinished?(): UntypedPromise;
+    initialOneDartAverage?: boolean;
 }
 
 export function ScoreAsYouGo({
                                  data, home, away, onChange, onLegComplete, startingScore, numberOfLegs, awayScore,
                                  homeScore, on180, onHiCheck, singlePlayer, lastLegDisplayOptions, matchStatisticsOnly,
-                                 saveDataAndGetId, firstLegPlayerSequence, finalLegPlayerSequence, onFinished
+                                 saveDataAndGetId, firstLegPlayerSequence, finalLegPlayerSequence, onFinished, initialOneDartAverage
                              }: IScoreAsYouGoProps) {
     const {onError, account, browser} = useApp();
     const canEditThrows: boolean = hasAccess(account, access => access.recordScoresAsYouGo);
@@ -172,7 +173,8 @@ export function ScoreAsYouGo({
                 singlePlayer={singlePlayer}
                 numberOfLegs={numberOfLegs}
                 changeStatisticsView={asyncCallback(setUseWidescreenStatistics)}
-                lastLegDisplayOptions={lastLegDisplayOptions || {}} />
+                lastLegDisplayOptions={lastLegDisplayOptions || {}}
+                initialOneDartAverage={initialOneDartAverage} />
         }
 
         return <MatchStatistics
@@ -186,7 +188,8 @@ export function ScoreAsYouGo({
             numberOfLegs={numberOfLegs}
             legChanged={canEditThrows ? saveChangedLeg : undefined}
             changeStatisticsView={asyncCallback(setUseWidescreenStatistics)}
-            lastLegDisplayOptions={lastLegDisplayOptions || {}} />
+            lastLegDisplayOptions={lastLegDisplayOptions || {}}
+            initialOneDartAverage={initialOneDartAverage} />
     }
 
     const leg: LegDto = getLeg(legIndex);
