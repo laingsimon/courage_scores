@@ -9,8 +9,8 @@ import {IMatchStatisticsProps} from "./MatchStatistics";
 export interface IWidescreenMatchStatisticsProps extends IMatchStatisticsProps {
 }
 
-export function WidescreenMatchStatistics({legs, homeScore, awayScore, home, away, singlePlayer, numberOfLegs, changeStatisticsView, saygId }: IWidescreenMatchStatisticsProps) {
-    const [oneDartAverage, setOneDartAverage] = useState<boolean>(false);
+export function WidescreenMatchStatistics({legs, homeScore, awayScore, home, away, singlePlayer, numberOfLegs, changeStatisticsView, saygId, initialOneDartAverage }: IWidescreenMatchStatisticsProps) {
+    const [oneDartAverage, setOneDartAverage] = useState<boolean>(initialOneDartAverage || false);
     const finished: boolean = (homeScore >= numberOfLegs / 2.0) || ((awayScore || 0) >= numberOfLegs / 2.0);
 
     return (<div datatype="WidescreenMatchStatistics" className="d-flex flex-row position-absolute top-0 left-0 right-0 bottom-0 p-3 bg-white">
