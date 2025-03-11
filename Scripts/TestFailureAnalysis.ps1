@@ -131,7 +131,7 @@ function Get-DotNetFailures([Parameter(ValueFromPipeline)] $Path)
 function Get-TypescriptBuildFailures([Parameter(ValueFromPipeline)] $Path)
 {
     process {
-        $BuildLines = Get-LinesBetween -Path $Path -Start "*tsc && vite build*" -End "*error*npm run build*" | Remove-Timestamp
+        $BuildLines = Get-LinesBetween -Path $Path -Start "*tsc && vite build*" -End "*error*npm run build*" | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
         if ($BuildLines.Count -ne 0)
         {
             Write-Output "#### Typescript build:`n$($CodeBlock)`n$($BuildLines -join "`n")`n$($CodeBlock)"
