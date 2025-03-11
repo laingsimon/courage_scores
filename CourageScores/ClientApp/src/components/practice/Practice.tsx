@@ -77,7 +77,7 @@ export function Practice() {
                 }}
                 liveOptions={liveOptions}
                 onLoadError={async (error: string) => setDataError(error)}>
-                <EditSaygPracticeOptions />
+                {document.fullscreenElement ? null : (<EditSaygPracticeOptions />)}
             </SaygLoadingContainer>
         </div>);
     } catch (e) {
