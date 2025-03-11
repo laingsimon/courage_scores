@@ -44,7 +44,7 @@ export function App({embed, controls, testRoute}: IAppProps) {
             document.body.className = embed ? 'embed' : 'darts-background';
 
             // noinspection JSIgnoredPromiseFromCall
-            reloadAll();
+            reloadUnknown();
         },
         // eslint-disable-next-line
         []);
