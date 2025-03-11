@@ -30,7 +30,7 @@ import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
-import {saygBuilder} from "../../helpers/builders/sayg";
+import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../helpers/builders/sayg";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {ENTER_SCORE_BUTTON} from "../../helpers/constants";
 import {checkoutWith, keyPad} from "../../helpers/sayg";
@@ -587,11 +587,22 @@ describe('MatchSayg', () => {
         });
 
         it('does not show live link in dialog if sideA won', async () => {
-            const saygId = createTemporaryId();
+            const sayg = saygBuilder()
+                .numberOfLegs(1)
+                .yourName(sideA.name!).opponentName(sideB.name)
+                .scores(1, 0)
+                .withLeg(0, (l: ILegBuilder) => l
+                    .playerSequence('home', 'away')
+                    .currentThrow('home')
+                    .startingScore(501)
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(180).withThrow(180).withThrow(141))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(100)))
+                .addTo(saygDataLookup)
+                .build();
             const match = tournamentMatchBuilder()
                 .sideA(sideA, 3) // winner
                 .sideB(sideB, 0)
-                .saygId(saygId)
+                .saygId(sayg.id)
                 .build();
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
@@ -610,16 +621,28 @@ describe('MatchSayg', () => {
 
             const dialog = context.container.querySelector('.modal-dialog')!;
             expect(dialog).toBeTruthy();
-            expect(dialog.querySelector('.btn-success')).toBeFalsy();
+            expect(dialog.querySelector('.modal-header')!.textContent).toContain('SIDE A vs SIDE B - best of 1');
+            expect(dialog.innerHTML).toContain('Match statistics');
             expect(scrollPrevented).toEqual(true);
         });
 
         it('does not show live link in dialog if sideB won', async () => {
-            const saygId = createTemporaryId();
+            const sayg = saygBuilder()
+                .numberOfLegs(1)
+                .yourName(sideA.name!).opponentName(sideB.name)
+                .scores(0, 1)
+                .withLeg(0, (l: ILegBuilder) => l
+                    .playerSequence('home', 'away')
+                    .currentThrow('home')
+                    .startingScore(501)
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(100))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(180).withThrow(180).withThrow(141)))
+                .addTo(saygDataLookup)
+                .build();
             const match = tournamentMatchBuilder()
                 .sideA(sideA, 0)
                 .sideB(sideB, 3) // winner
-                .saygId(saygId)
+                .saygId(sayg.id)
                 .build();
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
@@ -636,39 +659,10 @@ describe('MatchSayg', () => {
 
             await doClick(createDataButton);
 
-            const dialog = context.container.querySelector('.modal-dialog') as HTMLAnchorElement;
-            expect(dialog).toBeTruthy();
-            expect(dialog.querySelector('.btn-success')).toBeFalsy();
-            expect(scrollPrevented).toEqual(true);
-        });
-
-        it('shows live link in dialog if no winner', async () => {
-            const saygId = createTemporaryId();
-            const match = tournamentMatchBuilder()
-                .sideA(sideA, 1)
-                .sideB(sideB, 1)
-                .saygId(saygId)
-                .build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
-
-            await renderComponent(containerProps(tournamentData), {
-                match,
-                matchIndex: 0,
-                patchData,
-                matchOptions,
-            }, permitted);
-            reportedError.verifyNoError();
-            const createDataButton = context.container.querySelector('button')!;
-            expect(createDataButton.textContent).toEqual('📊 1 - 1');
-
-            await doClick(createDataButton);
-
             const dialog = context.container.querySelector('.modal-dialog')!;
             expect(dialog).toBeTruthy();
-            const liveLink = dialog.querySelector('.btn-success') as HTMLAnchorElement;
-            expect(liveLink).toBeTruthy();
-            expect(liveLink.href).toEqual(`http://localhost/live/match/${saygId}`);
+            expect(dialog.querySelector('.modal-header')!.textContent).toContain('SIDE A vs SIDE B - best of 1');
+            expect(dialog.innerHTML).toContain('Match statistics');
             expect(scrollPrevented).toEqual(true);
         });
 

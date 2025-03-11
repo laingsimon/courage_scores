@@ -18,7 +18,7 @@ Function Get-PullRequestCommentText()
 <!-- GitHubRunAttempt=$($GitHubRunAttempt) -->
 <!-- AnalysisStatus=TODO -->
 
-### ⏱️ Collecting test results..."
+### ⏱️ Analysing build..."
 }
 
 $Repo = $env:GITHUB_REPOSITORY

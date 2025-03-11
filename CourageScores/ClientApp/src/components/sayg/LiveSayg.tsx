@@ -1,4 +1,4 @@
-import {useParams} from "react-router";
+import {useParams, useLocation} from "react-router";
 import {SaygLoadingContainer} from "./SaygLoadingContainer";
 import {ILiveOptions} from "../../live/ILiveOptions";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
@@ -13,6 +13,9 @@ export function LiveSayg() {
         subscribeAtStartup: [{ id: id!, type: LiveDataType.sayg }],
     };
     const [loadError, setLoadError] = useState<string | null>(null);
+    const location = useLocation();
+    const query: URLSearchParams = new URLSearchParams(location.search);
+    const initialOneDartAverage=query.get('average') === '1';
 
     return (<div className="content-background p-3 pb-1">
         {loadError ? <div className="mb-3">
@@ -26,6 +29,7 @@ export function LiveSayg() {
             liveOptions={liveOptions}
             lastLegDisplayOptions={ { showThrows: true, showAverage: true } }
             onLoadError={asyncCallback(setLoadError)}
+            initialOneDartAverage={initialOneDartAverage}
             />
     </div>);
 }

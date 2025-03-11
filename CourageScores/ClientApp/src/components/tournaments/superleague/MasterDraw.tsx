@@ -70,7 +70,8 @@ export function MasterDraw({matches, host, opponent, gender, date, type, patchDa
                                         readOnly={readOnly}
                                         showViewSayg={true}
                                         firstLegPlayerSequence={oddNumberedMatch ? ['away', 'home'] : ['home', 'away']}
-                                        finalLegPlayerSequence={oddNumberedMatch ? ['away', 'home'] : ['home', 'away']} />
+                                        finalLegPlayerSequence={oddNumberedMatch ? ['away', 'home'] : ['home', 'away']}
+                                        initialOneDartAverage={true} />
                                 </td>
                             </tr>);
                         })}

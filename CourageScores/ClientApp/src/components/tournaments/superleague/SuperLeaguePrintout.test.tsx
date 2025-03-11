@@ -5,7 +5,7 @@ import {
     cleanUp, doClick,
     doSelectOption,
     ErrorState, findButton,
-    iocProps, MockSocketFactory,
+    iocProps, MockSocketFactory, noop,
     renderApp, TestContext
 } from "../../../helpers/tests";
 import {ISuperLeaguePrintoutProps, SuperLeaguePrintout} from "./SuperLeaguePrintout";
@@ -70,6 +70,8 @@ describe('SuperLeaguePrintout', () => {
         saygApiResponseMap = {};
         reportedError = new ErrorState();
         socketFactory = new MockSocketFactory();
+
+        document.exitFullscreen = noop;
     });
 
     function setPreventScroll(_: boolean) {

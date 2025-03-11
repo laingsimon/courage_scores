@@ -79,7 +79,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             Teams = teamResults
                 .Where(t => context.Filter.IncludeTeam(t.Id))
                 .OrderByDescending(t => t.Points)
-                .OrderByDescending(t => t.FixturesWon)
+                .ThenByDescending(t => t.FixturesWon)
                 .ThenByDescending(t => t.Difference)
                 .ThenBy(t => t.Name)
                 .ApplyRanks()

@@ -67,9 +67,13 @@ function Get-Logs($Url)
     Write-Message "Extracted logs archive"
 
     $DotNetResults = Get-ChildItem -Path $ExtractPath -Filter "*build*with-dotnet.txt" | Get-DotNetFailures
-    $JestResults = Get-ChildItem -Path $ExtractPath -Filter "*publish*with-dotnet.txt" | Get-JestFailures
+    $TypescriptBuildFailures = Get-ChildItem -Path $ExtractPath -Filter "*publish*with-dotnet.txt" | Get-TypescriptBuildFailures
+    if (!($TypescriptBuildFailures -like "*error*npm run build*"))
+    {
+        $JestResults = Get-ChildItem -Path $ExtractPath -Filter "*publish*with-dotnet.txt" | Get-JestFailures
+    }
 
-    return $DotNetResults,$JestResults
+    return $DotNetResults,$TypescriptBuildFailures,$JestResults
 }
 
 function Get-LinesBetween($Path, $Start, $End, [switch] $Inclusive)
@@ -124,15 +128,28 @@ function Get-DotNetFailures([Parameter(ValueFromPipeline)] $Path)
     }
 }
 
+function Get-TypescriptBuildFailures([Parameter(ValueFromPipeline)] $Path)
+{
+    process {
+        $BuildLines = Get-LinesBetween -Path $Path -Start "*tsc && vite build*" -End "*error*npm run build*" | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
+        $HasRunTests = ($BuildLines | Where-Object { $_ -like "*couragescores*test*" }).Count
+
+        if ($BuildLines.Count -ge 1 -and $HasRunTests -eq 0)
+        {
+            Write-Output "#### Typescript build:`n$($CodeBlock)`n$($BuildLines -join "`n")`n$($CodeBlock)"
+        }
+    }
+}
+
 function Get-JestFailures([Parameter(ValueFromPipeline)] $Path)
 {
     process {
-        $RelevantLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Summary of all failing tests*" -End "*Ran all test suites." | Remove-Timestamp
-        if ($RelevantLines.Count -eq 0)
+        $TestLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Summary of all failing tests*" -End "*Ran all test suites." | Remove-Timestamp
+        if ($TestLines.Count -eq 0)
         {
-            $RelevantLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Test Suites:*" -End "*Ran all test suites." | Remove-Timestamp
+            $TestLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Test Suites:*" -End "*Ran all test suites." | Remove-Timestamp
         }
-        Write-Output "#### React tests:`n$($CodeBlock)`n$($RelevantLines -join "`n")`n$($CodeBlock)"
+        Write-Output "#### React tests:`n$($CodeBlock)`n$($TestLines -join "`n")`n$($CodeBlock)"
     }
 }
 
