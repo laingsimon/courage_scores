@@ -12,7 +12,7 @@ export interface ILayoutProps {
 
 export function Layout({children}: ILayoutProps) {
     const {error, onError, embed, account} = useApp();
-    const hideHeaderAndFooter = hasAccess(account, access => access.kioskMode);
+    const hideHeaderAndFooter = !!document.fullscreenElement || hasAccess(account, access => access.kioskMode);
 
     function renderError() {
         return (<PageError error={error!}/>)
