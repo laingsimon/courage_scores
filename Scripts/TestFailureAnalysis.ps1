@@ -68,7 +68,7 @@ function Get-Logs($Url)
 
     $DotNetResults = Get-ChildItem -Path $ExtractPath -Filter "*build*with-dotnet.txt" | Get-DotNetFailures
     $TypescriptBuildFailures = Get-ChildItem -Path $ExtractPath -Filter "*publish*with-dotnet.txt" | Get-TypescriptBuildFailures
-    if ($TypescriptBuildFailures -eq $null)
+    if (!($TypescriptBuildFailures -like "*error*npm run build*"))
     {
         $JestResults = Get-ChildItem -Path $ExtractPath -Filter "*publish*with-dotnet.txt" | Get-JestFailures
     }
@@ -132,7 +132,9 @@ function Get-TypescriptBuildFailures([Parameter(ValueFromPipeline)] $Path)
 {
     process {
         $BuildLines = Get-LinesBetween -Path $Path -Start "*tsc && vite build*" -End "*error*npm run build*" | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
-        if ($BuildLines.Count -ne 0)
+        $HasRunTests = ($BuildLines | Where-Object { $_ -like "*couragescores*test*" }).Count
+
+        if ($BuildLines.Count -ge 1 -and $HasRunTests -eq 0)
         {
             Write-Output "#### Typescript build:`n$($CodeBlock)`n$($BuildLines -join "`n")`n$($CodeBlock)"
         }
