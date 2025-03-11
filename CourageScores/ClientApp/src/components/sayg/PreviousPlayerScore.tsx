@@ -114,9 +114,12 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
         const hiScoreStyle: string = (score || 0) >= 100
             ? ' text-danger'
             : '';
+        const oneEightyStyle: string = score === 180
+            ? ' fw-bold'
+            : '';
 
         return (<>
-            <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${otherScoreEditingStyle}${bustStyle}${hiScoreStyle}`} onClick={() => setEditScore(throwToEdit)}>
+            <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${otherScoreEditingStyle}${bustStyle}${hiScoreStyle}${oneEightyStyle}`} onClick={() => setEditScore(throwToEdit)}>
                 <span>{score}</span>
             </div>
             <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${otherScoreEditingStyle}`} onClick={() => setEditScore(throwToEdit)}>
