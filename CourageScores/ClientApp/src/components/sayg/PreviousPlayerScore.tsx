@@ -15,7 +15,6 @@ export interface IPreviousPlayerScoreProps {
     home: string;
     away: string;
     currentScore?: number;
-    minimisePlayerNames?: boolean;
 }
 
 interface IRunningScore {
@@ -23,7 +22,7 @@ interface IRunningScore {
     away: number;
 }
 
-export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, singlePlayer, currentScore, minimisePlayerNames}: IPreviousPlayerScoreProps) {
+export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, singlePlayer, currentScore }: IPreviousPlayerScoreProps) {
     const homeThrows: LegThrowDto[] = leg.home ? leg.home.throws || [] : [];
     const awayThrows: LegThrowDto[] = leg.away ? leg.away.throws || [] : [];
     const {editScore, setEditScore} = useEditableSayg();
@@ -62,11 +61,11 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
 
     function renderPlayer(currentPlayer: string, score: number, className: string) {
         const suffix: string | null = leg.currentThrow === currentPlayer
-            ? 'bg-info text-dark'
-            : null;
+            ? 'alert alert-info'
+            : 'alert';
         return (<div className={`flex-basis-0 flex-grow-1 flex-shrink-1 ${className} ${suffix}`} datatype={currentPlayer === leg.currentThrow ? 'current-player' : ''}>
-            <div className={`overflow-hidden no-wrap${minimisePlayerNames ? ' fs-4 d-block' : ''}`}>{firstNameOnly(currentPlayer === 'home' ? home : away)}</div>
-            <div>{(leg.startingScore || 0) - score}</div>
+            <div className="overflow-hidden no-wrap d-block fs-4">{firstNameOnly(currentPlayer === 'home' ? home : away)}</div>
+            <div className={`overflow-hidden no-wrap fw-bold ${largeScores ? 'super-size' : 'fs-4'}`}>{(leg.startingScore || 0) - score}</div>
         </div>);
     }
 
@@ -84,7 +83,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center bg-warning${bustSuffix}`} onClick={() => setEditScore()}>
                 <span>{score}</span>
             </div>
-            <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center bg-warning`} onClick={() => setEditScore()}>
+            <div className="flex-basis-0 flex-grow-1 flex-shrink-0 text-center bg-warning" onClick={() => setEditScore()}>
                 {remaining > 1 || remaining === 0 ? remaining : null}
             </div>
         </>);
@@ -167,15 +166,16 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
         away: leg.startingScore || 0,
     };
     return (<div className="d-flex flex-column">
-        <div className={`d-flex flex-row justify-content-stretch${largeScores ? ' super-size' : ''}`}>
-            {renderPlayer('home', leg.home.score || 0, 'text-center me-5')}
+        <div className="text-center super-size" datatype="match-score">
             {singlePlayer
-                ? (<div className="flex-basis-0 flex-grow-1 flex-shrink-1 text-center">Leg {homeScore + 1}</div>)
+                ? (<div>Leg {homeScore + 1}</div>)
                 : (<div>{homeScore} - {awayScore || '0'}</div>)}
-
+        </div>
+        <div className={`d-flex flex-row justify-content-stretch`}>
+            {renderPlayer('home', leg.home.score || 0, 'text-center me-5')}
             {!singlePlayer ? renderPlayer('away', leg.away.score || 0, 'text-center ms-5') : null}
         </div>
-        <div className="d-flex flex-column overflow-auto height-100 max-height-100" datatype="previous-scores">
+        <div className="d-flex flex-column overflow-auto height-200 max-height-200 medium-size text-secondary" datatype="previous-scores">
         {repeat(maxThrows, (index: number) => {
             const homeThrow: LegThrowDto = homeThrows[index];
             const awayThrow: LegThrowDto = awayThrows[index];
@@ -185,7 +185,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
                     {(index + 1) * 3}
                 </div>);
 
-            return (<div key={index} className="d-flex flex-row justify-content-evenly fs-4">
+            return (<div key={index} className="d-flex flex-row justify-content-evenly">
                 {singlePlayer ? numberOfDarts : null}
                 {renderScore('home', homeThrow, runningScore, index)}
                 {singlePlayer ? null : numberOfDarts}
