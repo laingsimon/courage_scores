@@ -11,7 +11,7 @@ export function EditSaygPracticeOptions() {
     const {setEditScore} = useEditableSayg();
     const location = useLocation();
     const navigate = useNavigate();
-    const {account} = useApp();
+    const {account, isFullScreen} = useApp();
     const query: URLSearchParams = new URLSearchParams(location.search);
 
     async function restart() {
@@ -33,7 +33,7 @@ export function EditSaygPracticeOptions() {
     }
 
     async function toggleFullScreen() {
-        if (document.fullscreenElement) {
+        if (isFullScreen) {
             await leaveFullScreen();
             return;
         }

@@ -42,7 +42,7 @@ export function MatchSayg({
                               match, matchIndex, matchOptions, patchData, readOnly, showViewSayg, firstLegPlayerSequence,
                               finalLegPlayerSequence, initialOneDartAverage } : IMatchSaygProps) {
     const {tournamentData, setTournamentData, saveTournament, setPreventScroll} = useTournament();
-    const {account, onError} = useApp();
+    const {account, onError, isFullScreen} = useApp();
     const {tournamentApi, settings} = useDependencies();
     const [saygOpen, setSaygOpen] = useState<boolean>(false);
     const [creatingSayg, setCreatingSayg] = useState<boolean>(false);
@@ -59,7 +59,7 @@ export function MatchSayg({
         const numberOfLegs: number = matchOptions.numberOfLegs!;
         const finished: boolean = (scoreA > numberOfLegs / 2.0) || (scoreB > numberOfLegs / 2.0);
 
-        if (!state && document.fullscreenElement) {
+        if (!state && isFullScreen) {
             await leaveFullScreen();
         } else if (state && !finished) {
             // enter full screen
@@ -195,7 +195,7 @@ export function MatchSayg({
                 initialOneDartAverage={initialOneDartAverage}>
                 {finished ? (<SuperleagueMatchHeading match={match} />) : null}
             </SaygLoadingContainer>
-            {finished || !document.fullscreenElement ? (<div className="modal-footer px-0 pb-0 mt-3">
+            {finished || !isFullScreen ? (<div className="modal-footer px-0 pb-0 mt-3">
                 <div className="left-aligned mx-0">
                     <button className="btn btn-secondary" onClick={async () => await changeDialogState(false)}>Close</button>
                 </div>

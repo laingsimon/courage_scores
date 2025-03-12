@@ -28,4 +28,5 @@ export interface IApp {
     build: IBuild;
     reportClientSideException: (err: any) => void;
     browser: IBrowserType;
+    isFullScreen?: boolean;
 }

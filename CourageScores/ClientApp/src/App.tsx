@@ -38,6 +38,7 @@ export function App({embed, controls, testRoute}: IAppProps) {
     const [teams, setTeams] = useState<TeamDto[]>([]);
     const [appLoading, setAppLoading] = useState<boolean | null>(null);
     const [error, setError] = useState<IError | undefined>(undefined);
+    const [isFullScreen, setIsFullScreen] = useState<boolean>(document.fullscreenElement !== null);
 
     useEffect(() => {
             // should only fire on componentDidMount
@@ -52,6 +53,18 @@ export function App({embed, controls, testRoute}: IAppProps) {
     useEffect(() => {
         // should only fire once (on page load)
         parentHeight.setupInterval();
+    });
+
+    useEffect(() => {
+        function onFullScreenChange() {
+            setIsFullScreen(document.fullscreenElement !== null);
+        }
+
+        addEventListener('fullscreenchange', onFullScreenChange);
+
+        return () => {
+            removeEventListener('fullscreenchange', onFullScreenChange);
+        }
     });
 
     function onError(error: string | IError) {
@@ -133,6 +146,7 @@ export function App({embed, controls, testRoute}: IAppProps) {
         build: getBuild(),
         reportClientSideException,
         browser,
+        isFullScreen,
     };
 
     try {
