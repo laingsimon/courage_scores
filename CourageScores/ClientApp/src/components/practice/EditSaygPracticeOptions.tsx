@@ -11,7 +11,7 @@ export function EditSaygPracticeOptions() {
     const {setEditScore} = useEditableSayg();
     const location = useLocation();
     const navigate = useNavigate();
-    const {account, isFullScreen} = useApp();
+    const {account, fullScreen} = useApp();
     const query: URLSearchParams = new URLSearchParams(location.search);
 
     async function restart() {
@@ -22,27 +22,8 @@ export function EditSaygPracticeOptions() {
         await setSayg(newSayg);
         await setEditScore();
         if (account && account.access && account.access.kioskMode) {
-            await enterFullScreen();
+            await fullScreen.enterFullScreen();
         }
-    }
-
-    async function enterFullScreen() {
-        if (document.fullscreenEnabled) {
-            await document.body.requestFullscreen();
-        }
-    }
-
-    async function toggleFullScreen() {
-        if (isFullScreen) {
-            await leaveFullScreen();
-            return;
-        }
-
-        await enterFullScreen();
-    }
-
-    async function leaveFullScreen() {
-        await document.exitFullscreen();
     }
 
     function setQueryString(newQuery: URLSearchParams, key: string, value: string) {
@@ -107,7 +88,7 @@ export function EditSaygPracticeOptions() {
             <input placeholder="Optional" className="form-control" name="opponentName"
                    value={sayg.opponentName || ''} onChange={valueChanged(sayg, updateQueryParameters)}/>
             <button className="btn btn-primary" onClick={restart}>Restart...</button>
-            {document.fullscreenEnabled ? (<button className="btn btn-primary" onClick={toggleFullScreen}>🔍</button>) : null}
+            {fullScreen.canGoFullScreen ? (<button className="btn btn-primary" onClick={fullScreen.toggleFullScreen}>🔍 </button>) : null}
         </div>
     </>);
 }

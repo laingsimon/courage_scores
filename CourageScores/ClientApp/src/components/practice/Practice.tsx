@@ -12,7 +12,7 @@ interface IPracticeScoreAsYouGoDto extends UpdateRecordedScoreAsYouGoDto {
 }
 
 export function Practice() {
-    const {onError, account, appLoading, isFullScreen} = useApp();
+    const {onError, account, appLoading, fullScreen} = useApp();
     const [dataError, setDataError] = useState<string | null>(null);
     const location = useLocation();
     const navigate = useNavigate();
@@ -77,7 +77,7 @@ export function Practice() {
                 }}
                 liveOptions={liveOptions}
                 onLoadError={async (error: string) => setDataError(error)}>
-                {isFullScreen ? null : (<EditSaygPracticeOptions />)}
+                {fullScreen.isFullScreen ? null : (<EditSaygPracticeOptions />)}
             </SaygLoadingContainer>
         </div>);
     } catch (e) {

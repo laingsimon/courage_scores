@@ -23,6 +23,7 @@ import {PreferencesContainer} from "./components/common/PreferencesContainer";
 import {DivisionUriContainer, UrlStyle} from "./components/league/DivisionUriContainer";
 import {Division} from "./components/league/Division";
 import {IError} from "./components/common/IError";
+import {IFullScreen} from "./components/common/IFullScreen";
 
 export interface IAppProps {
     embed?: boolean;
@@ -38,7 +39,7 @@ export function App({embed, controls, testRoute}: IAppProps) {
     const [teams, setTeams] = useState<TeamDto[]>([]);
     const [appLoading, setAppLoading] = useState<boolean | null>(null);
     const [error, setError] = useState<IError | undefined>(undefined);
-    const [isFullScreen, setIsFullScreen] = useState<boolean>(document.fullscreenElement !== null);
+    const [isFullScreen, setIsFullScreen] = useState<boolean>(document.fullscreenElement != null); // intentional single equals to cover the undefined case
 
     useEffect(() => {
             // should only fire on componentDidMount
@@ -125,6 +126,25 @@ export function App({embed, controls, testRoute}: IAppProps) {
         tv: window.navigator.userAgent.indexOf(' TV ') !== -1 || window.location.search.indexOf('tv') !== -1,
     };
 
+    const fullScreen: IFullScreen = {
+        isFullScreen,
+        canGoFullScreen: document.fullscreenEnabled,
+        async enterFullScreen(): Promise<void> {
+            await document.body.requestFullscreen();
+        },
+        async exitFullScreen(): Promise<void> {
+            await document.exitFullscreen();
+        },
+        async toggleFullScreen(): Promise<void> {
+            if (isFullScreen) {
+                await this.exitFullScreen();
+                return;
+            }
+
+            await this.enterFullScreen();
+        }
+    }
+
     // noinspection JSUnusedGlobalSymbols
     const appData: IApp = {
         divisions,
@@ -146,7 +166,7 @@ export function App({embed, controls, testRoute}: IAppProps) {
         build: getBuild(),
         reportClientSideException,
         browser,
-        isFullScreen,
+        fullScreen,
     };
 
     try {

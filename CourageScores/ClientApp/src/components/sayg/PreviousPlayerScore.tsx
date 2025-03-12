@@ -28,8 +28,8 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
     const {editScore, setEditScore} = useEditableSayg();
     const maxThrows: number = getMaxThrows(homeThrows, awayThrows);
     const {preventScroll} = useTournament();
-    const {account, isFullScreen} = useApp();
-    const largeScores = preventScroll || (account && account.access && account.access.kioskMode) || isFullScreen;
+    const {account, fullScreen} = useApp();
+    const largeScores = preventScroll || (account && account.access && account.access.kioskMode) || fullScreen.isFullScreen;
 
     useEffect(() => {
         window.setTimeout(scrollToLastScore, 10);
