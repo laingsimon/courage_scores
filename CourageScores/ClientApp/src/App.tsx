@@ -130,10 +130,14 @@ export function App({embed, controls, testRoute}: IAppProps) {
         isFullScreen,
         canGoFullScreen: document.fullscreenEnabled,
         async enterFullScreen(): Promise<void> {
-            await document.body.requestFullscreen();
+            if (document.fullscreenEnabled) {
+                await document.body.requestFullscreen();
+            }
         },
         async exitFullScreen(): Promise<void> {
-            await document.exitFullscreen();
+            if (isFullScreen) {
+                await document.exitFullscreen();
+            }
         },
         async toggleFullScreen(): Promise<void> {
             if (isFullScreen) {
