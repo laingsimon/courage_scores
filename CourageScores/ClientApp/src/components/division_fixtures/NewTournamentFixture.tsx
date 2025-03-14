@@ -153,7 +153,7 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
             return;
         }
 
-        if ((date > season.endDate || date < season.startDate) && !confirm('Tournament is outside of the dates for the season.\nYou will need to change the start/end date for the season to be able to see the fixture in the list.\n\nContinue?')) {
+        if ((date > season!.endDate || date < season!.startDate) && !confirm('Tournament is outside of the dates for the season.\nYou will need to change the start/end date for the season to be able to see the fixture in the list.\n\nContinue?')) {
             return;
         }
 

@@ -17,11 +17,12 @@ export interface IFixtureDateNoteProps {
 }
 
 export function FixtureDateNote({note, setEditNote, preventDelete}: IFixtureDateNoteProps) {
-    const {onReloadDivision} = useDivisionData();
+    const {onReloadDivision, season} = useDivisionData();
     const {account, onError} = useApp();
     const {noteApi} = useDependencies();
     const [deletingNote, setDeletingNote] = useState<boolean>(false);
     const isNoteAdmin: boolean = hasAccess(account, access => access.manageNotes);
+    const isOutOfSeason = note.date < season.startDate || note.date > season.endDate;
 
     async function deleteNote() {
         /* istanbul ignore next */
@@ -51,7 +52,7 @@ export function FixtureDateNote({note, setEditNote, preventDelete}: IFixtureDate
         }
     }
 
-    return (<div className="alert alert-warning alert-dismissible fade show pb-0 mb-1" role="alert" key={note.id}>
+    return (<div className={`alert ${isNoteAdmin && isOutOfSeason ? 'alert-danger' : 'alert-warning'} alert-dismissible fade show pb-0 mb-1`} role="alert" key={note.id}>
         <span className="margin-right float-start">📌</span>
         <Markdown remarkPlugins={[remarkGfm]}>{note.note}</Markdown>
         {isNoteAdmin && !preventDelete && note.id
