@@ -22,7 +22,7 @@ export function FixtureDateNote({note, setEditNote, preventDelete}: IFixtureDate
     const {noteApi} = useDependencies();
     const [deletingNote, setDeletingNote] = useState<boolean>(false);
     const isNoteAdmin: boolean = hasAccess(account, access => access.manageNotes);
-    const isOutOfSeason = note.date < season.startDate || note.date > season.endDate;
+    const isOutOfSeason = season && note.date && (note.date < season.startDate || note.date > season.endDate);
 
     async function deleteNote() {
         /* istanbul ignore next */
@@ -55,6 +55,7 @@ export function FixtureDateNote({note, setEditNote, preventDelete}: IFixtureDate
     return (<div className={`alert ${isNoteAdmin && isOutOfSeason ? 'alert-danger' : 'alert-warning'} alert-dismissible fade show pb-0 mb-1`} role="alert" key={note.id}>
         <span className="margin-right float-start">📌</span>
         <Markdown remarkPlugins={[remarkGfm]}>{note.note}</Markdown>
+        {isNoteAdmin && isOutOfSeason ? (<div>Note is out of season. Change the season start/end dates to show any fixtures.</div>) : null}
         {isNoteAdmin && !preventDelete && note.id
             ? (<button type="button" className="btn-close" data-dismiss="alert" aria-label="Close"
                        onClick={deleteNote}></button>)
