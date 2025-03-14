@@ -9,6 +9,7 @@ import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDt
 import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDateNoteDto";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 import {hasAccess} from "../../helpers/conditions";
+import {renderDate} from "../../helpers/rendering";
 
 export interface IFixtureDateNoteProps {
     note: EditFixtureDateNoteDto;
@@ -55,7 +56,10 @@ export function FixtureDateNote({note, setEditNote, preventDelete}: IFixtureDate
     return (<div className={`alert ${isNoteAdmin && isOutOfSeason ? 'alert-danger' : 'alert-warning'} alert-dismissible fade show pb-0 mb-1`} role="alert" key={note.id}>
         <span className="margin-right float-start">📌</span>
         <Markdown remarkPlugins={[remarkGfm]}>{note.note}</Markdown>
-        {isNoteAdmin && isOutOfSeason ? (<div>Note is out of season. Change the season start/end dates to show any fixtures.</div>) : null}
+        {isNoteAdmin && isOutOfSeason ? (<div className="text-danger">
+            This note is for a date outside of the season dates ({renderDate(season?.startDate)} - {renderDate(season?.endDate)}).<br />
+            ⚠️ No fixtures will be shown until the season dates are updated.
+        </div>) : null}
         {isNoteAdmin && !preventDelete && note.id
             ? (<button type="button" className="btn-close" data-dismiss="alert" aria-label="Close"
                        onClick={deleteNote}></button>)
