@@ -6,6 +6,7 @@ import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {IError} from "./IError";
 import {IBrowserType} from "./IBrowserType";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {IFullScreen} from "./IFullScreen";
 
 export interface IApp {
     error?: IError;
@@ -28,4 +29,5 @@ export interface IApp {
     build: IBuild;
     reportClientSideException: (err: any) => void;
     browser: IBrowserType;
+    fullScreen: IFullScreen;
 }

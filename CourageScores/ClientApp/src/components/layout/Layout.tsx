@@ -11,8 +11,8 @@ export interface ILayoutProps {
 }
 
 export function Layout({children}: ILayoutProps) {
-    const {error, onError, embed, account} = useApp();
-    const hideHeaderAndFooter = hasAccess(account, access => access.kioskMode);
+    const {error, onError, embed, account, fullScreen} = useApp();
+    const hideHeaderAndFooter = fullScreen.isFullScreen || hasAccess(account, access => access.kioskMode);
 
     function renderError() {
         return (<PageError error={error!}/>)

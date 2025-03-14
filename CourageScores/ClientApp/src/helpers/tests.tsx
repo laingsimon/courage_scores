@@ -232,6 +232,13 @@ export function appProps(props?: any, errorState?: ErrorState): IAppContainerPro
             mobile: false,
             tv: false,
         },
+        fullScreen: {
+            isFullScreen: false,
+            canGoFullScreen: false,
+            enterFullScreen: noop,
+            exitFullScreen: noop,
+            toggleFullScreen: noop,
+        }
     };
 
     return Object.assign({}, defaultProps, props);
