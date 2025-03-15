@@ -193,7 +193,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
             publish: false,
         };
 
-        return (<Dialog slim={!fullScreen.isFullScreen} title={fullScreen isFullScreen ? null : `${home} vs ${away} - best of ${matchOptions.numberOfLegs}`}
+        return (<Dialog slim={!fullScreen.isFullScreen} title={fullScreen.isFullScreen ? null : `${home} vs ${away} - best of ${matchOptions.numberOfLegs}`}
                         onClose={fullScreen.isFullScreen ? null : (async () => setSaygOpen(false))} className="text-start">
             <EditableSaygContainer>
             <LiveContainer liveOptions={noLiveOptions}>
