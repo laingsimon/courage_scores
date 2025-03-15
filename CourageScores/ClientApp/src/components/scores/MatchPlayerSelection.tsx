@@ -210,6 +210,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                     on180={singlePlayerMatch && on180 && !readOnly ? add180 : undefined}
                     onHiCheck={singlePlayerMatch && onHiCheck && !readOnly ? addHiCheck : undefined}
                     onFinished={fullScreen.exitFullScreen}
+                    firstLegPlayerSequence={['home', 'away']}
                 />
             </LiveContainer>
             </EditableSaygContainer>
