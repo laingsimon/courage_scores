@@ -11,6 +11,7 @@ import {
 import {GameDetails, IGameDetailsProps} from "./GameDetails";
 import {fixtureBuilder} from "../../helpers/builders/games";
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
+import {seasonBuilder} from "../../helpers/builders/seasons";
 
 describe('GameDetails', () => {
     let context: TestContext;
@@ -39,6 +40,8 @@ describe('GameDetails', () => {
     }
 
     describe('when not logged in', () => {
+        const season = seasonBuilder().starting('2023-04-01').ending('2024-04-08').build();
+
         it('when postponed = false and isKnockout=true', async () => {
             const fixtureData: GameDto = fixtureBuilder()
                 .knockout()
@@ -51,6 +54,7 @@ describe('GameDetails', () => {
                 access: '',
                 fixtureData,
                 setFixtureData,
+                season,
             });
 
             const component = context.container;
@@ -69,6 +73,7 @@ describe('GameDetails', () => {
                 access: '',
                 fixtureData,
                 setFixtureData,
+                season,
             });
 
             const component = context.container;
@@ -88,6 +93,7 @@ describe('GameDetails', () => {
                 access: '',
                 fixtureData,
                 setFixtureData,
+                season,
             });
 
             const component = context.container;
@@ -107,6 +113,7 @@ describe('GameDetails', () => {
                 access: '',
                 fixtureData,
                 setFixtureData,
+                season,
             });
 
             const shareButton = context.container.querySelectorAll('button')[0];
@@ -126,6 +133,7 @@ describe('GameDetails', () => {
                 access: '',
                 fixtureData,
                 setFixtureData,
+                season,
             });
 
             reportedError.verifyNoError();
@@ -136,6 +144,8 @@ describe('GameDetails', () => {
     });
 
     describe('when an admin', () => {
+        const season = seasonBuilder().starting('2023-04-01').ending('2024-04-08').build();
+
         describe('renders', () => {
             it('date', async () => {
                 const fixtureData: GameDto = fixtureBuilder('2023-04-01T20:30:00')
@@ -148,6 +158,7 @@ describe('GameDetails', () => {
                     access: 'admin',
                     fixtureData,
                     setFixtureData,
+                    season,
                 });
 
                 const input = context.container.querySelector('input[name="date"]') as HTMLInputElement;
@@ -166,6 +177,7 @@ describe('GameDetails', () => {
                     access: 'admin',
                     fixtureData,
                     setFixtureData,
+                    season,
                 });
 
                 const input = context.container.querySelector('input[name="address"]') as HTMLInputElement;
@@ -185,6 +197,7 @@ describe('GameDetails', () => {
                     access: 'admin',
                     fixtureData,
                     setFixtureData,
+                    season,
                 });
 
                 const input = context.container.querySelector('input[name="postponed"]') as HTMLInputElement;
@@ -204,6 +217,7 @@ describe('GameDetails', () => {
                     access: 'admin',
                     fixtureData,
                     setFixtureData,
+                    season,
                 });
 
                 const input = context.container.querySelector('input[name="isKnockout"]') as HTMLInputElement;
@@ -224,6 +238,7 @@ describe('GameDetails', () => {
                     access: 'admin',
                     fixtureData,
                     setFixtureData,
+                    season,
                 });
 
                 const input = context.container.querySelector('input[name="accoladesCount"]') as HTMLInputElement;
@@ -244,6 +259,7 @@ describe('GameDetails', () => {
                     access: 'admin',
                     fixtureData,
                     setFixtureData,
+                    season,
                 });
                 await doChange(context.container, 'input[name="date"]', '2023-05-01', context.user);
 
@@ -262,6 +278,7 @@ describe('GameDetails', () => {
                     access: 'admin',
                     fixtureData,
                     setFixtureData,
+                    season,
                 });
                 await doChange(context.container, 'input[name="address"]', 'NEW ADDRESS', context.user);
 
@@ -281,6 +298,7 @@ describe('GameDetails', () => {
                     access: 'admin',
                     fixtureData,
                     setFixtureData,
+                    season,
                 });
                 await doClick(context.container, 'input[name="postponed"]');
 
@@ -300,6 +318,7 @@ describe('GameDetails', () => {
                     access: 'admin',
                     fixtureData,
                     setFixtureData,
+                    season,
                 });
                 await doClick(context.container, 'input[name="isKnockout"]');
 
@@ -319,6 +338,7 @@ describe('GameDetails', () => {
                     access: 'admin',
                     fixtureData,
                     setFixtureData,
+                    season,
                 });
                 await doClick(context.container, 'input[name="accoladesCount"]');
 

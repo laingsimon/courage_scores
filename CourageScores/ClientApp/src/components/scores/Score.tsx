@@ -615,7 +615,7 @@ export function Score() {
                 <div className="content-background p-3 overflow-auto">
                     {fixtureData.address || access === 'admin'
                         ? (<GameDetails saving={saving} setFixtureData={async (data: GameDto) => fixtureDetailsChanged(data)} access={access}
-                                        fixtureData={fixtureData}/>)
+                                        fixtureData={fixtureData} season={season}/>)
                         : null}
                     <table className={`table${(access === 'admin' && !submission) || access === 'clerk' ? ' minimal-padding' : ''}`}>
                         <ScoreCardHeading access={access} data={data!} setSubmission={async (value: string) => setSubmission(value)} setFixtureData={async (value: GameDto) => setFixtureData(value)} submission={submission} />

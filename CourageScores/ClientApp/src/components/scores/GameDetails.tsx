@@ -3,15 +3,17 @@ import {valueChanged} from "../../helpers/events";
 import {useBranding} from "../common/BrandingContainer";
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 
 export interface IGameDetailsProps {
     saving: boolean;
     access: string;
     fixtureData: GameDto;
     setFixtureData(newData: GameDto): UntypedPromise;
+    season: SeasonDto;
 }
 
-export function GameDetails({saving, access, fixtureData, setFixtureData}: IGameDetailsProps) {
+export function GameDetails({saving, access, fixtureData, setFixtureData, season}: IGameDetailsProps) {
     const {name} = useBranding();
 
     if (access !== 'admin') {
@@ -27,7 +29,8 @@ export function GameDetails({saving, access, fixtureData, setFixtureData}: IGame
     return (<div>
         <div className="input-group mb-3">
             <input disabled={saving} type="date" name="date" className="form-control margin-right date-selection"
-                   value={fixtureData.date.substring(0, 10)} onChange={valueChanged(fixtureData, setFixtureData)}/>
+                   value={fixtureData.date.substring(0, 10)} onChange={valueChanged(fixtureData, setFixtureData)}
+                   min={season!.startDate!.substring(0, 10)} max={season!.endDate!.substring(0, 10)} />
             <input disabled={saving} type="text" name="address" className="form-control margin-right"
                    value={fixtureData.address || ''} onChange={valueChanged(fixtureData, setFixtureData)}/>
         </div>
