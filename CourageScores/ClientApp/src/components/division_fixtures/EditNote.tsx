@@ -10,6 +10,7 @@ import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDateNoteDto";
 import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {useDivisionData} from "../league/DivisionDataContainer";
 
 export interface IEditNoteProps {
     note: EditFixtureDateNoteDto;
@@ -23,6 +24,7 @@ export function EditNote({note, onNoteChanged, onClose, onSaved}: IEditNoteProps
     const [saveError, setSaveError] = useState<IClientActionResultDto<EditFixtureDateNoteDto> | null>(null);
     const {noteApi} = useDependencies();
     const {divisions, seasons, onError} = useApp();
+    const {season} = useDivisionData();
 
     async function saveNote() {
         /* istanbul ignore next */
@@ -72,7 +74,9 @@ export function EditNote({note, onNoteChanged, onClose, onSaved}: IEditNoteProps
                 <div className="input-group-prepend">
                     <span className="input-group-text">Date</span>
                 </div>
-                <input type="date" className="form-control" value={note.date!.substring(0, 10)} name="date"
+                <input type="date" className="form-control"
+                       value={note.date!.substring(0, 10)} name="date"
+                       min={season!.startDate!.substring(0, 10)} max={season!.endDate!.substring(0, 10)}
                        onChange={valueChanged(note, onNoteChanged)}/>
             </div>
             <div className="form-group my-3 d-flex">
