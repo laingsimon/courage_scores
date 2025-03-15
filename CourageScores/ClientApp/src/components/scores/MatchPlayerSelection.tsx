@@ -209,6 +209,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                     awayScore={match.awayScore}
                     on180={singlePlayerMatch && on180 && !readOnly ? add180 : undefined}
                     onHiCheck={singlePlayerMatch && onHiCheck && !readOnly ? addHiCheck : undefined}
+                    onFinished={fullScreen.exitFullScreen}
                 />
             </LiveContainer>
             </EditableSaygContainer>
