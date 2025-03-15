@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {ISelectablePlayer, PlayerSelection} from "../common/PlayerSelection";
 import {Dialog} from "../common/Dialog";
 import {any, distinct} from "../../helpers/collections";
@@ -32,12 +32,20 @@ export interface IMatchPlayerSelectionProps {
 }
 
 export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChanged, on180, onHiCheck}: IMatchPlayerSelectionProps) {
-    const {account, onError} = useApp();
+    const {account, onError, fullScreen} = useApp();
     const {homePlayers, awayPlayers, readOnly, disabled, division, season, home, away} = useLeagueFixture();
     const {matchOptions, otherMatches, setCreatePlayerFor} = useMatchType();
     const [matchOptionsDialogOpen, setMatchOptionsDialogOpen] = useState<boolean>(false);
     const [saygOpen, setSaygOpen] = useState<boolean>(false);
     const hasBothScores = hasScore(match.homeScore) && hasScore(match.awayScore);
+
+    useEffect(() => {
+        if (saygOpen) {
+            fullScreen.enterFullScreen();
+        } else {
+            fullScreen.exitFullScreen();
+        }
+    }, [saygOpen]);
 
     function player(index: number, side: 'home' | 'away'): GamePlayerDto {
         const matchPlayers: GamePlayerDto[] = match[side + 'Players'];
