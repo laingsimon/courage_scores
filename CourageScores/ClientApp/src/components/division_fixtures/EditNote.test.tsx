@@ -6,7 +6,7 @@ import {
     doChange,
     doClick,
     findButton,
-    iocProps,
+    iocProps, noop,
     renderApp, TestContext
 } from "../../helpers/tests";
 import {EditNote} from "./EditNote";
@@ -18,6 +18,7 @@ import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder, noteBuilder} from "../../helpers/builders/divisions";
 import {INoteApi} from "../../interfaces/apis/INoteApi";
+import {DivisionDataContainer} from "../league/DivisionDataContainer";
 
 describe('EditNote', () => {
     let context: TestContext;
@@ -63,7 +64,7 @@ describe('EditNote', () => {
         saved = false;
     });
 
-    async function renderComponent(note: FixtureDateNoteDto, divisions: DivisionDto[], seasons: SeasonDto[]) {
+    async function renderComponent(note: FixtureDateNoteDto, divisions: DivisionDto[], ...seasons: SeasonDto[]) {
         context = await renderApp(
             iocProps({noteApi}),
             brandingProps(),
@@ -71,14 +72,15 @@ describe('EditNote', () => {
                 divisions,
                 seasons
             }),
-            (<EditNote note={note} onNoteChanged={onNoteChanged} onClose={onClose} onSaved={onSaved} />));
+            (<DivisionDataContainer onReloadDivision={noop} name="Division" season={seasons[0]} >
+                <EditNote note={note} onNoteChanged={onNoteChanged} onClose={onClose} onSaved={onSaved} />
+            </DivisionDataContainer>));
     }
 
     describe('renders', () => {
-        const season = seasonBuilder('SEASON').build();
+        const season = seasonBuilder('SEASON').starting('2023-05-01').ending('2023-05-08').build();
         const division = divisionBuilder('DIVISION').build();
         const divisions = [division];
-        const seasons = [season];
 
         it('when editing', async () => {
             await renderComponent(
@@ -87,7 +89,7 @@ describe('EditNote', () => {
                     .season(season)
                     .build(),
                 divisions,
-                seasons);
+                season);
 
             const header = context.container.querySelector('.modal-header')!;
             expect(header).toBeTruthy();
@@ -102,7 +104,7 @@ describe('EditNote', () => {
                     .season(season)
                     .build(),
                 divisions,
-                seasons);
+                season);
 
             const header = context.container.querySelector('.modal-header')!;
             expect(header).toBeTruthy();
@@ -116,7 +118,7 @@ describe('EditNote', () => {
                     .season(season)
                     .build(),
                 divisions,
-                seasons);
+                season);
 
             const dateGroup = context.container.querySelector('.modal-body > div > div:nth-child(1)')!;
             expect(dateGroup).toBeTruthy();
@@ -133,7 +135,7 @@ describe('EditNote', () => {
                     .season(season)
                     .build(),
                 divisions,
-                seasons);
+                season);
 
             const noteGroup = context.container.querySelector('.modal-body > div > div:nth-child(2)')!;
             expect(noteGroup).toBeTruthy();
@@ -150,7 +152,7 @@ describe('EditNote', () => {
                     .season(season)
                     .build(),
                 divisions,
-                seasons);
+                season);
 
             const previewGroup = context.container.querySelector('.modal-body > div > div:nth-child(3)')!;
             expect(previewGroup).toBeTruthy();
@@ -165,7 +167,7 @@ describe('EditNote', () => {
                     .season(season)
                     .build(),
                 divisions,
-                seasons);
+                season);
 
             const seasonGroup = context.container.querySelector('.modal-body > div > div:nth-child(4)')!;
             expect(seasonGroup).toBeTruthy();
@@ -183,7 +185,7 @@ describe('EditNote', () => {
                     .division(division)
                     .build(),
                 divisions,
-                seasons);
+                season);
 
             const divisionGroup = context.container.querySelector('.modal-body > div > div:nth-child(5)')!;
             expect(divisionGroup).toBeTruthy();
@@ -200,7 +202,7 @@ describe('EditNote', () => {
                     .season(season)
                     .build(),
                 divisions,
-                seasons);
+                season);
 
             const divisionGroup = context.container.querySelector('.modal-body > div > div:nth-child(5)')!;
             expect(divisionGroup).toBeTruthy();
@@ -215,7 +217,6 @@ describe('EditNote', () => {
         const season = seasonBuilder('SEASON').build();
         const division = divisionBuilder('DIVISION').build();
         const divisions = [division];
-        const seasons = [season];
 
         it('can change date', async () => {
             await renderComponent(
@@ -224,7 +225,7 @@ describe('EditNote', () => {
                     .season(season)
                     .build(),
                 divisions,
-                seasons);
+                season);
             const dateGroup = context.container.querySelector('.modal-body > div > div:nth-child(1)')!;
 
             await doChange(dateGroup, 'input', '2023-06-06', context.user);
@@ -240,7 +241,7 @@ describe('EditNote', () => {
                     .season(season)
                     .build(),
                 divisions,
-                seasons);
+                season);
             const noteGroup = context.container.querySelector('.modal-body > div > div:nth-child(2)')!;
 
             await doChange(noteGroup, 'textarea', 'Another note', context.user);
@@ -257,7 +258,7 @@ describe('EditNote', () => {
                     .season(season)
                     .build(),
                 divisions,
-                [season, anotherSeason]);
+                season, anotherSeason);
             const seasonGroup = context.container.querySelector('.modal-body > div > div:nth-child(4)')!;
 
             await doChange(seasonGroup, 'select', anotherSeason.id, context.user);
@@ -274,7 +275,7 @@ describe('EditNote', () => {
                     .season(season)
                     .build(),
                 [division, anotherDivision],
-                seasons);
+                season);
             const divisionGroup = context.container.querySelector('.modal-body > div > div:nth-child(5)')!;
 
             await doChange(divisionGroup, 'select', anotherDivision.id, context.user);
@@ -290,7 +291,7 @@ describe('EditNote', () => {
                     .season(season)
                     .build(),
                 divisions,
-                seasons);
+                season);
             const divisionGroup = context.container.querySelector('.modal-body > div > div:nth-child(5)')!;
 
             await doChange(divisionGroup, 'select', 'NULL', context.user);
@@ -306,7 +307,7 @@ describe('EditNote', () => {
                     .season(season)
                     .build(),
                 divisions,
-                seasons);
+                season);
 
             await doClick(findButton(context.container, 'Save'));
 
@@ -321,7 +322,7 @@ describe('EditNote', () => {
                     .season(season)
                     .build(),
                 divisions,
-                seasons);
+                season);
 
             await doClick(findButton(context.container, 'Save'));
 
@@ -338,7 +339,7 @@ describe('EditNote', () => {
                     .updated('2023-07-01T00:00:00')
                     .build(),
                 divisions,
-                seasons);
+                season);
 
             await doClick(findButton(context.container, 'Save'));
 
@@ -355,7 +356,7 @@ describe('EditNote', () => {
                     .updated('2023-07-01T00:00:00')
                     .build(),
                 divisions,
-                seasons);
+                season);
 
             await doClick(findButton(context.container, 'Save'));
 
@@ -372,7 +373,7 @@ describe('EditNote', () => {
                     .season(season)
                     .build(),
                 divisions,
-                seasons);
+                season);
             saveResult = {
                 success: false,
             };
@@ -392,7 +393,7 @@ describe('EditNote', () => {
                     .season(season)
                     .build(),
                 divisions,
-                seasons);
+                season);
             saveResult = {
                 success: false,
             };
@@ -411,7 +412,7 @@ describe('EditNote', () => {
                     .season(season)
                     .build(),
                 divisions,
-                seasons);
+                season);
 
             await doClick(findButton(context.container, 'Close'));
 
