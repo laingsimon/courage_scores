@@ -34,6 +34,7 @@ describe('Practice', () => {
     let saygData: { [key: string]: RecordedScoreAsYouGoDto };
     let shareData: ShareData | null;
     let apiResultFunc: ((data: UpdateRecordedScoreAsYouGoDto) => IClientActionResultDto<RecordedScoreAsYouGoDto>);
+    let fullScreenState: { isFullScreen: boolean, canGoFullScreen: boolean };
 
     const saygApi = api<ISaygApi>({
         get: async (id: string): Promise<RecordedScoreAsYouGoDto | null> => {
@@ -70,15 +71,35 @@ describe('Practice', () => {
         shareData = null;
         // noinspection JSValidateTypes
         (navigator as any).share = (data: ShareData) => shareData = data;
+
+        fullScreenState = {
+            isFullScreen: false,
+            canGoFullScreen: true,
+        };
     });
 
     async function renderComponent(account?: UserDto, hash?: string, appLoading?: boolean) {
+        const fullScreen = {
+            isFullScreen: fullScreenState.isFullScreen,
+            canGoFullScreen: fullScreenState.canGoFullScreen,
+            enterFullScreen: async () => {
+                fullScreenState.isFullScreen = true;
+            },
+            toggleFullScreen: async () => {
+                fullScreenState.isFullScreen = !fullScreenState.isFullScreen;
+            },
+            exitFullScreen: async () => {
+                fullScreenState.isFullScreen = false;
+            },
+        };
+
         context = await renderApp(
             iocProps({saygApi}),
             brandingProps(),
             appProps({
                 account: account,
                 appLoading: appLoading || false,
+                fullScreen: fullScreen,
             }, reportedError),
             (<Practice/>),
             '/practice',
@@ -426,6 +447,78 @@ describe('Practice', () => {
             const matchStatistics = context.container.querySelector('h4')!;
             expect(matchStatistics).toBeTruthy();
             expect(matchStatistics.textContent).toEqual('Match statistics');
+        });
+
+        it('can restart practice', async () => {
+            const jsonData: RecordedScoreAsYouGoDto = {
+                startingScore: 123,
+                numberOfLegs: 1,
+                legs: {},
+                homeScore: 1,
+                awayScore: 2,
+                yourName: 'you',
+                opponentName: 'them',
+                id: createTemporaryId(),
+            };
+            saygData[jsonData.id] = jsonData;
+            await renderComponent(account, '#' + jsonData.id);
+            reportedError.verifyNoError();
+            assertNoDataError();
+
+            await doClick(findButton(context.container, 'Restart...'));
+
+            await doClick(findButton(context.container, 'Save '));
+            expect(saygData[jsonData.id].startingScore).toEqual(jsonData.startingScore);
+            expect(saygData[jsonData.id].numberOfLegs).toEqual(jsonData.numberOfLegs);
+            expect(saygData[jsonData.id].yourName).toEqual(jsonData.yourName);
+            expect(saygData[jsonData.id].opponentName).toEqual(jsonData.opponentName);
+            expect(saygData[jsonData.id].homeScore).toEqual(0);
+            expect(saygData[jsonData.id].awayScore).toEqual(0);
+            expect(Object.keys(saygData[jsonData.id].legs)).toEqual(['0']);
+        });
+
+        it('restarting practice does not enter full screen if not kiosk mode', async () => {
+            const jsonData: RecordedScoreAsYouGoDto = {
+                startingScore: 123,
+                numberOfLegs: 1,
+                legs: {},
+                homeScore: 1,
+                awayScore: 2,
+                yourName: 'you',
+                opponentName: 'them',
+                id: createTemporaryId(),
+            };
+            saygData[jsonData.id] = jsonData;
+            account.access!.kioskMode = false;
+            await renderComponent(account, '#' + jsonData.id);
+            reportedError.verifyNoError();
+            assertNoDataError();
+
+            await doClick(findButton(context.container, 'Restart...'));
+
+            expect(fullScreenState.isFullScreen).toEqual(false);
+        });
+
+        it('restarting practice enters enter full screen if kiosk mode enabled', async () => {
+            const jsonData: RecordedScoreAsYouGoDto = {
+                startingScore: 123,
+                numberOfLegs: 1,
+                legs: {},
+                homeScore: 1,
+                awayScore: 2,
+                yourName: 'you',
+                opponentName: 'them',
+                id: createTemporaryId(),
+            };
+            saygData[jsonData.id] = jsonData;
+            account.access!.kioskMode = true;
+            await renderComponent(account, '#' + jsonData.id);
+            reportedError.verifyNoError();
+            assertNoDataError();
+
+            await doClick(findButton(context.container, 'Restart...'));
+
+            expect(fullScreenState.isFullScreen).toEqual(true);
         });
     });
 });

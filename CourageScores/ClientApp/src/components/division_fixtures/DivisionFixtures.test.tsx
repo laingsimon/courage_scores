@@ -416,7 +416,7 @@ describe('DivisionFixtures', () => {
 
         it('renders notes', async () => {
             const divisionData = getInSeasonDivisionData();
-            divisionData.fixtures!.push(fixtureDateBuilder('2022-10-13T00:00:00')
+            divisionData.fixtures!.push(fixtureDateBuilder(divisionData.season!.startDate)
                 .withNote((n: INoteBuilder) => n.note('Finals night!'))
                 .build());
 
@@ -424,8 +424,8 @@ describe('DivisionFixtures', () => {
 
             reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
-            assertFixtureDate(fixtureDateElement, '13 Oct📌 Add noteQualifier');
-            const noteElement = fixtureDateElement.querySelector('.alert-warning')!;
+            assertFixtureDate(fixtureDateElement, '3 Feb📌 Add noteQualifier');
+            const noteElement = fixtureDateElement.querySelector('.alert')!;
             expect(noteElement).toBeTruthy();
             expect(noteElement.textContent).toEqual('📌Finals night!Edit');
         });
@@ -565,6 +565,7 @@ describe('DivisionFixtures', () => {
             await renderComponent(
                 divisionData,
                 account);
+            context.prompts.respondToConfirm('Tournament is outside of the dates for the season.\nYou will need to change the start/end date for the season to be able to see the fixture in the list.\n\nContinue?', true);
 
             const fixtureDateElement = getFixtureDateElement(0, account);
             await doSelectOption(fixtureDateElement.querySelector('.address-dropdown .dropdown-menu'), 'another address');

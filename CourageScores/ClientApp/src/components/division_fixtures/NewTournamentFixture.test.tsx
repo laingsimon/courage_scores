@@ -186,7 +186,7 @@ describe('NewTournamentFixture', () => {
     describe('interactivity', () => {
         const division1 = divisionBuilder('DIVISION 1').build();
         const division2 = divisionBuilder('DIVISION 2').build();
-        const season = seasonBuilder('SEASON').build();
+        const season = seasonBuilder('SEASON').starting('2024-09-02').ending('2024-09-07').build();
         const proposedFixture1 = tournamentBuilder().address('ADDRESS 1').proposed().build();
 
         it('prevents save when no address selected', async () => {
@@ -363,6 +363,60 @@ describe('NewTournamentFixture', () => {
             await doClick(saveButton);
 
             expect(context.container.innerHTML).toContain('SOME ERROR');
+        });
+
+        it('prompts if date is before season starts', async () => {
+            await renderComponent(
+                props('2024-09-01', proposedFixture1),
+                divisionData(division1, season),
+                [ division1, division2 ]);
+            const saveButton = findButton(context.container, '➕');
+            const divisionDropDown: Element = context.container.querySelector('.division-dropdown .dropdown-menu')!;
+            const addressDropDown: Element = context.container.querySelector('.address-dropdown .dropdown-menu')!;
+            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+            context.prompts.respondToConfirm('Tournament is outside of the dates for the season.\nYou will need to change the start/end date for the season to be able to see the fixture in the list.\n\nContinue?', true);
+
+            await doSelectOption(divisionDropDown, 'DIVISION 1');
+            await doSelectOption(addressDropDown, 'ADDRESS 1');
+            await doClick(saveButton);
+
+            context.prompts.confirmWasShown('Tournament is outside of the dates for the season.\nYou will need to change the start/end date for the season to be able to see the fixture in the list.\n\nContinue?');
+        });
+
+        it('prompts if date is after season ends', async () => {
+            await renderComponent(
+                props('2024-09-08', proposedFixture1),
+                divisionData(division1, season),
+                [ division1, division2 ]);
+            const saveButton = findButton(context.container, '➕');
+            const divisionDropDown: Element = context.container.querySelector('.division-dropdown .dropdown-menu')!;
+            const addressDropDown: Element = context.container.querySelector('.address-dropdown .dropdown-menu')!;
+            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+            context.prompts.respondToConfirm('Tournament is outside of the dates for the season.\nYou will need to change the start/end date for the season to be able to see the fixture in the list.\n\nContinue?', true);
+
+            await doSelectOption(divisionDropDown, 'DIVISION 1');
+            await doSelectOption(addressDropDown, 'ADDRESS 1');
+            await doClick(saveButton);
+
+            context.prompts.confirmWasShown('Tournament is outside of the dates for the season.\nYou will need to change the start/end date for the season to be able to see the fixture in the list.\n\nContinue?');
+        });
+
+        it('does not create fixture if outside of season dates', async () => {
+            await renderComponent(
+                props('2024-09-01', proposedFixture1),
+                divisionData(division1, season),
+                [ division1, division2 ]);
+            const saveButton = findButton(context.container, '➕');
+            const divisionDropDown: Element = context.container.querySelector('.division-dropdown .dropdown-menu')!;
+            const addressDropDown: Element = context.container.querySelector('.address-dropdown .dropdown-menu')!;
+            context.prompts.respondToConfirm('Tournament is outside of the dates for the season.\nYou will need to change the start/end date for the season to be able to see the fixture in the list.\n\nContinue?', false);
+
+            await doSelectOption(divisionDropDown, 'DIVISION 1');
+            await doSelectOption(addressDropDown, 'ADDRESS 1');
+            await doClick(saveButton);
+
+            context.prompts.confirmWasShown('Tournament is outside of the dates for the season.\nYou will need to change the start/end date for the season to be able to see the fixture in the list.\n\nContinue?');
+            expect(savedTournament).toBeNull();
         });
 
         it('can close the error dialog if save was unsuccessful', async () => {

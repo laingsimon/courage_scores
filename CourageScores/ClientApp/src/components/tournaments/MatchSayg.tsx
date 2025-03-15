@@ -42,7 +42,7 @@ export function MatchSayg({
                               match, matchIndex, matchOptions, patchData, readOnly, showViewSayg, firstLegPlayerSequence,
                               finalLegPlayerSequence, initialOneDartAverage } : IMatchSaygProps) {
     const {tournamentData, setTournamentData, saveTournament, setPreventScroll} = useTournament();
-    const {account, onError} = useApp();
+    const {account, onError, fullScreen} = useApp();
     const {tournamentApi, settings} = useDependencies();
     const [saygOpen, setSaygOpen] = useState<boolean>(false);
     const [creatingSayg, setCreatingSayg] = useState<boolean>(false);
@@ -59,26 +59,11 @@ export function MatchSayg({
         const numberOfLegs: number = matchOptions.numberOfLegs!;
         const finished: boolean = (scoreA > numberOfLegs / 2.0) || (scoreB > numberOfLegs / 2.0);
 
-        if (!state && document.fullscreenElement) {
-            await leaveFullScreen();
+        if (!state && fullScreen.isFullScreen) {
+            await fullScreen.exitFullScreen();
         } else if (state && !finished) {
             // enter full screen
-            await enterFullScreen();
-        }
-    }
-
-    async function enterFullScreen() {
-        if (document.fullscreenEnabled) {
-            await document.body.requestFullscreen();
-        }
-    }
-
-    async function leaveFullScreen() {
-        try {
-            await document.exitFullscreen();
-        } catch (e: any) {
-            /* istanbul ignore next */
-            console.error('Unable to leave fullscreen', e);
+            await fullScreen.enterFullScreen();
         }
     }
 
@@ -191,11 +176,11 @@ export function MatchSayg({
                 }): undefined}
                 firstLegPlayerSequence={firstLegPlayerSequence}
                 finalLegPlayerSequence={finalLegPlayerSequence}
-                onFinished={leaveFullScreen}
+                onFinished={fullScreen.exitFullScreen}
                 initialOneDartAverage={initialOneDartAverage}>
                 {finished ? (<SuperleagueMatchHeading match={match} />) : null}
             </SaygLoadingContainer>
-            {finished || !document.fullscreenElement ? (<div className="modal-footer px-0 pb-0 mt-3">
+            {finished || !fullScreen.isFullScreen ? (<div className="modal-footer px-0 pb-0 mt-3">
                 <div className="left-aligned mx-0">
                     <button className="btn btn-secondary" onClick={async () => await changeDialogState(false)}>Close</button>
                 </div>

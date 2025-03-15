@@ -23,6 +23,7 @@ import {PreferencesContainer} from "./components/common/PreferencesContainer";
 import {DivisionUriContainer, UrlStyle} from "./components/league/DivisionUriContainer";
 import {Division} from "./components/league/Division";
 import {IError} from "./components/common/IError";
+import {IFullScreen} from "./components/common/IFullScreen";
 
 export interface IAppProps {
     embed?: boolean;
@@ -38,6 +39,7 @@ export function App({embed, controls, testRoute}: IAppProps) {
     const [teams, setTeams] = useState<TeamDto[]>([]);
     const [appLoading, setAppLoading] = useState<boolean | null>(null);
     const [error, setError] = useState<IError | undefined>(undefined);
+    const [isFullScreen, setIsFullScreen] = useState<boolean>(document.fullscreenElement != null); // intentional single equals to cover the undefined case
 
     useEffect(() => {
             // should only fire on componentDidMount
@@ -52,6 +54,18 @@ export function App({embed, controls, testRoute}: IAppProps) {
     useEffect(() => {
         // should only fire once (on page load)
         parentHeight.setupInterval();
+    });
+
+    useEffect(() => {
+        function onFullScreenChange() {
+            setIsFullScreen(document.fullscreenElement !== null);
+        }
+
+        addEventListener('fullscreenchange', onFullScreenChange);
+
+        return () => {
+            removeEventListener('fullscreenchange', onFullScreenChange);
+        }
     });
 
     function onError(error: string | IError) {
@@ -112,6 +126,29 @@ export function App({embed, controls, testRoute}: IAppProps) {
         tv: window.navigator.userAgent.indexOf(' TV ') !== -1 || window.location.search.indexOf('tv') !== -1,
     };
 
+    const fullScreen: IFullScreen = {
+        isFullScreen,
+        canGoFullScreen: document.fullscreenEnabled,
+        async enterFullScreen(): Promise<void> {
+            if (document.fullscreenEnabled) {
+                await document.body.requestFullscreen();
+            }
+        },
+        async exitFullScreen(): Promise<void> {
+            if (isFullScreen) {
+                await document.exitFullscreen();
+            }
+        },
+        async toggleFullScreen(): Promise<void> {
+            if (isFullScreen) {
+                await this.exitFullScreen();
+                return;
+            }
+
+            await this.enterFullScreen();
+        }
+    }
+
     // noinspection JSUnusedGlobalSymbols
     const appData: IApp = {
         divisions,
@@ -133,6 +170,7 @@ export function App({embed, controls, testRoute}: IAppProps) {
         build: getBuild(),
         reportClientSideException,
         browser,
+        fullScreen,
     };
 
     try {

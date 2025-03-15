@@ -28,8 +28,8 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
     const {editScore, setEditScore} = useEditableSayg();
     const maxThrows: number = getMaxThrows(homeThrows, awayThrows);
     const {preventScroll} = useTournament();
-    const {account} = useApp();
-    const largeScores = preventScroll || (account && account.access && account.access.kioskMode) || document.fullscreenElement;
+    const {account, fullScreen} = useApp();
+    const largeScores = preventScroll || (account && account.access && account.access.kioskMode) || fullScreen.isFullScreen;
 
     useEffect(() => {
         window.setTimeout(scrollToLastScore, 10);
@@ -105,15 +105,21 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
     }
 
     function renderExistingScore(score: number | undefined, remaining: number, bust: boolean, throwToEdit: IEditingThrow) {
-        const bustSuffix: string = bust
+        const bustStyle: string = bust
             ? ' text-decoration-line-through'
             : '';
         const otherScoreEditingStyle: string = editScore
             ? ' opacity-25'
             : '';
+        const hiScoreStyle: string = (score || 0) >= 100
+            ? ' text-danger'
+            : '';
+        const oneEightyStyle: string = score === 180
+            ? ' fw-bold'
+            : '';
 
         return (<>
-            <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${otherScoreEditingStyle}${bustSuffix}`} onClick={() => setEditScore(throwToEdit)}>
+            <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${otherScoreEditingStyle}${bustStyle}${hiScoreStyle}${oneEightyStyle}`} onClick={() => setEditScore(throwToEdit)}>
                 <span>{score}</span>
             </div>
             <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${otherScoreEditingStyle}`} onClick={() => setEditScore(throwToEdit)}>

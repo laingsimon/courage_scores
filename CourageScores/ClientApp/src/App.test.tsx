@@ -29,6 +29,8 @@ describe('App', () => {
     let allTeams: TeamDto[] = [];
     let reportedError: ErrorDetailDto | null;
     let settings: any;
+    let fullScreenRequested: boolean;
+    let fullScreenExited: boolean;
 
     const divisionApi = api<IDivisionApi>({
         getAll: async (): Promise<DivisionDto[]> => {
@@ -59,13 +61,24 @@ describe('App', () => {
         await cleanUp(context);
     });
 
+    beforeEach(() => {
+        reportedError = null;
+        settings = {};
+        fullScreenExited = false;
+        fullScreenRequested = false;
+        // @ts-ignore
+        // noinspection JSConstantReassignment
+        document.fullscreenElement = null;
+        // @ts-ignore
+        // noinspection JSConstantReassignment
+        document.fullscreenEnabled = false;
+    })
+
     async function renderComponent(build?: IBuild, embed?: boolean, testRoute?: React.ReactNode) {
         if (build) {
             createBuildElements(build);
         }
 
-        reportedError = null;
-        settings = {};
         context = await renderApp(
             iocProps({
                 divisionApi,
@@ -79,6 +92,9 @@ describe('App', () => {
                 <App controls={true} embed={embed} testRoute={testRoute}/>
             </BrandingContainer>),
             testRoute ? '/test' : undefined);
+
+        document.body.requestFullscreen = async (_?: FullscreenOptions) => { fullScreenRequested = true };
+        document.exitFullscreen = async () => { fullScreenExited = true; };
     }
 
     async function renderApp(iocProps: IIocContainerProps, content: React.ReactNode, currentPath?: string): Promise<TestContext> {
@@ -178,6 +194,18 @@ describe('App', () => {
             <button className="btn" onClick={invalidateCacheAndTryAgain}>invalidateCacheAndTryAgain</button>
             <button className="btn" onClick={() => reportClientSideException(error)}>reportClientSideException</button>
         </div>);
+    }
+
+    function FullScreenElement() {
+        const {fullScreen} = useApp();
+
+        return (<div>
+            <input type="checkbox" readOnly name="isFullScreen" checked={fullScreen.isFullScreen} />
+            <input type="checkbox" readOnly name="canGoFullScreen" checked={fullScreen.canGoFullScreen} />
+            <button className="btn" onClick={() => fullScreen.exitFullScreen()}>exitFullScreen</button>
+            <button className="btn" onClick={() => fullScreen.enterFullScreen()}>enterFullScreen</button>
+            <button className="btn" onClick={() => fullScreen.toggleFullScreen()}>toggleFullScreen</button>
+        </div>)
     }
 
     describe('renders', () => {
@@ -304,6 +332,114 @@ describe('App', () => {
             await doClick(findButton(context.container, 'Clear error'));
 
             expect(context.container.textContent).not.toContain('An error occurred');
+        });
+
+        describe('enterFullscreen', () => {
+            it('can enter full screen if enabled', async () => {
+                // @ts-ignore
+                // noinspection JSConstantReassignment
+                document.fullscreenEnabled = true;
+                await renderComponent(
+                    undefined,
+                    false,
+                    (<Route path='/test' element={<FullScreenElement/>}/>));
+                const canGoFullScreen = context.container.querySelector('input[name="canGoFullScreen"]')! as HTMLInputElement;
+                expect(canGoFullScreen.checked).toEqual(true);
+
+                await doClick(findButton(context.container, 'enterFullScreen'));
+
+                expect(fullScreenRequested).toEqual(true);
+            });
+
+            it('does not enter full screen if disabled', async () => {
+                await renderComponent(
+                    undefined,
+                    false,
+                    (<Route path='/test' element={<FullScreenElement/>}/>));
+                const canGoFullScreen = context.container.querySelector('input[name="canGoFullScreen"]')! as HTMLInputElement;
+                expect(canGoFullScreen.checked).toEqual(false);
+
+                await doClick(findButton(context.container, 'enterFullScreen'));
+
+                expect(fullScreenRequested).toEqual(false);
+            });
+        });
+
+        describe('exitFullscreen', () => {
+            it('can exit full screen if in full screen', async () => {
+                // @ts-ignore
+                // noinspection JSConstantReassignment
+                document.fullscreenElement = document.createElement('hr');
+                await renderComponent(
+                    undefined,
+                    false,
+                    (<Route path='/test' element={<FullScreenElement/>}/>));
+                const wasFullScreen = context.container.querySelector('input[name="isFullScreen"]')! as HTMLInputElement;
+                expect(wasFullScreen.checked).toEqual(true);
+
+                await doClick(findButton(context.container, 'exitFullScreen'));
+
+                expect(fullScreenExited).toEqual(true);
+            });
+
+            it('does not exit full screen if not in full screen', async () => {
+                await renderComponent(
+                    undefined,
+                    false,
+                    (<Route path='/test' element={<FullScreenElement/>}/>));
+                // @ts-ignore
+                // noinspection JSConstantReassignment
+                document.fullscreenEnabled = true;
+                const wasFullScreen = context.container.querySelector('input[name="isFullScreen"]')! as HTMLInputElement;
+                expect(wasFullScreen.checked).toEqual(false);
+
+                await doClick(findButton(context.container, 'exitFullScreen'));
+
+                expect(fullScreenExited).toEqual(false);
+            });
+        });
+
+        describe('toggleFullscreen', () => {
+            it('enters full screen if enabled and not in full screen', async () => {
+                // @ts-ignore
+                // noinspection JSConstantReassignment
+                document.fullscreenEnabled = true;
+                await renderComponent(
+                    undefined,
+                    false,
+                    (<Route path='/test' element={<FullScreenElement/>}/>));
+                const canGoFullScreen = context.container.querySelector('input[name="canGoFullScreen"]')! as HTMLInputElement;
+                expect(canGoFullScreen.checked).toEqual(true);
+                const wasFullScreen = context.container.querySelector('input[name="isFullScreen"]')! as HTMLInputElement;
+                expect(wasFullScreen.checked).toEqual(false);
+
+                await doClick(findButton(context.container, 'toggleFullScreen'));
+
+                expect(fullScreenRequested).toEqual(true);
+                expect(fullScreenExited).toEqual(false);
+            });
+
+            it('exits full screen if in full screen', async () => {
+                // @ts-ignore
+                // noinspection JSConstantReassignment
+                document.fullscreenEnabled = true;
+                // @ts-ignore
+                // noinspection JSConstantReassignment
+                document.fullscreenElement = document.createElement('hr');
+                await renderComponent(
+                    undefined,
+                    false,
+                    (<Route path='/test' element={<FullScreenElement/>}/>));
+                const canGoFullScreen = context.container.querySelector('input[name="canGoFullScreen"]')! as HTMLInputElement;
+                expect(canGoFullScreen.checked).toEqual(true);
+                const wasFullScreen = context.container.querySelector('input[name="isFullScreen"]')! as HTMLInputElement;
+                expect(wasFullScreen.checked).toEqual(true);
+
+                await doClick(findButton(context.container, 'toggleFullScreen'));
+
+                expect(fullScreenRequested).toEqual(false);
+                expect(fullScreenExited).toEqual(true);
+            });
         });
     });
 });
