@@ -156,7 +156,7 @@ function Get-JestFailures([Parameter(ValueFromPipeline)] $Path)
 $Repo = $env:GITHUB_REPOSITORY
 $GitHubToken=$env:GITHUB_TOKEN
 $ReadLogsToken=$env:READ_LOGS_TOKEN
-$TestsCommentHeading = "Test results"
+$TestsCommentHeading = "Build and test output"
 
 $Comments = [array] (Get-PullRequestComments -GitHubToken $GitHubToken -CommentsUrl $CommentsUrl -CommentHeading $TestsCommentHeading)
 if ($Comments -eq $null -or $Comments.Count -eq 0 -or $Comments[0] -eq $null)

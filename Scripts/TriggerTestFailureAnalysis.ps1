@@ -38,7 +38,7 @@ $GitHubRunAttempt = $env:GITHUB_RUN_ATTEMPT
 $GitHubRunId = $env:GITHUB_RUN_ID
 $GitHubRunNumber = $env:GITHUB_RUN_NUMBER
 $GitHubEvent = $env:GITHUB_EVENT_NAME
-$TestsCommentHeading = "Test results"
+$TestsCommentHeading = "Build and test output"
 
 if ($PullRequestNumber -eq "main" -and $GitHubEvent -eq "push")
 {
