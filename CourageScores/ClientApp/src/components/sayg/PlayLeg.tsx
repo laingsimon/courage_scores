@@ -132,9 +132,8 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             newLeg.currentThrow = singlePlayer
                 ? newLeg.currentThrow
                 : opposite(accumulatorName);
-            await onChange(newLeg);
-
             setScore('');
+            await onChange(newLeg);
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
