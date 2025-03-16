@@ -382,8 +382,8 @@ export function Tournament() {
                             <EditTournament canSave={true} saving={saving} />
                         </Dialog>)
                         : null}
-                    {tournamentData.singleRound && !canManageTournaments ? (<SuperLeaguePrintout division={division!} readOnly={true}/>) : null}
-                    {tournamentData.singleRound && canManageTournaments ? (<div>
+                    {tournamentData.singleRound && !(canManageTournaments || canEnterTournamentResults) ? (<SuperLeaguePrintout division={division!} readOnly={true}/>) : null}
+                    {tournamentData.singleRound && (canManageTournaments || canEnterTournamentResults) ? (<div>
                         <SuperLeaguePrintout division={division!} patchData={applyPatch} />
                     </div>) : null}
                     {tournamentData.singleRound

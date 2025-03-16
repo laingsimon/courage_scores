@@ -186,6 +186,21 @@ describe('Tournament', () => {
         deletePhotoResponse = null;
     });
 
+    function patchMatchUseCase(access: AccessDto): { user: UserDto } {
+        return {
+            user: {
+                emailAddress: '',
+                givenName: '',
+                name: '',
+                access: Object.assign({
+                    managePlayers: true,
+                    recordScoresAsYouGo: true,
+                    uploadPhotos: true,
+                }, access),
+            }
+        };
+    }
+
     async function renderComponent(tournamentId: string, scenario: IScenario, appLoading?: boolean) {
         context = await renderApp(
             iocProps({
@@ -378,11 +393,7 @@ describe('Tournament', () => {
         const playerA = playerBuilder('PLAYER A').build();
         const playerB = playerBuilder('PLAYER B').build();
         const playerC = playerBuilder('PLAYER C').build();
-        const account: UserDto = user({
-            manageTournaments: true,
-            managePlayers: true,
-            recordScoresAsYouGo: true,
-        });
+        let account: UserDto;
         const permitted: UserDto = user({
             manageTournaments: true,
             managePlayers: true,
@@ -403,6 +414,11 @@ describe('Tournament', () => {
         let divisionData: DivisionDataDto;
 
         beforeEach(() => {
+            account = user({
+                manageTournaments: true,
+                managePlayers: true,
+                recordScoresAsYouGo: true,
+            });
             tournamentDataLookup = {};
             saygDataLookup = {};
             tournamentData = tournamentBuilder()
@@ -591,7 +607,14 @@ describe('Tournament', () => {
             expect(round.matchOptions).toEqual([{ numberOfLegs: 7, startingScore: 501 }]);
         });
 
-        it('can patch data with sayg score for match', async () => {
+        it.each([
+            patchMatchUseCase({
+                manageTournaments: true,
+            }),
+            patchMatchUseCase({
+                enterTournamentResults: true,
+            }),
+        ])('can patch data with sayg score for match [%s]', async (useCase: { user: UserDto }) => {
             const sayg = getSayg(451, 200);
             tournamentData.singleRound = true;
             tournamentData.sides!.push(sideA, sideB);
@@ -602,7 +625,7 @@ describe('Tournament', () => {
                     .sideB(sideB))
                 .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
                 .build();
-            await renderComponentForTest();
+            await renderComponentForTest(null, useCase.user);
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), START_SCORING)); // first match
             reportedError.verifyNoError();
             apiResponse = {success: true, result: tournamentData};
