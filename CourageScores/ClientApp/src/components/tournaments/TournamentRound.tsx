@@ -19,7 +19,7 @@ export interface ITournamentRoundProps {
 
 export function TournamentRound({ round, onChange, sides, readOnly }: ITournamentRoundProps) {
     const [newMatch, setNewMatch] = useState<TournamentMatchDto>(createNewMatch());
-    const {setWarnBeforeEditDialogClose, matchOptionDefaults} = useTournament();
+    const {setWarnBeforeEditDialogClose, matchOptionDefaults, tournamentData} = useTournament();
 
     async function setNewSide(sideId: string, property: string) {
         const newNewMatch: TournamentMatchDto = Object.assign({}, newMatch);
@@ -125,7 +125,8 @@ ${newNewMatch.sideA ? newNewMatch.sideA.name : ''} vs ${newNewMatch.sideB ? newN
                     matchIndex={matchIndex}
                     onChange={onChange}
                     matchOptions={elementAt(round.matchOptions, matchIndex) || matchOptionDefaults}
-                    onMatchOptionsChanged={async (newMatchOptions: GameMatchOptionDto) => await onMatchOptionsChanged(newMatchOptions, matchIndex)}/>);
+                    onMatchOptionsChanged={async (newMatchOptions: GameMatchOptionDto) => await onMatchOptionsChanged(newMatchOptions, matchIndex)}
+                    showEditMatchOptions={!tournamentData.singleRound} />);
             })}
             {readOnly || allSidesSelected || hasNextRound ? null : (<tr className="bg-yellow p-1">
                 <td>
