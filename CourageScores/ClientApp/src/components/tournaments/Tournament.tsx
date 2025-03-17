@@ -45,6 +45,7 @@ import {
 } from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
 import {useBranding} from "../common/BrandingContainer";
 import {renderDate} from "../../helpers/rendering";
+import {isEqual} from "../common/ObjectComparer";
 
 export interface ITournamentPlayerMap {
     [id: string]: DivisionTournamentFixtureDetailsDto;
@@ -75,7 +76,7 @@ export function Tournament() {
     const [showPhotoManager, setShowPhotoManager] = useState<boolean>(false);
     const [photosEnabled, setPhotosEnabled] = useState<boolean>(false);
     const {setTitle} = useBranding();
-    const [hasChanged, setHasChanged] = useState<boolean>(false);
+    const [originalTournamentData, setOriginalTournamentData] = useState<TournamentGameDto | null>(null);
 
     useEffect(() => {
         featureApi.getFeatures().then(features => {
@@ -114,6 +115,7 @@ export function Tournament() {
                 return;
             }
 
+            setOriginalTournamentData(tournamentData);
             await updateTournamentData(tournamentData);
 
             const tournamentPlayerMap: ITournamentPlayerMap = {};
@@ -195,6 +197,7 @@ export function Tournament() {
             if (!response.success) {
                 setSaveError(response);
             } else {
+                setOriginalTournamentData(response.result!);
                 await updateTournamentData(response.result!);
                 await publishLiveUpdate(response.result!);
                 return response.result!;
@@ -269,7 +272,6 @@ export function Tournament() {
 
             setTournamentData(newData);
             setAllPlayers(getAllPlayers(newData));
-            setHasChanged(true);
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
@@ -320,11 +322,10 @@ export function Tournament() {
             return;
         }
 
-        if (hasChanged) {
+        if (!isEqual(originalTournamentData, tournamentData)) {
             await saveTournament();
         }
         setEditTournament(undefined);
-        setHasChanged(false);
     }
 
     if (loading !== 'ready') {
@@ -345,6 +346,7 @@ export function Tournament() {
             canSubscribe: false,
             subscribeAtStartup: [],
         };
+        const hasChanged = !isEqual(originalTournamentData, tournamentData);
 
         if (tournamentData && tournamentData.singleRound) {
             setTitle(`${tournamentData.host} vs ${tournamentData.opponent} - ${renderDate(tournamentData!.date)}`);
@@ -385,10 +387,7 @@ export function Tournament() {
                     matchOptionDefaults={getMatchOptionDefaults(tournamentData)}
                     saving={saving}
                     editTournament={editTournament}
-                    setEditTournament={canManageTournaments ? async (value: string) => {
-                        setHasChanged(false);
-                        setEditTournament(value);
-                    } : undefined}
+                    setEditTournament={canManageTournaments ? async (value: string) => setEditTournament(value) : undefined}
                     liveOptions={liveOptions}
                     preventScroll={preventScroll}
                     setPreventScroll={setPreventScroll}>
