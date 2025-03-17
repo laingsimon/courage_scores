@@ -75,6 +75,7 @@ export function Tournament() {
     const [showPhotoManager, setShowPhotoManager] = useState<boolean>(false);
     const [photosEnabled, setPhotosEnabled] = useState<boolean>(false);
     const {setTitle} = useBranding();
+    const [hasChanged, setHasChanged] = useState<boolean>(false);
 
     useEffect(() => {
         featureApi.getFeatures().then(features => {
@@ -268,6 +269,7 @@ export function Tournament() {
 
             setTournamentData(newData);
             setAllPlayers(getAllPlayers(newData));
+            setHasChanged(true);
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
@@ -318,8 +320,11 @@ export function Tournament() {
             return;
         }
 
-        await saveTournament();
+        if (hasChanged) {
+            await saveTournament();
+        }
         setEditTournament(undefined);
+        setHasChanged(false);
     }
 
     if (loading !== 'ready') {
@@ -353,11 +358,18 @@ export function Tournament() {
                 originalDivisionData={division!}
                 overrideMode="fixtures"/>
             {canManageTournaments && tournamentData && editTournament === 'details'
-                ? (<Dialog onClose={closeEditTournamentDialog} className="d-print-none">
-                    <TournamentDetails
-                        tournamentData={tournamentData}
-                        disabled={saving}
-                        setTournamentData={async (data: TournamentGameDto) => updateTournamentData(data)} />
+                ? (<Dialog className="d-print-none">
+                    <div>
+                        <TournamentDetails
+                            tournamentData={tournamentData}
+                            disabled={saving}
+                            setTournamentData={async (data: TournamentGameDto) => updateTournamentData(data)} />
+                    </div>
+                    <div className="modal-footer px-0 pb-0">
+                        <div className="left-aligned">
+                            <button className="btn btn-secondary" onClick={closeEditTournamentDialog}>{hasChanged ? 'Save' : 'Close'}</button>
+                        </div>
+                    </div>
                 </Dialog>)
                 : null}
             {tournamentData ? (<div className="content-background p-3">
@@ -373,13 +385,23 @@ export function Tournament() {
                     matchOptionDefaults={getMatchOptionDefaults(tournamentData)}
                     saving={saving}
                     editTournament={editTournament}
-                    setEditTournament={canManageTournaments ? async (value: string) => setEditTournament(value) : undefined}
+                    setEditTournament={canManageTournaments ? async (value: string) => {
+                        setHasChanged(false);
+                        setEditTournament(value);
+                    } : undefined}
                     liveOptions={liveOptions}
                     preventScroll={preventScroll}
                     setPreventScroll={setPreventScroll}>
                     {canManageTournaments && tournamentData && editTournament === 'matches'
-                        ? (<Dialog title="Edit sides and matches" onClose={closeEditTournamentDialog} className="d-print-none">
-                            <EditTournament canSave={true} saving={saving} />
+                        ? (<Dialog title="Edit sides and matches" className="d-print-none">
+                            <div>
+                                <EditTournament canSave={true} saving={saving} />
+                            </div>
+                            <div className="modal-footer px-0 pb-0">
+                                <div className="left-aligned">
+                                    <button className="btn btn-secondary" onClick={closeEditTournamentDialog}>{hasChanged ? 'Save' : 'Close'}</button>
+                                </div>
+                            </div>
                         </Dialog>)
                         : null}
                     {tournamentData.singleRound && !(canManageTournaments || canEnterTournamentResults) ? (<SuperLeaguePrintout division={division!} readOnly={true}/>) : null}
