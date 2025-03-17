@@ -335,6 +335,7 @@ describe('TournamentSide', () => {
                 readOnly: false,
                 onChange,
                 onRemove,
+                showEditSide: true,
             }, [team]);
 
             await doClick(findButton(context.container, '✏️'));
@@ -352,6 +353,7 @@ describe('TournamentSide', () => {
                 readOnly: true,
                 onChange,
                 onRemove,
+                showEditSide: true,
             }, [team]);
 
             expect(context.container.querySelector('button')).toBeFalsy();
@@ -367,6 +369,7 @@ describe('TournamentSide', () => {
                 readOnly: false,
                 onChange,
                 onRemove,
+                showEditSide: true,
             }, [team]);
 
             await doClick(findButton(context.container, '✏️'));
@@ -396,6 +399,7 @@ describe('TournamentSide', () => {
                 readOnly: false,
                 onChange,
                 onRemove,
+                showEditSide: true,
             }, [team]);
 
             await doClick(findButton(context.container, '✏️'));
@@ -403,6 +407,28 @@ describe('TournamentSide', () => {
             await doClick(findButton(dialog, 'Close'));
 
             reportedError.verifyNoError();
+            expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+        });
+
+        it('can delete side from within edit side dialog', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder().build();
+            await renderComponent({season, tournamentData, preventScroll: false, setPreventScroll}, {
+                side: sideBuilder('SIDE NAME')
+                    .teamId(team.id)
+                    .build(),
+                readOnly: false,
+                onChange,
+                onRemove,
+                showEditSide: true,
+            }, [team]);
+            context.prompts.respondToConfirm('Are you sure you want to remove SIDE NAME?', true);
+
+            await doClick(findButton(context.container, '✏️'));
+            const dialog = context.container.querySelector('.modal-dialog');
+            await doClick(findButton(dialog, 'Delete side'));
+
+            reportedError.verifyNoError();
+            expect(removed).toEqual(true);
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
         });
 
@@ -415,16 +441,48 @@ describe('TournamentSide', () => {
                 readOnly: false,
                 onChange,
                 onRemove,
+                showDeleteSide: true,
             }, [team]);
             context.prompts.respondToConfirm('Are you sure you want to remove SIDE NAME?', true);
 
-            await doClick(findButton(context.container, '✏️'));
-            const dialog = context.container.querySelector('.modal-dialog');
-            await doClick(findButton(dialog, 'Delete side'));
+            await doClick(findButton(context.container, '🗑️'));
 
             reportedError.verifyNoError();
             expect(removed).toEqual(true);
-            expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+        });
+
+        it('does not delete side if user does not confirm', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder().build();
+            await renderComponent({season, tournamentData, preventScroll: false, setPreventScroll}, {
+                side: sideBuilder('SIDE NAME')
+                    .teamId(team.id)
+                    .build(),
+                readOnly: false,
+                onChange,
+                onRemove,
+                showDeleteSide: true,
+            }, [team]);
+            context.prompts.respondToConfirm('Are you sure you want to remove SIDE NAME?', false);
+
+            await doClick(findButton(context.container, '🗑️'));
+
+            reportedError.verifyNoError();
+            context.prompts.confirmWasShown('Are you sure you want to remove SIDE NAME?');
+            expect(removed).toEqual(false);
+        });
+
+        it('cannot edit side when readonly', async () => {
+            await renderComponent({season, tournamentData: nullTournamentData(), preventScroll: false, setPreventScroll}, {
+                side: sideBuilder('SIDE NAME')
+                    .teamId(team.id)
+                    .build(),
+                readOnly: true,
+                onChange,
+                onRemove,
+                showDeleteSide: true,
+            }, [team]);
+
+            expect(context.container.querySelector('button')).toBeFalsy();
         });
     });
 });

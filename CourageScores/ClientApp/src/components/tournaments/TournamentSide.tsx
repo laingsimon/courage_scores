@@ -11,9 +11,11 @@ export interface ITournamentSideProps {
     winner?: boolean;
     readOnly?: boolean;
     onRemove(): UntypedPromise;
+    showEditSide?: boolean;
+    showDeleteSide?: boolean;
 }
 
-export function TournamentSide({side, onChange, winner, readOnly, onRemove}: ITournamentSideProps) {
+export function TournamentSide({side, onChange, winner, readOnly, onRemove, showEditSide, showDeleteSide}: ITournamentSideProps) {
     const [editSide, setEditSide] = useState<TournamentSideDto | null>(null);
 
     function renderPlayers() {
@@ -53,13 +55,22 @@ export function TournamentSide({side, onChange, winner, readOnly, onRemove}: ITo
             }}/>);
     }
 
+    async function deleteSide() {
+        if (confirm(`Are you sure you want to remove ${side.name}?`)) {
+            await onRemove();
+        }
+    }
+
     return (<div className={`position-relative p-1 m-1 ${winner ? 'bg-winner' : 'bg-light'}`}
                  style={{flexBasis: '100px', flexGrow: 1, flexShrink: 1}}>
         {renderSideName()}
         {renderPlayers()}
-        {readOnly ? null : (<div className="position-absolute-bottom-right">
+        {!readOnly && showEditSide ? (<div className="position-absolute-bottom-right">
             <button className="btn btn-sm btn-primary" onClick={() => setEditSide(side)}>✏️</button>
-        </div>)}
+        </div>) : null}
+        {!readOnly && showDeleteSide ? (<div className="position-absolute-bottom-right">
+            <button className="btn btn-sm btn-danger" onClick={deleteSide}>🗑️</button>
+        </div>) : null}
         {editSide ? renderEditSide() : null}
     </div>);
 }

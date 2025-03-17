@@ -75,7 +75,9 @@ export function EditTournament({canSave, disabled, saving}: IEditTournamentProps
                     onRemove={async () => {
                         await setTournamentData!(removeSide(tournamentData, side));
                         setNewSide(null);
-                    }}/>);
+                    }}
+                    showEditSide={!tournamentData.singleRound}
+                    showDeleteSide={tournamentData.singleRound} />);
             })}
             {readOnly
                 ? null
