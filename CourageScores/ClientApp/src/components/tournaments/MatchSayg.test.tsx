@@ -35,6 +35,7 @@ import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMa
 import {ENTER_SCORE_BUTTON} from "../../helpers/constants";
 import {checkoutWith, keyPad} from "../../helpers/sayg";
 import {START_SCORING} from "./tournaments";
+import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 
 describe('MatchSayg', () => {
     let context: TestContext;
@@ -106,6 +107,9 @@ describe('MatchSayg', () => {
         scrollPrevented = prevent;
     }
 
+    async function setDraggingSide(_: TournamentSideDto) {
+    }
+
     afterEach(async () => {
         await cleanUp(context);
     });
@@ -151,6 +155,7 @@ describe('MatchSayg', () => {
             preventScroll: false,
             setPreventScroll,
             saveTournament,
+            setDraggingSide,
         };
     }
 
@@ -182,6 +187,7 @@ describe('MatchSayg', () => {
                 tournamentData,
                 preventScroll: false,
                 setPreventScroll,
+                setDraggingSide,
             }, {
                 match,
                 matchIndex: 0,
@@ -420,6 +426,7 @@ describe('MatchSayg', () => {
                 saveTournament,
                 preventScroll: false,
                 setPreventScroll,
+                setDraggingSide,
             }, {
                 match,
                 matchIndex: 0,

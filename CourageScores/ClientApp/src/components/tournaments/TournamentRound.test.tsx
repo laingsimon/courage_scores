@@ -95,6 +95,9 @@ describe('TournamentRound', () => {
     function setPreventScroll(_: boolean) {
     }
 
+    async function setDraggingSide(_: TournamentSideDto) {
+    }
+
     async function renderComponent(containerProps: ITournamentContainerProps, props: ITournamentRoundProps, account?: UserDto) {
         context = await renderApp(
             iocProps({tournamentApi, saygApi}),
@@ -142,6 +145,7 @@ describe('TournamentRound', () => {
             saveTournament,
             preventScroll: false,
             setPreventScroll,
+            setDraggingSide,
         };
 
         describe('renders', () => {
@@ -227,6 +231,7 @@ describe('TournamentRound', () => {
             saveTournament,
             preventScroll: false,
             setPreventScroll,
+            setDraggingSide,
         }
 
         describe('renders', () => {
@@ -266,6 +271,7 @@ describe('TournamentRound', () => {
                         setTournamentData,
                         preventScroll: false,
                         setPreventScroll,
+                        setDraggingSide,
                     },
                     {
                         round: roundBuilder()
@@ -315,6 +321,7 @@ describe('TournamentRound', () => {
                         setWarnBeforeEditDialogClose,
                         preventScroll: false,
                         setPreventScroll,
+                        setDraggingSide,
                     },
                     {
                         round: roundBuilder()
@@ -347,6 +354,7 @@ describe('TournamentRound', () => {
                         setWarnBeforeEditDialogClose,
                         preventScroll: false,
                         setPreventScroll,
+                        setDraggingSide,
                     },
                     {
                         round: roundBuilder().withMatch(match).build(),
@@ -389,6 +397,7 @@ describe('TournamentRound', () => {
                         setWarnBeforeEditDialogClose,
                         preventScroll: false,
                         setPreventScroll,
+                        setDraggingSide,
                     },
                     {
                         round: roundBuilder().withMatch(match).build(),
@@ -413,6 +422,7 @@ describe('TournamentRound', () => {
                         setWarnBeforeEditDialogClose,
                         preventScroll: false,
                         setPreventScroll,
+                        setDraggingSide,
                     },
                     {
                         round: roundBuilder().withMatch(match).build(),
@@ -447,6 +457,7 @@ describe('TournamentRound', () => {
                         setWarnBeforeEditDialogClose,
                         preventScroll: false,
                         setPreventScroll,
+                        setDraggingSide,
                     },
                     {
                         round: roundBuilder().withMatch(match).build(),
@@ -514,6 +525,7 @@ describe('TournamentRound', () => {
                         setWarnBeforeEditDialogClose,
                         preventScroll: false,
                         setPreventScroll,
+                        setDraggingSide,
                     },
                     {
                         round: roundBuilder().build(),

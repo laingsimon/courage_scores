@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import React, {useState} from 'react';
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
 import {any, elementAt, isEmpty} from "../../helpers/collections";
 import {TournamentRoundMatch} from "./TournamentRoundMatch";
@@ -19,7 +19,7 @@ export interface ITournamentRoundProps {
 
 export function TournamentRound({ round, onChange, sides, readOnly }: ITournamentRoundProps) {
     const [newMatch, setNewMatch] = useState<TournamentMatchDto>(createNewMatch());
-    const {setWarnBeforeEditDialogClose, matchOptionDefaults, tournamentData} = useTournament();
+    const {setWarnBeforeEditDialogClose, matchOptionDefaults, tournamentData, draggingSide} = useTournament();
 
     async function setNewSide(sideId: string, property: string) {
         const newNewMatch: TournamentMatchDto = Object.assign({}, newMatch);
@@ -103,6 +103,24 @@ ${newNewMatch.sideA ? newNewMatch.sideA.name : ''} vs ${newNewMatch.sideB ? newN
         };
     }
 
+    async function dropSideA() {
+        if (draggingSide) {
+            await setNewSide(draggingSide.id, 'sideA');
+        }
+    }
+
+    async function dropSideB() {
+        if (draggingSide) {
+            await setNewSide(draggingSide.id, 'sideB');
+        }
+    }
+
+    function preventDefault(event: React.DragEvent) {
+        if (draggingSide) {
+            event.preventDefault();
+        }
+    }
+
     const allSidesSelected: boolean = (round.matches && round.matches.length * 2 === sides.length) || false;
     const hasNextRound: boolean = (round.nextRound && round.nextRound.matches && any(round.nextRound.matches)) || false;
 
@@ -129,7 +147,7 @@ ${newNewMatch.sideA ? newNewMatch.sideA.name : ''} vs ${newNewMatch.sideB ? newN
                     showEditMatchOptions={!tournamentData.singleRound} />);
             })}
             {readOnly || allSidesSelected || hasNextRound ? null : (<tr className="bg-yellow p-1">
-                <td>
+                <td onDrop={dropSideA} onDragOver={preventDefault}>
                     <BootstrapDropdown value={newMatch.sideA ? newMatch.sideA.id : null}
                                        onChange={async (side) => setNewSide(side, 'sideA')}
                                        options={sides.filter(s => exceptSelected(s, undefined, 'sideA')).map(sideSelection)}
@@ -138,7 +156,7 @@ ${newNewMatch.sideA ? newNewMatch.sideA.name : ''} vs ${newNewMatch.sideB ? newN
                 <td></td>
                 <td>vs</td>
                 <td></td>
-                <td>
+                <td onDrop={dropSideB} onDragOver={preventDefault}>
                     <BootstrapDropdown value={newMatch.sideB ? newMatch.sideB.id : null}
                                        onChange={async (side) => setNewSide(side, 'sideB')}
                                        options={sides.filter(s => exceptSelected(s, undefined, 'sideB')).map(sideSelection)}

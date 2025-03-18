@@ -3,7 +3,7 @@ import {useParams} from "react-router";
 import {DivisionControls} from "../league/DivisionControls";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {any, sortBy} from "../../helpers/collections";
-import {propChanged} from "../../helpers/events";
+import {asyncCallback, propChanged} from "../../helpers/events";
 import {Loading} from "../common/Loading";
 import {EditTournament} from "./EditTournament";
 import {useDependencies} from "../common/IocContainer";
@@ -77,6 +77,7 @@ export function Tournament() {
     const [photosEnabled, setPhotosEnabled] = useState<boolean>(false);
     const {setTitle} = useBranding();
     const [originalTournamentData, setOriginalTournamentData] = useState<TournamentGameDto | null>(null);
+    const [draggingSide, setDraggingSide] = useState<TournamentSideDto | undefined>(undefined);
 
     useEffect(() => {
         featureApi.getFeatures().then(features => {
@@ -383,14 +384,16 @@ export function Tournament() {
                     alreadyPlaying={alreadyPlaying!}
                     allPlayers={allPlayers}
                     saveTournament={saveTournament}
-                    setWarnBeforeEditDialogClose={async (warning: string) => setWarnBeforeEditDialogClose(warning)}
+                    setWarnBeforeEditDialogClose={asyncCallback(setWarnBeforeEditDialogClose)}
                     matchOptionDefaults={getMatchOptionDefaults(tournamentData)}
                     saving={saving}
                     editTournament={editTournament}
-                    setEditTournament={canManageTournaments ? async (value: string) => setEditTournament(value) : undefined}
+                    setEditTournament={canManageTournaments ? asyncCallback(setEditTournament) : undefined}
                     liveOptions={liveOptions}
                     preventScroll={preventScroll}
-                    setPreventScroll={setPreventScroll}>
+                    setPreventScroll={setPreventScroll}
+                    draggingSide={draggingSide}
+                    setDraggingSide={asyncCallback(setDraggingSide)}>
                     {canManageTournaments && tournamentData && editTournament === 'matches'
                         ? (<Dialog title="Edit sides and matches" className="d-print-none">
                             <div>

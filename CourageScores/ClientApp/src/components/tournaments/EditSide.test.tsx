@@ -117,6 +117,9 @@ describe('EditSide', () => {
     function setPreventScroll(_: boolean) {
     }
 
+    async function setDraggingSide(_: TournamentSideDto) {
+    }
+
     async function renderComponent(containerProps: ITournamentContainerProps, props: IEditSideProps, teams?: TeamDto[], account?: UserDto) {
         context = await renderApp(
             iocProps({playerApi}),
@@ -166,6 +169,7 @@ describe('EditSide', () => {
             alreadyPlaying: {},
             preventScroll,
             setPreventScroll,
+            setDraggingSide,
         };
     }
 
@@ -209,7 +213,8 @@ describe('EditSide', () => {
                 season,
                 alreadyPlaying: {},
                 preventScroll,
-                setPreventScroll
+                setPreventScroll,
+                setDraggingSide,
             }, props(sideWithPlayer), [team]);
 
             reportedError.verifyNoError();
@@ -305,7 +310,8 @@ describe('EditSide', () => {
                 season,
                 alreadyPlaying: {},
                 preventScroll,
-                setPreventScroll
+                setPreventScroll,
+                setDraggingSide,
             }, props(sideWithPlayer), [team]);
 
             reportedError.verifyNoError();
@@ -367,7 +373,8 @@ describe('EditSide', () => {
                 season,
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
                 preventScroll,
-                setPreventScroll
+                setPreventScroll,
+                setDraggingSide,
             }, props(sideWithPlayer), [otherDivisionTeam, team]);
 
             reportedError.verifyNoError();
@@ -390,6 +397,7 @@ describe('EditSide', () => {
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
                 preventScroll,
                 setPreventScroll,
+                setDraggingSide,
             }, props(sideWithPlayer), [otherDivisionTeam, team]);
 
             reportedError.verifyNoError();
@@ -404,6 +412,7 @@ describe('EditSide', () => {
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
                 preventScroll,
                 setPreventScroll,
+                setDraggingSide,
             }, props(sideWithPlayer), [team]);
 
             reportedError.verifyNoError();
@@ -777,6 +786,7 @@ describe('EditSide', () => {
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
                 preventScroll,
                 setPreventScroll,
+                setDraggingSide,
             }, props(side), [team]);
             reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
@@ -817,6 +827,7 @@ describe('EditSide', () => {
                 alreadyPlaying: {},
                 preventScroll,
                 setPreventScroll,
+                setDraggingSide,
             }, props(sideWithPlayer), [team], user(true));
 
             await doClick(findButton(context.container, 'Add player/s'));
@@ -932,6 +943,7 @@ describe('EditSide', () => {
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
                 preventScroll,
                 setPreventScroll,
+                setDraggingSide,
             }, props(teamSide), [team]);
 
             expect(context.container.querySelector('.dropdown-menu')).toBeTruthy();
@@ -944,6 +956,7 @@ describe('EditSide', () => {
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
                 preventScroll,
                 setPreventScroll,
+                setDraggingSide,
             }, props(sideWithPlayer), [team]);
 
             expect(context.container.querySelector('.list-group')).toBeTruthy();
@@ -961,6 +974,7 @@ describe('EditSide', () => {
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
                 preventScroll,
                 setPreventScroll,
+                setDraggingSide,
             }, props(teamSide), [team]);
 
             expect(context.container.querySelector('.dropdown-menu')).toBeTruthy();
@@ -978,6 +992,7 @@ describe('EditSide', () => {
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
                 preventScroll,
                 setPreventScroll,
+                setDraggingSide,
             }, props(sideWithPlayer), [team]);
 
             expect(context.container.querySelector('.list-group')).toBeTruthy();
@@ -995,6 +1010,7 @@ describe('EditSide', () => {
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
                 preventScroll,
                 setPreventScroll,
+                setDraggingSide,
             }, props(sideWithPlayer), [team]);
 
             expect(context.container.querySelector('.dropdown-menu')).toBeFalsy();
@@ -1012,6 +1028,7 @@ describe('EditSide', () => {
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
                 preventScroll,
                 setPreventScroll,
+                setDraggingSide,
             }, props(sideWithPlayer), [team]);
 
             expect(context.container.querySelector('.list-group')).toBeFalsy();

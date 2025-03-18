@@ -89,6 +89,9 @@ describe('PrintableSheetMatch', () => {
     function setPreventScroll(_: boolean) {
     }
 
+    async function setDraggingSide(_: TournamentSideDto) {
+    }
+
     async function renderComponent(containerProps: ITournamentContainerProps, props: IPrintableSheetMatchProps, appProps: IAppContainerProps) {
         context = await renderApp(
             iocProps({saygApi, tournamentApi}),
@@ -108,7 +111,8 @@ describe('PrintableSheetMatch', () => {
             setPreventScroll,
             async saveTournament(): Promise<TournamentGameDto> {
                 return tournamentData;
-            }
+            },
+            setDraggingSide,
         };
     }
 

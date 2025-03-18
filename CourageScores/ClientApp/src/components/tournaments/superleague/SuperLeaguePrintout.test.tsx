@@ -30,6 +30,7 @@ import {IClientActionResultDto} from "../../common/IClientActionResultDto";
 import {CHECKOUT_2_DART} from "../../../helpers/constants";
 import {checkoutWith, enterScores} from "../../../helpers/sayg";
 import {START_SCORING} from "../tournaments";
+import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
 
 describe('SuperLeaguePrintout', () => {
     let context: TestContext;
@@ -75,6 +76,9 @@ describe('SuperLeaguePrintout', () => {
     });
 
     function setPreventScroll(_: boolean) {
+    }
+
+    async function setDraggingSide(_: TournamentSideDto) {
     }
 
     async function patchData(): Promise<boolean> {
@@ -154,6 +158,7 @@ describe('SuperLeaguePrintout', () => {
                 tournamentData,
                 preventScroll: false,
                 setPreventScroll,
+                setDraggingSide,
             }, { division }, access);
 
             reportedError.verifyNoError();
@@ -196,6 +201,7 @@ describe('SuperLeaguePrintout', () => {
                     tournamentData,
                     preventScroll: false,
                     setPreventScroll,
+                    setDraggingSide,
                 }, { division }, access);
 
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
@@ -229,6 +235,7 @@ describe('SuperLeaguePrintout', () => {
                     tournamentData,
                     preventScroll: false,
                     setPreventScroll,
+                    setDraggingSide,
                 }, { division }, access);
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
                 expect(context.container.querySelector('div[datatype="match-report"] > div > div:nth-child(1)')!.textContent).toEqual('Legs won: 2');
@@ -281,6 +288,7 @@ describe('SuperLeaguePrintout', () => {
                     tournamentData,
                     preventScroll: false,
                     setPreventScroll,
+                    setDraggingSide,
                 }, { division }, access);
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
 
@@ -315,6 +323,7 @@ describe('SuperLeaguePrintout', () => {
                     tournamentData,
                     preventScroll: false,
                     setPreventScroll,
+                    setDraggingSide,
                 }, { division }, access);
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '⏸️ Paused');
@@ -353,6 +362,7 @@ describe('SuperLeaguePrintout', () => {
                     tournamentData,
                     preventScroll: false,
                     setPreventScroll,
+                    setDraggingSide,
                 }, { division }, access);
                 await doClick(findButton(context.container, START_SCORING));
                 const dialog = context.container.querySelector('div.modal-dialog')!;
@@ -394,6 +404,7 @@ describe('SuperLeaguePrintout', () => {
                     tournamentData,
                     preventScroll: false,
                     setPreventScroll,
+                    setDraggingSide,
                 }, { division, patchData }, access);
                 await doClick(findButton(context.container, START_SCORING));
                 const dialog = context.container.querySelector('div.modal-dialog')!;

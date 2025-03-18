@@ -29,6 +29,7 @@ import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg
 import {saygBuilder} from "../../../helpers/builders/sayg";
 import {START_SCORING} from "../tournaments";
 import {UntypedPromise} from "../../../interfaces/UntypedPromise";
+import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
 
 describe('MasterDraw', () => {
     let context: TestContext;
@@ -88,6 +89,9 @@ describe('MasterDraw', () => {
     function setPreventScroll(_: boolean) {
     }
 
+    async function setDraggingSide(_: TournamentSideDto) {
+    }
+
     async function renderComponent(props: IMasterDrawProps, containerProps: ITournamentContainerProps, account?: UserDto) {
         context = await renderApp(
             iocProps({tournamentApi, saygApi}),
@@ -103,6 +107,7 @@ describe('MasterDraw', () => {
             tournamentData: tournamentBuilder().build(),
             preventScroll: false,
             setPreventScroll(_: boolean) {},
+            async setDraggingSide(_?: TournamentSideDto) {},
         };
 
         it('matches', async () => {
@@ -175,6 +180,7 @@ describe('MasterDraw', () => {
                 tournamentData: tournamentBuilder().build(),
                 preventScroll: false,
                 setPreventScroll,
+                setDraggingSide,
             });
             reportedError.verifyNoError();
 
@@ -197,6 +203,7 @@ describe('MasterDraw', () => {
                 tournamentData: tournamentBuilder().build(),
                 preventScroll: false,
                 setPreventScroll,
+                setDraggingSide,
             });
             reportedError.verifyNoError();
 
@@ -223,6 +230,7 @@ describe('MasterDraw', () => {
                 tournamentData: tournamentBuilder().build(),
                 preventScroll: false,
                 setPreventScroll,
+                setDraggingSide,
             });
             reportedError.verifyNoError();
 
@@ -249,6 +257,7 @@ describe('MasterDraw', () => {
                 tournamentData: tournamentBuilder().build(),
                 preventScroll: false,
                 setPreventScroll,
+                setDraggingSide,
             });
             reportedError.verifyNoError();
 
@@ -275,6 +284,7 @@ describe('MasterDraw', () => {
                 tournamentData: tournamentBuilder().build(),
                 preventScroll: false,
                 setPreventScroll,
+                setDraggingSide,
             });
             reportedError.verifyNoError();
 
@@ -301,6 +311,7 @@ describe('MasterDraw', () => {
                 tournamentData: tournamentBuilder().build(),
                 preventScroll: false,
                 setPreventScroll,
+                setDraggingSide,
             });
             reportedError.verifyNoError();
 
@@ -323,6 +334,7 @@ describe('MasterDraw', () => {
                 tournamentData: tournamentBuilder().build(),
                 preventScroll: false,
                 setPreventScroll,
+                setDraggingSide,
             });
             reportedError.verifyNoError();
 
@@ -345,6 +357,7 @@ describe('MasterDraw', () => {
                 tournamentData: tournamentBuilder().build(),
                 preventScroll: false,
                 setPreventScroll,
+                setDraggingSide,
             });
             reportedError.verifyNoError();
 
@@ -366,6 +379,7 @@ describe('MasterDraw', () => {
                 tournamentData: tournamentBuilder().build(),
                 preventScroll: false,
                 setPreventScroll,
+                setDraggingSide,
             });
             reportedError.verifyNoError();
 
@@ -387,6 +401,7 @@ describe('MasterDraw', () => {
                 tournamentData: tournamentBuilder().build(),
                 preventScroll: false,
                 setPreventScroll,
+                setDraggingSide,
             });
             reportedError.verifyNoError();
 
@@ -423,6 +438,7 @@ describe('MasterDraw', () => {
                 setTournamentData,
                 preventScroll: false,
                 setPreventScroll,
+                setDraggingSide,
             }, account);
             reportedError.verifyNoError();
 
@@ -464,6 +480,7 @@ describe('MasterDraw', () => {
                 setTournamentData,
                 preventScroll: false,
                 setPreventScroll,
+                setDraggingSide,
             }, account);
             reportedError.verifyNoError();
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), START_SCORING));

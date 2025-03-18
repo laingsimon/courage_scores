@@ -21,7 +21,7 @@ export interface IEditTournamentProps {
 
 export function EditTournament({canSave, disabled, saving}: IEditTournamentProps) {
     const {account} = useApp();
-    const {tournamentData, setTournamentData} = useTournament();
+    const {tournamentData, setTournamentData, setDraggingSide} = useTournament();
     const isAdmin: boolean = hasAccess(account, access => access.manageTournaments);
     const readOnly: boolean = !isAdmin || !canSave || disabled || saving || false;
     const winningSideId: string | undefined = getWinningSide(tournamentData.round);
@@ -79,7 +79,8 @@ export function EditTournament({canSave, disabled, saving}: IEditTournamentProps
                         setNewSide(null);
                     }}
                     showEditSide={!tournamentData.singleRound}
-                    showDeleteSide={tournamentData.singleRound && !hasBeenSelected} />);
+                    showDeleteSide={tournamentData.singleRound && !hasBeenSelected}
+                    onStartDrag={hasBeenSelected ? undefined : setDraggingSide} />);
             })}
             {readOnly
                 ? null
