@@ -21,7 +21,7 @@ export interface IEditTournamentProps {
 
 export function EditTournament({canSave, disabled, saving}: IEditTournamentProps) {
     const {account} = useApp();
-    const {tournamentData, setTournamentData, setDraggingSide} = useTournament();
+    const {tournamentData, setTournamentData, setDraggingSide, newMatch} = useTournament();
     const isAdmin: boolean = hasAccess(account, access => access.manageTournaments);
     const readOnly: boolean = !isAdmin || !canSave || disabled || saving || false;
     const winningSideId: string | undefined = getWinningSide(tournamentData.round);
@@ -66,7 +66,12 @@ export function EditTournament({canSave, disabled, saving}: IEditTournamentProps
         <div>Playing:</div>
         <div className="my-1 d-flex flex-wrap">
             {tournamentData.sides!.sort(sortBy('name')).map((side: TournamentSideDto, sideIndex: number) => {
-                const hasBeenSelected = (tournamentData.round?.matches?.filter(m => m.sideA?.id === side.id || m.sideB?.id === side.id) || []).length > 0
+                const allMatches = (tournamentData.round?.matches || []).concat(newMatch);
+                const hasBeenSelected = (allMatches.filter(m => m.sideA?.id === side.id || m.sideB?.id === side.id) || []).length > 0
+
+                if (hasBeenSelected) {
+                    return null;
+                }
 
                 return (<TournamentSide
                     key={sideIndex}

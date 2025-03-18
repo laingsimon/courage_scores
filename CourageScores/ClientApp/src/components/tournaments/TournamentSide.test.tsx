@@ -21,6 +21,7 @@ import {divisionBuilder} from "../../helpers/builders/divisions";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {sideBuilder, tournamentBuilder} from "../../helpers/builders/tournaments";
 import {ISaveSideOptions} from "./EditSide";
+import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 
 describe('TournamentSide', () => {
     let context: TestContext;
@@ -53,6 +54,9 @@ describe('TournamentSide', () => {
     }
 
     async function setDraggingSide(_: TournamentSideDto) {
+    }
+
+    async function setNewMatch(_: TournamentMatchDto) {
     }
 
     function nullTournamentData(): TournamentGameDto {

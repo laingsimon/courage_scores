@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
 import {any, elementAt, isEmpty} from "../../helpers/collections";
 import {TournamentRoundMatch} from "./TournamentRoundMatch";
@@ -7,8 +7,8 @@ import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMa
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
-import {createTemporaryId} from "../../helpers/projection";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {createTemporaryId} from "../../helpers/projection";
 
 export interface ITournamentRoundProps {
     round: TournamentRoundDto;
@@ -18,13 +18,12 @@ export interface ITournamentRoundProps {
 }
 
 export function TournamentRound({ round, onChange, sides, readOnly }: ITournamentRoundProps) {
-    const [newMatch, setNewMatch] = useState<TournamentMatchDto>(createNewMatch());
-    const {setWarnBeforeEditDialogClose, matchOptionDefaults, tournamentData, draggingSide} = useTournament();
+    const {newMatch, setNewMatch, setWarnBeforeEditDialogClose, matchOptionDefaults, tournamentData, draggingSide} = useTournament();
 
     async function setNewSide(sideId: string, property: string) {
         const newNewMatch: TournamentMatchDto = Object.assign({}, newMatch);
         newNewMatch[property] = sides.filter(s => s.id === sideId)[0];
-        setNewMatch(newNewMatch);
+        await setNewMatch(newNewMatch);
         if (setWarnBeforeEditDialogClose) {
             await setWarnBeforeEditDialogClose(`Add the (new) match before saving, otherwise it would be lost.
 
@@ -77,7 +76,7 @@ ${newNewMatch.sideA ? newNewMatch.sideA.name : ''} vs ${newNewMatch.sideB ? newN
         newRound.matchOptions = matchOptionDefaults
             ? (newRound.matchOptions || []).concat(matchOptionDefaults)
             : (newRound.matchOptions || []);
-        setNewMatch(createNewMatch());
+        await setNewMatch(createNewMatch());
         if (setWarnBeforeEditDialogClose) {
             await setWarnBeforeEditDialogClose(null);
         }

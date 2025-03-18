@@ -30,6 +30,7 @@ import {saygBuilder} from "../../../helpers/builders/sayg";
 import {START_SCORING} from "../tournaments";
 import {UntypedPromise} from "../../../interfaces/UntypedPromise";
 import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
+import {TournamentMatchDto} from "../../../interfaces/models/dtos/Game/TournamentMatchDto";
 
 describe('MasterDraw', () => {
     let context: TestContext;
@@ -92,6 +93,9 @@ describe('MasterDraw', () => {
     async function setDraggingSide(_: TournamentSideDto) {
     }
 
+    async function setNewMatch(_: TournamentMatchDto) {
+    }
+
     async function renderComponent(props: IMasterDrawProps, containerProps: ITournamentContainerProps, account?: UserDto) {
         context = await renderApp(
             iocProps({tournamentApi, saygApi}),
@@ -107,7 +111,9 @@ describe('MasterDraw', () => {
             tournamentData: tournamentBuilder().build(),
             preventScroll: false,
             setPreventScroll(_: boolean) {},
-            async setDraggingSide(_?: TournamentSideDto) {},
+            setDraggingSide,
+            newMatch: {},
+            setNewMatch,
         };
 
         it('matches', async () => {
@@ -181,6 +187,8 @@ describe('MasterDraw', () => {
                 preventScroll: false,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             });
             reportedError.verifyNoError();
 
@@ -204,6 +212,8 @@ describe('MasterDraw', () => {
                 preventScroll: false,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             });
             reportedError.verifyNoError();
 
@@ -231,6 +241,8 @@ describe('MasterDraw', () => {
                 preventScroll: false,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             });
             reportedError.verifyNoError();
 
@@ -258,6 +270,8 @@ describe('MasterDraw', () => {
                 preventScroll: false,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             });
             reportedError.verifyNoError();
 
@@ -285,6 +299,8 @@ describe('MasterDraw', () => {
                 preventScroll: false,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             });
             reportedError.verifyNoError();
 
@@ -312,6 +328,8 @@ describe('MasterDraw', () => {
                 preventScroll: false,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             });
             reportedError.verifyNoError();
 
@@ -335,6 +353,8 @@ describe('MasterDraw', () => {
                 preventScroll: false,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             });
             reportedError.verifyNoError();
 
@@ -358,6 +378,8 @@ describe('MasterDraw', () => {
                 preventScroll: false,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             });
             reportedError.verifyNoError();
 
@@ -380,6 +402,8 @@ describe('MasterDraw', () => {
                 preventScroll: false,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             });
             reportedError.verifyNoError();
 
@@ -402,6 +426,8 @@ describe('MasterDraw', () => {
                 preventScroll: false,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             });
             reportedError.verifyNoError();
 
@@ -439,6 +465,8 @@ describe('MasterDraw', () => {
                 preventScroll: false,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             }, account);
             reportedError.verifyNoError();
 
@@ -481,6 +509,8 @@ describe('MasterDraw', () => {
                 preventScroll: false,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             }, account);
             reportedError.verifyNoError();
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), START_SCORING));

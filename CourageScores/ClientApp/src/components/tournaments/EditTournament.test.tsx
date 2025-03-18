@@ -25,6 +25,7 @@ import {teamBuilder} from "../../helpers/builders/teams";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {IMatchOptionsBuilder} from "../../helpers/builders/games";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
+import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 
 describe('EditTournament', () => {
     let context: TestContext;
@@ -44,6 +45,9 @@ describe('EditTournament', () => {
     }
 
     async function setDraggingSide(_: TournamentSideDto) {
+    }
+
+    async function setNewMatch(_: TournamentMatchDto) {
     }
 
     beforeEach(() => {
@@ -85,6 +89,8 @@ describe('EditTournament', () => {
                 preventScroll,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             }, {
                 disabled: true,
                 saving: false,
@@ -114,6 +120,8 @@ describe('EditTournament', () => {
                 preventScroll,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             }, {
                 disabled: true,
                 saving: false,
@@ -141,6 +149,8 @@ describe('EditTournament', () => {
                 preventScroll,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             }, {
                 disabled: true,
                 saving: false,
@@ -170,6 +180,8 @@ describe('EditTournament', () => {
                 preventScroll,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             }, {
                 disabled: true,
                 saving: false,
@@ -197,6 +209,8 @@ describe('EditTournament', () => {
                 preventScroll,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             }, {
                 disabled: true,
                 saving: false,
@@ -230,6 +244,8 @@ describe('EditTournament', () => {
                 preventScroll,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             }, {
                 disabled: true,
                 saving: false,
@@ -271,6 +287,8 @@ describe('EditTournament', () => {
                 preventScroll,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             }, {
                 disabled: true,
                 saving: false,
@@ -314,6 +332,8 @@ describe('EditTournament', () => {
                 preventScroll,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             }, {
                 disabled: false,
                 saving: false,
@@ -352,6 +372,8 @@ describe('EditTournament', () => {
                 preventScroll,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             }, {
                 disabled: false,
                 saving: false,
@@ -390,6 +412,8 @@ describe('EditTournament', () => {
                 preventScroll,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             }, {
                 disabled: false,
                 saving: false,
@@ -423,6 +447,8 @@ describe('EditTournament', () => {
                 preventScroll,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             }, {
                 disabled: false,
                 saving: false,
@@ -457,6 +483,8 @@ describe('EditTournament', () => {
                 preventScroll,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             }, {
                 disabled: false,
                 saving: false,
@@ -495,6 +523,8 @@ describe('EditTournament', () => {
                 preventScroll,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             }, {
                 disabled: false,
                 saving: false,
@@ -537,6 +567,8 @@ describe('EditTournament', () => {
                 preventScroll,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             }, {
                 disabled: false,
                 saving: false,
@@ -579,6 +611,8 @@ describe('EditTournament', () => {
                 preventScroll,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             }, {
                 disabled: false,
                 saving: false,
@@ -622,6 +656,8 @@ describe('EditTournament', () => {
                 preventScroll,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             }, {
                 disabled: false,
                 saving: false,

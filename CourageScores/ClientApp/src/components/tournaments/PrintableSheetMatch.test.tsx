@@ -35,6 +35,7 @@ import {START_SCORING} from "./tournaments";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
+import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 
 describe('PrintableSheetMatch', () => {
     let context: TestContext;
@@ -92,6 +93,9 @@ describe('PrintableSheetMatch', () => {
     async function setDraggingSide(_: TournamentSideDto) {
     }
 
+    async function setNewMatch(_: TournamentMatchDto) {
+    }
+
     async function renderComponent(containerProps: ITournamentContainerProps, props: IPrintableSheetMatchProps, appProps: IAppContainerProps) {
         context = await renderApp(
             iocProps({saygApi, tournamentApi}),
@@ -113,6 +117,8 @@ describe('PrintableSheetMatch', () => {
                 return tournamentData;
             },
             setDraggingSide,
+            newMatch: {},
+            setNewMatch,
         };
     }
 

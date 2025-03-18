@@ -31,6 +31,7 @@ import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {IAppContainerProps} from "../common/AppContainer";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
+import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 
 interface ISideInfo {
     sideAwinner?: boolean;
@@ -72,6 +73,9 @@ describe('PrintableSheet', () => {
     }
 
     async function setDraggingSide(_: TournamentSideDto) {
+    }
+
+    async function setNewMatch(_: TournamentMatchDto) {
     }
 
     async function renderComponent(containerProps: ITournamentContainerProps, props: IPrintableSheetProps, appProps: IAppContainerProps) {

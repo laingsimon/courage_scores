@@ -30,6 +30,7 @@ import {createTemporaryId} from "../../helpers/projection";
 import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
 import {CreateTournamentSaygDto} from "../../interfaces/models/dtos/Game/CreateTournamentSaygDto";
+import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 
 describe('TournamentRound', () => {
     let context: TestContext;
@@ -96,6 +97,9 @@ describe('TournamentRound', () => {
     }
 
     async function setDraggingSide(_: TournamentSideDto) {
+    }
+
+    async function setNewMatch(_: TournamentMatchDto) {
     }
 
     async function renderComponent(containerProps: ITournamentContainerProps, props: ITournamentRoundProps, account?: UserDto) {

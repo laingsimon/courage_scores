@@ -110,6 +110,9 @@ describe('MatchSayg', () => {
     async function setDraggingSide(_: TournamentSideDto) {
     }
 
+    async function setNewMatch(_: TournamentMatchDto) {
+    }
+
     afterEach(async () => {
         await cleanUp(context);
     });
@@ -156,6 +159,8 @@ describe('MatchSayg', () => {
             setPreventScroll,
             saveTournament,
             setDraggingSide,
+            newMatch: {},
+            setNewMatch,
         };
     }
 
@@ -188,6 +193,8 @@ describe('MatchSayg', () => {
                 preventScroll: false,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             }, {
                 match,
                 matchIndex: 0,
@@ -427,6 +434,8 @@ describe('MatchSayg', () => {
                 preventScroll: false,
                 setPreventScroll,
                 setDraggingSide,
+                newMatch: {},
+                setNewMatch,
             }, {
                 match,
                 matchIndex: 0,

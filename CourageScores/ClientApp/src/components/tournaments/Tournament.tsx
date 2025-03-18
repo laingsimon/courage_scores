@@ -10,7 +10,7 @@ import {useDependencies} from "../common/IocContainer";
 import {useApp} from "../common/AppContainer";
 import {Dialog} from "../common/Dialog";
 import {EditPlayerDetails} from "../division_players/EditPlayerDetails";
-import {EMPTY_ID} from "../../helpers/projection";
+import {createTemporaryId, EMPTY_ID} from "../../helpers/projection";
 import {TournamentContainer} from "./TournamentContainer";
 import {SuperLeaguePrintout} from "./superleague/SuperLeaguePrintout";
 import {PrintableSheet} from "./PrintableSheet";
@@ -46,6 +46,7 @@ import {
 import {useBranding} from "../common/BrandingContainer";
 import {renderDate} from "../../helpers/rendering";
 import {isEqual} from "../common/ObjectComparer";
+import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 
 export interface ITournamentPlayerMap {
     [id: string]: DivisionTournamentFixtureDetailsDto;
@@ -78,6 +79,7 @@ export function Tournament() {
     const {setTitle} = useBranding();
     const [originalTournamentData, setOriginalTournamentData] = useState<TournamentGameDto | null>(null);
     const [draggingSide, setDraggingSide] = useState<TournamentSideDto | undefined>(undefined);
+    const [newMatch, setNewMatch] = useState<TournamentMatchDto>(createNewMatch());
 
     useEffect(() => {
         featureApi.getFeatures().then(features => {
@@ -106,6 +108,14 @@ export function Tournament() {
         },
         // eslint-disable-next-line
         [appLoading, loading, seasons]);
+
+    function createNewMatch(): TournamentMatchDto {
+        return {
+            sideA: null!,
+            sideB: null!,
+            id: createTemporaryId(),
+        };
+    }
 
     async function loadFixtureData() {
         try {
@@ -393,7 +403,9 @@ export function Tournament() {
                     preventScroll={preventScroll}
                     setPreventScroll={setPreventScroll}
                     draggingSide={draggingSide}
-                    setDraggingSide={asyncCallback(setDraggingSide)}>
+                    setDraggingSide={asyncCallback(setDraggingSide)}
+                    newMatch={newMatch}
+                    setNewMatch={asyncCallback(setNewMatch)}>
                     {canManageTournaments && tournamentData && editTournament === 'matches'
                         ? (<Dialog title="Edit sides and matches" className="d-print-none">
                             <div>

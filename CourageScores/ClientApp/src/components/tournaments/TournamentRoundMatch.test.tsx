@@ -30,6 +30,7 @@ import {playerBuilder} from "../../helpers/builders/players";
 import {matchOptionsBuilder} from "../../helpers/builders/games";
 import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
+import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 
 describe('TournamentRoundMatch', () => {
     let context: TestContext;
@@ -76,6 +77,9 @@ describe('TournamentRoundMatch', () => {
     }
 
     async function setDraggingSide(_: TournamentSideDto) {
+    }
+
+    async function setNewMatch(_: TournamentMatchDto) {
     }
 
     async function renderComponent(containerProps: ITournamentContainerProps, props: ITournamentRoundMatchProps, account?: UserDto) {
@@ -134,6 +138,7 @@ describe('TournamentRoundMatch', () => {
                 preventScroll: false,
                 setPreventScroll,
                 setDraggingSide,
+                setNewMatch,
             };
 
             it('when has next round', async () => {
@@ -343,6 +348,7 @@ describe('TournamentRoundMatch', () => {
                 preventScroll: false,
                 setPreventScroll,
                 setDraggingSide,
+                setNewMatch,
             };
 
             it('when no next round', async () => {
@@ -478,6 +484,7 @@ describe('TournamentRoundMatch', () => {
             preventScroll: false,
             setPreventScroll,
             setDraggingSide,
+            setNewMatch,
         };
 
         beforeEach(() => {
