@@ -327,7 +327,7 @@ describe('EditTournament', () => {
             const dialog = sides.querySelector('.modal-dialog')!;
             expect(dialog).toBeTruthy();
             await doSelectOption(dialog.querySelector('.dropdown-menu'), 'TEAM 1');
-            await doClick(findButton(dialog, 'Save'));
+            await doClick(findButton(dialog, 'Add'));
 
             reportedError.verifyNoError();
             expect(updatedData!.sides).toEqual([existingSide, {
@@ -366,7 +366,7 @@ describe('EditTournament', () => {
             expect(dialog).toBeTruthy();
             await doSelectOption(dialog.querySelector('.dropdown-menu'), 'TEAM 1');
             await doChange(dialog, 'input[name="name"]', 'NAME   ', context.user);
-            await doClick(findButton(dialog, 'Save'));
+            await doClick(findButton(dialog, 'Add'));
 
             reportedError.verifyNoError();
             expect(updatedData!.sides).toEqual([{
@@ -509,7 +509,7 @@ describe('EditTournament', () => {
             const dialog = sides.querySelector('.modal-dialog')!;
             expect(dialog).toBeTruthy();
             await doChange(sideElement, 'input[name="name"]', 'NEW SIDE 1', context.user);
-            await doClick(findButton(dialog, 'Save'));
+            await doClick(findButton(dialog, 'Update'));
 
             reportedError.verifyNoError();
             expect(updatedData!.round!.matches![0]).toEqual({
@@ -551,7 +551,7 @@ describe('EditTournament', () => {
             const dialog = sides.querySelector('.modal-dialog')!;
             expect(dialog).toBeTruthy();
             await doChange(sideElement, 'input[name="name"]', 'NEW SIDE 1', context.user);
-            await doClick(findButton(dialog, 'Save'));
+            await doClick(findButton(dialog, 'Update'));
 
             reportedError.verifyNoError();
             expect(updatedData!.round!.matches![0]).toEqual({
@@ -593,7 +593,7 @@ describe('EditTournament', () => {
             const dialog = sides.querySelector('.modal-dialog')!;
             expect(dialog).toBeTruthy();
             await doChange(sideElement, 'input[name="name"]', 'NEW SIDE 1   ', context.user);
-            await doClick(findButton(dialog, 'Save'));
+            await doClick(findButton(dialog, 'Update'));
 
             reportedError.verifyNoError();
             expect(updatedData!.sides![0]).toEqual({

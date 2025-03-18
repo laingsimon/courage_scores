@@ -463,7 +463,7 @@ describe('EditSide', () => {
             reportedError.verifyNoError();
             const buttons = Array.from(context.container.querySelectorAll('.btn'));
             const buttonText = buttons.map(btn => btn.textContent);
-            expect(buttonText).toContain('Add player/s');
+            expect(buttonText).toContain('New player/s');
         });
 
         it('add player button when permitted and editing side', async () => {
@@ -472,7 +472,7 @@ describe('EditSide', () => {
             reportedError.verifyNoError();
             const buttons = Array.from(context.container.querySelectorAll('.btn'));
             const buttonText = buttons.map(btn => btn.textContent);
-            expect(buttonText).toContain('Add player/s');
+            expect(buttonText).toContain('New player/s');
         });
 
         it('no add player button when not permitted', async () => {
@@ -739,7 +739,7 @@ describe('EditSide', () => {
             const side: TournamentSideDto = sideBuilder('').teamId(team.id).build();
             await renderComponent(containerProps(tournamentData, season), props(side), [team]);
 
-            await doClick(findButton(context.container, 'Save'));
+            await doClick(findButton(context.container, 'Update'));
 
             reportedError.verifyNoError();
             context.prompts.alertWasShown('Please enter a name for this side');
@@ -750,7 +750,7 @@ describe('EditSide', () => {
             const side: TournamentSideDto = sideBuilder('NAME').build();
             await renderComponent(containerProps(tournamentData, season), props(side), [team]);
 
-            await doClick(findButton(context.container, 'Save'));
+            await doClick(findButton(context.container, 'Update'));
 
             reportedError.verifyNoError();
             expect(applied).toEqual(true);
@@ -759,7 +759,7 @@ describe('EditSide', () => {
         it('can save side', async () => {
             await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team]);
 
-            await doClick(findButton(context.container, 'Save'));
+            await doClick(findButton(context.container, 'Update'));
 
             reportedError.verifyNoError();
             expect(applied).toEqual(true);
@@ -830,7 +830,7 @@ describe('EditSide', () => {
                 setDraggingSide,
             }, props(sideWithPlayer), [team], user(true));
 
-            await doClick(findButton(context.container, 'Add player/s'));
+            await doClick(findButton(context.container, 'New player/s'));
 
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             expect(headingForDialog).toBeTruthy();
@@ -839,7 +839,7 @@ describe('EditSide', () => {
 
         it('can close add player dialog', async () => {
             await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team], user(true));
-            await doClick(findButton(context.container, 'Add player/s'));
+            await doClick(findButton(context.container, 'New player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog');
 
@@ -850,7 +850,7 @@ describe('EditSide', () => {
 
         it('can add player', async () => {
             await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team], user(true));
-            await doClick(findButton(context.container, 'Add player/s'));
+            await doClick(findButton(context.container, 'New player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog')!;
 
@@ -872,7 +872,7 @@ describe('EditSide', () => {
                 .build();
             divisions = [ division ];
             await renderComponent(containerProps(multiDivisionTournament, season), props(sideWithPlayer), [team], user(true));
-            await doClick(findButton(context.container, 'Add player/s'));
+            await doClick(findButton(context.container, 'New player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog')!;
 
@@ -890,7 +890,7 @@ describe('EditSide', () => {
 
         it('selects newly created player', async () => {
             await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team], user(true));
-            await doClick(findButton(context.container, 'Add player/s'));
+            await doClick(findButton(context.container, 'New player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog')!;
 
@@ -912,7 +912,7 @@ describe('EditSide', () => {
 
         it('reloads teams after player added', async () => {
             await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team], user(true));
-            await doClick(findButton(context.container, 'Add player/s'));
+            await doClick(findButton(context.container, 'New player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog')!;
 
@@ -925,7 +925,7 @@ describe('EditSide', () => {
 
         it('closes dialog after adding a player', async () => {
             await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team], user(true));
-            await doClick(findButton(context.container, 'Add player/s'));
+            await doClick(findButton(context.container, 'New player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog')!;
 

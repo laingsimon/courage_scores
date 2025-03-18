@@ -764,7 +764,7 @@ describe('Tournament', () => {
             reportedError.verifyNoError();
             const editSideDialog = context.container.querySelector('.modal-dialog')!;
             await doClick(editSideDialog.querySelector('.list-group-item:nth-child(2)')!); // click on a player
-            await doClick(findButton(editSideDialog, 'Save')); // close the dialog
+            await doClick(findButton(editSideDialog, 'Add')); // close the dialog
             reportedError.verifyNoError();
 
             // open the 180s dialog
@@ -784,7 +784,7 @@ describe('Tournament', () => {
             reportedError.verifyNoError();
             const addSideDialog = context.container.querySelector('.modal-dialog')!;
             await doClick(addSideDialog.querySelector('.list-group-item:nth-child(2)')!); // click on a player
-            await doClick(findButton(addSideDialog, 'Save')); // close the dialog
+            await doClick(findButton(addSideDialog, 'Add')); // close the dialog
             reportedError.verifyNoError();
 
             // open the hi-checks dialog
@@ -890,7 +890,7 @@ describe('Tournament', () => {
             const playing = context.container.querySelector('div[datatype="playing"]')!;
             await doClick(playing.querySelector('li:nth-child(1)')!); // open edit side dialog
             await doClick(context.container.querySelector('.modal-dialog input[name="noShow"]')!);
-            await doClick(findButton(context.container.querySelector('.modal-dialog')!, 'Save'));
+            await doClick(findButton(context.container.querySelector('.modal-dialog')!, 'Update'));
             reportedError.verifyNoError();
 
             // open the 180s dialog
@@ -915,7 +915,7 @@ describe('Tournament', () => {
             const playing = context.container.querySelector('div[datatype="playing"]')!;
             await doClick(playing.querySelector('li:nth-child(1)')!); // open edit side dialog
             await doClick(context.container.querySelector('.modal-dialog input[name="noShow"]')!);
-            await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Save'));
+            await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Update'));
             reportedError.verifyNoError();
 
             // open the 180s dialog
@@ -1041,7 +1041,7 @@ describe('Tournament', () => {
             await doClick(context.container.querySelector('li[datatype="add-side"]')!);
             const dialog = context.container.querySelector('div.modal-dialog')!;
             await doSelectOption(dialog.querySelector('.dropdown-menu'), 'TEAM');
-            await doClick(findButton(dialog, 'Save'));
+            await doClick(findButton(dialog, 'Add'));
             reportedError.verifyNoError();
 
             await doClick(context.container.querySelector('div[data-accolades="180s"]')!);

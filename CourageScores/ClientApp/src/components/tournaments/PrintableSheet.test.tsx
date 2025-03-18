@@ -804,7 +804,7 @@ describe('PrintableSheet', () => {
             await doClick(playing.querySelector('li')!);
             const dialog = context.container.querySelector('div.modal-dialog')!;
             await doChange(dialog, 'input[name="name"]', 'NEW SIDE A', context.user);
-            await doClick(findButton(dialog, 'Save'));
+            await doClick(findButton(dialog, 'Update'));
 
             expect(updatedTournament).not.toBeNull();
             expect(updatedTournament!.sides!.map((s: TournamentSideDto) => s.name))
@@ -845,7 +845,7 @@ describe('PrintableSheet', () => {
             const dialog = context.container.querySelector('div.modal-dialog')!;
             await doChange(dialog, 'input[name="name"]', 'NEW SIDE', context.user);
             await doClick(dialog.querySelector('.list-group li.list-group-item:not(.disabled)')!); // select a player
-            await doClick(findButton(dialog, 'Save'));
+            await doClick(findButton(dialog, 'Add'));
 
             expect(updatedTournament).not.toBeNull();
             expect(updatedTournament!.sides!.map((s: TournamentSideDto) => s.name))
@@ -1031,7 +1031,7 @@ describe('PrintableSheet', () => {
             const dialog = context.container.querySelector('div.modal-dialog')!;
             await doChange(dialog, 'input[name="name"]', 'NEW SIDE', context.user);
             await doClick(dialog.querySelector('.list-group li.list-group-item')!); // select a player
-            await doClick(findButton(dialog, 'Save'));
+            await doClick(findButton(dialog, 'Add'));
 
             expect(updatedTournament).not.toBeNull();
             expect(updatedTournament!.sides!.map((s: TournamentSideDto) => s.name)).toEqual(['NEW SIDE']);

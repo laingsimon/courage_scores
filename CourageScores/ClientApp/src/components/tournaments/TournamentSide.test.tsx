@@ -378,7 +378,7 @@ describe('TournamentSide', () => {
             await doClick(findButton(context.container, '✏️'));
             const dialog = context.container.querySelector('.modal-dialog');
             await doChange(dialog!, 'input[name="name"]', 'NEW NAME', context.user);
-            await doClick(findButton(dialog, 'Save'));
+            await doClick(findButton(dialog, 'Update'));
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual({
