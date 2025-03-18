@@ -381,6 +381,7 @@ describe('TournamentRoundMatch', () => {
                     matchOptions: {},
                     onChange,
                     onMatchOptionsChanged,
+                    showEditMatchOptions: true,
                 }, account);
 
                 reportedError.verifyNoError();
@@ -491,6 +492,7 @@ describe('TournamentRoundMatch', () => {
                 matchOptions: {},
                 onChange,
                 onMatchOptionsChanged,
+                showEditMatchOptions: true
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
 
@@ -515,6 +517,7 @@ describe('TournamentRoundMatch', () => {
                 matchOptions: {},
                 onChange,
                 onMatchOptionsChanged,
+                showEditMatchOptions: true,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[5], '🛠'));

@@ -20,10 +20,11 @@ export interface ITournamentRoundMatchProps {
     round: TournamentRoundDto;
     matchOptions: GameMatchOptionDto;
     onMatchOptionsChanged(newOptions: GameMatchOptionDto): UntypedPromise;
+    showEditMatchOptions?: boolean;
 }
 
 export function TournamentRoundMatch({ readOnly, match, hasNextRound, sides, exceptSelected, matchIndex, onChange,
-                                         round, matchOptions, onMatchOptionsChanged }: ITournamentRoundMatchProps) {
+                                         round, matchOptions, onMatchOptionsChanged, showEditMatchOptions }: ITournamentRoundMatchProps) {
     const {onError} = useApp();
     const scoreA: number | undefined = match.scoreA;
     const scoreB: number | undefined = match.scoreB;
@@ -120,9 +121,9 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sides, exc
             {matchOptionsDialogOpen ? renderMatchSettingsDialog() : null}
 
             <button className="btn btn-danger btn-sm" onClick={() => removeMatch()}>🗑</button>
-            <button title={`${matchOptions.numberOfLegs} leg/s. Starting score: ${matchOptions.startingScore}`}
+            {showEditMatchOptions ? (<button title={`${matchOptions.numberOfLegs} leg/s. Starting score: ${matchOptions.startingScore}`}
                     className="btn btn-sm" onClick={() => setMatchOptionsDialogOpen(true)}>🛠
-            </button>
+            </button>) : null}
         </td>)}
     </tr>);
 }

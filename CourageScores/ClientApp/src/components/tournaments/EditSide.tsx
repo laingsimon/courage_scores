@@ -258,12 +258,12 @@ export function EditSide({side, onChange, onClose, onApply, onDelete, initialAdd
                 <input className="form-control" value={side.name || ''} name="name" id="name"
                        onChange={valueChanged(side, onChange!)}/>
             </div>)}
-            <div className="form-switch margin-right my-1 me-2">
+            {side.id ? (<div className="form-switch margin-right my-1 me-2">
                 <input type="checkbox" className="form-check-input margin-right" checked={side.noShow || false} name="noShow"
                        id="noShow"
                        onChange={valueChanged(side, onChange!)}/>
                 <label className="form-check-label" htmlFor="noShow">No show on the night?</label>
-            </div>
+            </div>) : null}
             {any(side.players) || !tournamentSideType.canSelectTeams ? null : (
                 <div className="form-group input-group mb-3 d-print-none">
                     <div className="input-group-prepend">

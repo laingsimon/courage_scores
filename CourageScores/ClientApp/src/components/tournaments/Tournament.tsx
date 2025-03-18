@@ -45,6 +45,7 @@ import {
 } from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
 import {useBranding} from "../common/BrandingContainer";
 import {renderDate} from "../../helpers/rendering";
+import {isEqual} from "../common/ObjectComparer";
 
 export interface ITournamentPlayerMap {
     [id: string]: DivisionTournamentFixtureDetailsDto;
@@ -75,6 +76,7 @@ export function Tournament() {
     const [showPhotoManager, setShowPhotoManager] = useState<boolean>(false);
     const [photosEnabled, setPhotosEnabled] = useState<boolean>(false);
     const {setTitle} = useBranding();
+    const [originalTournamentData, setOriginalTournamentData] = useState<TournamentGameDto | null>(null);
 
     useEffect(() => {
         featureApi.getFeatures().then(features => {
@@ -113,6 +115,7 @@ export function Tournament() {
                 return;
             }
 
+            setOriginalTournamentData(tournamentData);
             await updateTournamentData(tournamentData);
 
             const tournamentPlayerMap: ITournamentPlayerMap = {};
@@ -194,6 +197,7 @@ export function Tournament() {
             if (!response.success) {
                 setSaveError(response);
             } else {
+                setOriginalTournamentData(response.result!);
                 await updateTournamentData(response.result!);
                 await publishLiveUpdate(response.result!);
                 return response.result!;
@@ -318,7 +322,9 @@ export function Tournament() {
             return;
         }
 
-        await saveTournament();
+        if (!isEqual(originalTournamentData, tournamentData)) {
+            await saveTournament();
+        }
         setEditTournament(undefined);
     }
 
@@ -340,6 +346,7 @@ export function Tournament() {
             canSubscribe: false,
             subscribeAtStartup: [],
         };
+        const hasChanged = !isEqual(originalTournamentData, tournamentData);
 
         if (tournamentData && tournamentData.singleRound) {
             setTitle(`${tournamentData.host} vs ${tournamentData.opponent} - ${renderDate(tournamentData!.date)}`);
@@ -353,11 +360,18 @@ export function Tournament() {
                 originalDivisionData={division!}
                 overrideMode="fixtures"/>
             {canManageTournaments && tournamentData && editTournament === 'details'
-                ? (<Dialog onClose={closeEditTournamentDialog} className="d-print-none">
-                    <TournamentDetails
-                        tournamentData={tournamentData}
-                        disabled={saving}
-                        setTournamentData={async (data: TournamentGameDto) => updateTournamentData(data)} />
+                ? (<Dialog className="d-print-none">
+                    <div>
+                        <TournamentDetails
+                            tournamentData={tournamentData}
+                            disabled={saving}
+                            setTournamentData={async (data: TournamentGameDto) => updateTournamentData(data)} />
+                    </div>
+                    <div className="modal-footer px-0 pb-0">
+                        <div className="left-aligned">
+                            <button className="btn btn-secondary" onClick={closeEditTournamentDialog}>{hasChanged ? 'Save' : 'Close'}</button>
+                        </div>
+                    </div>
                 </Dialog>)
                 : null}
             {tournamentData ? (<div className="content-background p-3">
@@ -378,8 +392,15 @@ export function Tournament() {
                     preventScroll={preventScroll}
                     setPreventScroll={setPreventScroll}>
                     {canManageTournaments && tournamentData && editTournament === 'matches'
-                        ? (<Dialog title="Edit sides and matches" onClose={closeEditTournamentDialog} className="d-print-none">
-                            <EditTournament canSave={true} saving={saving} />
+                        ? (<Dialog title="Edit sides and matches" className="d-print-none">
+                            <div>
+                                <EditTournament canSave={true} saving={saving} />
+                            </div>
+                            <div className="modal-footer px-0 pb-0">
+                                <div className="left-aligned">
+                                    <button className="btn btn-secondary" onClick={closeEditTournamentDialog}>{hasChanged ? 'Save' : 'Close'}</button>
+                                </div>
+                            </div>
                         </Dialog>)
                         : null}
                     {tournamentData.singleRound && !(canManageTournaments || canEnterTournamentResults) ? (<SuperLeaguePrintout division={division!} readOnly={true}/>) : null}
