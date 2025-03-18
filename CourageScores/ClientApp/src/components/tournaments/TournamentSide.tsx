@@ -34,10 +34,6 @@ export function TournamentSide({side, onChange, winner, readOnly, onRemove, show
         </ol>);
     }
 
-    function renderSideName() {
-        return (<strong className={side.noShow ? 'text-decoration-line-through' : ''}>{side.name}</strong>);
-    }
-
     function renderEditSide() {
         return (<EditSide
             side={editSide!}
@@ -61,15 +57,13 @@ export function TournamentSide({side, onChange, winner, readOnly, onRemove, show
         }
     }
 
-    return (<div className={`position-relative p-1 m-1 ${winner ? 'bg-winner' : 'bg-light'}`}
+    return (<div className={`d-flex flex-row p-1 m-1 ${winner ? 'bg-winner' : 'bg-light'}`}
                  style={{flexBasis: '100px', flexGrow: 1, flexShrink: 1}}>
-        {renderSideName()}
+        <strong className={side.noShow ? 'text-decoration-line-through' : ''}>{side.name}</strong>
         {renderPlayers()}
-        {!readOnly && showEditSide ? (<div className="position-absolute-bottom-right">
-            <button className="btn btn-sm btn-primary" onClick={() => setEditSide(side)}>✏️</button>
-        </div>) : null}
-        {!readOnly && showDeleteSide ? (<div className="position-absolute-bottom-right">
-            <button className="btn btn-sm btn-danger" onClick={deleteSide}>🗑️</button>
+        {!readOnly && (showDeleteSide || showEditSide) ? (<div className="d-flex justify-content-end pe-1 align-content-end flex-grow-1 flex-shrink-1">
+            {showDeleteSide ? (<button className="btn btn-sm btn-danger" onClick={deleteSide}>🗑️</button>) : null}
+            {showEditSide ? (<button className="btn btn-sm btn-primary" onClick={() => setEditSide(side)}>✏️</button>) : null}
         </div>) : null}
         {editSide ? renderEditSide() : null}
     </div>);
