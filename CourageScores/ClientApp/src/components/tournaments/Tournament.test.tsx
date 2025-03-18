@@ -521,6 +521,17 @@ describe('Tournament', () => {
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
         });
 
+        it('does not save when no details changed', async () => {
+            tournamentData.singleRound = true;
+            await renderComponentForTest();
+
+            await doClick(context.container.querySelector('div[datatype="details"] > div.alert')!);
+            const dialog = context.container.querySelector('div.modal-dialog')!;
+            await doClick(findButton(dialog, 'Close'));
+
+            expect(updatedTournamentData.length).toEqual(0);
+        });
+
         it('can update details', async () => {
             tournamentData.singleRound = true;
             await renderComponentForTest();
