@@ -23,15 +23,12 @@ import {
 } from "../../helpers/builders/tournaments";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {divisionBuilder} from "../../helpers/builders/divisions";
-import {IMatchOptionsBuilder} from "../../helpers/builders/games";
-import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
-import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
+import {tournamentContainerPropsBuilder} from "./tournamentContainerPropsBuilder";
 
 describe('EditTournament', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let updatedData: TournamentGameDto | null;
-    let preventScroll: boolean;
 
     afterEach(async () => {
         await cleanUp(context);
@@ -41,19 +38,9 @@ describe('EditTournament', () => {
         updatedData = newData;
     }
 
-    function setPreventScroll(_: boolean) {
-    }
-
-    async function setDraggingSide(_: TournamentSideDto) {
-    }
-
-    async function setNewMatch(_: TournamentMatchDto) {
-    }
-
     beforeEach(() => {
         reportedError = new ErrorState();
         updatedData = null;
-        preventScroll = false;
     });
 
     async function renderComponent(containerProps: ITournamentContainerProps, props: IEditTournamentProps, account?: UserDto, teams?: TeamDto[]) {
@@ -67,11 +54,17 @@ describe('EditTournament', () => {
             (<TournamentContainer {...containerProps}>
                 <EditTournament {...props} />
             </TournamentContainer>));
+
+        reportedError.verifyNoError();
     }
 
     describe('renders', () => {
         const account: UserDto | undefined = undefined;
         const season = seasonBuilder('SEASON').build();
+        const containerProps = new tournamentContainerPropsBuilder({
+            season,
+            setTournamentData,
+        });
 
         it('who is playing', async () => {
             const tournamentData = tournamentBuilder()
@@ -80,18 +73,7 @@ describe('EditTournament', () => {
                 .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE'))
                 .build();
 
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                allPlayers: [],
-                setTournamentData,
-                preventScroll,
-                setPreventScroll,
-                setDraggingSide,
-                newMatch: {},
-                setNewMatch,
-            }, {
+            await renderComponent(containerProps.withTournament(tournamentData).withAlreadyPlaying({}).build(), {
                 disabled: true,
                 saving: false,
                 canSave: false,
@@ -111,18 +93,7 @@ describe('EditTournament', () => {
                 .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE'))
                 .build();
 
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                allPlayers: [],
-                setTournamentData,
-                preventScroll,
-                setPreventScroll,
-                setDraggingSide,
-                newMatch: {},
-                setNewMatch,
-            }, {
+            await renderComponent(containerProps.withTournament(tournamentData).withAllPlayers([]).withAlreadyPlaying({}).build(), {
                 disabled: true,
                 saving: false,
                 canSave: false,
@@ -140,18 +111,7 @@ describe('EditTournament', () => {
                 .withSide((s: ITournamentSideBuilder) => s.name('SIDE 1'))
                 .build();
 
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                allPlayers: [],
-                setTournamentData,
-                preventScroll,
-                setPreventScroll,
-                setDraggingSide,
-                newMatch: {},
-                setNewMatch,
-            }, {
+            await renderComponent(containerProps.withTournament(tournamentData).withAllPlayers([]).withAlreadyPlaying({}).build(), {
                 disabled: true,
                 saving: false,
                 canSave: false,
@@ -171,18 +131,7 @@ describe('EditTournament', () => {
                 .round((r: ITournamentRoundBuilder) => r.withMatch((m: ITournamentMatchBuilder) => m.sideA('SIDE 1', 1).sideB('ANOTHER SIDE', 2)))
                 .build();
 
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                allPlayers: [],
-                setTournamentData,
-                preventScroll,
-                setPreventScroll,
-                setDraggingSide,
-                newMatch: {},
-                setNewMatch,
-            }, {
+            await renderComponent(containerProps.withTournament(tournamentData).withAllPlayers([]).withAlreadyPlaying({}).build(), {
                 disabled: true,
                 saving: false,
                 canSave: false,
@@ -200,18 +149,7 @@ describe('EditTournament', () => {
                 .withSide((s: ITournamentSideBuilder) => s.name('SIDE 1'))
                 .build();
 
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                allPlayers: [],
-                setTournamentData,
-                preventScroll,
-                setPreventScroll,
-                setDraggingSide,
-                newMatch: {},
-                setNewMatch,
-            }, {
+            await renderComponent(containerProps.withTournament(tournamentData).withAllPlayers([]).withAlreadyPlaying({}).build(), {
                 disabled: true,
                 saving: false,
                 canSave: false,
@@ -235,18 +173,7 @@ describe('EditTournament', () => {
                 .withSide(anotherSide)
                 .build();
 
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                allPlayers: [],
-                setTournamentData,
-                preventScroll,
-                setPreventScroll,
-                setDraggingSide,
-                newMatch: {},
-                setNewMatch,
-            }, {
+            await renderComponent(containerProps.withTournament(tournamentData).withAlreadyPlaying({}).withAllPlayers([]).build(), {
                 disabled: true,
                 saving: false,
                 canSave: false,
@@ -278,18 +205,7 @@ describe('EditTournament', () => {
                 .withSide(anotherSide)
                 .build();
 
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                allPlayers: [],
-                setTournamentData,
-                preventScroll,
-                setPreventScroll,
-                setDraggingSide,
-                newMatch: {},
-                setNewMatch,
-            }, {
+            await renderComponent(containerProps.withTournament(tournamentData).withAlreadyPlaying({}).withAllPlayers([]).build(), {
                 disabled: true,
                 saving: false,
                 canSave: false,
@@ -316,6 +232,10 @@ describe('EditTournament', () => {
         const season = seasonBuilder('SEASON').build();
         const division = divisionBuilder('DIVISION').build();
         const team1 = teamBuilder('TEAM 1').forSeason(season, division).build();
+        const containerProps = new tournamentContainerPropsBuilder({
+            season,
+            setTournamentData,
+        });
 
         it('can add a side', async () => {
             const existingSide = sideBuilder('SIDE 1').teamId(team1.id).build();
@@ -323,18 +243,7 @@ describe('EditTournament', () => {
                 .forSeason(season)
                 .withSide(existingSide)
                 .build();
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                allPlayers: [],
-                setTournamentData,
-                preventScroll,
-                setPreventScroll,
-                setDraggingSide,
-                newMatch: {},
-                setNewMatch,
-            }, {
+            await renderComponent(containerProps.withTournament(tournamentData).withAlreadyPlaying({}).withAllPlayers([]).build(), {
                 disabled: false,
                 saving: false,
                 canSave: true,
@@ -363,18 +272,7 @@ describe('EditTournament', () => {
                 .forSeason(season)
                 .withSide(existingSide)
                 .build();
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                allPlayers: [],
-                setTournamentData,
-                preventScroll,
-                setPreventScroll,
-                setDraggingSide,
-                newMatch: {},
-                setNewMatch,
-            }, {
+            await renderComponent(containerProps.withTournament(tournamentData).withAlreadyPlaying({}).withAllPlayers([]).build(), {
                 disabled: false,
                 saving: false,
                 canSave: true,
@@ -403,18 +301,7 @@ describe('EditTournament', () => {
                 .forSeason(season)
                 .withSide((s: ITournamentSideBuilder) => s.name('SIDE 1'))
                 .build();
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                allPlayers: [],
-                setTournamentData,
-                preventScroll,
-                setPreventScroll,
-                setDraggingSide,
-                newMatch: {},
-                setNewMatch,
-            }, {
+            await renderComponent(containerProps.withTournament(tournamentData).withAlreadyPlaying({}).withAllPlayers([]).build(), {
                 disabled: false,
                 saving: false,
                 canSave: true,
@@ -438,18 +325,7 @@ describe('EditTournament', () => {
                 .forSeason(season)
                 .withSide(side)
                 .build();
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                allPlayers: [],
-                setTournamentData,
-                preventScroll,
-                setPreventScroll,
-                setDraggingSide,
-                newMatch: {},
-                setNewMatch,
-            }, {
+            await renderComponent(containerProps.withTournament(tournamentData).withAlreadyPlaying({}).withAllPlayers([]).build(), {
                 disabled: false,
                 saving: false,
                 canSave: true,
@@ -474,18 +350,7 @@ describe('EditTournament', () => {
                 .forSeason(season)
                 .withSide(side)
                 .build();
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                allPlayers: [],
-                setTournamentData,
-                preventScroll,
-                setPreventScroll,
-                setDraggingSide,
-                newMatch: {},
-                setNewMatch,
-            }, {
+            await renderComponent(containerProps.withTournament(tournamentData).withAlreadyPlaying({}).withAllPlayers([]).build(), {
                 disabled: false,
                 saving: false,
                 canSave: true,
@@ -514,18 +379,7 @@ describe('EditTournament', () => {
                     .withMatch((m: ITournamentMatchBuilder) => m.sideA(side))
                     .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
                 .build();
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                allPlayers: [],
-                setTournamentData,
-                preventScroll,
-                setPreventScroll,
-                setDraggingSide,
-                newMatch: {},
-                setNewMatch,
-            }, {
+            await renderComponent(containerProps.withTournament(tournamentData).withAlreadyPlaying({}).withAllPlayers([]).build(), {
                 disabled: false,
                 saving: false,
                 canSave: true,
@@ -558,18 +412,7 @@ describe('EditTournament', () => {
                     .withMatch((m: ITournamentMatchBuilder) => m.sideB(side))
                     .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
                 .build();
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                allPlayers: [],
-                setTournamentData,
-                preventScroll,
-                setPreventScroll,
-                setDraggingSide,
-                newMatch: {},
-                setNewMatch,
-            }, {
+            await renderComponent(containerProps.withTournament(tournamentData).withAlreadyPlaying({}).withAllPlayers([]).build(), {
                 disabled: false,
                 saving: false,
                 canSave: true,
@@ -598,22 +441,8 @@ describe('EditTournament', () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .withSide(side)
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideB(side))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
                 .build();
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                allPlayers: [],
-                setTournamentData,
-                preventScroll,
-                setPreventScroll,
-                setDraggingSide,
-                newMatch: {},
-                setNewMatch,
-            }, {
+            await renderComponent(containerProps.withTournament(tournamentData).withAlreadyPlaying({}).withAllPlayers([]).build(), {
                 disabled: false,
                 saving: false,
                 canSave: true,
@@ -647,18 +476,7 @@ describe('EditTournament', () => {
                 .withSide(side2)
                 .build();
 
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                allPlayers: [],
-                setTournamentData,
-                preventScroll,
-                setPreventScroll,
-                setDraggingSide,
-                newMatch: {},
-                setNewMatch,
-            }, {
+            await renderComponent(containerProps.withTournament(tournamentData).withAlreadyPlaying({}).withAllPlayers([]).build(), {
                 disabled: false,
                 saving: false,
                 canSave: true,

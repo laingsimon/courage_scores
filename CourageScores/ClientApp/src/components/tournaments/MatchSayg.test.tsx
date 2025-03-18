@@ -35,7 +35,7 @@ import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMa
 import {ENTER_SCORE_BUTTON} from "../../helpers/constants";
 import {checkoutWith, keyPad} from "../../helpers/sayg";
 import {START_SCORING} from "./tournaments";
-import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
+import {tournamentContainerPropsBuilder} from "./tournamentContainerPropsBuilder";
 
 describe('MatchSayg', () => {
     let context: TestContext;
@@ -107,12 +107,6 @@ describe('MatchSayg', () => {
         scrollPrevented = prevent;
     }
 
-    async function setDraggingSide(_: TournamentSideDto) {
-    }
-
-    async function setNewMatch(_: TournamentMatchDto) {
-    }
-
     afterEach(async () => {
         await cleanUp(context);
     });
@@ -151,19 +145,6 @@ describe('MatchSayg', () => {
         };
     }
 
-    function containerProps(tournamentData: TournamentGameDto): ITournamentContainerProps {
-        return {
-            setTournamentData,
-            tournamentData,
-            preventScroll: false,
-            setPreventScroll,
-            saveTournament,
-            setDraggingSide,
-            newMatch: {},
-            setNewMatch,
-        };
-    }
-
     describe('renders', () => {
         const matchOptions = matchOptionsBuilder().build();
         const sideA = sideBuilder('SIDE A').withPlayer('PLAYER A').build();
@@ -176,6 +157,11 @@ describe('MatchSayg', () => {
         const permitted: UserDto = user(true);
         const sideAvsSideBMatch: TournamentMatchDto = tournamentMatchBuilder().sideA(sideA).sideB(sideB).saygId(createTemporaryId()).build();
         const sideAvsSideBRound = roundBuilder().withMatch(sideAvsSideBMatch).build();
+        const containerProps = new tournamentContainerPropsBuilder({
+            saveTournament,
+            setPreventScroll,
+            setTournamentData,
+        });
 
         it('shows no sayg links when no players', async () => {
             const match = tournamentMatchBuilder()
@@ -187,15 +173,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                preventScroll: false,
-                setPreventScroll,
-                setDraggingSide,
-                newMatch: {},
-                setNewMatch,
-            }, {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match,
                 matchIndex: 0,
                 patchData,
@@ -210,7 +188,7 @@ describe('MatchSayg', () => {
         it('shows no sayg links when no data and not logged in', async () => {
             const tournamentData = tournamentBuilder().round(sideAvsSideBRound).build();
 
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match: sideAvsSideBMatch,
                 matchIndex: 0,
                 patchData,
@@ -225,7 +203,7 @@ describe('MatchSayg', () => {
         it('shows no sayg links when no data and not permitted', async () => {
             const tournamentData = tournamentBuilder().round(sideAvsSideBRound).build();
 
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match: sideAvsSideBMatch,
                 matchIndex: 0,
                 patchData,
@@ -242,7 +220,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match,
                 matchIndex: 0,
                 patchData,
@@ -259,7 +237,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match,
                 matchIndex: 0,
                 patchData,
@@ -274,7 +252,7 @@ describe('MatchSayg', () => {
         it('shows view sayg link when data and not logged in', async () => {
             const tournamentData = tournamentBuilder().round(sideAvsSideBRound).build();
 
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match: sideAvsSideBMatch,
                 matchIndex: 0,
                 patchData,
@@ -290,7 +268,7 @@ describe('MatchSayg', () => {
         it('shows view sayg link when data and not permitted', async () => {
             const tournamentData = tournamentBuilder().round(sideAvsSideBRound).build();
 
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match: sideAvsSideBMatch,
                 matchIndex: 0,
                 patchData,
@@ -306,7 +284,7 @@ describe('MatchSayg', () => {
         it('does not show view sayg link when data and not permitted and not requested', async () => {
             const tournamentData = tournamentBuilder().round(sideAvsSideBRound).build();
 
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match: sideAvsSideBMatch,
                 matchIndex: 0,
                 patchData,
@@ -321,7 +299,7 @@ describe('MatchSayg', () => {
         it('shows edit sayg link when data and permitted', async () => {
             const tournamentData = tournamentBuilder().round(sideAvsSideBRound).build();
 
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match: sideAvsSideBMatch,
                 matchIndex: 0,
                 patchData,
@@ -335,7 +313,7 @@ describe('MatchSayg', () => {
         it('shows edit sayg link when no data but single round (superleague)', async () => {
             const tournamentData = tournamentBuilder().singleRound().round(sideAvsSideBRound).build();
 
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match: sideAvsSideBMatch,
                 matchIndex: 0,
                 patchData,
@@ -349,7 +327,7 @@ describe('MatchSayg', () => {
         it('shows edit sayg link when no data and both sides have single players', async () => {
             const tournamentData = tournamentBuilder().round(sideAvsSideBRound).build();
 
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match: sideAvsSideBMatch,
                 matchIndex: 0,
                 patchData,
@@ -365,7 +343,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match,
                 matchIndex: 0,
                 patchData,
@@ -382,7 +360,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match,
                 matchIndex: 0,
                 patchData,
@@ -405,6 +383,11 @@ describe('MatchSayg', () => {
         const pairB = sideBuilder('PAIR B').withPlayer('PLAYER B 1').withPlayer('PLAYER B 2').build();
         const permitted: UserDto = user(true);
         const permittedWithDebug: UserDto = user(true, true);
+        const containerProps = new tournamentContainerPropsBuilder({
+            saveTournament,
+            setPreventScroll,
+            setTournamentData,
+        });
 
         async function enterScore(score: number, noOfDarts?: number) {
             await keyPad(context, score.toString().split('').concat(ENTER_SCORE_BUTTON));
@@ -427,16 +410,8 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                saveTournament,
-                preventScroll: false,
-                setPreventScroll,
-                setDraggingSide,
-                newMatch: {},
-                setNewMatch,
-            }, {
+            await renderComponent(
+                containerProps.withTournament(tournamentData).build(), {
                 match,
                 matchIndex: 0,
                 patchData,
@@ -463,7 +438,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match,
                 matchIndex: 0,
                 patchData,
@@ -481,7 +456,7 @@ describe('MatchSayg', () => {
             const match = tournamentMatchBuilder().noId().sideA(sideA).sideB(sideB).build();
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match,
                 matchIndex: 0,
                 patchData,
@@ -502,7 +477,7 @@ describe('MatchSayg', () => {
             const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).build();
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match,
                 matchIndex: 0,
                 patchData,
@@ -525,7 +500,7 @@ describe('MatchSayg', () => {
             const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).build();
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match,
                 matchIndex: 0,
                 patchData,
@@ -551,7 +526,7 @@ describe('MatchSayg', () => {
             const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).build();
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match,
                 matchIndex: 0,
                 patchData,
@@ -579,7 +554,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match,
                 matchIndex: 0,
                 patchData,
@@ -623,7 +598,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match,
                 matchIndex: 0,
                 patchData,
@@ -663,7 +638,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match,
                 matchIndex: 0,
                 patchData,
@@ -688,7 +663,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match,
                 matchIndex: 0,
                 patchData,
@@ -893,7 +868,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match,
                 matchIndex: 0,
                 patchData,
@@ -928,7 +903,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match,
                 matchIndex: 0,
                 patchData,
@@ -973,7 +948,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent(containerProps(tournamentData), {
+            await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match,
                 matchIndex: 0,
                 patchData,

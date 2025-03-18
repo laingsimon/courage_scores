@@ -35,7 +35,7 @@ import {START_SCORING} from "./tournaments";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
-import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
+import {tournamentContainerPropsBuilder} from "./tournamentContainerPropsBuilder";
 
 describe('PrintableSheetMatch', () => {
     let context: TestContext;
@@ -87,15 +87,6 @@ describe('PrintableSheetMatch', () => {
         updatedTournament = update;
     }
 
-    function setPreventScroll(_: boolean) {
-    }
-
-    async function setDraggingSide(_: TournamentSideDto) {
-    }
-
-    async function setNewMatch(_: TournamentMatchDto) {
-    }
-
     async function renderComponent(containerProps: ITournamentContainerProps, props: IPrintableSheetMatchProps, appProps: IAppContainerProps) {
         context = await renderApp(
             iocProps({saygApi, tournamentApi}),
@@ -104,22 +95,8 @@ describe('PrintableSheetMatch', () => {
             (<TournamentContainer {...containerProps}>
                 <PrintableSheetMatch {...props} />
             </TournamentContainer>));
-    }
 
-    function containerProps(tournamentData: TournamentGameDto, matchOptionDefaults: GameMatchOptionDto): ITournamentContainerProps {
-        return {
-            tournamentData,
-            setTournamentData,
-            matchOptionDefaults,
-            preventScroll: false,
-            setPreventScroll,
-            async saveTournament(): Promise<TournamentGameDto> {
-                return tournamentData;
-            },
-            setDraggingSide,
-            newMatch: {},
-            setNewMatch,
-        };
+        reportedError.verifyNoError();
     }
 
     function props(matchData: ILayoutDataForMatch, editable?: boolean, ...possibleSides: TournamentSideDto[]): IPrintableSheetMatchProps {
@@ -162,6 +139,13 @@ describe('PrintableSheetMatch', () => {
     describe('renders', () => {
         const matchOptionDefaults: GameMatchOptionDto = matchOptionsBuilder().build();
         const tournamentData: TournamentGameDto = tournamentBuilder().build();
+        const containerProps = new tournamentContainerPropsBuilder({
+            matchOptionDefaults,
+            async saveTournament(): Promise<TournamentGameDto> {
+                return tournamentData;
+            },
+            setTournamentData,
+        });
 
         it('match mnemonic', async () => {
             const matchData: ILayoutDataForMatch = {
@@ -172,7 +156,7 @@ describe('PrintableSheetMatch', () => {
                 mnemonic: 'M1',
             };
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 props(matchData),
                 appProps({}, reportedError));
 
@@ -191,7 +175,7 @@ describe('PrintableSheetMatch', () => {
                 hideMnemonic: true,
             };
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 props(matchData),
                 appProps({}, reportedError));
 
@@ -209,7 +193,7 @@ describe('PrintableSheetMatch', () => {
                 hideMnemonic: true,
             };
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 props(matchData),
                 appProps({}, reportedError));
 
@@ -229,7 +213,7 @@ describe('PrintableSheetMatch', () => {
                 hideMnemonic: true,
             };
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 props(matchData),
                 appProps({}, reportedError));
 
@@ -249,6 +233,13 @@ describe('PrintableSheetMatch', () => {
         let saygData: RecordedScoreAsYouGoDto & UpdateRecordedScoreAsYouGoDto;
         let matchData: ILayoutDataForMatch;
         let tournamentDataWithMatch: TournamentGameDto;
+        const containerProps = new tournamentContainerPropsBuilder({
+            matchOptionDefaults,
+            async saveTournament(): Promise<TournamentGameDto> {
+                return tournamentData;
+            },
+            setTournamentData,
+        });
 
         beforeEach(() => {
              saygData = saygBuilder()
@@ -280,7 +271,7 @@ describe('PrintableSheetMatch', () => {
 
         it('can change side and score for sideA', async () => {
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 props(matchData, true, sideA, sideB, sideC),
                 appProps({}, reportedError));
             const side = context.container.querySelector('div[datatype="sideA"]')!;
@@ -308,7 +299,7 @@ describe('PrintableSheetMatch', () => {
 
         it('can change side and score for sideB', async () => {
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 props(matchData, true, sideA, sideB, sideC),
                 appProps({}, reportedError));
             const side = context.container.querySelector('div[datatype="sideB"]')!;
@@ -350,7 +341,7 @@ describe('PrintableSheetMatch', () => {
                 hideMnemonic: true,
             };
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 props(matchData, true, sideA, sideB, sideC),
                 appProps({}, reportedError));
             const side = context.container.querySelector('div[datatype="sideB"]')!;
@@ -389,7 +380,7 @@ describe('PrintableSheetMatch', () => {
                 hideMnemonic: true,
             };
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 props(matchData, true, sideA, sideB, sideC),
                 appProps({}, reportedError));
             const side = context.container.querySelector('div[datatype="sideB"]')!;
@@ -418,7 +409,7 @@ describe('PrintableSheetMatch', () => {
                 hideMnemonic: true,
             };
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 withRoundIndex(props(nestedMatchData, true), 1),
                 appProps({}, reportedError));
             await doClick(context.container.querySelector('div[datatype="sideB"]')!);
@@ -442,7 +433,7 @@ describe('PrintableSheetMatch', () => {
                 hideMnemonic: true,
             };
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 withRoundIndex(props(nestedMatchData, true, sideA, sideB), 1),
                 appProps({}, reportedError));
             await doClick(context.container.querySelector('div[datatype="sideB"]')!);
@@ -473,7 +464,7 @@ describe('PrintableSheetMatch', () => {
         it('preselects side to mnemonic', async () => {
             matchData.sideA.mnemonic = sideC.name;
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 props(matchData, true, sideA, sideB, sideC),
                 appProps({}, reportedError));
             await doClick(context.container.querySelector('div[datatype="sideA"]')!);
@@ -499,7 +490,7 @@ describe('PrintableSheetMatch', () => {
 
         it('cannot save side when no side selected', async () => {
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 props(matchData, true, sideA, sideB, sideC),
                 appProps({}, reportedError));
             await doClick(context.container.querySelector('div[datatype="sideA"]')!);
@@ -521,7 +512,7 @@ describe('PrintableSheetMatch', () => {
                 hideMnemonic: true,
             };
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 props(matchData, false),
                 appProps({}, reportedError));
             const sideB = context.container.querySelector('div[datatype="sideA"]')!;
@@ -542,7 +533,7 @@ describe('PrintableSheetMatch', () => {
                 hideMnemonic: true,
             };
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 props(matchData, true),
                 appProps({}, reportedError));
 
@@ -562,7 +553,7 @@ describe('PrintableSheetMatch', () => {
                 hideMnemonic: true,
             };
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 props(matchData, false),
                 appProps({}, reportedError));
 
@@ -582,7 +573,7 @@ describe('PrintableSheetMatch', () => {
                 hideMnemonic: true,
             };
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 props(matchData, true),
                 appProps({}, reportedError));
 
@@ -608,7 +599,7 @@ describe('PrintableSheetMatch', () => {
                 hideMnemonic: true,
             };
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 props(matchData, true),
                 appProps({}, reportedError));
             await doClick(context.container.querySelector('div[datatype="sideA"]')!);
@@ -649,7 +640,7 @@ describe('PrintableSheetMatch', () => {
                 hideMnemonic: true,
             };
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 props(matchData, true),
                 appProps({}, reportedError));
             await doClick(context.container.querySelector('div[datatype="sideB"]')!);
@@ -689,7 +680,7 @@ describe('PrintableSheetMatch', () => {
                 hideMnemonic: true,
             };
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 props(matchData, true),
                 appProps({}, reportedError));
             await doClick(context.container.querySelector('div[datatype="sideB"]')!);
@@ -705,7 +696,7 @@ describe('PrintableSheetMatch', () => {
         it('shows layout match options number of legs when present', async () => {
             matchData.matchOptions = matchOptionsBuilder().numberOfLegs(9).build();
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 props(matchData, true, sideA, sideB, sideC),
                 appProps({}, reportedError));
             await doClick(context.container.querySelector('div[datatype="sideB"]')!);
@@ -719,7 +710,7 @@ describe('PrintableSheetMatch', () => {
 
         it('shows default match options number of legs when match options not present', async () => {
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 props(matchData, true, sideA, sideB, sideC),
                 appProps({}, reportedError));
             await doClick(context.container.querySelector('div[datatype="sideB"]')!);
@@ -757,7 +748,7 @@ describe('PrintableSheetMatch', () => {
                 match: tournamentData.round!.matches![0],
             };
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 patchable(props(matchData, true)),
                 appProps({ account: user(true) }, reportedError));
 
@@ -808,7 +799,7 @@ describe('PrintableSheetMatch', () => {
                 match: tournamentData!.round!.matches![0],
             };
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 patchable(withRoundIndex(props(matchData, true), 1)),
                 appProps({ account: user(true) }, reportedError));
 
@@ -852,7 +843,7 @@ describe('PrintableSheetMatch', () => {
                 match: tournamentData!.round!.matches![0],
             };
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps.withTournament(tournamentData).build(),
                 patchable(props(matchData, true)),
                 appProps({ }, reportedError));
 
@@ -870,7 +861,7 @@ describe('PrintableSheetMatch', () => {
                 match: tournamentDataWithMatch!.round!.matches![0],
             };
             await renderComponent(
-                containerProps(tournamentDataWithMatch, matchOptionDefaults),
+                containerProps.withTournament(tournamentDataWithMatch).build(),
                 patchable(props(matchData, true)),
                 appProps({ }, reportedError));
 
@@ -897,7 +888,7 @@ describe('PrintableSheetMatch', () => {
                 saygId: saygData.id,
             };
             await renderComponent(
-                containerProps(tournamentDataWithMatch, matchOptionDefaults),
+                containerProps.withTournament(tournamentDataWithMatch).build(),
                 withRound(patchable(props(matchData, true)), tournamentDataWithMatch!.round!),
                 appProps({ account: user(true, true) }, reportedError));
             context.prompts.respondToConfirm('Are you sure you want to delete the sayg data for this match?', true);
@@ -941,7 +932,7 @@ describe('PrintableSheetMatch', () => {
                 saygId: saygData.id,
             };
             await renderComponent(
-                containerProps(tournamentDataWithMatch, matchOptionDefaults),
+                containerProps.withTournament(tournamentDataWithMatch).build(),
                 withRound(patchable(props(matchData, true)), tournamentDataWithMatch!.round!),
                 appProps({ account: user(true, true) }, reportedError));
             context.prompts.respondToConfirm('Are you sure you want to delete the sayg data for this match?', true);
@@ -979,7 +970,7 @@ describe('PrintableSheetMatch', () => {
                 saygId: saygData.id,
             };
             await renderComponent(
-                containerProps(tournamentDataWithMatch, matchOptionDefaults),
+                containerProps.withTournament(tournamentDataWithMatch).build(),
                 withRound(patchable(props(matchData, true)), tournamentDataWithMatch!.round!),
                 appProps({ account: user(true, true) }, reportedError));
             context.prompts.respondToConfirm('Are you sure you want to delete the sayg data for this match?', true);
