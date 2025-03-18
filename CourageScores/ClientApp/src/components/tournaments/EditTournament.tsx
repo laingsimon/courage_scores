@@ -66,6 +66,8 @@ export function EditTournament({canSave, disabled, saving}: IEditTournamentProps
         <div>Playing:</div>
         <div className="my-1 d-flex flex-wrap">
             {tournamentData.sides!.sort(sortBy('name')).map((side: TournamentSideDto, sideIndex: number) => {
+                const hasBeenSelected = (tournamentData.round?.matches?.filter(m => m.sideA?.id === side.id || m.sideB?.id === side.id) || []).length > 0
+
                 return (<TournamentSide
                     key={sideIndex}
                     winner={winningSideId === side.id}
@@ -77,7 +79,7 @@ export function EditTournament({canSave, disabled, saving}: IEditTournamentProps
                         setNewSide(null);
                     }}
                     showEditSide={!tournamentData.singleRound}
-                    showDeleteSide={tournamentData.singleRound} />);
+                    showDeleteSide={tournamentData.singleRound && !hasBeenSelected} />);
             })}
             {readOnly
                 ? null
