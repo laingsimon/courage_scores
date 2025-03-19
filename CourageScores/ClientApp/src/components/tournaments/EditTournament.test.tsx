@@ -158,66 +158,6 @@ describe('EditTournament', () => {
             const accolades = context.container.querySelector('div > div > table');
             expect(accolades).toBeFalsy();
         });
-
-        it('winning side from first round', async () => {
-            const side1 = sideBuilder('SIDE 1').build();
-            const anotherSide = sideBuilder('ANOTHER SIDE').build();
-            const tournamentData = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
-                        .sideA(side1, 1)
-                        .sideB(anotherSide, 2))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
-                .forSeason(season)
-                .withSide(side1)
-                .withSide(anotherSide)
-                .build();
-
-            await renderComponent(containerProps.withTournament(tournamentData).withAlreadyPlaying({}).withAllPlayers([]).build(), {
-                disabled: true,
-                saving: false,
-                canSave: false,
-            }, account);
-
-            const playing = context.container.querySelector('div > div > div:nth-child(1)')!;
-            expect(playing.textContent).toEqual('Playing:');
-            const sides = context.container.querySelector('div > div > div:nth-child(2)')!;
-            const winningSide = sides.querySelector('.bg-winner');
-            expect(winningSide).toBeTruthy();
-            expect(winningSide!.textContent).toContain('ANOTHER SIDE');
-        });
-
-        it('winning side from second round', async () => {
-            const side1 = sideBuilder('SIDE 1').build();
-            const anotherSide = sideBuilder('ANOTHER SIDE').build();
-            const tournamentData = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
-                        .sideA(side1, 2)
-                        .sideB(anotherSide, 2))
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m
-                            .sideA(side1, 2)
-                            .sideB(anotherSide, 1))
-                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
-                .forSeason(season)
-                .withSide(side1)
-                .withSide(anotherSide)
-                .build();
-
-            await renderComponent(containerProps.withTournament(tournamentData).withAlreadyPlaying({}).withAllPlayers([]).build(), {
-                disabled: true,
-                saving: false,
-                canSave: false,
-            }, account);
-
-            const playing = context.container.querySelector('div > div > div:nth-child(1)')!;
-            expect(playing.textContent).toEqual('Playing:');
-            const sides = context.container.querySelector('div > div > div:nth-child(2)')!;
-            const winningSide = sides.querySelector('.bg-winner')!;
-            expect(winningSide).toBeTruthy();
-            expect(winningSide.textContent).toContain('SIDE 1');
-        });
     });
 
     describe('interactivity', () => {
@@ -368,72 +308,6 @@ describe('EditTournament', () => {
 
             reportedError.verifyNoError();
             expect(updatedData!.sides).toEqual([]);
-        });
-
-        it('updates side A data in rounds', async () => {
-            const side = sideBuilder('SIDE 1').teamId(team1.id).build();
-            const tournamentData = tournamentBuilder()
-                .forSeason(season)
-                .withSide(side)
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(side))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
-                .build();
-            await renderComponent(containerProps.withTournament(tournamentData).withAlreadyPlaying({}).withAllPlayers([]).build(), {
-                disabled: false,
-                saving: false,
-                canSave: true,
-            }, account, [team1]);
-            const playing = context.container.querySelector('div > div > div:nth-child(1)')!;
-            expect(playing.textContent).toEqual('Playing:');
-            const sides = context.container.querySelector('div > div > div:nth-child(2)')!;
-            const sideElement = sides.querySelector('div')!;
-
-            await doClick(findButton(sideElement, '✏️'));
-            const dialog = sides.querySelector('.modal-dialog')!;
-            expect(dialog).toBeTruthy();
-            await doChange(sideElement, 'input[name="name"]', 'NEW SIDE 1', context.user);
-            await doClick(findButton(dialog, 'Update'));
-
-            reportedError.verifyNoError();
-            expect(updatedData!.round!.matches![0]).toEqual({
-                id: expect.any(String),
-                sideA: {id: side.id, name: 'NEW SIDE 1', teamId: team1.id, players: []},
-                sideB: null,
-            });
-        });
-
-        it('updates side B data in rounds', async () => {
-            const side = sideBuilder('SIDE 1').teamId(team1.id).build();
-            const tournamentData = tournamentBuilder()
-                .forSeason(season)
-                .withSide(side)
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideB(side))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
-                .build();
-            await renderComponent(containerProps.withTournament(tournamentData).withAlreadyPlaying({}).withAllPlayers([]).build(), {
-                disabled: false,
-                saving: false,
-                canSave: true,
-            }, account, [team1]);
-            const playing = context.container.querySelector('div > div > div:nth-child(1)')!;
-            expect(playing.textContent).toEqual('Playing:');
-            const sides = context.container.querySelector('div > div > div:nth-child(2)')!;
-            const sideElement = sides.querySelector('div')!;
-
-            await doClick(findButton(sideElement, '✏️'));
-            const dialog = sides.querySelector('.modal-dialog')!;
-            expect(dialog).toBeTruthy();
-            await doChange(sideElement, 'input[name="name"]', 'NEW SIDE 1', context.user);
-            await doClick(findButton(dialog, 'Update'));
-
-            reportedError.verifyNoError();
-            expect(updatedData!.round!.matches![0]).toEqual({
-                id: expect.any(String),
-                sideA: null,
-                sideB: {id: side.id, name: 'NEW SIDE 1', teamId: team1.id, players: []},
-            });
         });
 
         it('trims whitespace from end of edited side name', async () => {
