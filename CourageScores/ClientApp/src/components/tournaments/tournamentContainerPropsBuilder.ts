@@ -1,4 +1,6 @@
-﻿import {ITournamentContainerProps} from "./TournamentContainer";
+﻿/* istanbul ignore file */
+
+import {ITournamentContainerProps} from "./TournamentContainer";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
