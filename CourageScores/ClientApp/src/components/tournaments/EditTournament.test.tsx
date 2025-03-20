@@ -24,6 +24,7 @@ import {
 import {teamBuilder} from "../../helpers/builders/teams";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {tournamentContainerPropsBuilder} from "./tournamentContainerPropsBuilder";
+import {IMatchOptionsBuilder} from "../../helpers/builders/games";
 
 describe('EditTournament', () => {
     let context: TestContext;
@@ -157,6 +158,68 @@ describe('EditTournament', () => {
 
             const accolades = context.container.querySelector('div > div > table');
             expect(accolades).toBeFalsy();
+        });
+
+        it('winning side from first round', async () => {
+            const side1 = sideBuilder('SIDE 1').build();
+            const anotherSide = sideBuilder('ANOTHER SIDE').build();
+            const tournamentData = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m
+                        .sideA(side1, 1)
+                        .sideB(anotherSide, 2))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
+                .forSeason(season)
+                .withSide(side1)
+                .withSide(anotherSide)
+                .build();
+
+            await renderComponent(
+                containerProps.withTournament(tournamentData).withAllPlayers([]).withAlreadyPlaying({}).build(), {
+                disabled: true,
+                saving: false,
+                canSave: false,
+            }, account);
+
+            const playing = context.container.querySelector('div > div > div:nth-child(1)')!;
+            expect(playing.textContent).toEqual('Playing:');
+            const sides = context.container.querySelector('div > div > div:nth-child(3)')!;
+            const winningSideCells = Array.from(sides.querySelectorAll('td.bg-winner'));
+            expect(winningSideCells.length).toEqual(2);
+            expect(winningSideCells.map(td => td.textContent).join(',')).toContain('2,ANOTHER SIDE');
+        });
+
+        it('winning side from second round', async () => {
+            const side1 = sideBuilder('SIDE 1').build();
+            const anotherSide = sideBuilder('ANOTHER SIDE').build();
+            const tournamentData = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m
+                        .sideA(side1, 2)
+                        .sideB(anotherSide, 1))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                    .round((r: ITournamentRoundBuilder) => r
+                        .withMatch((m: ITournamentMatchBuilder) => m
+                            .sideA(side1, 2)
+                            .sideB(anotherSide, 1))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
+                .forSeason(season)
+                .withSide(side1)
+                .withSide(anotherSide)
+                .build();
+
+            await renderComponent(containerProps.withTournament(tournamentData).withAllPlayers([]).withAlreadyPlaying({}).build(), {
+                disabled: true,
+                saving: false,
+                canSave: false,
+            }, account);
+
+            const playing = context.container.querySelector('div > div > div:nth-child(1)')!;
+            expect(playing.textContent).toEqual('Playing:');
+            const sides = context.container.querySelector('div > div > div:nth-child(3)')!;
+            const winningSideCells = Array.from(sides.querySelectorAll('td.bg-winner'));
+            expect(winningSideCells.length).toEqual(2);
+            expect(winningSideCells.map(td => td.textContent).join(',')).toContain('SIDE 1,2');
         });
     });
 
