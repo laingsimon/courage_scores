@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import {useState} from "react";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
 import {Dialog} from "../common/Dialog";
 import {EditMatchOptions} from "../common/EditMatchOptions";
@@ -8,7 +8,6 @@ import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRo
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
-import {useTournament} from "./TournamentContainer";
 
 export interface ITournamentRoundMatchProps {
     readOnly?: boolean;
@@ -33,7 +32,6 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sides, exc
     const scoreBRecorded: boolean = hasScore(match.scoreB);
     const hasBothScores: boolean = scoreARecorded && scoreBRecorded;
     const [matchOptionsDialogOpen, setMatchOptionsDialogOpen] = useState<boolean>(false);
-    const {draggingSide} = useTournament();
 
     function sideSelection(side: TournamentSideDto): IBootstrapDropdownItem {
         return {
@@ -89,26 +87,8 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sides, exc
         return (scoreA !== undefined && scoreA > (numberOfLegs / 2.0)) || false;
     }
 
-    async function dropSideA() {
-        if (draggingSide) {
-            await updateMatch('sideA', draggingSide.id);
-        }
-    }
-
-    async function dropSideB() {
-        if (draggingSide) {
-            await updateMatch('sideB', draggingSide.id);
-        }
-    }
-
-    function preventDefault(event: React.DragEvent) {
-        if (draggingSide) {
-            event.preventDefault();
-        }
-    }
-
     return (<tr className="bg-light">
-        <td className={hasBothScores && isWinner(scoreA) ? 'bg-winner' : ''} onDrop={dropSideA} onDragOver={preventDefault}>
+        <td className={hasBothScores && isWinner(scoreA) ? 'bg-winner' : ''}>
             {readOnly || hasNextRound
                 ? (match.sideA.name || sides.filter(s => s.id === match.sideA.id)[0].name)
                 : (<BootstrapDropdown
@@ -126,7 +106,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sides, exc
         <td className={hasBothScores && isWinner(scoreB) ? 'narrow-column bg-winner' : 'narrow-column'}>
             {scoreB || (scoreBRecorded ? '0' : '')}
         </td>
-        <td className={hasBothScores && isWinner(scoreB) ? 'bg-winner' : ''} onDrop={dropSideB} onDragOver={preventDefault}>
+        <td className={hasBothScores && isWinner(scoreB) ? 'bg-winner' : ''}>
             {readOnly || hasNextRound
                 ? (match.sideB.name || sides.filter(s => s.id === match.sideB.id)[0].name)
                 : (<BootstrapDropdown
