@@ -1,4 +1,4 @@
-import {any, sortBy} from "../../helpers/collections";
+import {any} from "../../helpers/collections";
 import {propChanged} from "../../helpers/events";
 import {TournamentSide} from "./TournamentSide";
 import {TournamentRound} from "./TournamentRound";
@@ -19,7 +19,7 @@ export interface IEditTournamentProps {
 
 export function EditTournament({canSave, disabled, saving}: IEditTournamentProps) {
     const {account} = useApp();
-    const {tournamentData, setTournamentData, setDraggingSide, newMatch} = useTournament();
+    const {tournamentData, setTournamentData, setDraggingSide, newMatch, playerIdToTeamMap} = useTournament();
     const isAdmin: boolean = hasAccess(account, access => access.manageTournaments);
     const readOnly: boolean = !isAdmin || !canSave || disabled || saving || false;
     const [newSide, setNewSide] = useState<TournamentSideDto | null>(null);
@@ -37,11 +37,27 @@ export function EditTournament({canSave, disabled, saving}: IEditTournamentProps
             initialAddMultiplePlayers={tournamentData.singleRound} />);
     }
 
+    function sortByTeam(x: TournamentSideDto, y: TournamentSideDto): number {
+        const xTeam = x.players?.length === 1 ? playerIdToTeamMap[x.players[0].id] : null;
+        const yTeam = y.players?.length === 1 ? playerIdToTeamMap[y.players[0].id] : null;
+
+        if (xTeam && yTeam) {
+            const result = xTeam.name.localeCompare(yTeam.name);
+            if (result === 0) {
+                return x.name?.localeCompare(y.name || '') || 0;
+            }
+
+            return result;
+        }
+
+        return x.name?.localeCompare(y.name || '') || 0;
+    }
+
     const canShowResults: boolean = any((tournamentData.round || {}).matches, (match: TournamentMatchDto) => !!match.scoreA || !!match.scoreB) || !readOnly;
     return (<div datatype="edit-tournament">
         <div>Playing:</div>
         <div className="my-1 d-flex flex-wrap">
-            {tournamentData.sides!.sort(sortBy('name')).map((side: TournamentSideDto, sideIndex: number) => {
+            {tournamentData.sides!.sort(sortByTeam).map((side: TournamentSideDto, sideIndex: number) => {
                 const allMatches = (tournamentData.round?.matches || []).concat(newMatch);
                 const hasBeenSelected = (allMatches.filter(m => m.sideA?.id === side.id || m.sideB?.id === side.id) || []).length > 0
 
