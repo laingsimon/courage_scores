@@ -28,7 +28,7 @@ import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
 import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {saygBuilder} from "../../../helpers/builders/sayg";
 import {START_SCORING} from "../tournaments";
-import {UntypedPromise} from "../../../interfaces/UntypedPromise";
+import {tournamentContainerPropsBuilder} from "../tournamentContainerPropsBuilder";
 
 describe('MasterDraw', () => {
     let context: TestContext;
@@ -78,16 +78,6 @@ describe('MasterDraw', () => {
         editTournament = value;
     }
 
-    async function saveTournament(_?: boolean): Promise<TournamentGameDto | undefined> {
-        return undefined;
-    }
-
-    async function setTournamentData(_: TournamentGameDto): UntypedPromise {
-    }
-
-    function setPreventScroll(_: boolean) {
-    }
-
     async function renderComponent(props: IMasterDrawProps, containerProps: ITournamentContainerProps, account?: UserDto) {
         context = await renderApp(
             iocProps({tournamentApi, saygApi}),
@@ -96,14 +86,12 @@ describe('MasterDraw', () => {
             (<TournamentContainer {...containerProps}>
                 <MasterDraw {...props} />
             </TournamentContainer>));
+
+        reportedError.verifyNoError();
     }
 
     describe('renders', () => {
-        const defaultContainerProps: ITournamentContainerProps = {
-            tournamentData: tournamentBuilder().build(),
-            preventScroll: false,
-            setPreventScroll(_: boolean) {},
-        };
+        const containerProps = new tournamentContainerPropsBuilder({ setEditTournament });
 
         it('matches', async () => {
             const match1 = tournamentMatchBuilder().sideA('A').sideB('B').build();
@@ -117,9 +105,8 @@ describe('MasterDraw', () => {
                 gender: 'GENDER',
                 date: '2023-05-06',
                 type: 'TYPE',
-            }, defaultContainerProps);
+            }, containerProps.build());
 
-            reportedError.verifyNoError();
             const table = context.container.querySelector('table.table')!;
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             expect(rows.length).toEqual(2);
@@ -135,9 +122,8 @@ describe('MasterDraw', () => {
                 gender: 'GENDER',
                 date: '2023-05-06',
                 type: 'Board 1',
-            }, defaultContainerProps);
+            }, containerProps.build());
 
-            reportedError.verifyNoError();
             const tournamentProperties = context.container.querySelector('div.d-flex > div:nth-child(2)')!;
             expect(tournamentProperties.textContent).toContain('Gender: GENDER');
             expect(tournamentProperties.textContent).toContain('Date: ' + renderDate('2023-05-06'));
@@ -152,9 +138,8 @@ describe('MasterDraw', () => {
                 gender: 'GENDER',
                 date: '2023-05-06',
                 type: '',
-            }, defaultContainerProps);
+            }, containerProps.build());
 
-            reportedError.verifyNoError();
             const tournamentProperties = context.container.querySelector('div.d-flex > div:nth-child(2)')!;
             expect(tournamentProperties.textContent).toContain('Gender: GENDER');
             expect(tournamentProperties.textContent).not.toContain('Notes:');
@@ -162,6 +147,8 @@ describe('MasterDraw', () => {
     });
 
     describe('interactivity', () => {
+        const containerProps = new tournamentContainerPropsBuilder({ setEditTournament })
+
         it('can edit tournament from heading', async () => {
             await renderComponent({
                 matches: [],
@@ -170,13 +157,7 @@ describe('MasterDraw', () => {
                 gender: 'GENDER',
                 date: '2023-05-06',
                 type: 'TYPE',
-            }, {
-                setEditTournament,
-                tournamentData: tournamentBuilder().build(),
-                preventScroll: false,
-                setPreventScroll,
-            });
-            reportedError.verifyNoError();
+            }, containerProps.build());
 
             await doClick(context.container.querySelector('div[datatype="master-draw"] > h2')!);
 
@@ -192,13 +173,7 @@ describe('MasterDraw', () => {
                 gender: 'GENDER',
                 date: '2023-05-06',
                 type: 'TYPE',
-            }, {
-                setEditTournament,
-                tournamentData: tournamentBuilder().build(),
-                preventScroll: false,
-                setPreventScroll,
-            });
-            reportedError.verifyNoError();
+            }, containerProps.build());
 
             await doClick(context.container.querySelector('div[datatype="master-draw"] thead tr:first-child')!);
 
@@ -218,13 +193,7 @@ describe('MasterDraw', () => {
                 gender: 'GENDER',
                 date: '2023-05-06',
                 type: 'TYPE',
-            }, {
-                setEditTournament,
-                tournamentData: tournamentBuilder().build(),
-                preventScroll: false,
-                setPreventScroll,
-            });
-            reportedError.verifyNoError();
+            }, containerProps.build());
 
             await doClick(context.container.querySelector('div[datatype="master-draw"] tbody td:nth-child(1)')!);
 
@@ -244,13 +213,7 @@ describe('MasterDraw', () => {
                 gender: 'GENDER',
                 date: '2023-05-06',
                 type: 'TYPE',
-            }, {
-                setEditTournament,
-                tournamentData: tournamentBuilder().build(),
-                preventScroll: false,
-                setPreventScroll,
-            });
-            reportedError.verifyNoError();
+            }, containerProps.build());
 
             await doClick(context.container.querySelector('div[datatype="master-draw"] tbody tr:first-child td:nth-child(2)')!);
 
@@ -270,13 +233,7 @@ describe('MasterDraw', () => {
                 gender: 'GENDER',
                 date: '2023-05-06',
                 type: 'TYPE',
-            }, {
-                setEditTournament,
-                tournamentData: tournamentBuilder().build(),
-                preventScroll: false,
-                setPreventScroll,
-            });
-            reportedError.verifyNoError();
+            }, containerProps.build());
 
             await doClick(context.container.querySelector('div[datatype="master-draw"] tbody tr:first-child td:nth-child(3)')!);
 
@@ -296,13 +253,7 @@ describe('MasterDraw', () => {
                 gender: 'GENDER',
                 date: '2023-05-06',
                 type: 'TYPE',
-            }, {
-                setEditTournament,
-                tournamentData: tournamentBuilder().build(),
-                preventScroll: false,
-                setPreventScroll,
-            });
-            reportedError.verifyNoError();
+            }, containerProps.build());
 
             await doClick(context.container.querySelector('div[datatype="master-draw"] tbody tr:first-child td:nth-child(4)')!);
 
@@ -318,13 +269,7 @@ describe('MasterDraw', () => {
                 gender: 'GENDER',
                 date: '2023-05-06',
                 type: 'TYPE',
-            }, {
-                setEditTournament,
-                tournamentData: tournamentBuilder().build(),
-                preventScroll: false,
-                setPreventScroll,
-            });
-            reportedError.verifyNoError();
+            }, containerProps.build());
 
             await doClick(context.container.querySelector('div[datatype="master-draw"] tfoot td')!);
 
@@ -340,13 +285,7 @@ describe('MasterDraw', () => {
                 gender: 'GENDER',
                 date: '2023-05-06',
                 type: 'TYPE',
-            }, {
-                setEditTournament,
-                tournamentData: tournamentBuilder().build(),
-                preventScroll: false,
-                setPreventScroll,
-            });
-            reportedError.verifyNoError();
+            }, containerProps.build());
 
             await doClick(context.container.querySelector('div[datatype="details"]')!);
 
@@ -355,6 +294,8 @@ describe('MasterDraw', () => {
         });
 
         it('cannot edit tournament from heading when not permitted', async () => {
+            const readonlyContainerProps = containerProps.withTournament(tournamentBuilder().singleRound().build()).build();
+            readonlyContainerProps.setEditTournament = undefined;
             await renderComponent({
                 matches: [],
                 host: 'HOST',
@@ -362,12 +303,7 @@ describe('MasterDraw', () => {
                 gender: 'GENDER',
                 date: '2023-05-06',
                 type: 'TYPE',
-            }, {
-                tournamentData: tournamentBuilder().build(),
-                preventScroll: false,
-                setPreventScroll,
-            });
-            reportedError.verifyNoError();
+            }, readonlyContainerProps);
 
             await doClick(context.container.querySelector('div[datatype="master-draw"] > h2')!);
 
@@ -383,16 +319,12 @@ describe('MasterDraw', () => {
                 gender: 'GENDER',
                 date: '2023-05-06',
                 type: 'TYPE',
-            }, {
-                tournamentData: tournamentBuilder().build(),
-                preventScroll: false,
-                setPreventScroll,
-            });
-            reportedError.verifyNoError();
+            }, containerProps.build());
 
             await doClick(context.container.querySelector('div[datatype="master-draw"] > div')!);
 
             reportedError.verifyNoError();
+            // TODO: This test might not be working correctly, i'd expect `editTournament` to be set, as `setEditTournament` is provided
             expect(editTournament).toEqual(null);
         });
 
@@ -416,15 +348,8 @@ describe('MasterDraw', () => {
                 gender: 'GENDER',
                 date: '2023-05-06',
                 type: 'TYPE',
-            }, {
-                setEditTournament,
-                tournamentData: tournamentBuilder().singleRound().build(),
-                saveTournament,
-                setTournamentData,
-                preventScroll: false,
-                setPreventScroll,
-            }, account);
-            reportedError.verifyNoError();
+            }, containerProps
+                .withTournament(tournamentBuilder().singleRound().build()).build(), account);
 
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), START_SCORING));
 
@@ -457,15 +382,12 @@ describe('MasterDraw', () => {
                 gender: 'GENDER',
                 date: '2023-05-06',
                 type: 'TYPE',
-            }, {
-                setEditTournament,
-                tournamentData: tournamentBuilder(tournamentId).round((r: ITournamentRoundBuilder) => r.withMatch(match)).singleRound().build(),
-                saveTournament,
-                setTournamentData,
-                preventScroll: false,
-                setPreventScroll,
-            }, account);
-            reportedError.verifyNoError();
+            }, containerProps
+                .withTournament(tournamentBuilder(tournamentId)
+                    .round((r: ITournamentRoundBuilder) => r.withMatch(match))
+                    .singleRound()
+                    .build())
+                .build(), account);
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), START_SCORING));
             reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');

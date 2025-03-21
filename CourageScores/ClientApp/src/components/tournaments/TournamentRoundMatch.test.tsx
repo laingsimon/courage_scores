@@ -15,7 +15,6 @@ import {ITournamentRoundMatchProps, TournamentRoundMatch} from "./TournamentRoun
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
-import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
@@ -23,13 +22,13 @@ import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {
     roundBuilder,
     sideBuilder,
-    tournamentBuilder,
     tournamentMatchBuilder
 } from "../../helpers/builders/tournaments";
 import {playerBuilder} from "../../helpers/builders/players";
 import {matchOptionsBuilder} from "../../helpers/builders/games";
 import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
+import {tournamentContainerPropsBuilder} from "./tournamentContainerPropsBuilder";
 
 describe('TournamentRoundMatch', () => {
     let context: TestContext;
@@ -54,25 +53,11 @@ describe('TournamentRoundMatch', () => {
         updatedRound = null;
     });
 
-    async function setTournamentData() {
-    }
-
-    async function saveTournament(): Promise<TournamentGameDto> {
-        return {
-            date: '',
-            id: '',
-            address: '',
-        };
-    }
-
     async function onMatchOptionsChanged(_: GameMatchOptionDto) {
     }
 
     async function onChange(updated: TournamentRoundDto) {
         updatedRound = updated;
-    }
-
-    function setPreventScroll(_: boolean) {
     }
 
     async function renderComponent(containerProps: ITournamentContainerProps, props: ITournamentRoundMatchProps, account?: UserDto) {
@@ -117,6 +102,7 @@ describe('TournamentRoundMatch', () => {
             }
             return !any(exceptSides, (s: TournamentSideDto) => s.name === side.name);
         };
+        const containerProps = new tournamentContainerPropsBuilder();
 
         beforeEach(() => {
             returnFromExceptSelected = {};
@@ -124,17 +110,10 @@ describe('TournamentRoundMatch', () => {
 
         describe('when logged out', () => {
             const account = undefined;
-            const defaultTournamentContainerProps: ITournamentContainerProps = {
-                tournamentData: tournamentBuilder().build(),
-                saveTournament,
-                setTournamentData,
-                preventScroll: false,
-                setPreventScroll,
-            };
 
             it('when has next round', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
-                await renderComponent(defaultTournamentContainerProps, {
+                await renderComponent(containerProps.build(), {
                     readOnly: true,
                     match: match,
                     hasNextRound: true,
@@ -161,7 +140,7 @@ describe('TournamentRoundMatch', () => {
 
             it('when has next round and no scores', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).build();
-                await renderComponent(defaultTournamentContainerProps, {
+                await renderComponent(containerProps.build(), {
                     readOnly: true,
                     match: match,
                     hasNextRound: true,
@@ -186,7 +165,7 @@ describe('TournamentRoundMatch', () => {
 
             it('sideA winner', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 3).sideB(sideB, 2).build();
-                await renderComponent(defaultTournamentContainerProps, {
+                await renderComponent(containerProps.build(), {
                     readOnly: true,
                     match: match,
                     hasNextRound: true,
@@ -210,7 +189,7 @@ describe('TournamentRoundMatch', () => {
 
             it('sideA outright winner shows 0 value score for sideB', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 3).sideB(sideB, 0).build();
-                await renderComponent(defaultTournamentContainerProps, {
+                await renderComponent(containerProps.build(), {
                     readOnly: true,
                     match: match,
                     hasNextRound: false,
@@ -232,7 +211,7 @@ describe('TournamentRoundMatch', () => {
 
             it('sideB winner', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 2).sideB(sideB, 3).build();
-                await renderComponent(defaultTournamentContainerProps, {
+                await renderComponent(containerProps.build(), {
                     readOnly: true,
                     match: match,
                     hasNextRound: true,
@@ -256,7 +235,7 @@ describe('TournamentRoundMatch', () => {
 
             it('sideB outright winner shows 0 value score for sideA', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 3).build();
-                await renderComponent(defaultTournamentContainerProps, {
+                await renderComponent(containerProps.build(), {
                     readOnly: true,
                     match: match,
                     hasNextRound: false,
@@ -278,7 +257,7 @@ describe('TournamentRoundMatch', () => {
 
             it('when no next round', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
-                await renderComponent(defaultTournamentContainerProps, {
+                await renderComponent(containerProps.build(), {
                     readOnly: true,
                     match: match,
                     hasNextRound: false,
@@ -303,7 +282,7 @@ describe('TournamentRoundMatch', () => {
 
             it('cannot open sayg if not exists', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
-                await renderComponent(defaultTournamentContainerProps, {
+                await renderComponent(containerProps.build(), {
                     readOnly: true,
                     match: match,
                     hasNextRound: false,
@@ -332,20 +311,13 @@ describe('TournamentRoundMatch', () => {
                     recordScoresAsYouGo: true,
                 }
             };
-            const defaultTournamentContainerProps: ITournamentContainerProps = {
-                tournamentData: tournamentBuilder().build(),
-                saveTournament,
-                setTournamentData,
-                preventScroll: false,
-                setPreventScroll,
-            };
 
             it('when no next round', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
                 returnFromExceptSelected['sideA'] = [sideC, sideD];
                 returnFromExceptSelected['sideB'] = [sideD, sideE];
 
-                await renderComponent(defaultTournamentContainerProps, {
+                await renderComponent(containerProps.build(), {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
@@ -370,7 +342,7 @@ describe('TournamentRoundMatch', () => {
 
             it('can open match options', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
-                await renderComponent(defaultTournamentContainerProps, {
+                await renderComponent(containerProps.build(), {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
@@ -391,7 +363,7 @@ describe('TournamentRoundMatch', () => {
 
             it('sideA outright winner shows 0 value score for sideB', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 3).sideB(sideB, 0).build();
-                await renderComponent(defaultTournamentContainerProps, {
+                await renderComponent(containerProps.build(), {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
@@ -413,7 +385,7 @@ describe('TournamentRoundMatch', () => {
 
             it('sideB outright winner shows 0 value score for sideA', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 3).build();
-                await renderComponent(defaultTournamentContainerProps, {
+                await renderComponent(containerProps.build(), {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
@@ -466,13 +438,7 @@ describe('TournamentRoundMatch', () => {
                 recordScoresAsYouGo: true,
             }
         };
-        const defaultTournamentContainerProps: ITournamentContainerProps = {
-            tournamentData: tournamentBuilder().build(),
-            saveTournament,
-            setTournamentData,
-            preventScroll: false,
-            setPreventScroll,
-        };
+        const containerProps = new tournamentContainerPropsBuilder();
 
         beforeEach(() => {
             returnFromExceptSelected = {};
@@ -481,7 +447,7 @@ describe('TournamentRoundMatch', () => {
 
         it('can open match options dialog', async () => {
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
-            await renderComponent(defaultTournamentContainerProps, {
+            await renderComponent(containerProps.build(), {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -506,7 +472,7 @@ describe('TournamentRoundMatch', () => {
 
         it('can close match options dialog', async () => {
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
-            await renderComponent(defaultTournamentContainerProps, {
+            await renderComponent(containerProps.build(), {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -532,7 +498,7 @@ describe('TournamentRoundMatch', () => {
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
             returnFromExceptSelected['sideA'] = [sideB, sideD];
             returnFromExceptSelected['sideB'] = [sideA, sideE];
-            await renderComponent(defaultTournamentContainerProps, {
+            await renderComponent(containerProps.build(), {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -559,7 +525,7 @@ describe('TournamentRoundMatch', () => {
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
             returnFromExceptSelected['sideA'] = [sideB, sideD];
             returnFromExceptSelected['sideB'] = [sideA, sideE];
-            await renderComponent(defaultTournamentContainerProps, {
+            await renderComponent(containerProps.build(), {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -586,7 +552,7 @@ describe('TournamentRoundMatch', () => {
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
             returnFromExceptSelected['sideA'] = [sideB, sideD];
             returnFromExceptSelected['sideB'] = [sideA, sideE];
-            await renderComponent(defaultTournamentContainerProps, {
+            await renderComponent(containerProps.build(), {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -615,7 +581,7 @@ describe('TournamentRoundMatch', () => {
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
             returnFromExceptSelected['sideA'] = [sideB, sideD];
             returnFromExceptSelected['sideB'] = [sideA, sideE];
-            await renderComponent(defaultTournamentContainerProps, {
+            await renderComponent(containerProps.build(), {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,

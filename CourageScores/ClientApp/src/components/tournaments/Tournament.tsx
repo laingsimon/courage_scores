@@ -3,14 +3,14 @@ import {useParams} from "react-router";
 import {DivisionControls} from "../league/DivisionControls";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {any, sortBy} from "../../helpers/collections";
-import {propChanged} from "../../helpers/events";
+import {asyncCallback, propChanged} from "../../helpers/events";
 import {Loading} from "../common/Loading";
 import {EditTournament} from "./EditTournament";
 import {useDependencies} from "../common/IocContainer";
 import {useApp} from "../common/AppContainer";
 import {Dialog} from "../common/Dialog";
 import {EditPlayerDetails} from "../division_players/EditPlayerDetails";
-import {EMPTY_ID} from "../../helpers/projection";
+import {createTemporaryId, EMPTY_ID} from "../../helpers/projection";
 import {TournamentContainer} from "./TournamentContainer";
 import {SuperLeaguePrintout} from "./superleague/SuperLeaguePrintout";
 import {PrintableSheet} from "./PrintableSheet";
@@ -46,6 +46,7 @@ import {
 import {useBranding} from "../common/BrandingContainer";
 import {renderDate} from "../../helpers/rendering";
 import {isEqual} from "../common/ObjectComparer";
+import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 
 export interface ITournamentPlayerMap {
     [id: string]: DivisionTournamentFixtureDetailsDto;
@@ -77,6 +78,8 @@ export function Tournament() {
     const [photosEnabled, setPhotosEnabled] = useState<boolean>(false);
     const {setTitle} = useBranding();
     const [originalTournamentData, setOriginalTournamentData] = useState<TournamentGameDto | null>(null);
+    const [draggingSide, setDraggingSide] = useState<TournamentSideDto | undefined>(undefined);
+    const [newMatch, setNewMatch] = useState<TournamentMatchDto>(createNewMatch());
 
     useEffect(() => {
         featureApi.getFeatures().then(features => {
@@ -105,6 +108,14 @@ export function Tournament() {
         },
         // eslint-disable-next-line
         [appLoading, loading, seasons]);
+
+    function createNewMatch(): TournamentMatchDto {
+        return {
+            sideA: null!,
+            sideB: null!,
+            id: createTemporaryId(),
+        };
+    }
 
     async function loadFixtureData() {
         try {
@@ -383,14 +394,18 @@ export function Tournament() {
                     alreadyPlaying={alreadyPlaying!}
                     allPlayers={allPlayers}
                     saveTournament={saveTournament}
-                    setWarnBeforeEditDialogClose={async (warning: string) => setWarnBeforeEditDialogClose(warning)}
+                    setWarnBeforeEditDialogClose={asyncCallback(setWarnBeforeEditDialogClose)}
                     matchOptionDefaults={getMatchOptionDefaults(tournamentData)}
                     saving={saving}
                     editTournament={editTournament}
-                    setEditTournament={canManageTournaments ? async (value: string) => setEditTournament(value) : undefined}
+                    setEditTournament={canManageTournaments ? asyncCallback(setEditTournament) : undefined}
                     liveOptions={liveOptions}
                     preventScroll={preventScroll}
-                    setPreventScroll={setPreventScroll}>
+                    setPreventScroll={setPreventScroll}
+                    draggingSide={draggingSide}
+                    setDraggingSide={asyncCallback(setDraggingSide)}
+                    newMatch={newMatch}
+                    setNewMatch={asyncCallback(setNewMatch)}>
                     {canManageTournaments && tournamentData && editTournament === 'matches'
                         ? (<Dialog title="Edit sides and matches" className="d-print-none">
                             <div>

@@ -316,13 +316,12 @@ export function EditSide({side, onChange, onClose, onApply, onDelete, initialAdd
                     <label className="form-check-label no-wrap" htmlFor="addAsIndividuals">Add as individuals</label>
                 </span>) : null}
                 {canAddPlayers
-                    ? (<button className="btn btn-primary" onClick={() => setAddPlayerDialogOpen(true)}>Add
-                        player/s</button>)
+                    ? (<button className="btn btn-primary" onClick={() => setAddPlayerDialogOpen(true)}>New player/s</button>)
                     : null}
                 {side.id ? (<button className="btn btn-danger margin-right" onClick={onRemoveSide}>
                     Delete side
                 </button>) : null}
-                <button className="btn btn-primary" onClick={onSave}>Save</button>
+                <button className="btn btn-primary" onClick={onSave}>{side.id ? 'Update' : 'Add'}</button>
             </div>
             {addPlayerDialogOpen ? renderCreatePlayerDialog(season!) : null}
         </Dialog>);
