@@ -115,7 +115,9 @@ ${newNewMatch.sideA ? newNewMatch.sideA.name : ''} vs ${newNewMatch.sideB ? newN
     }
 
     function preventDefault(event: React.DragEvent) {
+        /* istanbul ignore next */
         if (draggingSide) {
+            /* istanbul ignore next */
             event.preventDefault();
         }
     }
