@@ -8,7 +8,6 @@ import {UntypedPromise} from "../../interfaces/UntypedPromise";
 export interface ITournamentSideProps {
     side: TournamentSideDto;
     onChange?(editSide: TournamentSideDto, options: ISaveSideOptions): UntypedPromise;
-    winner?: boolean;
     readOnly?: boolean;
     onRemove(): UntypedPromise;
     showEditSide?: boolean;
@@ -16,7 +15,7 @@ export interface ITournamentSideProps {
     onStartDrag?(side: TournamentSideDto): UntypedPromise;
 }
 
-export function TournamentSide({side, onChange, winner, readOnly, onRemove, showEditSide, showDeleteSide, onStartDrag}: ITournamentSideProps) {
+export function TournamentSide({side, onChange, readOnly, onRemove, showEditSide, showDeleteSide, onStartDrag}: ITournamentSideProps) {
     const [editSide, setEditSide] = useState<TournamentSideDto | null>(null);
 
     function renderPlayers() {
@@ -58,7 +57,7 @@ export function TournamentSide({side, onChange, winner, readOnly, onRemove, show
         }
     }
 
-    return (<div className={`d-flex flex-row p-1 m-1 ${winner ? 'bg-winner' : 'bg-light'}`}
+    return (<div className="d-flex flex-row p-1 m-1 bg-light"
                  draggable={!!onStartDrag}
                  onDragStart={async () => await onStartDrag!(side)}
                  style={{flexBasis: '100px', flexGrow: 1, flexShrink: 1}}>
