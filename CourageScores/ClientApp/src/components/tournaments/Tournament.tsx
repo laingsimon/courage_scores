@@ -47,9 +47,14 @@ import {useBranding} from "../common/BrandingContainer";
 import {renderDate} from "../../helpers/rendering";
 import {isEqual} from "../common/ObjectComparer";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
+import {DivisionDataSeasonDto} from "../../interfaces/models/dtos/Division/DivisionDataSeasonDto";
 
 export interface ITournamentPlayerMap {
     [id: string]: DivisionTournamentFixtureDetailsDto;
+}
+
+export interface IPlayerIdToTeamMap {
+    [playerId: string]: TeamDto;
 }
 
 export function Tournament() {
@@ -80,6 +85,7 @@ export function Tournament() {
     const [originalTournamentData, setOriginalTournamentData] = useState<TournamentGameDto | null>(null);
     const [draggingSide, setDraggingSide] = useState<TournamentSideDto | undefined>(undefined);
     const [newMatch, setNewMatch] = useState<TournamentMatchDto>(createNewMatch());
+    const [playerIdToTeamMap, setPlayerIdToTeamMap] = useState<IPlayerIdToTeamMap>({});
 
     useEffect(() => {
         featureApi.getFeatures().then(features => {
@@ -108,6 +114,27 @@ export function Tournament() {
         },
         // eslint-disable-next-line
         [appLoading, loading, seasons]);
+
+    function buildPlayerIdToTeamMap(season?: DivisionDataSeasonDto, teams?: TeamDto[]): { [playerId: string]: TeamDto } {
+        if (!season || !teams) {
+            return {};
+        }
+
+        const map: { [playerId: string]: TeamDto } = {};
+
+        for (const team of teams) {
+            const teamSeason = team.seasons?.filter(ts => ts.seasonId === season.id)[0];
+            if (!teamSeason || !teamSeason.players) {
+                continue;
+            }
+
+            for (const teamPlayer of teamSeason.players) {
+                map[teamPlayer.id] = team;
+            }
+        }
+
+        return map;
+    }
 
     function createNewMatch(): TournamentMatchDto {
         return {
@@ -282,6 +309,7 @@ export function Tournament() {
             }
 
             setTournamentData(newData);
+            setPlayerIdToTeamMap(buildPlayerIdToTeamMap(seasons.filter(s => s.id === newData.seasonId)[0], teams));
             setAllPlayers(getAllPlayers(newData));
         } catch (e) {
             /* istanbul ignore next */
@@ -405,7 +433,8 @@ export function Tournament() {
                     draggingSide={draggingSide}
                     setDraggingSide={asyncCallback(setDraggingSide)}
                     newMatch={newMatch}
-                    setNewMatch={asyncCallback(setNewMatch)}>
+                    setNewMatch={asyncCallback(setNewMatch)}
+                    playerIdToTeamMap={playerIdToTeamMap}>
                     {canManageTournaments && tournamentData && editTournament === 'matches'
                         ? (<Dialog title="Edit sides and matches" className="d-print-none">
                             <div>

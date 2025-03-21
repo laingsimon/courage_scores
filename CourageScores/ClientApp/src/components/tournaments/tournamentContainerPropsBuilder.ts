@@ -29,6 +29,7 @@ export class tournamentContainerPropsBuilder
             },
             setNewMatch: noop,
             tournamentData: tournamentBuilder().build(),
+            playerIdToTeamMap: {},
         }, initProps);
     }
 
