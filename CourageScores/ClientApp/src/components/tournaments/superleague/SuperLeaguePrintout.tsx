@@ -149,11 +149,6 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
             </div>
             <MasterDraw
                 matches={matches}
-                host={tournamentData.host!}
-                opponent={tournamentData.opponent!}
-                date={tournamentData.date}
-                gender={tournamentData.gender!}
-                type={tournamentData.type!}
                 patchData={patchDataAndTriggerSaygReload}
                 readOnly={readOnly} />
             {preventScroll ? null : (<MatchLog

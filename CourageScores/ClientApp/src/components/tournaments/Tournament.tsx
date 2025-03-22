@@ -34,7 +34,6 @@ import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {DivisionDataFilter} from "../../interfaces/models/dtos/Division/DivisionDataFilter";
 import {EditTournamentGameDto} from "../../interfaces/models/dtos/Game/EditTournamentGameDto";
-import {TournamentDetails} from "./TournamentDetails";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 import {PhotoManager} from "../common/PhotoManager";
@@ -86,6 +85,7 @@ export function Tournament() {
     const [draggingSide, setDraggingSide] = useState<TournamentSideDto | undefined>(undefined);
     const [newMatch, setNewMatch] = useState<TournamentMatchDto>(createNewMatch());
     const [playerIdToTeamMap, setPlayerIdToTeamMap] = useState<IPlayerIdToTeamMap>({});
+    const [saveRequired, setSaveRequired] = useState<number>(0);
 
     useEffect(() => {
         featureApi.getFeatures().then(features => {
@@ -114,6 +114,15 @@ export function Tournament() {
         },
         // eslint-disable-next-line
         [appLoading, loading, seasons]);
+
+    useEffect(() => {
+        if (saveRequired === 0) {
+            return;
+        }
+
+        // noinspection JSIgnoredPromiseFromCall
+        saveTournament(true);
+    }, [saveRequired]);
 
     function buildPlayerIdToTeamMap(season?: DivisionDataSeasonDto, teams?: TeamDto[]): { [playerId: string]: TeamDto } {
         if (!season || !teams) {
@@ -238,6 +247,7 @@ export function Tournament() {
                 setOriginalTournamentData(response.result!);
                 await updateTournamentData(response.result!);
                 await publishLiveUpdate(response.result!);
+                setSaveRequired(0);
                 return response.result!;
             }
         } finally {
@@ -301,7 +311,7 @@ export function Tournament() {
         setNewPlayerDetails({name: '', captain: false});
     }
 
-    async function updateTournamentData(newData: TournamentGameDto) {
+    async function updateTournamentData(newData: TournamentGameDto, save?: boolean) {
         try {
             const matchOptionsHaveChanged = tournamentData && tournamentData.bestOf !== newData.bestOf;
             if (matchOptionsHaveChanged && newData.round) {
@@ -311,6 +321,9 @@ export function Tournament() {
             setTournamentData(newData);
             setPlayerIdToTeamMap(buildPlayerIdToTeamMap(seasons.filter(s => s.id === newData.seasonId)[0], teams));
             setAllPlayers(getAllPlayers(newData));
+            if (save) {
+                setSaveRequired(saveRequired + 1);
+            }
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
@@ -398,21 +411,6 @@ export function Tournament() {
                 originalSeasonData={season}
                 originalDivisionData={division!}
                 overrideMode="fixtures"/>
-            {canManageTournaments && tournamentData && editTournament === 'details'
-                ? (<Dialog className="d-print-none">
-                    <div>
-                        <TournamentDetails
-                            tournamentData={tournamentData}
-                            disabled={saving}
-                            setTournamentData={async (data: TournamentGameDto) => updateTournamentData(data)} />
-                    </div>
-                    <div className="modal-footer px-0 pb-0">
-                        <div className="left-aligned">
-                            <button className="btn btn-secondary" onClick={closeEditTournamentDialog}>{hasChanged ? 'Save' : 'Close'}</button>
-                        </div>
-                    </div>
-                </Dialog>)
-                : null}
             {tournamentData ? (<div className="content-background p-3">
                 <TournamentContainer
                     tournamentData={tournamentData}

@@ -10,7 +10,7 @@ import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMa
 
 export interface ITournament {
     tournamentData: TournamentGameDto;
-    setTournamentData?(newData: TournamentGameDto): UntypedPromise;
+    setTournamentData?(newData: TournamentGameDto, save?: boolean): UntypedPromise;
     season?: SeasonDto;
     division?: DivisionDto;
     alreadyPlaying?: ITournamentPlayerMap;
