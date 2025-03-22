@@ -4,17 +4,21 @@ import {count, isEmpty} from "../../helpers/collections";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentPlayerDto";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {useTournament} from "./TournamentContainer";
 
 export interface ITournamentSideProps {
     side: TournamentSideDto;
     onChange?(editSide: TournamentSideDto, options: ISaveSideOptions): UntypedPromise;
-    winner?: boolean;
     readOnly?: boolean;
     onRemove(): UntypedPromise;
+    showEditSide?: boolean;
+    showDeleteSide?: boolean;
+    onStartDrag?(side: TournamentSideDto): UntypedPromise;
 }
 
-export function TournamentSide({side, onChange, winner, readOnly, onRemove}: ITournamentSideProps) {
+export function TournamentSide({side, onChange, readOnly, onRemove, showEditSide, showDeleteSide, onStartDrag}: ITournamentSideProps) {
     const [editSide, setEditSide] = useState<TournamentSideDto | null>(null);
+    const {playerIdToTeamMap} = useTournament();
 
     function renderPlayers() {
         if (isEmpty(side.players)) {
@@ -32,8 +36,14 @@ export function TournamentSide({side, onChange, winner, readOnly, onRemove}: ITo
         </ol>);
     }
 
-    function renderSideName() {
-        return (<strong className={side.noShow ? 'text-decoration-line-through' : ''}>{side.name}</strong>);
+    function renderSingleTeamName() {
+        if (count(side.players) !== 1 || side.players![0].name !== side.name) {
+            return null;
+        }
+
+        const singlePlayer: TournamentPlayerDto = side.players![0];
+        const team = playerIdToTeamMap[singlePlayer.id];
+        return team ? (<div>{team.name}</div>) : null;
     }
 
     function renderEditSide() {
@@ -53,13 +63,23 @@ export function TournamentSide({side, onChange, winner, readOnly, onRemove}: ITo
             }}/>);
     }
 
-    return (<div className={`position-relative p-1 m-1 ${winner ? 'bg-winner' : 'bg-light'}`}
+    async function deleteSide() {
+        if (confirm(`Are you sure you want to remove ${side.name}?`)) {
+            await onRemove();
+        }
+    }
+
+    return (<div className="d-flex flex-column p-1 m-1 bg-light"
+                 draggable={!!onStartDrag}
+                 onDragStart={async () => await onStartDrag!(side)}
                  style={{flexBasis: '100px', flexGrow: 1, flexShrink: 1}}>
-        {renderSideName()}
+        <strong className={side.noShow ? 'text-decoration-line-through' : ''}>{side.name}</strong>
+        {renderSingleTeamName()}
         {renderPlayers()}
-        {readOnly ? null : (<div className="position-absolute-bottom-right">
-            <button className="btn btn-sm btn-primary" onClick={() => setEditSide(side)}>✏️</button>
-        </div>)}
+        {!readOnly && (showDeleteSide || showEditSide) ? (<div className="d-flex justify-content-end pe-1 align-content-end flex-grow-1 flex-shrink-1">
+            {showDeleteSide ? (<button className="btn btn-sm btn-danger" onClick={deleteSide}>🗑️</button>) : null}
+            {showEditSide ? (<button className="btn btn-sm btn-primary" onClick={() => setEditSide(side)}>✏️</button>) : null}
+        </div>) : null}
         {editSide ? renderEditSide() : null}
     </div>);
 }

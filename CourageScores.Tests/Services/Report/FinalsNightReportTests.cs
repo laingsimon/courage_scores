@@ -187,12 +187,15 @@ public class FinalsNightReportTests
     public async Task GetReport_WhenTournamentExistsWithNestedWinner_ReturnsKnockout()
     {
         SetTournamentDetails(type: "Knockout");
-        _tournament.Round!.NextRound = Helper.Round(Helper.Match("SIDE C", "SIDE D", 1, 2));
+        var round = Helper.Round(Helper.Match("SIDE C", "SIDE D", 2, 1));
+        round.MatchOptions = [new GameMatchOptionDto {NumberOfLegs = 3}];
+        _tournament.Round!.NextRound = round;
+        _tournament.BestOf = 5;
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Helper.AssertReportRow(report, "Knockout winner", "SIDE D");
-        Helper.AssertReportRow(report, "Knockout runner up", "SIDE C");
+        Helper.AssertReportRow(report, "Knockout winner", "SIDE C");
+        Helper.AssertReportRow(report, "Knockout runner up", "SIDE D");
         Helper.AssertTournamentLink(report, "Knockout winner", 1, _tournament.Id);
         Helper.AssertTournamentLink(report, "Knockout runner up", 1, _tournament.Id);
     }

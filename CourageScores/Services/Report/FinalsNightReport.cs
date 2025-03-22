@@ -145,11 +145,11 @@ public class FinalsNightReport : CompositeReport
             Cell(text: firstTeam?.Name ?? "⚠️ Not found", team: firstTeam, division: division));
     }
 
-    private static TournamentMatchDto? GetFinal(TournamentRoundDto? round)
+    private static (TournamentMatchDto?, GameMatchOptionDto?) GetFinal(TournamentRoundDto? round)
     {
         if (round == null)
         {
-            return null;
+            return (null, null);
         }
 
         if (round.NextRound != null)
@@ -157,9 +157,14 @@ public class FinalsNightReport : CompositeReport
             return GetFinal(round.NextRound);
         }
 
-        return round.Matches.Count == 1
+        var match = round.Matches.Count == 1
             ? round.Matches[0]
             : null;
+        var matchOptions = match != null && round.MatchOptions.Count >= 1
+            ? round.MatchOptions[0]
+            : null;
+
+        return (match, matchOptions);
     }
 
     private static bool ShouldIncludeTournament(TournamentGameDto tournament)
@@ -196,7 +201,7 @@ public class FinalsNightReport : CompositeReport
             var divisionPrefix = division == null
                 ? ""
                 : $"{division.Name}: ";
-            var final = GetFinal(tournament.Round);
+            var (final, finalMatchOptions) = GetFinal(tournament.Round);
             var tournamentType = _tournamentTypeResolver.GetTournamentType(tournamentData);
 
             if (final == null || final.ScoreA == final.ScoreB)
@@ -207,7 +212,8 @@ public class FinalsNightReport : CompositeReport
                 continue;
             }
 
-            var winnerThreshold = Math.Ceiling((tournament.BestOf ?? 5) / 2.0);
+            var finalBestOf = finalMatchOptions?.NumberOfLegs ?? tournament.BestOf ?? 5;
+            var winnerThreshold = Math.Ceiling(finalBestOf / 2.0);
             var winner = final.ScoreA >= winnerThreshold
                 ? final.SideA
                 : final.SideB;

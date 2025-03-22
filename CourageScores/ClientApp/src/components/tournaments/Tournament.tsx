@@ -3,14 +3,14 @@ import {useParams} from "react-router";
 import {DivisionControls} from "../league/DivisionControls";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {any, sortBy} from "../../helpers/collections";
-import {propChanged} from "../../helpers/events";
+import {asyncCallback, propChanged} from "../../helpers/events";
 import {Loading} from "../common/Loading";
 import {EditTournament} from "./EditTournament";
 import {useDependencies} from "../common/IocContainer";
 import {useApp} from "../common/AppContainer";
 import {Dialog} from "../common/Dialog";
 import {EditPlayerDetails} from "../division_players/EditPlayerDetails";
-import {EMPTY_ID} from "../../helpers/projection";
+import {createTemporaryId, EMPTY_ID} from "../../helpers/projection";
 import {TournamentContainer} from "./TournamentContainer";
 import {SuperLeaguePrintout} from "./superleague/SuperLeaguePrintout";
 import {PrintableSheet} from "./PrintableSheet";
@@ -45,9 +45,16 @@ import {
 } from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
 import {useBranding} from "../common/BrandingContainer";
 import {renderDate} from "../../helpers/rendering";
+import {isEqual} from "../common/ObjectComparer";
+import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
+import {DivisionDataSeasonDto} from "../../interfaces/models/dtos/Division/DivisionDataSeasonDto";
 
 export interface ITournamentPlayerMap {
     [id: string]: DivisionTournamentFixtureDetailsDto;
+}
+
+export interface IPlayerIdToTeamMap {
+    [playerId: string]: TeamDto;
 }
 
 export function Tournament() {
@@ -75,6 +82,10 @@ export function Tournament() {
     const [showPhotoManager, setShowPhotoManager] = useState<boolean>(false);
     const [photosEnabled, setPhotosEnabled] = useState<boolean>(false);
     const {setTitle} = useBranding();
+    const [originalTournamentData, setOriginalTournamentData] = useState<TournamentGameDto | null>(null);
+    const [draggingSide, setDraggingSide] = useState<TournamentSideDto | undefined>(undefined);
+    const [newMatch, setNewMatch] = useState<TournamentMatchDto>(createNewMatch());
+    const [playerIdToTeamMap, setPlayerIdToTeamMap] = useState<IPlayerIdToTeamMap>({});
 
     useEffect(() => {
         featureApi.getFeatures().then(features => {
@@ -104,6 +115,35 @@ export function Tournament() {
         // eslint-disable-next-line
         [appLoading, loading, seasons]);
 
+    function buildPlayerIdToTeamMap(season?: DivisionDataSeasonDto, teams?: TeamDto[]): { [playerId: string]: TeamDto } {
+        if (!season || !teams) {
+            return {};
+        }
+
+        const map: { [playerId: string]: TeamDto } = {};
+
+        for (const team of teams) {
+            const teamSeason = team.seasons?.filter(ts => ts.seasonId === season.id)[0];
+            if (!teamSeason || !teamSeason.players) {
+                continue;
+            }
+
+            for (const teamPlayer of teamSeason.players) {
+                map[teamPlayer.id] = team;
+            }
+        }
+
+        return map;
+    }
+
+    function createNewMatch(): TournamentMatchDto {
+        return {
+            sideA: null!,
+            sideB: null!,
+            id: createTemporaryId(),
+        };
+    }
+
     async function loadFixtureData() {
         try {
             const tournamentData: TournamentGameDto | null = await tournamentApi.get(tournamentId!);
@@ -113,6 +153,7 @@ export function Tournament() {
                 return;
             }
 
+            setOriginalTournamentData(tournamentData);
             await updateTournamentData(tournamentData);
 
             const tournamentPlayerMap: ITournamentPlayerMap = {};
@@ -194,6 +235,7 @@ export function Tournament() {
             if (!response.success) {
                 setSaveError(response);
             } else {
+                setOriginalTournamentData(response.result!);
                 await updateTournamentData(response.result!);
                 await publishLiveUpdate(response.result!);
                 return response.result!;
@@ -267,6 +309,7 @@ export function Tournament() {
             }
 
             setTournamentData(newData);
+            setPlayerIdToTeamMap(buildPlayerIdToTeamMap(seasons.filter(s => s.id === newData.seasonId)[0], teams));
             setAllPlayers(getAllPlayers(newData));
         } catch (e) {
             /* istanbul ignore next */
@@ -318,7 +361,9 @@ export function Tournament() {
             return;
         }
 
-        await saveTournament();
+        if (!isEqual(originalTournamentData, tournamentData)) {
+            await saveTournament();
+        }
         setEditTournament(undefined);
     }
 
@@ -340,6 +385,7 @@ export function Tournament() {
             canSubscribe: false,
             subscribeAtStartup: [],
         };
+        const hasChanged = !isEqual(originalTournamentData, tournamentData);
 
         if (tournamentData && tournamentData.singleRound) {
             setTitle(`${tournamentData.host} vs ${tournamentData.opponent} - ${renderDate(tournamentData!.date)}`);
@@ -353,11 +399,18 @@ export function Tournament() {
                 originalDivisionData={division!}
                 overrideMode="fixtures"/>
             {canManageTournaments && tournamentData && editTournament === 'details'
-                ? (<Dialog onClose={closeEditTournamentDialog} className="d-print-none">
-                    <TournamentDetails
-                        tournamentData={tournamentData}
-                        disabled={saving}
-                        setTournamentData={async (data: TournamentGameDto) => updateTournamentData(data)} />
+                ? (<Dialog className="d-print-none">
+                    <div>
+                        <TournamentDetails
+                            tournamentData={tournamentData}
+                            disabled={saving}
+                            setTournamentData={async (data: TournamentGameDto) => updateTournamentData(data)} />
+                    </div>
+                    <div className="modal-footer px-0 pb-0">
+                        <div className="left-aligned">
+                            <button className="btn btn-secondary" onClick={closeEditTournamentDialog}>{hasChanged ? 'Save' : 'Close'}</button>
+                        </div>
+                    </div>
                 </Dialog>)
                 : null}
             {tournamentData ? (<div className="content-background p-3">
@@ -369,17 +422,29 @@ export function Tournament() {
                     alreadyPlaying={alreadyPlaying!}
                     allPlayers={allPlayers}
                     saveTournament={saveTournament}
-                    setWarnBeforeEditDialogClose={async (warning: string) => setWarnBeforeEditDialogClose(warning)}
+                    setWarnBeforeEditDialogClose={asyncCallback(setWarnBeforeEditDialogClose)}
                     matchOptionDefaults={getMatchOptionDefaults(tournamentData)}
                     saving={saving}
                     editTournament={editTournament}
-                    setEditTournament={canManageTournaments ? async (value: string) => setEditTournament(value) : undefined}
+                    setEditTournament={canManageTournaments ? asyncCallback(setEditTournament) : undefined}
                     liveOptions={liveOptions}
                     preventScroll={preventScroll}
-                    setPreventScroll={setPreventScroll}>
+                    setPreventScroll={setPreventScroll}
+                    draggingSide={draggingSide}
+                    setDraggingSide={asyncCallback(setDraggingSide)}
+                    newMatch={newMatch}
+                    setNewMatch={asyncCallback(setNewMatch)}
+                    playerIdToTeamMap={playerIdToTeamMap}>
                     {canManageTournaments && tournamentData && editTournament === 'matches'
-                        ? (<Dialog title="Edit sides and matches" onClose={closeEditTournamentDialog} className="d-print-none">
-                            <EditTournament canSave={true} saving={saving} />
+                        ? (<Dialog title="Edit sides and matches" className="d-print-none">
+                            <div>
+                                <EditTournament canSave={true} saving={saving} />
+                            </div>
+                            <div className="modal-footer px-0 pb-0">
+                                <div className="left-aligned">
+                                    <button className="btn btn-secondary" onClick={closeEditTournamentDialog}>{hasChanged ? 'Save' : 'Close'}</button>
+                                </div>
+                            </div>
                         </Dialog>)
                         : null}
                     {tournamentData.singleRound && !(canManageTournaments || canEnterTournamentResults) ? (<SuperLeaguePrintout division={division!} readOnly={true}/>) : null}
