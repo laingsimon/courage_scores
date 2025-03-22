@@ -6,24 +6,39 @@ import {MatchSayg} from "../MatchSayg";
 import {PatchTournamentDto} from "../../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {PatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {GameMatchOptionDto} from "../../../interfaces/models/dtos/Game/GameMatchOptionDto";
+import {propChanged, valueChanged} from "../../../helpers/events";
+import {BootstrapDropdown, IBootstrapDropdownItem} from "../../common/BootstrapDropdown";
+import {TournamentGameDto} from "../../../interfaces/models/dtos/Game/TournamentGameDto";
+import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
 
 export interface IMasterDrawProps {
     matches: TournamentMatchDto[];
-    host: string;
-    opponent: string;
-    gender: string;
-    date: string;
-    type: string;
     patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string): Promise<boolean>;
     readOnly?: boolean;
 }
 
-export function MasterDraw({matches, host, opponent, gender, date, type, patchData, readOnly}: IMasterDrawProps) {
-    const {onError} = useApp();
-    const {tournamentData, setEditTournament, preventScroll } = useTournament();
+export function MasterDraw({matches, patchData, readOnly}: IMasterDrawProps) {
+    const {onError, teams} = useApp();
+    const {tournamentData, setEditTournament, preventScroll, setTournamentData } = useTournament();
     const matchOptions: GameMatchOptionDto = {
         numberOfLegs: tournamentData.bestOf,
     };
+    const unselected: IBootstrapDropdownItem = {text: <>&nbsp;</>, value: null};
+    const genderOptions: IBootstrapDropdownItem[] = [
+        unselected,
+        {text: 'Men', value: 'men'},
+        {text: 'Women',value: 'women'}
+    ];
+    const teamOptions: IBootstrapDropdownItem[] = teams
+        .filter((t: TeamDto) => {
+            return !!t.seasons?.filter(ts => ts.seasonId === tournamentData.seasonId)[0];
+        })
+        .map((t: TeamDto): IBootstrapDropdownItem => {
+            return {
+                text: t.name,
+                value: t.name
+            };
+        });
 
     async function patchRoundData(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string) {
         if (!nestInRound) {
@@ -37,18 +52,32 @@ export function MasterDraw({matches, host, opponent, gender, date, type, patchDa
         }
     }
 
+    async function updateAndSaveTournamentData(data: TournamentGameDto) {
+        await setTournamentData!(data, true);
+    }
+
     try {
         return (<div className="page-break-after" datatype="master-draw">
-            <h2 onClick={setEditTournament ? async () => await setEditTournament('matches') : undefined}>Master draw</h2>
+            <h2>Master draw</h2>
             <div className="d-flex flex-row">
                 <div>
                     <table className={`table${preventScroll ? ' max-height-100' : ''}`}>
                         {preventScroll ? null : (<thead>
-                        <tr onClick={setEditTournament ? async () => await setEditTournament('matches') : undefined}>
+                        <tr>
                             <th>#</th>
-                            <th>{host}</th>
+                            <th>
+                                <BootstrapDropdown
+                                    value={tournamentData.host}
+                                    onChange={propChanged(tournamentData, updateAndSaveTournamentData, 'host')}
+                                    options={teamOptions}/>
+                            </th>
                             <th>v</th>
-                            <th>{opponent}</th>
+                            <th>
+                                <BootstrapDropdown
+                                    value={tournamentData.opponent}
+                                    onChange={propChanged(tournamentData, updateAndSaveTournamentData, 'opponent')}
+                                    options={teamOptions}/>
+                            </th>
                             <th className="d-print-none"></th>
                         </tr>
                         </thead>)}
@@ -56,7 +85,7 @@ export function MasterDraw({matches, host, opponent, gender, date, type, patchDa
                         {matches.map((m: TournamentMatchDto, index: number) => {
                             const oddNumberedMatch: boolean = (index + 1) % 2 !== 0;
 
-                            return (<tr key={index}>
+                            return (<tr key={index} onClick={setEditTournament ? async () => await setEditTournament('matches') : undefined}>
                                 <td onClick={setEditTournament ? async () => await setEditTournament('matches') : undefined}>{index + 1}</td>
                                 <td onClick={setEditTournament ? async () => await setEditTournament('matches') : undefined}>{preventScroll ? '' : m.sideA.name}</td>
                                 <td onClick={setEditTournament ? async () => await setEditTournament('matches') : undefined}>v</td>
@@ -87,14 +116,21 @@ export function MasterDraw({matches, host, opponent, gender, date, type, patchDa
                         </tfoot>) : null}
                     </table>
                 </div>
-                {preventScroll ? null : (<div className="px-5" datatype="details" onClick={setEditTournament ? async () => await setEditTournament('details') : undefined}>
-                    <div>Gender: <span className="fw-bold">{gender}</span></div>
-                    <div>Date: <span className="fw-bold">{renderDate(date)}</span></div>
-                    {type ? (<div>Notes: <span className="fw-bold">{type}</span></div>) : null}
-
-                    {setEditTournament ? (<div className="d-print-none alert alert-warning p-2 m-3 ms-0">
-                        Click to edit details
-                    </div>) : null}
+                {preventScroll ? null : (<div className="px-5" datatype="details">
+                    <div>Gender: {!readOnly
+                        ? (<BootstrapDropdown
+                            value={tournamentData.gender}
+                            onChange={propChanged(tournamentData, updateAndSaveTournamentData, 'gender')}
+                            options={genderOptions}/>)
+                        : (<span className="fw-bold">gender</span>)}</div>
+                    <div>Date: <span className="fw-bold">{renderDate(tournamentData.date)}</span></div>
+                    {tournamentData.type ||!readOnly ? (<div>Notes: {!readOnly
+                        ? (<input
+                            value={tournamentData.type}
+                            name="type"
+                            className="form-control"
+                            onChange={valueChanged(tournamentData, updateAndSaveTournamentData)} />)
+                        : (<span className="fw-bold">{tournamentData.type}</span>)}</div>) : null}
                 </div>)}
             </div>
         </div>);
