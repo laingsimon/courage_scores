@@ -149,7 +149,7 @@ public class FinalsNightReport : CompositeReport
     {
         if (round == null)
         {
-            return null;
+            return (null, null);
         }
 
         if (round.NextRound != null)
