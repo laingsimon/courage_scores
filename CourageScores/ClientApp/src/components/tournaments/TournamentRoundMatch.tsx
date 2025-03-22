@@ -65,8 +65,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sides, exc
         }
 
         const newRound: TournamentRoundDto = Object.assign({}, round);
-        newRound.matches = round.matches || [];
-        newRound.matches.splice(matchIndex, 1);
+        newRound.matches = (round.matches || []).filter((_, index) => index !== matchIndex);
 
         if (onChange) {
             await onChange(newRound);
