@@ -212,7 +212,7 @@ public class FinalsNightReport : CompositeReport
                 continue;
             }
 
-            var finalBestOf = final.NumberOfLegs ?? tournament.BestOf ?? 5;
+            var finalBestOf = finalMatchOptions?.NumberOfLegs ?? tournament.BestOf ?? 5;
             var winnerThreshold = Math.Ceiling(finalBestOf / 2.0);
             var winner = final.ScoreA >= winnerThreshold
                 ? final.SideA
