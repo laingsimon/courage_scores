@@ -216,31 +216,6 @@ describe('MasterDraw', () => {
             expect(editTournament).toEqual('matches');
         });
 
-        it('can edit matches from table of players header', async () => {
-            const tournament = tournamentBuilder()
-                .singleRound()
-                .host('HOST')
-                .opponent('OPPONENT')
-                .gender('GENDER')
-                .date('2025-05-06')
-                .type('TYPE')
-                .round((r: ITournamentRoundBuilder) => r)
-                .build();
-
-            await renderComponent({
-                tournamentData: tournament,
-                readOnly: false,
-                setEditTournament,
-                setTournamentData: noop,
-                patchData: noop
-            });
-
-            await doClick(context.container.querySelector('div[datatype="master-draw"] thead tr:first-child')!);
-
-            reportedError.verifyNoError();
-            expect(editTournament).toEqual('matches');
-        });
-
         it('can edit matches from table of players footer', async () => {
             const tournament = tournamentBuilder()
                 .singleRound()

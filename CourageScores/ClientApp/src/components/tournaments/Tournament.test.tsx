@@ -521,11 +521,23 @@ describe('Tournament', () => {
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
         });
 
-        it('can update details', async () => {
-            tournamentData.singleRound = true;
+        it('does not save when no details changed', async () => {
             await renderComponentForTest();
 
-            await doChange(context.container, 'input[name="type"]', 'NEW TYPE', context.user);
+            await doClick(context.container.querySelector('div[datatype="details"] > div.alert')!);
+            const dialog = context.container.querySelector('div.modal-dialog')!;
+            await doClick(findButton(dialog, 'Close'));
+
+            expect(updatedTournamentData.length).toEqual(0);
+        });
+
+        it('can update details', async () => {
+            await renderComponentForTest();
+
+            await doClick(context.container.querySelector('div[datatype="details"] > div.alert')!);
+            const dialog = context.container.querySelector('div.modal-dialog')!;
+            await doChange(dialog, 'input[name="type"]', 'NEW TYPE', context.user);
+            await doClick(findButton(dialog, 'Save'));
 
             expect(updatedTournamentData.length).toEqual(1);
             expect(updatedTournamentData[0].type).toEqual('NEW TYPE');
