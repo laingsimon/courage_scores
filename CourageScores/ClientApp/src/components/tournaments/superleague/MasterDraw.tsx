@@ -65,7 +65,7 @@ export function MasterDraw({patchData, readOnly, tournamentData, setEditTourname
                 <div>
                     <table className={`table${preventScroll ? ' max-height-100' : ''}`}>
                         {preventScroll ? null : (<thead>
-                        <tr onClick={readOnly ? undefined : async () => await setEditTournament('matches')}>
+                        <tr>
                             <th>#</th>
                             <th datatype="host">
                                 {readOnly ? tournamentData.host : <BootstrapDropdown
