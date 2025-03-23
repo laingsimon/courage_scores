@@ -10,7 +10,7 @@ import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMa
 
 export interface ITournament {
     tournamentData: TournamentGameDto;
-    setTournamentData?(newData: TournamentGameDto): UntypedPromise;
+    setTournamentData?(newData: TournamentGameDto, save?: boolean): UntypedPromise;
     season?: SeasonDto;
     division?: DivisionDto;
     alreadyPlaying?: ITournamentPlayerMap;
@@ -21,7 +21,7 @@ export interface ITournament {
     saving?: boolean;
     editTournament?: string;
     setEditTournament?(edit: string): UntypedPromise;
-    preventScroll: boolean;
+    preventScroll?: boolean;
     setPreventScroll(prevent: boolean): void;
     draggingSide?: TournamentSideDto;
     setDraggingSide(side?: TournamentSideDto): UntypedPromise;

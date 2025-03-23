@@ -32,7 +32,7 @@ interface ISaygDataMap {
 
 export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeaguePrintoutProps) {
     const {onError} = useApp();
-    const {tournamentData, preventScroll} = useTournament();
+    const {tournamentData, preventScroll, setEditTournament, setTournamentData} = useTournament();
     const {saygApi, webSocket} = useDependencies();
     const location = useLocation();
     const {subscriptions} = useLive();
@@ -148,14 +148,12 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
                 <RefreshControl id={tournamentData.id} type={LiveDataType.tournament} />
             </div>
             <MasterDraw
-                matches={matches}
-                host={tournamentData.host!}
-                opponent={tournamentData.opponent!}
-                date={tournamentData.date}
-                gender={tournamentData.gender!}
-                type={tournamentData.type!}
+                tournamentData={tournamentData}
+                setEditTournament={setEditTournament!}
+                setTournamentData={setTournamentData!}
+                preventScroll={preventScroll}
                 patchData={patchDataAndTriggerSaygReload}
-                readOnly={readOnly} />
+                readOnly={readOnly || !setEditTournament || !setTournamentData} />
             {preventScroll ? null : (<MatchLog
                 host={tournamentData.host!}
                 opponent={tournamentData.opponent!}
