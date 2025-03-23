@@ -132,7 +132,8 @@ export function MasterDraw({patchData, readOnly, tournamentData, setEditTourname
                             name="type"
                             className="form-control"
                             placeholder="e.g. Board #"
-                            onChange={valueChanged(tournamentData, updateAndSaveTournamentData)} />)
+                            onChange={valueChanged(tournamentData, setTournamentData)}
+                            onBlur={() => setTournamentData(tournamentData, true)} />)
                         : (<span className="fw-bold">Notes: {tournamentData.type}</span>)}</div>) : null}
                 </div>)}
             </div>

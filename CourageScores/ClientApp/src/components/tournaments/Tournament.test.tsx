@@ -524,7 +524,7 @@ describe('Tournament', () => {
         it('does not save when no details changed', async () => {
             await renderComponentForTest();
 
-            await doClick(context.container.querySelector('div[datatype="details"] > div.alert')!);
+            await doClick(context.container.querySelector('[datatype="heading"]')!);
             const dialog = context.container.querySelector('div.modal-dialog')!;
             await doClick(findButton(dialog, 'Close'));
 
@@ -534,7 +534,7 @@ describe('Tournament', () => {
         it('can update details', async () => {
             await renderComponentForTest();
 
-            await doClick(context.container.querySelector('div[datatype="details"] > div.alert')!);
+            await doClick(context.container.querySelector('[datatype="heading"]')!);
             const dialog = context.container.querySelector('div.modal-dialog')!;
             await doChange(dialog, 'input[name="type"]', 'NEW TYPE', context.user);
             await doClick(findButton(dialog, 'Save'));

@@ -1,3 +1,4 @@
+﻿import {act, fireEvent} from "@testing-library/react";
 import {
     api,
     appProps,
@@ -11,11 +12,13 @@ import {
 import {IMasterDrawProps, MasterDraw} from "./MasterDraw";
 import {renderDate} from "../../../helpers/rendering";
 import {
+    ITournamentBuilder,
     ITournamentMatchBuilder,
     ITournamentRoundBuilder,
     tournamentBuilder,
     tournamentMatchBuilder
 } from "../../../helpers/builders/tournaments";
+import {ITournamentContainerProps, TournamentContainer} from "../TournamentContainer";
 import {UserDto} from "../../../interfaces/models/dtos/Identity/UserDto";
 import {TournamentGameDto} from "../../../interfaces/models/dtos/Game/TournamentGameDto";
 import {ITournamentGameApi} from "../../../interfaces/apis/ITournamentGameApi";
@@ -28,7 +31,6 @@ import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg
 import {saygBuilder} from "../../../helpers/builders/sayg";
 import {START_SCORING} from "../tournaments";
 import {AccessDto} from "../../../interfaces/models/dtos/Identity/AccessDto";
-import {ITournamentContainerProps, TournamentContainer} from "../TournamentContainer";
 import {tournamentContainerPropsBuilder} from "../tournamentContainerPropsBuilder";
 import {teamBuilder} from "../../../helpers/builders/teams";
 import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
@@ -81,10 +83,6 @@ describe('MasterDraw', () => {
         updatedTournament = null;
     });
 
-    async function setEditTournament(value: string) {
-        editTournament = value;
-    }
-
     async function setTournamentData(updated: TournamentGameDto, save?: boolean) {
         updatedTournament = { updated, save };
     }
@@ -96,6 +94,10 @@ describe('MasterDraw', () => {
             emailAddress: '',
             access,
         }
+    }
+
+    async function setEditTournament(value: string) {
+        editTournament = value;
     }
 
     async function renderComponent(props: IMasterDrawProps, account?: UserDto, containerProps?: ITournamentContainerProps, teams?: TeamDto[], season?: SeasonDto) {
@@ -111,20 +113,26 @@ describe('MasterDraw', () => {
     }
 
     describe('renders', () => {
-        it('matches', async () => {
-            const match1 = tournamentMatchBuilder().sideA('A').sideB('B').build();
-            const match2 = tournamentMatchBuilder().sideA('C').sideB('D').build();
-            const tournament = tournamentBuilder()
+        const season = seasonBuilder('SEASON').build();
+        let tournament: ITournamentBuilder;
+
+        beforeEach(() => {
+            tournament = tournamentBuilder()
+                .singleRound()
                 .host('HOST')
                 .opponent('OPPONENT')
                 .gender('GENDER')
                 .date('2025-05-06')
                 .type('TYPE')
-                .round((r: ITournamentRoundBuilder) => r.withMatch(match1).withMatch(match2))
-                .build();
+                .forSeason(season)
+                .round((r: ITournamentRoundBuilder) => r);
+        });
 
+        it('matches', async () => {
+            const match1 = tournamentMatchBuilder().sideA('A').sideB('B').build();
+            const match2 = tournamentMatchBuilder().sideA('C').sideB('D').build();
             await renderComponent({
-                tournamentData: tournament,
+                tournamentData: tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match1).withMatch(match2)).build(),
                 readOnly: true,
                 setEditTournament,
                 setTournamentData: noop,
@@ -139,18 +147,8 @@ describe('MasterDraw', () => {
         });
 
         it('tournament properties', async () => {
-            const tournament = tournamentBuilder()
-                .singleRound()
-                .host('HOST')
-                .opponent('OPPONENT')
-                .gender('GENDER')
-                .date('2025-05-06')
-                .type('Board 1')
-                .round((r: ITournamentRoundBuilder) => r)
-                .build();
-
             await renderComponent({
-                tournamentData: tournament,
+                tournamentData: tournament.type('Board 1').build(),
                 readOnly: true,
                 setEditTournament,
                 setTournamentData: noop,
@@ -164,18 +162,8 @@ describe('MasterDraw', () => {
         });
 
         it('when no notes', async () => {
-            const tournament = tournamentBuilder()
-                .singleRound()
-                .host('HOST')
-                .opponent('OPPONENT')
-                .gender('GENDER')
-                .date('2025-05-06')
-                .type('')
-                .round((r: ITournamentRoundBuilder) => r)
-                .build();
-
             await renderComponent({
-                tournamentData: tournament,
+                tournamentData: tournament.type(undefined!).build(),
                 readOnly: true,
                 setEditTournament,
                 setTournamentData: noop,
@@ -190,20 +178,23 @@ describe('MasterDraw', () => {
 
     describe('interactivity', () => {
         const season = seasonBuilder('SEASON').build();
+        let tournament: ITournamentBuilder;
 
-        it('can edit matches from heading', async () => {
-            const tournament = tournamentBuilder()
+        beforeEach(() => {
+            tournament = tournamentBuilder()
                 .singleRound()
                 .host('HOST')
                 .opponent('OPPONENT')
                 .gender('GENDER')
                 .date('2025-05-06')
                 .type('TYPE')
-                .round((r: ITournamentRoundBuilder) => r)
-                .build();
+                .forSeason(season)
+                .round((r: ITournamentRoundBuilder) => r);
+        });
 
+        it('can edit matches from heading', async () => {
             await renderComponent({
-                tournamentData: tournament,
+                tournamentData: tournament.build(),
                 readOnly: false,
                 setEditTournament,
                 setTournamentData: noop,
@@ -217,18 +208,8 @@ describe('MasterDraw', () => {
         });
 
         it('can edit matches from table of players footer', async () => {
-            const tournament = tournamentBuilder()
-                .singleRound()
-                .host('HOST')
-                .opponent('OPPONENT')
-                .gender('GENDER')
-                .date('2025-05-06')
-                .type('TYPE')
-                .round((r: ITournamentRoundBuilder) => r)
-                .build();
-
             await renderComponent({
-                tournamentData: tournament,
+                tournamentData: tournament.build(),
                 readOnly: false,
                 setEditTournament,
                 setTournamentData: noop,
@@ -242,18 +223,8 @@ describe('MasterDraw', () => {
         });
 
         it('cannot edit matches from heading when not permitted', async () => {
-            const tournament = tournamentBuilder()
-                .singleRound()
-                .host('HOST')
-                .opponent('OPPONENT')
-                .gender('GENDER')
-                .date('2025-05-06')
-                .type('TYPE')
-                .round((r: ITournamentRoundBuilder) => r)
-                .build();
-
             await renderComponent({
-                tournamentData: tournament,
+                tournamentData: tournament.build(),
                 readOnly: true,
                 setEditTournament,
                 setTournamentData: noop,
@@ -271,18 +242,8 @@ describe('MasterDraw', () => {
                 .sideA('SIDE A')
                 .sideB('SIDE B')
                 .build();
-            const tournament = tournamentBuilder()
-                .singleRound()
-                .host('HOST')
-                .opponent('OPPONENT')
-                .gender('GENDER')
-                .date('2025-05-06')
-                .type('TYPE')
-                .round((r: ITournamentRoundBuilder) => r.withMatch(match))
-                .build();
-
             await renderComponent({
-                tournamentData: tournament,
+                tournamentData: tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match)).build(),
                 readOnly: true,
                 setEditTournament,
                 setTournamentData: noop,
@@ -296,18 +257,8 @@ describe('MasterDraw', () => {
         });
 
         it('can change type from printable sheet', async () => {
-            const tournament = tournamentBuilder()
-                .singleRound()
-                .host('HOST')
-                .opponent('OPPONENT')
-                .gender('GENDER')
-                .date('2025-05-06')
-                .type('TYPE')
-                .round((r: ITournamentRoundBuilder) => r)
-                .build();
-
             await renderComponent({
-                tournamentData: tournament,
+                tournamentData: tournament.build(),
                 readOnly: false,
                 setEditTournament,
                 setTournamentData,
@@ -318,23 +269,40 @@ describe('MasterDraw', () => {
 
             reportedError.verifyNoError();
             expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament?.save).not.toEqual(true);
+            expect(updatedTournament?.updated.type).toEqual('NEW TYPE');
+        });
+
+        it('saves type when caret leaves input', async () => {
+            const updatableTournableData = tournament.build();
+            async function inlineUpdateTournament(update: TournamentGameDto, save?: boolean) {
+                Object.assign(updatableTournableData, update);
+                await setTournamentData(update, save);
+            }
+
+            await renderComponent({
+                tournamentData: updatableTournableData,
+                readOnly: false,
+                setEditTournament,
+                setTournamentData: inlineUpdateTournament,
+                patchData: noop
+            });
+
+            await doChange(context.container, 'input[name="type"]', 'NEW TYPE', context.user);
+            const input = context.container.querySelector('input[name="type"]')!;
+            act(() => {
+                fireEvent.blur(input, {});
+            });
+
+            reportedError.verifyNoError();
+            expect(updatedTournament).not.toBeNull();
             expect(updatedTournament?.save).toEqual(true);
             expect(updatedTournament?.updated.type).toEqual('NEW TYPE');
         });
 
         it('can change gender from printable sheet', async () => {
-            const tournament = tournamentBuilder()
-                .singleRound()
-                .host('HOST')
-                .opponent('OPPONENT')
-                .gender('GENDER')
-                .date('2025-05-06')
-                .type('TYPE')
-                .round((r: ITournamentRoundBuilder) => r)
-                .build();
-
             await renderComponent({
-                tournamentData: tournament,
+                tournamentData: tournament.build(),
                 readOnly: false,
                 setEditTournament,
                 setTournamentData,
@@ -353,19 +321,8 @@ describe('MasterDraw', () => {
             const hostTeam = teamBuilder('HOST').forSeason(season).build();
             const opponentTeam = teamBuilder('OPPONENT').forSeason(season).build();
             const anotherTeam = teamBuilder('ANOTHER TEAM').forSeason(season).build();
-            const tournament = tournamentBuilder()
-                .singleRound()
-                .host('HOST')
-                .opponent('OPPONENT')
-                .gender('GENDER')
-                .date('2025-05-06')
-                .type('TYPE')
-                .forSeason(season)
-                .round((r: ITournamentRoundBuilder) => r)
-                .build();
-
             await renderComponent({
-                tournamentData: tournament,
+                tournamentData: tournament.build(),
                 readOnly: false,
                 setEditTournament,
                 setTournamentData,
@@ -384,19 +341,8 @@ describe('MasterDraw', () => {
             const hostTeam = teamBuilder('HOST').forSeason(season).build();
             const opponentTeam = teamBuilder('OPPONENT').forSeason(season).build();
             const anotherTeam = teamBuilder('ANOTHER TEAM').forSeason(season).build();
-            const tournament = tournamentBuilder()
-                .singleRound()
-                .host('HOST')
-                .opponent('OPPONENT')
-                .gender('GENDER')
-                .date('2025-05-06')
-                .type('TYPE')
-                .forSeason(season)
-                .round((r: ITournamentRoundBuilder) => r)
-                .build();
-
             await renderComponent({
-                tournamentData: tournament,
+                tournamentData: tournament.build(),
                 readOnly: false,
                 setEditTournament,
                 setTournamentData,
@@ -416,22 +362,14 @@ describe('MasterDraw', () => {
                 .sideA('SIDE A')
                 .sideB('SIDE B')
                 .build();
+            const tournamentData = tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
             const account = user({
                 recordScoresAsYouGo: true,
             });
-            const tournament = tournamentBuilder()
-                .singleRound()
-                .host('HOST')
-                .opponent('OPPONENT')
-                .gender('GENDER')
-                .date('2025-05-06')
-                .type('TYPE')
-                .round((r: ITournamentRoundBuilder) => r.withMatch(match))
-                .build();
-            const containerProps = new tournamentContainerPropsBuilder({ tournamentData: tournament });
+            const containerProps = new tournamentContainerPropsBuilder({ tournamentData });
 
             await renderComponent({
-                tournamentData: tournament,
+                tournamentData: tournamentData,
                 readOnly: false,
                 setEditTournament,
                 setTournamentData: noop,
@@ -447,29 +385,20 @@ describe('MasterDraw', () => {
 
         it('can delete sayg from match', async () => {
             const saygId = createTemporaryId();
-            const tournamentId = createTemporaryId();
             const match = tournamentMatchBuilder()
                 .sideA('SIDE A')
                 .sideB('SIDE B')
                 .saygId(saygId)
                 .build();
+            const tournamentData = tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
             const account = user({
                 recordScoresAsYouGo: true,
                 showDebugOptions: true,
             });
-            const tournament = tournamentBuilder(tournamentId)
-                .singleRound()
-                .host('HOST')
-                .opponent('OPPONENT')
-                .gender('GENDER')
-                .date('2025-05-06')
-                .type('TYPE')
-                .round((r: ITournamentRoundBuilder) => r.withMatch(match))
-                .build();
-            const containerProps = new tournamentContainerPropsBuilder({ tournamentData: tournament });
+            const containerProps = new tournamentContainerPropsBuilder({ tournamentData });
 
             await renderComponent({
-                tournamentData: tournament,
+                tournamentData: tournamentData,
                 readOnly: false,
                 setEditTournament,
                 setTournamentData: noop,
@@ -485,7 +414,7 @@ describe('MasterDraw', () => {
 
             reportedError.verifyNoError();
             expect(saygDeleted).toEqual({
-                id: tournamentId,
+                id: tournamentData.id,
                 matchId: match.id,
             })
         });
