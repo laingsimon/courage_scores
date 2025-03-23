@@ -119,20 +119,20 @@ export function MasterDraw({patchData, readOnly, tournamentData, setEditTourname
                     </table>
                 </div>
                 {preventScroll ? null : (<div className="px-5" datatype="details">
-                    <div datatype="gender">Gender: {!readOnly
+                    <div datatype="gender">{!readOnly
                         ? (<BootstrapDropdown
                             value={tournamentData.gender}
                             onChange={propChanged(tournamentData, updateAndSaveTournamentData, 'gender')}
                             options={genderOptions}/>)
-                        : (<span className="fw-bold">{tournamentData.gender}</span>)}</div>
+                        : (<span className="fw-bold">Gender: {tournamentData.gender}</span>)}</div>
                     <div>Date: <span className="fw-bold">{renderDate(tournamentData.date)}</span></div>
-                    {tournamentData.type ||!readOnly ? (<div datatype="type">Notes: {!readOnly
+                    {tournamentData.type ||!readOnly ? (<div datatype="type">{!readOnly
                         ? (<input
                             value={tournamentData.type}
                             name="type"
                             className="form-control"
                             onChange={valueChanged(tournamentData, updateAndSaveTournamentData)} />)
-                        : (<span className="fw-bold">{tournamentData.type}</span>)}</div>) : null}
+                        : (<span className="fw-bold">Notes: {tournamentData.type}</span>)}</div>) : null}
                 </div>)}
             </div>
         </div>);
