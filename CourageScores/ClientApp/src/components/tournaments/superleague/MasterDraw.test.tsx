@@ -1,16 +1,18 @@
+﻿import {act, fireEvent} from "@testing-library/react";
 import {
     api,
     appProps,
     brandingProps,
-    cleanUp, doClick,
+    cleanUp, doChange, doClick, doSelectOption,
     ErrorState, findButton,
-    iocProps,
+    iocProps, noop,
     renderApp,
     TestContext
 } from "../../../helpers/tests";
 import {IMasterDrawProps, MasterDraw} from "./MasterDraw";
 import {renderDate} from "../../../helpers/rendering";
 import {
+    ITournamentBuilder,
     ITournamentMatchBuilder,
     ITournamentRoundBuilder,
     tournamentBuilder,
@@ -28,13 +30,19 @@ import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
 import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {saygBuilder} from "../../../helpers/builders/sayg";
 import {START_SCORING} from "../tournaments";
+import {AccessDto} from "../../../interfaces/models/dtos/Identity/AccessDto";
 import {tournamentContainerPropsBuilder} from "../tournamentContainerPropsBuilder";
+import {teamBuilder} from "../../../helpers/builders/teams";
+import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
+import {seasonBuilder} from "../../../helpers/builders/seasons";
+import {SeasonDto} from "../../../interfaces/models/dtos/Season/SeasonDto";
 
 describe('MasterDraw', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let editTournament: string | null;
     let saygDeleted: { id: string, matchId: string } | null;
+    let updatedTournament: { updated: TournamentGameDto, save?: boolean } | null = null;
 
     const tournamentApi = api<ITournamentGameApi>({
         async update(_: EditTournamentGameDto): Promise<IClientActionResultDto<TournamentGameDto>> {
@@ -72,18 +80,32 @@ describe('MasterDraw', () => {
         reportedError = new ErrorState();
         editTournament = null;
         saygDeleted = null;
+        updatedTournament = null;
     });
+
+    async function setTournamentData(updated: TournamentGameDto, save?: boolean) {
+        updatedTournament = { updated, save };
+    }
+
+    function user(access: AccessDto): UserDto {
+        return {
+            name: '',
+            givenName: '',
+            emailAddress: '',
+            access,
+        }
+    }
 
     async function setEditTournament(value: string) {
         editTournament = value;
     }
 
-    async function renderComponent(props: IMasterDrawProps, containerProps: ITournamentContainerProps, account?: UserDto) {
+    async function renderComponent(props: IMasterDrawProps, account?: UserDto, containerProps?: ITournamentContainerProps, teams?: TeamDto[], season?: SeasonDto) {
         context = await renderApp(
             iocProps({tournamentApi, saygApi}),
             brandingProps(),
-            appProps({ account }, reportedError),
-            (<TournamentContainer {...containerProps}>
+            appProps({ account, teams: teams || [], season }, reportedError),
+            (<TournamentContainer {...(containerProps ?? new tournamentContainerPropsBuilder().build())}>
                 <MasterDraw {...props} />
             </TournamentContainer>));
 
@@ -91,21 +113,31 @@ describe('MasterDraw', () => {
     }
 
     describe('renders', () => {
-        const containerProps = new tournamentContainerPropsBuilder({ setEditTournament });
+        const season = seasonBuilder('SEASON').build();
+        let tournament: ITournamentBuilder;
+
+        beforeEach(() => {
+            tournament = tournamentBuilder()
+                .singleRound()
+                .host('HOST')
+                .opponent('OPPONENT')
+                .gender('GENDER')
+                .date('2025-05-06')
+                .type('TYPE')
+                .forSeason(season)
+                .round((r: ITournamentRoundBuilder) => r);
+        });
 
         it('matches', async () => {
             const match1 = tournamentMatchBuilder().sideA('A').sideB('B').build();
             const match2 = tournamentMatchBuilder().sideA('C').sideB('D').build();
-            const matches = [match1, match2];
-
             await renderComponent({
-                matches: matches,
-                host: 'HOST',
-                opponent: 'OPPONENT',
-                gender: 'GENDER',
-                date: '2023-05-06',
-                type: 'TYPE',
-            }, containerProps.build());
+                tournamentData: tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match1).withMatch(match2)).build(),
+                readOnly: true,
+                setEditTournament,
+                setTournamentData: noop,
+                patchData: noop
+            });
 
             const table = context.container.querySelector('table.table')!;
             const rows = Array.from(table.querySelectorAll('tbody tr'));
@@ -116,13 +148,12 @@ describe('MasterDraw', () => {
 
         it('tournament properties', async () => {
             await renderComponent({
-                matches: [],
-                host: 'HOST',
-                opponent: 'OPPONENT',
-                gender: 'GENDER',
-                date: '2023-05-06',
-                type: 'Board 1',
-            }, containerProps.build());
+                tournamentData: tournament.type('Board 1').build(),
+                readOnly: true,
+                setEditTournament,
+                setTournamentData: noop,
+                patchData: noop
+            });
 
             const tournamentProperties = context.container.querySelector('div.d-flex > div:nth-child(2)')!;
             expect(tournamentProperties.textContent).toContain('Gender: GENDER');
@@ -132,13 +163,12 @@ describe('MasterDraw', () => {
 
         it('when no notes', async () => {
             await renderComponent({
-                matches: [],
-                host: 'HOST',
-                opponent: 'OPPONENT',
-                gender: 'GENDER',
-                date: '2023-05-06',
-                type: '',
-            }, containerProps.build());
+                tournamentData: tournament.type(undefined!).build(),
+                readOnly: true,
+                setEditTournament,
+                setTournamentData: noop,
+                patchData: noop
+            });
 
             const tournamentProperties = context.container.querySelector('div.d-flex > div:nth-child(2)')!;
             expect(tournamentProperties.textContent).toContain('Gender: GENDER');
@@ -147,17 +177,29 @@ describe('MasterDraw', () => {
     });
 
     describe('interactivity', () => {
-        const containerProps = new tournamentContainerPropsBuilder({ setEditTournament })
+        const season = seasonBuilder('SEASON').build();
+        let tournament: ITournamentBuilder;
 
-        it('can edit tournament from heading', async () => {
+        beforeEach(() => {
+            tournament = tournamentBuilder()
+                .singleRound()
+                .host('HOST')
+                .opponent('OPPONENT')
+                .gender('GENDER')
+                .date('2025-05-06')
+                .type('TYPE')
+                .forSeason(season)
+                .round((r: ITournamentRoundBuilder) => r);
+        });
+
+        it('can edit matches from heading', async () => {
             await renderComponent({
-                matches: [],
-                host: 'HOST',
-                opponent: 'OPPONENT',
-                gender: 'GENDER',
-                date: '2023-05-06',
-                type: 'TYPE',
-            }, containerProps.build());
+                tournamentData: tournament.build(),
+                readOnly: false,
+                setEditTournament,
+                setTournamentData: noop,
+                patchData: noop
+            });
 
             await doClick(context.container.querySelector('div[datatype="master-draw"] > h2')!);
 
@@ -165,111 +207,14 @@ describe('MasterDraw', () => {
             expect(editTournament).toEqual('matches');
         });
 
-        it('can edit tournament from table of players header', async () => {
+        it('can edit matches from table of players footer', async () => {
             await renderComponent({
-                matches: [],
-                host: 'HOST',
-                opponent: 'OPPONENT',
-                gender: 'GENDER',
-                date: '2023-05-06',
-                type: 'TYPE',
-            }, containerProps.build());
-
-            await doClick(context.container.querySelector('div[datatype="master-draw"] thead tr:first-child')!);
-
-            reportedError.verifyNoError();
-            expect(editTournament).toEqual('matches');
-        });
-
-        it('can edit tournament from table of players row (player number)', async () => {
-            const match = tournamentMatchBuilder()
-                .sideA('SIDE A')
-                .sideB('SIDE B')
-                .build();
-            await renderComponent({
-                matches: [match],
-                host: 'HOST',
-                opponent: 'OPPONENT',
-                gender: 'GENDER',
-                date: '2023-05-06',
-                type: 'TYPE',
-            }, containerProps.build());
-
-            await doClick(context.container.querySelector('div[datatype="master-draw"] tbody td:nth-child(1)')!);
-
-            reportedError.verifyNoError();
-            expect(editTournament).toEqual('matches');
-        });
-
-        it('can edit tournament from table of players row (side A)', async () => {
-            const match = tournamentMatchBuilder()
-                .sideA('SIDE A')
-                .sideB('SIDE B')
-                .build();
-            await renderComponent({
-                matches: [match],
-                host: 'HOST',
-                opponent: 'OPPONENT',
-                gender: 'GENDER',
-                date: '2023-05-06',
-                type: 'TYPE',
-            }, containerProps.build());
-
-            await doClick(context.container.querySelector('div[datatype="master-draw"] tbody tr:first-child td:nth-child(2)')!);
-
-            reportedError.verifyNoError();
-            expect(editTournament).toEqual('matches');
-        });
-
-        it('can edit tournament from table of players row (vs)', async () => {
-            const match = tournamentMatchBuilder()
-                .sideA('SIDE A')
-                .sideB('SIDE B')
-                .build();
-            await renderComponent({
-                matches: [match],
-                host: 'HOST',
-                opponent: 'OPPONENT',
-                gender: 'GENDER',
-                date: '2023-05-06',
-                type: 'TYPE',
-            }, containerProps.build());
-
-            await doClick(context.container.querySelector('div[datatype="master-draw"] tbody tr:first-child td:nth-child(3)')!);
-
-            reportedError.verifyNoError();
-            expect(editTournament).toEqual('matches');
-        });
-
-        it('can edit tournament from table of players row (side B)', async () => {
-            const match = tournamentMatchBuilder()
-                .sideA('SIDE A')
-                .sideB('SIDE B')
-                .build();
-            await renderComponent({
-                matches: [match],
-                host: 'HOST',
-                opponent: 'OPPONENT',
-                gender: 'GENDER',
-                date: '2023-05-06',
-                type: 'TYPE',
-            }, containerProps.build());
-
-            await doClick(context.container.querySelector('div[datatype="master-draw"] tbody tr:first-child td:nth-child(4)')!);
-
-            reportedError.verifyNoError();
-            expect(editTournament).toEqual('matches');
-        });
-
-        it('can edit tournament from table of players footer', async () => {
-            await renderComponent({
-                matches: [],
-                host: 'HOST',
-                opponent: 'OPPONENT',
-                gender: 'GENDER',
-                date: '2023-05-06',
-                type: 'TYPE',
-            }, containerProps.build());
+                tournamentData: tournament.build(),
+                readOnly: false,
+                setEditTournament,
+                setTournamentData: noop,
+                patchData: noop
+            });
 
             await doClick(context.container.querySelector('div[datatype="master-draw"] tfoot td')!);
 
@@ -277,33 +222,14 @@ describe('MasterDraw', () => {
             expect(editTournament).toEqual('matches');
         });
 
-        it('can edit tournament from tournament details', async () => {
+        it('cannot edit matches from heading when not permitted', async () => {
             await renderComponent({
-                matches: [],
-                host: 'HOST',
-                opponent: 'OPPONENT',
-                gender: 'GENDER',
-                date: '2023-05-06',
-                type: 'TYPE',
-            }, containerProps.build());
-
-            await doClick(context.container.querySelector('div[datatype="details"]')!);
-
-            reportedError.verifyNoError();
-            expect(editTournament).toEqual('details');
-        });
-
-        it('cannot edit tournament from heading when not permitted', async () => {
-            const readonlyContainerProps = containerProps.withTournament(tournamentBuilder().singleRound().build()).build();
-            readonlyContainerProps.setEditTournament = undefined;
-            await renderComponent({
-                matches: [],
-                host: 'HOST',
-                opponent: 'OPPONENT',
-                gender: 'GENDER',
-                date: '2023-05-06',
-                type: 'TYPE',
-            }, readonlyContainerProps);
+                tournamentData: tournament.build(),
+                readOnly: true,
+                setEditTournament,
+                setTournamentData: noop,
+                patchData: noop
+            });
 
             await doClick(context.container.querySelector('div[datatype="master-draw"] > h2')!);
 
@@ -311,21 +237,124 @@ describe('MasterDraw', () => {
             expect(editTournament).toEqual(null);
         });
 
-        it('cannot edit tournament from table of players when not permitted', async () => {
+        it('cannot edit matches from table of players when not permitted', async () => {
+            const match = tournamentMatchBuilder()
+                .sideA('SIDE A')
+                .sideB('SIDE B')
+                .build();
             await renderComponent({
-                matches: [],
-                host: 'HOST',
-                opponent: 'OPPONENT',
-                gender: 'GENDER',
-                date: '2023-05-06',
-                type: 'TYPE',
-            }, containerProps.build());
+                tournamentData: tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match)).build(),
+                readOnly: true,
+                setEditTournament,
+                setTournamentData: noop,
+                patchData: noop
+            });
 
-            await doClick(context.container.querySelector('div[datatype="master-draw"] > div')!);
+            await doClick(context.container.querySelector('div[datatype="master-draw"] table tbody tr')!);
 
             reportedError.verifyNoError();
-            // TODO: This test might not be working correctly, i'd expect `editTournament` to be set, as `setEditTournament` is provided
             expect(editTournament).toEqual(null);
+        });
+
+        it('can change type from printable sheet', async () => {
+            await renderComponent({
+                tournamentData: tournament.build(),
+                readOnly: false,
+                setEditTournament,
+                setTournamentData,
+                patchData: noop
+            });
+
+            await doChange(context.container, 'input[name="type"]', 'NEW TYPE', context.user);
+
+            reportedError.verifyNoError();
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament?.save).not.toEqual(true);
+            expect(updatedTournament?.updated.type).toEqual('NEW TYPE');
+        });
+
+        it('saves type when caret leaves input', async () => {
+            const updatableTournableData = tournament.build();
+            async function inlineUpdateTournament(update: TournamentGameDto, save?: boolean) {
+                Object.assign(updatableTournableData, update);
+                await setTournamentData(update, save);
+            }
+
+            await renderComponent({
+                tournamentData: updatableTournableData,
+                readOnly: false,
+                setEditTournament,
+                setTournamentData: inlineUpdateTournament,
+                patchData: noop
+            });
+
+            await doChange(context.container, 'input[name="type"]', 'NEW TYPE', context.user);
+            const input = context.container.querySelector('input[name="type"]')!;
+            act(() => {
+                fireEvent.blur(input, {});
+            });
+
+            reportedError.verifyNoError();
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament?.save).toEqual(true);
+            expect(updatedTournament?.updated.type).toEqual('NEW TYPE');
+        });
+
+        it('can change gender from printable sheet', async () => {
+            await renderComponent({
+                tournamentData: tournament.build(),
+                readOnly: false,
+                setEditTournament,
+                setTournamentData,
+                patchData: noop
+            });
+
+            await doSelectOption(context.container.querySelector('[datatype="gender"] .dropdown-menu'), 'Men');
+
+            reportedError.verifyNoError();
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament?.save).toEqual(true);
+            expect(updatedTournament?.updated.gender).toEqual('men');
+        });
+
+        it('can change host from printable sheet', async () => {
+            const hostTeam = teamBuilder('HOST').forSeason(season).build();
+            const opponentTeam = teamBuilder('OPPONENT').forSeason(season).build();
+            const anotherTeam = teamBuilder('ANOTHER TEAM').forSeason(season).build();
+            await renderComponent({
+                tournamentData: tournament.build(),
+                readOnly: false,
+                setEditTournament,
+                setTournamentData,
+                patchData: noop
+            }, user({}), undefined, [ hostTeam, opponentTeam, anotherTeam ], season);
+
+            await doSelectOption(context.container.querySelector('[datatype="host"] .dropdown-menu'), 'ANOTHER TEAM');
+
+            reportedError.verifyNoError();
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament?.save).toEqual(true);
+            expect(updatedTournament?.updated.host).toEqual('ANOTHER TEAM');
+        });
+
+        it('can change opponent from printable sheet', async () => {
+            const hostTeam = teamBuilder('HOST').forSeason(season).build();
+            const opponentTeam = teamBuilder('OPPONENT').forSeason(season).build();
+            const anotherTeam = teamBuilder('ANOTHER TEAM').forSeason(season).build();
+            await renderComponent({
+                tournamentData: tournament.build(),
+                readOnly: false,
+                setEditTournament,
+                setTournamentData,
+                patchData: noop
+            }, user({}), undefined, [ hostTeam, opponentTeam, anotherTeam ], season);
+
+            await doSelectOption(context.container.querySelector('[datatype="opponent"] .dropdown-menu'), 'ANOTHER TEAM');
+
+            reportedError.verifyNoError();
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament?.save).toEqual(true);
+            expect(updatedTournament?.updated.opponent).toEqual('ANOTHER TEAM');
         });
 
         it('can open sayg dialog when permitted', async () => {
@@ -333,23 +362,19 @@ describe('MasterDraw', () => {
                 .sideA('SIDE A')
                 .sideB('SIDE B')
                 .build();
-            const account: UserDto = {
-                name: '',
-                givenName: '',
-                emailAddress: '',
-                access: {
-                    recordScoresAsYouGo: true,
-                },
-            }
+            const tournamentData = tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
+            const account = user({
+                recordScoresAsYouGo: true,
+            });
+            const containerProps = new tournamentContainerPropsBuilder({ tournamentData });
+
             await renderComponent({
-                matches: [match],
-                host: 'HOST',
-                opponent: 'OPPONENT',
-                gender: 'GENDER',
-                date: '2023-05-06',
-                type: 'TYPE',
-            }, containerProps
-                .withTournament(tournamentBuilder().singleRound().build()).build(), account);
+                tournamentData: tournamentData,
+                readOnly: false,
+                setEditTournament,
+                setTournamentData: noop,
+                patchData: noop
+            }, account, containerProps.build());
 
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), START_SCORING));
 
@@ -360,34 +385,25 @@ describe('MasterDraw', () => {
 
         it('can delete sayg from match', async () => {
             const saygId = createTemporaryId();
-            const tournamentId = createTemporaryId();
             const match = tournamentMatchBuilder()
                 .sideA('SIDE A')
                 .sideB('SIDE B')
                 .saygId(saygId)
                 .build();
-            const account: UserDto = {
-                name: '',
-                givenName: '',
-                emailAddress: '',
-                access: {
-                    recordScoresAsYouGo: true,
-                    showDebugOptions: true,
-                },
-            }
+            const tournamentData = tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
+            const account = user({
+                recordScoresAsYouGo: true,
+                showDebugOptions: true,
+            });
+            const containerProps = new tournamentContainerPropsBuilder({ tournamentData });
+
             await renderComponent({
-                matches: [match],
-                host: 'HOST',
-                opponent: 'OPPONENT',
-                gender: 'GENDER',
-                date: '2023-05-06',
-                type: 'TYPE',
-            }, containerProps
-                .withTournament(tournamentBuilder(tournamentId)
-                    .round((r: ITournamentRoundBuilder) => r.withMatch(match))
-                    .singleRound()
-                    .build())
-                .build(), account);
+                tournamentData: tournamentData,
+                readOnly: false,
+                setEditTournament,
+                setTournamentData: noop,
+                patchData: noop
+            }, account, containerProps.build());
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), START_SCORING));
             reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
@@ -398,7 +414,7 @@ describe('MasterDraw', () => {
 
             reportedError.verifyNoError();
             expect(saygDeleted).toEqual({
-                id: tournamentId,
+                id: tournamentData.id,
                 matchId: match.id,
             })
         });
