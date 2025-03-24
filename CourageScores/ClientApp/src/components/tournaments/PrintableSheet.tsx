@@ -305,7 +305,7 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
             {winner ? null : (<div className="float-end d-print-none">
                 <RefreshControl id={tournamentData.id} type={LiveDataType.tournament} />
             </div>)}
-            <div datatype="heading" className="border-1 border-solid border-secondary p-3 text-center" onClick={setEditTournament ? async () => await setEditTournament('details') : undefined}>
+            <div datatype="heading" className="border-1 border-solid border-secondary p-3 text-center" onClick={setEditTournament ? async () => await setEditTournament(true) : undefined}>
                 {tournamentData.type || 'tournament'} at <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong>
                 {tournamentData.notes ? (<> - <strong>{tournamentData.notes}</strong></>) : null}
                 <span className="d-print-none margin-left">

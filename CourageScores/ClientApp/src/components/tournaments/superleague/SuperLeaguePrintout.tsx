@@ -149,7 +149,6 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
             </div>
             <MasterDraw
                 tournamentData={tournamentData}
-                setEditTournament={setEditTournament!}
                 setTournamentData={setTournamentData!}
                 preventScroll={preventScroll}
                 patchData={patchDataAndTriggerSaygReload}

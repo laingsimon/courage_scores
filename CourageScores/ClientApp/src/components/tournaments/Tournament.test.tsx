@@ -386,24 +386,6 @@ describe('Tournament', () => {
                 const container = context.container.querySelector('.content-background')!;
                 expect(container.className).toContain('loading-background');
             });
-
-            it('tournament with sides and players', async () => {
-                tournamentData.singleRound = true;
-                tournamentData.sides!.push(sideBuilder()
-                    .name('SIDE 1')
-                    .withPlayer('PLAYER', undefined, division.id)
-                    .build());
-
-                await renderComponentForTest(season);
-
-                await doClick(context.container.querySelector('div[datatype="master-draw"] .alert')!);
-
-                reportedError.verifyNoError();
-                const editTournamentComponent = context.container.querySelector('.content-background > div:nth-child(1)')!;
-                expect(editTournamentComponent.textContent).toContain('Playing:');
-                const sides = editTournamentComponent.querySelector('div:nth-child(2)')!;
-                expect(sides.textContent).toContain('SIDE 1');
-            });
         });
     });
 
@@ -572,29 +554,21 @@ describe('Tournament', () => {
             expect(context.container.textContent).not.toContain('Could not save tournament details');
         });
 
-        it('cannot save changes when match not added', async () => {
-            tournamentData.singleRound = true;
-            tournamentData.sides!.push(sideA, sideB);
-            await renderComponentForTest();
-            await doClick(context.container.querySelector('div[datatype="master-draw"] .alert')!);
-            await doSelectOption(context.container.querySelector('table tr td:nth-child(1) .dropdown-menu'), 'A');
-            await doSelectOption(context.container.querySelector('table tr td:nth-child(5) .dropdown-menu'), 'B');
-
-            await doClick(findButton(context.container, 'Close'));
-
-            context.prompts.alertWasShown('Add the (new) match before saving, otherwise it would be lost.\n\nA vs B');
-        });
-
         it('can save changes after match added', async () => {
             tournamentData.singleRound = true;
-            tournamentData.sides!.push(sideA, sideB);
-            await renderComponentForTest();
-            await doClick(context.container.querySelector('div[datatype="master-draw"] .alert')!);
-            await doSelectOption(context.container.querySelector('table tr td:nth-child(1) .dropdown-menu'), 'A');
-            await doSelectOption(context.container.querySelector('table tr td:nth-child(5) .dropdown-menu'), 'B');
-            await doClick(findButton(context.container.querySelector('table tr td:nth-child(6)'), '➕'));
+            tournamentData.host = 'HOST';
+            tournamentData.opponent = 'OPPONENT';
+            const host = teamBuilder(tournamentData.host).forSeason(season, undefined, [ playerA ]).build();
+            const opponent = teamBuilder(tournamentData.opponent).forSeason(season, undefined, [ playerB ]).build();
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: [season],
+                teams: [host, opponent],
+                divisions: [division]
+            });
 
-            await doClick(findButton(context.container, 'Save'));
+            await doSelectOption(context.container.querySelector('table tbody tr td:nth-child(2) .dropdown-menu'), 'PLAYER A');
+            await doSelectOption(context.container.querySelector('table tbody tr td:nth-child(4) .dropdown-menu'), 'PLAYER B');
 
             context.prompts.noAlerts();
             expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
@@ -602,14 +576,19 @@ describe('Tournament', () => {
 
         it('produces correct match option defaults when no bestOf (1)', async () => {
             tournamentData.singleRound = true;
-            tournamentData.sides!.push(sideA, sideB);
-            await renderComponentForTest();
-            await doClick(context.container!.querySelector('div[datatype="master-draw"] .alert')!);
-            await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(1) .dropdown-menu'), 'A');
-            await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(5) .dropdown-menu'), 'B');
-            await doClick(findButton(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(6)'), '➕'));
+            tournamentData.host = 'HOST';
+            tournamentData.opponent = 'OPPONENT';
+            const host = teamBuilder(tournamentData.host).forSeason(season, undefined, [ playerA ]).build();
+            const opponent = teamBuilder(tournamentData.opponent).forSeason(season, undefined, [ playerB ]).build();
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: [season],
+                teams: [host, opponent],
+                divisions: [division]
+            });
 
-            await doClick(findButton(context.container, 'Save'));
+            await doSelectOption(context.container.querySelector('table tbody tr td:nth-child(2) .dropdown-menu'), 'PLAYER A');
+            await doSelectOption(context.container.querySelector('table tbody tr td:nth-child(4) .dropdown-menu'), 'PLAYER B');
 
             context.prompts.noAlerts();
             const round = updatedTournamentData[0].round!;
@@ -620,13 +599,19 @@ describe('Tournament', () => {
             tournamentData.singleRound = true;
             tournamentData.sides!.push(sideA, sideB);
             tournamentData.bestOf = 7;
-            await renderComponentForTest();
-            await doClick(context.container.querySelector('div[datatype="master-draw"] .alert')!);
-            await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(1) .dropdown-menu'), 'A');
-            await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(5) .dropdown-menu'), 'B');
-            await doClick(findButton(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(6)'), '➕'));
+            tournamentData.host = 'HOST';
+            tournamentData.opponent = 'OPPONENT';
+            const host = teamBuilder(tournamentData.host).forSeason(season, undefined, [ playerA ]).build();
+            const opponent = teamBuilder(tournamentData.opponent).forSeason(season, undefined, [ playerB ]).build();
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: [season],
+                teams: [host, opponent],
+                divisions: [division]
+            });
 
-            await doClick(findButton(context.container, 'Save'));
+            await doSelectOption(context.container.querySelector('table tbody tr td:nth-child(2) .dropdown-menu'), 'PLAYER A');
+            await doSelectOption(context.container.querySelector('table tbody tr td:nth-child(4) .dropdown-menu'), 'PLAYER B');
 
             context.prompts.noAlerts();
             const round = updatedTournamentData[0].round!;
@@ -843,15 +828,20 @@ describe('Tournament', () => {
         });
 
         it('produces correct match option defaults when no bestOf (2)', async () => {
-            tournamentData.sides!.push(sideA, sideB);
             tournamentData.singleRound = true;
-            await renderComponentForTest();
-            await doClick(context.container.querySelector('div[datatype="master-draw"] .alert')!);
-            await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(1) .dropdown-menu'), 'A');
-            await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(5) .dropdown-menu'), 'B');
-            await doClick(findButton(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(6)'), '➕')); // add match
+            tournamentData.host = 'HOST';
+            tournamentData.opponent = 'OPPONENT';
+            const host = teamBuilder(tournamentData.host).forSeason(season, undefined, [ playerA ]).build();
+            const opponent = teamBuilder(tournamentData.opponent).forSeason(season, undefined, [ playerB ]).build();
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: [season],
+                teams: [host, opponent],
+                divisions: [division]
+            });
 
-            await doClick(findButton(context.container, 'Save'));
+            await doSelectOption(context.container.querySelector('table tbody tr td:nth-child(2) .dropdown-menu'), 'PLAYER A');
+            await doSelectOption(context.container.querySelector('table tbody tr td:nth-child(4) .dropdown-menu'), 'PLAYER B');
 
             context.prompts.noAlerts();
             const round = updatedTournamentData[0].round!;
@@ -862,13 +852,19 @@ describe('Tournament', () => {
             tournamentData.sides!.push(sideA, sideB);
             tournamentData.singleRound = true;
             tournamentData.bestOf = 7;
-            await renderComponentForTest();
-            await doClick(context.container.querySelector('div[datatype="master-draw"] .alert')!);
-            await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(1) .dropdown-menu'), 'A');
-            await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(5) .dropdown-menu'), 'B');
-            await doClick(findButton(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(6)'), '➕')); // add match
+            tournamentData.host = 'HOST';
+            tournamentData.opponent = 'OPPONENT';
+            const host = teamBuilder(tournamentData.host).forSeason(season, undefined, [ playerA ]).build();
+            const opponent = teamBuilder(tournamentData.opponent).forSeason(season, undefined, [ playerB ]).build();
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: [season],
+                teams: [host, opponent],
+                divisions: [division]
+            });
 
-            await doClick(findButton(context.container, 'Save'));
+            await doSelectOption(context.container.querySelector('table tbody tr td:nth-child(2) .dropdown-menu'), 'PLAYER A');
+            await doSelectOption(context.container.querySelector('table tbody tr td:nth-child(4) .dropdown-menu'), 'PLAYER B');
 
             context.prompts.noAlerts();
             const round = updatedTournamentData[0].round!;
@@ -999,18 +995,6 @@ describe('Tournament', () => {
             reportedError.verifyNoError();
             const editTournamentDialog = context.container.querySelector('.modal-dialog');
             expect(editTournamentDialog).toBeFalsy();
-        });
-
-        it('can edit tournament details via superleague printable sheet when permitted', async () => {
-            tournamentData.round = roundBuilder().build();
-            tournamentData.singleRound = true;
-            await renderComponentForTest(teamNoPlayers);
-
-            await doClick(context.container.querySelector('div[datatype="master-draw"] .alert')!);
-
-            reportedError.verifyNoError();
-            const editTournamentDialog = context.container.querySelector('.modal-dialog');
-            expect(editTournamentDialog).toBeTruthy();
         });
 
         it('only includes players from teams with active team seasons', async () => {

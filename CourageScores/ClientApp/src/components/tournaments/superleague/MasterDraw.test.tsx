@@ -40,7 +40,6 @@ import {SeasonDto} from "../../../interfaces/models/dtos/Season/SeasonDto";
 describe('MasterDraw', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let editTournament: string | null;
     let saygDeleted: { id: string, matchId: string } | null;
     let updatedTournament: { updated: TournamentGameDto, save?: boolean } | null = null;
 
@@ -78,7 +77,6 @@ describe('MasterDraw', () => {
 
     beforeEach(() => {
         reportedError = new ErrorState();
-        editTournament = null;
         saygDeleted = null;
         updatedTournament = null;
     });
@@ -94,10 +92,6 @@ describe('MasterDraw', () => {
             emailAddress: '',
             access,
         }
-    }
-
-    async function setEditTournament(value: string) {
-        editTournament = value;
     }
 
     async function renderComponent(props: IMasterDrawProps, account?: UserDto, containerProps?: ITournamentContainerProps, teams?: TeamDto[], season?: SeasonDto) {
@@ -134,7 +128,6 @@ describe('MasterDraw', () => {
             await renderComponent({
                 tournamentData: tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match1).withMatch(match2)).build(),
                 readOnly: true,
-                setEditTournament,
                 setTournamentData: noop,
                 patchData: noop
             });
@@ -142,15 +135,14 @@ describe('MasterDraw', () => {
             const table = context.container.querySelector('table.table')!;
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             expect(rows.length).toEqual(2);
-            expect(Array.from(rows[0].querySelectorAll('td')).map(td => td.textContent)).toEqual(['1', 'A', 'v', 'B', '']);
-            expect(Array.from(rows[1].querySelectorAll('td')).map(td => td.textContent)).toEqual(['2', 'C', 'v', 'D', '']);
+            expect(Array.from(rows[0].querySelectorAll('td')).map(td => td.textContent)).toEqual(['🗑️ 1', 'A', 'v', 'B', '']);
+            expect(Array.from(rows[1].querySelectorAll('td')).map(td => td.textContent)).toEqual(['🗑️ 2', 'C', 'v', 'D', '']);
         });
 
         it('tournament properties', async () => {
             await renderComponent({
                 tournamentData: tournament.type('Board 1').build(),
                 readOnly: true,
-                setEditTournament,
                 setTournamentData: noop,
                 patchData: noop
             });
@@ -165,7 +157,6 @@ describe('MasterDraw', () => {
             await renderComponent({
                 tournamentData: tournament.type(undefined!).build(),
                 readOnly: true,
-                setEditTournament,
                 setTournamentData: noop,
                 patchData: noop
             });
@@ -192,75 +183,10 @@ describe('MasterDraw', () => {
                 .round((r: ITournamentRoundBuilder) => r);
         });
 
-        it('can edit matches from heading', async () => {
-            await renderComponent({
-                tournamentData: tournament.build(),
-                readOnly: false,
-                setEditTournament,
-                setTournamentData: noop,
-                patchData: noop
-            });
-
-            await doClick(context.container.querySelector('div[datatype="master-draw"] > h2')!);
-
-            reportedError.verifyNoError();
-            expect(editTournament).toEqual('matches');
-        });
-
-        it('can edit matches from table of players footer', async () => {
-            await renderComponent({
-                tournamentData: tournament.build(),
-                readOnly: false,
-                setEditTournament,
-                setTournamentData: noop,
-                patchData: noop
-            });
-
-            await doClick(context.container.querySelector('div[datatype="master-draw"] tfoot td')!);
-
-            reportedError.verifyNoError();
-            expect(editTournament).toEqual('matches');
-        });
-
-        it('cannot edit matches from heading when not permitted', async () => {
-            await renderComponent({
-                tournamentData: tournament.build(),
-                readOnly: true,
-                setEditTournament,
-                setTournamentData: noop,
-                patchData: noop
-            });
-
-            await doClick(context.container.querySelector('div[datatype="master-draw"] > h2')!);
-
-            reportedError.verifyNoError();
-            expect(editTournament).toEqual(null);
-        });
-
-        it('cannot edit matches from table of players when not permitted', async () => {
-            const match = tournamentMatchBuilder()
-                .sideA('SIDE A')
-                .sideB('SIDE B')
-                .build();
-            await renderComponent({
-                tournamentData: tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match)).build(),
-                readOnly: true,
-                setEditTournament,
-                setTournamentData: noop,
-                patchData: noop
-            });
-
-            await doClick(context.container.querySelector('div[datatype="master-draw"] table tbody tr')!);
-
-            reportedError.verifyNoError();
-            expect(editTournament).toEqual(null);
-        });
-
         it('can change type from printable sheet', async () => {
             await renderComponent({
                 tournamentData: tournament.build(),
                 readOnly: false,
-                setEditTournament,
                 setTournamentData,
                 patchData: noop
             });
@@ -283,7 +209,6 @@ describe('MasterDraw', () => {
             await renderComponent({
                 tournamentData: updatableTournableData,
                 readOnly: false,
-                setEditTournament,
                 setTournamentData: inlineUpdateTournament,
                 patchData: noop
             });
@@ -304,7 +229,6 @@ describe('MasterDraw', () => {
             await renderComponent({
                 tournamentData: tournament.build(),
                 readOnly: false,
-                setEditTournament,
                 setTournamentData,
                 patchData: noop
             });
@@ -324,7 +248,6 @@ describe('MasterDraw', () => {
             await renderComponent({
                 tournamentData: tournament.build(),
                 readOnly: false,
-                setEditTournament,
                 setTournamentData,
                 patchData: noop
             }, user({}), undefined, [ hostTeam, opponentTeam, anotherTeam ], season);
@@ -344,7 +267,6 @@ describe('MasterDraw', () => {
             await renderComponent({
                 tournamentData: tournament.build(),
                 readOnly: false,
-                setEditTournament,
                 setTournamentData,
                 patchData: noop
             }, user({}), undefined, [ hostTeam, opponentTeam, anotherTeam ], season);
@@ -371,7 +293,6 @@ describe('MasterDraw', () => {
             await renderComponent({
                 tournamentData: tournamentData,
                 readOnly: false,
-                setEditTournament,
                 setTournamentData: noop,
                 patchData: noop
             }, account, containerProps.build());
@@ -400,7 +321,6 @@ describe('MasterDraw', () => {
             await renderComponent({
                 tournamentData: tournamentData,
                 readOnly: false,
-                setEditTournament,
                 setTournamentData: noop,
                 patchData: noop
             }, account, containerProps.build());

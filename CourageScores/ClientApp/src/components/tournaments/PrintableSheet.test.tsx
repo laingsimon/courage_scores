@@ -49,7 +49,7 @@ describe('PrintableSheet', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let updatedTournament: TournamentGameDto | null;
-    let editTournament: string | null;
+    let editTournament: boolean | null;
 
     afterEach(async () => {
         await cleanUp(context);
@@ -65,7 +65,7 @@ describe('PrintableSheet', () => {
         updatedTournament = update;
     }
 
-    async function setEditTournament(value: string) {
+    async function setEditTournament(value: boolean) {
         editTournament = value;
     }
 
@@ -1123,7 +1123,7 @@ describe('PrintableSheet', () => {
 
             await doClick(context.container.querySelector('div[datatype="heading"]')!);
 
-            expect(editTournament).toEqual('details');
+            expect(editTournament).toEqual(true);
         });
 
         it('cannot edit tournament when not permitted', async () => {
