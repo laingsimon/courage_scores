@@ -135,8 +135,8 @@ describe('MasterDraw', () => {
             const table = context.container.querySelector('table.table')!;
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             expect(rows.length).toEqual(2);
-            expect(Array.from(rows[0].querySelectorAll('td')).map(td => td.textContent)).toEqual(['🗑️ 1', 'A', 'v', 'B', '']);
-            expect(Array.from(rows[1].querySelectorAll('td')).map(td => td.textContent)).toEqual(['🗑️ 2', 'C', 'v', 'D', '']);
+            expect(Array.from(rows[0].querySelectorAll('td')).map(td => td.textContent)).toEqual(['1', 'A', 'v', 'B', '']);
+            expect(Array.from(rows[1].querySelectorAll('td')).map(td => td.textContent)).toEqual(['2', 'C', 'v', 'D', '']);
         });
 
         it('tournament properties', async () => {
