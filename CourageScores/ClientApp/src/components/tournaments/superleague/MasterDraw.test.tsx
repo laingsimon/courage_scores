@@ -457,6 +457,92 @@ describe('MasterDraw', () => {
             }]);
         });
 
+        it('saves tournament when sideA changed for existing match', async () => {
+            const playerA = playerBuilder('PLAYER A').build();
+            const playerB = playerBuilder('PLAYER B').build();
+            const playerC = playerBuilder('PLAYER C').build();
+            const teamA = teamBuilder('TEAM A').forSeason(season, undefined, [playerA, playerC]).build();
+            const teamB = teamBuilder('TEAM B').forSeason(season, undefined, [playerB]).build();
+            await renderComponent({
+                tournamentData: tournament.host('TEAM A').opponent('TEAM B')
+                    .round((r: ITournamentRoundBuilder) => r
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA('PLAYER A', undefined, playerA).sideB('PLAYER B', undefined, playerB)))
+                    .build(),
+                readOnly: false,
+                setTournamentData,
+                patchData: noop
+            }, user({}), undefined, [teamA, teamB], season);
+
+            const newMatchRow = context.container.querySelector('table tbody tr:first-child')!;
+            await doSelectOption(newMatchRow.querySelector('td:nth-child(2) .dropdown-menu'), 'PLAYER C');
+
+            reportedError.verifyNoError();
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament?.save).toEqual(true);
+            expect(updatedTournament?.updated.round?.matches).toEqual([{
+                id: expect.any(String),
+                sideA: {
+                    id: expect.any(String),
+                    name: 'PLAYER C',
+                    players: [{
+                        id: playerC.id,
+                        name: playerC.name,
+                    }],
+                },
+                sideB: {
+                    id: expect.any(String),
+                    name: 'PLAYER B',
+                    players: [{
+                        id: playerB.id,
+                        name: playerB.name,
+                    }],
+                },
+            }]);
+        });
+
+        it('saves tournament when sideA changed for existing match', async () => {
+            const playerA = playerBuilder('PLAYER A').build();
+            const playerB = playerBuilder('PLAYER B').build();
+            const playerD = playerBuilder('PLAYER D').build();
+            const teamA = teamBuilder('TEAM A').forSeason(season, undefined, [playerA]).build();
+            const teamB = teamBuilder('TEAM B').forSeason(season, undefined, [playerB, playerD]).build();
+            await renderComponent({
+                tournamentData: tournament.host('TEAM A').opponent('TEAM B')
+                    .round((r: ITournamentRoundBuilder) => r
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA('PLAYER A', undefined, playerA).sideB('PLAYER B', undefined, playerB)))
+                    .build(),
+                readOnly: false,
+                setTournamentData,
+                patchData: noop
+            }, user({}), undefined, [teamA, teamB], season);
+
+            const newMatchRow = context.container.querySelector('table tbody tr:first-child')!;
+            await doSelectOption(newMatchRow.querySelector('td:nth-child(4) .dropdown-menu'), 'PLAYER D');
+
+            reportedError.verifyNoError();
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament?.save).toEqual(true);
+            expect(updatedTournament?.updated.round?.matches).toEqual([{
+                id: expect.any(String),
+                sideA: {
+                    id: expect.any(String),
+                    name: 'PLAYER A',
+                    players: [{
+                        id: playerA.id,
+                        name: playerA.name,
+                    }],
+                },
+                sideB: {
+                    id: expect.any(String),
+                    name: 'PLAYER D',
+                    players: [{
+                        id: playerD.id,
+                        name: playerD.name,
+                    }],
+                },
+            }]);
+        });
+
         it('cannot change host when match exists', async () => {
             const match = tournamentMatchBuilder()
                 .sideA('SIDE A')

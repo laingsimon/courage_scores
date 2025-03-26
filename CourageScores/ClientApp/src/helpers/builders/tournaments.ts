@@ -10,6 +10,7 @@ import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSid
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {matchOptionsBuilder} from "./games";
+import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
 
 export interface ITournamentBuilder extends IAddableBuilder<TournamentGameDto & DivisionTournamentFixtureDetailsDto> {
     type(type: string): ITournamentBuilder;
@@ -268,8 +269,8 @@ export function roundBuilder(): ITournamentRoundBuilder {
 }
 
 export interface ITournamentMatchBuilder extends IBuilder<TournamentMatchDto> {
-    sideA(side: any, score?: number): ITournamentMatchBuilder;
-    sideB(side: any, score?: number): ITournamentMatchBuilder;
+    sideA(side: any, score?: number, ...players: TeamPlayerDto[]): ITournamentMatchBuilder;
+    sideB(side: any, score?: number, ...players: TeamPlayerDto[]): ITournamentMatchBuilder;
     saygId(id: string): ITournamentMatchBuilder;
     noId(): ITournamentMatchBuilder;
 }
@@ -283,22 +284,24 @@ export function tournamentMatchBuilder(id?: string): ITournamentMatchBuilder {
 
     const builder: ITournamentMatchBuilder = {
         build: () => match,
-        sideA: (side: any, score?: number) => {
+        sideA: (side: any, score?: number, ...players: TeamPlayerDto[]) => {
             match.sideA = side.name
                 ? side
                 : sideBuilder(side).build();
             if (score !== undefined) {
                 match.scoreA = score;
             }
+            match.sideA.players = (match.sideA.players || []).concat(players);
             return builder;
         },
-        sideB: (side: any, score?: number) => {
+        sideB: (side: any, score?: number, ...players: TeamPlayerDto[]) => {
             match.sideB = side.name
                 ? side
                 : sideBuilder(side).build();
             if (score !== undefined) {
                 match.scoreB = score;
             }
+            match.sideB.players = (match.sideB.players || []).concat(players);
             return builder;
         },
         saygId: (id: string) => {
