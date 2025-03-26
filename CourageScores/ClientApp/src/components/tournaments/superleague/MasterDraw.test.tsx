@@ -36,13 +36,19 @@ import {teamBuilder} from "../../../helpers/builders/teams";
 import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {SeasonDto} from "../../../interfaces/models/dtos/Season/SeasonDto";
+import {playerBuilder} from "../../../helpers/builders/players";
+import {divisionBuilder} from "../../../helpers/builders/divisions";
+import {IPlayerApi} from "../../../interfaces/apis/IPlayerApi";
+import {EditTeamPlayerDto} from "../../../interfaces/models/dtos/Team/EditTeamPlayerDto";
+import {IMatchOptionsBuilder, matchOptionsBuilder} from "../../../helpers/builders/games";
 
 describe('MasterDraw', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let editTournament: string | null;
     let saygDeleted: { id: string, matchId: string } | null;
     let updatedTournament: { updated: TournamentGameDto, save?: boolean } | null = null;
+    let createdPlayer: { divisionId: string, seasonId: string, teamId: string, player: EditTeamPlayerDto } | null = null;
+    let playerCreatedCallback: (() => void) | null = null;
 
     const tournamentApi = api<ITournamentGameApi>({
         async update(_: EditTournamentGameDto): Promise<IClientActionResultDto<TournamentGameDto>> {
@@ -71,6 +77,26 @@ describe('MasterDraw', () => {
             return saygBuilder(id).build();
         }
     });
+    const playerApi = api<IPlayerApi>({
+        async create(divisionId: string, seasonId: string, teamId: string, player: EditTeamPlayerDto): Promise<IClientActionResultDto<TeamDto>> {
+            createdPlayer = { divisionId, seasonId, teamId, player };
+            if (playerCreatedCallback !== null) {
+                playerCreatedCallback();
+            }
+            return {
+                success: true,
+                result: {
+                    id: teamId,
+                    address: 'unknown',
+                    name: 'unknown',
+                    seasons: [{
+                        seasonId: seasonId,
+                        players: [],
+                    }]
+                }
+            };
+        }
+    });
 
     afterEach(async () => {
         await cleanUp(context);
@@ -78,9 +104,10 @@ describe('MasterDraw', () => {
 
     beforeEach(() => {
         reportedError = new ErrorState();
-        editTournament = null;
         saygDeleted = null;
         updatedTournament = null;
+        playerCreatedCallback = null;
+        createdPlayer = null;
     });
 
     async function setTournamentData(updated: TournamentGameDto, save?: boolean) {
@@ -96,13 +123,9 @@ describe('MasterDraw', () => {
         }
     }
 
-    async function setEditTournament(value: string) {
-        editTournament = value;
-    }
-
     async function renderComponent(props: IMasterDrawProps, account?: UserDto, containerProps?: ITournamentContainerProps, teams?: TeamDto[], season?: SeasonDto) {
         context = await renderApp(
-            iocProps({tournamentApi, saygApi}),
+            iocProps({tournamentApi, saygApi, playerApi}),
             brandingProps(),
             appProps({ account, teams: teams || [], season }, reportedError),
             (<TournamentContainer {...(containerProps ?? new tournamentContainerPropsBuilder().build())}>
@@ -134,8 +157,7 @@ describe('MasterDraw', () => {
             await renderComponent({
                 tournamentData: tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match1).withMatch(match2)).build(),
                 readOnly: true,
-                setEditTournament,
-                setTournamentData: noop,
+                setTournamentData,
                 patchData: noop
             });
 
@@ -150,8 +172,7 @@ describe('MasterDraw', () => {
             await renderComponent({
                 tournamentData: tournament.type('Board 1').build(),
                 readOnly: true,
-                setEditTournament,
-                setTournamentData: noop,
+                setTournamentData,
                 patchData: noop
             });
 
@@ -165,8 +186,7 @@ describe('MasterDraw', () => {
             await renderComponent({
                 tournamentData: tournament.type(undefined!).build(),
                 readOnly: true,
-                setEditTournament,
-                setTournamentData: noop,
+                setTournamentData,
                 patchData: noop
             });
 
@@ -178,6 +198,7 @@ describe('MasterDraw', () => {
 
     describe('interactivity', () => {
         const season = seasonBuilder('SEASON').build();
+        const division = divisionBuilder('DIVISION').build();
         let tournament: ITournamentBuilder;
 
         beforeEach(() => {
@@ -189,78 +210,14 @@ describe('MasterDraw', () => {
                 .date('2025-05-06')
                 .type('TYPE')
                 .forSeason(season)
+                .forDivision(division)
                 .round((r: ITournamentRoundBuilder) => r);
-        });
-
-        it('can edit matches from heading', async () => {
-            await renderComponent({
-                tournamentData: tournament.build(),
-                readOnly: false,
-                setEditTournament,
-                setTournamentData: noop,
-                patchData: noop
-            });
-
-            await doClick(context.container.querySelector('div[datatype="master-draw"] > h2')!);
-
-            reportedError.verifyNoError();
-            expect(editTournament).toEqual('matches');
-        });
-
-        it('can edit matches from table of players footer', async () => {
-            await renderComponent({
-                tournamentData: tournament.build(),
-                readOnly: false,
-                setEditTournament,
-                setTournamentData: noop,
-                patchData: noop
-            });
-
-            await doClick(context.container.querySelector('div[datatype="master-draw"] tfoot td')!);
-
-            reportedError.verifyNoError();
-            expect(editTournament).toEqual('matches');
-        });
-
-        it('cannot edit matches from heading when not permitted', async () => {
-            await renderComponent({
-                tournamentData: tournament.build(),
-                readOnly: true,
-                setEditTournament,
-                setTournamentData: noop,
-                patchData: noop
-            });
-
-            await doClick(context.container.querySelector('div[datatype="master-draw"] > h2')!);
-
-            reportedError.verifyNoError();
-            expect(editTournament).toEqual(null);
-        });
-
-        it('cannot edit matches from table of players when not permitted', async () => {
-            const match = tournamentMatchBuilder()
-                .sideA('SIDE A')
-                .sideB('SIDE B')
-                .build();
-            await renderComponent({
-                tournamentData: tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match)).build(),
-                readOnly: true,
-                setEditTournament,
-                setTournamentData: noop,
-                patchData: noop
-            });
-
-            await doClick(context.container.querySelector('div[datatype="master-draw"] table tbody tr')!);
-
-            reportedError.verifyNoError();
-            expect(editTournament).toEqual(null);
         });
 
         it('can change type from printable sheet', async () => {
             await renderComponent({
                 tournamentData: tournament.build(),
                 readOnly: false,
-                setEditTournament,
                 setTournamentData,
                 patchData: noop
             });
@@ -274,16 +231,15 @@ describe('MasterDraw', () => {
         });
 
         it('saves type when caret leaves input', async () => {
-            const updatableTournableData = tournament.build();
+            const updatableTournamentData = tournament.build();
             async function inlineUpdateTournament(update: TournamentGameDto, save?: boolean) {
-                Object.assign(updatableTournableData, update);
+                Object.assign(updatableTournamentData, update);
                 await setTournamentData(update, save);
             }
 
             await renderComponent({
-                tournamentData: updatableTournableData,
+                tournamentData: updatableTournamentData,
                 readOnly: false,
-                setEditTournament,
                 setTournamentData: inlineUpdateTournament,
                 patchData: noop
             });
@@ -304,7 +260,6 @@ describe('MasterDraw', () => {
             await renderComponent({
                 tournamentData: tournament.build(),
                 readOnly: false,
-                setEditTournament,
                 setTournamentData,
                 patchData: noop
             });
@@ -324,7 +279,6 @@ describe('MasterDraw', () => {
             await renderComponent({
                 tournamentData: tournament.build(),
                 readOnly: false,
-                setEditTournament,
                 setTournamentData,
                 patchData: noop
             }, user({}), undefined, [ hostTeam, opponentTeam, anotherTeam ], season);
@@ -344,7 +298,6 @@ describe('MasterDraw', () => {
             await renderComponent({
                 tournamentData: tournament.build(),
                 readOnly: false,
-                setEditTournament,
                 setTournamentData,
                 patchData: noop
             }, user({}), undefined, [ hostTeam, opponentTeam, anotherTeam ], season);
@@ -355,6 +308,341 @@ describe('MasterDraw', () => {
             expect(updatedTournament).not.toBeNull();
             expect(updatedTournament?.save).toEqual(true);
             expect(updatedTournament?.updated.opponent).toEqual('ANOTHER TEAM');
+        });
+
+        it('does not save tournament when only host player set', async () => {
+            const playerA = playerBuilder('PLAYER A').build();
+            const playerB = playerBuilder('PLAYER B').build();
+            const teamA = teamBuilder('TEAM A').forSeason(season, undefined, [playerA]).build();
+            const teamB = teamBuilder('TEAM B').forSeason(season, undefined, [playerB]).build();
+            await renderComponent({
+                tournamentData: tournament.host('TEAM A').opponent('TEAM B').build(),
+                readOnly: false,
+                setTournamentData,
+                patchData: noop
+            }, user({}), undefined, [teamA, teamB], season);
+
+            const newMatchRow = context.container.querySelector('table tbody tr:last-child')!;
+            await doSelectOption(newMatchRow.querySelector('td:nth-child(2) .dropdown-menu'), 'PLAYER A');
+
+            reportedError.verifyNoError();
+            expect(updatedTournament).toBeNull();
+        });
+
+        it('does not save tournament when only opponent player set', async () => {
+            const playerA = playerBuilder('PLAYER A').build();
+            const playerB = playerBuilder('PLAYER B').build();
+            const teamA = teamBuilder('TEAM A').forSeason(season, undefined, [playerA]).build();
+            const teamB = teamBuilder('TEAM B').forSeason(season, undefined, [playerB]).build();
+            await renderComponent({
+                tournamentData: tournament.host('TEAM A').opponent('TEAM B').build(),
+                readOnly: false,
+                setTournamentData,
+                patchData: noop
+            }, user({}), undefined, [teamA, teamB], season);
+
+            const newMatchRow = context.container.querySelector('table tbody tr:last-child')!;
+            await doSelectOption(newMatchRow.querySelector('td:nth-child(4) .dropdown-menu'), 'PLAYER B');
+
+            reportedError.verifyNoError();
+            expect(updatedTournament).toBeNull();
+        });
+
+        it('can add host player', async () => {
+            const teamA = teamBuilder('TEAM A').forSeason(season, division).build();
+            const teamB = teamBuilder('TEAM B').forSeason(season, division).build();
+            await renderComponent({
+                tournamentData: tournament.host('TEAM A').opponent('TEAM B').build(),
+                readOnly: false,
+                setTournamentData,
+                patchData: noop
+            }, user({}), undefined, [teamA, teamB], season);
+            playerCreatedCallback = () => {
+                const teamSeason = teamA.seasons!.find(ts => ts.seasonId === season.id)!;
+                teamSeason.players!.push({
+                    id: createTemporaryId(),
+                    name: 'NEW PLAYER',
+                });
+            }
+
+            const newMatchRow = context.container.querySelector('table tbody tr:last-child')!;
+            await doSelectOption(newMatchRow.querySelector('td:nth-child(2) .dropdown-menu'), '➕ New Player/s');
+            await doChange(context.container.querySelector('.modal-dialog')!, 'textarea', 'NEW PLAYER', context.user);
+            await doClick(findButton(context.container.querySelector('.modal-dialog')!, 'Add players'));
+            await doSelectOption(newMatchRow.querySelector('td:nth-child(2) .dropdown-menu'), 'NEW PLAYER');
+
+            reportedError.verifyNoError();
+            expect(createdPlayer).toEqual({
+                seasonId: season.id,
+                divisionId: division.id,
+                teamId: teamA.id,
+                player: {
+                    name: 'NEW PLAYER',
+                    captain: false,
+                }
+            });
+        });
+
+        it('can add opponent player', async () => {
+            const teamA = teamBuilder('TEAM A').forSeason(season, division).build();
+            const teamB = teamBuilder('TEAM B').forSeason(season, division).build();
+            await renderComponent({
+                tournamentData: tournament.host('TEAM A').opponent('TEAM B').build(),
+                readOnly: false,
+                setTournamentData,
+                patchData: noop
+            }, user({}), undefined, [teamA, teamB], season);
+            playerCreatedCallback = () => {
+                const teamSeason = teamB.seasons!.find(ts => ts.seasonId === season.id)!;
+                teamSeason.players!.push({
+                    id: createTemporaryId(),
+                    name: 'NEW PLAYER',
+                });
+            }
+
+            const newMatchRow = context.container.querySelector('table tbody tr:last-child')!;
+            await doSelectOption(newMatchRow.querySelector('td:nth-child(4) .dropdown-menu'), '➕ New Player/s');
+            await doChange(context.container.querySelector('.modal-dialog')!, 'textarea', 'NEW PLAYER', context.user);
+            await doClick(findButton(context.container.querySelector('.modal-dialog')!, 'Add players'));
+            await doSelectOption(newMatchRow.querySelector('td:nth-child(4) .dropdown-menu'), 'NEW PLAYER');
+
+            reportedError.verifyNoError();
+            expect(createdPlayer).toEqual({
+                seasonId: season.id,
+                divisionId: division.id,
+                teamId: teamB.id,
+                player: {
+                    name: 'NEW PLAYER',
+                    captain: false,
+                }
+            });
+        });
+
+        it('saves tournament when both players are set', async () => {
+            const playerA = playerBuilder('PLAYER A').build();
+            const playerB = playerBuilder('PLAYER B').build();
+            const teamA = teamBuilder('TEAM A').forSeason(season, undefined, [playerA]).build();
+            const teamB = teamBuilder('TEAM B').forSeason(season, undefined, [playerB]).build();
+            const matchOptionDefaults = matchOptionsBuilder().numberOfLegs(7).build();
+            const props = new tournamentContainerPropsBuilder()
+                .withMatchOptionDefaults(matchOptionDefaults)
+                .build();
+            await renderComponent({
+                tournamentData: tournament.host('TEAM A').opponent('TEAM B').build(),
+                readOnly: false,
+                setTournamentData,
+                patchData: noop,
+            }, user({}), props, [teamA, teamB], season);
+
+            const newMatchRow = context.container.querySelector('table tbody tr:last-child')!;
+            await doSelectOption(newMatchRow.querySelector('td:nth-child(2) .dropdown-menu'), 'PLAYER A');
+            await doSelectOption(newMatchRow.querySelector('td:nth-child(4) .dropdown-menu'), 'PLAYER B');
+
+            reportedError.verifyNoError();
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament?.save).toEqual(true);
+            expect(updatedTournament?.updated.round?.matches).toEqual([{
+                id: expect.any(String),
+                sideA: {
+                    id: expect.any(String),
+                    name: 'PLAYER A',
+                    players: [{
+                        id: playerA.id,
+                        name: playerA.name,
+                    }],
+                },
+                sideB: {
+                    id: expect.any(String),
+                    name: 'PLAYER B',
+                    players: [{
+                        id: playerB.id,
+                        name: playerB.name,
+                    }],
+                },
+            }]);
+            expect(updatedTournament?.updated.round?.matchOptions).toEqual([{
+                numberOfLegs: 7,
+            }]);
+        });
+
+        it('saves tournament when sideA changed for existing match', async () => {
+            const playerA = playerBuilder('PLAYER A').build();
+            const playerB = playerBuilder('PLAYER B').build();
+            const playerC = playerBuilder('PLAYER C').build();
+            const teamA = teamBuilder('TEAM A').forSeason(season, undefined, [playerA, playerC]).build();
+            const teamB = teamBuilder('TEAM B').forSeason(season, undefined, [playerB]).build();
+            await renderComponent({
+                tournamentData: tournament.host('TEAM A').opponent('TEAM B')
+                    .round((r: ITournamentRoundBuilder) => r
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA('PLAYER A', undefined, playerA).sideB('PLAYER B', undefined, playerB)))
+                    .build(),
+                readOnly: false,
+                setTournamentData,
+                patchData: noop
+            }, user({}), undefined, [teamA, teamB], season);
+
+            const newMatchRow = context.container.querySelector('table tbody tr:first-child')!;
+            await doSelectOption(newMatchRow.querySelector('td:nth-child(2) .dropdown-menu'), 'PLAYER C');
+
+            reportedError.verifyNoError();
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament?.save).toEqual(true);
+            expect(updatedTournament?.updated.round?.matches).toEqual([{
+                id: expect.any(String),
+                sideA: {
+                    id: expect.any(String),
+                    name: 'PLAYER C',
+                    players: [{
+                        id: playerC.id,
+                        name: playerC.name,
+                    }],
+                },
+                sideB: {
+                    id: expect.any(String),
+                    name: 'PLAYER B',
+                    players: [{
+                        id: playerB.id,
+                        name: playerB.name,
+                    }],
+                },
+            }]);
+        });
+
+        it('saves tournament when sideA changed for existing match', async () => {
+            const playerA = playerBuilder('PLAYER A').build();
+            const playerB = playerBuilder('PLAYER B').build();
+            const playerD = playerBuilder('PLAYER D').build();
+            const teamA = teamBuilder('TEAM A').forSeason(season, undefined, [playerA]).build();
+            const teamB = teamBuilder('TEAM B').forSeason(season, undefined, [playerB, playerD]).build();
+            await renderComponent({
+                tournamentData: tournament.host('TEAM A').opponent('TEAM B')
+                    .round((r: ITournamentRoundBuilder) => r
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA('PLAYER A', undefined, playerA).sideB('PLAYER B', undefined, playerB)))
+                    .build(),
+                readOnly: false,
+                setTournamentData,
+                patchData: noop
+            }, user({}), undefined, [teamA, teamB], season);
+
+            const newMatchRow = context.container.querySelector('table tbody tr:first-child')!;
+            await doSelectOption(newMatchRow.querySelector('td:nth-child(4) .dropdown-menu'), 'PLAYER D');
+
+            reportedError.verifyNoError();
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament?.save).toEqual(true);
+            expect(updatedTournament?.updated.round?.matches).toEqual([{
+                id: expect.any(String),
+                sideA: {
+                    id: expect.any(String),
+                    name: 'PLAYER A',
+                    players: [{
+                        id: playerA.id,
+                        name: playerA.name,
+                    }],
+                },
+                sideB: {
+                    id: expect.any(String),
+                    name: 'PLAYER D',
+                    players: [{
+                        id: playerD.id,
+                        name: playerD.name,
+                    }],
+                },
+            }]);
+        });
+
+        it('cannot change host when match exists', async () => {
+            const match = tournamentMatchBuilder()
+                .sideA('SIDE A')
+                .sideB('SIDE B')
+                .build();
+            const tournamentData = tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
+            const account = user({});
+            const containerProps = new tournamentContainerPropsBuilder({ tournamentData });
+
+            await renderComponent({
+                tournamentData: tournamentData,
+                readOnly: false,
+                setTournamentData,
+                patchData: noop
+            }, account, containerProps.build());
+
+            expect(context.container.querySelector('[datatype="host"] .dropdown-menu')).toBeNull();
+            expect(context.container.querySelector('[datatype="opponent"] .dropdown-menu')).toBeNull();
+            reportedError.verifyNoError();
+        });
+
+        it('can delete match when permitted', async () => {
+            const tournamentData = tournament
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA('SIDE A').sideB('SIDE B'))
+                    .withMatchOption((mo: IMatchOptionsBuilder) => mo))
+                .build();
+            const account = user({
+                recordScoresAsYouGo: true,
+            });
+            const containerProps = new tournamentContainerPropsBuilder({ tournamentData });
+
+            await renderComponent({
+                tournamentData: tournamentData,
+                readOnly: false,
+                setTournamentData,
+                patchData: noop
+            }, account, containerProps.build());
+            context.prompts.respondToConfirm('Are you sure you want to remove this match?', true);
+
+            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), '🗑️ 1'));
+
+            reportedError.verifyNoError();
+            expect(updatedTournament?.save).toEqual(true);
+            expect(updatedTournament?.updated.round?.matches).toEqual([]);
+            expect(updatedTournament?.updated.round?.matchOptions).toEqual([]);
+        });
+
+        it('does not delete match when cancelled', async () => {
+            const match = tournamentMatchBuilder()
+                .sideA('SIDE A')
+                .sideB('SIDE B')
+                .build();
+            const tournamentData = tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
+            const account = user({
+                recordScoresAsYouGo: true,
+            });
+            const containerProps = new tournamentContainerPropsBuilder({ tournamentData });
+
+            await renderComponent({
+                tournamentData: tournamentData,
+                readOnly: false,
+                setTournamentData,
+                patchData: noop
+            }, account, containerProps.build());
+            context.prompts.respondToConfirm('Are you sure you want to remove this match?', false);
+
+            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), '🗑️ 1'));
+
+            reportedError.verifyNoError();
+            expect(updatedTournament).toEqual(null);
+        });
+
+        it('cannot not delete match when not permitted', async () => {
+            const match = tournamentMatchBuilder()
+                .sideA('SIDE A')
+                .sideB('SIDE B')
+                .build();
+            const tournamentData = tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
+            const account = user({
+                recordScoresAsYouGo: true,
+            });
+            const containerProps = new tournamentContainerPropsBuilder({ tournamentData });
+
+            await renderComponent({
+                tournamentData: tournamentData,
+                readOnly: true,
+                setTournamentData,
+                patchData: noop
+            }, account, containerProps.build());
+
+            expect(context.container.innerHTML).not.toContain('🗑️');
         });
 
         it('can open sayg dialog when permitted', async () => {
@@ -371,8 +659,7 @@ describe('MasterDraw', () => {
             await renderComponent({
                 tournamentData: tournamentData,
                 readOnly: false,
-                setEditTournament,
-                setTournamentData: noop,
+                setTournamentData,
                 patchData: noop
             }, account, containerProps.build());
 
@@ -400,8 +687,7 @@ describe('MasterDraw', () => {
             await renderComponent({
                 tournamentData: tournamentData,
                 readOnly: false,
-                setEditTournament,
-                setTournamentData: noop,
+                setTournamentData,
                 patchData: noop
             }, account, containerProps.build());
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), START_SCORING));

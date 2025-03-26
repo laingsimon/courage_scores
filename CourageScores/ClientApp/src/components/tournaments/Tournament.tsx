@@ -5,12 +5,11 @@ import {ErrorDisplay} from "../common/ErrorDisplay";
 import {any, sortBy} from "../../helpers/collections";
 import {asyncCallback, propChanged} from "../../helpers/events";
 import {Loading} from "../common/Loading";
-import {EditTournament} from "./EditTournament";
 import {useDependencies} from "../common/IocContainer";
 import {useApp} from "../common/AppContainer";
 import {Dialog} from "../common/Dialog";
 import {EditPlayerDetails} from "../division_players/EditPlayerDetails";
-import {createTemporaryId, EMPTY_ID} from "../../helpers/projection";
+import {EMPTY_ID} from "../../helpers/projection";
 import {TournamentContainer} from "./TournamentContainer";
 import {SuperLeaguePrintout} from "./superleague/SuperLeaguePrintout";
 import {PrintableSheet} from "./PrintableSheet";
@@ -46,7 +45,6 @@ import {
 import {useBranding} from "../common/BrandingContainer";
 import {renderDate} from "../../helpers/rendering";
 import {isEqual} from "../common/ObjectComparer";
-import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {DivisionDataSeasonDto} from "../../interfaces/models/dtos/Division/DivisionDataSeasonDto";
 
 export interface ITournamentPlayerMap {
@@ -74,17 +72,15 @@ export function Tournament() {
     const [alreadyPlaying, setAlreadyPlaying] = useState<ITournamentPlayerMap | null>(null);
     const [addPlayerDialogOpen, setAddPlayerDialogOpen] = useState<boolean>(false);
     const [newPlayerDetails, setNewPlayerDetails] = useState<EditTeamPlayerDto>({name: '', captain: false});
-    const [warnBeforeEditDialogClose, setWarnBeforeEditDialogClose] = useState<string | null>(null);
     const division: DivisionDto | null = tournamentData && tournamentData.divisionId
         ? divisions.filter(d => d.id === tournamentData.divisionId)[0]
         : null;
-    const [editTournament, setEditTournament] = useState<string | undefined>(undefined);
+    const [editTournament, setEditTournament] = useState<boolean>(false);
     const [showPhotoManager, setShowPhotoManager] = useState<boolean>(false);
     const [photosEnabled, setPhotosEnabled] = useState<boolean>(false);
     const {setTitle} = useBranding();
     const [originalTournamentData, setOriginalTournamentData] = useState<TournamentGameDto | null>(null);
     const [draggingSide, setDraggingSide] = useState<TournamentSideDto | undefined>(undefined);
-    const [newMatch, setNewMatch] = useState<TournamentMatchDto>(createNewMatch());
     const [playerIdToTeamMap, setPlayerIdToTeamMap] = useState<IPlayerIdToTeamMap>({});
     const [saveRequired, setSaveRequired] = useState<number>(0);
 
@@ -144,14 +140,6 @@ export function Tournament() {
         }
 
         return map;
-    }
-
-    function createNewMatch(): TournamentMatchDto {
-        return {
-            sideA: null!,
-            sideB: null!,
-            id: createTemporaryId(),
-        };
     }
 
     async function loadFixtureData() {
@@ -369,16 +357,10 @@ export function Tournament() {
     }
 
     async function closeEditTournamentDialog() {
-        // if any matches exist, but have not been added, add them?
-        if (warnBeforeEditDialogClose) {
-            window.alert(warnBeforeEditDialogClose);
-            return;
-        }
-
         if (!isEqual(originalTournamentData, tournamentData)) {
             await saveTournament();
         }
-        setEditTournament(undefined);
+        setEditTournament(false);
     }
 
     if (loading !== 'ready') {
@@ -412,7 +394,7 @@ export function Tournament() {
                 originalSeasonData={season}
                 originalDivisionData={division!}
                 overrideMode="fixtures"/>
-            {canManageTournaments && tournamentData && editTournament === 'details'
+            {canManageTournaments && tournamentData && editTournament
                 ? (<Dialog className="d-print-none">
                     <div>
                         <TournamentDetails
@@ -436,7 +418,6 @@ export function Tournament() {
                     alreadyPlaying={alreadyPlaying!}
                     allPlayers={allPlayers}
                     saveTournament={saveTournament}
-                    setWarnBeforeEditDialogClose={asyncCallback(setWarnBeforeEditDialogClose)}
                     matchOptionDefaults={getMatchOptionDefaults(tournamentData)}
                     saving={saving}
                     editTournament={editTournament}
@@ -446,21 +427,7 @@ export function Tournament() {
                     setPreventScroll={setPreventScroll}
                     draggingSide={draggingSide}
                     setDraggingSide={asyncCallback(setDraggingSide)}
-                    newMatch={newMatch}
-                    setNewMatch={asyncCallback(setNewMatch)}
                     playerIdToTeamMap={playerIdToTeamMap}>
-                    {canManageTournaments && tournamentData && editTournament === 'matches'
-                        ? (<Dialog title="Edit sides and matches" className="d-print-none">
-                            <div>
-                                <EditTournament canSave={true} saving={saving} />
-                            </div>
-                            <div className="modal-footer px-0 pb-0">
-                                <div className="left-aligned">
-                                    <button className="btn btn-secondary" onClick={closeEditTournamentDialog}>{hasChanged ? 'Save' : 'Close'}</button>
-                                </div>
-                            </div>
-                        </Dialog>)
-                        : null}
                     {tournamentData.singleRound && !(canManageTournaments || canEnterTournamentResults) ? (<SuperLeaguePrintout division={division!} readOnly={true}/>) : null}
                     {tournamentData.singleRound && (canManageTournaments || canEnterTournamentResults) ? (<div>
                         <SuperLeaguePrintout division={division!} patchData={applyPatch} />
