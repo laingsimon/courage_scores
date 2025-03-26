@@ -40,6 +40,7 @@ import {playerBuilder} from "../../../helpers/builders/players";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {IPlayerApi} from "../../../interfaces/apis/IPlayerApi";
 import {EditTeamPlayerDto} from "../../../interfaces/models/dtos/Team/EditTeamPlayerDto";
+import {IMatchOptionsBuilder, matchOptionsBuilder} from "../../../helpers/builders/games";
 
 describe('MasterDraw', () => {
     let context: TestContext;
@@ -422,12 +423,16 @@ describe('MasterDraw', () => {
             const playerB = playerBuilder('PLAYER B').build();
             const teamA = teamBuilder('TEAM A').forSeason(season, undefined, [playerA]).build();
             const teamB = teamBuilder('TEAM B').forSeason(season, undefined, [playerB]).build();
+            const matchOptionDefaults = matchOptionsBuilder().numberOfLegs(7).build();
+            const props = new tournamentContainerPropsBuilder()
+                .withMatchOptionDefaults(matchOptionDefaults)
+                .build();
             await renderComponent({
                 tournamentData: tournament.host('TEAM A').opponent('TEAM B').build(),
                 readOnly: false,
                 setTournamentData,
-                patchData: noop
-            }, user({}), undefined, [teamA, teamB], season);
+                patchData: noop,
+            }, user({}), props, [teamA, teamB], season);
 
             const newMatchRow = context.container.querySelector('table tbody tr:last-child')!;
             await doSelectOption(newMatchRow.querySelector('td:nth-child(2) .dropdown-menu'), 'PLAYER A');
@@ -454,6 +459,9 @@ describe('MasterDraw', () => {
                         name: playerB.name,
                     }],
                 },
+            }]);
+            expect(updatedTournament?.updated.round?.matchOptions).toEqual([{
+                numberOfLegs: 7,
             }]);
         });
 
@@ -565,11 +573,11 @@ describe('MasterDraw', () => {
         });
 
         it('can delete match when permitted', async () => {
-            const match = tournamentMatchBuilder()
-                .sideA('SIDE A')
-                .sideB('SIDE B')
+            const tournamentData = tournament
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA('SIDE A').sideB('SIDE B'))
+                    .withMatchOption((mo: IMatchOptionsBuilder) => mo))
                 .build();
-            const tournamentData = tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
             const account = user({
                 recordScoresAsYouGo: true,
             });
@@ -588,6 +596,7 @@ describe('MasterDraw', () => {
             reportedError.verifyNoError();
             expect(updatedTournament?.save).toEqual(true);
             expect(updatedTournament?.updated.round?.matches).toEqual([]);
+            expect(updatedTournament?.updated.round?.matchOptions).toEqual([]);
         });
 
         it('does not delete match when cancelled', async () => {
