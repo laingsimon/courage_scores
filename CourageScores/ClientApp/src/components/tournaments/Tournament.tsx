@@ -45,14 +45,9 @@ import {
 import {useBranding} from "../common/BrandingContainer";
 import {renderDate} from "../../helpers/rendering";
 import {isEqual} from "../common/ObjectComparer";
-import {DivisionDataSeasonDto} from "../../interfaces/models/dtos/Division/DivisionDataSeasonDto";
 
 export interface ITournamentPlayerMap {
     [id: string]: DivisionTournamentFixtureDetailsDto;
-}
-
-export interface IPlayerIdToTeamMap {
-    [playerId: string]: TeamDto;
 }
 
 export function Tournament() {
@@ -65,7 +60,6 @@ export function Tournament() {
     const [loading, setLoading] = useState<string>('init');
     const [saving, setSaving] = useState<boolean>(false);
     const [patching, setPatching] = useState<boolean>(false);
-    const [preventScroll, setPreventScroll] = useState<boolean>(false);
     const [tournamentData, setTournamentData] = useState<TournamentGameDto | null>(null);
     const [saveError, setSaveError] = useState<IClientActionResultDto<TournamentGameDto> | null>(null);
     const [allPlayers, setAllPlayers] = useState<ISelectablePlayer[]>([]);
@@ -80,8 +74,6 @@ export function Tournament() {
     const [photosEnabled, setPhotosEnabled] = useState<boolean>(false);
     const {setTitle} = useBranding();
     const [originalTournamentData, setOriginalTournamentData] = useState<TournamentGameDto | null>(null);
-    const [draggingSide, setDraggingSide] = useState<TournamentSideDto | undefined>(undefined);
-    const [playerIdToTeamMap, setPlayerIdToTeamMap] = useState<IPlayerIdToTeamMap>({});
     const [saveRequired, setSaveRequired] = useState<number>(0);
 
     useEffect(() => {
@@ -120,27 +112,6 @@ export function Tournament() {
         // noinspection JSIgnoredPromiseFromCall
         saveTournament(true);
     }, [saveRequired]);
-
-    function buildPlayerIdToTeamMap(season?: DivisionDataSeasonDto, teams?: TeamDto[]): { [playerId: string]: TeamDto } {
-        if (!season || !teams) {
-            return {};
-        }
-
-        const map: { [playerId: string]: TeamDto } = {};
-
-        for (const team of teams) {
-            const teamSeason = team.seasons?.filter(ts => ts.seasonId === season.id)[0];
-            if (!teamSeason || !teamSeason.players) {
-                continue;
-            }
-
-            for (const teamPlayer of teamSeason.players) {
-                map[teamPlayer.id] = team;
-            }
-        }
-
-        return map;
-    }
 
     async function loadFixtureData() {
         try {
@@ -308,7 +279,6 @@ export function Tournament() {
             }
 
             setTournamentData(newData);
-            setPlayerIdToTeamMap(buildPlayerIdToTeamMap(seasons.filter(s => s.id === newData.seasonId)[0], teams));
             setAllPlayers(getAllPlayers(newData));
             if (save) {
                 setSaveRequired(saveRequired + 1);
@@ -419,15 +389,8 @@ export function Tournament() {
                     allPlayers={allPlayers}
                     saveTournament={saveTournament}
                     matchOptionDefaults={getMatchOptionDefaults(tournamentData)}
-                    saving={saving}
-                    editTournament={editTournament}
                     setEditTournament={canManageTournaments ? asyncCallback(setEditTournament) : undefined}
-                    liveOptions={liveOptions}
-                    preventScroll={preventScroll}
-                    setPreventScroll={setPreventScroll}
-                    draggingSide={draggingSide}
-                    setDraggingSide={asyncCallback(setDraggingSide)}
-                    playerIdToTeamMap={playerIdToTeamMap}>
+                    liveOptions={liveOptions}>
                     {tournamentData.singleRound && !(canManageTournaments || canEnterTournamentResults) ? (<SuperLeaguePrintout division={division!} readOnly={true}/>) : null}
                     {tournamentData.singleRound && (canManageTournaments || canEnterTournamentResults) ? (<div>
                         <SuperLeaguePrintout division={division!} patchData={applyPatch} />

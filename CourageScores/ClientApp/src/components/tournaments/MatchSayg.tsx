@@ -10,7 +10,7 @@ import {ErrorDisplay} from "../common/ErrorDisplay";
 import {ILiveOptions} from "../../live/ILiveOptions";
 import {Dialog} from "../common/Dialog";
 import {ILoadedScoreAsYouGoDto, SaygLoadingContainer} from "../sayg/SaygLoadingContainer";
-import {SuperleagueMatchHeading} from "./SuperleagueMatchHeading";
+import {MatchHeading} from "./MatchHeading";
 import {DebugOptions} from "../common/DebugOptions";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {count} from "../../helpers/collections";
@@ -41,7 +41,7 @@ export interface IMatchSaygProps {
 export function MatchSayg({
                               match, matchIndex, matchOptions, patchData, readOnly, showViewSayg, firstLegPlayerSequence,
                               finalLegPlayerSequence, initialOneDartAverage } : IMatchSaygProps) {
-    const {tournamentData, setTournamentData, saveTournament, setPreventScroll} = useTournament();
+    const {tournamentData, setTournamentData, saveTournament} = useTournament();
     const {account, onError, fullScreen} = useApp();
     const {tournamentApi, settings} = useDependencies();
     const [saygOpen, setSaygOpen] = useState<boolean>(false);
@@ -54,7 +54,6 @@ export function MatchSayg({
     const on180: (player: TournamentPlayerDto) => UntypedPromise = add180(tournamentData, setTournamentData!);
 
     async function changeDialogState(state: boolean) {
-        setPreventScroll(state);
         setSaygOpen(state);
         const numberOfLegs: number = matchOptions.numberOfLegs!;
         const finished: boolean = (scoreA > numberOfLegs / 2.0) || (scoreB > numberOfLegs / 2.0);
@@ -178,7 +177,7 @@ export function MatchSayg({
                 finalLegPlayerSequence={finalLegPlayerSequence}
                 onFinished={fullScreen.exitFullScreen}
                 initialOneDartAverage={initialOneDartAverage}>
-                {finished ? (<SuperleagueMatchHeading match={match} />) : null}
+                {finished ? (<MatchHeading match={match} />) : null}
             </SaygLoadingContainer>
             {finished || !fullScreen.isFullScreen ? (<div className="modal-footer px-0 pb-0 mt-3">
                 <div className="left-aligned mx-0">

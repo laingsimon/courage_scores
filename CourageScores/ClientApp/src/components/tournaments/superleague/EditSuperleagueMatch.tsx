@@ -25,12 +25,11 @@ export interface IEditSuperleagueMatchProps {
     tournamentData: TournamentGameDto;
     setMatchData(update: TournamentMatchDto): UntypedPromise;
     deleteMatch?(): UntypedPromise;
-    preventScroll?: boolean;
     readOnly?: boolean;
     patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string): Promise<boolean>;
 }
 
-export function EditSuperleagueMatch({ index, match, tournamentData, setMatchData, preventScroll, readOnly, patchData, deleteMatch }: IEditSuperleagueMatchProps) {
+export function EditSuperleagueMatch({ index, match, tournamentData, setMatchData, readOnly, patchData, deleteMatch }: IEditSuperleagueMatchProps) {
     const {teams, reloadTeams} = useApp();
     const oddNumberedMatch: boolean = ((index ?? 0) + 1) % 2 !== 0;
     const matchOptions: GameMatchOptionDto = {
@@ -132,17 +131,19 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
 
     return (<tr key={match.id}>
         <td>
-            {deleteMatch && !readOnly ? <button className="btn btn-sm btn-danger no-wrap" onClick={deleteMatch}>🗑️ {index === undefined ? null : index + 1}</button> : (index === undefined ? null : index + 1)}
+            {deleteMatch && !readOnly
+                ? <button className="btn btn-sm btn-danger no-wrap" onClick={deleteMatch}>🗑️ {index! + 1}</button>
+                : (index === undefined ? null : index + 1)}
         </td>
         <td>
             {readOnly
-                ? (preventScroll ? '' : match.sideA?.name)
+                ? match.sideA?.name
                 : <BootstrapDropdown value={match.sideA?.players![0]?.id} options={hostPlayers.concat(newPlayer)} onChange={changeHostSide} />}
         </td>
         <td>v</td>
         <td>
             {readOnly
-                ? (preventScroll ? '' : match.sideB?.name)
+                ? match.sideB?.name
                 : <BootstrapDropdown value={match.sideB?.players![0]?.id} options={opponentPlayers.concat(newPlayer)} onChange={changeOpponentSide} />}
         </td>
         <td className="d-print-none">

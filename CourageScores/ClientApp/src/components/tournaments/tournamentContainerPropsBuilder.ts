@@ -17,8 +17,6 @@ export class tournamentContainerPropsBuilder
 
     constructor(initProps?: Partial<ITournamentContainerProps>) {
         this.props = Object.assign({
-            preventScroll: false,
-            setPreventScroll: noop,
             setDraggingSide: noop,
             saveTournament: noop,
             setEditTournament: noop,

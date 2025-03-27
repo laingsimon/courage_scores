@@ -32,7 +32,7 @@ interface ISaygDataMap {
 
 export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeaguePrintoutProps) {
     const {onError} = useApp();
-    const {tournamentData, preventScroll, setEditTournament, setTournamentData} = useTournament();
+    const {tournamentData, setEditTournament, setTournamentData} = useTournament();
     const {saygApi, webSocket} = useDependencies();
     const location = useLocation();
     const {subscriptions} = useLive();
@@ -150,22 +150,21 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
             <MasterDraw
                 tournamentData={tournamentData}
                 setTournamentData={setTournamentData!}
-                preventScroll={preventScroll}
                 patchData={patchDataAndTriggerSaygReload}
                 readOnly={readOnly || !setEditTournament || !setTournamentData} />
-            {preventScroll ? null : (<MatchLog
+            <MatchLog
                 host={tournamentData.host!}
                 opponent={tournamentData.opponent!}
                 showWinner={showWinner}
                 noOfThrows={noOfThrows}
-                saygMatches={saygMatches}/>)}
-            {preventScroll ? null : (<Summary
+                saygMatches={saygMatches}/>
+            <Summary
                 showWinner={showWinner}
                 noOfLegs={noOfLegs}
                 saygMatches={saygMatches}
                 host={tournamentData.host!}
-                opponent={tournamentData.opponent!}/>)}
-            {preventScroll ? null : (<MatchReport
+                opponent={tournamentData.opponent!}/>
+            <MatchReport
                 gender={tournamentData.gender!}
                 host={tournamentData.host!}
                 opponent={tournamentData.opponent!}
@@ -173,8 +172,7 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
                 division={division}
                 showWinner={showWinner}
                 noOfThrows={noOfThrows}
-                noOfLegs={noOfLegs}/>)}
-            {preventScroll ? (<div>Content hidden to prevent vertical scrolling whilst entering scores</div>) : null}
+                noOfLegs={noOfLegs}/>
         </div>);
     } catch (e) {
         /* istanbul ignore next */

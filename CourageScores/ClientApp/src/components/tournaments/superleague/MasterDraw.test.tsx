@@ -41,6 +41,11 @@ import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {IPlayerApi} from "../../../interfaces/apis/IPlayerApi";
 import {EditTeamPlayerDto} from "../../../interfaces/models/dtos/Team/EditTeamPlayerDto";
 import {IMatchOptionsBuilder, matchOptionsBuilder} from "../../../helpers/builders/games";
+import {PatchTournamentDto} from "../../../interfaces/models/dtos/Game/PatchTournamentDto";
+import {PatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
+import {ENTER_SCORE_BUTTON} from "../../../helpers/constants";
+import {checkoutWith, enterScores, keyPad} from "../../../helpers/sayg";
+import {UpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 
 describe('MasterDraw', () => {
     let context: TestContext;
@@ -49,6 +54,7 @@ describe('MasterDraw', () => {
     let updatedTournament: { updated: TournamentGameDto, save?: boolean } | null = null;
     let createdPlayer: { divisionId: string, seasonId: string, teamId: string, player: EditTeamPlayerDto } | null = null;
     let playerCreatedCallback: (() => void) | null = null;
+    let patchedData: { patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string }[] = [];
 
     const tournamentApi = api<ITournamentGameApi>({
         async update(_: EditTournamentGameDto): Promise<IClientActionResultDto<TournamentGameDto>> {
@@ -74,7 +80,13 @@ describe('MasterDraw', () => {
     });
     const saygApi = api<ISaygApi>({
         async get(id: string): Promise<RecordedScoreAsYouGoDto | null> {
-            return saygBuilder(id).build();
+            return saygBuilder(id).yourName('HOME').opponentName('AWAY').numberOfLegs(3).startingScore(501).build();
+        },
+        async upsert(data: UpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> {
+            return {
+                success: true,
+                result: Object.assign({ yourName: data.yourName!, id: data.id! }, data),
+            }
         }
     });
     const playerApi = api<IPlayerApi>({
@@ -108,10 +120,16 @@ describe('MasterDraw', () => {
         updatedTournament = null;
         playerCreatedCallback = null;
         createdPlayer = null;
+        patchedData = [];
     });
 
     async function setTournamentData(updated: TournamentGameDto, save?: boolean) {
         updatedTournament = { updated, save };
+    }
+
+    async function patchData(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string): Promise<boolean> {
+        patchedData.push({ patch, nestInRound, saygId });
+        return true;
     }
 
     function user(access: AccessDto): UserDto {
@@ -558,14 +576,13 @@ describe('MasterDraw', () => {
                 .build();
             const tournamentData = tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
             const account = user({});
-            const containerProps = new tournamentContainerPropsBuilder({ tournamentData });
 
             await renderComponent({
                 tournamentData: tournamentData,
                 readOnly: false,
                 setTournamentData,
                 patchData: noop
-            }, account, containerProps.build());
+            }, account);
 
             expect(context.container.querySelector('[datatype="host"] .dropdown-menu')).toBeNull();
             expect(context.container.querySelector('[datatype="opponent"] .dropdown-menu')).toBeNull();
@@ -581,14 +598,13 @@ describe('MasterDraw', () => {
             const account = user({
                 recordScoresAsYouGo: true,
             });
-            const containerProps = new tournamentContainerPropsBuilder({ tournamentData });
 
             await renderComponent({
                 tournamentData: tournamentData,
                 readOnly: false,
                 setTournamentData,
                 patchData: noop
-            }, account, containerProps.build());
+            }, account);
             context.prompts.respondToConfirm('Are you sure you want to remove this match?', true);
 
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), '🗑️ 1'));
@@ -608,14 +624,13 @@ describe('MasterDraw', () => {
             const account = user({
                 recordScoresAsYouGo: true,
             });
-            const containerProps = new tournamentContainerPropsBuilder({ tournamentData });
 
             await renderComponent({
                 tournamentData: tournamentData,
                 readOnly: false,
                 setTournamentData,
                 patchData: noop
-            }, account, containerProps.build());
+            }, account);
             context.prompts.respondToConfirm('Are you sure you want to remove this match?', false);
 
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), '🗑️ 1'));
@@ -633,14 +648,13 @@ describe('MasterDraw', () => {
             const account = user({
                 recordScoresAsYouGo: true,
             });
-            const containerProps = new tournamentContainerPropsBuilder({ tournamentData });
 
             await renderComponent({
                 tournamentData: tournamentData,
                 readOnly: true,
                 setTournamentData,
                 patchData: noop
-            }, account, containerProps.build());
+            }, account);
 
             expect(context.container.innerHTML).not.toContain('🗑️');
         });
@@ -703,6 +717,129 @@ describe('MasterDraw', () => {
                 id: tournamentData.id,
                 matchId: match.id,
             })
+        });
+    });
+
+    describe('sayg', () => {
+        const season = seasonBuilder('SEASON').build();
+        const division = divisionBuilder('DIVISION').build();
+        const playerA = playerBuilder('PLAYER A').build();
+        const playerB = playerBuilder('PLAYER B').build();
+        const account = user({
+            recordScoresAsYouGo: true,
+        });
+        let tournament: ITournamentBuilder;
+
+        beforeEach(() => {
+            tournament = tournamentBuilder()
+                .singleRound()
+                .host('HOST')
+                .opponent('OPPONENT')
+                .gender('GENDER')
+                .date('2025-05-06')
+                .type('TYPE')
+                .forSeason(season)
+                .forDivision(division)
+                .round((r: ITournamentRoundBuilder) => r);
+        });
+
+        it('does not patch in 180s', async () => {
+            const match = tournamentMatchBuilder()
+                .sideA('SIDE A', undefined, playerA)
+                .sideB('SIDE B', undefined, playerB)
+                .saygId(createTemporaryId())
+                .build();
+            const tournamentData = tournament
+                .round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
+            await renderComponent({
+                tournamentData: tournamentData,
+                readOnly: false,
+                setTournamentData,
+                patchData
+            }, account);
+            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), START_SCORING));
+            reportedError.verifyNoError();
+
+            await keyPad(context, [ '1', '8', '0', ENTER_SCORE_BUTTON ]);
+
+            reportedError.verifyNoError();
+            expect(patchedData).toEqual([]);
+        });
+
+        it('does not patch in hi-checks', async () => {
+            const match = tournamentMatchBuilder()
+                .sideA('SIDE A', undefined, playerA)
+                .sideB('SIDE B', undefined, playerB)
+                .saygId(createTemporaryId())
+                .build();
+            const tournamentData = tournament
+                .round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
+            await renderComponent({
+                tournamentData: tournamentData,
+                readOnly: false,
+                setTournamentData,
+                patchData
+            }, account);
+            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), START_SCORING));
+            reportedError.verifyNoError();
+
+            await enterScores(
+                context,
+                [100, 100, 100, 100, 101],
+                [100, 100, 100, 100]);
+            await checkoutWith(context, '2');
+
+            reportedError.verifyNoError();
+            expect(patchedData).toEqual([{
+                nestInRound: true,
+                patch: {
+                    match: {
+                        scoreA: 0,
+                        scoreB: 1,
+                        sideA: expect.any(String),
+                        sideB: expect.any(String),
+                    },
+                },
+                saygId: match.saygId,
+            }]);
+        });
+
+        it('records regular checkout with a patch', async () => {
+            const match = tournamentMatchBuilder()
+                .sideA('SIDE A', undefined, playerA)
+                .sideB('SIDE B', undefined, playerB)
+                .saygId(createTemporaryId())
+                .build();
+            const tournamentData = tournament
+                .round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
+            await renderComponent({
+                tournamentData: tournamentData,
+                readOnly: false,
+                setTournamentData,
+                patchData
+            }, account);
+            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), START_SCORING));
+            reportedError.verifyNoError();
+
+            await enterScores(
+                context,
+                [100, 100, 100, 130, 71],
+                [100, 100, 100, 100]);
+            await checkoutWith(context, '2');
+
+            reportedError.verifyNoError();
+            expect(patchedData).toEqual([{
+                nestInRound: true,
+                patch: {
+                    match: {
+                        scoreA: 0,
+                        scoreB: 1,
+                        sideA: expect.any(String),
+                        sideB: expect.any(String),
+                    },
+                },
+                saygId: match.saygId,
+            }]);
         });
     });
 });

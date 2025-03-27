@@ -19,11 +19,10 @@ export interface IMasterDrawProps {
     patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string): Promise<boolean>;
     readOnly?: boolean;
     tournamentData: TournamentGameDto;
-    preventScroll?: boolean;
     setTournamentData(newData: TournamentGameDto, save?: boolean): UntypedPromise;
 }
 
-export function MasterDraw({patchData, readOnly, tournamentData, preventScroll, setTournamentData}: IMasterDrawProps) {
+export function MasterDraw({patchData, readOnly, tournamentData, setTournamentData}: IMasterDrawProps) {
     const {onError, teams} = useApp();
     const {matchOptionDefaults} = useTournament();
     const [newMatch, setNewMatch] = useState<TournamentMatchDto>(getEmptyMatch());
@@ -100,8 +99,8 @@ export function MasterDraw({patchData, readOnly, tournamentData, preventScroll, 
             <h2>Master draw</h2>
             <div className="d-flex flex-row">
                 <div>
-                    <table className={`table${preventScroll ? ' max-height-100' : ''}`}>
-                        {preventScroll ? null : (<thead>
+                    <table className="table">
+                        <thead>
                         <tr>
                             <th>#</th>
                             <th datatype="host">
@@ -119,7 +118,7 @@ export function MasterDraw({patchData, readOnly, tournamentData, preventScroll, 
                             </th>
                             <th className="d-print-none"></th>
                         </tr>
-                        </thead>)}
+                        </thead>
                         <tbody>
                         {tournamentData.round?.matches!.map((match: TournamentMatchDto, index: number) => {
                             return (<EditSuperleagueMatch
@@ -128,7 +127,6 @@ export function MasterDraw({patchData, readOnly, tournamentData, preventScroll, 
                                 match={match}
                                 setMatchData={async (update) => await setMatch(update, index)}
                                 readOnly={readOnly}
-                                preventScroll={preventScroll}
                                 tournamentData={tournamentData}
                                 patchData={patchData}
                                 deleteMatch={async () => await deleteMatch(index)} />);
@@ -136,12 +134,11 @@ export function MasterDraw({patchData, readOnly, tournamentData, preventScroll, 
                         {readOnly ? null : <EditSuperleagueMatch
                             match={newMatch}
                             setMatchData={updateNewMatch}
-                            preventScroll={preventScroll}
                             tournamentData={tournamentData} />}
                         </tbody>
                     </table>
                 </div>
-                {preventScroll ? null : (<div className="px-5" datatype="details">
+                <div className="px-5" datatype="details">
                     <div datatype="gender">{!readOnly
                         ? (<BootstrapDropdown
                             value={tournamentData.gender}
@@ -158,7 +155,7 @@ export function MasterDraw({patchData, readOnly, tournamentData, preventScroll, 
                             onChange={valueChanged(tournamentData, setTournamentData)}
                             onBlur={() => setTournamentData(tournamentData, true)} />)
                         : (<span className="fw-bold">Notes: {tournamentData.type}</span>)}</div>) : null}
-                </div>)}
+                </div>
             </div>
         </div>);
     } catch (e) {
