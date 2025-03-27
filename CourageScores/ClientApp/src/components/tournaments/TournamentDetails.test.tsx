@@ -131,63 +131,6 @@ describe('TournamentDetails', () => {
             expect(divisionAndBestOf!.textContent).toContain('Division');
             expect(divisionAndBestOf!.querySelector('.dropdown-item.active')!.textContent).toEqual('DIVISION');
         });
-
-        it('super league options when single round', async () => {
-            const tournamentData = tournamentBuilder()
-                .forSeason(season)
-                .forDivision(division)
-                .date('2023-01-02T00:00:00')
-                .address('ADDRESS')
-                .type('TYPE')
-                .notes('NOTES')
-                .host('HOST')
-                .opponent('OPPONENT')
-                .gender('men')
-                .singleRound()
-                .accoladesCount()
-                .build();
-
-            await renderComponent({ tournamentData, setTournamentData }, appProps({
-                account,
-                seasons: [season],
-                teams: [],
-                divisions: [division],
-            }));
-
-            const superLeagueOptions = context.container.querySelector('div[datatype="tournament-options"]');
-            expect(superLeagueOptions).toBeTruthy();
-            const hostInput = superLeagueOptions!.querySelector('input[name="host"]') as HTMLInputElement;
-            const opponentInput = superLeagueOptions!.querySelector('input[name="opponent"]') as HTMLInputElement;
-            expect(hostInput).toBeTruthy();
-            expect(hostInput.value).toEqual('HOST');
-            expect(opponentInput).toBeTruthy();
-            expect(opponentInput.value).toEqual('OPPONENT');
-            expect(superLeagueOptions!.querySelector('div[datatype="superleague-gender"] .dropdown-menu .active')!.textContent).toEqual('Men');
-        });
-
-        it('no super league options when not single round', async () => {
-            const tournamentData = tournamentBuilder()
-                .forSeason(season)
-                .forDivision(division)
-                .date('2023-01-02T00:00:00')
-                .address('ADDRESS')
-                .type('TYPE')
-                .notes('NOTES')
-                .host('HOST')
-                .opponent('OPPONENT')
-                .gender('men')
-                .accoladesCount()
-                .build();
-
-            await renderComponent({ tournamentData, setTournamentData }, appProps({
-                account,
-                seasons: [season],
-                teams: [],
-                divisions: [division],
-            }));
-
-            expect(context.container.querySelector('div[data-options-for="superleague"]')).toBeFalsy();
-        });
     });
 
     describe('interactivity', () => {
@@ -212,31 +155,6 @@ describe('TournamentDetails', () => {
                 exportData: true,
             }
         };
-
-        it('can update single round', async () => {
-            const tournamentData = tournamentBuilder()
-                .forSeason(season)
-                .forDivision(division)
-                .date('2023-01-02T00:00:00')
-                .address('ADDRESS')
-                .type('TYPE')
-                .notes('NOTES')
-                .accoladesCount()
-                .singleRound()
-                .updated('2023-07-01T00:00:00')
-                .build();
-            await renderComponent({ tournamentData, setTournamentData }, appProps({
-                account,
-                seasons: [season],
-                teams: [],
-                divisions: [division],
-            }));
-
-            const accoladesCountAndDivision = context.container.querySelector('div:nth-child(3)');
-            await doClick(accoladesCountAndDivision!, 'input[type="checkbox"]');
-
-            expect(updatedTournamentData!.singleRound).toEqual(false);
-        });
 
         it('can update accolades count', async () => {
             const tournamentData = tournamentBuilder()
@@ -283,81 +201,6 @@ describe('TournamentDetails', () => {
             await doSelectOption(context.container.querySelector('div[datatype="tournament-division"] .dropdown-menu'), 'All divisions');
 
             expect(updatedTournamentData!.divisionId).toEqual(null);
-        });
-
-        it('can update gender', async () => {
-            const tournamentData = tournamentBuilder()
-                .forSeason(season)
-                .forDivision(division)
-                .date('2023-01-02T00:00:00')
-                .address('ADDRESS')
-                .type('TYPE')
-                .notes('NOTES')
-                .accoladesCount()
-                .singleRound()
-                .updated('2023-07-01T00:00:00')
-                .build();
-            await renderComponent({ tournamentData, setTournamentData }, appProps({
-                account,
-                seasons: [season],
-                teams: [],
-                divisions: [division],
-            }));
-
-            const superLeagueOptions = context.container.querySelector('div[datatype="tournament-options"]');
-            await doSelectOption(superLeagueOptions!.querySelector('div[datatype="superleague-gender"] .dropdown-menu'), 'Women');
-
-            expect(updatedTournamentData!.gender).toEqual('women');
-        });
-
-        it('can update host', async () => {
-            const tournamentData = tournamentBuilder()
-                .forSeason(season)
-                .forDivision(division)
-                .date('2023-01-02T00:00:00')
-                .address('ADDRESS')
-                .type('TYPE')
-                .notes('NOTES')
-                .accoladesCount()
-                .singleRound()
-                .updated('2023-07-01T00:00:00')
-                .build();
-            await renderComponent({ tournamentData, setTournamentData }, appProps({
-                account,
-                seasons: [season],
-                teams: [],
-                divisions: [division],
-            }));
-
-            const superLeagueOptions = context.container.querySelector('div[datatype="tournament-options"]');
-            await doChange(superLeagueOptions!, 'input[name="host"]', 'HOST', context.user);
-
-            expect(updatedTournamentData!.host).toEqual('HOST');
-        });
-
-        it('can update opponent', async () => {
-            const tournamentData = tournamentBuilder()
-                .forSeason(season)
-                .forDivision(division)
-                .date('2023-01-02T00:00:00')
-                .address('ADDRESS')
-                .type('TYPE')
-                .notes('NOTES')
-                .accoladesCount()
-                .singleRound()
-                .updated('2023-07-01T00:00:00')
-                .build();
-            await renderComponent({ tournamentData, setTournamentData }, appProps({
-                account,
-                seasons: [season],
-                teams: [],
-                divisions: [division],
-            }));
-
-            const superLeagueOptions = context.container.querySelector('div[datatype="tournament-options"]');
-            await doChange(superLeagueOptions!, 'input[name="opponent"]', 'OPPONENT', context.user);
-
-            expect(updatedTournamentData!.opponent).toEqual('OPPONENT');
         });
 
         it('can update notes', async () => {

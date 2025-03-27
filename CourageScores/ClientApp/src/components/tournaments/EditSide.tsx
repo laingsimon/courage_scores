@@ -258,12 +258,12 @@ export function EditSide({side, onChange, onClose, onApply, onDelete, initialAdd
                 <input className="form-control" value={side.name || ''} name="name" id="name"
                        onChange={valueChanged(side, onChange!)}/>
             </div>)}
-            <div className="form-switch margin-right my-1 me-2">
+            {side.id ? (<div className="form-switch margin-right my-1 me-2">
                 <input type="checkbox" className="form-check-input margin-right" checked={side.noShow || false} name="noShow"
                        id="noShow"
                        onChange={valueChanged(side, onChange!)}/>
                 <label className="form-check-label" htmlFor="noShow">No show on the night?</label>
-            </div>
+            </div>) : null}
             {any(side.players) || !tournamentSideType.canSelectTeams ? null : (
                 <div className="form-group input-group mb-3 d-print-none">
                     <div className="input-group-prepend">
@@ -316,13 +316,12 @@ export function EditSide({side, onChange, onClose, onApply, onDelete, initialAdd
                     <label className="form-check-label no-wrap" htmlFor="addAsIndividuals">Add as individuals</label>
                 </span>) : null}
                 {canAddPlayers
-                    ? (<button className="btn btn-primary" onClick={() => setAddPlayerDialogOpen(true)}>Add
-                        player/s</button>)
+                    ? (<button className="btn btn-primary" onClick={() => setAddPlayerDialogOpen(true)}>New player/s</button>)
                     : null}
                 {side.id ? (<button className="btn btn-danger margin-right" onClick={onRemoveSide}>
                     Delete side
                 </button>) : null}
-                <button className="btn btn-primary" onClick={onSave}>Save</button>
+                <button className="btn btn-primary" onClick={onSave}>{side.id ? 'Update' : 'Add'}</button>
             </div>
             {addPlayerDialogOpen ? renderCreatePlayerDialog(season!) : null}
         </Dialog>);

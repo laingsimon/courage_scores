@@ -8,17 +8,12 @@ import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ITournament {
     tournamentData: TournamentGameDto;
-    setTournamentData?(newData: TournamentGameDto): UntypedPromise;
+    setTournamentData?(newData: TournamentGameDto, save?: boolean): UntypedPromise;
     season?: SeasonDto;
     division?: DivisionDto;
     alreadyPlaying?: ITournamentPlayerMap;
     allPlayers?: ISelectablePlayer[];
     saveTournament?(preventLoading?: boolean): Promise<TournamentGameDto | undefined>;
-    setWarnBeforeEditDialogClose?(warning: string | null): UntypedPromise;
     matchOptionDefaults?: GameMatchOptionDto;
-    saving?: boolean;
-    editTournament?: string;
-    setEditTournament?(edit: string): UntypedPromise;
-    preventScroll: boolean;
-    setPreventScroll(prevent: boolean): void;
+    setEditTournament?(edit: boolean): UntypedPromise;
 }

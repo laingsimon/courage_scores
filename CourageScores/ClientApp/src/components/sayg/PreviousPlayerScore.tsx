@@ -4,7 +4,6 @@ import {repeat} from "../../helpers/projection";
 import {useEffect} from "react";
 import {IEditingThrow} from "./IEditingThrow";
 import {useEditableSayg} from "./EditableSaygContainer";
-import {useTournament} from "../tournaments/TournamentContainer";
 import {useApp} from "../common/AppContainer";
 
 export interface IPreviousPlayerScoreProps {
@@ -27,9 +26,8 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
     const awayThrows: LegThrowDto[] = leg.away ? leg.away.throws || [] : [];
     const {editScore, setEditScore} = useEditableSayg();
     const maxThrows: number = getMaxThrows(homeThrows, awayThrows);
-    const {preventScroll} = useTournament();
     const {account, fullScreen} = useApp();
-    const largeScores = preventScroll || (account && account.access && account.access.kioskMode) || fullScreen.isFullScreen;
+    const largeScores = (account && account.access && account.access.kioskMode) || fullScreen.isFullScreen;
 
     useEffect(() => {
         window.setTimeout(scrollToLastScore, 10);

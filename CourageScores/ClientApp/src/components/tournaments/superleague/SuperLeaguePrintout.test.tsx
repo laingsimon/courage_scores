@@ -30,6 +30,7 @@ import {IClientActionResultDto} from "../../common/IClientActionResultDto";
 import {CHECKOUT_2_DART} from "../../../helpers/constants";
 import {checkoutWith, enterScores} from "../../../helpers/sayg";
 import {START_SCORING} from "../tournaments";
+import {tournamentContainerPropsBuilder} from "../tournamentContainerPropsBuilder";
 
 describe('SuperLeaguePrintout', () => {
     let context: TestContext;
@@ -73,9 +74,6 @@ describe('SuperLeaguePrintout', () => {
 
         document.exitFullscreen = noop;
     });
-
-    function setPreventScroll(_: boolean) {
-    }
 
     async function patchData(): Promise<boolean> {
         return patchSuccess;
@@ -126,6 +124,7 @@ describe('SuperLeaguePrintout', () => {
         const access: AccessDto = {
             useWebSockets: true,
         };
+        const containerProps = new tournamentContainerPropsBuilder();
 
         it('print out', async () => {
             const saygData1: RecordedScoreAsYouGoDto = saygBuilder()
@@ -150,11 +149,7 @@ describe('SuperLeaguePrintout', () => {
             saygApiResponseMap[saygData1.id] = saygData1;
             saygApiResponseMap[saygData2.id] = saygData2;
 
-            await renderComponent({
-                tournamentData,
-                preventScroll: false,
-                setPreventScroll,
-            }, { division }, access);
+            await renderComponent(containerProps.withTournament(tournamentData).build(), { division }, access);
 
             reportedError.verifyNoError();
             const headings = Array.from(context.container.querySelectorAll('h2'));
@@ -169,6 +164,7 @@ describe('SuperLeaguePrintout', () => {
             const access: AccessDto = {
                 useWebSockets: true,
             };
+            const containerProps = new tournamentContainerPropsBuilder();
 
             it('can start live updates', async () => {
                 const saygData1: RecordedScoreAsYouGoDto = saygBuilder()
@@ -192,11 +188,7 @@ describe('SuperLeaguePrintout', () => {
                 saygApiResponseMap = {};
                 saygApiResponseMap[saygData1.id] = saygData1;
                 saygApiResponseMap[saygData2.id] = saygData2;
-                await renderComponent({
-                    tournamentData,
-                    preventScroll: false,
-                    setPreventScroll,
-                }, { division }, access);
+                await renderComponent(containerProps.withTournament(tournamentData).build(), { division }, access);
 
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
 
@@ -225,11 +217,7 @@ describe('SuperLeaguePrintout', () => {
                 saygApiResponseMap = {};
                 saygApiResponseMap[saygData1.id] = saygData1;
                 saygApiResponseMap[saygData2.id] = saygData2;
-                await renderComponent({
-                    tournamentData,
-                    preventScroll: false,
-                    setPreventScroll,
-                }, { division }, access);
+                await renderComponent(containerProps.withTournament(tournamentData).build(), { division }, access);
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
                 expect(context.container.querySelector('div[datatype="match-report"] > div > div:nth-child(1)')!.textContent).toEqual('Legs won: 2');
                 expect(context.container.querySelector('div[datatype="match-report"] > div > div:nth-child(2)')!.textContent).toEqual('Legs won: 2');
@@ -277,11 +265,7 @@ describe('SuperLeaguePrintout', () => {
                 saygApiResponseMap = {};
                 saygApiResponseMap[saygData1.id] = saygData1;
                 saygApiResponseMap[saygData2.id] = saygData2;
-                await renderComponent({
-                    tournamentData,
-                    preventScroll: false,
-                    setPreventScroll,
-                }, { division }, access);
+                await renderComponent(containerProps.withTournament(tournamentData).build(), { division }, access);
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
 
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '⏸️ Paused');
@@ -311,11 +295,7 @@ describe('SuperLeaguePrintout', () => {
                 saygApiResponseMap = {};
                 saygApiResponseMap[saygData1.id] = saygData1;
                 saygApiResponseMap[saygData2.id] = saygData2;
-                await renderComponent({
-                    tournamentData,
-                    preventScroll: false,
-                    setPreventScroll,
-                }, { division }, access);
+                await renderComponent(containerProps.withTournament(tournamentData).build(), { division }, access);
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '⏸️ Paused');
                 expect(Object.keys(socketFactory.subscriptions)).toEqual([]);
@@ -331,6 +311,7 @@ describe('SuperLeaguePrintout', () => {
                 manageTournaments: true,
                 recordScoresAsYouGo: true,
             };
+            const containerProps = new tournamentContainerPropsBuilder();
 
             it('does not reload sayg data if patch cannot be applied', async () => {
                 saygApiResponseMap = {};
@@ -349,11 +330,7 @@ describe('SuperLeaguePrintout', () => {
                             .sideB('PLAYER B')))
                     .build();
                 const division: DivisionDto = divisionBuilder('DIVISION').build();
-                await renderComponent({
-                    tournamentData,
-                    preventScroll: false,
-                    setPreventScroll,
-                }, { division }, access);
+                await renderComponent(containerProps.withTournament(tournamentData).build(), { division }, access);
                 await doClick(findButton(context.container, START_SCORING));
                 const dialog = context.container.querySelector('div.modal-dialog')!;
                 expect(saygDataRequests[saygData1.id]).toEqual(2); // data is loaded as the dialog opens
@@ -390,11 +367,7 @@ describe('SuperLeaguePrintout', () => {
                             .sideB('PLAYER B')))
                     .build();
                 const division: DivisionDto = divisionBuilder('DIVISION').build();
-                await renderComponent({
-                    tournamentData,
-                    preventScroll: false,
-                    setPreventScroll,
-                }, { division, patchData }, access);
+                await renderComponent(containerProps.withTournament(tournamentData).build(), { division, patchData }, access);
                 await doClick(findButton(context.container, START_SCORING));
                 const dialog = context.container.querySelector('div.modal-dialog')!;
                 expect(saygDataRequests[saygData1.id]).toEqual(2); // data is loaded as the dialog opens

@@ -386,24 +386,6 @@ describe('Tournament', () => {
                 const container = context.container.querySelector('.content-background')!;
                 expect(container.className).toContain('loading-background');
             });
-
-            it('tournament with sides and players', async () => {
-                tournamentData.singleRound = true;
-                tournamentData.sides!.push(sideBuilder()
-                    .name('SIDE 1')
-                    .withPlayer('PLAYER', undefined, division.id)
-                    .build());
-
-                await renderComponentForTest(season);
-
-                await doClick(context.container.querySelector('div[datatype="master-draw"] table tr')!);
-
-                reportedError.verifyNoError();
-                const editTournamentComponent = context.container.querySelector('.content-background > div:nth-child(1)')!;
-                expect(editTournamentComponent.textContent).toContain('Playing:');
-                const sides = editTournamentComponent.querySelector('div:nth-child(2)')!;
-                expect(sides.textContent).toContain('SIDE 1');
-            });
         });
     });
 
@@ -521,14 +503,23 @@ describe('Tournament', () => {
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
         });
 
-        it('can update details', async () => {
-            tournamentData.singleRound = true;
+        it('does not save when no details changed', async () => {
             await renderComponentForTest();
 
-            await doClick(context.container.querySelector('div[datatype="details"] > div.alert')!);
+            await doClick(context.container.querySelector('[datatype="heading"]')!);
+            const dialog = context.container.querySelector('div.modal-dialog')!;
+            await doClick(findButton(dialog, 'Close'));
+
+            expect(updatedTournamentData.length).toEqual(0);
+        });
+
+        it('can update details', async () => {
+            await renderComponentForTest();
+
+            await doClick(context.container.querySelector('[datatype="heading"]')!);
             const dialog = context.container.querySelector('div.modal-dialog')!;
             await doChange(dialog, 'input[name="type"]', 'NEW TYPE', context.user);
-            await doClick(findButton(dialog, 'Close'));
+            await doClick(findButton(dialog, 'Save'));
 
             expect(updatedTournamentData.length).toEqual(1);
             expect(updatedTournamentData[0].type).toEqual('NEW TYPE');
@@ -563,29 +554,21 @@ describe('Tournament', () => {
             expect(context.container.textContent).not.toContain('Could not save tournament details');
         });
 
-        it('cannot save changes when match not added', async () => {
-            tournamentData.singleRound = true;
-            tournamentData.sides!.push(sideA, sideB);
-            await renderComponentForTest();
-            await doClick(context.container.querySelector('div[datatype="master-draw"] table tr')!);
-            await doSelectOption(context.container.querySelector('table tr td:nth-child(1) .dropdown-menu'), 'A');
-            await doSelectOption(context.container.querySelector('table tr td:nth-child(5) .dropdown-menu'), 'B');
-
-            await doClick(findButton(context.container, 'Close'));
-
-            context.prompts.alertWasShown('Add the (new) match before saving, otherwise it would be lost.\n\nA vs B');
-        });
-
         it('can save changes after match added', async () => {
             tournamentData.singleRound = true;
-            tournamentData.sides!.push(sideA, sideB);
-            await renderComponentForTest();
-            await doClick(context.container.querySelector('div[datatype="master-draw"] table tr')!);
-            await doSelectOption(context.container.querySelector('table tr td:nth-child(1) .dropdown-menu'), 'A');
-            await doSelectOption(context.container.querySelector('table tr td:nth-child(5) .dropdown-menu'), 'B');
-            await doClick(findButton(context.container.querySelector('table tr td:nth-child(6)'), '➕'));
+            tournamentData.host = 'HOST';
+            tournamentData.opponent = 'OPPONENT';
+            const host = teamBuilder(tournamentData.host).forSeason(season, undefined, [ playerA ]).build();
+            const opponent = teamBuilder(tournamentData.opponent).forSeason(season, undefined, [ playerB ]).build();
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: [season],
+                teams: [host, opponent],
+                divisions: [division]
+            });
 
-            await doClick(findButton(context.container, 'Close'));
+            await doSelectOption(context.container.querySelector('table tbody tr td:nth-child(2) .dropdown-menu'), 'PLAYER A');
+            await doSelectOption(context.container.querySelector('table tbody tr td:nth-child(4) .dropdown-menu'), 'PLAYER B');
 
             context.prompts.noAlerts();
             expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
@@ -593,14 +576,19 @@ describe('Tournament', () => {
 
         it('produces correct match option defaults when no bestOf (1)', async () => {
             tournamentData.singleRound = true;
-            tournamentData.sides!.push(sideA, sideB);
-            await renderComponentForTest();
-            await doClick(context.container!.querySelector('div[datatype="master-draw"] table tr')!);
-            await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(1) .dropdown-menu'), 'A');
-            await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(5) .dropdown-menu'), 'B');
-            await doClick(findButton(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(6)'), '➕'));
+            tournamentData.host = 'HOST';
+            tournamentData.opponent = 'OPPONENT';
+            const host = teamBuilder(tournamentData.host).forSeason(season, undefined, [ playerA ]).build();
+            const opponent = teamBuilder(tournamentData.opponent).forSeason(season, undefined, [ playerB ]).build();
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: [season],
+                teams: [host, opponent],
+                divisions: [division]
+            });
 
-            await doClick(findButton(context.container, 'Close'));
+            await doSelectOption(context.container.querySelector('table tbody tr td:nth-child(2) .dropdown-menu'), 'PLAYER A');
+            await doSelectOption(context.container.querySelector('table tbody tr td:nth-child(4) .dropdown-menu'), 'PLAYER B');
 
             context.prompts.noAlerts();
             const round = updatedTournamentData[0].round!;
@@ -611,13 +599,19 @@ describe('Tournament', () => {
             tournamentData.singleRound = true;
             tournamentData.sides!.push(sideA, sideB);
             tournamentData.bestOf = 7;
-            await renderComponentForTest();
-            await doClick(context.container.querySelector('div[datatype="master-draw"] table tr')!);
-            await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(1) .dropdown-menu'), 'A');
-            await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(5) .dropdown-menu'), 'B');
-            await doClick(findButton(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(6)'), '➕'));
+            tournamentData.host = 'HOST';
+            tournamentData.opponent = 'OPPONENT';
+            const host = teamBuilder(tournamentData.host).forSeason(season, undefined, [ playerA ]).build();
+            const opponent = teamBuilder(tournamentData.opponent).forSeason(season, undefined, [ playerB ]).build();
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: [season],
+                teams: [host, opponent],
+                divisions: [division]
+            });
 
-            await doClick(findButton(context.container, 'Close'));
+            await doSelectOption(context.container.querySelector('table tbody tr td:nth-child(2) .dropdown-menu'), 'PLAYER A');
+            await doSelectOption(context.container.querySelector('table tbody tr td:nth-child(4) .dropdown-menu'), 'PLAYER B');
 
             context.prompts.noAlerts();
             const round = updatedTournamentData[0].round!;
@@ -753,7 +747,7 @@ describe('Tournament', () => {
             reportedError.verifyNoError();
             const editSideDialog = context.container.querySelector('.modal-dialog')!;
             await doClick(editSideDialog.querySelector('.list-group-item:nth-child(2)')!); // click on a player
-            await doClick(findButton(editSideDialog, 'Save')); // close the dialog
+            await doClick(findButton(editSideDialog, 'Add')); // close the dialog
             reportedError.verifyNoError();
 
             // open the 180s dialog
@@ -773,7 +767,7 @@ describe('Tournament', () => {
             reportedError.verifyNoError();
             const addSideDialog = context.container.querySelector('.modal-dialog')!;
             await doClick(addSideDialog.querySelector('.list-group-item:nth-child(2)')!); // click on a player
-            await doClick(findButton(addSideDialog, 'Save')); // close the dialog
+            await doClick(findButton(addSideDialog, 'Add')); // close the dialog
             reportedError.verifyNoError();
 
             // open the hi-checks dialog
@@ -834,15 +828,20 @@ describe('Tournament', () => {
         });
 
         it('produces correct match option defaults when no bestOf (2)', async () => {
-            tournamentData.sides!.push(sideA, sideB);
             tournamentData.singleRound = true;
-            await renderComponentForTest();
-            await doClick(context.container.querySelector('div[datatype="master-draw"] table tr')!);
-            await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(1) .dropdown-menu'), 'A');
-            await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(5) .dropdown-menu'), 'B');
-            await doClick(findButton(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(6)'), '➕')); // add match
+            tournamentData.host = 'HOST';
+            tournamentData.opponent = 'OPPONENT';
+            const host = teamBuilder(tournamentData.host).forSeason(season, undefined, [ playerA ]).build();
+            const opponent = teamBuilder(tournamentData.opponent).forSeason(season, undefined, [ playerB ]).build();
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: [season],
+                teams: [host, opponent],
+                divisions: [division]
+            });
 
-            await doClick(findButton(context.container, 'Close'));
+            await doSelectOption(context.container.querySelector('table tbody tr td:nth-child(2) .dropdown-menu'), 'PLAYER A');
+            await doSelectOption(context.container.querySelector('table tbody tr td:nth-child(4) .dropdown-menu'), 'PLAYER B');
 
             context.prompts.noAlerts();
             const round = updatedTournamentData[0].round!;
@@ -853,13 +852,19 @@ describe('Tournament', () => {
             tournamentData.sides!.push(sideA, sideB);
             tournamentData.singleRound = true;
             tournamentData.bestOf = 7;
-            await renderComponentForTest();
-            await doClick(context.container.querySelector('div[datatype="master-draw"] table tr')!);
-            await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(1) .dropdown-menu'), 'A');
-            await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(5) .dropdown-menu'), 'B');
-            await doClick(findButton(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(6)'), '➕')); // add match
+            tournamentData.host = 'HOST';
+            tournamentData.opponent = 'OPPONENT';
+            const host = teamBuilder(tournamentData.host).forSeason(season, undefined, [ playerA ]).build();
+            const opponent = teamBuilder(tournamentData.opponent).forSeason(season, undefined, [ playerB ]).build();
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: [season],
+                teams: [host, opponent],
+                divisions: [division]
+            });
 
-            await doClick(findButton(context.container, 'Close'));
+            await doSelectOption(context.container.querySelector('table tbody tr td:nth-child(2) .dropdown-menu'), 'PLAYER A');
+            await doSelectOption(context.container.querySelector('table tbody tr td:nth-child(4) .dropdown-menu'), 'PLAYER B');
 
             context.prompts.noAlerts();
             const round = updatedTournamentData[0].round!;
@@ -879,7 +884,7 @@ describe('Tournament', () => {
             const playing = context.container.querySelector('div[datatype="playing"]')!;
             await doClick(playing.querySelector('li:nth-child(1)')!); // open edit side dialog
             await doClick(context.container.querySelector('.modal-dialog input[name="noShow"]')!);
-            await doClick(findButton(context.container.querySelector('.modal-dialog')!, 'Save'));
+            await doClick(findButton(context.container.querySelector('.modal-dialog')!, 'Update'));
             reportedError.verifyNoError();
 
             // open the 180s dialog
@@ -904,7 +909,7 @@ describe('Tournament', () => {
             const playing = context.container.querySelector('div[datatype="playing"]')!;
             await doClick(playing.querySelector('li:nth-child(1)')!); // open edit side dialog
             await doClick(context.container.querySelector('.modal-dialog input[name="noShow"]')!);
-            await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Save'));
+            await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Update'));
             reportedError.verifyNoError();
 
             // open the 180s dialog
@@ -959,7 +964,7 @@ describe('Tournament', () => {
             reportedError.verifyNoError();
             const editTournamentDialog = context.container.querySelector('.modal-dialog')!;
             await doChange(editTournamentDialog, 'input[name="bestOf"]', '9', context.user);
-            await doClick(findButton(context.container, 'Save'));
+            await doClick(findButton(editTournamentDialog, 'Save'));
 
             expect(updatedTournamentData.length).toEqual(1);
             const firstUpdate = updatedTournamentData[0];
@@ -992,18 +997,6 @@ describe('Tournament', () => {
             expect(editTournamentDialog).toBeFalsy();
         });
 
-        it('can edit tournament details via superleague printable sheet when permitted', async () => {
-            tournamentData.round = roundBuilder().build();
-            tournamentData.singleRound = true;
-            await renderComponentForTest(teamNoPlayers);
-
-            await doClick(context.container.querySelector('div[datatype="master-draw"] div[datatype="details"]')!);
-
-            reportedError.verifyNoError();
-            const editTournamentDialog = context.container.querySelector('.modal-dialog');
-            expect(editTournamentDialog).toBeTruthy();
-        });
-
         it('only includes players from teams with active team seasons', async () => {
             const playerA = playerBuilder('DELETED PLAYER A').build();
             const deletedTeam = teamBuilder('DELETED TEAM').forSeason(season, division, [ playerA ], true).build();
@@ -1030,7 +1023,7 @@ describe('Tournament', () => {
             await doClick(context.container.querySelector('li[datatype="add-side"]')!);
             const dialog = context.container.querySelector('div.modal-dialog')!;
             await doSelectOption(dialog.querySelector('.dropdown-menu'), 'TEAM');
-            await doClick(findButton(dialog, 'Save'));
+            await doClick(findButton(dialog, 'Add'));
             reportedError.verifyNoError();
 
             await doClick(context.container.querySelector('div[data-accolades="180s"]')!);
