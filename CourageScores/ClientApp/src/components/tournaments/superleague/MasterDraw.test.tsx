@@ -576,14 +576,13 @@ describe('MasterDraw', () => {
                 .build();
             const tournamentData = tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
             const account = user({});
-            const containerProps = new tournamentContainerPropsBuilder({ tournamentData });
 
             await renderComponent({
                 tournamentData: tournamentData,
                 readOnly: false,
                 setTournamentData,
                 patchData: noop
-            }, account, containerProps.build());
+            }, account);
 
             expect(context.container.querySelector('[datatype="host"] .dropdown-menu')).toBeNull();
             expect(context.container.querySelector('[datatype="opponent"] .dropdown-menu')).toBeNull();
@@ -599,14 +598,13 @@ describe('MasterDraw', () => {
             const account = user({
                 recordScoresAsYouGo: true,
             });
-            const containerProps = new tournamentContainerPropsBuilder({ tournamentData });
 
             await renderComponent({
                 tournamentData: tournamentData,
                 readOnly: false,
                 setTournamentData,
                 patchData: noop
-            }, account, containerProps.build());
+            }, account);
             context.prompts.respondToConfirm('Are you sure you want to remove this match?', true);
 
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), '🗑️ 1'));
@@ -626,14 +624,13 @@ describe('MasterDraw', () => {
             const account = user({
                 recordScoresAsYouGo: true,
             });
-            const containerProps = new tournamentContainerPropsBuilder({ tournamentData });
 
             await renderComponent({
                 tournamentData: tournamentData,
                 readOnly: false,
                 setTournamentData,
                 patchData: noop
-            }, account, containerProps.build());
+            }, account);
             context.prompts.respondToConfirm('Are you sure you want to remove this match?', false);
 
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), '🗑️ 1'));
@@ -651,14 +648,13 @@ describe('MasterDraw', () => {
             const account = user({
                 recordScoresAsYouGo: true,
             });
-            const containerProps = new tournamentContainerPropsBuilder({ tournamentData });
 
             await renderComponent({
                 tournamentData: tournamentData,
                 readOnly: true,
                 setTournamentData,
                 patchData: noop
-            }, account, containerProps.build());
+            }, account);
 
             expect(context.container.innerHTML).not.toContain('🗑️');
         });
@@ -755,13 +751,12 @@ describe('MasterDraw', () => {
                 .build();
             const tournamentData = tournament
                 .round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
-            const containerProps = new tournamentContainerPropsBuilder({ tournamentData });
             await renderComponent({
                 tournamentData: tournamentData,
                 readOnly: false,
                 setTournamentData,
                 patchData
-            }, account, containerProps.build());
+            }, account);
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), START_SCORING));
             reportedError.verifyNoError();
 
@@ -779,13 +774,12 @@ describe('MasterDraw', () => {
                 .build();
             const tournamentData = tournament
                 .round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
-            const containerProps = new tournamentContainerPropsBuilder({ tournamentData });
             await renderComponent({
                 tournamentData: tournamentData,
                 readOnly: false,
                 setTournamentData,
                 patchData
-            }, account, containerProps.build());
+            }, account);
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), START_SCORING));
             reportedError.verifyNoError();
 
@@ -818,13 +812,12 @@ describe('MasterDraw', () => {
                 .build();
             const tournamentData = tournament
                 .round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
-            const containerProps = new tournamentContainerPropsBuilder({ tournamentData });
             await renderComponent({
                 tournamentData: tournamentData,
                 readOnly: false,
                 setTournamentData,
                 patchData
-            }, account, containerProps.build());
+            }, account);
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), START_SCORING));
             reportedError.verifyNoError();
 
