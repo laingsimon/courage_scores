@@ -131,7 +131,9 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
 
     return (<tr key={match.id}>
         <td>
-            {deleteMatch && !readOnly ? <button className="btn btn-sm btn-danger no-wrap" onClick={deleteMatch}>🗑️ {index === undefined ? null : index + 1}</button> : (index === undefined ? null : index + 1)}
+            {deleteMatch && !readOnly
+                ? <button className="btn btn-sm btn-danger no-wrap" onClick={deleteMatch}>🗑️ {index! + 1}</button>
+                : (index === undefined ? null : index + 1)}
         </td>
         <td>
             {readOnly
