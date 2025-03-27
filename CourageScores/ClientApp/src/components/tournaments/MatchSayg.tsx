@@ -10,7 +10,7 @@ import {ErrorDisplay} from "../common/ErrorDisplay";
 import {ILiveOptions} from "../../live/ILiveOptions";
 import {Dialog} from "../common/Dialog";
 import {ILoadedScoreAsYouGoDto, SaygLoadingContainer} from "../sayg/SaygLoadingContainer";
-import {SuperleagueMatchHeading} from "./SuperleagueMatchHeading";
+import {MatchHeading} from "./MatchHeading";
 import {DebugOptions} from "../common/DebugOptions";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {count} from "../../helpers/collections";
@@ -177,7 +177,7 @@ export function MatchSayg({
                 finalLegPlayerSequence={finalLegPlayerSequence}
                 onFinished={fullScreen.exitFullScreen}
                 initialOneDartAverage={initialOneDartAverage}>
-                {finished ? (<SuperleagueMatchHeading match={match} />) : null}
+                {finished ? (<MatchHeading match={match} />) : null}
             </SaygLoadingContainer>
             {finished || !fullScreen.isFullScreen ? (<div className="modal-footer px-0 pb-0 mt-3">
                 <div className="left-aligned mx-0">

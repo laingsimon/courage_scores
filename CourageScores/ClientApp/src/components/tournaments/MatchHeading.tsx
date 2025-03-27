@@ -5,7 +5,7 @@ export interface ISuperleagueMatchHeadingProps {
     match: TournamentMatchDto;
 }
 
-export function SuperleagueMatchHeading({ match }: ISuperleagueMatchHeadingProps) {
+export function MatchHeading({ match }: ISuperleagueMatchHeadingProps) {
     const { sayg } = useSayg();
     const home: string | undefined = match.sideA.name;
     const away: string | undefined = match.sideB.name;
