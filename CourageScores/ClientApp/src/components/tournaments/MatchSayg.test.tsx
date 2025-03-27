@@ -48,7 +48,6 @@ describe('MatchSayg', () => {
     let saygApiResponse: IClientActionResultDto<RecordedScoreAsYouGoDto> | null = null;
     let saygDataLookup: { [id: string]: RecordedScoreAsYouGoDto };
     let deletedSayg: { id: string, matchId: string } | null;
-    let scrollPrevented: boolean;
 
     const tournamentApi = api<ITournamentGameApi>({
         async addSayg(id: string, saygRequest: CreateTournamentSaygDto): Promise<IClientActionResultDto<TournamentGameDto>> {
@@ -103,10 +102,6 @@ describe('MatchSayg', () => {
         patchedData.push({ patch, nestInRound, saygId });
     }
 
-    function setPreventScroll(prevent: boolean) {
-        scrollPrevented = prevent;
-    }
-
     afterEach(async () => {
         await cleanUp(context);
     });
@@ -120,7 +115,6 @@ describe('MatchSayg', () => {
         apiResponse = null;
         saygDataLookup = {};
         deletedSayg = null;
-        scrollPrevented = false;
     });
 
     async function renderComponent(containerProps: ITournamentContainerProps, props: IMatchSaygProps, account?: UserDto) {
@@ -159,7 +153,6 @@ describe('MatchSayg', () => {
         const sideAvsSideBRound = roundBuilder().withMatch(sideAvsSideBMatch).build();
         const containerProps = new tournamentContainerPropsBuilder({
             saveTournament,
-            setPreventScroll,
             setTournamentData,
         });
 
@@ -385,7 +378,6 @@ describe('MatchSayg', () => {
         const permittedWithDebug: UserDto = user(true, true);
         const containerProps = new tournamentContainerPropsBuilder({
             saveTournament,
-            setPreventScroll,
             setTournamentData,
         });
 
@@ -574,7 +566,6 @@ describe('MatchSayg', () => {
                 date: '',
             });
             expect(context.container.querySelector('.modal-dialog')).toBeTruthy();
-            expect(scrollPrevented).toEqual(true);
         });
 
         it('does not show live link in dialog if sideA won', async () => {
@@ -614,7 +605,6 @@ describe('MatchSayg', () => {
             expect(dialog).toBeTruthy();
             expect(dialog.querySelector('.modal-header')!.textContent).toContain('SIDE A vs SIDE B - best of 1');
             expect(dialog.innerHTML).toContain('Match statistics');
-            expect(scrollPrevented).toEqual(true);
         });
 
         it('does not show live link in dialog if sideB won', async () => {
@@ -654,7 +644,6 @@ describe('MatchSayg', () => {
             expect(dialog).toBeTruthy();
             expect(dialog.querySelector('.modal-header')!.textContent).toContain('SIDE A vs SIDE B - best of 1');
             expect(dialog.innerHTML).toContain('Match statistics');
-            expect(scrollPrevented).toEqual(true);
         });
 
         it('can close dialog', async () => {
@@ -678,7 +667,6 @@ describe('MatchSayg', () => {
             await doClick(findButton(dialog, 'Close'));
 
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
-            expect(scrollPrevented).toEqual(false);
         });
 
         it('can patch data with updated score', async () => {

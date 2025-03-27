@@ -65,7 +65,6 @@ export function Tournament() {
     const [loading, setLoading] = useState<string>('init');
     const [saving, setSaving] = useState<boolean>(false);
     const [patching, setPatching] = useState<boolean>(false);
-    const [preventScroll, setPreventScroll] = useState<boolean>(false);
     const [tournamentData, setTournamentData] = useState<TournamentGameDto | null>(null);
     const [saveError, setSaveError] = useState<IClientActionResultDto<TournamentGameDto> | null>(null);
     const [allPlayers, setAllPlayers] = useState<ISelectablePlayer[]>([]);
@@ -423,8 +422,6 @@ export function Tournament() {
                     editTournament={editTournament}
                     setEditTournament={canManageTournaments ? asyncCallback(setEditTournament) : undefined}
                     liveOptions={liveOptions}
-                    preventScroll={preventScroll}
-                    setPreventScroll={setPreventScroll}
                     draggingSide={draggingSide}
                     setDraggingSide={asyncCallback(setDraggingSide)}
                     playerIdToTeamMap={playerIdToTeamMap}>

@@ -41,7 +41,7 @@ export interface IMatchSaygProps {
 export function MatchSayg({
                               match, matchIndex, matchOptions, patchData, readOnly, showViewSayg, firstLegPlayerSequence,
                               finalLegPlayerSequence, initialOneDartAverage } : IMatchSaygProps) {
-    const {tournamentData, setTournamentData, saveTournament, setPreventScroll} = useTournament();
+    const {tournamentData, setTournamentData, saveTournament} = useTournament();
     const {account, onError, fullScreen} = useApp();
     const {tournamentApi, settings} = useDependencies();
     const [saygOpen, setSaygOpen] = useState<boolean>(false);
@@ -54,7 +54,6 @@ export function MatchSayg({
     const on180: (player: TournamentPlayerDto) => UntypedPromise = add180(tournamentData, setTournamentData!);
 
     async function changeDialogState(state: boolean) {
-        setPreventScroll(state);
         setSaygOpen(state);
         const numberOfLegs: number = matchOptions.numberOfLegs!;
         const finished: boolean = (scoreA > numberOfLegs / 2.0) || (scoreB > numberOfLegs / 2.0);

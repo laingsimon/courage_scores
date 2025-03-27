@@ -19,8 +19,6 @@ export interface ITournament {
     saving?: boolean;
     editTournament?: boolean;
     setEditTournament?(edit: boolean): UntypedPromise;
-    preventScroll?: boolean;
-    setPreventScroll(prevent: boolean): void;
     draggingSide?: TournamentSideDto;
     setDraggingSide(side?: TournamentSideDto): UntypedPromise;
     playerIdToTeamMap: IPlayerIdToTeamMap;
