@@ -303,7 +303,7 @@ describe('PrintableSheet', () => {
             const rounds = getRounds();
             expect(rounds.length).toEqual(1);
             expect(rounds[0].matches).toEqual([
-                match('A', '1', 'B', '2', 'b', 'http://localhost/live/match/' + saygId),
+                match('A', '1', 'B', '2', 'b', 'http://localhost/live/match/?id=' + saygId),
             ]);
         });
 
