@@ -867,7 +867,7 @@ describe('PrintableSheetMatch', () => {
 
             expect(context.container.innerHTML).toContain('📊');
             const link = findButton(context.container, '📊 ');
-            expect(link.href).toEqual(`http://localhost/live/match/${saygData.id}`);
+            expect(link.href).toEqual(`http://localhost/live/match/?id=${saygData.id}`);
         });
 
         it('can delete sayg from match and keep scores', async () => {
