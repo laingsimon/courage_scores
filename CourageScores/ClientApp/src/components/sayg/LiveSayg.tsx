@@ -9,7 +9,7 @@ import {any} from "../../helpers/collections";
 export function LiveSayg() {
     const location = useLocation();
     const { type } = useParams();
-    const liveDataType: LiveDataType = type === 'match' ? LiveDataType.match : LiveDataType.tournament;
+    const liveDataType: LiveDataType = type === 'match' ? LiveDataType.sayg : LiveDataType.tournament;
     const search: URLSearchParams = new URLSearchParams(location.search);
     const ids = search.getAll('id');
     const liveOptions: ILiveOptions = {
