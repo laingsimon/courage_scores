@@ -12,7 +12,7 @@ export function LiveSayg() {
     const liveOptions: ILiveOptions = {
         publish: false,
         canSubscribe: true,
-        subscribeAtStartup: ids.map(id => { id, type: LiveDataType.sayg }),
+        subscribeAtStartup: ids.map(id => { return { id, type: LiveDataType.sayg }; }),
     };
     const [loadError, setLoadError] = useState<string | null>(any(ids) ? null : 'No ids have been provided');
     const fragment: URLSearchParams = new URLSearchParams(location.hash.replace('#', ''));
