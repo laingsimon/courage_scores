@@ -8,13 +8,13 @@ import {asyncCallback} from "../../helpers/events";
 export function LiveSayg() {
     const location = useLocation();   
     const search: URLSearchParams = new URLSearchParams(location.search);
-    const id = search.get('id')!;
+    const ids = search.getAll('id');
     const liveOptions: ILiveOptions = {
         publish: false,
         canSubscribe: true,
-        subscribeAtStartup: [{ id, type: LiveDataType.sayg }],
+        subscribeAtStartup: ids.map(id => { id, type: LiveDataType.sayg }),
     };
-    const [loadError, setLoadError] = useState<string | null>(id ? null : 'No id has been provided');
+    const [loadError, setLoadError] = useState<string | null>(any(ids) ? null : 'No ids have been provided');
     const fragment: URLSearchParams = new URLSearchParams(location.hash.replace('#', ''));
     const initialOneDartAverage=fragment.get('average') === '1';
 
@@ -23,14 +23,17 @@ export function LiveSayg() {
             <h3>Error loading match data</h3>
             <p className="text-danger">{loadError}</p>
         </div> : null}
-        {id ? (<SaygLoadingContainer
-            id={id}
-            matchStatisticsOnly={true}
-            autoSave={false}
-            liveOptions={liveOptions}
-            lastLegDisplayOptions={ { showThrows: true, showAverage: true } }
-            onLoadError={asyncCallback(setLoadError)}
-            initialOneDartAverage={initialOneDartAverage}
-            />) : null}
+        {ids.map(id => {
+            return (<SaygLoadingContainer
+                        key={id}
+                        id={id}
+                        matchStatisticsOnly={true}
+                        autoSave={false}
+                        liveOptions={liveOptions}
+                        lastLegDisplayOptions={ { showThrows: true, showAverage: true } }
+                        onLoadError={asyncCallback(setLoadError)}
+                        initialOneDartAverage={initialOneDartAverage}
+                    />);
+            })}
     </div>);
 }
