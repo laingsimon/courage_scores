@@ -14,7 +14,7 @@ export function LiveSayg() {
     };
     const [loadError, setLoadError] = useState<string | null>(null);
     const location = useLocation();
-    const query: URLSearchParams = new URLSearchParams(location.search);
+    const query: URLSearchParams = new URLSearchParams(location.hash.replace('#', ''));
     const initialOneDartAverage=query.get('average') === '1';
 
     return (<div className="content-background p-3 pb-1">

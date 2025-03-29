@@ -69,7 +69,7 @@ describe('LiveSayg', () => {
             .build();
         console.log = noop;
 
-        await renderComponent('/live/match/:id', `/live/match/${saygData.id}?average=3`);
+        await renderComponent('/live/match/:id', `/live/match/${saygData.id}#average=3`);
 
         reportedError.verifyNoError();
         expect(context.container.innerHTML).toContain('Match statistics');
@@ -88,7 +88,7 @@ describe('LiveSayg', () => {
             .build();
         console.log = noop;
 
-        await renderComponent('/live/match/:id', `/live/match/${saygData.id}?average=1`);
+        await renderComponent('/live/match/:id', `/live/match/${saygData.id}?#average=1`);
 
         reportedError.verifyNoError();
         expect(context.container.innerHTML).toContain('Match statistics');
