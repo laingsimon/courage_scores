@@ -14,7 +14,7 @@ export function LiveSayg() {
         canSubscribe: true,
         subscribeAtStartup: [{ id, type: LiveDataType.sayg }],
     };
-    const [loadError, setLoadError] = useState<string | null>(null);
+    const [loadError, setLoadError] = useState<string | null>(id ? null : 'No id has been provided');
     const fragment: URLSearchParams = new URLSearchParams(location.hash.replace('#', ''));
     const initialOneDartAverage=fragment.get('average') === '1';
 
@@ -23,7 +23,7 @@ export function LiveSayg() {
             <h3>Error loading match data</h3>
             <p className="text-danger">{loadError}</p>
         </div> : null}
-        <SaygLoadingContainer
+        {id ? (<SaygLoadingContainer
             id={id}
             matchStatisticsOnly={true}
             autoSave={false}
@@ -31,6 +31,6 @@ export function LiveSayg() {
             lastLegDisplayOptions={ { showThrows: true, showAverage: true } }
             onLoadError={asyncCallback(setLoadError)}
             initialOneDartAverage={initialOneDartAverage}
-            />
+            />) : null}
     </div>);
 }
