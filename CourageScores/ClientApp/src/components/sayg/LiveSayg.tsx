@@ -1,4 +1,4 @@
-import {useLocation} from "react-router";
+import {useParams, useLocation} from "react-router";
 import {SaygLoadingContainer} from "./SaygLoadingContainer";
 import {ILiveOptions} from "../../live/ILiveOptions";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
@@ -7,13 +7,15 @@ import {asyncCallback} from "../../helpers/events";
 import {any} from "../../helpers/collections";
 
 export function LiveSayg() {
-    const location = useLocation();   
+    const location = useLocation();
+    const { type } = useParams();
+    const liveDataType: LiveDataType = type === 'match' ? LiveDataType.match : LiveDataType.tournament;
     const search: URLSearchParams = new URLSearchParams(location.search);
     const ids = search.getAll('id');
     const liveOptions: ILiveOptions = {
         publish: false,
         canSubscribe: true,
-        subscribeAtStartup: ids.map(id => { return { id, type: LiveDataType.sayg }; }),
+        subscribeAtStartup: ids.map(id => { return { id, type: liveDataType }; }),
     };
     const [loadError, setLoadError] = useState<string | null>(any(ids) ? null : 'No ids have been provided');
     const fragment: URLSearchParams = new URLSearchParams(location.hash.replace('#', ''));

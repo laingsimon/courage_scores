@@ -194,7 +194,7 @@ export function App({embed, controls, testRoute}: IAppProps) {
                         <Route path='/tournament/:tournamentId' element={<Tournament/>}/>
                         <Route path='/practice' element={<Practice/>}/>
                         <Route path='/about' element={<About/>}/>
-                        <Route path='/live/match' element={<LiveSayg />}/>
+                        <Route path='/live/:type' element={<LiveSayg />}/>
                         <Route path='/tv' element={<Tv/>}/>
                         {testRoute}
                     </Routes>
