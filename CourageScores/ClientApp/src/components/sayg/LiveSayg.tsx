@@ -7,7 +7,7 @@ import {asyncCallback} from "../../helpers/events";
 
 export function LiveSayg() {
     const location = useLocation();   
-    const search: URLSearchParams = new URLSearchParams(location.query);
+    const search: URLSearchParams = new URLSearchParams(location.search);
     const id = search.get('id')!;
     const liveOptions: ILiveOptions = {
         publish: false,
