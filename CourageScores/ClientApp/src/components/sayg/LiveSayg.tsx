@@ -53,9 +53,13 @@ export function LiveSayg() {
         setPendingUpdate(update);
     }
 
-    async function removeId(id: string) {
+    async function removeId(removeId: string) {
         const newSearch = new URLSearchParams(location.search);
-        newSearch.delete('id', id);
+        const existingIds = newSearch.getAll('id');
+        // this workout is required as delete('id', id) should only remove one value from the collection
+        // The test implementation removes all of them however, which doesn't match the behaviour of the browser
+        newSearch.delete('id');
+        existingIds.filter(id => id !== removeId).forEach(id => newSearch.set('id', id));
 
         navigate(location.pathname + '?' + newSearch.toString());
     }
