@@ -46,6 +46,10 @@ export function Templates() {
                 if (templateToSelect) {
                     setSelected(templateToSelect);
                 }
+            } else if (selected) {
+                // replace the selected template with what has just been (re)loaded
+                const newSelectedItem: TemplateDto[] = templates.filter(t => t.id === selected.id);
+                setSelected(newSelectedItem.length === 1 ? newSelectedItem[0] : null);
             }
         } catch (e) {
             /* istanbul ignore next */
