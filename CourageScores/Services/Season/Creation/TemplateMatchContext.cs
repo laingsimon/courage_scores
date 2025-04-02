@@ -54,9 +54,16 @@ public class TemplateMatchContext
         }
 
         return teams
-            .GroupBy(t => t.Address.Trim(), StringComparer.OrdinalIgnoreCase)
+            .GroupBy(AddressOrName, StringComparer.OrdinalIgnoreCase)
             .Where(g => g.Count() == 1)
             .Select(g => g.Key);
+    }
+
+    private static string AddressOrName(TeamDto team)
+    {
+        return string.IsNullOrEmpty(team.Address.Trim())
+            ? team.Name.Trim()
+            : team.Address.Trim();
     }
 
     public class DivisionSharedAddressMapping
@@ -76,7 +83,7 @@ public class TemplateMatchContext
         public TeamDto[] Teams { get; }
 
         public IReadOnlyCollection<TeamDto[]> SharedAddressesFromSeason => Teams
-            .GroupBy(t => t.Address.Trim(), StringComparer.OrdinalIgnoreCase)
+            .GroupBy(AddressOrName, StringComparer.OrdinalIgnoreCase)
             .Where(g => g.Count() > 1)
             .Select(g => g.ToArray())
             .ToArray();
