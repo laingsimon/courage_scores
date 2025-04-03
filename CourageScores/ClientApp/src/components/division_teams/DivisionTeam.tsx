@@ -34,7 +34,7 @@ export function DivisionTeam({team}: IDivisionTeamProps) {
         await onReloadDivision();
 
         setEditTeam(false);
-        setTeamDetails({ newDivisionId: divisionId }, team);
+        setTeamDetails(Object.assign({ newDivisionId: divisionId }, team));
     }
 
     function renderEditTeam() {
