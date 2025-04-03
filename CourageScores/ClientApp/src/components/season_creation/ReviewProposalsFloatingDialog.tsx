@@ -8,6 +8,7 @@ import {DivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/
 import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
 import {FixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 
 export interface IReviewProposalsFloatingDialogProps {
     proposalResult: ProposalResultDto;
@@ -45,6 +46,11 @@ export function ReviewProposalsFloatingDialog({ proposalResult, changeVisibleDiv
                                    onChange={changeVisibleDivision}/>
                 <ul className="mt-3">
                     {placeholdersToRender.sort().map((key: string) => {
+                        const mappedTeam: TeamDto | undefined = proposalResult.placeholderMappings![key];
+                        if (!mappedTeam) {
+                            return null;
+                        }
+
                         const isTemplateSharedAddress: boolean = any(templateSharedAddresses, (a: string) => a === key);
                         const isDivisionSharedAddress: boolean = any(divisionSharedAddresses, (a: string) => a === key);
                         let className: string = '';
@@ -57,7 +63,7 @@ export function ReviewProposalsFloatingDialog({ proposalResult, changeVisibleDiv
 
                         return (<li key={key}>
                             <span
-                                className={`px-2 ${className}`}>{key}</span> &rarr; {proposalResult.placeholderMappings![key].name}
+                                className={`px-2 ${className}`}>{key}</span> &rarr; {mappedTeam.name}
                         </li>);
                     })}
                 </ul>
