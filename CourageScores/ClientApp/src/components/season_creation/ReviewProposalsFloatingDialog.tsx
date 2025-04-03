@@ -18,7 +18,7 @@ export interface IReviewProposalsFloatingDialogProps {
 }
 
 export function ReviewProposalsFloatingDialog({ proposalResult, changeVisibleDivision, selectedDivisionId, onPrevious, onNext }: IReviewProposalsFloatingDialogProps) {
-    const {divisions} = useApp();
+    const {divisions, onError} = useApp();
 
     const divisionOptions: IBootstrapDropdownItem[] = divisions
         .filter((d: DivisionDto) => any(proposalResult.divisions, proposedDivision => proposedDivision.id === d.id))
@@ -27,45 +27,52 @@ export function ReviewProposalsFloatingDialog({ proposalResult, changeVisibleDiv
             return {value: d.id, text: d.name};
         });
 
-    const template: TemplateDto = proposalResult.template!;
-    const selectedDivisionIndex: number = divisionOptions.map((o: IBootstrapDropdownItem) => o.value).indexOf(selectedDivisionId);
-    const templateDivision: DivisionTemplateDto = template.divisions![selectedDivisionIndex];
-    const placeholdersToRender: string[] = distinct(templateDivision.dates!
-        .flatMap((d: DateTemplateDto) => d.fixtures!
-            .flatMap((f: FixtureTemplateDto) => [f.home, f.away])
-            .filter((p?: string) => !!p)));
-    const templateSharedAddresses: string[] = template.sharedAddresses!.flatMap((a: string[]) => a);
-    const divisionSharedAddresses: string[] = templateDivision.sharedAddresses!.flatMap((a: string[]) => a);
-    return (<>
-        <div style={{zIndex: '1051'}}
-             className="position-fixed p-3 top-0 right-0 bg-white border-2 border-solid border-success box-shadow me-3 mt-3">
-            <h6>Review the fixtures in the divisions</h6>
-            <BootstrapDropdown options={divisionOptions} value={selectedDivisionId} onChange={changeVisibleDivision} />
-            <ul className="mt-3">
-                {placeholdersToRender.sort().map((key: string) => {
-                    const isTemplateSharedAddress: boolean = any(templateSharedAddresses, (a: string) => a === key);
-                    const isDivisionSharedAddress: boolean = any(divisionSharedAddresses, (a: string) => a === key);
-                    let className: string = '';
-                    if (isTemplateSharedAddress) {
-                        className += ' bg-warning';
-                    }
-                    if (isDivisionSharedAddress) {
-                        className += ' bg-secondary text-light';
-                    }
+    try {
+        const template: TemplateDto = proposalResult.template!;
+        const selectedDivisionIndex: number = divisionOptions.map((o: IBootstrapDropdownItem) => o.value).indexOf(selectedDivisionId);
+        const templateDivision: DivisionTemplateDto = template.divisions![selectedDivisionIndex];
+        const placeholdersToRender: string[] = distinct(templateDivision.dates!
+            .flatMap((d: DateTemplateDto) => d.fixtures!
+                .flatMap((f: FixtureTemplateDto) => [f.home, f.away])
+                .filter((p?: string) => !!p)));
+        const templateSharedAddresses: string[] = template.sharedAddresses!.flatMap((a: string[]) => a);
+        const divisionSharedAddresses: string[] = templateDivision.sharedAddresses!.flatMap((a: string[]) => a);
+        return (<>
+            <div style={{zIndex: '1051'}}
+                 className="position-fixed p-3 top-0 right-0 bg-white border-2 border-solid border-success box-shadow me-3 mt-3">
+                <h6>Review the fixtures in the divisions</h6>
+                <BootstrapDropdown options={divisionOptions} value={selectedDivisionId}
+                                   onChange={changeVisibleDivision}/>
+                <ul className="mt-3">
+                    {placeholdersToRender.sort().map((key: string) => {
+                        const isTemplateSharedAddress: boolean = any(templateSharedAddresses, (a: string) => a === key);
+                        const isDivisionSharedAddress: boolean = any(divisionSharedAddresses, (a: string) => a === key);
+                        let className: string = '';
+                        if (isTemplateSharedAddress) {
+                            className += ' bg-warning';
+                        }
+                        if (isDivisionSharedAddress) {
+                            className += ' bg-secondary text-light';
+                        }
 
-                    return (<li key={key}>
-                        <span className={`px-2 ${className}`}>{key}</span> &rarr; {proposalResult.placeholderMappings![key].name}
-                    </li>);
-                })}
-            </ul>
-            <p>
-                Template: <a href={`/admin/templates/?select=${template.id}`} target="_blank" rel="noreferrer">{template.name}</a>
-            </p>
-            <div className="mt-3">
-                <button className="btn btn-primary margin-right" onClick={onPrevious}>Back</button>
-                <button className="btn btn-primary margin-right" onClick={onNext}>Save all fixtures</button>
+                        return (<li key={key}>
+                            <span
+                                className={`px-2 ${className}`}>{key}</span> &rarr; {proposalResult.placeholderMappings![key].name}
+                        </li>);
+                    })}
+                </ul>
+                <p>
+                    Template: <a href={`/admin/templates/?select=${template.id}`} target="_blank"
+                                 rel="noreferrer">{template.name}</a>
+                </p>
+                <div className="mt-3">
+                    <button className="btn btn-primary margin-right" onClick={onPrevious}>Back</button>
+                    <button className="btn btn-primary margin-right" onClick={onNext}>Save all fixtures</button>
+                </div>
             </div>
-        </div>
-        <div className="modal-backdrop fade show"></div>
-    </>);
+            <div className="modal-backdrop fade show"></div>
+        </>);
+    } catch (e) {
+        onError(e);
+    }
 }
