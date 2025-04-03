@@ -686,7 +686,7 @@ describe('DivisionFixture', () => {
             reportedError.verifyNoError();
             const awayCell = context.container.querySelector('td:nth-child(5)')!;
             expect(awayCell.querySelector('.dropdown-menu')).toBeFalsy();
-            expect(awayCell.textContent).toContain('🚫 HOME - SAME ADDRESS vs AWAY using this venue');
+            expect(awayCell.textContent).toContain('🚫HOME - SAME ADDRESS vs AWAY using this venue');
             const linkToOtherFixture = awayCell.querySelector('a')!;
             expect(linkToOtherFixture.href).toEqual(`http://localhost/score/${otherFixtureId}`);
         });

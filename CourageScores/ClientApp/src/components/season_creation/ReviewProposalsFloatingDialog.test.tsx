@@ -144,6 +144,50 @@ describe('ReviewProposalsFloatingDialog', () => {
             expect(placeholderItems['D'].querySelector('span').className).not.toContain('bg-');
         });
 
+        it('placeholder mappings when more placeholders in template than division', async () => {
+            const proposalResult = getProposalResult([division2, division1]);
+            proposalResult.template!.sharedAddresses = [ [ 'A', 'B' ] ];
+            proposalResult.template!.divisions![0].sharedAddresses = [ [ 'B', 'C' ] ];
+            proposalResult.template!.divisions![0].dates = [{
+                fixtures: [
+                    { home: 'A' },
+                    { home: 'C', away: 'D' },
+                    { home: 'B' },
+                    { home: 'E', away: 'F' },
+                ]
+            }];
+            proposalResult.placeholderMappings = {
+                'A': teamA,
+                'B': teamB,
+                'C': teamC,
+                'D': teamD,
+            };
+
+            await renderComponent(appProps({
+                divisions: [ division1, division2 ],
+            }), {
+                proposalResult,
+                selectedDivisionId: division1.id,
+                changeVisibleDivision,
+                onNext,
+                onPrevious,
+            });
+
+            const placeholderItems = toDictionary(
+                Array.from(context.container.querySelectorAll('ul li')),
+                li => li.querySelector('span')!.textContent!);
+            expect(Object.keys(placeholderItems)).toEqual(['A', 'B', 'C', 'D']);
+            expect(placeholderItems['A'].textContent).toEqual('A → TEAM A');
+            expect(placeholderItems['B'].textContent).toEqual('B → TEAM B');
+            expect(placeholderItems['C'].textContent).toEqual('C → TEAM C');
+            expect(placeholderItems['D'].textContent).toEqual('D → TEAM D');
+
+            expect(placeholderItems['A'].querySelector('span').className).toContain('bg-warning');
+            expect(placeholderItems['B'].querySelector('span').className).toContain('bg-warning bg-secondary text-light');
+            expect(placeholderItems['C'].querySelector('span').className).toContain('bg-secondary text-light');
+            expect(placeholderItems['D'].querySelector('span').className).not.toContain('bg-');
+        });
+
         it('link to template', async () => {
             const proposalResult = getProposalResult([division1]);
             const templateId = proposalResult!.template!.id;

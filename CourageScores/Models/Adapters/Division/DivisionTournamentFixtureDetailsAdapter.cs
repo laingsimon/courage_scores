@@ -1,3 +1,4 @@
+using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Game;
@@ -54,7 +55,7 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
     {
         return Task.FromResult(new DivisionTournamentFixtureDetailsDto
         {
-            Address = string.Join(", ", teamAddress.Select(t => t.Address).Distinct()),
+            Address = string.Join(", ", teamAddress.Select(t => t.AddressOrName()).Distinct()),
             Date = default,
             Id = default,
             SeasonId = default,

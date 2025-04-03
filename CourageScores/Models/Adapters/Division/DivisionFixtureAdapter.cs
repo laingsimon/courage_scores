@@ -1,3 +1,4 @@
+using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Game;
@@ -40,8 +41,8 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
         return new DivisionFixtureDto
         {
             Id = game.Id,
-            HomeTeam = await _divisionFixtureTeamAdapter.Adapt(game.Home, homeTeam?.Address, token),
-            AwayTeam = await _divisionFixtureTeamAdapter.Adapt(game.Away, awayTeam?.Address, token),
+            HomeTeam = await _divisionFixtureTeamAdapter.Adapt(game.Home, homeTeam?.AddressOrName(), token),
+            AwayTeam = await _divisionFixtureTeamAdapter.Adapt(game.Away, awayTeam?.AddressOrName(), token),
             HomeScore = game.Matches.Any() && showScores && !scoresAreVetoed
                 ? matches.Where((m, index) => IsWinner(m.HomeScore, index, game)).Count()
                 : null,

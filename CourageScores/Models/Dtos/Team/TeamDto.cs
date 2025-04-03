@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Cosmos;
 
 namespace CourageScores.Models.Dtos.Team;
 
@@ -6,7 +7,7 @@ namespace CourageScores.Models.Dtos.Team;
 /// A record of a team and its players, where 'home' is for them, etc.
 /// </summary>
 [ExcludeFromCodeCoverage]
-public class TeamDto : AuditedDto
+public class TeamDto : AuditedDto, INameAndAddress
 {
     /// <summary>
     /// The name of the team
