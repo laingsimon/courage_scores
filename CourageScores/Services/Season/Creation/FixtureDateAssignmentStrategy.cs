@@ -1,3 +1,5 @@
+using CourageScores.Models;
+using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season.Creation;
 using CourageScores.Models.Dtos.Team;
@@ -125,14 +127,14 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
                     {
                         Id = homeTeam.Id,
                         Name = homeTeam.Name,
-                        Address = homeTeam.Address,
+                        Address = homeTeam.AddressOrName(),
                     },
                 AwayTeam = awayTeam != null
                     ? new DivisionFixtureTeamDto
                     {
                         Id = awayTeam.Id,
                         Name = awayTeam.Name,
-                        Address = awayTeam.Address,
+                        Address = awayTeam.AddressOrName(),
                     }
                     : null,
                 IsKnockout = false,

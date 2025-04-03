@@ -1,3 +1,4 @@
+using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Team;
@@ -22,7 +23,7 @@ public class DivisionTeamAdapter : IDivisionTeamAdapter
             FixturesLost = score.FixturesLost,
             FixturesDrawn = score.FixturesDrawn,
             Difference = winRate - lossRate,
-            Address = team.Address,
+            Address = team.AddressOrName(),
             MatchesWon = players.Sum(p => p.Singles.MatchesWon + p.Pairs.MatchesWon + p.Triples.MatchesWon),
             MatchesLost = players.Sum(p => p.Singles.MatchesLost + p.Pairs.MatchesLost + p.Triples.MatchesLost),
             WinRate = winRate,
@@ -37,7 +38,7 @@ public class DivisionTeamAdapter : IDivisionTeamAdapter
         return Task.FromResult(new DivisionTeamDto
         {
             Id = team.Id,
-            Address = team.Address,
+            Address = team.AddressOrName(),
             Played = 0,
             Name = team.Name,
             Points = 0,

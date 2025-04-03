@@ -1,3 +1,4 @@
+using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Team;
@@ -12,7 +13,7 @@ public class DivisionFixtureTeamAdapter : IDivisionFixtureTeamAdapter
         {
             Id = team.Id,
             Name = team.Name,
-            Address = address,
+            Address = address ?? team.Name,
         });
     }
 
@@ -22,7 +23,7 @@ public class DivisionFixtureTeamAdapter : IDivisionFixtureTeamAdapter
         {
             Id = team.Id,
             Name = team.Name,
-            Address = team.Address,
+            Address = team.AddressOrName(),
         });
     }
 }

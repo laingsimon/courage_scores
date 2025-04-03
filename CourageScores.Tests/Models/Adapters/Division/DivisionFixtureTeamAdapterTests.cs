@@ -24,7 +24,7 @@ public class DivisionFixtureTeamAdapterTests
 
         Assert.That(result.Id, Is.EqualTo(gameTeam.Id));
         Assert.That(result.Name, Is.EqualTo(gameTeam.Name));
-        Assert.That(result.Address, Is.Null);
+        Assert.That(result.Address, Is.EqualTo(gameTeam.Name));
     }
 
     [Test]
