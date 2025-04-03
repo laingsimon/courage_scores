@@ -75,9 +75,9 @@ public class FixtureDateAssignmentStrategyTests
         var result = await _strategy.AssignDates(context, _token);
 
         Assert.That(result, Is.False);
-        Assert.That(context.Result.Errors, Is.EquivalentTo(new[]
+        Assert.That(context.Result.Warnings, Is.EquivalentTo(new[]
         {
-            "Could not find home team for fixture - J",
+            "Could not find a team for a fixture - J",
         }));
     }
 
@@ -91,9 +91,9 @@ public class FixtureDateAssignmentStrategyTests
         var result = await _strategy.AssignDates(context, _token);
 
         Assert.That(result, Is.False);
-        Assert.That(context.Result.Errors, Is.EquivalentTo(new[]
+        Assert.That(context.Result.Warnings, Is.EquivalentTo(new[]
         {
-            "Could not find away team for fixture - J",
+            "Could not find a team for a fixture - J",
         }));
     }
 

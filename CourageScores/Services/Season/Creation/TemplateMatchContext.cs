@@ -1,3 +1,5 @@
+using CourageScores.Models;
+using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Season.Creation;
@@ -54,7 +56,7 @@ public class TemplateMatchContext
         }
 
         return teams
-            .GroupBy(t => t.Address.Trim(), StringComparer.OrdinalIgnoreCase)
+            .GroupBy(t => t.AddressOrName(), StringComparer.OrdinalIgnoreCase)
             .Where(g => g.Count() == 1)
             .Select(g => g.Key);
     }
@@ -76,7 +78,7 @@ public class TemplateMatchContext
         public TeamDto[] Teams { get; }
 
         public IReadOnlyCollection<TeamDto[]> SharedAddressesFromSeason => Teams
-            .GroupBy(t => t.Address.Trim(), StringComparer.OrdinalIgnoreCase)
+            .GroupBy(t => t.AddressOrName(), StringComparer.OrdinalIgnoreCase)
             .Where(g => g.Count() > 1)
             .Select(g => g.ToArray())
             .ToArray();

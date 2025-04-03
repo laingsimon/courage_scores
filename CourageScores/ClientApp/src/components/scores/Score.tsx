@@ -94,8 +94,13 @@ export function Score() {
     function renderCreatePlayerDialog() {
         const team: GameTeamDto = createPlayerFor!.side === 'home' ? fixtureData!.home : fixtureData!.away;
 
-        async function playerCreated(updatedTeamDetails: TeamDto) {
+        async function playerCreated(updatedTeamDetails: TeamDto, playersCreated: TeamPlayerDto[]) {
             await reloadTeams();
+
+            if (playersCreated.length > 1) {
+                // multiple players created
+                return;
+            }
 
             try {
                 const updatedTeamSeason: TeamSeasonDto = updatedTeamDetails.seasons!.filter((ts: TeamSeasonDto) => ts.seasonId === fixtureData!.seasonId && !ts.deleted)[0];

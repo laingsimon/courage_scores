@@ -441,7 +441,7 @@ describe('MatchSayg', () => {
 
             const viewLink = context.container.querySelector('a')!;
             expect(viewLink.textContent).toEqual('📊 1 - 2');
-            expect(viewLink.href).toEqual(`http://localhost/live/match/${saygId}`);
+            expect(viewLink.href).toEqual(`http://localhost/live/match/?id=${saygId}`);
         });
 
         it('prompts user to save match if no id', async () => {

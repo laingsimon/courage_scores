@@ -1,3 +1,5 @@
+using CourageScores.Models;
+using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos.Season.Creation;
 using CourageScores.Models.Dtos.Team;
 
@@ -19,7 +21,7 @@ public class AddressAssignmentStrategy : IAddressAssignmentStrategy
             .Select(a =>
             {
                 var allTeams = context.MatchContext.Teams.SelectMany(pair => pair.Value);
-                return allTeams.Where(t => a.Any(aa => t.Address.Trim().Equals(aa.Trim(), StringComparison.OrdinalIgnoreCase))).ToArray();
+                return allTeams.Where(t => a.Any(aa => t.AddressOrName().Trim().Equals(aa.Trim(), StringComparison.OrdinalIgnoreCase))).ToArray();
             })
             .ToArray();
         var templateSeasonSharedAddressPlaceholders = context.Template.SharedAddresses;

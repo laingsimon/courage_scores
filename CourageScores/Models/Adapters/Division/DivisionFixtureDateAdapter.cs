@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
@@ -85,7 +86,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
 
         foreach (var remainingTeam in remainingTeams.Values)
         {
-            var addressInUse = otherFixturesForDate.Where(f => f.Address == remainingTeam.Address).ToArray();
+            var addressInUse = otherFixturesForDate.Where(f => f.Address == remainingTeam.AddressOrName()).ToArray();
             var division = teamIdToDivisionLookup.GetValueOrDefault(remainingTeam.Id);
             yield return await _divisionFixtureAdapter.ForUnselectedTeam(remainingTeam, hasKnockout, addressInUse, division, token);
         }
@@ -109,7 +110,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         {
             foreach (var teamAddress in teams
                          .Where(t => !addressesInUse.Contains(t.Name))
-                         .GroupBy(t => t.Address)
+                         .GroupBy(t => t.AddressOrName())
                          .Where(g => !addressesInUse.Contains(g.Key)))
             {
                 yield return await _divisionTournamentFixtureDetailsAdapter.ForUnselectedVenue(teamAddress, token);
