@@ -21,4 +21,5 @@ public class ProposalContext
     public ActionResultDto<ProposalResultDto> Result { get; }
     public Dictionary<string, TeamDto> PlaceholderMapping => Result.Result!.PlaceholderMappings;
     public Dictionary<string, Guid> RequestedPlaceholderMappings => MatchContext.RequestedPlaceholderMappings;
+    public HashSet<string> PlaceholdersWithoutTeams { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 }

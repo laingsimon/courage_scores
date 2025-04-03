@@ -32,6 +32,15 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
             currentDate = currentDate.AddDays(7);
         }
 
+        if (!success)
+        {
+            // add any placeholders where teams could not be found
+            foreach (var placeholder in context.PlaceholdersWithoutTeams)
+            {
+                context.Result.Warnings.Add($"Could not find a team for a fixture - {placeholder}");
+            }
+        }
+
         return success;
     }
 
@@ -94,7 +103,7 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
             if (homeTeam == null)
             {
                 context.Result.Success = false;
-                context.Result.Errors.Add($"Could not find home team for fixture - {fixtureToCreate.Home.Key}");
+                context.PlaceholdersWithoutTeams.Add(fixtureToCreate.Home.Key);
                 success = false;
                 continue;
             }
@@ -102,7 +111,7 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
             if (awayTeam == null && fixtureToCreate.Away?.Key != null)
             {
                 context.Result.Success = false;
-                context.Result.Errors.Add($"Could not find away team for fixture - {fixtureToCreate.Away.Key}");
+                context.PlaceholdersWithoutTeams.Add(fixtureToCreate.Away.Key);
                 success = false;
                 continue;
             }
