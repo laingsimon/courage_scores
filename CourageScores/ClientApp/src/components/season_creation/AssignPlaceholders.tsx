@@ -34,19 +34,24 @@ export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMapp
         return distinct(templateDivision.dates!.flatMap((d: DateTemplateDto) => d.fixtures!.flatMap((f: FixtureTemplateDto) => [ f.home, f.away ]).filter((placeholder: string | undefined) => !!placeholder)));
     }
 
+    function getAddress(team: TeamDto): string {
+        return team.address || team.name;
+    }
+
     function getTeamsWithUniqueAddresses(division: DivisionDto): IBootstrapDropdownItem[] {
         const teamsInDivision: TeamDto[] = teams.filter((t: TeamDto) => any(t.seasons, (ts: TeamSeasonDto) => ts.seasonId === seasonId && ts.divisionId === division.id && !ts.deleted));
         const addressCounts: { [address: string]: number } = {};
         for (const team of teamsInDivision) {
-            if (addressCounts[team.address] === undefined) {
-                addressCounts[team.address] = 1;
+            const address = getAddress(team);
+            if (addressCounts[address] === undefined) {
+                addressCounts[address] = 1;
             } else {
-                addressCounts[team.address]++;
+                addressCounts[address]++;
             }
         }
         const randomlyAssign: IBootstrapDropdownItem = { value: '', text: '🎲 Randomly assign' };
         return [randomlyAssign].concat(teamsInDivision.sort(sortBy('name')).map((t: TeamDto) => {
-            const hasUniqueAddress: boolean = addressCounts[t.address] === 1;
+            const hasUniqueAddress: boolean = addressCounts[getAddress(t)] === 1;
             const text: string = hasUniqueAddress
                 ? t.name
                 : `🚫 ${t.name} (has shared address)`;
@@ -59,18 +64,19 @@ export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMapp
         const teamsInDivision: TeamDto[] = teams.filter((t: TeamDto) => any(t.seasons, (ts: TeamSeasonDto) => ts.seasonId === seasonId && ts.divisionId === division.id && !ts.deleted));
         const addressCounts: { [address: string]: number } = {};
         for (const team of teamsInDivision) {
-            if (addressCounts[team.address] === undefined) {
-                addressCounts[team.address] = 1;
+            if (addressCounts[getAddress(team)] === undefined) {
+                addressCounts[getAddress(team)] = 1;
             } else {
-                addressCounts[team.address]++;
+                addressCounts[getAddress(team)]++;
             }
         }
         const automaticallyAssign: IBootstrapDropdownItem = { value: '', text: '⚙ Automatically assign' };
         return [automaticallyAssign].concat(teamsInDivision.sort(sortBy('name')).map((t: TeamDto) => {
-            const hasSharedAddress: boolean = addressCounts[t.address] === sharedAddressSize;
+            const address = getAddress(t);
+            const hasSharedAddress: boolean = addressCounts[address] === sharedAddressSize;
             const text: string = hasSharedAddress
                 ? t.name
-                : `🚫 ${t.name} (${addressCounts[t.address] === 1 ? `has unique address` : `${addressCounts[t.address]} use this venue, ${sharedAddressSize} is required`})`;
+                : `🚫 ${t.name} (${addressCounts[address] === 1 ? `has unique address` : `${addressCounts[address]} use this venue, ${sharedAddressSize} is required`})`;
 
             return { value: t.id, text: text, disabled: !hasSharedAddress };
         }));
@@ -96,7 +102,7 @@ export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMapp
         if (teamId) {
             const teamsInDivision: TeamDto[] = teams.filter((t: TeamDto) => any(t.seasons, (ts: TeamSeasonDto) => ts.seasonId === seasonId && ts.divisionId === division.id && !ts.deleted));
             const team: TeamDto = teamsInDivision.filter((t: TeamDto) => t.id === teamId)[0];
-            const otherTeamsWithSameAddress: TeamDto[] = teamsInDivision.filter((t: TeamDto) => t.address === team.address).filter((t: TeamDto) => t.id !== teamId);
+            const otherTeamsWithSameAddress: TeamDto[] = teamsInDivision.filter((t: TeamDto) => getAddress(t) === getAddress(team)).filter((t: TeamDto) => t.id !== teamId);
 
             newMappings[placeholder] = teamId;
             for (const otherPlaceholder of otherSharedAddressPlaceholders) {
