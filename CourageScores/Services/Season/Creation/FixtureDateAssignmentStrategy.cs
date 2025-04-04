@@ -1,5 +1,4 @@
 using CourageScores.Models;
-using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season.Creation;
 using CourageScores.Models.Dtos.Team;
@@ -43,7 +42,19 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
             }
         }
 
+        var lastFixtureDateByDivision = context.Result.Result?.Divisions?.ToDictionary(d => d, d => MaxOrDefault(d.Fixtures, fd => fd.Date));
+        var lastFixtureDateAnyDivision = MaxOrDefault(lastFixtureDateByDivision?.Values, d => d);
+        if (lastFixtureDateAnyDivision > context.MatchContext.SeasonDto.EndDate)
+        {
+            context.Result.Errors.Add($"Some fixtures will be created after the season ends. You need to update the season end-date to see them. The last fixture was created on {lastFixtureDateAnyDivision:dd MMM yyyy}");
+        }
+
         return success;
+    }
+
+    private static DateTime MaxOrDefault<T>(IEnumerable<T>? dates, Func<T, DateTime> selector)
+    {
+        return dates?.Select(selector).OrderByDescending(d => d).FirstOrDefault() ?? default;
     }
 
     private static bool AreThereAnyFixturesNotesOrTournaments(IEnumerable<IEnumerable<DivisionFixtureDateDto>> fixtureDateForDivisions)
