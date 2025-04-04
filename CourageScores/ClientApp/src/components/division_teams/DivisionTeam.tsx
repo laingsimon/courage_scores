@@ -33,7 +33,6 @@ export function DivisionTeam({team}: IDivisionTeamProps) {
     async function teamDetailSaved() {
         await onReloadDivision();
 
-        setTeamDetails({ newDivisionId: divisionId, name: '', address: '' });
         setEditTeam(false);
     }
 
