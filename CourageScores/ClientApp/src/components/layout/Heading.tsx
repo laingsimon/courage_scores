@@ -13,7 +13,9 @@ export function Heading() {
     }
 
     function renderTime(): string {
-        const time: string = build.date!.substring(build.date!.length - 8);
+        const buildDate = new Date(build.date!);
+        const buildTime = buildDate.toLocaleTimeString();
+        const time: string = buildTime.substring(buildTime.length - 8);
         return time.substring(0, 5); // trim off the seconds
     }
 

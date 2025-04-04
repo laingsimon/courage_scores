@@ -96,7 +96,7 @@ describe('About', () => {
         });
 
         it('shows date', async () => {
-            const buildDate = '2023-04-05T06:07:08';
+            const buildDate = '2023-04-05T06:07:08Z';
             await renderComponent({
                 branch: 'BRANCH',
                 version: '0123456789abcdef',
@@ -105,7 +105,7 @@ describe('About', () => {
 
             const branchRow = getRow('Date');
             const cell = branchRow.querySelector('td') as HTMLTableCellElement;
-            const expectedDate = renderDate(buildDate) + ' ' + new Date(buildDate).toLocaleTimeString();
+            const expectedDate = renderDate(buildDate) + ' 07:07:08';
             expect(cell.textContent).toEqual(expectedDate);
         });
     });
