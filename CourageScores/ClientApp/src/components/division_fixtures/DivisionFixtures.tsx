@@ -68,7 +68,6 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
     async function onTournamentChanged() {
         const divisionData: DivisionDataDto | null = await onReloadDivision();
         await setNewFixtures(divisionData?.fixtures || []);
-        setNewDate('');
     }
 
     function renderFixtureDate(fixtureDate: IEditableDivisionFixtureDateDto) {
@@ -132,7 +131,6 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
             onNoteChanged={async (note: FixtureDateNoteDto) => setEditNote(note)}
             onClose={async () => setEditNote(null)}
             onSaved={async () => {
-                setNewDate('');
                 setEditNote(null);
                 await onReloadDivision();
             }}/>);
