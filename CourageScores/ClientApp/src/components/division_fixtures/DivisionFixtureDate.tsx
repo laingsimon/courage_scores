@@ -188,6 +188,7 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
                     date={date.date}
                     tournamentFixtures={date.tournamentFixtures || []}
                     onTournamentChanged={onTournamentChanged}
+                    allowCopySidesFrom={!superleague}
                 />) : null}
             </tbody>
         </table>
