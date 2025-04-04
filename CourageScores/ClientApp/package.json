@@ -69,7 +69,7 @@
     "compile-ts": "tsc",
     "build": "tsc && vite build --emptyOutDir",
     "preview": "vite preview",
-    "test": "jest --maxWorkers=50% --env=jsdom"
+    "test": "env TZ=Europe/London jest --maxWorkers=50% --env=jsdom"
   },
   "eslintConfig": {
     "extends": [

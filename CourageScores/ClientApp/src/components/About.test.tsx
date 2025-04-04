@@ -96,7 +96,7 @@ describe('About', () => {
         });
 
         it('shows date', async () => {
-            const buildDate = '2023-04-05T06:07:08';
+            const buildDate = '2023-04-05T06:07:08Z';
             await renderComponent({
                 branch: 'BRANCH',
                 version: '0123456789abcdef',
