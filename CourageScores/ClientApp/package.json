@@ -6,7 +6,7 @@
   "dependencies": {
     "@types/websocket": "^1.0.10",
     "@vitejs/plugin-react": "^4.3.4",
-    "bootstrap": "^5.3.3",
+    "bootstrap": "^5.3.4",
     "jest-junit": "^16.0.0",
     "react-cookie": "^7.2.1",
     "react-markdown": "^10.1.0",
