@@ -12,11 +12,17 @@ export function Heading() {
         window.alert(`Branch: ${build.branch}\nSHA: ${build.version!.substring(0, 8)}\nPR: ${build.prName}`);
     }
 
+    function padWith0(number: number): string {
+        if (number < 10) {
+            return `0${number}`;
+        }
+
+        return number.toString();
+    }
+
     function renderTime(): string {
         const buildDate = new Date(build.date!);
-        const buildTime = buildDate.toLocaleTimeString();
-        const time: string = buildTime.substring(buildTime.length - 8);
-        return time.substring(0, 5); // trim off the seconds
+        return `${padWith0(buildDate.getHours())}:${padWith0(buildDate.getMinutes())}`;
     }
 
     return (<div className="d-print-none">

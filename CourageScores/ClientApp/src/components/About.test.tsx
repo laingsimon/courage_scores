@@ -105,7 +105,7 @@ describe('About', () => {
 
             const branchRow = getRow('Date');
             const cell = branchRow.querySelector('td') as HTMLTableCellElement;
-            const expectedDate = renderDate(buildDate) + ' 07:07:08';
+            const expectedDate = renderDate(buildDate) + ' ' + new Date(buildDate).toLocaleTimeString();
             expect(cell.textContent).toEqual(expectedDate);
         });
     });
