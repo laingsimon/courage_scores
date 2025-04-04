@@ -117,7 +117,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
     function startAddNote(date: string) {
         setEditNote({
             date: date,
-            divisionId: divisionId,
+            divisionId: null,
             seasonId: season!.id,
             note: '',
         });
