@@ -9,6 +9,7 @@ import {useDependencies} from "../common/IocContainer";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 import {Link} from "react-router";
 import {Loading} from "../common/Loading";
+import {useApp} from "../common/AppContainer";
 
 export interface ILiveSuperleagueTournamentDisplayProps {
     id: string;
