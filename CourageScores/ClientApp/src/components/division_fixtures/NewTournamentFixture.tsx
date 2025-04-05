@@ -24,9 +24,10 @@ export interface INewTournamentFixtureProps {
     date: string,
     tournamentFixtures: DivisionTournamentFixtureDetailsDto[];
     onTournamentChanged(): UntypedPromise;
+    allowCopySidesFrom?: boolean;
 }
 
-export function NewTournamentFixture({date, tournamentFixtures, onTournamentChanged}: INewTournamentFixtureProps) {
+export function NewTournamentFixture({date, tournamentFixtures, onTournamentChanged, allowCopySidesFrom}: INewTournamentFixtureProps) {
     const ADD_CUSTOM_ADDRESS_VALUE = 'ADD_CUSTOM_ADDRESS';
     const {id, season, fixtures: fixtureDates} = useDivisionData();
     const {tournamentApi} = useDependencies();
@@ -197,12 +198,14 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
                 options={addressOptions}
                 value={address}
                 onChange={changeAddress}/>
-            <span className="margin-right margin-left">add winners from</span>
-            <BootstrapDropdown
-                className="copy-sides-from-dropdown"
-                options={copySidesFromOptions}
-                value={copySidesFrom}
-                onChange={async (v) => setCopySidesFrom(v)}/>
+            {allowCopySidesFrom ? (<>
+                <span className="margin-right margin-left">add winners from</span>
+                <BootstrapDropdown
+                    className="copy-sides-from-dropdown"
+                    options={copySidesFromOptions}
+                    value={copySidesFrom}
+                    onChange={async (v) => setCopySidesFrom(v)}/>
+                </>) : null}
         </td>
         <td className="medium-column-width text-end">
             <button className="btn btn-sm btn-primary" onClick={createFixture} disabled={!address}>
