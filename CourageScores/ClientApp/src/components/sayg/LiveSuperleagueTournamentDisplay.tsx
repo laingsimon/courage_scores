@@ -7,6 +7,7 @@ import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {sum} from "../../helpers/collections";
 import {useDependencies} from "../common/IocContainer";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {Link} from "react-router";
 
 export interface ILiveSuperleagueTournamentDisplayProps {
     id: string;
@@ -93,7 +94,7 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove}: ILiveSupe
     return (<div className="d-flex flex-column justify-content-center">
         <h3 className="flex-grow-0 flex-shrink-0">
             {onRemove ? (<button className="btn btn-sm btn-danger me-2" onClick={onRemove}>❌</button>) : null}
-            {tournament?.type ?? tournament?.notes}
+            <Link to={`/tournament/${tournament?.id}`}>{tournament?.type ?? tournament?.notes}</Link>
         </h3>
         <table className="table">
             <thead>
