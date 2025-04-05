@@ -113,7 +113,7 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
 
     return (<div className="d-flex flex-column justify-content-center">
         <h3 className="flex-grow-0 flex-shrink-0 text-center">
-            {onRemove ? (<button className="btn btn-sm btn-danger me-2" onClick={onRemove}>❌</button>) : null}
+            {onRemove ? (<button className="btn btn-sm btn-secondary me-2" onClick={onRemove}>❌</button>) : null}
             {fullScreen.isFullScreen ? tournament.type : <Link to={`/tournament/${tournament.id}`}>{tournament.type}</Link>}
         </h3>
         <table className="table">
