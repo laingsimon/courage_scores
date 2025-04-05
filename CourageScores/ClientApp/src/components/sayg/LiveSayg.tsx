@@ -87,8 +87,9 @@ export function LiveSayg() {
                 newSearch.append('id', tournament!.id!);
             }
             newSearch.delete('date');
-            navigate(location.pathname + '?' + newSearch.toString());
+            navigate(location.pathname + '?' + newSearch.toString(), { replace: true });
             setStatusText(null);
+            setFindingFixtures(false);
         } else {
             setStatusText(`Specify the ids for the ${type}'s`);
         }
