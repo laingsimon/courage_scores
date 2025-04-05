@@ -117,11 +117,11 @@ export function LiveSayg() {
         navigate(location.pathname + '?' + newSearch.toString());
     }
 
-    return (<div className={`${fullScreen.isFullScreen ? 'bg-white fs-4 position-absolute top-0 left-0 right-0 bottom-0 d-flex flex-column justify-content-stretch' : 'content-background p-1 position-relative'}`}>
+    return (<div id="full-screen-container" className={`${fullScreen.isFullScreen ? 'bg-white d-flex flex-column justify-content-stretch' : 'content-background p-1 position-relative'}`}>
         {fullScreen.isFullScreen || statusText ? null : (<button className="btn btn-primary position-absolute top-0 right-0 m-2" onClick={() => fullScreen.enterFullScreen(document.getElementById('full-screen-container'))}>Full screen</button>)}
         {statusText ? (<div className="alert alert-warning">{statusText}</div>) : null}
         <LiveContainer liveOptions={liveOptions} onDataUpdate={dataUpdated}>
-            <div id="full-screen-container" className={`d-flex flex-grow-1 ${fullScreen.isFullScreen ? 'flex-row justify-content-evenly py-5 my-5' : 'overflow-auto'}`}>
+            <div className={`d-flex flex-grow-1 ${fullScreen.isFullScreen ? 'flex-row justify-content-evenly py-5 my-5' : 'overflow-auto'}`}>
             {ids.map((id, index) => {
                 if (type === 'match' && ids.length === 1) {
                     return (<SaygLoadingContainer key={id} id={id} liveOptions={liveOptions} />);
