@@ -147,7 +147,10 @@ export function App({embed, controls, testRoute}: IAppProps) {
 
             await this.enterFullScreen();
         }
-    }
+    };
+    fullScreen.exitFullScreen = fullScreen.exitFullScreen.bind(fullScreen);
+    fullScreen.enterFullScreen = fullScreen.enterFullScreen.bind(fullScreen);
+    fullScreen.toggleFullScreen = fullScreen.toggleFullScreen.bind(fullScreen);
 
     // noinspection JSUnusedGlobalSymbols
     const appData: IApp = {
