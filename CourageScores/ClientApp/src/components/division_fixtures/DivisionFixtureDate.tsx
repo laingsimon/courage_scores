@@ -40,6 +40,7 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
     const canManageGames: boolean = hasAccess(account, access => access.manageGames);
     const isNoteAdmin: boolean = hasAccess(account, access => access.manageNotes);
     const filterByDateUrl: string = getFilterByDateUrl(date.date);
+    const canUseWebSockets: boolean = hasAccess(account, access => access.useWebSockets);
 
     function getFilterByDateUrl(date: string): string {
         const filters = new URLSearchParams(location.search);
@@ -169,7 +170,7 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
                     <label className="form-check-label margin-left"
                            htmlFor={'isKnockout_' + date.date}>Qualifier</label>
                 </span>) : null}
-            {superleague && hasAccess(account, access => access.useWebSockets) ? (<Link to={`/live/superleague/?date=${date.date}`} className="float-end fs-6">🖥️</Link>) : null}
+            {superleague && canUseWebSockets && any(date.tournamentFixtures) ? (<Link to={`/live/superleague/?date=${date.date}`} className="float-end fs-6">🖥️</Link>) : null}
         </h4>
         {(date.notes || []).map((note: FixtureDateNoteDto) => (<FixtureDateNote key={note.id} note={note} setEditNote={setEditNote}/>))}
         <table className="table layout-fixed">
