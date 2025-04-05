@@ -1,6 +1,5 @@
 ﻿import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
-import {ifNaN, ifUndefined, round2dp} from "../../helpers/rendering";
 import {useEffect, useState} from "react";
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
@@ -80,8 +79,8 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
 
     function getAverage(match: TournamentMatchDto, player: 'home' | 'away'): string | number {
         const average = sumOf(match, player, 'score') / (sumOf(match, player, 'noOfDarts') / 3);
-        const appropriateAverage = average / 3;
-        return ifNaN(round2dp(ifUndefined(appropriateAverage)), '-');
+        const appropriateAverage = (average / 3);
+        return Number.isNaN(appropriateAverage) ? '-' : appropriateAverage.toFixed(2);
     }
 
     function getScore(match: TournamentMatchDto, player: 'home' | 'away'): number {
@@ -128,7 +127,7 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
             </tr>
             </thead>
             <tbody>
-            {tournament.round?.matches?.map((m, index) => {
+            {tournament.round?.matches?.map((m: TournamentMatchDto) => {
                 return (<tr key={m.id}>
                     <td className={`text-danger ${isWinner(m, 'home') ? 'fw-bold' : ''}`}>{getAverage(m, 'home')}</td>
                     <td className={`text-end ${isWinner(m, 'home') ? 'fw-bold' : ''}`}>{firstInitialAndLastNames(m.sideA.name)}</td>
