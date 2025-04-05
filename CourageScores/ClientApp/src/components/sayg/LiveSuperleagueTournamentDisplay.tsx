@@ -7,18 +7,21 @@ import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {sum} from "../../helpers/collections";
 import {useDependencies} from "../common/IocContainer";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {Link} from "react-router";
+import {Loading} from "../common/Loading";
 
 export interface ILiveSuperleagueTournamentDisplayProps {
     id: string;
     data?: TournamentGameDto;
     onRemove?(): UntypedPromise;
+    showLoading?: boolean;
 }
 
 interface IMatchSaygLookup {
     [matchId: string]: RecordedScoreAsYouGoDto;
 }
 
-export function LiveSuperleagueTournamentDisplay({id, data, onRemove}: ILiveSuperleagueTournamentDisplayProps) {
+export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoading}: ILiveSuperleagueTournamentDisplayProps) {
     const {saygApi, tournamentApi} = useDependencies();
     const [matchSaygData, setMatchSaygData] = useState<IMatchSaygLookup>({});
     const [initialData, setInitialData] = useState<TournamentGameDto | undefined | null>(undefined);
@@ -90,26 +93,32 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove}: ILiveSupe
         return score > (bestOf / 2.0);
     }
 
+    if (!tournament) {
+        return showLoading ? (<div className="flex-grow-1 bg-white">
+            <Loading />
+        </div>) : null;
+    }
+
     return (<div className="d-flex flex-column justify-content-center">
         <h3 className="flex-grow-0 flex-shrink-0">
             {onRemove ? (<button className="btn btn-sm btn-danger me-2" onClick={onRemove}>❌</button>) : null}
-            {tournament?.notes}
+            <Link to={`/tournament/${tournament.id}`}>{tournament.type}</Link>
         </h3>
         <table className="table">
             <thead>
             <tr>
                 <th>#</th>
                 <th>Avg</th>
-                <th>{tournament?.host}</th>
+                <th>{tournament.host}</th>
                 <th>Score</th>
                 <th>-</th>
                 <th>Score</th>
-                <th>{tournament?.opponent}</th>
+                <th>{tournament.opponent}</th>
                 <th>Avg</th>
             </tr>
             </thead>
             <tbody>
-            {tournament?.round?.matches?.map((m, index) => {
+            {tournament.round?.matches?.map((m, index) => {
                 return (<tr key={m.id}>
                     <td>{index + 1}</td>
                     <td className={`text-danger ${isWinner(m, 'home') ? 'fw-bold' : ''}`}>{getAverage(m, 'home')}</td>

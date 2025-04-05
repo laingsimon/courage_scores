@@ -276,19 +276,19 @@ public class FinalsNightReport : CompositeReport
         }
 
         token.ThrowIfCancellationRequested();
-        await foreach (var row in ForEachDivision(divisionData, HighestCheckout, DivisionOrder.Ascending, token))
+        await foreach (var row in ForEachDivision(divisionData, HighestCheckout, DivisionOrder.Descending, token))
         {
             yield return row;
         }
 
         token.ThrowIfCancellationRequested();
-        await foreach (var row in ForEachDivision(divisionData, Most180s, DivisionOrder.Ascending, token))
+        await foreach (var row in ForEachDivision(divisionData, Most180s, DivisionOrder.Descending, token))
         {
             yield return row;
         }
 
         token.ThrowIfCancellationRequested();
-        await foreach (var row in ForEachDivision(divisionData, TopPlayer, DivisionOrder.Ascending, token))
+        await foreach (var row in ForEachDivision(divisionData, TopPlayer, DivisionOrder.Descending, token))
         {
             yield return row;
         }

@@ -200,7 +200,7 @@ describe('MasterDraw', () => {
             expect(tournamentProperties.textContent).toContain('Notes: Board 1');
         });
 
-        it('when no notes', async () => {
+        it('when no type', async () => {
             await renderComponent({
                 tournamentData: tournament.type(undefined!).build(),
                 readOnly: true,

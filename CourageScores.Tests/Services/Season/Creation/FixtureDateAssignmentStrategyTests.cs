@@ -243,10 +243,34 @@ public class FixtureDateAssignmentStrategyTests
                 OutputDate(new DateTime(2001, 01, 15), OutputFixture(Team2, Team3), OutputFixture(Team4, Team1)))).Using(_comparer));
     }
 
-    private ProposalContext ProposalContext(IReadOnlyCollection<DivisionDataDto> divisions, TemplateDto template, Dictionary<Guid, TeamDto[]> teams)
+    [Test]
+    public async Task AssignDates_GivenSingleDivisionAndFixturesExtendPastEndOfSeason_WarnsAboutSeasonEndDate()
+    {
+        var template = Template(TemplateDivision(
+            TemplateDate(TemplateFixture("A", "B"), TemplateFixture("C", "D")),
+            TemplateDate(TemplateFixture("B", "C"), TemplateFixture("D", "A"))));
+        var division = new DivisionDataDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var teams = new Dictionary<Guid, TeamDto[]>();
+        var shortSeason = new SeasonDtoBuilder().WithDates(new DateTime(2001, 01, 01), new DateTime(2001, 01, 02)).Build();
+        var context = ProposalContext(new[] { division }, template, teams, shortSeason);
+
+        var result = await _strategy.AssignDates(context, _token);
+
+        Assert.That(result, Is.True);
+        Assert.That(context.Result.Result!.Divisions!.Count, Is.EqualTo(1));
+        Assert.That(
+            context.Result.Errors,
+            Is.EquivalentTo([ "Some fixtures will be created after the season ends. You need to update the season end-date to see them. The last fixture was created on 08 Jan 2001" ]));
+    }
+
+    private ProposalContext ProposalContext(IReadOnlyCollection<DivisionDataDto> divisions, TemplateDto template,
+        Dictionary<Guid, TeamDto[]> teams, SeasonDto? season = null)
     {
         return new ProposalContext(
-            new TemplateMatchContext(Season, divisions, teams, new Dictionary<string, Guid>()),
+            new TemplateMatchContext(season ?? Season, divisions, teams, new Dictionary<string, Guid>()),
             template,
             new ActionResultDto<ProposalResultDto>
             {

@@ -70,7 +70,7 @@ describe('Heading', () => {
             await renderComponent({
                 branch: 'release',
                 version: '0123456789abcdef',
-                date: '2023-04-05T06:07:08',
+                date: '2023-04-05T06:07:08Z',
             }, { name: '' });
 
             const version = context.container.querySelector('span.bg-warning') as HTMLElement;
@@ -81,20 +81,20 @@ describe('Heading', () => {
             await renderComponent({
                 branch: 'main',
                 version: '0123456789abcdef',
-                date: '2023-04-05T06:07:08',
+                date: '2023-04-05T06:07:08Z',
                 prName: 'my PR title',
             }, { name: '' });
 
             const version = context.container.querySelector('span.bg-warning') as HTMLElement;
             expect(version).toBeTruthy();
-            expect(version.textContent).toEqual(`${renderDate('2023-04-05')}@06:07`);
+            expect(version.textContent).toEqual(`${renderDate('2023-04-05')}@07:07`);
         });
 
         it('when clicked', async () => {
             await renderComponent({
                 branch: 'main',
                 version: '0123456789abcdef',
-                date: '2023-04-05T06:07:08',
+                date: '2023-04-05T06:07:08Z',
                 prName: 'my PR title',
             }, { name: '' });
 
@@ -113,7 +113,7 @@ describe('Heading', () => {
         it('when no version', async () => {
             await renderComponent({
                 branch: 'main',
-                date: '2023-04-05T06:07:08',
+                date: '2023-04-05T06:07:08Z',
             }, { name: '' });
 
             const version = context.container.querySelector('span.bg-warning') as HTMLElement;
@@ -123,7 +123,7 @@ describe('Heading', () => {
         it('when no branch', async () => {
             await renderComponent({
                 version: '0123456789abcdef',
-                date: '2023-04-05T06:07:08',
+                date: '2023-04-05T06:07:08Z',
             }, { name: '' });
 
             const version = context.container.querySelector('span.bg-warning') as HTMLElement;

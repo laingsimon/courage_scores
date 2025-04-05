@@ -32,6 +32,11 @@ export function DivisionTeams() {
         await onReloadDivision();
 
         setNewTeam(false);
+        setTeamDetails({
+            name: '',
+            address: '',
+            newDivisionId: divisionId,
+        });
     }
 
     function renderNewTeamDialog() {

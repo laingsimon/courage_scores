@@ -57,6 +57,7 @@ describe('NewTournamentFixture', () => {
             date,
             onTournamentChanged,
             tournamentFixtures,
+            allowCopySidesFrom: true,
         };
     }
 
