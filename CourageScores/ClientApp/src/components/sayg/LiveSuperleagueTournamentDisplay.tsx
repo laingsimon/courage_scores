@@ -93,7 +93,7 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove}: ILiveSupe
     return (<div className="d-flex flex-column justify-content-center">
         <h3 className="flex-grow-0 flex-shrink-0">
             {onRemove ? (<button className="btn btn-sm btn-danger me-2" onClick={onRemove}>❌</button>) : null}
-            {tournament?.notes}
+            {tournament?.type ?? tournament?.notes}
         </h3>
         <table className="table">
             <thead>
