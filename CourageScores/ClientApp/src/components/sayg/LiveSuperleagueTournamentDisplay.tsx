@@ -23,6 +23,7 @@ interface IMatchSaygLookup {
 
 export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoading}: ILiveSuperleagueTournamentDisplayProps) {
     const {saygApi, tournamentApi} = useDependencies();
+    const {fullScreen} = useApp();
     const [matchSaygData, setMatchSaygData] = useState<IMatchSaygLookup>({});
     const [initialData, setInitialData] = useState<TournamentGameDto | undefined | null>(undefined);
     const tournament = data ?? initialData;
@@ -102,7 +103,7 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
     return (<div className="d-flex flex-column justify-content-center">
         <h3 className="flex-grow-0 flex-shrink-0">
             {onRemove ? (<button className="btn btn-sm btn-danger me-2" onClick={onRemove}>❌</button>) : null}
-            <Link to={`/tournament/${tournament.id}`}>{tournament.type}</Link>
+            {fullScreen.isFullscreen ? tournament.type : <Link to={`/tournament/${tournament.id}`}>{tournament.type}</Link>}
         </h3>
         <table className="table">
             <thead>
