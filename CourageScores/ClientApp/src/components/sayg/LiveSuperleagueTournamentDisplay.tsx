@@ -95,6 +95,17 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
         return score > (bestOf / 2.0);
     }
 
+    function firstInitialAndLastNames(name?: string): string | undefined {
+        const names: string[] = name?.split(' ') ?? [];
+        if (names.length === 1) {
+            return name;
+        }
+
+        return names.map((name, index) => {
+            return index === names.length - 1 ? name : name[0]
+        }).join(' ');
+    }
+
     if (!tournament) {
         return showLoading ? (<div className="flex-grow-1 bg-white">
             <Loading />
@@ -102,19 +113,16 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
     }
 
     return (<div className="d-flex flex-column justify-content-center">
-        <h3 className="flex-grow-0 flex-shrink-0">
+        <h3 className="flex-grow-0 flex-shrink-0 text-center">
             {onRemove ? (<button className="btn btn-sm btn-danger me-2" onClick={onRemove}>❌</button>) : null}
             {fullScreen.isFullScreen ? tournament.type : <Link to={`/tournament/${tournament.id}`}>{tournament.type}</Link>}
         </h3>
         <table className="table">
             <thead>
             <tr>
-                <th>#</th>
                 <th>Avg</th>
                 <th>{tournament.host}</th>
-                <th>Score</th>
-                <th>-</th>
-                <th>Score</th>
+                <th className="text-center" colSpan={3}>Score</th>
                 <th>{tournament.opponent}</th>
                 <th>Avg</th>
             </tr>
@@ -122,13 +130,12 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
             <tbody>
             {tournament.round?.matches?.map((m, index) => {
                 return (<tr key={m.id}>
-                    <td>{index + 1}</td>
                     <td className={`text-danger ${isWinner(m, 'home') ? 'fw-bold' : ''}`}>{getAverage(m, 'home')}</td>
-                    <td className={isWinner(m, 'home') ? 'fw-bold' : ''}>{m.sideA.name}</td>
+                    <td className={`text-end ${isWinner(m, 'home') ? 'fw-bold' : ''}`}>{firstInitialAndLastNames(m.sideA.name)}</td>
                     <td className={`text-end ${isWinner(m, 'home') ? 'fw-bold' : ''}`}>{getScore(m, 'home')}</td>
                     <td>-</td>
                     <td className={isWinner(m, 'away') ? 'fw-bold' : ''}>{getScore(m, 'away')}</td>
-                    <td className={isWinner(m, 'away') ? 'fw-bold' : ''}>{m.sideB.name}</td>
+                    <td className={isWinner(m, 'away') ? 'fw-bold' : ''}>{firstInitialAndLastNames(m.sideB.name)}</td>
                     <td className={`text-danger ${isWinner(m, 'away') ? 'fw-bold' : ''}`}>{getAverage(m, 'away')}</td>
                 </tr>);
             })}
