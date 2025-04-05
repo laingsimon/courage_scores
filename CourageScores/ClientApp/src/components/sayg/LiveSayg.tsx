@@ -121,7 +121,7 @@ export function LiveSayg() {
         {fullScreen.isFullScreen || statusText ? null : (<button className="btn btn-primary position-absolute top-0 right-0 m-2" onClick={() => fullScreen.enterFullScreen()}>Full screen</button>)}
         {statusText ? (<div className="alert alert-warning">{statusText}</div>) : null}
         <LiveContainer liveOptions={liveOptions} onDataUpdate={dataUpdated}>
-            <div className={`d-flex flex-grow-1 ${fullScreen.isFullScreen ? 'flex-row justify-content-evenly my-5 py-5' : 'overflow-auto'}`}>
+            <div className={`d-flex flex-grow-1 ${fullScreen.isFullScreen ? 'flex-row justify-content-evenly' : 'overflow-auto'}`}>
             {ids.map((id, index) => {
                 if (type === 'match' && ids.length === 1) {
                     return (<SaygLoadingContainer key={id} id={id} liveOptions={liveOptions} />);
