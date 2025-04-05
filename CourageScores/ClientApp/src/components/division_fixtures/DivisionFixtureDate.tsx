@@ -169,6 +169,7 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
                     <label className="form-check-label margin-left"
                            htmlFor={'isKnockout_' + date.date}>Qualifier</label>
                 </span>) : null}
+            {superleague ? (<Link to={`/live/superleague/?date=${date.date}`} className="float-end fs-6">Watch live</Link>) : null}
         </h4>
         {(date.notes || []).map((note: FixtureDateNoteDto) => (<FixtureDateNote key={note.id} note={note} setEditNote={setEditNote}/>))}
         <table className="table layout-fixed">
