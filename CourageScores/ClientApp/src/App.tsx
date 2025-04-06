@@ -129,9 +129,9 @@ export function App({embed, controls, testRoute}: IAppProps) {
     const fullScreen: IFullScreen = {
         isFullScreen,
         canGoFullScreen: document.fullscreenEnabled,
-        async enterFullScreen(): Promise<void> {
+        async enterFullScreen(element?: HTMLElement | null): Promise<void> {
             if (document.fullscreenEnabled) {
-                await document.body.requestFullscreen();
+                await (element ?? document.body).requestFullscreen();
             }
         },
         async exitFullScreen(): Promise<void> {
@@ -147,7 +147,10 @@ export function App({embed, controls, testRoute}: IAppProps) {
 
             await this.enterFullScreen();
         }
-    }
+    };
+    fullScreen.exitFullScreen = fullScreen.exitFullScreen.bind(fullScreen);
+    fullScreen.enterFullScreen = fullScreen.enterFullScreen.bind(fullScreen);
+    fullScreen.toggleFullScreen = fullScreen.toggleFullScreen.bind(fullScreen);
 
     // noinspection JSUnusedGlobalSymbols
     const appData: IApp = {

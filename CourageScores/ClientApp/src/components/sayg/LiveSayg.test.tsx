@@ -250,7 +250,6 @@ describe('LiveSayg', () => {
             const cells = Array.from(firstMatchRow!.querySelectorAll('td'));
             const cellValues = cells.map(c => c.className.includes('fw-bold') ? `*${c.textContent}*` : c.textContent!);
             expect(cellValues).toEqual([
-                '1',
                 '*33.33*', // average
                 '*home*', // name
                 '*3*', // score
@@ -297,14 +296,13 @@ describe('LiveSayg', () => {
             const cells = Array.from(firstMatchRow!.querySelectorAll('td'));
             const cellValues = cells.map(c => c.className.includes('fw-bold') ? `*${c.textContent}*` : c.textContent!);
             expect(cellValues).toEqual([
-                '1',
-                '25', // average
+                '25.00', // average
                 'home', // name
                 '1', // score
                 '-',
                 '*3*', // score
                 '*away*', // name
-                '*40*', // average
+                '*40.00*', // average
             ]);
         });
     });
@@ -356,7 +354,7 @@ describe('LiveSayg', () => {
                 }, reportedError),
                 '/live/superleague/?id=' + tournament1.id + '&id=' + tournament2.id);
 
-            const secondTournamentRemoveButton = Array.from(context.container.querySelectorAll('button.btn-danger'));
+            const secondTournamentRemoveButton = Array.from(context.container.querySelectorAll('button.btn-secondary'));
             await doClick(secondTournamentRemoveButton[1]);
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith('/live/superleague/?id=' + tournament1.id);
