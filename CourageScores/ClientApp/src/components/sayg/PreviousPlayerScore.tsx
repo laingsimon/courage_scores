@@ -59,7 +59,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
 
     function renderPlayer(currentPlayer: string, score: number, className: string) {
         const suffix: string | null = leg.currentThrow === currentPlayer
-            ? 'alert alert-info'
+            ? 'alert alert-primary'
             : 'alert';
         return (<div className={`flex-basis-0 flex-grow-1 flex-shrink-1 ${className} ${suffix}`} datatype={currentPlayer === leg.currentThrow ? 'current-player' : ''}>
             <div className="overflow-hidden no-wrap d-block fs-4">{firstNameOnly(currentPlayer === 'home' ? home : away)}</div>

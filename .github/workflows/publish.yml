@@ -77,6 +77,7 @@ jobs:
           flag-name: React
           parallel: true
           format: lcov
+          fail-on-error: false
 
       - name: Upload artifact for deployment job
         if: ${{ inputs.upload == true }}

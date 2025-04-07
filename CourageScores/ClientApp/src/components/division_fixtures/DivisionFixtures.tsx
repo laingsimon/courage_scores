@@ -29,6 +29,8 @@ import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDt
 import {useBranding} from "../common/BrandingContainer";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 import {hasAccess} from "../../helpers/conditions";
+import {useDependencies} from "../common/IocContainer";
+import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 
 export interface IDivisionFixturesProps {
     setNewFixtures(fixtures: DivisionFixtureDateDto[]): UntypedPromise;
@@ -36,6 +38,7 @@ export interface IDivisionFixturesProps {
 
 export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
     const {id: divisionId, name, season, fixtures, onReloadDivision, superleague} = useDivisionData();
+    const {gameApi} = useDependencies();
     const location = useLocation();
     const {account, onError, controls, teams} = useApp();
     const isAdmin: boolean = hasAccess(account, access => access.manageGames);
@@ -45,6 +48,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
     const [editNote, setEditNote] = useState<EditFixtureDateNoteDto | null>(null);
     const [showPlayers, setShowPlayers] = useState<{ [date: string]: boolean }>(getPlayersToShow());
     const [createFixturesDialogOpen, setCreateFixturesDialogOpen] = useState<boolean>(false);
+    const [deletingAllFixtures, setDeletingAllFixtures] = useState<boolean>(false);
     const {setTitle} = useBranding();
 
     function getPlayersToShow(): { [date: string]: boolean } {
@@ -64,7 +68,6 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
     async function onTournamentChanged() {
         const divisionData: DivisionDataDto | null = await onReloadDivision();
         await setNewFixtures(divisionData?.fixtures || []);
-        setNewDate('');
     }
 
     function renderFixtureDate(fixtureDate: IEditableDivisionFixtureDateDto) {
@@ -117,7 +120,6 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
     function startAddNote(date: string) {
         setEditNote({
             date: date,
-            divisionId: divisionId,
             seasonId: season!.id,
             note: '',
         });
@@ -129,7 +131,6 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
             onNoteChanged={async (note: FixtureDateNoteDto) => setEditNote(note)}
             onClose={async () => setEditNote(null)}
             onSaved={async () => {
-                setNewDate('');
                 setEditNote(null);
                 await onReloadDivision();
             }}/>);
@@ -207,27 +208,72 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
         return filteredFixtureDate;
     }
 
+    async function bulkDeleteFixtures() {
+        if (!season || deletingAllFixtures) {
+            return;
+        }
+
+        try {
+            if (!confirm(`Are you sure you want to delete all un-played league fixtures from ALL DIVISIONS in the ${season!.name} season?\n\nA dry-run of the deletion will run first.`)) {
+                return;
+            }
+
+            setDeletingAllFixtures(true);
+            const dryRunResult = await gameApi.deleteUnplayedLeagueFixtures(season!.id!, false);
+            if (!dryRunResult.success) {
+                alert('There was an error when attempting to delete all the fixtures');
+                return;
+            }
+
+            const fixtureCount = dryRunResult.result?.length ?? 0;
+            if (fixtureCount === 0) {
+                alert('No fixtures can be deleted');
+                return;
+            }
+
+            if (!confirm(`All the fixtures CAN be deleted without issue, are you sure you want to actually delete ${fixtureCount} fixtures from ${season!.name}?\n\n${dryRunResult.messages?.join('\n')}`)) {
+                return;
+            }
+
+            const actualResult = await gameApi.deleteUnplayedLeagueFixtures(season!.id!, true);
+            if (!actualResult.success) {
+                alert('There was an error deleting all the fixtures, some fixtures may have been deleted');
+                return;
+            }
+
+            document.location.reload();
+        } finally {
+            setDeletingAllFixtures(false);
+        }
+    }
+
     setTitle(`${name}: Fixtures`);
 
     try {
         const filter = getFilter(location);
         const fixtureDateFilters: IFilter<DivisionFixtureDateDto> = getFixtureDateFilters(filter, {}, fixtures);
         const fixtureFilters: IFilter<IFixtureMapping> = getFixtureFilters(filter);
-        const resultsToRender = fixtures!
+        const resultsToRender = deletingAllFixtures ? [] : fixtures!
             .filter((fd: DivisionFixtureDateDto) => fixtureDateFilters.apply(fd))
             .map((fd: DivisionFixtureDateDto) => applyFixtureFilters(fd, fixtureFilters))
             .filter((fd: DivisionFixtureDateDto) => fixtureDateFilters.apply(fd)) // for any post-fixture filtering, e.g. notes=only-with-fixtures
             .map(renderFixtureDate);
         return (<div className="content-background p-3">
             {isAdmin ? (<div className="float-end" datatype="fixture-management-1">
-                <button className="btn btn-primary margin-right" onClick={() => setNewDateDialogOpen(true)}>
+                {deletingAllFixtures ? null : (<button className="btn btn-primary margin-right" onClick={() => setNewDateDialogOpen(true)}>
                     ➕ Add date
-                </button>
-                {superleague ? null : (<button className="btn btn-primary margin-right" onClick={() => setCreateFixturesDialogOpen(true)}>
+                </button>)}
+                {superleague || deletingAllFixtures ? null : (<button className="btn btn-primary margin-right" onClick={() => setCreateFixturesDialogOpen(true)}>
                     🗓️ Create fixtures
                 </button>)}
+                {superleague || !hasAccess(account, a => a.bulkDeleteLeagueFixtures)
+                    ? null
+                    : (<button className="btn btn-danger margin-right" onClick={bulkDeleteFixtures}>
+                        {deletingAllFixtures ? (<LoadingSpinnerSmall/>) : null}
+                    ⚠️ Delete all league fixtures
+                </button>)}
             </div>) : null}
-            {controls
+            {controls && !deletingAllFixtures
                 ? (<FilterFixtures />)
                 : null}
             {isAdmin && newDateDialogOpen ? renderNewDateDialog() : null}
@@ -240,7 +286,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
             </div>
             {isAdmin && createFixturesDialogOpen ? (
                 <CreateSeasonDialog seasonId={season!.id!} onClose={async () => setCreateFixturesDialogOpen(false)}/>) : null}
-            {isAdmin ? (<div className="mt-3" datatype="fixture-management-1">
+            {isAdmin && !deletingAllFixtures ? (<div className="mt-3" datatype="fixture-management-1">
                 <button className="btn btn-primary margin-right" onClick={() => setNewDateDialogOpen(true)}>
                     ➕ Add date
                 </button>

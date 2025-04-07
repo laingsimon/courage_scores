@@ -118,7 +118,7 @@ describe('LiveSayg', () => {
         it('requests single superleague tournament', async () => {
             const tournament = tournamentBuilder()
                 .host('HOST').opponent('OPPONENT')
-                .notes('BOARD 1')
+                .type('BOARD 1')
                 .addTo(tournamentData).build();
 
             await renderComponent(
@@ -143,11 +143,11 @@ describe('LiveSayg', () => {
         it('requests multiple superleague tournaments', async () => {
             const tournament1 = tournamentBuilder()
                 .host('HOST').opponent('OPPONENT')
-                .notes('BOARD 1')
+                .type('BOARD 1')
                 .addTo(tournamentData).build();
             const tournament2 = tournamentBuilder()
                 .host('HOST').opponent('OPPONENT')
-                .notes('BOARD 2')
+                .type('BOARD 2')
                 .addTo(tournamentData).build();
 
             await renderComponent(
@@ -192,7 +192,7 @@ describe('LiveSayg', () => {
         it('requests superleague tournament in full screen', async () => {
             const tournament = tournamentBuilder()
                 .host('HOST').opponent('OPPONENT')
-                .notes('BOARD 1')
+                .type('BOARD 1')
                 .addTo(tournamentData).build();
 
             await renderComponent(
@@ -225,7 +225,7 @@ describe('LiveSayg', () => {
                 .build();
             const tournament = tournamentBuilder()
                 .host('HOST').opponent('OPPONENT')
-                .notes('BOARD 1')
+                .type('BOARD 1')
                 .bestOf(5)
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m.sideA('home', 3).sideB('away', 1).saygId(sayg.id)))
@@ -250,7 +250,6 @@ describe('LiveSayg', () => {
             const cells = Array.from(firstMatchRow!.querySelectorAll('td'));
             const cellValues = cells.map(c => c.className.includes('fw-bold') ? `*${c.textContent}*` : c.textContent!);
             expect(cellValues).toEqual([
-                '1',
                 '*33.33*', // average
                 '*home*', // name
                 '*3*', // score
@@ -272,7 +271,7 @@ describe('LiveSayg', () => {
                 .build();
             const tournament = tournamentBuilder()
                 .host('HOST').opponent('OPPONENT')
-                .notes('BOARD 1')
+                .type('BOARD 1')
                 .bestOf(5)
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m.sideA('home', 1).sideB('away', 3).saygId(sayg.id)))
@@ -297,14 +296,13 @@ describe('LiveSayg', () => {
             const cells = Array.from(firstMatchRow!.querySelectorAll('td'));
             const cellValues = cells.map(c => c.className.includes('fw-bold') ? `*${c.textContent}*` : c.textContent!);
             expect(cellValues).toEqual([
-                '1',
-                '25', // average
+                '25.00', // average
                 'home', // name
                 '1', // score
                 '-',
                 '*3*', // score
                 '*away*', // name
-                '*40*', // average
+                '*40.00*', // average
             ]);
         });
     });
@@ -313,7 +311,7 @@ describe('LiveSayg', () => {
         it('can enter full screen', async () => {
             const tournament = tournamentBuilder()
                 .host('HOST').opponent('OPPONENT')
-                .notes('BOARD 1')
+                .type('BOARD 1')
                 .addTo(tournamentData).build();
             let isFullScreen = false;
 
@@ -337,11 +335,11 @@ describe('LiveSayg', () => {
         it('can remove superleague tournaments', async () => {
             const tournament1 = tournamentBuilder()
                 .host('HOST').opponent('OPPONENT')
-                .notes('BOARD 1')
+                .type('BOARD 1')
                 .addTo(tournamentData).build();
             const tournament2 = tournamentBuilder()
                 .host('HOST').opponent('OPPONENT')
-                .notes('BOARD 2')
+                .type('BOARD 2')
                 .addTo(tournamentData).build();
 
             await renderComponent(
@@ -356,7 +354,7 @@ describe('LiveSayg', () => {
                 }, reportedError),
                 '/live/superleague/?id=' + tournament1.id + '&id=' + tournament2.id);
 
-            const secondTournamentRemoveButton = Array.from(context.container.querySelectorAll('button.btn-danger'));
+            const secondTournamentRemoveButton = Array.from(context.container.querySelectorAll('button.btn-secondary'));
             await doClick(secondTournamentRemoveButton[1]);
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith('/live/superleague/?id=' + tournament1.id);
@@ -393,7 +391,7 @@ describe('LiveSayg', () => {
         beforeEach(() => {
             tournament1 = tournamentBuilder()
                 .host('HOST 1.0').opponent('OPPONENT 1.0')
-                .notes('BOARD 1.0')
+                .type('BOARD 1.0')
                 .addTo(tournamentData)
                 .build();
         });
@@ -401,7 +399,7 @@ describe('LiveSayg', () => {
         it('can apply live update for one tournament', async () => {
             const updatedTournament1 = tournamentBuilder(tournament1.id)
                 .host('HOST 1.1').opponent('OPPONENT 1.1')
-                .notes('BOARD 1.1').build();
+                .type('BOARD 1.1').build();
 
             await renderComponent(
                 appProps({
@@ -422,15 +420,15 @@ describe('LiveSayg', () => {
         it('can apply alternating live updates', async () => {
             const updatedTournament1 = tournamentBuilder(tournament1.id)
                 .host('HOST 1.1').opponent('OPPONENT 1.1')
-                .notes('BOARD 1.1').build();
+                .type('BOARD 1.1').build();
             const tournament2 = tournamentBuilder()
                 .host('HOST 2.0').opponent('OPPONENT 2.0')
-                .notes('BOARD 2.0')
+                .type('BOARD 2.0')
                 .addTo(tournamentData)
                 .build();
             const updatedTournament2 = tournamentBuilder(tournament2.id)
                 .host('HOST 2.1').opponent('OPPONENT 2.1')
-                .notes('BOARD 2.1').build();
+                .type('BOARD 2.1').build();
 
             await renderComponent(
                 appProps({

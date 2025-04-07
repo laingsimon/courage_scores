@@ -1,25 +1,29 @@
 ﻿import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
-import {ifNaN, ifUndefined, round2dp} from "../../helpers/rendering";
 import {useEffect, useState} from "react";
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {sum} from "../../helpers/collections";
 import {useDependencies} from "../common/IocContainer";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {Link} from "react-router";
+import {Loading} from "../common/Loading";
+import {useApp} from "../common/AppContainer";
 
 export interface ILiveSuperleagueTournamentDisplayProps {
     id: string;
     data?: TournamentGameDto;
     onRemove?(): UntypedPromise;
+    showLoading?: boolean;
 }
 
 interface IMatchSaygLookup {
     [matchId: string]: RecordedScoreAsYouGoDto;
 }
 
-export function LiveSuperleagueTournamentDisplay({id, data, onRemove}: ILiveSuperleagueTournamentDisplayProps) {
+export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoading}: ILiveSuperleagueTournamentDisplayProps) {
     const {saygApi, tournamentApi} = useDependencies();
+    const {fullScreen} = useApp();
     const [matchSaygData, setMatchSaygData] = useState<IMatchSaygLookup>({});
     const [initialData, setInitialData] = useState<TournamentGameDto | undefined | null>(undefined);
     const tournament = data ?? initialData;
@@ -75,8 +79,8 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove}: ILiveSupe
 
     function getAverage(match: TournamentMatchDto, player: 'home' | 'away'): string | number {
         const average = sumOf(match, player, 'score') / (sumOf(match, player, 'noOfDarts') / 3);
-        const appropriateAverage = average / 3;
-        return ifNaN(round2dp(ifUndefined(appropriateAverage)), '-');
+        const appropriateAverage = (average / 3);
+        return Number.isNaN(appropriateAverage) ? '-' : appropriateAverage.toFixed(2);
     }
 
     function getScore(match: TournamentMatchDto, player: 'home' | 'away'): number {
@@ -90,34 +94,47 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove}: ILiveSupe
         return score > (bestOf / 2.0);
     }
 
+    function firstInitialAndLastNames(name?: string): string | undefined {
+        const names: string[] = name?.split(' ') ?? [];
+        if (names.length === 1) {
+            return name;
+        }
+
+        return names.map((name, index) => {
+            return index === names.length - 1 ? name : name[0]
+        }).join(' ');
+    }
+
+    if (!tournament) {
+        return showLoading ? (<div className="flex-grow-1 bg-white">
+            <Loading />
+        </div>) : null;
+    }
+
     return (<div className="d-flex flex-column justify-content-center">
-        <h3 className="flex-grow-0 flex-shrink-0">
-            {onRemove ? (<button className="btn btn-sm btn-danger me-2" onClick={onRemove}>❌</button>) : null}
-            {tournament?.notes}
+        <h3 className="flex-grow-0 flex-shrink-0 text-center">
+            {onRemove ? (<button className="btn btn-sm btn-secondary me-2" onClick={onRemove}>❌</button>) : null}
+            {fullScreen.isFullScreen ? tournament.type : <Link to={`/tournament/${tournament.id}`}>{tournament.type}</Link>}
         </h3>
         <table className="table">
             <thead>
             <tr>
-                <th>#</th>
                 <th>Avg</th>
-                <th>{tournament?.host}</th>
-                <th>Score</th>
-                <th>-</th>
-                <th>Score</th>
-                <th>{tournament?.opponent}</th>
+                <th>{tournament.host}</th>
+                <th className="text-center" colSpan={3}>Score</th>
+                <th>{tournament.opponent}</th>
                 <th>Avg</th>
             </tr>
             </thead>
             <tbody>
-            {tournament?.round?.matches?.map((m, index) => {
+            {tournament.round?.matches?.map((m: TournamentMatchDto) => {
                 return (<tr key={m.id}>
-                    <td>{index + 1}</td>
                     <td className={`text-danger ${isWinner(m, 'home') ? 'fw-bold' : ''}`}>{getAverage(m, 'home')}</td>
-                    <td className={isWinner(m, 'home') ? 'fw-bold' : ''}>{m.sideA.name}</td>
+                    <td className={`text-end ${isWinner(m, 'home') ? 'fw-bold' : ''}`}>{firstInitialAndLastNames(m.sideA.name)}</td>
                     <td className={`text-end ${isWinner(m, 'home') ? 'fw-bold' : ''}`}>{getScore(m, 'home')}</td>
                     <td>-</td>
                     <td className={isWinner(m, 'away') ? 'fw-bold' : ''}>{getScore(m, 'away')}</td>
-                    <td className={isWinner(m, 'away') ? 'fw-bold' : ''}>{m.sideB.name}</td>
+                    <td className={isWinner(m, 'away') ? 'fw-bold' : ''}>{firstInitialAndLastNames(m.sideB.name)}</td>
                     <td className={`text-danger ${isWinner(m, 'away') ? 'fw-bold' : ''}`}>{getAverage(m, 'away')}</td>
                 </tr>);
             })}
