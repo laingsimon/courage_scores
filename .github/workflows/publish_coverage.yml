@@ -12,3 +12,4 @@ jobs:
         uses: coverallsapp/github-action@v2.3.6
         with:
           parallel-finished: true
+          fail-on-error: false
