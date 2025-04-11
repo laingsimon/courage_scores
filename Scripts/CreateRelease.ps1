@@ -2,7 +2,7 @@
 $Token = $env:GITHUB_TOKEN
 $Repo = $env:GITHUB_REPOSITORY
 
-Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1"
+Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1" -Force
 
 if ($Repo -eq "" -or $Repo -eq $null)
 {
@@ -84,7 +84,36 @@ function Get-TicketType($IssueReference, $IssueTypeCache)
     return $type
 }
 
-function Format-ReleaseDescription($Commits)
+function Set-IssueMilestone($IssueReference, $Milestone)
+{
+    Write-Host "Set milestone to $(Milestone) for issue $($IssueReference)..."
+
+    $Json = "{" +
+        "`"milestone`": `"$($Milestone.number)`"" +
+    "}"
+
+    Write-Host "Updating pull request description: $($Json) via $($Url)"
+
+    if ($DryRun)
+    {
+        Write-Host -ForegroundColor Red "DRY RUN: New description = '$($Json)'"
+        Return
+    }
+
+    $Url = "https://api.github.com/repos/$($Repo)/issues/$($IssueReference)"
+
+    $Response = Invoke-WebRequest `
+        -Uri $Url `
+        -Method Patch `
+        -Body $Json `
+        -Headers @{
+            "X-GitHub-Api-Version"="2022-11-28";
+            "Accept"="application/vnd.github+json";
+            "Authorization"="Bearer $($Token)";
+        }
+}
+
+function Format-ReleaseDescription($Commits, $Milestone)
 {
     Write-Host -ForegroundColor Blue "Formatting commits into description..."
 
@@ -134,6 +163,7 @@ function Format-ReleaseDescription($Commits)
             $ChangeDescription = "### Changes`n"
         }
 
+        Set-IssueMilestone -IssueReference $_ -Milestone $Milestone
         $ChangeDescription = "$($ChangeDescription)- #$($_)`n"
     }
 
@@ -236,9 +266,20 @@ function Update-PullRequestDescription($Url, $Description)
 }
 
 $Commits = Get-CommitsBetween -Base "origin/release" -Compare "origin/main"
-$Description = (Format-ReleaseDescription -Commits $Commits).Trim().Replace("`n", "\n")
+$Milestones = Get-OpenMilestones
+if ($Milestones.Length -eq 0)
+{
+    # No milestones
+    Write-Host "No milestones exist"
+    Exit
+}
 
-$ReleasePullRequests = Get-PullRequests -GitHubToken $Token -Repo $Repo -Base "release"
+$OldestMilestone = Get-OldestMilestone -Milestones $Milestones
+Write-Host "Oldest milestone: $($OldestMilestone.title)"
+
+$Description = (Format-ReleaseDescription -Commits $Commits -Milestone $OldestMilestone).Trim().Replace("`n", "\n")
+
+$ReleasePullRequests = [array] (Get-PullRequests -GitHubToken $Token -Repo $Repo -Base "release")
 if ($ReleasePullRequests.Length -gt 0)
 {
     # release PR already exists
@@ -247,16 +288,5 @@ if ($ReleasePullRequests.Length -gt 0)
 }
 else
 {
-    $Milestones = Get-OpenMilestones
-    if ($Milestones.Length -eq 0)
-    {
-        # No milestones
-        Write-Host "No milestones exist"
-        Exit
-    }
-
-    $OldestMilestone = Get-OldestMilestone -Milestones $Milestones
-    Write-Host "Oldest milestone: $($OldestMilestone.title)"
-
     Create-PullRequest -Milestone $OldestMilestone -Description $Description -Head "main" -Base "release"
 }
