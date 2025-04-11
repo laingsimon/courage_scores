@@ -2,7 +2,7 @@
 $Token = $env:GITHUB_TOKEN
 $Repo = $env:GITHUB_REPOSITORY
 
-Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1"
+Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1" -Force
 
 if ($Repo -eq "" -or $Repo -eq $null)
 {
@@ -279,7 +279,7 @@ Write-Host "Oldest milestone: $($OldestMilestone.title)"
 
 $Description = (Format-ReleaseDescription -Commits $Commits -Milestone $OldestMilestone).Trim().Replace("`n", "\n")
 
-$ReleasePullRequests = Get-PullRequests -GitHubToken $Token -Repo $Repo -Base "release"
+$ReleasePullRequests = [array] (Get-PullRequests -GitHubToken $Token -Repo $Repo -Base "release")
 if ($ReleasePullRequests.Length -gt 0)
 {
     # release PR already exists
