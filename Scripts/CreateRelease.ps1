@@ -87,6 +87,30 @@ function Get-TicketType($IssueReference, $IssueTypeCache)
 function Set-IssueMilestone($IssueReference, $Milestone)
 {
     Write-Host "Set milestone to $(Milestone) for issue $($IssueReference)..."
+
+    $Json = "{" +
+        "`"milestone`": `"$($Milestone.number)`"" +
+    "}"
+
+    Write-Host "Updating pull request description: $($Json) via $($Url)"
+
+    if ($DryRun)
+    {
+        Write-Host -ForegroundColor Red "DRY RUN: New description = '$($Json)'"
+        Return
+    }
+
+    $Url = "https://api.github.com/repos/$($Repo)/issues/$($IssueReference)"
+
+    $Response = Invoke-WebRequest `
+        -Uri $Url `
+        -Method Patch `
+        -Body $Json `
+        -Headers @{
+            "X-GitHub-Api-Version"="2022-11-28";
+            "Accept"="application/vnd.github+json";
+            "Authorization"="Bearer $($Token)";
+        }
 }
 
 function Format-ReleaseDescription($Commits, $Milestone)
