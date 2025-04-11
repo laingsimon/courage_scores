@@ -84,7 +84,12 @@ function Get-TicketType($IssueReference, $IssueTypeCache)
     return $type
 }
 
-function Format-ReleaseDescription($Commits)
+function Set-IssueMilestone($IssueReference, $Milestone)
+{
+    Write-Host "Set milestone to $(Milestone) for issue $($IssueReference)..."
+}
+
+function Format-ReleaseDescription($Commits, $Milestone)
 {
     Write-Host -ForegroundColor Blue "Formatting commits into description..."
 
@@ -134,6 +139,7 @@ function Format-ReleaseDescription($Commits)
             $ChangeDescription = "### Changes`n"
         }
 
+        Set-IssueMilestone -IssueReference $_ -Milestone $Milestone
         $ChangeDescription = "$($ChangeDescription)- #$($_)`n"
     }
 
@@ -236,7 +242,18 @@ function Update-PullRequestDescription($Url, $Description)
 }
 
 $Commits = Get-CommitsBetween -Base "origin/release" -Compare "origin/main"
-$Description = (Format-ReleaseDescription -Commits $Commits).Trim().Replace("`n", "\n")
+$Milestones = Get-OpenMilestones
+if ($Milestones.Length -eq 0)
+{
+    # No milestones
+    Write-Host "No milestones exist"
+    Exit
+}
+
+$OldestMilestone = Get-OldestMilestone -Milestones $Milestones
+Write-Host "Oldest milestone: $($OldestMilestone.title)"
+
+$Description = (Format-ReleaseDescription -Commits $Commits -Milestone $OldestMilestone).Trim().Replace("`n", "\n")
 
 $ReleasePullRequests = Get-PullRequests -GitHubToken $Token -Repo $Repo -Base "release"
 if ($ReleasePullRequests.Length -gt 0)
@@ -247,16 +264,5 @@ if ($ReleasePullRequests.Length -gt 0)
 }
 else
 {
-    $Milestones = Get-OpenMilestones
-    if ($Milestones.Length -eq 0)
-    {
-        # No milestones
-        Write-Host "No milestones exist"
-        Exit
-    }
-
-    $OldestMilestone = Get-OldestMilestone -Milestones $Milestones
-    Write-Host "Oldest milestone: $($OldestMilestone.title)"
-
     Create-PullRequest -Milestone $OldestMilestone -Description $Description -Head "main" -Base "release"
 }
