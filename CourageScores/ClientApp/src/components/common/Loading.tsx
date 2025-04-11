@@ -1,6 +1,6 @@
 export function Loading() {
     return (<div className="content-background p-3 loading-background opacity-50">
-        <!-- From Uiverse.io by Nawsome --> 
+       {/*<!-- From Uiverse.io by Nawsome -->*/}
 <div aria-label="Orange and tan hamster running in a metal wheel" role="img" className="wheel-and-hamster">
 	<div className="wheel"></div>
 	<div className="hamster">
@@ -17,7 +17,7 @@ export function Loading() {
 			<div className="hamster__tail"></div>
 		</div>
 	</div>
-	<div class="spoke"></div>
+	<div className="spoke"></div>
 </div>
     </div>);
 }
