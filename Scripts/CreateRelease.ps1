@@ -86,7 +86,7 @@ function Get-TicketType($IssueReference, $IssueTypeCache)
 
 function Set-IssueMilestone($IssueReference, $Milestone)
 {
-    Write-Host "Set milestone to $(Milestone) for issue $($IssueReference)..."
+    Write-Host "Set milestone to $($Milestone) for issue $($IssueReference)..."
 
     $Json = "{" +
         "`"milestone`": `"$($Milestone.number)`"" +
