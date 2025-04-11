@@ -86,14 +86,12 @@ function Get-TicketType($IssueReference, $IssueTypeCache)
 
 function Set-IssueMilestone($IssueReference, $Milestone)
 {
-    Write-Host "Set milestone to $($Milestone.title) for issue $($IssueReference)..."
+    Write-Host "Set milestone to $($Milestone.title) for #$($IssueReference)..."
 
     $Json = "{" +
-        "`"milestone`": `"$($Milestone.number)`"" +
+        "`"milestone`": $($Milestone.number)" +
     "}"
     $Url = "https://api.github.com/repos/$($Repo)/issues/$($IssueReference)"
-
-    Write-Host "Updating issue milestone: $($Json) via $($Url)"
 
     if ($DryRun)
     {
@@ -110,6 +108,11 @@ function Set-IssueMilestone($IssueReference, $Milestone)
             "Accept"="application/vnd.github+json";
             "Authorization"="Bearer $($Token)";
         }
+}
+
+function Set-PullRequestMilestone($Milestone, $Response)
+{
+    Set-IssueMilestone -IssueReference (ConvertFrom-Json -InputObject $Response).number -Milestone $Milestone
 }
 
 function Format-ReleaseDescription($Commits, $Milestone)
@@ -204,8 +207,7 @@ function Create-PullRequest($Milestone, $Description, $Head, $Base)
         "`"title`":`"$($Milestone.title)`"," +
         "`"body`":`"$($Description.Replace('`"', '\"'))`"," +
         "`"head`":`"$($Head)`"," +
-        "`"base`":`"$($Base)`"," +
-        "`"milestone`":`"$($Milestone.number)`"" +
+        "`"base`":`"$($Base)`"" +
     "}"
 
     if ($DryRun)
@@ -224,22 +226,10 @@ function Create-PullRequest($Milestone, $Description, $Head, $Base)
             "Authorization"="Bearer $($Token)";
         }
 
-    $PullRequestUrl = (ConvertFrom-Json -InputObject $Response).issue_url
-    $UpdateMilestoneBody = "{`"milestone`": $($Milestone.number)}"
-    Write-Host "Update pull request at $($PullRequestUrl) to have $($UpdateMilestoneBody)"
-
-    Invoke-WebRequest `
-        -Uri $PullRequestUrl `
-        -Method Patch `
-        -Body $UpdateMilestoneBody `
-        -Headers @{
-            "X-GitHub-Api-Version"="2022-11-28";
-            "Accept"="application/vnd.github+json";
-            "Authorization"="Bearer $($Token)";
-        }
+    Set-PullRequestMilestone -Milestone $Milestone -Response $Response
 }
 
-function Update-PullRequestDescription($Url, $Description)
+function Update-PullRequestDescription($Url, $Description, $Milestone)
 {
     $Json = "{" +
         "`"body`": `"$($Description.Replace('`"', '\"'))`"" +
@@ -262,6 +252,8 @@ function Update-PullRequestDescription($Url, $Description)
             "Accept"="application/vnd.github+json";
             "Authorization"="Bearer $($Token)";
         }
+
+    Set-PullRequestMilestone -Milestone $Milestone -Response $Response
 }
 
 $Commits = Get-CommitsBetween -Base "origin/release" -Compare "origin/main"
@@ -283,7 +275,7 @@ if ($ReleasePullRequests.Length -gt 0)
 {
     # release PR already exists
     Write-Host "Release Pull request already exists: $($ReleasePullRequests.title)"
-    Update-PullRequestDescription -Url $ReleasePullRequests[0].url -Description $Description
+    Update-PullRequestDescription -Milestone $OldestMilestone -Url $ReleasePullRequests[0].url -Description $Description
 }
 else
 {
