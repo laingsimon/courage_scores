@@ -86,21 +86,20 @@ function Get-TicketType($IssueReference, $IssueTypeCache)
 
 function Set-IssueMilestone($IssueReference, $Milestone)
 {
-    Write-Host "Set milestone to $($Milestone) for issue $($IssueReference)..."
+    Write-Host "Set milestone to $($Milestone.title) for issue $($IssueReference)..."
 
     $Json = "{" +
         "`"milestone`": `"$($Milestone.number)`"" +
     "}"
+    $Url = "https://api.github.com/repos/$($Repo)/issues/$($IssueReference)"
 
-    Write-Host "Updating pull request description: $($Json) via $($Url)"
+    Write-Host "Updating issue milestone: $($Json) via $($Url)"
 
     if ($DryRun)
     {
         Write-Host -ForegroundColor Red "DRY RUN: New description = '$($Json)'"
         Return
     }
-
-    $Url = "https://api.github.com/repos/$($Repo)/issues/$($IssueReference)"
 
     $Response = Invoke-WebRequest `
         -Uri $Url `
