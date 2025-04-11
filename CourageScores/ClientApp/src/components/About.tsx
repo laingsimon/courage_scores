@@ -1,7 +1,6 @@
 import {useApp} from "./common/AppContainer";
 import {renderDate} from "../helpers/rendering";
 import {useBranding} from "./common/BrandingContainer";
-import { Loading } from "./common/Loading";
 
 export function About() {
     const {build} = useApp();
