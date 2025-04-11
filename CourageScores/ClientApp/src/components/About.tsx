@@ -12,7 +12,6 @@ export function About() {
 
     return (<div className="content-background p-3">
         <h3>About</h3>
-        <Loading />
         <p>
             Built for, and in consultation with, the <a href={website}>{name}</a> to modernise and streamline the method
             of recording and presenting fixtures and results.
