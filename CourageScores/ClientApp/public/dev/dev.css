@@ -49,11 +49,8 @@ body .table td.bg-winner {
     background-size: initial;
     background-repeat: initial;
     background-position: initial;
-    text-align: center;
-    min-height: initial;
-    line-height: 115px;
-    padding: 0 !important;
-    padding-top: 30px !important;
+    display: flex;
+    justify-content: center;
 }
 
 /* From Uiverse.io by Nawsome */ 
