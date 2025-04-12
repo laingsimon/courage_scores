@@ -17,7 +17,12 @@ body .heading {
 
 body .loading-background {
     /*noinspection CssUnknownTarget*/
-    background-image: url("loading.gif");
+    background-image: none;
+    display: flex;
+    justify-content: center;
+    background-size: initial;
+    background-repeat: initial;
+    background-position: initial;
 }
 
 body.darts-background {
@@ -78,15 +83,6 @@ body .nav-link.active {
 body .bg-winner,
 body .table td.bg-winner {
     background-color: #bbffbb;
-}
-
-.loading-background {
-    background-image: none;
-    background-size: initial;
-    background-repeat: initial;
-    background-position: initial;
-    display: flex;
-    justify-content: center;
 }
 
 /* From Uiverse.io by Nawsome */ 
