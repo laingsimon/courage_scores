@@ -43,7 +43,7 @@ body .table td.bg-winner {
 .hover-highlight:hover {
     background-color: #dddddd;
 }
-/* credit to: https://css-loaders.com/rolling/#l10 */
+
 .loading-background {
     background-image: none;
     background-size: initial;
