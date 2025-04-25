@@ -6,7 +6,7 @@ import {
     doClick,
     doSelectOption, ErrorState,
     findButton,
-    iocProps,
+    iocProps, noop,
     renderApp,
     TestContext
 } from "../../helpers/tests";
@@ -43,6 +43,7 @@ describe('MatchPlayerSelection', () => {
     let additional180: GamePlayerDto | null;
     let additionalHiCheck: {notablePlayer: GamePlayerDto, score: number} | null;
     let createPlayerFor: ICreatePlayerFor | null;
+    let isFullScreen: boolean = false;
 
     async function onMatchChanged(newMatch: GameMatchDto){
         updatedMatch = newMatch;
@@ -59,6 +60,12 @@ describe('MatchPlayerSelection', () => {
     async function setCreatePlayerFor(opts: ICreatePlayerFor){
         createPlayerFor = opts;
     }
+    async function enterFullScreen() {
+        isFullScreen = true;
+    }
+    async function exitFullScreen() {
+        isFullScreen = false;
+    }
 
     afterEach(async () => {
         await cleanUp(context);
@@ -71,6 +78,7 @@ describe('MatchPlayerSelection', () => {
         additional180 = null;
         additionalHiCheck = null;
         createPlayerFor = null;
+        isFullScreen = false;
     });
 
     async function renderComponent(account: UserDto, props: IMatchPlayerSelectionProps, containerProps: ILeagueFixtureContainerProps, matchTypeProps: IMatchTypeContainerProps) {
@@ -78,7 +86,14 @@ describe('MatchPlayerSelection', () => {
             iocProps(),
             brandingProps(),
             appProps({
-                account
+                account,
+                fullScreen: {
+                    isFullScreen: false,
+                    canGoFullScreen: false,
+                    enterFullScreen,
+                    exitFullScreen,
+                    toggleFullScreen: noop,
+                }
             }, reportedError),
             (<LeagueFixtureContainer {...containerProps}>
                 <MatchTypeContainer {...matchTypeProps} setCreatePlayerFor={setCreatePlayerFor}>
@@ -830,7 +845,7 @@ describe('MatchPlayerSelection', () => {
             expect(cells[3].querySelector('input')).toBeFalsy();
         });
 
-        it('can open sayg dialog', async () => {
+        it('can open sayg dialog in fullscreen', async () => {
             await renderComponent(user(true), props(matchBuilder()
                 .scores(1, 1)
                 .withHome(homePlayer)
@@ -841,6 +856,21 @@ describe('MatchPlayerSelection', () => {
             await doClick(findButton(cells[0], '📊'));
 
             expect(cells[0].querySelector('div.modal-dialog')).toBeTruthy();
+            expect(isFullScreen).toEqual(true);
+        });
+
+        it('opens sayg dialog without opening in fullscreen', async () => {
+            await renderComponent(user(true), props(matchBuilder()
+                .scores(3, 1)
+                .withHome(homePlayer)
+                .withAway(awayPlayer)), defaultContainerProps, defaultMatchType);
+            reportedError.verifyNoError();
+            const cells = Array.from(context.container.querySelectorAll('td'));
+
+            await doClick(findButton(cells[0], '📊'));
+
+            expect(cells[0].querySelector('div.modal-dialog')).toBeTruthy();
+            expect(isFullScreen).toEqual(false);
         });
 
         it('can record home sayg 180', async () => {

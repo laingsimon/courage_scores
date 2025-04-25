@@ -40,7 +40,10 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
     const hasBothScores = hasScore(match.homeScore) && hasScore(match.awayScore);
 
     useEffect(() => {
-        if (saygOpen) {
+        const numberOfLegs = matchOptions.numberOfLegs || 0;
+        const hasAWinner = hasBothScores && (isWinner(match.homeScore || 0, numberOfLegs) || isWinner(match.awayScore || 0, numberOfLegs));
+
+        if (saygOpen && !hasAWinner) {
             fullScreen.enterFullScreen();
         } else {
             fullScreen.exitFullScreen();
