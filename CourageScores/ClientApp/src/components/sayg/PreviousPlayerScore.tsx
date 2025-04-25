@@ -14,6 +14,7 @@ export interface IPreviousPlayerScoreProps {
     home: string;
     away: string;
     currentScore?: number;
+    showFullNames?: boolean;
 }
 
 interface IRunningScore {
@@ -21,7 +22,7 @@ interface IRunningScore {
     away: number;
 }
 
-export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, singlePlayer, currentScore }: IPreviousPlayerScoreProps) {
+export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, singlePlayer, currentScore, showFullNames }: IPreviousPlayerScoreProps) {
     const homeThrows: LegThrowDto[] = leg.home ? leg.home.throws || [] : [];
     const awayThrows: LegThrowDto[] = leg.away ? leg.away.throws || [] : [];
     const {editScore, setEditScore} = useEditableSayg();
@@ -68,6 +69,10 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
     }
 
     function firstNameOnly(name: string): string {
+        if (showFullNames) {
+            return name;
+        }
+
         const names: string[] = name?.split(' ') || [];
         return names.length >= 1 ? names[0] : '';
     }

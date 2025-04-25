@@ -34,12 +34,13 @@ export interface IScoreAsYouGoProps {
     finalLegPlayerSequence?: ('home' | 'away')[];
     onFinished?(): UntypedPromise;
     initialOneDartAverage?: boolean;
+    showFullNames?: boolean;
 }
 
 export function ScoreAsYouGo({
                                  data, home, away, onChange, onLegComplete, startingScore, numberOfLegs, awayScore,
                                  homeScore, on180, onHiCheck, singlePlayer, lastLegDisplayOptions, matchStatisticsOnly,
-                                 saveDataAndGetId, firstLegPlayerSequence, finalLegPlayerSequence, onFinished, initialOneDartAverage
+                                 saveDataAndGetId, firstLegPlayerSequence, finalLegPlayerSequence, onFinished, initialOneDartAverage, showFullNames
                              }: IScoreAsYouGoProps) {
     const {onError, account, browser} = useApp();
     const canEditThrows: boolean = hasAccess(account, access => access.recordScoresAsYouGo);
@@ -206,5 +207,6 @@ export function ScoreAsYouGo({
             homeScore={homeScore || 0}
             awayScore={awayScore}
             singlePlayer={singlePlayer}
-            previousLeg={previousLeg} />);
+            previousLeg={previousLeg}
+            showFullNames={showFullNames} />);
 }

@@ -185,9 +185,14 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
         }
     }
 
+    function firstName(name: string): string {
+        const names = name.split(' ');
+        return names.length > 1 ? names[0] : name;
+    }
+
     function renderSaygDialog() {
-        const home: string = match.homePlayers!.reduce((current: string, next: GamePlayerDto) => current ? current + ' & ' + next.name : next.name, '');
-        const away: string = match.awayPlayers!.reduce((current: string, next: GamePlayerDto) => current ? current + ' & ' + next.name : next.name, '');
+        const home: string = match.homePlayers!.reduce((current: string, next: GamePlayerDto) => current ? current + ' & ' + firstName(next.name) : firstName(next.name), '');
+        const away: string = match.awayPlayers!.reduce((current: string, next: GamePlayerDto) => current ? current + ' & ' + firstName(next.name) : firstName(next.name), '');
         const singlePlayerMatch: boolean = match.homePlayers!.length === 1 && match.awayPlayers!.length === 1;
         const defaultSaygData: UpdateRecordedScoreAsYouGoDto = {
             legs: {},
@@ -216,6 +221,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                     onHiCheck={singlePlayerMatch && onHiCheck && !readOnly ? addHiCheck : undefined}
                     onFinished={fullScreen.exitFullScreen}
                     firstLegPlayerSequence={['home', 'away']}
+                    showFullNames={true}
                 />
             </LiveContainer>
             </EditableSaygContainer>
