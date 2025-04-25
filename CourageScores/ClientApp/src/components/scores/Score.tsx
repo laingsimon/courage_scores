@@ -99,6 +99,8 @@ export function Score() {
 
             if (playersCreated.length > 1) {
                 // multiple players created
+                setCreatePlayerFor(null);
+                setNewPlayerDetails({name: '', captain: false});
                 return;
             }
 
