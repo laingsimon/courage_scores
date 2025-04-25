@@ -455,6 +455,7 @@ describe('SaygIntegrationTest', () => {
                 '🎯CONTENDER',
                 '🎯OPPONENT'
             ]);
+            expect(context.container.querySelector('div[datatype="change-checkout"]')).toBeNull();
         });
 
         it('does not ask who should start final leg', async () => {
