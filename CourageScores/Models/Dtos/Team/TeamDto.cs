@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using CourageScores.Models.Cosmos;
 
 namespace CourageScores.Models.Dtos.Team;
 

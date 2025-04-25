@@ -372,6 +372,23 @@ describe('Score', () => {
         const account: UserDto = user(true);
         let appData: IAppContainerProps;
 
+        function successfullyAddPlayers(createdPlayer: ICreatedPlayer): IClientActionResultDto<TeamDto> {
+            // the data is mutated in-memory here to allow multiple updates to be applied in the same test, i.e. multiple additional players
+            const existingTeam: TeamDto = appData.teams.filter((t: TeamDto) => t.id === createdPlayer.teamId)[0];
+            const existingTeamSeason: TeamSeasonDto = existingTeam.seasons!.filter((ts: TeamSeasonDto) => ts.seasonId === createdPlayer.seasonId)[0];
+
+            if (existingTeamSeason) {
+                existingTeamSeason.players = existingTeamSeason.players!.concat([
+                    createdPlayer.newPlayer
+                ]);
+            }
+
+            return {
+                success: true,
+                result: existingTeam,
+            };
+        }
+
         beforeEach(() => {
             appData = getDefaultAppData(account);
         });
@@ -502,7 +519,6 @@ describe('Score', () => {
                 {},
                 newHomeTeamPlayer,
                 {name: 'Old name'});
-            // firstSinglesMatch.sut = true;
 
             await renderComponent(fixture.id, appData);
 
@@ -516,25 +532,7 @@ describe('Score', () => {
         it('can add a player to home team', async () => {
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
-            newPlayerApiResult = (createdPlayer) => {
-                const existingTeam = Object.assign({}, appData.teams.filter(t => t.id === createdPlayer.teamId)[0]);
-                existingTeam.seasons = existingTeam.seasons!.map((ts: TeamSeasonDto) => {
-                    const newTeamSeason: TeamSeasonDto = Object.assign({}, ts);
-
-                    if (ts.seasonId === createdPlayer.seasonId) {
-                        newTeamSeason.players = newTeamSeason.players!.concat([
-                            createdPlayer.newPlayer
-                        ]);
-                    }
-
-                    return newTeamSeason;
-                });
-
-                return {
-                    success: true,
-                    result: existingTeam,
-                };
-            };
+            newPlayerApiResult = successfullyAddPlayers;
 
             reportedError.verifyNoError();
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)')!;
@@ -544,6 +542,27 @@ describe('Score', () => {
             expect(addPlayerDialog.textContent).toContain('Create home player...');
             await doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER', context.user);
             await doClick(findButton(addPlayerDialog, 'Add player'));
+
+            reportedError.verifyNoError();
+            expect(teamsReloaded).toEqual(true);
+            expect(createdPlayer).not.toBeNull();
+            expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+        });
+
+        it('can add multiple players to home team', async () => {
+            const fixture = getPlayedFixtureData(appData);
+            await renderComponent(fixture.id, appData);
+            newPlayerApiResult = successfullyAddPlayers;
+
+            reportedError.verifyNoError();
+            const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)')!;
+            const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)')!;
+            await doSelectOption(playerSelection.querySelector('.dropdown-menu')!, 'Add a player...');
+            const addPlayerDialog = context.container.querySelector('.modal-dialog')!;
+            expect(addPlayerDialog.textContent).toContain('Create home player...');
+            await doClick(addPlayerDialog, 'input[name="multiple"]');
+            await doChange(addPlayerDialog, 'textarea[name="name"]', 'NEW PLAYER 1\nNEW PLAYER 2', context.user);
+            await doClick(findButton(addPlayerDialog, 'Add players'));
 
             reportedError.verifyNoError();
             expect(teamsReloaded).toEqual(true);

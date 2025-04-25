@@ -389,8 +389,10 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.legs[1].currentThrow).toEqual('home');
             expect(sayg.homeScore).toEqual(0);
             expect(sayg.awayScore).toEqual(1);
-            expect(sayg.legs[0].away.noOfDarts).toEqual(15);
+            expect(sayg.legs[0].home.score).toEqual(40);
             expect(sayg.legs[0].home.noOfDarts).toEqual(12);
+            expect(sayg.legs[0].away.score).toEqual(501);
+            expect(sayg.legs[0].away.noOfDarts).toEqual(15);
         });
 
         it('can close the checkout dialog', async () => {
@@ -453,6 +455,7 @@ describe('SaygIntegrationTest', () => {
                 '🎯CONTENDER',
                 '🎯OPPONENT'
             ]);
+            expect(context.container.querySelector('div[datatype="change-checkout"]')).toBeNull();
         });
 
         it('does not ask who should start final leg', async () => {

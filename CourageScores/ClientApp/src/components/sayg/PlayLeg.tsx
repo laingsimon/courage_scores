@@ -28,9 +28,10 @@ export interface IPlayLegProps {
     awayScore?: number;
     singlePlayer?: boolean;
     previousLeg?: LegDto;
+    showFullNames?: boolean;
 }
 
-export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCheck, homeScore, awayScore, singlePlayer, previousLeg, onChangePrevious}: IPlayLegProps) {
+export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCheck, homeScore, awayScore, singlePlayer, previousLeg, onChangePrevious, showFullNames}: IPlayLegProps) {
     const [savingInput, setSavingInput] = useState<boolean>(false);
     const [showCheckout, setShowCheckout] = useState<'home' | 'away' | null>(null);
     const [score, setScore] = useState<string>('');
@@ -159,6 +160,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
 
         lastThrow.noOfDarts = noOfDarts;
         accumulator.noOfDarts = sum(accumulator.throws, (thr: LegThrowDto) => thr.noOfDarts || 0);
+        accumulator.score = getScoreFromThrows(leg?.startingScore || 0, accumulator.throws);
         if (canEditPreviousCheckout) {
             await onChangePrevious(newLeg);
         } else {
@@ -203,14 +205,15 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         </div>)
     }
 
+    const showWhoPlaysNextPrompt = !leg!.playerSequence || !leg!.currentThrow;
     return (<div className="position-relative">
-        {leg!.playerSequence && leg!.currentThrow ? null : (<div className="text-center" datatype="bull-up">
+        {showWhoPlaysNextPrompt ? (<div className="text-center" datatype="bull-up">
             {leg!.isLastLeg && homeScore === awayScore && homeScore > 0 ? (<p>Who won the bull?</p>) : (
                 <p>Who plays first?</p>)}
             {playerOptions().map((op: IBootstrapDropdownItem) => (<button key={op.value} className="btn btn-primary margin-right"
                                                                           onClick={() => firstPlayerChanged(op.value)}>🎯<br/>{op.text}</button>))}
-        </div>)}
-        {leg!.playerSequence && leg!.currentThrow ? (<PreviousPlayerScore
+        </div>) : null}
+        {!showWhoPlaysNextPrompt ? (<PreviousPlayerScore
             leg={leg!}
             homeScore={homeScore}
             awayScore={awayScore}
@@ -218,9 +221,10 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             home={home}
             away={away}
             currentScore={score ? Number.parseInt(score) : undefined}
+            showFullNames={showFullNames}
         />) : null}
-        {canEditPreviousCheckout ? renderEditCheckoutDarts() : null}
-        {leg!.playerSequence && leg!.currentThrow ? (<div className={editScore ? ' bg-warning' : ''}>
+        {canEditPreviousCheckout && !showWhoPlaysNextPrompt ? renderEditCheckoutDarts() : null}
+        {!showWhoPlaysNextPrompt ? (<div className={editScore ? ' bg-warning' : ''}>
             <PlayerInput
                 score={score}
                 setScore={async (v: string) => setScore(v)}

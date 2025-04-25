@@ -1,5 +1,4 @@
 using CourageScores.Models;
-using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Season.Creation;
