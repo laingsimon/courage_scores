@@ -160,6 +160,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
 
         lastThrow.noOfDarts = noOfDarts;
         accumulator.noOfDarts = sum(accumulator.throws, (thr: LegThrowDto) => thr.noOfDarts || 0);
+        accumulator.score = getScoreFromThrows(leg?.startingScore || 0, accumulator.throws);
         if (canEditPreviousCheckout) {
             await onChangePrevious(newLeg);
         } else {
