@@ -551,6 +551,45 @@ describe('Score', () => {
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
         });
 
+        it('can add multiple players to home team', async () => {
+            const fixture = getPlayedFixtureData(appData);
+            await renderComponent(fixture.id, appData);
+            newPlayerApiResult = (createdPlayer) => {
+                const existingTeam = Object.assign({}, appData.teams.filter(t => t.id === createdPlayer.teamId)[0]);
+                existingTeam.seasons = existingTeam.seasons!.map((ts: TeamSeasonDto) => {
+                    const newTeamSeason: TeamSeasonDto = Object.assign({}, ts);
+
+                    if (ts.seasonId === createdPlayer.seasonId) {
+                        newTeamSeason.players = newTeamSeason.players!.concat([
+                            createdPlayer.newPlayer
+                        ]);
+                    }
+
+                    return newTeamSeason;
+                });
+
+                return {
+                    success: true,
+                    result: existingTeam,
+                };
+            };
+
+            reportedError.verifyNoError();
+            const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)')!;
+            const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)')!;
+            await doSelectOption(playerSelection.querySelector('.dropdown-menu')!, 'Add a player...');
+            const addPlayerDialog = context.container.querySelector('.modal-dialog')!;
+            expect(addPlayerDialog.textContent).toContain('Create home player...');
+            await doClick(addPlayerDialog, 'input[name="multiple"]');
+            await doChange(addPlayerDialog, 'textarea[name="name"]', 'NEW PLAYER', context.user);
+            await doClick(findButton(addPlayerDialog, 'Add players'));
+
+            reportedError.verifyNoError();
+            expect(teamsReloaded).toEqual(true);
+            expect(createdPlayer).not.toBeNull();
+            expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+        });
+
         it('can handle missing team season during add new player', async () => {
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
