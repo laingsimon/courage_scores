@@ -373,18 +373,15 @@ describe('Score', () => {
         let appData: IAppContainerProps;
 
         function successfullyAddPlayers(createdPlayer: ICreatedPlayer): IClientActionResultDto<TeamDto> {
-            const existingTeam: TeamDto = Object.assign({}, appData.teams.filter(t => t.id === createdPlayer.teamId)[0]);
-            existingTeam.seasons = existingTeam.seasons!.map((ts: TeamSeasonDto) => {
-                const newTeamSeason: TeamSeasonDto = Object.assign({}, ts);
+            // the data is mutated in-memory here to allow multiple updates to be applied in the same test, i.e. multiple additional players
+            const existingTeam: TeamDto = appData.teams.filter((t: TeamDto) => t.id === createdPlayer.teamId)[0];
+            const existingTeamSeason: TeamSeasonDto = existingTeam.seasons!.filter((ts: TeamSeasonDto) => ts.seasonId === createdPlayer.seasonId)[0];
 
-                if (ts.seasonId === createdPlayer.seasonId) {
-                    newTeamSeason.players = newTeamSeason.players!.concat([
-                        createdPlayer.newPlayer
-                    ]);
-                }
-
-                return newTeamSeason;
-            });
+            if (existingTeamSeason) {
+                existingTeamSeason.players = existingTeamSeason.players!.concat([
+                    createdPlayer.newPlayer
+                ]);
+            }
 
             return {
                 success: true,
@@ -564,7 +561,7 @@ describe('Score', () => {
             const addPlayerDialog = context.container.querySelector('.modal-dialog')!;
             expect(addPlayerDialog.textContent).toContain('Create home player...');
             await doClick(addPlayerDialog, 'input[name="multiple"]');
-            await doChange(addPlayerDialog, 'textarea[name="name"]', 'NEW PLAYER', context.user);
+            await doChange(addPlayerDialog, 'textarea[name="name"]', 'NEW PLAYER 1\nNEW PLAYER 2', context.user);
             await doClick(findButton(addPlayerDialog, 'Add players'));
 
             reportedError.verifyNoError();
