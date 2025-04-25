@@ -372,6 +372,26 @@ describe('Score', () => {
         const account: UserDto = user(true);
         let appData: IAppContainerProps;
 
+        function successfullyAddPlayers(createdPlayer: ICreatedPlayer): IClientActionResultDto<TeamDto> {
+            const existingTeam: TeamDto = Object.assign({}, appData.teams.filter(t => t.id === createdPlayer.teamId)[0]);
+            existingTeam.seasons = existingTeam.seasons!.map((ts: TeamSeasonDto) => {
+                const newTeamSeason: TeamSeasonDto = Object.assign({}, ts);
+
+                if (ts.seasonId === createdPlayer.seasonId) {
+                    newTeamSeason.players = newTeamSeason.players!.concat([
+                        createdPlayer.newPlayer
+                    ]);
+                }
+
+                return newTeamSeason;
+            });
+
+            return {
+                success: true,
+                result: existingTeam,
+            };
+        }
+
         beforeEach(() => {
             appData = getDefaultAppData(account);
         });
@@ -502,7 +522,6 @@ describe('Score', () => {
                 {},
                 newHomeTeamPlayer,
                 {name: 'Old name'});
-            // firstSinglesMatch.sut = true;
 
             await renderComponent(fixture.id, appData);
 
@@ -516,25 +535,7 @@ describe('Score', () => {
         it('can add a player to home team', async () => {
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
-            newPlayerApiResult = (createdPlayer) => {
-                const existingTeam = Object.assign({}, appData.teams.filter(t => t.id === createdPlayer.teamId)[0]);
-                existingTeam.seasons = existingTeam.seasons!.map((ts: TeamSeasonDto) => {
-                    const newTeamSeason: TeamSeasonDto = Object.assign({}, ts);
-
-                    if (ts.seasonId === createdPlayer.seasonId) {
-                        newTeamSeason.players = newTeamSeason.players!.concat([
-                            createdPlayer.newPlayer
-                        ]);
-                    }
-
-                    return newTeamSeason;
-                });
-
-                return {
-                    success: true,
-                    result: existingTeam,
-                };
-            };
+            newPlayerApiResult = successfullyAddPlayers;
 
             reportedError.verifyNoError();
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)')!;
@@ -554,25 +555,7 @@ describe('Score', () => {
         it('can add multiple players to home team', async () => {
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
-            newPlayerApiResult = (createdPlayer) => {
-                const existingTeam = Object.assign({}, appData.teams.filter(t => t.id === createdPlayer.teamId)[0]);
-                existingTeam.seasons = existingTeam.seasons!.map((ts: TeamSeasonDto) => {
-                    const newTeamSeason: TeamSeasonDto = Object.assign({}, ts);
-
-                    if (ts.seasonId === createdPlayer.seasonId) {
-                        newTeamSeason.players = newTeamSeason.players!.concat([
-                            createdPlayer.newPlayer
-                        ]);
-                    }
-
-                    return newTeamSeason;
-                });
-
-                return {
-                    success: true,
-                    result: existingTeam,
-                };
-            };
+            newPlayerApiResult = successfullyAddPlayers;
 
             reportedError.verifyNoError();
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)')!;
