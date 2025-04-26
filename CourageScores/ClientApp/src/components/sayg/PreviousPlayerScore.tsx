@@ -59,10 +59,10 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
     }
 
     function renderPlayer(currentPlayer: string, score: number, className: string) {
-        const suffix: string | null = leg.currentThrow === currentPlayer
-            ? 'alert alert-primary'
-            : 'alert';
-        return (<div className={`flex-basis-0 flex-grow-1 flex-shrink-1 ${className} ${suffix}`} datatype={currentPlayer === leg.currentThrow ? 'current-player' : ''}>
+        const suffix: string = leg.currentThrow === currentPlayer
+            ? 'alert-primary'
+            : '';
+        return (<div className={`flex-basis-0 flex-grow-1 flex-shrink-1 alert text-center ${className} ${suffix}`} datatype={currentPlayer === leg.currentThrow ? 'current-player' : ''}>
             <div className="overflow-hidden no-wrap d-block fs-4">{firstNameOnly(currentPlayer === 'home' ? home : away)}</div>
             <div className={`overflow-hidden no-wrap fw-bold ${largeScores ? 'super-size' : 'fs-4'}`}>{(leg.startingScore || 0) - score}</div>
         </div>);
@@ -181,8 +181,8 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
                 : (<div>{homeScore} - {awayScore || '0'}</div>)}
         </div>
         <div className={`d-flex flex-row justify-content-stretch`}>
-            {renderPlayer('home', leg.home.score || 0, 'text-center me-1')}
-            {!singlePlayer ? renderPlayer('away', leg.away.score || 0, 'text-center ms-1') : null}
+            {renderPlayer('home', leg.home.score || 0, 'me-1')}
+            {!singlePlayer ? renderPlayer('away', leg.away.score || 0, 'ms-1') : null}
         </div>
         <div className="d-flex flex-column overflow-auto height-200 max-height-200 medium-size text-secondary" datatype="previous-scores">
         {repeat(maxThrows, (index: number) => {
