@@ -190,9 +190,16 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
         return names.length > 1 ? names[0] : name;
     }
 
+    function joinNames(players?: GamePlayerDto[]): string {
+        const delimiters = repeat((players?.length || 0) - 2, _ => ', ').concat(' & ');
+        return (players || [])
+            .map((player: GamePlayerDto) => firstName(player.name))
+            .reduce((current: string, next: string) => current ? (current + delimiters.shift() + next) : next, '');
+    }
+
     function renderSaygDialog() {
-        const home: string = match.homePlayers!.reduce((current: string, next: GamePlayerDto) => current ? current + ' & ' + firstName(next.name) : firstName(next.name), '');
-        const away: string = match.awayPlayers!.reduce((current: string, next: GamePlayerDto) => current ? current + ' & ' + firstName(next.name) : firstName(next.name), '');
+        const home: string = joinNames(match.homePlayers);
+        const away: string = joinNames(match.awayPlayers);
         const singlePlayerMatch: boolean = match.homePlayers!.length === 1 && match.awayPlayers!.length === 1;
         const defaultSaygData: UpdateRecordedScoreAsYouGoDto = {
             legs: {},
@@ -203,8 +210,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
             publish: false,
         };
 
-        return (<Dialog slim={!fullScreen.isFullScreen} title={fullScreen.isFullScreen ? undefined : `${home} vs ${away} - best of ${matchOptions.numberOfLegs}`}
-                        onClose={fullScreen.isFullScreen ? undefined : (async () => setSaygOpen(false))} className="text-start">
+        return (<Dialog slim={!fullScreen.isFullScreen} title="" className="text-start">
             <EditableSaygContainer>
             <LiveContainer liveOptions={noLiveOptions}>
                 <ScoreAsYouGo
@@ -225,6 +231,12 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                 />
             </LiveContainer>
             </EditableSaygContainer>
+            {fullScreen.isFullScreen ? null : (<div className="modal-footer px-0 pb-0">
+                <div className="left-aligned">
+                    <button className="btn btn-secondary" onClick={async () => setSaygOpen(false)}>Close</button>
+                </div>
+                <button className="btn btn-primary" onClick={() => fullScreen.enterFullScreen()}>Full Screen</button>
+            </div>)}
         </Dialog>)
     }
 
