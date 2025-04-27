@@ -25,6 +25,7 @@ import {WebSocketUpdateStrategy} from "../../live/WebSocketUpdateStrategy";
 import {PollingUpdateStrategy} from "../../live/PollingUpdateStrategy";
 import {WebSocketMode} from "../../live/WebSocketMode";
 import {FeatureApi} from "../../interfaces/apis/IFeatureApi";
+import {CookiesProvider} from "react-cookie";
 
 const DependenciesContext = createContext({});
 
@@ -80,6 +81,8 @@ export function IocContainer({children, overrideHttp, overrideParentHeight, ...s
     const dependencies = Object.assign({}, defaultServices, services);
 
     return (<DependenciesContext.Provider value={dependencies}>
-        {children}
+        <CookiesProvider>
+            {children}
+        </CookiesProvider>
     </DependenciesContext.Provider>)
 }
