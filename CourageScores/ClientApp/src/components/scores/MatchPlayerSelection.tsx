@@ -46,7 +46,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
         const hasAWinner = hasBothScores && (isWinner(match.homeScore || 0, numberOfLegs) || isWinner(match.awayScore || 0, numberOfLegs));
 
         if (saygOpen && !hasAWinner) {
-            fullScreen.enterFullScreen();
+            fullScreen.enterFullScreen(document.getElementById('full-screen-container'));
         } else {
             fullScreen.exitFullScreen();
         }
@@ -211,6 +211,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
         };
 
         return (<Dialog slim={!fullScreen.isFullScreen} title="" className="text-start">
+            <div id="full-screen-container" className="bg-white">
             <EditableSaygContainer>
             <LiveContainer liveOptions={noLiveOptions}>
                 <ScoreAsYouGo
@@ -231,11 +232,12 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                 />
             </LiveContainer>
             </EditableSaygContainer>
+            </div>
             {fullScreen.isFullScreen ? null : (<div className="modal-footer px-0 pb-0">
                 <div className="left-aligned">
                     <button className="btn btn-secondary" onClick={async () => setSaygOpen(false)}>Close</button>
                 </div>
-                <button className="btn btn-primary" onClick={() => fullScreen.enterFullScreen()}>Full Screen</button>
+                <button className="btn btn-primary" onClick={() => fullScreen.enterFullScreen(document.getElementById('full-screen-container'))}>Full Screen</button>
             </div>)}
         </Dialog>)
     }
