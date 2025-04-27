@@ -20,6 +20,7 @@ import {IDivisionApi} from "./interfaces/apis/IDivisionApi";
 import {ISeasonApi} from "./interfaces/apis/ISeasonApi";
 import {ITeamApi} from "./interfaces/apis/ITeamApi";
 import React from "react";
+import {CookiesProvider} from "react-cookie";
 
 describe('App', () => {
     let context: TestContext;
@@ -104,7 +105,11 @@ describe('App', () => {
         let root: ReactDOM.Root;
         await act(async () => {
             const component = (<MemoryRouter initialEntries={[currentPath || '/']}>
-                <IocContainer {...iocProps}>{content}</IocContainer>
+                <IocContainer {...iocProps}>
+                    <CookiesProvider>
+                        {content}
+                    </CookiesProvider>
+                </IocContainer>
             </MemoryRouter>);
             root = ReactDOM.createRoot(container)
             root.render(component);
