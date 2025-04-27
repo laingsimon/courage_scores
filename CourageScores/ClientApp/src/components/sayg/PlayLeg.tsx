@@ -1,7 +1,7 @@
 import {sum} from "../../helpers/collections";
 import {PlayerInput} from "./PlayerInput";
 import {PreviousPlayerScore} from "./PreviousPlayerScore";
-import {IBootstrapDropdownItem} from "../common/BootstrapDropdown";
+import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LegCompetitorScoreDto} from "../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
 import {useEffect, useState} from "react";
@@ -14,6 +14,7 @@ import {useEditableSayg} from "./EditableSaygContainer";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 import {getScoreFromThrows} from "../../helpers/sayg";
 import {isLegWinner} from "../../helpers/superleague";
+import {usePreferences} from "../common/PreferencesContainer";
 
 export interface IPlayLegProps {
     leg?: LegDto;
@@ -35,15 +36,28 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
     const [savingInput, setSavingInput] = useState<boolean>(false);
     const [showCheckout, setShowCheckout] = useState<'home' | 'away' | null>(null);
     const [score, setScore] = useState<string>('');
+    const {getPreference, upsertPreference} = usePreferences();
+    const preferredStyle: string = getPreference<string>('sayg-style') || 'sayg-white';
+    const [saygStyle, setSaygStyle] = useState<string>(preferredStyle);
     const {onError} = useApp();
     const {editScore, setEditScore} = useEditableSayg();
     const accumulator: LegCompetitorScoreDto = leg!.currentThrow ? leg![leg!.currentThrow] : null;
     const remainingScore: number = accumulator ? (leg!.startingScore || 0) - (accumulator.score || 0) : -1;
     const canEditPreviousCheckout: boolean = (!score && previousLeg && isEmpty(leg!.home.throws) && (singlePlayer || isEmpty(leg!.away.throws))) || false;
+    const showWhoPlaysNextPrompt = !leg!.playerSequence || !leg!.currentThrow;
+    const saygStyleOptions: IBootstrapDropdownItem[] = [
+        { value: 'sayg-white', text: '🦺️ Black on white', collapsedText: '🦺️' },
+        { value: 'sayg-black', text: '🦺️ White on black', collapsedText: '🦺️' },
+    ];
 
     useEffect(() => {
         setScore('');
     }, [editScore]);
+
+    async function changeSaygStyle(newStyle: string) {
+        upsertPreference('sayg-style', newStyle);
+        setSaygStyle(newStyle);
+    }
 
     function playerOptions(): IBootstrapDropdownItem[] {
         return [
@@ -205,8 +219,10 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         </div>)
     }
 
-    const showWhoPlaysNextPrompt = !leg!.playerSequence || !leg!.currentThrow;
-    return (<div className="position-relative">
+    return (<div className={`position-relative ${saygStyle}`}>
+        <div className="position-absolute left-0 right-0 mt-2 ms-2">
+            <BootstrapDropdown slim={true} options={saygStyleOptions} value={saygStyle} onChange={changeSaygStyle} className={`${saygStyle}-selector`} />
+        </div>
         {showWhoPlaysNextPrompt ? (<div className="text-center" datatype="bull-up">
             {leg!.isLastLeg && homeScore === awayScore && homeScore > 0 ? (<p>Who won the bull?</p>) : (
                 <p>Who plays first?</p>)}

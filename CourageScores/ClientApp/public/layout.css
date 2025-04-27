@@ -436,3 +436,21 @@ body .width-50 {
 .medium-size {
     font-size: 45px;
 }
+
+.sayg-white {
+    background-color: #ffffff;
+    color: inherit;
+}
+
+.sayg-black {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.sayg-white-selector {
+    --bs-dark-rgb: 200, 200, 200;
+}
+
+.sayg-black-selector {
+    --bs-dark-rgb: 128, 128, 128;
+}
