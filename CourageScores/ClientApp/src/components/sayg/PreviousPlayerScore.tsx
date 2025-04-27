@@ -4,7 +4,6 @@ import {repeat} from "../../helpers/projection";
 import {useEffect} from "react";
 import {IEditingThrow} from "./IEditingThrow";
 import {useEditableSayg} from "./EditableSaygContainer";
-import {useApp} from "../common/AppContainer";
 
 export interface IPreviousPlayerScoreProps {
     homeScore: number;
@@ -27,8 +26,6 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
     const awayThrows: LegThrowDto[] = leg.away ? leg.away.throws || [] : [];
     const {editScore, setEditScore} = useEditableSayg();
     const maxThrows: number = getMaxThrows(homeThrows, awayThrows);
-    const {account, fullScreen} = useApp();
-    const largeScores = (account && account.access && account.access.kioskMode) || fullScreen.isFullScreen;
 
     useEffect(() => {
         window.setTimeout(scrollToLastScore, 10);
@@ -64,7 +61,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             : '';
         return (<div className={`flex-basis-0 flex-grow-1 flex-shrink-1 alert text-center ${className} ${suffix}`} datatype={currentPlayer === leg.currentThrow ? 'current-player' : ''}>
             <div className="overflow-hidden no-wrap d-block fs-4">{firstNameOnly(currentPlayer === 'home' ? home : away)}</div>
-            <div className={`overflow-hidden no-wrap fw-bold ${largeScores ? 'super-size' : 'fs-4'}`}>{(leg.startingScore || 0) - score}</div>
+            <div className="overflow-hidden no-wrap fw-bold super-size">{(leg.startingScore || 0) - score}</div>
         </div>);
     }
 
