@@ -19,6 +19,7 @@ import {ISubscription} from "../../../live/ISubscription";
 import {PatchTournamentDto} from "../../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {PatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {LiveDataType} from "../../../interfaces/models/dtos/Live/LiveDataType";
+import {Loading} from "../../common/Loading";
 
 export interface ISuperLeaguePrintoutProps {
     division: DivisionDto;
@@ -130,7 +131,7 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
     }
 
     if ((any(unloadedIds) || loading) && !finishedLoading) {
-        return (<div>Loading...</div>);
+        return (<Loading nested={true} />);
     }
 
     const saygMatches: ISuperleagueSaygMatchMapping[] = matches.map((m: TournamentMatchDto): ISuperleagueSaygMatchMapping => {
