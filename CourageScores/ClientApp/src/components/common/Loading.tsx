@@ -1,5 +1,9 @@
-export function Loading() {
-    return (<div className="content-background p-3 loading-background opacity-50">
+export interface ILoadingProps {
+	nested?: boolean
+}
+
+export function Loading({nested}: ILoadingProps) {
+    return (<div className={`${nested ? 'ps-0' : 'content-background p-3 opacity-50'} loading-background`}>
        {/*<!-- From Uiverse.io by Nawsome -->*/}
 <div aria-label="Orange and tan hamster running in a metal wheel" role="img" className="wheel-and-hamster">
 	<div className="wheel"></div>
