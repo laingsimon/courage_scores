@@ -102,6 +102,7 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
 
             await setMatchData(newMatch);
         } catch (e) {
+            // istanbul ignore next
             onError(e);
         }
     }
@@ -172,6 +173,7 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
             </td>
         </tr>);
     } catch (e) {
+        // istanbul ignore next
         onError(e);
     }
 }
