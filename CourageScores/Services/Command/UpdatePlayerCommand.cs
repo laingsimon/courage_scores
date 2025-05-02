@@ -193,7 +193,8 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return addResult.ToActionResult().As<TeamPlayer>();
         }
 
-        player.Name = _player.Name;
+        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+        player.Name = _player.Name?.Trim() ?? "";
         player.Captain = _player.Captain;
         player.EmailAddress = _player.EmailAddress ?? player.EmailAddress;
         await _auditingHelper.SetUpdated(player, token);
@@ -231,13 +232,13 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         {
             foreach (var p in match.AwayPlayers.Where(p => p.Id == _playerId))
             {
-                p.Name = _player!.Name;
+                p.Name = _player!.Name?.Trim() ?? "";
                 updated = true;
             }
 
             foreach (var p in match.HomePlayers.Where(p => p.Id == _playerId))
             {
-                p.Name = _player!.Name;
+                p.Name = _player!.Name?.Trim() ?? "";
                 updated = true;
             }
         }

@@ -32,7 +32,8 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season.
 
     protected override async Task<ActionResult<Models.Cosmos.Season.Season>> ApplyUpdates(Models.Cosmos.Season.Season season, EditSeasonDto update, CancellationToken token)
     {
-        season.Name = update.Name;
+        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+        season.Name = update.Name?.Trim() ?? "";
         season.EndDate = update.EndDate;
         season.StartDate = update.StartDate;
         season.Divisions = await update.DivisionIds

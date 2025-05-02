@@ -73,8 +73,10 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
             await _gameService.Upsert(gameUpdate.Id, command, token);
         }
 
-        team.Name = update.Name.Trim();
-        team.Address = update.Address.Trim();
+        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+        team.Name = update.Name?.Trim() ?? "";
+        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+        team.Address = update.Address?.Trim() ?? "";
         var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == update.SeasonId && ts.Deleted == null);
         if (teamSeason == null)
         {
@@ -148,7 +150,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
             if (game.Home.Id == update.Id)
             {
                 var editGame = GameDtoToEditGameDto(game);
-                editGame.Address = update.Address;
+                editGame.Address = update.Address?.Trim() ?? "";
                 editGame.DivisionId = update.NewDivisionId;
                 gamesToUpdate.Add(editGame);
             }

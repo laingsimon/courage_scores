@@ -68,7 +68,8 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<CosmosGame, EditGameDto
             };
         }
 
-        game.Address = update.Address;
+        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+        game.Address = update.Address?.Trim() ?? "";
         game.Date = update.Date;
         game.DivisionId = update.DivisionId;
         game.SeasonId = update.SeasonId;

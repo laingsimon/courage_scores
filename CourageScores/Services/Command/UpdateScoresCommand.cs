@@ -125,8 +125,8 @@ public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
 
     private async Task<ActionResult<GameDto>> UpdateGameDetails(CosmosGame game, CancellationToken token)
     {
-        // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-        game.Address = _scores!.Address ?? game.Address;
+        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+        game.Address = _scores!.Address?.Trim() ?? game.Address;
         game.Postponed = _scores.Postponed;
         game.IsKnockout = _scores.IsKnockout;
         game.AccoladesCount = _scores.AccoladesCount;
