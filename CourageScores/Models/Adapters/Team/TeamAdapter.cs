@@ -17,9 +17,9 @@ public class TeamAdapter : IAdapter<Cosmos.Team.Team, TeamDto>
     {
         return new TeamDto
         {
-            Address = model.Address,
+            Address = model.Address.Trim(),
             Id = model.Id,
-            Name = model.Name,
+            Name = model.Name.Trim(),
             Seasons = await model.Seasons.SelectAsync(season => _seasonAdapter.Adapt(season, token)).ToList(),
         }.AddAuditProperties(model);
     }
