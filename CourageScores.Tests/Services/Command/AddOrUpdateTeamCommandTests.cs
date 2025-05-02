@@ -142,6 +142,20 @@ public class AddOrUpdateTeamCommandTests
     }
 
     [Test]
+    public async Task ApplyUpdates_WhenNamesHaveTrailingWhitespace_RemovesWhitespace()
+    {
+        var team = GetTeam();
+        var update = Update(team);
+        update.Name = "name ";
+        update.Address = "address ";
+
+        await _command.WithData(update).ApplyUpdate(team, _token);
+
+        Assert.That(team.Name, Is.EqualTo("name"));
+        Assert.That(team.Address, Is.EqualTo("address"));
+    }
+
+    [Test]
     public async Task ApplyUpdates_WhenTeamIsNotAssignedToSeason_AddsSeasonToTeam()
     {
         var team = GetTeam(withSeason: false);

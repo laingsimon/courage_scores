@@ -73,8 +73,8 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
             await _gameService.Upsert(gameUpdate.Id, command, token);
         }
 
-        team.Name = update.Name;
-        team.Address = update.Address;
+        team.Name = update.Name.Trim();
+        team.Address = update.Address.Trim();
         var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == update.SeasonId && ts.Deleted == null);
         if (teamSeason == null)
         {
