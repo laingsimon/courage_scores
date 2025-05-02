@@ -22,7 +22,7 @@ public class TemplateAdapter : IAdapter<Template, TemplateDto>
         return new TemplateDto
         {
             Id = model.Id,
-            Name = model.Name,
+            Name = model.Name.TrimOrDefault(),
             Divisions = await model.Divisions.SelectAsync(d => _divisionTemplateAdapter.Adapt(d, token)).ToList(),
             SharedAddresses = await model.SharedAddresses.SelectAsync(a => _sharedAddressAdapter.Adapt(a, token)).ToList(),
             TemplateHealth = model.TemplateHealth,
@@ -35,7 +35,7 @@ public class TemplateAdapter : IAdapter<Template, TemplateDto>
         return new Template
         {
             Id = dto.Id,
-            Name = dto.Name.Trim(),
+            Name = dto.Name.TrimOrDefault(),
             TemplateHealth = dto.TemplateHealth,
             Divisions = await dto.Divisions.SelectAsync(d => _divisionTemplateAdapter.Adapt(d, token)).ToList(),
             SharedAddresses = await dto.SharedAddresses.SelectAsync(a => _sharedAddressAdapter.Adapt(a, token)).ToList(),

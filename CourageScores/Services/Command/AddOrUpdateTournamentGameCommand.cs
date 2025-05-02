@@ -69,9 +69,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
             Success = true,
         };
 
-        // ReSharper disable ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
-        game.Address = update.Address?.Trim() ?? "";
-        // ReSharper restore ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+        game.Address = update.Address.TrimOrDefault();
         game.Date = update.Date;
         game.SeasonId = season.Id;
         game.Notes = update.Notes?.Trim();

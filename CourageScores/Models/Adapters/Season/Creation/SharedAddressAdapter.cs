@@ -11,6 +11,6 @@ public class SharedAddressAdapter : ISimpleAdapter<List<string>, List<TeamPlaceh
 
     public Task<List<string>> Adapt(List<TeamPlaceholderDto> dto, CancellationToken token)
     {
-        return Task.FromResult(new List<string>(dto.Select(t => t.Key.Trim())));
+        return Task.FromResult(new List<string>(dto.Select(t => t.Key.TrimOrDefault())));
     }
 }

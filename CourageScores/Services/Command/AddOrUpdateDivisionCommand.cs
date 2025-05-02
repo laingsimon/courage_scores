@@ -16,8 +16,7 @@ public class AddOrUpdateDivisionCommand : AddOrUpdateCommand<Models.Cosmos.Divis
     protected override Task<ActionResult<Models.Cosmos.Division>> ApplyUpdates(Models.Cosmos.Division division,
         EditDivisionDto update, CancellationToken token)
     {
-        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
-        division.Name = update.Name?.Trim() ?? "";
+        division.Name = update.Name.TrimOrDefault();
         division.Superleague = update.Superleague;
         _cacheFlags.EvictDivisionDataCacheForDivisionId = division.Id;
         return Task.FromResult(new ActionResult<Models.Cosmos.Division>

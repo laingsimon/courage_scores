@@ -26,7 +26,7 @@ public class NotableTournamentPlayerAdapter : IAdapter<NotableTournamentPlayer, 
         return Task.FromResult(new NotableTournamentPlayer
         {
             Id = dto.Id,
-            Name = dto.Name.Trim(),
+            Name = dto.Name.TrimOrDefault(),
 #pragma warning disable CS0618 // Type or member is obsolete
             Notes = dto.Score?.ToString() ?? dto.Notes?.Trim(),
 #pragma warning restore CS0618 // Type or member is obsolete

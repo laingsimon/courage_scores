@@ -73,10 +73,8 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
             await _gameService.Upsert(gameUpdate.Id, command, token);
         }
 
-        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
-        team.Name = update.Name?.Trim() ?? "";
-        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
-        team.Address = update.Address?.Trim() ?? "";
+        team.Name = update.Name.TrimOrDefault();
+        team.Address = update.Address.TrimOrDefault();
         var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == update.SeasonId && ts.Deleted == null);
         if (teamSeason == null)
         {

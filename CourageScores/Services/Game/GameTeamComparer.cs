@@ -1,3 +1,4 @@
+using CourageScores.Models;
 using CourageScores.Models.Cosmos.Game;
 
 namespace CourageScores.Services.Game;
@@ -17,7 +18,7 @@ public class GameTeamComparer : IEqualityComparer<GameTeam>
         }
 
         return x.Id == y.Id
-            && StringComparer.OrdinalIgnoreCase.Equals(x.Name.Trim(), y.Name.Trim());
+            && StringComparer.OrdinalIgnoreCase.Equals(x.Name.TrimOrDefault(), y.Name.TrimOrDefault());
     }
 
     public int GetHashCode(GameTeam obj)

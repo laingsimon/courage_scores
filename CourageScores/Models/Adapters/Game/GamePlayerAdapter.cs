@@ -10,7 +10,7 @@ public class GamePlayerAdapter : IAdapter<GamePlayer, GamePlayerDto>
         return Task.FromResult(new GamePlayerDto
         {
             Id = model.Id,
-            Name = model.Name.Trim(),
+            Name = model.Name.TrimOrDefault(),
         }.AddAuditProperties(model));
     }
 
@@ -19,7 +19,7 @@ public class GamePlayerAdapter : IAdapter<GamePlayer, GamePlayerDto>
         return Task.FromResult(new GamePlayer
         {
             Id = dto.Id,
-            Name = dto.Name.Trim(),
+            Name = dto.Name.TrimOrDefault(),
         }.AddAuditProperties(dto));
     }
 }
