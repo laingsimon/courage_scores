@@ -57,7 +57,7 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
     {
         return new CosmosGame
         {
-            Address = dto.Address.Trim(),
+            Address = dto.Address.TrimOrDefault(),
             Away = await _gameTeamAdapter.Adapt(dto.Away, token),
             Date = dto.Date,
             Home = await _gameTeamAdapter.Adapt(dto.Home, token),

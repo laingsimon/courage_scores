@@ -436,6 +436,40 @@ describe('MasterDraw', () => {
             });
         });
 
+        it('can close add player dialog', async () => {
+            const teamA = teamBuilder('TEAM A').forSeason(season, division).build();
+            const teamB = teamBuilder('TEAM B').forSeason(season, division).build();
+            await renderComponent({
+                tournamentData: tournament.host('TEAM A').opponent('TEAM B').build(),
+                readOnly: false,
+                setTournamentData,
+                patchData: noop
+            }, user({}), undefined, [teamA, teamB], season);
+            const newMatchRow = context.container.querySelector('table tbody tr:last-child')!;
+            await doSelectOption(newMatchRow.querySelector('td:nth-child(2) .dropdown-menu'), '➕ New Player/s');
+
+            await doClick(findButton(context.container.querySelector('.modal-dialog')!, 'Cancel'));
+
+            reportedError.verifyNoError();
+            expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+        });
+
+        it('reports error if team cannot be found', async () => {
+            const teamA = teamBuilder('TEAM A ').forSeason(season, division).build();
+            const teamB = teamBuilder('TEAM B').forSeason(season, division).build();
+            await renderComponent({
+                tournamentData: tournament.host('TEAM A').opponent('TEAM B').build(),
+                readOnly: false,
+                setTournamentData,
+                patchData: noop
+            }, user({}), undefined, [teamA, teamB], season);
+            const newMatchRow = context.container.querySelector('table tbody tr:last-child')!;
+            await doSelectOption(newMatchRow.querySelector('td:nth-child(2) .dropdown-menu'), '➕ New Player/s');
+
+            expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+            reportedError.verifyErrorEquals('Unable to find team with name \'TEAM A\'');
+        });
+
         it('saves tournament when both players are set', async () => {
             const playerA = playerBuilder('PLAYER A').build();
             const playerB = playerBuilder('PLAYER B').build();

@@ -59,8 +59,8 @@ public class AddOrUpdateSaygCommand : AddOrUpdateCommand<RecordedScoreAsYouGo, U
         model.Legs = await update.Legs.ToDictionaryAsync(key => key, value => _legAdapter.Adapt(value, token));
         model.HomeScore = update.HomeScore;
         model.AwayScore = update.AwayScore;
-        model.YourName = update.YourName;
-        model.OpponentName = update.OpponentName;
+        model.YourName = update.YourName.TrimOrDefault();
+        model.OpponentName = update.OpponentName?.Trim();
         model.StartingScore = update.StartingScore;
         model.NumberOfLegs = update.NumberOfLegs;
 

@@ -37,7 +37,7 @@ public class GameTeamAdapter : IAdapter<GameTeam, GameTeamDto>
         return Task.FromResult(new GameTeam
         {
             Id = dto.Id,
-            Name = dto.Name.Trim(),
+            Name = dto.Name.TrimOrDefault(),
             ManOfTheMatch = dto.ManOfTheMatch,
         }.AddAuditProperties(dto));
     }

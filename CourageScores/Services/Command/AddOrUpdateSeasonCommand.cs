@@ -32,7 +32,7 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season.
 
     protected override async Task<ActionResult<Models.Cosmos.Season.Season>> ApplyUpdates(Models.Cosmos.Season.Season season, EditSeasonDto update, CancellationToken token)
     {
-        season.Name = update.Name;
+        season.Name = update.Name.TrimOrDefault();
         season.EndDate = update.EndDate;
         season.StartDate = update.StartDate;
         season.Divisions = await update.DivisionIds

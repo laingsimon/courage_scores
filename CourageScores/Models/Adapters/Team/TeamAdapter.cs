@@ -17,9 +17,9 @@ public class TeamAdapter : IAdapter<Cosmos.Team.Team, TeamDto>
     {
         return new TeamDto
         {
-            Address = model.Address,
+            Address = model.Address.TrimOrDefault(),
             Id = model.Id,
-            Name = model.Name,
+            Name = model.Name.TrimOrDefault(),
             Seasons = await model.Seasons.SelectAsync(season => _seasonAdapter.Adapt(season, token)).ToList(),
         }.AddAuditProperties(model);
     }
@@ -28,9 +28,9 @@ public class TeamAdapter : IAdapter<Cosmos.Team.Team, TeamDto>
     {
         return new Cosmos.Team.Team
         {
-            Address = dto.Address.Trim(),
+            Address = dto.Address.TrimOrDefault(),
             Id = dto.Id,
-            Name = dto.Name.Trim(),
+            Name = dto.Name.TrimOrDefault(),
             Seasons = await dto.Seasons.SelectAsync(season => _seasonAdapter.Adapt(season, token)).ToList(),
         }.AddAuditProperties(dto);
     }

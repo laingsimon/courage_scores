@@ -42,6 +42,27 @@ public class TeamAdapterTests
     }
 
     [Test]
+    public async Task Adapt_GivenModel_TrimsWhitespace()
+    {
+        var model = new CosmosTeam
+        {
+            Address = "address ",
+            Id = Guid.NewGuid(),
+            Name = "name ",
+            Seasons =
+            {
+                TeamSeason,
+            },
+            Version = 1,
+        };
+
+        var result = await _adapter.Adapt(model, _token);
+
+        Assert.That(result.Address, Is.EqualTo("address"));
+        Assert.That(result.Name, Is.EqualTo("name"));
+    }
+
+    [Test]
     public async Task Adapt_GivenDto_MapsPropertiesSuccessfully()
     {
         var dto = new TeamDto

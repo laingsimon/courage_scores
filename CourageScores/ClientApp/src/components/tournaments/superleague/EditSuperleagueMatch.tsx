@@ -30,7 +30,7 @@ export interface IEditSuperleagueMatchProps {
 }
 
 export function EditSuperleagueMatch({ index, match, tournamentData, setMatchData, readOnly, patchData, deleteMatch }: IEditSuperleagueMatchProps) {
-    const {teams, reloadTeams} = useApp();
+    const {teams, reloadTeams, onError} = useApp();
     const oddNumberedMatch: boolean = ((index ?? 0) + 1) % 2 !== 0;
     const matchOptions: GameMatchOptionDto = {
         numberOfLegs: tournamentData.bestOf,
@@ -77,24 +77,34 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
     }
 
     async function changeSide(playerId: string, side: 'sideA' | 'sideB', players: IBootstrapDropdownItem[]) {
-        if (playerId === NEW_PLAYER) {
-            const teamName = side === 'sideA' ? tournamentData.host! : tournamentData.opponent!;
-            const team = teams.find((t: TeamDto) => t.name === teamName)!;
-            setNewPlayerDetails({name: '', captain: false});
-            setAddPlayerDialogOpen(team);
-            return;
+        try {
+            if (playerId === NEW_PLAYER) {
+                const teamName = side === 'sideA' ? tournamentData.host! : tournamentData.opponent!;
+                const team = teams.find((t: TeamDto) => t.name === teamName);
+                if (team) {
+                    setAddPlayerDialogOpen(team);
+                    setNewPlayerDetails({name: '', captain: false});
+                }
+                else {
+                    onError(`Unable to find team with name '${teamName}'`);
+                }
+                return;
+            }
+
+            const newMatch = Object.assign({}, match);
+            newMatch[side] = Object.assign({}, newMatch[side]);
+            const player = players.find(p => p.value === playerId)!;
+            newMatch[side].players = [{
+                id: playerId,
+                name: player.text
+            }];
+            newMatch[side].name = player.text;
+
+            await setMatchData(newMatch);
+        } catch (e) {
+            // istanbul ignore next
+            onError(e);
         }
-
-        const newMatch = Object.assign({}, match);
-        newMatch[side] = Object.assign({}, newMatch[side]);
-        const player = players.find(p => p.value === playerId)!;
-        newMatch[side].players = [{
-            id: playerId,
-            name: player.text
-        }];
-        newMatch[side].name = player.text;
-
-        await setMatchData(newMatch);
     }
 
     async function patchRoundData(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string) {
@@ -129,36 +139,41 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
         setNewPlayerDetails(null);
     }
 
-    return (<tr key={match.id}>
-        <td>
-            {deleteMatch && !readOnly
-                ? <button className="btn btn-sm btn-danger no-wrap" onClick={deleteMatch}>🗑️ {index! + 1}</button>
-                : (index === undefined ? null : index + 1)}
-        </td>
-        <td>
-            {readOnly
-                ? match.sideA?.name
-                : <BootstrapDropdown value={match.sideA?.players![0]?.id} options={hostPlayers.concat(newPlayer)} onChange={changeHostSide} />}
-        </td>
-        <td>v</td>
-        <td>
-            {readOnly
-                ? match.sideB?.name
-                : <BootstrapDropdown value={match.sideB?.players![0]?.id} options={opponentPlayers.concat(newPlayer)} onChange={changeOpponentSide} />}
-        </td>
-        <td className="d-print-none">
-            {index === undefined ? null : <MatchSayg
-                match={match}
-                matchOptions={matchOptions}
-                matchIndex={index}
-                patchData={patchRoundData}
-                readOnly={readOnly}
-                showViewSayg={true}
-                firstLegPlayerSequence={oddNumberedMatch ? ['away', 'home'] : ['home', 'away']}
-                finalLegPlayerSequence={oddNumberedMatch ? ['away', 'home'] : ['home', 'away']}
-                initialOneDartAverage={true} />}
+    try {
+        return (<tr key={match.id}>
+            <td>
+                {deleteMatch && !readOnly
+                    ? <button className="btn btn-sm btn-danger no-wrap" onClick={deleteMatch}>🗑️ {index! + 1}</button>
+                    : (index === undefined ? null : index + 1)}
+            </td>
+            <td>
+                {readOnly
+                    ? match.sideA?.name
+                    : <BootstrapDropdown value={match.sideA?.players![0]?.id} options={hostPlayers.concat(newPlayer)} onChange={changeHostSide}/>}
+            </td>
+            <td>v</td>
+            <td>
+                {readOnly
+                    ? match.sideB?.name
+                    : <BootstrapDropdown value={match.sideB?.players![0]?.id} options={opponentPlayers.concat(newPlayer)} onChange={changeOpponentSide}/>}
+            </td>
+            <td className="d-print-none">
+                {index === undefined ? null : <MatchSayg
+                    match={match}
+                    matchOptions={matchOptions}
+                    matchIndex={index}
+                    patchData={patchRoundData}
+                    readOnly={readOnly}
+                    showViewSayg={true}
+                    firstLegPlayerSequence={oddNumberedMatch ? ['away', 'home'] : ['home', 'away']}
+                    finalLegPlayerSequence={oddNumberedMatch ? ['away', 'home'] : ['home', 'away']}
+                    initialOneDartAverage={true}/>}
 
-            {addPlayerDialogOpen ? renderCreatePlayerDialog(addPlayerDialogOpen!) : null}
-        </td>
-    </tr>);
+                {addPlayerDialogOpen ? renderCreatePlayerDialog(addPlayerDialogOpen!) : null}
+            </td>
+        </tr>);
+    } catch (e) {
+        // istanbul ignore next
+        onError(e);
+    }
 }
