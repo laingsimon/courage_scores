@@ -123,7 +123,11 @@ export function LiveSayg() {
     }
 
     function setType(type: string) {
-        navigate(location.pathname + `${type}/${location.search}`);
+        let pathname = location.pathname;
+        if (pathname.endsWith('/')) {
+            pathname = pathname.substring(0, pathname.lastIndexOf('/'));
+        }
+        navigate(pathname + `/${type}/${location.search}`);
     }
 
     return (<div id="full-screen-container" className={`content-background p-1 d-flex flex-column justify-content-stretch${fullScreen.isFullScreen ? '' : ' position-relative'}`}>
