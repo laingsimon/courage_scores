@@ -34,6 +34,7 @@ export function LiveSayg() {
     const [updates, setUpdates] = useState<IUpdateLookup>({});
     const [statusText, setStatusText] = useState<string | null>(null);
     const [findingFixtures, setFindingFixtures] = useState<boolean>(false);
+    const [fixturesIdentified, setFixturesIdentified] = useState<boolean>(false);
     const liveOptions: ILiveOptions = {
         publish: false,
         canSubscribe: true,
@@ -44,7 +45,7 @@ export function LiveSayg() {
     const isToday = !search.get('date');
 
     useEffect(() => {
-        if (any(ids) || !any(divisions) || findingFixtures) {
+        if (any(ids) || !any(divisions) || findingFixtures || fixturesIdentified) {
             return;
         }
 
@@ -67,8 +68,8 @@ export function LiveSayg() {
             if (type === 'superleague') {
                 const divisionIds = divisions.filter(d => d.superleague).map(d => d.id);
                 if (divisionIds.length === 0) {
+                    setFixturesIdentified(true);
                     setStatusText(`Could not find any superleague divisions`);
-                    setFindingFixtures(false);
                     return;
                 }
                 setStatusText(`Finding superleague tournaments on ${renderDate(date)}...`);
@@ -79,6 +80,7 @@ export function LiveSayg() {
 
                 const superleagueTournaments = divisionData.fixtures?.flatMap(fd => fd.tournamentFixtures) ?? [];
                 if (!any(superleagueTournaments)) {
+                    setFixturesIdentified(true);
                     setStatusText(`Could not find any superleague tournaments on ${renderDate(date)}`);
                     return;
                 }
@@ -91,6 +93,7 @@ export function LiveSayg() {
                 newSearch.delete('date');
                 navigate(location.pathname + '?' + newSearch.toString(), {replace: true});
                 setStatusText(null);
+                setFixturesIdentified(true);
             } else if (type) {
                 setStatusText(`Specify the ids for the ${type}'s`);
             }
