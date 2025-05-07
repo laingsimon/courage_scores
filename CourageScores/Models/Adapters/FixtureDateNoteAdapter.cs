@@ -13,7 +13,7 @@ public class FixtureDateNoteAdapter : IAdapter<FixtureDateNote, FixtureDateNoteD
             Date = model.Date,
             SeasonId = model.SeasonId,
             DivisionId = model.DivisionId,
-            Note = model.Note,
+            Note = model.Note.TrimOrDefault(),
         }.AddAuditProperties(model));
     }
 
@@ -25,7 +25,7 @@ public class FixtureDateNoteAdapter : IAdapter<FixtureDateNote, FixtureDateNoteD
             Date = dto.Date,
             SeasonId = dto.SeasonId,
             DivisionId = dto.DivisionId,
-            Note = dto.Note.Trim(),
+            Note = dto.Note.TrimOrDefault(),
         }.AddAuditProperties(dto));
     }
 }

@@ -10,7 +10,7 @@ public class TournamentPlayerAdapter : IAdapter<TournamentPlayer, TournamentPlay
         return Task.FromResult(new TournamentPlayerDto
         {
             Id = model.Id,
-            Name = model.Name,
+            Name = model.Name.TrimOrDefault(),
             DivisionId = model.DivisionId,
         }.AddAuditProperties(model));
     }
@@ -20,7 +20,7 @@ public class TournamentPlayerAdapter : IAdapter<TournamentPlayer, TournamentPlay
         return Task.FromResult(new TournamentPlayer
         {
             Id = dto.Id,
-            Name = dto.Name.Trim(),
+            Name = dto.Name.TrimOrDefault(),
             DivisionId = dto.DivisionId,
         }.AddAuditProperties(dto));
     }

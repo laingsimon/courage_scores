@@ -9,7 +9,7 @@ public class DivisionAdapter : IAdapter<Cosmos.Division, DivisionDto>
         return Task.FromResult(new DivisionDto
         {
             Id = model.Id,
-            Name = model.Name,
+            Name = model.Name.TrimOrDefault(),
             Superleague = model.Superleague,
         }.AddAuditProperties(model));
     }
@@ -19,7 +19,7 @@ public class DivisionAdapter : IAdapter<Cosmos.Division, DivisionDto>
         return Task.FromResult(new Cosmos.Division
         {
             Id = dto.Id,
-            Name = dto.Name.Trim(),
+            Name = dto.Name.TrimOrDefault(),
             Superleague = dto.Superleague,
         }.AddAuditProperties(dto));
     }

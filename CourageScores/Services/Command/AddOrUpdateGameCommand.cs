@@ -68,7 +68,7 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<CosmosGame, EditGameDto
             };
         }
 
-        game.Address = update.Address;
+        game.Address = update.Address.TrimOrDefault();
         game.Date = update.Date;
         game.DivisionId = update.DivisionId;
         game.SeasonId = update.SeasonId;

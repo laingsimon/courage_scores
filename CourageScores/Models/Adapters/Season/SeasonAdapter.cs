@@ -25,7 +25,7 @@ public class SeasonAdapter : IAdapter<Cosmos.Season.Season, SeasonDto>
             Id = model.Id,
             EndDate = model.EndDate,
             StartDate = model.StartDate,
-            Name = model.Name,
+            Name = model.Name.TrimOrDefault(),
             IsCurrent = now >= model.StartDate.Date && now <= model.EndDate.Date,
         }.AddAuditProperties(model);
     }
@@ -38,7 +38,7 @@ public class SeasonAdapter : IAdapter<Cosmos.Season.Season, SeasonDto>
             Id = dto.Id,
             EndDate = dto.EndDate,
             StartDate = dto.StartDate,
-            Name = dto.Name.Trim(),
+            Name = dto.Name.TrimOrDefault(),
         }.AddAuditProperties(dto);
     }
 }

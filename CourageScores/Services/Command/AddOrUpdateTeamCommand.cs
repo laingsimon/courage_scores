@@ -73,8 +73,8 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
             await _gameService.Upsert(gameUpdate.Id, command, token);
         }
 
-        team.Name = update.Name;
-        team.Address = update.Address;
+        team.Name = update.Name.TrimOrDefault();
+        team.Address = update.Address.TrimOrDefault();
         var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == update.SeasonId && ts.Deleted == null);
         if (teamSeason == null)
         {
@@ -148,7 +148,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
             if (game.Home.Id == update.Id)
             {
                 var editGame = GameDtoToEditGameDto(game);
-                editGame.Address = update.Address;
+                editGame.Address = update.Address?.Trim() ?? "";
                 editGame.DivisionId = update.NewDivisionId;
                 gamesToUpdate.Add(editGame);
             }

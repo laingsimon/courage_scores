@@ -28,9 +28,9 @@ public class UserAdapter : ISimpleAdapter<User, UserDto>
     {
         return new User
         {
-            Name = dto.Name.Trim(),
-            EmailAddress = dto.EmailAddress.Trim(),
-            GivenName = dto.GivenName.Trim(),
+            Name = dto.Name.TrimOrDefault(),
+            EmailAddress = dto.EmailAddress.TrimOrDefault(),
+            GivenName = dto.GivenName.TrimOrDefault(),
             Access = dto.Access != null ? await _accessAdapter.Adapt(dto.Access, token) : null,
             TeamId = dto.TeamId,
         };

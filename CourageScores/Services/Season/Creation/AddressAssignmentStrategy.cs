@@ -17,10 +17,11 @@ public class AddressAssignmentStrategy : IAddressAssignmentStrategy
     {
         var seasonSharedAddresses = context.MatchContext
             .GetSeasonSharedAddresses()
-            .Select(a =>
+            .Select(seasonSharedAddressKeys =>
             {
                 var allTeams = context.MatchContext.Teams.SelectMany(pair => pair.Value);
-                return allTeams.Where(t => a.Any(aa => t.AddressOrName().Trim().Equals(aa.Trim(), StringComparison.OrdinalIgnoreCase))).ToArray();
+                return allTeams.Where(t => seasonSharedAddressKeys.Any(
+                    seasonSharedAddressKey => t.AddressOrName().Equals(seasonSharedAddressKey.TrimOrDefault(), StringComparison.OrdinalIgnoreCase))).ToArray();
             })
             .ToArray();
         var templateSeasonSharedAddressPlaceholders = context.Template.SharedAddresses;

@@ -193,9 +193,9 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return addResult.ToActionResult().As<TeamPlayer>();
         }
 
-        player.Name = _player.Name;
+        player.Name = _player.Name.TrimOrDefault();
         player.Captain = _player.Captain;
-        player.EmailAddress = _player.EmailAddress ?? player.EmailAddress;
+        player.EmailAddress = _player.EmailAddress.TrimOrDefault(player.EmailAddress ?? "");
         await _auditingHelper.SetUpdated(player, token);
         return new ActionResult<TeamPlayer>
         {
@@ -231,13 +231,13 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         {
             foreach (var p in match.AwayPlayers.Where(p => p.Id == _playerId))
             {
-                p.Name = _player!.Name;
+                p.Name = _player!.Name.TrimOrDefault();
                 updated = true;
             }
 
             foreach (var p in match.HomePlayers.Where(p => p.Id == _playerId))
             {
-                p.Name = _player!.Name;
+                p.Name = _player!.Name.TrimOrDefault();
                 updated = true;
             }
         }

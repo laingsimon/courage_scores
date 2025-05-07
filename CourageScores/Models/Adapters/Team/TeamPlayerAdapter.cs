@@ -21,9 +21,9 @@ public class TeamPlayerAdapter : IAdapter<TeamPlayer, TeamPlayerDto>
         {
             Captain = model.Captain,
             Id = model.Id,
-            Name = model.Name.Trim(),
+            Name = model.Name.TrimOrDefault(),
             EmailAddress = canShowEmailAddress
-                ? model.EmailAddress
+                ? model.EmailAddress?.Trim()
                 : null,
         }.AddAuditProperties(model);
     }
@@ -34,7 +34,7 @@ public class TeamPlayerAdapter : IAdapter<TeamPlayer, TeamPlayerDto>
         {
             Captain = dto.Captain,
             Id = dto.Id,
-            Name = dto.Name.Trim(),
+            Name = dto.Name.TrimOrDefault(),
             EmailAddress = dto.EmailAddress?.Trim(),
         }.AddAuditProperties(dto));
     }

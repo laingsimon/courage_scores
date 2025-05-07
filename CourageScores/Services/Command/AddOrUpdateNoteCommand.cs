@@ -19,7 +19,7 @@ public class AddOrUpdateNoteCommand : AddOrUpdateCommand<FixtureDateNote, EditFi
         var divisionIdToEvictFromCache = GetDivisionIdToEvictFromCache(model, update);
 
         model.Date = update.Date;
-        model.Note = update.Note.Trim();
+        model.Note = update.Note.TrimOrDefault();
         model.SeasonId = update.SeasonId;
         model.DivisionId = update.DivisionId;
         _cacheFlags.EvictDivisionDataCacheForSeasonId = update.SeasonId;
