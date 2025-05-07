@@ -198,6 +198,7 @@ export function App({embed, controls, testRoute}: IAppProps) {
                         <Route path='/practice' element={<Practice/>}/>
                         <Route path='/about' element={<About/>}/>
                         <Route path='/live/:type' element={<LiveSayg />}/>
+                        <Route path='/live' element={<LiveSayg />}/>
                         <Route path='/tv' element={<Tv/>}/>
                         {testRoute}
                     </Routes>
