@@ -104,23 +104,28 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
     }
 
     async function saveDataAndGetId(useData?: UpdateRecordedScoreAsYouGoDto): Promise<string | undefined> {
-        try {
-            const response: IClientActionResultDto<ILoadedScoreAsYouGoDto> = await saygApi.upsert(useData || sayg!);
-            if (response.success) {
-                response.result!.lastUpdated = response.result!.updated;
-                setSayg(response.result);
+        while (true) {
+            try {
+                const response: IClientActionResultDto<ILoadedScoreAsYouGoDto> = await saygApi.upsert(useData || sayg!);
+                if (response.success) {
+                    response.result!.lastUpdated = response.result!.updated;
+                    setSayg(response.result);
 
-                if (onSaved) {
-                    await onSaved(response.result!);
+                    if (onSaved) {
+                        await onSaved(response.result!);
+                    }
+
+                    return '#' + response.result!.id;
+                } else {
+                    setSaveError(response);
+                    break;
                 }
-
-                return '#' + response.result!.id;
-            } else {
-                setSaveError(response);
+            } catch (e) {
+                // try again until success or user presses cancel to the below prompt.
+                if (!window.confirm('Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.')) {
+                    break;
+                }
             }
-        } catch (e) {
-            /* istanbul ignore next */
-            onError(e);
         }
 
         return undefined;
