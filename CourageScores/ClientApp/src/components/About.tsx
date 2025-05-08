@@ -76,14 +76,6 @@ export function About() {
                 </td>
             </tr>
             <tr>
-                <th>Connection</th>
-                <td>
-                    <span className="margin-right">
-                        {window.navigator.onLine ? '▶' : '⏸'}
-                    </span>
-                </td>
-            </tr>
-            <tr>
                 <th>User agent</th>
                 <td>
                     {window.navigator.userAgent}
