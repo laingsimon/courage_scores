@@ -37,6 +37,13 @@ export function About() {
                                          href="https://github.com/laingsimon/courage_scores/wiki/credits">Credits</a>
         </p>
 
+        <p>
+            <strong>Privacy Policy</strong>: <a href="/privacy-policy.html" rel="noreferrer" target="_blank">Privacy Policy</a>
+        </p>
+        <p>
+            <strong>Terms of Service</strong>: <a href="/terms-of-service.html" rel="noreferrer" target="_blank">Terms of Service</a>
+        </p>
+
         <table className="table">
             <thead>
             <tr>
