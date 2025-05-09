@@ -15,6 +15,7 @@ import {EditableSaygContainer} from "./EditableSaygContainer";
 import {ILegDisplayOptions} from "./ILegDisplayOptions";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 import {isLegWinner} from "../../helpers/superleague";
+import {retry} from "../../helpers/retry";
 
 const SaygContext = createContext({});
 
@@ -104,26 +105,25 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
     }
 
     async function saveDataAndGetId(useData?: UpdateRecordedScoreAsYouGoDto): Promise<string | undefined> {
-        try {
-            const response: IClientActionResultDto<ILoadedScoreAsYouGoDto> = await saygApi.upsert(useData || sayg!);
-            if (response.success) {
-                response.result!.lastUpdated = response.result!.updated;
-                setSayg(response.result);
+        return await retry(
+            async () => {
+                const response: IClientActionResultDto<ILoadedScoreAsYouGoDto> = await saygApi.upsert(useData || sayg!);
+                if (response.success) {
+                    response.result!.lastUpdated = response.result!.updated;
+                    setSayg(response.result);
 
-                if (onSaved) {
-                    await onSaved(response.result!);
+                    if (onSaved) {
+                        await onSaved(response.result!);
+                    }
+
+                    return '#' + response.result!.id;
+                } else {
+                    setSaveError(response);
+                    return undefined;
                 }
-
-                return '#' + response.result!.id;
-            } else {
-                setSaveError(response);
-            }
-        } catch (e) {
-            /* istanbul ignore next */
-            onError(e);
-        }
-
-        return undefined;
+            },
+            'Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.'
+        );
     }
 
     async function onChange(newData: ILoadedScoreAsYouGoDto) {
@@ -151,8 +151,13 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         const newSayg: UpdateRecordedScoreAsYouGoDto = Object.assign({}, sayg, newData);
         setSayg(newSayg);
         if (liveOptions.publish) {
-            if (!await webSocket.publish(id, LiveDataType.sayg, newSayg)) {
-                window.alert('Unable to publish updated data');
+            try {
+                if (!await webSocket.publish(id, LiveDataType.sayg, newSayg)) {
+                    window.alert('Unable to publish updated data');
+                }
+            } catch (e) {
+                /* istanbul ignore next */
+                console.error(e);
             }
         }
         return newSayg;

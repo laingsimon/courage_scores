@@ -63,6 +63,12 @@ describe('collections', () => {
     });
 
     describe('groupAndSortOccurrences', () => {
+        it('returns empty if provided undefined', () => {
+            const result = groupAndSortByOccurrences(undefined, 'id');
+
+            expect(result).toEqual([]);
+        });
+
         it('groups item by property', () => {
             const a1 = { id: 'A' };
             const a2 = { id: 'A' };
@@ -248,6 +254,12 @@ describe('collections', () => {
     });
 
     describe('sum', () => {
+        it('should return undefined if provided undefined', () => {
+            const result = sum(undefined, i => 1);
+
+            expect(result).toBeUndefined();
+        });
+
         it('should return a sum of the items', () => {
             const items = [1, 2, 3];
 
@@ -258,6 +270,12 @@ describe('collections', () => {
     });
 
     describe('max', () => {
+        it('should return 0 if provided undefined', () => {
+            const result = max(undefined, i => 1);
+
+            expect(result).toEqual(0);
+        });
+
         it('should return value of max item', () => {
             const items = [1, 2, 3];
 
@@ -276,6 +294,12 @@ describe('collections', () => {
     });
 
     describe('elementAt', () => {
+        it('should return null if provided undefined', () => {
+            const result = elementAt(undefined, 2);
+
+            expect(result).toBeNull();
+        });
+
         it('should return item at index', () => {
             const items = [1, 2, 3];
 
@@ -302,6 +326,12 @@ describe('collections', () => {
     });
 
     describe('distinct', () => {
+        it('should return empty if provided undefined', () => {
+            const result = distinct(undefined);
+
+            expect(result).toEqual([]);
+        });
+
         it('should remove duplicates', () => {
             const items = [
                 {name: 'a'},
@@ -354,6 +384,12 @@ describe('collections', () => {
     });
 
     describe('toDictionary', () => {
+        it('should return empty if provided undefined', () => {
+            const result = toDictionary(undefined, () => '', () => '');
+
+            expect(result).toEqual({});
+        });
+
         it('should return empty map for empty collection', () => {
             const result = toDictionary([], a => a, a => a);
 
@@ -398,6 +434,12 @@ describe('collections', () => {
     });
 
     describe('reverse', () => {
+        it('should return empty if provided undefined', () => {
+            const result = reverse(undefined);
+
+            expect(result).toEqual([]);
+        });
+
         it('reverses collection', () => {
             const input = [1, 2, 3];
 
@@ -416,6 +458,12 @@ describe('collections', () => {
     });
 
     describe('take', () => {
+        it('should return empty if provided undefined', () => {
+            const result = take(undefined, 2);
+
+            expect(result).toEqual([]);
+        });
+
         it('given empty collection', () => {
             const result = take([], 2);
 
@@ -448,6 +496,12 @@ describe('collections', () => {
     });
 
     describe('skip', () => {
+        it('should return empty if provided undefined', () => {
+            const result = skip(undefined, 2);
+
+            expect(result).toEqual([]);
+        });
+
         it('given empty collection', () => {
             const result = skip([], 2);
 

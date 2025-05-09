@@ -401,6 +401,8 @@ describe('SaygLoadingContainer', () => {
                 result: ('SOMETHING THAT WILL TRIGGER AN EXCEPTION' as unknown) as RecordedScoreAsYouGoDto,
             } as IClientActionResultDto<RecordedScoreAsYouGoDto>;
             let result: string | undefined;
+            context.prompts.respondToConfirm('Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.', false);
+            console.error = noop;
 
             await act(async () => {
                 result = await containerProps.saveDataAndGetId();
@@ -409,10 +411,7 @@ describe('SaygLoadingContainer', () => {
             expect(saved).toBeNull();
             expect(result).toBeUndefined();
             expect(containerProps!.sayg.id).toBeUndefined();
-            reportedError.verifyErrorEquals({
-                message: 'Cannot create property \'lastUpdated\' on string \'SOMETHING THAT WILL TRIGGER AN EXCEPTION\'',
-                stack: expect.any(String),
-            });
+            context.prompts.confirmWasShown('Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.');
         });
     });
 
