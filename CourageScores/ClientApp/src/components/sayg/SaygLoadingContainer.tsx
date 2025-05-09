@@ -156,6 +156,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
                     window.alert('Unable to publish updated data');
                 }
             } catch (e) {
+                /* istanbul ignore next */
                 console.error(e);
             }
         }
