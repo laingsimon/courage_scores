@@ -246,8 +246,18 @@ export function Tournament() {
 
     async function publishLiveUpdate(data: TournamentGameDto) {
         if (canManageTournaments) {
-            if (!await webSocket.publish(tournamentId!, LiveDataType.tournament, data)) {
-                window.alert('Unable to publish updated data');
+            while (true) {
+                try {
+                    if (!await webSocket.publish(tournamentId!, LiveDataType.tournament, data)) {
+                        window.alert('Unable to publish updated data');
+                    }
+
+                    return;
+                } catch (e) {
+                    if (!window.confirm('Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.')) {
+                        return;
+                    }
+                }
             }
         }
     }
