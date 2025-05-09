@@ -33,14 +33,22 @@ import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {TemplateDto} from "../../interfaces/models/dtos/Season/Creation/TemplateDto";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
+import {IGameApi} from "../../interfaces/apis/IGameApi";
 
 describe('DivisionFixtures', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let newFixtures: IEditableDivisionFixtureDateDto[] | null;
     let updatedNote: {id: string, note: EditFixtureDateNoteDto} | null;
+    let bulkDeleteResponse: IClientActionResultDto<string[]> | null;
+    let bulkDeleteRequest: { seasonId: string, executeDelete: boolean } | null;
     const seasonApi = {};
-    const gameApi = {};
+    const gameApi = api<IGameApi>({
+        async deleteUnplayedLeagueFixtures(seasonId: string, executeDelete: boolean): Promise<IClientActionResultDto<string[]>> {
+            bulkDeleteRequest = {seasonId, executeDelete};
+            return bulkDeleteResponse!;
+        }
+    });
     const noteApi = api<INoteApi>({
         create: async () => {
             return {success: true};
@@ -81,6 +89,8 @@ describe('DivisionFixtures', () => {
         reportedError = new ErrorState();
         newFixtures = null;
         updatedNote = null;
+        bulkDeleteRequest = null;
+        bulkDeleteResponse = null;
     });
 
     async function renderComponent(divisionData: IDivisionDataContainerProps, account?: UserDto, route?: string, path?: string, excludeControls?: boolean, teams?: TeamDto[]) {
@@ -815,6 +825,143 @@ describe('DivisionFixtures', () => {
 
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeFalsy();
+        });
+
+        describe('bulk delete', () => {
+            it('does not delete any fixtures if user cancels prompt', async () => {
+                const divisionData = getInSeasonDivisionData();
+                account!.access!.bulkDeleteLeagueFixtures = true;
+                await renderComponent(divisionData, account);
+                context.prompts.respondToConfirm(`Are you sure you want to delete all un-played league fixtures from ALL DIVISIONS in the ${divisionData.season!.name} season?
+
+A dry-run of the deletion will run first.`, false);
+
+                await doClick(findButton(context.container, '⚠️ Delete all league fixtures'))
+
+                reportedError.verifyNoError();
+                expect(bulkDeleteRequest).toBeNull();
+            });
+
+            it('handles a failure when dry running the delete', async () => {
+                const divisionData = getInSeasonDivisionData();
+                account!.access!.bulkDeleteLeagueFixtures = true;
+                await renderComponent(divisionData, account);
+                context.prompts.respondToConfirm(`Are you sure you want to delete all un-played league fixtures from ALL DIVISIONS in the ${divisionData.season!.name} season?
+
+A dry-run of the deletion will run first.`, true);
+                bulkDeleteResponse = {
+                    success: false
+                }
+
+                await doClick(findButton(context.container, '⚠️ Delete all league fixtures'))
+
+                reportedError.verifyNoError();
+                expect(bulkDeleteRequest).toEqual({ seasonId: divisionData.season!.id, executeDelete: false });
+                context.prompts.alertWasShown('There was an error when attempting to delete all the fixtures');
+            });
+
+            it('exits if no fixtures are identified', async () => {
+                const divisionData = getInSeasonDivisionData();
+                account!.access!.bulkDeleteLeagueFixtures = true;
+                await renderComponent(divisionData, account);
+                context.prompts.respondToConfirm(`Are you sure you want to delete all un-played league fixtures from ALL DIVISIONS in the ${divisionData.season!.name} season?
+
+A dry-run of the deletion will run first.`, true);
+                bulkDeleteResponse = {
+                    success: true,
+                    result: []
+                };
+
+                await doClick(findButton(context.container, '⚠️ Delete all league fixtures'))
+
+                reportedError.verifyNoError();
+                expect(bulkDeleteRequest).toEqual({ seasonId: divisionData.season!.id, executeDelete: false });
+                context.prompts.alertWasShown('No fixtures can be deleted');
+            });
+
+            it('does not delete any fixtures if user cancels dry run result prompt', async () => {
+                const divisionData = getInSeasonDivisionData();
+                account!.access!.bulkDeleteLeagueFixtures = true;
+                await renderComponent(divisionData, account);
+                context.prompts.respondToConfirm(`Are you sure you want to delete all un-played league fixtures from ALL DIVISIONS in the ${divisionData.season!.name} season?
+
+A dry-run of the deletion will run first.`, true);
+                bulkDeleteResponse = {
+                    success: true,
+                    result: [
+                        'a fixture that can be deleted'
+                    ],
+                    messages: [
+                        'a message'
+                    ]
+                };
+                context.prompts.respondToConfirm(`All the fixtures CAN be deleted without issue, are you sure you want to actually delete 1 fixtures from ${divisionData.season!.name}?
+
+a message`, false);
+
+                await doClick(findButton(context.container, '⚠️ Delete all league fixtures'))
+
+                reportedError.verifyNoError();
+                expect(bulkDeleteRequest).toEqual({ seasonId: divisionData.season!.id, executeDelete: false });
+            });
+
+            it('deletes all fixtures if user confirms dry run result prompt', async () => {
+                const divisionData = getInSeasonDivisionData();
+                account!.access!.bulkDeleteLeagueFixtures = true;
+                await renderComponent(divisionData, account);
+                Object.defineProperty(window, 'location', {
+                    configurable: true,
+                    value: { reload: jest.fn() },
+                });
+                context.prompts.respondToConfirm(`Are you sure you want to delete all un-played league fixtures from ALL DIVISIONS in the ${divisionData.season!.name} season?
+
+A dry-run of the deletion will run first.`, true);
+                bulkDeleteResponse = {
+                    success: true,
+                    result: [
+                        'a fixture that can be deleted'
+                    ],
+                    messages: [
+                        'a message'
+                    ]
+                };
+                context.prompts.respondToConfirm(`All the fixtures CAN be deleted without issue, are you sure you want to actually delete 1 fixtures from ${divisionData.season!.name}?
+
+a message`, true);
+
+                await doClick(findButton(context.container, '⚠️ Delete all league fixtures'))
+
+                reportedError.verifyNoError();
+                expect(bulkDeleteRequest).toEqual({ seasonId: divisionData.season!.id, executeDelete: true });
+                expect(window.location.reload).toHaveBeenCalled();
+            });
+        });
+
+        it('reports an error if actual delete fails', async () => {
+            const divisionData = getInSeasonDivisionData();
+            account!.access!.bulkDeleteLeagueFixtures = true;
+            await renderComponent(divisionData, account);
+            context.prompts.respondToConfirm(`Are you sure you want to delete all un-played league fixtures from ALL DIVISIONS in the ${divisionData.season!.name} season?
+
+A dry-run of the deletion will run first.`, true);
+            bulkDeleteResponse = {
+                success: true,
+                result: [
+                    'a fixture that can be deleted'
+                ],
+                messages: [
+                    'a message'
+                ]
+            };
+            context.prompts.respondToConfirm(`All the fixtures CAN be deleted without issue, are you sure you want to actually delete 1 fixtures from ${divisionData.season!.name}?
+
+a message`, true, () => bulkDeleteResponse!.success = false);
+
+            await doClick(findButton(context.container, '⚠️ Delete all league fixtures'))
+
+            reportedError.verifyNoError();
+            expect(bulkDeleteRequest).toEqual({ seasonId: divisionData.season!.id, executeDelete: true });
+            context.prompts.alertWasShown('There was an error deleting all the fixtures, some fixtures may have been deleted');
         });
     });
 });

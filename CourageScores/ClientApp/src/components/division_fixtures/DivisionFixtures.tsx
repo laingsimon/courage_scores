@@ -209,7 +209,9 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
     }
 
     async function bulkDeleteFixtures() {
+        /* istanbul ignore next */
         if (!season || deletingAllFixtures) {
+            /* istanbul ignore next */
             return;
         }
 
@@ -241,7 +243,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
                 return;
             }
 
-            document.location.reload();
+            window.location.reload();
         } finally {
             setDeletingAllFixtures(false);
         }

@@ -45,6 +45,7 @@ import {
 import {useBranding} from "../common/BrandingContainer";
 import {renderDate} from "../../helpers/rendering";
 import {isEqual} from "../common/ObjectComparer";
+import {retry} from "../../helpers/retry";
 
 export interface ITournamentPlayerMap {
     [id: string]: DivisionTournamentFixtureDetailsDto;
@@ -246,9 +247,14 @@ export function Tournament() {
 
     async function publishLiveUpdate(data: TournamentGameDto) {
         if (canManageTournaments) {
-            if (!await webSocket.publish(tournamentId!, LiveDataType.tournament, data)) {
-                window.alert('Unable to publish updated data');
-            }
+            await retry(
+                async () => {
+                    if (!await webSocket.publish(tournamentId!, LiveDataType.tournament, data)) {
+                        window.alert('Unable to publish updated data');
+                    }
+                },
+                'Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.'
+            );
         }
     }
 
