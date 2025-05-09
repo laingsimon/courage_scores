@@ -243,7 +243,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
                 return;
             }
 
-            document.location.reload();
+            window.location.reload();
         } finally {
             setDeletingAllFixtures(false);
         }

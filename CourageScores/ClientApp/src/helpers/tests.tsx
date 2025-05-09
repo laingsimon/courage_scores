@@ -371,6 +371,7 @@ export class Prompts {
     private readonly alerts: string[] = [];
     private readonly confirms: (string | undefined)[] = [];
     private readonly responses: { [message: string]: boolean } = {};
+    private readonly beforeResponses: { [message: string]: (() => void) | undefined } = {};
 
     constructor() {
         this.init();
@@ -400,8 +401,9 @@ export class Prompts {
         expect(this.confirms).toEqual([]);
     }
 
-    public respondToConfirm(message: string, response: boolean) {
+    public respondToConfirm(message: string, response: boolean, beforeResponse?: () => void) {
         this.responses[message] = response;
+        this.beforeResponses[message] = beforeResponse;
     }
 
     private init(): void {
@@ -413,6 +415,11 @@ export class Prompts {
             this.confirms.push(msg);
 
             if (msg && this.responses[msg] !== undefined) {
+                const beforeResponse = this.beforeResponses[msg];
+                if (beforeResponse) {
+                    beforeResponse();
+                }
+
                 return this.responses[msg];
             }
 
