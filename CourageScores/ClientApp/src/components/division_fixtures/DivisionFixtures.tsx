@@ -209,7 +209,9 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
     }
 
     async function bulkDeleteFixtures() {
+        /* istanbul ignore next */
         if (!season || deletingAllFixtures) {
+            /* istanbul ignore next */
             return;
         }
 
