@@ -15,6 +15,7 @@ import {EditableSaygContainer} from "./EditableSaygContainer";
 import {ILegDisplayOptions} from "./ILegDisplayOptions";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 import {isLegWinner} from "../../helpers/superleague";
+import {retry} from "../../helpers/retry";
 
 const SaygContext = createContext({});
 
@@ -104,8 +105,8 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
     }
 
     async function saveDataAndGetId(useData?: UpdateRecordedScoreAsYouGoDto): Promise<string | undefined> {
-        while (true) {
-            try {
+        return await retry(
+            async () => {
                 const response: IClientActionResultDto<ILoadedScoreAsYouGoDto> = await saygApi.upsert(useData || sayg!);
                 if (response.success) {
                     response.result!.lastUpdated = response.result!.updated;
@@ -118,17 +119,11 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
                     return '#' + response.result!.id;
                 } else {
                     setSaveError(response);
-                    break;
+                    return undefined;
                 }
-            } catch (e) {
-                // try again until success or user presses cancel to the below prompt.
-                if (!window.confirm('Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.')) {
-                    break;
-                }
-            }
-        }
-
-        return undefined;
+            },
+            'Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.'
+        );
     }
 
     async function onChange(newData: ILoadedScoreAsYouGoDto) {

@@ -402,6 +402,7 @@ describe('SaygLoadingContainer', () => {
             } as IClientActionResultDto<RecordedScoreAsYouGoDto>;
             let result: string | undefined;
             context.prompts.respondToConfirm('Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.', false);
+            console.error = noop;
 
             await act(async () => {
                 result = await containerProps.saveDataAndGetId();

@@ -6,7 +6,7 @@ import {
     doChange,
     doClick, ErrorState,
     findButton,
-    iocProps,
+    iocProps, noop,
     renderApp,
     TestContext
 } from "../../helpers/tests";
@@ -311,6 +311,7 @@ describe('Practice', () => {
             apiResultFunc = () => {
                 throw new Error('some error');
             };
+            console.error = noop;
             context.prompts.respondToConfirm('Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.', false);
 
             await doClick(findButton(context.container, 'Save '));
