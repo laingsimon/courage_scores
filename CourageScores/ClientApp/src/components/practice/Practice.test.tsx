@@ -278,7 +278,7 @@ describe('Practice', () => {
         });
 
         it('can change your name', async () => {
-            await renderComponent(account, '');
+            await renderComponent(account, '?yourName=SOMEONE+ELSE');
             reportedError.verifyNoError();
             assertNoDataError();
 
@@ -287,6 +287,17 @@ describe('Practice', () => {
             await doClick(findButton(context.container, 'Save '));
             const id = Object.keys(saygData)[0];
             expect(saygData[id].yourName).toEqual('YOU');
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/practice?yourName=YOU&startingScore=501&numberOfLegs=3`);
+        });
+
+        it('can change number of legs', async () => {
+            await renderComponent(account, '?numberOfLegs=5');
+            reportedError.verifyNoError();
+            assertNoDataError();
+
+            await doChange(context.container, 'input[name="numberOfLegs"]', '7', context.user);
+
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/practice?numberOfLegs=7&yourName=you&startingScore=501`);
         });
 
         it('can clear opponent name', async () => {

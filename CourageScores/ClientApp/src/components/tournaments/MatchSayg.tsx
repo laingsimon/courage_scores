@@ -182,6 +182,7 @@ export function MatchSayg({
             {finished || !fullScreen.isFullScreen ? (<div className="modal-footer px-0 pb-0 mt-3">
                 <div className="left-aligned mx-0">
                     <button className="btn btn-secondary" onClick={async () => await changeDialogState(false)}>Close</button>
+                    {!finished && !fullScreen.isFullScreen ? <button className="btn btn-secondary" onClick={async () => fullScreen.enterFullScreen()}>Full screen</button> : null}
                 </div>
                 <DebugOptions>
                     <a target="_blank" rel="noreferrer" href={`${settings.apiHost}/api/Sayg/${saygId}`} className="dropdown-item">
