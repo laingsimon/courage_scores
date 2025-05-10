@@ -10,6 +10,7 @@ import {SaygLoadingContainer} from "./SaygLoadingContainer";
 import {any} from "../../helpers/collections";
 import {useDependencies} from "../common/IocContainer";
 import {renderDate} from "../../helpers/rendering";
+import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 
 interface IIdentifiedUpdate {
     id: string;
@@ -35,6 +36,7 @@ export function LiveSayg() {
     const [statusText, setStatusText] = useState<string | null>(null);
     const [findingFixtures, setFindingFixtures] = useState<boolean>(false);
     const [fixturesIdentified, setFixturesIdentified] = useState<boolean>(false);
+    const [refreshIds, setRefreshIds] = useState<string[]>([]);
     const liveOptions: ILiveOptions = {
         publish: false,
         canSubscribe: true,
@@ -133,9 +135,21 @@ export function LiveSayg() {
         navigate(pathname + `/${type}/${location.search}`);
     }
 
+    function refresh() {
+        if (any(refreshIds)) {
+            /* istanbul ignore next */
+            return;
+        }
+
+        setRefreshIds(ids);
+    }
+
     return (<div id="full-screen-container" className={`content-background p-1 d-flex flex-column justify-content-stretch${fullScreen.isFullScreen ? '' : ' position-relative'}`}>
         {!type || fullScreen.isFullScreen || statusText ? null : (<button className="btn btn-primary position-absolute top-0 right-0 m-2" onClick={() => fullScreen.enterFullScreen(document.getElementById('full-screen-container'))}>Full screen</button>)}
-        {type && fullScreen.isFullScreen && !statusText ? (<button className="btn btn-primary position-absolute top-0 right-0 m-2" onClick={() => document.location.reload()}>Refresh</button>) : null}
+        {type && fullScreen.isFullScreen && !statusText ? (<button className="btn btn-primary position-absolute top-0 left-0 m-2" onClick={() => refresh()}>
+            {any(refreshIds) ? <LoadingSpinnerSmall /> : null}
+            Refresh
+        </button>) : null}
         {statusText ? (<div className="alert alert-warning">{statusText}</div>) : null}
         {type ? <LiveContainer liveOptions={liveOptions} onDataUpdate={dataUpdated}>
             <div className={`d-flex flex-grow-1 flex-row justify-content-evenly ${fullScreen.isFullScreen ? '' : 'overflow-auto'}`}>
@@ -150,6 +164,8 @@ export function LiveSayg() {
                         id={id}
                         onRemove={fullScreen.isFullScreen ? undefined : async () => await removeId(id)}
                         showLoading={index === 0}
+                        refreshRequired={any(refreshIds, id => id === id)}
+                        refreshComplete={async () => setRefreshIds(refreshIds.filter(id => id !== id))}
                     />);
                 }
 

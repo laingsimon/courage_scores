@@ -15,13 +15,15 @@ export interface ILiveSuperleagueTournamentDisplayProps {
     data?: TournamentGameDto;
     onRemove?(): UntypedPromise;
     showLoading?: boolean;
+    refreshRequired?: boolean;
+    refreshComplete(): UntypedPromise;
 }
 
 interface IMatchSaygLookup {
     [matchId: string]: RecordedScoreAsYouGoDto;
 }
 
-export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoading}: ILiveSuperleagueTournamentDisplayProps) {
+export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoading, refreshRequired, refreshComplete}: ILiveSuperleagueTournamentDisplayProps) {
     const {saygApi, tournamentApi} = useDependencies();
     const {fullScreen} = useApp();
     const [matchSaygData, setMatchSaygData] = useState<IMatchSaygLookup>({});
@@ -29,9 +31,14 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
     const tournament = data ?? initialData;
 
     useEffect(() => {
-        if (initialData === undefined) {
+        if (initialData === undefined || refreshRequired) {
             // noinspection JSIgnoredPromiseFromCall
             fetchInitialData(id);
+
+            if (refreshRequired) {
+                // noinspection JSIgnoredPromiseFromCall
+                refreshComplete();
+            }
         }
     });
 
@@ -111,7 +118,7 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
         </div>) : null;
     }
 
-    return (<div className="d-flex flex-column justify-content-center">
+    return (<div className={`d-flex flex-column justify-content-center${refreshRequired ? ' opacity-50' : ''}`}>
         <h3 className="flex-grow-0 flex-shrink-0 text-center">
             {onRemove ? (<button className="btn btn-sm btn-secondary me-2" onClick={onRemove}>❌</button>) : null}
             {fullScreen.isFullScreen ? tournament.type : <Link to={`/tournament/${tournament.id}`}>{tournament.type}</Link>}

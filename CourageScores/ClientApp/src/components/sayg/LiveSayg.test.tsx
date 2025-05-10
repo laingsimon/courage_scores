@@ -535,6 +535,31 @@ describe('LiveSayg', () => {
             expect(isFullScreen).toEqual(true);
         });
 
+        it('can refresh data when in full screen', async () => {
+            const tournament = tournamentBuilder()
+                .host('HOST').opponent('OPPONENT')
+                .type('BOARD 1')
+                .addTo(tournamentData).build();
+            await renderComponent(
+                appProps({
+                    fullScreen: {
+                        isFullScreen: true,
+                        canGoFullScreen: false,
+                        enterFullScreen: noop,
+                        exitFullScreen: noop,
+                        toggleFullScreen: noop,
+                    },
+                }, reportedError),
+                '/live/superleague/?id=' + tournament.id);
+            tournament.type = 'BOARD UPDATED';
+            expect(context.container.textContent).toContain('BOARD 1');
+
+            await doClick(findButton(context.container, 'Refresh'));
+
+            expect(context.container.textContent).not.toContain('BOARD 1');
+            expect(context.container.textContent).toContain('BOARD UPDATED');
+        });
+
         it('can remove superleague tournaments', async () => {
             const tournament1 = tournamentBuilder()
                 .host('HOST').opponent('OPPONENT')
