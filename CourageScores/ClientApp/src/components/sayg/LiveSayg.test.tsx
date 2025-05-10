@@ -23,6 +23,10 @@ import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGam
 import {act} from "@testing-library/react";
 import {MessageType} from "../../interfaces/models/dtos/MessageType";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
+import {divisionBuilder, divisionDataBuilder, IDivisionFixtureDateBuilder} from "../../helpers/builders/divisions";
+import {IDivisionApi} from "../../interfaces/apis/IDivisionApi";
+import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
+import {renderDate} from "../../helpers/rendering";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -39,6 +43,7 @@ describe('LiveSayg', () => {
     let tournamentData: { [id: string]: TournamentGameDto };
     let reportedError: ErrorState;
     let socketFactory: MockSocketFactory;
+    let divisionData: DivisionDataDto | null;
     const saygApi = api<ISaygApi>({
         get: async (id: string): Promise<RecordedScoreAsYouGoDto | null> => {
             requestedSaygId.push(id);
@@ -49,6 +54,11 @@ describe('LiveSayg', () => {
         async get(id: string): Promise<TournamentGameDto | null> {
             requestedTournamentId.push(id);
             return tournamentData[id];
+        }
+    });
+    const divisionApi = api<IDivisionApi>({
+        async data(): Promise<DivisionDataDto> {
+            return divisionData!;
         }
     });
 
@@ -63,15 +73,16 @@ describe('LiveSayg', () => {
         tournamentData = {};
         requestedTournamentId = [];
         socketFactory = new MockSocketFactory();
+        divisionData = null;
     });
 
-    async function renderComponent(appProps: IAppContainerProps, currentPath: string) {
+    async function renderComponent(appProps: IAppContainerProps, currentPath: string, route?: string) {
         context = await renderApp(
-            iocProps({saygApi, tournamentApi, socketFactory: socketFactory.createSocket }),
+            iocProps({saygApi, tournamentApi, divisionApi, socketFactory: socketFactory.createSocket }),
             brandingProps(),
             appProps,
             <LiveSayg />,
-            '/live/:type',
+            route || '/live/:type',
             currentPath);
     }
 
@@ -304,6 +315,198 @@ describe('LiveSayg', () => {
                 '*away*', // name
                 '*40.00*', // average
             ]);
+        });
+
+        it('prompt for type if none in the path', async () => {
+            await renderComponent(
+                appProps({
+                    fullScreen: {
+                        isFullScreen: false,
+                        canGoFullScreen: false,
+                        enterFullScreen: noop,
+                        exitFullScreen: noop,
+                        toggleFullScreen: noop,
+                    },
+                }, reportedError),
+                '/live',
+                '/live');
+
+            reportedError.verifyNoError();
+            const buttons = Array.from(context.container.querySelectorAll('.btn'));
+            expect(buttons.map(b => b.textContent)).toContain('Superleague');
+        });
+
+        it('prompt for ids if type in the path is unknown', async () => {
+            const division = divisionDataBuilder('ANOTHER DIVISION')
+                .build();
+            divisionData = division;
+            await renderComponent(
+                appProps({
+                    fullScreen: {
+                        isFullScreen: false,
+                        canGoFullScreen: false,
+                        enterFullScreen: noop,
+                        exitFullScreen: noop,
+                        toggleFullScreen: noop,
+                    },
+                    divisions: [division],
+                }, reportedError),
+                '/live/unknown');
+
+            reportedError.verifyNoError();
+            expect(context.container.innerHTML).toContain('Specify the ids for the unknown');
+        });
+
+        it('redirects to type', async () => {
+            await renderComponent(
+                appProps({
+                    fullScreen: {
+                        isFullScreen: false,
+                        canGoFullScreen: false,
+                        enterFullScreen: noop,
+                        exitFullScreen: noop,
+                        toggleFullScreen: noop,
+                    },
+                }, reportedError),
+                '/live',
+                '/live');
+
+            await doClick(findButton(context.container, 'Superleague'));
+
+            reportedError.verifyNoError();
+            expect(mockedUsedNavigate).toHaveBeenCalledWith('/live/superleague/');
+        });
+
+        it('redirects to type when url ends with a slash', async () => {
+            await renderComponent(
+                appProps({
+                    fullScreen: {
+                        isFullScreen: false,
+                        canGoFullScreen: false,
+                        enterFullScreen: noop,
+                        exitFullScreen: noop,
+                        toggleFullScreen: noop,
+                    },
+                }, reportedError),
+                '/live/',
+                '/live');
+
+            await doClick(findButton(context.container, 'Superleague'));
+
+            reportedError.verifyNoError();
+            expect(mockedUsedNavigate).toHaveBeenCalledWith('/live/superleague/');
+        });
+
+        it('renders note if no superleague divisions', async () => {
+            const division = divisionDataBuilder('ANOTHER DIVISION')
+                .build();
+            divisionData = division;
+            await renderComponent(
+                appProps({
+                    fullScreen: {
+                        isFullScreen: false,
+                        canGoFullScreen: false,
+                        enterFullScreen: noop,
+                        exitFullScreen: noop,
+                        toggleFullScreen: noop,
+                    },
+                    divisions: [division]
+                }, reportedError),
+                '/live/superleague/');
+
+            reportedError.verifyNoError();
+            expect(context.container.innerHTML).toContain('Could not find any superleague divisions');
+        });
+
+        it('renders note if no superleague tournaments found today', async () => {
+            const division = divisionBuilder('SUPER LEAGUE').superleague().build();
+            const today = new Date();
+            divisionData = division;
+            await renderComponent(
+                appProps({
+                    fullScreen: {
+                        isFullScreen: false,
+                        canGoFullScreen: false,
+                        enterFullScreen: noop,
+                        exitFullScreen: noop,
+                        toggleFullScreen: noop,
+                    },
+                    divisions: [division]
+                }, reportedError),
+                '/live/superleague');
+
+            reportedError.verifyNoError();
+            expect(context.container.innerHTML).toContain(`Could not find any superleague tournaments on ${renderDate(today.toString())}`);
+        });
+
+        it('redirects to superleague tournaments today', async () => {
+            const tournament = tournamentBuilder().build();
+            const division = divisionDataBuilder('SUPER LEAGUE')
+                .superleague()
+                .withFixtureDate((d: IDivisionFixtureDateBuilder) => d
+                    .withTournament(tournament))
+                .build();
+            divisionData = division;
+            await renderComponent(
+                appProps({
+                    fullScreen: {
+                        isFullScreen: false,
+                        canGoFullScreen: false,
+                        enterFullScreen: noop,
+                        exitFullScreen: noop,
+                        toggleFullScreen: noop,
+                    },
+                    divisions: [division]
+                }, reportedError),
+                '/live/superleague/');
+
+            reportedError.verifyNoError();
+            expect(mockedUsedNavigate).toHaveBeenCalledWith('/live/superleague/?id=' + tournament.id, { replace: true });
+        });
+
+        it('renders note if no superleague tournaments found on given date', async () => {
+            const division = divisionBuilder('SUPER LEAGUE').superleague().build();
+            divisionData = division;
+            await renderComponent(
+                appProps({
+                    fullScreen: {
+                        isFullScreen: false,
+                        canGoFullScreen: false,
+                        enterFullScreen: noop,
+                        exitFullScreen: noop,
+                        toggleFullScreen: noop,
+                    },
+                    divisions: [division]
+                }, reportedError),
+                '/live/superleague/?date=2025-01-01');
+
+            reportedError.verifyNoError();
+            expect(context.container.innerHTML).toContain(`Could not find any superleague tournaments on ${renderDate('2025-01-01')}`);
+        });
+
+        it('redirects to superleague tournaments on given date', async () => {
+            const tournament = tournamentBuilder().build();
+            const division = divisionDataBuilder('SUPER LEAGUE')
+                .superleague()
+                .withFixtureDate((d: IDivisionFixtureDateBuilder) => d
+                    .withTournament(tournament))
+                .build();
+            divisionData = division;
+            await renderComponent(
+                appProps({
+                    fullScreen: {
+                        isFullScreen: false,
+                        canGoFullScreen: false,
+                        enterFullScreen: noop,
+                        exitFullScreen: noop,
+                        toggleFullScreen: noop,
+                    },
+                    divisions: [division]
+                }, reportedError),
+                '/live/superleague/?date=2025-01-01');
+
+            reportedError.verifyNoError();
+            expect(mockedUsedNavigate).toHaveBeenCalledWith('/live/superleague/?id=' + tournament.id, { replace: true });
         });
     });
 
