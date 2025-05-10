@@ -3,7 +3,7 @@ import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMa
 import {useEffect, useState} from "react";
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
-import {sum} from "../../helpers/collections";
+import {any, sum} from "../../helpers/collections";
 import {useDependencies} from "../common/IocContainer";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 import {Link} from "react-router";
@@ -118,6 +118,10 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
         </div>) : null;
     }
 
+    const totals = {
+        home: 0,
+        away: 0,
+    };
     return (<div className={`d-flex flex-column justify-content-center${refreshRequired ? ' opacity-50' : ''}`}>
         <h3 className="flex-grow-0 flex-shrink-0 text-center">
             {onRemove ? (<button className="btn btn-sm btn-secondary me-2" onClick={onRemove}>❌</button>) : null}
@@ -135,17 +139,34 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
             </thead>
             <tbody>
             {tournament.round?.matches?.map((m: TournamentMatchDto) => {
+                const homeWinner = isWinner(m, 'home');
+                const awayWinner = isWinner(m, 'away');
+                if (homeWinner) {
+                    totals.home++;
+                }
+                if (awayWinner) {
+                    totals.away++;
+                }
+
                 return (<tr key={m.id}>
-                    <td className={`text-danger ${isWinner(m, 'home') ? 'fw-bold' : ''}`}>{getAverage(m, 'home')}</td>
-                    <td className={`text-end ${isWinner(m, 'home') ? 'fw-bold' : ''}`}>{firstInitialAndLastNames(m.sideA.name)}</td>
-                    <td className={`text-end ${isWinner(m, 'home') ? 'fw-bold' : ''}`}>{getScore(m, 'home')}</td>
+                    <td className={`text-danger ${homeWinner ? 'fw-bold' : ''}`}>{getAverage(m, 'home')}</td>
+                    <td className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>{firstInitialAndLastNames(m.sideA.name)}</td>
+                    <td className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>{getScore(m, 'home')}</td>
                     <td>-</td>
-                    <td className={isWinner(m, 'away') ? 'fw-bold' : ''}>{getScore(m, 'away')}</td>
-                    <td className={isWinner(m, 'away') ? 'fw-bold' : ''}>{firstInitialAndLastNames(m.sideB.name)}</td>
-                    <td className={`text-danger ${isWinner(m, 'away') ? 'fw-bold' : ''}`}>{getAverage(m, 'away')}</td>
+                    <td className={awayWinner ? 'fw-bold' : ''}>{getScore(m, 'away')}</td>
+                    <td className={awayWinner ? 'fw-bold' : ''}>{firstInitialAndLastNames(m.sideB.name)}</td>
+                    <td className={`text-danger ${awayWinner ? 'fw-bold' : ''}`}>{getAverage(m, 'away')}</td>
                 </tr>);
             })}
             </tbody>
+            {any(tournament.round?.matches) ? (
+            <tfoot>
+                <tr>
+                    <td className="text-end text-secondary" colSpan={3}>{totals.home}</td>
+                    <td></td>
+                    <td className="text-secondary" colSpan={3}>{totals.home}</td>
+                </tr>
+            </tfoot>) : null}
         </table>
     </div>);
 }
