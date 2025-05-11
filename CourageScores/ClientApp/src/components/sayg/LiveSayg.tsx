@@ -156,7 +156,7 @@ export function LiveSayg() {
             <div className={`d-flex flex-grow-1 flex-row justify-content-evenly ${fullScreen.isFullScreen ? '' : 'overflow-auto'}`}>
             {ids.map((id, index) => {
                 if (type === 'match' && ids.length === 1) {
-                    return (<SaygLoadingContainer key={id} id={id} liveOptions={liveOptions} />);
+                    return (<SaygLoadingContainer key={id} id={id} liveOptions={liveOptions} matchStatisticsOnly={true} />);
                 }
                 if (type === 'superleague') {
                     return (<LiveSuperleagueTournamentDisplay
