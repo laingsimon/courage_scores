@@ -20,6 +20,7 @@ import {PatchTournamentDto} from "../../../interfaces/models/dtos/Game/PatchTour
 import {PatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {LiveDataType} from "../../../interfaces/models/dtos/Live/LiveDataType";
 import {Loading} from "../../common/Loading";
+import {hasAccess} from "../../../helpers/conditions";
 
 export interface ISuperLeaguePrintoutProps {
     division: DivisionDto;
@@ -32,7 +33,7 @@ interface ISaygDataMap {
 }
 
 export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeaguePrintoutProps) {
-    const {onError} = useApp();
+    const {onError, account} = useApp();
     const {tournamentData, setEditTournament, setTournamentData} = useTournament();
     const {saygApi, webSocket} = useDependencies();
     const location = useLocation();
@@ -45,6 +46,7 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
         .map((m: TournamentMatchDto) => m.saygId!)
         .filter((id: string) => id && !any(Object.keys(saygDataMap), (key: string) => key === id));
     const showWinner: boolean = location.search.indexOf('winner') !== -1;
+    const kioskMode: boolean = hasAccess(account, access => access.kioskMode);
 
     useEffect(() => {
             if (loading) {
@@ -152,20 +154,21 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
                 tournamentData={tournamentData}
                 setTournamentData={setTournamentData!}
                 patchData={patchDataAndTriggerSaygReload}
-                readOnly={readOnly || !setEditTournament || !setTournamentData} />
-            <MatchLog
+                readOnly={readOnly || !setEditTournament || !setTournamentData}
+                kioskMode={kioskMode} />
+            {kioskMode ? null : <MatchLog
                 host={tournamentData.host!}
                 opponent={tournamentData.opponent!}
                 showWinner={showWinner}
                 noOfThrows={noOfThrows}
-                saygMatches={saygMatches}/>
-            <Summary
+                saygMatches={saygMatches}/>}
+            {kioskMode ? null : <Summary
                 showWinner={showWinner}
                 noOfLegs={noOfLegs}
                 saygMatches={saygMatches}
                 host={tournamentData.host!}
-                opponent={tournamentData.opponent!}/>
-            <MatchReport
+                opponent={tournamentData.opponent!}/>}
+            {kioskMode ? null : <MatchReport
                 gender={tournamentData.gender!}
                 host={tournamentData.host!}
                 opponent={tournamentData.opponent!}
@@ -173,7 +176,7 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
                 division={division}
                 showWinner={showWinner}
                 noOfThrows={noOfThrows}
-                noOfLegs={noOfLegs}/>
+                noOfLegs={noOfLegs}/>}
         </div>);
     } catch (e) {
         /* istanbul ignore next */
