@@ -1,4 +1,4 @@
-﻿import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
+import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {useEffect, useState} from "react";
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
@@ -13,6 +13,8 @@ import {useLive} from "../../live/LiveContainer";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 import {ISubscriptionRequest} from "../../live/ISubscriptionRequest";
 import {IUpdateLookup} from "./LiveSayg";
+import {LegCompetitorScoreDto} from "../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
+import {hasAccess} from "../../helpers/conditions";
 
 export interface ILiveSuperleagueTournamentDisplayProps {
     id: string;
@@ -37,6 +39,7 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
     const [pendingLiveSubscriptions, setPendingLiveSubscriptions] = useState<ISubscriptionRequest[]>([]);
     const tournament = data ?? initialData;
     const {enableLiveUpdates} = useLive();
+    const canUseWebSockets = hasAccess(account, access => access.useWebSockets);
 
     useEffect(() => {
         if (initialData === undefined) {
@@ -173,6 +176,23 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
         }).join(' ');
     }
 
+    function currentScore(leg: LegDto, side: 'home' | 'away') {
+        const startingScore = leg.startingScore || 501;
+        const accumulator: LegCompetitorScoreDto = leg[side];
+        const totalScore: number = accumulator?.score || 0;
+        return startingScore - totalScore;
+    }
+
+    function firstIncompleteMatch(matches: TournamentMatchDto[]): TournamentMatchDto | null {
+        for (const match of matches) {
+            if (!isWinner(match, 'home') && !isWinner(match, 'away')) {
+                return match;
+            }
+        }
+
+        return null;
+    }
+
     if (!tournament) {
         return showLoading ? (<div className="flex-grow-1 bg-white">
             <Loading />
@@ -183,6 +203,11 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
         home: 0,
         away: 0,
     };
+    const matches = tournament.round?.matches || [];
+    const lastMatch = firstIncompleteMatch(matches);
+    const lastMatchSayg: RecordedScoreAsYouGoDto | undefined = lastMatch ? matchSaygData[lastMatch!.id] : undefined;
+    const lastMatchLegs = Object.values(lastMatchSayg?.legs || {});
+    const lastLeg = lastMatchLegs[lastMatchLegs.length - 1];
     return (<div className={`d-flex flex-column justify-content-center${refreshRequired ? ' opacity-50' : ''}`}>
         <h3 className="flex-grow-0 flex-shrink-0 text-center">
             {onRemove ? (<button className="btn btn-sm btn-secondary me-2" onClick={onRemove}>❌</button>) : null}
@@ -229,5 +254,24 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
                 </tr>
             </tfoot>) : null}
         </table>
+        {lastLeg && canUseWebSockets ? (<div className="d-flex flex-column border-3 bg-black p-0 rounded-3" datatype="live-scores">
+            <div className="d-flex flex-row justify-content-center bg-success text-black fs-4 rounded-top-3">
+                <span className="flex-grow-1 px-3 text-end flex-basis-0">
+                    {firstInitialAndLastNames(lastMatch!.sideA.name)}
+                </span>
+                <span>{getScore(lastMatch!, 'home')} - {getScore(lastMatch!, 'away')}</span>
+                <span className="flex-grow-1 px-3 text-start flex-basis-0">
+                    {firstInitialAndLastNames(lastMatch!.sideB.name)}
+                </span>
+            </div>
+            <div className="d-flex flex-row justify-content-center text-success">
+                <span className="flex-grow-1 p-3 text-center fs-4 fw-bold">
+                    {currentScore(lastLeg, 'home')}
+                </span>
+                <span className="flex-grow-1 p-3 text-center fs-4 fw-bold">
+                    {currentScore(lastLeg, 'away')}
+                </span>
+            </div>
+        </div>) : null}
     </div>);
 }
