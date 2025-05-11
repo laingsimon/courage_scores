@@ -3,12 +3,16 @@ import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMa
 import {useEffect, useState} from "react";
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
-import {any, sum} from "../../helpers/collections";
+import {any, isEmpty, sum} from "../../helpers/collections";
 import {useDependencies} from "../common/IocContainer";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 import {Link} from "react-router";
 import {Loading} from "../common/Loading";
 import {useApp} from "../common/AppContainer";
+import {useLive} from "../../live/LiveContainer";
+import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
+import {ISubscriptionRequest} from "../../live/ISubscriptionRequest";
+import {IUpdateLookup} from "./LiveSayg";
 
 export interface ILiveSuperleagueTournamentDisplayProps {
     id: string;
@@ -17,41 +21,91 @@ export interface ILiveSuperleagueTournamentDisplayProps {
     showLoading?: boolean;
     refreshRequired?: boolean;
     refreshComplete(): UntypedPromise;
+    allUpdates: IUpdateLookup;
 }
 
 interface IMatchSaygLookup {
     [matchId: string]: RecordedScoreAsYouGoDto;
 }
 
-export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoading, refreshRequired, refreshComplete}: ILiveSuperleagueTournamentDisplayProps) {
+export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoading, refreshRequired, refreshComplete, allUpdates}: ILiveSuperleagueTournamentDisplayProps) {
     const {saygApi, tournamentApi} = useDependencies();
-    const {fullScreen} = useApp();
+    const {fullScreen, account} = useApp();
     const [matchSaygData, setMatchSaygData] = useState<IMatchSaygLookup>({});
     const [initialData, setInitialData] = useState<TournamentGameDto | undefined | null>(undefined);
+    const [refreshing, setRefreshing] = useState<boolean>(false);
+    const [pendingLiveSubscriptions, setPendingLiveSubscriptions] = useState<ISubscriptionRequest[]>([]);
     const tournament = data ?? initialData;
+    const {enableLiveUpdates} = useLive();
 
     useEffect(() => {
-        if (initialData === undefined || refreshRequired) {
+        if (initialData === undefined) {
             // noinspection JSIgnoredPromiseFromCall
             fetchInitialData(id);
-
-            if (refreshRequired) {
-                // noinspection JSIgnoredPromiseFromCall
-                refreshComplete();
-            }
         }
     });
+
+    useEffect(() => {
+        if (refreshRequired) {
+            // noinspection JSIgnoredPromiseFromCall
+            fetchInitialData(id);
+        }
+    }, [refreshRequired]);
 
     useEffect(() => {
         if (tournament) {
             // noinspection JSIgnoredPromiseFromCall
             getLatestMatchData(tournament?.round?.matches || []);
         }
-    }, [tournament]);
+    }, [tournament, account]);
+
+    useEffect(() => {
+        if (isEmpty(pendingLiveSubscriptions) || !account) {
+            return
+        }
+
+        // noinspection JSIgnoredPromiseFromCall
+        subscribeToNextSayg();
+    }, [pendingLiveSubscriptions, account]);
+
+    useEffect(() => {
+        const newMatchSaygLookup: IMatchSaygLookup = Object.assign({}, matchSaygData);
+        let updated = false;
+        for (const matchId in newMatchSaygLookup) {
+            const matchSaygId = newMatchSaygLookup[matchId].id;
+            const update = allUpdates[matchSaygId] as RecordedScoreAsYouGoDto;
+            if (update) {
+                newMatchSaygLookup[matchId] = update;
+                updated = true;
+            }
+        }
+        if (updated) {
+            setMatchSaygData(newMatchSaygLookup);
+        }
+    }, [allUpdates]);
+
+    async function subscribeToNextSayg() {
+        const firstSubscription = pendingLiveSubscriptions[0];
+        await enableLiveUpdates(true, firstSubscription);
+        setPendingLiveSubscriptions(pendingLiveSubscriptions.filter((_, index) => index > 0));
+    }
 
     async function fetchInitialData(id: string) {
-        const response = await tournamentApi.get(id);
-        setInitialData(response);
+        if (refreshing) {
+            return;
+        }
+
+        setRefreshing(true);
+        try {
+            const response = await tournamentApi.get(id);
+            setInitialData(response);
+
+            if (refreshRequired) {
+                await refreshComplete();
+            }
+        } finally {
+            setRefreshing(false);
+        }
     }
 
     async function getLatestMatchData(matches: TournamentMatchDto[]) {
@@ -66,6 +120,13 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
                 matchSaygData[match.id] = saygData;
             }
         }
+
+        setPendingLiveSubscriptions(Object.values(matchSaygData).map(sayg => {
+            return {
+                id: sayg.id,
+                type: LiveDataType.sayg
+            }
+        }));
         setMatchSaygData(matchSaygData);
     }
 
