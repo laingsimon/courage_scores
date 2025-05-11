@@ -17,7 +17,7 @@ interface IIdentifiedUpdate {
     id: string;
 }
 
-interface IUpdateLookup {
+export interface IUpdateLookup {
     [id: string]: IIdentifiedUpdate;
 }
 
@@ -167,6 +167,7 @@ export function LiveSayg() {
                         showLoading={index === 0}
                         refreshRequired={any(refreshIds, id => id === id)}
                         refreshComplete={async () => setRefreshIds(refreshIds.filter(id => id !== id))}
+                        allUpdates={updates}
                     />);
                 }
 
