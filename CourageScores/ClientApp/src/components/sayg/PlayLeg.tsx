@@ -248,7 +248,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
                 onEnter={handleScore}/>
         </div>) : null}
         {showCheckout ? (<Dialog onClose={cancelCheckout} title="Checkout">
-            <div className="my-3" datatype="gameshot-buttons-score">
+            <div className="my-3 d-flex flex-column flex-grow-1" datatype="gameshot-buttons-score">
                 <h6>How many darts to checkout?</h6>
                 <div className="d-flex flex-row justify-content-stretch">
                     <button
