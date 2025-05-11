@@ -1,5 +1,4 @@
 import {sum} from "../../helpers/collections";
-import {PlayerInput} from "./PlayerInput";
 import {PreviousPlayerScore} from "./PreviousPlayerScore";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
@@ -15,6 +14,7 @@ import {UntypedPromise} from "../../interfaces/UntypedPromise";
 import {getScoreFromThrows} from "../../helpers/sayg";
 import {isLegWinner} from "../../helpers/superleague";
 import {usePreferences} from "../common/PreferencesContainer";
+import {NumberKeyboard} from "../common/NumberKeyboard";
 
 export interface IPlayLegProps {
     leg?: LegDto;
@@ -207,8 +207,8 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         }
         const lastThrow: LegThrowDto = winner.throws[winner.throws.length - 1];
 
-        return (<div className="position-relative left-0 right-0" datatype="change-checkout">
-            <div className="position-absolute alert alert-info text-center bottom-0 left-0 right-0">
+        return (<div datatype="change-checkout">
+            <div className="alert alert-info text-center bottom-0 left-0 right-0">
                 <div>
                     <b>{previousWinner === 'home' ? home : 'away'}</b> checked out <b>{lastThrow.score}</b> with <b>{lastThrow.noOfDarts}</b> dart/s.
                 </div>
@@ -219,7 +219,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         </div>)
     }
 
-    return (<div className={`position-relative ${saygStyle}`}>
+    return (<div className={`position-relative ${saygStyle} d-flex flex-fill flex-column`}>
         <div className="position-absolute left-0 right-0 mt-2 ms-2">
             <BootstrapDropdown slim={true} options={saygStyleOptions} value={saygStyle} onChange={changeSaygStyle} className={`${saygStyle}-selector`} />
         </div>
@@ -241,11 +241,11 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         />) : null}
         {canEditPreviousCheckout && !showWhoPlaysNextPrompt ? renderEditCheckoutDarts() : null}
         {!showWhoPlaysNextPrompt ? (<div className={editScore ? ' bg-warning' : ''}>
-            <PlayerInput
-                score={score}
-                setScore={async (v: string) => setScore(v)}
-                handleScore={handleScore}
-            />
+            <NumberKeyboard
+                value={score}
+                maxValue={180}
+                onChange={async (score: string) => setScore(score)}
+                onEnter={handleScore}/>
         </div>) : null}
         {showCheckout ? (<Dialog onClose={cancelCheckout} title="Checkout">
             <div className="my-3" datatype="gameshot-buttons-score">

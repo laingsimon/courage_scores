@@ -171,7 +171,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
         home: leg.startingScore || 0,
         away: leg.startingScore || 0,
     };
-    return (<div className="d-flex flex-column">
+    return (<>
         <div className="text-center super-size" datatype="match-score">
             {singlePlayer
                 ? (<div>Leg {homeScore + 1}</div>)
@@ -181,13 +181,13 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             {renderPlayer('home', leg.home.score || 0, 'me-1')}
             {!singlePlayer ? renderPlayer('away', leg.away.score || 0, 'ms-1') : null}
         </div>
-        <div className="d-flex flex-column overflow-auto height-200 max-height-200 medium-size text-secondary" datatype="previous-scores">
+        <div className="d-flex flex-column overflow-auto min-height-100 flex-grow-1 medium-size text-secondary" datatype="previous-scores">
         {repeat(maxThrows, (index: number) => {
             const homeThrow: LegThrowDto = homeThrows[index];
             const awayThrow: LegThrowDto = awayThrows[index];
 
             const numberOfDarts = (
-                <div className="flex-basis-0 flex-shrink-1 text-center text-secondary-50 small min-width-50">
+                <div className="flex-basis-0 flex-shrink-1 text-center align-content-center text-secondary-50 min-width-50 fs-4 opacity-50">
                     {(index + 1) * 3}
                 </div>);
 
@@ -199,5 +199,5 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             </div>);
         })}
         </div>
-    </div>);
+    </>);
 }

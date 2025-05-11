@@ -1,5 +1,6 @@
 import React from 'react';
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {useApp} from "./AppContainer";
 
 export interface IDialogProps {
     children: React.ReactNode;
@@ -12,6 +13,9 @@ export interface IDialogProps {
 }
 
 export function Dialog({children, onClose, title, slim, className, contentWidth, fullScreen}: IDialogProps) {
+    const {fullScreen: appFullScreen} = useApp();
+    const isFullScreen = appFullScreen.isFullScreen;
+
     return (<div className="text-start">
         <div className={`modal fade show text-black ${className || ''}`} role="dialog" style={{display: 'block'}}>
             <div className={`modal-dialog${fullScreen ? ' position-static' : ' modal-dialog-centered'}${slim || fullScreen ? '' : ' modal-dialog-larger-max-width'}${contentWidth ? ' modal-sm' : ''}`}>
@@ -19,7 +23,7 @@ export function Dialog({children, onClose, title, slim, className, contentWidth,
                     {title ? (<div className="modal-header justify-content-center">
                         <h5>{title}</h5>
                     </div>) : null}
-                    <div className={`modal-body${fullScreen ? ' p-0' : ''}`}>
+                    <div className={`modal-body${fullScreen ? ' p-0' : ''}${isFullScreen ? ' d-flex': ''}`}>
                         {children}
                     </div>
                     {onClose ? (<div className="modal-footer">
