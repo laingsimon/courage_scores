@@ -181,7 +181,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             {renderPlayer('home', leg.home.score || 0, 'me-1')}
             {!singlePlayer ? renderPlayer('away', leg.away.score || 0, 'ms-1') : null}
         </div>
-        <div className="d-flex flex-column overflow-auto min-height-100 flex-grow-1 medium-size text-secondary" datatype="previous-scores">
+        <div className="d-flex flex-column overflow-auto min-height-100 flex-grow-1 flex-basis-0 medium-size text-secondary" datatype="previous-scores">
         {repeat(maxThrows, (index: number) => {
             const homeThrow: LegThrowDto = homeThrows[index];
             const awayThrow: LegThrowDto = awayThrows[index];
