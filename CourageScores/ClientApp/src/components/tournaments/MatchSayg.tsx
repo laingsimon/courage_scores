@@ -52,6 +52,7 @@ export function MatchSayg({
     const scoreB: number = match.scoreB!;
     const onHiCheck: (player: TournamentPlayerDto, score: number) => UntypedPromise = addHiCheck(tournamentData, setTournamentData!);
     const on180: (player: TournamentPlayerDto) => UntypedPromise = add180(tournamentData, setTournamentData!);
+    const kioskMode: boolean = hasAccess(account, access => access.kioskMode);
 
     async function changeDialogState(state: boolean) {
         setSaygOpen(state);
@@ -181,7 +182,7 @@ export function MatchSayg({
             </SaygLoadingContainer>
             {finished || !fullScreen.isFullScreen ? (<div className="modal-footer px-0 pb-0 mt-3">
                 <div className="left-aligned mx-0">
-                    <button className="btn btn-secondary" onClick={async () => await changeDialogState(false)}>Close</button>
+                    <button className={`btn btn-secondary${kioskMode ? ' fs-4' : ''}`} onClick={async () => await changeDialogState(false)}>Close</button>
                     {!finished && !fullScreen.isFullScreen ? <button className="btn btn-secondary" onClick={async () => fullScreen.enterFullScreen()}>Full screen</button> : null}
                 </div>
                 <DebugOptions>
@@ -271,7 +272,7 @@ export function MatchSayg({
 
     return (<>
         {canShowLiveSayg() && !canOpenSaygDialog() && showViewSayg
-            ? (<Link className="btn btn-sm float-start p-0 no-wrap" to={`/live/match/?id=${saygId}${initialOneDartAverage ? '#average=1' : ''}`}>
+            ? (<Link className={`btn btn-sm float-start p-0 no-wrap${kioskMode ? ' fs-4' : ''}`} to={`/live/match/?id=${saygId}${initialOneDartAverage ? '#average=1' : ''}`}>
                 📊 {scoreA || scoreB ? (`${scoreA} - ${scoreB}`) : null}
             </Link>)
             : null}
