@@ -445,6 +445,7 @@ body .width-50 {
 .sayg-black {
     background-color: #000000;
     color: #ffffff;
+    --bs-secondary-rgb: 192, 192, 192;
 }
 
 .sayg-white-selector {
