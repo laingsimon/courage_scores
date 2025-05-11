@@ -11,6 +11,7 @@ import {any} from "../../helpers/collections";
 import {useDependencies} from "../common/IocContainer";
 import {renderDate} from "../../helpers/rendering";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
+import {QRCodeSVG} from "qrcode.react";
 
 interface IIdentifiedUpdate {
     id: string;
@@ -172,6 +173,9 @@ export function LiveSayg() {
                 return (<span key={id}>Unsupported type: {type}: {id}</span>);
             })}
             </div>
+            {fullScreen.isFullScreen && !statusText ? (<div className="position-absolute bottom-0 right-0 m-2">
+                <QRCodeSVG value={document.location.href} size={100} />
+            </div>) : null}
         </LiveContainer> : null}
         {!type ? <div className="p-2">
             <h3>Watch tournaments{isToday ? '' : ` on ${renderDate(date)}`}</h3>
