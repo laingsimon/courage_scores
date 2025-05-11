@@ -178,8 +178,8 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
                 : (<div>{homeScore} - {awayScore || '0'}</div>)}
         </div>
         <div className={`d-flex flex-row justify-content-stretch`}>
-            {renderPlayer('home', leg.home.score || 0, 'me-1')}
-            {!singlePlayer ? renderPlayer('away', leg.away.score || 0, 'ms-1') : null}
+            {renderPlayer('home', leg.home.score || 0, '')}
+            {!singlePlayer ? renderPlayer('away', leg.away.score || 0, '') : null}
         </div>
         <div className="d-flex flex-column overflow-auto min-height-100 flex-grow-1 flex-basis-0 medium-size text-secondary" datatype="previous-scores">
         {repeat(maxThrows, (index: number) => {

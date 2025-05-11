@@ -105,7 +105,7 @@ export function NumberKeyboard({ value, onChange, maxValue, onEnter }: INumberKe
         return renderButton(buttonValue, 'btn-secondary opacity-50', quickButtonClick);
     }
 
-    return (<div className="d-flex flex-column p-3 flex-grow-1">
+    return (<div className="d-flex flex-column p-1 flex-grow-1">
         <div className="d-flex flex-row flex-shrink-0 flex-grow-1">
             {renderQuickButton(140)}
 
