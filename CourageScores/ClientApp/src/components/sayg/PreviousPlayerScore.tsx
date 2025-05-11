@@ -187,7 +187,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             const awayThrow: LegThrowDto = awayThrows[index];
 
             const numberOfDarts = (
-                <div className="flex-basis-0 flex-shrink-1 text-center text-secondary-50 small min-width-50">
+                <div className="flex-basis-0 flex-shrink-1 text-center align-content-center text-secondary-50 min-width-50 fs-4 opacity-50">
                     {(index + 1) * 3}
                 </div>);
 
