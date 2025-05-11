@@ -277,7 +277,7 @@ export function MatchSayg({
             </Link>)
             : null}
         {canOpenSaygDialog()
-            ? (<button className="btn btn-sm btn-primary float-start d-print-none no-wrap" onClick={openSaygDialog}>
+            ? (<button className={`btn btn-sm btn-primary float-start d-print-none no-wrap${kioskMode ? ' fs-4' : ''}`} onClick={openSaygDialog}>
                 {creatingSayg
                     ? (<LoadingSpinnerSmall/>)
                     : (scoreA || scoreB ? `📊 ${scoreA} - ${scoreB}` : START_SCORING)}
