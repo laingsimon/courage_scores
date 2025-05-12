@@ -40,6 +40,7 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
     const tournament = data ?? initialData;
     const {enableLiveUpdates} = useLive();
     const canUseWebSockets = hasAccess(account, access => access.useWebSockets);
+    const [scoreChanged, setScoreChanged] = useState<undefined | 'home' | 'away'>(undefined);
 
     useEffect(() => {
         if (initialData === undefined) {
@@ -74,18 +75,31 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
     useEffect(() => {
         const newMatchSaygLookup: IMatchSaygLookup = Object.assign({}, matchSaygData);
         let updated = false;
+        let scoreChanged: undefined | 'home' | 'away' = undefined;
+
         for (const matchId in newMatchSaygLookup) {
             const matchSaygId = newMatchSaygLookup[matchId].id;
             const update = allUpdates[matchSaygId] as RecordedScoreAsYouGoDto;
             if (update) {
                 newMatchSaygLookup[matchId] = update;
                 updated = true;
+
+                const updatedLegs: LegDto[] = Object.values(update.legs);
+                const updatedLeg: LegDto | undefined = updatedLegs[updatedLegs.length - 1];
+                if (updatedLeg) {
+                    scoreChanged = opposite(updatedLeg.currentThrow as 'home' | 'away');
+                }
             }
         }
         if (updated) {
             setMatchSaygData(newMatchSaygLookup);
+            setScoreChanged(scoreChanged);
         }
     }, [allUpdates]);
+
+    function opposite(player: 'home' | 'away'): 'away' | 'home' {
+        return player === 'home' ? 'away' : 'home';
+    }
 
     async function subscribeToNextSayg() {
         const firstSubscription = pendingLiveSubscriptions[0];
@@ -265,10 +279,10 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
                 </span>
             </div>
             <div className="d-flex flex-row justify-content-center text-success">
-                <span className="flex-grow-1 p-3 text-center fs-4 fw-bold">
+                <span className={`flex-grow-1 p-3 text-center fs-4 ${scoreChanged === 'home' ? ' fw-bold text-flash' : ''}`}>
                     {currentScore(lastLeg, 'home')}
                 </span>
-                <span className="flex-grow-1 p-3 text-center fs-4 fw-bold">
+                <span className={`flex-grow-1 p-3 text-center fs-4 ${scoreChanged === 'away' ? ' fw-bold text-flash' : ''}`}>
                     {currentScore(lastLeg, 'away')}
                 </span>
             </div>
