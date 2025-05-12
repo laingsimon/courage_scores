@@ -15,8 +15,8 @@ import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 import {IAppContainerProps} from "../common/AppContainer";
 import {
     ITournamentMatchBuilder,
-    ITournamentRoundBuilder,
-    tournamentBuilder
+    ITournamentRoundBuilder, roundBuilder,
+    tournamentBuilder, tournamentMatchBuilder
 } from "../../helpers/builders/tournaments";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
@@ -600,17 +600,17 @@ describe('LiveSayg', () => {
             }
         };
 
-        async function sendUpdate(tournament: TournamentGameDto) {
+        async function sendUpdate(update: { id: string }) {
             expect(socketFactory.socket).not.toBeNull();
-            expect(Object.keys(socketFactory.subscriptions)).toContain(tournament.id);
+            expect(Object.keys(socketFactory.subscriptions)).toContain(update.id);
 
             await act(async () => {
                 socketFactory.socket!.onmessage!({
                     type: 'message',
                     data: JSON.stringify({
                         type: MessageType.update,
-                        id: tournament.id,
-                        data: tournament
+                        id: update.id,
+                        data: update
                     }),
                 } as MessageEvent<string>);
             });
@@ -620,6 +620,7 @@ describe('LiveSayg', () => {
             tournament1 = tournamentBuilder()
                 .host('HOST 1.0').opponent('OPPONENT 1.0')
                 .type('BOARD 1.0')
+                .bestOf(3)
                 .addTo(tournamentData)
                 .build();
         });
@@ -643,6 +644,85 @@ describe('LiveSayg', () => {
             expect(context.container.innerHTML).toContain('BOARD 1.1');
             expect(context.container.innerHTML).toContain('HOST 1.1');
             expect(context.container.innerHTML).toContain('OPPONENT 1.1');
+        });
+
+        it('can apply live update for one match', async () => {
+            const sayg = saygBuilder()
+                .withLeg(0, (l: ILegBuilder) => l
+                    .startingScore(501)
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(10).withThrow(100))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(5).withThrow(50)))
+                .addTo(saygData)
+                .build();
+            const match = tournamentMatchBuilder()
+                .sideA('SIDE A')
+                .sideB('SIDE B')
+                .saygId(sayg.id)
+                .build();
+            tournament1.round = roundBuilder().withMatch(match).build();
+
+            await renderComponent(
+                appProps({
+                    account,
+                }, reportedError),
+                '/live/superleague/?id=' + tournament1.id);
+            let liveScores = context.container.querySelector('div[datatype="live-scores"]')!;
+            expect(liveScores).toBeTruthy();
+            expect(liveScores.innerHTML).toContain((501 - (10 + 100)).toString());
+            expect(liveScores.innerHTML).toContain((501 - (5 + 50)).toString());
+
+            const updatedSayg = saygBuilder(sayg.id)
+                .withLeg(0, (l: ILegBuilder) => l
+                    .startingScore(501)
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(10).withThrow(100).withThrow(11))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(5).withThrow(50).withThrow(55)))
+                .addTo(saygData)
+                .build();
+            await sendUpdate(updatedSayg);
+
+            liveScores = context.container.querySelector('div[datatype="live-scores"]')!;
+            expect(liveScores).toBeTruthy();
+            expect(liveScores.innerHTML).toContain((501 - (10 + 100 + 11)).toString());
+            expect(liveScores.innerHTML).toContain((501 - (5 + 50 + 55)).toString());
+        });
+
+        it('hides live updates when match won', async () => {
+            const sayg = saygBuilder()
+                .withLeg(0, (l: ILegBuilder) => l
+                    .startingScore(501)
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(10).withThrow(100))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(5).withThrow(50)))
+                .addTo(saygData)
+                .build();
+            const match = tournamentMatchBuilder()
+                .sideA('SIDE A')
+                .sideB('SIDE B')
+                .saygId(sayg.id)
+                .build();
+            tournament1.round = roundBuilder().withMatch(match).build();
+
+            await renderComponent(
+                appProps({
+                    account,
+                }, reportedError),
+                '/live/superleague/?id=' + tournament1.id);
+            let liveScores = context.container.querySelector('div[datatype="live-scores"]')!;
+            expect(liveScores).toBeTruthy();
+
+            const updatedTournament1 = tournamentBuilder(tournament1.id)
+                .host('HOST 1.1').opponent('OPPONENT 1.1')
+                .bestOf(3)
+                .type('BOARD 1.1').build();
+            const updatedMatch = tournamentMatchBuilder(match.id)
+                .sideA('SIDE A', 2)
+                .sideB('SIDE B', 0)
+                .saygId(sayg.id)
+                .build();
+            updatedTournament1.round = roundBuilder().withMatch(updatedMatch).build();
+            await sendUpdate(updatedTournament1);
+
+            liveScores = context.container.querySelector('div[datatype="live-scores"]')!;
+            expect(liveScores).toBeFalsy();
         });
 
         it('can apply alternating live updates', async () => {

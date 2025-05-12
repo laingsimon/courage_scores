@@ -174,8 +174,8 @@ export function LiveSayg() {
                 return (<span key={id}>Unsupported type: {type}: {id}</span>);
             })}
             </div>
-            {fullScreen.isFullScreen && !statusText ? (<div className="position-absolute bottom-0 right-0 m-2">
-                <QRCodeSVG value={document.location.href} size={100} />
+            {fullScreen.isFullScreen && !statusText ? (<div className="position-absolute top-0 right-0 m-2">
+                <QRCodeSVG value={document.location.href} size={75} />
             </div>) : null}
         </LiveContainer> : null}
         {!type ? <div className="p-2">
