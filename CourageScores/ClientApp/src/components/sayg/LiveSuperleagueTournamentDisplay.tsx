@@ -36,6 +36,7 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
     const [matchSaygData, setMatchSaygData] = useState<IMatchSaygLookup>({});
     const [initialData, setInitialData] = useState<TournamentGameDto | undefined | null>(undefined);
     const [refreshing, setRefreshing] = useState<boolean>(false);
+    const [subscribing, setSubscribing] = useState<boolean>(false);
     const [pendingLiveSubscriptions, setPendingLiveSubscriptions] = useState<ISubscriptionRequest[]>([]);
     const tournament = data ?? initialData;
     const {enableLiveUpdates} = useLive();
@@ -102,13 +103,25 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
     }
 
     async function subscribeToNextSayg() {
-        const firstSubscription = pendingLiveSubscriptions[0];
-        await enableLiveUpdates(true, firstSubscription);
-        setPendingLiveSubscriptions(pendingLiveSubscriptions.filter((_, index) => index > 0));
+        /* istanbul ignore next */
+        if (subscribing) {
+            /* istanbul ignore next */
+            return;
+        }
+
+        setSubscribing(true);
+        try {
+            const firstSubscription = pendingLiveSubscriptions[0];
+            await enableLiveUpdates(true, firstSubscription);
+            setPendingLiveSubscriptions(pendingLiveSubscriptions.filter((_, index) => index > 0));
+        } finally {
+            setSubscribing(false);
+        }
     }
 
     async function fetchInitialData(id: string) {
         if (refreshing) {
+            /* istanbul ignore next */
             return;
         }
 
