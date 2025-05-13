@@ -36,10 +36,10 @@ function Get-OpenMilestones()
 function Get-OldestMilestone($Milestones)
 {
     # sort milestones by name ascending, pick the first
-    $SortedMilestones = $Milestones | Sort-Object -Property "title"
-
-    # Write-Host -ForegroundColor Magenta $SortedMilestones
-    return $SortedMilestones | Select-Object -First 1
+    $SortedMilestoneVersions = $Milestones | %{ new-object System.Version ($_.title.Substring(1)) } | sort
+    $LowestMilestoneVersion = $SortedMilestoneVersions | Select-Object -First 1
+    $LowestMilestone = $Milestones | Where-Object { $_.title -eq "v$($LowestMilestoneVersion)" }
+    return $LowestMilestone
 }
 
 function Get-CommitsBetween($Base, $Compare)
