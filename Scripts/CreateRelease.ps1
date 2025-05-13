@@ -38,6 +38,7 @@ function Get-OldestMilestone($Milestones)
     # sort milestones by name ascending, pick the first
     $SortedMilestoneVersions = $Milestones | %{ new-object System.Version ($_.title.Substring(1)) } | sort
     $LowestMilestoneVersion = $SortedMilestoneVersions | Select-Object -First 1
+    Write-Host "Lowest milestone version = $($LowestMilestoneVersion)"
     $LowestMilestone = $Milestones | Where-Object { $_.title -eq "v$($LowestMilestoneVersion)" }
     return $LowestMilestone
 }
@@ -266,6 +267,12 @@ if ($Milestones.Length -eq 0)
 }
 
 $OldestMilestone = Get-OldestMilestone -Milestones $Milestones
+if ($OldestMilestone -eq $null)
+{
+    Write-Host "Could not find oldest milestone"
+    Exit
+}
+
 Write-Host "Oldest milestone: $($OldestMilestone.title)"
 
 $Description = (Format-ReleaseDescription -Commits $Commits -Milestone $OldestMilestone).Trim().Replace("`n", "\n")
