@@ -36,7 +36,7 @@ function Get-OpenMilestones()
 function Get-NewestMilestone($Milestones)
 {
     # sort milestones by name ascending, pick the first
-    $SortedMilestoneVersions = $Milestones | %{ new-object System.Version ($_.title.Substring(1)) } | sort -Descending
+    $SortedMilestoneVersions = $Milestones | %{ new-object System.Version ($_.title.Substring(1)) } | Sort-Object -Descending
     $HighestMilestoneVersion = $SortedMilestoneVersions | Select-Object -First 1
     $HighestMilestone = $Milestones | Where-Object { $_.title -eq "v$($HighestMilestoneVersion)" }
     return $HighestMilestone

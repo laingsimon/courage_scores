@@ -36,9 +36,9 @@ function Get-OpenMilestones()
 function Get-OldestMilestone($Milestones)
 {
     # sort milestones by name ascending, pick the first
-    $SortedMilestoneVersions = $Milestones | %{ new-object System.Version ($_.title.Substring(1)) } | sort
+    $SortedMilestoneVersions = $Milestones | %{ new-object System.Version ($_.title.Substring(1)) } | Sort-Object
     $LowestMilestoneVersion = $SortedMilestoneVersions | Select-Object -First 1
-    Write-Host "Lowest milestone version = $($LowestMilestoneVersion)"
+    Write-Host "Lowest milestone version $($LowestMilestoneVersion) from $($SortedMilestoneVersions.Length) of $($Milestones.Length) milestone/s "
     $LowestMilestone = $Milestones | Where-Object { $_.title -eq "v$($LowestMilestoneVersion)" }
     return $LowestMilestone
 }
@@ -258,7 +258,7 @@ function Update-PullRequestDescription($Url, $Description, $Milestone)
 }
 
 $Commits = Get-CommitsBetween -Base "origin/release" -Compare "origin/main"
-$Milestones = Get-OpenMilestones
+$Milestones = [array](Get-OpenMilestones)
 if ($Milestones.Length -eq 0)
 {
     # No milestones
@@ -270,7 +270,7 @@ $OldestMilestone = Get-OldestMilestone -Milestones $Milestones
 if ($OldestMilestone -eq $null)
 {
     Write-Host "Could not find oldest milestone"
-    Exit
+    Exit 1
 }
 
 Write-Host "Oldest milestone: $($OldestMilestone.title)"
