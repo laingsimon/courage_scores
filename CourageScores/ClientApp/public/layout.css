@@ -430,7 +430,7 @@ body .width-50 {
 }
 
 .super-size {
-    font-size: 60px;
+    font-size: 80px;
 }
 
 .medium-size {
@@ -445,6 +445,7 @@ body .width-50 {
 .sayg-black {
     background-color: #000000;
     color: #ffffff;
+    --bs-secondary-rgb: 192, 192, 192;
 }
 
 .sayg-white-selector {
@@ -453,4 +454,41 @@ body .width-50 {
 
 .sayg-black-selector {
     --bs-dark-rgb: 128, 128, 128;
+}
+
+
+.text-flash {
+    position: relative;
+}
+
+@keyframes text-flash-keyframes {
+    from {
+        width: 0px;
+        height: 0px;
+        margin-left: 0px;
+        margin-top: 0px;
+        opacity: 1;
+    }
+    to {
+        width: 50px;
+        height: 50px;
+        margin-left: -25px;
+        margin-top: -25px;
+        opacity: 0.25;
+    }
+}
+
+.text-flash:before {
+    content: "";
+    position: absolute;
+    display: block;
+    left: 50%;
+    top: 50%;
+    border-radius: 50%;
+    background-color: #ffffcc;
+
+    animation-name: text-flash-keyframes;
+    animation-duration: 0.5s;
+    animation-iteration-count: 1;
+    animation-timing-function: ease-in;
 }

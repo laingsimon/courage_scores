@@ -92,20 +92,20 @@ export function NumberKeyboard({ value, onChange, maxValue, onEnter }: INumberKe
             disabled = true;
         }
 
-        return (<button className={`btn m-1 d-inline-block flex-grow-1 flex-shrink-1 fs-1 py-3 ${className}`} onClick={handler} disabled={disabled}>
+        return (<button className={`btn m-1 d-inline-block flex-grow-1 flex-shrink-1 flex-basis-0 fs-1 py-3 min-width-75 ${className} px-1`} onClick={handler} disabled={disabled}>
             <span className="px-2 py-1 d-inline-block">{buttonValue}</span>
         </button>);
     }
 
     function renderNumberButton(buttonValue: number) {
-        return renderButton(buttonValue, 'min-width-75 btn-success px-1', numberClick);
+        return renderButton(buttonValue, 'btn-success', numberClick);
     }
 
     function renderQuickButton(buttonValue: number) {
-        return renderButton(buttonValue, 'min-width-75 btn-secondary opacity-50 px-1', quickButtonClick);
+        return renderButton(buttonValue, 'btn-secondary opacity-50', quickButtonClick);
     }
 
-    return (<div className="d-flex flex-column p-3">
+    return (<div className="d-flex flex-column p-1 flex-grow-1">
         <div className="d-flex flex-row flex-shrink-0 flex-grow-1">
             {renderQuickButton(140)}
 

@@ -22,11 +22,14 @@ public class PublishUpdatesProcessor : IWebSocketMessageProcessor
         _sockets.Remove(socket);
     }
 
-    public async Task PublishUpdate(IWebSocketContract source, Guid id, LiveDataType dataType, object dto, CancellationToken token)
+    public async Task PublishUpdate(IWebSocketContract? source, Guid id, LiveDataType dataType, object dto, CancellationToken token)
     {
-        SetPublishing(source.Details, id, dataType);
+        if (source != null)
+        {
+            SetPublishing(source.Details, id, dataType);
+        }
 
-        var subscriptionsToUpdate = _sockets.Where(s => s.IsSubscribedTo(id)).Except(new[] { source }).ToArray();
+        var subscriptionsToUpdate = _sockets.Where(s => s.IsSubscribedTo(id)).Except([source]).Cast<IWebSocketContract>().ToArray();
         var message = new LiveMessageDto
         {
             Type = MessageType.Update,

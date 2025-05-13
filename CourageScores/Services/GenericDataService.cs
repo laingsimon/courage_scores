@@ -6,6 +6,7 @@ using CourageScores.Models.Dtos;
 using CourageScores.Repository;
 using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
+using CourageScores.Services.Live;
 
 namespace CourageScores.Services;
 
@@ -103,6 +104,11 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
         }
 
         var updatedItem = await _repository.Upsert(item, token);
+
+        if (updateCommand is IPublishingCommand<TModel> publishingCommand)
+        {
+            await publishingCommand.PublishUpdate(updatedItem, outcome.Delete, token);
+        }
 
         return await _actionResultAdapter.Adapt(outcome, await _adapter.Adapt(updatedItem, token));
     }

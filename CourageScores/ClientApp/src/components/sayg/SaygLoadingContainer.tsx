@@ -179,7 +179,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
             <SaygContext.Provider value={saygProps}>
                 {saveError ? (
                     <ErrorDisplay {...saveError} onClose={async () => setSaveError(null)} title="Could not save data"/>) : null}
-                {sayg ? (<div>
+                {sayg ? (<div className="d-flex flex-column flex-grow-1 flex-fill">
                     {children}
                     <ScoreAsYouGo
                         startingScore={sayg.startingScore || 0}

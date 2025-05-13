@@ -24,7 +24,7 @@ public class PollingUpdatesProcessor : IWebSocketMessageProcessor, IUpdatedDataS
         // nothing to do
     }
 
-    public async Task PublishUpdate(IWebSocketContract source, Guid id, LiveDataType dataType, object dto, CancellationToken token)
+    public async Task PublishUpdate(IWebSocketContract? source, Guid id, LiveDataType dataType, object dto, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
 

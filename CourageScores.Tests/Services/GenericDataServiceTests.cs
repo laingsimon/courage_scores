@@ -8,6 +8,7 @@ using CourageScores.Repository;
 using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
+using CourageScores.Services.Live;
 using Moq;
 using NUnit.Framework;
 
@@ -381,6 +382,40 @@ public class GenericDataServiceTests
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.SameAs(deletedDto));
         Assert.That(result.Messages, Is.EquivalentTo(new[] { "some message" }));
+    }
+
+    [Test]
+    public async Task Upsert_WhenDeleteIsNotRequestedAndCommandCanPublishUpdates_ThenPublishesUpdate()
+    {
+        var deletedDto = new Dto();
+        var deletedModel = new Model();
+        var command = new Mock<IPublishingCommand<Model>>().As<IUpdateCommand<Model, object>>();
+        var commandResult = ActionResult(success: true, delete: false, "some message");
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => EditAndDeletePermitted);
+        _adapter.Setup(a => a.Adapt(deletedModel, _token)).ReturnsAsync(() => deletedDto);
+        _repository.Setup(r => r.Upsert(_model, _token)).ReturnsAsync(() => deletedModel);
+        command.Setup(c => c.ApplyUpdate(_model, _token)).ReturnsAsync(() => commandResult);
+
+        await _service.Upsert(_id, command.Object, _token);
+
+        command.As<IPublishingCommand<Model>>().Verify(c => c.PublishUpdate(deletedModel, false, _token));
+    }
+
+    [Test]
+    public async Task Upsert_WhenDeleteRequestedAndPermittedToDeleteAndCommandCanPublishUpdates_ThenPublishesDeleteUpdate()
+    {
+        var deletedDto = new Dto();
+        var deletedModel = new Model();
+        var command = new Mock<IPublishingCommand<Model>>().As<IUpdateCommand<Model, object>>();
+        var commandResult = ActionResult(success: true, delete: true, "some message");
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => EditAndDeletePermitted);
+        _adapter.Setup(a => a.Adapt(deletedModel, _token)).ReturnsAsync(() => deletedDto);
+        _repository.Setup(r => r.Upsert(_model, _token)).ReturnsAsync(() => deletedModel);
+        command.Setup(c => c.ApplyUpdate(_model, _token)).ReturnsAsync(() => commandResult);
+
+        await _service.Upsert(_id, command.Object, _token);
+
+        command.As<IPublishingCommand<Model>>().Verify(c => c.PublishUpdate(deletedModel, true, _token));
     }
 
     private static ActionResult<object> ActionResult(bool success = true, bool delete = false, params string[] messages)

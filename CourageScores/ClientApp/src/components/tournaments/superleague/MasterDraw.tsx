@@ -20,9 +20,10 @@ export interface IMasterDrawProps {
     readOnly?: boolean;
     tournamentData: TournamentGameDto;
     setTournamentData(newData: TournamentGameDto, save?: boolean): UntypedPromise;
+    kioskMode?: boolean;
 }
 
-export function MasterDraw({patchData, readOnly, tournamentData, setTournamentData}: IMasterDrawProps) {
+export function MasterDraw({patchData, readOnly, tournamentData, setTournamentData, kioskMode}: IMasterDrawProps) {
     const {onError, teams} = useApp();
     const {matchOptionDefaults} = useTournament();
     const [newMatch, setNewMatch] = useState<TournamentMatchDto>(getEmptyMatch());
@@ -138,7 +139,7 @@ export function MasterDraw({patchData, readOnly, tournamentData, setTournamentDa
                         </tbody>
                     </table>
                 </div>
-                <div className="px-5" datatype="details">
+                {kioskMode ? null : <div className="px-5" datatype="details">
                     <div datatype="gender">{!readOnly
                         ? (<BootstrapDropdown
                             value={tournamentData.gender}
@@ -155,7 +156,7 @@ export function MasterDraw({patchData, readOnly, tournamentData, setTournamentDa
                             onChange={valueChanged(tournamentData, setTournamentData)}
                             onBlur={() => setTournamentData(tournamentData, true)} />)
                         : (<span className="fw-bold">Notes: {tournamentData.type}</span>)}</div>) : null}
-                </div>
+                </div>}
             </div>
         </div>);
     } catch (e) {

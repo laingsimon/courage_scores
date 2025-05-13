@@ -1,8 +1,11 @@
 ﻿using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Models.Dtos.Live;
 using CourageScores.Services.Command;
+using CourageScores.Services.Live;
 using CourageScores.Tests.Models.Adapters;
+using Moq;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Services.Command;
@@ -21,6 +24,7 @@ public class PatchTournamentCommandTests
     private TournamentPlayerDto _oneEightyPlayerDto = null!;
     private NotableTournamentPlayerDto _hiCheckPlayerDto = null!;
     private IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto> _hiCheckPlayerAdapter = null!;
+    private Mock<IWebSocketMessageProcessor> _updatesProcessor = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -31,7 +35,8 @@ public class PatchTournamentCommandTests
         _hiCheckPlayerDto = new NotableTournamentPlayerDto();
         _oneEightyPlayerAdapter = new MockAdapter<TournamentPlayer, TournamentPlayerDto>(_oneEightyPlayer, _oneEightyPlayerDto);
         _hiCheckPlayerAdapter = new MockAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto>(_hiCheckPlayer, _hiCheckPlayerDto);
-        _command = new PatchTournamentCommand(_oneEightyPlayerAdapter, _hiCheckPlayerAdapter);
+        _updatesProcessor = new Mock<IWebSocketMessageProcessor>();
+        _command = new PatchTournamentCommand(_oneEightyPlayerAdapter, _hiCheckPlayerAdapter, _updatesProcessor.Object);
     }
 
     [Test]
@@ -269,5 +274,21 @@ public class PatchTournamentCommandTests
         {
             _hiCheckPlayer,
         }));
+    }
+
+    [Test]
+    public async Task PublishUpdate_WhenUpdated_ShouldSendUpdate()
+    {
+        await _command.PublishUpdate(_tournament, false, _token);
+
+        _updatesProcessor.Verify(p => p.PublishUpdate(null, _tournament.Id, LiveDataType.Tournament, _tournament, _token));
+    }
+
+    [Test]
+    public async Task PublishUpdate_WhenDeleted_ShouldSendUpdate()
+    {
+        await _command.PublishUpdate(_tournament, true, _token);
+
+        _updatesProcessor.Verify(p => p.PublishUpdate(null, _tournament.Id, LiveDataType.Tournament, _tournament, _token));
     }
 }
