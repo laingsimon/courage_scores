@@ -36,7 +36,7 @@ function Get-OpenMilestones()
 function Close-Milestone($Milestone)
 {
     $Json = "{" +
-        "`"state`": `"`closed`"" +
+        "`"state`": `"closed`"" +
     "}"
 
     Write-Host "Closing milestone $($Milestone.title) ($($Milestone.number))..."
