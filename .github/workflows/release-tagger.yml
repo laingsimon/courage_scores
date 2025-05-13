@@ -28,9 +28,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Using script
+      - name: Close milestone for this release
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: ./Scripts/CloseMilestone.ps1
+      - name: Ensure at least 2 open milestones
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./Scripts/EnsureOpenMilestones.ps1 -MinOpen 2
