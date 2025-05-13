@@ -12,6 +12,7 @@ import {useDependencies} from "../common/IocContainer";
 import {renderDate} from "../../helpers/rendering";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {QRCodeSVG} from "qrcode.react";
+import {stateChanged} from "../../helpers/events";
 
 interface IIdentifiedUpdate {
     id: string;
@@ -45,7 +46,6 @@ export function LiveSayg() {
     };
     const today = new Date().toISOString().substring(0, 10);
     const date: string = search.get('date') ?? today;
-    const isToday = !search.get('date');
 
     useEffect(() => {
         if (any(ids) || !any(divisions) || findingFixtures || fixturesIdentified) {
@@ -54,7 +54,12 @@ export function LiveSayg() {
 
         // noinspection JSIgnoredPromiseFromCall
         watchAllFixturesForToday();
-    }, [ids, divisions, findingFixtures, type]);
+    }, [ids, divisions, findingFixtures]);
+
+    useEffect(() => {
+        setFindingFixtures(false);
+        setFixturesIdentified(false);
+    }, [date, type]);
 
     useEffect(() => {
         if (!pendingUpdate) {
@@ -63,6 +68,19 @@ export function LiveSayg() {
 
         applyPendingUpdate(pendingUpdate);
     }, [pendingUpdate]);
+
+    async function changeDate(newDate: string) {
+        const newSearch = new URLSearchParams(location.search);
+        if (newDate === today) {
+            newSearch.delete('date');
+        }
+        else {
+            newSearch.set('date', newDate);
+        }
+        const typeFragment = type ? `${type}/` : '';
+        setStatusText(null);
+        navigate(`/live/${typeFragment}?${newSearch}`);
+    }
 
     async function watchAllFixturesForToday() {
         setFindingFixtures(true);
@@ -151,8 +169,7 @@ export function LiveSayg() {
             {any(refreshIds) ? <LoadingSpinnerSmall /> : null}
             Refresh
         </button>) : null}
-        {statusText ? (<div className="alert alert-warning">{statusText}</div>) : null}
-        {type ? <LiveContainer liveOptions={liveOptions} onDataUpdate={dataUpdated}>
+        {type && any(ids) ? <LiveContainer liveOptions={liveOptions} onDataUpdate={dataUpdated}>
             <div className={`d-flex flex-grow-1 flex-row justify-content-evenly ${fullScreen.isFullScreen ? '' : 'overflow-auto'}`}>
             {ids.map((id, index) => {
                 if (type === 'match' && ids.length === 1) {
@@ -177,11 +194,20 @@ export function LiveSayg() {
             {fullScreen.isFullScreen && !statusText ? (<div className="position-absolute top-0 right-0 m-2">
                 <QRCodeSVG value={document.location.href} size={75} />
             </div>) : null}
-        </LiveContainer> : null}
-        {!type ? <div className="p-2">
-            <h3>Watch tournaments{isToday ? '' : ` on ${renderDate(date)}`}</h3>
-            <p>Pick a type of tournament</p>
-            <button className="btn btn-primary" onClick={() => setType('superleague')}>Superleague</button>
-        </div> : null}
+        </LiveContainer> : <div className="p-2">
+            <div className="d-inline-block">
+                <div className="input-group">
+                    <div className="input-group-prepend">
+                        <span className="input-group-text">Date</span>
+                    </div>
+                    <input name="liveDate" className="form-control" type="date" value={date} onChange={stateChanged(changeDate)} />
+                </div>
+            </div>
+            {!type ? <>
+                <h6 className="m-0 py-3">Pick a type of tournament</h6>
+                <button className="btn btn-primary" onClick={() => setType('superleague')}>Superleague</button>
+              </> : null}
+        </div>}
+        {statusText ? (<div className="alert alert-warning">{statusText}</div>) : null}
     </div>);
 }
