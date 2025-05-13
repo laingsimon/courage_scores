@@ -26,9 +26,11 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-      - uses: Akkjon/close-milestone@v2.1.0
+      - uses: actions/checkout@v4
+
+      - name: Using script
+        shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          milestone_name: ${{ github.event.pull_request.title }}
-          crash_on_missing: true
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: ./Scripts/CloseMilestone.ps1
