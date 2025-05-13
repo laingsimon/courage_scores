@@ -23,7 +23,7 @@ public class CompositeWebSocketMessageProcessor : IWebSocketMessageProcessor
         }
     }
 
-    public async Task PublishUpdate(IWebSocketContract source, Guid id, LiveDataType dataType, object dto, CancellationToken token)
+    public async Task PublishUpdate(IWebSocketContract? source, Guid id, LiveDataType dataType, object dto, CancellationToken token)
     {
         foreach (var processor in _processors)
         {

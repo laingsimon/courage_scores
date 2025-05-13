@@ -2,21 +2,26 @@
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Models.Dtos.Live;
+using CourageScores.Services.Live;
 
 namespace CourageScores.Services.Command;
 
-public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentGame>
+public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentGame>, IPublishingCommand<TournamentGame>
 {
     private readonly IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto> _hiCheckPlayerAdapter;
     private readonly IAdapter<TournamentPlayer, TournamentPlayerDto> _oneEightyPlayerAdapter;
+    private readonly IWebSocketMessageProcessor _processor;
     private PatchTournamentDto? _patch;
 
     public PatchTournamentCommand(
         IAdapter<TournamentPlayer, TournamentPlayerDto> oneEightyPlayerAdapter,
-        IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto> hiCheckPlayerAdapter)
+        IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto> hiCheckPlayerAdapter,
+        IWebSocketMessageProcessor processor)
     {
         _oneEightyPlayerAdapter = oneEightyPlayerAdapter;
         _hiCheckPlayerAdapter = hiCheckPlayerAdapter;
+        _processor = processor;
     }
 
     public PatchTournamentCommand WithPatch(PatchTournamentDto patch)
@@ -181,5 +186,10 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
             },
             Result = match,
         };
+    }
+
+    public async Task PublishUpdate(TournamentGame tournament, bool deleted, CancellationToken token)
+    {
+        await _processor.PublishUpdate(null, tournament.Id, LiveDataType.Tournament, tournament, token);
     }
 }

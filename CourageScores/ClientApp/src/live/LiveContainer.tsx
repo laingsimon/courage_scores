@@ -42,15 +42,22 @@ export function LiveContainer({children, onDataUpdate, liveOptions}: ILiveContai
         }
 
         const nextPendingSubscription = pendingSubscriptions[0];
-        setSubscribing(true);
-        setPendingSubscriptions(pendingSubscriptions.filter((_, index) => index > 0));
 
         // noinspection JSIgnoredPromiseFromCall
-        enableLiveUpdates(true, nextPendingSubscription);
+        enableLiveUpdates(true, nextPendingSubscription).then(() => {
+            setPendingSubscriptions(pendingSubscriptions.filter((_, index) => index > 0));
+        });
     }, [account, pendingSubscriptions, subscribing]);
 
     async function enableLiveUpdates(enabled: boolean, request: ISubscriptionRequest) {
         try {
+            /* istanbul ignore next */
+            if (subscribing) {
+                /* istanbul ignore next */
+                return;
+            }
+
+            setSubscribing(true);
             if (enabled && !webSocket.subscriptions[request.id] && canConnect) {
                 await webSocket.subscribe(request, onDataUpdate, onError);
             } else if (!enabled) {

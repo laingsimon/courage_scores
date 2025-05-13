@@ -488,7 +488,7 @@ body .width-50 {
     background-color: #ffffcc;
 
     animation-name: text-flash-keyframes;
-    animation-duration: 1s;
+    animation-duration: 0.5s;
     animation-iteration-count: 1;
     animation-timing-function: ease-in;
 }
