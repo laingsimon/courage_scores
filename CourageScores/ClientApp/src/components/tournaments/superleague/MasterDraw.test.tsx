@@ -401,7 +401,7 @@ describe('MasterDraw', () => {
                 readOnly: false,
                 setTournamentData,
                 patchData: noop
-            }, user({}), undefined, [teamA, teamB], season);
+            }, user({ managePlayers: true }), undefined, [teamA, teamB], season);
             playerCreatedCallback = () => {
                 const teamSeason = teamA.seasons!.find(ts => ts.seasonId === season.id)!;
                 teamSeason.players!.push({
@@ -436,7 +436,7 @@ describe('MasterDraw', () => {
                 readOnly: false,
                 setTournamentData,
                 patchData: noop
-            }, user({}), undefined, [teamA, teamB], season);
+            }, user({ managePlayers: true }), undefined, [teamA, teamB], season);
             playerCreatedCallback = () => {
                 const teamSeason = teamB.seasons!.find(ts => ts.seasonId === season.id)!;
                 teamSeason.players!.push({
@@ -471,7 +471,7 @@ describe('MasterDraw', () => {
                 readOnly: false,
                 setTournamentData,
                 patchData: noop
-            }, user({}), undefined, [teamA, teamB], season);
+            }, user({ managePlayers: true }), undefined, [teamA, teamB], season);
             const newMatchRow = context.container.querySelector('table tbody tr:last-child')!;
             await doSelectOption(newMatchRow.querySelector('td:nth-child(2) .dropdown-menu'), '➕ New Player/s');
 
@@ -489,7 +489,7 @@ describe('MasterDraw', () => {
                 readOnly: false,
                 setTournamentData,
                 patchData: noop
-            }, user({}), undefined, [teamA, teamB], season);
+            }, user({ managePlayers: true }), undefined, [teamA, teamB], season);
             const newMatchRow = context.container.querySelector('table tbody tr:last-child')!;
             await doSelectOption(newMatchRow.querySelector('td:nth-child(2) .dropdown-menu'), '➕ New Player/s');
 

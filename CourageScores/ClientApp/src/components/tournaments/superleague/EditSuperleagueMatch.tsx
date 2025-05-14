@@ -22,6 +22,7 @@ import {useTournament} from "../TournamentContainer";
 import {
     DivisionTournamentFixtureDetailsDto
 } from "../../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
+import {hasAccess} from "../../../helpers/conditions";
 
 export interface IEditSuperleagueMatchProps {
     index?: number;
@@ -34,7 +35,7 @@ export interface IEditSuperleagueMatchProps {
 }
 
 export function EditSuperleagueMatch({ index, match, tournamentData, setMatchData, readOnly, patchData, deleteMatch }: IEditSuperleagueMatchProps) {
-    const {teams, reloadTeams, onError} = useApp();
+    const {teams, reloadTeams, onError, account} = useApp();
     const {alreadyPlaying} = useTournament();
     const oddNumberedMatch: boolean = ((index ?? 0) + 1) % 2 !== 0;
     const matchOptions: GameMatchOptionDto = {
@@ -48,6 +49,7 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
     const opponentPlayers: IBootstrapDropdownItem[] = getPlayersForTeamName(tournamentData.opponent!, getAlreadySelected('sideB'));
     const [addPlayerDialogOpen, setAddPlayerDialogOpen] = useState<TeamDto | null>(null);
     const [newPlayerDetails, setNewPlayerDetails] = useState<EditTeamPlayerDto | null>(null);
+    const canManagePlayers = hasAccess(account, a => a.managePlayers);
 
     function getAlreadySelected(side: 'sideA' | 'sideB'): TeamPlayerDto[] {
         return tournamentData.round?.matches!
@@ -167,6 +169,14 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
         setNewPlayerDetails(null);
     }
 
+    function appendNewPlayer(players: IBootstrapDropdownItem[]) {
+        if (canManagePlayers) {
+            return players.concat(newPlayer);
+        }
+
+        return players;
+    }
+
     try {
         return (<tr key={match.id}>
             <td>
@@ -177,13 +187,13 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
             <td>
                 {readOnly
                     ? match.sideA?.name
-                    : <BootstrapDropdown value={match.sideA?.players![0]?.id} options={hostPlayers.concat(newPlayer)} onChange={changeHostSide}/>}
+                    : <BootstrapDropdown value={match.sideA?.players![0]?.id} options={appendNewPlayer(hostPlayers)} onChange={changeHostSide}/>}
             </td>
             <td>v</td>
             <td>
                 {readOnly
                     ? match.sideB?.name
-                    : <BootstrapDropdown value={match.sideB?.players![0]?.id} options={opponentPlayers.concat(newPlayer)} onChange={changeOpponentSide}/>}
+                    : <BootstrapDropdown value={match.sideB?.players![0]?.id} options={appendNewPlayer(opponentPlayers)} onChange={changeOpponentSide}/>}
             </td>
             <td className="d-print-none">
                 {index === undefined ? null : <MatchSayg
