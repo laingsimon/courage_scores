@@ -9,9 +9,10 @@ import {
 } from "../../../helpers/tests";
 import {IMatchReportProps, MatchReport} from "./MatchReport";
 import {ISuperleagueSaygMatchMapping} from "./ISuperleagueSaygMatchMapping";
-import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../helpers/builders/sayg";
+import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {tournamentMatchBuilder} from "../../../helpers/builders/tournaments";
+import {BuilderParam} from "../../../helpers/builders/builders";
 
 describe('MatchReport', () => {
     let context: TestContext;
@@ -37,7 +38,7 @@ describe('MatchReport', () => {
         return Array.from(row.querySelectorAll(tagName)).map(th => th.textContent!);
     }
 
-    function createLeg(homeWinner: boolean, awayWinner: boolean) {
+    function createLeg(homeWinner: boolean, awayWinner: boolean): BuilderParam<ILegBuilder> {
         function winningThrows(c: ILegCompetitorScoreBuilder) {
             return c
                 .withThrow(90)
@@ -56,11 +57,10 @@ describe('MatchReport', () => {
                 .withThrow(90);
         }
 
-        return legBuilder()
+        return (b) => b
             .home((c: ILegCompetitorScoreBuilder) => homeWinner ? winningThrows(c) : notWinningThrows(c))
             .away((c: ILegCompetitorScoreBuilder) => awayWinner ? winningThrows(c) : notWinningThrows(c))
-            .startingScore(501)
-            .build();
+            .startingScore(501);
     }
 
     describe('renders', () => {

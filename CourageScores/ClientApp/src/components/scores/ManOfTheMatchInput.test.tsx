@@ -108,7 +108,7 @@ describe('ManOfTheMatchInput', () => {
             const awayPlayer = playerBuilder('AWAY player').build();
             const fixtureData = fixtureBuilder()
                 .playing('HOME', 'AWAY')
-                .manOfTheMatch(homePlayer, null)
+                .manOfTheMatch(homePlayer)
                 .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                 .build();
 
@@ -123,7 +123,7 @@ describe('ManOfTheMatchInput', () => {
             const awayPlayer = playerBuilder('AWAY player').build();
             const fixtureData = fixtureBuilder()
                 .playing('HOME', 'AWAY')
-                .manOfTheMatch(null, awayPlayer)
+                .manOfTheMatch(undefined, awayPlayer)
                 .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                 .build();
 
@@ -211,7 +211,7 @@ describe('ManOfTheMatchInput', () => {
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
-                    .manOfTheMatch(awayPlayer, null)
+                    .manOfTheMatch(awayPlayer)
                     .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
@@ -228,7 +228,7 @@ describe('ManOfTheMatchInput', () => {
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
-                    .manOfTheMatch(null, homePlayer)
+                    .manOfTheMatch(undefined, homePlayer)
                     .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
@@ -264,7 +264,7 @@ describe('ManOfTheMatchInput', () => {
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
-                    .manOfTheMatch(homePlayer, null)
+                    .manOfTheMatch(homePlayer)
                     .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
@@ -301,7 +301,7 @@ describe('ManOfTheMatchInput', () => {
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
-                    .manOfTheMatch(null, awayPlayer)
+                    .manOfTheMatch(undefined, awayPlayer)
                     .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 

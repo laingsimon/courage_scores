@@ -12,6 +12,7 @@ import {fixtureBuilder, IFixtureBuilder, IMatchBuilder, IMatchOptionsBuilder} fr
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {teamBuilder} from "../../helpers/builders/teams";
+import { playerBuilder } from "../../helpers/builders/players";
 
 describe('ScoreCardHeading', () => {
     let context: TestContext;
@@ -135,14 +136,16 @@ describe('ScoreCardHeading', () => {
         const account: UserDto | undefined = undefined;
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const season: SeasonDto = seasonBuilder('SEASON').build();
+        const homePlayer = playerBuilder('HOME PLAYER').build();
+        const awayPlayer = playerBuilder('AWAY PLAYER').build();
 
         describe('when no winner', () => {
             const submissionData = fixtureBuilder()
                 .forSeason(season)
                 .forDivision(division)
                 .playing('HOME', 'AWAY')
-                .homeSubmission()
-                .awaySubmission()
+                .homeSubmission(b => b)
+                .awaySubmission(b => b)
                 .build();
             const winner = '';
             const fixtureData: ILeagueFixtureContainerProps = {
@@ -186,11 +189,11 @@ describe('ScoreCardHeading', () => {
                 .forSeason(season)
                 .forDivision(division)
                 .playing('HOME', 'AWAY')
-                .homeSubmission()
-                .awaySubmission()
-                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
-                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
-                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(4, 1))
+                .homeSubmission(b => b)
+                .awaySubmission(b => b)
+                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(2, 1))
+                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(3, 1))
+                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(4, 1))
                 .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
                 .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(5))
                 .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(7))
@@ -237,11 +240,11 @@ describe('ScoreCardHeading', () => {
                 .forSeason(season)
                 .forDivision(division)
                 .playing('HOME', 'AWAY')
-                .homeSubmission()
-                .awaySubmission()
-                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 2))
-                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 3))
-                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 4))
+                .homeSubmission(b => b)
+                .awaySubmission(b => b)
+                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2))
+                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 3))
+                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 4))
                 .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
                 .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(5))
                 .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(7))
@@ -295,14 +298,14 @@ describe('ScoreCardHeading', () => {
         };
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const season: SeasonDto = seasonBuilder('SEASON').build();
+        const homePlayer = playerBuilder('HOME PLAYER').build();
+        const awayPlayer = playerBuilder('AWAY PLAYER').build();
 
         describe('when no home or away submission', () => {
             const submissionData = fixtureBuilder()
                 .forSeason(season)
                 .forDivision(division)
                 .playing('HOME', 'AWAY')
-                .homeSubmission()
-                .awaySubmission()
                 .build();
             const fixtureData: ILeagueFixtureContainerProps = {
                 division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
@@ -340,16 +343,15 @@ describe('ScoreCardHeading', () => {
                 .forDivision(division)
                 .playing('HOME', 'AWAY')
                 .homeSubmission((f: IFixtureBuilder) => f
-                    .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
-                    .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
-                    .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
-                    .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 3))
-                    .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 3)))
-                .awaySubmission()
-                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
-                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
-                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
-                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 2))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(3, 1))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(3, 1))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(3, 1))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 3))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 3)))
+                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(2, 1))
+                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(2, 1))
+                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(2, 1))
+                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2))
                 .build();
             const fixtureData: ILeagueFixtureContainerProps = {
                 division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
@@ -411,17 +413,17 @@ describe('ScoreCardHeading', () => {
                 .forSeason(season)
                 .forDivision(division)
                 .playing('HOME', 'AWAY')
-                .homeSubmission()
+                .homeSubmission(b => b)
                 .awaySubmission((f: IFixtureBuilder) => f
-                    .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
-                    .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
-                    .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
-                    .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 3))
-                    .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 3)))
-                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
-                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
-                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
-                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 2))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(3, 1))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(3, 1))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(3, 1))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 3))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 3)))
+                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(2, 1))
+                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(2, 1))
+                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(2, 1))
+                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2))
                 .build();
             const fixtureData: ILeagueFixtureContainerProps = {
                 division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
@@ -474,6 +476,8 @@ describe('ScoreCardHeading', () => {
         };
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const season: SeasonDto = seasonBuilder('SEASON').build();
+        const homePlayer = playerBuilder('HOME PLAYER').build();
+        const awayPlayer = playerBuilder('AWAY PLAYER').build();
 
         describe('for a different team', () => {
             describe('when no home or away submission', () => {
@@ -481,8 +485,7 @@ describe('ScoreCardHeading', () => {
                     .forSeason(season)
                     .forDivision(division)
                     .playing('HOME', 'AWAY')
-                    .homeSubmission()
-                    .awaySubmission()
+                    .homeSubmission(b => b)
                     .build();
                 const fixtureData: ILeagueFixtureContainerProps = {
                     division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
@@ -520,7 +523,6 @@ describe('ScoreCardHeading', () => {
                     .forDivision(division)
                     .playing('HOME', 'AWAY')
                     .homeSubmission((f: IFixtureBuilder) => f)
-                    .awaySubmission()
                     .build();
                 const fixtureData: ILeagueFixtureContainerProps = {
                     division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
@@ -581,8 +583,8 @@ describe('ScoreCardHeading', () => {
                     .forSeason(season)
                     .forDivision(division)
                     .playing('HOME', 'AWAY')
-                    .homeSubmission()
-                    .awaySubmission((f: IFixtureBuilder) => f)
+                    .homeSubmission(b => b)
+                    .awaySubmission(b => b)
                     .build();
                 const fixtureData: ILeagueFixtureContainerProps = {
                     division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
@@ -621,8 +623,8 @@ describe('ScoreCardHeading', () => {
                     .forSeason(season)
                     .forDivision(division)
                     .playing('HOME', 'AWAY')
-                    .homeSubmission()
-                    .awaySubmission()
+                    .homeSubmission(b => b)
+                    .awaySubmission(b => b)
                     .build();
                 const fixtureData: ILeagueFixtureContainerProps = {
                     division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
@@ -660,16 +662,15 @@ describe('ScoreCardHeading', () => {
                     .forDivision(division)
                     .playing('HOME', 'AWAY')
                     .homeSubmission((f: IFixtureBuilder) => f
-                        .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
-                        .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
-                        .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
-                        .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 3))
-                        .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 3)), account.teamId)
-                    .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
-                    .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
-                    .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
-                    .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 2))
-                    .awaySubmission()
+                        .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(3, 1))
+                        .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(3, 1))
+                        .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(3, 1))
+                        .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 3))
+                        .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 3)), account.teamId)
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(2, 1))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(2, 1))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(2, 1))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2))
                     .build();
                 const fixtureData: ILeagueFixtureContainerProps = {
                     division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
@@ -724,8 +725,8 @@ describe('ScoreCardHeading', () => {
                     .forSeason(season)
                     .forDivision(division)
                     .playing('HOME', 'AWAY')
-                    .homeSubmission()
-                    .awaySubmission((f: IFixtureBuilder) => f)
+                    .homeSubmission(b => b)
+                    .awaySubmission(b => b)
                     .build();
                 const fixtureData: ILeagueFixtureContainerProps = {
                     division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
@@ -764,8 +765,8 @@ describe('ScoreCardHeading', () => {
                     .forSeason(season)
                     .forDivision(division)
                     .playing('HOME', 'AWAY')
-                    .homeSubmission()
-                    .awaySubmission()
+                    .homeSubmission(b => b)
+                    .awaySubmission(b => b)
                     .build();
                 const fixtureData: ILeagueFixtureContainerProps = {
                     division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
@@ -802,8 +803,8 @@ describe('ScoreCardHeading', () => {
                     .forSeason(season)
                     .forDivision(division)
                     .playing('HOME', 'AWAY')
-                    .homeSubmission((f: IFixtureBuilder) => f)
-                    .awaySubmission()
+                    .homeSubmission(b => b)
+                    .awaySubmission(b => b)
                     .build();
                 const fixtureData: ILeagueFixtureContainerProps = {
                     division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
@@ -840,17 +841,17 @@ describe('ScoreCardHeading', () => {
                     .forSeason(season)
                     .forDivision(division)
                     .playing('HOME', 'AWAY')
-                    .homeSubmission()
+                    .homeSubmission(b => b)
                     .awaySubmission((f: IFixtureBuilder) => f
-                        .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
-                        .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
-                        .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
-                        .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 3))
-                        .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 3)), account.teamId)
-                    .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
-                    .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
-                    .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
-                    .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 2))
+                        .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(3, 1))
+                        .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(3, 1))
+                        .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(3, 1))
+                        .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 3))
+                        .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 3)), account.teamId)
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(2, 1))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(2, 1))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(2, 1))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2))
                     .build();
                 const fixtureData: ILeagueFixtureContainerProps = {
                     division: divisionBuilder('DIVISION', submissionData.divisionId).build(),

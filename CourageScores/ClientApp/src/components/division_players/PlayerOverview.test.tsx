@@ -71,7 +71,7 @@ describe('PlayerOverview', () => {
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
-                    .season(season)
+                    .season(s => s.withDivision(division), 'SEASON')
                     .build());
 
             reportedError.verifyNoError();
@@ -90,7 +90,7 @@ describe('PlayerOverview', () => {
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
-                    .season(season)
+                    .season(s => s.withDivision(division), 'SEASON')
                     .build());
 
             reportedError.verifyNoError();
@@ -103,7 +103,7 @@ describe('PlayerOverview', () => {
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
-                    .season(season)
+                    .season(s => s.withDivision(division), 'SEASON')
                     .build());
 
             reportedError.verifyNoError();
@@ -116,7 +116,7 @@ describe('PlayerOverview', () => {
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
-                    .season(season)
+                    .season(s => s.withDivision(division), 'SEASON')
                     .build());
 
             reportedError.verifyNoError();
@@ -130,7 +130,7 @@ describe('PlayerOverview', () => {
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
-                    .season(season)
+                    .season(s => s.withDivision(division), 'SEASON')
                     .build());
 
             reportedError.verifyNoError();
@@ -143,7 +143,7 @@ describe('PlayerOverview', () => {
         it('league fixture', async () => {
             const fixtureId = createTemporaryId();
             const fixtureDate: DivisionFixtureDateDto = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.playing(teamBuilder('HOME'), team).scores(3, 1), fixtureId)
+                .withFixture((f: IDivisionFixtureBuilder) => f.playing(teamBuilder('HOME').build(), team).scores(3, 1), fixtureId)
                 .build();
             const playerWithLeagueFixture = Object.assign({}, player);
             playerWithLeagueFixture.fixtures![fixtureDate.date] = fixtureId;
@@ -152,8 +152,8 @@ describe('PlayerOverview', () => {
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(playerWithLeagueFixture)
-                    .withFixtureDate(fixtureDate)
-                    .season(season)
+                    .withFixtureDate(fd => fd.withFixture((f: IDivisionFixtureBuilder) => f.playing(teamBuilder('HOME').build(), team).scores(3, 1), fixtureId), '2023-05-06T00:00:00')
+                    .season(s => s.withDivision(division), 'SEASON')
                     .build());
 
             reportedError.verifyNoError();
@@ -183,7 +183,7 @@ describe('PlayerOverview', () => {
         it('league fixture with no scores', async () => {
             const fixtureId = createTemporaryId();
             const fixtureDate: DivisionFixtureDateDto = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.playing(teamBuilder('HOME'), team).scores(undefined, undefined), fixtureId)
+                .withFixture((f: IDivisionFixtureBuilder) => f.playing(teamBuilder('HOME').build(), team).scores(undefined, undefined), fixtureId)
                 .build();
             const playerWithLeagueFixture = Object.assign({}, player);
             playerWithLeagueFixture.fixtures![fixtureDate.date] = fixtureId;
@@ -192,8 +192,8 @@ describe('PlayerOverview', () => {
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(playerWithLeagueFixture)
-                    .withFixtureDate(fixtureDate)
-                    .season(season)
+                    .withFixtureDate(fd => fd.withFixture((f: IDivisionFixtureBuilder) => f.playing(teamBuilder('HOME').build(), team).scores(undefined, undefined), fixtureId), '2023-05-06T00:00:00')
+                    .season(s => s.withDivision(division), 'SEASON')
                     .build());
 
             reportedError.verifyNoError();
@@ -223,7 +223,7 @@ describe('PlayerOverview', () => {
         it('league knockout fixture', async () => {
             const fixtureId = createTemporaryId();
             const fixtureDate: DivisionFixtureDateDto = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.playing(team, teamBuilder('AWAY'))
+                .withFixture((f: IDivisionFixtureBuilder) => f.playing(team, teamBuilder('AWAY').build())
                     .knockout()
                     .scores(3, 1), fixtureId)
                 .build();
@@ -234,8 +234,10 @@ describe('PlayerOverview', () => {
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(playerWithLeagueFixture)
-                    .withFixtureDate(fixtureDate)
-                    .season(season)
+                    .withFixtureDate(fd => fd.withFixture((f: IDivisionFixtureBuilder) => f.playing(team, teamBuilder('AWAY').build())
+                        .knockout()
+                        .scores(3, 1), fixtureId), '2023-05-06T00:00:00')
+                    .season(s => s.withDivision(division), 'SEASON')
                     .build());
 
             reportedError.verifyNoError();
@@ -265,7 +267,7 @@ describe('PlayerOverview', () => {
         it('postponed league fixture', async () => {
             const fixtureId = createTemporaryId();
             const fixtureDate: DivisionFixtureDateDto = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.playing(team, teamBuilder('AWAY'))
+                .withFixture((f: IDivisionFixtureBuilder) => f.playing(team, teamBuilder('AWAY').build())
                     .scores(3, 1)
                     .postponed(), fixtureId)
                 .build();
@@ -276,8 +278,10 @@ describe('PlayerOverview', () => {
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(playerWithLeagueFixture)
-                    .withFixtureDate(fixtureDate)
-                    .season(season)
+                    .withFixtureDate(fd => fd.withFixture((f: IDivisionFixtureBuilder) => f.playing(team, teamBuilder('AWAY').build())
+                        .scores(3, 1)
+                        .postponed(), fixtureId), '2023-05-06T00:00:00')
+                    .season(s => s.withDivision(division), 'SEASON')
                     .build());
 
             reportedError.verifyNoError();
@@ -316,8 +320,10 @@ describe('PlayerOverview', () => {
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
-                    .withFixtureDate(fixtureDate)
-                    .season(season)
+                    .withFixtureDate(fd => fd.withTournament((t: ITournamentBuilder) => t.withPlayer(player)
+                        .type('TYPE')
+                        .address('ADDRESS'), tournamentId), '2023-05-06T00:00:00')
+                    .season(s => s.withDivision(division), 'SEASON')
                     .build());
 
             reportedError.verifyNoError();
@@ -349,8 +355,11 @@ describe('PlayerOverview', () => {
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
-                    .withFixtureDate(fixtureDate)
-                    .season(season)
+                    .withFixtureDate(fd => fd.withTournament((t: ITournamentBuilder) => t.withPlayer(player)
+                        .type('TYPE')
+                        .address('ADDRESS')
+                        .winner('WINNER'), tournamentId), '2023-05-06T00:00:00')
+                    .season(s => s.withDivision(division), 'SEASON')
                     .build());
 
             reportedError.verifyNoError();
@@ -370,20 +379,17 @@ describe('PlayerOverview', () => {
         });
 
         it('excludes proposed tournament fixtures', async () => {
-            const fixtureDate: DivisionFixtureDateDto = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withTournament((t: ITournamentBuilder) => t.withPlayer(player)
-                    .type('TYPE')
-                    .address('ADDRESS')
-                    .winner('WINNER')
-                    .proposed())
-                .build();
             await renderComponent(
                 { playerId: player.id! },
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
-                    .withFixtureDate(fixtureDate)
-                    .season(season)
+                    .withFixtureDate(fd => fd.withTournament(t => t.withPlayer(player)
+                        .type('TYPE')
+                        .address('ADDRESS')
+                        .winner('WINNER')
+                        .proposed()))
+                    .season(s => s.withDivision(division), 'SEASON')
                     .build());
 
             reportedError.verifyNoError();

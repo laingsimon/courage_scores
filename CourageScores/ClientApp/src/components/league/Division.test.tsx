@@ -21,14 +21,17 @@ import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
-import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {IApp} from "../common/IApp";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {seasonBuilder} from "../../helpers/builders/seasons";
-import {divisionBuilder, divisionDataBuilder, IDivisionFixtureDateBuilder} from "../../helpers/builders/divisions";
+import {
+    divisionBuilder,
+    divisionDataBuilder,
+    IDivisionFixtureBuilder,
+    IDivisionFixtureDateBuilder
+} from "../../helpers/builders/divisions";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {IPlayerPerformanceBuilder, playerBuilder} from "../../helpers/builders/players";
-import {IFixtureBuilder} from "../../helpers/builders/games";
 import {IFailedRequest} from "../common/IFailedRequest";
 import {IDivisionApi} from "../../interfaces/apis/IDivisionApi";
 import {DivisionDataFilter} from "../../interfaces/models/dtos/Division/DivisionDataFilter";
@@ -37,6 +40,7 @@ import {ISeasonApi} from "../../interfaces/apis/ISeasonApi";
 import {IFeatureApi} from "../../interfaces/apis/IFeatureApi";
 import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
 import {DivisionUriContainer, IDivisionUriContainerProps, UrlStyle} from "./DivisionUriContainer";
+import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
 
 describe('Division', () => {
     let context: TestContext;
@@ -150,14 +154,14 @@ describe('Division', () => {
             .withDivision(division)
             .build();
         const team: TeamDto = teamBuilder('TEAM_NAME').build();
-        const player: TeamPlayerDto = playerBuilder('PLAYER_NAME')
+        const player: DivisionPlayerDto = playerBuilder('PLAYER_NAME')
             .team(team)
             .singles((a: IPlayerPerformanceBuilder) => a.matchesPlayed(1))
             .build();
 
         beforeEach(() => {
             const divisionData = divisionDataBuilder(division)
-                .season(season)
+                .season(s => s.starting('2023-01-01').ending('2023-06-01').withDivision(division), 'SEASON', season.id)
                 .withPlayer(player)
                 .withTeam(team)
                 .build();
@@ -248,7 +252,7 @@ describe('Division', () => {
             it('renders teams tab for superleague', async () => {
                 const superleagueDivision = divisionBuilder('superleague').superleague().build();
                 const superleagueDivisionData = divisionDataBuilder(division)
-                    .season(season)
+                    .season(s => s.starting('2023-01-01').ending('2023-06-01').withDivision(division), 'SEASON')
                     .withPlayer(player)
                     .withTeam(team)
                     .superleague()
@@ -418,7 +422,7 @@ describe('Division', () => {
             it('renders fixtures tab for superleague', async () => {
                 const superleagueDivision = divisionBuilder('superleague').superleague().build();
                 const superleagueDivisionData = divisionDataBuilder(division)
-                    .season(season)
+                    .season(s => s.starting('2023-01-01').ending('2023-06-01').withDivision(division), 'SEASON', season.id)
                     .withPlayer(player)
                     .withTeam(team)
                     .superleague()
@@ -520,7 +524,7 @@ describe('Division', () => {
             it('does not render players tab for superleague', async () => {
                 const superleagueDivision = divisionBuilder('superleague').superleague().build();
                 const superleagueDivisionData = divisionDataBuilder(division)
-                    .season(season)
+                    .season(s => s.starting('2023-01-01').ending('2023-06-01').withDivision(division), 'SEASON', season.id)
                     .withPlayer(player)
                     .withTeam(team)
                     .superleague()
@@ -699,7 +703,7 @@ describe('Division', () => {
             it('does not render reports tab for superleague', async () => {
                 const superleagueDivision = divisionBuilder('superleague').superleague().build();
                 const superleagueDivisionData = divisionDataBuilder(division)
-                    .season(season)
+                    .season(s => s.starting('2023-01-01').ending('2023-06-01').withDivision(division), 'SEASON')
                     .withPlayer(player)
                     .withTeam(team)
                     .superleague()
@@ -804,7 +808,7 @@ describe('Division', () => {
             it('does not render health tab for superleague', async () => {
                 const superleagueDivision = divisionBuilder('superleague').superleague().build();
                 const superleagueDivisionData = divisionDataBuilder(division)
-                    .season(season)
+                    .season(s => s.starting('2023-01-01').ending('2023-06-01').withDivision(division), 'SEASON')
                     .withPlayer(player)
                     .withTeam(team)
                     .superleague()
@@ -984,8 +988,8 @@ describe('Division', () => {
                     .forSeason(season, division)
                     .build();
                 divisionDataMap[division.id] = divisionDataBuilder(division)
-                    .season(season)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture((f: IFixtureBuilder) => f.bye(homeTeam.address).knockout()), '2023-07-01')
+                    .season(s => s.starting('2023-01-01').ending('2023-06-01').withDivision(division), 'SEASON', season.id)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture((f: IDivisionFixtureBuilder) => f.bye(homeTeam).knockout()), '2023-07-01')
                     .build();
                 await renderComponent(appProps({
                     divisions: [division],
@@ -1022,8 +1026,8 @@ describe('Division', () => {
                     .forSeason(season, division)
                     .build();
                 divisionDataMap[division.id] = divisionDataBuilder(division)
-                    .season(season)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture((f: IFixtureBuilder) => f.playing(homeTeam, awayTeam).knockout()), '2023-07-01')
+                    .season(s => s.starting('2023-01-01').ending('2023-06-01').withDivision(division), 'SEASON')
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture((f: IDivisionFixtureBuilder) => f.playing(homeTeam, awayTeam).knockout()), '2023-07-01')
                     .build();
                 await renderComponent(appProps({
                     divisions: [division],

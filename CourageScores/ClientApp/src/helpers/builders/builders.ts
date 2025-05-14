@@ -8,3 +8,4 @@ export interface IAddableBuilder<T> extends IBuilder<T> {
     addTo(map: { [key: string]: T }): IBuilder<T>;
 }
 
+export type BuilderParam<T> = (b: T) => T;

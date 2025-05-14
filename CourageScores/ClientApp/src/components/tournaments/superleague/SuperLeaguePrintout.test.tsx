@@ -12,10 +12,9 @@ import {ISuperLeaguePrintoutProps, SuperLeaguePrintout} from "./SuperLeaguePrint
 import {ITournamentContainerProps, TournamentContainer} from "../TournamentContainer";
 import {act} from "@testing-library/react";
 import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
-import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {TournamentGameDto} from "../../../interfaces/models/dtos/Game/TournamentGameDto";
 import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
-import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../helpers/builders/sayg";
+import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {
     ITournamentMatchBuilder,
     ITournamentRoundBuilder,
@@ -31,6 +30,7 @@ import {CHECKOUT_2_DART} from "../../../helpers/constants";
 import {checkoutWith, enterScores} from "../../../helpers/sayg";
 import {START_SCORING} from "../tournaments";
 import {tournamentContainerPropsBuilder} from "../tournamentContainerPropsBuilder";
+import {BuilderParam} from "../../../helpers/builders/builders";
 
 describe('SuperLeaguePrintout', () => {
     let context: TestContext;
@@ -94,7 +94,7 @@ describe('SuperLeaguePrintout', () => {
             </TournamentContainer>));
     }
 
-    function createLeg(homeWinner?: boolean, awayWinner?: boolean): LegDto {
+    function createLeg(homeWinner?: boolean, awayWinner?: boolean): BuilderParam<ILegBuilder> {
         function winningThrows(c: ILegCompetitorScoreBuilder) {
             return c
                 .withThrow(90)
@@ -113,11 +113,10 @@ describe('SuperLeaguePrintout', () => {
                 .withThrow(90);
         }
 
-        return legBuilder()
+        return (b) => b
             .home((c: ILegCompetitorScoreBuilder) => homeWinner ? winningThrows(c) : notWinningThrows(c))
             .away((c: ILegCompetitorScoreBuilder) => awayWinner ? winningThrows(c) : notWinningThrows(c))
-            .startingScore(501)
-            .build();
+            .startingScore(501);
     }
 
     describe('renders', () => {

@@ -46,7 +46,7 @@ describe('MergeHiCheckAnd180s', () => {
         describe('renders', () => {
             it('when home submissions not merged', async () => {
                 const data = fixtureBuilder('2023-05-06')
-                    .homeSubmission((s: IFixtureBuilder) => s.editor('HOME').with180('NAME'))
+                    .homeSubmission((s: IFixtureBuilder) => s.editor('HOME').with180(playerBuilder('NAME').build()))
                     .awaySubmission((s: IFixtureBuilder) => s)
                     .build();
                 const fixtureData = fixtureBuilder('2023-05-06').build();
@@ -63,7 +63,7 @@ describe('MergeHiCheckAnd180s', () => {
             it('when away submissions not merged', async () => {
                 const data = fixtureBuilder('2023-05-06')
                     .homeSubmission((s: IFixtureBuilder) => s)
-                    .awaySubmission((s: IFixtureBuilder) => s.editor('AWAY').with180('NAME'))
+                    .awaySubmission((s: IFixtureBuilder) => s.editor('AWAY').with180(playerBuilder('NAME').build()))
                     .build();
                 const fixtureData = fixtureBuilder('2023-05-06').build();
 
@@ -94,11 +94,11 @@ describe('MergeHiCheckAnd180s', () => {
 
             it('when submissions merged', async () => {
                 const data = fixtureBuilder('2023-05-06')
-                    .homeSubmission((s: IFixtureBuilder) => s.editor('HOME').with180('HOME NAME'))
-                    .awaySubmission((s: IFixtureBuilder) => s.editor('AWAY').with180('AWAY NAME'))
+                    .homeSubmission((s: IFixtureBuilder) => s.editor('HOME').with180(playerBuilder('HOME NAME').build()))
+                    .awaySubmission((s: IFixtureBuilder) => s.editor('AWAY').with180(playerBuilder('AWAY NAME').build()))
                     .build();
                 const fixtureData = fixtureBuilder('2023-05-06')
-                    .with180('MERGED')
+                    .with180(playerBuilder('MERGED').build())
                     .build();
 
                 await renderComponent({ data, fixtureData, setFixtureData });
@@ -112,7 +112,7 @@ describe('MergeHiCheckAnd180s', () => {
 
             it('when no home submission', async () => {
                 const data = fixtureBuilder('2023-05-06')
-                    .awaySubmission((s: IFixtureBuilder) => s.editor('AWAY').with180('NAME'))
+                    .awaySubmission((s: IFixtureBuilder) => s.editor('AWAY').with180(playerBuilder('NAME').build()))
                     .build();
                 const fixtureData = fixtureBuilder('2023-05-06')
                     .build();
@@ -127,7 +127,7 @@ describe('MergeHiCheckAnd180s', () => {
 
             it('when no away submission', async () => {
                 const data = fixtureBuilder('2023-05-06')
-                    .homeSubmission((s: IFixtureBuilder) => s.editor('HOME').with180('NAME'))
+                    .homeSubmission((s: IFixtureBuilder) => s.editor('HOME').with180(playerBuilder('NAME').build()))
                     .build();
                 const fixtureData = fixtureBuilder('2023-05-06')
                     .build();
@@ -198,7 +198,7 @@ describe('MergeHiCheckAnd180s', () => {
         describe('renders', () => {
             it('when home submissions not merged', async () => {
                 const data = fixtureBuilder('2023-05-06')
-                    .homeSubmission((s: IFixtureBuilder) => s.editor('HOME').withHiCheck('NAME', 120))
+                    .homeSubmission((s: IFixtureBuilder) => s.editor('HOME').withHiCheck(playerBuilder('NAME').build(), 120))
                     .awaySubmission((s: IFixtureBuilder) => s.editor('AWAY'))
                     .build();
                 const fixtureData = fixtureBuilder('2023-05-06')
@@ -216,7 +216,7 @@ describe('MergeHiCheckAnd180s', () => {
             it('when away submissions not merged', async () => {
                 const data = fixtureBuilder('2023-05-06')
                     .homeSubmission((s: IFixtureBuilder) => s.editor('HOME'))
-                    .awaySubmission((s: IFixtureBuilder) => s.editor('AWAY').withHiCheck('NAME', 120))
+                    .awaySubmission((s: IFixtureBuilder) => s.editor('AWAY').withHiCheck(playerBuilder('NAME').build(), 120))
                     .build();
                 const fixtureData = fixtureBuilder('2023-05-06')
                     .build();
@@ -249,11 +249,11 @@ describe('MergeHiCheckAnd180s', () => {
 
             it('when submissions merged', async () => {
                 const data = fixtureBuilder('2023-05-06')
-                    .homeSubmission((s: IFixtureBuilder) => s.editor('HOME').withHiCheck('HOME NAME', 120))
-                    .awaySubmission((s: IFixtureBuilder) => s.editor('AWAY').withHiCheck('AWAY NAME', 120))
+                    .homeSubmission((s: IFixtureBuilder) => s.editor('HOME').withHiCheck(playerBuilder('HOME NAME').build(), 120))
+                    .awaySubmission((s: IFixtureBuilder) => s.editor('AWAY').withHiCheck(playerBuilder('AWAY NAME').build(), 120))
                     .build();
                 const fixtureData = fixtureBuilder('2023-05-06')
-                    .withHiCheck('MERGED', 120)
+                    .withHiCheck(playerBuilder('MERGED').build(), 120)
                     .build();
 
                 await renderComponent({ data, fixtureData, setFixtureData });
@@ -267,7 +267,7 @@ describe('MergeHiCheckAnd180s', () => {
 
             it('when no home submission', async () => {
                 const data = fixtureBuilder('2023-05-06')
-                    .awaySubmission((s: IFixtureBuilder) => s.editor('AWAY').withHiCheck('NAME', 100))
+                    .awaySubmission((s: IFixtureBuilder) => s.editor('AWAY').withHiCheck(playerBuilder('NAME').build(), 100))
                     .build();
                 const fixtureData = fixtureBuilder('2023-05-06')
                     .build();
@@ -282,7 +282,7 @@ describe('MergeHiCheckAnd180s', () => {
 
             it('when no away submission', async () => {
                 const data = fixtureBuilder('2023-05-06')
-                    .homeSubmission((s: IFixtureBuilder) => s.editor('HOME').withHiCheck('NAME', 100))
+                    .homeSubmission((s: IFixtureBuilder) => s.editor('HOME').withHiCheck(playerBuilder('NAME').build(), 100))
                     .build();
                 const fixtureData = fixtureBuilder('2023-05-06')
                     .build();

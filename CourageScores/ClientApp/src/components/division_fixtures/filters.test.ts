@@ -35,7 +35,7 @@ describe('filters', () => {
     tomorrowDate.setDate(new Date().getDate() + 1);
     const nextWeekDate = new Date();
     nextWeekDate.setDate(new Date().getDate() + 7);
-    const fixture: DivisionFixtureDto = fixtureBuilder().playing('HOME').build();
+    const fixture: DivisionFixtureDto = fixtureBuilder().bye('HOME').build();
     const tournament: DivisionTournamentFixtureDetailsDto = tournamentBuilder().build();
 
     function date(monthOffset: number) {
@@ -402,8 +402,8 @@ describe('filters', () => {
     describe('getTeamFilter', () => {
         const abcdTeam = teamBuilder('name', 'abcd').build();
         const tournamentWithAbcdTeamPlaying = tournamentBuilder().withSide((s: ITournamentSideBuilder) => s.name('name').teamId('abcd')).build();
-        const byeAbcd = divisionFixtureBuilder().bye('name', 'abcd').build();
-        const homeAbcd = divisionFixtureBuilder().playing('HOME', abcdTeam).build();
+        const byeAbcd = divisionFixtureBuilder().bye(teamBuilder('name', 'abcd').build()).build();
+        const homeAbcd = divisionFixtureBuilder().playing(teamBuilder('HOME').build(), abcdTeam).build();
 
         it('when empty', () => {
             const filter: IFilter<IFixtureMapping> = getTeamFilter('');
@@ -414,7 +414,7 @@ describe('filters', () => {
         it('when id provided', () => {
             const filter: IFilter<IFixtureMapping> = getTeamFilter('abcd');
 
-            const awayAbcd = divisionFixtureBuilder().playing('HOME', teamBuilder('AWAY', 'abcd').build()).build();
+            const awayAbcd = divisionFixtureBuilder().playing(teamBuilder('HOME').build(), teamBuilder('AWAY', 'abcd').build()).build();
             expect(filter.apply(fixtureMapping(byeAbcd))).toEqual(true);
             expect(filter.apply(fixtureMapping(awayAbcd))).toEqual(true);
             expect(filter.apply(fixtureMapping(undefined, tournamentWithAbcdTeamPlaying))).toEqual(true);

@@ -4,13 +4,10 @@ import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/Divi
 import {TeamOverview} from "./TeamOverview";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
-import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
 import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
 import {divisionDataBuilder, fixtureDateBuilder} from "../../helpers/builders/divisions";
-import {seasonBuilder} from "../../helpers/builders/seasons";
 import {teamBuilder} from "../../helpers/builders/teams";
-import {IFixtureBuilder} from "../../helpers/builders/games";
 
 describe('TeamOverview', () => {
     let context: TestContext;
@@ -39,13 +36,8 @@ describe('TeamOverview', () => {
     }
 
     function createDivisionData(divisionId: string): IDivisionDataContainerProps {
-        const season: SeasonDto = seasonBuilder('A season')
-            .starting('2022-02-03T00:00:00')
-            .ending('2022-08-25T00:00:00')
-            .build();
-
         return divisionDataBuilder(divisionId)
-            .season(season)
+            .season(s => s.starting('2022-02-03T00:00:00').ending('2022-08-25T00:00:00'), 'A season')
             .build();
     }
 
@@ -75,15 +67,15 @@ describe('TeamOverview', () => {
 
     function createHomeAndAwayFixtureDates(team: TeamDto) {
         const homeFixtureDate: DivisionFixtureDateDto = fixtureDateBuilder('2001-02-03T04:05:06.000Z')
-            .withFixture((f: IFixtureBuilder) => f.playing(team, teamBuilder('Another team')))
+            .withFixture(f => f.playing(team, teamBuilder('Another team').build()))
             .build();
 
         const byeFixtureDate: DivisionFixtureDateDto = fixtureDateBuilder('2001-02-04T04:05:06.000Z')
-            .withFixture((f: IFixtureBuilder) => f.bye(team.address))
+            .withFixture(f => f.bye(team))
             .build();
 
         const awayFixtureDate: DivisionFixtureDateDto = fixtureDateBuilder('2001-02-05T04:05:06.000Z')
-            .withFixture((f: IFixtureBuilder) => f.playing(teamBuilder('Another team'), team))
+            .withFixture(f => f.playing(teamBuilder('Another team').build(), team))
             .build();
 
         return [homeFixtureDate, awayFixtureDate, byeFixtureDate];

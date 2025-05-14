@@ -46,8 +46,8 @@ describe('MergeMatch', () => {
     describe('renders', () => {
         it('when published', async () => {
             const match = matchBuilder()
-                .withHome('HOME PLAYER')
-                .withAway('AWAY PLAYER')
+                .withHome(playerBuilder('HOME PLAYER').build())
+                .withAway(playerBuilder('AWAY PLAYER').build())
                 .scores(1, 2)
                 .build();
 

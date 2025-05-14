@@ -186,6 +186,10 @@ describe('CreateSeasonDialog', () => {
         return builder.build();
     }
 
+    function team(name: string): TeamDto {
+        return teamBuilder(name).build();
+    }
+
     describe('renders', () => {
         // 2-assign placeholders tests are in AssignPlaceholder.test.js
 
@@ -234,17 +238,17 @@ describe('CreateSeasonDialog', () => {
                         name: 'PROPOSED DIVISION',
                         fixtures: [
                             fixtureDateBuilder('2023-01-01')
-                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing('home', 'away'), '1.1')
-                                .withFixture((f: IDivisionFixtureBuilder) => f.playing('home', 'away'), '1.2') // excluded as not a proposal
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing(team('home'), team('away')), '1.1')
+                                .withFixture((f: IDivisionFixtureBuilder) => f.playing(team('home'), team('away')), '1.2') // excluded as not a proposal
                                 .build()]
                     }, {
                         id: anotherDivisionId,
                         name: 'ANOTHER DIVISION',
                         fixtures: [
                             fixtureDateBuilder('2023-01-01')
-                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing('home', 'away'), '2.1')
-                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().bye('anywhere')) // excluded as awayTeam == undefined
-                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing('home', 'away'), '2.3')
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing(team('home'), team('away')), '2.1')
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().bye(teamBuilder('anywhere').build())) // excluded as awayTeam == undefined
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing(team('home'), team('away')), '2.3')
                                 .build()]
                     }],
                     placeholderMappings: {},
@@ -527,8 +531,8 @@ describe('CreateSeasonDialog', () => {
                         name: 'PROPOSED DIVISION',
                         fixtures: [
                             fixtureDateBuilder('2023-01-01')
-                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
-                                .withFixture((f: IDivisionFixtureBuilder) => f.playing('home', 'away'), '1.2') // excluded as not a proposal
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing(team('HOME 1.1 '), team('AWAY 1.1')), '1.1')
+                                .withFixture((f: IDivisionFixtureBuilder) => f.playing(team('home'), team('away')), '1.2') // excluded as not a proposal
                                 .build()
                         ]
                     }, {
@@ -536,9 +540,9 @@ describe('CreateSeasonDialog', () => {
                         name: 'ANOTHER DIVISION',
                         fixtures: [
                             fixtureDateBuilder('2023-01-01')
-                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing(team('HOME 2.1 '), team('AWAY 2.1')), '2.1')
                                 .withFixture((f: IDivisionFixtureBuilder) => f.proposal()) // excluded as awayTeam == undefined
-                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing(team('HOME 2.3 '), team('AWAY 2.3')), '2.3')
                                 .build()
                         ]
                     }],
@@ -614,8 +618,8 @@ describe('CreateSeasonDialog', () => {
                         name: 'PROPOSED DIVISION',
                         fixtures: [
                             fixtureDateBuilder('2023-01-01')
-                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
-                                .withFixture((f: IDivisionFixtureBuilder) => f.playing('home', 'away'), '1.2') // excluded as not a proposal
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing(team('HOME 1.1 '), team('AWAY 1.1')), '1.1')
+                                .withFixture((f: IDivisionFixtureBuilder) => f.playing(team('home'), team('away')), '1.2') // excluded as not a proposal
                                 .build()
                         ]
                     }, {
@@ -623,9 +627,9 @@ describe('CreateSeasonDialog', () => {
                         name: 'ANOTHER DIVISION',
                         fixtures: [
                             fixtureDateBuilder('2023-01-01')
-                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing(team('HOME 2.1 '), team('AWAY 2.1')), '2.1')
                                 .withFixture((f: IDivisionFixtureBuilder) => f.proposal()) // excluded as awayTeam == undefined
-                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing(team('HOME 2.3 '), team('AWAY 2.3')), '2.3')
                                 .build()
                         ]
                     }],

@@ -635,7 +635,7 @@ describe('MatchPlayerSelection', () => {
 
         it('changes away score down if entered home score + existing away score > numberOfLegs', async () => {
             await renderComponent(account, props(matchBuilder()
-                .scores(null, 3)
+                .scores(undefined, 3)
                 .withHome()
                 .withAway()), defaultContainerProps, defaultMatchType);
             reportedError.verifyNoError();
@@ -653,7 +653,7 @@ describe('MatchPlayerSelection', () => {
 
         it('changes home score down if entered away score + existing home score > numberOfLegs', async () => {
             await renderComponent(account, props(matchBuilder()
-                .scores(3, null)
+                .scores(3, undefined)
                 .withHome()
                 .withAway()), defaultContainerProps, defaultMatchType);
             reportedError.verifyNoError();
