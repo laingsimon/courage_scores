@@ -15,9 +15,7 @@ import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/Divi
 import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDateNoteDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
-import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {IEditableDivisionFixtureDateDto} from "./IEditableDivisionFixtureDateDto";
-import {seasonBuilder} from "../../helpers/builders/seasons";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {
     divisionDataBuilder,
@@ -112,14 +110,10 @@ describe('DivisionFixtures', () => {
     }
 
     function getInSeasonDivisionData(): IDivisionDataContainerProps {
-        const season: SeasonDto = seasonBuilder('A season')
-            .starting('2022-02-03T00:00:00')
-            .ending('2022-08-25T00:00:00')
-            .build();
         const team: TeamDto = teamBuilder('A team').build();
 
         return divisionDataBuilder()
-            .season(season)
+            .season(s => s.starting('2022-02-03T00:00:00').ending('2022-08-25T00:00:00'), 'A season')
             .name('A division')
             .withTeam(team)
             .onReloadDivision(onReloadDivision)

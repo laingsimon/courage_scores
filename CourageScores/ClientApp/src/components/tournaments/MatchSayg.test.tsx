@@ -14,11 +14,10 @@ import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {IMatchSaygProps, MatchSayg} from "./MatchSayg";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {
-    ITournamentSideBuilder,
-    roundBuilder,
+    ITournamentMatchBuilder,
+    ITournamentRoundBuilder,
     sideBuilder,
-    tournamentBuilder,
-    tournamentMatchBuilder
+    tournamentBuilder
 } from "../../helpers/builders/tournaments";
 import {matchOptionsBuilder} from "../../helpers/builders/games";
 import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
@@ -31,11 +30,11 @@ import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../helpers/builders/sayg";
-import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {ENTER_SCORE_BUTTON} from "../../helpers/constants";
 import {checkoutWith, keyPad} from "../../helpers/sayg";
 import {START_SCORING} from "./tournaments";
 import {tournamentContainerPropsBuilder} from "./tournamentContainerPropsBuilder";
+import {BuilderParam} from "../../helpers/builders/builders";
 
 describe('MatchSayg', () => {
     let context: TestContext;
@@ -149,22 +148,17 @@ describe('MatchSayg', () => {
             .build();
         const notPermitted: UserDto = user(false);
         const permitted: UserDto = user(true);
-        const sideAvsSideBMatch: TournamentMatchDto = tournamentMatchBuilder().sideA(sideA).sideB(sideB).saygId(createTemporaryId()).build();
-        const sideAvsSideBRound = roundBuilder().withMatch(sideAvsSideBMatch).build();
         const containerProps = new tournamentContainerPropsBuilder({
             saveTournament,
             setTournamentData,
         });
 
         it('shows no sayg links when no players', async () => {
-            const match = tournamentMatchBuilder()
-                .sideA((s: ITournamentSideBuilder) => s)
-                .sideB((s: ITournamentSideBuilder) => s)
-                .build();
+            const tournamentData = tournamentBuilder().round((b: ITournamentRoundBuilder) => b
+                .withMatch((m: ITournamentMatchBuilder) => m.sideA(s => s).sideB(s => s))).build();
+            const match = tournamentData.round?.matches![0]!;
             match.sideA.players = undefined;
             match.sideB.players = undefined;
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
 
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
                 match,
@@ -179,10 +173,10 @@ describe('MatchSayg', () => {
         });
 
         it('shows no sayg links when no data and not logged in', async () => {
-            const tournamentData = tournamentBuilder().round(sideAvsSideBRound).build();
+            const tournamentData = tournamentBuilder().round(b => b.withMatch(m => m.sideA(sideA).sideB(sideB).saygId(createTemporaryId()))).build();
 
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match: sideAvsSideBMatch,
+                match: tournamentData.round?.matches![0]!,
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -194,10 +188,10 @@ describe('MatchSayg', () => {
         });
 
         it('shows no sayg links when no data and not permitted', async () => {
-            const tournamentData = tournamentBuilder().round(sideAvsSideBRound).build();
+            const tournamentData = tournamentBuilder().round(b => b.withMatch(m => m.sideA(sideA).sideB(sideB).saygId(createTemporaryId()))).build();
 
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match: sideAvsSideBMatch,
+                match: tournamentData.round?.matches![0]!,
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -209,12 +203,10 @@ describe('MatchSayg', () => {
         });
 
         it('shows no sayg links when no data and sideA not selected', async () => {
-            const match = tournamentMatchBuilder().sideB(sideB).saygId(createTemporaryId()).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const tournamentData = tournamentBuilder().round(b => b.withMatch(m => m.sideB(sideB).saygId(createTemporaryId()))).build();
 
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match,
+                match: tournamentData.round?.matches![0]!,
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -226,12 +218,10 @@ describe('MatchSayg', () => {
         });
 
         it('shows no sayg links when no data and sideB not selected', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA).saygId(createTemporaryId()).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const tournamentData = tournamentBuilder().round(b => b.withMatch(m => m.sideA(sideA).saygId(createTemporaryId()))).build();
 
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match,
+                match: tournamentData.round?.matches![0]!,
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -243,10 +233,10 @@ describe('MatchSayg', () => {
         });
 
         it('shows view sayg link when data and not logged in', async () => {
-            const tournamentData = tournamentBuilder().round(sideAvsSideBRound).build();
+            const tournamentData = tournamentBuilder().round(b => b.withMatch(m => m.sideA(sideA).sideB(sideB).saygId(createTemporaryId()))).build();
 
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match: sideAvsSideBMatch,
+                match: tournamentData.round?.matches![0]!,
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -259,10 +249,10 @@ describe('MatchSayg', () => {
         });
 
         it('shows view sayg link when data and not permitted', async () => {
-            const tournamentData = tournamentBuilder().round(sideAvsSideBRound).build();
+            const tournamentData = tournamentBuilder().round(b => b.withMatch(m => m.sideA(sideA).sideB(sideB).saygId(createTemporaryId()))).build();
 
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match: sideAvsSideBMatch,
+                match: tournamentData.round?.matches![0]!,
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -275,10 +265,10 @@ describe('MatchSayg', () => {
         });
 
         it('does not show view sayg link when data and not permitted and not requested', async () => {
-            const tournamentData = tournamentBuilder().round(sideAvsSideBRound).build();
+            const tournamentData = tournamentBuilder().round(b => b.withMatch(m => m.sideA(sideA).sideB(sideB).saygId(createTemporaryId()))).build();
 
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match: sideAvsSideBMatch,
+                match: tournamentData.round?.matches![0]!,
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -290,10 +280,10 @@ describe('MatchSayg', () => {
         });
 
         it('shows edit sayg link when data and permitted', async () => {
-            const tournamentData = tournamentBuilder().round(sideAvsSideBRound).build();
+            const tournamentData = tournamentBuilder().round(b => b.withMatch(m => m.sideA(sideA).sideB(sideB).saygId(createTemporaryId()))).build();
 
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match: sideAvsSideBMatch,
+                match: tournamentData.round?.matches![0]!,
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -304,10 +294,10 @@ describe('MatchSayg', () => {
         });
 
         it('shows edit sayg link when no data but single round (superleague)', async () => {
-            const tournamentData = tournamentBuilder().singleRound().round(sideAvsSideBRound).build();
+            const tournamentData = tournamentBuilder().singleRound().round(b => b.withMatch(m => m.sideA(sideA).sideB(sideB).saygId(createTemporaryId()))).build();
 
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match: sideAvsSideBMatch,
+                match: tournamentData.round?.matches![0]!,
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -318,10 +308,10 @@ describe('MatchSayg', () => {
         });
 
         it('shows edit sayg link when no data and both sides have single players', async () => {
-            const tournamentData = tournamentBuilder().round(sideAvsSideBRound).build();
+            const tournamentData = tournamentBuilder().round(b => b.withMatch(m => m.sideA(sideA).sideB(sideB).saygId(createTemporaryId()))).build();
 
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match: sideAvsSideBMatch,
+                match: tournamentData.round?.matches![0]!,
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -332,12 +322,10 @@ describe('MatchSayg', () => {
         });
 
         it('shows no edit sayg link when no data and sideA does not have a single player', async () => {
-            const match = tournamentMatchBuilder().sideA(sideC_multiplePlayers).sideB(sideB).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const tournamentData = tournamentBuilder().round(b => b.withMatch(m => m.sideA(sideC_multiplePlayers).sideB(sideB))).build();
 
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match,
+                match: tournamentData.round?.matches![0]!,
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -349,12 +337,10 @@ describe('MatchSayg', () => {
         });
 
         it('shows no edit sayg link when no data and sideB does not have a single player', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideC_multiplePlayers).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const tournamentData = tournamentBuilder().round(b => b.withMatch(m => m.sideA(sideA).sideB(sideC_multiplePlayers))).build();
 
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match,
+                match: tournamentData.round?.matches![0]!,
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -398,9 +384,9 @@ describe('MatchSayg', () => {
             }
         }
 
-        async function executeSaygScoringTest(match: TournamentMatchDto, sideAScores: number[], readOnly?: boolean) {
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+        async function executeSaygScoringTest(matchBuilder: BuilderParam<ITournamentMatchBuilder>, sideAScores: number[], readOnly?: boolean) {
+            const tournamentData = tournamentBuilder().round(b => b.withMatch(matchBuilder)).build();
+            const match = tournamentData.round!.matches![0];
 
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(), {
@@ -426,12 +412,10 @@ describe('MatchSayg', () => {
 
         it('navigates to live data', async () => {
             const saygId = createTemporaryId();
-            const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).saygId(saygId).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const tournamentData = tournamentBuilder().round(b => b.withMatch(m => m.sideA(sideA, 1).sideB(sideB, 2).saygId(saygId))).build();
 
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match,
+                match: tournamentData.round?.matches![0]!,
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -445,11 +429,9 @@ describe('MatchSayg', () => {
         });
 
         it('prompts user to save match if no id', async () => {
-            const match = tournamentMatchBuilder().noId().sideA(sideA).sideB(sideB).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const tournamentData = tournamentBuilder().round(b => b.withMatch(m => m.noId().sideA(sideA).sideB(sideB))).build();
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match,
+                match: tournamentData.round!.matches![0],
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -466,11 +448,9 @@ describe('MatchSayg', () => {
         });
 
         it('saves the tournament before creating data', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const tournamentData = tournamentBuilder().round(b => b.withMatch(m => m.sideA(sideA).sideB(sideB))).build();
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match,
+                match: tournamentData.round!.matches![0],
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -489,11 +469,9 @@ describe('MatchSayg', () => {
         });
 
         it('creates sayg data for match', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const tournamentData = tournamentBuilder().round(b => b.withMatch(m => m.sideA(sideA).sideB(sideB))).build();
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match,
+                match: tournamentData.round!.matches![0],
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -509,17 +487,15 @@ describe('MatchSayg', () => {
                 id: tournamentData.id,
                 saygRequest: {
                     matchOptions,
-                    matchId: match.id,
+                    matchId: tournamentData.round?.matches![0].id,
                 },
             });
         });
 
         it('shows error if unable to create sayg data', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const tournamentData = tournamentBuilder().round(b => b.withMatch(m => m.sideA(sideA).sideB(sideB))).build();
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match,
+                match: tournamentData.round!.matches![0],
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -542,12 +518,10 @@ describe('MatchSayg', () => {
         });
 
         it('updates tournament data and shows dialog once data created', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const tournamentData = tournamentBuilder().round(b => b.withMatch(m => m.sideA(sideA).sideB(sideB))).build();
 
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match,
+                match: tournamentData.round!.matches![0],
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -581,16 +555,14 @@ describe('MatchSayg', () => {
                     .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(100)))
                 .addTo(saygDataLookup)
                 .build();
-            const match = tournamentMatchBuilder()
-                .sideA(sideA, 3) // winner
-                .sideB(sideB, 0)
-                .saygId(sayg.id)
-                .build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const tournamentData = tournamentBuilder().round(b => b
+                .withMatch(m => m.sideA(sideA, 3) // winner
+                    .sideB(sideB, 0)
+                    .saygId(sayg.id)
+                )).build();
 
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match,
+                match: tournamentData.round!.matches![0],
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -620,16 +592,14 @@ describe('MatchSayg', () => {
                     .away((c: ILegCompetitorScoreBuilder) => c.withThrow(180).withThrow(180).withThrow(141)))
                 .addTo(saygDataLookup)
                 .build();
-            const match = tournamentMatchBuilder()
-                .sideA(sideA, 0)
-                .sideB(sideB, 3) // winner
-                .saygId(sayg.id)
-                .build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const tournamentData = tournamentBuilder().round(b => b
+                .withMatch(m => m
+                    .sideA(sideA, 0)
+                    .sideB(sideB, 3) // winner
+                    .saygId(sayg.id))).build();
 
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match,
+                match: tournamentData.round!.matches![0],
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -648,12 +618,10 @@ describe('MatchSayg', () => {
 
         it('can close dialog', async () => {
             const saygId = createTemporaryId();
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).saygId(saygId).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const tournamentData = tournamentBuilder().round(b => b.withMatch(m => m.sideA(sideA).sideB(sideB).saygId(saygId))).build();
 
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match,
+                match: tournamentData.round!.matches![0],
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -678,9 +646,8 @@ describe('MatchSayg', () => {
                 .startingScore(501)
                 .addTo(saygDataLookup)
                 .build();
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).saygId(saygData.id).build();
 
-            await executeSaygScoringTest(match, [177, 177, 100, 47]);
+            await executeSaygScoringTest(m => m.sideA(sideA).sideB(sideB).saygId(saygData.id), [177, 177, 100, 47]);
 
             expect(patchedData).toEqual([{
                 nestInRound: true,
@@ -705,9 +672,8 @@ describe('MatchSayg', () => {
                 .startingScore(501)
                 .addTo(saygDataLookup)
                 .build();
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).saygId(saygData.id).build();
 
-            await executeSaygScoringTest(match, [100, 100, 100, 50, 151]);
+            await executeSaygScoringTest(m => m.sideA(sideA).sideB(sideB).saygId(saygData.id), [100, 100, 100, 50, 151]);
 
             const patchesWithHiChecks = patchedData.filter(p => (p.patch as PatchTournamentDto).additionalOver100Checkout);
             expect(patchesWithHiChecks).toEqual([{
@@ -730,9 +696,8 @@ describe('MatchSayg', () => {
                 .startingScore(501)
                 .addTo(saygDataLookup)
                 .build();
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).saygId(saygData.id).build();
 
-            await executeSaygScoringTest(match, [180]);
+            await executeSaygScoringTest(m => m.sideA(sideA).sideB(sideB).saygId(saygData.id), [180]);
 
             expect(patchedData).toEqual([{
                 patch: {
@@ -753,9 +718,8 @@ describe('MatchSayg', () => {
                 .startingScore(501)
                 .addTo(saygDataLookup)
                 .build();
-            const match = tournamentMatchBuilder().sideA(teamA).sideB(teamB).saygId(saygData.id).build();
 
-            await executeSaygScoringTest(match, [100, 100, 100, 50, 151]);
+            await executeSaygScoringTest(m => m.sideA(teamA).sideB(teamB).saygId(saygData.id), [100, 100, 100, 50, 151]);
 
             const patchesWithHiChecks = patchedData.filter(p => (p.patch as PatchTournamentDto).additionalOver100Checkout);
             expect(patchesWithHiChecks).toEqual([]);
@@ -770,9 +734,8 @@ describe('MatchSayg', () => {
                 .startingScore(501)
                 .addTo(saygDataLookup)
                 .build();
-            const match = tournamentMatchBuilder().sideA(teamA).sideB(teamB).saygId(saygData.id).build();
 
-            await executeSaygScoringTest(match, [180]);
+            await executeSaygScoringTest(m => m.sideA(teamA).sideB(teamB).saygId(saygData.id), [180]);
 
             expect(patchedData).toEqual([]);
         });
@@ -786,9 +749,8 @@ describe('MatchSayg', () => {
                 .startingScore(501)
                 .addTo(saygDataLookup)
                 .build();
-            const match = tournamentMatchBuilder().sideA(pairA).sideB(pairB).saygId(saygData.id).build();
 
-            await executeSaygScoringTest(match, [100, 100, 100, 50, 151]);
+            await executeSaygScoringTest(m => m.sideA(pairA).sideB(pairB).saygId(saygData.id), [100, 100, 100, 50, 151]);
 
             const patchesWithHiChecks = patchedData.filter(p => (p.patch as PatchTournamentDto).additionalOver100Checkout);
             expect(patchesWithHiChecks).toEqual([]);
@@ -803,9 +765,8 @@ describe('MatchSayg', () => {
                 .startingScore(501)
                 .addTo(saygDataLookup)
                 .build();
-            const match = tournamentMatchBuilder().sideA(pairA).sideB(pairB).saygId(saygData.id).build();
 
-            await executeSaygScoringTest(match, [180]);
+            await executeSaygScoringTest(m => m.sideA(pairA).sideB(pairB).saygId(saygData.id), [180]);
 
             expect(patchedData).toEqual([]);
         });
@@ -819,9 +780,8 @@ describe('MatchSayg', () => {
                 .startingScore(501)
                 .addTo(saygDataLookup)
                 .build();
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).saygId(saygData.id).build();
 
-            await executeSaygScoringTest(match, [100, 100, 100, 50, 151], true);
+            await executeSaygScoringTest(m => m.sideA(sideA).sideB(sideB).saygId(saygData.id), [100, 100, 100, 50, 151], true);
 
             const patchesWithHiChecks = patchedData.filter(p => (p.patch as PatchTournamentDto).additionalOver100Checkout);
             expect(patchesWithHiChecks).toEqual([]);
@@ -836,9 +796,8 @@ describe('MatchSayg', () => {
                 .startingScore(501)
                 .addTo(saygDataLookup)
                 .build();
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).saygId(saygData.id).build();
 
-            await executeSaygScoringTest(match, [180], true);
+            await executeSaygScoringTest(m => m.sideA(sideA).sideB(sideB).saygId(saygData.id), [180], true);
 
             expect(patchedData).toEqual([]);
         });
@@ -852,12 +811,11 @@ describe('MatchSayg', () => {
                 .startingScore(501)
                 .addTo(saygDataLookup)
                 .build();
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).saygId(saygData.id).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const tournamentData = tournamentBuilder()
+                .round(b => b.withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA).sideB(sideB).saygId(saygData.id))).build();
 
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match,
+                match: tournamentData.round!.matches![0],
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -887,12 +845,12 @@ describe('MatchSayg', () => {
                 .startingScore(501)
                 .addTo(saygDataLookup)
                 .build();
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).saygId(saygData.id).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const matchId = createTemporaryId();
+            const tournamentData = tournamentBuilder()
+                .round(b => b.withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA).sideB(sideB).saygId(saygData.id), matchId)).build();
 
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match,
+                match: tournamentData.round!.matches![0],
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -917,7 +875,7 @@ describe('MatchSayg', () => {
             reportedError.verifyNoError();
             expect(deletedSayg).toEqual({
                 id: tournamentData.id,
-                matchId: match.id,
+                matchId: matchId,
             });
             expect(updatedTournament).toEqual(tournamentData);
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
@@ -932,12 +890,12 @@ describe('MatchSayg', () => {
                 .startingScore(501)
                 .addTo(saygDataLookup)
                 .build();
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).saygId(saygData.id).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const matchId = createTemporaryId();
+            const tournamentData = tournamentBuilder()
+                .round(b => b.withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA).sideB(sideB).saygId(saygData.id), matchId)).build();
 
             await renderComponent(containerProps.withTournament(tournamentData).build(), {
-                match,
+                match: tournamentData.round!.matches![0],
                 matchIndex: 0,
                 patchData,
                 matchOptions,
@@ -961,7 +919,7 @@ describe('MatchSayg', () => {
             reportedError.verifyErrorEquals(apiResponse);
             expect(deletedSayg).toEqual({
                 id: tournamentData.id,
-                matchId: match.id,
+                matchId: matchId,
             });
             expect(updatedTournament).toBeNull();
             expect(context.container.querySelector('.modal-dialog')).toBeTruthy();

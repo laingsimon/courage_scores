@@ -8,10 +8,10 @@ import {
     TestContext
 } from "../../../helpers/tests";
 import {IMatchLogProps, MatchLog} from "./MatchLog";
-import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {ISuperleagueSaygMatchMapping} from "./ISuperleagueSaygMatchMapping";
-import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../helpers/builders/sayg";
+import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {tournamentMatchBuilder} from "../../../helpers/builders/tournaments";
+import {BuilderParam} from "../../../helpers/builders/builders";
 
 describe('MatchLog', () => {
     let context: TestContext;
@@ -33,12 +33,11 @@ describe('MatchLog', () => {
             (<MatchLog {...props} />));
     }
 
-    function createLeg(homeScore: number, awayScore: number): LegDto {
-        return legBuilder()
+    function createLeg(homeScore: number, awayScore: number): BuilderParam<ILegBuilder> {
+        return b => b
             .home((c: ILegCompetitorScoreBuilder) => c.withThrow(homeScore))
             .away((c: ILegCompetitorScoreBuilder) => c.withThrow(awayScore))
-            .startingScore(501)
-            .build();
+            .startingScore(501);
     }
 
     function rowContent(row: HTMLTableRowElement, tagName: string): string[] {

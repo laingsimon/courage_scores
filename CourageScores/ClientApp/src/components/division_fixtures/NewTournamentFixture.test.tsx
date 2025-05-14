@@ -313,12 +313,8 @@ describe('NewTournamentFixture', () => {
         });
 
         it('creates a divisional tournament copying winners from another date', async () => {
-            const tournament = tournamentBuilder()
-                .type('SINGLES')
-                .winner('WINNER')
-                .build();
             const otherDate = fixtureDateBuilder('2024-08-29')
-                .withTournament(tournament)
+                .withTournament(b => b.type('SINGLES').winner('WINNER'))
                 .build();
             await renderComponent(
                 props('2024-09-02', proposedFixture1),
@@ -341,7 +337,10 @@ describe('NewTournamentFixture', () => {
                     address: 'ADDRESS 1',
                     id: expect.any(String),
                     seasonId: season.id,
-                    sides: [ tournament.winningSide ],
+                    sides: [ {
+                        id: expect.any(String),
+                        name: 'WINNER',
+                    } ],
                     type: 'SINGLES final',
                     singleRound: false,
                 }
