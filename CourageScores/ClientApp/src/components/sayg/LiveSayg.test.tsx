@@ -828,5 +828,39 @@ describe('LiveSayg', () => {
             expect(context.container.innerHTML).toContain('HOST 2.1');
             expect(context.container.innerHTML).toContain('OPPONENT 2.1');
         });
+
+        it('subscribes to sayg when it is added to a match', async () => {
+            const sayg = saygBuilder().build();
+            const matchWithoutSayg = tournamentMatchBuilder()
+                .sideA('HOST PLAYER')
+                .sideB('OPPONENT PLAYER')
+                .build();
+            const matchWithSayg = tournamentMatchBuilder(matchWithoutSayg.id)
+                .sideA('HOST PLAYER')
+                .sideB('OPPONENT PLAYER')
+                .saygId(sayg.id)
+                .build();
+            const matchAdded = tournamentBuilder(tournament1.id)
+                .round((r: ITournamentRoundBuilder) => r.withMatch(matchWithoutSayg)).build();
+            const matchSaygSet = tournamentBuilder(tournament1.id)
+                .round((r: ITournamentRoundBuilder) => r.withMatch(matchWithSayg)).build();
+
+            await renderComponent(
+                appProps({
+                    account,
+                }, reportedError),
+                '/live/superleague/?id=' + tournament1.id);
+            expect(Array.from(context.container.querySelectorAll('table tbody tr')).length).toEqual(0);
+
+            await sendUpdate(matchAdded);
+
+            expect(Array.from(context.container.querySelectorAll('table tbody tr')).length).toEqual(1);
+            expect(Object.keys(socketFactory.subscriptions)).toEqual([tournament1.id]);
+
+            await sendUpdate(matchSaygSet);
+
+            expect(Array.from(context.container.querySelectorAll('table tbody tr')).length).toEqual(1);
+            expect(Object.keys(socketFactory.subscriptions)).toEqual([tournament1.id, sayg.id]);
+        });
     })
 });

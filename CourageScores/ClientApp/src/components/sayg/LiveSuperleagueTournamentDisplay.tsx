@@ -96,6 +96,21 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
             setMatchSaygData(newMatchSaygLookup);
             setScoreChanged(scoreChanged);
         }
+        const tournamentUpdate = allUpdates[id] as TournamentGameDto;
+        if (tournamentUpdate) {
+            // find all matches and their saygIds
+            // if any are not in newMatchSaygLookup, add them and subscribe (via pending)
+            const allSaygIds: string[] = tournamentUpdate.round?.matches?.filter((m: TournamentMatchDto) => !!m.saygId).map((m: TournamentMatchDto) => m.saygId!) || [];
+            const newSaygSubscriptions: ISubscriptionRequest[] = allSaygIds
+                .filter(id => !newMatchSaygLookup[id])
+                .map(id => {
+                    return {
+                        id: id,
+                        type: LiveDataType.sayg
+                    };
+                });
+            setPendingLiveSubscriptions(pendingLiveSubscriptions.concat(newSaygSubscriptions));
+        }
     }, [allUpdates]);
 
     function opposite(player: 'home' | 'away'): 'away' | 'home' {
