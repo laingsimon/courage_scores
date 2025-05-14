@@ -8,7 +8,7 @@ import {GameMatchOptionDto} from "../../../interfaces/models/dtos/Game/GameMatch
 import {useApp} from "../../common/AppContainer";
 import {PatchTournamentDto} from "../../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {PatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
-import {any, sortBy} from "../../../helpers/collections";
+import {any} from "../../../helpers/collections";
 import {TeamPlayerDto} from "../../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
 import {NEW_PLAYER} from "../../scores/MatchPlayerSelection";
@@ -18,6 +18,10 @@ import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 import {propChanged} from "../../../helpers/events";
 import {EditTeamPlayerDto} from "../../../interfaces/models/dtos/Team/EditTeamPlayerDto";
 import {TeamSeasonDto} from "../../../interfaces/models/dtos/Team/TeamSeasonDto";
+import {useTournament} from "../TournamentContainer";
+import {
+    DivisionTournamentFixtureDetailsDto
+} from "../../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
 
 export interface IEditSuperleagueMatchProps {
     index?: number;
@@ -31,6 +35,7 @@ export interface IEditSuperleagueMatchProps {
 
 export function EditSuperleagueMatch({ index, match, tournamentData, setMatchData, readOnly, patchData, deleteMatch }: IEditSuperleagueMatchProps) {
     const {teams, reloadTeams, onError} = useApp();
+    const {alreadyPlaying} = useTournament();
     const oddNumberedMatch: boolean = ((index ?? 0) + 1) % 2 !== 0;
     const matchOptions: GameMatchOptionDto = {
         numberOfLegs: tournamentData.bestOf,
@@ -54,18 +59,41 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
     }
 
     function getPlayersForTeamName(name: string, alreadySelected: TeamPlayerDto[]): IBootstrapDropdownItem[] {
+        const selectedForThisMatch = (match.sideA.players || []).concat(match.sideB.players || []);
+
         return teams
             .filter((t: TeamDto) => t.name === name)
             .map(t => t.seasons!.find((ts: TeamSeasonDto) => ts.seasonId === tournamentData.seasonId && !ts.deleted))
             .flatMap(ts => ts?.players || [])
-            .sort(sortBy('name'))
             .filter(p => !any(alreadySelected, selected => selected.id === p.id))
             .map((p: TeamPlayerDto): IBootstrapDropdownItem => {
+                const playingInAnotherTournament: DivisionTournamentFixtureDetailsDto | undefined = alreadyPlaying![p.id];
+                const isSelected = any(selectedForThisMatch, selectedForMatch => selectedForMatch.id === p.id);
+
                 return {
-                    text: p.name,
-                    value: p.id
-                }
-        });
+                    text: playingInAnotherTournament
+                        ? <span className={isSelected ? '' : 'text-secondary'}>🚫 {p.name} (playing on {playingInAnotherTournament.type})</span>
+                        : p.name,
+                    value: p.id,
+                    collapsedText: p.name,
+                    disabled: !isSelected && !!playingInAnotherTournament,
+                } as IBootstrapDropdownItem
+        }).sort(playerSort(selectedForThisMatch));
+    }
+
+    function playerSort(alreadySelected: TeamPlayerDto[]): (optionA: IBootstrapDropdownItem, optionB: IBootstrapDropdownItem) => number {
+        function getSortableKey(option: IBootstrapDropdownItem): string {
+            const playingInAnotherTournament: DivisionTournamentFixtureDetailsDto | undefined = alreadyPlaying![option.value];
+            const isSelected = any(alreadySelected, p => p.id === option.value);
+            return `${playingInAnotherTournament && !isSelected ? 'B' : 'A'}|${option.collapsedText}`;
+        }
+
+        return (optionA: IBootstrapDropdownItem, optionB: IBootstrapDropdownItem): number => {
+            const sortableA = getSortableKey(optionA);
+            const sortableB = getSortableKey(optionB);
+
+            return sortableA.localeCompare(sortableB);
+        };
     }
 
     async function changeHostSide(playerId: string) {
