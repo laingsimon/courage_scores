@@ -2,7 +2,7 @@ import {
     api,
     appProps,
     brandingProps,
-    cleanUp, doClick,
+    cleanUp, doChange, doClick,
     ErrorState, findButton,
     iocProps, MockSocketFactory, noop,
     renderApp,
@@ -74,6 +74,8 @@ describe('LiveSayg', () => {
         requestedTournamentId = [];
         socketFactory = new MockSocketFactory();
         divisionData = null;
+
+        jest.resetAllMocks();
     });
 
     async function renderComponent(appProps: IAppContainerProps, currentPath: string, route?: string) {
@@ -587,6 +589,64 @@ describe('LiveSayg', () => {
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith('/live/superleague/?id=' + tournament1.id);
         });
+
+        it('can change date when no type specified', async () => {
+            await renderComponent(
+                appProps({
+                    fullScreen: {
+                        isFullScreen: false,
+                        canGoFullScreen: false,
+                        enterFullScreen: noop,
+                        exitFullScreen: noop,
+                        toggleFullScreen: noop,
+                    },
+                }, reportedError),
+                '/live',
+                '/live');
+
+            await doChange(context.container, 'input[name="liveDate"]', '2025-01-01', context.user);
+
+            expect(mockedUsedNavigate).toHaveBeenCalledWith('/live?date=2025-01-01');
+        });
+
+        it('can change date when type specified', async () => {
+            await renderComponent(
+                appProps({
+                    fullScreen: {
+                        isFullScreen: false,
+                        canGoFullScreen: false,
+                        enterFullScreen: noop,
+                        exitFullScreen: noop,
+                        toggleFullScreen: noop,
+                    },
+                }, reportedError),
+                '/live/superleague',
+                '/live/:type');
+
+            await doChange(context.container, 'input[name="liveDate"]', '2025-01-01', context.user);
+
+            expect(mockedUsedNavigate).toHaveBeenCalledWith('/live/superleague/?date=2025-01-01');
+        });
+
+        it('removes date from query when setting date to today', async () => {
+            await renderComponent(
+                appProps({
+                    fullScreen: {
+                        isFullScreen: false,
+                        canGoFullScreen: false,
+                        enterFullScreen: noop,
+                        exitFullScreen: noop,
+                        toggleFullScreen: noop,
+                    },
+                }, reportedError),
+                '/live/?date=2025-01-01',
+                '/live');
+            const today: string = new Date().toISOString().substring(0, 10);
+
+            await doChange(context.container, 'input[name="liveDate"]', today, context.user);
+
+            expect(mockedUsedNavigate).toHaveBeenCalledWith('/live');
+        });
     });
 
     describe('updates', () => {
@@ -767,6 +827,40 @@ describe('LiveSayg', () => {
             expect(context.container.innerHTML).toContain('BOARD 2.1');
             expect(context.container.innerHTML).toContain('HOST 2.1');
             expect(context.container.innerHTML).toContain('OPPONENT 2.1');
+        });
+
+        it('subscribes to sayg when it is added to a match', async () => {
+            const sayg = saygBuilder().build();
+            const matchWithoutSayg = tournamentMatchBuilder()
+                .sideA('HOST PLAYER')
+                .sideB('OPPONENT PLAYER')
+                .build();
+            const matchWithSayg = tournamentMatchBuilder(matchWithoutSayg.id)
+                .sideA('HOST PLAYER')
+                .sideB('OPPONENT PLAYER')
+                .saygId(sayg.id)
+                .build();
+            const matchAdded = tournamentBuilder(tournament1.id)
+                .round((r: ITournamentRoundBuilder) => r.withMatch(matchWithoutSayg)).build();
+            const matchSaygSet = tournamentBuilder(tournament1.id)
+                .round((r: ITournamentRoundBuilder) => r.withMatch(matchWithSayg)).build();
+
+            await renderComponent(
+                appProps({
+                    account,
+                }, reportedError),
+                '/live/superleague/?id=' + tournament1.id);
+            expect(Array.from(context.container.querySelectorAll('table tbody tr')).length).toEqual(0);
+
+            await sendUpdate(matchAdded);
+
+            expect(Array.from(context.container.querySelectorAll('table tbody tr')).length).toEqual(1);
+            expect(Object.keys(socketFactory.subscriptions)).toEqual([tournament1.id]);
+
+            await sendUpdate(matchSaygSet);
+
+            expect(Array.from(context.container.querySelectorAll('table tbody tr')).length).toEqual(1);
+            expect(Object.keys(socketFactory.subscriptions)).toEqual([tournament1.id, sayg.id]);
         });
     })
 });
