@@ -22,6 +22,7 @@ import {useTournament} from "../TournamentContainer";
 import {
     DivisionTournamentFixtureDetailsDto
 } from "../../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
+import {hasAccess} from "../../../helpers/conditions";
 
 export interface IEditSuperleagueMatchProps {
     index?: number;
@@ -34,7 +35,7 @@ export interface IEditSuperleagueMatchProps {
 }
 
 export function EditSuperleagueMatch({ index, match, tournamentData, setMatchData, readOnly, patchData, deleteMatch }: IEditSuperleagueMatchProps) {
-    const {teams, reloadTeams, onError} = useApp();
+    const {teams, reloadTeams, onError, account} = useApp();
     const {alreadyPlaying} = useTournament();
     const oddNumberedMatch: boolean = ((index ?? 0) + 1) % 2 !== 0;
     const matchOptions: GameMatchOptionDto = {
@@ -48,6 +49,9 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
     const opponentPlayers: IBootstrapDropdownItem[] = getPlayersForTeamName(tournamentData.opponent!, getAlreadySelected('sideB'));
     const [addPlayerDialogOpen, setAddPlayerDialogOpen] = useState<TeamDto | null>(null);
     const [newPlayerDetails, setNewPlayerDetails] = useState<EditTeamPlayerDto | null>(null);
+    const canManagePlayers = hasAccess(account, a => a.managePlayers);
+    const [editingPlayer, setEditingPlayer] = useState<TeamPlayerDto | null>(null);
+    const [editingPlayerTeam, setEditingPlayerTeam] = useState<TeamDto | null>(null);
 
     function getAlreadySelected(side: 'sideA' | 'sideB'): TeamPlayerDto[] {
         return tournamentData.round?.matches!
@@ -56,6 +60,10 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
                 const matchSide: TournamentSideDto = match[side];
                 return matchSide.players || [];
             }) || [];
+    }
+
+    function getTeam(name?: string): TeamDto | undefined {
+        return teams.filter((t: TeamDto) => t.name === name)[0];
     }
 
     function getPlayersForTeamName(name: string, alreadySelected: TeamPlayerDto[]): IBootstrapDropdownItem[] {
@@ -161,10 +169,60 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
         </Dialog>);
     }
 
+    function editPlayer(playerToFind: TeamPlayerDto, team: TeamDto) {
+        const teamSeason = team.seasons!.filter(ts => ts.seasonId === tournamentData.seasonId && !ts.deleted)[0];
+        const player = teamSeason.players!.filter(p => p.id === playerToFind.id)[0];
+
+        if (!player) {
+            alert(`Unable to find player ${playerToFind.name} (id: ${playerToFind.id}) in team ${team.name}`);
+            return;
+        }
+
+        setEditingPlayer(player);
+        setEditingPlayerTeam(team);
+    }
+
+    function renderEditPlayer() {
+        return (<Dialog title={`Edit player: ${editingPlayer!.name}`}>
+            <EditPlayerDetails
+                gameId={undefined}
+                player={editingPlayer!}
+                team={editingPlayerTeam!}
+                seasonId={tournamentData.seasonId!}
+                divisionId={tournamentData.divisionId}
+                onCancel={async () => setEditingPlayer(null)}
+                onChange={propChanged(editingPlayer, setEditingPlayer)}
+                onSaved={playerDetailSaved}
+            />
+        </Dialog>)
+    }
+
+    async function playerDetailSaved() {
+        await reloadTeams();
+
+        const newMatch = Object.assign({}, match);
+        const sideDesignation: 'sideA' | 'sideB' = editingPlayerTeam!.name === tournamentData.host ? 'sideA' : 'sideB';
+        const newSide = Object.assign({}, newMatch[sideDesignation]);
+        newSide.name = editingPlayer!.name;
+        newMatch[sideDesignation] = newSide;
+        await setMatchData(newMatch);
+
+        setEditingPlayerTeam(null);
+        setEditingPlayer(null);
+    }
+
     async function reloadPlayers() {
         await reloadTeams();
         setAddPlayerDialogOpen(null);
         setNewPlayerDetails(null);
+    }
+
+    function appendNewPlayer(players: IBootstrapDropdownItem[]) {
+        if (canManagePlayers) {
+            return players.concat(newPlayer);
+        }
+
+        return players;
     }
 
     try {
@@ -174,16 +232,22 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
                     ? <button className="btn btn-sm btn-danger no-wrap" onClick={deleteMatch}>🗑️ {index! + 1}</button>
                     : (index === undefined ? null : index + 1)}
             </td>
-            <td>
+            <td className="no-wrap">
+                {!readOnly && canManagePlayers && match.sideA?.players![0]
+                    ? (<button className="btn btn-sm btn-outline-primary me-1" onClick={() => editPlayer(match.sideA!.players![0], getTeam(tournamentData.host)!)}>✏️</button>)
+                    : null}
                 {readOnly
                     ? match.sideA?.name
-                    : <BootstrapDropdown value={match.sideA?.players![0]?.id} options={hostPlayers.concat(newPlayer)} onChange={changeHostSide}/>}
+                    : <BootstrapDropdown value={match.sideA?.players![0]?.id} options={appendNewPlayer(hostPlayers)} onChange={changeHostSide}/>}
             </td>
             <td>v</td>
-            <td>
+            <td className="no-wrap">
                 {readOnly
                     ? match.sideB?.name
-                    : <BootstrapDropdown value={match.sideB?.players![0]?.id} options={opponentPlayers.concat(newPlayer)} onChange={changeOpponentSide}/>}
+                    : <BootstrapDropdown value={match.sideB?.players![0]?.id} options={appendNewPlayer(opponentPlayers)} onChange={changeOpponentSide}/>}
+                {!readOnly && canManagePlayers && match.sideB?.players![0]
+                    ? (<button className="btn btn-sm btn-outline-primary ms-1" onClick={() => editPlayer(match.sideB!.players![0], getTeam(tournamentData.opponent)!)}>✏️</button>)
+                    : null}
             </td>
             <td className="d-print-none">
                 {index === undefined ? null : <MatchSayg
@@ -198,6 +262,7 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
                     initialOneDartAverage={true}/>}
 
                 {addPlayerDialogOpen ? renderCreatePlayerDialog(addPlayerDialogOpen!) : null}
+                {editingPlayer ? renderEditPlayer() : null}
             </td>
         </tr>);
     } catch (e) {
