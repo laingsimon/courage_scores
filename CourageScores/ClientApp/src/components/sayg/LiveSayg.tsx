@@ -77,9 +77,10 @@ export function LiveSayg() {
         else {
             newSearch.set('date', newDate);
         }
-        const typeFragment = type ? `${type}/` : '';
+        const typeFragment = type ? `/${type}/` : '';
         setStatusText(null);
-        navigate(`/live/${typeFragment}?${newSearch}`);
+        const query = newSearch.toString();
+        navigate(`/live${typeFragment}${query ? `?${query}` : ''}`);
     }
 
     async function watchAllFixturesForToday() {
