@@ -1,3 +1,4 @@
+using System.Collections;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Game;
@@ -25,6 +26,8 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
     public async Task<DivisionTournamentFixtureDetailsDto> Adapt(TournamentGame tournamentGame, CancellationToken token)
     {
         var winningSide = GetWinner(tournamentGame);
+        var players = new AccumulatePlayersVisitor();
+        tournamentGame.Accept(new VisitorScope(), players);
 
         return new DivisionTournamentFixtureDetailsDto
         {
@@ -37,7 +40,7 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
                 : null,
             Type = _tournamentTypeResolver.GetTournamentType(tournamentGame),
             Proposed = false,
-            Players = tournamentGame.Sides.SelectMany(side => side.Players).Select(p => p.Id).ToList(),
+            Players = players.Select(p => p.Id).ToList(),
             Sides = await tournamentGame.Sides.SelectAsync(side => _tournamentSideAdapter.Adapt(side, token)).ToList(),
             Notes = tournamentGame.Notes,
             SingleRound = tournamentGame.SingleRound,
@@ -98,5 +101,35 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
         }
 
         return null;
+    }
+
+    private class AccumulatePlayersVisitor : IGameVisitor, IReadOnlyCollection<TournamentPlayer>
+    {
+        private readonly HashSet<TournamentPlayer> _players = new();
+
+        public void VisitMatch(IVisitorScope scope, TournamentMatch match)
+        {
+            // ReSharper disable ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+            _players.UnionWith(match.SideA?.Players ?? []);
+            _players.UnionWith(match.SideB?.Players ?? []);
+            // ReSharper restore ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+        }
+
+        public void VisitTournamentPlayer(IVisitorScope scope, TournamentPlayer player)
+        {
+            _players.Add(player);
+        }
+
+        public IEnumerator<TournamentPlayer> GetEnumerator()
+        {
+            return _players.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public int Count => _players.Count;
     }
 }

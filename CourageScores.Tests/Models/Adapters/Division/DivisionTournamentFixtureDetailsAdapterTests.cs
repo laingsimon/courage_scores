@@ -146,6 +146,72 @@ public class DivisionTournamentFixtureDetailsAdapterTests
     }
 
     [Test]
+    public async Task Adapt_GivenNoSidesButSomeMatchesWithSelectedPlayers_ReturnsPlayersFromAnyMatch()
+    {
+        var sideA = new TournamentSideBuilder("A").WithPlayer("Player A").Build();
+        var sideB = new TournamentSideBuilder("B").WithPlayer("Player B").Build();
+        var game = new TournamentGameBuilder()
+            .WithRound(r1 => r1.WithRound(r2 => r2
+                .WithSide(sideA, sideB)
+                .WithMatch(m => m.WithSides(sideA, sideB))
+            ))
+            .Build();
+
+        var result = await _adapter.Adapt(game, _token);
+
+        Assert.That(result.Players, Is.SupersetOf(sideA.Players.Select(p => p.Id)));
+        Assert.That(result.Players, Is.SupersetOf(sideB.Players.Select(p => p.Id)));
+    }
+
+    [Test]
+    public async Task Adapt_GivenSidesButNoMatches_ReturnsPlayersFromAnySide()
+    {
+        var sidePlayer = new TournamentPlayer
+        {
+            Id = Guid.NewGuid(),
+            Name = "Side Player"
+        };
+        var game = new TournamentGameBuilder()
+            .WithSides(new TournamentSide
+            {
+                Players = { sidePlayer },
+            })
+            .Build();
+
+        var result = await _adapter.Adapt(game, _token);
+
+        Assert.That(result.Players, Is.EquivalentTo([sidePlayer.Id]));
+    }
+
+    [Test]
+    public async Task Adapt_GivenSidesAndMatchesWithDifferentPlayers_ReturnsSupersetOfPlayersFromSidesAndMatches()
+    {
+        var sidePlayer = new TournamentPlayer
+        {
+            Id = Guid.NewGuid(),
+            Name = "Side Player"
+        };
+        var sideA = new TournamentSideBuilder("A").WithPlayer("Player A").Build();
+        var sideB = new TournamentSideBuilder("B").WithPlayer("Player B").Build();
+        var game = new TournamentGameBuilder()
+            .WithRound(r1 => r1.WithRound(r2 => r2
+                .WithSide(sideA, sideB)
+                .WithMatch(m => m.WithSides(sideA, sideB))
+                ))
+            .WithSides(new TournamentSide
+            {
+                Players = { sidePlayer },
+            })
+            .Build();
+
+        var result = await _adapter.Adapt(game, _token);
+
+        Assert.That(result.Players, Has.Member(sidePlayer.Id));
+        Assert.That(result.Players, Is.SupersetOf(sideA.Players.Select(p => p.Id)));
+        Assert.That(result.Players, Is.SupersetOf(sideB.Players.Select(p => p.Id)));
+    }
+
+    [Test]
     public async Task Adapt_GivenSingleRound_SetsPropertiesCorrectly()
     {
         var sideA = new TournamentSideBuilder("A").Build();
