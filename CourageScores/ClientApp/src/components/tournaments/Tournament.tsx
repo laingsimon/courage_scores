@@ -131,10 +131,11 @@ export function Tournament() {
                 const filter: DivisionDataFilter = {
                     seasonId: tournamentData.seasonId,
                     divisionId: [ tournamentData.divisionId ].filter((id?: string) => !!id).map((id?: string) => id!),
+                    date: tournamentData.date,
                 };
 
                 const divisionData: DivisionDataDto = await divisionApi.data(filter);
-                const fixtureDate: DivisionFixtureDateDto | undefined = divisionData.fixtures!.filter(f => f.date === tournamentData.date)[0];
+                const fixtureDate: DivisionFixtureDateDto | undefined = divisionData.fixtures![0];
                 if (fixtureDate) {
                     const tournamentFixtures: DivisionTournamentFixtureDetailsDto[] = fixtureDate!.tournamentFixtures!
                         .filter((f: DivisionTournamentFixtureDetailsDto) => !f.proposed && f.id !== tournamentData.id);

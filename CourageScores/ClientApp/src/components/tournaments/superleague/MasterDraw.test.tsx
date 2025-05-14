@@ -212,6 +212,33 @@ describe('MasterDraw', () => {
             expect(tournamentProperties.textContent).toContain('Gender: GENDER');
             expect(tournamentProperties.textContent).not.toContain('Notes:');
         });
+
+        it('already playing player in collapsed drop-down with their name only', async () => {
+            const player = playerBuilder('PLAYER').build();
+            const team: TeamDto = teamBuilder('HOST').forSeason(season, null, [player]).build();
+            const containerProps = new tournamentContainerPropsBuilder()
+                .withAlreadyPlaying({
+                    [player.id]: tournamentBuilder().type('BOARD 2').build(),
+                })
+                .build();
+            await renderComponent({
+                tournamentData: tournament
+                    .round((r: ITournamentRoundBuilder) => r
+                        .withMatch((m: ITournamentMatchBuilder) => m
+                            .sideA('PLAYER', undefined, player)
+                            .sideB('SIDE B', undefined)))
+                    .build(),
+                readOnly: false,
+                setTournamentData,
+                patchData: noop
+            }, user({ }), containerProps, [team]);
+
+            const masterDraw = context.container.querySelector('div.d-flex > div:nth-child(1)')!;
+            const firstMatch = masterDraw.querySelector('table tbody tr:first-child')!;
+            const homeSide = firstMatch.querySelector('td:nth-child(2)')!;
+            const homeDropdownToggle = homeSide.querySelector('.dropdown-toggle')!;
+            expect(homeDropdownToggle.textContent).toContain('PLAYER');
+        });
     });
 
     describe('interactivity', () => {
@@ -751,6 +778,36 @@ describe('MasterDraw', () => {
                 id: tournamentData.id,
                 matchId: match.id,
             })
+        });
+
+        it('cannot select a player that is already playing in another tournament', async () => {
+            const player = playerBuilder('PLAYER').build();
+            const team: TeamDto = teamBuilder('HOST').forSeason(season, null, [player]).build();
+            const containerProps = new tournamentContainerPropsBuilder()
+                .withAlreadyPlaying({
+                    [player.id]: tournamentBuilder().type('BOARD 2').build(),
+                })
+                .build();
+            await renderComponent({
+                tournamentData: tournament
+                    .round((r: ITournamentRoundBuilder) => r
+                        .withMatch((m: ITournamentMatchBuilder) => m
+                            .sideA('PLAYER', undefined, player)
+                            .sideB('SIDE B', undefined)))
+                    .build(),
+                readOnly: false,
+                setTournamentData,
+                patchData: noop
+            }, user({ }), containerProps, [team]);
+
+            const masterDraw = context.container.querySelector('div.d-flex > div:nth-child(1)')!;
+            const firstMatch = masterDraw.querySelector('table tbody tr:first-child')!;
+            const homeSide = firstMatch.querySelector('td:nth-child(2)')!;
+            await doClick(homeSide.querySelector('.dropdown-toggle')!);
+
+            const options = Array.from(homeSide.querySelectorAll('.dropdown-item'));
+            const optionText = options.map(o => o.textContent);
+            expect(optionText).toContain('🚫 PLAYER (playing on BOARD 2)');
         });
     });
 
