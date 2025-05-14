@@ -1,6 +1,6 @@
 ﻿/* istanbul ignore file */
 
-import {IAddableBuilder, IBuilder} from "./builders";
+import {BuilderParam, IAddableBuilder, IBuilder} from "./builders";
 import {IDatedDivisionFixtureDto} from "../../components/division_fixtures/IDatedDivisionFixtureDto";
 import {IEditableDivisionFixtureDto} from "../../components/division_fixtures/DivisionFixture";
 import {createTemporaryId} from "../projection";
@@ -126,7 +126,7 @@ export interface IDivisionFixtureDateBuilder extends IBuilder<DivisionFixtureDat
     knockout(): IDivisionFixtureDateBuilder;
     withFixture(fixtureOrModifierFunc: any, id?: string): IDivisionFixtureDateBuilder;
     withTournament(tournamentOrModifierFunc: any, id?: string): IDivisionFixtureDateBuilder;
-    withNote(noteOrModifierFunc: any, id?: string): IDivisionFixtureDateBuilder;
+    withNote(modifierFunc: BuilderParam<INoteBuilder>, id?: string): IDivisionFixtureDateBuilder;
     isNew(): IDivisionFixtureDateBuilder;
 }
 
@@ -158,11 +158,9 @@ export function fixtureDateBuilder(date?: string): IDivisionFixtureDateBuilder {
             fixtureDate.tournamentFixtures?.push(tournament.build ? tournament.build() : tournament);
             return builder;
         },
-        withNote: (noteOrModifierFunc: any, id?: string) => {
-            const note = noteOrModifierFunc instanceof Function
-                ? noteOrModifierFunc(noteBuilder(date, id))
-                : noteOrModifierFunc;
-            fixtureDate.notes?.push(note.build ? note.build() : note);
+        withNote: (modifierFunc: BuilderParam<INoteBuilder>, id?: string) => {
+            const note = modifierFunc(noteBuilder(date, id));
+            fixtureDate.notes?.push(note.build());
             return builder;
         },
         isNew: () => {

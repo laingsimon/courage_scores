@@ -21,7 +21,6 @@ import {EditTeamPlayerDto} from "../../interfaces/models/dtos/Team/EditTeamPlaye
 import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {IAppContainerProps} from "../common/AppContainer";
-import {GameMatchDto} from "../../interfaces/models/dtos/Game/GameMatchDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
@@ -30,7 +29,7 @@ import {playerBuilder} from "../../helpers/builders/players";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {teamBuilder} from "../../helpers/builders/teams";
-import {fixtureBuilder, matchBuilder} from "../../helpers/builders/games";
+import {fixtureBuilder, IMatchBuilder} from "../../helpers/builders/games";
 import {IFailedRequest} from "../common/IFailedRequest";
 import {IGameApi} from "../../interfaces/apis/IGameApi";
 import {IPlayerApi} from "../../interfaces/apis/IPlayerApi";
@@ -39,6 +38,7 @@ import {PhotoReferenceDto} from "../../interfaces/models/dtos/PhotoReferenceDto"
 import {IFeatureApi} from "../../interfaces/apis/IFeatureApi";
 import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
+import {BuilderParam} from "../../helpers/builders/builders";
 
 interface ICreatedPlayer {
     divisionId: string;
@@ -197,12 +197,11 @@ describe('Score', () => {
             return player || { name: name + ' Not found', id: createTemporaryId() };
         }
 
-        function createMatch(homeScore: number, awayScore: number): GameMatchDto {
-            return matchBuilder()
+        function createMatch(homeScore: number, awayScore: number): BuilderParam<IMatchBuilder> {
+            return b => b
                 .withHome(findPlayer(homeTeam, 'Home player'))
                 .withAway(findPlayer(awayTeam, 'Away player'))
-                .scores(homeScore, awayScore)
-                .build();
+                .scores(homeScore, awayScore);
         }
 
         return fixtureBuilder('2023-01-02T00:00:00')
