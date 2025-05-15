@@ -207,6 +207,10 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
         return score > (bestOf / 2.0);
     }
 
+    function hasWinner(match: TournamentMatchDto): boolean {
+        return isWinner(match, 'home') || isWinner(match, 'away');
+    }
+
     function firstInitialAndLastNames(name?: string): string | undefined {
         const names: string[] = name?.split(' ') ?? [];
         if (names.length === 1) {
@@ -227,7 +231,7 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
 
     function firstIncompleteMatch(matches: TournamentMatchDto[]): TournamentMatchDto | null {
         for (const match of matches) {
-            if (!isWinner(match, 'home') && !isWinner(match, 'away')) {
+            if (!hasWinner(match)) {
                 return match;
             }
         }
@@ -296,7 +300,7 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
                 </tr>
             </tfoot>) : null}
         </table>
-        {lastLeg && canUseWebSockets ? (<div className="d-flex flex-column border-3 bg-black p-0 rounded-3" datatype="live-scores">
+        {lastMatch && lastLeg && canUseWebSockets && !hasWinner(lastMatch!) ? (<div className="d-flex flex-column border-3 bg-black p-0 rounded-3" datatype="live-scores">
             <div className="d-flex flex-row justify-content-center bg-success text-black fs-4 rounded-top-3">
                 <span className="flex-grow-1 px-3 text-end flex-basis-0">
                     {firstInitialAndLastNames(lastMatch!.sideA.name)}
