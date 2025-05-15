@@ -27,6 +27,11 @@ jobs:
         with:
           node-version: 20
 
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v4.1.0
+        with:
+          dotnet-version: '9.0.x'
+
       - name: Remove local only content
         shell: pwsh
         working-directory: ./CourageScores/ClientApp
