@@ -11,30 +11,12 @@ on:
         type: string
         default: 'true'
     outputs:
-      dotnet-root: 
-        value: ${{ jobs.dotnet.outputs.dotnet-root }}
       deploy:
         value: ${{ jobs.branch.outputs.deploy }}
       commit-date:
         value: ${{ jobs.branch.outputs.commit-date }}
 
 jobs:
-  dotnet:
-    runs-on: ubuntu-latest
-
-    outputs:
-      dotnet-root: ${{ steps.export-dotnet-root.outputs.dotnet-root }}
-
-    steps:
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v4.1.0
-        with:
-          dotnet-version: '8.0.x'
-
-      - name: Export dotnet-root
-        id: export-dotnet-root
-        run: echo "dotnet-root=${{ env.DOTNET_ROOT }}" >> $GITHUB_OUTPUT
-
   branch:
     runs-on: windows-latest
 
