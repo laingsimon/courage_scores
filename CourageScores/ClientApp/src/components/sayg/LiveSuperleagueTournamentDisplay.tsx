@@ -3,7 +3,7 @@ import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMa
 import {useEffect, useState} from "react";
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
-import {any, isEmpty, sum} from "../../helpers/collections";
+import {any, isEmpty, reverse, sum} from "../../helpers/collections";
 import {useDependencies} from "../common/IocContainer";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 import {Link} from "react-router";
@@ -15,6 +15,7 @@ import {ISubscriptionRequest} from "../../live/ISubscriptionRequest";
 import {IUpdateLookup} from "./LiveSayg";
 import {LegCompetitorScoreDto} from "../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
 import {hasAccess} from "../../helpers/conditions";
+import {getScoreFromThrows} from "../../helpers/sayg";
 
 export interface ILiveSuperleagueTournamentDisplayProps {
     id: string;
@@ -88,7 +89,12 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
                 const updatedLegs: LegDto[] = Object.values(update.legs);
                 const updatedLeg: LegDto | undefined = updatedLegs[updatedLegs.length - 1];
                 if (updatedLeg) {
-                    scoreChanged = opposite(updatedLeg.currentThrow as 'home' | 'away');
+                    const currentThrow = updatedLeg.currentThrow as 'home' | 'away';
+                    const remaining: number = currentScore(updatedLeg, opposite(currentThrow));
+
+                    if (remaining !== updatedLeg.startingScore) {
+                        scoreChanged = opposite(currentThrow);
+                    }
                 }
             }
         }
@@ -207,6 +213,10 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
         return score > (bestOf / 2.0);
     }
 
+    function hasWinner(match: TournamentMatchDto): boolean {
+        return isWinner(match, 'home') || isWinner(match, 'away');
+    }
+
     function firstInitialAndLastNames(name?: string): string | undefined {
         const names: string[] = name?.split(' ') ?? [];
         if (names.length === 1) {
@@ -221,18 +231,27 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
     function currentScore(leg: LegDto, side: 'home' | 'away') {
         const startingScore = leg.startingScore || 501;
         const accumulator: LegCompetitorScoreDto = leg[side];
-        const totalScore: number = accumulator?.score || 0;
-        return startingScore - totalScore;
+        return startingScore - getScoreFromThrows(startingScore, accumulator.throws || []);
     }
 
-    function firstIncompleteMatch(matches: TournamentMatchDto[]): TournamentMatchDto | null {
-        for (const match of matches) {
-            if (!isWinner(match, 'home') && !isWinner(match, 'away')) {
+    function lastIncompleteMatch(matches: TournamentMatchDto[]): TournamentMatchDto | null {
+        for (const match of reverse(matches)) {
+            if (hasWinner(match)) {
+                // don't look past the last winning match
+                return null;
+            }
+
+            if (hasSaygData(match)) {
                 return match;
             }
         }
 
         return null;
+    }
+
+    function hasSaygData(match: TournamentMatchDto): boolean {
+        const matchSayg: RecordedScoreAsYouGoDto | undefined = matchSaygData[match.id];
+        return matchSayg && Object.keys(matchSayg.legs).length >= 1;
     }
 
     if (!tournament) {
@@ -246,7 +265,7 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
         away: 0,
     };
     const matches = tournament.round?.matches || [];
-    const lastMatch = firstIncompleteMatch(matches);
+    const lastMatch = lastIncompleteMatch(matches);
     const lastMatchSayg: RecordedScoreAsYouGoDto | undefined = lastMatch ? matchSaygData[lastMatch!.id] : undefined;
     const lastMatchLegs = Object.values(lastMatchSayg?.legs || {});
     const lastLeg = lastMatchLegs[lastMatchLegs.length - 1];
@@ -296,7 +315,7 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
                 </tr>
             </tfoot>) : null}
         </table>
-        {lastLeg && canUseWebSockets ? (<div className="d-flex flex-column border-3 bg-black p-0 rounded-3" datatype="live-scores">
+        {lastMatch && lastLeg && canUseWebSockets && !hasWinner(lastMatch!) ? (<div className="d-flex flex-column border-3 bg-black p-0 rounded-3" datatype="live-scores">
             <div className="d-flex flex-row justify-content-center bg-success text-black fs-4 rounded-top-3">
                 <span className="flex-grow-1 px-3 text-end flex-basis-0">
                     {firstInitialAndLastNames(lastMatch!.sideA.name)}

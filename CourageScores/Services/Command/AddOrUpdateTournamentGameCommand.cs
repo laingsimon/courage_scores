@@ -6,11 +6,13 @@ using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Models.Dtos.Live;
+using CourageScores.Services.Live;
 using CourageScores.Services.Season;
 
 namespace CourageScores.Services.Command;
 
-public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGame, EditTournamentGameDto>
+public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGame, EditTournamentGameDto>, IPublishingCommand<TournamentGame>
 {
     private readonly IAuditingHelper _auditingHelper;
     private readonly ScopedCacheManagementFlags _cacheFlags;
@@ -22,6 +24,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
     private readonly IAdapter<TournamentRound, TournamentRoundDto> _tournamentRoundAdapter;
     private readonly IAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
     private readonly IUpdateRecordedScoreAsYouGoDtoAdapter _updateRecordedScoreAsYouGoDtoAdapter;
+    private readonly IWebSocketMessageProcessor _processor;
 
     public AddOrUpdateTournamentGameCommand(
         ICachingSeasonService seasonService,
@@ -33,7 +36,8 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         ICommandFactory commandFactory,
         IUpdateRecordedScoreAsYouGoDtoAdapter updateRecordedScoreAsYouGoDtoAdapter,
         IAdapter<TournamentPlayer, TournamentPlayerDto> tournamentPlayerAdapter,
-        IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto> notableTournamentPlayerAdapter)
+        IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto> notableTournamentPlayerAdapter,
+        IWebSocketMessageProcessor processor)
     {
         _seasonService = seasonService;
         _tournamentSideAdapter = tournamentSideAdapter;
@@ -45,6 +49,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         _updateRecordedScoreAsYouGoDtoAdapter = updateRecordedScoreAsYouGoDtoAdapter;
         _tournamentPlayerAdapter = tournamentPlayerAdapter;
         _notableTournamentPlayerAdapter = notableTournamentPlayerAdapter;
+        _processor = processor;
     }
 
     protected override async Task<ActionResult<TournamentGame>> ApplyUpdates(TournamentGame game, EditTournamentGameDto update, CancellationToken token)
@@ -211,5 +216,13 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         }
 
         return ScopedCacheManagementFlags.EvictAll;
+    }
+
+    public async Task PublishUpdate(TournamentGame tournament, bool deleted, CancellationToken token)
+    {
+        if (!deleted)
+        {
+            await _processor.PublishUpdate(null, tournament.Id, LiveDataType.Tournament, tournament, token);
+        }
     }
 }

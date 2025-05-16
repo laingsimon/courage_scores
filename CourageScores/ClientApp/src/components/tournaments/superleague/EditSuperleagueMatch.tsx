@@ -39,7 +39,7 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
     const {alreadyPlaying} = useTournament();
     const oddNumberedMatch: boolean = ((index ?? 0) + 1) % 2 !== 0;
     const matchOptions: GameMatchOptionDto = {
-        numberOfLegs: tournamentData.bestOf,
+        numberOfLegs: tournamentData.bestOf || 7,
     };
     const newPlayer: IBootstrapDropdownItem = {
         text: '➕ New Player/s',
@@ -226,27 +226,27 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
     }
 
     try {
-        return (<tr key={match.id}>
+        return (<tr key={match.id} className={index ? '' : 'd-print-none'}>
             <td>
                 {deleteMatch && !readOnly
-                    ? <button className="btn btn-sm btn-danger no-wrap" onClick={deleteMatch}>🗑️ {index! + 1}</button>
+                    ? <button className="btn btn-sm btn-danger no-wrap d-print-none" onClick={deleteMatch}>🗑️ {index! + 1}</button>
                     : (index === undefined ? null : index + 1)}
             </td>
-            <td className="no-wrap">
+            <td className="no-wrap d-table-cell text-end">
                 {!readOnly && canManagePlayers && match.sideA?.players![0]
-                    ? (<button className="btn btn-sm btn-outline-primary me-1" onClick={() => editPlayer(match.sideA!.players![0], getTeam(tournamentData.host)!)}>✏️</button>)
+                    ? (<button className="btn btn-sm btn-outline-primary me-1 d-print-none" onClick={() => editPlayer(match.sideA!.players![0], getTeam(tournamentData.host)!)}>✏️</button>)
                     : null}
                 {readOnly
                     ? match.sideA?.name
                     : <BootstrapDropdown value={match.sideA?.players![0]?.id} options={appendNewPlayer(hostPlayers)} onChange={changeHostSide}/>}
             </td>
             <td>v</td>
-            <td className="no-wrap">
+            <td className="no-wrap d-table-cell">
                 {readOnly
                     ? match.sideB?.name
                     : <BootstrapDropdown value={match.sideB?.players![0]?.id} options={appendNewPlayer(opponentPlayers)} onChange={changeOpponentSide}/>}
                 {!readOnly && canManagePlayers && match.sideB?.players![0]
-                    ? (<button className="btn btn-sm btn-outline-primary ms-1" onClick={() => editPlayer(match.sideB!.players![0], getTeam(tournamentData.opponent)!)}>✏️</button>)
+                    ? (<button className="btn btn-sm btn-outline-primary ms-1 d-print-none" onClick={() => editPlayer(match.sideB!.players![0], getTeam(tournamentData.opponent)!)}>✏️</button>)
                     : null}
             </td>
             <td className="d-print-none">

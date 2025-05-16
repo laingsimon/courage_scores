@@ -4,9 +4,11 @@ using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Models.Dtos.Live;
 using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
+using CourageScores.Services.Live;
 using Moq;
 using NUnit.Framework;
 
@@ -23,16 +25,18 @@ public class CreateTournamentMatchSaygCommandTests
     private Mock<ICommandFactory> _commandFactory = null!;
     private Mock<AddOrUpdateSaygCommand> _addSaygCommand = null!;
     private ActionResultDto<RecordedScoreAsYouGoDto> _addSaygCommandResult = null!;
+    private Mock<IWebSocketMessageProcessor> _processor = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
         _saygService = new Mock<IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>>();
         _commandFactory = new Mock<ICommandFactory>();
+        _processor = new Mock<IWebSocketMessageProcessor>();
         _addSaygCommand = new Mock<AddOrUpdateSaygCommand>(
             new Mock<ISimpleAdapter<Leg, LegDto>>().Object,
             new Mock<IUserService>().Object);
-        _command = new CreateTournamentMatchSaygCommand(_saygService.Object, _commandFactory.Object);
+        _command = new CreateTournamentMatchSaygCommand(_saygService.Object, _commandFactory.Object, _processor.Object);
         _request = new CreateTournamentSaygDto
         {
             MatchId = Guid.NewGuid(),
@@ -308,5 +312,21 @@ public class CreateTournamentMatchSaygCommandTests
                     && dto.NumberOfLegs == 5
                     && dto.YourName == "YOU"
                     && dto.OpponentName == "THEM")));
+    }
+
+    [Test]
+    public async Task PublishUpdate_GivenDeletedTournament_DoesNotPublishUpdate()
+    {
+        await _command.PublishUpdate(_tournament, true, _token);
+
+        _processor.Verify(p => p.PublishUpdate(null, _tournament.Id, LiveDataType.Tournament, _tournament, _token), Times.Never);
+    }
+
+    [Test]
+    public async Task PublishUpdate_GivenUpdatedTournament_PublishesUpdate()
+    {
+        await _command.PublishUpdate(_tournament, false, _token);
+
+        _processor.Verify(p => p.PublishUpdate(null, _tournament.Id, LiveDataType.Tournament, _tournament, _token));
     }
 }
