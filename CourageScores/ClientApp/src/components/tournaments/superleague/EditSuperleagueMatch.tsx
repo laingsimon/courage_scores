@@ -232,7 +232,7 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
                     ? <button className="btn btn-sm btn-danger no-wrap" onClick={deleteMatch}>🗑️ {index! + 1}</button>
                     : (index === undefined ? null : index + 1)}
             </td>
-            <td className="no-wrap">
+            <td className="no-wrap d-table-cell text-end">
                 {!readOnly && canManagePlayers && match.sideA?.players![0]
                     ? (<button className="btn btn-sm btn-outline-primary me-1" onClick={() => editPlayer(match.sideA!.players![0], getTeam(tournamentData.host)!)}>✏️</button>)
                     : null}
@@ -241,7 +241,7 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
                     : <BootstrapDropdown value={match.sideA?.players![0]?.id} options={appendNewPlayer(hostPlayers)} onChange={changeHostSide}/>}
             </td>
             <td>v</td>
-            <td className="no-wrap">
+            <td className="no-wrap d-table-cell">
                 {readOnly
                     ? match.sideB?.name
                     : <BootstrapDropdown value={match.sideB?.players![0]?.id} options={appendNewPlayer(opponentPlayers)} onChange={changeOpponentSide}/>}
