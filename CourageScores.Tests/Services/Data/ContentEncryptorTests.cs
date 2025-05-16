@@ -28,7 +28,16 @@ public class ContentEncryptorTests
     {
         var zipBytes = await CreateZip(actualPassword, "any.path", "content");
 
-        Assert.ThrowsAsync<CryptographicException>(() => GetFileContent(zipBytes, givenPassword, "any.path"));
+        try
+        {
+            var content = await GetFileContent(zipBytes, givenPassword, "any.path");
+            // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+            Assert.Fail($"Expected attempt to decrypt content of zip to fail, instead got the following content: {content ?? "<null>"} (${content?.Length} byte/s)");
+        }
+        catch (CryptographicException)
+        {
+            Assert.Pass();
+        }
     }
 
     private static async Task<byte[]> CreateZip(string password, string path, string content)
