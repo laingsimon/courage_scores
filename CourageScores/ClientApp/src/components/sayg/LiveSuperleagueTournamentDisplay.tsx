@@ -15,6 +15,7 @@ import {ISubscriptionRequest} from "../../live/ISubscriptionRequest";
 import {IUpdateLookup} from "./LiveSayg";
 import {LegCompetitorScoreDto} from "../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
 import {hasAccess} from "../../helpers/conditions";
+import {getScoreFromThrows} from "../../helpers/sayg";
 
 export interface ILiveSuperleagueTournamentDisplayProps {
     id: string;
@@ -88,7 +89,12 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
                 const updatedLegs: LegDto[] = Object.values(update.legs);
                 const updatedLeg: LegDto | undefined = updatedLegs[updatedLegs.length - 1];
                 if (updatedLeg) {
-                    scoreChanged = opposite(updatedLeg.currentThrow as 'home' | 'away');
+                    const currentThrow = updatedLeg.currentThrow as 'home' | 'away';
+                    const remaining: number = currentScore(updatedLeg, opposite(currentThrow));
+
+                    if (remaining !== updatedLeg.startingScore) {
+                        scoreChanged = opposite(currentThrow);
+                    }
                 }
             }
         }
@@ -225,8 +231,7 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
     function currentScore(leg: LegDto, side: 'home' | 'away') {
         const startingScore = leg.startingScore || 501;
         const accumulator: LegCompetitorScoreDto = leg[side];
-        const totalScore: number = accumulator?.score || 0;
-        return startingScore - totalScore;
+        return startingScore - getScoreFromThrows(startingScore, accumulator.throws || []);
     }
 
     function lastIncompleteMatch(matches: TournamentMatchDto[]): TournamentMatchDto | null {
