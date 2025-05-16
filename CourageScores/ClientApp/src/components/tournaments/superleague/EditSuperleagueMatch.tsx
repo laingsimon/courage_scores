@@ -39,7 +39,7 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
     const {alreadyPlaying} = useTournament();
     const oddNumberedMatch: boolean = ((index ?? 0) + 1) % 2 !== 0;
     const matchOptions: GameMatchOptionDto = {
-        numberOfLegs: tournamentData.bestOf,
+        numberOfLegs: tournamentData.bestOf || 7,
     };
     const newPlayer: IBootstrapDropdownItem = {
         text: '➕ New Player/s',
