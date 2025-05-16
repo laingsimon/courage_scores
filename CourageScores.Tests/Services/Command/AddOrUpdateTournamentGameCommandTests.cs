@@ -7,10 +7,12 @@ using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Models.Dtos.Live;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
+using CourageScores.Services.Live;
 using CourageScores.Services.Season;
 using CourageScores.Tests.Models.Adapters;
 using CourageScores.Tests.Models.Cosmos.Game;
@@ -70,6 +72,7 @@ public class AddOrUpdateTournamentGameCommandTests
     private Mock<IAdapter<TournamentPlayer, TournamentPlayerDto>> _tournamentPlayerAdapter = null!;
     private Mock<IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto>> _notableTournamentPlayerAdapter = null!;
     private Mock<IUpdateRecordedScoreAsYouGoDtoAdapter> _updateRecordedScoreAsYouGoDtoAdapter = null!;
+    private Mock<IWebSocketMessageProcessor> _processor = null!;
     private GameMatchOption _matchOptions = null!;
     private GameMatchOptionDto _matchOptionsDto = null!;
 
@@ -87,6 +90,7 @@ public class AddOrUpdateTournamentGameCommandTests
         };
         _cacheFlags = new ScopedCacheManagementFlags();
         _seasonService = new Mock<ICachingSeasonService>();
+        _processor = new Mock<IWebSocketMessageProcessor>();
         _tournamentPlayerAdapter = new Mock<IAdapter<TournamentPlayer, TournamentPlayerDto>>();
         _sideAdapter = new TournamentSideAdapter(_tournamentPlayerAdapter.Object);
         _matchOptionAdapter = new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(_matchOptions, _matchOptionsDto);
@@ -108,7 +112,8 @@ public class AddOrUpdateTournamentGameCommandTests
             _commandFactory.Object,
             _updateRecordedScoreAsYouGoDtoAdapter.Object,
             _tournamentPlayerAdapter.Object,
-            _notableTournamentPlayerAdapter.Object);
+            _notableTournamentPlayerAdapter.Object,
+            _processor.Object);
 
         _tournamentPlayerAdapter
             .Setup(a => a.Adapt(It.IsAny<TournamentPlayerDto>(), _token))
@@ -394,6 +399,26 @@ public class AddOrUpdateTournamentGameCommandTests
 
         Assert.That(result.Success, Is.True);
         Assert.That(_game.Round!.Matches[0].SaygId, Is.EqualTo(sayg.Id));
+    }
+
+    [Test]
+    public async Task PublishUpdate_GivenDeletedTournament_DoesNotPublishUpdate()
+    {
+        var tournament = new TournamentGame {Id = Guid.NewGuid()};
+
+        await _command.PublishUpdate(tournament, true, _token);
+
+        _processor.Verify(p => p.PublishUpdate(null, tournament.Id, LiveDataType.Tournament, tournament, _token), Times.Never);
+    }
+
+    [Test]
+    public async Task PublishUpdate_GivenUpdatedTournament_PublishesUpdate()
+    {
+        var tournament = new TournamentGame {Id = Guid.NewGuid()};
+
+        await _command.PublishUpdate(tournament, false, _token);
+
+        _processor.Verify(p => p.PublishUpdate(null, tournament.Id, LiveDataType.Tournament, tournament, _token));
     }
 
     private static TournamentMatchDto MatchDto(TournamentSideDto sideA, TournamentSideDto sideB, Guid? saygId = null)

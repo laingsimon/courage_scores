@@ -3,10 +3,12 @@ using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Models.Dtos.Live;
+using CourageScores.Services.Live;
 
 namespace CourageScores.Services.Command;
 
-public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, TournamentGame>
+public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, TournamentGame>, IPublishingCommand<TournamentGame>
 {
     private static readonly GameMatchOption DefaultMatchOptions = new()
     {
@@ -15,15 +17,18 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
     };
 
     private readonly ICommandFactory _commandFactory;
+    private readonly IWebSocketMessageProcessor _processor;
     private readonly IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> _saygService;
     private CreateTournamentSaygDto? _request;
 
     public CreateTournamentMatchSaygCommand(
         IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> saygService,
-        ICommandFactory commandFactory)
+        ICommandFactory commandFactory,
+        IWebSocketMessageProcessor processor)
     {
         _saygService = saygService;
         _commandFactory = commandFactory;
+        _processor = processor;
     }
 
     public CreateTournamentMatchSaygCommand WithRequest(CreateTournamentSaygDto request)
@@ -89,5 +94,13 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
         }
 
         return result.ToActionResult().As(model);
+    }
+
+    public async Task PublishUpdate(TournamentGame tournament, bool deleted, CancellationToken token)
+    {
+        if (!deleted)
+        {
+            await _processor.PublishUpdate(null, tournament.Id, LiveDataType.Tournament, tournament, token);
+        }
     }
 }
