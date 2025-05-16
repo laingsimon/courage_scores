@@ -61,7 +61,7 @@ export function MatchSayg({
 
         if (!state && fullScreen.isFullScreen) {
             await fullScreen.exitFullScreen();
-        } else if (state && !finished) {
+        } else if (state && !finished && kioskMode) {
             // enter full screen
             await fullScreen.enterFullScreen();
         }
