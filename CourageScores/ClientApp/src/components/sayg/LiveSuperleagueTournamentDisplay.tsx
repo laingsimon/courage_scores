@@ -3,7 +3,7 @@ import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMa
 import {useEffect, useState} from "react";
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
-import {any, isEmpty, sum} from "../../helpers/collections";
+import {any, isEmpty, reverse, sum} from "../../helpers/collections";
 import {useDependencies} from "../common/IocContainer";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 import {Link} from "react-router";
@@ -229,14 +229,24 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
         return startingScore - totalScore;
     }
 
-    function firstIncompleteMatch(matches: TournamentMatchDto[]): TournamentMatchDto | null {
-        for (const match of matches) {
-            if (!hasWinner(match)) {
+    function lastIncompleteMatch(matches: TournamentMatchDto[]): TournamentMatchDto | null {
+        for (const match of reverse(matches)) {
+            if (hasWinner(match)) {
+                // don't look past the last winning match
+                return null;
+            }
+
+            if (hasSaygData(match)) {
                 return match;
             }
         }
 
         return null;
+    }
+
+    function hasSaygData(match: TournamentMatchDto): boolean {
+        const matchSayg: RecordedScoreAsYouGoDto | undefined = matchSaygData[match.id];
+        return matchSayg && Object.keys(matchSayg.legs).length >= 1;
     }
 
     if (!tournament) {
@@ -250,7 +260,7 @@ export function LiveSuperleagueTournamentDisplay({id, data, onRemove, showLoadin
         away: 0,
     };
     const matches = tournament.round?.matches || [];
-    const lastMatch = firstIncompleteMatch(matches);
+    const lastMatch = lastIncompleteMatch(matches);
     const lastMatchSayg: RecordedScoreAsYouGoDto | undefined = lastMatch ? matchSaygData[lastMatch!.id] : undefined;
     const lastMatchLegs = Object.values(lastMatchSayg?.legs || {});
     const lastLeg = lastMatchLegs[lastMatchLegs.length - 1];
