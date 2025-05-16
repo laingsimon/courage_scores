@@ -180,6 +180,7 @@ function Format-ReleaseDescription($Commits, $Milestone)
             $BugFixDescription = "$($BugFixDescription)### Bug Fixes`n"
         }
 
+        Set-IssueMilestone -IssueReference $_ -Milestone $Milestone
         $BugFixDescription = "$($BugFixDescription)- #$($_)`n"
     }
 
