@@ -78,7 +78,7 @@ if (!string.IsNullOrEmpty(robotsTag))
 {
     app.Use(async (context, next) =>
     {
-       context.Response.Headers.Add("X-Robots-Tag", robotsTag);
+       context.Response.Headers.Append("X-Robots-Tag", robotsTag);
        await next.Invoke();
     });
 }
