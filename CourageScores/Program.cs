@@ -73,6 +73,16 @@ app.UseCors(cors =>
     cors.AllowCredentials();
 });
 
+var robotsTag = configuration["X-Robots-Tag"];
+if (!string.IsNullOrEmpty(robotsTag))
+{
+    app.Use(async (context, next) =>
+    {
+       context.Response.Headers.Append("X-Robots-Tag", robotsTag);
+       await next.Invoke();
+    });
+}
+
 app.UseWebSockets(); // must be before UseEndPoints - see https://stackoverflow.com/a/74285430
 app.MapControllerRoute(
     "default",
