@@ -8,15 +8,17 @@ namespace CourageScores.Tests.Services.Analysis;
 [TestFixture]
 public class MostFrequentThrowsVisitorTests
 {
+    private readonly CancellationToken _token = CancellationToken.None;
+
     [Test]
     public async Task VisitThrow_GivenDifferentTeams_ReturnsCorrectResults()
     {
         var visitor = new MostFrequentThrowsVisitor();
         var response = new AnalysisResponseDto();
 
-        await visitor.VisitThrow(Player("HOME"), 0, Throw(5));
-        await visitor.VisitThrow(Player("HOME"), 0, Throw(5));
-        await visitor.VisitThrow(Player("HOME"), 0, Throw(10));
+        await visitor.VisitThrow(Player("HOME"), 0, Throw(5), _token);
+        await visitor.VisitThrow(Player("HOME"), 0, Throw(5), _token);
+        await visitor.VisitThrow(Player("HOME"), 0, Throw(10), _token);
         visitor.Finished(response);
 
         Assert.That(response.MostFrequent10Throws.Keys, Is.EquivalentTo(["HOME"]));

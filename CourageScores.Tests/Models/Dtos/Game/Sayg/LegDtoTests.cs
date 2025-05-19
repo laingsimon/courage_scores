@@ -36,8 +36,8 @@ public class LegDtoTests
         var throws = new List<string>();
         var visitor = new Mock<ISaygVisitor>();
         visitor
-            .Setup(v => v.VisitThrow(It.IsAny<SaygTeamPlayer>(), It.IsAny<int>(), It.IsAny<LegThrowDto>()))
-            .Callback((SaygTeamPlayer player, int _, LegThrowDto thr) =>
+            .Setup(v => v.VisitThrow(It.IsAny<SaygTeamPlayer>(), It.IsAny<int>(), It.IsAny<LegThrowDto>(), It.IsAny<CancellationToken>()))
+            .Callback((SaygTeamPlayer player, int _, LegThrowDto thr, CancellationToken _) =>
             {
                 throws.Add($"{player.TeamName}:{thr.Score}");
             });
@@ -68,8 +68,8 @@ public class LegDtoTests
         var throws = new List<string>();
         var visitor = new Mock<ISaygVisitor>();
         visitor
-            .Setup(v => v.VisitThrow(It.IsAny<SaygTeamPlayer>(), It.IsAny<int>(), It.IsAny<LegThrowDto>()))
-            .Callback((SaygTeamPlayer player, int _, LegThrowDto thr) =>
+            .Setup(v => v.VisitThrow(It.IsAny<SaygTeamPlayer>(), It.IsAny<int>(), It.IsAny<LegThrowDto>(), It.IsAny<CancellationToken>()))
+            .Callback((SaygTeamPlayer player, int _, LegThrowDto thr, CancellationToken _) =>
             {
                 throws.Add($"{player.TeamName}:{thr.Score}");
             });
@@ -101,7 +101,7 @@ public class LegDtoTests
 
         var winner = await leg.Accept(0, _context, visitor.Object, _token);
 
-        visitor.Verify(v => v.VisitCheckout(_homePlayer, 2, leg.Home.Throws.Last()));
+        visitor.Verify(v => v.VisitCheckout(_homePlayer, 2, leg.Home.Throws.Last(), _token));
         Assert.That(winner, Is.EqualTo(CompetitorType.Home));
     }
 
@@ -133,8 +133,8 @@ public class LegDtoTests
 
         await leg.Accept(0, _context, visitor.Object, _token);
 
-        visitor.Verify(v => v.VisitThrow(_homePlayer, 3, leg.Home.Throws.Last()), Times.Never);
-        visitor.Verify(v => v.VisitBust(_homePlayer, 3, leg.Home.Throws.Last()));
+        visitor.Verify(v => v.VisitThrow(_homePlayer, 3, leg.Home.Throws.Last(), _token), Times.Never);
+        visitor.Verify(v => v.VisitBust(_homePlayer, 3, leg.Home.Throws.Last(), _token));
     }
 
     private static LegDto Leg(string first, string second, LegCompetitorScoreDto home, LegCompetitorScoreDto away)

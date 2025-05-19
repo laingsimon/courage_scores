@@ -12,49 +12,49 @@ public class CompositeSaygVisitor : ISaygVisitor
         _visitors = visitors;
     }
 
-    public async Task VisitMatch(RecordedScoreAsYouGoDto recordedScoreAsYouGo, SaygMatchVisitorContext matchContext)
+    public async Task VisitMatch(RecordedScoreAsYouGoDto recordedScoreAsYouGo, SaygMatchVisitorContext matchContext, CancellationToken token)
     {
-        await ForEachVisitor(v => v.VisitMatch(recordedScoreAsYouGo, matchContext), CancellationToken.None);
+        await ForEachVisitor(v => v.VisitMatch(recordedScoreAsYouGo, matchContext, token), token);
     }
 
-    public async Task VisitLeg(int legIndex, LegDto leg)
+    public async Task VisitLeg(int legIndex, LegDto leg, CancellationToken token)
     {
-        await ForEachVisitor(v => v.VisitLeg(legIndex, leg), CancellationToken.None);
+        await ForEachVisitor(v => v.VisitLeg(legIndex, leg, token), token);
     }
 
-    public async Task VisitMatchOptions(int startingScore, int numberOfLegs)
+    public async Task VisitMatchOptions(int startingScore, int numberOfLegs, CancellationToken token)
     {
-        await ForEachVisitor(v => v.VisitMatchOptions(startingScore, numberOfLegs), CancellationToken.None);
+        await ForEachVisitor(v => v.VisitMatchOptions(startingScore, numberOfLegs, token), token);
     }
 
-    public async Task VisitThrow(SaygTeamPlayer player, int index, LegThrowDto thr)
+    public async Task VisitThrow(SaygTeamPlayer player, int index, LegThrowDto thr, CancellationToken token)
     {
-        await ForEachVisitor(v => v.VisitThrow(player, index, thr), CancellationToken.None);
+        await ForEachVisitor(v => v.VisitThrow(player, index, thr, token), token);
     }
 
-    public async Task VisitDeciderLeg(LegDto leg)
+    public async Task VisitDeciderLeg(LegDto leg, CancellationToken token)
     {
-        await ForEachVisitor(v => v.VisitDeciderLeg(leg), CancellationToken.None);
+        await ForEachVisitor(v => v.VisitDeciderLeg(leg, token), token);
     }
 
-    public async Task VisitCheckout(SaygTeamPlayer player, int index, LegThrowDto thr)
+    public async Task VisitCheckout(SaygTeamPlayer player, int index, LegThrowDto thr, CancellationToken token)
     {
-        await ForEachVisitor(v => v.VisitCheckout(player, index, thr), CancellationToken.None);
+        await ForEachVisitor(v => v.VisitCheckout(player, index, thr, token), token);
     }
 
-    public async Task VisitBust(SaygTeamPlayer player, int index, LegThrowDto thr)
+    public async Task VisitBust(SaygTeamPlayer player, int index, LegThrowDto thr, CancellationToken token)
     {
-        await ForEachVisitor(v => v.VisitBust(player, index, thr), CancellationToken.None);
+        await ForEachVisitor(v => v.VisitBust(player, index, thr, token), token);
     }
 
-    public async Task VisitWinner(SaygTeamPlayer player, int opponentRemaining)
+    public async Task VisitWinner(SaygTeamPlayer player, int opponentRemaining, CancellationToken token)
     {
-        await ForEachVisitor(v => v.VisitWinner(player, opponentRemaining), CancellationToken.None);
+        await ForEachVisitor(v => v.VisitWinner(player, opponentRemaining, token), token);
     }
 
-    public async Task VisitLoser(SaygTeamPlayer player, int remaining)
+    public async Task VisitLoser(SaygTeamPlayer player, int remaining, CancellationToken token)
     {
-        await ForEachVisitor(v => v.VisitLoser(player, remaining), CancellationToken.None);
+        await ForEachVisitor(v => v.VisitLoser(player, remaining, token), token);
     }
 
     public void Finished(AnalysisResponseDto response)

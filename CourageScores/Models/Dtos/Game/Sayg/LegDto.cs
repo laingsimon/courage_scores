@@ -42,7 +42,7 @@ public class LegDto
 
     public async Task<CompetitorType?> Accept(int legIndex, SaygMatchVisitorContext context, ISaygVisitor visitor, CancellationToken token)
     {
-        await visitor.VisitLeg(legIndex, this);
+        await visitor.VisitLeg(legIndex, this, token);
 
         var scores = new Dictionary<CompetitorType, int>
         {
@@ -83,17 +83,17 @@ public class LegDto
 
                 if (scores[player] == StartingScore)
                 {
-                    await visitor.VisitCheckout(teamPlayer, index, thr);
+                    await visitor.VisitCheckout(teamPlayer, index, thr, token);
                     return player;
                 }
 
                 if (isBust)
                 {
-                    await visitor.VisitBust(teamPlayer, index, thr);
+                    await visitor.VisitBust(teamPlayer, index, thr, token);
                 }
                 else
                 {
-                    await visitor.VisitThrow(teamPlayer, index, thr);
+                    await visitor.VisitThrow(teamPlayer, index, thr, token);
                 }
             }
         }

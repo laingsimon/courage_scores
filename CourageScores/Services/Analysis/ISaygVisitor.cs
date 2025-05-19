@@ -7,55 +7,55 @@ namespace CourageScores.Services.Analysis;
 public interface ISaygVisitor
 {
     [ExcludeFromCodeCoverage]
-    Task VisitMatch(RecordedScoreAsYouGoDto recordedScoreAsYouGo, SaygMatchVisitorContext matchContext)
+    Task VisitMatch(RecordedScoreAsYouGoDto recordedScoreAsYouGo, SaygMatchVisitorContext matchContext, CancellationToken token)
     {
         return Task.CompletedTask;
     }
 
     [ExcludeFromCodeCoverage]
-    Task VisitLeg(int legIndex, LegDto leg)
+    Task VisitLeg(int legIndex, LegDto leg, CancellationToken token)
     {
         return Task.CompletedTask;
     }
 
     [ExcludeFromCodeCoverage]
-    Task VisitMatchOptions(int startingScore, int numberOfLegs)
+    Task VisitMatchOptions(int startingScore, int numberOfLegs, CancellationToken token)
     {
         return Task.CompletedTask;
     }
 
     [ExcludeFromCodeCoverage]
-    Task VisitThrow(SaygTeamPlayer player, int index, LegThrowDto thr)
+    Task VisitThrow(SaygTeamPlayer player, int index, LegThrowDto thr, CancellationToken token)
     {
         return Task.CompletedTask;
     }
 
     [ExcludeFromCodeCoverage]
-    Task VisitDeciderLeg(LegDto leg)
+    Task VisitDeciderLeg(LegDto leg, CancellationToken token)
     {
         return Task.CompletedTask;
     }
 
     [ExcludeFromCodeCoverage]
-    Task VisitCheckout(SaygTeamPlayer player, int index, LegThrowDto thr)
+    Task VisitCheckout(SaygTeamPlayer player, int index, LegThrowDto thr, CancellationToken token)
     {
         return Task.CompletedTask;
     }
 
     [ExcludeFromCodeCoverage]
-    Task VisitBust(SaygTeamPlayer player, int index, LegThrowDto thr)
+    Task VisitBust(SaygTeamPlayer player, int index, LegThrowDto thr, CancellationToken token)
     {
         return Task.CompletedTask;
     }
 
     [ExcludeFromCodeCoverage]
-    Task VisitWinner(SaygTeamPlayer player, int opponentRemaining)
+    Task VisitWinner(SaygTeamPlayer player, int opponentRemaining, CancellationToken token)
     {
         return Task.CompletedTask;
     }
 
     [ExcludeFromCodeCoverage]
-    Task VisitLoser(SaygTeamPlayer player, int remaining)
+    Task VisitLoser(SaygTeamPlayer player, int remaining, CancellationToken token)
     {
         return Task.CompletedTask;
     }

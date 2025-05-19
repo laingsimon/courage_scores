@@ -46,8 +46,8 @@ public class RecordedScoreAsYouGoDto : AuditedDto, IScoreAsYouGoDto
 
     public async Task Accept(ISaygVisitor visitor, SaygMatchVisitorContext context, CancellationToken token)
     {
-        await visitor.VisitMatch(this, context);
-        await visitor.VisitMatchOptions(StartingScore, NumberOfLegs);
+        await visitor.VisitMatch(this, context, token);
+        await visitor.VisitMatchOptions(StartingScore, NumberOfLegs, token);
 
         foreach (var leg in Legs)
         {
@@ -60,20 +60,20 @@ public class RecordedScoreAsYouGoDto : AuditedDto, IScoreAsYouGoDto
 
             if (leg.Key == NumberOfLegs - 1)
             {
-                await visitor.VisitDeciderLeg(leg.Value);
+                await visitor.VisitDeciderLeg(leg.Value, token);
             }
 
             var homeRemaining = leg.Value.StartingScore - leg.Value.Home.Throws.Sum(thr => thr.Score);
             var awayRemaining = leg.Value.StartingScore - leg.Value.Away.Throws.Sum(thr => thr.Score);
             if (winner == CompetitorType.Home)
             {
-                await visitor.VisitWinner(context.HomePlayer, awayRemaining);
-                await visitor.VisitLoser(context.AwayPlayer, awayRemaining);
+                await visitor.VisitWinner(context.HomePlayer, awayRemaining, token);
+                await visitor.VisitLoser(context.AwayPlayer, awayRemaining, token);
             }
             else if (winner == CompetitorType.Away)
             {
-                await visitor.VisitWinner(context.AwayPlayer, homeRemaining);
-                await visitor.VisitLoser(context.HomePlayer, homeRemaining);
+                await visitor.VisitWinner(context.AwayPlayer, homeRemaining, token);
+                await visitor.VisitLoser(context.HomePlayer, homeRemaining, token);
             }
         }
     }

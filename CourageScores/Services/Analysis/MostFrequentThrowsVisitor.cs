@@ -13,7 +13,7 @@ public class MostFrequentThrowsVisitor : ISaygVisitor
         _maxCount = maxCount;
     }
 
-    public Task VisitThrow(SaygTeamPlayer player, int index, LegThrowDto thr)
+    public Task VisitThrow(SaygTeamPlayer player, int index, LegThrowDto thr, CancellationToken token)
     {
         if (!_allThrowsPerTeam.TryGetValue(player.TeamName ?? player.PlayerName, out var throws))
         {
