@@ -31,6 +31,7 @@ using CourageScores.Models.Live;
 using CourageScores.Repository;
 using CourageScores.Repository.Identity;
 using CourageScores.Services;
+using CourageScores.Services.Analysis;
 using CourageScores.Services.Command;
 using CourageScores.Services.Data;
 using CourageScores.Services.Division;
@@ -169,6 +170,8 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IPhotoHelper, PhotoHelper>();
         services.AddSingleton<IPhotoSettings, PhotoSettings>();
         services.AddScoped<IFeatureService, FeatureService>();
+        services.AddScoped<IAnalysisService, AnalysisService>();
+        services.AddScoped<ISaygVisitorFactory, SaygVisitorFactory>();
     }
 
     private static void AddRepositories(IServiceCollection services)

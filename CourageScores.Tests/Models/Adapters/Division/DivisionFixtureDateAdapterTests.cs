@@ -38,6 +38,7 @@ public class DivisionFixtureDateAdapterTests
     {
         Address = "addressA",
     };
+    // ReSharper disable once CollectionNeverUpdated.Local
     private static readonly Dictionary<Guid, DivisionDto?> EmptyTeamIdToDivisionLookup = new Dictionary<Guid, DivisionDto?>();
     // ReSharper disable once InconsistentNaming
     private static readonly TeamDto[] TeamsAB = new[] { TeamA, TeamB };

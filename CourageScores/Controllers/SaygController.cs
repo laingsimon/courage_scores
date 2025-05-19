@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos;
+using CourageScores.Models.Dtos.Analysis;
 using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Services;
+using CourageScores.Services.Analysis;
 using CourageScores.Services.Command;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,13 +16,16 @@ public class SaygController : Controller
 {
     private readonly ICommandFactory _commandFactory;
     private readonly IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> _saygStorageService;
+    private readonly IAnalysisService _analysisService;
 
     public SaygController(
         ICommandFactory commandFactory,
-        IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> saygStorageService)
+        IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> saygStorageService,
+        IAnalysisService analysisService)
     {
         _commandFactory = commandFactory;
         _saygStorageService = saygStorageService;
+        _analysisService = analysisService;
     }
 
     [HttpPost("/api/Sayg")]
@@ -40,5 +45,11 @@ public class SaygController : Controller
     public async Task<ActionResultDto<RecordedScoreAsYouGoDto>> Delete(Guid id, CancellationToken token)
     {
         return await _saygStorageService.Delete(id, token);
+    }
+
+    [HttpPost("/api/Sayg/Analyse")]
+    public async Task<ActionResultDto<AnalysisResponseDto>> Analyse(AnalysisRequestDto request, CancellationToken token)
+    {
+        return await _analysisService.Analyse(request, token);
     }
 }

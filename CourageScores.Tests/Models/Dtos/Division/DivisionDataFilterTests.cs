@@ -2,6 +2,7 @@ using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Tests.Services;
 using NUnit.Framework;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Tests.Models.Dtos.Division;
 
@@ -21,7 +22,7 @@ public class DivisionDataFilterTests
     public void IncludeGame_WhenNoFiltersSet_ReturnsTrue()
     {
         var filter = new DivisionDataFilter();
-        var game = new Game();
+        var game = new CosmosGame();
 
         var result = filter.IncludeGame(game);
 
@@ -50,7 +51,7 @@ public class DivisionDataFilterTests
             Date = DateTime.Parse(date),
             TeamId = Guid.Parse(teamId),
         };
-        var game = new Game
+        var game = new CosmosGame
         {
             Date = DateTime.Parse(MatchingDate),
             Home = new GameTeam
@@ -79,7 +80,7 @@ public class DivisionDataFilterTests
             Date = DateTime.Parse(date),
             TeamId = Guid.Parse(teamId),
         };
-        var game = new Game
+        var game = new CosmosGame
         {
             Date = DateTime.Parse(MatchingDate),
             Home = new GameTeam
