@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Dtos.Analysis;
 using CourageScores.Models.Dtos.Game.Sayg;
 
 namespace CourageScores.Services.Analysis;
 
+[ExcludeFromCodeCoverage]
 public class CompositeSaygVisitor : ISaygVisitor
 {
     private readonly ISaygVisitor[] _visitors;
