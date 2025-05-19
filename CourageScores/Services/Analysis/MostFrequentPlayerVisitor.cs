@@ -22,17 +22,17 @@ public class MostFrequentPlayerVisitor : ISaygVisitor
 
     public void Finished(AnalysisResponseDto response)
     {
-        response.MostFrequentPlayers = _allPlayersPerTeam.ToDictionary(
-            pair => pair.Key, /* team name */
+        response["MostFrequentPlayers"] = new BreakdownDto<NamedBreakdownDto>(_allPlayersPerTeam.ToDictionary(
+            pair => pair.Key,
             pair =>
             {
-                return pair.Value /* player names */
+                return pair.Value
                     .GroupBy(playerName => playerName)
                     .OrderByDescending(gr => gr.Count())
-                    .Select(gr => new KeyValuePair<string, int>(gr.Key /* player name */, gr.Count()))
+                    .Select(gr => new NamedBreakdownDto(gr.Key, gr.Count()))
                     .Take(_maxCount)
                     .ToArray();
-            });
+            }));
     }
 
     private void VisitPlayer(SaygTeamPlayer player)

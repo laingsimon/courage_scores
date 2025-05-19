@@ -21,13 +21,13 @@ public class MostFrequentPlayerVisitorTests
         await visitor.VisitMatch(new RecordedScoreAsYouGoDto(), new SaygMatchVisitorContext(Player("HOME", "Paul"), Player("AWAY", "Steve")), _token);
         visitor.Finished(response);
 
-        Assert.That(response.MostFrequentPlayers.Keys, Is.EquivalentTo(["HOME", "AWAY"]));
-        Assert.That(response.MostFrequentPlayers["HOME"], Is.EqualTo([
-            new KeyValuePair<string,int>("John", 2),
-            new KeyValuePair<string,int>("Paul", 1),
+        Assert.That(response["MostFrequentPlayers"].Keys, Is.EquivalentTo(["HOME", "AWAY"]));
+        Assert.That(response["MostFrequentPlayers"]["HOME"], Is.EqualTo([
+            new NamedBreakdownDto("John", 2),
+            new NamedBreakdownDto("Paul", 1),
         ]));
-        Assert.That(response.MostFrequentPlayers["AWAY"], Is.EqualTo([
-            new KeyValuePair<string,int>("Steve", 3),
+        Assert.That(response["MostFrequentPlayers"]["AWAY"], Is.EqualTo([
+            new NamedBreakdownDto("Steve", 3),
         ]));
     }
 

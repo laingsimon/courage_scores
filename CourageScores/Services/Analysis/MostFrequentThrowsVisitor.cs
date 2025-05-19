@@ -27,16 +27,16 @@ public class MostFrequentThrowsVisitor : ISaygVisitor
 
     public void Finished(AnalysisResponseDto response)
     {
-        response.MostFrequentThrows = _allThrowsPerTeam.ToDictionary(
+        response["MostFrequentThrows"] = new BreakdownDto<NumericBreakdownDto>(_allThrowsPerTeam.ToDictionary(
             pair => pair.Key,
             pair =>
             {
                 return pair.Value
                     .GroupBy(thr => thr)
                     .OrderByDescending(gr => gr.Count())
-                    .Select(gr => new KeyValuePair<int, int>(gr.Key, gr.Count()))
+                    .Select(gr => new NumericBreakdownDto(gr.Key, gr.Count()))
                     .Take(_maxCount)
                     .ToArray();
-            });
+            }));
     }
 }
