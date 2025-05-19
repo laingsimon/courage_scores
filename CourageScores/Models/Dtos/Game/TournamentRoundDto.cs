@@ -1,4 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Cosmos.Game.Sayg;
+using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Services;
+using CourageScores.Services.Analysis;
 using TypeScriptMapper.Dtos;
 
 namespace CourageScores.Models.Dtos.Game;
@@ -34,4 +38,22 @@ public class TournamentRoundDto : AuditedDto
     /// Options for each match in the game
     /// </summary>
     public List<GameMatchOptionDto?> MatchOptions { get; set; } = new();
+
+    public async Task Accept(ISaygVisitor visitor, SaygFixtureVisitorContext fixtureContext, IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> saygService, CancellationToken token)
+    {
+        foreach (var match in Matches)
+        {
+            if (token.IsCancellationRequested)
+            {
+                return;
+            }
+
+            await match.Accept(visitor, fixtureContext, saygService, token);
+        }
+
+        if (NextRound != null && !token.IsCancellationRequested)
+        {
+            await NextRound.Accept(visitor, fixtureContext, saygService, token);
+        }
+    }
 }
