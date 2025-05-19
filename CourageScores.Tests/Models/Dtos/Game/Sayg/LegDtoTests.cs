@@ -133,6 +133,7 @@ public class LegDtoTests
 
         await leg.Accept(0, _context, visitor.Object, _token);
 
+        visitor.Verify(v => v.VisitThrow(_homePlayer, 3, leg.Home.Throws.Last()), Times.Never);
         visitor.Verify(v => v.VisitBust(_homePlayer, 3, leg.Home.Throws.Last()));
     }
 

@@ -81,7 +81,6 @@ public class LegDto
                     scores[player] += thr.Score;
                 }
 
-                await visitor.VisitThrow(teamPlayer, index, thr);
                 if (scores[player] == StartingScore)
                 {
                     await visitor.VisitCheckout(teamPlayer, index, thr);
@@ -91,6 +90,10 @@ public class LegDto
                 if (isBust)
                 {
                     await visitor.VisitBust(teamPlayer, index, thr);
+                }
+                else
+                {
+                    await visitor.VisitThrow(teamPlayer, index, thr);
                 }
             }
         }
