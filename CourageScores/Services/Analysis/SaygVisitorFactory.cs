@@ -6,6 +6,8 @@ public class SaygVisitorFactory : ISaygVisitorFactory
 {
     public ISaygVisitor CreateForRequest(AnalysisRequestDto request)
     {
-        return new CompositeSaygVisitor(new MostFrequentThrowsVisitor(), new MostFrequentPlayerVisitor());
+        return new CompositeSaygVisitor(
+            new MostFrequentThrowsVisitor(request.MaxBreakdown),
+            new MostFrequentPlayerVisitor(request.MaxBreakdown));
     }
 }

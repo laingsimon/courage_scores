@@ -6,4 +6,5 @@ namespace CourageScores.Models.Dtos.Analysis;
 public class AnalysisRequestDto
 {
     public Guid[] TournamentIds { get; set; } = [];
+    public int MaxBreakdown { get; set; } = 10;
 }
