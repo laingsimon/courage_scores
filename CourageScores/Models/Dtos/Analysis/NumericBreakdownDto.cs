@@ -1,5 +1,8 @@
-﻿namespace CourageScores.Models.Dtos.Analysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace CourageScores.Models.Dtos.Analysis;
+
+[ExcludeFromCodeCoverage]
 public class NumericBreakdownDto : IEquatable<NumericBreakdownDto>
 {
     public int Value { get; }
