@@ -1,3 +1,4 @@
+using CourageScores.Models.Dtos.Analysis;
 using CourageScores.Models.Dtos.Game.Sayg;
 
 namespace CourageScores.Services.Analysis;
@@ -54,6 +55,14 @@ public class CompositeSaygVisitor : ISaygVisitor
     public async Task VisitLoser(SaygTeamPlayer player, int remaining)
     {
         await ForEachVisitor(v => v.VisitLoser(player, remaining), CancellationToken.None);
+    }
+
+    public void Finished(AnalysisResponseDto response)
+    {
+        foreach (var visitor in _visitors)
+        {
+            visitor.Finished(response);
+        }
     }
 
     private async Task ForEachVisitor(Func<ISaygVisitor, Task> action, CancellationToken token)

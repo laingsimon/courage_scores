@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos.Analysis;
 using CourageScores.Models.Dtos.Game.Sayg;
 
 namespace CourageScores.Services.Analysis;
@@ -57,5 +58,11 @@ public interface ISaygVisitor
     Task VisitLoser(SaygTeamPlayer player, int remaining)
     {
         return Task.CompletedTask;
+    }
+
+    [ExcludeFromCodeCoverage]
+    void Finished(AnalysisResponseDto response)
+    {
+
     }
 }

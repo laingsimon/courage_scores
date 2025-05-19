@@ -18,6 +18,7 @@ using CourageScores.Models.Cosmos.Season;
 using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
+using CourageScores.Models.Dtos.Analysis;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Game.Sayg;
@@ -31,6 +32,7 @@ using CourageScores.Models.Live;
 using CourageScores.Repository;
 using CourageScores.Repository.Identity;
 using CourageScores.Services;
+using CourageScores.Services.Analysis;
 using CourageScores.Services.Command;
 using CourageScores.Services.Data;
 using CourageScores.Services.Division;
@@ -169,6 +171,8 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IPhotoHelper, PhotoHelper>();
         services.AddSingleton<IPhotoSettings, PhotoSettings>();
         services.AddScoped<IFeatureService, FeatureService>();
+        services.AddScoped<IAnalysisService, AnalysisService>();
+        services.AddScoped<ISaygVisitorFactory, SaygVisitorFactory>();
     }
 
     private static void AddRepositories(IServiceCollection services)
