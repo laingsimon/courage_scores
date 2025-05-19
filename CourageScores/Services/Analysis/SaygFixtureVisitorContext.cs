@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace CourageScores.Services.Analysis;
 
+[ExcludeFromCodeCoverage]
 public class SaygFixtureVisitorContext
 {
     public string? Home { get; }

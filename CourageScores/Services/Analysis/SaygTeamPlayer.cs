@@ -1,5 +1,8 @@
-﻿namespace CourageScores.Services.Analysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace CourageScores.Services.Analysis;
+
+[ExcludeFromCodeCoverage]
 public class SaygTeamPlayer
 {
     public string? TeamName { get; }
