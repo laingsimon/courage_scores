@@ -1,14 +1,13 @@
-using CourageScores.Models.Dtos.Analysis;
-using CourageScores.Models.Dtos.Game.Sayg;
+﻿using CourageScores.Models.Dtos.Analysis;
 
 namespace CourageScores.Services.Analysis;
 
-public class MostFrequentThrowsVisitor : AllThrowsSaygVisitor
+public class HighestScoresVisitor : AllThrowsSaygVisitor
 {
     private readonly int _maxCount;
 
-    public MostFrequentThrowsVisitor(int maxCount = 10)
-        :base("MostFrequentThrows")
+    public HighestScoresVisitor(int maxCount = 10)
+        :base("HighestScores")
     {
         _maxCount = maxCount;
     }
@@ -17,7 +16,7 @@ public class MostFrequentThrowsVisitor : AllThrowsSaygVisitor
     {
         return throws
             .GroupBy(thr => thr)
-            .OrderByDescending(gr => gr.Count())
+            .OrderByDescending(gr => gr.Key)
             .Select(gr => new NumericBreakdownDto(gr.Key, gr.Count()))
             .Take(_maxCount)
             .ToArray();

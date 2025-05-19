@@ -8,6 +8,7 @@ public class SaygVisitorFactory : ISaygVisitorFactory
     {
         return new CompositeSaygVisitor(
             new MostFrequentThrowsVisitor(request.MaxBreakdown),
-            new MostFrequentPlayerVisitor(request.MaxBreakdown));
+            new MostFrequentPlayerVisitor(request.MaxBreakdown),
+            new HighestScoresVisitor(request.MaxBreakdown));
     }
 }
