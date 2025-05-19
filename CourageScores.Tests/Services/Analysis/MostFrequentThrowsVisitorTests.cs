@@ -21,8 +21,8 @@ public class MostFrequentThrowsVisitorTests
         await visitor.VisitThrow(Player("HOME"), 0, Throw(10), _token);
         visitor.Finished(response);
 
-        Assert.That(response.MostFrequent10Throws.Keys, Is.EquivalentTo(["HOME"]));
-        Assert.That(response.MostFrequent10Throws["HOME"], Is.EqualTo([
+        Assert.That(response.MostFrequentThrows.Keys, Is.EquivalentTo(["HOME"]));
+        Assert.That(response.MostFrequentThrows["HOME"], Is.EqualTo([
             new KeyValuePair<int,int>(5, 2),
             new KeyValuePair<int,int>(10, 1),
         ]));

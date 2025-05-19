@@ -27,7 +27,7 @@ public class MostFrequentThrowsVisitor : ISaygVisitor
 
     public void Finished(AnalysisResponseDto response)
     {
-        response.MostFrequent10Throws = _allThrowsPerTeam.ToDictionary(
+        response.MostFrequentThrows = _allThrowsPerTeam.ToDictionary(
             pair => pair.Key,
             pair =>
             {
