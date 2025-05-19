@@ -18,7 +18,6 @@ using CourageScores.Models.Cosmos.Season;
 using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
-using CourageScores.Models.Dtos.Analysis;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Game.Sayg;
