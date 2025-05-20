@@ -35,9 +35,10 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
     const {account, controls} = useApp();
     const navigate = useNavigate();
     const location = useLocation();
-    const {fixtures, teams, superleague} = useDivisionData();
+    const {season, fixtures, teams, superleague} = useDivisionData();
     const canManageTournaments: boolean = hasAccess(account, access => access.manageTournaments);
     const canManageGames: boolean = hasAccess(account, access => access.manageGames);
+    const canAnalyseMatches: boolean = hasAccess(account, access => access.analyseMatches);
     const isNoteAdmin: boolean = hasAccess(account, access => access.manageNotes);
     const filterByDateUrl: string = getFilterByDateUrl(date.date);
     const canUseWebSockets: boolean = hasAccess(account, access => access.useWebSockets);
@@ -170,7 +171,8 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
                     <label className="form-check-label margin-left"
                            htmlFor={'isKnockout_' + date.date}>Qualifier</label>
                 </span>) : null}
-            {superleague && canUseWebSockets && any(date.tournamentFixtures, t => !!t.singleRound) ? (<Link to={`/live/superleague/?date=${date.date}`} className="float-end fs-6">🖥️</Link>) : null}
+            {superleague && canUseWebSockets && any(date.tournamentFixtures, t => !!t.singleRound) ? (<Link to={`/live/superleague/?date=${date.date}`} className="float-end fs-6 text-decoration-none">🖥️</Link>) : null}
+            {canAnalyseMatches && season && any(date.tournamentFixtures, t => !t.proposed) ? (<Link to={`/analyse/${season!.name}/?${date.tournamentFixtures!.filter(t => !t.proposed).map(tf => 't=' + tf.id).join('&')}`} className="float-end fs-6 me-1 text-decoration-none">📊</Link>) : null}
         </h4>
         {(date.notes || []).map((note: FixtureDateNoteDto) => (<FixtureDateNote key={note.id} note={note} setEditNote={setEditNote}/>))}
         <table className="table layout-fixed">

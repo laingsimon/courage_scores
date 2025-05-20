@@ -1,4 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Cosmos.Game.Sayg;
+using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Services;
+using CourageScores.Services.Analysis;
 
 namespace CourageScores.Models.Dtos.Game;
 
@@ -97,4 +101,13 @@ public class TournamentGameDto : AuditedDto
     /// Should this tournament be excluded from any reports (e.g. finals night report)
     /// </summary>
     public bool ExcludeFromReports { get; set; }
+
+    public async Task Accept(ISaygVisitor visitor, IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> saygService, CancellationToken token)
+    {
+        if (Round != null)
+        {
+            var fixture = new SaygFixtureVisitorContext(Host, Opponent);
+            await Round.Accept(visitor, fixture, saygService, token);
+        }
+    }
 }
