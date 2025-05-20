@@ -31,6 +31,7 @@ import {UntypedPromise} from "../../interfaces/UntypedPromise";
 import {hasAccess} from "../../helpers/conditions";
 import {useDependencies} from "../common/IocContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
+import {Link} from "react-router";
 
 export interface IDivisionFixturesProps {
     setNewFixtures(fixtures: DivisionFixtureDateDto[]): UntypedPromise;
@@ -42,6 +43,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
     const location = useLocation();
     const {account, onError, controls, teams} = useApp();
     const isAdmin: boolean = hasAccess(account, access => access.manageGames);
+    const canAnalyseMatches: boolean = hasAccess(account, access => access.analyseMatches);
     const [newDate, setNewDate] = useState<string>('');
     const [newDateDialogOpen, setNewDateDialogOpen] = useState<boolean>(false);
     const [isKnockout, setIsKnockout] = useState<boolean>(false);
@@ -274,7 +276,9 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
                         {deletingAllFixtures ? (<LoadingSpinnerSmall/>) : null}
                     ⚠️ Delete all league fixtures
                 </button>)}
+                {canAnalyseMatches && season ? (<Link to={`/analyse/${season!.name}`} className="btn btn-sm btn-secondary">📊 Analyse</Link>) : null}
             </div>) : null}
+            {!isAdmin && canAnalyseMatches && season ? (<Link to={`/analyse/${season!.name}`} className="btn btn-sm btn-secondary float-end">📊 Analyse</Link>) : null}
             {controls && !deletingAllFixtures
                 ? (<FilterFixtures />)
                 : null}
