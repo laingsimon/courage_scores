@@ -12,13 +12,13 @@ public class MostFrequentThrowsVisitor : AllThrowsSaygVisitor
         _maxCount = maxCount;
     }
 
-    protected override NumericBreakdownDto[] GetPerTeamBreakdown(IReadOnlyCollection<int> throws)
+    protected override ScoreBreakdownDto[] GetPerTeamBreakdown(IReadOnlyCollection<int> throws)
     {
         return throws
             .GroupBy(thr => thr)
             .OrderByDescending(gr => gr.Count())
             .Where(gr => gr.Count() > 1)
-            .Select(gr => new NumericBreakdownDto(gr.Key, gr.Count()))
+            .Select(gr => new ScoreBreakdownDto(gr.Key, gr.Count()))
             .Take(_maxCount)
             .ToArray();
     }

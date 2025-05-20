@@ -37,7 +37,7 @@ public abstract class AllThrowsSaygVisitor : ISaygVisitor
 
     public void Finished(AnalysisResponseDto response)
     {
-        response[_breakdownName] = new BreakdownDto<NumericBreakdownDto>(_allThrowsPerTeam.ToDictionary(
+        response[_breakdownName] = new BreakdownDto<ScoreBreakdownDto>(_allThrowsPerTeam.ToDictionary(
             pair => pair.Key,
             pair =>
             {
@@ -45,5 +45,5 @@ public abstract class AllThrowsSaygVisitor : ISaygVisitor
             }));
     }
 
-    protected abstract NumericBreakdownDto[] GetPerTeamBreakdown(IReadOnlyCollection<int> throws);
+    protected abstract ScoreBreakdownDto[] GetPerTeamBreakdown(IReadOnlyCollection<int> throws);
 }

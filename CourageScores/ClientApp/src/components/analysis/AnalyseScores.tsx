@@ -10,10 +10,10 @@ import {useDependencies} from "../common/IocContainer";
 import {useApp} from "../common/AppContainer";
 import {AnalysisResponseDto} from "../../interfaces/models/dtos/Analysis/AnalysisResponseDto";
 import {NamedBreakdownDto} from "../../interfaces/models/dtos/Analysis/NamedBreakdownDto";
-import {NumericBreakdownDto} from "../../interfaces/models/dtos/Analysis/NumericBreakdownDto";
+import {ScoreBreakdownDto} from "../../interfaces/models/dtos/Analysis/ScoreBreakdownDto";
 
 interface IBreakdown {
-    [team: string]: (NumericBreakdownDto | NamedBreakdownDto)[]
+    [team: string]: (ScoreBreakdownDto | NamedBreakdownDto)[]
 }
 
 export function AnalyseScores() {
@@ -179,12 +179,12 @@ export function AnalyseScores() {
     }
 
     function renderBreakdown(type: string, breakdown: IBreakdown) {
-        function renderBreakdownDetail(detail: (NumericBreakdownDto | NamedBreakdownDto)[]) {
+        function renderBreakdownDetail(detail: (ScoreBreakdownDto | NamedBreakdownDto)[]) {
             switch (type) {
                 case 'MostFrequentThrows':
-                    return renderNumericBreakdown(detail as NumericBreakdownDto[]);
+                    return renderScoreBreakdown(detail as ScoreBreakdownDto[]);
                 case 'HighestScores':
-                    return renderNumericBreakdown(detail as NumericBreakdownDto[]);
+                    return renderScoreBreakdown(detail as ScoreBreakdownDto[]);
                 case 'MostFrequentPlayers':
                     return renderNamedBreakdown(detail as NamedBreakdownDto[]);
             }
@@ -193,7 +193,7 @@ export function AnalyseScores() {
         return (<div key={type} className="border-1 border-solid border-secondary rounded p-2 flex-grow-1 mx-1 mb-1">
             <h5 datatype="analysis-heading" className="text-center" onClick={() => toggleAnalysis(type)}>🔎 {getBreakdownTitle(type)}</h5>
             {Object.keys(breakdown).filter(t => isEmpty(filteredTeams) || includeTeam(t)).sort().map((team: string) => {
-                const detail: (NumericBreakdownDto | NamedBreakdownDto)[] = breakdown[team];
+                const detail: (ScoreBreakdownDto | NamedBreakdownDto)[] = breakdown[team];
 
                 return <div datatype={type} key={team} className="border-1 border-solid m-1 p-1 border-secondary-subtle rounded">
                     <p datatype="team-heading" className="fw-bold m-0 text-center" onClick={() => toggleTeam(team)}>🔎 {team}</p>
@@ -203,7 +203,7 @@ export function AnalyseScores() {
         </div>)
     }
 
-    function renderNumericBreakdown(detail: NumericBreakdownDto[]) {
+    function renderScoreBreakdown(detail: ScoreBreakdownDto[]) {
         if (isEmpty(detail)) {
             return (<p>No data</p>);
         }
@@ -217,8 +217,8 @@ export function AnalyseScores() {
             </thead>
             <tbody>
             {detail.map(d => {
-                return (<tr key={d.value}>
-                    <td className={`${d.value! >= 100 ? 'text-danger' : ''}${d.value === 180 ? ' fw-bold' : ''}`}>{d.value}</td>
+                return (<tr key={d.score}>
+                    <td className={`${d.score! >= 100 ? 'text-danger' : ''}${d.score === 180 ? ' fw-bold' : ''}`}>{d.score}</td>
                     <td>{d.number}</td>
                 </tr>)
             })}

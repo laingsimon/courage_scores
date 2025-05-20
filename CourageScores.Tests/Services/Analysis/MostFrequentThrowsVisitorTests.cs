@@ -26,8 +26,8 @@ public class MostFrequentThrowsVisitorTests
 
         Assert.That(response["MostFrequentThrows"].Keys, Is.EquivalentTo(["HOME"]));
         Assert.That(response["MostFrequentThrows"]["HOME"], Is.EqualTo([
-            new NumericBreakdownDto(5, 3),
-            new NumericBreakdownDto(10, 2),
+            new ScoreBreakdownDto(5, 3),
+            new ScoreBreakdownDto(10, 2),
         ]));
     }
 

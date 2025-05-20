@@ -151,15 +151,15 @@ describe('AnalyseScores', () => {
             ]);
         });
 
-        it('numeric breakdowns', async () => {
+        it('score breakdowns', async () => {
             const firstTournament = divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
             await renderComponent(`?t=${firstTournament.id}&team=Team1&a=MostFrequentThrows`);
             const analysis: AnalysisResponseDto = {
                 MostFrequentThrows: {
                     Team1: [
-                        { value: 10, number: 10 },
-                        { value: 100, number: 9 },
-                        { value: 180, number: 8 },
+                        { score: 10, number: 10 },
+                        { score: 100, number: 9 },
+                        { score: 180, number: 8 },
                     ],
                 },
             };
@@ -182,7 +182,7 @@ describe('AnalyseScores', () => {
             expect(Array.from(rows[2].querySelectorAll('td')).map(td => td.className)).toEqual(['text-danger fw-bold', '']);
         });
 
-        it('empty numeric breakdowns', async () => {
+        it('empty score breakdowns', async () => {
             const firstTournament = divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
             await renderComponent(`?t=${firstTournament.id}&team=Team1&a=MostFrequentThrows`);
             const analysis: AnalysisResponseDto = {
@@ -313,10 +313,10 @@ describe('AnalyseScores', () => {
             const analysis: AnalysisResponseDto = {
                 MostFrequentThrows: {
                     Team1: [
-                        { number: 10, value: 5 },
+                        { number: 10, score: 5 },
                     ],
                     Team2: [
-                        { number: 10, value: 5 },
+                        { number: 10, score: 5 },
                     ],
                 },
             };
@@ -340,10 +340,10 @@ describe('AnalyseScores', () => {
             const analysis: AnalysisResponseDto = {
                 MostFrequentThrows: {
                     Team1: [
-                        { number: 10, value: 5 },
+                        { number: 10, score: 5 },
                     ],
                     Team2: [
-                        { number: 10, value: 5 },
+                        { number: 10, score: 5 },
                     ],
                 },
             };
@@ -366,10 +366,10 @@ describe('AnalyseScores', () => {
             const analysis: AnalysisResponseDto = {
                 MostFrequentThrows: {
                     Team1: [
-                        { number: 10, value: 5 },
+                        { number: 10, score: 5 },
                     ],
                     Team2: [
-                        { number: 10, value: 5 },
+                        { number: 10, score: 5 },
                     ],
                 },
             };
@@ -392,10 +392,10 @@ describe('AnalyseScores', () => {
             const analysis: AnalysisResponseDto = {
                 MostFrequentThrows: {
                     Team1: [
-                        { number: 10, value: 5 },
+                        { number: 10, score: 5 },
                     ],
                     Team2: [
-                        { number: 10, value: 5 },
+                        { number: 10, score: 5 },
                     ],
                 },
             };
