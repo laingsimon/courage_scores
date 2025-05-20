@@ -173,6 +173,7 @@ export function UserAdmin() {
                 <h6>Tournaments <small>(pairs, singles, knockout and finals night)</small></h6>
                 {renderAccessOption('manageTournaments', 'Manage tournaments', 'Create/Edit/Delete tournaments and record scores')}
                 {renderAccessOption('enterTournamentResults', 'Enter tournament results', 'Record scores for tournaments without editing details')}
+                {renderAccessOption('analyseMatches', 'Analyse scores', 'Analyse scores across fixtures')}
             </div>
             <div className="border-1 border-secondary border-solid m-1 p-2">
                 <h6>Management</h6>
