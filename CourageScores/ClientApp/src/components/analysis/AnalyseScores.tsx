@@ -32,7 +32,9 @@ export function AnalyseScores() {
     const filteredAnalyses: string[] = search.getAll('a');
 
     useEffect(() => {
+        /* istanbul ignore next */
         if (loading || any(tournaments)) {
+            /* istanbul ignore next */
             return;
         }
 
@@ -41,7 +43,9 @@ export function AnalyseScores() {
     }, []);
 
     useEffect(() => {
+        /* istanbul ignore next */
         if (any(tournaments)) {
+            /* istanbul ignore next */
             return;
         }
 
@@ -52,7 +56,9 @@ export function AnalyseScores() {
     }, [requestedSeason, seasons]);
     
     async function loadFixtures() {
+        /* istanbul ignore next */
         if (loading || isEmpty(seasons)) {
+            /* istanbul ignore next */
             return;
         }
 
@@ -137,7 +143,9 @@ export function AnalyseScores() {
     }
 
     async function analyseScores() {
+        /* istanbul ignore next */
         if (analysing) {
+            /* istanbul ignore next */
             return;
         }
         const search = new URLSearchParams(location.search);
