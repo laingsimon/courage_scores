@@ -3,8 +3,10 @@ using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Analysis;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services;
 using CourageScores.Services.Analysis;
+using CourageScores.Services.Identity;
 using Moq;
 using NUnit.Framework;
 
@@ -19,6 +21,8 @@ public class AnalysisServiceTests
     private Mock<IGenericDataService<RecordedScoreAsYouGo,RecordedScoreAsYouGoDto>> _saygService = null!;
     private Mock<ISaygVisitorFactory> _visitorFactory = null!;
     private Mock<ISaygVisitor> _visitor = null!;
+    private Mock<IUserService> _userService = null!;
+    private UserDto? _user;
 
     [SetUp]
     public void SetupEachTest()
@@ -27,10 +31,43 @@ public class AnalysisServiceTests
         _saygService = new Mock<IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>>();
         _visitorFactory = new Mock<ISaygVisitorFactory>();
         _visitor = new Mock<ISaygVisitor>();
+        _userService = new Mock<IUserService>();
+        _user = new UserDto
+        {
+            Access = new AccessDto
+            {
+                AnalyseMatches = true,
+            },
+        };
 
-        _service = new AnalysisService(_tournamentService.Object, _saygService.Object, _visitorFactory.Object);
+        _service = new AnalysisService(_tournamentService.Object, _saygService.Object, _visitorFactory.Object, _userService.Object);
 
         _visitorFactory.Setup(f => f.CreateForRequest(It.IsAny<AnalysisRequestDto>())).Returns(_visitor.Object);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+    }
+
+    [Test]
+    public async Task Analyse_WhenLoggedOut_ReturnsUnsuccessful()
+    {
+        _user = null;
+        var request = new AnalysisRequestDto();
+
+        var result = await _service.Analyse(request, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EquivalentTo(["Not logged in"]));
+    }
+
+    [Test]
+    public async Task Analyse_WhenNotPermitted_ReturnsUnsuccessful()
+    {
+        _user!.Access!.AnalyseMatches = false;
+        var request = new AnalysisRequestDto();
+
+        var result = await _service.Analyse(request, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EquivalentTo(["Not permitted"]));
     }
 
     [Test]
@@ -76,6 +113,7 @@ public class AnalysisServiceTests
         };
         _tournamentService.Setup(s => s.Get(tournament1.Id, source.Token)).Callback(() => source.Cancel()).ReturnsAsync(tournament1);
         _tournamentService.Setup(s => s.Get(tournament2.Id, source.Token)).ReturnsAsync(tournament2);
+        _userService.Setup(s => s.GetUser(source.Token)).ReturnsAsync(() => _user);
 
         var result = await _service.Analyse(request, source.Token);
 

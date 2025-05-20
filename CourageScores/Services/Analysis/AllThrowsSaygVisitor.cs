@@ -25,6 +25,16 @@ public abstract class AllThrowsSaygVisitor : ISaygVisitor
         return Task.CompletedTask;
     }
 
+    public async Task VisitCheckout(SaygTeamPlayer player, int index, LegThrowDto thr, CancellationToken token)
+    {
+        await VisitThrow(player, index, thr, token);
+    }
+
+    public async Task VisitBust(SaygTeamPlayer player, int index, LegThrowDto thr, CancellationToken token)
+    {
+        await VisitThrow(player, index, thr, token);
+    }
+
     public void Finished(AnalysisResponseDto response)
     {
         response[_breakdownName] = new BreakdownDto<NumericBreakdownDto>(_allThrowsPerTeam.ToDictionary(

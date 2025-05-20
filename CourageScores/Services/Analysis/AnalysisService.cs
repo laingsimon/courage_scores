@@ -4,6 +4,7 @@ using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Analysis;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Services.Analysis;
 
@@ -12,15 +13,18 @@ public class AnalysisService : IAnalysisService
     private readonly IGenericDataService<TournamentGame, TournamentGameDto> _tournamentService;
     private readonly IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> _saygService;
     private readonly ISaygVisitorFactory _saygVisitorFactory;
+    private readonly IUserService _userService;
 
     public AnalysisService(
         IGenericDataService<TournamentGame, TournamentGameDto> tournamentService,
         IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> saygService,
-        ISaygVisitorFactory saygVisitorFactory)
+        ISaygVisitorFactory saygVisitorFactory,
+        IUserService userService)
     {
         _tournamentService = tournamentService;
         _saygService = saygService;
         _saygVisitorFactory = saygVisitorFactory;
+        _userService = userService;
     }
 
     public async Task<ActionResultDto<AnalysisResponseDto>> Analyse(AnalysisRequestDto request, CancellationToken token)
@@ -31,6 +35,18 @@ public class AnalysisService : IAnalysisService
             Result = response,
             Success = true,
         };
+
+
+        var user = await _userService.GetUser(token);
+        if (user?.Access?.AnalyseMatches != true)
+        {
+            result.Warnings.Add(user == null
+                ? "Not logged in"
+                : "Not permitted");
+            result.Success = false;
+            return result;
+        }
+
         var visitor = _saygVisitorFactory.CreateForRequest(request);
 
         foreach (var tournamentId in request.TournamentIds)

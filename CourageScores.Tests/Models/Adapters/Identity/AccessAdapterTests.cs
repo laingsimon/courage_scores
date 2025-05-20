@@ -43,6 +43,7 @@ public class AccessAdapterTests
             BulkDeleteLeagueFixtures = true,
             ManageFeatures = true,
             KioskMode = true,
+            AnalyseMatches = true,
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -74,6 +75,7 @@ public class AccessAdapterTests
         Assert.That(result.BulkDeleteLeagueFixtures, Is.EqualTo(model.BulkDeleteLeagueFixtures));
         Assert.That(result.ManageFeatures, Is.EqualTo(model.ManageFeatures));
         Assert.That(result.KioskMode, Is.EqualTo(model.KioskMode));
+        Assert.That(result.AnalyseMatches, Is.EqualTo(model.AnalyseMatches));
     }
 
     [Test]
@@ -108,6 +110,7 @@ public class AccessAdapterTests
             BulkDeleteLeagueFixtures = true,
             ManageFeatures = true,
             KioskMode = true,
+            AnalyseMatches = true,
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -138,5 +141,6 @@ public class AccessAdapterTests
         Assert.That(result.BulkDeleteLeagueFixtures, Is.EqualTo(dto.BulkDeleteLeagueFixtures));
         Assert.That(result.ManageFeatures, Is.EqualTo(dto.ManageFeatures));
         Assert.That(result.KioskMode, Is.EqualTo(dto.KioskMode));
+        Assert.That(result.AnalyseMatches, Is.EqualTo(dto.AnalyseMatches));
     }
 }

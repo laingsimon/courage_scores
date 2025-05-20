@@ -32,4 +32,5 @@ public class Access
     public bool BulkDeleteLeagueFixtures { get; set; }
     public bool ManageFeatures { get; set; }
     public bool KioskMode { get; set; }
+    public bool AnalyseMatches { get; set; }
 }
