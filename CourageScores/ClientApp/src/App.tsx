@@ -24,6 +24,7 @@ import {DivisionUriContainer, UrlStyle} from "./components/league/DivisionUriCon
 import {Division} from "./components/league/Division";
 import {IError} from "./components/common/IError";
 import {IFullScreen} from "./components/common/IFullScreen";
+import {AnalyseScores} from "./components/analysis/AnalyseScores";
 
 export interface IAppProps {
     embed?: boolean;
@@ -200,6 +201,7 @@ export function App({embed, controls, testRoute}: IAppProps) {
                         <Route path='/live/:type' element={<LiveSayg />}/>
                         <Route path='/live' element={<LiveSayg />}/>
                         <Route path='/tv' element={<Tv/>}/>
+                        <Route path='/analyse/:season' element={<AnalyseScores/>}/>
                         {testRoute}
                     </Routes>
                 </Layout>
