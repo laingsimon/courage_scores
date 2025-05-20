@@ -17,6 +17,7 @@ public class MostFrequentThrowsVisitor : AllThrowsSaygVisitor
         return throws
             .GroupBy(thr => thr)
             .OrderByDescending(gr => gr.Count())
+            .Where(gr => gr.Count() > 1)
             .Select(gr => new NumericBreakdownDto(gr.Key, gr.Count()))
             .Take(_maxCount)
             .ToArray();
