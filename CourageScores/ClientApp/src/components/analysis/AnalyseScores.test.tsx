@@ -167,7 +167,7 @@ describe('AnalyseScores', () => {
                 success: true,
                 result: analysis,
             };
-            await doClick(findButton(context.container,'Analyse'));
+            await doClick(findButton(context.container,'Analyse 1 tournament/s'));
 
             const detail = context.container.querySelector('[datatype="MostFrequentThrows"]')!;
             const table = detail.querySelector('table')!;
@@ -194,7 +194,7 @@ describe('AnalyseScores', () => {
                 success: true,
                 result: analysis,
             };
-            await doClick(findButton(context.container,'Analyse'));
+            await doClick(findButton(context.container,'Analyse 1 tournament/s'));
 
             const detail = context.container.querySelector('[datatype="MostFrequentThrows"]')!;
             expect(detail.textContent).toContain('No data');
@@ -216,7 +216,7 @@ describe('AnalyseScores', () => {
                 success: true,
                 result: analysis,
             };
-            await doClick(findButton(context.container,'Analyse'));
+            await doClick(findButton(context.container,'Analyse 1 tournament/s'));
 
             const detail = context.container.querySelector('[datatype="MostFrequentPlayers"]')!;
             const table = detail.querySelector('table')!;
@@ -240,7 +240,7 @@ describe('AnalyseScores', () => {
                 success: true,
                 result: analysis,
             };
-            await doClick(findButton(context.container,'Analyse'));
+            await doClick(findButton(context.container,'Analyse 1 tournament/s'));
 
             const detail = context.container.querySelector('[datatype="MostFrequentPlayers"]')!;
             expect(detail.textContent).toContain('No data');
@@ -259,7 +259,7 @@ describe('AnalyseScores', () => {
         it('prompts for some tournament selections', async () => {
             await renderComponent();
 
-            await doClick(findButton(context.container,'Analyse'));
+            await doClick(findButton(context.container,'Analyse 0 tournament/s'));
 
             const error = context.container.querySelector('.alert')!;
             expect(error.textContent).toEqual('Select some tournaments first');
@@ -269,7 +269,7 @@ describe('AnalyseScores', () => {
             const firstTournament = divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
             await renderComponent(`?t=${firstTournament.id}`);
 
-            await doClick(findButton(context.container,'Analyse'));
+            await doClick(findButton(context.container,'Analyse 1 tournament/s'));
 
             expect(analysisRequest?.tournamentIds).toEqual([firstTournament.id]);
         });
@@ -283,7 +283,7 @@ describe('AnalyseScores', () => {
                 warnings: [ 'A warning' ],
             };
 
-            await doClick(findButton(context.container,'Analyse'));
+            await doClick(findButton(context.container,'Analyse 1 tournament/s'));
 
             const error = context.container.querySelector('.alert')!;
             expect(error.textContent).toEqual('An error, A warning');
@@ -324,8 +324,7 @@ describe('AnalyseScores', () => {
                 success: true,
                 result: analysis,
             };
-            await doClick(findButton(context.container,'Analyse'));
-            expect(context.container.textContent).toContain('Most frequent throws');
+            await doClick(findButton(context.container,'Analyse 1 tournament/s'));
             const teamHeading = context.container.querySelector('[datatype="team-heading"]')!;
 
             await doClick(teamHeading)
@@ -351,8 +350,7 @@ describe('AnalyseScores', () => {
                 success: true,
                 result: analysis,
             };
-            await doClick(findButton(context.container,'Analyse'));
-            expect(context.container.textContent).toContain('Most frequent throws');
+            await doClick(findButton(context.container,'Analyse 1 tournament/s'));
             const teamHeading = context.container.querySelector('[datatype="team-heading"]')!;
 
             await doClick(teamHeading)
@@ -377,8 +375,8 @@ describe('AnalyseScores', () => {
                 success: true,
                 result: analysis,
             };
-            await doClick(findButton(context.container,'Analyse'));
-            expect(context.container.textContent).toContain('Most frequent throws');
+            await doClick(findButton(context.container,'Analyse 1 tournament/s'));
+            expect(context.container.textContent).toContain('Common scores');
             const teamHeading = context.container.querySelector('[datatype="analysis-heading"]')!;
 
             await doClick(teamHeading)
@@ -403,8 +401,8 @@ describe('AnalyseScores', () => {
                 success: true,
                 result: analysis,
             };
-            await doClick(findButton(context.container,'Analyse'));
-            expect(context.container.textContent).toContain('Most frequent throws');
+            await doClick(findButton(context.container,'Analyse 1 tournament/s'));
+            expect(context.container.textContent).toContain('Common scores');
             const teamHeading = context.container.querySelector('[datatype="analysis-heading"]')!;
 
             await doClick(teamHeading)

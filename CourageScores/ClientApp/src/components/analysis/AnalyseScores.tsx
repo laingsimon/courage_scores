@@ -30,6 +30,7 @@ export function AnalyseScores() {
     const search = new URLSearchParams(location.search);
     const filteredTeams: string[] = search.getAll('team');
     const filteredAnalyses: string[] = search.getAll('a');
+    const selectedTournaments: string[] = search.getAll('t');
 
     useEffect(() => {
         /* istanbul ignore next */
@@ -54,7 +55,7 @@ export function AnalyseScores() {
         // noinspection JSIgnoredPromiseFromCall
         loadFixtures();
     }, [requestedSeason, seasons]);
-    
+
     async function loadFixtures() {
         /* istanbul ignore next */
         if (loading || isEmpty(seasons)) {
@@ -102,7 +103,7 @@ export function AnalyseScores() {
         }
 
         const newQuery: string = '?' + newSearch.toString();
-        navigate(`/analyse/${requestedSeason}/${newQuery === '?' ? '' : newQuery}`)
+        navigate(`/analyse/${requestedSeason}/${newQuery === '?' ? '' : newQuery}`);
     }
 
     async function toggleTeam(team: string) {
@@ -114,7 +115,7 @@ export function AnalyseScores() {
         }
 
         const newQuery: string = '?' + newSearch.toString();
-        navigate(`/analyse/${requestedSeason}/${newQuery === '?' ? '' : newQuery}`)
+        navigate(`/analyse/${requestedSeason}/${newQuery === '?' ? '' : newQuery}`);
     }
 
     async function toggleAnalysis(key: string) {
@@ -126,12 +127,11 @@ export function AnalyseScores() {
         }
 
         const newQuery: string = '?' + newSearch.toString();
-        navigate(`/analyse/${requestedSeason}/${newQuery === '?' ? '' : newQuery}`)
+        navigate(`/analyse/${requestedSeason}/${newQuery === '?' ? '' : newQuery}`);
     }
 
     function isSelected(id: string): boolean {
-        const selected: string[] = search.getAll('t');
-        return any(selected, t => t === id);
+        return any(selectedTournaments, t => t === id);
     }
 
     function includeTeam(team: string): boolean {
@@ -148,10 +148,8 @@ export function AnalyseScores() {
             /* istanbul ignore next */
             return;
         }
-        const search = new URLSearchParams(location.search);
-        const selected: string[] = search.getAll('t');
 
-        if (isEmpty(selected)) {
+        if (isEmpty(selectedTournaments)) {
             setError('Select some tournaments first');
             return;
         }
@@ -164,7 +162,7 @@ export function AnalyseScores() {
 
             const result = await saygApi.analyse({
                 // maxBreakdown: undefined,
-                tournamentIds: selected
+                tournamentIds: selectedTournaments
             });
 
             if (!result.success) {
@@ -179,9 +177,9 @@ export function AnalyseScores() {
 
     function getBreakdownTitle(name: string): string {
         switch (name) {
-            case 'MostFrequentThrows': return 'Most frequent throws';
-            case 'MostFrequentPlayers': return 'Most frequent players';
-            case 'HighestScores': return 'Highest scores';
+            case 'MostFrequentThrows': return 'Common scores';
+            case 'MostFrequentPlayers': return 'Common players';
+            case 'HighestScores': return 'Best scores';
         }
         return name;
     }
@@ -257,27 +255,55 @@ export function AnalyseScores() {
         </table>;
     }
 
+    function selectAll() {
+        const newSearch = new URLSearchParams(location.search);
+        newSearch.delete('t'); // delete them all
+        for (const tournament of tournaments) {
+            newSearch.append('t', tournament.id!);
+        }
+
+        const newQuery: string = '?' + newSearch.toString();
+        navigate(`/analyse/${requestedSeason}/${newQuery === '?' ? '' : newQuery}`);
+    }
+
+    function selectNone() {
+        const newSearch = new URLSearchParams(location.search);
+        newSearch.delete('t'); // delete them all
+
+        const newQuery: string = '?' + newSearch.toString();
+        navigate(`/analyse/${requestedSeason}/${newQuery === '?' ? '' : newQuery}`);
+    }
+
     return <div className="content-background p-3">
         <h2>Analyse scores</h2>
-        <p>Select tournaments</p>
+        <p>Select tournaments from <b>{requestedSeason}</b></p>
         {error ? <div className="alert alert-danger">{error}</div> : null}
         <div className="list-group mb-2 overflow-auto max-height-200">
-            {loading ? <LoadingSpinnerSmall /> : null}
+            {loading ? <LoadingSpinnerSmall/> : null}
             {!loading ? tournaments.map(t => {
-                return (<div className={`list-group-item${isSelected(t.id!) ? ' active' : ''}`} onClick={() => toggleTournament(t.id!)} key={t.id}>
+                return (<div className={`list-group-item${isSelected(t.id!) ? ' active' : ''}`}
+                             onClick={() => toggleTournament(t.id!)} key={t.id}>
                     {t.singleRound ? 'Superleague' : 'Tournament'}: {renderDate(t.date)} {t.type} vs {t.opponent}
                 </div>)
             }) : null}
         </div>
         <button className="btn btn-primary" onClick={() => analyseScores()}>
-            {analysing ? <LoadingSpinnerSmall /> : null}
-            Analyse
+            {analysing ? <LoadingSpinnerSmall/> : null}
+            Analyse {selectedTournaments.length} tournament/s
         </button>
+        {selectedTournaments.length < tournaments.length ? <button className="btn btn-outline-secondary ms-1 float-end" onClick={() => selectAll()}>
+            All {tournaments.length}
+        </button> : null}
+        {selectedTournaments.length > 0 ? <button className="btn btn-outline-secondary ms-1 float-end" onClick={() => selectNone()}>
+            None
+        </button> : null}
         {filteredTeams.map(team => {
-            return (<button key={team} onClick={() => toggleTeam(team)} className="btn btn-outline-danger ms-2">❌ {team}</button>)
+            return (<button key={team} onClick={() => toggleTeam(team)}
+                            className="btn btn-outline-danger ms-2">❌ {team}</button>)
         })}
         {filteredAnalyses.map(type => {
-            return (<button key={type} onClick={() => toggleAnalysis(type)} className="btn btn-outline-danger ms-2">❌ {getBreakdownTitle(type)}</button>)
+            return (<button key={type} onClick={() => toggleAnalysis(type)}
+                            className="btn btn-outline-danger ms-2">❌ {getBreakdownTitle(type)}</button>)
         })}
         {!analysing && analysis ? (<div className="mt-3 d-flex flex-wrap flex-row justify-content-stretch">
             {Object.keys(analysis).filter(key => isEmpty(filteredAnalyses) || any(filteredAnalyses, a => a === key)).map((key: string) => {

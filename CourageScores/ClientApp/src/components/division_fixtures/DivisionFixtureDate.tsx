@@ -172,7 +172,7 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
                            htmlFor={'isKnockout_' + date.date}>Qualifier</label>
                 </span>) : null}
             {superleague && canUseWebSockets && any(date.tournamentFixtures, t => !!t.singleRound) ? (<Link to={`/live/superleague/?date=${date.date}`} className="float-end fs-6 text-decoration-none">🖥️</Link>) : null}
-            {canAnalyseMatches && season && any(date.tournamentFixtures) ? (<Link to={`/analyse/${season!.name}/?${date.tournamentFixtures!.map(tf => 't=' + tf.id).join('&')}`} className="float-end fs-6 me-1 text-decoration-none">📊</Link>) : null}
+            {canAnalyseMatches && season && any(date.tournamentFixtures, t => !t.proposed) ? (<Link to={`/analyse/${season!.name}/?${date.tournamentFixtures!.filter(t => !t.proposed).map(tf => 't=' + tf.id).join('&')}`} className="float-end fs-6 me-1 text-decoration-none">📊</Link>) : null}
         </h4>
         {(date.notes || []).map((note: FixtureDateNoteDto) => (<FixtureDateNote key={note.id} note={note} setEditNote={setEditNote}/>))}
         <table className="table layout-fixed">
