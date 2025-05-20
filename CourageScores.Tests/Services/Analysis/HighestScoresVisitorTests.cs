@@ -23,8 +23,8 @@ public class HighestScoresVisitorTests
 
         Assert.That(response["HighestScores"].Keys, Is.EquivalentTo(["HOME"]));
         Assert.That(response["HighestScores"]["HOME"], Is.EqualTo([
-            new NumericBreakdownDto(10, 1),
-            new NumericBreakdownDto(5, 2),
+            new ScoreBreakdownDto(10, 1),
+            new ScoreBreakdownDto(5, 2),
         ]));
     }
 

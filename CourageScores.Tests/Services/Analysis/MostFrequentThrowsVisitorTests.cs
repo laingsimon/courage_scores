@@ -18,13 +18,16 @@ public class MostFrequentThrowsVisitorTests
 
         await visitor.VisitThrow(Player("HOME"), 0, Throw(5), _token);
         await visitor.VisitThrow(Player("HOME"), 0, Throw(5), _token);
+        await visitor.VisitThrow(Player("HOME"), 0, Throw(5), _token);
         await visitor.VisitThrow(Player("HOME"), 0, Throw(10), _token);
+        await visitor.VisitThrow(Player("HOME"), 0, Throw(10), _token);
+        await visitor.VisitThrow(Player("HOME"), 0, Throw(15), _token); // won't be included as it only occurs once
         visitor.Finished(response);
 
         Assert.That(response["MostFrequentThrows"].Keys, Is.EquivalentTo(["HOME"]));
         Assert.That(response["MostFrequentThrows"]["HOME"], Is.EqualTo([
-            new NumericBreakdownDto(5, 2),
-            new NumericBreakdownDto(10, 1),
+            new ScoreBreakdownDto(5, 3),
+            new ScoreBreakdownDto(10, 2),
         ]));
     }
 

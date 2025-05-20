@@ -3,22 +3,22 @@
 namespace CourageScores.Models.Dtos.Analysis;
 
 [ExcludeFromCodeCoverage]
-public class NumericBreakdownDto : IEquatable<NumericBreakdownDto>
+public class ScoreBreakdownDto : IEquatable<ScoreBreakdownDto>
 {
-    public int Value { get; }
+    public int Score { get; }
     public int Number { get; }
 
-    public NumericBreakdownDto(int value, int number)
+    public ScoreBreakdownDto(int score, int number)
     {
-        Value = value;
+        Score = score;
         Number = number;
     }
 
-    public bool Equals(NumericBreakdownDto? other)
+    public bool Equals(ScoreBreakdownDto? other)
     {
         if (other is null) return false;
         if (ReferenceEquals(this, other)) return true;
-        return Value == other.Value && Number == other.Number;
+        return Score == other.Score && Number == other.Number;
     }
 
     public override bool Equals(object? obj)
@@ -26,11 +26,11 @@ public class NumericBreakdownDto : IEquatable<NumericBreakdownDto>
         if (obj is null) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
-        return Equals((NumericBreakdownDto) obj);
+        return Equals((ScoreBreakdownDto) obj);
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Value, Number);
+        return HashCode.Combine(Score, Number);
     }
 }

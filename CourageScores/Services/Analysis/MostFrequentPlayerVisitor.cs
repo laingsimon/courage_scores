@@ -28,6 +28,7 @@ public class MostFrequentPlayerVisitor : ISaygVisitor
             {
                 return pair.Value
                     .GroupBy(playerName => playerName)
+                    .Where(gr => gr.Count() > 1)
                     .OrderByDescending(gr => gr.Count()).ThenBy(gr => gr.Key)
                     .Select(gr => new NamedBreakdownDto(gr.Key, gr.Count()))
                     .Take(_maxCount)

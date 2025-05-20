@@ -19,15 +19,18 @@ public class MostFrequentPlayerVisitorTests
         await visitor.VisitMatch(new RecordedScoreAsYouGoDto(), new SaygMatchVisitorContext(Player("HOME", "John"), Player("AWAY", "Steve")), _token);
         await visitor.VisitMatch(new RecordedScoreAsYouGoDto(), new SaygMatchVisitorContext(Player("HOME", "John"), Player("AWAY", "Steve")), _token);
         await visitor.VisitMatch(new RecordedScoreAsYouGoDto(), new SaygMatchVisitorContext(Player("HOME", "Paul"), Player("AWAY", "Steve")), _token);
+        await visitor.VisitMatch(new RecordedScoreAsYouGoDto(), new SaygMatchVisitorContext(Player("HOME", "Paul"), Player("AWAY", "Steve")), _token);
+        await visitor.VisitMatch(new RecordedScoreAsYouGoDto(), new SaygMatchVisitorContext(Player("HOME", "James"), Player("AWAY", "Steve")), _token);
         visitor.Finished(response);
 
         Assert.That(response["MostFrequentPlayers"].Keys, Is.EquivalentTo(["HOME", "AWAY"]));
         Assert.That(response["MostFrequentPlayers"]["HOME"], Is.EqualTo([
             new NamedBreakdownDto("John", 2),
-            new NamedBreakdownDto("Paul", 1),
+            new NamedBreakdownDto("Paul", 2),
+            /* James isn't included as he only plays once */
         ]));
         Assert.That(response["MostFrequentPlayers"]["AWAY"], Is.EqualTo([
-            new NamedBreakdownDto("Steve", 3),
+            new NamedBreakdownDto("Steve", 5),
         ]));
     }
 
