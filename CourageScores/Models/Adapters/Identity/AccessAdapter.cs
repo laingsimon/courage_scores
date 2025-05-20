@@ -36,6 +36,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             BulkDeleteLeagueFixtures = model.BulkDeleteLeagueFixtures,
             ManageFeatures = model.ManageFeatures,
             KioskMode = model.KioskMode,
+            AnalyseMatches = model.AnalyseMatches,
         });
     }
 
@@ -70,6 +71,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             BulkDeleteLeagueFixtures = dto.BulkDeleteLeagueFixtures,
             ManageFeatures = dto.ManageFeatures,
             KioskMode = dto.KioskMode,
+            AnalyseMatches = dto.AnalyseMatches,
         });
     }
 }
