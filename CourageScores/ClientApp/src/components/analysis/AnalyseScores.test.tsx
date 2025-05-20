@@ -151,11 +151,14 @@ describe('AnalyseScores', () => {
             ]);
         });
 
-        it('score breakdowns', async () => {
+        it.each([
+            ['MostFrequentThrows', 'Common scores'],
+            ['HighestScores', 'Best scores']
+        ])('score breakdowns: %s', async (type: string, heading: string) => {
             const firstTournament = divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
-            await renderComponent(`?t=${firstTournament.id}&team=Team1&a=MostFrequentThrows`);
+            await renderComponent(`?t=${firstTournament.id}&team=Team1&a=${type}`);
             const analysis: AnalysisResponseDto = {
-                MostFrequentThrows: {
+                [type]: {
                     Team1: [
                         { score: 10, number: 10 },
                         { score: 100, number: 9 },
@@ -169,11 +172,13 @@ describe('AnalyseScores', () => {
             };
             await doClick(findButton(context.container,'Analyse 1 tournament/s'));
 
-            const detail = context.container.querySelector('[datatype="MostFrequentThrows"]')!;
+            const detail = context.container.querySelector(`[datatype="${type}"]`)!;
             const table = detail.querySelector('table')!;
+            const analysisHeading = context.container.querySelector('[datatype="analysis-heading"]')!;
             const headings = Array.from(table.querySelectorAll('thead tr th')).map(th => th.textContent);
             expect(headings).toEqual(['Score', 'Times']);
             const rows = Array.from(table.querySelectorAll('tbody tr'));
+            expect(analysisHeading.textContent).toContain(heading);
             expect(Array.from(rows[0].querySelectorAll('td')).map(td => td.textContent)).toEqual(['10', '10']);
             expect(Array.from(rows[0].querySelectorAll('td')).map(td => td.className)).toEqual(['', '']);
             expect(Array.from(rows[1].querySelectorAll('td')).map(td => td.textContent)).toEqual(['100', '9']);
@@ -408,6 +413,26 @@ describe('AnalyseScores', () => {
             await doClick(teamHeading)
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(`/analyse/SEASON/?t=${firstTournament.id}`);
+        });
+
+        it('can select all tournaments', async () => {
+            await renderComponent();
+
+            await doClick(findButton(context.container, 'All 2'));
+
+            const tournaments = divisionApiResponse!.fixtures![0]!.tournamentFixtures!;
+            const query = tournaments.map(t => `t=${t.id}`).join('&');
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/analyse/SEASON/?${query}`);
+        });
+
+        it('can unselect all tournaments', async () => {
+            const tournaments = divisionApiResponse!.fixtures![0]!.tournamentFixtures!;
+            const query = tournaments.map(t => `t=${t.id}`).join('&');
+            await renderComponent(`?${query}`);
+
+            await doClick(findButton(context.container, 'None'));
+
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/analyse/SEASON/`);
         });
     });
 });
