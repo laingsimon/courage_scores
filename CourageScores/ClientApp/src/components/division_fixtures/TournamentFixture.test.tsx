@@ -235,13 +235,12 @@ describe('TournamentFixture', () => {
         });
 
         it('renders who is playing', async () => {
-            const side1 = sideBuilder('SIDE 1').withPlayer('PLAYER 1').build();
-            const side2 = sideBuilder('SIDE 2').withPlayer('PLAYER 2').withPlayer('PLAYER 3').teamId(createTemporaryId()).build();
-            const side3 = sideBuilder('PLAYER 4, PLAYER 5').withPlayer('PLAYER 4').withPlayer('PLAYER 5').build();
-            const side4 = sideBuilder('WITH DIFFERENT NAME TO PLAYER NAMES').withPlayer('PLAYER 6').withPlayer('PLAYER 7').build();
             const tournament = tournamentBuilder()
                 .address('ADDRESS')
-                .withSide(side1).withSide(side2).withSide(side3).withSide(side4)
+                .withSide(b => b.name('SIDE 1').withPlayer('PLAYER 1'))
+                .withSide(b => b.name('SIDE 2').withPlayer('PLAYER 2').withPlayer('PLAYER 3').teamId(createTemporaryId()))
+                .withSide(b => b.name('PLAYER 4, PLAYER 5').withPlayer('PLAYER 4').withPlayer('PLAYER 5'))
+                .withSide(b => b.name('WITH DIFFERENT NAME TO PLAYER NAMES').withPlayer('PLAYER 6').withPlayer('PLAYER 7'))
                 .type('TYPE')
                 .build();
             await renderComponent(
@@ -250,7 +249,7 @@ describe('TournamentFixture', () => {
                     id: division.id,
                     name: division.name,
                     season,
-                    players: side1.players!.concat(side2.players!).concat(side3.players!).concat(side4.players!) as DivisionPlayerDto[],
+                    players: tournament.sides!.flatMap(s => s.players!) as DivisionPlayerDto[],
                     onReloadDivision,
                     setDivisionData: noop,
                 },
@@ -258,10 +257,10 @@ describe('TournamentFixture', () => {
 
             reportedError.verifyNoError();
             const playersCell = context.container.querySelector('td:first-child')!;
-            assertPlayerDisplayWithPlayerLinks(playersCell, 1, side3.players!);
-            assertSinglePlayerDisplay(playersCell, 2, side1.name!, side1.players![0]);
-            assertPlayerDisplayWithSideNameAndTeamLink(playersCell, 3, side2.name!, side2.teamId!, []);
-            assertPlayerDisplayWithPlayerLinks(playersCell, 4, side4.players!);
+            assertPlayerDisplayWithPlayerLinks(playersCell, 1, tournament.sides!.find(s => s.name === 'PLAYER 4, PLAYER 5')?.players!);
+            assertSinglePlayerDisplay(playersCell, 2, 'SIDE 1', tournament.sides!.find(s => s.name === 'SIDE 1')?.players![0]!);
+            assertPlayerDisplayWithSideNameAndTeamLink(playersCell, 3, 'SIDE 2', tournament.sides!.find(s => s.name === 'SIDE 2')!.teamId!, []);
+            assertPlayerDisplayWithPlayerLinks(playersCell, 4, tournament.sides!.find(s => s.name === 'WITH DIFFERENT NAME TO PLAYER NAMES')?.players!);
         });
 
         it('renders who is playing for superleague tournaments', async () => {
@@ -271,7 +270,10 @@ describe('TournamentFixture', () => {
             const side4 = sideBuilder('PLAYER 4').build();
             const tournament = tournamentBuilder()
                 .address('ADDRESS')
-                .withSide(side1).withSide(side2).withSide(side3).withSide(side4)
+                .withSide(b => b.name('PLAYER 1'))
+                .withSide(b => b.name('PLAYER 2'))
+                .withSide(b => b.name('PLAYER 3'))
+                .withSide(b => b.name('PLAYER 4'))
                 .withFirstRoundMatch(
                     (m: ITournamentMatchBuilder) => m.sideA(side1, 2).sideB(side2, 4),
                     (m: ITournamentMatchBuilder) => m.sideA(side3, 4).sideB(side4, 2)
@@ -303,10 +305,9 @@ describe('TournamentFixture', () => {
 
         it('shades team tournament if favourites defined and tournament does not have favourite team playing', async () => {
             const teamId = createTemporaryId();
-            const side1 = sideBuilder('SIDE 1').teamId(teamId).build();
             const tournament = tournamentBuilder()
                 .address('ADDRESS')
-                .withSide(side1)
+                .withSide(b => b.teamId(teamId).name('SIDE 1'))
                 .type('TYPE')
                 .build();
             await renderComponent(
@@ -315,7 +316,7 @@ describe('TournamentFixture', () => {
                     id: division.id,
                     name: division.name,
                     season,
-                    players: side1.players as DivisionPlayerDto[],
+                    players: [],
                     onReloadDivision,
                     setDivisionData: noop,
                     favouritesEnabled: true,
@@ -332,10 +333,9 @@ describe('TournamentFixture', () => {
         });
 
         it('does not shade non-team tournament if favourites defined and tournament does not have favourite team playing', async () => {
-            const side1 = sideBuilder('SIDE 1').build();
             const tournament = tournamentBuilder()
                 .address('ADDRESS')
-                .withSide(side1)
+                .withSide(b => b.name('SIDE 1'))
                 .type('TYPE')
                 .build();
             await renderComponent(
@@ -344,7 +344,7 @@ describe('TournamentFixture', () => {
                     id: division.id,
                     name: division.name,
                     season,
-                    players: side1.players as DivisionPlayerDto[],
+                    players: [],
                     onReloadDivision,
                     setDivisionData: noop,
                     favouritesEnabled: true,
@@ -362,10 +362,9 @@ describe('TournamentFixture', () => {
 
         it('does not shade team tournament if favourites defined and tournament has favourite team playing', async () => {
             const teamId = createTemporaryId();
-            const side1 = sideBuilder('SIDE 1').teamId(teamId).build();
             const tournament = tournamentBuilder()
                 .address('ADDRESS')
-                .withSide(side1)
+                .withSide(b => b.teamId(teamId).name('SIDE 1'))
                 .type('TYPE')
                 .build();
             await renderComponent(
@@ -374,7 +373,7 @@ describe('TournamentFixture', () => {
                     id: division.id,
                     name: division.name,
                     season,
-                    players: side1.players as DivisionPlayerDto[],
+                    players: [],
                     onReloadDivision,
                     setDivisionData: noop,
                     favouritesEnabled: true,
@@ -392,10 +391,9 @@ describe('TournamentFixture', () => {
 
         it('does not shade team tournament if no favourites defined', async () => {
             const teamId = createTemporaryId();
-            const side1 = sideBuilder('SIDE 1').teamId(teamId).build();
             const tournament = tournamentBuilder()
                 .address('ADDRESS')
-                .withSide(side1)
+                .withSide(b => b.teamId(teamId).name('SIDE 1'))
                 .type('TYPE')
                 .build();
             await renderComponent(
@@ -404,7 +402,7 @@ describe('TournamentFixture', () => {
                     id: division.id,
                     name: division.name,
                     season,
-                    players: side1.players as DivisionPlayerDto[],
+                    players: [],
                     onReloadDivision,
                     setDivisionData: noop,
                     favouritesEnabled: true,
@@ -521,10 +519,9 @@ describe('TournamentFixture', () => {
 
         it('does not shade team tournament if favourites defined and tournament does not have favourite team playing when an admin', async () => {
             const teamId = createTemporaryId();
-            const side1 = sideBuilder('SIDE 1').teamId(teamId).build();
             const tournament = tournamentBuilder()
                 .address('ADDRESS')
-                .withSide(side1)
+                .withSide(b => b.teamId(teamId).name('SIDE 1'))
                 .type('TYPE')
                 .build();
             await renderComponent(
@@ -533,7 +530,7 @@ describe('TournamentFixture', () => {
                     id: division.id,
                     name: division.name,
                     season,
-                    players: side1.players as DivisionPlayerDto[],
+                    players: [],
                     onReloadDivision,
                     setDivisionData: noop,
                     favouritesEnabled: true,

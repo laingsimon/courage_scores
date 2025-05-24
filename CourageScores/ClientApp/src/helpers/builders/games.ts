@@ -1,13 +1,13 @@
 ﻿/* istanbul ignore file */
 
-import {IAddableBuilder, IBuilder} from "./builders";
+import {BuilderParam, IAddableBuilder, IBuilder} from "./builders";
 import {IDatedDivisionFixtureDto} from "../../components/division_fixtures/IDatedDivisionFixtureDto";
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {createTemporaryId} from "../projection";
 import {GameMatchDto} from "../../interfaces/models/dtos/Game/GameMatchDto";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
 import {playerBuilder} from "./players";
-import {saygBuilder} from "./sayg";
+import {IRecordedSaygBuilder, saygBuilder} from "./sayg";
 import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
 
 export interface IFixtureBuilder extends IAddableBuilder<IDatedDivisionFixtureDto & GameDto> {
@@ -22,12 +22,12 @@ export interface IFixtureBuilder extends IAddableBuilder<IDatedDivisionFixtureDt
     forDivision(divisionOrId: any): IFixtureBuilder;
     with180(playerOrName: any): IFixtureBuilder;
     withHiCheck(playerOrName: any, score: number): IFixtureBuilder;
-    withMatch(matchOrBuilderFunc: any): IFixtureBuilder;
-    withMatchOption(matchOptionOrBuilderFunc: any): IFixtureBuilder;
+    withMatch(builder: BuilderParam<IMatchBuilder>): IFixtureBuilder;
+    withMatchOption(builder: BuilderParam<IMatchOptionsBuilder>): IFixtureBuilder;
     editor(name: string): IFixtureBuilder;
     author(name: string): IFixtureBuilder;
-    homeSubmission(submissionOrBuilderFunc?: any, id?: string): IFixtureBuilder;
-    awaySubmission(submissionOrBuilderFunc?: any, id?: string): IFixtureBuilder;
+    homeSubmission(builder: BuilderParam<IFixtureBuilder>, id?: string): IFixtureBuilder;
+    awaySubmission(builder: BuilderParam<IFixtureBuilder>, id?: string): IFixtureBuilder;
     updated(time: string): IFixtureBuilder;
 }
 
@@ -134,18 +134,14 @@ export function fixtureBuilder(date?: string, id?: string): IFixtureBuilder {
             fixture.over100Checkouts?.push(Object.assign({}, player, { score }));
             return builder;
         },
-        withMatch: (matchOrBuilderFunc: any) => {
-            const match = matchOrBuilderFunc instanceof Function
-                ? matchOrBuilderFunc(matchBuilder())
-                : matchOrBuilderFunc;
-            fixture.matches?.push(match.build ? match.build() : match);
+        withMatch: (b: BuilderParam<IMatchBuilder>) => {
+            const match = b(matchBuilder());
+            fixture.matches?.push(match.build());
             return builder;
         },
-        withMatchOption: (matchOptionOrBuilderFunc: any) => {
-            const matchOption = matchOptionOrBuilderFunc instanceof Function
-                ? matchOptionOrBuilderFunc(matchOptionsBuilder())
-                : matchOptionOrBuilderFunc;
-            fixture.matchOptions?.push(matchOption.build ? matchOption.build() : matchOption);
+        withMatchOption: (b: BuilderParam<IMatchOptionsBuilder>) => {
+            const matchOption = b(matchOptionsBuilder());
+            fixture.matchOptions?.push(matchOption.build());
             return builder;
         },
         editor: (name: string) => {
@@ -160,18 +156,14 @@ export function fixtureBuilder(date?: string, id?: string): IFixtureBuilder {
             fixture.updated = date;
             return builder;
         },
-        homeSubmission: (submissionOrBuilderFunc?: any, id?: string) => {
-            const submission = submissionOrBuilderFunc instanceof Function
-                ? submissionOrBuilderFunc(fixtureBuilder(fixture.date, id || fixture.id))
-                : submissionOrBuilderFunc;
-            fixture.homeSubmission = submission && submission.build ? submission.build() : submission;
+        homeSubmission: (b: BuilderParam<IFixtureBuilder>, id?: string) => {
+            const submission = b(fixtureBuilder(fixture.date, id || fixture.id));
+            fixture.homeSubmission = submission.build();
             return builder;
         },
-        awaySubmission: (submissionOrBuilderFunc?: any, id?: string) => {
-            const submission = submissionOrBuilderFunc instanceof Function
-                ? submissionOrBuilderFunc(fixtureBuilder(fixture.date, id || fixture.id))
-                : submissionOrBuilderFunc;
-            fixture.awaySubmission = submission && submission.build ? submission.build() : submission;
+        awaySubmission: (b: BuilderParam<IFixtureBuilder>, id?: string) => {
+            const submission = b(fixtureBuilder(fixture.date, id || fixture.id));
+            fixture.awaySubmission = submission.build();
             return builder;
         },
     };
@@ -183,7 +175,7 @@ export interface IMatchBuilder extends IBuilder<GameMatchDto> {
     withHome(playerOrName?: any): IMatchBuilder;
     withAway(playerOrName?: any): IMatchBuilder;
     scores(home: any, away: any): IMatchBuilder;
-    sayg(saygOrBuilderFunc: any, id?: any): IMatchBuilder;
+    sayg(builder: BuilderParam<IRecordedSaygBuilder>, id?: any): IMatchBuilder;
 }
 
 export function matchBuilder(): IMatchBuilder {
@@ -212,11 +204,9 @@ export function matchBuilder(): IMatchBuilder {
             match.awayScore = away;
             return builder;
         },
-        sayg: (saygOrBuilderFunc: any, id?: any) => {
-            const sayg = saygOrBuilderFunc instanceof Function
-                ? saygOrBuilderFunc(saygBuilder(id))
-                : saygOrBuilderFunc;
-            match.sayg = sayg.build ? sayg.build() : sayg;
+        sayg: (b: BuilderParam<IRecordedSaygBuilder>, id?: any) => {
+            const sayg = b(saygBuilder(id));
+            match.sayg = sayg.build();
             return builder;
         }
     };

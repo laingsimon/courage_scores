@@ -32,6 +32,7 @@ import {divisionBuilder} from "../../helpers/builders/divisions";
 import {IAppContainerProps} from "../common/AppContainer";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {tournamentContainerPropsBuilder} from "./tournamentContainerPropsBuilder";
+import {BuilderParam} from "../../helpers/builders/builders";
 
 interface ISideInfo {
     sideAwinner?: boolean;
@@ -79,14 +80,16 @@ describe('PrintableSheet', () => {
             </TournamentContainer>));
     }
 
-    function createSide(name: string, players?: TeamPlayerDto[]): TournamentSideDto {
-        let side: ITournamentSideBuilder = sideBuilder(name);
+    function createSide(name: string, players?: TeamPlayerDto[]): BuilderParam<ITournamentSideBuilder> {
+        return (builder) => {
+            const side = builder.name(name);
 
-        if (players && players.length === 1) {
-            side = side.withPlayer(players[0]);
+            if (players && players.length === 1) {
+                return side.withPlayer(players[0]);
+            }
+
+            return side;
         }
-
-        return side.build();
     }
 
     function getRounds() {
@@ -205,18 +208,18 @@ describe('PrintableSheet', () => {
     }
 
     describe('played tournament', () => {
-        const sideA: TournamentSideDto = createSide('a');
-        const sideB: TournamentSideDto = createSide('b');
-        const sideC: TournamentSideDto = createSide('c');
-        const sideD: TournamentSideDto = createSide('d');
-        const sideE: TournamentSideDto = createSide('e');
-        const sideF: TournamentSideDto = createSide('f');
-        const sideG: TournamentSideDto = createSide('g');
-        const sideH: TournamentSideDto = createSide('h');
-        const sideI: TournamentSideDto = createSide('i');
-        const sideJ: TournamentSideDto = createSide('j');
-        const sideK: TournamentSideDto = createSide('k');
-        const sideL: TournamentSideDto = createSide('l');
+        const sideA: BuilderParam<ITournamentSideBuilder> = createSide('a');
+        const sideB: BuilderParam<ITournamentSideBuilder> = createSide('b');
+        const sideC: BuilderParam<ITournamentSideBuilder> = createSide('c');
+        const sideD: BuilderParam<ITournamentSideBuilder> = createSide('d');
+        const sideE: BuilderParam<ITournamentSideBuilder> = createSide('e');
+        const sideF: BuilderParam<ITournamentSideBuilder> = createSide('f');
+        const sideG: BuilderParam<ITournamentSideBuilder> = createSide('g');
+        const sideH: BuilderParam<ITournamentSideBuilder> = createSide('h');
+        const sideI: BuilderParam<ITournamentSideBuilder> = createSide('i');
+        const sideJ: BuilderParam<ITournamentSideBuilder> = createSide('j');
+        const sideK: BuilderParam<ITournamentSideBuilder> = createSide('k');
+        const sideL: BuilderParam<ITournamentSideBuilder> = createSide('l');
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const season: SeasonDto = seasonBuilder('SEASON').withDivision(division).build();
         const anotherSeason: SeasonDto = seasonBuilder('SEASON').build();
@@ -238,11 +241,9 @@ describe('PrintableSheet', () => {
         const noPlayerTeam: TeamDto = teamBuilder('TEAM')
             .forSeason(season, division)
             .build();
-        const sideASinglePlayer: TournamentSideDto = createSide('A', [player1]);
-        const sideBSinglePlayer: TournamentSideDto = createSide('B', [player2]);
         const singlePlayerTournament: TournamentGameDto = tournamentBuilder()
-            .withSide(sideASinglePlayer)
-            .withSide(sideBSinglePlayer)
+            .withSide(b => b.name('A').withPlayer(player1))
+            .withSide(b => b.name('B').withPlayer(player2))
             .build();
         let twoRoundTournament4Sides: TournamentGameDto;
         let oneRoundTournament2Sides: TournamentGameDto;
@@ -270,11 +271,11 @@ describe('PrintableSheet', () => {
             oneRoundTournament2Sides = tournamentBuilder()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m
-                        .sideA(sideASinglePlayer, 1)
-                        .sideB(sideBSinglePlayer, 2))
+                        .sideA(sideBuilder('A').withPlayer(player1).build(), 1)
+                        .sideB(sideBuilder('B').withPlayer(player2).build(), 2))
                     .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
-                .withSide(sideASinglePlayer)
-                .withSide(sideBSinglePlayer)
+                .withSide(b => b.name('A').withPlayer(player1))
+                .withSide(b => b.name('B').withPlayer(player2))
                 .build();
         });
 
@@ -468,24 +469,23 @@ describe('PrintableSheet', () => {
         });
 
         it('does not render winner when 2 matches in final round (semi final is last round so far)', async () => {
-            const sideCSinglePlayer: TournamentSideDto = createSide('C', [playerBuilder('PLAYER 3').build()]);
-            const sideDSinglePlayer: TournamentSideDto = createSide('D', [playerBuilder('PLAYER 4').build()]);
-            const sideESinglePlayer: TournamentSideDto = createSide('E', [playerBuilder('PLAYER 5').build()]);
+            const sideCSinglePlayer: BuilderParam<ITournamentSideBuilder> = createSide('C', [playerBuilder('PLAYER 3').build()]);
+            const sideDSinglePlayer: BuilderParam<ITournamentSideBuilder> = createSide('D', [playerBuilder('PLAYER 4').build()]);
             const tournamentData = tournamentBuilder()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m
-                        .sideA(sideASinglePlayer, 1)
-                        .sideB(sideBSinglePlayer, 3))
+                        .sideA(sideBuilder('A').withPlayer(player1).build(), 1)
+                        .sideB(sideBuilder('B').withPlayer(player2).build(), 3))
                     .withMatch((m: ITournamentMatchBuilder) => m
                         .sideA(sideCSinglePlayer, 0)
                         .sideB(sideDSinglePlayer, 0))
                     .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(5))
                     .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(5)))
-                .withSide(sideASinglePlayer)
-                .withSide(sideBSinglePlayer)
-                .withSide(sideCSinglePlayer)
-                .withSide(sideDSinglePlayer)
-                .withSide(sideESinglePlayer)
+                .withSide(b => b.name('A').withPlayer(player1))
+                .withSide(b => b.name('B').withPlayer(player2))
+                .withSide(b => b.name('C').withPlayer('PLAYER 3'))
+                .withSide(b => b.name('D').withPlayer('PLAYER 4'))
+                .withSide(b => b.name('E').withPlayer('PLAYER 5'))
                 .build();
 
             await renderComponent(
@@ -546,13 +546,9 @@ describe('PrintableSheet', () => {
 
         it('renders who is playing (teams)', async () => {
             const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM').build();
-            const sideA: TournamentSideDto = createSide('A');
-            sideA.teamId = noPlayerTeam.id;
-            const sideB: TournamentSideDto = createSide('B');
-            sideB.teamId = anotherTeam.id;
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .withSide(sideA)
-                .withSide(sideB)
+                .withSide(b => b.name('A').teamId(noPlayerTeam.id))
+                .withSide(b => b.name('B').teamId(anotherTeam.id))
                 .build();
 
             await renderComponent(
@@ -563,7 +559,7 @@ describe('PrintableSheet', () => {
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
             expect(getWhoIsPlaying(linkHref)).toEqual([
                 `http://localhost/division/${division.name}/team:TEAM/${season.name}`,
-                `http://localhost/division/${division.name}/team:${sideB.teamId}/${season.name}`]);
+                `http://localhost/division/${division.name}/team:${anotherTeam.id}/${season.name}`]);
         });
 
         it('renders who is playing when cross-divisional', async () => {
@@ -697,7 +693,7 @@ describe('PrintableSheet', () => {
         });
 
         it('can edit match side a', async () => {
-            twoRoundTournament4Sides.sides!.push(sideE);
+            twoRoundTournament4Sides.sides!.push(sideE(sideBuilder()).build());
             await renderComponent(
                 containerProps.withTournament(twoRoundTournament4Sides).build(),
                 {editable: true},
@@ -705,12 +701,12 @@ describe('PrintableSheet', () => {
 
             await doClick(context.container.querySelector('div[datatype="sideA"]')!);
             const dialog = context.container.querySelector('div.modal-dialog')!;
-            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), sideE.name!); // side
+            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), 'e'); // side
             await doSelectOption(dialog.querySelector('div.btn-group:nth-child(4) .dropdown-menu'), '2'); // score
             await doClick(findButton(dialog, 'Save'));
 
             expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament!.round!.matches![0].sideA.id).toEqual(sideE.id);
+            expect(updatedTournament!.round!.matches![0].sideA.name).toEqual('e');
             expect(updatedTournament!.round!.matches![0].scoreA).toEqual(2);
         });
 
@@ -729,7 +725,7 @@ describe('PrintableSheet', () => {
         });
 
         it('can edit match side b', async () => {
-            twoRoundTournament4Sides.sides!.push(sideE);
+            twoRoundTournament4Sides.sides!.push(sideE(sideBuilder()).build());
             await renderComponent(
                 containerProps.withTournament(twoRoundTournament4Sides).build(),
                 {editable: true},
@@ -737,12 +733,12 @@ describe('PrintableSheet', () => {
 
             await doClick(context.container.querySelector('div[datatype="sideB"]')!);
             const dialog = context.container.querySelector('div.modal-dialog')!;
-            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), sideE.name!); // side
+            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), 'e'); // side
             await doSelectOption(dialog.querySelector('div.btn-group:nth-child(4) .dropdown-menu'), '2'); // score
             await doClick(findButton(dialog, 'Save'));
 
             expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament!.round!.matches![0].sideB.id).toEqual(sideE.id);
+            expect(updatedTournament!.round!.matches![0].sideB.name).toEqual('e');
             expect(updatedTournament!.round!.matches![0].scoreB).toEqual(2);
         });
 
@@ -796,7 +792,6 @@ describe('PrintableSheet', () => {
         });
 
         it('can edit side', async () => {
-            sideA.players = [ player1 ];
             await renderComponent(
                 containerProps.withTournament(twoRoundTournament4Sides).withAllPlayers([player1]).build(),
                 {editable: true},
@@ -810,7 +805,7 @@ describe('PrintableSheet', () => {
 
             expect(updatedTournament).not.toBeNull();
             expect(updatedTournament!.sides!.map((s: TournamentSideDto) => s.name))
-                .toEqual([sideB.name, sideC.name, sideD.name, 'NEW SIDE A']);
+                .toEqual(['b', 'c', 'd', 'NEW SIDE A']);
         });
 
         it('can close edit side dialog', async () => {
@@ -831,8 +826,11 @@ describe('PrintableSheet', () => {
         it('can add a side', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
                 .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideASinglePlayer, 1).sideB(sideBSinglePlayer, 2)))
-                .withSide(sideASinglePlayer).withSide(sideBSinglePlayer)
+                    .withMatch((m: ITournamentMatchBuilder) => m
+                        .sideA(sideBuilder('A').withPlayer(player1).build(), 1)
+                        .sideB(sideBuilder('B').withPlayer(player2).build(), 2)))
+                .withSide(b => b.name('A').withPlayer(player1))
+                .withSide(b => b.name('B').withPlayer(player2))
                 .build();
             const player3: TeamPlayerDto = playerBuilder('PLAYER 3').build();
             const player3Team: TeamDto = teamBuilder('TEAM')
@@ -851,7 +849,7 @@ describe('PrintableSheet', () => {
 
             expect(updatedTournament).not.toBeNull();
             expect(updatedTournament!.sides!.map((s: TournamentSideDto) => s.name))
-                .toEqual([sideASinglePlayer.name, sideBSinglePlayer.name, 'NEW SIDE']);
+                .toEqual(['A', 'B', 'NEW SIDE']);
         });
 
         it('can remove a side', async () => {
@@ -868,13 +866,11 @@ describe('PrintableSheet', () => {
 
             expect(updatedTournament).not.toBeNull();
             expect(updatedTournament!.sides!.map((s: TournamentSideDto) => s.name))
-                .toEqual([sideBSinglePlayer.name]);
+                .toEqual(['B']);
         });
     });
 
     describe('unplayed tournament', () => {
-        const sideA: TournamentSideDto = createSide('A');
-        const sideB: TournamentSideDto = createSide('B');
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const season: SeasonDto = seasonBuilder('SEASON')
             .withDivision(division)
@@ -892,8 +888,8 @@ describe('PrintableSheet', () => {
             .build();
         const emptyTournament: TournamentGameDto = tournamentBuilder().build();
         const sideAandBTournament: TournamentGameDto = tournamentBuilder()
-            .withSide(sideA)
-            .withSide(sideB)
+            .withSide(b => b.name('A'))
+            .withSide(b => b.name('B'))
             .build();
         const containerProps = new tournamentContainerPropsBuilder({
             season,
@@ -921,9 +917,9 @@ describe('PrintableSheet', () => {
 
         it('renders tournament with 2 sides and one no-show', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .withSide(sideA)
-                .withSide(sideB)
-                .withSide(sideBuilder('NO SHOW').noShow().build())
+                .withSide(b => b.name('A'))
+                .withSide(b => b.name('B'))
+                .withSide(b => b.name('NO SHOW').noShow())
                 .build();
 
             await renderComponent(
@@ -984,12 +980,12 @@ describe('PrintableSheet', () => {
 
             await doClick(context.container.querySelector('div[datatype="sideA"]')!);
             const dialog = context.container.querySelector('div.modal-dialog')!;
-            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), sideA.name!); // side
+            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), 'A'); // side
             await doSelectOption(dialog.querySelector('div.btn-group:nth-child(4) .dropdown-menu'), '2'); // score
             await doClick(findButton(dialog, 'Save'));
 
             expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament!.round!.matches![0].sideA.id).toEqual(sideA.id);
+            expect(updatedTournament!.round!.matches![0].sideA.name).toEqual('A');
             expect(updatedTournament!.round!.matches![0].scoreA).toEqual(2);
         });
 
@@ -1001,22 +997,20 @@ describe('PrintableSheet', () => {
 
             await doClick(context.container.querySelector('div[datatype="sideB"]')!);
             const dialog = context.container.querySelector('div.modal-dialog')!;
-            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), sideA.name!); // side
+            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), 'A'); // side
             await doSelectOption(dialog.querySelector('div.btn-group:nth-child(4) .dropdown-menu'), '2'); // score
             await doClick(findButton(dialog, 'Save'));
 
             expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament!.round!.matches![0].sideB.id).toEqual(sideA.id);
+            expect(updatedTournament!.round!.matches![0].sideB.name).toEqual('A');
             expect(updatedTournament!.round!.matches![0].scoreB).toEqual(2);
         });
 
         it('cannot set match side to no-show side', async () => {
-            const noShowSide: TournamentSideDto = createSide('NO SHOW');
-            noShowSide.noShow = true;
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .withSide(sideA)
-                .withSide(sideB)
-                .withSide(noShowSide)
+                .withSide(b => b.name('A'))
+                .withSide(b => b.name('B'))
+                .withSide(b => b.name('NO SHOW').noShow())
                 .build();
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
@@ -1094,7 +1088,7 @@ describe('PrintableSheet', () => {
 
             expect(updatedTournament).not.toBeNull();
             expect(updatedTournament!.sides!.map((s: TournamentSideDto) => s.name))
-                .toEqual([sideB.name]);
+                .toEqual(['B']);
         });
     });
 

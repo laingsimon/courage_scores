@@ -1,6 +1,6 @@
 ﻿/* istanbul ignore file */
 
-import {IAddableBuilder, IBuilder} from "./builders";
+import {BuilderParam, IAddableBuilder, IBuilder} from "./builders";
 import {IDatedDivisionFixtureDto} from "../../components/division_fixtures/IDatedDivisionFixtureDto";
 import {IEditableDivisionFixtureDto} from "../../components/division_fixtures/DivisionFixture";
 import {createTemporaryId} from "../projection";
@@ -12,9 +12,9 @@ import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
 import {teamBuilder} from "./teams";
 import {playerBuilder} from "./players";
-import {seasonBuilder} from "./seasons";
+import {ISeasonBuilder, seasonBuilder} from "./seasons";
 import {IDivisionDataContainerProps} from "../../components/league/DivisionDataContainer";
-import {tournamentBuilder} from "./tournaments";
+import {ITournamentBuilder, tournamentBuilder} from "./tournaments";
 import {ReactNode} from "react";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 import {noop} from "../tests";
@@ -124,9 +124,9 @@ export function divisionFixtureBuilder(date?: string, id?: string): IDivisionFix
 
 export interface IDivisionFixtureDateBuilder extends IBuilder<DivisionFixtureDateDto & IEditableDivisionFixtureDateDto> {
     knockout(): IDivisionFixtureDateBuilder;
-    withFixture(fixtureOrModifierFunc: any, id?: string): IDivisionFixtureDateBuilder;
-    withTournament(tournamentOrModifierFunc: any, id?: string): IDivisionFixtureDateBuilder;
-    withNote(noteOrModifierFunc: any, id?: string): IDivisionFixtureDateBuilder;
+    withFixture(builder: BuilderParam<IDivisionFixtureBuilder>, id?: string): IDivisionFixtureDateBuilder;
+    withTournament(builder: BuilderParam<ITournamentBuilder>, id?: string): IDivisionFixtureDateBuilder;
+    withNote(builder: BuilderParam<INoteBuilder>, id?: string): IDivisionFixtureDateBuilder;
     isNew(): IDivisionFixtureDateBuilder;
 }
 
@@ -144,25 +144,19 @@ export function fixtureDateBuilder(date?: string): IDivisionFixtureDateBuilder {
             fixtureDate.isKnockout = true;
             return builder;
         },
-        withFixture: (fixtureOrModifierFunc: any, id?: string) => {
-            const fixture = fixtureOrModifierFunc instanceof Function
-                ? fixtureOrModifierFunc(divisionFixtureBuilder(date, id))
-                : fixtureOrModifierFunc;
-            fixtureDate.fixtures?.push(fixture.build ? fixture.build() : fixture);
+        withFixture: (b: BuilderParam<IDivisionFixtureBuilder>, id?: string) => {
+            const fixture = b(divisionFixtureBuilder(date, id));
+            fixtureDate.fixtures?.push(fixture.build());
             return builder;
         },
-        withTournament: (tournamentOrModifierFunc: any, id?: string) => {
-            const tournament = tournamentOrModifierFunc instanceof Function
-                ? tournamentOrModifierFunc(tournamentBuilder(id).date(date || ''))
-                : tournamentOrModifierFunc;
-            fixtureDate.tournamentFixtures?.push(tournament.build ? tournament.build() : tournament);
+        withTournament: (b: BuilderParam<ITournamentBuilder>, id?: string) => {
+            const tournament = b(tournamentBuilder(id).date(date || '')).build();
+            fixtureDate.tournamentFixtures?.push(tournament);
             return builder;
         },
-        withNote: (noteOrModifierFunc: any, id?: string) => {
-            const note = noteOrModifierFunc instanceof Function
-                ? noteOrModifierFunc(noteBuilder(date, id))
-                : noteOrModifierFunc;
-            fixtureDate.notes?.push(note.build ? note.build() : note);
+        withNote: (modifierFunc: BuilderParam<INoteBuilder>, id?: string) => {
+            const note = modifierFunc(noteBuilder(date, id));
+            fixtureDate.notes?.push(note.build());
             return builder;
         },
         isNew: () => {
@@ -248,8 +242,8 @@ export function divisionBuilder(name: string, id?: string): IDivisionBuilder {
 }
 
 export interface IDivisionDataBuilder extends IAddableBuilder<DivisionDataDto & IDivisionDataContainerProps> {
-    withFixtureDate(fixtureDateOrBuilderFunc: any, date?: string): IDivisionDataBuilder;
-    season(seasonOrBuilderFunc: any, name?: string, id?: string): IDivisionDataBuilder;
+    withFixtureDate(builder: BuilderParam<IDivisionFixtureDateBuilder>, date?: string): IDivisionDataBuilder;
+    season(builder: BuilderParam<ISeasonBuilder>, name?: string, id?: string): IDivisionDataBuilder;
     name(name?: string): IDivisionDataBuilder;
     withTeam(teamOrBuilderFunc: any, name?: string, id?: string): IDivisionDataBuilder;
     withPlayer(playerOrBuilderFunc: any, name?: string, id?: string): IDivisionDataBuilder;
@@ -284,18 +278,13 @@ export function divisionDataBuilder(divisionOrId?: any): IDivisionDataBuilder {
             map[divisionData.id || ''] = divisionData;
             return builder;
         },
-        withFixtureDate: (fixtureDateOrBuilderFunc: any, date?: string) => {
-            const fixtureDate = fixtureDateOrBuilderFunc instanceof Function
-                ? fixtureDateOrBuilderFunc(fixtureDateBuilder(date))
-                : fixtureDateOrBuilderFunc;
-            divisionData.fixtures?.push(fixtureDate.build ? fixtureDate.build() : fixtureDate);
+        withFixtureDate: (b: BuilderParam<IDivisionFixtureDateBuilder>, date?: string) => {
+            const fixtureDate = b(fixtureDateBuilder(date)).build();
+            divisionData.fixtures?.push(fixtureDate);
             return builder;
         },
-        season: (seasonOrBuilderFunc: any, name?: string, id?: string) => {
-            const season = seasonOrBuilderFunc instanceof Function
-                ? seasonOrBuilderFunc(seasonBuilder(name, id))
-                : seasonOrBuilderFunc;
-            divisionData.season = season.build ? season.build() : season;
+        season: (b: BuilderParam<ISeasonBuilder>, name?: string, id?: string) => {
+            divisionData.season = b(seasonBuilder(name, id)).build();
             return builder;
         },
         name: (name?: string) => {

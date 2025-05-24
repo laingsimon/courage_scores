@@ -16,7 +16,7 @@ import {IAppContainerProps} from "../common/AppContainer";
 import {
     ITournamentMatchBuilder,
     ITournamentRoundBuilder, roundBuilder,
-    tournamentBuilder, tournamentMatchBuilder
+    tournamentBuilder
 } from "../../helpers/builders/tournaments";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
@@ -27,6 +27,7 @@ import {divisionBuilder, divisionDataBuilder, IDivisionFixtureDateBuilder} from 
 import {IDivisionApi} from "../../interfaces/apis/IDivisionApi";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
 import {renderDate} from "../../helpers/rendering";
+import {createTemporaryId} from "../../helpers/projection";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -442,11 +443,11 @@ describe('LiveSayg', () => {
         });
 
         it('redirects to superleague tournaments today', async () => {
-            const tournament = tournamentBuilder().build();
+            const tournamentId = createTemporaryId();
             const division = divisionDataBuilder('SUPER LEAGUE')
                 .superleague()
                 .withFixtureDate((d: IDivisionFixtureDateBuilder) => d
-                    .withTournament(tournament))
+                    .withTournament(t => t, tournamentId))
                 .build();
             divisionData = division;
             await renderComponent(
@@ -463,7 +464,7 @@ describe('LiveSayg', () => {
                 '/live/superleague/');
 
             reportedError.verifyNoError();
-            expect(mockedUsedNavigate).toHaveBeenCalledWith('/live/superleague/?id=' + tournament.id, { replace: true });
+            expect(mockedUsedNavigate).toHaveBeenCalledWith('/live/superleague/?id=' + tournamentId, { replace: true });
         });
 
         it('renders note if no superleague tournaments found on given date', async () => {
@@ -487,11 +488,11 @@ describe('LiveSayg', () => {
         });
 
         it('redirects to superleague tournaments on given date', async () => {
-            const tournament = tournamentBuilder().build();
+            const tournamentId = createTemporaryId();
             const division = divisionDataBuilder('SUPER LEAGUE')
                 .superleague()
                 .withFixtureDate((d: IDivisionFixtureDateBuilder) => d
-                    .withTournament(tournament))
+                    .withTournament(t => t, tournamentId))
                 .build();
             divisionData = division;
             await renderComponent(
@@ -508,7 +509,7 @@ describe('LiveSayg', () => {
                 '/live/superleague/?date=2025-01-01');
 
             reportedError.verifyNoError();
-            expect(mockedUsedNavigate).toHaveBeenCalledWith('/live/superleague/?id=' + tournament.id, { replace: true });
+            expect(mockedUsedNavigate).toHaveBeenCalledWith('/live/superleague/?id=' + tournamentId, { replace: true });
         });
     });
 
@@ -714,12 +715,9 @@ describe('LiveSayg', () => {
                     .away((c: ILegCompetitorScoreBuilder) => c.withThrow(5).withThrow(50)))
                 .addTo(saygData)
                 .build();
-            const match = tournamentMatchBuilder()
-                .sideA('SIDE A')
+            tournament1.round = roundBuilder().withMatch((m: ITournamentMatchBuilder) => m.sideA('SIDE A')
                 .sideB('SIDE B')
-                .saygId(sayg.id)
-                .build();
-            tournament1.round = roundBuilder().withMatch(match).build();
+                .saygId(sayg.id)).build();
 
             await renderComponent(
                 appProps({
@@ -754,12 +752,11 @@ describe('LiveSayg', () => {
                     .away((c: ILegCompetitorScoreBuilder) => c.withThrow(5).withThrow(50)))
                 .addTo(saygData)
                 .build();
-            const match = tournamentMatchBuilder()
+            const matchId = createTemporaryId();
+            tournament1.round = roundBuilder().withMatch((m: ITournamentMatchBuilder) => m
                 .sideA('SIDE A')
                 .sideB('SIDE B')
-                .saygId(sayg.id)
-                .build();
-            tournament1.round = roundBuilder().withMatch(match).build();
+                .saygId(sayg.id), matchId).build();
 
             await renderComponent(
                 appProps({
@@ -773,12 +770,10 @@ describe('LiveSayg', () => {
                 .host('HOST 1.1').opponent('OPPONENT 1.1')
                 .bestOf(3)
                 .type('BOARD 1.1').build();
-            const updatedMatch = tournamentMatchBuilder(match.id)
+            updatedTournament1.round = roundBuilder().withMatch((m: ITournamentMatchBuilder) => m
                 .sideA('SIDE A', 2)
                 .sideB('SIDE B', 0)
-                .saygId(sayg.id)
-                .build();
-            updatedTournament1.round = roundBuilder().withMatch(updatedMatch).build();
+                .saygId(sayg.id), matchId).build();
             await sendUpdate(updatedTournament1);
 
             liveScores = context.container.querySelector('div[datatype="live-scores"]')!;
@@ -831,19 +826,16 @@ describe('LiveSayg', () => {
 
         it('subscribes to sayg when it is added to a match', async () => {
             const sayg = saygBuilder().build();
-            const matchWithoutSayg = tournamentMatchBuilder()
-                .sideA('HOST PLAYER')
-                .sideB('OPPONENT PLAYER')
-                .build();
-            const matchWithSayg = tournamentMatchBuilder(matchWithoutSayg.id)
-                .sideA('HOST PLAYER')
-                .sideB('OPPONENT PLAYER')
-                .saygId(sayg.id)
-                .build();
+            const matchId = createTemporaryId();
             const matchAdded = tournamentBuilder(tournament1.id)
-                .round((r: ITournamentRoundBuilder) => r.withMatch(matchWithoutSayg)).build();
+                .round((r: ITournamentRoundBuilder) => r.withMatch((m: ITournamentMatchBuilder) => m
+                    .sideA('HOST PLAYER')
+                    .sideB('OPPONENT PLAYER'), matchId)).build();
             const matchSaygSet = tournamentBuilder(tournament1.id)
-                .round((r: ITournamentRoundBuilder) => r.withMatch(matchWithSayg)).build();
+                .round((r: ITournamentRoundBuilder) => r.withMatch((m: ITournamentMatchBuilder) => m
+                    .sideA('HOST PLAYER')
+                    .sideB('OPPONENT PLAYER')
+                    .saygId(sayg.id), matchId)).build();
 
             await renderComponent(
                 appProps({
