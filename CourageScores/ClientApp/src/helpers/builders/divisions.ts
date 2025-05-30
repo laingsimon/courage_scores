@@ -237,13 +237,11 @@ export interface IDivisionDataBuilder extends IAddableBuilder<DivisionDataDto & 
     favouritesEnabled(enabled?: boolean): IDivisionDataBuilder;
 }
 
-export function divisionDataBuilder(divisionOrId?: any): IDivisionDataBuilder {
-    const divisionId = divisionOrId && divisionOrId.id
-        ? divisionOrId.id
-        : divisionOrId || createTemporaryId();
+export function divisionDataBuilder(division?: DivisionDto): IDivisionDataBuilder {
+    const divisionId = division?.id || createTemporaryId();
     const divisionData: DivisionDataDto & IDivisionDataContainerProps = {
         id: divisionId || createTemporaryId(),
-        name: divisionOrId && divisionOrId.name ? divisionOrId.name : null,
+        name: division?.name ?? '',
         fixtures: [],
         teams: [],
         dataErrors: [],
@@ -251,7 +249,7 @@ export function divisionDataBuilder(divisionOrId?: any): IDivisionDataBuilder {
         setDivisionData: noop,
         onReloadDivision: noop,
         children: null,
-        superleague: divisionOrId && divisionOrId.superleague,
+        superleague: division?.superleague,
     };
 
     const builder: IDivisionDataBuilder = {

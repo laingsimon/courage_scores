@@ -31,7 +31,7 @@ describe('ManOfTheMatchInput', () => {
         updatedFixtureData = null;
     });
 
-    async function renderComponent(account: UserDto | null, props: IManOfTheMatchInputProps) {
+    async function renderComponent(account: UserDto | undefined, props: IManOfTheMatchInputProps) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
@@ -63,7 +63,7 @@ describe('ManOfTheMatchInput', () => {
     }
 
     describe('when logged out', () => {
-        const account: UserDto | null = null;
+        const account: UserDto | undefined = undefined;
         const saving = false;
         const access = '';
 

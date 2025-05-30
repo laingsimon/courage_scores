@@ -10,7 +10,7 @@ describe('DebugOptions', () => {
         await cleanUp(context);
     });
 
-    async function renderComponent(account: UserDto | null, children: React.ReactNode) {
+    async function renderComponent(account: UserDto | undefined, children: React.ReactNode) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
@@ -19,9 +19,7 @@ describe('DebugOptions', () => {
     }
 
     it('does not render when logged out', async () => {
-        const account = null;
-
-        await renderComponent(account, (<span>item</span>));
+        await renderComponent(undefined, (<span>item</span>));
 
         const button = context.container.querySelector('.dropdown-menu');
         expect(button).toBeFalsy();

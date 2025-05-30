@@ -58,6 +58,9 @@ describe('WidescreenSaygPlayer', () => {
             brandingProps(),
             appProps({
                 account: {
+                    emailAddress: '',
+                    givenName: '',
+                    name: '',
                     access: {
                         useWebSockets: true,
                     },

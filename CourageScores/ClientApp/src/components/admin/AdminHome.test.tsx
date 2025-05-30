@@ -301,7 +301,7 @@ describe('AdminHome', () => {
         context = await renderApp(
             iocProps({dataApi, accountApi, templateApi, liveApi}),
             brandingProps(),
-            appProps({account: null, appLoading: false}),
+            appProps({appLoading: false}),
             (<AdminContainer tables={[]} accounts={[]}>
                 <AdminHome/>
             </AdminContainer>));

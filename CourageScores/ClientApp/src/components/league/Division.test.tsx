@@ -41,6 +41,8 @@ import {IFeatureApi} from "../../interfaces/apis/IFeatureApi";
 import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
 import {DivisionUriContainer, IDivisionUriContainerProps, UrlStyle} from "./DivisionUriContainer";
 import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
+import {AccessDto} from "../../interfaces/models/dtos/Identity/AccessDto";
 
 describe('Division', () => {
     let context: TestContext;
@@ -103,6 +105,15 @@ describe('Division', () => {
             </DivisionUriContainer>),
             route,
             address);
+    }
+
+    function user(access: AccessDto): UserDto {
+        return {
+            name: '',
+            givenName: '',
+            emailAddress: '',
+            access,
+        }
     }
 
     describe('when out of season', () => {
@@ -635,11 +646,9 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                    account: {
-                        access: {
-                            runReports: false,
-                        }
-                    }
+                    account: user({
+                        runReports: false,
+                    }),
                 }, reportedError), '/division/:divisionId', `/division/${division.id}`,
                     { urlStyle: UrlStyle.Single, children: <Division /> });
 
@@ -652,11 +661,9 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                    account: {
-                        access: {
-                            runReports: true,
-                        }
-                    },
+                    account: user({
+                        runReports: true,
+                    }),
                     controls: true,
                 }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/reports`,
                     { urlStyle: UrlStyle.Single, children: <Division /> });
@@ -670,11 +677,9 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                    account: {
-                        access: {
-                            runReports: false,
-                        }
-                    }
+                    account: user({
+                        runReports: false,
+                    })
                 }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/reports`,
                     { urlStyle: UrlStyle.Single, children: <Division /> });
 
@@ -687,11 +692,9 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                    account: {
-                        access: {
-                            runReports: true,
-                        }
-                    }
+                    account: user({
+                        runReports: true,
+                    })
                 }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/reports`,
                     { urlStyle: UrlStyle.Single, children: <Division /> });
 
@@ -740,11 +743,9 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                    account: {
-                        access: {
-                            runHealthChecks: false,
-                        }
-                    }
+                    account: user({
+                        runHealthChecks: false,
+                    })
                 }, reportedError), '/division/:divisionId', `/division/${division.id}`,
                     { urlStyle: UrlStyle.Single, children: <Division /> });
 
@@ -757,11 +758,9 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                    account: {
-                        access: {
-                            runHealthChecks: true,
-                        }
-                    },
+                    account: user({
+                        runHealthChecks: true,
+                    }),
                     controls: true,
                 }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/health`,
                     { urlStyle: UrlStyle.Single, children: <Division /> });
@@ -775,11 +774,9 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                    account: {
-                        access: {
-                            runHealthChecks: false,
-                        }
-                    }
+                    account: user({
+                        runHealthChecks: false,
+                    })
                 }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/health`,
                     { urlStyle: UrlStyle.Single, children: <Division /> });
 
@@ -792,11 +789,9 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                    account: {
-                        access: {
-                            runHealthChecks: true,
-                        }
-                    }
+                    account: user({
+                        runHealthChecks: true,
+                    })
                 }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/health`,
                     { urlStyle: UrlStyle.Single, children: <Division /> });
 
@@ -845,7 +840,7 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                    account: {},
+                    account: user({}),
                 }, reportedError), '/division/:divisionId', `/division/${division.id}`,
                     { urlStyle: UrlStyle.Single, children: <Division /> });
 
@@ -858,7 +853,7 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                    account: {},
+                    account: user({}),
                 }, reportedError), '/division/:divisionId', `/division/${division.id}`,
                     { urlStyle: UrlStyle.Single, children: <Division /> });
                 const heading = context.container.querySelector('h3') as HTMLHeadingElement;
@@ -895,7 +890,7 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                    account: {},
+                    account: user({}),
                 }, reportedError), '/teams/:seasonId', `/teams/${season.id}/?division=${division.id}`,
                     { urlStyle: UrlStyle.Multiple, children: <Division /> });
 
@@ -994,11 +989,9 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                    account: {
-                        access: {
-                            manageGames: true,
-                        }
-                    },
+                    account: user({
+                        manageGames: true,
+                    }),
                     teams: [homeTeam, awayTeam],
                 }, reportedError), '/fixtures', `/fixtures/?division=${division.id}`,
                     { urlStyle: UrlStyle.Multiple, mode: 'fixtures', children: <Division /> });
@@ -1032,11 +1025,9 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                    account: {
-                        access: {
-                            manageGames: true,
-                        }
-                    },
+                    account: user({
+                        manageGames: true,
+                    }),
                     teams: [homeTeam, awayTeam],
                 }, reportedError), '/fixtures', `/fixtures/?division=${division.id}`,
                     { urlStyle: UrlStyle.Multiple, mode: 'fixtures', children: <Division /> });

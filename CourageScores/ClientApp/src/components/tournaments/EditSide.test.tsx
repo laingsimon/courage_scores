@@ -33,6 +33,7 @@ import {
     DivisionTournamentFixtureDetailsDto
 } from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
 import {tournamentContainerPropsBuilder} from "./tournamentContainerPropsBuilder";
+import {AccessDto} from "../../interfaces/models/dtos/Identity/AccessDto";
 
 describe('EditSide', () => {
     let context: TestContext;
@@ -119,7 +120,7 @@ describe('EditSide', () => {
             brandingProps(),
             appProps({
                 teams: teams || [],
-                account: (account || { access: {} }),
+                account: (account || user({})),
                 reloadTeams,
                 divisions
             }, reportedError),
@@ -136,14 +137,12 @@ describe('EditSide', () => {
         return playing;
     }
 
-    function user(managePlayers?: boolean): UserDto {
+    function user(access: AccessDto): UserDto {
         return {
             name: '',
-            emailAddress: '',
             givenName: '',
-            access: {
-                managePlayers,
-            },
+            emailAddress: '',
+            access,
         };
     }
 
@@ -412,7 +411,7 @@ describe('EditSide', () => {
                 .noId()
                 .build();
 
-            await renderComponent(containerProps.build(), props(side), [team], user(true));
+            await renderComponent(containerProps.build(), props(side), [team], user({ managePlayers: true }));
 
             const buttons = Array.from(context.container.querySelectorAll('.btn'));
             const buttonText = buttons.map(btn => btn.textContent);
@@ -420,7 +419,7 @@ describe('EditSide', () => {
         });
 
         it('add player button when permitted and editing side', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user(true));
+            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
 
             const buttons = Array.from(context.container.querySelectorAll('.btn'));
             const buttonText = buttons.map(btn => btn.textContent);
@@ -428,7 +427,7 @@ describe('EditSide', () => {
         });
 
         it('no add player button when not permitted', async () => {
-            await renderComponent(containerProps.build(), props(teamSide), [team], user(false));
+            await renderComponent(containerProps.build(), props(teamSide), [team], user({}));
 
             const buttons = Array.from(context.container.querySelectorAll('.btn'));
             const buttonText = buttons.map(btn => btn.textContent);
@@ -436,7 +435,7 @@ describe('EditSide', () => {
         });
 
         it('no add player button when permitted and team side', async () => {
-            await renderComponent(containerProps.build(), props(teamSide), [team], user(false));
+            await renderComponent(containerProps.build(), props(teamSide), [team], user({}));
 
             const buttons = Array.from(context.container.querySelectorAll('.btn'));
             const buttonText = buttons.map(btn => btn.textContent);
@@ -774,7 +773,7 @@ describe('EditSide', () => {
                 containerProps.withAlreadyPlaying({}).build(),
                 props(sideWithPlayer),
                 [team],
-                user(true));
+                user({ managePlayers: true }));
 
             await doClick(findButton(context.container, 'New player/s'));
 
@@ -784,7 +783,7 @@ describe('EditSide', () => {
         });
 
         it('can close add player dialog', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user(true));
+            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
             await doClick(findButton(context.container, 'New player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog');
@@ -795,7 +794,7 @@ describe('EditSide', () => {
         });
 
         it('can add player', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user(true));
+            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
             await doClick(findButton(context.container, 'New player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog')!;
@@ -817,7 +816,7 @@ describe('EditSide', () => {
                 .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
                 .build();
             divisions = [ division ];
-            await renderComponent(containerProps.withTournament(multiDivisionTournament).build(), props(sideWithPlayer), [team], user(true));
+            await renderComponent(containerProps.withTournament(multiDivisionTournament).build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
             await doClick(findButton(context.container, 'New player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog')!;
@@ -835,7 +834,7 @@ describe('EditSide', () => {
         });
 
         it('selects newly created player', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user(true));
+            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
             await doClick(findButton(context.container, 'New player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog')!;
@@ -857,7 +856,7 @@ describe('EditSide', () => {
         });
 
         it('reloads teams after player added', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user(true));
+            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
             await doClick(findButton(context.container, 'New player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog')!;
@@ -870,7 +869,7 @@ describe('EditSide', () => {
         });
 
         it('closes dialog after adding a player', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user(true));
+            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
             await doClick(findButton(context.container, 'New player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog')!;

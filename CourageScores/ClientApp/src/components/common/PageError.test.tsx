@@ -21,7 +21,7 @@ describe('PageError', () => {
         await cleanUp(context);
     });
 
-    function clearError() {
+    async function clearError() {
         appError = null;
     }
 

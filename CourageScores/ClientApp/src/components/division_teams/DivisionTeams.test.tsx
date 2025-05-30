@@ -26,7 +26,7 @@ describe('DivisionTeams', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let divisionReloaded: boolean = false;
-    let account: UserDto | null;
+    let account: UserDto | undefined;
     const teamApi = api<ITeamApi>({
         update: async (team: EditTeamDto): Promise<IClientActionResultDto<TeamDto>> => {
             return {
@@ -109,7 +109,7 @@ describe('DivisionTeams', () => {
 
     describe('when logged out', () => {
         beforeEach(() => {
-            account = null;
+            account = undefined;
         });
 
         it('renders teams', async () => {

@@ -87,7 +87,12 @@ describe('SuperLeaguePrintout', () => {
             }),
             brandingProps(),
             appProps({
-                account: { access },
+                account: {
+                    emailAddress: '',
+                    givenName: '',
+                    name: '',
+                    access,
+                },
             }, reportedError),
             (<TournamentContainer {...tournamentData}>
                 <SuperLeaguePrintout {...props} />

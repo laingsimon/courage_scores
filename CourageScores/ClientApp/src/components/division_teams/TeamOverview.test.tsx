@@ -6,7 +6,7 @@ import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
 import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
-import {divisionDataBuilder, fixtureDateBuilder} from "../../helpers/builders/divisions";
+import {divisionBuilder, divisionDataBuilder, fixtureDateBuilder} from "../../helpers/builders/divisions";
 import {teamBuilder} from "../../helpers/builders/teams";
 
 describe('TeamOverview', () => {
@@ -36,7 +36,7 @@ describe('TeamOverview', () => {
     }
 
     function createDivisionData(divisionId: string): IDivisionDataContainerProps {
-        return divisionDataBuilder(divisionId)
+        return divisionDataBuilder(divisionBuilder('DIVISION', divisionId).build())
             .season(s => s.starting('2022-02-03T00:00:00').ending('2022-08-25T00:00:00'), 'A season')
             .build();
     }

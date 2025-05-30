@@ -33,6 +33,7 @@ import {TemplateDto} from "../../interfaces/models/dtos/Season/Creation/Template
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {IGameApi} from "../../interfaces/apis/IGameApi";
 import {GameTeamDto} from "../../interfaces/models/dtos/Game/GameTeamDto";
+import {ISeasonApi} from "../../interfaces/apis/ISeasonApi";
 
 describe('DivisionFixtures', () => {
     let context: TestContext;
@@ -41,7 +42,7 @@ describe('DivisionFixtures', () => {
     let updatedNote: {id: string, note: EditFixtureDateNoteDto} | null;
     let bulkDeleteResponse: IClientActionResultDto<string[]> | null;
     let bulkDeleteRequest: { seasonId: string, executeDelete: boolean } | null;
-    const seasonApi = {};
+    const seasonApi = api<ISeasonApi>({});
     const gameApi = api<IGameApi>({
         async deleteUnplayedLeagueFixtures(seasonId: string, executeDelete: boolean): Promise<IClientActionResultDto<string[]>> {
             bulkDeleteRequest = {seasonId, executeDelete};

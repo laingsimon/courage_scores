@@ -170,7 +170,7 @@ describe('MasterDraw', () => {
         context = await renderApp(
             iocProps({tournamentApi, saygApi, playerApi}),
             brandingProps(),
-            appProps({ account, teams: teams || [], season }, reportedError),
+            appProps({ account, teams: teams || [], seasons: season ? [season] : undefined }, reportedError),
             (<TournamentContainer {...(containerProps ?? new tournamentContainerPropsBuilder().build())}>
                 <MasterDraw {...props} />
             </TournamentContainer>));

@@ -62,7 +62,7 @@ describe('DivisionFixtureDate', () => {
         showPlayers = null;
     });
 
-    async function renderComponent(props: IDivisionFixtureDateProps, divisionData: IDivisionDataContainerProps, account: UserDto | null, excludeControls?: boolean, teams?: TeamDto[]) {
+    async function renderComponent(props: IDivisionFixtureDateProps, divisionData: IDivisionDataContainerProps, account?: UserDto, excludeControls?: boolean, teams?: TeamDto[]) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
@@ -89,7 +89,7 @@ describe('DivisionFixtureDate', () => {
     describe('when logged out', () => {
         const team: TeamDto = teamBuilder('TEAM').build();
         const division: DivisionDto = divisionBuilder('DIVISION').build();
-        const account = null;
+        const account: UserDto | undefined = undefined;
 
         it('renders league fixtures', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')

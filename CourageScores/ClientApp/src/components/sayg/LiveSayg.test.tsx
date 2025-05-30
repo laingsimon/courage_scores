@@ -28,6 +28,7 @@ import {IDivisionApi} from "../../interfaces/apis/IDivisionApi";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
 import {renderDate} from "../../helpers/rendering";
 import {createTemporaryId} from "../../helpers/projection";
+import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -340,7 +341,7 @@ describe('LiveSayg', () => {
         });
 
         it('prompt for ids if type in the path is unknown', async () => {
-            const division = divisionDataBuilder('ANOTHER DIVISION')
+            const division = divisionDataBuilder(divisionBuilder('ANOTHER DIVISION').build())
                 .build();
             divisionData = division;
             await renderComponent(
@@ -352,7 +353,7 @@ describe('LiveSayg', () => {
                         exitFullScreen: noop,
                         toggleFullScreen: noop,
                     },
-                    divisions: [division],
+                    divisions: [division as DivisionDto],
                 }, reportedError),
                 '/live/unknown');
 
@@ -401,7 +402,7 @@ describe('LiveSayg', () => {
         });
 
         it('renders note if no superleague divisions', async () => {
-            const division = divisionDataBuilder('ANOTHER DIVISION')
+            const division = divisionDataBuilder(divisionBuilder('ANOTHER DIVISION').build())
                 .build();
             divisionData = division;
             await renderComponent(
@@ -413,7 +414,7 @@ describe('LiveSayg', () => {
                         exitFullScreen: noop,
                         toggleFullScreen: noop,
                     },
-                    divisions: [division]
+                    divisions: [division as DivisionDto]
                 }, reportedError),
                 '/live/superleague/');
 
@@ -444,7 +445,7 @@ describe('LiveSayg', () => {
 
         it('redirects to superleague tournaments today', async () => {
             const tournamentId = createTemporaryId();
-            const division = divisionDataBuilder('SUPER LEAGUE')
+            const division = divisionDataBuilder(divisionBuilder('SUPER LEAGUE').build())
                 .superleague()
                 .withFixtureDate((d: IDivisionFixtureDateBuilder) => d
                     .withTournament(t => t, tournamentId))
@@ -459,7 +460,7 @@ describe('LiveSayg', () => {
                         exitFullScreen: noop,
                         toggleFullScreen: noop,
                     },
-                    divisions: [division]
+                    divisions: [division as DivisionDto]
                 }, reportedError),
                 '/live/superleague/');
 
@@ -489,7 +490,7 @@ describe('LiveSayg', () => {
 
         it('redirects to superleague tournaments on given date', async () => {
             const tournamentId = createTemporaryId();
-            const division = divisionDataBuilder('SUPER LEAGUE')
+            const division = divisionDataBuilder(divisionBuilder('SUPER LEAGUE').build())
                 .superleague()
                 .withFixtureDate((d: IDivisionFixtureDateBuilder) => d
                     .withTournament(t => t, tournamentId))
@@ -504,7 +505,7 @@ describe('LiveSayg', () => {
                         exitFullScreen: noop,
                         toggleFullScreen: noop,
                     },
-                    divisions: [division]
+                    divisions: [division as DivisionDto]
                 }, reportedError),
                 '/live/superleague/?date=2025-01-01');
 
@@ -526,9 +527,9 @@ describe('LiveSayg', () => {
                     fullScreen: {
                         isFullScreen: false,
                         canGoFullScreen: false,
-                        enterFullScreen: () => isFullScreen = true,
-                        exitFullScreen: () => isFullScreen = false,
-                        toggleFullScreen: () => isFullScreen = !isFullScreen,
+                        enterFullScreen: async () => isFullScreen = true,
+                        exitFullScreen: async () => isFullScreen = false,
+                        toggleFullScreen: async () => isFullScreen = !isFullScreen,
                     },
                 }, reportedError),
                 '/live/superleague/?id=' + tournament.id);

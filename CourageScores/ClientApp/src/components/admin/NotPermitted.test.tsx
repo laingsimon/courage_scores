@@ -21,9 +21,7 @@ describe('NotPermitted', () => {
 
     describe('when logged out', () => {
         it('renders login button', async () => {
-            await renderComponent(appProps({
-                account: null,
-            }));
+            await renderComponent(appProps({}));
 
             const loginLink = context.container.querySelector('a.btn') as HTMLAnchorElement;
             expect(loginLink).toBeTruthy();
@@ -35,7 +33,11 @@ describe('NotPermitted', () => {
     describe('when logged in', () => {
         it('renders home button', async () => {
             await renderComponent(appProps({
-                account: {},
+                account: {
+                    name: '',
+                    emailAddress: '',
+                    givenName: '',
+                },
             }));
 
             const loginLink = context.container.querySelector('a.btn') as HTMLAnchorElement;

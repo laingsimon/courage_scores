@@ -70,7 +70,7 @@ describe('DivisionControls', () => {
         changedDivisionOrSeason = preventReloadIfIdsAreTheSame;
     }
 
-    async function renderComponent(props: IDivisionControlsProps, account: UserDto | null, seasons: SeasonDto[], divisions: DivisionDto[], route?: string, currentPath?: string) {
+    async function renderComponent(props: IDivisionControlsProps, account: UserDto | undefined, seasons: SeasonDto[], divisions: DivisionDto[], route?: string, currentPath?: string) {
         context = await renderApp(
             iocProps({seasonApi, divisionApi}),
             brandingProps(),
@@ -143,7 +143,7 @@ describe('DivisionControls', () => {
     }
 
     describe('when logged out', () => {
-        const account: UserDto | null = null;
+        const account: UserDto | undefined = undefined;
         const division1: DivisionDto = divisionBuilder('Division 1').build();
         const division2: DivisionDto = divisionBuilder('Division 2').build();
         const season1: SeasonDto = seasonBuilder('Season 1')
@@ -394,7 +394,7 @@ describe('DivisionControls', () => {
         const divisions = [division5, division6];
 
         describe('common', () => {
-            const account = null;
+            const account: UserDto | undefined = undefined;
 
             it('can open season drop down', async () => {
                 await renderComponent({

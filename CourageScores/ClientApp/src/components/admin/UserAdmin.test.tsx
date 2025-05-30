@@ -47,7 +47,7 @@ describe('UserAdmin', () => {
             brandingProps(),
             appProps({
                 account,
-                reloadAccount: () => {
+                reloadAccount: async () => {
                     accountReloaded = true;
                 },
             }, reportedError),
