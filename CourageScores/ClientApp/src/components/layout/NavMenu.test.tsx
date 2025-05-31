@@ -6,6 +6,7 @@ import {divisionBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {IAppContainerProps} from "../common/AppContainer";
+import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 
 describe('NavMenu', () => {
     let context: TestContext;
@@ -15,7 +16,7 @@ describe('NavMenu', () => {
         await cleanUp(context);
     });
 
-    function clearError() {
+    async function clearError() {
         errorCleared = true;
     }
 
@@ -65,7 +66,7 @@ describe('NavMenu', () => {
         }
         const seasons = [currentSeason, otherSeason];
         const divisions = [division];
-        const account: UserDto | null = null;
+        const account: UserDto | undefined = undefined;
 
         it('when app loading', async () => {
             await renderComponent(settings, appProps({
@@ -200,7 +201,7 @@ describe('NavMenu', () => {
         it('renders nav-menu error', async () => {
             await renderComponent(settings, appProps({
                 account,
-                divisions: [null],
+                divisions: [null! as DivisionDto],
                 seasons,
                 appLoading: false,
                 clearError,

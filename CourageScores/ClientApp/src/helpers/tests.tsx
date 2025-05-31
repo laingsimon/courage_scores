@@ -16,6 +16,7 @@ import {IPreferenceData, PreferencesContainer} from "../components/common/Prefer
 import {Cookies, useCookies} from "react-cookie";
 import {UntypedPromise} from "../interfaces/UntypedPromise";
 import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
+import {IDependencies} from "../components/common/IDependencies";
 
 /* istanbul ignore file */
 
@@ -96,7 +97,7 @@ export function api<T>(methods: Partial<T>): T {
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export function iocProps(props?: any) : IIocContainerProps {
+export function iocProps(props?: Partial<IDependencies & IIocContainerProps>) : IIocContainerProps {
     const mockWebSocketFactory = new MockSocketFactory();
     const mockParentHeight: IParentHeight = {
         cancelInterval() {
@@ -132,7 +133,7 @@ export function iocProps(props?: any) : IIocContainerProps {
     return Object.assign({}, defaultProps, props);
 }
 
-export function brandingProps(props?: any): IBrandingContainerProps {
+export function brandingProps(props?: Partial<IBrandingContainerProps>): IBrandingContainerProps {
     const defaultProps: IBrandingContainerProps = {
         name: 'Courage Scores',
         facebook: '',
@@ -202,7 +203,7 @@ export class MockSocketFactory {
     }
 }
 
-export function appProps(props?: any, errorState?: ErrorState): IAppContainerProps {
+export function appProps(props?: Partial<IAppContainerProps>, errorState?: ErrorState): IAppContainerProps {
     const defaultProps: IAppContainerProps = {
         appLoading: false,
         onError: (err: IError | string) => {
@@ -259,7 +260,7 @@ export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBr
     const cookies = new Cookies();
     cookies.update();
 
-    const currentPathAsInitialEntry: any = currentPath;
+    const currentPathAsInitialEntry: string = currentPath;
     let root: ReactDOM.Root;
     await act(async () => {
         const component = (<MemoryRouter initialEntries={[currentPathAsInitialEntry]}>

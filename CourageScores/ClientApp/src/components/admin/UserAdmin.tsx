@@ -43,26 +43,16 @@ export function UserAdmin() {
         // eslint-disable-next-line
         [accounts]);
 
-    function valueChanged(event: React.ChangeEvent<HTMLInputElement>) {
+    function accessChanged(event: React.ChangeEvent<HTMLInputElement>) {
         try {
             const currentAccount: UserDto = Object.assign({}, userAccount);
+            const currentAccess: AccessDto = currentAccount.access ?? {};
             const value: string | boolean = event.target.type === 'checkbox'
                 ? event.target.checked
                 : event.target.value;
+            const name: string = event.target.name;
 
-            let name: string = event.target.name;
-            /* eslint-disable @typescript-eslint/no-explicit-any */
-            let dataObject: { [key: string]: any } = currentAccount;
-            while (name.indexOf('.') !== -1) {
-                const prefix: string = name.substring(0, name.indexOf('.'));
-                name = name.substring(prefix.length + 1);
-                if (!dataObject[prefix]) {
-                    dataObject[prefix] = {};
-                }
-                dataObject = dataObject[prefix];
-            }
-
-            dataObject[name] = value;
+            currentAccess[name] = value;
             setUserAccount(currentAccount);
         } catch (e) {
             /* istanbul ignore next */
@@ -114,7 +104,7 @@ export function UserAdmin() {
         return (<div className="input-group mb-3">
             <div className="form-check form-switch margin-right">
                 <input disabled={saving} className="form-check-input" type="checkbox" id={name}
-                       name={`access.${name}`} checked={access[name] || false} onChange={valueChanged}/>
+                       name={name} checked={access[name] || false} onChange={accessChanged}/>
                 <label className="form-check-label" htmlFor={name}>
                     {description}
                     {explanation ? (<><br /><small>{explanation}</small></>) : null}

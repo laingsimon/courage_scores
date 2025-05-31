@@ -50,14 +50,14 @@ describe('MatchComparer', () => {
         it('when null homePlayers', () => {
             const result = matchEquals(
                 matchBuilder().scores(1, 3).build(),
-                matchBuilder().withAway('PLAYER').scores(1, 3).build());
+                matchBuilder().withAway(playerBuilder('PLAYER').build()).scores(1, 3).build());
 
             expect(result).toEqual(false);
         });
 
         it('when null awayPlayers', () => {
             const result = matchEquals(
-                matchBuilder().withHome('PLAYER').scores(1, 3).build(),
+                matchBuilder().withHome(playerBuilder('PLAYER').build()).scores(1, 3).build(),
                 matchBuilder().scores(1, 3).build());
 
             expect(result).toEqual(false);

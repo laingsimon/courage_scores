@@ -14,8 +14,7 @@ export interface IMergeHiCheckAnd180sProps {
 export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeHiCheckAnd180sProps) {
     const {onError} = useApp();
 
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    function getRecordsToMerge(team: string, record: string): any[] {
+    function getRecordsToMerge<T>(team: string, record: string): T[] {
         const submission: GameDto = data[team + 'Submission'];
         if (!submission) {
             return [];
@@ -59,7 +58,7 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeH
                                 </button>
                             </h6>
                             <ol className="d-inline-block">
-                                {getRecordsToMerge('home', 'oneEighties').map((rec: GamePlayerDto) => (
+                                {getRecordsToMerge<GamePlayerDto>('home', 'oneEighties').map((rec: GamePlayerDto) => (
                                     <li key={rec.id}>{rec.name}</li>))}
                             </ol>
                         </div>) : null}
@@ -71,14 +70,14 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeH
                         </div>
                     </td>
                     <td colSpan={2}>
-                        {oneEightiesNotRecorded && any(getRecordsToMerge('away', 'oneEighties')) ? (<div datatype="away-180s">
+                        {oneEightiesNotRecorded && any(getRecordsToMerge<GamePlayerDto>('away', 'oneEighties')) ? (<div datatype="away-180s">
                             <h6>
                                 <button className="btn btn-sm btn-success margin-left"
                                         onClick={async () => await mergeRecords('away', 'oneEighties')}>Merge
                                 </button>
                             </h6>
                             <ol className="d-inline-block">
-                                {getRecordsToMerge('away', 'oneEighties').map((rec: GamePlayerDto) => (
+                                {getRecordsToMerge<GamePlayerDto>('away', 'oneEighties').map((rec: GamePlayerDto) => (
                                     <li key={rec.id}>{rec.name}</li>))}
                             </ol>
                         </div>) : null}
@@ -101,7 +100,7 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeH
                                     </button>
                                 </h6>
                                 <ol className="d-inline-block">
-                                    {getRecordsToMerge('home', 'over100Checkouts').map((rec: NotablePlayerDto) => (
+                                    {getRecordsToMerge<NotablePlayerDto>('home', 'over100Checkouts').map((rec: NotablePlayerDto) => (
                                         <li key={rec.id}>{rec.name} ({rec.score})</li>))}
                                 </ol>
                             </div>) : null}
@@ -120,7 +119,7 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeH
                                     </button>
                                 </h6>
                                 <ol className="d-inline-block">
-                                    {getRecordsToMerge('away', 'over100Checkouts').map((rec: NotablePlayerDto) => (
+                                    {getRecordsToMerge<NotablePlayerDto>('away', 'over100Checkouts').map((rec: NotablePlayerDto) => (
                                         <li key={rec.id}>{rec.name} ({rec.score})</li>))}
                                 </ol>
                             </div>) : null}

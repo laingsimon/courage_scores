@@ -1,6 +1,6 @@
 import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import {IWidescreenSaygMatchDetailsProps, WidescreenSaygMatchDetails} from "./WidescreenSaygMatchDetails";
-import {ILegBuilder, saygBuilder} from "../../helpers/builders/sayg";
+import {saygBuilder} from "../../helpers/builders/sayg";
 
 describe('WidescreenSaygMatchDetails', () => {
     let context: TestContext;
@@ -20,8 +20,8 @@ describe('WidescreenSaygMatchDetails', () => {
     describe('renders', () => {
         const sayg = saygBuilder()
             .numberOfLegs(3)
-            .withLeg(0, (l: ILegBuilder) => l.startingScore(301))
-            .withLeg(1, (l: ILegBuilder) => l.startingScore(501))
+            .withLeg(0, l => l.startingScore(301))
+            .withLeg(1, l => l.startingScore(501))
             .build();
 
         it('when no legs', async () => {

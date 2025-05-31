@@ -28,7 +28,6 @@ describe('DivisionPlayers', () => {
             brandingProps(),
             appProps({
                 account: account,
-                error: null,
             }, reportedError),
             (<DivisionDataContainer {...divisionData}>
                 <DivisionPlayers {...props} />

@@ -38,7 +38,11 @@ describe('FeatureAdmin', () => {
             iocProps({featureApi}),
             brandingProps(),
             appProps({
-                account: {},
+                account: {
+                    name: '',
+                    emailAddress: '',
+                    givenName: '',
+                },
             }, reportedError),
             (<AdminContainer tables={[]} accounts={[]}>
                 <FeatureAdmin />

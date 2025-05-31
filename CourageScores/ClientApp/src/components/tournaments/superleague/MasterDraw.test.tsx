@@ -11,13 +11,7 @@ import {
 } from "../../../helpers/tests";
 import {IMasterDrawProps, MasterDraw} from "./MasterDraw";
 import {renderDate} from "../../../helpers/rendering";
-import {
-    ITournamentBuilder,
-    ITournamentMatchBuilder,
-    ITournamentRoundBuilder,
-    tournamentBuilder,
-    tournamentMatchBuilder
-} from "../../../helpers/builders/tournaments";
+import {ITournamentBuilder, tournamentBuilder} from "../../../helpers/builders/tournaments";
 import {ITournamentContainerProps, TournamentContainer} from "../TournamentContainer";
 import {UserDto} from "../../../interfaces/models/dtos/Identity/UserDto";
 import {TournamentGameDto} from "../../../interfaces/models/dtos/Game/TournamentGameDto";
@@ -40,7 +34,7 @@ import {playerBuilder} from "../../../helpers/builders/players";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {IPlayerApi} from "../../../interfaces/apis/IPlayerApi";
 import {EditTeamPlayerDto} from "../../../interfaces/models/dtos/Team/EditTeamPlayerDto";
-import {IMatchOptionsBuilder, matchOptionsBuilder} from "../../../helpers/builders/games";
+import {matchOptionsBuilder} from "../../../helpers/builders/games";
 import {PatchTournamentDto} from "../../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {PatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {ENTER_SCORE_BUTTON} from "../../../helpers/constants";
@@ -73,8 +67,7 @@ describe('MasterDraw', () => {
             return {
                 success: true,
                 result: tournamentBuilder()
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m))
+                    .round(r => r.withMatch())
                     .build(),
             }
         }
@@ -171,7 +164,7 @@ describe('MasterDraw', () => {
         context = await renderApp(
             iocProps({tournamentApi, saygApi, playerApi}),
             brandingProps(),
-            appProps({ account, teams: teams || [], season }, reportedError),
+            appProps({ account, teams: teams || [], seasons: season ? [season] : undefined }, reportedError),
             (<TournamentContainer {...(containerProps ?? new tournamentContainerPropsBuilder().build())}>
                 <MasterDraw {...props} />
             </TournamentContainer>));
@@ -192,14 +185,14 @@ describe('MasterDraw', () => {
                 .date('2025-05-06')
                 .type('TYPE')
                 .forSeason(season)
-                .round((r: ITournamentRoundBuilder) => r);
+                .round();
         });
 
         it('matches', async () => {
-            const match1 = tournamentMatchBuilder().sideA('A').sideB('B').build();
-            const match2 = tournamentMatchBuilder().sideA('C').sideB('D').build();
             await renderComponent({
-                tournamentData: tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match1).withMatch(match2)).build(),
+                tournamentData: tournament.round(r => r
+                    .withMatch(m => m.sideA('A').sideB('B'))
+                    .withMatch(m => m.sideA('C').sideB('D'))).build(),
                 readOnly: true,
                 setTournamentData,
                 patchData: noop
@@ -249,8 +242,8 @@ describe('MasterDraw', () => {
                 .build();
             await renderComponent({
                 tournamentData: tournament
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m
+                    .round(r => r
+                        .withMatch(m => m
                             .sideA('PLAYER', undefined, player)
                             .sideB('SIDE B', undefined)))
                     .build(),
@@ -278,10 +271,6 @@ describe('MasterDraw', () => {
         const teamB = teamBuilder('OPPONENT')
             .forSeason(season, division, [playerB])
             .build();
-        const match = tournamentMatchBuilder()
-            .sideA('SIDE A')
-            .sideB('SIDE B')
-            .build();
         let tournament: ITournamentBuilder;
 
         beforeEach(() => {
@@ -294,7 +283,7 @@ describe('MasterDraw', () => {
                 .type('TYPE')
                 .forSeason(season)
                 .forDivision(division)
-                .round((r: ITournamentRoundBuilder) => r);
+                .round();
         });
 
         it('can change type from printable sheet', async () => {
@@ -458,8 +447,8 @@ describe('MasterDraw', () => {
         it('shows message when player cannot be found', async () => {
             await renderComponent({
                 tournamentData: tournament
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m
+                    .round(r => r
+                        .withMatch(m => m
                             .sideA(playerC.name, undefined, playerC)
                             .sideB(playerB.name, undefined, playerB)))
                     .build(),
@@ -478,8 +467,8 @@ describe('MasterDraw', () => {
         it('can edit host player', async () => {
             await renderComponent({
                 tournamentData: tournament
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m
+                    .round(r => r
+                        .withMatch(m => m
                             .sideA(playerA.name, undefined, playerA)
                             .sideB(playerB.name, undefined, playerB)))
                     .build(),
@@ -521,8 +510,8 @@ describe('MasterDraw', () => {
         it('can edit opponent player', async () => {
             await renderComponent({
                 tournamentData: tournament
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m
+                    .round(r => r
+                        .withMatch(m => m
                             .sideA(playerA.name, undefined, playerA)
                             .sideB(playerB.name, undefined, playerB)))
                     .build(),
@@ -564,8 +553,8 @@ describe('MasterDraw', () => {
         it('can close edit player dialog', async () => {
             await renderComponent({
                 tournamentData: tournament
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m
+                    .round(r => r
+                        .withMatch(m => m
                             .sideA(playerA.name, undefined, playerA)
                             .sideB(playerB.name, undefined, playerB)))
                     .build(),
@@ -628,8 +617,8 @@ describe('MasterDraw', () => {
             const teamA = teamBuilder('HOST').forSeason(season, undefined, [playerA, playerC]).build();
             await renderComponent({
                 tournamentData: tournament
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m
+                    .round(r => r
+                        .withMatch(m => m
                             .sideA('PLAYER A', undefined, playerA)
                             .sideB('PLAYER B', undefined, playerB)))
                     .build(),
@@ -663,8 +652,8 @@ describe('MasterDraw', () => {
             const teamB = teamBuilder('OPPONENT').forSeason(season, undefined, [playerB, playerD]).build();
             await renderComponent({
                 tournamentData: tournament
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m
+                    .round(r => r
+                        .withMatch(m => m
                             .sideA('PLAYER A', undefined, playerA)
                             .sideB('PLAYER B', undefined, playerB)))
                     .build(),
@@ -694,7 +683,8 @@ describe('MasterDraw', () => {
         });
 
         it('cannot change host when match exists', async () => {
-            const tournamentData = tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
+            const tournamentData = tournament.round(r => r
+                .withMatch(m => m.sideA('SIDE A').sideB('SIDE B'))).build();
             const account = user({});
 
             await renderComponent(props({ tournamentData }), account);
@@ -706,9 +696,9 @@ describe('MasterDraw', () => {
 
         it('can delete match when permitted', async () => {
             const tournamentData = tournament
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch(match)
-                    .withMatchOption((mo: IMatchOptionsBuilder) => mo))
+                .round(r => r
+                    .withMatch(m => m.sideA('SIDE A').sideB('SIDE B'))
+                    .withMatchOption())
                 .build();
             const account = user({
                 recordScoresAsYouGo: true,
@@ -726,7 +716,8 @@ describe('MasterDraw', () => {
         });
 
         it('does not delete match when cancelled', async () => {
-            const tournamentData = tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
+            const tournamentData = tournament.round(r => r
+                .withMatch(m => m.sideA('SIDE A').sideB('SIDE B'))).build();
             const account = user({
                 recordScoresAsYouGo: true,
             });
@@ -741,7 +732,8 @@ describe('MasterDraw', () => {
         });
 
         it('cannot not delete match when not permitted', async () => {
-            const tournamentData = tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
+            const tournamentData = tournament.round(r => r
+                .withMatch(m => m.sideA('SIDE A').sideB('SIDE B'))).build();
             const account = user({
                 recordScoresAsYouGo: true,
             });
@@ -752,7 +744,8 @@ describe('MasterDraw', () => {
         });
 
         it('can open sayg dialog when permitted', async () => {
-            const tournamentData = tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
+            const tournamentData = tournament.round(r => r
+                .withMatch(m => m.sideA('SIDE A').sideB('SIDE B'))).build();
             const account = user({
                 recordScoresAsYouGo: true,
             });
@@ -769,12 +762,9 @@ describe('MasterDraw', () => {
 
         it('can delete sayg from match', async () => {
             const saygId = createTemporaryId();
-            const match = tournamentMatchBuilder()
-                .sideA('SIDE A')
-                .sideB('SIDE B')
-                .saygId(saygId)
-                .build();
-            const tournamentData = tournament.round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
+            const matchId = createTemporaryId();
+            const tournamentData = tournament.round(r => r
+                .withMatch(m => m.sideA('SIDE A').sideB('SIDE B').saygId(saygId), matchId)).build();
             const account = user({
                 recordScoresAsYouGo: true,
                 showDebugOptions: true,
@@ -793,7 +783,7 @@ describe('MasterDraw', () => {
             reportedError.verifyNoError();
             expect(saygDeleted).toEqual({
                 id: tournamentData.id,
-                matchId: match.id,
+                matchId: matchId,
             })
         });
 
@@ -805,8 +795,8 @@ describe('MasterDraw', () => {
                 .build();
             await renderComponent({
                 tournamentData: tournament
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m
+                    .round(r => r
+                        .withMatch(m => m
                             .sideA('PLAYER', undefined, playerA)
                             .sideB('SIDE B', undefined)))
                     .build(),
@@ -845,17 +835,16 @@ describe('MasterDraw', () => {
                 .type('TYPE')
                 .forSeason(season)
                 .forDivision(division)
-                .round((r: ITournamentRoundBuilder) => r);
+                .round();
         });
 
         it('does not patch in 180s', async () => {
-            const match = tournamentMatchBuilder()
-                .sideA('SIDE A', undefined, playerA)
-                .sideB('SIDE B', undefined, playerB)
-                .saygId(createTemporaryId())
-                .build();
-            const tournamentData = tournament
-                .round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
+            const tournamentData = tournament.round(r => r
+                .withMatch(m => m
+                    .sideA('SIDE A', undefined, playerA)
+                    .sideB('SIDE B', undefined, playerB)
+                    .saygId(createTemporaryId())
+                )).build();
             await renderComponent(props({ tournamentData }), account);
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), START_SCORING));
             reportedError.verifyNoError();
@@ -867,13 +856,12 @@ describe('MasterDraw', () => {
         });
 
         it('does not patch in hi-checks', async () => {
-            const match = tournamentMatchBuilder()
-                .sideA('SIDE A', undefined, playerA)
-                .sideB('SIDE B', undefined, playerB)
-                .saygId(createTemporaryId())
-                .build();
-            const tournamentData = tournament
-                .round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
+            const saygId = createTemporaryId();
+            const tournamentData = tournament.round(r => r
+                .withMatch(m => m
+                    .sideA('SIDE A', undefined, playerA)
+                    .sideB('SIDE B', undefined, playerB)
+                    .saygId(saygId))).build();
             await renderComponent({
                 tournamentData: tournamentData,
                 setTournamentData,
@@ -899,18 +887,18 @@ describe('MasterDraw', () => {
                         sideB: expect.any(String),
                     },
                 },
-                saygId: match.saygId,
+                saygId: saygId,
             }]);
         });
 
         it('records regular checkout with a patch', async () => {
-            const match = tournamentMatchBuilder()
-                .sideA('SIDE A', undefined, playerA)
-                .sideB('SIDE B', undefined, playerB)
-                .saygId(createTemporaryId())
-                .build();
-            const tournamentData = tournament
-                .round((r: ITournamentRoundBuilder) => r.withMatch(match)).build();
+            const saygId = createTemporaryId();
+            const tournamentData = tournament.round(r => r
+                .withMatch(m => m
+                    .sideA('SIDE A', undefined, playerA)
+                    .sideB('SIDE B', undefined, playerB)
+                    .saygId(saygId)
+                )).build();
             await renderComponent({
                 tournamentData: tournamentData,
                 setTournamentData,
@@ -936,7 +924,7 @@ describe('MasterDraw', () => {
                         sideB: expect.any(String),
                     },
                 },
-                saygId: match.saygId,
+                saygId: saygId,
             }]);
         });
     });

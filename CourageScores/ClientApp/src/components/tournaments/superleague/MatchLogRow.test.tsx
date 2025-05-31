@@ -8,7 +8,7 @@
     TestContext
 } from "../../../helpers/tests";
 import {IMatchLogRowProps, MatchLogRow} from "./MatchLogRow";
-import {ILegCompetitorScoreBuilder, legBuilder} from "../../../helpers/builders/sayg";
+import {legBuilder} from "../../../helpers/builders/sayg";
 import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
 
 describe('MatchLogRow', () => {
@@ -74,22 +74,19 @@ describe('MatchLogRow', () => {
 
     describe('renders', () => {
         const homeWinningLeg: LegDto = legBuilder()
-            .home((c: ILegCompetitorScoreBuilder) => c
+            .home(c => c
                 .withThrow(140)
                 .withThrow(60)
                 .withThrow(180)
                 .withThrow(20)
                 .withThrow(101, 2))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(13, 3))
+            .away(c => c.withThrow(13, 3))
             .startingScore(501)
             .build();
 
         it('null when no darts thrown', async () => {
             await renderComponent({
-                leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c)
-                    .build(),
+                leg: legBuilder().home().away().build(),
                 legNo: 1,
                 accumulatorName: 'home',
                 player: 'PLAYER',

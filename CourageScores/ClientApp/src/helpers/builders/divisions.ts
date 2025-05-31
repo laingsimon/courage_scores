@@ -1,6 +1,6 @@
 ﻿/* istanbul ignore file */
 
-import {IAddableBuilder, IBuilder} from "./builders";
+import {BuilderParam, IAddableBuilder, IBuilder} from "./builders";
 import {IDatedDivisionFixtureDto} from "../../components/division_fixtures/IDatedDivisionFixtureDto";
 import {IEditableDivisionFixtureDto} from "../../components/division_fixtures/DivisionFixture";
 import {createTemporaryId} from "../projection";
@@ -10,20 +10,22 @@ import {IEditableDivisionFixtureDateDto} from "../../components/division_fixture
 import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
-import {teamBuilder} from "./teams";
-import {playerBuilder} from "./players";
-import {seasonBuilder} from "./seasons";
+import {ISeasonBuilder, seasonBuilder} from "./seasons";
 import {IDivisionDataContainerProps} from "../../components/league/DivisionDataContainer";
-import {tournamentBuilder} from "./tournaments";
+import {ITournamentBuilder, tournamentBuilder} from "./tournaments";
 import {ReactNode} from "react";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 import {noop} from "../tests";
+import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
+import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
+import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
+import {GameTeamDto} from "../../interfaces/models/dtos/Game/GameTeamDto";
 
 export interface IDivisionFixtureBuilder extends IAddableBuilder<IDatedDivisionFixtureDto> {
     withOtherFixtureUsingUsingAddress(name: string, id?: string, awayName?: string): IDivisionFixtureBuilder;
-    playing(home: any, away: any): IDivisionFixtureBuilder;
+    playing(home: GameTeamDto, away: GameTeamDto): IDivisionFixtureBuilder;
     scores(home?: number, away?: number): IDivisionFixtureBuilder;
-    bye(venue: any, id?: string): IDivisionFixtureBuilder;
+    bye(team: TeamDto): IDivisionFixtureBuilder;
     knockout(): IDivisionFixtureBuilder;
     postponed(): IDivisionFixtureBuilder;
     originalAwayTeamId(id: string): IDivisionFixtureBuilder;
@@ -39,29 +41,9 @@ export function divisionFixtureBuilder(date?: string, id?: string): IDivisionFix
         homeTeam: { name: '' },
     };
 
-    const teamFactory = (t: any, id?: string) => {
-        if (t === null || t === undefined) {
-            return null;
-        }
-
-        if (t && t.id) {
-            return t;
-        }
-
-        if (t.build) {
-            return t.build();
-        }
-
-        return {
-            id: id || createTemporaryId(),
-            name: t,
-            address: '',
-        };
-    }
-
     const builder: IDivisionFixtureBuilder = {
         build: () => fixture,
-        addTo: (map: any) => {
+        addTo: (map: { [key: string]: IDatedDivisionFixtureDto }) => {
             map[fixture.id || ''] = fixture;
             return builder;
         },
@@ -82,9 +64,9 @@ export function divisionFixtureBuilder(date?: string, id?: string): IDivisionFix
             fixture.fixturesUsingAddress?.push(otherFixture);
             return builder;
         },
-        playing: (home: any, away: any) => {
-            fixture.homeTeam = teamFactory(home);
-            fixture.awayTeam = teamFactory(away);
+        playing: (home: GameTeamDto, away: GameTeamDto) => {
+            fixture.homeTeam = home;
+            fixture.awayTeam = away;
             return builder;
         },
         scores: (home: number, away: number) => {
@@ -92,8 +74,8 @@ export function divisionFixtureBuilder(date?: string, id?: string): IDivisionFix
             fixture.awayScore = away;
             return builder;
         },
-        bye: (venue: any, id?: string) => {
-            fixture.homeTeam = teamFactory(venue, id);
+        bye: (team: TeamDto) => {
+            fixture.homeTeam = team;
             fixture.awayTeam = undefined;
             return builder;
         },
@@ -124,9 +106,9 @@ export function divisionFixtureBuilder(date?: string, id?: string): IDivisionFix
 
 export interface IDivisionFixtureDateBuilder extends IBuilder<DivisionFixtureDateDto & IEditableDivisionFixtureDateDto> {
     knockout(): IDivisionFixtureDateBuilder;
-    withFixture(fixtureOrModifierFunc: any, id?: string): IDivisionFixtureDateBuilder;
-    withTournament(tournamentOrModifierFunc: any, id?: string): IDivisionFixtureDateBuilder;
-    withNote(noteOrModifierFunc: any, id?: string): IDivisionFixtureDateBuilder;
+    withFixture(builder?: BuilderParam<IDivisionFixtureBuilder>, id?: string): IDivisionFixtureDateBuilder;
+    withTournament(builder?: BuilderParam<ITournamentBuilder>, id?: string): IDivisionFixtureDateBuilder;
+    withNote(builder?: BuilderParam<INoteBuilder>, id?: string): IDivisionFixtureDateBuilder;
     isNew(): IDivisionFixtureDateBuilder;
 }
 
@@ -144,25 +126,25 @@ export function fixtureDateBuilder(date?: string): IDivisionFixtureDateBuilder {
             fixtureDate.isKnockout = true;
             return builder;
         },
-        withFixture: (fixtureOrModifierFunc: any, id?: string) => {
-            const fixture = fixtureOrModifierFunc instanceof Function
-                ? fixtureOrModifierFunc(divisionFixtureBuilder(date, id))
-                : fixtureOrModifierFunc;
-            fixtureDate.fixtures?.push(fixture.build ? fixture.build() : fixture);
+        withFixture: (b?: BuilderParam<IDivisionFixtureBuilder>, id?: string) => {
+            const fixture = b
+                ? b(divisionFixtureBuilder(date, id)).build()
+                : divisionFixtureBuilder(date).build();
+            fixtureDate.fixtures?.push(fixture);
             return builder;
         },
-        withTournament: (tournamentOrModifierFunc: any, id?: string) => {
-            const tournament = tournamentOrModifierFunc instanceof Function
-                ? tournamentOrModifierFunc(tournamentBuilder(id).date(date || ''))
-                : tournamentOrModifierFunc;
-            fixtureDate.tournamentFixtures?.push(tournament.build ? tournament.build() : tournament);
+        withTournament: (b?: BuilderParam<ITournamentBuilder>, id?: string) => {
+            const tournament = b
+                ? b(tournamentBuilder(id).date(date || '')).build()
+                : tournamentBuilder().date(date || '').build();
+            fixtureDate.tournamentFixtures?.push(tournament);
             return builder;
         },
-        withNote: (noteOrModifierFunc: any, id?: string) => {
-            const note = noteOrModifierFunc instanceof Function
-                ? noteOrModifierFunc(noteBuilder(date, id))
-                : noteOrModifierFunc;
-            fixtureDate.notes?.push(note.build ? note.build() : note);
+        withNote: (b: BuilderParam<INoteBuilder>, id?: string) => {
+            const note = b
+                ? b(noteBuilder(date, id)).build()
+                : noteBuilder(date).build();
+            fixtureDate.notes?.push(note);
             return builder;
         },
         isNew: () => {
@@ -176,8 +158,8 @@ export function fixtureDateBuilder(date?: string): IDivisionFixtureDateBuilder {
 
 export interface INoteBuilder extends IBuilder<FixtureDateNoteDto> {
     note(text: string): INoteBuilder;
-    season(seasonOrId: any): INoteBuilder;
-    division(divisionOrId: any): INoteBuilder;
+    season(season: SeasonDto): INoteBuilder;
+    division(division: DivisionDto): INoteBuilder;
     updated(date: string): INoteBuilder;
     noId(): INoteBuilder;
 }
@@ -195,12 +177,12 @@ export function noteBuilder(date?: string, id?: string): INoteBuilder {
             note.note = text;
             return builder;
         },
-        season: (seasonOrId: any) => {
-            note.seasonId = seasonOrId.id ? seasonOrId.id : seasonOrId;
+        season: (season: SeasonDto) => {
+            note.seasonId = season.id;
             return builder;
         },
-        division: (divisionOrId: any) => {
-            note.divisionId = divisionOrId.id ? divisionOrId.id : divisionOrId;
+        division: (division: DivisionDto) => {
+            note.divisionId = division.id;
             return builder;
         },
         updated: (date: string) => {
@@ -230,7 +212,7 @@ export function divisionBuilder(name: string, id?: string): IDivisionBuilder {
 
     const builder: IDivisionBuilder = {
         build: () => division as DivisionDto,
-        addTo: (map: any) => {
+        addTo: (map: { [key: string]: DivisionDto }) => {
             map[division.id] = division;
             return builder;
         },
@@ -248,11 +230,11 @@ export function divisionBuilder(name: string, id?: string): IDivisionBuilder {
 }
 
 export interface IDivisionDataBuilder extends IAddableBuilder<DivisionDataDto & IDivisionDataContainerProps> {
-    withFixtureDate(fixtureDateOrBuilderFunc: any, date?: string): IDivisionDataBuilder;
-    season(seasonOrBuilderFunc: any, name?: string, id?: string): IDivisionDataBuilder;
+    withFixtureDate(builder?: BuilderParam<IDivisionFixtureDateBuilder>, date?: string): IDivisionDataBuilder;
+    season(builder?: BuilderParam<ISeasonBuilder>, id?: string, name?: string): IDivisionDataBuilder;
     name(name?: string): IDivisionDataBuilder;
-    withTeam(teamOrBuilderFunc: any, name?: string, id?: string): IDivisionDataBuilder;
-    withPlayer(playerOrBuilderFunc: any, name?: string, id?: string): IDivisionDataBuilder;
+    withTeam(team: TeamDto): IDivisionDataBuilder;
+    withPlayer(player: DivisionPlayerDto): IDivisionDataBuilder;
     superleague(): IDivisionDataBuilder;
 
     onReloadDivision(onReloadDivision: (preventReloadIfIdsAreTheSame?: boolean) => Promise<DivisionDataDto | null>): IDivisionDataBuilder;
@@ -261,13 +243,11 @@ export interface IDivisionDataBuilder extends IAddableBuilder<DivisionDataDto & 
     favouritesEnabled(enabled?: boolean): IDivisionDataBuilder;
 }
 
-export function divisionDataBuilder(divisionOrId?: any): IDivisionDataBuilder {
-    const divisionId = divisionOrId && divisionOrId.id
-        ? divisionOrId.id
-        : divisionOrId || createTemporaryId();
+export function divisionDataBuilder(division?: DivisionDto): IDivisionDataBuilder {
+    const divisionId = division?.id || createTemporaryId();
     const divisionData: DivisionDataDto & IDivisionDataContainerProps = {
         id: divisionId || createTemporaryId(),
-        name: divisionOrId && divisionOrId.name ? divisionOrId.name : null,
+        name: division?.name ?? '',
         fixtures: [],
         teams: [],
         dataErrors: [],
@@ -275,45 +255,38 @@ export function divisionDataBuilder(divisionOrId?: any): IDivisionDataBuilder {
         setDivisionData: noop,
         onReloadDivision: noop,
         children: null,
-        superleague: divisionOrId && divisionOrId.superleague,
+        superleague: division?.superleague,
     };
 
     const builder: IDivisionDataBuilder = {
         build: () => divisionData,
-        addTo: (map: any) => {
+        addTo: (map: { [key: string]: DivisionDataDto & IDivisionDataContainerProps }) => {
             map[divisionData.id || ''] = divisionData;
             return builder;
         },
-        withFixtureDate: (fixtureDateOrBuilderFunc: any, date?: string) => {
-            const fixtureDate = fixtureDateOrBuilderFunc instanceof Function
-                ? fixtureDateOrBuilderFunc(fixtureDateBuilder(date))
-                : fixtureDateOrBuilderFunc;
-            divisionData.fixtures?.push(fixtureDate.build ? fixtureDate.build() : fixtureDate);
+        withFixtureDate: (b?: BuilderParam<IDivisionFixtureDateBuilder>, date?: string) => {
+            const fixtureDate = b
+                ? b(fixtureDateBuilder(date)).build()
+                : fixtureDateBuilder(date).build();
+            divisionData.fixtures?.push(fixtureDate);
             return builder;
         },
-        season: (seasonOrBuilderFunc: any, name?: string, id?: string) => {
-            const season = seasonOrBuilderFunc instanceof Function
-                ? seasonOrBuilderFunc(seasonBuilder(name, id))
-                : seasonOrBuilderFunc;
-            divisionData.season = season.build ? season.build() : season;
+        season: (b?: BuilderParam<ISeasonBuilder>, id?: string, name?: string) => {
+            divisionData.season = b
+                ? b(seasonBuilder(name ?? 'SEASON', id)).build()
+                : seasonBuilder().build();
             return builder;
         },
         name: (name?: string) => {
             divisionData.name = name || '';
             return builder;
         },
-        withTeam: (teamOrBuilderFunc: any, name?: string, id?: string) => {
-            const team = teamOrBuilderFunc instanceof Function
-                ? teamOrBuilderFunc(teamBuilder(name, id))
-                : teamOrBuilderFunc;
-            divisionData.teams?.push(team.build ? team.build() : team);
+        withTeam: (team: TeamDto) => {
+            divisionData.teams?.push(team);
             return builder;
         },
-        withPlayer: (playerOrBuilderFunc: any, name?: string, id?: string) => {
-            const player = playerOrBuilderFunc instanceof Function
-                ? playerOrBuilderFunc(playerBuilder(name, id))
-                : playerOrBuilderFunc;
-            divisionData.players?.push(player.build ? player.build() : player);
+        withPlayer: (player: DivisionPlayerDto) => {
+            divisionData.players?.push(player);
             return builder;
         },
         onReloadDivision: (onReloadDivision: (preventReloadIfIdsAreTheSame?: boolean) => Promise<DivisionDataDto | null>) => {

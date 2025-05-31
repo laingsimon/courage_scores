@@ -10,7 +10,7 @@ import {
 import {IManOfTheMatchInputProps, ManOfTheMatchInput} from "./ManOfTheMatchInput";
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
-import {fixtureBuilder, IMatchBuilder} from "../../helpers/builders/games";
+import {fixtureBuilder} from "../../helpers/builders/games";
 import {playerBuilder} from "../../helpers/builders/players";
 
 describe('ManOfTheMatchInput', () => {
@@ -31,7 +31,7 @@ describe('ManOfTheMatchInput', () => {
         updatedFixtureData = null;
     });
 
-    async function renderComponent(account: UserDto | null, props: IManOfTheMatchInputProps) {
+    async function renderComponent(account: UserDto | undefined, props: IManOfTheMatchInputProps) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
@@ -63,7 +63,7 @@ describe('ManOfTheMatchInput', () => {
     }
 
     describe('when logged out', () => {
-        const account: UserDto | null = null;
+        const account: UserDto | undefined = undefined;
         const saving = false;
         const access = '';
 
@@ -80,7 +80,7 @@ describe('ManOfTheMatchInput', () => {
         it('when no selected players', async () => {
             const fixtureData = fixtureBuilder()
                 .playing('HOME', 'AWAY')
-                .withMatch((m: IMatchBuilder) => m.withHome().withAway())
+                .withMatch(m => m.withHome().withAway())
                 .build();
 
             await renderComponent(account, { saving, fixtureData, access, setFixtureData });
@@ -94,7 +94,7 @@ describe('ManOfTheMatchInput', () => {
             const awayPlayer = playerBuilder('AWAY player').build();
             const fixtureData = fixtureBuilder()
                 .playing('HOME', 'AWAY')
-                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
+                .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                 .build();
 
             await renderComponent(account, { saving, fixtureData, access, setFixtureData });
@@ -108,8 +108,8 @@ describe('ManOfTheMatchInput', () => {
             const awayPlayer = playerBuilder('AWAY player').build();
             const fixtureData = fixtureBuilder()
                 .playing('HOME', 'AWAY')
-                .manOfTheMatch(homePlayer, null)
-                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
+                .manOfTheMatch(homePlayer)
+                .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                 .build();
 
             await renderComponent(account, { saving, fixtureData, access, setFixtureData });
@@ -123,8 +123,8 @@ describe('ManOfTheMatchInput', () => {
             const awayPlayer = playerBuilder('AWAY player').build();
             const fixtureData = fixtureBuilder()
                 .playing('HOME', 'AWAY')
-                .manOfTheMatch(null, awayPlayer)
-                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
+                .manOfTheMatch(undefined, awayPlayer)
+                .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                 .build();
 
             await renderComponent(account, { saving, fixtureData, access, setFixtureData });
@@ -162,7 +162,7 @@ describe('ManOfTheMatchInput', () => {
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
                     .manOfTheMatch(awayPlayer, homePlayer)
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
                 await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData, disabled: true });
@@ -177,7 +177,7 @@ describe('ManOfTheMatchInput', () => {
             it('when no selected players', async () => {
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
-                    .withMatch((m: IMatchBuilder) => m.withHome().withAway())
+                    .withMatch(m => m.withHome().withAway())
                     .build();
 
                 await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
@@ -194,7 +194,7 @@ describe('ManOfTheMatchInput', () => {
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
                 await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
@@ -211,8 +211,8 @@ describe('ManOfTheMatchInput', () => {
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
-                    .manOfTheMatch(awayPlayer, null)
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
+                    .manOfTheMatch(awayPlayer)
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
                 await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
@@ -228,8 +228,8 @@ describe('ManOfTheMatchInput', () => {
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
-                    .manOfTheMatch(null, homePlayer)
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
+                    .manOfTheMatch(undefined, homePlayer)
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
                 await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
@@ -247,7 +247,7 @@ describe('ManOfTheMatchInput', () => {
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
                 reportedError.verifyNoError();
                 await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
@@ -264,8 +264,8 @@ describe('ManOfTheMatchInput', () => {
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
-                    .manOfTheMatch(homePlayer, null)
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
+                    .manOfTheMatch(homePlayer)
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
                 reportedError.verifyNoError();
@@ -283,7 +283,7 @@ describe('ManOfTheMatchInput', () => {
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
                 reportedError.verifyNoError();
@@ -301,8 +301,8 @@ describe('ManOfTheMatchInput', () => {
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
-                    .manOfTheMatch(null, awayPlayer)
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
+                    .manOfTheMatch(undefined, awayPlayer)
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
                 reportedError.verifyNoError();

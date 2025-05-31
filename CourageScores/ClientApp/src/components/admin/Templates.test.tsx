@@ -59,7 +59,11 @@ describe('Templates', () => {
             iocProps({templateApi}),
             brandingProps(),
             appProps({
-                account: {},
+                account: {
+                    name: '',
+                    emailAddress: '',
+                    givenName: '',
+                },
             }, reportedError),
             (<AdminContainer accounts={[]} tables={[]}>
                 <Templates/>

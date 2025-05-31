@@ -1,7 +1,9 @@
-﻿export interface IFullScreen {
+﻿import {UntypedPromise} from "../../interfaces/UntypedPromise";
+
+export interface IFullScreen {
     isFullScreen?: boolean;
     canGoFullScreen?: boolean;
-    enterFullScreen(element?: HTMLElement | null): Promise<void>;
-    exitFullScreen(): Promise<void>;
-    toggleFullScreen(): Promise<void>;
+    enterFullScreen(element?: HTMLElement | null): UntypedPromise;
+    exitFullScreen(): UntypedPromise;
+    toggleFullScreen(): UntypedPromise;
 }

@@ -21,24 +21,22 @@ import {ISeasonApi} from "./interfaces/apis/ISeasonApi";
 import {ITeamApi} from "./interfaces/apis/ITeamApi";
 import React from "react";
 import {CookiesProvider} from "react-cookie";
+import {ISettings} from "./api/settings";
 
 describe('App', () => {
     let context: TestContext;
-    let allDivisions: any = [];
+    let allDivisions: Promise<DivisionDto[]>;
     let account: UserDto | null = null;
     let allSeasons: SeasonDto[] = [];
     let allTeams: TeamDto[] = [];
     let reportedError: ErrorDetailDto | null;
-    let settings: any;
+    let settings: ISettings;
     let fullScreenRequested: boolean;
     let fullScreenExited: boolean;
+    let invalidateCacheOnNextRequest: boolean;
 
     const divisionApi = api<IDivisionApi>({
         getAll: async (): Promise<DivisionDto[]> => {
-            if (allDivisions.length || allDivisions.length === 0) {
-                return allDivisions;
-            }
-
             return await allDivisions;
         }
     });
@@ -64,9 +62,21 @@ describe('App', () => {
 
     beforeEach(() => {
         reportedError = null;
-        settings = {};
+        settings = {
+            get invalidateCacheOnNextRequest(): boolean {
+                return invalidateCacheOnNextRequest;
+            },
+            set invalidateCacheOnNextRequest(value: boolean) {
+                invalidateCacheOnNextRequest = value;
+            },
+            get apiHost(): string {
+                return '';
+            }
+        };
         fullScreenExited = false;
         fullScreenRequested = false;
+        invalidateCacheOnNextRequest = false;
+        allDivisions = Promise.resolve([]);
         // @ts-ignore
         // noinspection JSConstantReassignment
         document.fullscreenElement = null;
@@ -167,12 +177,12 @@ describe('App', () => {
         expect(heading.textContent).toEqual('COURAGE LEAGUE');
     }
 
-    function assertMenu(loading?: boolean) {
+    async function assertMenu(loading?: boolean) {
         const header = context.container.querySelector('header')!;
         expect(header).toBeTruthy();
         const menuItems = Array.from(header.querySelectorAll('li.nav-item'));
         const menuItemText = menuItems.map(li => li.textContent);
-        const divisionMenuItems = loading ? [] : allDivisions.map((d: DivisionDto) => d.name);
+        const divisionMenuItems = loading ? [] : (await allDivisions).map((d: DivisionDto) => d.name);
         const expectedMenuItemsAfterDivisions: string[] = [];
 
         if (!loading) {
@@ -219,7 +229,7 @@ describe('App', () => {
 
             assertSocialLinks();
             assertHeading();
-            assertMenu();
+            await assertMenu();
         });
 
         it('with build information', async () => {
@@ -231,7 +241,7 @@ describe('App', () => {
 
             assertSocialLinks();
             assertHeading();
-            assertMenu();
+            await assertMenu();
         });
 
         it('embedded', async () => {
@@ -256,20 +266,20 @@ describe('App', () => {
 
             assertSocialLinks();
             assertHeading();
-            assertMenu();
+            await assertMenu();
         });
 
         it('with divisions', async () => {
-            allDivisions = [
+            allDivisions = Promise.resolve([
                 divisionBuilder('Division One').build(),
                 divisionBuilder('Division Two').build()
-            ];
+            ]);
 
             await renderComponent();
 
             assertSocialLinks();
             assertHeading();
-            assertMenu();
+            await assertMenu();
         });
 
         it('when still loading', async () => {
@@ -279,7 +289,7 @@ describe('App', () => {
 
             assertSocialLinks();
             assertHeading();
-            assertMenu(true);
+            await assertMenu(true);
         });
     });
 

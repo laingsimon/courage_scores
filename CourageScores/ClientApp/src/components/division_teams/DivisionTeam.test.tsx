@@ -51,7 +51,7 @@ describe('DivisionTeam', () => {
         updatedTeam = null;
     });
 
-    async function renderComponent(team: DivisionTeamDto, account: UserDto | null, divisionData: IDivisionDataContainerProps, teams?: TeamDto[], preferenceData?: IPreferenceData) {
+    async function renderComponent(team: DivisionTeamDto, account: UserDto | undefined, divisionData: IDivisionDataContainerProps, teams?: TeamDto[], preferenceData?: IPreferenceData) {
         context = await renderApp(
             iocProps({teamApi}),
             brandingProps(),
@@ -71,7 +71,7 @@ describe('DivisionTeam', () => {
     }
 
     describe('when logged out', () => {
-        const account: UserDto | null = null;
+        const account: UserDto | undefined = undefined;
         const division = divisionBuilder('DIVISION').build();
         const season = seasonBuilder('SEASON')
             .build();

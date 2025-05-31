@@ -1,8 +1,8 @@
 import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import {IPrintDivisionHeadingProps, PrintDivisionHeading} from "./PrintDivisionHeading";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "./DivisionDataContainer";
-import {divisionDataBuilder} from "../../helpers/builders/divisions";
-import {ISeasonBuilder} from "../../helpers/builders/seasons";
+import {divisionBuilder, divisionDataBuilder} from "../../helpers/builders/divisions";
+import {createTemporaryId} from "../../helpers/projection";
 
 describe('PrintDivisionHeading', () => {
     let context: TestContext;
@@ -25,7 +25,7 @@ describe('PrintDivisionHeading', () => {
         it('renders nothing when no season', async () => {
             await renderComponent({
                 hideDivision: false
-            }, divisionDataBuilder('DIVISION').build());
+            }, divisionDataBuilder(divisionBuilder('DIVISION').build()).build());
 
             expect(context.container.textContent).toEqual('');
         });
@@ -33,7 +33,7 @@ describe('PrintDivisionHeading', () => {
         it('renders nothing when no division and division included', async () => {
             await renderComponent({
                 hideDivision: false
-            }, divisionDataBuilder(null).season((s: ISeasonBuilder) => s,'SEASON').build());
+            }, divisionDataBuilder().season().build());
 
             expect(context.container.textContent).toEqual('');
         });
@@ -41,7 +41,7 @@ describe('PrintDivisionHeading', () => {
         it('renders nothing when no division and division excluded', async () => {
             await renderComponent({
                 hideDivision: true
-            }, divisionDataBuilder(null).season((s: ISeasonBuilder) => s,'SEASON').build());
+            }, divisionDataBuilder().season(s => s, createTemporaryId(), 'SEASON').build());
 
             expect(context.container.textContent).toEqual('SEASON');
         });
@@ -50,7 +50,7 @@ describe('PrintDivisionHeading', () => {
     describe('when season and division present', () => {
         const divisionData = divisionDataBuilder()
             .name('DIVISION')
-            .season((s: ISeasonBuilder) => s,'SEASON')
+            .season(s => s, createTemporaryId(), 'SEASON')
             .build();
 
         it('shows division name', async () => {
