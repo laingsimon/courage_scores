@@ -267,8 +267,8 @@ export function roundBuilder(): ITournamentRoundBuilder {
 }
 
 export interface ITournamentMatchBuilder extends IBuilder<TournamentMatchDto> {
-    sideA(side: any, score?: number, ...players: TeamPlayerDto[]): ITournamentMatchBuilder;
-    sideB(side: any, score?: number, ...players: TeamPlayerDto[]): ITournamentMatchBuilder;
+    sideA(side: TournamentSideDto | string | BuilderParam<ITournamentSideBuilder>, score?: number, ...players: TeamPlayerDto[]): ITournamentMatchBuilder;
+    sideB(side: TournamentSideDto | string | BuilderParam<ITournamentSideBuilder>, score?: number, ...players: TeamPlayerDto[]): ITournamentMatchBuilder;
     saygId(id: string): ITournamentMatchBuilder;
     noId(): ITournamentMatchBuilder;
 }
@@ -282,28 +282,34 @@ export function tournamentMatchBuilder(id?: string): ITournamentMatchBuilder {
 
     const builder: ITournamentMatchBuilder = {
         build: () => match,
-        sideA: (side: any, score?: number, ...players: TeamPlayerDto[]) => {
+        sideA: (side: TournamentSideDto | string | BuilderParam<ITournamentSideBuilder>, score?: number, ...players: TeamPlayerDto[]) => {
+            let sideToAdd: TournamentSideDto;
             if (side instanceof Function) {
-                side = side(sideBuilder()).build();
+                sideToAdd = side(sideBuilder()).build();
+            } else if (typeof side === 'string') {
+                sideToAdd = sideBuilder(side as string).build();
+            } else {
+                sideToAdd = side as TournamentSideDto;
             }
 
-            match.sideA = side.name
-                ? side
-                : sideBuilder(side).build();
+            match.sideA = sideToAdd;
             if (score !== undefined) {
                 match.scoreA = score;
             }
             match.sideA.players = (match.sideA.players || []).concat(players);
             return builder;
         },
-        sideB: (side: any, score?: number, ...players: TeamPlayerDto[]) => {
+        sideB: (side: TournamentSideDto | string | BuilderParam<ITournamentSideBuilder>, score?: number, ...players: TeamPlayerDto[]) => {
+            let sideToAdd: TournamentSideDto;
             if (side instanceof Function) {
-                side = side(sideBuilder()).build();
+                sideToAdd = side(sideBuilder()).build();
+            } else if (typeof side === 'string') {
+                sideToAdd = sideBuilder(side as string).build();
+            } else {
+                sideToAdd = side as TournamentSideDto;
             }
 
-            match.sideB = side.name
-                ? side
-                : sideBuilder(side).build();
+            match.sideB = sideToAdd;
             if (score !== undefined) {
                 match.scoreB = score;
             }
