@@ -109,7 +109,7 @@ describe('DivisionFixtures', () => {
         const team: TeamDto = teamBuilder('A team').build();
 
         return divisionDataBuilder()
-            .season(s => s.starting('2022-02-03T00:00:00').ending('2022-08-25T00:00:00'), 'A season')
+            .season(s => s.starting('2022-02-03T00:00:00').ending('2022-08-25T00:00:00'))
             .name('A division')
             .withTeam(team)
             .onReloadDivision(onReloadDivision)

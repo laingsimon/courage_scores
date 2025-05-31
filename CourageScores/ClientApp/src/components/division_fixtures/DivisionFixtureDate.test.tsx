@@ -98,7 +98,7 @@ describe('DivisionFixtureDate', () => {
                 setNewFixtures,
             }, divisionDataBuilder(division)
                 .withFixtureDate(fd => fd.withFixture(f => f.bye(teamBuilder('HOME').build())), '2023-05-06T00:00:00')
-                .season(s => s, 'SEASON')
+                .season(s => s)
                 .withTeam(team)
                 .build(), account);
 
@@ -128,7 +128,7 @@ describe('DivisionFixtureDate', () => {
                 setNewFixtures,
             }, divisionDataBuilder(division)
                 .withFixtureDate(fd => fd.withFixture(f => f.playing(teamDto('HOME'), teamDto('AWAY')).knockout()), '2023-05-06T00:00:00')
-                .season(s => s, 'SEASON')
+                .season(s => s)
                 .withTeam(team)
                 .build(), account);
 
@@ -162,7 +162,7 @@ describe('DivisionFixtureDate', () => {
                 .withFixtureDate(fd => fd
                     .withFixture(f => f.bye(teamBuilder('A BYE HOME', homeTeamId).build()).knockout(), homeTeamId)
                     .withFixture(f => f.playing(teamDto('ANOTHER HOME'), teamDto('ANOTHER AWAY')).knockout()), '2023-05-06T00:00:00')
-                .season(s => s, 'SEASON')
+                .season(s => s)
                 .withTeam(team)
                 .build(), account);
 
@@ -189,7 +189,7 @@ describe('DivisionFixtureDate', () => {
                 setNewFixtures,
             }, divisionDataBuilder(division)
                 .withFixtureDate(fd => fd.withTournament(t => t.type('TYPE').address('ADDRESS')), '2023-05-06T00:00:00')
-                .season(s => s, 'SEASON')
+                .season(s => s)
                 .withTeam(team)
                 .build(), account);
 
@@ -218,7 +218,7 @@ describe('DivisionFixtureDate', () => {
                 setNewFixtures,
             }, divisionDataBuilder(division)
                 .withFixtureDate(fd => fd.withTournament(t => t.type('TYPE').address('ADDRESS').winner('WINNER')), '2023-05-06T00:00:00')
-                .season(s => s, 'SEASON')
+                .season(s => s)
                 .withTeam(team)
                 .build(), account);
 
@@ -248,7 +248,7 @@ describe('DivisionFixtureDate', () => {
                 setNewFixtures,
             }, divisionDataBuilder(division)
                 .withFixtureDate(fd => fd.withNote(n => n.note('NOTE')), '2023-05-06T00:00:00')
-                .season(s => s, 'SEASON')
+                .season(s => s)
                 .withTeam(team)
                 .build(), account);
 
@@ -278,7 +278,7 @@ describe('DivisionFixtureDate', () => {
                 setNewFixtures,
             }, divisionDataBuilder(division)
                 .withFixtureDate(fd => fd.withNote(n => n.note('NOTE')), '2023-05-06T00:00:00')
-                .season(s => s, 'SEASON')
+                .season(s => s)
                 .withTeam(team)
                 .build(), account);
 
@@ -303,7 +303,7 @@ describe('DivisionFixtureDate', () => {
                 setNewFixtures,
             }, divisionDataBuilder(division)
                 .withFixtureDate(fd => fd.withNote(n => n.note('NOTE')), '2023-05-06T00:00:00')
-                .season(s => s, 'SEASON')
+                .season(s => s)
                 .withTeam(team)
                 .build(), account);
 
@@ -328,7 +328,7 @@ describe('DivisionFixtureDate', () => {
                 setNewFixtures,
             }, divisionDataBuilder(division)
                 .withFixtureDate(fd => fd.withNote(n => n.note('NOTE')), '2023-05-06T00:00:00')
-                .season(s => s, 'SEASON')
+                .season(s => s)
                 .withTeam(team)
                 .build(), account);
 
@@ -361,7 +361,7 @@ describe('DivisionFixtureDate', () => {
                         .type('TYPE')
                         .address('ADDRESS')
                         .withSide(s => s.name('SIDE').withPlayer('PLAYER'))), '2023-05-06T00:00:00')
-                    .season(s => s, 'SEASON')
+                    .season(s => s)
                     .withTeam(team)
                     .build(),
                 account);
@@ -397,7 +397,7 @@ describe('DivisionFixtureDate', () => {
                         .type('TYPE')
                         .address('ADDRESS')
                         .withSide(s => s.name('SIDE').withPlayer('PLAYER'))), '2023-05-06T00:00:00')
-                .season(s => s, 'SEASON')
+                .season(s => s)
                 .withTeam(team)
                 .build(), account);
 
@@ -430,7 +430,7 @@ describe('DivisionFixtureDate', () => {
                     .type('TYPE')
                     .address('ADDRESS')
                     .withSide(s => s.name('SIDE').withPlayer('PLAYER'))), '2023-05-06T00:00:00')
-                .season(s => s, 'SEASON')
+                .season(s => s)
                 .withTeam(team)
                 .build(), account);
 
@@ -459,7 +459,7 @@ describe('DivisionFixtureDate', () => {
                     .type('TYPE')
                     .address('ADDRESS')
                     .withSide(s => s.name('SIDE').withPlayer('PLAYER'))), '2023-05-06T00:00:00')
-                .season(s => s, 'SEASON')
+                .season(s => s)
                 .withTeam(team)
                 .build(), account, true);
 
@@ -505,7 +505,7 @@ describe('DivisionFixtureDate', () => {
                 .withFixtureDate(fd => fd
                     .withFixture(f => f.bye(team), team.id)
                     .withTournament(t => t.type('TYPE').address('ADDRESS')), '2023-05-06T00:00:00')
-                .season(s => s, 'SEASON')
+                .season(s => s)
                 .withTeam(team)
                 .build(), account);
 
@@ -540,7 +540,7 @@ describe('DivisionFixtureDate', () => {
                     .withFixture(f => f.bye(team), team.id)
                     .withFixture(f => f.playing(homeTeam, awayTeam), homeTeam.id)
                     .withTournament(t => t.type('TYPE').address('ADDRESS')), '2023-05-06T00:00:00')
-                .season(s => s, 'SEASON')
+                .season(s => s)
                 .withTeam(team).withTeam(homeTeam).withTeam(awayTeam)
                 .build(), account);
 
@@ -573,7 +573,7 @@ describe('DivisionFixtureDate', () => {
                 .withFixtureDate(fd => fd
                     .withFixture(f => f.bye(team), team.id)
                     .withFixture(f => f.playing(anotherTeam, team)), '2023-05-06T00:00:00')
-                .season(s => s, 'SEASON')
+                .season(s => s)
                 .withTeam(team)
                 .build(), account);
 
@@ -599,7 +599,7 @@ describe('DivisionFixtureDate', () => {
                 setNewFixtures,
             }, divisionDataBuilder(division)
                 .withFixtureDate(fd => fd.withFixture(f => f.bye(team), team.id), '2023-05-06T00:00:00')
-                .season(s => s, 'SEASON')
+                .season(s => s)
                 .withTeam(team).withTeam(anotherTeam)
                 .build(), account);
             const table = context.container.querySelector('table')!;
@@ -634,7 +634,7 @@ describe('DivisionFixtureDate', () => {
                 setNewFixtures,
             }, divisionDataBuilder(division)
                 .withFixtureDate(fd => fd.withFixture(f => f.playing(anotherTeam, team)), '2023-05-06T00:00:00')
-                .season(s => s, 'SEASON')
+                .season(s => s)
                 .withTeam(team)
                 .build(), account);
 
@@ -655,7 +655,7 @@ describe('DivisionFixtureDate', () => {
                 setNewFixtures,
             }, divisionDataBuilder(division)
                 .withFixtureDate(fd => fd, '2023-05-06T00:00:00')
-                .season(s => s, 'SEASON')
+                .season(s => s)
                 .withTeam(team)
                 .build(), account);
 
@@ -695,7 +695,7 @@ describe('DivisionFixtureDate', () => {
                 setNewFixtures,
             }, divisionDataBuilder(division)
                 .withFixtureDate(fd => fd.withFixture(f => f.bye(team).knockout().accoladesCount(), team.id), '2023-05-06T00:00:00')
-                .season(s => s, 'SEASON')
+                .season(s => s)
                 .withTeam(team)
                 .build(), account);
 
@@ -717,7 +717,7 @@ describe('DivisionFixtureDate', () => {
                 setNewFixtures,
             }, divisionDataBuilder(division)
                 .withFixtureDate(fd => fd.withFixture(f => f.bye(team), team.id), '2023-05-06T00:00:00')
-                .season(s => s, 'SEASON')
+                .season(s => s)
                 .withTeam(team)
                 .build(), account);
 
@@ -778,7 +778,7 @@ describe('DivisionFixtureDate', () => {
                 setNewFixtures,
             }, divisionDataBuilder(superleagueDivision)
                 .withFixtureDate(fd => fd.withFixture(f => f.playing(team, awayTeam).knockout()), '2023-05-06T00:00:00')
-                .season(s => s, 'SEASON')
+                .season(s => s)
                 .withTeam(team)
                 .build(), account, undefined, [team, awayTeam]);
 

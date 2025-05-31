@@ -37,7 +37,7 @@ describe('TeamOverview', () => {
 
     function createDivisionData(divisionId: string): IDivisionDataContainerProps {
         return divisionDataBuilder(divisionBuilder('DIVISION', divisionId).build())
-            .season(s => s.starting('2022-02-03T00:00:00').ending('2022-08-25T00:00:00'), 'A season')
+            .season(s => s.starting('2022-02-03T00:00:00').ending('2022-08-25T00:00:00'))
             .build();
     }
 
