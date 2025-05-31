@@ -9,7 +9,7 @@ import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/S
 
 export interface IRecordedSaygBuilder extends IAddableBuilder<RecordedScoreAsYouGoDto & UpdateRecordedScoreAsYouGoDto> {
     scores(home: number, away?: number): IRecordedSaygBuilder;
-    withLeg(id: number, builder: BuilderParam<ILegBuilder>): IRecordedSaygBuilder;
+    withLeg(id: number, builder?: BuilderParam<ILegBuilder>): IRecordedSaygBuilder;
     yourName(name: string): IRecordedSaygBuilder;
     opponentName(name?: string): IRecordedSaygBuilder;
     updated(updated: string): IRecordedSaygBuilder;
@@ -37,8 +37,10 @@ export function saygBuilder(id?: string): IRecordedSaygBuilder {
             sayg.awayScore = away;
             return builder;
         },
-        withLeg: (id: number, b: BuilderParam<ILegBuilder>) => {
-            sayg.legs[id] = b(legBuilder()).build();
+        withLeg: (id: number, b?: BuilderParam<ILegBuilder>) => {
+            sayg.legs[id] = b
+                ? b(legBuilder()).build()
+                : legBuilder().build();
             return builder;
         },
         yourName: (name: string) => {
@@ -79,8 +81,8 @@ export interface ILegBuilder extends IBuilder<LegDto> {
     currentThrow(homeOrAway: string): ILegBuilder;
     playerSequence(homeOrAway: string, awayOrHome: string): ILegBuilder;
     lastLeg(): ILegBuilder;
-    home(builder: BuilderParam<ILegCompetitorScoreBuilder>): ILegBuilder;
-    away(builder: BuilderParam<ILegCompetitorScoreBuilder>): ILegBuilder;
+    home(builder?: BuilderParam<ILegCompetitorScoreBuilder>): ILegBuilder;
+    away(builder?: BuilderParam<ILegCompetitorScoreBuilder>): ILegBuilder;
 }
 
 export function legBuilder(): ILegBuilder {
@@ -111,14 +113,16 @@ export function legBuilder(): ILegBuilder {
             leg.isLastLeg = true;
             return builder;
         },
-        home: (b: BuilderParam<ILegCompetitorScoreBuilder>) => {
-            const competitor = b(saygCompetitorBuilder());
-            leg.home = competitor.build();
+        home: (b?: BuilderParam<ILegCompetitorScoreBuilder>) => {
+            leg.home = b
+                ? b(saygCompetitorBuilder()).build()
+                : saygCompetitorBuilder().build();
             return builder;
         },
-        away: (b: BuilderParam<ILegCompetitorScoreBuilder>) => {
-            const competitor = b(saygCompetitorBuilder());
-            leg.away = competitor.build();
+        away: (b?: BuilderParam<ILegCompetitorScoreBuilder>) => {
+            leg.away = b
+                ? b(saygCompetitorBuilder()).build()
+                : saygCompetitorBuilder().build();
             return builder;
         },
     };

@@ -33,7 +33,7 @@ describe('PrintDivisionHeading', () => {
         it('renders nothing when no division and division included', async () => {
             await renderComponent({
                 hideDivision: false
-            }, divisionDataBuilder().season(s => s).build());
+            }, divisionDataBuilder().season().build());
 
             expect(context.container.textContent).toEqual('');
         });

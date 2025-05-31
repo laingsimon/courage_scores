@@ -86,8 +86,8 @@ describe('AnalyseScores', () => {
         beforeEach(() => {
             divisionApiResponse = divisionDataBuilder()
                 .withFixtureDate((fd) => fd
-                    .withTournament((t) => t.singleRound().date('2001-02-03').type('BOARD 1').opponent('OPPONENT'))
-                    .withTournament((t) => t.date('2001-02-03').type('Singles')), '2001-02-03')
+                    .withTournament(t => t.singleRound().date('2001-02-03').type('BOARD 1').opponent('OPPONENT'))
+                    .withTournament(t => t.date('2001-02-03').type('Singles')), '2001-02-03')
                 .build();
         });
 
@@ -255,8 +255,8 @@ describe('AnalyseScores', () => {
         beforeEach(() => {
             divisionApiResponse = divisionDataBuilder()
                 .withFixtureDate((fd) => fd
-                    .withTournament((t) => t.singleRound().date('2001-02-03').type('BOARD 1').opponent('OPPONENT'))
-                    .withTournament((t) => t.date('2001-02-03').type('Singles')), '2001-02-03')
+                    .withTournament(t => t.singleRound().date('2001-02-03').type('BOARD 1').opponent('OPPONENT'))
+                    .withTournament(t => t.date('2001-02-03').type('Singles')), '2001-02-03')
                 .build();
         });
 

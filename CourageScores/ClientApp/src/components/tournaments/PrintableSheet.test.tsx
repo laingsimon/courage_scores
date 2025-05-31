@@ -1093,9 +1093,7 @@ describe('PrintableSheet', () => {
             .withDivision(division)
             .build();
         const matchOptionDefaults = matchOptionsBuilder().build();
-        const tournamentData: TournamentGameDto = tournamentBuilder()
-            .round(r => r)
-            .build();
+        const tournamentData: TournamentGameDto = tournamentBuilder().round().build();
         const containerProps = new tournamentContainerPropsBuilder({
             season,
             division,

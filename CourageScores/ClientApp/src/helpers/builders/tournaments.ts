@@ -16,7 +16,7 @@ export interface ITournamentBuilder extends IAddableBuilder<TournamentGameDto & 
     type(type: string): ITournamentBuilder;
     address(address: string): ITournamentBuilder;
     winner(name: string, id?: string, teamId?: string): ITournamentBuilder;
-    withSide(builder: BuilderParam<ITournamentSideBuilder>): ITournamentBuilder;
+    withSide(builder?: BuilderParam<ITournamentSideBuilder>): ITournamentBuilder;
     withPlayer(playerOrId: any): ITournamentBuilder;
     date(date: string): ITournamentBuilder;
     notes(notes: string): ITournamentBuilder;
@@ -26,7 +26,7 @@ export interface ITournamentBuilder extends IAddableBuilder<TournamentGameDto & 
     proposed(): ITournamentBuilder;
     accoladesCount(): ITournamentBuilder;
     updated(date: string): ITournamentBuilder;
-    round(builder: BuilderParam<ITournamentRoundBuilder>): ITournamentBuilder;
+    round(builder?: BuilderParam<ITournamentRoundBuilder>): ITournamentBuilder;
     host(host: string): ITournamentBuilder;
     opponent(opponent: string): ITournamentBuilder;
     gender(gender: string): ITournamentBuilder;
@@ -69,9 +69,11 @@ export function tournamentBuilder(id?: string): ITournamentBuilder {
             };
             return builder;
         },
-        withSide: (b: BuilderParam<ITournamentSideBuilder>, name?: string) => {
-            const side = b(sideBuilder(name));
-            tournament.sides?.push(side.build());
+        withSide: (b?: BuilderParam<ITournamentSideBuilder>, name?: string) => {
+            const side = b
+                ? b(sideBuilder(name)).build()
+                : sideBuilder().build();
+            tournament.sides?.push(side);
             return builder;
         },
         withPlayer: (playerOrId: any) => {
@@ -118,9 +120,10 @@ export function tournamentBuilder(id?: string): ITournamentBuilder {
             tournament.updated = date;
             return builder;
         },
-        round: (roundOrBuilderFunc: BuilderParam<ITournamentRoundBuilder>) => {
-            const round = roundOrBuilderFunc(roundBuilder());
-            tournament.round = round.build();
+        round: (b?: BuilderParam<ITournamentRoundBuilder>) => {
+            tournament.round = b
+                ? b(roundBuilder()).build()
+                : roundBuilder().build();
             return builder;
         },
         host: (host: string) => {
@@ -225,9 +228,9 @@ export function sideBuilder(name?: string, id?: string): ITournamentSideBuilder 
 }
 
 export interface ITournamentRoundBuilder extends IBuilder<TournamentRoundDto> {
-    withMatch(builder: BuilderParam<ITournamentMatchBuilder>, id?: string): ITournamentRoundBuilder;
-    round(builder: BuilderParam<ITournamentRoundBuilder>): ITournamentRoundBuilder;
-    withMatchOption(builder: BuilderParam<IMatchOptionsBuilder>): ITournamentRoundBuilder;
+    withMatch(builder?: BuilderParam<ITournamentMatchBuilder>, id?: string): ITournamentRoundBuilder;
+    round(builder?: BuilderParam<ITournamentRoundBuilder>): ITournamentRoundBuilder;
+    withMatchOption(builder?: BuilderParam<IMatchOptionsBuilder>): ITournamentRoundBuilder;
 }
 
 export function roundBuilder(): ITournamentRoundBuilder {
@@ -238,17 +241,24 @@ export function roundBuilder(): ITournamentRoundBuilder {
 
     const builder: ITournamentRoundBuilder = {
         build: () => round,
-        withMatch: (b: BuilderParam<ITournamentMatchBuilder>, id?: string) => {
-            const match = b(tournamentMatchBuilder(id)).build();
+        withMatch: (b?: BuilderParam<ITournamentMatchBuilder>, id?: string) => {
+            const match = b
+                ? b(tournamentMatchBuilder(id)).build()
+                : tournamentMatchBuilder().build();
             round.matches?.push(match);
             return builder;
         },
-        round: (b: BuilderParam<ITournamentRoundBuilder>) => {
-            round.nextRound = b(roundBuilder()).build();
+        round: (b?: BuilderParam<ITournamentRoundBuilder>) => {
+            round.nextRound = b
+                ? b(roundBuilder()).build()
+                : roundBuilder().build();
             return builder;
         },
-        withMatchOption: (b: BuilderParam<IMatchOptionsBuilder>) => {
-            round.matchOptions?.push(b(matchOptionsBuilder()).build());
+        withMatchOption: (b?: BuilderParam<IMatchOptionsBuilder>) => {
+            const matchOptions = b
+                ? b(matchOptionsBuilder()).build()
+                : matchOptionsBuilder().build();
+            round.matchOptions?.push(matchOptions);
             return builder;
         }
     };

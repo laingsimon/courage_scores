@@ -70,7 +70,7 @@ describe('HiCheckAnd180s', () => {
             const fixtureData = fixtureBuilder()
                 .forDivision(division)
                 .forSeason(season)
-                .withMatch(m => m)
+                .withMatch()
                 .build();
 
             await renderComponent({

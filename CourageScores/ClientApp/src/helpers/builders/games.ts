@@ -26,12 +26,12 @@ export interface IFixtureBuilder extends IAddableBuilder<IDatedDivisionFixtureDt
     forDivision(division: DivisionDto): IFixtureBuilder;
     with180(player: TeamPlayerDto): IFixtureBuilder;
     withHiCheck(player: TeamPlayerDto, score: number): IFixtureBuilder;
-    withMatch(builder: BuilderParam<IMatchBuilder>): IFixtureBuilder;
-    withMatchOption(builder: BuilderParam<IMatchOptionsBuilder>): IFixtureBuilder;
+    withMatch(builder?: BuilderParam<IMatchBuilder>): IFixtureBuilder;
+    withMatchOption(builder?: BuilderParam<IMatchOptionsBuilder>): IFixtureBuilder;
     editor(name: string): IFixtureBuilder;
     author(name: string): IFixtureBuilder;
-    homeSubmission(builder: BuilderParam<IFixtureBuilder>, id?: string): IFixtureBuilder;
-    awaySubmission(builder: BuilderParam<IFixtureBuilder>, id?: string): IFixtureBuilder;
+    homeSubmission(builder?: BuilderParam<IFixtureBuilder>, id?: string): IFixtureBuilder;
+    awaySubmission(builder?: BuilderParam<IFixtureBuilder>, id?: string): IFixtureBuilder;
     updated(time: string): IFixtureBuilder;
 }
 
@@ -111,14 +111,18 @@ export function fixtureBuilder(date?: string, id?: string): IFixtureBuilder {
             fixture.over100Checkouts?.push(Object.assign({}, player, { score }));
             return builder;
         },
-        withMatch: (b: BuilderParam<IMatchBuilder>) => {
-            const match = b(matchBuilder());
-            fixture.matches?.push(match.build());
+        withMatch: (b?: BuilderParam<IMatchBuilder>) => {
+            const match = b
+                ? b(matchBuilder()).build()
+                : matchBuilder().build();
+            fixture.matches?.push(match);
             return builder;
         },
-        withMatchOption: (b: BuilderParam<IMatchOptionsBuilder>) => {
-            const matchOption = b(matchOptionsBuilder());
-            fixture.matchOptions?.push(matchOption.build());
+        withMatchOption: (b?: BuilderParam<IMatchOptionsBuilder>) => {
+            const matchOption = b
+                ? b(matchOptionsBuilder()).build()
+                : matchOptionsBuilder().build();
+            fixture.matchOptions?.push(matchOption);
             return builder;
         },
         editor: (name: string) => {
@@ -133,14 +137,16 @@ export function fixtureBuilder(date?: string, id?: string): IFixtureBuilder {
             fixture.updated = date;
             return builder;
         },
-        homeSubmission: (b: BuilderParam<IFixtureBuilder>, id?: string) => {
-            const submission = b(fixtureBuilder(fixture.date, id || fixture.id));
-            fixture.homeSubmission = submission.build();
+        homeSubmission: (b?: BuilderParam<IFixtureBuilder>, id?: string) => {
+            fixture.homeSubmission = b
+                ? b(fixtureBuilder(fixture.date, id || fixture.id)).build()
+                : fixtureBuilder(fixture.date, id || fixture.id).build();
             return builder;
         },
-        awaySubmission: (b: BuilderParam<IFixtureBuilder>, id?: string) => {
-            const submission = b(fixtureBuilder(fixture.date, id || fixture.id));
-            fixture.awaySubmission = submission.build();
+        awaySubmission: (b?: BuilderParam<IFixtureBuilder>, id?: string) => {
+            fixture.awaySubmission = b
+                ? b(fixtureBuilder(fixture.date, id || fixture.id)).build()
+                : fixtureBuilder(fixture.date, id || fixture.id).build();
             return builder;
         },
     };
@@ -152,7 +158,7 @@ export interface IMatchBuilder extends IBuilder<GameMatchDto> {
     withHome(player?: TeamPlayerDto): IMatchBuilder;
     withAway(player?: TeamPlayerDto): IMatchBuilder;
     scores(home?: number, away?: number): IMatchBuilder;
-    sayg(builder: BuilderParam<IRecordedSaygBuilder>): IMatchBuilder;
+    sayg(builder?: BuilderParam<IRecordedSaygBuilder>): IMatchBuilder;
 }
 
 export function matchBuilder(): IMatchBuilder {
@@ -179,8 +185,10 @@ export function matchBuilder(): IMatchBuilder {
             match.awayScore = away;
             return builder;
         },
-        sayg: (b: BuilderParam<IRecordedSaygBuilder>) => {
-            match.sayg = b(saygBuilder()).build();
+        sayg: (b?: BuilderParam<IRecordedSaygBuilder>) => {
+            match.sayg = b
+                ? b(saygBuilder()).build()
+                : saygBuilder().build();
             return builder;
         }
     };

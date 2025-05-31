@@ -67,8 +67,7 @@ describe('MasterDraw', () => {
             return {
                 success: true,
                 result: tournamentBuilder()
-                    .round(r => r
-                        .withMatch(m => m))
+                    .round(r => r.withMatch())
                     .build(),
             }
         }
@@ -186,7 +185,7 @@ describe('MasterDraw', () => {
                 .date('2025-05-06')
                 .type('TYPE')
                 .forSeason(season)
-                .round(r => r);
+                .round();
         });
 
         it('matches', async () => {
@@ -284,7 +283,7 @@ describe('MasterDraw', () => {
                 .type('TYPE')
                 .forSeason(season)
                 .forDivision(division)
-                .round(r => r);
+                .round();
         });
 
         it('can change type from printable sheet', async () => {
@@ -699,7 +698,7 @@ describe('MasterDraw', () => {
             const tournamentData = tournament
                 .round(r => r
                     .withMatch(m => m.sideA('SIDE A').sideB('SIDE B'))
-                    .withMatchOption(mo => mo))
+                    .withMatchOption())
                 .build();
             const account = user({
                 recordScoresAsYouGo: true,
@@ -836,7 +835,7 @@ describe('MasterDraw', () => {
                 .type('TYPE')
                 .forSeason(season)
                 .forDivision(division)
-                .round(r => r);
+                .round();
         });
 
         it('does not patch in 180s', async () => {

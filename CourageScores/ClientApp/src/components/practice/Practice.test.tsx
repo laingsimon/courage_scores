@@ -180,9 +180,7 @@ describe('Practice', () => {
             const jsonData: RecordedScoreAsYouGoDto = saygBuilder()
                 .startingScore(123)
                 .numberOfLegs(2)
-                .withLeg(0, l => l
-                    .home(c => c)
-                    .away(c => c))
+                .withLeg(0, l => l.home().away())
                 .scores(1)
                 .yourName('Simon')
                 .addTo(saygData)
@@ -228,9 +226,7 @@ describe('Practice', () => {
             const jsonData: RecordedScoreAsYouGoDto = saygBuilder()
                 .startingScore(123)
                 .numberOfLegs(2)
-                .withLeg(0, l => l
-                    .home(c => c)
-                    .away(c => c))
+                .withLeg(0, l => l.home().away())
                 .scores(1)
                 .yourName('Simon')
                 .addTo(saygData)
@@ -415,9 +411,7 @@ describe('Practice', () => {
             const jsonData: RecordedScoreAsYouGoDto = saygBuilder()
                 .startingScore(123)
                 .numberOfLegs(2)
-                .withLeg(0, l => l
-                    .home(c => c)
-                    .away(c => c))
+                .withLeg(0, l => l.home().away())
                 .scores(1)
                 .yourName('Simon')
                 .addTo(saygData)

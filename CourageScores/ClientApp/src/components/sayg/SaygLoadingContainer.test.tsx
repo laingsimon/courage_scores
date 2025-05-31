@@ -103,8 +103,7 @@ describe('SaygLoadingContainer', () => {
             const saygData = saygBuilder()
                 .withLeg(0, l => l
                     .startingScore(501)
-                    .home(c => c)
-                    .away(c => c))
+                    .home().away())
                 .addTo(saygDataMap)
                 .build();
             let containerProps: IExtractedProps;
@@ -140,8 +139,7 @@ describe('SaygLoadingContainer', () => {
                     .noId()
                     .yourName('HOME')
                     .withLeg(0, l => l
-                        .home(c => c)
-                        .away(c => c)
+                        .home().away()
                         .startingScore(501))
                     .build(),
                 autoSave: false,
@@ -161,8 +159,7 @@ describe('SaygLoadingContainer', () => {
                 sayg: {
                     legs: {
                         0: legBuilder()
-                            .home(c => c)
-                            .away(c => c)
+                            .home().away()
                             .startingScore(501)
                             .build()
                     },
@@ -219,8 +216,7 @@ describe('SaygLoadingContainer', () => {
             const saygData = saygBuilder()
                 .withLeg(0, l => l
                     .startingScore(501)
-                    .home(c => c)
-                    .away(c => c))
+                    .home().away())
                 .updated('2023-07-21')
                 .addTo(saygDataMap)
                 .build();
@@ -249,8 +245,7 @@ describe('SaygLoadingContainer', () => {
                 defaultData: saygBuilder()
                     .yourName('DEFAULT')
                     .withLeg(0, l => l
-                        .home(c => c)
-                        .away(c => c)
+                        .home().away()
                         .startingScore(501))
                     .build(),
                 autoSave: false,
@@ -286,8 +281,7 @@ describe('SaygLoadingContainer', () => {
                 defaultData: saygBuilder()
                     .yourName('HOME')
                     .withLeg(0, l => l
-                        .home(c => c)
-                        .away(c => c)
+                        .home().away()
                         .startingScore(501))
                     .build(),
                 autoSave: false,
@@ -318,8 +312,7 @@ describe('SaygLoadingContainer', () => {
                     .noId()
                     .yourName('HOME')
                     .withLeg(0, l => l
-                        .home(c => c)
-                        .away(c => c)
+                        .home().away()
                         .startingScore(501))
                     .build(),
                 autoSave: false,
@@ -352,8 +345,7 @@ describe('SaygLoadingContainer', () => {
                 defaultData: saygBuilder()
                     .yourName('HOME')
                     .withLeg(0, l => l
-                        .home(c => c)
-                        .away(c => c)
+                        .home().away()
                         .startingScore(501))
                     .build(),
                 autoSave: false,
@@ -384,8 +376,7 @@ describe('SaygLoadingContainer', () => {
                     .noId()
                     .yourName('HOME')
                     .withLeg(0, l => l
-                        .home(c => c)
-                        .away(c => c)
+                        .home().away()
                         .startingScore(501))
                     .build(),
                 autoSave: false,
@@ -421,8 +412,7 @@ describe('SaygLoadingContainer', () => {
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, l => l
                     .startingScore(501)
-                    .home(c => c)
-                    .away(c => c))
+                    .home().away())
                 .addTo(saygDataMap)
                 .build();
             const account: UserDto = {
@@ -458,8 +448,7 @@ describe('SaygLoadingContainer', () => {
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, l => l
                     .startingScore(501)
-                    .home(c => c)
-                    .away(c => c))
+                    .home().away())
                 .addTo(saygDataMap)
                 .build();
             const account: UserDto = {
@@ -507,15 +496,13 @@ describe('SaygLoadingContainer', () => {
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, l => l
                     .startingScore(501)
-                    .home(c => c)
-                    .away(c => c))
+                    .home().away())
                 .addTo(saygDataMap)
                 .build();
             const newSaygData = saygBuilder(saygData.id)
                 .withLeg(0, l => l
                     .startingScore(601)
-                    .home(c => c)
-                    .away(c => c))
+                    .home().away())
                 .build();
             const account: UserDto = {
                 emailAddress: '',
@@ -563,8 +550,7 @@ describe('SaygLoadingContainer', () => {
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, l => l
                     .startingScore(501)
-                    .home(c => c)
-                    .away(c => c))
+                    .home().away())
                 .addTo(saygDataMap)
                 .build();
             await renderComponent({
@@ -593,8 +579,7 @@ describe('SaygLoadingContainer', () => {
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, l => l
                     .startingScore(501)
-                    .home(c => c)
-                    .away(c => c))
+                    .home().away())
                 .addTo(saygDataMap)
                 .build();
             const account: UserDto = {

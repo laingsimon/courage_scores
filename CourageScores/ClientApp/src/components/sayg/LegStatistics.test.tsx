@@ -58,10 +58,7 @@ describe('LegStatistics', () => {
     describe('renders', () => {
         it('when no darts thrown', async () => {
             await renderComponent({
-                leg: legBuilder()
-                    .home(c => c)
-                    .away(c => c)
-                    .build(),
+                leg: legBuilder().home().away().build(),
                 legDisplayOptions: {
                     showThrows: false,
                     showAverage: false,
@@ -160,7 +157,7 @@ describe('LegStatistics', () => {
             await renderComponent({
                 leg: legBuilder()
                     .home(c => c.withThrow(401).withThrow(100))
-                    .away(c => c)
+                    .away()
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -186,7 +183,7 @@ describe('LegStatistics', () => {
             await renderComponent({
                 leg: legBuilder()
                     .home(c => c.withThrow(100))
-                    .away(c => c)
+                    .away()
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -262,7 +259,7 @@ describe('LegStatistics', () => {
             await renderComponent({
                 leg: legBuilder()
                     .home(c => c.withThrow(100))
-                    .away(c => c)
+                    .away()
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -310,7 +307,7 @@ describe('LegStatistics', () => {
             await renderComponent({
                 leg: legBuilder()
                     .home(c => c.withThrow(100))
-                    .away(c => c)
+                    .away()
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -335,7 +332,7 @@ describe('LegStatistics', () => {
         it('2 player averages when only away player has thrown', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c)
+                    .home()
                     .away(c => c.withThrow(100))
                     .startingScore(501)
                     .build(),

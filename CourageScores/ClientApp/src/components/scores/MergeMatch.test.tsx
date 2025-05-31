@@ -298,7 +298,7 @@ describe('MergeMatch', () => {
                     .playing('HOME', 'AWAY')
                     .author('AWAY CAPTAIN')
                     .withMatch(m => m.withHome().withAway()))
-                .withMatch(m => m)
+                .withMatch()
                 .build();
             await renderComponent({
                 readOnly: false,
@@ -307,7 +307,7 @@ describe('MergeMatch', () => {
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
                 fixtureData: fixtureBuilder()
-                    .withMatch(m => m)
+                    .withMatch()
                     .playing('HOME', 'AWAY')
                     .build(),
                 setFixtureData,
@@ -337,7 +337,7 @@ describe('MergeMatch', () => {
                     .playing('HOME', 'AWAY')
                     .author('AWAY CAPTAIN')
                     .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
-                .withMatch(m => m)
+                .withMatch()
                 .build();
             await renderComponent({
                 readOnly: false,
@@ -346,7 +346,7 @@ describe('MergeMatch', () => {
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
                 fixtureData: fixtureBuilder()
-                    .withMatch(m => m)
+                    .withMatch()
                     .playing('HOME', 'AWAY')
                     .build(),
                 setFixtureData,
@@ -376,7 +376,7 @@ describe('MergeMatch', () => {
                     .playing('HOME', 'AWAY')
                     .author('AWAY CAPTAIN')
                     .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
-                .withMatch(m => m)
+                .withMatch()
                 .build();
             await renderComponent({
                 readOnly: false,
@@ -385,7 +385,7 @@ describe('MergeMatch', () => {
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
                 fixtureData: fixtureBuilder()
-                    .withMatch(m => m)
+                    .withMatch()
                     .playing('HOME', 'AWAY')
                     .build(),
                 setFixtureData,

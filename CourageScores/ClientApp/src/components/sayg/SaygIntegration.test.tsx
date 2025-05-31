@@ -314,8 +314,7 @@ describe('SaygIntegrationTest', () => {
                 .scores(0, 0)
                 .withLeg(0, l => l
                     .playerSequence('away', 'home')
-                    .home(c => c)
-                    .away(c => c)
+                    .home().away()
                     .startingScore(501)
                     .currentThrow('away'))
                 .addTo(saygData)
@@ -683,8 +682,7 @@ describe('SaygIntegrationTest', () => {
                 .scores(0, 0)
                 .withLeg(0, l => l
                     .playerSequence('home', 'away')
-                    .home(c => c)
-                    .away(c => c)
+                    .home().away()
                     .startingScore(501)
                     .currentThrow('home'))
                 .addTo(saygData)
@@ -1027,8 +1025,7 @@ describe('SaygIntegrationTest', () => {
                 .scores(0, 0)
                 .withLeg(0, l => l
                     .playerSequence('home', 'away')
-                    .home(c => c)
-                    .away(c => c)
+                    .home().away()
                     .startingScore(501)
                     .currentThrow('home'))
                 .addTo(saygData)

@@ -47,7 +47,7 @@ describe('MergeHiCheckAnd180s', () => {
             it('when home submissions not merged', async () => {
                 const data = fixtureBuilder('2023-05-06')
                     .homeSubmission(s => s.editor('HOME').with180(playerBuilder('NAME').build()))
-                    .awaySubmission(s => s)
+                    .awaySubmission()
                     .build();
                 const fixtureData = fixtureBuilder('2023-05-06').build();
 
@@ -62,7 +62,7 @@ describe('MergeHiCheckAnd180s', () => {
 
             it('when away submissions not merged', async () => {
                 const data = fixtureBuilder('2023-05-06')
-                    .homeSubmission(s => s)
+                    .homeSubmission()
                     .awaySubmission(s => s.editor('AWAY').with180(playerBuilder('NAME').build()))
                     .build();
                 const fixtureData = fixtureBuilder('2023-05-06').build();
@@ -79,7 +79,7 @@ describe('MergeHiCheckAnd180s', () => {
             it('when home and away submissions not present', async () => {
                 const data = fixtureBuilder('2023-05-06')
                     .homeSubmission(s => s.editor('HOME'))
-                    .awaySubmission(s => s)
+                    .awaySubmission()
                     .build();
                 const fixtureData = fixtureBuilder('2023-05-06').build();
 

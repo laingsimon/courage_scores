@@ -106,9 +106,9 @@ export function divisionFixtureBuilder(date?: string, id?: string): IDivisionFix
 
 export interface IDivisionFixtureDateBuilder extends IBuilder<DivisionFixtureDateDto & IEditableDivisionFixtureDateDto> {
     knockout(): IDivisionFixtureDateBuilder;
-    withFixture(builder: BuilderParam<IDivisionFixtureBuilder>, id?: string): IDivisionFixtureDateBuilder;
-    withTournament(builder: BuilderParam<ITournamentBuilder>, id?: string): IDivisionFixtureDateBuilder;
-    withNote(builder: BuilderParam<INoteBuilder>, id?: string): IDivisionFixtureDateBuilder;
+    withFixture(builder?: BuilderParam<IDivisionFixtureBuilder>, id?: string): IDivisionFixtureDateBuilder;
+    withTournament(builder?: BuilderParam<ITournamentBuilder>, id?: string): IDivisionFixtureDateBuilder;
+    withNote(builder?: BuilderParam<INoteBuilder>, id?: string): IDivisionFixtureDateBuilder;
     isNew(): IDivisionFixtureDateBuilder;
 }
 
@@ -126,19 +126,25 @@ export function fixtureDateBuilder(date?: string): IDivisionFixtureDateBuilder {
             fixtureDate.isKnockout = true;
             return builder;
         },
-        withFixture: (b: BuilderParam<IDivisionFixtureBuilder>, id?: string) => {
-            const fixture = b(divisionFixtureBuilder(date, id));
-            fixtureDate.fixtures?.push(fixture.build());
+        withFixture: (b?: BuilderParam<IDivisionFixtureBuilder>, id?: string) => {
+            const fixture = b
+                ? b(divisionFixtureBuilder(date, id)).build()
+                : divisionFixtureBuilder(date).build();
+            fixtureDate.fixtures?.push(fixture);
             return builder;
         },
-        withTournament: (b: BuilderParam<ITournamentBuilder>, id?: string) => {
-            const tournament = b(tournamentBuilder(id).date(date || '')).build();
+        withTournament: (b?: BuilderParam<ITournamentBuilder>, id?: string) => {
+            const tournament = b
+                ? b(tournamentBuilder(id).date(date || '')).build()
+                : tournamentBuilder().date(date || '').build();
             fixtureDate.tournamentFixtures?.push(tournament);
             return builder;
         },
-        withNote: (modifierFunc: BuilderParam<INoteBuilder>, id?: string) => {
-            const note = modifierFunc(noteBuilder(date, id));
-            fixtureDate.notes?.push(note.build());
+        withNote: (b: BuilderParam<INoteBuilder>, id?: string) => {
+            const note = b
+                ? b(noteBuilder(date, id)).build()
+                : noteBuilder(date).build();
+            fixtureDate.notes?.push(note);
             return builder;
         },
         isNew: () => {
@@ -224,8 +230,8 @@ export function divisionBuilder(name: string, id?: string): IDivisionBuilder {
 }
 
 export interface IDivisionDataBuilder extends IAddableBuilder<DivisionDataDto & IDivisionDataContainerProps> {
-    withFixtureDate(builder: BuilderParam<IDivisionFixtureDateBuilder>, date?: string): IDivisionDataBuilder;
-    season(builder: BuilderParam<ISeasonBuilder>, id?: string, name?: string): IDivisionDataBuilder;
+    withFixtureDate(builder?: BuilderParam<IDivisionFixtureDateBuilder>, date?: string): IDivisionDataBuilder;
+    season(builder?: BuilderParam<ISeasonBuilder>, id?: string, name?: string): IDivisionDataBuilder;
     name(name?: string): IDivisionDataBuilder;
     withTeam(team: TeamDto): IDivisionDataBuilder;
     withPlayer(player: DivisionPlayerDto): IDivisionDataBuilder;
@@ -258,13 +264,17 @@ export function divisionDataBuilder(division?: DivisionDto): IDivisionDataBuilde
             map[divisionData.id || ''] = divisionData;
             return builder;
         },
-        withFixtureDate: (b: BuilderParam<IDivisionFixtureDateBuilder>, date?: string) => {
-            const fixtureDate = b(fixtureDateBuilder(date)).build();
+        withFixtureDate: (b?: BuilderParam<IDivisionFixtureDateBuilder>, date?: string) => {
+            const fixtureDate = b
+                ? b(fixtureDateBuilder(date)).build()
+                : fixtureDateBuilder(date).build();
             divisionData.fixtures?.push(fixtureDate);
             return builder;
         },
-        season: (b: BuilderParam<ISeasonBuilder>, id?: string, name?: string) => {
-            divisionData.season = b(seasonBuilder(name ?? 'SEASON', id)).build();
+        season: (b?: BuilderParam<ISeasonBuilder>, id?: string, name?: string) => {
+            divisionData.season = b
+                ? b(seasonBuilder(name ?? 'SEASON', id)).build()
+                : seasonBuilder().build();
             return builder;
         },
         name: (name?: string) => {

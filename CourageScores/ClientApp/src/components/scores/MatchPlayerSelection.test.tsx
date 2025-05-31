@@ -880,8 +880,7 @@ describe('MatchPlayerSelection', () => {
                 .sayg(
                     s => s.withLeg(0, l => l
                         .playerSequence('home', 'away')
-                        .home(c => c)
-                        .away(c => c)
+                        .home().away()
                         .currentThrow('home')
                         .startingScore(501)));
             await renderComponent(user(true), props(match), defaultContainerProps, defaultMatchType);
@@ -906,8 +905,7 @@ describe('MatchPlayerSelection', () => {
                 .sayg(
                     s => s.withLeg(0, l => l
                         .playerSequence('home', 'away')
-                        .home(c => c)
-                        .away(c => c)
+                        .home().away()
                         .currentThrow('away')
                         .startingScore(501)));
             await renderComponent(user(true), props(match), defaultContainerProps, defaultMatchType);

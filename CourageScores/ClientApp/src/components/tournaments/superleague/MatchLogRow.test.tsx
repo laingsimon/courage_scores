@@ -86,10 +86,7 @@ describe('MatchLogRow', () => {
 
         it('null when no darts thrown', async () => {
             await renderComponent({
-                leg: legBuilder()
-                    .home(c => c)
-                    .away(c => c)
-                    .build(),
+                leg: legBuilder().home().away().build(),
                 legNo: 1,
                 accumulatorName: 'home',
                 player: 'PLAYER',
