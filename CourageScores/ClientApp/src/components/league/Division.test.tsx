@@ -167,7 +167,7 @@ describe('Division', () => {
 
         beforeEach(() => {
             const divisionData = divisionDataBuilder(division)
-                .season(s => s.starting('2023-01-01').ending('2023-06-01').withDivision(division), 'SEASON', season.id)
+                .season(s => s.starting('2023-01-01').ending('2023-06-01').withDivision(division), season.id)
                 .withPlayer(player)
                 .withTeam(team)
                 .build();
@@ -428,7 +428,7 @@ describe('Division', () => {
             it('renders fixtures tab for superleague', async () => {
                 const superleagueDivision = divisionBuilder('superleague').superleague().build();
                 const superleagueDivisionData = divisionDataBuilder(division)
-                    .season(s => s.starting('2023-01-01').ending('2023-06-01').withDivision(division), 'SEASON', season.id)
+                    .season(s => s.starting('2023-01-01').ending('2023-06-01').withDivision(division), season.id)
                     .withPlayer(player)
                     .withTeam(team)
                     .superleague()
@@ -530,7 +530,7 @@ describe('Division', () => {
             it('does not render players tab for superleague', async () => {
                 const superleagueDivision = divisionBuilder('superleague').superleague().build();
                 const superleagueDivisionData = divisionDataBuilder(division)
-                    .season(s => s.starting('2023-01-01').ending('2023-06-01').withDivision(division), 'SEASON', season.id)
+                    .season(s => s.starting('2023-01-01').ending('2023-06-01').withDivision(division), season.id)
                     .withPlayer(player)
                     .withTeam(team)
                     .superleague()
@@ -978,7 +978,7 @@ describe('Division', () => {
                     .forSeason(season, division)
                     .build();
                 divisionDataMap[division.id] = divisionDataBuilder(division)
-                    .season(s => s.starting('2023-01-01').ending('2023-06-01').withDivision(division), 'SEASON', season.id)
+                    .season(s => s.starting('2023-01-01').ending('2023-06-01').withDivision(division), season.id)
                     .withFixtureDate(d => d.withFixture(f => f.bye(homeTeam).knockout()), '2023-07-01')
                     .build();
                 await renderComponent(appProps({

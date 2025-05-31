@@ -188,7 +188,7 @@ describe('DivisionFixture', () => {
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
                     .withFixtureDate((d) => d.withFixture(f => f.bye(teamBuilder('HOME').build())), date)
-                    .season(s => s, season.name)
+                    .season(s => s, season.id, season.name)
                     .withTeam(team)
                     .build(),
                 account,
@@ -447,7 +447,7 @@ describe('DivisionFixture', () => {
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
                     .withFixtureDate((d) => d.withFixture(f => f.playing(homeTeam, awayTeam).knockout(), fixture.id), date)
-                    .season(s => s, season.name, season.id)
+                    .season(s => s, season.id, season.name)
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
@@ -469,7 +469,7 @@ describe('DivisionFixture', () => {
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
                     .withFixtureDate((d) => d.withFixture(f => f.bye(homeTeam)), date)
-                    .season(s => s, season.name)
+                    .season(s => s, season.id, season.name)
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
@@ -587,7 +587,7 @@ describe('DivisionFixture', () => {
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
                     .withFixtureDate(d => d.withFixture(f => f.bye(homeTeam).knockout()), date)
-                    .season(s => s, 'SEASON', season.id)
+                    .season(s => s, season.id)
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeamAtHomeAddress)
                     .build(),
                 account,
@@ -632,7 +632,7 @@ describe('DivisionFixture', () => {
                     .withFixtureDate(d => d
                         .withFixture(f => f.bye(homeTeam).knockout())
                         .withFixture(f => f.playing(homeTeam, awayTeam).knockout()), date)
-                    .season(s => s, 'SEASON', season.id)
+                    .season(s => s, season.id)
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
@@ -700,7 +700,7 @@ describe('DivisionFixture', () => {
                 divisionDataBuilder(division)
                     .withFixtureDate(d => d.withFixture(f => f.bye(homeTeam).knockout()), fixture.date)
                     .withFixtureDate(d => d.withFixture(f => f.playing(homeTeam, awayTeam).knockout()), anotherFixture.date)
-                    .season(s => s, 'SEASON', season.id)
+                    .season(s => s, season.id)
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,

@@ -69,7 +69,7 @@ describe('PlayerOverview', () => {
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
-                    .season(s => s.withDivision(division), season.name)
+                    .season(s => s.withDivision(division), season.id, season.name)
                     .build());
 
             reportedError.verifyNoError();
@@ -151,7 +151,7 @@ describe('PlayerOverview', () => {
                     .withTeam(team)
                     .withPlayer(playerWithLeagueFixture)
                     .withFixtureDate(fd => fd.withFixture(f => f.playing(teamBuilder('HOME').build(), team).scores(3, 1), fixtureId), '2023-05-06T00:00:00')
-                    .season(s => s.withDivision(division), season.name)
+                    .season(s => s.withDivision(division), season.id, season.name)
                     .build());
 
             reportedError.verifyNoError();
@@ -191,7 +191,7 @@ describe('PlayerOverview', () => {
                     .withTeam(team)
                     .withPlayer(playerWithLeagueFixture)
                     .withFixtureDate(fd => fd.withFixture(f => f.playing(teamBuilder('HOME').build(), team).scores(undefined, undefined), fixtureId), '2023-05-06T00:00:00')
-                    .season(s => s.withDivision(division), season.name)
+                    .season(s => s.withDivision(division), season.id, season.name)
                     .build());
 
             reportedError.verifyNoError();
@@ -235,7 +235,7 @@ describe('PlayerOverview', () => {
                     .withFixtureDate(fd => fd.withFixture(f => f.playing(team, teamBuilder('AWAY').build())
                         .knockout()
                         .scores(3, 1), fixtureId), '2023-05-06T00:00:00')
-                    .season(s => s.withDivision(division), season.name)
+                    .season(s => s.withDivision(division), season.id, season.name)
                     .build());
 
             reportedError.verifyNoError();
@@ -279,7 +279,7 @@ describe('PlayerOverview', () => {
                     .withFixtureDate(fd => fd.withFixture(f => f.playing(team, teamBuilder('AWAY').build())
                         .scores(3, 1)
                         .postponed(), fixtureId), '2023-05-06T00:00:00')
-                    .season(s => s.withDivision(division), season.name)
+                    .season(s => s.withDivision(division), season.id, season.name)
                     .build());
 
             reportedError.verifyNoError();

@@ -225,7 +225,7 @@ export function divisionBuilder(name: string, id?: string): IDivisionBuilder {
 
 export interface IDivisionDataBuilder extends IAddableBuilder<DivisionDataDto & IDivisionDataContainerProps> {
     withFixtureDate(builder: BuilderParam<IDivisionFixtureDateBuilder>, date?: string): IDivisionDataBuilder;
-    season(builder: BuilderParam<ISeasonBuilder>, name?: string, id?: string): IDivisionDataBuilder;
+    season(builder: BuilderParam<ISeasonBuilder>, id?: string, name?: string): IDivisionDataBuilder;
     name(name?: string): IDivisionDataBuilder;
     withTeam(team: TeamDto): IDivisionDataBuilder;
     withPlayer(player: DivisionPlayerDto): IDivisionDataBuilder;
@@ -263,8 +263,8 @@ export function divisionDataBuilder(division?: DivisionDto): IDivisionDataBuilde
             divisionData.fixtures?.push(fixtureDate);
             return builder;
         },
-        season: (b: BuilderParam<ISeasonBuilder>, name?: string, id?: string) => {
-            divisionData.season = b(seasonBuilder(name, id)).build();
+        season: (b: BuilderParam<ISeasonBuilder>, id?: string, name?: string) => {
+            divisionData.season = b(seasonBuilder(name ?? 'SEASON', id)).build();
             return builder;
         },
         name: (name?: string) => {

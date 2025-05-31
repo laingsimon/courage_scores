@@ -2,6 +2,7 @@ import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from
 import {IPrintDivisionHeadingProps, PrintDivisionHeading} from "./PrintDivisionHeading";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "./DivisionDataContainer";
 import {divisionBuilder, divisionDataBuilder} from "../../helpers/builders/divisions";
+import {createTemporaryId} from "../../helpers/projection";
 
 describe('PrintDivisionHeading', () => {
     let context: TestContext;
@@ -40,7 +41,7 @@ describe('PrintDivisionHeading', () => {
         it('renders nothing when no division and division excluded', async () => {
             await renderComponent({
                 hideDivision: true
-            }, divisionDataBuilder().season(s => s, 'SEASON').build());
+            }, divisionDataBuilder().season(s => s, createTemporaryId(), 'SEASON').build());
 
             expect(context.container.textContent).toEqual('SEASON');
         });
@@ -49,7 +50,7 @@ describe('PrintDivisionHeading', () => {
     describe('when season and division present', () => {
         const divisionData = divisionDataBuilder()
             .name('DIVISION')
-            .season(s => s, 'SEASON')
+            .season(s => s, createTemporaryId(), 'SEASON')
             .build();
 
         it('shows division name', async () => {
