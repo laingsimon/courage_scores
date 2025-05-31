@@ -9,12 +9,13 @@ import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {DivisionDataSeasonDto} from "../../interfaces/models/dtos/Division/DivisionDataSeasonDto";
 import {EditSeasonDto} from "../../interfaces/models/dtos/Season/EditSeasonDto";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
+import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 
 export interface IEditSeasonProps {
     onClose(): UntypedPromise;
     onSave(): UntypedPromise;
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    setSaveError(error: any): UntypedPromise;
+    setSaveError(error: IClientActionResultDto<SeasonDto>): UntypedPromise;
     data: EditSeasonDto & DivisionDataSeasonDto;
     onUpdateData(season: EditSeasonDto): UntypedPromise;
 }
