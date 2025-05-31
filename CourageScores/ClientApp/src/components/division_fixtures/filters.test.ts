@@ -12,7 +12,7 @@
 } from "./filters";
 import {IFilter} from "./IFilter";
 import {divisionFixtureBuilder, fixtureDateBuilder, noteBuilder} from "../../helpers/builders/divisions";
-import {ITournamentSideBuilder, tournamentBuilder} from "../../helpers/builders/tournaments";
+import {tournamentBuilder} from "../../helpers/builders/tournaments";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
 import {Filter, NullFilter} from "./Filter";
@@ -401,7 +401,7 @@ describe('filters', () => {
 
     describe('getTeamFilter', () => {
         const abcdTeam = teamBuilder('name', 'abcd').build();
-        const tournamentWithAbcdTeamPlaying = tournamentBuilder().withSide((s: ITournamentSideBuilder) => s.name('name').teamId('abcd')).build();
+        const tournamentWithAbcdTeamPlaying = tournamentBuilder().withSide(s => s.name('name').teamId('abcd')).build();
         const byeAbcd = divisionFixtureBuilder().bye(teamBuilder('name', 'abcd').build()).build();
         const homeAbcd = divisionFixtureBuilder().playing(teamBuilder('HOME').build(), abcdTeam).build();
 

@@ -22,12 +22,7 @@ import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {IDatedDivisionFixtureDto} from "./IDatedDivisionFixtureDto";
 import {IEditableDivisionFixtureDateDto} from "./IEditableDivisionFixtureDateDto";
-import {
-    divisionBuilder,
-    divisionDataBuilder,
-    divisionFixtureBuilder,
-    IDivisionFixtureDateBuilder
-} from "../../helpers/builders/divisions";
+import {divisionBuilder, divisionDataBuilder, divisionFixtureBuilder} from "../../helpers/builders/divisions";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {IGameApi} from "../../interfaces/apis/IGameApi";
@@ -118,7 +113,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(teamBuilder('HOME').build(), teamBuilder('AWAY').build())), date)
+                    .withFixtureDate((d) => d.withFixture(f => f.playing(teamBuilder('HOME').build(), teamBuilder('AWAY').build())), date)
                     .season(s => s, 'SEASON')
                     .withTeam(team)
                     .build(),
@@ -143,7 +138,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.postponed().playing(teamBuilder('HOME').build(), teamBuilder('AWAY').build())), date)
+                    .withFixtureDate((d) => d.withFixture(f => f.postponed().playing(teamBuilder('HOME').build(), teamBuilder('AWAY').build())), date)
                     .season(s => s, 'SEASON')
                     .withTeam(team)
                     .build(),
@@ -168,7 +163,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(teamBuilder('HOME').build(), teamBuilder('AWAY').build()).knockout()), date)
+                    .withFixtureDate((d) => d.withFixture(f => f.playing(teamBuilder('HOME').build(), teamBuilder('AWAY').build()).knockout()), date)
                     .season(s => s, 'SEASON')
                     .withTeam(team)
                     .build(),
@@ -192,7 +187,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.bye(teamBuilder('HOME').build())), date)
+                    .withFixtureDate((d) => d.withFixture(f => f.bye(teamBuilder('HOME').build())), date)
                     .season(s => s, 'SEASON')
                     .withTeam(team)
                     .build(),
@@ -216,7 +211,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.bye(teamBuilder('HOME').build())), date)
+                    .withFixtureDate((d) => d.withFixture(f => f.bye(teamBuilder('HOME').build())), date)
                     .season(s => s, 'SEASON')
                     .withTeam(team)
                     .favouritesEnabled(true)
@@ -237,7 +232,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.bye(teamBuilder('HOME').build())), date)
+                    .withFixtureDate((d) => d.withFixture(f => f.bye(teamBuilder('HOME').build())), date)
                     .season(s => s, 'SEASON')
                     .withTeam(team)
                     .favouritesEnabled(true)
@@ -260,7 +255,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.bye(teamBuilder('HOME').build())), date)
+                    .withFixtureDate((d) => d.withFixture(f => f.bye(teamBuilder('HOME').build())), date)
                     .season(s => s, 'SEASON')
                     .withTeam(team)
                     .favouritesEnabled(true)
@@ -283,7 +278,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(teamBuilder('HOME').build(), teamBuilder('AWAY').build())), date)
+                    .withFixtureDate((d) => d.withFixture(f => f.playing(teamBuilder('HOME').build(), teamBuilder('AWAY').build())), date)
                     .season(s => s, 'SEASON')
                     .withTeam(team)
                     .favouritesEnabled(true)
@@ -306,7 +301,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(teamBuilder('HOME').build(), teamBuilder('AWAY').build())), date)
+                    .withFixtureDate((d) => d.withFixture(f => f.playing(teamBuilder('HOME').build(), teamBuilder('AWAY').build())), date)
                     .season(s => s, 'SEASON')
                     .withTeam(team)
                     .favouritesEnabled(true)
@@ -329,7 +324,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(teamBuilder('HOME').build(), teamBuilder('AWAY').build())), date)
+                    .withFixtureDate((d) => d.withFixture(f => f.playing(teamBuilder('HOME').build(), teamBuilder('AWAY').build())), date)
                     .season(s => s, 'SEASON')
                     .withTeam(team)
                     .favouritesEnabled(true)
@@ -353,7 +348,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(teamBuilder('HOME').build(), teamBuilder('AWAY').build())), date)
+                    .withFixtureDate((d) => d.withFixture(f => f.playing(teamBuilder('HOME').build(), teamBuilder('AWAY').build())), date)
                     .season(s => s, 'SEASON')
                     .withTeam(team)
                     .favouritesEnabled(true)
@@ -405,7 +400,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(homeTeam, awayTeam), fixture.id), date)
+                    .withFixtureDate((d) => d.withFixture(f => f.playing(homeTeam, awayTeam), fixture.id), date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
@@ -428,7 +423,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(homeTeam, awayTeam).postponed(), fixture.id), date)
+                    .withFixtureDate((d) => d.withFixture(f => f.playing(homeTeam, awayTeam).postponed(), fixture.id), date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
@@ -451,7 +446,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(homeTeam, awayTeam).knockout(), fixture.id), date)
+                    .withFixtureDate((d) => d.withFixture(f => f.playing(homeTeam, awayTeam).knockout(), fixture.id), date)
                     .season(s => s, 'SEASON', season.id)
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
@@ -473,7 +468,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.bye(homeTeam)), date)
+                    .withFixtureDate((d) => d.withFixture(f => f.bye(homeTeam)), date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
@@ -498,7 +493,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.bye(homeTeam)), date)
+                    .withFixtureDate((d) => d.withFixture(f => f.bye(homeTeam)), date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeamAtHomeAddress)
                     .build(),
@@ -518,7 +513,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture: byeFixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d
+                    .withFixtureDate(d => d
                         .withFixture(f => f.bye(homeTeam))
                         .withFixture(f => f.playing(homeTeam, awayTeam)), date)
                     .season(s => s, 'SEASON')
@@ -542,8 +537,8 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date: fixture.date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.bye(homeTeam)), fixture.date)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(homeTeam, awayTeam)), anotherFixture.date)
+                    .withFixtureDate(d => d.withFixture(f => f.bye(homeTeam)), fixture.date)
+                    .withFixtureDate(d => d.withFixture(f => f.playing(homeTeam, awayTeam)), anotherFixture.date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
@@ -566,8 +561,8 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date: fixture.date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.bye(homeTeam)), fixture.date)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(homeTeam, awayTeam).knockout()), anotherFixture.date)
+                    .withFixtureDate(d => d.withFixture(f => f.bye(homeTeam)), fixture.date)
+                    .withFixtureDate(d => d.withFixture(f => f.playing(homeTeam, awayTeam).knockout()), anotherFixture.date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
@@ -591,7 +586,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.bye(homeTeam).knockout()), date)
+                    .withFixtureDate(d => d.withFixture(f => f.bye(homeTeam).knockout()), date)
                     .season(s => s, 'SEASON', season.id)
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeamAtHomeAddress)
                     .build(),
@@ -614,7 +609,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.bye(homeTeam).knockout()), date)
+                    .withFixtureDate(d => d.withFixture(f => f.bye(homeTeam).knockout()), date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam).withTeam(deletedAwayTeam)
                     .build(),
@@ -634,7 +629,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d
+                    .withFixtureDate(d => d
                         .withFixture(f => f.bye(homeTeam).knockout())
                         .withFixture(f => f.playing(homeTeam, awayTeam).knockout()), date)
                     .season(s => s, 'SEASON', season.id)
@@ -703,8 +698,8 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date: fixture.date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.bye(homeTeam).knockout()), fixture.date)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(homeTeam, awayTeam).knockout()), anotherFixture.date)
+                    .withFixtureDate(d => d.withFixture(f => f.bye(homeTeam).knockout()), fixture.date)
+                    .withFixtureDate(d => d.withFixture(f => f.playing(homeTeam, awayTeam).knockout()), anotherFixture.date)
                     .season(s => s, 'SEASON', season.id)
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
@@ -723,7 +718,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.bye(homeTeam)), date)
+                    .withFixtureDate(d => d.withFixture(f => f.bye(homeTeam)), date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -758,7 +753,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.bye(homeTeam)).knockout(), date)
+                    .withFixtureDate(d => d.withFixture(f => f.bye(homeTeam)).knockout(), date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -795,7 +790,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(homeTeam, awayTeam).originalAwayTeamId('unset')), date)
+                    .withFixtureDate(d => d.withFixture(f => f.playing(homeTeam, awayTeam).originalAwayTeamId('unset')), date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -821,7 +816,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(homeTeam, awayTeam).originalAwayTeamId('unset').knockout()), date)
+                    .withFixtureDate(d => d.withFixture(f => f.playing(homeTeam, awayTeam).originalAwayTeamId('unset').knockout()), date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -847,7 +842,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(homeTeam, awayTeam).knockout().originalAwayTeamId('unset')), date)
+                    .withFixtureDate(d => d.withFixture(f => f.playing(homeTeam, awayTeam).knockout().originalAwayTeamId('unset')), date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -871,7 +866,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(homeTeam, awayTeam)), date)
+                    .withFixtureDate(d => d.withFixture(f => f.playing(homeTeam, awayTeam)), date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -894,7 +889,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: true, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(homeTeam, awayTeam)), date)
+                    .withFixtureDate(d => d.withFixture(f => f.playing(homeTeam, awayTeam)), date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -912,7 +907,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(homeTeam, awayTeam)), date)
+                    .withFixtureDate(d => d.withFixture(f => f.playing(homeTeam, awayTeam)), date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -934,7 +929,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(homeTeam, awayTeam)), date)
+                    .withFixtureDate(d => d.withFixture(f => f.playing(homeTeam, awayTeam)), date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -959,7 +954,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(homeTeam, awayTeam)), date)
+                    .withFixtureDate(d => d.withFixture(f => f.playing(homeTeam, awayTeam)), date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -985,7 +980,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(homeTeam, awayTeam).knockout()), date)
+                    .withFixtureDate(d => d.withFixture(f => f.playing(homeTeam, awayTeam).knockout()), date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -1012,7 +1007,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: true, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(homeTeam, awayTeam).originalAwayTeamId('unset')), date)
+                    .withFixtureDate(d => d.withFixture(f => f.playing(homeTeam, awayTeam).originalAwayTeamId('unset')), date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -1028,7 +1023,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: true, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.playing(homeTeam, awayTeam)), date)
+                    .withFixtureDate(d => d.withFixture(f => f.playing(homeTeam, awayTeam)), date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -1047,7 +1042,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: true, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.bye(homeTeam)), date)
+                    .withFixtureDate(d => d.withFixture(f => f.bye(homeTeam)), date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -1068,7 +1063,7 @@ describe('DivisionFixture', () => {
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(f => f.bye(teamBuilder('HOME').build())), date)
+                    .withFixtureDate(d => d.withFixture(f => f.bye(teamBuilder('HOME').build())), date)
                     .season(s => s, 'SEASON')
                     .withTeam(homeTeam)
                     .favouritesEnabled(true)

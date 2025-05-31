@@ -13,7 +13,7 @@ import {
     renderApp,
     TestContext
 } from "../../helpers/tests";
-import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../helpers/builders/sayg";
+import {ILegBuilder, saygBuilder} from "../../helpers/builders/sayg";
 import {ISaygLoadingContainerProps, SaygLoadingContainer} from "./SaygLoadingContainer";
 import {createTemporaryId} from "../../helpers/projection";
 import {act} from "@testing-library/react";
@@ -143,8 +143,8 @@ describe('MatchStatistics', () => {
             .withLeg(0, b => b
                 .currentThrow('home')
                 .startingScore(501)
-                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
-                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(150)))
+                .home(c => c.withThrow(123))
+                .away(c => c.withThrow(100).withThrow(150)))
             .scores(3, 2)
             .yourName('HOME')
             .opponentName('AWAY')
@@ -175,8 +175,8 @@ describe('MatchStatistics', () => {
             .withLeg(0, b => b
                 .currentThrow('home')
                 .startingScore(501)
-                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(378).withThrow(123))
-                .away((c: ILegCompetitorScoreBuilder) => c))
+                .home(c => c.withThrow(378).withThrow(123))
+                .away(c => c))
             .scores(3)
             .yourName('HOME')
             .numberOfLegs(3)
@@ -204,8 +204,8 @@ describe('MatchStatistics', () => {
             .withLeg(0, b => b
                 .currentThrow('home')
                 .startingScore(501)
-                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
-                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(150)))
+                .home(c => c.withThrow(123))
+                .away(c => c.withThrow(100).withThrow(150)))
             .scores(3, 2)
             .yourName('HOME')
             .opponentName('AWAY')
@@ -234,8 +234,8 @@ describe('MatchStatistics', () => {
             .withLeg(0, b => b
                 .currentThrow('home')
                 .startingScore(501)
-                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
-                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(150)))
+                .home(c => c.withThrow(123))
+                .away(c => c.withThrow(100).withThrow(150)))
             .scores(3, 2)
             .yourName('HOME')
             .opponentName('AWAY')
@@ -265,8 +265,8 @@ describe('MatchStatistics', () => {
             .withLeg(0, b => b
                 .currentThrow('home')
                 .startingScore(501)
-                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
-                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(150)))
+                .home(c => c.withThrow(123))
+                .away(c => c.withThrow(100).withThrow(150)))
             .scores(3, 2)
             .yourName('HOME')
             .opponentName('AWAY')
@@ -303,8 +303,8 @@ describe('MatchStatistics', () => {
             .withLeg(0, b => b
                 .currentThrow('home')
                 .startingScore(501)
-                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
-                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(150)))
+                .home(c => c.withThrow(123))
+                .away(c => c.withThrow(100).withThrow(150)))
             .scores(3, 2)
             .yourName('HOME')
             .opponentName('AWAY')
@@ -327,8 +327,8 @@ describe('MatchStatistics', () => {
             .withLeg(0, b => b
                 .currentThrow('home')
                 .startingScore(501)
-                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
-                .away((c: ILegCompetitorScoreBuilder) => c))
+                .home(c => c.withThrow(123))
+                .away(c => c))
             .scores(1)
             .yourName('HOME')
             .numberOfLegs(3)
@@ -353,8 +353,8 @@ describe('MatchStatistics', () => {
             .withLeg(0, b => b
                 .currentThrow('home')
                 .startingScore(501)
-                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
-                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(0, 1)))
+                .home(c => c.withThrow(123))
+                .away(c => c.withThrow(0, 1)))
             .scores(2)
             .yourName('HOME')
             .numberOfLegs(3)
@@ -382,8 +382,8 @@ describe('MatchStatistics', () => {
             .withLeg(0, b => b
                 .currentThrow('home')
                 .startingScore(501)
-                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
-                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(0, 1)))
+                .home(c => c.withThrow(123))
+                .away(c => c.withThrow(0, 1)))
             .scores(0)
             .yourName('HOME')
             .numberOfLegs(3)
@@ -417,8 +417,8 @@ describe('MatchStatistics', () => {
             .withLeg(0, b => b
                 .currentThrow('home')
                 .startingScore(501)
-                .home((c: ILegCompetitorScoreBuilder) => c)
-                .away((c: ILegCompetitorScoreBuilder) => c))
+                .home(c => c)
+                .away(c => c))
             .scores(0, 0)
             .yourName('HOME')
             .numberOfLegs(3)
@@ -452,8 +452,8 @@ describe('MatchStatistics', () => {
             .withLeg(0, b => b
                 .currentThrow('home')
                 .startingScore(501)
-                .home((c: ILegCompetitorScoreBuilder) => c)
-                .away((c: ILegCompetitorScoreBuilder) => c))
+                .home(c => c)
+                .away(c => c))
             .scores(0, 0)
             .yourName('HOME')
             .numberOfLegs(3)
@@ -491,8 +491,8 @@ describe('MatchStatistics', () => {
             .withLeg(0, b => b
                 .currentThrow('home')
                 .startingScore(501)
-                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(75, 2)))
+                .home(c => c.withThrow(100))
+                .away(c => c.withThrow(75, 2)))
             .scores(0, 0)
             .yourName('HOME')
             .opponentName('AWAY')
@@ -539,8 +539,8 @@ describe('MatchStatistics', () => {
             .withLeg(0, b => b
                 .currentThrow('home')
                 .startingScore(501)
-                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(75, 2)))
+                .home(c => c.withThrow(100))
+                .away(c => c.withThrow(75, 2)))
             .scores(1)
             .yourName('HOME')
             .numberOfLegs(3)
@@ -573,8 +573,8 @@ describe('MatchStatistics', () => {
             .withLeg(0, b => b
                 .currentThrow('home')
                 .startingScore(501)
-                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(75, 2)))
+                .home(c => c.withThrow(100))
+                .away(c => c.withThrow(75, 2)))
             .scores(1)
             .yourName('HOME')
             .numberOfLegs(3)
@@ -609,8 +609,8 @@ describe('MatchStatistics', () => {
         const finishedLeg: BuilderParam<ILegBuilder> = b => b
             .currentThrow('home')
             .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(501))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(75, 2));
+            .home(c => c.withThrow(501))
+            .away(c => c.withThrow(75, 2));
         const id = createTemporaryId();
         const liveOptions: ILiveOptions = {
             canSubscribe: true,
@@ -626,8 +626,8 @@ describe('MatchStatistics', () => {
             .withLeg(0, b => b
                 .currentThrow('home')
                 .startingScore(501)
-                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(75, 2)))
+                .home(c => c.withThrow(100))
+                .away(c => c.withThrow(75, 2)))
             .scores(0, 0)
             .yourName('HOME')
             .opponentName('AWAY')

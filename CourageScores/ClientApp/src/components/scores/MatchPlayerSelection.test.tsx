@@ -27,7 +27,6 @@ import {IMatchBuilder, matchBuilder, matchOptionsBuilder} from "../../helpers/bu
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {teamBuilder} from "../../helpers/builders/teams";
-import {ILegBuilder, ILegCompetitorScoreBuilder, IRecordedSaygBuilder} from "../../helpers/builders/sayg";
 import {createTemporaryId} from "../../helpers/projection";
 import {CHECKOUT_3_DART, ENTER_SCORE_BUTTON} from "../../helpers/constants";
 import {checkoutWith, keyPad} from "../../helpers/sayg";
@@ -879,10 +878,10 @@ describe('MatchPlayerSelection', () => {
                 .withHome(homePlayer)
                 .withAway(awayPlayer)
                 .sayg(
-                    (s: IRecordedSaygBuilder) => s.withLeg(0, (l: ILegBuilder) => l
+                    s => s.withLeg(0, l => l
                         .playerSequence('home', 'away')
-                        .home((c: ILegCompetitorScoreBuilder) => c)
-                        .away((c: ILegCompetitorScoreBuilder) => c)
+                        .home(c => c)
+                        .away(c => c)
                         .currentThrow('home')
                         .startingScore(501)));
             await renderComponent(user(true), props(match), defaultContainerProps, defaultMatchType);
@@ -905,10 +904,10 @@ describe('MatchPlayerSelection', () => {
                 .withHome(homePlayer)
                 .withAway(awayPlayer)
                 .sayg(
-                    (s: IRecordedSaygBuilder) => s.withLeg(0, (l: ILegBuilder) => l
+                    s => s.withLeg(0, l => l
                         .playerSequence('home', 'away')
-                        .home((c: ILegCompetitorScoreBuilder) => c)
-                        .away((c: ILegCompetitorScoreBuilder) => c)
+                        .home(c => c)
+                        .away(c => c)
                         .currentThrow('away')
                         .startingScore(501)));
             await renderComponent(user(true), props(match), defaultContainerProps, defaultMatchType);
@@ -931,10 +930,10 @@ describe('MatchPlayerSelection', () => {
                 .withHome(homePlayer)
                 .withAway(awayPlayer)
                 .sayg(
-                    (s: IRecordedSaygBuilder) => s.withLeg(0, (l: ILegBuilder) => l
+                    s => s.withLeg(0, l => l
                         .playerSequence('home', 'away')
-                        .home((c: ILegCompetitorScoreBuilder) => c.withThrow(400))
-                        .away((c: ILegCompetitorScoreBuilder) => c.withThrow(0))
+                        .home(c => c.withThrow(400))
+                        .away(c => c.withThrow(0))
                         .currentThrow('home')
                         .startingScore(501)));
             await renderComponent(user(true), props(match), defaultContainerProps, defaultMatchType);
@@ -963,10 +962,10 @@ describe('MatchPlayerSelection', () => {
                 .withHome(homePlayer)
                 .withAway(awayPlayer)
                 .sayg(
-                    (s: IRecordedSaygBuilder) => s.withLeg(0, (l: ILegBuilder) => l
+                    s => s.withLeg(0, l => l
                         .playerSequence('home', 'away')
-                        .home((c: ILegCompetitorScoreBuilder) => c.withThrow(0))
-                        .away((c: ILegCompetitorScoreBuilder) => c.withThrow(400))
+                        .home(c => c.withThrow(0))
+                        .away(c => c.withThrow(400))
                         .currentThrow('away')
                         .startingScore(501)));
             await renderComponent(user(true), props(match), defaultContainerProps, defaultMatchType);
@@ -995,23 +994,23 @@ describe('MatchPlayerSelection', () => {
                 .withHome(homePlayer)
                 .withAway(awayPlayer)
                 .sayg(
-                    (s: IRecordedSaygBuilder) => s
-                        .withLeg(0, (l: ILegBuilder) => l
+                    s => s
+                        .withLeg(0, l => l
                             .playerSequence('home', 'away')
-                            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(400))
-                            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(501))
+                            .home(c => c.withThrow(400))
+                            .away(c => c.withThrow(501))
                             .currentThrow('away')
                             .startingScore(501))
-                        .withLeg(1, (l: ILegBuilder) => l
+                        .withLeg(1, l => l
                             .playerSequence('home', 'away')
-                            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(400))
-                            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(501))
+                            .home(c => c.withThrow(400))
+                            .away(c => c.withThrow(501))
                             .currentThrow('away')
                             .startingScore(501))
-                        .withLeg(2, (l: ILegBuilder) => l
+                        .withLeg(2, l => l
                             .playerSequence('home', 'away')
-                            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(0))
-                            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(400))
+                            .home(c => c.withThrow(0))
+                            .away(c => c.withThrow(400))
                             .currentThrow('away')
                             .startingScore(501))
                         .numberOfLegs(5)

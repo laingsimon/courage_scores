@@ -66,8 +66,8 @@ describe('SummaryDataRow', () => {
 
         return b => b
             .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => addThrows(c, homeWinner ? winningThrows : notWinningThrows))
-            .away((c: ILegCompetitorScoreBuilder) => addThrows(c, awayWinner ? winningThrows : notWinningThrows))
+            .home(c => addThrows(c, homeWinner ? winningThrows : notWinningThrows))
+            .away(c => addThrows(c, awayWinner ? winningThrows : notWinningThrows))
     }
 
     describe('renders', () => {

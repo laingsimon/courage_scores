@@ -9,21 +9,17 @@ import {
     TestContext
 } from "../../helpers/tests";
 import {LiveSayg} from "./LiveSayg";
-import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../helpers/builders/sayg";
+import {saygBuilder} from "../../helpers/builders/sayg";
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 import {IAppContainerProps} from "../common/AppContainer";
-import {
-    ITournamentMatchBuilder,
-    ITournamentRoundBuilder, roundBuilder,
-    tournamentBuilder
-} from "../../helpers/builders/tournaments";
+import {roundBuilder, tournamentBuilder} from "../../helpers/builders/tournaments";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {act} from "@testing-library/react";
 import {MessageType} from "../../interfaces/models/dtos/MessageType";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
-import {divisionBuilder, divisionDataBuilder, IDivisionFixtureDateBuilder} from "../../helpers/builders/divisions";
+import {divisionBuilder, divisionDataBuilder} from "../../helpers/builders/divisions";
 import {IDivisionApi} from "../../interfaces/apis/IDivisionApi";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
 import {renderDate} from "../../helpers/rendering";
@@ -233,17 +229,17 @@ describe('LiveSayg', () => {
             const sayg = saygBuilder()
                 .startingScore(501)
                 .numberOfLegs(1)
-                .withLeg(0, (l: ILegBuilder) => l
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(50)))
+                .withLeg(0, l => l
+                    .home(c => c.withThrow(100))
+                    .away(c => c.withThrow(50)))
                 .addTo(saygData)
                 .build();
             const tournament = tournamentBuilder()
                 .host('HOST').opponent('OPPONENT')
                 .type('BOARD 1')
                 .bestOf(5)
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA('home', 3).sideB('away', 1).saygId(sayg.id)))
+                .round(r => r
+                    .withMatch(m => m.sideA('home', 3).sideB('away', 1).saygId(sayg.id)))
                 .addTo(tournamentData).build();
 
             await renderComponent(
@@ -279,17 +275,17 @@ describe('LiveSayg', () => {
             const sayg = saygBuilder()
                 .startingScore(501)
                 .numberOfLegs(1)
-                .withLeg(0, (l: ILegBuilder) => l
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(75))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(120)))
+                .withLeg(0, l => l
+                    .home(c => c.withThrow(75))
+                    .away(c => c.withThrow(120)))
                 .addTo(saygData)
                 .build();
             const tournament = tournamentBuilder()
                 .host('HOST').opponent('OPPONENT')
                 .type('BOARD 1')
                 .bestOf(5)
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA('home', 1).sideB('away', 3).saygId(sayg.id)))
+                .round(r => r
+                    .withMatch(m => m.sideA('home', 1).sideB('away', 3).saygId(sayg.id)))
                 .addTo(tournamentData).build();
 
             await renderComponent(
@@ -447,7 +443,7 @@ describe('LiveSayg', () => {
             const tournamentId = createTemporaryId();
             const division = divisionDataBuilder(divisionBuilder('SUPER LEAGUE').build())
                 .superleague()
-                .withFixtureDate((d: IDivisionFixtureDateBuilder) => d
+                .withFixtureDate(d => d
                     .withTournament(t => t, tournamentId))
                 .build();
             divisionData = division;
@@ -492,7 +488,7 @@ describe('LiveSayg', () => {
             const tournamentId = createTemporaryId();
             const division = divisionDataBuilder(divisionBuilder('SUPER LEAGUE').build())
                 .superleague()
-                .withFixtureDate((d: IDivisionFixtureDateBuilder) => d
+                .withFixtureDate(d => d
                     .withTournament(t => t, tournamentId))
                 .build();
             divisionData = division;
@@ -710,13 +706,13 @@ describe('LiveSayg', () => {
 
         it('can apply live update for one match', async () => {
             const sayg = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
+                .withLeg(0, l => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(10).withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(5).withThrow(50)))
+                    .home(c => c.withThrow(10).withThrow(100))
+                    .away(c => c.withThrow(5).withThrow(50)))
                 .addTo(saygData)
                 .build();
-            tournament1.round = roundBuilder().withMatch((m: ITournamentMatchBuilder) => m.sideA('SIDE A')
+            tournament1.round = roundBuilder().withMatch(m => m.sideA('SIDE A')
                 .sideB('SIDE B')
                 .saygId(sayg.id)).build();
 
@@ -731,10 +727,10 @@ describe('LiveSayg', () => {
             expect(liveScores.innerHTML).toContain((501 - (5 + 50)).toString());
 
             const updatedSayg = saygBuilder(sayg.id)
-                .withLeg(0, (l: ILegBuilder) => l
+                .withLeg(0, l => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(10).withThrow(100).withThrow(11))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(5).withThrow(50).withThrow(55)))
+                    .home(c => c.withThrow(10).withThrow(100).withThrow(11))
+                    .away(c => c.withThrow(5).withThrow(50).withThrow(55)))
                 .addTo(saygData)
                 .build();
             await sendUpdate(updatedSayg);
@@ -747,14 +743,14 @@ describe('LiveSayg', () => {
 
         it('hides live updates when match won', async () => {
             const sayg = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
+                .withLeg(0, l => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(10).withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(5).withThrow(50)))
+                    .home(c => c.withThrow(10).withThrow(100))
+                    .away(c => c.withThrow(5).withThrow(50)))
                 .addTo(saygData)
                 .build();
             const matchId = createTemporaryId();
-            tournament1.round = roundBuilder().withMatch((m: ITournamentMatchBuilder) => m
+            tournament1.round = roundBuilder().withMatch(m => m
                 .sideA('SIDE A')
                 .sideB('SIDE B')
                 .saygId(sayg.id), matchId).build();
@@ -771,7 +767,7 @@ describe('LiveSayg', () => {
                 .host('HOST 1.1').opponent('OPPONENT 1.1')
                 .bestOf(3)
                 .type('BOARD 1.1').build();
-            updatedTournament1.round = roundBuilder().withMatch((m: ITournamentMatchBuilder) => m
+            updatedTournament1.round = roundBuilder().withMatch(m => m
                 .sideA('SIDE A', 2)
                 .sideB('SIDE B', 0)
                 .saygId(sayg.id), matchId).build();
@@ -829,11 +825,11 @@ describe('LiveSayg', () => {
             const sayg = saygBuilder().build();
             const matchId = createTemporaryId();
             const matchAdded = tournamentBuilder(tournament1.id)
-                .round((r: ITournamentRoundBuilder) => r.withMatch((m: ITournamentMatchBuilder) => m
+                .round(r => r.withMatch(m => m
                     .sideA('HOST PLAYER')
                     .sideB('OPPONENT PLAYER'), matchId)).build();
             const matchSaygSet = tournamentBuilder(tournament1.id)
-                .round((r: ITournamentRoundBuilder) => r.withMatch((m: ITournamentMatchBuilder) => m
+                .round(r => r.withMatch(m => m
                     .sideA('HOST PLAYER')
                     .sideB('OPPONENT PLAYER')
                     .saygId(sayg.id), matchId)).build();

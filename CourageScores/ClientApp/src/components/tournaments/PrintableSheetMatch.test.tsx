@@ -13,12 +13,7 @@ import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGam
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
 import {IAppContainerProps} from "../common/AppContainer";
 import {IPrintableSheetMatchProps, PrintableSheetMatch} from "./PrintableSheetMatch";
-import {
-    ITournamentMatchBuilder,
-    ITournamentRoundBuilder,
-    sideBuilder,
-    tournamentBuilder
-} from "../../helpers/builders/tournaments";
+import {sideBuilder, tournamentBuilder} from "../../helpers/builders/tournaments";
 import {createTemporaryId} from "../../helpers/projection";
 import {matchOptionsBuilder} from "../../helpers/builders/games";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
@@ -261,8 +256,8 @@ describe('PrintableSheetMatch', () => {
             };
 
             tournamentDataWithMatch = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
+                .round(r => r
+                    .withMatch(m => m
                         .sideA(sideA)
                         .sideB(sideB)
                         .saygId(saygData.id)))
@@ -327,8 +322,8 @@ describe('PrintableSheetMatch', () => {
 
         it('can change best-of', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
+                .round(r => r
+                    .withMatch(m => m
                         .sideA(sideA, 5)
                         .sideB(sideB, 7)))
                 .build();
@@ -366,8 +361,8 @@ describe('PrintableSheetMatch', () => {
 
         it('cannot save if best-of is invalid', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
+                .round(r => r
+                    .withMatch(m => m
                         .sideA(sideA, 5)
                         .sideB(sideB, 7)))
                 .build();
@@ -396,9 +391,9 @@ describe('PrintableSheetMatch', () => {
 
         it('does not open dialog match in subsequent round when first round is not complete', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 5).sideB(sideB, 7))))
+                .round(r => r
+                    .round(r => r
+                        .withMatch(m => m.sideA(sideA, 5).sideB(sideB, 7))))
                 .build();
             const nestedMatchData: ILayoutDataForMatch = {
                 scoreB: '7',
@@ -419,10 +414,10 @@ describe('PrintableSheetMatch', () => {
 
         it('can change side properties for match in subsequent round', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 5).sideB(sideC, 1))
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 5).sideB(sideB, 7))))
+                .round(r => r
+                    .withMatch(m => m.sideA(sideA, 5).sideB(sideC, 1))
+                    .round(r => r
+                        .withMatch(m => m.sideA(sideA, 5).sideB(sideB, 7))))
                 .build();
             const nestedMatchData: ILayoutDataForMatch = {
                 scoreB: '7',
@@ -585,8 +580,8 @@ describe('PrintableSheetMatch', () => {
 
         it('can unset side A', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
+                .round(r => r
+                    .withMatch(m => m
                         .sideA(sideA, 5)
                         .sideB(sideB, 7)))
                 .build();
@@ -626,8 +621,8 @@ describe('PrintableSheetMatch', () => {
 
         it('can unset side B', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
+                .round(r => r
+                    .withMatch(m => m
                         .sideA(sideA, 5)
                         .sideB(sideB, 7)))
                 .build();
@@ -667,8 +662,8 @@ describe('PrintableSheetMatch', () => {
 
         it('removes match when sideA and sideB unset', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
+                .round(r => r
+                    .withMatch(m => m
                         .sideB(sideB, 7)))
                 .build();
             const matchData: ILayoutDataForMatch = {
@@ -732,8 +727,8 @@ describe('PrintableSheetMatch', () => {
                 .addTo(saygDataLookup)
                 .build();
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
+                .round(r => r
+                    .withMatch(m => m
                         .sideA(sideA)
                         .sideB(sideB)
                         .saygId(saygData.id)))
@@ -783,8 +778,8 @@ describe('PrintableSheetMatch', () => {
                 .addTo(saygDataLookup)
                 .build();
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
+                .round(r => r
+                    .withMatch(m => m
                         .sideA(sideA)
                         .sideB(sideB)
                         .saygId(saygData.id)))
@@ -828,8 +823,8 @@ describe('PrintableSheetMatch', () => {
 
         it('cannot view scores for match without sayg', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
+                .round(r => r
+                    .withMatch(m => m
                         .sideA(sideA)
                         .sideB(sideB)))
                 .build();
@@ -872,8 +867,8 @@ describe('PrintableSheetMatch', () => {
 
         it('can delete sayg from match and keep scores', async () => {
             const tournamentDataWithoutSayg: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
+                .round(r => r
+                    .withMatch(m => m
                         .sideA(sideA, 1)
                         .sideB(sideB, 2)))
                 .build();
@@ -916,8 +911,8 @@ describe('PrintableSheetMatch', () => {
 
         it('can delete sayg from match and clear scores', async () => {
             const tournamentDataWithoutSayg: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
+                .round(r => r
+                    .withMatch(m => m
                         .sideA(sideA)
                         .sideB(sideB)))
                 .build();

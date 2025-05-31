@@ -9,7 +9,7 @@ import {
     appProps, TestContext
 } from "../../helpers/tests";
 import {ILegStatisticsProps, LegStatistics} from "./LegStatistics";
-import {ILegCompetitorScoreBuilder, legBuilder} from "../../helpers/builders/sayg";
+import {legBuilder} from "../../helpers/builders/sayg";
 import {ILegDisplayOptions} from "./ILegDisplayOptions";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 
@@ -59,8 +59,8 @@ describe('LegStatistics', () => {
         it('when no darts thrown', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c)
+                    .home(c => c)
+                    .away(c => c)
                     .build(),
                 legDisplayOptions: {
                     showThrows: false,
@@ -78,8 +78,8 @@ describe('LegStatistics', () => {
         it('2 player match without winner', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(50))
+                    .home(c => c.withThrow(100))
+                    .away(c => c.withThrow(50))
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -105,8 +105,8 @@ describe('LegStatistics', () => {
         it('2 player match with home winner', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(401).withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(50))
+                    .home(c => c.withThrow(401).withThrow(100))
+                    .away(c => c.withThrow(50))
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -132,8 +132,8 @@ describe('LegStatistics', () => {
         it('2 player match with away winner', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(50))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(401).withThrow(100))
+                    .home(c => c.withThrow(50))
+                    .away(c => c.withThrow(401).withThrow(100))
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -159,8 +159,8 @@ describe('LegStatistics', () => {
         it('single player match with winner', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(401).withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c)
+                    .home(c => c.withThrow(401).withThrow(100))
+                    .away(c => c)
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -185,8 +185,8 @@ describe('LegStatistics', () => {
         it('single player match without winner', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c)
+                    .home(c => c.withThrow(100))
+                    .away(c => c)
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -211,8 +211,8 @@ describe('LegStatistics', () => {
         it('2 player throws', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(50))
+                    .home(c => c.withThrow(100))
+                    .away(c => c.withThrow(50))
                     .startingScore(100)
                     .build(),
                 home: 'HOME',
@@ -236,8 +236,8 @@ describe('LegStatistics', () => {
         it('2 player match with 180s', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(180))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(50))
+                    .home(c => c.withThrow(180))
+                    .away(c => c.withThrow(50))
                     .startingScore(200)
                     .build(),
                 home: 'HOME',
@@ -261,8 +261,8 @@ describe('LegStatistics', () => {
         it('single player throws', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c)
+                    .home(c => c.withThrow(100))
+                    .away(c => c)
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -284,8 +284,8 @@ describe('LegStatistics', () => {
         it('averages', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(50))
+                    .home(c => c.withThrow(100))
+                    .away(c => c.withThrow(50))
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -309,8 +309,8 @@ describe('LegStatistics', () => {
         it('2 player averages when only home player has thrown', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c)
+                    .home(c => c.withThrow(100))
+                    .away(c => c)
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -335,8 +335,8 @@ describe('LegStatistics', () => {
         it('2 player averages when only away player has thrown', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
+                    .home(c => c)
+                    .away(c => c.withThrow(100))
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -361,8 +361,8 @@ describe('LegStatistics', () => {
         it('no of darts', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(50))
+                    .home(c => c.withThrow(100))
+                    .away(c => c.withThrow(50))
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -386,8 +386,8 @@ describe('LegStatistics', () => {
         it('1-dart averages', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(50))
+                    .home(c => c.withThrow(100))
+                    .away(c => c.withThrow(50))
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -413,8 +413,8 @@ describe('LegStatistics', () => {
         it('can expand 2 player statistics', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(50))
+                    .home(c => c.withThrow(100))
+                    .away(c => c.withThrow(50))
                     .startingScore(100)
                     .build(),
                 home: 'HOME',
@@ -441,8 +441,8 @@ describe('LegStatistics', () => {
         it('can toggle expanded statistics to show averages', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(50))
+                    .home(c => c.withThrow(100))
+                    .away(c => c.withThrow(50))
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -469,8 +469,8 @@ describe('LegStatistics', () => {
         it('can open change throw dialog', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(50))
+                    .home(c => c.withThrow(100))
+                    .away(c => c.withThrow(50))
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -495,8 +495,8 @@ describe('LegStatistics', () => {
         it('can close change throw dialog', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(50))
+                    .home(c => c.withThrow(100))
+                    .away(c => c.withThrow(50))
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -524,8 +524,8 @@ describe('LegStatistics', () => {
             let newLeg: LegDto;
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(50))
+                    .home(c => c.withThrow(100))
+                    .away(c => c.withThrow(50))
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -560,8 +560,8 @@ describe('LegStatistics', () => {
             let newLeg: LegDto;
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(50))
+                    .home(c => c.withThrow(100))
+                    .away(c => c.withThrow(50))
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -592,8 +592,8 @@ describe('LegStatistics', () => {
         it('cannot change throw when no handler', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(50))
+                    .home(c => c.withThrow(100))
+                    .away(c => c.withThrow(50))
                     .startingScore(501)
                     .build(),
                 home: 'HOME',

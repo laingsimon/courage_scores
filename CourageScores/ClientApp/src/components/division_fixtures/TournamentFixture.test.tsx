@@ -21,8 +21,6 @@ import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
 import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentPlayerDto";
 import {
-    ITournamentMatchBuilder,
-    ITournamentSideBuilder,
     sideBuilder,
     tournamentBuilder
 } from "../../helpers/builders/tournaments";
@@ -170,7 +168,7 @@ describe('TournamentFixture', () => {
                 .date('2023-05-06T00:00:00')
                 .address('ADDRESS')
                 .type('TYPE')
-                .withSide((s: ITournamentSideBuilder) => s.name('WINNER').id(sideId))
+                .withSide(s => s.name('WINNER').id(sideId))
                 .winner('WINNER', sideId)
                 .build();
             await renderComponent(
@@ -191,7 +189,7 @@ describe('TournamentFixture', () => {
                 .date('2023-05-06T00:00:00')
                 .address('ADDRESS')
                 .type('TYPE')
-                .withSide((s: ITournamentSideBuilder) => s.name('WINNER').id(sideId).teamId(team.id))
+                .withSide(s => s.name('WINNER').id(sideId).teamId(team.id))
                 .winner('WINNER', sideId, team.id)
                 .build();
             await renderComponent(
@@ -217,7 +215,7 @@ describe('TournamentFixture', () => {
                 .date('2023-05-06T00:00:00')
                 .address('ADDRESS')
                 .type('TYPE')
-                .withSide((s: ITournamentSideBuilder) => s.name('WINNER').id(sideId).teamId(team.id))
+                .withSide(s => s.name('WINNER').id(sideId).teamId(team.id))
                 .winner('WINNER', sideId)
                 .build();
             await renderComponent(
@@ -275,8 +273,8 @@ describe('TournamentFixture', () => {
                 .withSide(b => b.name('PLAYER 3'))
                 .withSide(b => b.name('PLAYER 4'))
                 .withFirstRoundMatch(
-                    (m: ITournamentMatchBuilder) => m.sideA(side1, 2).sideB(side2, 4),
-                    (m: ITournamentMatchBuilder) => m.sideA(side3, 4).sideB(side4, 2)
+                    m => m.sideA(side1, 2).sideB(side2, 4),
+                    m => m.sideA(side3, 4).sideB(side4, 2)
                 )
                 .type('SUPERLEAGUE')
                 .singleRound()

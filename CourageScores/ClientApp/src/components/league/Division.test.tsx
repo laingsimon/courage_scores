@@ -24,14 +24,9 @@ import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {IApp} from "../common/IApp";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {seasonBuilder} from "../../helpers/builders/seasons";
-import {
-    divisionBuilder,
-    divisionDataBuilder,
-    IDivisionFixtureBuilder,
-    IDivisionFixtureDateBuilder
-} from "../../helpers/builders/divisions";
+import {divisionBuilder, divisionDataBuilder} from "../../helpers/builders/divisions";
 import {teamBuilder} from "../../helpers/builders/teams";
-import {IPlayerPerformanceBuilder, playerBuilder} from "../../helpers/builders/players";
+import {playerBuilder} from "../../helpers/builders/players";
 import {IFailedRequest} from "../common/IFailedRequest";
 import {IDivisionApi} from "../../interfaces/apis/IDivisionApi";
 import {DivisionDataFilter} from "../../interfaces/models/dtos/Division/DivisionDataFilter";
@@ -167,7 +162,7 @@ describe('Division', () => {
         const team: TeamDto = teamBuilder('TEAM_NAME').build();
         const player: DivisionPlayerDto = playerBuilder('PLAYER_NAME')
             .team(team)
-            .singles((a: IPlayerPerformanceBuilder) => a.matchesPlayed(1))
+            .singles(a => a.matchesPlayed(1))
             .build();
 
         beforeEach(() => {
@@ -984,7 +979,7 @@ describe('Division', () => {
                     .build();
                 divisionDataMap[division.id] = divisionDataBuilder(division)
                     .season(s => s.starting('2023-01-01').ending('2023-06-01').withDivision(division), 'SEASON', season.id)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture((f: IDivisionFixtureBuilder) => f.bye(homeTeam).knockout()), '2023-07-01')
+                    .withFixtureDate(d => d.withFixture(f => f.bye(homeTeam).knockout()), '2023-07-01')
                     .build();
                 await renderComponent(appProps({
                     divisions: [division],
@@ -1020,7 +1015,7 @@ describe('Division', () => {
                     .build();
                 divisionDataMap[division.id] = divisionDataBuilder(division)
                     .season(s => s.starting('2023-01-01').ending('2023-06-01').withDivision(division), 'SEASON')
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture((f: IDivisionFixtureBuilder) => f.playing(homeTeam, awayTeam).knockout()), '2023-07-01')
+                    .withFixtureDate(d => d.withFixture(f => f.playing(homeTeam, awayTeam).knockout()), '2023-07-01')
                     .build();
                 await renderComponent(appProps({
                     divisions: [division],

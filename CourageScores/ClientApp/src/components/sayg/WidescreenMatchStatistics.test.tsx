@@ -1,6 +1,6 @@
 import {api, appProps, brandingProps, cleanUp, doClick, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import {ISaygLoadingContainerProps, SaygLoadingContainer} from "./SaygLoadingContainer";
-import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../helpers/builders/sayg";
+import {saygBuilder} from "../../helpers/builders/sayg";
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 
@@ -40,7 +40,7 @@ describe('WidescreenMatchStatistics', () => {
                 .opponentName()
                 .scores(1, 2)
                 .numberOfLegs(5)
-                .withLeg(0, (l: ILegBuilder) => l.startingScore(501).home((c: ILegCompetitorScoreBuilder) => c.withThrow(100)))
+                .withLeg(0, l => l.startingScore(501).home(c => c.withThrow(100)))
                 .addTo(saygData)
                 .build();
         });
@@ -137,10 +137,10 @@ describe('WidescreenMatchStatistics', () => {
                 .opponentName('AWAY')
                 .scores(1, 2)
                 .numberOfLegs(5)
-                .withLeg(0, (l: ILegBuilder) => l
+                .withLeg(0, l => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(100)))
+                    .home(c => c.withThrow(100))
+                    .away(c => c.withThrow(100).withThrow(100)))
                 .addTo(saygData)
                 .build();
         });
@@ -278,10 +278,10 @@ describe('WidescreenMatchStatistics', () => {
                 .opponentName('AWAY')
                 .scores(3, 2)
                 .numberOfLegs(5)
-                .withLeg(0, (l: ILegBuilder) => l
+                .withLeg(0, l => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(501))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(100)))
+                    .home(c => c.withThrow(501))
+                    .away(c => c.withThrow(100).withThrow(100)))
                 .addTo(saygData)
                 .build();
 
@@ -304,10 +304,10 @@ describe('WidescreenMatchStatistics', () => {
                 .opponentName('AWAY')
                 .scores(1, 3)
                 .numberOfLegs(5)
-                .withLeg(0, (l: ILegBuilder) => l
+                .withLeg(0, l => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(401).withThrow(100)))
+                    .home(c => c.withThrow(100))
+                    .away(c => c.withThrow(401).withThrow(100)))
                 .addTo(saygData)
                 .build();
 
@@ -334,10 +334,10 @@ describe('WidescreenMatchStatistics', () => {
                 .opponentName('AWAY')
                 .scores(1, 2)
                 .numberOfLegs(5)
-                .withLeg(0, (l: ILegBuilder) => l
+                .withLeg(0, l => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(100)))
+                    .home(c => c.withThrow(100))
+                    .away(c => c.withThrow(100).withThrow(100)))
                 .addTo(saygData)
                 .build();
         });

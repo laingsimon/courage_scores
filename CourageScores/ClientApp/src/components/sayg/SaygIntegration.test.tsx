@@ -11,7 +11,7 @@ import {
     TestContext
 } from "../../helpers/tests";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
-import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../helpers/builders/sayg";
+import {ILegBuilder, saygBuilder} from "../../helpers/builders/sayg";
 import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
@@ -312,10 +312,10 @@ describe('SaygIntegrationTest', () => {
                 .numberOfLegs(5)
                 .startingScore(501)
                 .scores(0, 0)
-                .withLeg(0, (l: ILegBuilder) => l
+                .withLeg(0, l => l
                     .playerSequence('away', 'home')
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c)
+                    .home(c => c)
+                    .away(c => c)
                     .startingScore(501)
                     .currentThrow('away'))
                 .addTo(saygData)
@@ -510,13 +510,13 @@ describe('SaygIntegrationTest', () => {
             const second = startingWith === 'home' ? 'away' : 'home';
 
             return l.playerSequence(startingWith, second)
-                .home((c: ILegCompetitorScoreBuilder) => c
+                .home(c => c
                     .withThrow(winner === 'home' ? 100 : 1)
                     .withThrow(winner === 'home' ? 100 : 2)
                     .withThrow(winner === 'home' ? 100 : 3)
                     .withThrow(winner === 'home' ? 100 : 4)
                     .withThrow(winner === 'home' ? 101 : 5))
-                .away((c: ILegCompetitorScoreBuilder) => c
+                .away(c => c
                     .withThrow(winner === 'away' ? 100 : 6)
                     .withThrow(winner === 'away' ? 100 : 7)
                     .withThrow(winner === 'away' ? 100 : 8)
@@ -532,10 +532,10 @@ describe('SaygIntegrationTest', () => {
                 .numberOfLegs(5)
                 .startingScore(501)
                 .scores(1, 3)
-                .withLeg(0, (l: ILegBuilder) => buildLeg(l, 'home', 'home'))
-                .withLeg(1, (l: ILegBuilder) => buildLeg(l, 'away', 'away'))
-                .withLeg(2, (l: ILegBuilder) => buildLeg(l, 'home', 'away'))
-                .withLeg(2, (l: ILegBuilder) => buildLeg(l, 'away', 'away'))
+                .withLeg(0, l => buildLeg(l, 'home', 'home'))
+                .withLeg(1, l => buildLeg(l, 'away', 'away'))
+                .withLeg(2, l => buildLeg(l, 'home', 'away'))
+                .withLeg(2, l => buildLeg(l, 'away', 'away'))
                 .addTo(saygData)
                 .build();
 
@@ -573,9 +573,9 @@ describe('SaygIntegrationTest', () => {
                 .numberOfLegs(3)
                 .startingScore(501)
                 .scores(3)
-                .withLeg(0, (l: ILegBuilder) => buildLeg(l, 'home', 'home'))
-                .withLeg(1, (l: ILegBuilder) => buildLeg(l, 'home', 'home'))
-                .withLeg(2, (l: ILegBuilder) => buildLeg(l, 'home', 'home'))
+                .withLeg(0, l => buildLeg(l, 'home', 'home'))
+                .withLeg(1, l => buildLeg(l, 'home', 'home'))
+                .withLeg(2, l => buildLeg(l, 'home', 'home'))
                 .addTo(saygData)
                 .build();
             await renderComponent({
@@ -681,10 +681,10 @@ describe('SaygIntegrationTest', () => {
                 .numberOfLegs(5)
                 .startingScore(501)
                 .scores(0, 0)
-                .withLeg(0, (l: ILegBuilder) => l
+                .withLeg(0, l => l
                     .playerSequence('home', 'away')
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c)
+                    .home(c => c)
+                    .away(c => c)
                     .startingScore(501)
                     .currentThrow('home'))
                 .addTo(saygData)
@@ -1025,10 +1025,10 @@ describe('SaygIntegrationTest', () => {
                 .numberOfLegs(5)
                 .startingScore(501)
                 .scores(0, 0)
-                .withLeg(0, (l: ILegBuilder) => l
+                .withLeg(0, l => l
                     .playerSequence('home', 'away')
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c)
+                    .home(c => c)
+                    .away(c => c)
                     .startingScore(501)
                     .currentThrow('home'))
                 .addTo(saygData)

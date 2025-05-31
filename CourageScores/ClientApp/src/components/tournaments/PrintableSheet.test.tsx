@@ -18,13 +18,8 @@ import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSid
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
-import {
-    ITournamentMatchBuilder, ITournamentRoundBuilder,
-    ITournamentSideBuilder,
-    sideBuilder,
-    tournamentBuilder
-} from "../../helpers/builders/tournaments";
-import {IMatchOptionsBuilder, matchOptionsBuilder} from "../../helpers/builders/games";
+import {ITournamentSideBuilder, sideBuilder, tournamentBuilder} from "../../helpers/builders/tournaments";
+import {matchOptionsBuilder} from "../../helpers/builders/games";
 import {playerBuilder} from "../../helpers/builders/players";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {seasonBuilder} from "../../helpers/builders/seasons";
@@ -257,23 +252,23 @@ describe('PrintableSheet', () => {
 
         beforeEach(() => {
             twoRoundTournament4Sides = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2))
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 2).sideB(sideD, 1))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideB, 2).sideB(sideC, 1))
-                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
+                .round(r => r
+                    .withMatch(m => m.sideA(sideA, 1).sideB(sideB, 2))
+                    .withMatch(m => m.sideA(sideC, 2).sideB(sideD, 1))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .round(r => r
+                        .withMatch(m => m.sideA(sideB, 2).sideB(sideC, 1))
+                        .withMatchOption(o => o.numberOfLegs(3))))
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
                 .build();
 
             oneRoundTournament2Sides = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
+                .round(r => r
+                    .withMatch(m => m
                         .sideA(sideBuilder('A').withPlayer(player1).build(), 1)
                         .sideB(sideBuilder('B').withPlayer(player2).build(), 2))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
+                    .withMatchOption(o => o.numberOfLegs(3)))
                 .withSide(b => b.name('A').withPlayer(player1))
                 .withSide(b => b.name('B').withPlayer(player2))
                 .build();
@@ -310,13 +305,13 @@ describe('PrintableSheet', () => {
 
         it('renders incomplete tournament with six sides and one round', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 0).sideB(sideB, 0))
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 0).sideB(sideD, 0))
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideE, 0).sideB(sideF, 0))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
+                .round(r => r
+                    .withMatch(m => m.sideA(sideA, 0).sideB(sideB, 0))
+                    .withMatch(m => m.sideA(sideC, 0).sideB(sideD, 0))
+                    .withMatch(m => m.sideA(sideE, 0).sideB(sideF, 0))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .withMatchOption(o => o.numberOfLegs(3)))
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE).withSide(sideF)
                 .build();
 
@@ -358,17 +353,17 @@ describe('PrintableSheet', () => {
 
         it('renders tournament with 3 rounds', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2))
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 2).sideB(sideD, 1))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideE, 2).sideB(sideB, 1))
-                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                        .round((r: ITournamentRoundBuilder) => r
-                            .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 2).sideB(sideE, 1))
-                            .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))))
+                .round(r => r
+                    .withMatch(m => m.sideA(sideA, 1).sideB(sideB, 2))
+                    .withMatch(m => m.sideA(sideC, 2).sideB(sideD, 1))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .round(r => r
+                        .withMatch(m => m.sideA(sideE, 2).sideB(sideB, 1))
+                        .withMatchOption(o => o.numberOfLegs(3))
+                        .round(r => r
+                            .withMatch(m => m.sideA(sideC, 2).sideB(sideE, 1))
+                            .withMatchOption(o => o.numberOfLegs(3)))))
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE)
                 .build();
 
@@ -394,32 +389,32 @@ describe('PrintableSheet', () => {
 
         it('renders tournament with 4 rounds', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2))
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 2).sideB(sideD, 1))
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideE, 2).sideB(sideF, 1))
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideG, 1).sideB(sideH, 2))
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideI, 1).sideB(sideJ, 2))
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideK, 1).sideB(sideL, 2))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideB, 2).sideB(sideC, 1))
-                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideE, 2).sideB(sideH, 1))
-                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                        .round((r: ITournamentRoundBuilder) => r
-                            .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideB, 2).sideB(sideE, 1))
-                            .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideJ, 2).sideB(sideL, 1))
-                            .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                            .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                            .round((r: ITournamentRoundBuilder) => r
-                                .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideB, 2).sideB(sideJ, 1))
-                                .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))))
+                .round(r => r
+                    .withMatch(m => m.sideA(sideA, 1).sideB(sideB, 2))
+                    .withMatch(m => m.sideA(sideC, 2).sideB(sideD, 1))
+                    .withMatch(m => m.sideA(sideE, 2).sideB(sideF, 1))
+                    .withMatch(m => m.sideA(sideG, 1).sideB(sideH, 2))
+                    .withMatch(m => m.sideA(sideI, 1).sideB(sideJ, 2))
+                    .withMatch(m => m.sideA(sideK, 1).sideB(sideL, 2))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .round(r => r
+                        .withMatch(m => m.sideA(sideB, 2).sideB(sideC, 1))
+                        .withMatch(m => m.sideA(sideE, 2).sideB(sideH, 1))
+                        .withMatchOption(o => o.numberOfLegs(3))
+                        .withMatchOption(o => o.numberOfLegs(3))
+                        .round(r => r
+                            .withMatch(m => m.sideA(sideB, 2).sideB(sideE, 1))
+                            .withMatch(m => m.sideA(sideJ, 2).sideB(sideL, 1))
+                            .withMatchOption(o => o.numberOfLegs(3))
+                            .withMatchOption(o => o.numberOfLegs(3))
+                            .round(r => r
+                                .withMatch(m => m.sideA(sideB, 2).sideB(sideJ, 1))
+                                .withMatchOption(o => o.numberOfLegs(3))))))
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE).withSide(sideF)
                 .withSide(sideG).withSide(sideH).withSide(sideI).withSide(sideJ).withSide(sideK).withSide(sideL)
                 .build();
@@ -472,15 +467,15 @@ describe('PrintableSheet', () => {
             const sideCSinglePlayer: BuilderParam<ITournamentSideBuilder> = createSide('C', [playerBuilder('PLAYER 3').build()]);
             const sideDSinglePlayer: BuilderParam<ITournamentSideBuilder> = createSide('D', [playerBuilder('PLAYER 4').build()]);
             const tournamentData = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
+                .round(r => r
+                    .withMatch(m => m
                         .sideA(sideBuilder('A').withPlayer(player1).build(), 1)
                         .sideB(sideBuilder('B').withPlayer(player2).build(), 3))
-                    .withMatch((m: ITournamentMatchBuilder) => m
+                    .withMatch(m => m
                         .sideA(sideCSinglePlayer, 0)
                         .sideB(sideDSinglePlayer, 0))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(5))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(5)))
+                    .withMatchOption(o => o.numberOfLegs(5))
+                    .withMatchOption(o => o.numberOfLegs(5)))
                 .withSide(b => b.name('A').withPlayer(player1))
                 .withSide(b => b.name('B').withPlayer(player2))
                 .withSide(b => b.name('C').withPlayer('PLAYER 3'))
@@ -825,8 +820,8 @@ describe('PrintableSheet', () => {
 
         it('can add a side', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
+                .round(r => r
+                    .withMatch(m => m
                         .sideA(sideBuilder('A').withPlayer(player1).build(), 1)
                         .sideB(sideBuilder('B').withPlayer(player2).build(), 2)))
                 .withSide(b => b.name('A').withPlayer(player1))
@@ -1099,7 +1094,7 @@ describe('PrintableSheet', () => {
             .build();
         const matchOptionDefaults = matchOptionsBuilder().build();
         const tournamentData: TournamentGameDto = tournamentBuilder()
-            .round((r: ITournamentRoundBuilder) => r)
+            .round(r => r)
             .build();
         const containerProps = new tournamentContainerPropsBuilder({
             season,

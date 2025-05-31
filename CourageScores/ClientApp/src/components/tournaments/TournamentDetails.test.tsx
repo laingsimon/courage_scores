@@ -10,15 +10,9 @@ import {
     TestContext
 } from "../../helpers/tests";
 import {ITournamentDetailsProps, TournamentDetails} from "./TournamentDetails";
-import {
-    ITournamentMatchBuilder,
-    ITournamentRoundBuilder,
-    ITournamentSideBuilder,
-    tournamentBuilder
-} from "../../helpers/builders/tournaments";
+import {tournamentBuilder} from "../../helpers/builders/tournaments";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {createTemporaryId} from "../../helpers/projection";
-import {IMatchOptionsBuilder} from "../../helpers/builders/games";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {playerBuilder} from "../../helpers/builders/players";
 import {ExportDataRequestDto} from "../../interfaces/models/dtos/Data/ExportDataRequestDto";
@@ -319,12 +313,12 @@ describe('TournamentDetails', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
+                .round(r => r
+                    .withMatch(m => m
                         .saygId(saygId)
                         .sideA('A')
                         .sideB('B'))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
+                    .withMatchOption(o => o.numberOfLegs(3)))
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account: canExportAccount,
@@ -359,18 +353,18 @@ describe('TournamentDetails', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
+                .round(r => r
+                    .withMatch(m => m
                         .saygId(saygId1)
                         .sideA('A')
                         .sideB('B'))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .round(r => r
+                        .withMatch(m => m
                             .saygId(saygId2)
                             .sideA('A')
                             .sideB('B'))
-                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
+                        .withMatchOption(o => o.numberOfLegs(3))))
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account: canExportAccount,
@@ -428,7 +422,7 @@ describe('TournamentDetails', () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .date('2023-01-02T00:00:00')
-                .withSide((s: ITournamentSideBuilder) => s.teamId(team.id))
+                .withSide(s => s.teamId(team.id))
                 .address('ADDRESS')
                 .type('TYPE')
                 .notes('NOTES')
@@ -463,7 +457,7 @@ describe('TournamentDetails', () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .date('2023-01-02T00:00:00')
-                .withSide((s: ITournamentSideBuilder) => s.withPlayer(undefined, playerId))
+                .withSide(s => s.withPlayer(undefined, playerId))
                 .address('ADDRESS')
                 .type('TYPE')
                 .notes('NOTES')
@@ -498,7 +492,7 @@ describe('TournamentDetails', () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .date('2023-01-02T00:00:00')
-                .withSide((s: ITournamentSideBuilder) => s.withPlayer(undefined, playerId))
+                .withSide(s => s.withPlayer(undefined, playerId))
                 .address('ADDRESS')
                 .type('TYPE')
                 .notes('NOTES')
@@ -532,7 +526,7 @@ describe('TournamentDetails', () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .date('2023-01-02T00:00:00')
-                .withSide((s: ITournamentSideBuilder) => s.withPlayer(undefined, player.id))
+                .withSide(s => s.withPlayer(undefined, player.id))
                 .address('ADDRESS')
                 .type('TYPE')
                 .notes('NOTES')

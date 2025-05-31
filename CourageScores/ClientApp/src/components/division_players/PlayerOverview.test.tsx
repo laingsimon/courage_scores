@@ -13,10 +13,8 @@ import {seasonBuilder} from "../../helpers/builders/seasons";
 import {
     divisionBuilder,
     divisionDataBuilder,
-    fixtureDateBuilder,
-    IDivisionFixtureBuilder
+    fixtureDateBuilder
 } from "../../helpers/builders/divisions";
-import {ITournamentBuilder} from "../../helpers/builders/tournaments";
 
 describe('PlayerOverview', () => {
     let context: TestContext;
@@ -143,7 +141,7 @@ describe('PlayerOverview', () => {
         it('league fixture', async () => {
             const fixtureId = createTemporaryId();
             const fixtureDate: DivisionFixtureDateDto = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.playing(teamBuilder('HOME').build(), team).scores(3, 1), fixtureId)
+                .withFixture(f => f.playing(teamBuilder('HOME').build(), team).scores(3, 1), fixtureId)
                 .build();
             const playerWithLeagueFixture = Object.assign({}, player);
             playerWithLeagueFixture.fixtures![fixtureDate.date] = fixtureId;
@@ -152,7 +150,7 @@ describe('PlayerOverview', () => {
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(playerWithLeagueFixture)
-                    .withFixtureDate(fd => fd.withFixture((f: IDivisionFixtureBuilder) => f.playing(teamBuilder('HOME').build(), team).scores(3, 1), fixtureId), '2023-05-06T00:00:00')
+                    .withFixtureDate(fd => fd.withFixture(f => f.playing(teamBuilder('HOME').build(), team).scores(3, 1), fixtureId), '2023-05-06T00:00:00')
                     .season(s => s.withDivision(division), 'SEASON')
                     .build());
 
@@ -183,7 +181,7 @@ describe('PlayerOverview', () => {
         it('league fixture with no scores', async () => {
             const fixtureId = createTemporaryId();
             const fixtureDate: DivisionFixtureDateDto = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.playing(teamBuilder('HOME').build(), team).scores(undefined, undefined), fixtureId)
+                .withFixture(f => f.playing(teamBuilder('HOME').build(), team).scores(undefined, undefined), fixtureId)
                 .build();
             const playerWithLeagueFixture = Object.assign({}, player);
             playerWithLeagueFixture.fixtures![fixtureDate.date] = fixtureId;
@@ -192,7 +190,7 @@ describe('PlayerOverview', () => {
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(playerWithLeagueFixture)
-                    .withFixtureDate(fd => fd.withFixture((f: IDivisionFixtureBuilder) => f.playing(teamBuilder('HOME').build(), team).scores(undefined, undefined), fixtureId), '2023-05-06T00:00:00')
+                    .withFixtureDate(fd => fd.withFixture(f => f.playing(teamBuilder('HOME').build(), team).scores(undefined, undefined), fixtureId), '2023-05-06T00:00:00')
                     .season(s => s.withDivision(division), 'SEASON')
                     .build());
 
@@ -223,7 +221,7 @@ describe('PlayerOverview', () => {
         it('league knockout fixture', async () => {
             const fixtureId = createTemporaryId();
             const fixtureDate: DivisionFixtureDateDto = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.playing(team, teamBuilder('AWAY').build())
+                .withFixture(f => f.playing(team, teamBuilder('AWAY').build())
                     .knockout()
                     .scores(3, 1), fixtureId)
                 .build();
@@ -234,7 +232,7 @@ describe('PlayerOverview', () => {
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(playerWithLeagueFixture)
-                    .withFixtureDate(fd => fd.withFixture((f: IDivisionFixtureBuilder) => f.playing(team, teamBuilder('AWAY').build())
+                    .withFixtureDate(fd => fd.withFixture(f => f.playing(team, teamBuilder('AWAY').build())
                         .knockout()
                         .scores(3, 1), fixtureId), '2023-05-06T00:00:00')
                     .season(s => s.withDivision(division), 'SEASON')
@@ -267,7 +265,7 @@ describe('PlayerOverview', () => {
         it('postponed league fixture', async () => {
             const fixtureId = createTemporaryId();
             const fixtureDate: DivisionFixtureDateDto = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.playing(team, teamBuilder('AWAY').build())
+                .withFixture(f => f.playing(team, teamBuilder('AWAY').build())
                     .scores(3, 1)
                     .postponed(), fixtureId)
                 .build();
@@ -278,7 +276,7 @@ describe('PlayerOverview', () => {
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(playerWithLeagueFixture)
-                    .withFixtureDate(fd => fd.withFixture((f: IDivisionFixtureBuilder) => f.playing(team, teamBuilder('AWAY').build())
+                    .withFixtureDate(fd => fd.withFixture(f => f.playing(team, teamBuilder('AWAY').build())
                         .scores(3, 1)
                         .postponed(), fixtureId), '2023-05-06T00:00:00')
                     .season(s => s.withDivision(division), 'SEASON')
@@ -311,7 +309,7 @@ describe('PlayerOverview', () => {
         it('unplayed tournament fixture', async () => {
             const tournamentId = createTemporaryId();
             const fixtureDate: DivisionFixtureDateDto = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withTournament((t: ITournamentBuilder) => t.withPlayer(player)
+                .withTournament(t => t.withPlayer(player)
                     .type('TYPE')
                     .address('ADDRESS'), tournamentId)
                 .build();
@@ -320,7 +318,7 @@ describe('PlayerOverview', () => {
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
-                    .withFixtureDate(fd => fd.withTournament((t: ITournamentBuilder) => t.withPlayer(player)
+                    .withFixtureDate(fd => fd.withTournament(t => t.withPlayer(player)
                         .type('TYPE')
                         .address('ADDRESS'), tournamentId), '2023-05-06T00:00:00')
                     .season(s => s.withDivision(division), 'SEASON')
@@ -345,7 +343,7 @@ describe('PlayerOverview', () => {
         it('tournament fixture with winner', async () => {
             const tournamentId = createTemporaryId();
             const fixtureDate: DivisionFixtureDateDto = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withTournament((t: ITournamentBuilder) => t.withPlayer(player)
+                .withTournament(t => t.withPlayer(player)
                     .type('TYPE')
                     .address('ADDRESS')
                     .winner('WINNER'), tournamentId)
@@ -355,7 +353,7 @@ describe('PlayerOverview', () => {
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
-                    .withFixtureDate(fd => fd.withTournament((t: ITournamentBuilder) => t.withPlayer(player)
+                    .withFixtureDate(fd => fd.withTournament(t => t.withPlayer(player)
                         .type('TYPE')
                         .address('ADDRESS')
                         .winner('WINNER'), tournamentId), '2023-05-06T00:00:00')

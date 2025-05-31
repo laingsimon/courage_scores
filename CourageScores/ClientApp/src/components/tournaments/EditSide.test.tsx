@@ -24,7 +24,7 @@ import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGam
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {playerBuilder} from "../../helpers/builders/players";
 import {divisionBuilder} from "../../helpers/builders/divisions";
-import {ITournamentSideBuilder, sideBuilder, tournamentBuilder} from "../../helpers/builders/tournaments";
+import {sideBuilder, tournamentBuilder} from "../../helpers/builders/tournaments";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {IPlayerApi} from "../../interfaces/apis/IPlayerApi";
@@ -162,7 +162,7 @@ describe('EditSide', () => {
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const tournamentData: TournamentGameDto = tournamentBuilder()
             .forDivision(division)
-            .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
+            .withSide(s => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
             .build();
         const anotherTournament: TournamentGameDto = tournamentBuilder()
             .type('ANOTHER TOURNAMENT')
@@ -449,7 +449,7 @@ describe('EditSide', () => {
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const tournamentData: TournamentGameDto = tournamentBuilder()
             .forDivision(division)
-            .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
+            .withSide(s => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
             .build();
         const anotherTournament: TournamentGameDto = tournamentBuilder()
             .type('ANOTHER TOURNAMENT')
@@ -508,7 +508,7 @@ describe('EditSide', () => {
                 .build();
             const teamTournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(division)
-                .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').teamId(anotherTeam.id))
+                .withSide(s => s.name('ANOTHER SIDE').teamId(anotherTeam.id))
                 .build();
             await renderComponent(containerProps.withTournament(teamTournamentData).build(), props(side), [team, anotherTeam]);
 
@@ -529,7 +529,7 @@ describe('EditSide', () => {
                 .build();
             const teamTournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(division)
-                .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').teamId(anotherTeam.id))
+                .withSide(s => s.name('ANOTHER SIDE').teamId(anotherTeam.id))
                 .build();
             await renderComponent(containerProps.withTournament(teamTournamentData).build(), props(teamSide), [team, anotherTeam]);
 
@@ -813,7 +813,7 @@ describe('EditSide', () => {
 
         it('can add player to multi-division tournament', async () => {
             const multiDivisionTournament: TournamentGameDto = tournamentBuilder()
-                .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
+                .withSide(s => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
                 .build();
             divisions = [ division ];
             await renderComponent(containerProps.withTournament(multiDivisionTournament).build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
@@ -902,7 +902,7 @@ describe('EditSide', () => {
         it('can select team when other sides are teams', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(divisionBuilder('DIVISION').build())
-                .withSide((s: ITournamentSideBuilder) => s.name('TEAM').teamId(team.id))
+                .withSide(s => s.name('TEAM').teamId(team.id))
                 .build();
 
             await renderComponent(
@@ -916,7 +916,7 @@ describe('EditSide', () => {
         it('can select players when other sides are players', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(divisionBuilder('DIVISION').build())
-                .withSide((s: ITournamentSideBuilder) => s.name('PLAYER').withPlayer(player))
+                .withSide(s => s.name('PLAYER').withPlayer(player))
                 .build();
 
             await renderComponent(
@@ -930,7 +930,7 @@ describe('EditSide', () => {
         it('cannot select team when other sides are players', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(divisionBuilder('DIVISION').build())
-                .withSide((s: ITournamentSideBuilder) => s.name('PLAYER').withPlayer(player))
+                .withSide(s => s.name('PLAYER').withPlayer(player))
                 .build();
 
             await renderComponent(
@@ -944,7 +944,7 @@ describe('EditSide', () => {
         it('cannot select team when other sides are teams', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(divisionBuilder('DIVISION').build())
-                .withSide((s: ITournamentSideBuilder) => s.name('TEAM').teamId(team.id))
+                .withSide(s => s.name('TEAM').teamId(team.id))
                 .build();
 
             await renderComponent(

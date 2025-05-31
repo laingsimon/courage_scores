@@ -9,7 +9,7 @@ import {
 } from "../../../helpers/tests";
 import {IMatchLogProps, MatchLog} from "./MatchLog";
 import {ISuperleagueSaygMatchMapping} from "./ISuperleagueSaygMatchMapping";
-import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
+import {ILegBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {tournamentMatchBuilder} from "../../../helpers/builders/tournaments";
 import {BuilderParam} from "../../../helpers/builders/builders";
 
@@ -35,8 +35,8 @@ describe('MatchLog', () => {
 
     function createLeg(homeScore: number, awayScore: number): BuilderParam<ILegBuilder> {
         return b => b
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(homeScore))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(awayScore))
+            .home(c => c.withThrow(homeScore))
+            .away(c => c.withThrow(awayScore))
             .startingScore(501);
     }
 
