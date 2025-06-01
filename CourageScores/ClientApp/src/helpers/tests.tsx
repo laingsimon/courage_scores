@@ -25,9 +25,8 @@ export async function doClick(container: Element, selector?: string, ignoreDisab
     if (!item) {
         throw new Error(`Element to click was not found: ${selector || (container ? container.innerHTML : '<no container>')}`)
     }
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    const anyItem: any = item;
     if (!ignoreDisabledCheck) {
+        const anyItem = item as { disabled?: boolean };
         expect(anyItem!.disabled || false).toEqual(false);
     }
     const clickEvent = new MouseEvent('click', {bubbles: true});
