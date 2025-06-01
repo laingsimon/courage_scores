@@ -20,7 +20,7 @@ import {
     useSayg
 } from "./SaygLoadingContainer";
 import {any} from "../../helpers/collections";
-import {ILegBuilder, ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../helpers/builders/sayg";
+import {legBuilder, saygBuilder} from "../../helpers/builders/sayg";
 import {useLive} from "../../live/LiveContainer";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
@@ -101,10 +101,9 @@ describe('SaygLoadingContainer', () => {
     describe('loading and saving', () => {
         it('gets sayg data for given id', async () => {
             const saygData = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
+                .withLeg(0, l => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                    .home().away())
                 .addTo(saygDataMap)
                 .build();
             let containerProps: IExtractedProps;
@@ -139,9 +138,8 @@ describe('SaygLoadingContainer', () => {
                 defaultData: saygBuilder()
                     .noId()
                     .yourName('HOME')
-                    .withLeg(0, (l: ILegBuilder) => l
-                        .home((c: ILegCompetitorScoreBuilder) => c)
-                        .away((c: ILegCompetitorScoreBuilder) => c)
+                    .withLeg(0, l => l
+                        .home().away()
                         .startingScore(501))
                     .build(),
                 autoSave: false,
@@ -161,8 +159,7 @@ describe('SaygLoadingContainer', () => {
                 sayg: {
                     legs: {
                         0: legBuilder()
-                            .home((c: ILegCompetitorScoreBuilder) => c)
-                            .away((c: ILegCompetitorScoreBuilder) => c)
+                            .home().away()
                             .startingScore(501)
                             .build()
                     },
@@ -217,10 +214,9 @@ describe('SaygLoadingContainer', () => {
 
         it('sets lastUpdated in sayg data', async () => {
             const saygData = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
+                .withLeg(0, l => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                    .home().away())
                 .updated('2023-07-21')
                 .addTo(saygDataMap)
                 .build();
@@ -248,9 +244,8 @@ describe('SaygLoadingContainer', () => {
                 id: '',
                 defaultData: saygBuilder()
                     .yourName('DEFAULT')
-                    .withLeg(0, (l: ILegBuilder) => l
-                        .home((c: ILegCompetitorScoreBuilder) => c)
-                        .away((c: ILegCompetitorScoreBuilder) => c)
+                    .withLeg(0, l => l
+                        .home().away()
                         .startingScore(501))
                     .build(),
                 autoSave: false,
@@ -266,9 +261,9 @@ describe('SaygLoadingContainer', () => {
             await act(async () => {
                 await containerProps.setSayg(saygBuilder()
                     .yourName('HOME')
-                    .withLeg(0, (l: ILegBuilder) => l
-                        .home((c: ILegCompetitorScoreBuilder) => c.withThrow(1, 0))
-                        .away((c: ILegCompetitorScoreBuilder) => c.withThrow(0, 1))
+                    .withLeg(0, l => l
+                        .home(c => c.withThrow(1, 0))
+                        .away(c => c.withThrow(0, 1))
                         .startingScore(501))
                     .lastUpdated('2023-07-21')
                     .build());
@@ -285,9 +280,8 @@ describe('SaygLoadingContainer', () => {
                 id: '',
                 defaultData: saygBuilder()
                     .yourName('HOME')
-                    .withLeg(0, (l: ILegBuilder) => l
-                        .home((c: ILegCompetitorScoreBuilder) => c)
-                        .away((c: ILegCompetitorScoreBuilder) => c)
+                    .withLeg(0, l => l
+                        .home().away()
                         .startingScore(501))
                     .build(),
                 autoSave: false,
@@ -317,9 +311,8 @@ describe('SaygLoadingContainer', () => {
                 defaultData: saygBuilder()
                     .noId()
                     .yourName('HOME')
-                    .withLeg(0, (l: ILegBuilder) => l
-                        .home((c: ILegCompetitorScoreBuilder) => c)
-                        .away((c: ILegCompetitorScoreBuilder) => c)
+                    .withLeg(0, l => l
+                        .home().away()
                         .startingScore(501))
                     .build(),
                 autoSave: false,
@@ -351,9 +344,8 @@ describe('SaygLoadingContainer', () => {
                 id: '',
                 defaultData: saygBuilder()
                     .yourName('HOME')
-                    .withLeg(0, (l: ILegBuilder) => l
-                        .home((c: ILegCompetitorScoreBuilder) => c)
-                        .away((c: ILegCompetitorScoreBuilder) => c)
+                    .withLeg(0, l => l
+                        .home().away()
                         .startingScore(501))
                     .build(),
                 autoSave: false,
@@ -383,9 +375,8 @@ describe('SaygLoadingContainer', () => {
                 defaultData: saygBuilder()
                     .noId()
                     .yourName('HOME')
-                    .withLeg(0, (l: ILegBuilder) => l
-                        .home((c: ILegCompetitorScoreBuilder) => c)
-                        .away((c: ILegCompetitorScoreBuilder) => c)
+                    .withLeg(0, l => l
+                        .home().away()
                         .startingScore(501))
                     .build(),
                 autoSave: false,
@@ -419,10 +410,9 @@ describe('SaygLoadingContainer', () => {
         it('given sayg, when enabling, creates a socket', async () => {
             let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => UntypedPromise;
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
+                .withLeg(0, l => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                    .home().away())
                 .addTo(saygDataMap)
                 .build();
             const account: UserDto = {
@@ -456,10 +446,9 @@ describe('SaygLoadingContainer', () => {
         it('given error live message type, shows error', async () => {
             let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => UntypedPromise;
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
+                .withLeg(0, l => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                    .home().away())
                 .addTo(saygDataMap)
                 .build();
             const account: UserDto = {
@@ -505,17 +494,15 @@ describe('SaygLoadingContainer', () => {
             let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => UntypedPromise;
             let renderedData: UpdateRecordedScoreAsYouGoDto;
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
+                .withLeg(0, l => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                    .home().away())
                 .addTo(saygDataMap)
                 .build();
             const newSaygData = saygBuilder(saygData.id)
-                .withLeg(0, (l: ILegBuilder) => l
+                .withLeg(0, l => l
                     .startingScore(601)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                    .home().away())
                 .build();
             const account: UserDto = {
                 emailAddress: '',
@@ -561,10 +548,9 @@ describe('SaygLoadingContainer', () => {
         it('given no socket, when disabling, does nothing', async () => {
             let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => UntypedPromise;
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
+                .withLeg(0, l => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                    .home().away())
                 .addTo(saygDataMap)
                 .build();
             await renderComponent({
@@ -591,10 +577,9 @@ describe('SaygLoadingContainer', () => {
         it('given an open socket, when disabling, closes socket', async () => {
             let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => UntypedPromise;
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
+                .withLeg(0, l => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                    .home().away())
                 .addTo(saygDataMap)
                 .build();
             const account: UserDto = {

@@ -45,7 +45,11 @@ describe('Errors', () => {
             iocProps({errorApi}),
             brandingProps(),
             appProps({
-                account: {},
+                account: {
+                    name: '',
+                    emailAddress: '',
+                    givenName: '',
+                },
             }, reportedError),
             (<AdminContainer tables={[]} accounts={[]}>
                 <Errors/>

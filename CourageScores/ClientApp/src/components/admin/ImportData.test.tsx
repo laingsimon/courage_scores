@@ -52,7 +52,11 @@ describe('ImportData', () => {
             iocProps({dataApi}),
             brandingProps(),
             appProps({
-                account: {},
+                account: {
+                    name: '',
+                    emailAddress: '',
+                    givenName: '',
+                },
             }, reportedError),
             (<AdminContainer {...adminProps}>
                 <ImportData/>

@@ -5,7 +5,7 @@ import {
     cleanUp,
     doChange,
     doClick, ErrorState,
-    findButton,
+    findButton, IBrowserNavigator,
     iocProps, noop,
     renderApp,
     TestContext
@@ -16,7 +16,7 @@ import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/Re
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
-import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../helpers/builders/sayg";
+import {saygBuilder} from "../../helpers/builders/sayg";
 import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 import {CHECKOUT_3_DART, ENTER_SCORE_BUTTON} from "../../helpers/constants";
 import {checkoutWith, keyPad} from "../../helpers/sayg";
@@ -69,8 +69,7 @@ describe('Practice', () => {
             } as IClientActionResultDto<RecordedScoreAsYouGoDto>
         };
         shareData = null;
-        // noinspection JSValidateTypes
-        (navigator as any).share = (data: ShareData) => shareData = data;
+        (navigator as IBrowserNavigator).share = (data: ShareData) => shareData = data;
 
         fullScreenState = {
             isFullScreen: false,
@@ -180,9 +179,7 @@ describe('Practice', () => {
             const jsonData: RecordedScoreAsYouGoDto = saygBuilder()
                 .startingScore(123)
                 .numberOfLegs(2)
-                .withLeg(0, (l: ILegBuilder) => l
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                .withLeg(0, l => l.home().away())
                 .scores(1)
                 .yourName('Simon')
                 .addTo(saygData)
@@ -228,9 +225,7 @@ describe('Practice', () => {
             const jsonData: RecordedScoreAsYouGoDto = saygBuilder()
                 .startingScore(123)
                 .numberOfLegs(2)
-                .withLeg(0, (l: ILegBuilder) => l
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                .withLeg(0, l => l.home().away())
                 .scores(1)
                 .yourName('Simon')
                 .addTo(saygData)
@@ -415,9 +410,7 @@ describe('Practice', () => {
             const jsonData: RecordedScoreAsYouGoDto = saygBuilder()
                 .startingScore(123)
                 .numberOfLegs(2)
-                .withLeg(0, (l: ILegBuilder) => l
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                .withLeg(0, l => l.home().away())
                 .scores(1)
                 .yourName('Simon')
                 .addTo(saygData)

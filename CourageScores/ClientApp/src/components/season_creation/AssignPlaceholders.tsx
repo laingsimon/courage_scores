@@ -152,11 +152,11 @@ export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMapp
                         return (<li key={placeholder}>
                             <span className={`width-20 d-inline-block text-center margin-right ${className}`}>{placeholder}</span>
                             {hasDivisionSharedAddress && !hasTemplateSharedAddress
-                                ? (<BootstrapDropdown options={availableSharedDivisionTeamsForPlaceholder} value={selectedTeamId || ''} onChange={id => setSelectedSharedAddressPlaceholder(index, id, placeholder)} />)
+                                ? (<BootstrapDropdown options={availableSharedDivisionTeamsForPlaceholder} value={selectedTeamId || ''} onChange={(id: string) => setSelectedSharedAddressPlaceholder(index, id, placeholder)} />)
                                 : null}
                             {hasTemplateSharedAddress ? 'Reserved for use by team with shared address across divisions' : null}
                             {!hasTemplateSharedAddress && !hasDivisionSharedAddress
-                                ? (<BootstrapDropdown options={availableTeamsForPlaceholder} value={selectedTeamId || ''} onChange={id => setSelectedPlaceholder(id, placeholder)} />)
+                                ? (<BootstrapDropdown options={availableTeamsForPlaceholder} value={selectedTeamId || ''} onChange={(id: string) => setSelectedPlaceholder(id, placeholder)} />)
                                 : null}
                         </li>);
                     })}

@@ -18,6 +18,7 @@ import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {IError} from "../common/IError";
 import {IFailedRequest} from "../common/IFailedRequest";
 import {IDataApi} from "../../interfaces/apis/IDataApi";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -80,10 +81,18 @@ describe('DataBrowser', () => {
             '/admin/browser' + queryString);
     }
 
+    function account(): UserDto {
+        return {
+            name: '',
+            givenName: '',
+            emailAddress: '',
+        };
+    }
+
     describe('renders', () => {
         it('with no query string', async () => {
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError));
 
             const tableInput = context.container.querySelector('input[name="table"]') as HTMLInputElement;
@@ -94,7 +103,7 @@ describe('DataBrowser', () => {
 
         it('table name from query string', async () => {
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=game');
 
             const tableInput = context.container.querySelector('input[name="table"]') as HTMLInputElement;
@@ -105,7 +114,7 @@ describe('DataBrowser', () => {
         it('id from query string', async () => {
             const id = createTemporaryId();
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?id=' + id);
 
             const idInput = context.container.querySelector('input[name="id"]') as HTMLInputElement;
@@ -122,7 +131,7 @@ describe('DataBrowser', () => {
             };
 
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=game');
 
             const list = context.container.querySelector('.list-group') as HTMLElement;
@@ -143,7 +152,7 @@ describe('DataBrowser', () => {
             };
 
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=game&id=' + game.id);
 
             const table = context.container.querySelector('table') as HTMLTableElement;
@@ -161,7 +170,7 @@ describe('DataBrowser', () => {
             };
 
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=game&id=' + createTemporaryId());
 
             const table = context.container.querySelector('table') as HTMLTableElement;
@@ -178,7 +187,7 @@ describe('DataBrowser', () => {
             };
 
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=game&id=' + createTemporaryId() + '&showEmptyValues=true');
 
             const table = context.container.querySelector('table') as HTMLTableElement;
@@ -195,7 +204,7 @@ describe('DataBrowser', () => {
             };
 
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=game&id=' + createTemporaryId() + '&showEmptyValues=true');
 
             const table = context.container.querySelector('table') as HTMLTableElement;
@@ -212,7 +221,7 @@ describe('DataBrowser', () => {
             };
 
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=game&id=' + createTemporaryId() + '&showEmptyValues=true');
 
             const table = context.container.querySelector('table') as HTMLTableElement;
@@ -229,7 +238,7 @@ describe('DataBrowser', () => {
             };
 
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=game&id=' + game.id + '&showAuditValues=true');
 
             const table = context.container.querySelector('table') as HTMLTableElement;
@@ -247,7 +256,7 @@ describe('DataBrowser', () => {
             };
 
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=game&id=' + createTemporaryId() + '&showIdsUptoDepth=2');
 
             const rows = Array.from(context.container.querySelectorAll('div > table > tbody > tr')) as HTMLTableRowElement[];
@@ -264,7 +273,7 @@ describe('DataBrowser', () => {
             };
 
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=game');
 
             expect(context.container.textContent).toContain('SOME ERROR');
@@ -280,10 +289,10 @@ describe('DataBrowser', () => {
                 title: 'One or more validation errors occurred.',
                 status: 400,
             };
-            singleApiResult = error as any;
+            singleApiResult = error as IClientActionResultDto<object>;
 
             await renderComponent(appProps({
-                account: {}
+                account: account()
             }, reportedError), '?table=game&id=abcd');
 
             expect(context.container.textContent).toContain('id: The value \'abcd\' is not valid.');
@@ -293,7 +302,7 @@ describe('DataBrowser', () => {
             apiException = { message: 'Some error' };
 
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=game&id=abcd');
 
             expect(context.container.textContent).toContain('Some error');
@@ -307,7 +316,7 @@ describe('DataBrowser', () => {
                 }),
             };
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=game&page=1');
 
             const list = context.container.querySelector('.list-group') as HTMLElement;
@@ -331,7 +340,7 @@ describe('DataBrowser', () => {
     describe('interactivity', () => {
         it('does not fetch if no table name on load', async () => {
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError));
 
             expect(requestedData).toBeNull();
@@ -339,7 +348,7 @@ describe('DataBrowser', () => {
 
         it('does not fetch if no table name', async () => {
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError));
 
             await doClick(findButton(context.container, 'Fetch'));
@@ -349,7 +358,7 @@ describe('DataBrowser', () => {
 
         it('fetches when only table name supplied', async () => {
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError));
             await doChange(context.container, 'input[name="table"]', 'TABLE', context.user);
 
@@ -360,7 +369,7 @@ describe('DataBrowser', () => {
 
         it('fetches when table name and id supplied', async () => {
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError));
             const id = createTemporaryId();
             await doChange(context.container, 'input[name="table"]', 'TABLE', context.user);
@@ -379,7 +388,7 @@ describe('DataBrowser', () => {
                 }),
             };
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=game');
             console.error = noop; //silence warnings about navigation in tests
 
@@ -392,7 +401,7 @@ describe('DataBrowser', () => {
 
         it('fetches immediately if table name set in query string', async () => {
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=TABLE');
 
             expect(requestedData).toEqual({
@@ -404,7 +413,7 @@ describe('DataBrowser', () => {
         it('fetches immediately if table name and id set in query string', async () => {
             const id = createTemporaryId();
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=TABLE&id=' + id);
 
             expect(requestedData).toEqual({
@@ -415,7 +424,7 @@ describe('DataBrowser', () => {
 
         it('does not re-fetch immediately if table name changes when initially set in query string', async () => {
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=TABLE');
 
             requestedData = null;
@@ -428,7 +437,7 @@ describe('DataBrowser', () => {
             const id1 = createTemporaryId();
             const id2 = createTemporaryId();
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=TABLE&id=' + id1);
 
             requestedData = null;
@@ -444,7 +453,7 @@ describe('DataBrowser', () => {
                 result: game,
             };
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=game&id=' + game.id);
 
             await doClick(context.container, 'input[type="checkbox"][id="showEmptyValues"]');
@@ -459,7 +468,7 @@ describe('DataBrowser', () => {
                 result: game,
             };
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=game&id=' + game.id + '&showEmptyValues=true');
 
             await doClick(context.container, 'input[type="checkbox"][id="showEmptyValues"]');
@@ -474,7 +483,7 @@ describe('DataBrowser', () => {
                 result: game,
             };
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=game&id=' + game.id);
 
             await doClick(context.container, 'input[type="checkbox"][id="showAuditValues"]');
@@ -489,7 +498,7 @@ describe('DataBrowser', () => {
                 result: game,
             };
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=game&id=' + game.id + '&showAuditValues=true');
 
             await doClick(context.container, 'input[type="checkbox"][id="showAuditValues"]');
@@ -504,7 +513,7 @@ describe('DataBrowser', () => {
                 result: game,
             };
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=game&id=' + game.id);
 
             await doClick(context.container, 'input[type="checkbox"][id="showVersion"]');
@@ -519,7 +528,7 @@ describe('DataBrowser', () => {
                 result: game,
             };
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=game&id=' + game.id + '&showVersion=true');
 
             await doClick(context.container, 'input[type="checkbox"][id="showVersion"]');
@@ -534,7 +543,7 @@ describe('DataBrowser', () => {
                 result: game,
             };
             await renderComponent(appProps({
-                account: {},
+                account: account(),
             }, reportedError), '?table=TABLE&id=' + game.id);
             requestedData = null;
 

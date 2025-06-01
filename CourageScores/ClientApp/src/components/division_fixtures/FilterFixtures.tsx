@@ -22,7 +22,7 @@ export function FilterFixtures() {
 
     function getFilterOption(type: string, text: string, value?: string): IBootstrapDropdownItem {
         return {
-            value: value || null,
+            value: value,
             text: (<Link className="text-decoration-none text-dark" to={`${location.pathname}${replaceSearch(type, value)}${location.hash}`}>
                 {text}
             </Link>),
@@ -73,7 +73,7 @@ export function FilterFixtures() {
             return;
         }
 
-        upsertPreference('favouriteTeamIds', null);
+        upsertPreference('favouriteTeamIds');
     }
 
     function clearFilters(): string {
@@ -88,15 +88,15 @@ export function FilterFixtures() {
 
     return (<div className="mb-3" datatype="fixture-filters">
         {superleague ? null : (<BootstrapDropdown options={typeFilters}
-                           value={filter.type || null}
+                           value={filter.type}
                            datatype="type-filter"
                            className="dynamic-width-dropdown margin-right"/>)}
         <BootstrapDropdown options={dateFilters}
-                           value={filter.date || null}
+                           value={filter.date}
                            datatype="date-filter"
                            className="dynamic-width-dropdown margin-right"/>
         <BootstrapDropdown options={teamFilters}
-                           value={filter.team ? filter.team.toLowerCase() : null}
+                           value={filter.team ? filter.team.toLowerCase() : undefined}
                            datatype="team-filter"
                            className="dynamic-width-dropdown margin-right"/>
         <ShareButton text={`${name}, fixtures`}/>

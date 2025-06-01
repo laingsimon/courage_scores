@@ -37,8 +37,7 @@ export function TemplateTextEditor({ template, setValid, onUpdate }: ITemplateTe
         return jsonString;
     }
 
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    function excludePropertiesFromEdit(key: string, value: any) {
+    function excludePropertiesFromEdit(key: string, value: string | object | number) {
         switch (key) {
             case 'id':
             case 'created':

@@ -180,7 +180,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
                 const unavailableReason: string | null = getUnavailableReason(t);
 
                 return {
-                    value: t.id,
+                    value: t.id!,
                     text: unavailableReason ? `🚫 ${t.name} (${unavailableReason})` : t.name,
                     disabled: !!unavailableReason
                 };

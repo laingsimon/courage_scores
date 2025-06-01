@@ -21,7 +21,6 @@ import {EditTeamPlayerDto} from "../../interfaces/models/dtos/Team/EditTeamPlaye
 import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {IAppContainerProps} from "../common/AppContainer";
-import {GameMatchDto} from "../../interfaces/models/dtos/Game/GameMatchDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
@@ -30,7 +29,7 @@ import {playerBuilder} from "../../helpers/builders/players";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {teamBuilder} from "../../helpers/builders/teams";
-import {fixtureBuilder, matchBuilder} from "../../helpers/builders/games";
+import {fixtureBuilder, IMatchBuilder} from "../../helpers/builders/games";
 import {IFailedRequest} from "../common/IFailedRequest";
 import {IGameApi} from "../../interfaces/apis/IGameApi";
 import {IPlayerApi} from "../../interfaces/apis/IPlayerApi";
@@ -39,6 +38,9 @@ import {PhotoReferenceDto} from "../../interfaces/models/dtos/PhotoReferenceDto"
 import {IFeatureApi} from "../../interfaces/apis/IFeatureApi";
 import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
+import {BuilderParam} from "../../helpers/builders/builders";
+import {IDatedDivisionFixtureDto} from "../division_fixtures/IDatedDivisionFixtureDto";
+import {DivisionFixtureTeamDto} from "../../interfaces/models/dtos/Division/DivisionFixtureTeamDto";
 
 interface ICreatedPlayer {
     divisionId: string;
@@ -51,7 +53,7 @@ interface ICreatedPlayer {
 describe('Score', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let fixtureDataMap: { [fixtureId: string]: GameDto | null } = {};
+    let fixtureDataMap: { [fixtureId: string]: IDatedDivisionFixtureDto & GameDto } = {};
     let updatedFixtures: { [fixtureId: string]: RecordScoresDto };
     let createdPlayer: ICreatedPlayer | null;
     let teamsReloaded: boolean;
@@ -174,9 +176,9 @@ describe('Score', () => {
         return fixtureBuilder('2023-01-02T00:00:00')
             .forSeason(appData.seasons[0])
             .forDivision(appData.divisions[0])
-            .playing(homeTeam, awayTeam)
+            .teams(homeTeam, awayTeam)
             .updated('2023-01-02T04:05:06')
-            .addTo(fixtureDataMap as any)
+            .addTo(fixtureDataMap)
             .build();
     }
 
@@ -197,16 +199,15 @@ describe('Score', () => {
             return player || { name: name + ' Not found', id: createTemporaryId() };
         }
 
-        function createMatch(homeScore: number, awayScore: number): GameMatchDto {
-            return matchBuilder()
+        function createMatch(homeScore: number, awayScore: number): BuilderParam<IMatchBuilder> {
+            return b => b
                 .withHome(findPlayer(homeTeam, 'Home player'))
                 .withAway(findPlayer(awayTeam, 'Away player'))
-                .scores(homeScore, awayScore)
-                .build();
+                .scores(homeScore, awayScore);
         }
 
         return fixtureBuilder('2023-01-02T00:00:00')
-            .playing({
+            .teams({
                     id: homeTeam ? homeTeam.id : createTemporaryId(),
                     name: homeTeam ? homeTeam.name : 'not found',
                     manOfTheMatch: findPlayer(homeTeam, 'Home player').id,
@@ -216,8 +217,8 @@ describe('Score', () => {
                     name: awayTeam ? awayTeam.name : 'not found',
                     manOfTheMatch: findPlayer(awayTeam, 'Away player').id,
                 })
-            .forSeason(firstSeason ? firstSeason : createTemporaryId())
-            .forDivision(firstDivision ? firstDivision : createTemporaryId())
+            .forSeason(firstSeason ? firstSeason : seasonBuilder().build())
+            .forDivision(firstDivision ? firstDivision : divisionBuilder('DIVISION').build())
             .withMatch(createMatch(3, 2))
             .withMatch(createMatch(3, 2))
             .withMatch(createMatch(3, 2))
@@ -229,7 +230,7 @@ describe('Score', () => {
             .with180(findPlayer(homeTeam, 'Home player'))
             .withHiCheck(findPlayer(awayTeam, 'Away player'), 140)
             .updated('2023-01-02T04:05:06')
-            .addTo(fixtureDataMap as any)
+            .addTo(fixtureDataMap)
             .build();
     }
 
@@ -271,7 +272,7 @@ describe('Score', () => {
         });
 
         it('renders when fixture not found', async () => {
-            fixtureDataMap[fixture.id] = null;
+            fixtureDataMap[fixture.id] = null!;
 
             await renderComponent(fixture.id, appData);
 
@@ -283,7 +284,7 @@ describe('Score', () => {
                 status: 400,
                 errors: {'key': ['Some error']}
             };
-            fixtureDataMap[fixture.id] = failedRequest as any;
+            fixtureDataMap[fixture.id] = failedRequest as IDatedDivisionFixtureDto & GameDto;
 
             await renderComponent(fixture.id, appData);
 
@@ -297,7 +298,8 @@ describe('Score', () => {
                 address: '',
                 away: null!,
                 home: null!,
-            };
+                homeTeam: null! as DivisionFixtureTeamDto,
+            } as IDatedDivisionFixtureDto & GameDto;
 
             await renderComponent(fixture.id, appData);
 

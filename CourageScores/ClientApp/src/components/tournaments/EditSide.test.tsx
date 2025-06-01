@@ -24,7 +24,7 @@ import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGam
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {playerBuilder} from "../../helpers/builders/players";
 import {divisionBuilder} from "../../helpers/builders/divisions";
-import {ITournamentSideBuilder, sideBuilder, tournamentBuilder} from "../../helpers/builders/tournaments";
+import {sideBuilder, tournamentBuilder} from "../../helpers/builders/tournaments";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {IPlayerApi} from "../../interfaces/apis/IPlayerApi";
@@ -33,6 +33,7 @@ import {
     DivisionTournamentFixtureDetailsDto
 } from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
 import {tournamentContainerPropsBuilder} from "./tournamentContainerPropsBuilder";
+import {AccessDto} from "../../interfaces/models/dtos/Identity/AccessDto";
 
 describe('EditSide', () => {
     let context: TestContext;
@@ -119,7 +120,7 @@ describe('EditSide', () => {
             brandingProps(),
             appProps({
                 teams: teams || [],
-                account: (account || { access: {} }),
+                account: (account || user({})),
                 reloadTeams,
                 divisions
             }, reportedError),
@@ -136,14 +137,12 @@ describe('EditSide', () => {
         return playing;
     }
 
-    function user(managePlayers?: boolean): UserDto {
+    function user(access: AccessDto): UserDto {
         return {
             name: '',
-            emailAddress: '',
             givenName: '',
-            access: {
-                managePlayers,
-            },
+            emailAddress: '',
+            access,
         };
     }
 
@@ -163,7 +162,7 @@ describe('EditSide', () => {
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const tournamentData: TournamentGameDto = tournamentBuilder()
             .forDivision(division)
-            .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
+            .withSide(s => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
             .build();
         const anotherTournament: TournamentGameDto = tournamentBuilder()
             .type('ANOTHER TOURNAMENT')
@@ -412,7 +411,7 @@ describe('EditSide', () => {
                 .noId()
                 .build();
 
-            await renderComponent(containerProps.build(), props(side), [team], user(true));
+            await renderComponent(containerProps.build(), props(side), [team], user({ managePlayers: true }));
 
             const buttons = Array.from(context.container.querySelectorAll('.btn'));
             const buttonText = buttons.map(btn => btn.textContent);
@@ -420,7 +419,7 @@ describe('EditSide', () => {
         });
 
         it('add player button when permitted and editing side', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user(true));
+            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
 
             const buttons = Array.from(context.container.querySelectorAll('.btn'));
             const buttonText = buttons.map(btn => btn.textContent);
@@ -428,7 +427,7 @@ describe('EditSide', () => {
         });
 
         it('no add player button when not permitted', async () => {
-            await renderComponent(containerProps.build(), props(teamSide), [team], user(false));
+            await renderComponent(containerProps.build(), props(teamSide), [team], user({}));
 
             const buttons = Array.from(context.container.querySelectorAll('.btn'));
             const buttonText = buttons.map(btn => btn.textContent);
@@ -436,7 +435,7 @@ describe('EditSide', () => {
         });
 
         it('no add player button when permitted and team side', async () => {
-            await renderComponent(containerProps.build(), props(teamSide), [team], user(false));
+            await renderComponent(containerProps.build(), props(teamSide), [team], user({}));
 
             const buttons = Array.from(context.container.querySelectorAll('.btn'));
             const buttonText = buttons.map(btn => btn.textContent);
@@ -450,7 +449,7 @@ describe('EditSide', () => {
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const tournamentData: TournamentGameDto = tournamentBuilder()
             .forDivision(division)
-            .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
+            .withSide(s => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
             .build();
         const anotherTournament: TournamentGameDto = tournamentBuilder()
             .type('ANOTHER TOURNAMENT')
@@ -509,7 +508,7 @@ describe('EditSide', () => {
                 .build();
             const teamTournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(division)
-                .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').teamId(anotherTeam.id))
+                .withSide(s => s.name('ANOTHER SIDE').teamId(anotherTeam.id))
                 .build();
             await renderComponent(containerProps.withTournament(teamTournamentData).build(), props(side), [team, anotherTeam]);
 
@@ -530,7 +529,7 @@ describe('EditSide', () => {
                 .build();
             const teamTournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(division)
-                .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').teamId(anotherTeam.id))
+                .withSide(s => s.name('ANOTHER SIDE').teamId(anotherTeam.id))
                 .build();
             await renderComponent(containerProps.withTournament(teamTournamentData).build(), props(teamSide), [team, anotherTeam]);
 
@@ -774,7 +773,7 @@ describe('EditSide', () => {
                 containerProps.withAlreadyPlaying({}).build(),
                 props(sideWithPlayer),
                 [team],
-                user(true));
+                user({ managePlayers: true }));
 
             await doClick(findButton(context.container, 'New player/s'));
 
@@ -784,7 +783,7 @@ describe('EditSide', () => {
         });
 
         it('can close add player dialog', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user(true));
+            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
             await doClick(findButton(context.container, 'New player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog');
@@ -795,7 +794,7 @@ describe('EditSide', () => {
         });
 
         it('can add player', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user(true));
+            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
             await doClick(findButton(context.container, 'New player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog')!;
@@ -814,10 +813,10 @@ describe('EditSide', () => {
 
         it('can add player to multi-division tournament', async () => {
             const multiDivisionTournament: TournamentGameDto = tournamentBuilder()
-                .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
+                .withSide(s => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
                 .build();
             divisions = [ division ];
-            await renderComponent(containerProps.withTournament(multiDivisionTournament).build(), props(sideWithPlayer), [team], user(true));
+            await renderComponent(containerProps.withTournament(multiDivisionTournament).build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
             await doClick(findButton(context.container, 'New player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog')!;
@@ -835,7 +834,7 @@ describe('EditSide', () => {
         });
 
         it('selects newly created player', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user(true));
+            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
             await doClick(findButton(context.container, 'New player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog')!;
@@ -857,7 +856,7 @@ describe('EditSide', () => {
         });
 
         it('reloads teams after player added', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user(true));
+            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
             await doClick(findButton(context.container, 'New player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog')!;
@@ -870,7 +869,7 @@ describe('EditSide', () => {
         });
 
         it('closes dialog after adding a player', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user(true));
+            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
             await doClick(findButton(context.container, 'New player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog')!;
@@ -903,7 +902,7 @@ describe('EditSide', () => {
         it('can select team when other sides are teams', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(divisionBuilder('DIVISION').build())
-                .withSide((s: ITournamentSideBuilder) => s.name('TEAM').teamId(team.id))
+                .withSide(s => s.name('TEAM').teamId(team.id))
                 .build();
 
             await renderComponent(
@@ -917,7 +916,7 @@ describe('EditSide', () => {
         it('can select players when other sides are players', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(divisionBuilder('DIVISION').build())
-                .withSide((s: ITournamentSideBuilder) => s.name('PLAYER').withPlayer(player))
+                .withSide(s => s.name('PLAYER').withPlayer(player))
                 .build();
 
             await renderComponent(
@@ -931,7 +930,7 @@ describe('EditSide', () => {
         it('cannot select team when other sides are players', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(divisionBuilder('DIVISION').build())
-                .withSide((s: ITournamentSideBuilder) => s.name('PLAYER').withPlayer(player))
+                .withSide(s => s.name('PLAYER').withPlayer(player))
                 .build();
 
             await renderComponent(
@@ -945,7 +944,7 @@ describe('EditSide', () => {
         it('cannot select team when other sides are teams', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(divisionBuilder('DIVISION').build())
-                .withSide((s: ITournamentSideBuilder) => s.name('TEAM').teamId(team.id))
+                .withSide(s => s.name('TEAM').teamId(team.id))
                 .build();
 
             await renderComponent(

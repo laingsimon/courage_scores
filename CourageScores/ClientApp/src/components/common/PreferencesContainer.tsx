@@ -4,9 +4,10 @@ import {CookiesProvider, useCookies} from "react-cookie";
 
 const PreferencesContext = createContext({});
 
+export type PreferenceValue = string | string[];
+
 export interface IPreferenceData {
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    [ key: string]: any;
+    [ key: string ]: PreferenceValue;
 }
 
 export function usePreferences(): IPreferences {
@@ -24,12 +25,12 @@ export function PreferencesContainer({children, insecure} : IPreferencesContaine
     const [ cookies, setCookie ] = useCookies([COOKIE_NAME]);
     const EXPIRY_DAYS: number = 365;
 
-    function getPreference<T>(name: string): T | null {
+    function getPreference<T>(name: string): T | undefined {
         const preferences: IPreferenceData = cookies[COOKIE_NAME] || {};
-        return preferences[name];
+        return preferences[name] as T | undefined;
     }
 
-    function upsertPreference<T>(name: string, value: T): void {
+    function upsertPreference(name: string, value?: PreferenceValue): void {
         const newPreferences: IPreferenceData = Object.assign({}, cookies[COOKIE_NAME]);
 
         if (!value) {

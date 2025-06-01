@@ -12,15 +12,10 @@ import {ISuperLeaguePrintoutProps, SuperLeaguePrintout} from "./SuperLeaguePrint
 import {ITournamentContainerProps, TournamentContainer} from "../TournamentContainer";
 import {act} from "@testing-library/react";
 import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
-import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {TournamentGameDto} from "../../../interfaces/models/dtos/Game/TournamentGameDto";
 import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
-import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../helpers/builders/sayg";
-import {
-    ITournamentMatchBuilder,
-    ITournamentRoundBuilder,
-    tournamentBuilder
-} from "../../../helpers/builders/tournaments";
+import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
+import {tournamentBuilder} from "../../../helpers/builders/tournaments";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
 import {MessageType} from "../../../interfaces/models/dtos/MessageType";
@@ -31,6 +26,7 @@ import {CHECKOUT_2_DART} from "../../../helpers/constants";
 import {checkoutWith, enterScores} from "../../../helpers/sayg";
 import {START_SCORING} from "../tournaments";
 import {tournamentContainerPropsBuilder} from "../tournamentContainerPropsBuilder";
+import {BuilderParam} from "../../../helpers/builders/builders";
 
 describe('SuperLeaguePrintout', () => {
     let context: TestContext;
@@ -56,7 +52,7 @@ describe('SuperLeaguePrintout', () => {
         async upsert(data: UpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> {
             return {
                 success: true,
-                result: data as any,
+                result: data as RecordedScoreAsYouGoDto,
             }
         }
     });
@@ -87,14 +83,19 @@ describe('SuperLeaguePrintout', () => {
             }),
             brandingProps(),
             appProps({
-                account: { access },
+                account: {
+                    emailAddress: '',
+                    givenName: '',
+                    name: '',
+                    access,
+                },
             }, reportedError),
             (<TournamentContainer {...tournamentData}>
                 <SuperLeaguePrintout {...props} />
             </TournamentContainer>));
     }
 
-    function createLeg(homeWinner?: boolean, awayWinner?: boolean): LegDto {
+    function createLeg(homeWinner?: boolean, awayWinner?: boolean): BuilderParam<ILegBuilder> {
         function winningThrows(c: ILegCompetitorScoreBuilder) {
             return c
                 .withThrow(90)
@@ -113,11 +114,10 @@ describe('SuperLeaguePrintout', () => {
                 .withThrow(90);
         }
 
-        return legBuilder()
-            .home((c: ILegCompetitorScoreBuilder) => homeWinner ? winningThrows(c) : notWinningThrows(c))
-            .away((c: ILegCompetitorScoreBuilder) => awayWinner ? winningThrows(c) : notWinningThrows(c))
-            .startingScore(501)
-            .build();
+        return (b) => b
+            .home(c => homeWinner ? winningThrows(c) : notWinningThrows(c))
+            .away(c => awayWinner ? winningThrows(c) : notWinningThrows(c))
+            .startingScore(501);
     }
 
     describe('renders', () => {
@@ -136,11 +136,11 @@ describe('SuperLeaguePrintout', () => {
                 .withLeg(1, createLeg(false, true))
                 .build();
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
+                .round(r => r
+                    .withMatch(m => m.saygId(saygData1.id)
                         .sideA('A', 1)
                         .sideB('B', 2))
-                    .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData2.id)
+                    .withMatch(m => m.saygId(saygData2.id)
                         .sideA('C', 3)
                         .sideB('D', 4)))
                 .build();
@@ -176,11 +176,11 @@ describe('SuperLeaguePrintout', () => {
                     .withLeg(1, createLeg(false, true))
                     .build();
                 const tournamentData: TournamentGameDto = tournamentBuilder()
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
+                    .round(r => r
+                        .withMatch(m => m.saygId(saygData1.id)
                             .sideA('A', 1)
                             .sideB('B', 2))
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData2.id)
+                        .withMatch(m => m.saygId(saygData2.id)
                             .sideA('C', 3)
                             .sideB('D', 4)))
                     .build();
@@ -205,11 +205,11 @@ describe('SuperLeaguePrintout', () => {
                     .withLeg(1, createLeg(false, true))
                     .build();
                 const tournamentData: TournamentGameDto = tournamentBuilder()
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
+                    .round(r => r
+                        .withMatch(m => m.saygId(saygData1.id)
                             .sideA('A', 1)
                             .sideB('B', 2))
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData2.id)
+                        .withMatch(m => m.saygId(saygData2.id)
                             .sideA('C', 3)
                             .sideB('D', 4)))
                     .build();
@@ -253,11 +253,11 @@ describe('SuperLeaguePrintout', () => {
                     .withLeg(1, createLeg(false, true))
                     .build();
                 const tournamentData: TournamentGameDto = tournamentBuilder()
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
+                    .round(r => r
+                        .withMatch(m => m.saygId(saygData1.id)
                             .sideA('A', 1)
                             .sideB('B', 2))
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData2.id)
+                        .withMatch(m => m.saygId(saygData2.id)
                             .sideA('C', 3)
                             .sideB('D', 4)))
                     .build();
@@ -283,11 +283,11 @@ describe('SuperLeaguePrintout', () => {
                     .withLeg(1, createLeg(false, true))
                     .build();
                 const tournamentData: TournamentGameDto = tournamentBuilder()
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
+                    .round(r => r
+                        .withMatch(m => m.saygId(saygData1.id)
                             .sideA('A', 1)
                             .sideB('B', 2))
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData2.id)
+                        .withMatch(m => m.saygId(saygData2.id)
                             .sideA('C', 3)
                             .sideB('D', 4)))
                     .build();
@@ -324,8 +324,8 @@ describe('SuperLeaguePrintout', () => {
                     .addTo(saygApiResponseMap)
                     .build();
                 const tournamentData: TournamentGameDto = tournamentBuilder()
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
+                    .round(r => r
+                        .withMatch(m => m.saygId(saygData1.id)
                             .sideA('PLAYER A')
                             .sideB('PLAYER B')))
                     .build();
@@ -361,8 +361,8 @@ describe('SuperLeaguePrintout', () => {
                     .addTo(saygApiResponseMap)
                     .build();
                 const tournamentData: TournamentGameDto = tournamentBuilder()
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
+                    .round(r => r
+                        .withMatch(m => m.saygId(saygData1.id)
                             .sideA('PLAYER A')
                             .sideB('PLAYER B')))
                     .build();

@@ -32,7 +32,7 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
     const {id, season, fixtures: fixtureDates} = useDivisionData();
     const {tournamentApi} = useDependencies();
     const {divisions} = useApp();
-    const [copySidesFrom, setCopySidesFrom] = useState<string | null>(null);
+    const [copySidesFrom, setCopySidesFrom] = useState<string | undefined>(undefined);
     const [address, setAddress] = useState<string>('');
     const [creating, setCreating] = useState<boolean>(false);
     const [saveError, setSaveError] = useState<IClientActionResultDto<TournamentGameDto> | null>(null);
@@ -53,7 +53,6 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
         }));
     const allDivisions: IBootstrapDropdownItem = {
         text: 'Cross-divisional',
-        value: null,
     };
     const divisionOptions: IBootstrapDropdownItem[] = [ allDivisions ].concat(divisions
         .map(d => {
@@ -64,7 +63,6 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
         }));
     const dontCopy: IBootstrapDropdownItem = {
         text: '-',
-        value: null,
     };
     const copySidesFromOptions: IBootstrapDropdownItem[] = [dontCopy].concat((fixtureDates || [])
         .filter(fd => fd.date !== date)
@@ -191,7 +189,7 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
                 className="division-dropdown"
                 options={divisionOptions}
                 value={divisionId}
-                onChange={async (v) => setDivisionId(v)}/>
+                onChange={async (id: string) => setDivisionId(id)}/>
             <span className="margin-right margin-left">tournament at</span>
             <BootstrapDropdown
                 className="address-dropdown"
@@ -204,7 +202,7 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
                     className="copy-sides-from-dropdown"
                     options={copySidesFromOptions}
                     value={copySidesFrom}
-                    onChange={async (v) => setCopySidesFrom(v)}/>
+                    onChange={async (date: string) => setCopySidesFrom(date)}/>
                 </>) : null}
         </td>
         <td className="medium-column-width text-end">

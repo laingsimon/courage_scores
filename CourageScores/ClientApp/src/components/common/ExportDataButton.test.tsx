@@ -3,7 +3,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
+    doClick, IBrowserWindow,
     iocProps,
     renderApp,
     TestContext
@@ -148,7 +148,7 @@ describe('ExportDataButton', () => {
                 },
             };
             let openedWindow: string | undefined;
-            (window as any).open = (url: string) => {
+            (window as IBrowserWindow).open = (url: string) => {
                 openedWindow = url;
             }
 

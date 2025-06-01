@@ -295,7 +295,7 @@ describe('DivisionPlayer', () => {
                     },
                     account,
                     {
-                        favouriteTeamIds: [ player.teamId ],
+                        favouriteTeamIds: [ player.teamId! ],
                     });
 
                 reportedError.verifyNoError();

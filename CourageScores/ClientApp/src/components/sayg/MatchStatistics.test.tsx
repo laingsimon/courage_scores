@@ -13,7 +13,7 @@ import {
     renderApp,
     TestContext
 } from "../../helpers/tests";
-import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../helpers/builders/sayg";
+import {ILegBuilder, saygBuilder} from "../../helpers/builders/sayg";
 import {ISaygLoadingContainerProps, SaygLoadingContainer} from "./SaygLoadingContainer";
 import {createTemporaryId} from "../../helpers/projection";
 import {act} from "@testing-library/react";
@@ -22,12 +22,12 @@ import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/S
 import {IAppContainerProps} from "../common/AppContainer";
 import {ILiveOptions} from "../../live/ILiveOptions";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
-import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {ILegDisplayOptions} from "./ILegDisplayOptions";
 import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 import {MessageType} from "../../interfaces/models/dtos/MessageType";
+import {BuilderParam} from "../../helpers/builders/builders";
 
 describe('MatchStatistics', () => {
     let context: TestContext;
@@ -139,14 +139,12 @@ describe('MatchStatistics', () => {
     }
 
     it('renders 2 player statistics', async () => {
-        const leg = legBuilder()
-            .currentThrow('home')
-            .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(150))
-            .build();
         const saygData = saygBuilder()
-            .withLeg(0, leg)
+            .withLeg(0, b => b
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(123))
+                .away(c => c.withThrow(100).withThrow(150)))
             .scores(3, 2)
             .yourName('HOME')
             .opponentName('AWAY')
@@ -173,14 +171,12 @@ describe('MatchStatistics', () => {
     });
 
     it('renders single player statistics', async () => {
-        const leg = legBuilder()
-            .currentThrow('home')
-            .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(378).withThrow(123))
-            .away((c: ILegCompetitorScoreBuilder) => c)
-            .build();
         const saygData = saygBuilder()
-            .withLeg(0, leg)
+            .withLeg(0, b => b
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(378).withThrow(123))
+                .away())
             .scores(3)
             .yourName('HOME')
             .numberOfLegs(3)
@@ -204,14 +200,12 @@ describe('MatchStatistics', () => {
     });
 
     it('can expand leg to show throws', async () => {
-        const leg = legBuilder()
-            .currentThrow('home')
-            .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(150))
-            .build();
         const saygData = saygBuilder()
-            .withLeg(0, leg)
+            .withLeg(0, b => b
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(123))
+                .away(c => c.withThrow(100).withThrow(150)))
             .scores(3, 2)
             .yourName('HOME')
             .opponentName('AWAY')
@@ -236,14 +230,12 @@ describe('MatchStatistics', () => {
     });
 
     it('can toggle leg to show averages', async () => {
-        const leg = legBuilder()
-            .currentThrow('home')
-            .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(150))
-            .build();
         const saygData = saygBuilder()
-            .withLeg(0, leg)
+            .withLeg(0, b => b
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(123))
+                .away(c => c.withThrow(100).withThrow(150)))
             .scores(3, 2)
             .yourName('HOME')
             .opponentName('AWAY')
@@ -269,14 +261,12 @@ describe('MatchStatistics', () => {
     });
 
     it('allows throw to be edited when change handler is passed in', async () => {
-        const leg = legBuilder()
-            .currentThrow('home')
-            .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(150))
-            .build();
         const saygData = saygBuilder()
-            .withLeg(0, leg)
+            .withLeg(0, b => b
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(123))
+                .away(c => c.withThrow(100).withThrow(150)))
             .scores(3, 2)
             .yourName('HOME')
             .opponentName('AWAY')
@@ -309,14 +299,12 @@ describe('MatchStatistics', () => {
     });
 
     it('prevents edit of throw when no change handler is passed in', async () => {
-        const leg = legBuilder()
-            .currentThrow('home')
-            .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(150))
-            .build();
         const saygData = saygBuilder()
-            .withLeg(0, leg)
+            .withLeg(0, b => b
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(123))
+                .away(c => c.withThrow(100).withThrow(150)))
             .scores(3, 2)
             .yourName('HOME')
             .opponentName('AWAY')
@@ -335,14 +323,12 @@ describe('MatchStatistics', () => {
     });
 
     it('does not render refresh options when not allowed', async () => {
-        const leg = legBuilder()
-            .currentThrow('home')
-            .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
-            .away((c: ILegCompetitorScoreBuilder) => c)
-            .build();
         const saygData = saygBuilder()
-            .withLeg(0, leg)
+            .withLeg(0, b => b
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(123))
+                .away())
             .scores(1)
             .yourName('HOME')
             .numberOfLegs(3)
@@ -359,18 +345,16 @@ describe('MatchStatistics', () => {
     });
 
     it('does not render refresh options when home has won', async () => {
-        const leg = legBuilder()
-            .currentThrow('home')
-            .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(0, 1))
-            .build();
         const liveOptions: ILiveOptions = {
             canSubscribe: true,
             subscribeAtStartup: [{ id: createTemporaryId(), type: LiveDataType.sayg }],
         };
         const saygData = saygBuilder()
-            .withLeg(0, leg)
+            .withLeg(0, b => b
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(123))
+                .away(c => c.withThrow(0, 1)))
             .scores(2)
             .yourName('HOME')
             .numberOfLegs(3)
@@ -389,19 +373,17 @@ describe('MatchStatistics', () => {
     });
 
     it('does not render refresh options when away has won', async () => {
-        const leg = legBuilder()
-            .currentThrow('home')
-            .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(0, 1))
-            .build();
         const liveOptions: ILiveOptions = {
             canSubscribe: true,
             subscribeAtStartup: [{ id: createTemporaryId(), type: LiveDataType.sayg }],
         };
         console.log = noop;
         const saygData = saygBuilder()
-            .withLeg(0, leg)
+            .withLeg(0, b => b
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(123))
+                .away(c => c.withThrow(0, 1)))
             .scores(0)
             .yourName('HOME')
             .numberOfLegs(3)
@@ -419,12 +401,6 @@ describe('MatchStatistics', () => {
     });
 
     it('enables live updates by default', async () => {
-        const leg: LegDto = legBuilder()
-            .currentThrow('home')
-            .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c)
-            .away((c: ILegCompetitorScoreBuilder) => c)
-            .build();
         const id = createTemporaryId();
         const liveOptions: ILiveOptions = {
             canSubscribe: true,
@@ -438,7 +414,11 @@ describe('MatchStatistics', () => {
         };
         console.log = noop;
         const saygData: RecordedScoreAsYouGoDto = saygBuilder()
-            .withLeg(0, leg)
+            .withLeg(0, b => b
+                .currentThrow('home')
+                .startingScore(501)
+                .home()
+                .away())
             .scores(0, 0)
             .yourName('HOME')
             .numberOfLegs(3)
@@ -456,12 +436,6 @@ describe('MatchStatistics', () => {
     });
 
     it('does not enable live updates by default', async () => {
-        const leg: LegDto = legBuilder()
-            .currentThrow('home')
-            .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c)
-            .away((c: ILegCompetitorScoreBuilder) => c)
-            .build();
         const liveOptions: ILiveOptions = {
             canSubscribe: true,
             subscribeAtStartup: [],
@@ -475,7 +449,11 @@ describe('MatchStatistics', () => {
             },
         }
         const saygData: RecordedScoreAsYouGoDto = saygBuilder()
-            .withLeg(0, leg)
+            .withLeg(0, b => b
+                .currentThrow('home')
+                .startingScore(501)
+                .home()
+                .away())
             .scores(0, 0)
             .yourName('HOME')
             .numberOfLegs(3)
@@ -497,12 +475,6 @@ describe('MatchStatistics', () => {
     });
 
     it('shows throws on last leg when not finished', async () => {
-        const leg: LegDto = legBuilder()
-            .currentThrow('home')
-            .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(75, 2))
-            .build();
         const id = createTemporaryId();
         const liveOptions: ILiveOptions = {
             canSubscribe: true,
@@ -516,7 +488,11 @@ describe('MatchStatistics', () => {
         };
         console.log = noop;
         const saygData: RecordedScoreAsYouGoDto = saygBuilder(id)
-            .withLeg(0, leg)
+            .withLeg(0, b => b
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(100))
+                .away(c => c.withThrow(75, 2)))
             .scores(0, 0)
             .yourName('HOME')
             .opponentName('AWAY')
@@ -546,12 +522,6 @@ describe('MatchStatistics', () => {
     });
 
     it('closes socket when live updates are canceled', async () => {
-        const leg: LegDto = legBuilder()
-            .currentThrow('home')
-            .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(75, 2))
-            .build();
         const saygId = createTemporaryId();
         const liveOptions: ILiveOptions = {
             canSubscribe: true,
@@ -566,7 +536,11 @@ describe('MatchStatistics', () => {
             },
         };
         const saygData: RecordedScoreAsYouGoDto = saygBuilder()
-            .withLeg(0, leg)
+            .withLeg(0, b => b
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(100))
+                .away(c => c.withThrow(75, 2)))
             .scores(1)
             .yourName('HOME')
             .numberOfLegs(3)
@@ -590,19 +564,17 @@ describe('MatchStatistics', () => {
     });
 
     it('shows widescreen statistics', async () => {
-        const leg: LegDto = legBuilder()
-            .currentThrow('home')
-            .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(75, 2))
-            .build();
         const saygId = createTemporaryId();
         const liveOptions: ILiveOptions = {
             canSubscribe: true,
             subscribeAtStartup: [{ id: saygId, type: LiveDataType.sayg }],
         };
         const saygData: RecordedScoreAsYouGoDto = saygBuilder(saygId)
-            .withLeg(0, leg)
+            .withLeg(0, b => b
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(100))
+                .away(c => c.withThrow(75, 2)))
             .scores(1)
             .yourName('HOME')
             .numberOfLegs(3)
@@ -634,18 +606,11 @@ describe('MatchStatistics', () => {
     });
 
     it('collapses all legs when final leg played', async () => {
-        const leg: LegDto = legBuilder()
+        const finishedLeg: BuilderParam<ILegBuilder> = b => b
             .currentThrow('home')
             .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(75, 2))
-            .build();
-        const finishedLeg = legBuilder()
-            .currentThrow('home')
-            .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(501))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(75, 2))
-            .build();
+            .home(c => c.withThrow(501))
+            .away(c => c.withThrow(75, 2));
         const id = createTemporaryId();
         const liveOptions: ILiveOptions = {
             canSubscribe: true,
@@ -658,7 +623,11 @@ describe('MatchStatistics', () => {
             access: { useWebSockets: true },
         };
         const saygData: RecordedScoreAsYouGoDto = saygBuilder(id)
-            .withLeg(0, leg)
+            .withLeg(0, b => b
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(100))
+                .away(c => c.withThrow(75, 2)))
             .scores(0, 0)
             .yourName('HOME')
             .opponentName('AWAY')

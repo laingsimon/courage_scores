@@ -111,7 +111,7 @@ describe('ErrorDisplay', () => {
         it('reports error to API', async () => {
             await renderComponent({
                 errors: {
-                    'property': ['some property error']
+                    property: ['some property error']
                 },
                 warnings: [],
                 messages: [],
@@ -130,7 +130,7 @@ describe('ErrorDisplay', () => {
         it('renders correctly', async () => {
             await renderComponent({
                 errors: {
-                    'property': ['some property error']
+                    property: ['some property error']
                 },
                 warnings: [],
                 messages: [],
@@ -153,7 +153,7 @@ describe('ErrorDisplay', () => {
         it('renders correctly with no stack trace', async () => {
             await renderComponent({
                 errors: {
-                    'property': ['some property error']
+                    property: ['some property error']
                 },
                 warnings: [],
                 messages: [],
@@ -210,7 +210,7 @@ describe('ErrorDisplay', () => {
 
         it('ignore null errors', async () => {
             await renderComponent({
-                errors: [null],
+                errors: [null!],
                 messages: [],
                 warnings: [],
                 title: '',

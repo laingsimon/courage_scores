@@ -13,7 +13,7 @@ import {HiCheckAnd180s, IHiCheckAnd180sProps} from "./HiCheckAnd180s";
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
-import {fixtureBuilder, IMatchBuilder} from "../../helpers/builders/games";
+import {fixtureBuilder} from "../../helpers/builders/games";
 import {playerBuilder} from "../../helpers/builders/players";
 
 describe('HiCheckAnd180s', () => {
@@ -70,7 +70,7 @@ describe('HiCheckAnd180s', () => {
             const fixtureData = fixtureBuilder()
                 .forDivision(division)
                 .forSeason(season)
-                .withMatch((m: IMatchBuilder) => m)
+                .withMatch()
                 .build();
 
             await renderComponent({
@@ -90,7 +90,7 @@ describe('HiCheckAnd180s', () => {
             const fixtureData = fixtureBuilder()
                 .forDivision(division)
                 .forSeason(season)
-                .withMatch((m: IMatchBuilder) => m.withHome().withAway())
+                .withMatch(m => m.withHome().withAway())
                 .build();
 
             await renderComponent({
@@ -112,7 +112,7 @@ describe('HiCheckAnd180s', () => {
             const fixtureData = fixtureBuilder()
                 .forDivision(division)
                 .forSeason(season)
-                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
+                .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                 .build();
 
             await renderComponent({
@@ -135,7 +135,7 @@ describe('HiCheckAnd180s', () => {
             const fixtureData = fixtureBuilder()
                 .forDivision(division)
                 .forSeason(season)
-                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
+                .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                 .with180(homePlayer)
                 .build();
 
@@ -161,7 +161,7 @@ describe('HiCheckAnd180s', () => {
             const fixtureData = fixtureBuilder()
                 .forDivision(division)
                 .forSeason(season)
-                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
+                .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                 .withHiCheck(homePlayer, 100)
                 .build();
 
@@ -210,7 +210,7 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch((m: IMatchBuilder) => m.withHome().withAway())
+                    .withMatch(m => m.withHome().withAway())
                     .build();
 
                 await renderComponent({
@@ -232,7 +232,7 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
                 await renderComponent({
@@ -261,7 +261,7 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .with180(homePlayer)
                     .build();
 
@@ -286,7 +286,7 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .withHiCheck(homePlayer, 100)
                     .build();
 
@@ -313,7 +313,7 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .with180(homePlayer)
                     .build();
 
@@ -341,7 +341,7 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .with180(homePlayer)
                     .build();
 
@@ -365,7 +365,7 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .withHiCheck(homePlayer, 100)
                     .build();
 
@@ -394,7 +394,7 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .withHiCheck(homePlayer, 100)
                     .build();
 

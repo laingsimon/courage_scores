@@ -10,7 +10,7 @@
 } from "../../helpers/tests";
 import {IMergeMatchProps, MergeMatch} from "./MergeMatch";
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
-import {fixtureBuilder, IFixtureBuilder, IMatchBuilder, matchBuilder} from "../../helpers/builders/games";
+import {fixtureBuilder, matchBuilder} from "../../helpers/builders/games";
 import {playerBuilder} from "../../helpers/builders/players";
 import {GameMatchDto} from "../../interfaces/models/dtos/Game/GameMatchDto";
 
@@ -46,8 +46,8 @@ describe('MergeMatch', () => {
     describe('renders', () => {
         it('when published', async () => {
             const match = matchBuilder()
-                .withHome('HOME PLAYER')
-                .withAway('AWAY PLAYER')
+                .withHome(playerBuilder('HOME PLAYER').build())
+                .withAway(playerBuilder('AWAY PLAYER').build())
                 .scores(1, 2)
                 .build();
 
@@ -68,12 +68,12 @@ describe('MergeMatch', () => {
         it('when home and away submissions match', async () => {
             const match: GameMatchDto = matchBuilder().build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission((s: IFixtureBuilder) => s
+                .homeSubmission(s => s
                     .playing('HOME', 'AWAY')
-                    .withMatch((m: IMatchBuilder) => m.withHome().withAway().scores(1, 2)))
-                .awaySubmission((s: IFixtureBuilder) => s
+                    .withMatch(m => m.withHome().withAway().scores(1, 2)))
+                .awaySubmission(s => s
                     .playing('HOME', 'AWAY')
-                    .withMatch((m: IMatchBuilder) => m.withHome().withAway().scores(1, 2)))
+                    .withMatch(m => m.withHome().withAway().scores(1, 2)))
                 .build();
             await renderComponent({
                 readOnly: false,
@@ -95,12 +95,12 @@ describe('MergeMatch', () => {
         it('when home and away submissions match and readonly', async () => {
             const match: GameMatchDto = matchBuilder().build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission((s: IFixtureBuilder) => s
+                .homeSubmission(s => s
                     .playing('HOME', 'AWAY')
-                    .withMatch((m: IMatchBuilder) => m.withHome().withAway().scores(1, 2)))
-                .awaySubmission((s: IFixtureBuilder) => s
+                    .withMatch(m => m.withHome().withAway().scores(1, 2)))
+                .awaySubmission(s => s
                     .playing('HOME', 'AWAY')
-                    .withMatch((m: IMatchBuilder) => m.withHome().withAway().scores(1, 2)))
+                    .withMatch(m => m.withHome().withAway().scores(1, 2)))
                 .build();
             await renderComponent({
                 readOnly: true,
@@ -123,10 +123,10 @@ describe('MergeMatch', () => {
         it('when home but no away submission match', async () => {
             const match: GameMatchDto = matchBuilder().build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission((s: IFixtureBuilder) => s
+                .homeSubmission(s => s
                     .playing('HOME', 'AWAY')
-                    .withMatch((m: IMatchBuilder) => m.withHome().withAway().scores(1, 2)))
-                .awaySubmission((s: IFixtureBuilder) => s
+                    .withMatch(m => m.withHome().withAway().scores(1, 2)))
+                .awaySubmission(s => s
                     .playing('HOME', 'AWAY'))
                 .build();
             await renderComponent({
@@ -147,8 +147,8 @@ describe('MergeMatch', () => {
 
         it('when nothing to merge for either home or away', async () => {
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission((s: IFixtureBuilder) => s.author('HOME CAPTAIN').playing('HOME', 'AWAY'))
-                .awaySubmission((s: IFixtureBuilder) => s.author('AWAY CAPTAIN').playing('HOME', 'AWAY'))
+                .homeSubmission(s => s.author('HOME CAPTAIN').playing('HOME', 'AWAY'))
+                .awaySubmission(s => s.author('AWAY CAPTAIN').playing('HOME', 'AWAY'))
                 .build();
             await renderComponent({
                 readOnly: false,
@@ -168,14 +168,14 @@ describe('MergeMatch', () => {
             const homePlayer = playerBuilder('HOME PLAYER').build();
             const awayPlayer = playerBuilder('AWAY PLAYER').build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission((s: IFixtureBuilder) => s
+                .homeSubmission(s => s
                     .playing('HOME', 'AWAY')
                     .author('HOME CAPTAIN')
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
-                .awaySubmission((s: IFixtureBuilder) => s
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .awaySubmission(s => s
                     .playing('HOME', 'AWAY')
                     .author('AWAY CAPTAIN')
-                    .withMatch((m: IMatchBuilder) => m.withHome().withAway()))
+                    .withMatch(m => m.withHome().withAway()))
                 .build();
             await renderComponent({
                 readOnly: false,
@@ -199,14 +199,14 @@ describe('MergeMatch', () => {
             const homePlayer = playerBuilder('HOME PLAYER').build();
             const awayPlayer = playerBuilder('AWAY PLAYER').build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission((s: IFixtureBuilder) => s
+                .homeSubmission(s => s
                     .playing('HOME', 'AWAY')
                     .author('HOME CAPTAIN')
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
-                .awaySubmission((s: IFixtureBuilder) => s
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .awaySubmission(s => s
                     .playing('HOME', 'AWAY')
                     .author('AWAY CAPTAIN')
-                    .withMatch((m: IMatchBuilder) => m.withHome().withAway()))
+                    .withMatch(m => m.withHome().withAway()))
                 .build();
             await renderComponent({
                 readOnly: true,
@@ -228,14 +228,14 @@ describe('MergeMatch', () => {
             const homePlayer = playerBuilder('HOME PLAYER').build();
             const awayPlayer = playerBuilder('AWAY PLAYER').build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission((s: IFixtureBuilder) => s
+                .homeSubmission(s => s
                     .playing('HOME', 'AWAY')
                     .author('HOME CAPTAIN')
-                    .withMatch((m: IMatchBuilder) => m.withHome().withAway()))
-                .awaySubmission((s: IFixtureBuilder) => s
+                    .withMatch(m => m.withHome().withAway()))
+                .awaySubmission(s => s
                     .playing('HOME', 'AWAY')
                     .author('AWAY CAPTAIN')
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
                 .build();
             await renderComponent({
                 readOnly: false,
@@ -259,14 +259,14 @@ describe('MergeMatch', () => {
             const homePlayer = playerBuilder('HOME PLAYER').build();
             const awayPlayer = playerBuilder('AWAY PLAYER').build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission((s: IFixtureBuilder) => s
+                .homeSubmission(s => s
                     .playing('HOME', 'AWAY')
                     .author('HOME CAPTAIN')
-                    .withMatch((m: IMatchBuilder) => m.withHome().withAway()))
-                .awaySubmission((s: IFixtureBuilder) => s
+                    .withMatch(m => m.withHome().withAway()))
+                .awaySubmission(s => s
                     .playing('HOME', 'AWAY')
                     .author('AWAY CAPTAIN')
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
                 .build();
             await renderComponent({
                 readOnly: true,
@@ -290,15 +290,15 @@ describe('MergeMatch', () => {
             const homePlayer = playerBuilder('HOME PLAYER').build();
             const awayPlayer = playerBuilder('AWAY PLAYER').build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission((s: IFixtureBuilder) => s
+                .homeSubmission(s => s
                     .playing('HOME', 'AWAY')
                     .author('HOME CAPTAIN')
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
-                .awaySubmission((s: IFixtureBuilder) => s
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .awaySubmission(s => s
                     .playing('HOME', 'AWAY')
                     .author('AWAY CAPTAIN')
-                    .withMatch((m: IMatchBuilder) => m.withHome().withAway()))
-                .withMatch((m: IMatchBuilder) => m)
+                    .withMatch(m => m.withHome().withAway()))
+                .withMatch()
                 .build();
             await renderComponent({
                 readOnly: false,
@@ -307,7 +307,7 @@ describe('MergeMatch', () => {
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
                 fixtureData: fixtureBuilder()
-                    .withMatch((m: IMatchBuilder) => m)
+                    .withMatch()
                     .playing('HOME', 'AWAY')
                     .build(),
                 setFixtureData,
@@ -329,15 +329,15 @@ describe('MergeMatch', () => {
             const homePlayer = playerBuilder('HOME PLAYER').build();
             const awayPlayer = playerBuilder('AWAY PLAYER').build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission((s: IFixtureBuilder) => s
+                .homeSubmission(s => s
                     .playing('HOME', 'AWAY')
                     .author('HOME CAPTAIN')
-                    .withMatch((m: IMatchBuilder) => m.withHome().withAway()))
-                .awaySubmission((s: IFixtureBuilder) => s
+                    .withMatch(m => m.withHome().withAway()))
+                .awaySubmission(s => s
                     .playing('HOME', 'AWAY')
                     .author('AWAY CAPTAIN')
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
-                .withMatch((m: IMatchBuilder) => m)
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .withMatch()
                 .build();
             await renderComponent({
                 readOnly: false,
@@ -346,7 +346,7 @@ describe('MergeMatch', () => {
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
                 fixtureData: fixtureBuilder()
-                    .withMatch((m: IMatchBuilder) => m)
+                    .withMatch()
                     .playing('HOME', 'AWAY')
                     .build(),
                 setFixtureData,
@@ -368,15 +368,15 @@ describe('MergeMatch', () => {
             const homePlayer = playerBuilder('HOME PLAYER').build();
             const awayPlayer = playerBuilder('AWAY PLAYER').build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission((s: IFixtureBuilder) => s
+                .homeSubmission(s => s
                     .playing('HOME', 'AWAY')
                     .author('HOME CAPTAIN')
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
-                .awaySubmission((s: IFixtureBuilder) => s
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .awaySubmission(s => s
                     .playing('HOME', 'AWAY')
                     .author('AWAY CAPTAIN')
-                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
-                .withMatch((m: IMatchBuilder) => m)
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .withMatch()
                 .build();
             await renderComponent({
                 readOnly: false,
@@ -385,7 +385,7 @@ describe('MergeMatch', () => {
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
                 fixtureData: fixtureBuilder()
-                    .withMatch((m: IMatchBuilder) => m)
+                    .withMatch()
                     .playing('HOME', 'AWAY')
                     .build(),
                 setFixtureData,

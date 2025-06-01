@@ -16,8 +16,7 @@ import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {DivisionDataFilter} from "../../interfaces/models/dtos/Division/DivisionDataFilter";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
-import {divisionDataBuilder, IDivisionFixtureDateBuilder} from "../../helpers/builders/divisions";
-import {ITournamentBuilder} from "../../helpers/builders/tournaments";
+import {divisionDataBuilder} from "../../helpers/builders/divisions";
 import {renderDate} from "../../helpers/rendering";
 import {AnalyseScores} from "./AnalyseScores";
 import {AnalysisRequestDto} from "../../interfaces/models/dtos/Analysis/AnalysisRequestDto";
@@ -86,9 +85,9 @@ describe('AnalyseScores', () => {
     describe('renders', () => {
         beforeEach(() => {
             divisionApiResponse = divisionDataBuilder()
-                .withFixtureDate((fd: IDivisionFixtureDateBuilder) => fd
-                    .withTournament((t: ITournamentBuilder) => t.singleRound().date('2001-02-03').type('BOARD 1').opponent('OPPONENT'))
-                    .withTournament((t: ITournamentBuilder) => t.date('2001-02-03').type('Singles')), '2001-02-03')
+                .withFixtureDate((fd) => fd
+                    .withTournament(t => t.singleRound().date('2001-02-03').type('BOARD 1').opponent('OPPONENT'))
+                    .withTournament(t => t.date('2001-02-03').type('Singles')), '2001-02-03')
                 .build();
         });
 
@@ -255,9 +254,9 @@ describe('AnalyseScores', () => {
     describe('interactivity', () => {
         beforeEach(() => {
             divisionApiResponse = divisionDataBuilder()
-                .withFixtureDate((fd: IDivisionFixtureDateBuilder) => fd
-                    .withTournament((t: ITournamentBuilder) => t.singleRound().date('2001-02-03').type('BOARD 1').opponent('OPPONENT'))
-                    .withTournament((t: ITournamentBuilder) => t.date('2001-02-03').type('Singles')), '2001-02-03')
+                .withFixtureDate((fd) => fd
+                    .withTournament(t => t.singleRound().date('2001-02-03').type('BOARD 1').opponent('OPPONENT'))
+                    .withTournament(t => t.date('2001-02-03').type('Singles')), '2001-02-03')
                 .build();
         });
 

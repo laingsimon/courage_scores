@@ -54,7 +54,11 @@ describe('SocketAdmin', () => {
             iocProps({liveApi}),
             brandingProps(),
             appProps({
-                account: {},
+                account: {
+                    name: '',
+                    emailAddress: '',
+                    givenName: '',
+                },
                 appLoading: false,
             }, reportedError),
             (<AdminContainer tables={[]} accounts={[]}>

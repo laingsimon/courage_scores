@@ -27,14 +27,10 @@ import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {divisionBuilder, divisionDataBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
-import {
-    ITournamentMatchBuilder, ITournamentRoundBuilder,
-    roundBuilder, sideBuilder, tournamentBuilder
-} from "../../helpers/builders/tournaments";
+import {roundBuilder, sideBuilder, tournamentBuilder} from "../../helpers/builders/tournaments";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {playerBuilder} from "../../helpers/builders/players";
-import {IMatchOptionsBuilder} from "../../helpers/builders/games";
-import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../helpers/builders/sayg";
+import {saygBuilder} from "../../helpers/builders/sayg";
 import {
     DivisionTournamentFixtureDetailsDto
 } from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
@@ -451,10 +447,10 @@ describe('Tournament', () => {
 
         function getSayg(homeScore: number, awayScore: number): RecordedScoreAsYouGoDto {
             return saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
+                .withLeg(0, l => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(homeScore))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(awayScore))
+                    .home(c => c.withThrow(homeScore))
+                    .away(c => c.withThrow(awayScore))
                     .currentThrow('home')
                     .playerSequence('home', 'away'))
                 .scores(0, 0)
@@ -630,11 +626,11 @@ describe('Tournament', () => {
             tournamentData.singleRound = true;
             tournamentData.sides!.push(sideA, sideB);
             tournamentData.round = roundBuilder()
-                .withMatch((m: ITournamentMatchBuilder) => m
+                .withMatch(m => m
                     .saygId(sayg.id)
                     .sideA(sideA)
                     .sideB(sideB))
-                .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                .withMatchOption(o => o.numberOfLegs(3))
                 .build();
             await renderComponentForTest(null, useCase.user);
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), START_SCORING)); // first match
@@ -657,11 +653,11 @@ describe('Tournament', () => {
             const sayg = getSayg(100, 200);
             tournamentData.sides!.push(sideA, sideB);
             tournamentData.round = roundBuilder()
-                .withMatch((m: ITournamentMatchBuilder) => m
+                .withMatch(m => m
                     .saygId(sayg.id)
                     .sideA(sideA)
                     .sideB(sideB))
-                .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                .withMatchOption(o => o.numberOfLegs(3))
                 .build();
             await renderComponentForTest();
             await doClick(findButton(context.container.querySelector('div[datatype="match"]'), START_SCORING)); // first match
@@ -683,11 +679,11 @@ describe('Tournament', () => {
             const sayg = getSayg(401, 200);
             tournamentData.sides!.push(sideA, sideB);
             tournamentData.round = roundBuilder()
-                .withMatch((m: ITournamentMatchBuilder) => m
+                .withMatch(m => m
                     .saygId(sayg.id)
                     .sideA(sideA)
                     .sideB(sideB))
-                .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                .withMatchOption(o => o.numberOfLegs(3))
                 .build();
             await renderComponentForTest();
             await doClick(findButton(context.container.querySelector('div[datatype="match"]'), START_SCORING)); // first match
@@ -719,11 +715,11 @@ describe('Tournament', () => {
             const sayg = getSayg(100, 200);
             tournamentData.sides!.push(sideA, sideB);
             tournamentData.round = roundBuilder()
-                .withMatch((m: ITournamentMatchBuilder) => m
+                .withMatch(m => m
                     .saygId(sayg.id)
                     .sideA(sideA)
                     .sideB(sideB))
-                .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                .withMatchOption(o => o.numberOfLegs(3))
                 .build();
             await renderComponentForTest();
             await doClick(findButton(context.container.querySelector('div[datatype="match"]'), START_SCORING)); // first match
@@ -955,8 +951,8 @@ describe('Tournament', () => {
 
         it('updating number of legs updates all match options in all matches', async () => {
             tournamentData.round = roundBuilder()
-                .withMatchOption((mo: IMatchOptionsBuilder) => mo.numberOfLegs(7))
-                .round((r: ITournamentRoundBuilder) => r.withMatchOption((mo: IMatchOptionsBuilder) => mo.numberOfLegs(5)))
+                .withMatchOption(mo => mo.numberOfLegs(7))
+                .round(r => r.withMatchOption(mo => mo.numberOfLegs(5)))
                 .build();
             await renderComponentForTest(teamNoPlayers);
 

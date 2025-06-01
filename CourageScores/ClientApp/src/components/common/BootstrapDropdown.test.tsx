@@ -137,8 +137,8 @@ describe('BootstrapDropdown', () => {
             expect(toggle.textContent).toEqual(option2.text);
             const itemClassNameLookup = toDictionary(items, item => item.textContent!, item => item.className);
             expect(Object.keys(itemClassNameLookup)).toEqual([option1.text, option2.text]);
-            expect(itemClassNameLookup[option1.text]).not.toContain('active');
-            expect(itemClassNameLookup[option2.text]).toContain('active');
+            expect(itemClassNameLookup[option1.text as string]).not.toContain('active');
+            expect(itemClassNameLookup[option2.text as string]).toContain('active');
         });
 
         it('when item selected has no text', async () => {
@@ -154,9 +154,9 @@ describe('BootstrapDropdown', () => {
             const items = Array.from(context.container.querySelectorAll('.dropdown-item'));
             expect(toggle.textContent).toEqual(option3_noText.value);
             const itemClassNameLookup = toDictionary(items, item => item.textContent!, item => item.className);
-            expect(itemClassNameLookup[option1.text]).not.toContain('active');
-            expect(itemClassNameLookup[option2.text]).not.toContain('active');
-            expect(itemClassNameLookup[option3_noText.value]).toContain('active');
+            expect(itemClassNameLookup[option1.text as string]).not.toContain('active');
+            expect(itemClassNameLookup[option2.text as string]).not.toContain('active');
+            expect(itemClassNameLookup[option3_noText.value as string]).toContain('active');
         });
 
         it('when nothing selected', async () => {
@@ -168,8 +168,8 @@ describe('BootstrapDropdown', () => {
             const items = Array.from(context.container.querySelectorAll('.dropdown-item'));
             expect(toggle.textContent).toEqual('');
             const itemClassNameLookup = toDictionary(items, item => item.textContent!, item => item.className);
-            expect(itemClassNameLookup[option1.text]).not.toContain('active');
-            expect(itemClassNameLookup[option2.text]).not.toContain('active');
+            expect(itemClassNameLookup[option1.text as string]).not.toContain('active');
+            expect(itemClassNameLookup[option2.text as string]).not.toContain('active');
         });
 
         it('slim dropdown', async () => {
@@ -206,9 +206,9 @@ describe('BootstrapDropdown', () => {
             const items = Array.from(context.container.querySelectorAll('.dropdown-item'));
             expect(toggle.textContent).toEqual(option3_collapsedText.collapsedText);
             const itemTextLookup = toDictionary(items, item => item.textContent!, item => item.textContent);
-            expect(itemTextLookup[option1.text]).toEqual('TEXT 1');
-            expect(itemTextLookup[option2.text]).toEqual('TEXT 2');
-            expect(itemTextLookup[option3_collapsedText.text]).toEqual('TEXT 3');
+            expect(itemTextLookup[option1.text as string]).toEqual('TEXT 1');
+            expect(itemTextLookup[option2.text as string]).toEqual('TEXT 2');
+            expect(itemTextLookup[option3_collapsedText.text as string]).toEqual('TEXT 3');
         });
     });
 
