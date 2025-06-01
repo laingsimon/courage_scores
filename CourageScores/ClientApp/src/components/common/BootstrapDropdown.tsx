@@ -3,10 +3,10 @@ import {ButtonDropdown, DropdownMenu, DropdownToggle} from "./ButtonDropdown";
 import {isEmpty} from "../../helpers/collections";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
-export type BootstrapDropdownValue = string | number | null;
+export type BootstrapDropdownValue = string | number;
 
 export interface IBootstrapDropdownItem {
-    value: BootstrapDropdownValue;
+    value?: BootstrapDropdownValue;
     text?: string | ReactElement;
     collapsedText?: string;
     disabled?: boolean;
@@ -20,7 +20,7 @@ export interface IBootstrapDropdownProps {
     className?: string;
     disabled?: boolean;
     readOnly?: boolean;
-    onChange?(value: BootstrapDropdownValue): UntypedPromise;
+    onChange?(value?: BootstrapDropdownValue): UntypedPromise;
     onOpen?(willBeOpen: boolean): UntypedPromise;
     slim?: boolean;
     datatype?: string;

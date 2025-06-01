@@ -194,7 +194,7 @@ describe('TournamentDetails', () => {
 
             await doSelectOption(context.container.querySelector('div[datatype="tournament-division"] .dropdown-menu'), 'All divisions');
 
-            expect(updatedTournamentData!.divisionId).toEqual(null);
+            expect(updatedTournamentData!.divisionId).toEqual(undefined);
         });
 
         it('can update notes', async () => {

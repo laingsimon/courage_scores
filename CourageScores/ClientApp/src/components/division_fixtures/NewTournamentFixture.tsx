@@ -32,7 +32,7 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
     const {id, season, fixtures: fixtureDates} = useDivisionData();
     const {tournamentApi} = useDependencies();
     const {divisions} = useApp();
-    const [copySidesFrom, setCopySidesFrom] = useState<string | null>(null);
+    const [copySidesFrom, setCopySidesFrom] = useState<string | undefined>(undefined);
     const [address, setAddress] = useState<string>('');
     const [creating, setCreating] = useState<boolean>(false);
     const [saveError, setSaveError] = useState<IClientActionResultDto<TournamentGameDto> | null>(null);
@@ -53,7 +53,6 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
         }));
     const allDivisions: IBootstrapDropdownItem = {
         text: 'Cross-divisional',
-        value: null,
     };
     const divisionOptions: IBootstrapDropdownItem[] = [ allDivisions ].concat(divisions
         .map(d => {
@@ -64,7 +63,6 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
         }));
     const dontCopy: IBootstrapDropdownItem = {
         text: '-',
-        value: null,
     };
     const copySidesFromOptions: IBootstrapDropdownItem[] = [dontCopy].concat((fixtureDates || [])
         .filter(fd => fd.date !== date)

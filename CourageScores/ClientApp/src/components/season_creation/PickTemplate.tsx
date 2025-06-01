@@ -48,7 +48,7 @@ export function PickTemplate({ selectedTemplate, loading, setSelectedTemplate, t
             {loading
                 ? (<LoadingSpinnerSmall/>)
                 : (<BootstrapDropdown options={templateOptions}
-                                      value={selectedTemplate ? selectedTemplate!.result!.id : null}
+                                      value={selectedTemplate?.result!.id}
                                       onChange={value => setSelectedTemplate(templates.result!.filter((t: ActionResultDto<TemplateDto>) => t.result!.id === value)[0])}/>)}
         </div>
         {selectedTemplate ? (<div className={`alert mt-3 ${selectedTemplate.success ? 'alert-success' : 'alert-warning'}`}>
