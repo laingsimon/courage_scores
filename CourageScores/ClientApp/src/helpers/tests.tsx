@@ -17,6 +17,7 @@ import {Cookies, useCookies} from "react-cookie";
 import {UntypedPromise} from "../interfaces/UntypedPromise";
 import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
 import {IDependencies} from "../components/common/IDependencies";
+import {IClientActionResultDto} from "../components/common/IClientActionResultDto";
 
 /* istanbul ignore file */
 
@@ -95,7 +96,6 @@ export function api<T>(methods: Partial<T>): T {
     return Object.assign({}, methods) as T;
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export function iocProps(props?: Partial<IDependencies & IIocContainerProps>) : IIocContainerProps {
     const mockWebSocketFactory = new MockSocketFactory();
     const mockParentHeight: IParentHeight = {
@@ -107,19 +107,19 @@ export function iocProps(props?: Partial<IDependencies & IIocContainerProps>) : 
         }
     };
     const mockHttp: IHttp = {
-        get(relativeUrl: string): any {
+        get(relativeUrl: string): Promise<IClientActionResultDto<unknown>> {
             throw new Error(`GET ${relativeUrl} attempted; mock api should be injected`);
         },
-        delete(relativeUrl: string): any {
+        delete(relativeUrl: string): Promise<IClientActionResultDto<unknown>> {
             throw new Error(`DELETE ${relativeUrl} attempted; mock api should be injected`);
         },
-        put(relativeUrl: string): any {
+        put(relativeUrl: string): Promise<IClientActionResultDto<unknown>> {
             throw new Error(`PUT ${relativeUrl} attempted; mock api should be injected`);
         },
-        patch(relativeUrl: string): any {
+        patch(relativeUrl: string): Promise<IClientActionResultDto<unknown>> {
             throw new Error(`PATCH ${relativeUrl} attempted; mock api should be injected`);
         },
-        post(relativeUrl: string): any {
+        post(relativeUrl: string): Promise<IClientActionResultDto<unknown>> {
             throw new Error(`POST ${relativeUrl} attempted; mock api should be injected`);
         }
     }
