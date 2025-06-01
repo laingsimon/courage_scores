@@ -263,7 +263,7 @@ describe('DivisionFixture', () => {
                 account,
                 [team],
                 {
-                    favouriteTeamIds: [fixture.homeTeam.id],
+                    favouriteTeamIds: [fixture.homeTeam.id!],
                 });
 
             reportedError.verifyNoError();
@@ -286,7 +286,7 @@ describe('DivisionFixture', () => {
                 account,
                 [team],
                 {
-                    favouriteTeamIds: [fixture.homeTeam.id],
+                    favouriteTeamIds: [fixture.homeTeam.id!],
                 });
 
             reportedError.verifyNoError();
@@ -309,7 +309,7 @@ describe('DivisionFixture', () => {
                 account,
                 [team],
                 {
-                    favouriteTeamIds: [fixture!.awayTeam!.id],
+                    favouriteTeamIds: [fixture!.awayTeam!.id!],
                 });
 
             reportedError.verifyNoError();
@@ -355,7 +355,7 @@ describe('DivisionFixture', () => {
                     .build(),
                 account,
                 [team],
-                { favouriteTeamIds: [fixture.homeTeam.id] });
+                { favouriteTeamIds: [fixture.homeTeam.id!] });
             const row = context.container.querySelector('tr')!;
             const favouriteToggles = Array.from(row.querySelectorAll('button[datatype="toggle-favourite"]'));
 

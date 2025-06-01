@@ -151,7 +151,7 @@ describe('DivisionTeam', () => {
                 },
                 undefined,
                 {
-                    favouriteTeamIds: [ team.id ],
+                    favouriteTeamIds: [ team.id! ],
                 });
             reportedError.verifyNoError();
 

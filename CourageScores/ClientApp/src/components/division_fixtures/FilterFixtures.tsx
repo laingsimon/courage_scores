@@ -73,7 +73,7 @@ export function FilterFixtures() {
             return;
         }
 
-        upsertPreference('favouriteTeamIds', null);
+        upsertPreference('favouriteTeamIds');
     }
 
     function clearFilters(): string {
