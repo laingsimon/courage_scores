@@ -39,6 +39,8 @@ import {IFeatureApi} from "../../interfaces/apis/IFeatureApi";
 import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
 import {BuilderParam} from "../../helpers/builders/builders";
+import {IDatedDivisionFixtureDto} from "../division_fixtures/IDatedDivisionFixtureDto";
+import {DivisionFixtureTeamDto} from "../../interfaces/models/dtos/Division/DivisionFixtureTeamDto";
 
 interface ICreatedPlayer {
     divisionId: string;
@@ -51,7 +53,7 @@ interface ICreatedPlayer {
 describe('Score', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let fixtureDataMap: { [fixtureId: string]: GameDto | null } = {};
+    let fixtureDataMap: { [fixtureId: string]: IDatedDivisionFixtureDto & GameDto } = {};
     let updatedFixtures: { [fixtureId: string]: RecordScoresDto };
     let createdPlayer: ICreatedPlayer | null;
     let teamsReloaded: boolean;
@@ -176,7 +178,7 @@ describe('Score', () => {
             .forDivision(appData.divisions[0])
             .teams(homeTeam, awayTeam)
             .updated('2023-01-02T04:05:06')
-            .addTo(fixtureDataMap as any)
+            .addTo(fixtureDataMap)
             .build();
     }
 
@@ -228,7 +230,7 @@ describe('Score', () => {
             .with180(findPlayer(homeTeam, 'Home player'))
             .withHiCheck(findPlayer(awayTeam, 'Away player'), 140)
             .updated('2023-01-02T04:05:06')
-            .addTo(fixtureDataMap as any)
+            .addTo(fixtureDataMap)
             .build();
     }
 
@@ -270,7 +272,7 @@ describe('Score', () => {
         });
 
         it('renders when fixture not found', async () => {
-            fixtureDataMap[fixture.id] = null;
+            fixtureDataMap[fixture.id] = null!;
 
             await renderComponent(fixture.id, appData);
 
@@ -282,7 +284,7 @@ describe('Score', () => {
                 status: 400,
                 errors: {'key': ['Some error']}
             };
-            fixtureDataMap[fixture.id] = failedRequest as any;
+            fixtureDataMap[fixture.id] = failedRequest as IDatedDivisionFixtureDto & GameDto;
 
             await renderComponent(fixture.id, appData);
 
@@ -296,7 +298,8 @@ describe('Score', () => {
                 address: '',
                 away: null!,
                 home: null!,
-            };
+                homeTeam: null! as DivisionFixtureTeamDto,
+            } as IDatedDivisionFixtureDto & GameDto;
 
             await renderComponent(fixture.id, appData);
 

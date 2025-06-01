@@ -4,7 +4,7 @@ import {
     brandingProps,
     cleanUp,
     doChange,
-    doClick, doSelectOption, findButton,
+    doClick, doSelectOption, findButton, IBrowserWindow,
     iocProps, noop,
     renderApp,
     TestContext
@@ -287,7 +287,7 @@ describe('TournamentDetails', () => {
                 teams: [],
                 divisions: [division],
             }));
-            (window as any).open = noop;
+            (window as IBrowserWindow).open = noop;
 
             await doClick(findButton(context.container, '🛒'));
 
@@ -326,7 +326,7 @@ describe('TournamentDetails', () => {
                 teams: [],
                 divisions: [division],
             }));
-            (window as any).open = noop;
+            (window as IBrowserWindow).open = noop;
 
             await doClick(findButton(context.container, '🛒'));
 
@@ -372,7 +372,7 @@ describe('TournamentDetails', () => {
                 teams: [],
                 divisions: [division],
             }));
-            (window as any).open = noop;
+            (window as IBrowserWindow).open = noop;
 
             await doClick(findButton(context.container, '🛒'));
 
@@ -403,7 +403,7 @@ describe('TournamentDetails', () => {
                 teams: [],
                 divisions: [division],
             }));
-            (window as any).open = noop;
+            (window as IBrowserWindow).open = noop;
 
             await doClick(findButton(context.container, '🛒'));
 
@@ -434,7 +434,7 @@ describe('TournamentDetails', () => {
                 teams: [],
                 divisions: [division],
             }));
-            (window as any).open = noop;
+            (window as IBrowserWindow).open = noop;
 
             await doClick(findButton(context.container, '🛒'));
 
@@ -469,7 +469,7 @@ describe('TournamentDetails', () => {
                 teams: [team],
                 divisions: [division],
             }));
-            (window as any).open = noop;
+            (window as IBrowserWindow).open = noop;
 
             await doClick(findButton(context.container, '🛒'));
 
@@ -504,7 +504,7 @@ describe('TournamentDetails', () => {
                 teams: [team],
                 divisions: [division],
             }));
-            (window as any).open = noop;
+            (window as IBrowserWindow).open = noop;
 
             await doClick(findButton(context.container, '🛒'));
 
@@ -538,7 +538,7 @@ describe('TournamentDetails', () => {
                 teams: [team],
                 divisions: [division],
             }));
-            (window as any).open = noop;
+            (window as IBrowserWindow).open = noop;
 
             await doClick(findButton(context.container, '🛒'));
 

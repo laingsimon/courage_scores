@@ -5,7 +5,7 @@ import {
     cleanUp,
     doChange,
     doClick, ErrorState,
-    findButton,
+    findButton, IBrowserNavigator,
     iocProps, noop,
     renderApp,
     TestContext
@@ -69,8 +69,7 @@ describe('Practice', () => {
             } as IClientActionResultDto<RecordedScoreAsYouGoDto>
         };
         shareData = null;
-        // noinspection JSValidateTypes
-        (navigator as any).share = (data: ShareData) => shareData = data;
+        (navigator as IBrowserNavigator).share = (data: ShareData) => shareData = data;
 
         fullScreenState = {
             isFullScreen: false,

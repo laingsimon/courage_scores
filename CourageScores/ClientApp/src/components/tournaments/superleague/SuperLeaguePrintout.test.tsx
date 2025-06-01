@@ -52,7 +52,7 @@ describe('SuperLeaguePrintout', () => {
         async upsert(data: UpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> {
             return {
                 success: true,
-                result: data as any,
+                result: data as RecordedScoreAsYouGoDto,
             }
         }
     });

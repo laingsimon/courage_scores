@@ -289,7 +289,7 @@ describe('DataBrowser', () => {
                 title: 'One or more validation errors occurred.',
                 status: 400,
             };
-            singleApiResult = error as any;
+            singleApiResult = error as IClientActionResultDto<object>;
 
             await renderComponent(appProps({
                 account: account()

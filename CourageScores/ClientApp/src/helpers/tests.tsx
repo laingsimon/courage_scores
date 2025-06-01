@@ -191,8 +191,7 @@ export class MockSocketFactory {
                 }
                 this.sent.push(message);
             },
-            type: 'MockWebSocket',
-        } as any;
+        } as WebSocket;
         this.socket = socket;
         return socket;
     }
@@ -429,4 +428,12 @@ export class Prompts {
 context.prompts.respondToConfirm('${msg?.replaceAll('\n', '\\n')}', true);`);
         };
     }
+}
+
+export interface IBrowserWindow {
+    open: (url: string) => void;
+}
+
+export interface IBrowserNavigator {
+    share: (data: ShareData) => void;
 }
