@@ -141,7 +141,7 @@ describe('CreateSeasonDialog', () => {
         };
     }
 
-    function setApiResponse(success: boolean, resultProps?: any) {
+    function setApiResponse(success: boolean, resultProps?: object) {
         apiResponse = {
             success: success,
             errors: ['ERROR'],
