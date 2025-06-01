@@ -86,7 +86,7 @@ export function BootstrapDropdown({value, onChange, options, color, className, d
                 className={`text-dark${slim ? '' : ' dropdown-text-min-width'}`}>{selectedOption ? (selectedOption.collapsedText || selectedOption.text) || value : value}</span>
         </DropdownToggle>
         <DropdownMenu className="max-height-250 overflow-auto">
-            {options.map((o: IBootstrapDropdownItem) => (<button key={o.value}
+            {options.map((o: IBootstrapDropdownItem, index: number) => (<button key={o.value ?? index}
                                                                        disabled={o.disabled || false}
                                                                        role="menuitem"
                                                                        className={`dropdown-item ${getItemClassName(o)}`}
