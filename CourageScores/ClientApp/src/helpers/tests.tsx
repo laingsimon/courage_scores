@@ -56,8 +56,7 @@ export async function doKeyPress(container: Element, key: string) {
     });
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export async function setFile(container: Element, selector: string, file: any, user?: UserEvent) {
+export async function setFile(container: Element, selector: string, file: string, user?: UserEvent) {
     const input = container.querySelector(selector);
     if (!input) {
         throw new Error(`Could not find element with selector ${selector} in ${container.innerHTML}`);
@@ -146,10 +145,11 @@ export function brandingProps(props?: Partial<IBrandingContainerProps>): IBrandi
     return Object.assign({}, defaultProps, props);
 }
 
+export type ErrorValue = IError | string | string[] | IClientActionResultDto<unknown>;
 export class ErrorState {
-    error?: any;
+    error?: ErrorValue;
 
-    setError(err: IError | string) {
+    setError(err: ErrorValue) {
         const error: IError = err as IError;
         if (error.message) {
             this.error = {
@@ -165,7 +165,7 @@ export class ErrorState {
         expect(this.error).toBeFalsy();
     }
 
-    verifyErrorEquals(expected: any) {
+    verifyErrorEquals(expected: ErrorValue) {
         expect(this.error).toBeTruthy();
         expect(this.error).toEqual(expected);
     }
@@ -173,7 +173,7 @@ export class ErrorState {
 
 export class MockSocketFactory {
     subscriptions: ISubscriptions = {};
-    sent: any[] = [];
+    sent: string[] = [];
     socket: WebSocket | null = null;
     createSocket = this.__createSocket.bind(this);
     socketWasCreated = this.__socketWasCreated.bind(this);
@@ -182,7 +182,7 @@ export class MockSocketFactory {
         const socket: WebSocket = {
             close: () => {},
             readyState: 1,
-            send: (data: any) => {
+            send: (data: string) => {
                 const message = JSON.parse(data);
                 if (message.type === MessageType.subscribed) {
                     this.subscriptions[message.id] = { id: '', type: LiveDataType.sayg, errorHandler: noop, updateHandler: noop };
