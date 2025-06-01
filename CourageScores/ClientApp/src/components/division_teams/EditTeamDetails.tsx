@@ -97,7 +97,7 @@ export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, season
                 disabled={saving || !team.id || !onChange}
                 options={divisionOptions}
                 value={team.newDivisionId}
-                onChange={onChange ? ((newDivisionId) => onChange('newDivisionId', newDivisionId)) : undefined}/>
+                onChange={onChange ? ((newDivisionId: string) => onChange('newDivisionId', newDivisionId)) : undefined}/>
         </div>
         <div className="modal-footer px-0 pb-0">
             <div className="left-aligned">

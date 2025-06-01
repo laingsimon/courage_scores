@@ -1,28 +1,26 @@
-import {useEffect, useRef, useState} from 'react';
+import {ReactElement, useEffect, useRef, useState} from 'react';
 import {ButtonDropdown, DropdownMenu, DropdownToggle} from "./ButtonDropdown";
 import {isEmpty} from "../../helpers/collections";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
+export type BootstrapDropdownValue = string | number | null;
+
 export interface IBootstrapDropdownItem {
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    value: any;
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    text?: any;  // Element | string
+    value: BootstrapDropdownValue;
+    text?: string | ReactElement;
     collapsedText?: string;
     disabled?: boolean;
     className?: string;
 }
 
 export interface IBootstrapDropdownProps {
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    value?: any;
+    value?: BootstrapDropdownValue;
     options?: IBootstrapDropdownItem[];
     color?: string;
     className?: string;
     disabled?: boolean;
     readOnly?: boolean;
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    onChange?(value: any): UntypedPromise;
+    onChange?(value: BootstrapDropdownValue): UntypedPromise;
     onOpen?(willBeOpen: boolean): UntypedPromise;
     slim?: boolean;
     datatype?: string;

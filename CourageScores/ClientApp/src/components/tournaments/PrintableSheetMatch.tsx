@@ -50,14 +50,14 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
        value: '0',
        text: 'Lose',
     };
-    const teamSides = any(tournamentData.sides, side => side.teamId ? true : false);
-    const possibleScoreOptions: IBootstrapDropdownItem[] = teamSides 
-            ? [ win, lose ] 
-            : repeat(Math.ceil(Number.parseInt(bestOf) / 2) + 1, (index: number): IBootstrapDropdownItem => { 
-                 return { 
-                      value: index, 
-                      text: index 
-                 }; 
+    const teamSides = any(tournamentData.sides, side => !!side.teamId);
+    const possibleScoreOptions: IBootstrapDropdownItem[] = teamSides
+            ? [ win, lose ]
+            : repeat(Math.ceil(Number.parseInt(bestOf) / 2) + 1, (index: number): IBootstrapDropdownItem => {
+                 return {
+                      value: index,
+                      text: index.toString()
+                 };
            });
     const readOnly: boolean = !round;
 
@@ -90,7 +90,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
             // find the side with this name
             const preSelectSide: IBootstrapDropdownItem = possibleSideOptions.filter(o => o.text === side.mnemonic)[0];
             if (preSelectSide) {
-                editSide.sideId = preSelectSide.value;
+                editSide.sideId = preSelectSide.value as string;
             }
         }
 
@@ -216,7 +216,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
         if (score === undefined || score === '') {
             return '';
         }
-        
+
         if (Number.parseInt(score!) > (Number.parseInt(bestOf) / 2.0)) {
             return win.text;
         }

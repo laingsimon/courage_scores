@@ -191,7 +191,7 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
                 className="division-dropdown"
                 options={divisionOptions}
                 value={divisionId}
-                onChange={async (v) => setDivisionId(v)}/>
+                onChange={async (id: string) => setDivisionId(id)}/>
             <span className="margin-right margin-left">tournament at</span>
             <BootstrapDropdown
                 className="address-dropdown"
@@ -204,7 +204,7 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
                     className="copy-sides-from-dropdown"
                     options={copySidesFromOptions}
                     value={copySidesFrom}
-                    onChange={async (v) => setCopySidesFrom(v)}/>
+                    onChange={async (date: string) => setCopySidesFrom(date)}/>
                 </>) : null}
         </td>
         <td className="medium-column-width text-end">
