@@ -55,7 +55,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
             ? [ win, lose ]
             : repeat(Math.ceil(Number.parseInt(bestOf) / 2) + 1, (index: number): IBootstrapDropdownItem => {
                  return {
-                      value: index,
+                      value: index.toString(),
                       text: index.toString()
                  };
            });
