@@ -146,7 +146,7 @@ function Get-TypescriptBuildFailures([Parameter(ValueFromPipeline)] $Path)
 function Get-PrettierFormattingFailures([Parameter(ValueFromPipeline)] $Path)
 {
     process {
-        $BuildLines = Get-LinesBetween -Path $Path -Start "*Checking formatting..." -End "*npm run build*" | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
+        $BuildLines = Get-LinesBetween -Path $Path -Start "*Checking formatting..." -End "*Code style issues*" | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
         $HasRunTests = ($BuildLines | Where-Object { $_ -like "*couragescores*test*" }).Count
 
         if ($BuildLines.Count -ge 1 -and $HasRunTests -eq 0)
