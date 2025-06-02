@@ -8,7 +8,8 @@ import {
     doSelectOption, ErrorState,
     findButton,
     iocProps,
-    renderApp, TestContext
+    renderApp, TestContext,
+    user
 } from "../../helpers/tests";
 import {EditSide, IEditSideProps, ISaveSideOptions} from "./EditSide";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
@@ -33,7 +34,6 @@ import {
     DivisionTournamentFixtureDetailsDto
 } from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
 import {tournamentContainerPropsBuilder} from "./tournamentContainerPropsBuilder";
-import {AccessDto} from "../../interfaces/models/dtos/Identity/AccessDto";
 
 describe('EditSide', () => {
     let context: TestContext;
@@ -135,15 +135,6 @@ describe('EditSide', () => {
         const playing: ITournamentPlayerMap = {};
         playing[player.id] = tournament;
         return playing;
-    }
-
-    function user(access: AccessDto): UserDto {
-        return {
-            name: '',
-            givenName: '',
-            emailAddress: '',
-            access,
-        };
     }
 
     function props(side: TournamentSideDto): IEditSideProps {
