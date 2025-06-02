@@ -1,0 +1,10 @@
+﻿{
+    tabWidth: 4,
+    singleQuote: true,
+    bracketSameLine: true,
+    trailingComma: all,
+    bracketSpacing: true,
+    arrowParens: always,
+    singleAttributePerLine: false,
+    endOfLine: auto,
+}
