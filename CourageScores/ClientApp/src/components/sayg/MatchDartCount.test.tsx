@@ -1,5 +1,12 @@
-import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../helpers/tests";
-import {IMatchDartCountProps, MatchDartCount} from "./MatchDartCount";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    iocProps,
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import { IMatchDartCountProps, MatchDartCount } from './MatchDartCount';
 
 describe('MatchDartCount', () => {
     let context: TestContext;
@@ -16,7 +23,8 @@ describe('MatchDartCount', () => {
             <MatchDartCount {...props} />,
             undefined,
             undefined,
-            'tbody');
+            'tbody',
+        );
     }
 
     it('renders nothing when no darts thrown', async () => {

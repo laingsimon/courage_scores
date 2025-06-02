@@ -1,7 +1,7 @@
-import {useLocation} from "react-router";
-import {useState} from "react";
-import {useBranding} from "./BrandingContainer";
-import {LoadingSpinnerSmall} from "./LoadingSpinnerSmall";
+import { useLocation } from 'react-router';
+import { useState } from 'react';
+import { useBranding } from './BrandingContainer';
+import { LoadingSpinnerSmall } from './LoadingSpinnerSmall';
 
 export interface IShareButtonProps {
     title?: string;
@@ -10,15 +10,22 @@ export interface IShareButtonProps {
     buttonText?: string;
 }
 
-export function ShareButton({title, text, getHash, buttonText}: IShareButtonProps) {
+export function ShareButton({
+    title,
+    text,
+    getHash,
+    buttonText,
+}: IShareButtonProps) {
     const location = useLocation();
-    const {name} = useBranding();
+    const { name } = useBranding();
     const [gettingShareLink, setGettingShareLink] = useState<boolean>(false);
 
     async function share() {
         try {
             setGettingShareLink(true);
-            const hash: string | undefined = getHash ? await getHash() : location.hash;
+            const hash: string | undefined = getHash
+                ? await getHash()
+                : location.hash;
             if (hash === undefined && getHash) {
                 return;
             }
@@ -26,7 +33,7 @@ export function ShareButton({title, text, getHash, buttonText}: IShareButtonProp
             const shareData: ShareData = {
                 text: text || name,
                 title: title || name,
-                url: location.pathname + location.search + hash
+                url: location.pathname + location.search + hash,
             };
 
             await navigator.share(shareData);
@@ -35,10 +42,12 @@ export function ShareButton({title, text, getHash, buttonText}: IShareButtonProp
         }
     }
 
-    return (<button onClick={share} className="btn btn-sm btn-outline-primary d-print-none">
-        {!buttonText && gettingShareLink ? null : (buttonText || '🔗')}
-        {gettingShareLink
-            ? (<LoadingSpinnerSmall/>)
-            : null}
-    </button>);
+    return (
+        <button
+            onClick={share}
+            className="btn btn-sm btn-outline-primary d-print-none">
+            {!buttonText && gettingShareLink ? null : buttonText || '🔗'}
+            {gettingShareLink ? <LoadingSpinnerSmall /> : null}
+        </button>
+    );
 }

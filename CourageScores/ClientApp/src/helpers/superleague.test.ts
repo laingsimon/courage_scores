@@ -15,15 +15,15 @@ import {
     matchTons,
     maxNoOfThrowsAllMatches,
     playerOverallAverage,
-    sumOverThrows
-} from "./superleague";
-import {ScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto";
-import {LegDto} from "../interfaces/models/dtos/Game/Sayg/LegDto";
-import {ISuperleagueSayg} from "../components/tournaments/superleague/ISuperleagueSayg";
-import {LegThrowDto} from "../interfaces/models/dtos/Game/Sayg/LegThrowDto";
-import {LegCompetitorScoreDto} from "../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
-import {sum} from "./collections";
-import {getScoreFromThrows} from "./sayg";
+    sumOverThrows,
+} from './superleague';
+import { ScoreAsYouGoDto } from '../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto';
+import { LegDto } from '../interfaces/models/dtos/Game/Sayg/LegDto';
+import { ISuperleagueSayg } from '../components/tournaments/superleague/ISuperleagueSayg';
+import { LegThrowDto } from '../interfaces/models/dtos/Game/Sayg/LegThrowDto';
+import { LegCompetitorScoreDto } from '../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto';
+import { sum } from './collections';
+import { getScoreFromThrows } from './sayg';
 
 describe('superleague', () => {
     const ton: LegThrowDto = thr(100);
@@ -49,12 +49,16 @@ describe('superleague', () => {
         };
     }
 
-    function leg(homeThrows: LegCompetitorScoreDto, awayThrows?: LegCompetitorScoreDto, isLastLeg?: boolean): LegDto {
+    function leg(
+        homeThrows: LegCompetitorScoreDto,
+        awayThrows?: LegCompetitorScoreDto,
+        isLastLeg?: boolean,
+    ): LegDto {
         return {
             home: homeThrows,
             away: awayThrows || {},
             startingScore: 501,
-            isLastLeg
+            isLastLeg,
         };
     }
 
@@ -69,8 +73,8 @@ describe('superleague', () => {
             const saygData: ScoreAsYouGoDto = {
                 legs: {
                     0: leg(score(ton, bust)),
-                    1: leg(score(thr(50, 2)))
-                }
+                    1: leg(score(thr(50, 2))),
+                },
             };
 
             const result = playerOverallAverage(saygData, 'home');
@@ -87,7 +91,7 @@ describe('superleague', () => {
         });
 
         it('should return 0 when no legs', () => {
-            const result = countMatch100({legs: {}}, 'home');
+            const result = countMatch100({ legs: {} }, 'home');
 
             expect(result).toEqual(0);
         });
@@ -95,14 +99,20 @@ describe('superleague', () => {
         it('should return count of scores greater-than-or-equal 100 and less than 140', () => {
             const saygData: ScoreAsYouGoDto = {
                 legs: {
-                    0: leg(score(
-                        /* valid */
-                        ton, thr(139),
+                    0: leg(
+                        score(
+                            /* valid */
+                            ton,
+                            thr(139),
 
-                        /* invalid */
-                        thr(99), bust, thr(140))),
-                }
-            }
+                            /* invalid */
+                            thr(99),
+                            bust,
+                            thr(140),
+                        ),
+                    ),
+                },
+            };
 
             const result = countMatch100(saygData, 'home');
 
@@ -118,7 +128,7 @@ describe('superleague', () => {
         });
 
         it('should return 0 when no legs', () => {
-            const result = countMatch140({legs: {}}, 'home');
+            const result = countMatch140({ legs: {} }, 'home');
 
             expect(result).toEqual(0);
         });
@@ -126,14 +136,20 @@ describe('superleague', () => {
         it('should return count of scores greater-than-or-equal 140 and less than 180', () => {
             const saygData: ScoreAsYouGoDto = {
                 legs: {
-                    0: leg(score(
-                        /* valid */
-                        thr(140), thr(179),
+                    0: leg(
+                        score(
+                            /* valid */
+                            thr(140),
+                            thr(179),
 
-                        /* invalid */
-                        thr(139), bust, thr(180))),
-                }
-            }
+                            /* invalid */
+                            thr(139),
+                            bust,
+                            thr(180),
+                        ),
+                    ),
+                },
+            };
 
             const result = countMatch140(saygData, 'home');
 
@@ -149,7 +165,7 @@ describe('superleague', () => {
         });
 
         it('should return 0 when no legs', () => {
-            const result = countMatch180({legs: {}}, 'home');
+            const result = countMatch180({ legs: {} }, 'home');
 
             expect(result).toEqual(0);
         });
@@ -157,14 +173,18 @@ describe('superleague', () => {
         it('should return count of scores greater-than-or-equal 140 and less than 180', () => {
             const saygData: ScoreAsYouGoDto = {
                 legs: {
-                    0: leg(score(
-                        /* valid */
-                        thr(180),
+                    0: leg(
+                        score(
+                            /* valid */
+                            thr(180),
 
-                        /* invalid */
-                        thr(179), bust)),
-                }
-            }
+                            /* invalid */
+                            thr(179),
+                            bust,
+                        ),
+                    ),
+                },
+            };
 
             const result = countMatch180(saygData, 'home');
 
@@ -180,7 +200,7 @@ describe('superleague', () => {
         });
 
         it('should return 0 when no legs', () => {
-            const result = matchTons({legs: {}}, 'home');
+            const result = matchTons({ legs: {} }, 'home');
 
             expect(result).toEqual(0);
         });
@@ -189,8 +209,8 @@ describe('superleague', () => {
             const saygData: ScoreAsYouGoDto = {
                 legs: {
                     0: leg(score(ton, thr(140), thr(180))),
-                }
-            }
+                },
+            };
 
             const result = matchTons(saygData, 'home');
 
@@ -207,7 +227,7 @@ describe('superleague', () => {
         });
 
         it('should return 0 if no legs data', () => {
-            const result = getNoOfLegs({legs: {}});
+            const result = getNoOfLegs({ legs: {} });
 
             expect(result).toEqual(0);
         });
@@ -218,7 +238,7 @@ describe('superleague', () => {
                     0: leg(score(thr(0)), score()),
                     1: leg(score(), score(thr(0))),
                     2: leg(score(), score()),
-                }
+                },
             };
 
             const result = getNoOfLegs(saygData);
@@ -235,22 +255,22 @@ describe('superleague', () => {
         });
 
         it('should return 0 given no legs', () => {
-            const result = sumOverThrows({legs: {}}, 'home', 'noOfDarts');
+            const result = sumOverThrows({ legs: {} }, 'home', 'noOfDarts');
 
             expect(result).toEqual(0);
         });
 
         it('should return 0 given no prop', () => {
-            const result = sumOverThrows({legs: {}}, 'home', 'unknown');
+            const result = sumOverThrows({ legs: {} }, 'home', 'unknown');
 
             expect(result).toEqual(0);
         });
 
         it('should return sum of props', () => {
             const legs: { [key: number]: LegDto } = {
-                0: leg(score(thr(0, 1), thr(0, 2), thr(0)))
+                0: leg(score(thr(0, 1), thr(0, 2), thr(0))),
             };
-            const result = sumOverThrows({legs: legs}, 'home', 'noOfDarts');
+            const result = sumOverThrows({ legs: legs }, 'home', 'noOfDarts');
 
             expect(result).toEqual(6);
         });
@@ -270,7 +290,7 @@ describe('superleague', () => {
         });
 
         it('should return 0 when no sayg legs', () => {
-            const saygMatch: ISuperleagueSayg = {saygData: {legs:{}}}
+            const saygMatch: ISuperleagueSayg = { saygData: { legs: {} } };
             const result = maxNoOfThrowsAllMatches([saygMatch]);
 
             expect(result).toEqual(0);
@@ -282,9 +302,10 @@ describe('superleague', () => {
                     legs: {
                         0: leg(
                             score(thr(0), thr(0), bust),
-                            score(thr(0), thr(0)))
-                    }
-                }
+                            score(thr(0), thr(0)),
+                        ),
+                    },
+                },
             };
 
             const result = maxNoOfThrowsAllMatches([saygMatch]);
@@ -298,9 +319,10 @@ describe('superleague', () => {
                     legs: {
                         0: leg(
                             score(thr(0), thr(0), thr(0)),
-                            score(thr(0), thr(0), thr(0), bust)),
-                    }
-                }
+                            score(thr(0), thr(0), thr(0), bust),
+                        ),
+                    },
+                },
             };
 
             const result = maxNoOfThrowsAllMatches([saygMatch]);
@@ -315,8 +337,9 @@ describe('superleague', () => {
                 legs: {
                     0: leg(
                         score(ton, ton, ton, ton, thr(50), bust, thr(51)),
-                        score(ton, ton, ton, ton))
-                }
+                        score(ton, ton, ton, ton),
+                    ),
+                },
             };
 
             const result = getMatchWinner(saygData);
@@ -329,8 +352,9 @@ describe('superleague', () => {
                 legs: {
                     0: leg(
                         score(ton, ton, ton, ton),
-                        score(ton, ton, ton, ton, thr(50), bust, thr(51)))
-                }
+                        score(ton, ton, ton, ton, thr(50), bust, thr(51)),
+                    ),
+                },
             };
 
             const result = getMatchWinner(saygData);
@@ -343,8 +367,9 @@ describe('superleague', () => {
                 legs: {
                     0: leg(
                         score(ton, ton, ton, ton),
-                        score(ton, ton, ton, ton))
-                }
+                        score(ton, ton, ton, ton),
+                    ),
+                },
             };
 
             const result = getMatchWinner(saygData);
@@ -385,8 +410,8 @@ describe('superleague', () => {
         });
 
         it('should return 0 when no legs for data', () => {
-            const saygData: ScoreAsYouGoDto = {legs: null!};
-            const result = legsWon([{saygData}], 'home');
+            const saygData: ScoreAsYouGoDto = { legs: null! };
+            const result = legsWon([{ saygData }], 'home');
 
             expect(result).toEqual(0);
         });
@@ -395,11 +420,11 @@ describe('superleague', () => {
             const saygData: ScoreAsYouGoDto = {
                 legs: {
                     0: leg(score(thr(501)), {}, false),
-                    1: leg(score(thr(501)), {}, false)
-                }
-            }
+                    1: leg(score(thr(501)), {}, false),
+                },
+            };
 
-            const result = legsWon([{saygData: saygData}], 'home');
+            const result = legsWon([{ saygData: saygData }], 'home');
 
             expect(result).toEqual(2);
         });
@@ -408,11 +433,11 @@ describe('superleague', () => {
             const saygData: ScoreAsYouGoDto = {
                 legs: {
                     0: leg(score(thr(0)), {}, false),
-                    1: leg(score(thr(0)), {}, false)
-                }
-            }
+                    1: leg(score(thr(0)), {}, false),
+                },
+            };
 
-            const result = legsWon([{saygData: saygData}], 'home');
+            const result = legsWon([{ saygData: saygData }], 'home');
 
             expect(result).toEqual(0);
         });
@@ -420,24 +445,40 @@ describe('superleague', () => {
 
     describe('countLegThrowsBetween', () => {
         it('should return 0 when no accumulator', () => {
-            const result = countLegThrowsBetween(leg(score()), 'away', 100, 140);
+            const result = countLegThrowsBetween(
+                leg(score()),
+                'away',
+                100,
+                140,
+            );
 
             expect(result).toEqual(0);
         });
 
         it('should return 0 when no throws', () => {
-            const result = countLegThrowsBetween(leg(score()), 'home', 100, 140);
+            const result = countLegThrowsBetween(
+                leg(score()),
+                'home',
+                100,
+                140,
+            );
 
             expect(result).toEqual(0);
         });
 
         it('should return count of valid throws within range', () => {
-            const l: LegDto = leg(score(
-                /* valid */
-                ton, thr(139),
+            const l: LegDto = leg(
+                score(
+                    /* valid */
+                    ton,
+                    thr(139),
 
-                /* invalid */
-                thr(99), bust, thr(140)));
+                    /* invalid */
+                    thr(99),
+                    bust,
+                    thr(140),
+                ),
+            );
 
             const result = countLegThrowsBetween(l, 'home', 100, 140);
 
@@ -447,12 +488,17 @@ describe('superleague', () => {
 
     describe('legTons', () => {
         it('should return correctly', () => {
-            const l: LegDto = leg(score(
-                /* valid */
-                ton, thr(140), thr(180),
+            const l: LegDto = leg(
+                score(
+                    /* valid */
+                    ton,
+                    thr(140),
+                    thr(180),
 
-                /* invalid */
-                bust));
+                    /* invalid */
+                    bust,
+                ),
+            );
 
             const result = legTons(l, 'home');
 
@@ -463,12 +509,17 @@ describe('superleague', () => {
 
     describe('legTonsSplit', () => {
         it('should return 100s+180s', () => {
-            const l: LegDto = leg(score(
-                /* valid */
-                ton, thr(140), thr(180),
+            const l: LegDto = leg(
+                score(
+                    /* valid */
+                    ton,
+                    thr(140),
+                    thr(180),
 
-                /* invalid */
-                bust));
+                    /* invalid */
+                    bust,
+                ),
+            );
 
             const result = legTonsSplit(l, 'home');
 
@@ -477,12 +528,16 @@ describe('superleague', () => {
         });
 
         it('should return 100s when no 180s', () => {
-            const l: LegDto = leg(score(
-                /* valid */
-                ton, thr(140),
+            const l: LegDto = leg(
+                score(
+                    /* valid */
+                    ton,
+                    thr(140),
 
-                /* invalid */
-                bust));
+                    /* invalid */
+                    bust,
+                ),
+            );
 
             const result = legTonsSplit(l, 'home');
 

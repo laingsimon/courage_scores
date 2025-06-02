@@ -1,5 +1,5 @@
-import {ISettings} from "./settings";
-import {UntypedPromise} from "../interfaces/UntypedPromise";
+import { ISettings } from './settings';
+import { UntypedPromise } from '../interfaces/UntypedPromise';
 
 export interface IHeaders {
     [name: string]: string;
@@ -12,7 +12,11 @@ export interface IHttp {
     /* eslint-disable @typescript-eslint/no-explicit-any */
     patch(relativeUrl: string, headers: IHeaders, content: any): UntypedPromise;
     /* eslint-disable @typescript-eslint/no-explicit-any */
-    delete(relativeUrl: string, headers: IHeaders, content?: any): UntypedPromise;
+    delete(
+        relativeUrl: string,
+        headers: IHeaders,
+        content?: any,
+    ): UntypedPromise;
     /* eslint-disable @typescript-eslint/no-explicit-any */
     put(relativeUrl: string, headers: IHeaders, content: any): UntypedPromise;
 }
@@ -41,7 +45,12 @@ class Http implements IHttp {
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
     delete(relativeUrl: string, headers: IHeaders, content?: any) {
-        return this.send('DELETE', headers, relativeUrl, content ? content : null);
+        return this.send(
+            'DELETE',
+            headers,
+            relativeUrl,
+            content ? content : null,
+        );
     }
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -64,9 +73,12 @@ class Http implements IHttp {
     }
 
     getGetHeaders(headers: IHeaders): IHeaders {
-        const defaultHeaders: IHeaders = Object.assign({
-            'X-UI-Url': document.location.href,
-        }, headers);
+        const defaultHeaders: IHeaders = Object.assign(
+            {
+                'X-UI-Url': document.location.href,
+            },
+            headers,
+        );
 
         if (this.settings.invalidateCacheOnNextRequest) {
             defaultHeaders['Cache-Control'] = 'no-cache';
@@ -76,7 +88,12 @@ class Http implements IHttp {
     }
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
-    async send(httpMethod: string, headers: IHeaders, relativeUrl: string, content?: any) {
+    async send(
+        httpMethod: string,
+        headers: IHeaders,
+        relativeUrl: string,
+        content?: any,
+    ) {
         if (relativeUrl.indexOf('/') !== 0) {
             relativeUrl = '/' + relativeUrl;
         }
@@ -89,7 +106,7 @@ class Http implements IHttp {
                 mode: 'cors',
                 body: JSON.stringify(content),
                 headers: this.getPostHeaders(headers),
-                credentials: 'include'
+                credentials: 'include',
             });
 
             if (response.status === 204) {
@@ -99,7 +116,13 @@ class Http implements IHttp {
             try {
                 return await response.clone().json();
             } catch (e) {
-                throw await this.handleError(response, e as Error, httpMethod, relativeUrl, JSON.stringify(content));
+                throw await this.handleError(
+                    response,
+                    e as Error,
+                    httpMethod,
+                    relativeUrl,
+                    JSON.stringify(content),
+                );
             }
         }
 
@@ -121,11 +144,22 @@ class Http implements IHttp {
         try {
             return await response.clone().json();
         } catch (e) {
-            throw await this.handleError(response, e as Error, httpMethod, relativeUrl);
+            throw await this.handleError(
+                response,
+                e as Error,
+                httpMethod,
+                relativeUrl,
+            );
         }
     }
 
-    async handleError(response: Response, exc: Error, httpMethod: string, relativeUrl: string, requestContent?: string): Promise<Error> {
+    async handleError(
+        response: Response,
+        exc: Error,
+        httpMethod: string,
+        relativeUrl: string,
+        requestContent?: string,
+    ): Promise<Error> {
         const responseDetails = `Status=${response.status} ${response.statusText}\nContent-Type=${response.headers.get('content-type')}\nContent-Length=${response.headers.get('content-length')}`;
         let responseBodySnip = 'body content unavailable';
         try {
@@ -135,9 +169,13 @@ class Http implements IHttp {
         } catch (e) {
             console.error(e);
         }
-        const requestBody = requestContent ? `\n\nRequest content: ${requestContent}` : '';
-        return new Error(`${exc.message}\nError with ${httpMethod} to ${relativeUrl}\n\n${responseDetails}\n\n${responseBodySnip}${requestBody}\n\n----`);
+        const requestBody = requestContent
+            ? `\n\nRequest content: ${requestContent}`
+            : '';
+        return new Error(
+            `${exc.message}\nError with ${httpMethod} to ${relativeUrl}\n\n${responseDetails}\n\n${responseBodySnip}${requestBody}\n\n----`,
+        );
     }
 }
 
-export {Http};
+export { Http };

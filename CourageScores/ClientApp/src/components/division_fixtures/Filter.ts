@@ -1,5 +1,5 @@
-import {all, any} from "../../helpers/collections";
-import {IFilter} from "./IFilter";
+import { all, any } from '../../helpers/collections';
+import { IFilter } from './IFilter';
 
 export class Filter<T> implements IFilter<T> {
     /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -33,7 +33,7 @@ export class AndFilter<T> implements IFilter<T> {
     }
 
     apply(item: T) {
-        return all(this._filters, filter => filter.apply(item));
+        return all(this._filters, (filter) => filter.apply(item));
     }
 }
 
@@ -51,7 +51,7 @@ export class OrFilter<T> implements IFilter<T> {
     }
 
     apply(item: T) {
-        return any(this._filters, filter => filter.apply(item));
+        return any(this._filters, (filter) => filter.apply(item));
     }
 }
 

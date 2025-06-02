@@ -1,13 +1,13 @@
-import {useApp} from "../common/AppContainer";
-import {useLeagueFixture} from "./LeagueFixtureContainer";
-import {renderDate} from "../../helpers/rendering";
-import {count} from "../../helpers/collections";
-import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
-import {GameMatchDto} from "../../interfaces/models/dtos/Game/GameMatchDto";
-import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
-import {Link} from "react-router";
-import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
-import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import { useApp } from '../common/AppContainer';
+import { useLeagueFixture } from './LeagueFixtureContainer';
+import { renderDate } from '../../helpers/rendering';
+import { count } from '../../helpers/collections';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
+import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto';
+import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
+import { Link } from 'react-router';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
+import { UntypedPromise } from '../../interfaces/UntypedPromise';
 
 export interface IScoreCardHeadingProps {
     data: GameDto;
@@ -17,20 +17,31 @@ export interface IScoreCardHeadingProps {
     setFixtureData(data: GameDto): UntypedPromise;
 }
 
-export function ScoreCardHeading({data, access, submission, setSubmission, setFixtureData}: IScoreCardHeadingProps) {
-    const {account, onError, teams} = useApp();
-    const {division, season} = useLeagueFixture();
-    const submissionTeam: TeamDto | null = account && access === 'clerk' && account.teamId
-        ? teams.filter(t => t.id === account.teamId)[0]
-        : null;
-    const opposingTeam = submissionTeam && data.home.id === submissionTeam.id ? data.away : data.home;
+export function ScoreCardHeading({
+    data,
+    access,
+    submission,
+    setSubmission,
+    setFixtureData,
+}: IScoreCardHeadingProps) {
+    const { account, onError, teams } = useApp();
+    const { division, season } = useLeagueFixture();
+    const submissionTeam: TeamDto | null =
+        account && access === 'clerk' && account.teamId
+            ? teams.filter((t) => t.id === account.teamId)[0]
+            : null;
+    const opposingTeam =
+        submissionTeam && data.home.id === submissionTeam.id
+            ? data.away
+            : data.home;
     const homeScore = getScore(data, 'home');
     const awayScore = getScore(data, 'away');
-    const winner = homeScore > awayScore
-        ? 'home'
-        : awayScore > homeScore
-            ? 'away'
-            : 'draw';
+    const winner =
+        homeScore > awayScore
+            ? 'home'
+            : awayScore > homeScore
+              ? 'away'
+              : 'draw';
     const submissionData = data[submission + 'Submission'];
 
     async function toggleSubmission(submissionToShow: string) {
@@ -50,8 +61,14 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
     }
 
     function canShowSubmissionToggle(submission?: GameDto) {
-        return submission
-            && (access === 'admin' || (account && submission && account.teamId === submission.id && access === 'clerk'));
+        return (
+            submission &&
+            (access === 'admin' ||
+                (account &&
+                    submission &&
+                    account.teamId === submission.id &&
+                    access === 'clerk'))
+        );
     }
 
     function hasScore(score?: number): boolean {
@@ -59,22 +76,29 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
     }
 
     function getScore(data: GameDto | undefined, side: string): number {
-        function sideWonMatch(match: GameMatchDto | undefined, index?: number): boolean {
-            const hasBothScores: boolean = hasScore(match?.homeScore) && hasScore(match?.awayScore);
+        function sideWonMatch(
+            match: GameMatchDto | undefined,
+            index?: number,
+        ): boolean {
+            const hasBothScores: boolean =
+                hasScore(match?.homeScore) && hasScore(match?.awayScore);
 
             if (!hasBothScores) {
                 return false;
             }
 
-            const matchOptions: GameMatchOptionDto | undefined = data?.matchOptions![index!];
+            const matchOptions: GameMatchOptionDto | undefined =
+                data?.matchOptions![index!];
             const defaultNumberOfLegs: number = 5;
-            const numberOfLegs: number = matchOptions ? matchOptions.numberOfLegs! : defaultNumberOfLegs;
+            const numberOfLegs: number = matchOptions
+                ? matchOptions.numberOfLegs!
+                : defaultNumberOfLegs;
 
             switch (side) {
                 case 'home':
-                    return (match?.homeScore || 0) > (numberOfLegs / 2.0);
+                    return (match?.homeScore || 0) > numberOfLegs / 2.0;
                 case 'away':
-                    return (match?.awayScore || 0) > (numberOfLegs / 2.0);
+                    return (match?.awayScore || 0) > numberOfLegs / 2.0;
                 default:
                     /* istanbul ignore next */
                     return false;
@@ -84,41 +108,89 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
         return count(data?.matches, sideWonMatch);
     }
 
-    return (<thead>
-    <tr>
-        <td colSpan={2} className={`text-end fw-bold width-50-pc ${winner === 'home' ? 'bg-winner' : ''}${submission === 'home' ? ' bg-warning' : ''}`}>
-            {canShowSubmissionToggle(data.homeSubmission)
-                ? (<span onClick={async () => await toggleSubmission('home')}
-                         className={`btn btn-sm ${submission === 'home' ? 'btn-primary' : 'btn-outline-secondary'}`}
-                         title="See home submission">📬 {data.home.name} ({getScore(data.homeSubmission, 'home')}-{getScore(data.homeSubmission, 'away')})</span>)
-                : <Link to={`/division/${division.name}/team:${data.home.name}/${season.name}`}
-                                  className="margin-right">{data.home.name} - {homeScore}</Link>}
-        </td>
-        <td className="text-center width-1 middle-vertical-line p-0"></td>
-        <td colSpan={2} className={`text-start fw-bold width-50-pc ${winner === 'away' ? 'bg-winner' : ''}${submission === 'away' ? ' bg-warning' : ''}`}>
-            {canShowSubmissionToggle(data.awaySubmission)
-                ? (<span onClick={async () => await toggleSubmission('away')}
-                         className={`btn btn-sm ${submission === 'away' ? 'btn-primary' : 'btn-outline-secondary'}`}
-                         title="See away submission">📬 {data.away.name} ({getScore(data.awaySubmission, 'home')}-{getScore(data.awaySubmission, 'away')})</span>)
-                : <Link to={`/division/${division.name}/team:${data.away.name}/${season.name}`}
-                                  className="margin-right">{awayScore} - {data.away.name}</Link>}
-        </td>
-    </tr>
-    {access === 'clerk' && !data.resultsPublished ? (<tr>
-        <th colSpan={5}>
-            <div className="alert alert-warning fw-normal">
-                ⚠ You are editing {submissionTeam ? <>the submission from <strong>{submissionTeam.name}</strong></> : 'your submission'}, they are not visible on the website.<br />
-                <br />
-                The results will be published by an administrator, or automatically if someone from <strong>{opposingTeam.name}</strong> submits matching results.
-            </div>
-        </th>
-    </tr>) : null}
-    {access === 'admin' && submission ? (<tr>
-        <th colSpan={5}>
-            <div className="alert alert-warning fw-normal">
-                You are viewing the submission from <strong>{data[submission].name}</strong>, created by <strong>{submissionData.editor}</strong> as of <strong title={submissionData.updated}>{renderDate(submissionData.updated)}</strong>
-            </div>
-        </th>
-    </tr>) : null}
-    </thead>);
+    return (
+        <thead>
+            <tr>
+                <td
+                    colSpan={2}
+                    className={`text-end fw-bold width-50-pc ${winner === 'home' ? 'bg-winner' : ''}${submission === 'home' ? ' bg-warning' : ''}`}>
+                    {canShowSubmissionToggle(data.homeSubmission) ? (
+                        <span
+                            onClick={async () => await toggleSubmission('home')}
+                            className={`btn btn-sm ${submission === 'home' ? 'btn-primary' : 'btn-outline-secondary'}`}
+                            title="See home submission">
+                            📬 {data.home.name} (
+                            {getScore(data.homeSubmission, 'home')}-
+                            {getScore(data.homeSubmission, 'away')})
+                        </span>
+                    ) : (
+                        <Link
+                            to={`/division/${division.name}/team:${data.home.name}/${season.name}`}
+                            className="margin-right">
+                            {data.home.name} - {homeScore}
+                        </Link>
+                    )}
+                </td>
+                <td className="text-center width-1 middle-vertical-line p-0"></td>
+                <td
+                    colSpan={2}
+                    className={`text-start fw-bold width-50-pc ${winner === 'away' ? 'bg-winner' : ''}${submission === 'away' ? ' bg-warning' : ''}`}>
+                    {canShowSubmissionToggle(data.awaySubmission) ? (
+                        <span
+                            onClick={async () => await toggleSubmission('away')}
+                            className={`btn btn-sm ${submission === 'away' ? 'btn-primary' : 'btn-outline-secondary'}`}
+                            title="See away submission">
+                            📬 {data.away.name} (
+                            {getScore(data.awaySubmission, 'home')}-
+                            {getScore(data.awaySubmission, 'away')})
+                        </span>
+                    ) : (
+                        <Link
+                            to={`/division/${division.name}/team:${data.away.name}/${season.name}`}
+                            className="margin-right">
+                            {awayScore} - {data.away.name}
+                        </Link>
+                    )}
+                </td>
+            </tr>
+            {access === 'clerk' && !data.resultsPublished ? (
+                <tr>
+                    <th colSpan={5}>
+                        <div className="alert alert-warning fw-normal">
+                            ⚠ You are editing{' '}
+                            {submissionTeam ? (
+                                <>
+                                    the submission from{' '}
+                                    <strong>{submissionTeam.name}</strong>
+                                </>
+                            ) : (
+                                'your submission'
+                            )}
+                            , they are not visible on the website.
+                            <br />
+                            <br />
+                            The results will be published by an administrator,
+                            or automatically if someone from{' '}
+                            <strong>{opposingTeam.name}</strong> submits
+                            matching results.
+                        </div>
+                    </th>
+                </tr>
+            ) : null}
+            {access === 'admin' && submission ? (
+                <tr>
+                    <th colSpan={5}>
+                        <div className="alert alert-warning fw-normal">
+                            You are viewing the submission from{' '}
+                            <strong>{data[submission].name}</strong>, created by{' '}
+                            <strong>{submissionData.editor}</strong> as of{' '}
+                            <strong title={submissionData.updated}>
+                                {renderDate(submissionData.updated)}
+                            </strong>
+                        </div>
+                    </th>
+                </tr>
+            ) : null}
+        </thead>
+    );
 }

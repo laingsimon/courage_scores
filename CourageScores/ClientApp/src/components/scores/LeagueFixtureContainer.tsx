@@ -1,5 +1,5 @@
-import React, {createContext, useContext} from "react";
-import {ILeagueFixture} from "./ILeagueFixture";
+import React, { createContext, useContext } from 'react';
+import { ILeagueFixture } from './ILeagueFixture';
 
 const LeagueFixtureContext = createContext({});
 
@@ -12,8 +12,13 @@ export interface ILeagueFixtureContainerProps extends ILeagueFixture {
 }
 
 /* istanbul ignore next */
-export function LeagueFixtureContainer({children, ...data}: ILeagueFixtureContainerProps) {
-    return (<LeagueFixtureContext.Provider value={data}>
-        {children}
-    </LeagueFixtureContext.Provider>)
+export function LeagueFixtureContainer({
+    children,
+    ...data
+}: ILeagueFixtureContainerProps) {
+    return (
+        <LeagueFixtureContext.Provider value={data}>
+            {children}
+        </LeagueFixtureContext.Provider>
+    );
 }

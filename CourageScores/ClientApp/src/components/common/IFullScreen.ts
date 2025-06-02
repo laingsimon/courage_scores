@@ -1,4 +1,4 @@
-﻿import {UntypedPromise} from "../../interfaces/UntypedPromise";
+﻿import { UntypedPromise } from '../../interfaces/UntypedPromise';
 
 export interface IFullScreen {
     isFullScreen?: boolean;

@@ -1,14 +1,21 @@
 import {
     appProps,
     brandingProps,
-    cleanUp, doClick, doKeyPress,
-    ErrorState, findButton,
+    cleanUp,
+    doClick,
+    doKeyPress,
+    ErrorState,
+    findButton,
     iocProps,
-    renderApp, TestContext
-} from "../../helpers/tests";
-import {INumberKeyboardProps, NumberKeyboard} from "./NumberKeyboard";
-import {StringMapObject, toDictionary} from "../../helpers/collections";
-import {DELETE_SCORE_BUTTON, ENTER_SCORE_BUTTON} from "../../helpers/constants";
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import { INumberKeyboardProps, NumberKeyboard } from './NumberKeyboard';
+import { StringMapObject, toDictionary } from '../../helpers/collections';
+import {
+    DELETE_SCORE_BUTTON,
+    ENTER_SCORE_BUTTON,
+} from '../../helpers/constants';
 
 describe('NumberKeyboard', () => {
     let context: TestContext;
@@ -39,12 +46,18 @@ describe('NumberKeyboard', () => {
             iocProps(),
             brandingProps(),
             appProps({}, reportedError),
-            (<NumberKeyboard {...props} />));
+            <NumberKeyboard {...props} />,
+        );
     }
 
     function assertEnabledButtons(buttonText: string[]) {
-        const buttons: HTMLButtonElement[] = Array.from(context.container.querySelectorAll('button'));
-        const buttonLookup: StringMapObject = toDictionary(buttons, (b: HTMLButtonElement) => b.textContent!);
+        const buttons: HTMLButtonElement[] = Array.from(
+            context.container.querySelectorAll('button'),
+        );
+        const buttonLookup: StringMapObject = toDictionary(
+            buttons,
+            (b: HTMLButtonElement) => b.textContent!,
+        );
 
         for (const text of buttonText) {
             const button = buttonLookup[text];
@@ -57,8 +70,13 @@ describe('NumberKeyboard', () => {
     }
 
     function assertDisabledButtons(buttonText: string[]) {
-        const buttons: HTMLButtonElement[] = Array.from(context.container.querySelectorAll('button'));
-        const buttonLookup: StringMapObject = toDictionary(buttons, (b: HTMLButtonElement) => b.textContent!);
+        const buttons: HTMLButtonElement[] = Array.from(
+            context.container.querySelectorAll('button'),
+        );
+        const buttonLookup: StringMapObject = toDictionary(
+            buttons,
+            (b: HTMLButtonElement) => b.textContent!,
+        );
 
         for (const text of buttonText) {
             const button = buttonLookup[text];
@@ -71,7 +89,18 @@ describe('NumberKeyboard', () => {
     }
 
     describe('renders', () => {
-        const allNumbers: string[] = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+        const allNumbers: string[] = [
+            '1',
+            '2',
+            '3',
+            '4',
+            '5',
+            '6',
+            '7',
+            '8',
+            '9',
+            '0',
+        ];
 
         it('when value is empty', async () => {
             await renderComponent({
@@ -81,7 +110,7 @@ describe('NumberKeyboard', () => {
             });
 
             assertEnabledButtons(allNumbers.filter((b: string) => b !== '0'));
-            assertDisabledButtons([ DELETE_SCORE_BUTTON ]);
+            assertDisabledButtons([DELETE_SCORE_BUTTON]);
         });
 
         it('when value is 0', async () => {
@@ -91,8 +120,12 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            assertEnabledButtons(allNumbers.filter((b: string) => b !== '0').concat([ DELETE_SCORE_BUTTON ]));
-            assertDisabledButtons([ '0' ]);
+            assertEnabledButtons(
+                allNumbers
+                    .filter((b: string) => b !== '0')
+                    .concat([DELETE_SCORE_BUTTON]),
+            );
+            assertDisabledButtons(['0']);
         });
 
         it('when value is positive', async () => {
@@ -102,7 +135,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            assertEnabledButtons(allNumbers.concat([ DELETE_SCORE_BUTTON ]));
+            assertEnabledButtons(allNumbers.concat([DELETE_SCORE_BUTTON]));
         });
 
         it('when value is equal to max value', async () => {
@@ -113,7 +146,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            assertEnabledButtons([ DELETE_SCORE_BUTTON ]);
+            assertEnabledButtons([DELETE_SCORE_BUTTON]);
             assertDisabledButtons(allNumbers);
         });
 
@@ -125,7 +158,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            assertEnabledButtons([ DELETE_SCORE_BUTTON ]);
+            assertEnabledButtons([DELETE_SCORE_BUTTON]);
             assertDisabledButtons(allNumbers);
         });
 
@@ -137,7 +170,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            assertEnabledButtons(allNumbers.concat([ DELETE_SCORE_BUTTON ]));
+            assertEnabledButtons(allNumbers.concat([DELETE_SCORE_BUTTON]));
         });
 
         it('given non-number value', async () => {
@@ -149,7 +182,7 @@ describe('NumberKeyboard', () => {
             });
 
             assertDisabledButtons(allNumbers);
-            assertEnabledButtons([ DELETE_SCORE_BUTTON ]);
+            assertEnabledButtons([DELETE_SCORE_BUTTON]);
         });
     });
 
@@ -185,7 +218,10 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            const zeroButton = findButton(context.container, DELETE_SCORE_BUTTON);
+            const zeroButton = findButton(
+                context.container,
+                DELETE_SCORE_BUTTON,
+            );
             expect(zeroButton.disabled).toEqual(true);
         });
 

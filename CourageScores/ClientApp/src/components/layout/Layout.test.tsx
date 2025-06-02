@@ -1,6 +1,13 @@
-import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../helpers/tests";
-import {Layout} from "./Layout";
-import {IError} from "../common/IError";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    iocProps,
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import { Layout } from './Layout';
+import { IError } from '../common/IError';
 
 describe('Layout', () => {
     let context: TestContext;
@@ -18,16 +25,22 @@ describe('Layout', () => {
                 embed,
                 divisions: [],
             }),
-            (<Layout/>));
+            <Layout />,
+        );
     }
 
     describe('surround present', () => {
         it('when an error present', async () => {
-            await renderComponent({message: 'some error', stack: 'stack'}, false);
+            await renderComponent(
+                { message: 'some error', stack: 'stack' },
+                false,
+            );
 
             expect(context.container.querySelector('.heading')).toBeTruthy();
             expect(context.container.querySelector('header')).toBeTruthy();
-            const content = context.container.querySelector('div.content-background')!;
+            const content = context.container.querySelector(
+                'div.content-background',
+            )!;
             expect(content).toBeTruthy();
             expect(content.textContent).toContain('some error');
         });
@@ -44,11 +57,16 @@ describe('Layout', () => {
 
     describe('when embedded', () => {
         it('when an error present', async () => {
-            await renderComponent({message: 'some error', stack: 'stack'}, true);
+            await renderComponent(
+                { message: 'some error', stack: 'stack' },
+                true,
+            );
 
             expect(context.container.querySelector('.heading')).toBeFalsy();
             expect(context.container.querySelector('header')).toBeFalsy();
-            const content = context.container.querySelector('div.content-background')!;
+            const content = context.container.querySelector(
+                'div.content-background',
+            )!;
             expect(content).toBeTruthy();
             expect(content.textContent).toContain('some error');
         });

@@ -1,4 +1,7 @@
-import {getSideMnemonicGenerator, IMnemonicGenerator} from "./MnemonicGenerators";
+import {
+    getSideMnemonicGenerator,
+    IMnemonicGenerator,
+} from './MnemonicGenerators';
 
 describe('MnemonicGenerator', () => {
     describe('getSideMnemonicGenerator', () => {
@@ -42,7 +45,10 @@ describe('MnemonicGenerator', () => {
             expect(result).toEqual('BA');
         });
 
-        function getNthMnemonic(generator: IMnemonicGenerator, count: number): string {
+        function getNthMnemonic(
+            generator: IMnemonicGenerator,
+            count: number,
+        ): string {
             for (let index = 0; index < count - 1; index++) {
                 generator.next();
             }

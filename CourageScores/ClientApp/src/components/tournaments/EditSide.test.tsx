@@ -5,35 +5,41 @@ import {
     cleanUp,
     doChange,
     doClick,
-    doSelectOption, ErrorState,
+    doSelectOption,
+    ErrorState,
     findButton,
     iocProps,
-    renderApp, TestContext
-} from "../../helpers/tests";
-import {EditSide, IEditSideProps, ISaveSideOptions} from "./EditSide";
-import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
-import {createTemporaryId} from "../../helpers/projection";
-import {EditTeamPlayerDto} from "../../interfaces/models/dtos/Team/EditTeamPlayerDto";
-import {IClientActionResultDto} from "../common/IClientActionResultDto";
-import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
-import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
-import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
-import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
-import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
-import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
-import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
-import {playerBuilder} from "../../helpers/builders/players";
-import {divisionBuilder} from "../../helpers/builders/divisions";
-import {sideBuilder, tournamentBuilder} from "../../helpers/builders/tournaments";
-import {seasonBuilder} from "../../helpers/builders/seasons";
-import {teamBuilder} from "../../helpers/builders/teams";
-import {IPlayerApi} from "../../interfaces/apis/IPlayerApi";
-import {ITournamentPlayerMap} from "./Tournament";
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import { EditSide, IEditSideProps, ISaveSideOptions } from './EditSide';
 import {
-    DivisionTournamentFixtureDetailsDto
-} from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
-import {tournamentContainerPropsBuilder} from "./tournamentContainerPropsBuilder";
-import {AccessDto} from "../../interfaces/models/dtos/Identity/AccessDto";
+    ITournamentContainerProps,
+    TournamentContainer,
+} from './TournamentContainer';
+import { createTemporaryId } from '../../helpers/projection';
+import { EditTeamPlayerDto } from '../../interfaces/models/dtos/Team/EditTeamPlayerDto';
+import { IClientActionResultDto } from '../common/IClientActionResultDto';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
+import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
+import { playerBuilder } from '../../helpers/builders/players';
+import { divisionBuilder } from '../../helpers/builders/divisions';
+import {
+    sideBuilder,
+    tournamentBuilder,
+} from '../../helpers/builders/tournaments';
+import { seasonBuilder } from '../../helpers/builders/seasons';
+import { teamBuilder } from '../../helpers/builders/teams';
+import { IPlayerApi } from '../../interfaces/apis/IPlayerApi';
+import { ITournamentPlayerMap } from './Tournament';
+import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto';
+import { tournamentContainerPropsBuilder } from './tournamentContainerPropsBuilder';
+import { AccessDto } from '../../interfaces/models/dtos/Identity/AccessDto';
 
 describe('EditSide', () => {
     let context: TestContext;
@@ -45,14 +51,19 @@ describe('EditSide', () => {
     let teamsReloaded: boolean;
     let applyOptions: ISaveSideOptions | null;
     let createdPlayer: {
-        divisionId: string,
-        seasonId: string,
-        teamId: string,
-        playerDetails: EditTeamPlayerDto,
+        divisionId: string;
+        seasonId: string;
+        teamId: string;
+        playerDetails: EditTeamPlayerDto;
     } | null;
     let divisions: DivisionDto[];
     const playerApi = api<IPlayerApi>({
-        create: async (divisionId: string, seasonId: string, teamId: string, playerDetails: EditTeamPlayerDto): Promise<IClientActionResultDto<TeamDto>> => {
+        create: async (
+            divisionId: string,
+            seasonId: string,
+            teamId: string,
+            playerDetails: EditTeamPlayerDto,
+        ): Promise<IClientActionResultDto<TeamDto>> => {
             createdPlayer = {
                 divisionId,
                 seasonId,
@@ -67,14 +78,16 @@ describe('EditSide', () => {
                     id: teamId,
                     name: '',
                     address: '',
-                    seasons: [{
-                        seasonId: seasonId,
-                        divisionId: divisionId,
-                        players: [playerDetailsAsTeamPlayer],
-                    }]
-                }
+                    seasons: [
+                        {
+                            seasonId: seasonId,
+                            divisionId: divisionId,
+                            players: [playerDetailsAsTeamPlayer],
+                        },
+                    ],
+                },
             };
-        }
+        },
     });
 
     afterEach(async () => {
@@ -114,24 +127,36 @@ describe('EditSide', () => {
         teamsReloaded = true;
     }
 
-    async function renderComponent(containerProps: ITournamentContainerProps, props: IEditSideProps, teams?: TeamDto[], account?: UserDto) {
+    async function renderComponent(
+        containerProps: ITournamentContainerProps,
+        props: IEditSideProps,
+        teams?: TeamDto[],
+        account?: UserDto,
+    ) {
         context = await renderApp(
-            iocProps({playerApi}),
+            iocProps({ playerApi }),
             brandingProps(),
-            appProps({
-                teams: teams || [],
-                account: (account || user({})),
-                reloadTeams,
-                divisions
-            }, reportedError),
-            (<TournamentContainer {...containerProps}>
+            appProps(
+                {
+                    teams: teams || [],
+                    account: account || user({}),
+                    reloadTeams,
+                    divisions,
+                },
+                reportedError,
+            ),
+            <TournamentContainer {...containerProps}>
                 <EditSide {...props} />
-            </TournamentContainer>));
+            </TournamentContainer>,
+        );
 
         reportedError.verifyNoError();
     }
 
-    function alreadyPlaying(player: TeamPlayerDto, tournament: DivisionTournamentFixtureDetailsDto): ITournamentPlayerMap {
+    function alreadyPlaying(
+        player: TeamPlayerDto,
+        tournament: DivisionTournamentFixtureDetailsDto,
+    ): ITournamentPlayerMap {
         const playing: ITournamentPlayerMap = {};
         playing[player.id] = tournament;
         return playing;
@@ -158,11 +183,12 @@ describe('EditSide', () => {
 
     describe('renders', () => {
         const player: TeamPlayerDto = playerBuilder('PLAYER').build();
-        const anotherPlayer: TeamPlayerDto = playerBuilder('ANOTHER PLAYER').build();
+        const anotherPlayer: TeamPlayerDto =
+            playerBuilder('ANOTHER PLAYER').build();
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const tournamentData: TournamentGameDto = tournamentBuilder()
             .forDivision(division)
-            .withSide(s => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
+            .withSide((s) => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
             .build();
         const anotherTournament: TournamentGameDto = tournamentBuilder()
             .type('ANOTHER TOURNAMENT')
@@ -170,10 +196,10 @@ describe('EditSide', () => {
             .build();
         const season: SeasonDto = seasonBuilder('SEASON').build();
         const team: TeamDto = teamBuilder('TEAM')
-            .forSeason(season, tournamentData.divisionId, [ player ])
+            .forSeason(season, tournamentData.divisionId, [player])
             .build();
         const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
-            .forSeason(season, tournamentData.divisionId, [ anotherPlayer ])
+            .forSeason(season, tournamentData.divisionId, [anotherPlayer])
             .build();
         const sideWithPlayer: TournamentSideDto = sideBuilder('SIDE NAME')
             .withPlayer(player)
@@ -188,9 +214,14 @@ describe('EditSide', () => {
         });
 
         it('new side', async () => {
-            await renderComponent(containerProps.build(), props(sideBuilder().build()));
+            await renderComponent(
+                containerProps.build(),
+                props(sideBuilder().build()),
+            );
 
-            const nameInput = context.container.querySelector('input[name="name"]') as HTMLInputElement;
+            const nameInput = context.container.querySelector(
+                'input[name="name"]',
+            ) as HTMLInputElement;
             expect(nameInput.value).toEqual('');
         });
 
@@ -198,64 +229,141 @@ describe('EditSide', () => {
             await renderComponent(
                 containerProps.withAlreadyPlaying({}).build(),
                 props(sideWithPlayer),
-                [team]);
+                [team],
+            );
 
-            const nameInput = context.container.querySelector('input[name="name"]') as HTMLInputElement;
+            const nameInput = context.container.querySelector(
+                'input[name="name"]',
+            ) as HTMLInputElement;
             expect(nameInput.value).toEqual('SIDE NAME');
-            expect(context.container.querySelector('.dropdown-menu')).toBeNull();
-            expect(context.container.querySelector('ol.list-group')).not.toBeNull();
-            expect(context.container.querySelector('ol.list-group li.list-group-item.active')!.textContent).toEqual('PLAYER');
+            expect(
+                context.container.querySelector('.dropdown-menu'),
+            ).toBeNull();
+            expect(
+                context.container.querySelector('ol.list-group'),
+            ).not.toBeNull();
+            expect(
+                context.container.querySelector(
+                    'ol.list-group li.list-group-item.active',
+                )!.textContent,
+            ).toEqual('PLAYER');
         });
 
         it('excludes players from deleted team seasons', async () => {
-            const deletedPlayer: TeamPlayerDto = playerBuilder('DELETED PLAYER').build();
+            const deletedPlayer: TeamPlayerDto =
+                playerBuilder('DELETED PLAYER').build();
             const deletedTeam: TeamDto = teamBuilder('DELETED TEAM')
-                .forSeason(season, tournamentData.divisionId, [ deletedPlayer ], true)
+                .forSeason(
+                    season,
+                    tournamentData.divisionId,
+                    [deletedPlayer],
+                    true,
+                )
                 .build();
 
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [deletedTeam, team]);
+            await renderComponent(
+                containerProps.build(),
+                props(sideWithPlayer),
+                [deletedTeam, team],
+            );
 
-            const nameInput = context.container.querySelector('input[name="name"]') as HTMLInputElement;
+            const nameInput = context.container.querySelector(
+                'input[name="name"]',
+            ) as HTMLInputElement;
             expect(nameInput.value).toEqual('SIDE NAME');
-            expect(context.container.querySelector('.dropdown-menu')).toBeNull();
-            expect(context.container.querySelector('ol.list-group')).not.toBeNull();
-            expect(context.container.querySelector('ol.list-group')!.textContent).not.toContain('DELETED PLAYER');
+            expect(
+                context.container.querySelector('.dropdown-menu'),
+            ).toBeNull();
+            expect(
+                context.container.querySelector('ol.list-group'),
+            ).not.toBeNull();
+            expect(
+                context.container.querySelector('ol.list-group')!.textContent,
+            ).not.toContain('DELETED PLAYER');
         });
 
         it('players filtered by player name', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team, anotherTeam]);
+            await renderComponent(
+                containerProps.build(),
+                props(sideWithPlayer),
+                [team, anotherTeam],
+            );
 
-            await doChange(context.container, 'input[name="playerFilter"]', 'ANOTHER player', context.user);
+            await doChange(
+                context.container,
+                'input[name="playerFilter"]',
+                'ANOTHER player',
+                context.user,
+            );
 
-            expect(context.container.querySelector('ol.list-group')).not.toBeNull();
-            const playerItems = Array.from(context.container.querySelectorAll('ol.list-group li.list-group-item'));
-            expect(playerItems.map(li => li.textContent)).toEqual(['ANOTHER PLAYER (🚫 Selected in "ANOTHER SIDE")']);
+            expect(
+                context.container.querySelector('ol.list-group'),
+            ).not.toBeNull();
+            const playerItems = Array.from(
+                context.container.querySelectorAll(
+                    'ol.list-group li.list-group-item',
+                ),
+            );
+            expect(playerItems.map((li) => li.textContent)).toEqual([
+                'ANOTHER PLAYER (🚫 Selected in "ANOTHER SIDE")',
+            ]);
         });
 
         it('players filtered by team name', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team, anotherTeam]);
+            await renderComponent(
+                containerProps.build(),
+                props(sideWithPlayer),
+                [team, anotherTeam],
+            );
 
-            await doChange(context.container, 'input[name="playerFilter"]', 'ANOTHER team', context.user);
+            await doChange(
+                context.container,
+                'input[name="playerFilter"]',
+                'ANOTHER team',
+                context.user,
+            );
 
-            expect(context.container.querySelector('ol.list-group')).not.toBeNull();
-            const playerItems = Array.from(context.container.querySelectorAll('ol.list-group li.list-group-item'));
-            expect(playerItems.map(li => li.textContent)).toEqual(['ANOTHER PLAYER (🚫 Selected in "ANOTHER SIDE")']);
+            expect(
+                context.container.querySelector('ol.list-group'),
+            ).not.toBeNull();
+            const playerItems = Array.from(
+                context.container.querySelectorAll(
+                    'ol.list-group li.list-group-item',
+                ),
+            );
+            expect(playerItems.map((li) => li.textContent)).toEqual([
+                'ANOTHER PLAYER (🚫 Selected in "ANOTHER SIDE")',
+            ]);
         });
 
         it('players with common name with their team name', async () => {
-            const playerWithSameNameInDifferentTeam: TeamPlayerDto = playerBuilder(player.name).build();
+            const playerWithSameNameInDifferentTeam: TeamPlayerDto =
+                playerBuilder(player.name).build();
             const differentTeam: TeamDto = teamBuilder('DIFFERENT TEAM')
-                .forSeason(season, tournamentData.divisionId, [ playerWithSameNameInDifferentTeam ])
+                .forSeason(season, tournamentData.divisionId, [
+                    playerWithSameNameInDifferentTeam,
+                ])
                 .build();
 
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team, anotherTeam, differentTeam]);
+            await renderComponent(
+                containerProps.build(),
+                props(sideWithPlayer),
+                [team, anotherTeam, differentTeam],
+            );
 
-            expect(context.container.querySelector('ol.list-group')).not.toBeNull();
-            const playerItems = Array.from(context.container.querySelectorAll('ol.list-group li.list-group-item'));
-            expect(playerItems.map(li => li.textContent)).toEqual([
+            expect(
+                context.container.querySelector('ol.list-group'),
+            ).not.toBeNull();
+            const playerItems = Array.from(
+                context.container.querySelectorAll(
+                    'ol.list-group li.list-group-item',
+                ),
+            );
+            expect(playerItems.map((li) => li.textContent)).toEqual([
                 'ANOTHER PLAYER (🚫 Selected in "ANOTHER SIDE")',
                 'PLAYER [TEAM]',
-                'PLAYER [DIFFERENT TEAM]']);
+                'PLAYER [DIFFERENT TEAM]',
+            ]);
         });
 
         it('side with teamId', async () => {
@@ -263,12 +371,23 @@ describe('EditSide', () => {
                 .forDivision(division)
                 .build();
 
-            await renderComponent(containerProps.withTournament(emptyTournamentData).build(), props(teamSide), [team]);
+            await renderComponent(
+                containerProps.withTournament(emptyTournamentData).build(),
+                props(teamSide),
+                [team],
+            );
 
-            const nameInput = context.container.querySelector('input[name="name"]') as HTMLInputElement;
+            const nameInput = context.container.querySelector(
+                'input[name="name"]',
+            ) as HTMLInputElement;
             expect(nameInput.value).toEqual('SIDE NAME');
-            expect(context.container.querySelector('.dropdown-menu .active')).not.toBeNull();
-            expect(context.container.querySelector('.dropdown-menu .active')!.textContent).toEqual('TEAM');
+            expect(
+                context.container.querySelector('.dropdown-menu .active'),
+            ).not.toBeNull();
+            expect(
+                context.container.querySelector('.dropdown-menu .active')!
+                    .textContent,
+            ).toEqual('TEAM');
         });
 
         it('side which did not show', async () => {
@@ -277,19 +396,24 @@ describe('EditSide', () => {
                 .noShow()
                 .build();
 
-            await renderComponent(
-                containerProps.build(),
-                props(side),
-                [team]);
+            await renderComponent(containerProps.build(), props(side), [team]);
 
-            const noShowInput = context.container.querySelector('input[name="noShow"]') as HTMLInputElement;
+            const noShowInput = context.container.querySelector(
+                'input[name="noShow"]',
+            ) as HTMLInputElement;
             expect(noShowInput.checked).toEqual(true);
         });
 
         it('side which did show', async () => {
-            await renderComponent(containerProps.withAlreadyPlaying({}).build(), props(sideWithPlayer), [team]);
+            await renderComponent(
+                containerProps.withAlreadyPlaying({}).build(),
+                props(sideWithPlayer),
+                [team],
+            );
 
-            const noShowInput = context.container.querySelector('input[name="noShow"]') as HTMLInputElement;
+            const noShowInput = context.container.querySelector(
+                'input[name="noShow"]',
+            ) as HTMLInputElement;
             expect(noShowInput.checked).toEqual(false);
         });
 
@@ -298,18 +422,33 @@ describe('EditSide', () => {
                 .forSeason(
                     seasonBuilder('ANOTHER SEASON').build(),
                     tournamentData.divisionId,
-                    [playerBuilder('NOT IN SEASON PLAYER').build()])
+                    [playerBuilder('NOT IN SEASON PLAYER').build()],
+                )
                 .build();
             const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .teamId(teamNotInSeason.id)
                 .build();
 
-            await renderComponent(containerProps.build(), props(side), [teamNotInSeason]);
+            await renderComponent(containerProps.build(), props(side), [
+                teamNotInSeason,
+            ]);
 
-            const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(playerItems.map(li => li.textContent)).not.toContain('NOT IN SEASON PLAYER');
-            const dropdownItems = Array.from(context.container.querySelectorAll('.dropdown-menu .dropdown-item'));
-            expect(dropdownItems.map(i => i.textContent)).not.toContain('NOT IN SEASON TEAM');
+            const playerItems = Array.from(
+                context.container.querySelectorAll(
+                    '.list-group .list-group-item',
+                ),
+            );
+            expect(playerItems.map((li) => li.textContent)).not.toContain(
+                'NOT IN SEASON PLAYER',
+            );
+            const dropdownItems = Array.from(
+                context.container.querySelectorAll(
+                    '.dropdown-menu .dropdown-item',
+                ),
+            );
+            expect(dropdownItems.map((i) => i.textContent)).not.toContain(
+                'NOT IN SEASON TEAM',
+            );
         });
 
         it('when team is deleted from season', async () => {
@@ -318,88 +457,169 @@ describe('EditSide', () => {
                     season,
                     tournamentData.divisionId,
                     [playerBuilder('DELETED PLAYER').build()],
-                    true)
+                    true,
+                )
                 .build();
             const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .teamId(deletedTeam.id)
                 .build();
 
-            await renderComponent(containerProps.build(), props(side), [deletedTeam]);
+            await renderComponent(containerProps.build(), props(side), [
+                deletedTeam,
+            ]);
 
-            const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(playerItems.map(li => li.textContent)).not.toContain('DELETED PLAYER');
-            const dropdownItems = Array.from(context.container.querySelectorAll('.dropdown-menu .dropdown-item'));
-            expect(dropdownItems.map(i => i.textContent)).not.toContain('DELETED TEAM');
+            const playerItems = Array.from(
+                context.container.querySelectorAll(
+                    '.list-group .list-group-item',
+                ),
+            );
+            expect(playerItems.map((li) => li.textContent)).not.toContain(
+                'DELETED PLAYER',
+            );
+            const dropdownItems = Array.from(
+                context.container.querySelectorAll(
+                    '.dropdown-menu .dropdown-item',
+                ),
+            );
+            expect(dropdownItems.map((i) => i.textContent)).not.toContain(
+                'DELETED TEAM',
+            );
         });
 
         it('excludes players from another division when for a division', async () => {
-            const otherDivisionTeam: TeamDto = teamBuilder('OTHER DIVISION TEAM')
+            const otherDivisionTeam: TeamDto = teamBuilder(
+                'OTHER DIVISION TEAM',
+            )
                 .forSeason(
                     season,
                     divisionBuilder('ANOTHER DIVISION').build(),
-                    [playerBuilder('OTHER DIVISION PLAYER').build()])
+                    [playerBuilder('OTHER DIVISION PLAYER').build()],
+                )
                 .build();
 
             await renderComponent(
-                containerProps.withAlreadyPlaying(alreadyPlaying(player, anotherTournament)).build(),
+                containerProps
+                    .withAlreadyPlaying(
+                        alreadyPlaying(player, anotherTournament),
+                    )
+                    .build(),
                 props(sideWithPlayer),
-                [otherDivisionTeam, team]);
+                [otherDivisionTeam, team],
+            );
 
-            const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(playerItems.map(li => li.textContent)).not.toContain('OTHER DIVISION PLAYER');
+            const playerItems = Array.from(
+                context.container.querySelectorAll(
+                    '.list-group .list-group-item',
+                ),
+            );
+            expect(playerItems.map((li) => li.textContent)).not.toContain(
+                'OTHER DIVISION PLAYER',
+            );
         });
 
         it('includes players from another division when cross-divisional', async () => {
-            const otherDivisionTeam: TeamDto = teamBuilder('OTHER DIVISION TEAM')
+            const otherDivisionTeam: TeamDto = teamBuilder(
+                'OTHER DIVISION TEAM',
+            )
                 .forSeason(
                     season,
                     divisionBuilder('ANOTHER DIVISION').build(),
-                    [playerBuilder('OTHER DIVISION PLAYER').build()])
+                    [playerBuilder('OTHER DIVISION PLAYER').build()],
+                )
                 .build();
             const crossDivisionalTournamentData = tournamentBuilder().build();
 
             await renderComponent(
-                containerProps.withTournament(crossDivisionalTournamentData).withAlreadyPlaying(alreadyPlaying(player, anotherTournament)).build(),
+                containerProps
+                    .withTournament(crossDivisionalTournamentData)
+                    .withAlreadyPlaying(
+                        alreadyPlaying(player, anotherTournament),
+                    )
+                    .build(),
                 props(sideWithPlayer),
-                [otherDivisionTeam, team]);
+                [otherDivisionTeam, team],
+            );
 
-            const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(playerItems.map(li => li.textContent)).toContain('OTHER DIVISION PLAYER');
+            const playerItems = Array.from(
+                context.container.querySelectorAll(
+                    '.list-group .list-group-item',
+                ),
+            );
+            expect(playerItems.map((li) => li.textContent)).toContain(
+                'OTHER DIVISION PLAYER',
+            );
         });
 
         it('warning about players that are selected in another tournament', async () => {
             await renderComponent(
-                containerProps.withAlreadyPlaying(alreadyPlaying(player, anotherTournament)).build(),
+                containerProps
+                    .withAlreadyPlaying(
+                        alreadyPlaying(player, anotherTournament),
+                    )
+                    .build(),
                 props(sideWithPlayer),
-                [team]);
+                [team],
+            );
 
-            const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(playerItems.map(li => li.textContent)).toContain('PLAYER (⚠ Playing in ANOTHER TOURNAMENT)');
+            const playerItems = Array.from(
+                context.container.querySelectorAll(
+                    '.list-group .list-group-item',
+                ),
+            );
+            expect(playerItems.map((li) => li.textContent)).toContain(
+                'PLAYER (⚠ Playing in ANOTHER TOURNAMENT)',
+            );
         });
 
         it('unselectable players when selected in another side', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [anotherTeam]);
+            await renderComponent(
+                containerProps.build(),
+                props(sideWithPlayer),
+                [anotherTeam],
+            );
 
-            const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(playerItems.map(li => li.textContent)).toContain('ANOTHER PLAYER (🚫 Selected in "ANOTHER SIDE")');
+            const playerItems = Array.from(
+                context.container.querySelectorAll(
+                    '.list-group .list-group-item',
+                ),
+            );
+            expect(playerItems.map((li) => li.textContent)).toContain(
+                'ANOTHER PLAYER (🚫 Selected in "ANOTHER SIDE")',
+            );
         });
 
         it('selectable players when selected in this side', async () => {
-            await renderComponent(containerProps.build(), props(tournamentData.sides![0]), [anotherTeam]);
+            await renderComponent(
+                containerProps.build(),
+                props(tournamentData.sides![0]),
+                [anotherTeam],
+            );
 
-            const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(playerItems.map(li => li.textContent)).toContain('ANOTHER PLAYER');
+            const playerItems = Array.from(
+                context.container.querySelectorAll(
+                    '.list-group .list-group-item',
+                ),
+            );
+            expect(playerItems.map((li) => li.textContent)).toContain(
+                'ANOTHER PLAYER',
+            );
         });
 
         it('delete button when side exists', async () => {
-            await renderComponent(containerProps.build(), props(teamSide), [team]);
+            await renderComponent(containerProps.build(), props(teamSide), [
+                team,
+            ]);
 
             expect(context.container.querySelector('.btn-danger')).toBeTruthy();
-            expect(context.container.querySelector('.btn-danger')!.textContent).toEqual('Delete side');
+            expect(
+                context.container.querySelector('.btn-danger')!.textContent,
+            ).toEqual('Delete side');
         });
 
         it('no delete button when side is new', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME').noId().build();
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
+                .noId()
+                .build();
 
             await renderComponent(containerProps.build(), props(side), [team]);
 
@@ -411,45 +631,74 @@ describe('EditSide', () => {
                 .noId()
                 .build();
 
-            await renderComponent(containerProps.build(), props(side), [team], user({ managePlayers: true }));
+            await renderComponent(
+                containerProps.build(),
+                props(side),
+                [team],
+                user({ managePlayers: true }),
+            );
 
-            const buttons = Array.from(context.container.querySelectorAll('.btn'));
-            const buttonText = buttons.map(btn => btn.textContent);
+            const buttons = Array.from(
+                context.container.querySelectorAll('.btn'),
+            );
+            const buttonText = buttons.map((btn) => btn.textContent);
             expect(buttonText).toContain('New player/s');
         });
 
         it('add player button when permitted and editing side', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
+            await renderComponent(
+                containerProps.build(),
+                props(sideWithPlayer),
+                [team],
+                user({ managePlayers: true }),
+            );
 
-            const buttons = Array.from(context.container.querySelectorAll('.btn'));
-            const buttonText = buttons.map(btn => btn.textContent);
+            const buttons = Array.from(
+                context.container.querySelectorAll('.btn'),
+            );
+            const buttonText = buttons.map((btn) => btn.textContent);
             expect(buttonText).toContain('New player/s');
         });
 
         it('no add player button when not permitted', async () => {
-            await renderComponent(containerProps.build(), props(teamSide), [team], user({}));
+            await renderComponent(
+                containerProps.build(),
+                props(teamSide),
+                [team],
+                user({}),
+            );
 
-            const buttons = Array.from(context.container.querySelectorAll('.btn'));
-            const buttonText = buttons.map(btn => btn.textContent);
+            const buttons = Array.from(
+                context.container.querySelectorAll('.btn'),
+            );
+            const buttonText = buttons.map((btn) => btn.textContent);
             expect(buttonText).not.toContain('Add player');
         });
 
         it('no add player button when permitted and team side', async () => {
-            await renderComponent(containerProps.build(), props(teamSide), [team], user({}));
+            await renderComponent(
+                containerProps.build(),
+                props(teamSide),
+                [team],
+                user({}),
+            );
 
-            const buttons = Array.from(context.container.querySelectorAll('.btn'));
-            const buttonText = buttons.map(btn => btn.textContent);
+            const buttons = Array.from(
+                context.container.querySelectorAll('.btn'),
+            );
+            const buttonText = buttons.map((btn) => btn.textContent);
             expect(buttonText).not.toContain('Add player');
         });
     });
 
     describe('interactivity', () => {
         const player: TeamPlayerDto = playerBuilder('PLAYER').build();
-        const anotherPlayer: TeamPlayerDto = playerBuilder('ANOTHER PLAYER').build();
+        const anotherPlayer: TeamPlayerDto =
+            playerBuilder('ANOTHER PLAYER').build();
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const tournamentData: TournamentGameDto = tournamentBuilder()
             .forDivision(division)
-            .withSide(s => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
+            .withSide((s) => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
             .build();
         const anotherTournament: TournamentGameDto = tournamentBuilder()
             .type('ANOTHER TOURNAMENT')
@@ -457,7 +706,7 @@ describe('EditSide', () => {
             .build();
         const season: SeasonDto = seasonBuilder('SEASON').build();
         const team: TeamDto = teamBuilder('TEAM')
-            .forSeason(season, division.id, [ player, anotherPlayer ])
+            .forSeason(season, division.id, [player, anotherPlayer])
             .build();
         const teamSide: TournamentSideDto = sideBuilder('SIDE NAME')
             .teamId(team.id)
@@ -475,9 +724,18 @@ describe('EditSide', () => {
         });
 
         it('can change side name', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team]);
+            await renderComponent(
+                containerProps.build(),
+                props(sideWithPlayer),
+                [team],
+            );
 
-            await doChange(context.container, 'input[name="name"]', 'NEW NAME', context.user);
+            await doChange(
+                context.container,
+                'input[name="name"]',
+                'NEW NAME',
+                context.user,
+            );
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual({
@@ -488,7 +746,11 @@ describe('EditSide', () => {
         });
 
         it('can change noShow', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team]);
+            await renderComponent(
+                containerProps.build(),
+                props(sideWithPlayer),
+                [team],
+            );
 
             await doClick(context.container, 'input[name="noShow"]');
 
@@ -508,11 +770,18 @@ describe('EditSide', () => {
                 .build();
             const teamTournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(division)
-                .withSide(s => s.name('ANOTHER SIDE').teamId(anotherTeam.id))
+                .withSide((s) => s.name('ANOTHER SIDE').teamId(anotherTeam.id))
                 .build();
-            await renderComponent(containerProps.withTournament(teamTournamentData).build(), props(side), [team, anotherTeam]);
+            await renderComponent(
+                containerProps.withTournament(teamTournamentData).build(),
+                props(side),
+                [team, anotherTeam],
+            );
 
-            await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEAM');
+            await doSelectOption(
+                context.container.querySelector('.dropdown-menu'),
+                'TEAM',
+            );
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual({
@@ -529,11 +798,18 @@ describe('EditSide', () => {
                 .build();
             const teamTournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(division)
-                .withSide(s => s.name('ANOTHER SIDE').teamId(anotherTeam.id))
+                .withSide((s) => s.name('ANOTHER SIDE').teamId(anotherTeam.id))
                 .build();
-            await renderComponent(containerProps.withTournament(teamTournamentData).build(), props(teamSide), [team, anotherTeam]);
+            await renderComponent(
+                containerProps.withTournament(teamTournamentData).build(),
+                props(teamSide),
+                [team, anotherTeam],
+            );
 
-            await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Select team');
+            await doSelectOption(
+                context.container.querySelector('.dropdown-menu'),
+                'Select team',
+            );
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual({
@@ -546,54 +822,72 @@ describe('EditSide', () => {
         it('can select player', async () => {
             const side: TournamentSideDto = sideBuilder('').build();
             await renderComponent(containerProps.build(), props(side), [team]);
-            const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+            const players = Array.from(
+                context.container.querySelectorAll(
+                    '.list-group .list-group-item',
+                ),
+            );
 
-            await doClick(players.filter(p => p.textContent === 'PLAYER')[0]);
+            await doClick(players.filter((p) => p.textContent === 'PLAYER')[0]);
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual({
                 id: expect.any(String),
                 name: 'PLAYER',
-                players: [{
-                    id: player.id,
-                    name: player.name,
-                }],
+                players: [
+                    {
+                        id: player.id,
+                        name: player.name,
+                    },
+                ],
             });
         });
 
         it('sets side name to player name when player selected for new side', async () => {
             const side: TournamentSideDto = sideBuilder().build();
             await renderComponent(containerProps.build(), props(side), [team]);
-            const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+            const players = Array.from(
+                context.container.querySelectorAll(
+                    '.list-group .list-group-item',
+                ),
+            );
 
-            await doClick(players.filter(p => p.textContent === 'PLAYER')[0]);
+            await doClick(players.filter((p) => p.textContent === 'PLAYER')[0]);
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual({
                 id: expect.any(String),
                 name: 'PLAYER',
-                players: [{
-                    id: player.id,
-                    name: player.name,
-                }],
+                players: [
+                    {
+                        id: player.id,
+                        name: player.name,
+                    },
+                ],
             });
         });
 
         it('can select player and team name does not change', async () => {
             const side: TournamentSideDto = sideBuilder('OTHER NAME').build();
             await renderComponent(containerProps.build(), props(side), [team]);
-            const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+            const players = Array.from(
+                context.container.querySelectorAll(
+                    '.list-group .list-group-item',
+                ),
+            );
 
-            await doClick(players.filter(p => p.textContent === 'PLAYER')[0]);
+            await doClick(players.filter((p) => p.textContent === 'PLAYER')[0]);
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual({
                 id: expect.any(String),
                 name: 'OTHER NAME',
-                players: [{
-                    id: player.id,
-                    name: player.name,
-                }],
+                players: [
+                    {
+                        id: player.id,
+                        name: player.name,
+                    },
+                ],
             });
         });
 
@@ -604,22 +898,35 @@ describe('EditSide', () => {
             const noSidesTournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(tournamentData.divisionId)
                 .build();
-            await renderComponent(containerProps.withTournament(noSidesTournamentData).build(), props(sideWithPlayerName), [team]);
-            const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+            await renderComponent(
+                containerProps.withTournament(noSidesTournamentData).build(),
+                props(sideWithPlayerName),
+                [team],
+            );
+            const players = Array.from(
+                context.container.querySelectorAll(
+                    '.list-group .list-group-item',
+                ),
+            );
 
-            await doClick(players.filter(p => p.textContent === 'ANOTHER PLAYER')[0]);
+            await doClick(
+                players.filter((p) => p.textContent === 'ANOTHER PLAYER')[0],
+            );
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual({
                 id: expect.any(String),
                 name: 'ANOTHER PLAYER, PLAYER',
-                players: [{
-                    id: anotherPlayer.id,
-                    name: 'ANOTHER PLAYER',
-                }, {
-                    id: player.id,
-                    name: 'PLAYER',
-                }],
+                players: [
+                    {
+                        id: anotherPlayer.id,
+                        name: 'ANOTHER PLAYER',
+                    },
+                    {
+                        id: player.id,
+                        name: 'PLAYER',
+                    },
+                ],
             });
         });
 
@@ -627,37 +934,62 @@ describe('EditSide', () => {
             const noSidesTournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(tournamentData.divisionId)
                 .build();
-            await renderComponent(containerProps.withTournament(noSidesTournamentData).build(), props(sideWithPlayer), [team]);
-            const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+            await renderComponent(
+                containerProps.withTournament(noSidesTournamentData).build(),
+                props(sideWithPlayer),
+                [team],
+            );
+            const players = Array.from(
+                context.container.querySelectorAll(
+                    '.list-group .list-group-item',
+                ),
+            );
 
-            await doClick(players.filter(p => p.textContent === 'ANOTHER PLAYER')[0]);
+            await doClick(
+                players.filter((p) => p.textContent === 'ANOTHER PLAYER')[0],
+            );
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual({
                 id: expect.any(String),
                 name: 'SIDE NAME',
-                players: [{
-                    id: player.id,
-                    name: 'PLAYER',
-                }, {
-                    id: anotherPlayer.id,
-                    name: 'ANOTHER PLAYER',
-                }],
+                players: [
+                    {
+                        id: player.id,
+                        name: 'PLAYER',
+                    },
+                    {
+                        id: anotherPlayer.id,
+                        name: 'ANOTHER PLAYER',
+                    },
+                ],
             });
         });
 
         it('can deselect player', async () => {
-            const side: TournamentSideDto = sideBuilder('ANOTHER PLAYER, PLAYER')
+            const side: TournamentSideDto = sideBuilder(
+                'ANOTHER PLAYER, PLAYER',
+            )
                 .withPlayer(player)
                 .withPlayer(anotherPlayer)
                 .build();
             const noSidesTournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(tournamentData.divisionId)
                 .build();
-            await renderComponent(containerProps.withTournament(noSidesTournamentData).build(), props(side), [team]);
-            const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+            await renderComponent(
+                containerProps.withTournament(noSidesTournamentData).build(),
+                props(side),
+                [team],
+            );
+            const players = Array.from(
+                context.container.querySelectorAll(
+                    '.list-group .list-group-item',
+                ),
+            );
 
-            await doClick(players.filter(p => p.textContent === 'ANOTHER PLAYER')[0]);
+            await doClick(
+                players.filter((p) => p.textContent === 'ANOTHER PLAYER')[0],
+            );
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual({
@@ -668,29 +1000,49 @@ describe('EditSide', () => {
         });
 
         it('can delete side', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team]);
-            context.prompts.respondToConfirm('Are you sure you want to remove SIDE NAME?', true);
+            await renderComponent(
+                containerProps.build(),
+                props(sideWithPlayer),
+                [team],
+            );
+            context.prompts.respondToConfirm(
+                'Are you sure you want to remove SIDE NAME?',
+                true,
+            );
 
             await doClick(findButton(context.container, 'Delete side'));
 
             reportedError.verifyNoError();
-            context.prompts.confirmWasShown('Are you sure you want to remove SIDE NAME?');
+            context.prompts.confirmWasShown(
+                'Are you sure you want to remove SIDE NAME?',
+            );
             expect(deleted).toEqual(true);
         });
 
         it('does not delete side when rejected', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team]);
-            context.prompts.respondToConfirm('Are you sure you want to remove SIDE NAME?', false);
+            await renderComponent(
+                containerProps.build(),
+                props(sideWithPlayer),
+                [team],
+            );
+            context.prompts.respondToConfirm(
+                'Are you sure you want to remove SIDE NAME?',
+                false,
+            );
 
             await doClick(findButton(context.container, 'Delete side'));
 
             reportedError.verifyNoError();
-            context.prompts.confirmWasShown('Are you sure you want to remove SIDE NAME?');
+            context.prompts.confirmWasShown(
+                'Are you sure you want to remove SIDE NAME?',
+            );
             expect(deleted).toEqual(false);
         });
 
         it('cannot save side if no name', async () => {
-            const side: TournamentSideDto = sideBuilder('').teamId(team.id).build();
+            const side: TournamentSideDto = sideBuilder('')
+                .teamId(team.id)
+                .build();
             await renderComponent(containerProps.build(), props(side), [team]);
 
             await doClick(findButton(context.container, 'Update'));
@@ -711,19 +1063,27 @@ describe('EditSide', () => {
         });
 
         it('can save side', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team]);
+            await renderComponent(
+                containerProps.build(),
+                props(sideWithPlayer),
+                [team],
+            );
 
             await doClick(findButton(context.container, 'Update'));
 
             reportedError.verifyNoError();
             expect(applied).toEqual(true);
             expect(applyOptions).toEqual({
-                addAsIndividuals: false
+                addAsIndividuals: false,
             });
         });
 
         it('can close', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team]);
+            await renderComponent(
+                containerProps.build(),
+                props(sideWithPlayer),
+                [team],
+            );
 
             await doClick(findButton(context.container, 'Close'));
 
@@ -735,11 +1095,24 @@ describe('EditSide', () => {
         it('can select players that are selected in another tournament', async () => {
             const side: TournamentSideDto = sideBuilder('SIDE NAME').build();
             await renderComponent(
-                containerProps.withAlreadyPlaying(alreadyPlaying(player, anotherTournament)).build(),
+                containerProps
+                    .withAlreadyPlaying(
+                        alreadyPlaying(player, anotherTournament),
+                    )
+                    .build(),
                 props(side),
-                [team]);
-            const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            const playerItem = playerItems.filter(li => li.textContent === 'PLAYER (⚠ Playing in ANOTHER TOURNAMENT)')[0];
+                [team],
+            );
+            const playerItems = Array.from(
+                context.container.querySelectorAll(
+                    '.list-group .list-group-item',
+                ),
+            );
+            const playerItem = playerItems.filter(
+                (li) =>
+                    li.textContent ===
+                    'PLAYER (⚠ Playing in ANOTHER TOURNAMENT)',
+            )[0];
             expect(playerItem.className).not.toContain('disabled');
 
             await doClick(playerItem);
@@ -748,18 +1121,28 @@ describe('EditSide', () => {
             expect(updatedData).toEqual({
                 id: expect.any(String),
                 name: 'SIDE NAME',
-                players: [{
-                    id: player.id,
-                    name: player.name,
-                }],
+                players: [
+                    {
+                        id: player.id,
+                        name: player.name,
+                    },
+                ],
             });
         });
 
         it('cannot select players that are selected in another side', async () => {
             const side: TournamentSideDto = sideBuilder('SIDE NAME').build();
             await renderComponent(containerProps.build(), props(side), [team]);
-            const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            const playerItem = playerItems.filter(li => li.textContent === 'ANOTHER PLAYER (🚫 Selected in "ANOTHER SIDE")')[0];
+            const playerItems = Array.from(
+                context.container.querySelectorAll(
+                    '.list-group .list-group-item',
+                ),
+            );
+            const playerItem = playerItems.filter(
+                (li) =>
+                    li.textContent ===
+                    'ANOTHER PLAYER (🚫 Selected in "ANOTHER SIDE")',
+            )[0];
             expect(playerItem.className).toContain('disabled');
 
             await doClick(playerItem);
@@ -773,128 +1156,226 @@ describe('EditSide', () => {
                 containerProps.withAlreadyPlaying({}).build(),
                 props(sideWithPlayer),
                 [team],
-                user({ managePlayers: true }));
+                user({ managePlayers: true }),
+            );
 
             await doClick(findButton(context.container, 'New player/s'));
 
-            const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
+            const headingForDialog = Array.from(
+                context.container.querySelectorAll('h5'),
+            ).filter((h5) => h5.textContent === 'Add a player...')[0];
             expect(headingForDialog).toBeTruthy();
             expect(headingForDialog.closest('.modal-dialog')).toBeTruthy();
         });
 
         it('can close add player dialog', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
+            await renderComponent(
+                containerProps.build(),
+                props(sideWithPlayer),
+                [team],
+                user({ managePlayers: true }),
+            );
             await doClick(findButton(context.container, 'New player/s'));
-            const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
+            const headingForDialog = Array.from(
+                context.container.querySelectorAll('h5'),
+            ).filter((h5) => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog');
 
             await doClick(findButton(dialog, 'Cancel'));
 
-            expect(Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...').length).toEqual(0);
+            expect(
+                Array.from(context.container.querySelectorAll('h5')).filter(
+                    (h5) => h5.textContent === 'Add a player...',
+                ).length,
+            ).toEqual(0);
         });
 
         it('can add player', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
+            await renderComponent(
+                containerProps.build(),
+                props(sideWithPlayer),
+                [team],
+                user({ managePlayers: true }),
+            );
             await doClick(findButton(context.container, 'New player/s'));
-            const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
+            const headingForDialog = Array.from(
+                context.container.querySelectorAll('h5'),
+            ).filter((h5) => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog')!;
 
             await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
-            await doSelectOption(dialog.querySelector('div[datatype="team-selection-team"] .dropdown-menu'), team.name);
+            await doSelectOption(
+                dialog.querySelector(
+                    'div[datatype="team-selection-team"] .dropdown-menu',
+                ),
+                team.name,
+            );
             await doClick(findButton(dialog, 'Add player'));
 
             expect(createdPlayer).not.toBeNull();
-            expect(updatedData!.players).toEqual([player, {
-                name: 'NAME',
-                id: expect.any(String),
-                divisionId: division.id,
-            }]);
+            expect(updatedData!.players).toEqual([
+                player,
+                {
+                    name: 'NAME',
+                    id: expect.any(String),
+                    divisionId: division.id,
+                },
+            ]);
         });
 
         it('can add player to multi-division tournament', async () => {
-            const multiDivisionTournament: TournamentGameDto = tournamentBuilder()
-                .withSide(s => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
-                .build();
-            divisions = [ division ];
-            await renderComponent(containerProps.withTournament(multiDivisionTournament).build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
+            const multiDivisionTournament: TournamentGameDto =
+                tournamentBuilder()
+                    .withSide((s) =>
+                        s.name('ANOTHER SIDE').withPlayer(anotherPlayer),
+                    )
+                    .build();
+            divisions = [division];
+            await renderComponent(
+                containerProps.withTournament(multiDivisionTournament).build(),
+                props(sideWithPlayer),
+                [team],
+                user({ managePlayers: true }),
+            );
             await doClick(findButton(context.container, 'New player/s'));
-            const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
+            const headingForDialog = Array.from(
+                context.container.querySelectorAll('h5'),
+            ).filter((h5) => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog')!;
 
             await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
-            await doSelectOption(dialog.querySelector('div[datatype="team-selection-team"] .dropdown-menu'), team.name);
+            await doSelectOption(
+                dialog.querySelector(
+                    'div[datatype="team-selection-team"] .dropdown-menu',
+                ),
+                team.name,
+            );
             await doClick(findButton(dialog, 'Add player'));
 
             expect(createdPlayer).not.toBeNull();
-            expect(updatedData!.players).toEqual([player, {
-                name: 'NAME',
-                id: expect.any(String),
-                divisionId: division.id,
-            }]);
+            expect(updatedData!.players).toEqual([
+                player,
+                {
+                    name: 'NAME',
+                    id: expect.any(String),
+                    divisionId: division.id,
+                },
+            ]);
         });
 
         it('selects newly created player', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
+            await renderComponent(
+                containerProps.build(),
+                props(sideWithPlayer),
+                [team],
+                user({ managePlayers: true }),
+            );
             await doClick(findButton(context.container, 'New player/s'));
-            const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
+            const headingForDialog = Array.from(
+                context.container.querySelectorAll('h5'),
+            ).filter((h5) => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog')!;
 
             await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
-            await doSelectOption(dialog.querySelector('.dropdown-menu'), team.name);
+            await doSelectOption(
+                dialog.querySelector('.dropdown-menu'),
+                team.name,
+            );
             await doClick(findButton(dialog, 'Add player'));
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual({
                 id: sideWithPlayer.id,
                 name: 'SIDE NAME',
-                players: [player, {
-                    id: expect.any(String),
-                    name: 'NAME',
-                    divisionId: tournamentData.divisionId,
-                }]
+                players: [
+                    player,
+                    {
+                        id: expect.any(String),
+                        name: 'NAME',
+                        divisionId: tournamentData.divisionId,
+                    },
+                ],
             });
         });
 
         it('reloads teams after player added', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
+            await renderComponent(
+                containerProps.build(),
+                props(sideWithPlayer),
+                [team],
+                user({ managePlayers: true }),
+            );
             await doClick(findButton(context.container, 'New player/s'));
-            const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
+            const headingForDialog = Array.from(
+                context.container.querySelectorAll('h5'),
+            ).filter((h5) => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog')!;
 
             await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
-            await doSelectOption(dialog.querySelector('.dropdown-menu'), team.name);
+            await doSelectOption(
+                dialog.querySelector('.dropdown-menu'),
+                team.name,
+            );
             await doClick(findButton(dialog, 'Add player'));
 
             expect(teamsReloaded).toEqual(true);
         });
 
         it('closes dialog after adding a player', async () => {
-            await renderComponent(containerProps.build(), props(sideWithPlayer), [team], user({ managePlayers: true }));
+            await renderComponent(
+                containerProps.build(),
+                props(sideWithPlayer),
+                [team],
+                user({ managePlayers: true }),
+            );
             await doClick(findButton(context.container, 'New player/s'));
-            const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
+            const headingForDialog = Array.from(
+                context.container.querySelectorAll('h5'),
+            ).filter((h5) => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog')!;
 
             await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
-            await doSelectOption(dialog.querySelector('.dropdown-menu'), team.name);
+            await doSelectOption(
+                dialog.querySelector('.dropdown-menu'),
+                team.name,
+            );
             await doClick(findButton(dialog, 'Add player'));
 
-            expect(Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...').length).toEqual(0);
+            expect(
+                Array.from(context.container.querySelectorAll('h5')).filter(
+                    (h5) => h5.textContent === 'Add a player...',
+                ).length,
+            ).toEqual(0);
         });
 
         it('can select team when no other sides', async () => {
             await renderComponent(
-                containerProps.withTournament(otherDivisionTournament).withAlreadyPlaying(alreadyPlaying(player, anotherTournament)).build(),
+                containerProps
+                    .withTournament(otherDivisionTournament)
+                    .withAlreadyPlaying(
+                        alreadyPlaying(player, anotherTournament),
+                    )
+                    .build(),
                 props(teamSide),
-                [team]);
+                [team],
+            );
 
-            expect(context.container.querySelector('.dropdown-menu')).toBeTruthy();
+            expect(
+                context.container.querySelector('.dropdown-menu'),
+            ).toBeTruthy();
         });
 
         it('can select players when no other sides', async () => {
             await renderComponent(
-                containerProps.withTournament(otherDivisionTournament).withAlreadyPlaying(alreadyPlaying(player, anotherTournament)).build(),
+                containerProps
+                    .withTournament(otherDivisionTournament)
+                    .withAlreadyPlaying(
+                        alreadyPlaying(player, anotherTournament),
+                    )
+                    .build(),
                 props(sideWithPlayer),
-                [team]);
+                [team],
+            );
 
             expect(context.container.querySelector('.list-group')).toBeTruthy();
         });
@@ -902,27 +1383,41 @@ describe('EditSide', () => {
         it('can select team when other sides are teams', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(divisionBuilder('DIVISION').build())
-                .withSide(s => s.name('TEAM').teamId(team.id))
+                .withSide((s) => s.name('TEAM').teamId(team.id))
                 .build();
 
             await renderComponent(
-                containerProps.withTournament(tournamentData).withAlreadyPlaying(alreadyPlaying(player, anotherTournament)).build(),
+                containerProps
+                    .withTournament(tournamentData)
+                    .withAlreadyPlaying(
+                        alreadyPlaying(player, anotherTournament),
+                    )
+                    .build(),
                 props(teamSide),
-                [team]);
+                [team],
+            );
 
-            expect(context.container.querySelector('.dropdown-menu')).toBeTruthy();
+            expect(
+                context.container.querySelector('.dropdown-menu'),
+            ).toBeTruthy();
         });
 
         it('can select players when other sides are players', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(divisionBuilder('DIVISION').build())
-                .withSide(s => s.name('PLAYER').withPlayer(player))
+                .withSide((s) => s.name('PLAYER').withPlayer(player))
                 .build();
 
             await renderComponent(
-                containerProps.withTournament(tournamentData).withAlreadyPlaying(alreadyPlaying(player, anotherTournament)).build(),
+                containerProps
+                    .withTournament(tournamentData)
+                    .withAlreadyPlaying(
+                        alreadyPlaying(player, anotherTournament),
+                    )
+                    .build(),
                 props(sideWithPlayer),
-                [team]);
+                [team],
+            );
 
             expect(context.container.querySelector('.list-group')).toBeTruthy();
         });
@@ -930,27 +1425,41 @@ describe('EditSide', () => {
         it('cannot select team when other sides are players', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(divisionBuilder('DIVISION').build())
-                .withSide(s => s.name('PLAYER').withPlayer(player))
+                .withSide((s) => s.name('PLAYER').withPlayer(player))
                 .build();
 
             await renderComponent(
-                containerProps.withTournament(tournamentData).withAlreadyPlaying(alreadyPlaying(player, anotherTournament)).build(),
+                containerProps
+                    .withTournament(tournamentData)
+                    .withAlreadyPlaying(
+                        alreadyPlaying(player, anotherTournament),
+                    )
+                    .build(),
                 props(sideWithPlayer),
-                [team]);
+                [team],
+            );
 
-            expect(context.container.querySelector('.dropdown-menu')).toBeFalsy();
+            expect(
+                context.container.querySelector('.dropdown-menu'),
+            ).toBeFalsy();
         });
 
         it('cannot select team when other sides are teams', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(divisionBuilder('DIVISION').build())
-                .withSide(s => s.name('TEAM').teamId(team.id))
+                .withSide((s) => s.name('TEAM').teamId(team.id))
                 .build();
 
             await renderComponent(
-                containerProps.withTournament(tournamentData).withAlreadyPlaying(alreadyPlaying(player, anotherTournament)).build(),
+                containerProps
+                    .withTournament(tournamentData)
+                    .withAlreadyPlaying(
+                        alreadyPlaying(player, anotherTournament),
+                    )
+                    .build(),
                 props(sideWithPlayer),
-                [team]);
+                [team],
+            );
 
             expect(context.container.querySelector('.list-group')).toBeFalsy();
         });

@@ -4,25 +4,32 @@ import {
     brandingProps,
     cleanUp,
     doChange,
-    doClick, doSelectOption, findButton, IBrowserWindow,
-    iocProps, noop,
+    doClick,
+    doSelectOption,
+    findButton,
+    IBrowserWindow,
+    iocProps,
+    noop,
     renderApp,
-    TestContext
-} from "../../helpers/tests";
-import {ITournamentDetailsProps, TournamentDetails} from "./TournamentDetails";
-import {tournamentBuilder} from "../../helpers/builders/tournaments";
-import {divisionBuilder} from "../../helpers/builders/divisions";
-import {createTemporaryId} from "../../helpers/projection";
-import {teamBuilder} from "../../helpers/builders/teams";
-import {playerBuilder} from "../../helpers/builders/players";
-import {ExportDataRequestDto} from "../../interfaces/models/dtos/Data/ExportDataRequestDto";
-import {IDataApi} from "../../interfaces/apis/IDataApi";
-import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
-import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
-import {seasonBuilder} from "../../helpers/builders/seasons";
-import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
-import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
-import {IAppContainerProps} from "../common/AppContainer";
+    TestContext,
+} from '../../helpers/tests';
+import {
+    ITournamentDetailsProps,
+    TournamentDetails,
+} from './TournamentDetails';
+import { tournamentBuilder } from '../../helpers/builders/tournaments';
+import { divisionBuilder } from '../../helpers/builders/divisions';
+import { createTemporaryId } from '../../helpers/projection';
+import { teamBuilder } from '../../helpers/builders/teams';
+import { playerBuilder } from '../../helpers/builders/players';
+import { ExportDataRequestDto } from '../../interfaces/models/dtos/Data/ExportDataRequestDto';
+import { IDataApi } from '../../interfaces/apis/IDataApi';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
+import { seasonBuilder } from '../../helpers/builders/seasons';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
+import { IAppContainerProps } from '../common/AppContainer';
 
 describe('TournamentDetails', () => {
     let context: TestContext;
@@ -32,8 +39,8 @@ describe('TournamentDetails', () => {
     const dataApi = api<IDataApi>({
         export: async (request: ExportDataRequestDto) => {
             exportRequest = request;
-            return {success: true, result: {zip: 'content'}};
-        }
+            return { success: true, result: { zip: 'content' } };
+        },
     });
 
     beforeEach(() => {
@@ -45,21 +52,29 @@ describe('TournamentDetails', () => {
         await cleanUp(context);
     });
 
-    async function renderComponent(props: ITournamentDetailsProps, appProps: IAppContainerProps) {
+    async function renderComponent(
+        props: ITournamentDetailsProps,
+        appProps: IAppContainerProps,
+    ) {
         context = await renderApp(
             iocProps({
-                dataApi
+                dataApi,
             }),
             brandingProps(),
             appProps,
-            (<TournamentDetails {...props }/>));
+            <TournamentDetails {...props} />,
+        );
     }
 
     async function setTournamentData(data: TournamentGameDto) {
         if (updatedTournamentData == null) {
             updatedTournamentData = data;
         } else {
-            updatedTournamentData = Object.assign({}, updatedTournamentData, data);
+            updatedTournamentData = Object.assign(
+                {},
+                updatedTournamentData,
+                data,
+            );
         }
     }
 
@@ -79,7 +94,7 @@ describe('TournamentDetails', () => {
                 manageTournaments: true,
                 managePlayers: true,
                 recordScoresAsYouGo: true,
-            }
+            },
         };
 
         it('tournament without any sides', async () => {
@@ -93,37 +108,57 @@ describe('TournamentDetails', () => {
                 .accoladesCount()
                 .build();
 
-            await renderComponent({ tournamentData, setTournamentData }, appProps({
-                account,
-                seasons: [season],
-                teams: [],
-                divisions: [division],
-            }));
+            await renderComponent(
+                { tournamentData, setTournamentData },
+                appProps({
+                    account,
+                    seasons: [season],
+                    teams: [],
+                    divisions: [division],
+                }),
+            );
 
             // address
-            const address = context.container.querySelector('div[datatype="address"]');
+            const address = context.container.querySelector(
+                'div[datatype="address"]',
+            );
             expect(address).toBeTruthy();
             expect(address!.textContent).toContain('Address');
             expect(address!.querySelector('input')!.value).toEqual('ADDRESS');
             // type
-            const type = context.container.querySelector('div[datatype="type"]');
+            const type = context.container.querySelector(
+                'div[datatype="type"]',
+            );
             expect(type).toBeTruthy();
             expect(type!.textContent).toContain('Type');
             expect(type!.querySelector('input')!.value).toEqual('TYPE');
             // notes
-            const notes = context.container.querySelector('div[datatype="notes"]');
+            const notes = context.container.querySelector(
+                'div[datatype="notes"]',
+            );
             expect(notes).toBeTruthy();
             expect(notes!.textContent).toContain('Notes');
             expect(notes!.querySelector('textarea')!.value).toEqual('NOTES');
             // accolades qualify
-            const accoladesCount = context.container.querySelector('div[datatype="accolades-count"]');
+            const accoladesCount = context.container.querySelector(
+                'div[datatype="accolades-count"]',
+            );
             expect(accoladesCount).toBeTruthy();
-            expect(accoladesCount!.textContent).toContain('Include 180s and Hi-checks in players table?');
-            expect(accoladesCount!.querySelector('input')!.checked).toEqual(true);
+            expect(accoladesCount!.textContent).toContain(
+                'Include 180s and Hi-checks in players table?',
+            );
+            expect(accoladesCount!.querySelector('input')!.checked).toEqual(
+                true,
+            );
             // division
-            const divisionAndBestOf = context.container.querySelector('div[datatype="tournament-division"]');
+            const divisionAndBestOf = context.container.querySelector(
+                'div[datatype="tournament-division"]',
+            );
             expect(divisionAndBestOf!.textContent).toContain('Division');
-            expect(divisionAndBestOf!.querySelector('.dropdown-item.active')!.textContent).toEqual('DIVISION');
+            expect(
+                divisionAndBestOf!.querySelector('.dropdown-item.active')!
+                    .textContent,
+            ).toEqual('DIVISION');
         });
     });
 
@@ -136,7 +171,7 @@ describe('TournamentDetails', () => {
                 manageTournaments: true,
                 managePlayers: true,
                 recordScoresAsYouGo: true,
-            }
+            },
         };
         const canExportAccount: UserDto = {
             name: '',
@@ -147,7 +182,7 @@ describe('TournamentDetails', () => {
                 managePlayers: true,
                 recordScoresAsYouGo: true,
                 exportData: true,
-            }
+            },
         };
 
         it('can update accolades count', async () => {
@@ -161,12 +196,15 @@ describe('TournamentDetails', () => {
                 .accoladesCount()
                 .updated('2023-07-01T00:00:00')
                 .build();
-            await renderComponent({ tournamentData, setTournamentData }, appProps({
-                account,
-                seasons: [season],
-                teams: [],
-                divisions: [division],
-            }));
+            await renderComponent(
+                { tournamentData, setTournamentData },
+                appProps({
+                    account,
+                    seasons: [season],
+                    teams: [],
+                    divisions: [division],
+                }),
+            );
 
             await doClick(context.container, 'input[name="accoladesCount"]');
 
@@ -185,14 +223,22 @@ describe('TournamentDetails', () => {
                 .singleRound()
                 .updated('2023-07-01T00:00:00')
                 .build();
-            await renderComponent({ tournamentData, setTournamentData }, appProps({
-                account,
-                seasons: [season],
-                teams: [],
-                divisions: [division],
-            }));
+            await renderComponent(
+                { tournamentData, setTournamentData },
+                appProps({
+                    account,
+                    seasons: [season],
+                    teams: [],
+                    divisions: [division],
+                }),
+            );
 
-            await doSelectOption(context.container.querySelector('div[datatype="tournament-division"] .dropdown-menu'), 'All divisions');
+            await doSelectOption(
+                context.container.querySelector(
+                    'div[datatype="tournament-division"] .dropdown-menu',
+                ),
+                'All divisions',
+            );
 
             expect(updatedTournamentData!.divisionId).toEqual(undefined);
         });
@@ -208,14 +254,19 @@ describe('TournamentDetails', () => {
                 .accoladesCount()
                 .updated('2023-07-01T00:00:00')
                 .build();
-            await renderComponent({ tournamentData, setTournamentData }, appProps({
-                account,
-                seasons: [season],
-                teams: [],
-                divisions: [division],
-            }));
+            await renderComponent(
+                { tournamentData, setTournamentData },
+                appProps({
+                    account,
+                    seasons: [season],
+                    teams: [],
+                    divisions: [division],
+                }),
+            );
 
-            const notes = context.container.querySelector('div[datatype="notes"]');
+            const notes = context.container.querySelector(
+                'div[datatype="notes"]',
+            );
             await doChange(notes!, 'textarea', 'NEW NOTES', context.user);
 
             expect(updatedTournamentData!.notes).toEqual('NEW NOTES');
@@ -233,14 +284,19 @@ describe('TournamentDetails', () => {
                 .singleRound()
                 .updated('2023-07-01T00:00:00')
                 .build();
-            await renderComponent({ tournamentData, setTournamentData }, appProps({
-                account,
-                seasons: [season],
-                teams: [],
-                divisions: [division],
-            }));
+            await renderComponent(
+                { tournamentData, setTournamentData },
+                appProps({
+                    account,
+                    seasons: [season],
+                    teams: [],
+                    divisions: [division],
+                }),
+            );
 
-            const type = context.container.querySelector('div[datatype="type"]');
+            const type = context.container.querySelector(
+                'div[datatype="type"]',
+            );
             await doChange(type!, 'input', 'NEW TYPE', context.user);
 
             expect(updatedTournamentData!.type).toEqual('NEW TYPE');
@@ -258,14 +314,19 @@ describe('TournamentDetails', () => {
                 .singleRound()
                 .updated('2023-07-01T00:00:00')
                 .build();
-            await renderComponent({ tournamentData, setTournamentData }, appProps({
-                account,
-                seasons: [season],
-                teams: [],
-                divisions: [division],
-            }));
+            await renderComponent(
+                { tournamentData, setTournamentData },
+                appProps({
+                    account,
+                    seasons: [season],
+                    teams: [],
+                    divisions: [division],
+                }),
+            );
 
-            const address = context.container.querySelector('div[datatype="address"]');
+            const address = context.container.querySelector(
+                'div[datatype="address"]',
+            );
             await doChange(address!, 'input', 'NEW ADDRESS', context.user);
 
             expect(updatedTournamentData!.address).toEqual('NEW ADDRESS');
@@ -281,12 +342,15 @@ describe('TournamentDetails', () => {
                 .notes('NOTES')
                 .accoladesCount()
                 .build();
-            await renderComponent({ tournamentData, setTournamentData }, appProps({
-                account: canExportAccount,
-                seasons: [season],
-                teams: [],
-                divisions: [division],
-            }));
+            await renderComponent(
+                { tournamentData, setTournamentData },
+                appProps({
+                    account: canExportAccount,
+                    seasons: [season],
+                    teams: [],
+                    divisions: [division],
+                }),
+            );
             (window as IBrowserWindow).open = noop;
 
             await doClick(findButton(context.container, '🛒'));
@@ -298,7 +362,7 @@ describe('TournamentDetails', () => {
                     tournamentGame: [tournamentData.id],
                     division: [tournamentData.divisionId],
                     season: [tournamentData.seasonId],
-                }
+                },
             });
             // NOTE: requestedScoreAsYouGo should NOT be present, to prevent export of ALL records
         });
@@ -313,19 +377,23 @@ describe('TournamentDetails', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .round(r => r
-                    .withMatch(m => m
-                        .saygId(saygId)
-                        .sideA('A')
-                        .sideB('B'))
-                    .withMatchOption(o => o.numberOfLegs(3)))
+                .round((r) =>
+                    r
+                        .withMatch((m) =>
+                            m.saygId(saygId).sideA('A').sideB('B'),
+                        )
+                        .withMatchOption((o) => o.numberOfLegs(3)),
+                )
                 .build();
-            await renderComponent({ tournamentData, setTournamentData }, appProps({
-                account: canExportAccount,
-                seasons: [season],
-                teams: [],
-                divisions: [division],
-            }));
+            await renderComponent(
+                { tournamentData, setTournamentData },
+                appProps({
+                    account: canExportAccount,
+                    seasons: [season],
+                    teams: [],
+                    divisions: [division],
+                }),
+            );
             (window as IBrowserWindow).open = noop;
 
             await doClick(findButton(context.container, '🛒'));
@@ -338,7 +406,7 @@ describe('TournamentDetails', () => {
                     recordedScoreAsYouGo: [saygId],
                     division: [tournamentData.divisionId],
                     season: [tournamentData.seasonId],
-                }
+                },
             });
         });
 
@@ -353,25 +421,30 @@ describe('TournamentDetails', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .round(r => r
-                    .withMatch(m => m
-                        .saygId(saygId1)
-                        .sideA('A')
-                        .sideB('B'))
-                    .withMatchOption(o => o.numberOfLegs(3))
-                    .round(r => r
-                        .withMatch(m => m
-                            .saygId(saygId2)
-                            .sideA('A')
-                            .sideB('B'))
-                        .withMatchOption(o => o.numberOfLegs(3))))
+                .round((r) =>
+                    r
+                        .withMatch((m) =>
+                            m.saygId(saygId1).sideA('A').sideB('B'),
+                        )
+                        .withMatchOption((o) => o.numberOfLegs(3))
+                        .round((r) =>
+                            r
+                                .withMatch((m) =>
+                                    m.saygId(saygId2).sideA('A').sideB('B'),
+                                )
+                                .withMatchOption((o) => o.numberOfLegs(3)),
+                        ),
+                )
                 .build();
-            await renderComponent({ tournamentData, setTournamentData }, appProps({
-                account: canExportAccount,
-                seasons: [season],
-                teams: [],
-                divisions: [division],
-            }));
+            await renderComponent(
+                { tournamentData, setTournamentData },
+                appProps({
+                    account: canExportAccount,
+                    seasons: [season],
+                    teams: [],
+                    divisions: [division],
+                }),
+            );
             (window as IBrowserWindow).open = noop;
 
             await doClick(findButton(context.container, '🛒'));
@@ -384,7 +457,7 @@ describe('TournamentDetails', () => {
                     recordedScoreAsYouGo: [saygId1, saygId2],
                     division: [tournamentData.divisionId],
                     season: [tournamentData.seasonId],
-                }
+                },
             });
         });
 
@@ -397,12 +470,15 @@ describe('TournamentDetails', () => {
                 .notes('NOTES')
                 .accoladesCount()
                 .build();
-            await renderComponent({ tournamentData, setTournamentData }, appProps({
-                account: canExportAccount,
-                seasons: [season],
-                teams: [],
-                divisions: [division],
-            }));
+            await renderComponent(
+                { tournamentData, setTournamentData },
+                appProps({
+                    account: canExportAccount,
+                    seasons: [season],
+                    teams: [],
+                    divisions: [division],
+                }),
+            );
             (window as IBrowserWindow).open = noop;
 
             await doClick(findButton(context.container, '🛒'));
@@ -413,7 +489,7 @@ describe('TournamentDetails', () => {
                 tables: {
                     tournamentGame: [tournamentData.id],
                     season: [tournamentData.seasonId],
-                }
+                },
             });
         });
 
@@ -422,18 +498,21 @@ describe('TournamentDetails', () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .date('2023-01-02T00:00:00')
-                .withSide(s => s.teamId(team.id))
+                .withSide((s) => s.teamId(team.id))
                 .address('ADDRESS')
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
                 .build();
-            await renderComponent({ tournamentData, setTournamentData }, appProps({
-                account: canExportAccount,
-                seasons: [season],
-                teams: [],
-                divisions: [division],
-            }));
+            await renderComponent(
+                { tournamentData, setTournamentData },
+                appProps({
+                    account: canExportAccount,
+                    seasons: [season],
+                    teams: [],
+                    divisions: [division],
+                }),
+            );
             (window as IBrowserWindow).open = noop;
 
             await doClick(findButton(context.container, '🛒'));
@@ -445,30 +524,35 @@ describe('TournamentDetails', () => {
                     tournamentGame: [tournamentData.id],
                     season: [tournamentData.seasonId],
                     team: [team.id],
-                }
+                },
             });
         });
 
         it('can export tournament data and team data for sides with players', async () => {
             const playerId = createTemporaryId();
             const team = teamBuilder('TEAM')
-                .forSeason(season, null, [playerBuilder('PLAYER', playerId).build()])
+                .forSeason(season, null, [
+                    playerBuilder('PLAYER', playerId).build(),
+                ])
                 .build();
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .date('2023-01-02T00:00:00')
-                .withSide(s => s.withPlayer(undefined, playerId))
+                .withSide((s) => s.withPlayer(undefined, playerId))
                 .address('ADDRESS')
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
                 .build();
-            await renderComponent({ tournamentData, setTournamentData }, appProps({
-                account: canExportAccount,
-                seasons: [season],
-                teams: [team],
-                divisions: [division],
-            }));
+            await renderComponent(
+                { tournamentData, setTournamentData },
+                appProps({
+                    account: canExportAccount,
+                    seasons: [season],
+                    teams: [team],
+                    divisions: [division],
+                }),
+            );
             (window as IBrowserWindow).open = noop;
 
             await doClick(findButton(context.container, '🛒'));
@@ -480,30 +564,38 @@ describe('TournamentDetails', () => {
                     tournamentGame: [tournamentData.id],
                     season: [tournamentData.seasonId],
                     team: [team.id],
-                }
+                },
             });
         });
 
         it('can export tournament data excluding player ids for teams from deleted team seasons', async () => {
             const playerId = createTemporaryId();
             const team = teamBuilder('TEAM')
-                .forSeason(season, null, [playerBuilder('PLAYER', playerId).build()], true)
+                .forSeason(
+                    season,
+                    null,
+                    [playerBuilder('PLAYER', playerId).build()],
+                    true,
+                )
                 .build();
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .date('2023-01-02T00:00:00')
-                .withSide(s => s.withPlayer(undefined, playerId))
+                .withSide((s) => s.withPlayer(undefined, playerId))
                 .address('ADDRESS')
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
                 .build();
-            await renderComponent({ tournamentData, setTournamentData }, appProps({
-                account: canExportAccount,
-                seasons: [season],
-                teams: [team],
-                divisions: [division],
-            }));
+            await renderComponent(
+                { tournamentData, setTournamentData },
+                appProps({
+                    account: canExportAccount,
+                    seasons: [season],
+                    teams: [team],
+                    divisions: [division],
+                }),
+            );
             (window as IBrowserWindow).open = noop;
 
             await doClick(findButton(context.container, '🛒'));
@@ -514,7 +606,7 @@ describe('TournamentDetails', () => {
                 tables: {
                     tournamentGame: [tournamentData.id],
                     season: [tournamentData.seasonId],
-                }
+                },
             });
         });
 
@@ -526,18 +618,21 @@ describe('TournamentDetails', () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .date('2023-01-02T00:00:00')
-                .withSide(s => s.withPlayer(undefined, player.id))
+                .withSide((s) => s.withPlayer(undefined, player.id))
                 .address('ADDRESS')
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
                 .build();
-            await renderComponent({ tournamentData, setTournamentData }, appProps({
-                account: canExportAccount,
-                seasons: [season],
-                teams: [team],
-                divisions: [division],
-            }));
+            await renderComponent(
+                { tournamentData, setTournamentData },
+                appProps({
+                    account: canExportAccount,
+                    seasons: [season],
+                    teams: [team],
+                    divisions: [division],
+                }),
+            );
             (window as IBrowserWindow).open = noop;
 
             await doClick(findButton(context.container, '🛒'));
@@ -549,7 +644,7 @@ describe('TournamentDetails', () => {
                 tables: {
                     tournamentGame: [tournamentData.id],
                     season: [tournamentData.seasonId],
-                }
+                },
             });
         });
     });

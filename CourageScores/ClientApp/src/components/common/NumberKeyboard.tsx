@@ -1,5 +1,5 @@
-import {MouseEvent, useEffect} from "react";
-import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import { MouseEvent, useEffect } from 'react';
+import { UntypedPromise } from '../../interfaces/UntypedPromise';
 
 export interface INumberKeyboardProps {
     value: string;
@@ -8,18 +8,27 @@ export interface INumberKeyboardProps {
     onEnter: (value: string) => UntypedPromise;
 }
 
-export function NumberKeyboard({ value, onChange, maxValue, onEnter }: INumberKeyboardProps) {
+export function NumberKeyboard({
+    value,
+    onChange,
+    maxValue,
+    onEnter,
+}: INumberKeyboardProps) {
     useEffect(() => {
         document.addEventListener('keyup', handleKeyUp);
 
         return () => {
             document.removeEventListener('keyup', handleKeyUp);
-        }
+        };
     });
 
     async function handleKeyUp(event: KeyboardEvent) {
         const target = event.target as Element;
-        if (target.tagName.toLowerCase() === 'input' || target.tagName.toLowerCase() === 'select' || target.tagName.toLowerCase() === 'textarea') {
+        if (
+            target.tagName.toLowerCase() === 'input' ||
+            target.tagName.toLowerCase() === 'select' ||
+            target.tagName.toLowerCase() === 'textarea'
+        ) {
             return;
         }
 
@@ -60,7 +69,7 @@ export function NumberKeyboard({ value, onChange, maxValue, onEnter }: INumberKe
     }
 
     async function onDelete() {
-        const newStringValue: string = value.substring(0, value.length -1);
+        const newStringValue: string = value.substring(0, value.length - 1);
         const newValue: number = Number.parseInt(newStringValue);
         if (Number.isFinite(newValue) || newStringValue === '') {
             await onChange(newStringValue);
@@ -76,7 +85,11 @@ export function NumberKeyboard({ value, onChange, maxValue, onEnter }: INumberKe
         }
     }
 
-    function renderButton(buttonValue: number, className: string, handler: (event: MouseEvent<HTMLButtonElement>) => UntypedPromise) {
+    function renderButton(
+        buttonValue: number,
+        className: string,
+        handler: (event: MouseEvent<HTMLButtonElement>) => UntypedPromise,
+    ) {
         let disabled: boolean = false;
         if (buttonValue === 0 && value === '0') {
             // don't allow leading 0's
@@ -87,14 +100,24 @@ export function NumberKeyboard({ value, onChange, maxValue, onEnter }: INumberKe
             disabled = true;
         }
 
-        const potentialValue: number = Number.parseInt(value + buttonValue.toString());
-        if (!Number.isFinite(potentialValue) || (maxValue && potentialValue > maxValue)) {
+        const potentialValue: number = Number.parseInt(
+            value + buttonValue.toString(),
+        );
+        if (
+            !Number.isFinite(potentialValue) ||
+            (maxValue && potentialValue > maxValue)
+        ) {
             disabled = true;
         }
 
-        return (<button className={`btn m-1 d-inline-block flex-grow-1 flex-shrink-1 flex-basis-0 fs-1 py-3 min-width-75 ${className} px-1`} onClick={handler} disabled={disabled}>
-            <span className="px-2 py-1 d-inline-block">{buttonValue}</span>
-        </button>);
+        return (
+            <button
+                className={`btn m-1 d-inline-block flex-grow-1 flex-shrink-1 flex-basis-0 fs-1 py-3 min-width-75 ${className} px-1`}
+                onClick={handler}
+                disabled={disabled}>
+                <span className="px-2 py-1 d-inline-block">{buttonValue}</span>
+            </button>
+        );
     }
 
     function renderNumberButton(buttonValue: number) {
@@ -102,46 +125,57 @@ export function NumberKeyboard({ value, onChange, maxValue, onEnter }: INumberKe
     }
 
     function renderQuickButton(buttonValue: number) {
-        return renderButton(buttonValue, 'btn-secondary opacity-50', quickButtonClick);
+        return renderButton(
+            buttonValue,
+            'btn-secondary opacity-50',
+            quickButtonClick,
+        );
     }
 
-    return (<div className="d-flex flex-column p-1 flex-grow-1">
-        <div className="d-flex flex-row flex-shrink-0 flex-grow-1">
-            {renderQuickButton(140)}
+    return (
+        <div className="d-flex flex-column p-1 flex-grow-1">
+            <div className="d-flex flex-row flex-shrink-0 flex-grow-1">
+                {renderQuickButton(140)}
 
-            {renderNumberButton(7)}
-            {renderNumberButton(8)}
-            {renderNumberButton(9)}
+                {renderNumberButton(7)}
+                {renderNumberButton(8)}
+                {renderNumberButton(9)}
 
-            {renderQuickButton(45)}
-        </div>
-        <div className="d-flex flex-row flex-shrink-0 flex-grow-1">
-            {renderQuickButton(41)}
+                {renderQuickButton(45)}
+            </div>
+            <div className="d-flex flex-row flex-shrink-0 flex-grow-1">
+                {renderQuickButton(41)}
 
-            {renderNumberButton(4)}
-            {renderNumberButton(5)}
-            {renderNumberButton(6)}
+                {renderNumberButton(4)}
+                {renderNumberButton(5)}
+                {renderNumberButton(6)}
 
-            {renderQuickButton(100)}
-        </div>
-        <div className="d-flex flex-row flex-shrink-0 flex-grow-1">
-            {renderQuickButton(40)}
+                {renderQuickButton(100)}
+            </div>
+            <div className="d-flex flex-row flex-shrink-0 flex-grow-1">
+                {renderQuickButton(40)}
 
-            {renderNumberButton(1)}
-            {renderNumberButton(2)}
-            {renderNumberButton(3)}
+                {renderNumberButton(1)}
+                {renderNumberButton(2)}
+                {renderNumberButton(3)}
 
-            {renderQuickButton(60)}
-        </div>
-        <div className="d-flex flex-row flex-shrink-0 flex-grow-1">
-            <button className="btn btn-warning m-1 flex-grow-1 flex-shrink-0 fs-1 px-4 py-2" onClick={onDelete}
+                {renderQuickButton(60)}
+            </div>
+            <div className="d-flex flex-row flex-shrink-0 flex-grow-1">
+                <button
+                    className="btn btn-warning m-1 flex-grow-1 flex-shrink-0 fs-1 px-4 py-2"
+                    onClick={onDelete}
                     disabled={(value || '') === ''}>
-                &larr;
-            </button>
-            {renderNumberButton(0)}
-            <button className="btn btn-primary m-1 flex-grow-1 flex-shrink-0 fs-1 px-4 py-2" onClick={async () => await onEnter(value)} disabled={!value}>
-                &rarr;
-            </button>
+                    &larr;
+                </button>
+                {renderNumberButton(0)}
+                <button
+                    className="btn btn-primary m-1 flex-grow-1 flex-shrink-0 fs-1 px-4 py-2"
+                    onClick={async () => await onEnter(value)}
+                    disabled={!value}>
+                    &rarr;
+                </button>
+            </div>
         </div>
-    </div>)
+    );
 }

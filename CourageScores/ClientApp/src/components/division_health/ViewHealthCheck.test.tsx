@@ -1,6 +1,14 @@
-import {appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestContext} from "../../helpers/tests";
-import {ViewHealthCheck} from "./ViewHealthCheck";
-import {SeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    ErrorState,
+    iocProps,
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import { ViewHealthCheck } from './ViewHealthCheck';
+import { SeasonHealthCheckResultDto } from '../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto';
 
 describe('ViewHealthCheck', () => {
     let context: TestContext;
@@ -19,7 +27,8 @@ describe('ViewHealthCheck', () => {
             iocProps(),
             brandingProps(),
             appProps({}, reportedError),
-            (<ViewHealthCheck result={result}/>));
+            <ViewHealthCheck result={result} />,
+        );
     }
 
     it('should render successful check', async () => {
@@ -34,12 +43,14 @@ describe('ViewHealthCheck', () => {
                     errors: [],
                     warnings: [],
                     messages: [],
-                }
+                },
             },
         });
 
         reportedError.verifyNoError();
-        const checkItems = Array.from(context.container.querySelectorAll('ol li'));
+        const checkItems = Array.from(
+            context.container.querySelectorAll('ol li'),
+        );
         expect(checkItems.length).toEqual(1);
         expect(checkItems[0].textContent).toContain('✔ some description');
     });
@@ -56,12 +67,14 @@ describe('ViewHealthCheck', () => {
                     errors: [],
                     warnings: [],
                     messages: [],
-                }
+                },
             },
         });
 
         reportedError.verifyNoError();
-        const checkItems = Array.from(context.container.querySelectorAll('ol li'));
+        const checkItems = Array.from(
+            context.container.querySelectorAll('ol li'),
+        );
         expect(checkItems.length).toEqual(1);
         expect(checkItems[0].textContent).toContain('❌ some description');
     });
@@ -78,12 +91,14 @@ describe('ViewHealthCheck', () => {
                     errors: ['some error'],
                     warnings: [],
                     messages: [],
-                }
+                },
             },
         });
 
         reportedError.verifyNoError();
-        const checkItems = Array.from(context.container.querySelectorAll('ol li'));
+        const checkItems = Array.from(
+            context.container.querySelectorAll('ol li'),
+        );
         expect(checkItems.length).toEqual(1);
         expect(checkItems[0].textContent).toContain('some error');
     });
@@ -100,12 +115,14 @@ describe('ViewHealthCheck', () => {
                     errors: [],
                     warnings: ['some warning'],
                     messages: [],
-                }
+                },
             },
         });
 
         reportedError.verifyNoError();
-        const checkItems = Array.from(context.container.querySelectorAll('ol li'));
+        const checkItems = Array.from(
+            context.container.querySelectorAll('ol li'),
+        );
         expect(checkItems.length).toEqual(1);
         expect(checkItems[0].textContent).toContain('some warning');
     });
@@ -122,12 +139,14 @@ describe('ViewHealthCheck', () => {
                     errors: [],
                     warnings: [],
                     messages: ['some message'],
-                }
+                },
             },
         });
 
         reportedError.verifyNoError();
-        const checkItems = Array.from(context.container.querySelectorAll('ol li'));
+        const checkItems = Array.from(
+            context.container.querySelectorAll('ol li'),
+        );
         expect(checkItems.length).toEqual(1);
         expect(checkItems[0].textContent).toContain('some message');
     });
