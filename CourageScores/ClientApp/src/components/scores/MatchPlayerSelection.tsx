@@ -1,25 +1,25 @@
-import {useState, useEffect} from 'react';
-import {ISelectablePlayer, PlayerSelection} from "../common/PlayerSelection";
-import {Dialog} from "../common/Dialog";
-import {any, count, distinct, isEmpty} from "../../helpers/collections";
-import {repeat} from "../../helpers/projection";
-import {propChanged, stateChanged} from "../../helpers/events";
-import {EditMatchOptions} from "../common/EditMatchOptions";
-import {ScoreAsYouGo} from "../sayg/ScoreAsYouGo";
-import {useApp} from "../common/AppContainer";
-import {useLeagueFixture} from "./LeagueFixtureContainer";
-import {useMatchType} from "./MatchTypeContainer";
-import {GamePlayerDto} from "../../interfaces/models/dtos/Game/GamePlayerDto";
-import {GameMatchDto} from "../../interfaces/models/dtos/Game/GameMatchDto";
-import {GameTeamDto} from "../../interfaces/models/dtos/Game/GameTeamDto";
-import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
-import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
-import {LiveContainer} from "../../live/LiveContainer";
-import {ILiveOptions} from "../../live/ILiveOptions";
-import {Link} from "react-router";
-import {EditableSaygContainer} from "../sayg/EditableSaygContainer";
-import {UntypedPromise} from "../../interfaces/UntypedPromise";
-import {hasAccess} from "../../helpers/conditions";
+import { useState, useEffect } from 'react';
+import { ISelectablePlayer, PlayerSelection } from '../common/PlayerSelection';
+import { Dialog } from '../common/Dialog';
+import { any, count, distinct, isEmpty } from '../../helpers/collections';
+import { repeat } from '../../helpers/projection';
+import { propChanged, stateChanged } from '../../helpers/events';
+import { EditMatchOptions } from '../common/EditMatchOptions';
+import { ScoreAsYouGo } from '../sayg/ScoreAsYouGo';
+import { useApp } from '../common/AppContainer';
+import { useLeagueFixture } from './LeagueFixtureContainer';
+import { useMatchType } from './MatchTypeContainer';
+import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto';
+import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto';
+import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto';
+import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
+import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
+import { LiveContainer } from '../../live/LiveContainer';
+import { ILiveOptions } from '../../live/ILiveOptions';
+import { Link } from 'react-router';
+import { EditableSaygContainer } from '../sayg/EditableSaygContainer';
+import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { hasAccess } from '../../helpers/conditions';
 
 export const NEW_PLAYER: string = 'NEW_PLAYER';
 
@@ -31,22 +31,47 @@ export interface IMatchPlayerSelectionProps {
     onHiCheck?(player: GamePlayerDto, score: number): UntypedPromise;
 }
 
-export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChanged, on180, onHiCheck}: IMatchPlayerSelectionProps) {
-    const {account, onError, fullScreen} = useApp();
-    const {homePlayers, awayPlayers, readOnly, disabled, division, season, home, away} = useLeagueFixture();
-    const {matchOptions, otherMatches, setCreatePlayerFor} = useMatchType();
-    const [matchOptionsDialogOpen, setMatchOptionsDialogOpen] = useState<boolean>(false);
+export function MatchPlayerSelection({
+    match,
+    onMatchChanged,
+    onMatchOptionsChanged,
+    on180,
+    onHiCheck,
+}: IMatchPlayerSelectionProps) {
+    const { account, onError, fullScreen } = useApp();
+    const {
+        homePlayers,
+        awayPlayers,
+        readOnly,
+        disabled,
+        division,
+        season,
+        home,
+        away,
+    } = useLeagueFixture();
+    const { matchOptions, otherMatches, setCreatePlayerFor } = useMatchType();
+    const [matchOptionsDialogOpen, setMatchOptionsDialogOpen] =
+        useState<boolean>(false);
     const [saygOpen, setSaygOpen] = useState<boolean>(false);
-    const hasBothScores: boolean = hasScore(match.homeScore) && hasScore(match.awayScore);
-    const noPlayersSelected: boolean = isEmpty(match.homePlayers) || count(match.homePlayers) !== count(match.awayPlayers);
-    const showUnselectedPlayerWarning: boolean = !disabled && (!hasBothScores || noPlayersSelected);
+    const hasBothScores: boolean =
+        hasScore(match.homeScore) && hasScore(match.awayScore);
+    const noPlayersSelected: boolean =
+        isEmpty(match.homePlayers) ||
+        count(match.homePlayers) !== count(match.awayPlayers);
+    const showUnselectedPlayerWarning: boolean =
+        !disabled && (!hasBothScores || noPlayersSelected);
 
     useEffect(() => {
         const numberOfLegs = matchOptions.numberOfLegs || 0;
-        const hasAWinner = hasBothScores && (isWinner(match.homeScore || 0, numberOfLegs) || isWinner(match.awayScore || 0, numberOfLegs));
+        const hasAWinner =
+            hasBothScores &&
+            (isWinner(match.homeScore || 0, numberOfLegs) ||
+                isWinner(match.awayScore || 0, numberOfLegs));
 
         if (saygOpen && !hasAWinner) {
-            fullScreen.enterFullScreen(document.getElementById('full-screen-container'));
+            fullScreen.enterFullScreen(
+                document.getElementById('full-screen-container'),
+            );
         } else {
             fullScreen.exitFullScreen();
         }
@@ -56,28 +81,39 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
         const matchPlayers: GamePlayerDto[] = match[side + 'Players'];
 
         if (!matchPlayers || index >= matchPlayers.length) {
-            return {id: '', name: ''};
+            return { id: '', name: '' };
         }
 
-        return matchPlayers[index] || {id: '', name: ''};
+        return matchPlayers[index] || { id: '', name: '' };
     }
 
-    function linkToPlayer(index: number, side: 'home' | 'away', team: GameTeamDto) {
+    function linkToPlayer(
+        index: number,
+        side: 'home' | 'away',
+        team: GameTeamDto,
+    ) {
         const playerData: GamePlayerDto = player(index, side);
 
-        return (<Link to={`/division/${division.name}/player:${playerData.name}@${team.name}/${season.name}`}>
-            {playerData.name}
-        </Link>);
+        return (
+            <Link
+                to={`/division/${division.name}/player:${playerData.name}@${team.name}/${season.name}`}>
+                {playerData.name}
+            </Link>
+        );
     }
 
-    async function playerChanged(index: number, player: ISelectablePlayer, side: 'home' | 'away') {
+    async function playerChanged(
+        index: number,
+        player: ISelectablePlayer,
+        side: 'home' | 'away',
+    ) {
         try {
             if (readOnly || disabled) {
                 return;
             }
 
             if (player && player.id === NEW_PLAYER) {
-                await setCreatePlayerFor({index, side});
+                await setCreatePlayerFor({ index, side });
                 return;
             }
 
@@ -113,7 +149,9 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
             const oppositeScore = match[oppositeSide + 'Score'];
             const newMatch: GameMatchDto = Object.assign({}, match);
             const numberOfLegs: number = matchOptions.numberOfLegs || 0;
-            const intScore: number = newScore ? Math.min(Number.parseInt(newScore), numberOfLegs) : 0;
+            const intScore: number = newScore
+                ? Math.min(Number.parseInt(newScore), numberOfLegs)
+                : 0;
 
             newMatch[side + 'Score'] = intScore;
 
@@ -130,16 +168,21 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
         }
     }
 
-    function exceptPlayers(playerIndex: number, side: 'home' | 'away'): string[] {
+    function exceptPlayers(
+        playerIndex: number,
+        side: 'home' | 'away',
+    ): string[] {
         const propertyName: string = side + 'Players';
         const selectedPlayer: GamePlayerDto = player(playerIndex, side);
-        const exceptPlayerIds: string[] = distinct((otherMatches)
-            .flatMap((otherMatch: GameMatchDto) => {
+        const exceptPlayerIds: string[] = distinct(
+            otherMatches.flatMap((otherMatch: GameMatchDto) => {
                 return (otherMatch[propertyName] || [])
                     .filter((p?: GamePlayerDto) => p || false)
-                    .map((player: GamePlayerDto) => player ? player.id : null);
-            }))
-            .filter(id => id !== selectedPlayer.id); // dont exclude the currently selected player
+                    .map((player: GamePlayerDto) =>
+                        player ? player.id : null,
+                    );
+            }),
+        ).filter((id) => id !== selectedPlayer.id); // dont exclude the currently selected player
 
         const playerList: GamePlayerDto[] = match[propertyName];
         if (!playerList) {
@@ -156,9 +199,17 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
     }
 
     function renderMatchSettingsDialog() {
-        return (<Dialog title="Edit match options" slim={true} onClose={async () => setMatchOptionsDialogOpen(false)}>
-            <EditMatchOptions matchOptions={matchOptions} onMatchOptionsChanged={onMatchOptionsChanged}/>
-        </Dialog>);
+        return (
+            <Dialog
+                title="Edit match options"
+                slim={true}
+                onClose={async () => setMatchOptionsDialogOpen(false)}>
+                <EditMatchOptions
+                    matchOptions={matchOptions}
+                    onMatchOptionsChanged={onMatchOptionsChanged}
+                />
+            </Dialog>
+        );
     }
 
     async function add180(sideName: 'home' | 'away') {
@@ -175,7 +226,10 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
         }
     }
 
-    async function updateMatchScore(homeScore: number, awayScore: number): UntypedPromise {
+    async function updateMatchScore(
+        homeScore: number,
+        awayScore: number,
+    ): UntypedPromise {
         const newMatch: GameMatchDto = Object.assign({}, match);
         newMatch.homeScore = homeScore;
         newMatch.awayScore = awayScore;
@@ -191,66 +245,114 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
     }
 
     function joinNames(players?: GamePlayerDto[]): string {
-        const delimiters = repeat((players?.length || 0) - 2, _ => ', ').concat(' & ');
+        const delimiters = repeat(
+            (players?.length || 0) - 2,
+            (_) => ', ',
+        ).concat(' & ');
         return (players || [])
             .map((player: GamePlayerDto) => firstName(player.name))
-            .reduce((current: string, next: string) => current ? (current + delimiters.shift() + next) : next, '');
+            .reduce(
+                (current: string, next: string) =>
+                    current ? current + delimiters.shift() + next : next,
+                '',
+            );
     }
 
     function renderSaygDialog() {
         const home: string = joinNames(match.homePlayers);
         const away: string = joinNames(match.awayPlayers);
-        const singlePlayerMatch: boolean = match.homePlayers!.length === 1 && match.awayPlayers!.length === 1;
+        const singlePlayerMatch: boolean =
+            match.homePlayers!.length === 1 && match.awayPlayers!.length === 1;
         const defaultSaygData: UpdateRecordedScoreAsYouGoDto = {
             legs: {},
-            yourName: ''
+            yourName: '',
         };
         const noLiveOptions: ILiveOptions = {
             canSubscribe: false,
             publish: false,
         };
 
-        return (<Dialog slim={!fullScreen.isFullScreen} title="" className="text-start">
-            <div id="full-screen-container" className="bg-white">
-            <EditableSaygContainer>
-            <LiveContainer liveOptions={noLiveOptions}>
-                <ScoreAsYouGo
-                    data={(match.sayg as UpdateRecordedScoreAsYouGoDto) || defaultSaygData}
-                    home={home}
-                    away={away}
-                    onChange={propChanged(match, onMatchChanged!, 'sayg')}
-                    onLegComplete={!readOnly ? updateMatchScore : undefined}
-                    startingScore={matchOptions.startingScore || 0}
-                    numberOfLegs={matchOptions.numberOfLegs || 0}
-                    homeScore={match.homeScore}
-                    awayScore={match.awayScore}
-                    on180={singlePlayerMatch && on180 && !readOnly ? add180 : undefined}
-                    onHiCheck={singlePlayerMatch && onHiCheck && !readOnly ? addHiCheck : undefined}
-                    onFinished={fullScreen.exitFullScreen}
-                    firstLegPlayerSequence={['home', 'away']}
-                    showFullNames={true}
-                />
-            </LiveContainer>
-            </EditableSaygContainer>
-            </div>
-            {fullScreen.isFullScreen ? null : (<div className="modal-footer px-0 pb-0">
-                <div className="left-aligned">
-                    <button className="btn btn-secondary" onClick={async () => setSaygOpen(false)}>Close</button>
+        return (
+            <Dialog
+                slim={!fullScreen.isFullScreen}
+                title=""
+                className="text-start">
+                <div id="full-screen-container" className="bg-white">
+                    <EditableSaygContainer>
+                        <LiveContainer liveOptions={noLiveOptions}>
+                            <ScoreAsYouGo
+                                data={
+                                    (match.sayg as UpdateRecordedScoreAsYouGoDto) ||
+                                    defaultSaygData
+                                }
+                                home={home}
+                                away={away}
+                                onChange={propChanged(
+                                    match,
+                                    onMatchChanged!,
+                                    'sayg',
+                                )}
+                                onLegComplete={
+                                    !readOnly ? updateMatchScore : undefined
+                                }
+                                startingScore={matchOptions.startingScore || 0}
+                                numberOfLegs={matchOptions.numberOfLegs || 0}
+                                homeScore={match.homeScore}
+                                awayScore={match.awayScore}
+                                on180={
+                                    singlePlayerMatch && on180 && !readOnly
+                                        ? add180
+                                        : undefined
+                                }
+                                onHiCheck={
+                                    singlePlayerMatch && onHiCheck && !readOnly
+                                        ? addHiCheck
+                                        : undefined
+                                }
+                                onFinished={fullScreen.exitFullScreen}
+                                firstLegPlayerSequence={['home', 'away']}
+                                showFullNames={true}
+                            />
+                        </LiveContainer>
+                    </EditableSaygContainer>
                 </div>
-                <button className="btn btn-primary" onClick={() => fullScreen.enterFullScreen(document.getElementById('full-screen-container'))}>Full Screen</button>
-            </div>)}
-        </Dialog>)
+                {fullScreen.isFullScreen ? null : (
+                    <div className="modal-footer px-0 pb-0">
+                        <div className="left-aligned">
+                            <button
+                                className="btn btn-secondary"
+                                onClick={async () => setSaygOpen(false)}>
+                                Close
+                            </button>
+                        </div>
+                        <button
+                            className="btn btn-primary"
+                            onClick={() =>
+                                fullScreen.enterFullScreen(
+                                    document.getElementById(
+                                        'full-screen-container',
+                                    ),
+                                )
+                            }>
+                            Full Screen
+                        </button>
+                    </div>
+                )}
+            </Dialog>
+        );
     }
 
     function canOpenSayg(): boolean {
-        return any(match.homePlayers)
-            && any(match.awayPlayers)
-            && ((!!match.sayg || hasAccess(account, access => access.recordScoresAsYouGo)));
+        return (
+            any(match.homePlayers) &&
+            any(match.awayPlayers) &&
+            (!!match.sayg ||
+                hasAccess(account, (access) => access.recordScoresAsYouGo))
+        );
     }
 
     function isWinner(score: number, numberOfLegs: number): boolean {
-        return score !== null
-            && score > (numberOfLegs / 2.0);
+        return score !== null && score > numberOfLegs / 2.0;
     }
 
     function hasScore(score?: number): boolean {
@@ -258,63 +360,135 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
     }
 
     try {
-        return (<tr>
-            <td className={`${isWinner(match.homeScore || 0, matchOptions.numberOfLegs || 0) ? 'bg-winner ' : ''}${showUnselectedPlayerWarning ? ' bg-warning ' : ''}text-end width-50-pc position-relative`}>
-                {canOpenSayg() ? (<button tabIndex={-1} className="btn btn-sm position-absolute left-0"
-                                          onClick={() => setSaygOpen(!saygOpen)}>📊</button>) : null}
-                {saygOpen ? renderSaygDialog() : null}
-                {repeat(matchOptions.playerCount || 0).map(index => disabled
-                    ? (<div key={index}>{linkToPlayer(index, 'home', home)}</div>)
-                    : (<div key={index}><PlayerSelection
-                        disabled={disabled}
-                        readOnly={readOnly}
-                        players={homePlayers}
-                        selected={player(index, 'home')}
-                        except={exceptPlayers(index, 'home')}
-                        onChange={(_, player: ISelectablePlayer) => playerChanged(index, player, 'home')}/></div>))}
-            </td>
-            <td className={`narrow-column align-middle text-end ${isWinner(match.homeScore || 0, matchOptions.numberOfLegs || 0) ? 'bg-winner' : ''}${showUnselectedPlayerWarning ? ' bg-warning' : ''}`}>
-                {disabled
-                    ? (<strong>{match.homeScore}</strong>)
-                    : (<input
-                        disabled={disabled}
-                        readOnly={readOnly}
-                        className={readOnly ? 'border-1 border-secondary single-character-input no-spinner' : 'single-character-input no-spinner'}
-                        type="number" max="5" min="0"
-                        value={match.homeScore === null || match.homeScore === undefined ? '' : match.homeScore}
-                        onChange={stateChanged(async (newScore: string) => await scoreChanged(newScore, 'home'))}/>)}
-            </td>
-            <td className="align-middle text-center width-1 middle-vertical-line p-0"></td>
-            <td className={`narrow-column align-middle text-start ${isWinner(match.awayScore || 0, matchOptions.numberOfLegs || 0) ? 'bg-winner' : ''}${showUnselectedPlayerWarning ? ' bg-warning' : ''}`}>
-                {disabled
-                    ? (<strong>{match.awayScore}</strong>)
-                    : (<input
-                        disabled={disabled}
-                        readOnly={readOnly}
-                        className={readOnly ? 'border-1 border-secondary single-character-input no-spinner' : 'single-character-input no-spinner'}
-                        type="number" max="5" min="0"
-                        value={match.awayScore === null || match.homeScore === undefined ? '' : match.awayScore}
-                        onChange={stateChanged(async (newScore: string) => scoreChanged(newScore, 'away'))}/>)}
-            </td>
-            <td className={`${isWinner(match.awayScore || 0, matchOptions.numberOfLegs || 0) ? 'bg-winner ' : ''}width-50-pc position-relative${showUnselectedPlayerWarning ? ' bg-warning' : ''}`}>
-                {matchOptionsDialogOpen ? renderMatchSettingsDialog() : null}
-                {readOnly ? null : (
-                    <button tabIndex={-1} title={`${matchOptions.numberOfLegs} leg/s. Starting score: ${matchOptions.startingScore}`}
-                            className="btn btn-sm right-0 position-absolute"
-                            onClick={() => setMatchOptionsDialogOpen(true)}>🛠</button>)}
-                {repeat(matchOptions.playerCount || 0).map(index => disabled
-                    ? (<div key={index}>{linkToPlayer(index, 'away', away)}</div>)
-                    : (<div key={index}>
-                        <PlayerSelection
+        return (
+            <tr>
+                <td
+                    className={`${isWinner(match.homeScore || 0, matchOptions.numberOfLegs || 0) ? 'bg-winner ' : ''}${showUnselectedPlayerWarning ? ' bg-warning ' : ''}text-end width-50-pc position-relative`}>
+                    {canOpenSayg() ? (
+                        <button
+                            tabIndex={-1}
+                            className="btn btn-sm position-absolute left-0"
+                            onClick={() => setSaygOpen(!saygOpen)}>
+                            📊
+                        </button>
+                    ) : null}
+                    {saygOpen ? renderSaygDialog() : null}
+                    {repeat(matchOptions.playerCount || 0).map((index) =>
+                        disabled ? (
+                            <div key={index}>
+                                {linkToPlayer(index, 'home', home)}
+                            </div>
+                        ) : (
+                            <div key={index}>
+                                <PlayerSelection
+                                    disabled={disabled}
+                                    readOnly={readOnly}
+                                    players={homePlayers}
+                                    selected={player(index, 'home')}
+                                    except={exceptPlayers(index, 'home')}
+                                    onChange={(_, player: ISelectablePlayer) =>
+                                        playerChanged(index, player, 'home')
+                                    }
+                                />
+                            </div>
+                        ),
+                    )}
+                </td>
+                <td
+                    className={`narrow-column align-middle text-end ${isWinner(match.homeScore || 0, matchOptions.numberOfLegs || 0) ? 'bg-winner' : ''}${showUnselectedPlayerWarning ? ' bg-warning' : ''}`}>
+                    {disabled ? (
+                        <strong>{match.homeScore}</strong>
+                    ) : (
+                        <input
                             disabled={disabled}
                             readOnly={readOnly}
-                            players={awayPlayers}
-                            selected={player(index, 'away')}
-                            except={exceptPlayers(index, 'away')}
-                            onChange={(_, player: ISelectablePlayer) => playerChanged(index, player, 'away')}/>
-                    </div>))}
-            </td>
-        </tr>);
+                            className={
+                                readOnly
+                                    ? 'border-1 border-secondary single-character-input no-spinner'
+                                    : 'single-character-input no-spinner'
+                            }
+                            type="number"
+                            max="5"
+                            min="0"
+                            value={
+                                match.homeScore === null ||
+                                match.homeScore === undefined
+                                    ? ''
+                                    : match.homeScore
+                            }
+                            onChange={stateChanged(
+                                async (newScore: string) =>
+                                    await scoreChanged(newScore, 'home'),
+                            )}
+                        />
+                    )}
+                </td>
+                <td className="align-middle text-center width-1 middle-vertical-line p-0"></td>
+                <td
+                    className={`narrow-column align-middle text-start ${isWinner(match.awayScore || 0, matchOptions.numberOfLegs || 0) ? 'bg-winner' : ''}${showUnselectedPlayerWarning ? ' bg-warning' : ''}`}>
+                    {disabled ? (
+                        <strong>{match.awayScore}</strong>
+                    ) : (
+                        <input
+                            disabled={disabled}
+                            readOnly={readOnly}
+                            className={
+                                readOnly
+                                    ? 'border-1 border-secondary single-character-input no-spinner'
+                                    : 'single-character-input no-spinner'
+                            }
+                            type="number"
+                            max="5"
+                            min="0"
+                            value={
+                                match.awayScore === null ||
+                                match.homeScore === undefined
+                                    ? ''
+                                    : match.awayScore
+                            }
+                            onChange={stateChanged(async (newScore: string) =>
+                                scoreChanged(newScore, 'away'),
+                            )}
+                        />
+                    )}
+                </td>
+                <td
+                    className={`${isWinner(match.awayScore || 0, matchOptions.numberOfLegs || 0) ? 'bg-winner ' : ''}width-50-pc position-relative${showUnselectedPlayerWarning ? ' bg-warning' : ''}`}>
+                    {matchOptionsDialogOpen
+                        ? renderMatchSettingsDialog()
+                        : null}
+                    {readOnly ? null : (
+                        <button
+                            tabIndex={-1}
+                            title={`${matchOptions.numberOfLegs} leg/s. Starting score: ${matchOptions.startingScore}`}
+                            className="btn btn-sm right-0 position-absolute"
+                            onClick={() => setMatchOptionsDialogOpen(true)}>
+                            🛠
+                        </button>
+                    )}
+                    {repeat(matchOptions.playerCount || 0).map((index) =>
+                        disabled ? (
+                            <div key={index}>
+                                {linkToPlayer(index, 'away', away)}
+                            </div>
+                        ) : (
+                            <div key={index}>
+                                <PlayerSelection
+                                    disabled={disabled}
+                                    readOnly={readOnly}
+                                    players={awayPlayers}
+                                    selected={player(index, 'away')}
+                                    except={exceptPlayers(index, 'away')}
+                                    onChange={(_, player: ISelectablePlayer) =>
+                                        playerChanged(index, player, 'away')
+                                    }
+                                />
+                            </div>
+                        ),
+                    )}
+                </td>
+            </tr>
+        );
     } catch (e) {
         /* istanbul ignore next */
         onError(e);

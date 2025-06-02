@@ -3,7 +3,10 @@ export interface IWidescreenSaygRecentThrowProps {
     throwNumber: number;
 }
 
-export function WidescreenSaygRecentThrow({ score, throwNumber }: IWidescreenSaygRecentThrowProps) {
+export function WidescreenSaygRecentThrow({
+    score,
+    throwNumber,
+}: IWidescreenSaygRecentThrowProps) {
     const fontSizes: string[] = [
         'fs-1 opacity-100',
         'fs-2 opacity-75',
@@ -11,12 +14,13 @@ export function WidescreenSaygRecentThrow({ score, throwNumber }: IWidescreenSay
         'fs-4 opacity-50',
         'fs-5 opacity-25',
     ];
-    const fontSizeToUse: string = fontSizes[Math.min(throwNumber - 1, fontSizes.length - 1)];
+    const fontSizeToUse: string =
+        fontSizes[Math.min(throwNumber - 1, fontSizes.length - 1)];
 
     let className: string = 'text-center px-1 ';
     className += score >= 100 ? 'text-danger ' : '';
     className += score === 180 ? 'fw-bold ' : '';
     className += fontSizeToUse;
 
-    return (<div className={className}>{score}</div>);
+    return <div className={className}>{score}</div>;
 }

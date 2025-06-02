@@ -1,6 +1,18 @@
-import {appProps, brandingProps, cleanUp, doClick, iocProps, renderApp, TestContext} from "../../helpers/tests";
-import {BootstrapDropdown, IBootstrapDropdownItem, IBootstrapDropdownProps} from "./BootstrapDropdown";
-import {toDictionary} from "../../helpers/collections";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    iocProps,
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import {
+    BootstrapDropdown,
+    IBootstrapDropdownItem,
+    IBootstrapDropdownProps,
+} from './BootstrapDropdown';
+import { toDictionary } from '../../helpers/collections';
 
 describe('BootstrapDropdown', () => {
     let context: TestContext;
@@ -14,16 +26,23 @@ describe('BootstrapDropdown', () => {
             iocProps(),
             brandingProps(),
             appProps(),
-            (<BootstrapDropdown {...props} />));
+            <BootstrapDropdown {...props} />,
+        );
     }
 
     describe('renders', () => {
-        const option1: IBootstrapDropdownItem = { text: 'TEXT 1', value: 'VALUE 1' };
-        const option2: IBootstrapDropdownItem = { text: 'TEXT 2', value: 'VALUE 2' };
+        const option1: IBootstrapDropdownItem = {
+            text: 'TEXT 1',
+            value: 'VALUE 1',
+        };
+        const option2: IBootstrapDropdownItem = {
+            text: 'TEXT 2',
+            value: 'VALUE 2',
+        };
 
         it('when disabled and nothing selected', async () => {
             await renderComponent({
-                options: [ option1, option2 ],
+                options: [option1, option2],
                 disabled: true,
             });
 
@@ -36,7 +55,7 @@ describe('BootstrapDropdown', () => {
         it('when disabled and something selected', async () => {
             await renderComponent({
                 value: option2.value,
-                options: [ option1, option2 ],
+                options: [option1, option2],
                 disabled: true,
             });
 
@@ -54,14 +73,16 @@ describe('BootstrapDropdown', () => {
             };
             await renderComponent({
                 value: option3_collapsedText.value,
-                options: [ option1, option2, option3_collapsedText ],
+                options: [option1, option2, option3_collapsedText],
                 disabled: true,
             });
 
             const button = context.container.querySelector('button')!;
             expect(button.disabled).toEqual(true);
             expect(button.className).toContain('dropdown-toggle');
-            expect(button.textContent).toEqual(option3_collapsedText.collapsedText);
+            expect(button.textContent).toEqual(
+                option3_collapsedText.collapsedText,
+            );
         });
 
         it('when options is null', async () => {
@@ -87,7 +108,7 @@ describe('BootstrapDropdown', () => {
         it('with given className', async () => {
             await renderComponent({
                 value: option2.value,
-                options: [ option1, option2 ],
+                options: [option1, option2],
                 className: 'some-class-name',
             });
 
@@ -98,7 +119,7 @@ describe('BootstrapDropdown', () => {
         it('when no className provided', async () => {
             await renderComponent({
                 value: option2.value,
-                options: [ option1, option2 ],
+                options: [option1, option2],
             });
 
             const buttonGroup = context.container.querySelector('div')!;
@@ -108,7 +129,7 @@ describe('BootstrapDropdown', () => {
         it('when given a color', async () => {
             await renderComponent({
                 value: option2.value,
-                options: [ option1, option2 ],
+                options: [option1, option2],
                 color: 'warning',
             });
 
@@ -119,7 +140,7 @@ describe('BootstrapDropdown', () => {
         it('when no color provided', async () => {
             await renderComponent({
                 value: option2.value,
-                options: [ option1, option2 ],
+                options: [option1, option2],
             });
 
             const toggle = context.container.querySelector('.dropdown-toggle')!;
@@ -129,16 +150,29 @@ describe('BootstrapDropdown', () => {
         it('when item selected', async () => {
             await renderComponent({
                 value: option2.value,
-                options: [ option1, option2 ],
+                options: [option1, option2],
             });
 
             const toggle = context.container.querySelector('.dropdown-toggle')!;
-            const items = Array.from(context.container.querySelectorAll('.dropdown-item'));
+            const items = Array.from(
+                context.container.querySelectorAll('.dropdown-item'),
+            );
             expect(toggle.textContent).toEqual(option2.text);
-            const itemClassNameLookup = toDictionary(items, item => item.textContent!, item => item.className);
-            expect(Object.keys(itemClassNameLookup)).toEqual([option1.text, option2.text]);
-            expect(itemClassNameLookup[option1.text as string]).not.toContain('active');
-            expect(itemClassNameLookup[option2.text as string]).toContain('active');
+            const itemClassNameLookup = toDictionary(
+                items,
+                (item) => item.textContent!,
+                (item) => item.className,
+            );
+            expect(Object.keys(itemClassNameLookup)).toEqual([
+                option1.text,
+                option2.text,
+            ]);
+            expect(itemClassNameLookup[option1.text as string]).not.toContain(
+                'active',
+            );
+            expect(itemClassNameLookup[option2.text as string]).toContain(
+                'active',
+            );
         });
 
         it('when item selected has no text', async () => {
@@ -147,47 +181,73 @@ describe('BootstrapDropdown', () => {
             };
             await renderComponent({
                 value: option3_noText.value,
-                options: [ option1, option2, option3_noText ],
+                options: [option1, option2, option3_noText],
             });
 
             const toggle = context.container.querySelector('.dropdown-toggle')!;
-            const items = Array.from(context.container.querySelectorAll('.dropdown-item'));
+            const items = Array.from(
+                context.container.querySelectorAll('.dropdown-item'),
+            );
             expect(toggle.textContent).toEqual(option3_noText.value);
-            const itemClassNameLookup = toDictionary(items, item => item.textContent!, item => item.className);
-            expect(itemClassNameLookup[option1.text as string]).not.toContain('active');
-            expect(itemClassNameLookup[option2.text as string]).not.toContain('active');
-            expect(itemClassNameLookup[option3_noText.value as string]).toContain('active');
+            const itemClassNameLookup = toDictionary(
+                items,
+                (item) => item.textContent!,
+                (item) => item.className,
+            );
+            expect(itemClassNameLookup[option1.text as string]).not.toContain(
+                'active',
+            );
+            expect(itemClassNameLookup[option2.text as string]).not.toContain(
+                'active',
+            );
+            expect(
+                itemClassNameLookup[option3_noText.value as string],
+            ).toContain('active');
         });
 
         it('when nothing selected', async () => {
             await renderComponent({
-                options: [ option1, option2 ],
+                options: [option1, option2],
             });
 
             const toggle = context.container.querySelector('.dropdown-toggle')!;
-            const items = Array.from(context.container.querySelectorAll('.dropdown-item'));
+            const items = Array.from(
+                context.container.querySelectorAll('.dropdown-item'),
+            );
             expect(toggle.textContent).toEqual('');
-            const itemClassNameLookup = toDictionary(items, item => item.textContent!, item => item.className);
-            expect(itemClassNameLookup[option1.text as string]).not.toContain('active');
-            expect(itemClassNameLookup[option2.text as string]).not.toContain('active');
+            const itemClassNameLookup = toDictionary(
+                items,
+                (item) => item.textContent!,
+                (item) => item.className,
+            );
+            expect(itemClassNameLookup[option1.text as string]).not.toContain(
+                'active',
+            );
+            expect(itemClassNameLookup[option2.text as string]).not.toContain(
+                'active',
+            );
         });
 
         it('slim dropdown', async () => {
             await renderComponent({
-                options: [ option1, option2 ],
+                options: [option1, option2],
                 slim: true,
             });
 
-            const toggle = context.container.querySelector('.dropdown-toggle > span')!;
+            const toggle = context.container.querySelector(
+                '.dropdown-toggle > span',
+            )!;
             expect(toggle.className).not.toContain('dropdown-text-min-width');
         });
 
         it('not-slim dropdown', async () => {
             await renderComponent({
-                options: [ option1, option2 ],
+                options: [option1, option2],
             });
 
-            const toggle = context.container.querySelector('.dropdown-toggle > span')!;
+            const toggle = context.container.querySelector(
+                '.dropdown-toggle > span',
+            )!;
             expect(toggle.className).toContain('dropdown-text-min-width');
         });
 
@@ -199,69 +259,89 @@ describe('BootstrapDropdown', () => {
             };
             await renderComponent({
                 value: option3_collapsedText.value,
-                options: [ option1, option2, option3_collapsedText ],
+                options: [option1, option2, option3_collapsedText],
             });
 
             const toggle = context.container.querySelector('.dropdown-toggle')!;
-            const items = Array.from(context.container.querySelectorAll('.dropdown-item'));
-            expect(toggle.textContent).toEqual(option3_collapsedText.collapsedText);
-            const itemTextLookup = toDictionary(items, item => item.textContent!, item => item.textContent);
+            const items = Array.from(
+                context.container.querySelectorAll('.dropdown-item'),
+            );
+            expect(toggle.textContent).toEqual(
+                option3_collapsedText.collapsedText,
+            );
+            const itemTextLookup = toDictionary(
+                items,
+                (item) => item.textContent!,
+                (item) => item.textContent,
+            );
             expect(itemTextLookup[option1.text as string]).toEqual('TEXT 1');
             expect(itemTextLookup[option2.text as string]).toEqual('TEXT 2');
-            expect(itemTextLookup[option3_collapsedText.text as string]).toEqual('TEXT 3');
+            expect(
+                itemTextLookup[option3_collapsedText.text as string],
+            ).toEqual('TEXT 3');
         });
     });
 
     describe('interactivity', () => {
-        const option1: IBootstrapDropdownItem = { text: 'TEXT 1', value: 'VALUE 1' };
-        const option2: IBootstrapDropdownItem = { text: 'TEXT 2', value: 'VALUE 2' };
+        const option1: IBootstrapDropdownItem = {
+            text: 'TEXT 1',
+            value: 'VALUE 1',
+        };
+        const option2: IBootstrapDropdownItem = {
+            text: 'TEXT 2',
+            value: 'VALUE 2',
+        };
 
         it('when read only cannot open drop down', async () => {
             await renderComponent({
-                options: [ option1, option2 ],
+                options: [option1, option2],
                 readOnly: true,
             });
 
             await doClick(context.container, '.dropdown-toggle');
 
-            const buttonGroup = context.container.querySelector('div.btn-group')!;
+            const buttonGroup =
+                context.container.querySelector('div.btn-group')!;
             expect(buttonGroup.className).not.toContain('show');
         });
 
         it('can open drop down', async () => {
             await renderComponent({
-                options: [ option1, option2 ],
+                options: [option1, option2],
             });
 
             await doClick(context.container, '.dropdown-toggle');
 
-            const buttonGroup = context.container.querySelector('div.btn-group')!;
+            const buttonGroup =
+                context.container.querySelector('div.btn-group')!;
             expect(buttonGroup.className).toContain('show');
         });
 
         it('can close drop down', async () => {
             await renderComponent({
-                options: [ option1, option2 ],
+                options: [option1, option2],
             });
 
             await doClick(context.container, '.dropdown-toggle');
             await doClick(context.container, '.dropdown-toggle');
 
-            const buttonGroup = context.container.querySelector('div.btn-group')!;
+            const buttonGroup =
+                context.container.querySelector('div.btn-group')!;
             expect(buttonGroup.className).not.toContain('show');
         });
 
         it('can select an item', async () => {
             let selected: string | undefined;
             await renderComponent({
-                options: [ option1, option2 ],
-                onChange: async (value: string) => selected = value,
+                options: [option1, option2],
+                onChange: async (value: string) => (selected = value),
             });
 
             await doClick(context.container, '.dropdown-toggle');
             await doClick(context.container, '.dropdown-item:first-child');
 
-            const buttonGroup = context.container.querySelector('div.btn-group')!;
+            const buttonGroup =
+                context.container.querySelector('div.btn-group')!;
             expect(buttonGroup.className).not.toContain('show'); // closes the dropdown
             expect(selected).toEqual(option1.value);
         });
@@ -270,14 +350,15 @@ describe('BootstrapDropdown', () => {
             let selected = option2.value;
             await renderComponent({
                 value: selected,
-                options: [ option1, option2 ],
-                onChange: async (value: string) => selected = value,
+                options: [option1, option2],
+                onChange: async (value: string) => (selected = value),
             });
 
             await doClick(context.container, '.dropdown-toggle');
             await doClick(context.container, '.dropdown-item:first-child');
 
-            const buttonGroup = context.container.querySelector('div.btn-group')!;
+            const buttonGroup =
+                context.container.querySelector('div.btn-group')!;
             expect(buttonGroup.className).not.toContain('show'); // closes the dropdown
             expect(selected).toEqual(option1.value);
         });
@@ -285,21 +366,23 @@ describe('BootstrapDropdown', () => {
         it('can change a selection when no handler', async () => {
             await renderComponent({
                 value: option2.value,
-                options: [ option1, option2 ],
+                options: [option1, option2],
             });
 
             await doClick(context.container, '.dropdown-toggle');
             await doClick(context.container, '.dropdown-item:first-child');
 
-            const buttonGroup = context.container.querySelector('div.btn-group')!;
+            const buttonGroup =
+                context.container.querySelector('div.btn-group')!;
             expect(buttonGroup.className).not.toContain('show'); // closes the dropdown
         });
 
         it('triggers onOpen callback when dropdown opened', async () => {
             let callbacks: boolean[] = [];
             await renderComponent({
-                options: [ option1, option2 ],
-                onOpen: async (willBeOpen: boolean) => callbacks.push(willBeOpen),
+                options: [option1, option2],
+                onOpen: async (willBeOpen: boolean) =>
+                    callbacks.push(willBeOpen),
             });
 
             await doClick(context.container, '.dropdown-toggle');
@@ -310,8 +393,9 @@ describe('BootstrapDropdown', () => {
         it('does not trigger onOpen callback when dropdown closed', async () => {
             let callbacks: boolean[] = [];
             await renderComponent({
-                options: [ option1, option2 ],
-                onOpen: async (willBeOpen: boolean) => callbacks.push(willBeOpen),
+                options: [option1, option2],
+                onOpen: async (willBeOpen: boolean) =>
+                    callbacks.push(willBeOpen),
             });
             await doClick(context.container, '.dropdown-toggle');
             expect(callbacks).toEqual([true]);

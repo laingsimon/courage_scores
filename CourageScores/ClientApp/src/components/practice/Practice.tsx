@@ -1,18 +1,21 @@
-import {useState} from "react";
-import {useLocation, useNavigate} from "react-router";
-import {useApp} from "../common/AppContainer";
-import {ILoadedScoreAsYouGoDto, SaygLoadingContainer} from "../sayg/SaygLoadingContainer";
-import {EditSaygPracticeOptions} from "./EditSaygPracticeOptions";
-import {Loading} from "../common/Loading";
-import {ILiveOptions} from "../../live/ILiveOptions";
-import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
+import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router';
+import { useApp } from '../common/AppContainer';
+import {
+    ILoadedScoreAsYouGoDto,
+    SaygLoadingContainer,
+} from '../sayg/SaygLoadingContainer';
+import { EditSaygPracticeOptions } from './EditSaygPracticeOptions';
+import { Loading } from '../common/Loading';
+import { ILiveOptions } from '../../live/ILiveOptions';
+import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
 
 interface IPracticeScoreAsYouGoDto extends UpdateRecordedScoreAsYouGoDto {
     loaded: boolean;
 }
 
 export function Practice() {
-    const {onError, account, appLoading, fullScreen} = useApp();
+    const { onError, account, appLoading, fullScreen } = useApp();
     const [dataError, setDataError] = useState<string | null>(null);
     const location = useLocation();
     const navigate = useNavigate();
@@ -20,7 +23,7 @@ export function Practice() {
     const query: URLSearchParams = new URLSearchParams(location.search);
 
     if (appLoading) {
-        return (<Loading/>);
+        return <Loading />;
     }
 
     function getInteger(key: string): number | null {
@@ -29,7 +32,8 @@ export function Practice() {
     }
 
     const defaultSaygData: IPracticeScoreAsYouGoDto = {
-        yourName: query.get('yourName') || (account ? account.givenName : 'you'),
+        yourName:
+            query.get('yourName') || (account ? account.givenName : 'you'),
         opponentName: query.get('opponentName') || undefined,
         homeScore: 0,
         awayScore: 0,
@@ -50,36 +54,46 @@ export function Practice() {
 
     try {
         if (dataError) {
-            return (<div className="p-3 border-danger border-1 border" data-name="data-error">
-                <h3>⚠ Error with shared data</h3>
-                <p>{dataError}</p>
-                <button className="btn btn-primary" onClick={clearError}>Clear</button>
-            </div>);
+            return (
+                <div
+                    className="p-3 border-danger border-1 border"
+                    data-name="data-error">
+                    <h3>⚠ Error with shared data</h3>
+                    <p>{dataError}</p>
+                    <button className="btn btn-primary" onClick={clearError}>
+                        Clear
+                    </button>
+                </div>
+            );
         }
 
         const liveOptions: ILiveOptions = {
             publish: false,
             canSubscribe: false,
             subscribeAtStartup: [],
-        }
+        };
 
-        return (<div className="p-3 content-background">
-            <SaygLoadingContainer
-                id={hasHash ? location.hash.substring(1) : ''}
-                on180={noop}
-                onHiCheck={noop}
-                defaultData={defaultSaygData}
-                autoSave={false}
-                onSaved={async (data: ILoadedScoreAsYouGoDto) => {
-                    if (location.hash !== `#${data.id}`) {
-                        navigate(`/practice#${data.id}`);
-                    }
-                }}
-                liveOptions={liveOptions}
-                onLoadError={async (error: string) => setDataError(error)}>
-                {fullScreen.isFullScreen ? null : (<EditSaygPracticeOptions />)}
-            </SaygLoadingContainer>
-        </div>);
+        return (
+            <div className="p-3 content-background">
+                <SaygLoadingContainer
+                    id={hasHash ? location.hash.substring(1) : ''}
+                    on180={noop}
+                    onHiCheck={noop}
+                    defaultData={defaultSaygData}
+                    autoSave={false}
+                    onSaved={async (data: ILoadedScoreAsYouGoDto) => {
+                        if (location.hash !== `#${data.id}`) {
+                            navigate(`/practice#${data.id}`);
+                        }
+                    }}
+                    liveOptions={liveOptions}
+                    onLoadError={async (error: string) => setDataError(error)}>
+                    {fullScreen.isFullScreen ? null : (
+                        <EditSaygPracticeOptions />
+                    )}
+                </SaygLoadingContainer>
+            </div>
+        );
     } catch (e) {
         /* istanbul ignore next */
         onError(e);

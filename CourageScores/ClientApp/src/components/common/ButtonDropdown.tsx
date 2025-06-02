@@ -1,4 +1,4 @@
-﻿import React, {createContext, Ref, useContext} from "react";
+﻿import React, { createContext, Ref, useContext } from 'react';
 
 export interface IButtonDropdown {
     isOpen?: boolean;
@@ -30,34 +30,57 @@ export function useButtonDropdown(): IButtonDropdown {
 }
 
 export function ButtonDropdown(props: IButtonDropdownProps) {
-    const className = props.className
-        ? ` ${props.className}`
-        : '';
+    const className = props.className ? ` ${props.className}` : '';
 
-    return (<ButtonDropdownContext.Provider value={props}>
-        <div ref={props.ref} className={`btn-group${className}${props.isOpen ? ' show' : ''}`} style={{ position: 'relative' }} datatype={props.datatype}>
-            {props.children}
-        </div>
-    </ButtonDropdownContext.Provider>);
+    return (
+        <ButtonDropdownContext.Provider value={props}>
+            <div
+                ref={props.ref}
+                className={`btn-group${className}${props.isOpen ? ' show' : ''}`}
+                style={{ position: 'relative' }}
+                datatype={props.datatype}>
+                {props.children}
+            </div>
+        </ButtonDropdownContext.Provider>
+    );
 }
 
-export function DropdownMenu({children, className}: IDropdownMenuProps) {
-    const {isOpen, toggle} = useButtonDropdown();
+export function DropdownMenu({ children, className }: IDropdownMenuProps) {
+    const { isOpen, toggle } = useButtonDropdown();
 
-    return (<div className={`position-absolute bottom-0 ${isOpen ? '' : ' d-none'}`} onClick={toggle}>
-        <div tabIndex={-1}
-             role="menu"
-             className={`dropdown-menu${isOpen ? ' show' : ''} ${className || ''}`}
-             data-popper-placement="bottom-start">
-            {children}
+    return (
+        <div
+            className={`position-absolute bottom-0 ${isOpen ? '' : ' d-none'}`}
+            onClick={toggle}>
+            <div
+                tabIndex={-1}
+                role="menu"
+                className={`dropdown-menu${isOpen ? ' show' : ''} ${className || ''}`}
+                data-popper-placement="bottom-start">
+                {children}
+            </div>
         </div>
-    </div>);
+    );
 }
 
-export function DropdownToggle({color, children, className}: IDropdownToggleProps) {
-    const {toggle} = useButtonDropdown();
+export function DropdownToggle({
+    color,
+    children,
+    className,
+}: IDropdownToggleProps) {
+    const { toggle } = useButtonDropdown();
 
-    return (<button type="button" className={`dropdown-toggle btn btn-${color} ${className}`} onClick={toggle} tabIndex={-1}>
-        {children ? children : (<span className="visually-hidden">Toggle Dropdown</span>)}
-    </button>);
+    return (
+        <button
+            type="button"
+            className={`dropdown-toggle btn btn-${color} ${className}`}
+            onClick={toggle}
+            tabIndex={-1}>
+            {children ? (
+                children
+            ) : (
+                <span className="visually-hidden">Toggle Dropdown</span>
+            )}
+        </button>
+    );
 }

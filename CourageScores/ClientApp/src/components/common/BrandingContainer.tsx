@@ -1,6 +1,6 @@
-import React, {createContext, useContext} from "react";
-import {IBrandingData} from "./IBrandingData";
-import {IBranding} from "./IBranding";
+import React, { createContext, useContext } from 'react';
+import { IBrandingData } from './IBrandingData';
+import { IBranding } from './IBranding';
 
 const BrandingContext = createContext({});
 
@@ -13,15 +13,18 @@ export interface IBrandingContainerProps extends IBrandingData {
 }
 
 /* istanbul ignore next */
-export function BrandingContainer({children, ...data}: IBrandingContainerProps) {
+export function BrandingContainer({
+    children,
+    ...data
+}: IBrandingContainerProps) {
     function setTitle(newTitle?: string) {
-        document.title = newTitle
-            ? `${newTitle} - ${data.name}`
-            : data.name;
+        document.title = newTitle ? `${newTitle} - ${data.name}` : data.name;
     }
 
     const branding: IBranding = Object.assign({ setTitle }, data);
-    return (<BrandingContext.Provider value={branding}>
-        {children}
-    </BrandingContext.Provider>)
+    return (
+        <BrandingContext.Provider value={branding}>
+            {children}
+        </BrandingContext.Provider>
+    );
 }

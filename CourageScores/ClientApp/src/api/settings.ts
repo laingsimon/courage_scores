@@ -12,9 +12,10 @@ export class Settings implements ISettings {
 
     get apiHost(): string {
         if (!this._apiHost) {
-            this._apiHost = document.location.hostname === 'localhost'
-                ? 'https://localhost:7247'
-                : document.location.origin + '/data';
+            this._apiHost =
+                document.location.hostname === 'localhost'
+                    ? 'https://localhost:7247'
+                    : document.location.origin + '/data';
         }
 
         return this._apiHost;

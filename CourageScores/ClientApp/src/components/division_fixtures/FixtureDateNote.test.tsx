@@ -7,16 +7,16 @@
     findButton,
     iocProps,
     renderApp,
-    TestContext
-} from "../../helpers/tests";
-import {FixtureDateNote, IFixtureDateNoteProps} from "./FixtureDateNote";
-import {DivisionDataContainer} from "../league/DivisionDataContainer";
-import {noteBuilder} from "../../helpers/builders/divisions";
-import {IClientActionResultDto} from "../common/IClientActionResultDto";
-import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
-import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
-import {createTemporaryId} from "../../helpers/projection";
-import {INoteApi} from "../../interfaces/apis/INoteApi";
+    TestContext,
+} from '../../helpers/tests';
+import { FixtureDateNote, IFixtureDateNoteProps } from './FixtureDateNote';
+import { DivisionDataContainer } from '../league/DivisionDataContainer';
+import { noteBuilder } from '../../helpers/builders/divisions';
+import { IClientActionResultDto } from '../common/IClientActionResultDto';
+import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
+import { createTemporaryId } from '../../helpers/projection';
+import { INoteApi } from '../../interfaces/apis/INoteApi';
 
 describe('FixtureDateNote', () => {
     let context: TestContext;
@@ -27,8 +27,8 @@ describe('FixtureDateNote', () => {
     const noteApi = api<INoteApi>({
         delete: async (id: string) => {
             deletedNoteId = id;
-            return deleteResult || {success: true};
-        }
+            return deleteResult || { success: true };
+        },
     });
 
     async function setEditNote(note: FixtureDateNoteDto) {
@@ -52,16 +52,24 @@ describe('FixtureDateNote', () => {
         return null;
     }
 
-    async function renderComponent(props: IFixtureDateNoteProps, account?: UserDto) {
+    async function renderComponent(
+        props: IFixtureDateNoteProps,
+        account?: UserDto,
+    ) {
         context = await renderApp(
-            iocProps({noteApi}),
+            iocProps({ noteApi }),
             brandingProps(),
             appProps({
-                account
+                account,
             }),
-            (<DivisionDataContainer onReloadDivision={onReloadDivision} name="" setDivisionData={setDivisionData} id={createTemporaryId()}>
-                <FixtureDateNote {...props}/>
-            </DivisionDataContainer>));
+            <DivisionDataContainer
+                onReloadDivision={onReloadDivision}
+                name=""
+                setDivisionData={setDivisionData}
+                id={createTemporaryId()}>
+                <FixtureDateNote {...props} />
+            </DivisionDataContainer>,
+        );
     }
 
     describe('renders', () => {
@@ -83,16 +91,20 @@ describe('FixtureDateNote', () => {
                 emailAddress: '',
                 access: {
                     manageNotes: true,
-                }
+                },
             };
-            await renderComponent({
-                note: noteBuilder().note('**some markdown**').build(),
-                preventDelete: true,
-                setEditNote,
-            },
-            account);
+            await renderComponent(
+                {
+                    note: noteBuilder().note('**some markdown**').build(),
+                    preventDelete: true,
+                    setEditNote,
+                },
+                account,
+            );
 
-            const buttons = Array.from(context.container.querySelectorAll('button'));
+            const buttons = Array.from(
+                context.container.querySelectorAll('button'),
+            );
             expect(buttons.length).toEqual(1);
             expect(buttons[0].textContent).toEqual('Edit');
         });
@@ -104,15 +116,19 @@ describe('FixtureDateNote', () => {
                 emailAddress: '',
                 access: {
                     manageNotes: true,
-                }
+                },
             };
-            await renderComponent({
-                note: noteBuilder().note('**some markdown**').build(),
-                setEditNote
-            },
-            account);
+            await renderComponent(
+                {
+                    note: noteBuilder().note('**some markdown**').build(),
+                    setEditNote,
+                },
+                account,
+            );
 
-            const buttons = Array.from(context.container.querySelectorAll('button'));
+            const buttons = Array.from(
+                context.container.querySelectorAll('button'),
+            );
             expect(buttons.length).toEqual(2);
             expect(buttons[0].textContent).toEqual('');
             expect(buttons[0].className).toEqual('btn-close');
@@ -125,15 +141,19 @@ describe('FixtureDateNote', () => {
                 emailAddress: '',
                 access: {
                     manageNotes: true,
-                }
+                },
             };
-            await renderComponent({
-                note: noteBuilder().note('**some markdown**').build(),
-                preventDelete: true,
-            },
-            account);
+            await renderComponent(
+                {
+                    note: noteBuilder().note('**some markdown**').build(),
+                    preventDelete: true,
+                },
+                account,
+            );
 
-            const buttons = Array.from(context.container.querySelectorAll('button'));
+            const buttons = Array.from(
+                context.container.querySelectorAll('button'),
+            );
             expect(buttons.length).toEqual(0);
         });
     });
@@ -146,15 +166,20 @@ describe('FixtureDateNote', () => {
                 emailAddress: '',
                 access: {
                     manageNotes: true,
-                }
+                },
             };
             const note = noteBuilder().note('**some markdown**').build();
             await renderComponent({ note, setEditNote }, account);
-            context.prompts.respondToConfirm('Are you sure you want to delete this note?', true);
+            context.prompts.respondToConfirm(
+                'Are you sure you want to delete this note?',
+                true,
+            );
 
             await doClick(context.container.querySelector('button.btn-close')!);
 
-            context.prompts.confirmWasShown('Are you sure you want to delete this note?');
+            context.prompts.confirmWasShown(
+                'Are you sure you want to delete this note?',
+            );
             expect(deletedNoteId).toEqual(note.id);
         });
 
@@ -165,15 +190,20 @@ describe('FixtureDateNote', () => {
                 emailAddress: '',
                 access: {
                     manageNotes: true,
-                }
+                },
             };
             const note = noteBuilder().note('**some markdown**').build();
             await renderComponent({ note, setEditNote }, account);
-            context.prompts.respondToConfirm('Are you sure you want to delete this note?', false);
+            context.prompts.respondToConfirm(
+                'Are you sure you want to delete this note?',
+                false,
+            );
 
             await doClick(context.container.querySelector('button.btn-close')!);
 
-            context.prompts.confirmWasShown('Are you sure you want to delete this note?');
+            context.prompts.confirmWasShown(
+                'Are you sure you want to delete this note?',
+            );
             expect(deletedNoteId).toBeNull();
         });
 
@@ -184,12 +214,15 @@ describe('FixtureDateNote', () => {
                 emailAddress: '',
                 access: {
                     manageNotes: true,
-                }
+                },
             };
             const note = noteBuilder().note('**some markdown**').build();
             await renderComponent({ note, setEditNote }, account);
-            deleteResult = {success: false};
-            context.prompts.respondToConfirm('Are you sure you want to delete this note?', true);
+            deleteResult = { success: false };
+            context.prompts.respondToConfirm(
+                'Are you sure you want to delete this note?',
+                true,
+            );
 
             await doClick(context.container.querySelector('button.btn-close')!);
 
@@ -203,7 +236,7 @@ describe('FixtureDateNote', () => {
                 emailAddress: '',
                 access: {
                     manageNotes: true,
-                }
+                },
             };
             const note = noteBuilder().note('**some markdown**').build();
             await renderComponent({ note, setEditNote }, account);

@@ -4,24 +4,25 @@ import {
     brandingProps,
     cleanUp,
     doClick,
-    ErrorState, findButton,
+    ErrorState,
+    findButton,
     iocProps,
     renderApp,
-    TestContext
-} from "../../helpers/tests";
-import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
-import {IDivisionApi} from "../../interfaces/apis/IDivisionApi";
-import {ISaygApi} from "../../interfaces/apis/ISaygApi";
-import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
-import {seasonBuilder} from "../../helpers/builders/seasons";
-import {DivisionDataFilter} from "../../interfaces/models/dtos/Division/DivisionDataFilter";
-import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
-import {divisionDataBuilder} from "../../helpers/builders/divisions";
-import {renderDate} from "../../helpers/rendering";
-import {AnalyseScores} from "./AnalyseScores";
-import {AnalysisRequestDto} from "../../interfaces/models/dtos/Analysis/AnalysisRequestDto";
-import {IClientActionResultDto} from "../common/IClientActionResultDto";
-import {AnalysisResponseDto} from "../../interfaces/models/dtos/Analysis/AnalysisResponseDto";
+    TestContext,
+} from '../../helpers/tests';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
+import { IDivisionApi } from '../../interfaces/apis/IDivisionApi';
+import { ISaygApi } from '../../interfaces/apis/ISaygApi';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
+import { seasonBuilder } from '../../helpers/builders/seasons';
+import { DivisionDataFilter } from '../../interfaces/models/dtos/Division/DivisionDataFilter';
+import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
+import { divisionDataBuilder } from '../../helpers/builders/divisions';
+import { renderDate } from '../../helpers/rendering';
+import { AnalyseScores } from './AnalyseScores';
+import { AnalysisRequestDto } from '../../interfaces/models/dtos/Analysis/AnalysisRequestDto';
+import { IClientActionResultDto } from '../common/IClientActionResultDto';
+import { AnalysisResponseDto } from '../../interfaces/models/dtos/Analysis/AnalysisResponseDto';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -40,15 +41,19 @@ describe('AnalyseScores', () => {
     const divisionApi = api<IDivisionApi>({
         async data(_: DivisionDataFilter): Promise<DivisionDataDto> {
             return divisionApiResponse!;
-        }
+        },
     });
     const saygApi = api<ISaygApi>({
-        async analyse(request: AnalysisRequestDto): Promise<IClientActionResultDto<AnalysisResponseDto>> {
+        async analyse(
+            request: AnalysisRequestDto,
+        ): Promise<IClientActionResultDto<AnalysisResponseDto>> {
             analysisRequest = request;
-            return analysisResponse || {
-                success: true
-            };
-        }
+            return (
+                analysisResponse || {
+                    success: true,
+                }
+            );
+        },
     });
 
     afterEach(async () => {
@@ -66,49 +71,69 @@ describe('AnalyseScores', () => {
     async function renderComponent(query?: string, seasonName?: string) {
         const account: UserDto = {
             access: {
-                analyseMatches: true
+                analyseMatches: true,
             },
             name: '',
             givenName: '',
             emailAddress: '',
         };
         context = await renderApp(
-            iocProps({divisionApi, saygApi}),
+            iocProps({ divisionApi, saygApi }),
             brandingProps(),
-            appProps({account, seasons: [season]}, reportedError),
-            (<AnalyseScores />),
+            appProps({ account, seasons: [season] }, reportedError),
+            <AnalyseScores />,
             '/analyse/:season',
-            '/analyse/' + (seasonName ?? season.name) + (query || ''));
+            '/analyse/' + (seasonName ?? season.name) + (query || ''),
+        );
         reportedError.verifyNoError();
     }
 
     describe('renders', () => {
         beforeEach(() => {
             divisionApiResponse = divisionDataBuilder()
-                .withFixtureDate((fd) => fd
-                    .withTournament(t => t.singleRound().date('2001-02-03').type('BOARD 1').opponent('OPPONENT'))
-                    .withTournament(t => t.date('2001-02-03').type('Singles')), '2001-02-03')
+                .withFixtureDate(
+                    (fd) =>
+                        fd
+                            .withTournament((t) =>
+                                t
+                                    .singleRound()
+                                    .date('2001-02-03')
+                                    .type('BOARD 1')
+                                    .opponent('OPPONENT'),
+                            )
+                            .withTournament((t) =>
+                                t.date('2001-02-03').type('Singles'),
+                            ),
+                    '2001-02-03',
+                )
                 .build();
         });
 
         it('renders tournaments on load', async () => {
             await renderComponent();
 
-            const tournamentList = context.container.querySelector('div.list-group')!;
-            const tournaments = Array.from(tournamentList.querySelectorAll('.list-group-item'));
-            expect(tournaments.map(t => t.textContent)).toEqual([
+            const tournamentList =
+                context.container.querySelector('div.list-group')!;
+            const tournaments = Array.from(
+                tournamentList.querySelectorAll('.list-group-item'),
+            );
+            expect(tournaments.map((t) => t.textContent)).toEqual([
                 `Superleague: ${renderDate('2001-02-03')} BOARD 1 vs OPPONENT`,
                 `Tournament: ${renderDate('2001-02-03')} Singles vs `,
             ]);
         });
 
         it('pre-selects tournaments from the query string', async () => {
-            const firstTournament = divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
+            const firstTournament =
+                divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
             await renderComponent(`?t=${firstTournament.id}`);
 
-            const tournamentList = context.container.querySelector('div.list-group')!;
-            const tournaments = Array.from(tournamentList.querySelectorAll('.active'));
-            expect(tournaments.map(t => t.textContent)).toEqual([
+            const tournamentList =
+                context.container.querySelector('div.list-group')!;
+            const tournaments = Array.from(
+                tournamentList.querySelectorAll('.active'),
+            );
+            expect(tournaments.map((t) => t.textContent)).toEqual([
                 `Superleague: ${renderDate('2001-02-03')} BOARD 1 vs OPPONENT`,
             ]);
         });
@@ -117,7 +142,9 @@ describe('AnalyseScores', () => {
             await renderComponent('', 'anotherSeason');
 
             const error = context.container.querySelector('.alert')!;
-            expect(error.textContent).toEqual('Could not find season with name: anotherSeason');
+            expect(error.textContent).toEqual(
+                'Could not find season with name: anotherSeason',
+            );
         });
 
         it('shows data errors from division api response', async () => {
@@ -135,8 +162,10 @@ describe('AnalyseScores', () => {
         it('shows option to remove team filter', async () => {
             await renderComponent(`?team=ATeamName`);
 
-            const filterRemovalButtons = Array.from(context.container.querySelectorAll('.btn-outline-danger'));
-            expect(filterRemovalButtons.map(t => t.textContent)).toEqual([
+            const filterRemovalButtons = Array.from(
+                context.container.querySelectorAll('.btn-outline-danger'),
+            );
+            expect(filterRemovalButtons.map((t) => t.textContent)).toEqual([
                 `❌ ATeamName`,
             ]);
         });
@@ -144,18 +173,23 @@ describe('AnalyseScores', () => {
         it('shows option to remove analysis filter', async () => {
             await renderComponent(`?a=AnAnalysis`);
 
-            const filterRemovalButtons = Array.from(context.container.querySelectorAll('.btn-outline-danger'));
-            expect(filterRemovalButtons.map(t => t.textContent)).toEqual([
+            const filterRemovalButtons = Array.from(
+                context.container.querySelectorAll('.btn-outline-danger'),
+            );
+            expect(filterRemovalButtons.map((t) => t.textContent)).toEqual([
                 `❌ AnAnalysis`,
             ]);
         });
 
         it.each([
             ['MostFrequentThrows', 'Common scores'],
-            ['HighestScores', 'Best scores']
+            ['HighestScores', 'Best scores'],
         ])('score breakdowns: %s', async (type: string, heading: string) => {
-            const firstTournament = divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
-            await renderComponent(`?t=${firstTournament.id}&team=Team1&a=${type}`);
+            const firstTournament =
+                divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
+            await renderComponent(
+                `?t=${firstTournament.id}&team=Team1&a=${type}`,
+            );
             const analysis: AnalysisResponseDto = {
                 [type]: {
                     Team1: [
@@ -169,26 +203,61 @@ describe('AnalyseScores', () => {
                 success: true,
                 result: analysis,
             };
-            await doClick(findButton(context.container,'Analyse 1 tournament/s'));
+            await doClick(
+                findButton(context.container, 'Analyse 1 tournament/s'),
+            );
 
-            const detail = context.container.querySelector(`[datatype="${type}"]`)!;
+            const detail = context.container.querySelector(
+                `[datatype="${type}"]`,
+            )!;
             const table = detail.querySelector('table')!;
-            const analysisHeading = context.container.querySelector('[datatype="analysis-heading"]')!;
-            const headings = Array.from(table.querySelectorAll('thead tr th')).map(th => th.textContent);
+            const analysisHeading = context.container.querySelector(
+                '[datatype="analysis-heading"]',
+            )!;
+            const headings = Array.from(
+                table.querySelectorAll('thead tr th'),
+            ).map((th) => th.textContent);
             expect(headings).toEqual(['Score', 'Times']);
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             expect(analysisHeading.textContent).toContain(heading);
-            expect(Array.from(rows[0].querySelectorAll('td')).map(td => td.textContent)).toEqual(['10', '10']);
-            expect(Array.from(rows[0].querySelectorAll('td')).map(td => td.className)).toEqual(['', '']);
-            expect(Array.from(rows[1].querySelectorAll('td')).map(td => td.textContent)).toEqual(['100', '9']);
-            expect(Array.from(rows[1].querySelectorAll('td')).map(td => td.className)).toEqual(['text-danger', '']);
-            expect(Array.from(rows[2].querySelectorAll('td')).map(td => td.textContent)).toEqual(['180', '8']);
-            expect(Array.from(rows[2].querySelectorAll('td')).map(td => td.className)).toEqual(['text-danger fw-bold', '']);
+            expect(
+                Array.from(rows[0].querySelectorAll('td')).map(
+                    (td) => td.textContent,
+                ),
+            ).toEqual(['10', '10']);
+            expect(
+                Array.from(rows[0].querySelectorAll('td')).map(
+                    (td) => td.className,
+                ),
+            ).toEqual(['', '']);
+            expect(
+                Array.from(rows[1].querySelectorAll('td')).map(
+                    (td) => td.textContent,
+                ),
+            ).toEqual(['100', '9']);
+            expect(
+                Array.from(rows[1].querySelectorAll('td')).map(
+                    (td) => td.className,
+                ),
+            ).toEqual(['text-danger', '']);
+            expect(
+                Array.from(rows[2].querySelectorAll('td')).map(
+                    (td) => td.textContent,
+                ),
+            ).toEqual(['180', '8']);
+            expect(
+                Array.from(rows[2].querySelectorAll('td')).map(
+                    (td) => td.className,
+                ),
+            ).toEqual(['text-danger fw-bold', '']);
         });
 
         it('empty score breakdowns', async () => {
-            const firstTournament = divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
-            await renderComponent(`?t=${firstTournament.id}&team=Team1&a=MostFrequentThrows`);
+            const firstTournament =
+                divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
+            await renderComponent(
+                `?t=${firstTournament.id}&team=Team1&a=MostFrequentThrows`,
+            );
             const analysis: AnalysisResponseDto = {
                 MostFrequentThrows: {
                     Team1: [],
@@ -198,15 +267,22 @@ describe('AnalyseScores', () => {
                 success: true,
                 result: analysis,
             };
-            await doClick(findButton(context.container,'Analyse 1 tournament/s'));
+            await doClick(
+                findButton(context.container, 'Analyse 1 tournament/s'),
+            );
 
-            const detail = context.container.querySelector('[datatype="MostFrequentThrows"]')!;
+            const detail = context.container.querySelector(
+                '[datatype="MostFrequentThrows"]',
+            )!;
             expect(detail.textContent).toContain('No data');
         });
 
         it('named breakdowns', async () => {
-            const firstTournament = divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
-            await renderComponent(`?t=${firstTournament.id}&team=Team1&a=MostFrequentPlayers`);
+            const firstTournament =
+                divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
+            await renderComponent(
+                `?t=${firstTournament.id}&team=Team1&a=MostFrequentPlayers`,
+            );
             const analysis: AnalysisResponseDto = {
                 MostFrequentPlayers: {
                     Team1: [
@@ -220,21 +296,42 @@ describe('AnalyseScores', () => {
                 success: true,
                 result: analysis,
             };
-            await doClick(findButton(context.container,'Analyse 1 tournament/s'));
+            await doClick(
+                findButton(context.container, 'Analyse 1 tournament/s'),
+            );
 
-            const detail = context.container.querySelector('[datatype="MostFrequentPlayers"]')!;
+            const detail = context.container.querySelector(
+                '[datatype="MostFrequentPlayers"]',
+            )!;
             const table = detail.querySelector('table')!;
-            const headings = Array.from(table.querySelectorAll('thead tr th')).map(th => th.textContent);
+            const headings = Array.from(
+                table.querySelectorAll('thead tr th'),
+            ).map((th) => th.textContent);
             expect(headings).toEqual(['Name', 'Times']);
             const rows = Array.from(table.querySelectorAll('tbody tr'));
-            expect(Array.from(rows[0].querySelectorAll('td')).map(td => td.textContent)).toEqual(['Tom', '10']);
-            expect(Array.from(rows[1].querySelectorAll('td')).map(td => td.textContent)).toEqual(['Richard', '9']);
-            expect(Array.from(rows[2].querySelectorAll('td')).map(td => td.textContent)).toEqual(['Harry', '8']);
+            expect(
+                Array.from(rows[0].querySelectorAll('td')).map(
+                    (td) => td.textContent,
+                ),
+            ).toEqual(['Tom', '10']);
+            expect(
+                Array.from(rows[1].querySelectorAll('td')).map(
+                    (td) => td.textContent,
+                ),
+            ).toEqual(['Richard', '9']);
+            expect(
+                Array.from(rows[2].querySelectorAll('td')).map(
+                    (td) => td.textContent,
+                ),
+            ).toEqual(['Harry', '8']);
         });
 
         it('empty named breakdowns', async () => {
-            const firstTournament = divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
-            await renderComponent(`?t=${firstTournament.id}&team=Team1&a=MostFrequentPlayers`);
+            const firstTournament =
+                divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
+            await renderComponent(
+                `?t=${firstTournament.id}&team=Team1&a=MostFrequentPlayers`,
+            );
             const analysis: AnalysisResponseDto = {
                 MostFrequentPlayers: {
                     Team1: [],
@@ -244,9 +341,13 @@ describe('AnalyseScores', () => {
                 success: true,
                 result: analysis,
             };
-            await doClick(findButton(context.container,'Analyse 1 tournament/s'));
+            await doClick(
+                findButton(context.container, 'Analyse 1 tournament/s'),
+            );
 
-            const detail = context.container.querySelector('[datatype="MostFrequentPlayers"]')!;
+            const detail = context.container.querySelector(
+                '[datatype="MostFrequentPlayers"]',
+            )!;
             expect(detail.textContent).toContain('No data');
         });
     });
@@ -254,164 +355,212 @@ describe('AnalyseScores', () => {
     describe('interactivity', () => {
         beforeEach(() => {
             divisionApiResponse = divisionDataBuilder()
-                .withFixtureDate((fd) => fd
-                    .withTournament(t => t.singleRound().date('2001-02-03').type('BOARD 1').opponent('OPPONENT'))
-                    .withTournament(t => t.date('2001-02-03').type('Singles')), '2001-02-03')
+                .withFixtureDate(
+                    (fd) =>
+                        fd
+                            .withTournament((t) =>
+                                t
+                                    .singleRound()
+                                    .date('2001-02-03')
+                                    .type('BOARD 1')
+                                    .opponent('OPPONENT'),
+                            )
+                            .withTournament((t) =>
+                                t.date('2001-02-03').type('Singles'),
+                            ),
+                    '2001-02-03',
+                )
                 .build();
         });
 
         it('prompts for some tournament selections', async () => {
             await renderComponent();
 
-            await doClick(findButton(context.container,'Analyse 0 tournament/s'));
+            await doClick(
+                findButton(context.container, 'Analyse 0 tournament/s'),
+            );
 
             const error = context.container.querySelector('.alert')!;
             expect(error.textContent).toEqual('Select some tournaments first');
         });
 
         it('analyses selected tournaments', async () => {
-            const firstTournament = divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
+            const firstTournament =
+                divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
             await renderComponent(`?t=${firstTournament.id}`);
 
-            await doClick(findButton(context.container,'Analyse 1 tournament/s'));
+            await doClick(
+                findButton(context.container, 'Analyse 1 tournament/s'),
+            );
 
-            expect(analysisRequest?.tournamentIds).toEqual([firstTournament.id]);
+            expect(analysisRequest?.tournamentIds).toEqual([
+                firstTournament.id,
+            ]);
         });
 
         it('shows an error if analysis fails', async () => {
-            const firstTournament = divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
+            const firstTournament =
+                divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
             await renderComponent(`?t=${firstTournament.id}`);
             analysisResponse = {
                 success: false,
-                errors: [ 'An error' ],
-                warnings: [ 'A warning' ],
+                errors: ['An error'],
+                warnings: ['A warning'],
             };
 
-            await doClick(findButton(context.container,'Analyse 1 tournament/s'));
+            await doClick(
+                findButton(context.container, 'Analyse 1 tournament/s'),
+            );
 
             const error = context.container.querySelector('.alert')!;
             expect(error.textContent).toEqual('An error, A warning');
         });
 
         it('can select a tournament', async () => {
-            const firstTournament = divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
+            const firstTournament =
+                divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
             await renderComponent();
 
-            await doClick(context.container.querySelector('.list-group .list-group-item')!);
+            await doClick(
+                context.container.querySelector(
+                    '.list-group .list-group-item',
+                )!,
+            );
 
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/analyse/SEASON/?t=${firstTournament.id}`);
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(
+                `/analyse/SEASON/?t=${firstTournament.id}`,
+            );
         });
 
         it('can deselect a tournament', async () => {
-            const firstTournament = divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
+            const firstTournament =
+                divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
             await renderComponent(`?t=${firstTournament.id}`);
 
-            await doClick(context.container.querySelector('.list-group .list-group-item')!);
+            await doClick(
+                context.container.querySelector(
+                    '.list-group .list-group-item',
+                )!,
+            );
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(`/analyse/SEASON/`);
         });
 
         it('can filter by a team', async () => {
-            const firstTournament = divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
+            const firstTournament =
+                divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
             await renderComponent(`?t=${firstTournament.id}`);
             const analysis: AnalysisResponseDto = {
                 MostFrequentThrows: {
-                    Team1: [
-                        { number: 10, score: 5 },
-                    ],
-                    Team2: [
-                        { number: 10, score: 5 },
-                    ],
+                    Team1: [{ number: 10, score: 5 }],
+                    Team2: [{ number: 10, score: 5 }],
                 },
             };
             analysisResponse = {
                 success: true,
                 result: analysis,
             };
-            await doClick(findButton(context.container,'Analyse 1 tournament/s'));
-            const teamHeading = context.container.querySelector('[datatype="team-heading"]')!;
+            await doClick(
+                findButton(context.container, 'Analyse 1 tournament/s'),
+            );
+            const teamHeading = context.container.querySelector(
+                '[datatype="team-heading"]',
+            )!;
 
-            await doClick(teamHeading)
+            await doClick(teamHeading);
 
             const teamName = teamHeading.textContent!.replace('🔎 ', '');
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/analyse/SEASON/?t=${firstTournament.id}&team=${teamName}`);
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(
+                `/analyse/SEASON/?t=${firstTournament.id}&team=${teamName}`,
+            );
         });
 
         it('can remove team filter', async () => {
-            const firstTournament = divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
+            const firstTournament =
+                divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
             await renderComponent(`?t=${firstTournament.id}&team=Team1`);
             const analysis: AnalysisResponseDto = {
                 MostFrequentThrows: {
-                    Team1: [
-                        { number: 10, score: 5 },
-                    ],
-                    Team2: [
-                        { number: 10, score: 5 },
-                    ],
+                    Team1: [{ number: 10, score: 5 }],
+                    Team2: [{ number: 10, score: 5 }],
                 },
             };
             analysisResponse = {
                 success: true,
                 result: analysis,
             };
-            await doClick(findButton(context.container,'Analyse 1 tournament/s'));
-            const teamHeading = context.container.querySelector('[datatype="team-heading"]')!;
+            await doClick(
+                findButton(context.container, 'Analyse 1 tournament/s'),
+            );
+            const teamHeading = context.container.querySelector(
+                '[datatype="team-heading"]',
+            )!;
 
-            await doClick(teamHeading)
+            await doClick(teamHeading);
 
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/analyse/SEASON/?t=${firstTournament.id}`);
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(
+                `/analyse/SEASON/?t=${firstTournament.id}`,
+            );
         });
 
         it('can filter by analysis', async () => {
-            const firstTournament = divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
+            const firstTournament =
+                divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
             await renderComponent(`?t=${firstTournament.id}`);
             const analysis: AnalysisResponseDto = {
                 MostFrequentThrows: {
-                    Team1: [
-                        { number: 10, score: 5 },
-                    ],
-                    Team2: [
-                        { number: 10, score: 5 },
-                    ],
+                    Team1: [{ number: 10, score: 5 }],
+                    Team2: [{ number: 10, score: 5 }],
                 },
             };
             analysisResponse = {
                 success: true,
                 result: analysis,
             };
-            await doClick(findButton(context.container,'Analyse 1 tournament/s'));
+            await doClick(
+                findButton(context.container, 'Analyse 1 tournament/s'),
+            );
             expect(context.container.textContent).toContain('Common scores');
-            const teamHeading = context.container.querySelector('[datatype="analysis-heading"]')!;
+            const teamHeading = context.container.querySelector(
+                '[datatype="analysis-heading"]',
+            )!;
 
-            await doClick(teamHeading)
+            await doClick(teamHeading);
 
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/analyse/SEASON/?t=${firstTournament.id}&a=MostFrequentThrows`);
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(
+                `/analyse/SEASON/?t=${firstTournament.id}&a=MostFrequentThrows`,
+            );
         });
 
         it('can remove analysis filter', async () => {
-            const firstTournament = divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
-            await renderComponent(`?t=${firstTournament.id}&a=MostFrequentThrows`);
+            const firstTournament =
+                divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
+            await renderComponent(
+                `?t=${firstTournament.id}&a=MostFrequentThrows`,
+            );
             const analysis: AnalysisResponseDto = {
                 MostFrequentThrows: {
-                    Team1: [
-                        { number: 10, score: 5 },
-                    ],
-                    Team2: [
-                        { number: 10, score: 5 },
-                    ],
+                    Team1: [{ number: 10, score: 5 }],
+                    Team2: [{ number: 10, score: 5 }],
                 },
             };
             analysisResponse = {
                 success: true,
                 result: analysis,
             };
-            await doClick(findButton(context.container,'Analyse 1 tournament/s'));
+            await doClick(
+                findButton(context.container, 'Analyse 1 tournament/s'),
+            );
             expect(context.container.textContent).toContain('Common scores');
-            const teamHeading = context.container.querySelector('[datatype="analysis-heading"]')!;
+            const teamHeading = context.container.querySelector(
+                '[datatype="analysis-heading"]',
+            )!;
 
-            await doClick(teamHeading)
+            await doClick(teamHeading);
 
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/analyse/SEASON/?t=${firstTournament.id}`);
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(
+                `/analyse/SEASON/?t=${firstTournament.id}`,
+            );
         });
 
         it('can select all tournaments', async () => {
@@ -419,14 +568,18 @@ describe('AnalyseScores', () => {
 
             await doClick(findButton(context.container, 'All 2'));
 
-            const tournaments = divisionApiResponse!.fixtures![0]!.tournamentFixtures!;
-            const query = tournaments.map(t => `t=${t.id}`).join('&');
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/analyse/SEASON/?${query}`);
+            const tournaments =
+                divisionApiResponse!.fixtures![0]!.tournamentFixtures!;
+            const query = tournaments.map((t) => `t=${t.id}`).join('&');
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(
+                `/analyse/SEASON/?${query}`,
+            );
         });
 
         it('can unselect all tournaments', async () => {
-            const tournaments = divisionApiResponse!.fixtures![0]!.tournamentFixtures!;
-            const query = tournaments.map(t => `t=${t.id}`).join('&');
+            const tournaments =
+                divisionApiResponse!.fixtures![0]!.tournamentFixtures!;
+            const query = tournaments.map((t) => `t=${t.id}`).join('&');
             await renderComponent(`?${query}`);
 
             await doClick(findButton(context.container, 'None'));

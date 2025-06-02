@@ -1,11 +1,12 @@
 ﻿/* istanbul ignore file */
 
-import {IAddableBuilder} from "./builders";
-import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
-import {EditSeasonDto} from "../../interfaces/models/dtos/Season/EditSeasonDto";
-import {createTemporaryId} from "../projection";
+import { IAddableBuilder } from './builders';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
+import { EditSeasonDto } from '../../interfaces/models/dtos/Season/EditSeasonDto';
+import { createTemporaryId } from '../projection';
 
-export interface ISeasonBuilder extends IAddableBuilder<SeasonDto & EditSeasonDto> {
+export interface ISeasonBuilder
+    extends IAddableBuilder<SeasonDto & EditSeasonDto> {
     withDivision(divisionOrId: any): ISeasonBuilder;
     starting(date: string): ISeasonBuilder;
     ending(date: string): ISeasonBuilder;
@@ -30,9 +31,13 @@ export function seasonBuilder(name?: string, id?: string): ISeasonBuilder {
             return builder;
         },
         withDivision: (divisionOrId: any) => {
-            season.divisions?.push(divisionOrId.id ? divisionOrId : {
-                id: divisionOrId,
-            });
+            season.divisions?.push(
+                divisionOrId.id
+                    ? divisionOrId
+                    : {
+                          id: divisionOrId,
+                      },
+            );
             return builder;
         },
         starting: (date: string) => {
@@ -46,7 +51,9 @@ export function seasonBuilder(name?: string, id?: string): ISeasonBuilder {
         withDivisionId: (divisionOrId: any) => {
             // this is for the editSeason dialog only
             season.divisionIds = season.divisionIds || [];
-            season.divisionIds.push(divisionOrId.id ? divisionOrId.id : divisionOrId);
+            season.divisionIds.push(
+                divisionOrId.id ? divisionOrId.id : divisionOrId,
+            );
             return builder;
         },
         isCurrent: () => {

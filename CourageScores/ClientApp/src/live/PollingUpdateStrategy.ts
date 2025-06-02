@@ -1,16 +1,16 @@
-import {IUpdateStrategy} from "./IUpdateStrategy";
-import {ISubscription} from "./ISubscription";
-import {IClientActionResultDto} from "../components/common/IClientActionResultDto";
-import {any} from "../helpers/collections";
-import {IWebSocketContext} from "./IWebSocketContext";
-import {ISubscriptions} from "./ISubscriptions";
-import {ISubscriptionRequest} from "./ISubscriptionRequest";
-import {ILiveApi} from "../interfaces/apis/ILiveApi";
-import {WebSocketMode} from "./WebSocketMode";
-import {UpdatedDataDto} from "../interfaces/models/dtos/Live/UpdatedDataDto";
-import {IStrategyData} from "./IStrategyData";
-import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
-import {IError} from "../components/common/IError";
+import { IUpdateStrategy } from './IUpdateStrategy';
+import { ISubscription } from './ISubscription';
+import { IClientActionResultDto } from '../components/common/IClientActionResultDto';
+import { any } from '../helpers/collections';
+import { IWebSocketContext } from './IWebSocketContext';
+import { ISubscriptions } from './ISubscriptions';
+import { ISubscriptionRequest } from './ISubscriptionRequest';
+import { ILiveApi } from '../interfaces/apis/ILiveApi';
+import { WebSocketMode } from './WebSocketMode';
+import { UpdatedDataDto } from '../interfaces/models/dtos/Live/UpdatedDataDto';
+import { IStrategyData } from './IStrategyData';
+import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType';
+import { IError } from '../components/common/IError';
 
 enum PollResult {
     Updated,
@@ -27,7 +27,11 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
 
     private refreshContext?: IStrategyData;
 
-    constructor(liveApi: ILiveApi, initialDelay: number, subsequentDelay: number) {
+    constructor(
+        liveApi: ILiveApi,
+        initialDelay: number,
+        subsequentDelay: number,
+    ) {
         this.liveApi = liveApi;
         this.initialDelay = initialDelay;
         this.subsequentDelay = subsequentDelay;
@@ -38,12 +42,20 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
     }
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
-    async publish(props: IStrategyData, id: string, type: LiveDataType, data: any): Promise<IWebSocketContext | null> {
+    async publish(
+        props: IStrategyData,
+        id: string,
+        type: LiveDataType,
+        data: any,
+    ): Promise<IWebSocketContext | null> {
         await this.liveApi.postUpdate(id, type, data);
         return props.context;
     }
 
-    async unsubscribe(props: IStrategyData, /* eslint-disable @typescript-eslint/no-unused-vars */ _id: string): Promise<IWebSocketContext> {
+    async unsubscribe(
+        props: IStrategyData,
+        /* eslint-disable @typescript-eslint/no-unused-vars */ _id: string,
+    ): Promise<IWebSocketContext> {
         const anySubscriptions: boolean = any(Object.keys(props.subscriptions));
         if (anySubscriptions) {
             return props.context;
@@ -57,27 +69,39 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
         return newContext;
     }
 
-    async subscribe(props: IStrategyData, /* eslint-disable @typescript-eslint/no-unused-vars */ _request?: ISubscriptionRequest): Promise<IWebSocketContext | null> {
+    async subscribe(
+        props: IStrategyData,
+        /* eslint-disable @typescript-eslint/no-unused-vars */ _request?: ISubscriptionRequest,
+    ): Promise<IWebSocketContext | null> {
         if (props.context.pollingHandle) {
             return props.context;
         }
 
         const newContext: IWebSocketContext = Object.assign({}, props.context);
-        newContext.pollingHandle = window.setTimeout(this.pollingIteration.bind(this), this.initialDelay);
+        newContext.pollingHandle = window.setTimeout(
+            this.pollingIteration.bind(this),
+            this.initialDelay,
+        );
         return newContext;
     }
 
     private async pollingIteration(): Promise<void> {
         if (!this.refreshContext) {
-            console.log('No refresh context, unable to execute on polling iteration');
+            console.log(
+                'No refresh context, unable to execute on polling iteration',
+            );
             return;
         }
 
         const context: IWebSocketContext = this.refreshContext.context;
-        const allSubscriptions: ISubscriptions = this.refreshContext.subscriptions;
+        const allSubscriptions: ISubscriptions =
+            this.refreshContext.subscriptions;
         const setContext = this.refreshContext.setContext;
         const setSubscriptions = this.refreshContext.setSubscriptions;
-        const newSubscriptions: ISubscriptions = Object.assign({}, allSubscriptions);
+        const newSubscriptions: ISubscriptions = Object.assign(
+            {},
+            allSubscriptions,
+        );
 
         // polling iteration
         let successes: number = 0;
@@ -86,7 +110,8 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
 
         for (const id in allSubscriptions) {
             const subscription: ISubscription = allSubscriptions[id];
-            const result: PollResult = await this.requestLatestData(subscription);
+            const result: PollResult =
+                await this.requestLatestData(subscription);
 
             switch (result) {
                 case PollResult.Updated:
@@ -113,11 +138,17 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
 
         if (exceptions === Object.keys(allSubscriptions).length) {
             // every poll failed, cancel this mode
-            newContext.modes = newContext.modes.filter((m: WebSocketMode) => m !== WebSocketMode.polling);
+            newContext.modes = newContext.modes.filter(
+                (m: WebSocketMode) => m !== WebSocketMode.polling,
+            );
         }
-        newContext.pollingHandle = any(Object.keys(allSubscriptions)) && successes > 0
-            ? window.setTimeout(this.pollingIteration.bind(this), this.subsequentDelay)
-            : undefined;
+        newContext.pollingHandle =
+            any(Object.keys(allSubscriptions)) && successes > 0
+                ? window.setTimeout(
+                      this.pollingIteration.bind(this),
+                      this.subsequentDelay,
+                  )
+                : undefined;
 
         await setContext(newContext);
         if (subscriptionsChanged) {
@@ -125,9 +156,16 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
         }
     }
 
-    private async requestLatestData(subscription: ISubscription): Promise<PollResult> {
+    private async requestLatestData(
+        subscription: ISubscription,
+    ): Promise<PollResult> {
         try {
-            const latestData: IClientActionResultDto<UpdatedDataDto> | null = await this.liveApi.getUpdate(subscription.id, subscription.type, subscription.lastUpdate || '');
+            const latestData: IClientActionResultDto<UpdatedDataDto> | null =
+                await this.liveApi.getUpdate(
+                    subscription.id,
+                    subscription.type,
+                    subscription.lastUpdate || '',
+                );
             if (latestData?.success) {
                 if (!latestData.result) {
                     return PollResult.NotTracked;
@@ -144,7 +182,11 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
 
             const message: string = `Error polling for updates: ${subscription.id} (${subscription.type})`;
             subscription.errorHandler({
-                message: message + (latestData?.errors ? '\n' + latestData.errors.join('\n'): ''),
+                message:
+                    message +
+                    (latestData?.errors
+                        ? '\n' + latestData.errors.join('\n')
+                        : ''),
             });
             return PollResult.Error;
         } catch (e) {
@@ -152,7 +194,7 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
 
             subscription.errorHandler({
                 message: error.message ? error.message : error,
-                stack: error.stack
+                stack: error.stack,
             });
 
             return PollResult.Exception;

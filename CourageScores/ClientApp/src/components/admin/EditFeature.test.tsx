@@ -1,20 +1,23 @@
-import {AdminContainer} from "./AdminContainer";
+import { AdminContainer } from './AdminContainer';
 import {
     api,
     appProps,
     brandingProps,
-    cleanUp, doChange, doClick,
-    ErrorState, findButton,
+    cleanUp,
+    doChange,
+    doClick,
+    ErrorState,
+    findButton,
     iocProps,
     renderApp,
-    TestContext
-} from "../../helpers/tests";
-import {IClientActionResultDto} from "../common/IClientActionResultDto";
-import {ReconfigureFeatureDto} from "../../interfaces/models/dtos/ReconfigureFeatureDto";
-import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
-import {IFeatureApi} from "../../interfaces/apis/IFeatureApi";
-import {EditFeature, IEditFeatureProps} from "./EditFeature";
-import {createTemporaryId} from "../../helpers/projection";
+    TestContext,
+} from '../../helpers/tests';
+import { IClientActionResultDto } from '../common/IClientActionResultDto';
+import { ReconfigureFeatureDto } from '../../interfaces/models/dtos/ReconfigureFeatureDto';
+import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto';
+import { IFeatureApi } from '../../interfaces/apis/IFeatureApi';
+import { EditFeature, IEditFeatureProps } from './EditFeature';
+import { createTemporaryId } from '../../helpers/projection';
 
 describe('EditFeature', () => {
     let context: TestContext;
@@ -23,10 +26,12 @@ describe('EditFeature', () => {
     let apiResponse: IClientActionResultDto<ConfiguredFeatureDto> | null;
     let changed: boolean;
     const featureApi = api<IFeatureApi>({
-        async updateFeature(update: ReconfigureFeatureDto): Promise<IClientActionResultDto<ConfiguredFeatureDto>> {
+        async updateFeature(
+            update: ReconfigureFeatureDto,
+        ): Promise<IClientActionResultDto<ConfiguredFeatureDto>> {
             updateRequest = update;
             return apiResponse || { success: true };
-        }
+        },
     });
 
     afterEach(async () => {
@@ -46,18 +51,22 @@ describe('EditFeature', () => {
 
     async function renderComponent(props: IEditFeatureProps) {
         context = await renderApp(
-            iocProps({featureApi}),
+            iocProps({ featureApi }),
             brandingProps(),
-            appProps({
-                account: {
-                    name: '',
-                    emailAddress: '',
-                    givenName: '',
+            appProps(
+                {
+                    account: {
+                        name: '',
+                        emailAddress: '',
+                        givenName: '',
+                    },
                 },
-            }, reportedError),
-            (<AdminContainer tables={[]} accounts={[]}>
+                reportedError,
+            ),
+            <AdminContainer tables={[]} accounts={[]}>
                 <EditFeature {...props} />
-            </AdminContainer>));
+            </AdminContainer>,
+        );
     }
 
     describe('renders', () => {
@@ -74,7 +83,9 @@ describe('EditFeature', () => {
 
             expect(context.container.textContent).toContain('FEATURE 1');
             expect(context.container.textContent).toContain('FEATURE DESC');
-            expect(context.container.querySelector('input')!.value).toEqual('FOO');
+            expect(context.container.querySelector('input')!.value).toEqual(
+                'FOO',
+            );
         });
 
         it('when unconfigured', async () => {
@@ -185,8 +196,10 @@ describe('EditFeature', () => {
 
             await renderComponent({ feature, onChanged });
 
-            const day: HTMLInputElement = context.container.querySelector('input[name="day"]')!;
-            const time: HTMLInputElement = context.container.querySelector('input[name="time"]')!;
+            const day: HTMLInputElement =
+                context.container.querySelector('input[name="day"]')!;
+            const time: HTMLInputElement =
+                context.container.querySelector('input[name="time"]')!;
             expect(day.type).toEqual('number');
             expect(day.value).toEqual('0');
             expect(day.placeholder).toEqual('days');
@@ -205,8 +218,10 @@ describe('EditFeature', () => {
 
             await renderComponent({ feature, onChanged });
 
-            const day: HTMLInputElement = context.container.querySelector('input[name="day"]')!;
-            const time: HTMLInputElement = context.container.querySelector('input[name="time"]')!;
+            const day: HTMLInputElement =
+                context.container.querySelector('input[name="day"]')!;
+            const time: HTMLInputElement =
+                context.container.querySelector('input[name="time"]')!;
             expect(day.type).toEqual('number');
             expect(day.value).toEqual('1');
             expect(day.placeholder).toEqual('days');
@@ -355,7 +370,12 @@ describe('EditFeature', () => {
             };
             await renderComponent({ feature, onChanged });
 
-            await doChange(context.container, 'input[name="day"]', '2', context.user);
+            await doChange(
+                context.container,
+                'input[name="day"]',
+                '2',
+                context.user,
+            );
             await doClick(findButton(context.container, '💾'));
 
             expect(updateRequest).toEqual({
@@ -374,7 +394,12 @@ describe('EditFeature', () => {
             };
             await renderComponent({ feature, onChanged });
 
-            await doChange(context.container, 'input[name="time"]', '01:02:03', context.user);
+            await doChange(
+                context.container,
+                'input[name="time"]',
+                '01:02:03',
+                context.user,
+            );
             await doClick(findButton(context.container, '💾'));
 
             expect(updateRequest).toEqual({
@@ -408,9 +433,7 @@ describe('EditFeature', () => {
             await renderComponent({ feature, onChanged });
             apiResponse = {
                 success: false,
-                warnings: [
-                    'SOME ERROR',
-                ],
+                warnings: ['SOME ERROR'],
             };
 
             await doChange(context.container, 'input', 'FOO', context.user);

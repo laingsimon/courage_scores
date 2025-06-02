@@ -1,10 +1,8 @@
-import {IBuild} from "../components/common/IBuild";
+import { IBuild } from '../components/common/IBuild';
 
 function getBuildDetail(name: string): string | null {
     const meta = document.querySelector(`meta[name="build:${name}"]`);
-    return meta
-        ? meta.getAttribute('content')
-        : null;
+    return meta ? meta.getAttribute('content') : null;
 }
 
 export function getBuild(): IBuild {
