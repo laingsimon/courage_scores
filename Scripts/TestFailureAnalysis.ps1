@@ -146,10 +146,10 @@ function Get-TypescriptBuildFailures([Parameter(ValueFromPipeline)] $Path)
 function Get-PrettierFormattingFailures([Parameter(ValueFromPipeline)] $Path)
 {
     process {
-        $BuildLines = Get-LinesBetween -Path $Path -Start "*Checking formatting..." -End "*Code style issues*" | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
-        $HasRunTests = ($BuildLines | Where-Object { $_ -like "*couragescores*test*" }).Count
+        $BuildLines = Get-LinesBetween -Path $Path -Start "*Checking formatting..." -End "*Code style issues*" -Inclusive | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
+        $IncorrectlyFormattedFiles = ($BuildLines | Where-Object { $_ -like "*[warn] *" }).Count
 
-        if ($BuildLines.Count -ge 1 -and $HasRunTests -eq 0)
+        if ($IncorrectlyFormattedFiles -gt 0)
         {
             Write-Output "#### Prettier check:`n$($CodeBlock)`n$($BuildLines -join "`n")`n$($CodeBlock)"
         }
