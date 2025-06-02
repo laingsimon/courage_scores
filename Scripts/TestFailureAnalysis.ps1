@@ -68,12 +68,14 @@ function Get-Logs($Url)
 
     $DotNetResults = Get-ChildItem -Path $ExtractPath -Filter "*build*with-dotnet.txt" | Get-DotNetFailures
     $TypescriptBuildFailures = Get-ChildItem -Path $ExtractPath -Filter "*publish*with-dotnet.txt" | Get-TypescriptBuildFailures
+    $PrettierFormattingFailures = Get-ChildItem -Path $ExtractPath -Filter "*publish*with-dotnet.txt" | Get-PrettierFormattingFailures
+
     if (!($TypescriptBuildFailures -like "*error*npm run build*"))
     {
         $JestResults = Get-ChildItem -Path $ExtractPath -Filter "*publish*with-dotnet.txt" | Get-JestFailures
     }
 
-    return $DotNetResults,$TypescriptBuildFailures,$JestResults
+    return $DotNetResults,$PrettierFormattingFailures,$TypescriptBuildFailures,$JestResults
 }
 
 function Get-LinesBetween($Path, $Start, $End, [switch] $Inclusive)
@@ -137,6 +139,19 @@ function Get-TypescriptBuildFailures([Parameter(ValueFromPipeline)] $Path)
         if ($BuildLines.Count -ge 1 -and $HasRunTests -eq 0)
         {
             Write-Output "#### Typescript build:`n$($CodeBlock)`n$($BuildLines -join "`n")`n$($CodeBlock)"
+        }
+    }
+}
+
+function Get-PrettierFormattingFailures([Parameter(ValueFromPipeline)] $Path)
+{
+    process {
+        $BuildLines = Get-LinesBetween -Path $Path -Start "*Checking formatting..." -End "*npm run build*" | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
+        $HasRunTests = ($BuildLines | Where-Object { $_ -like "*couragescores*test*" }).Count
+
+        if ($BuildLines.Count -ge 1 -and $HasRunTests -eq 0)
+        {
+            Write-Output "#### Prettier check:`n$($CodeBlock)`n$($BuildLines -join "`n")`n$($CodeBlock)"
         }
     }
 }
