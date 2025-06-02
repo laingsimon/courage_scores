@@ -159,11 +159,17 @@ function Get-PrettierFormattingFailures([Parameter(ValueFromPipeline)] $Path)
 function Get-JestFailures([Parameter(ValueFromPipeline)] $Path)
 {
     process {
-        $TestLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Summary of all failing tests*" -End "*Ran all test suites." | Remove-Timestamp
+        $TestLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Summary of all failing tests*" -End "*Ran all test suites." | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
         if ($TestLines.Count -eq 0)
         {
-            $TestLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Test Suites:*" -End "*Ran all test suites." | Remove-Timestamp
+            $TestLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Test Suites:*" -End "*Ran all test suites." | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
         }
+
+        if ($TestLines.Count -eq 0)
+        {
+            return
+        }
+
         Write-Output "#### React tests:`n$($CodeBlock)`n$($TestLines -join "`n")`n$($CodeBlock)"
     }
 }
