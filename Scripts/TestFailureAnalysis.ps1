@@ -148,6 +148,12 @@ function Get-PrettierFormattingFailures([Parameter(ValueFromPipeline)] $Path)
     process {
         $BuildLines = Get-LinesBetween -Path $Path -Start "*Checking formatting..." -End "*Code style issues*" -Inclusive | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
         $IncorrectlyFormattedFiles = ($BuildLines | Where-Object { $_ -like "*[warn] *" }).Count
+        $AllFilesFormattedCorrectly = ($BuildLines | Where-Object { $_ -like "*All matched files use Prettier code style!" }).Count -ge 1
+
+        if ($AllFilesFormattedCorrectly)
+        {
+            return
+        }
 
         if ($IncorrectlyFormattedFiles -gt 0)
         {
