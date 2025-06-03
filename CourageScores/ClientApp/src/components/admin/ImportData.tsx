@@ -22,7 +22,7 @@ export function ImportData() {
         tables: []
     });
     const [response, setResponse] = useState<IClientActionResultDto<ImportDataResultDto> | null>(null);
-    const [saveError, setSaveError] = useState<object | string | undefined>(undefined);
+    const [saveError, setSaveError] = useState<object | IClientActionResultDto<ImportDataResultDto> | undefined>(undefined);
 
     useEffect(() => {
             if (!tables) {
@@ -65,9 +65,9 @@ export function ImportData() {
             } else if (response.body) {
                 if (response.status === 500 && response.text) {
                     const textResponse: string = await response.text();
-                    setSaveError({errors: [textResponse]});
+                    setSaveError({errors: [textResponse]} as IClientActionResultDto<ImportDataResultDto>);
                 } else if (response.json) {
-                    const jsonResponse = await response.json();
+                    const jsonResponse: object = await response.json();
                     setSaveError(jsonResponse);
                 }
             } else {
@@ -76,7 +76,7 @@ export function ImportData() {
         } catch (e) {
             /* istanbul ignore next */
             console.error(e);
-            setSaveError(`${e}`);
+            setSaveError({ errors: [e] } as IClientActionResultDto<ImportDataResultDto>);
         } finally {
             setImporting(false);
         }
@@ -136,7 +136,7 @@ export function ImportData() {
             </div>
         </div>) : null}
         {saveError
-            ? (<ErrorDisplay {...(saveError as any)} onClose={asyncClear(setSaveError)} title="Could not import data"/>)
+            ? (<ErrorDisplay {...saveError} onClose={asyncClear(setSaveError)} title="Could not import data"/>)
             : null}
     </div>);
 }

@@ -38,7 +38,9 @@ describe('EditThrow', () => {
     }
 
     async function onChange(event: React.ChangeEvent<HTMLInputElement>) {
-        await valueChanged({}, (v: { [key: string]: any }) => changed = v)(event);
+        await valueChanged(
+            {},
+            (v: {}) => changed = v)(event);
     }
 
     async function renderComponent(props: IEditThrowProps) {

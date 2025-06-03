@@ -1,6 +1,6 @@
 import {cleanUp, renderApp, doClick, iocProps, brandingProps, appProps, TestContext} from "../../helpers/tests";
 import {IWidescreenSaygPlayerStatisticProps, WidescreenSaygPlayerStatistic} from "./WidescreenSaygPlayerStatistic";
-import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../helpers/builders/sayg";
+import {saygBuilder} from "../../helpers/builders/sayg";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 
 describe('WidescreenSaygPlayerStatistic', () => {
@@ -32,12 +32,12 @@ describe('WidescreenSaygPlayerStatistic', () => {
 
         beforeEach(() => {
             const sayg = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100, 3))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(101, 4)))
-                .withLeg(1, (l: ILegBuilder) => l
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(102, 5))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(103, 6)))
+                .withLeg(0, l => l
+                    .home(c => c.withThrow(100, 3))
+                    .away(c => c.withThrow(101, 4)))
+                .withLeg(1, l => l
+                    .home(c => c.withThrow(102, 5))
+                    .away(c => c.withThrow(103, 6)))
                 .build();
 
             legs = sayg.legs;
@@ -142,12 +142,12 @@ describe('WidescreenSaygPlayerStatistic', () => {
 
     describe('interactivity', () => {
         const sayg = saygBuilder()
-            .withLeg(0, (l: ILegBuilder) => l
-                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100, 3))
-                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(101, 4)))
-            .withLeg(1, (l: ILegBuilder) => l
-                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(102, 5))
-                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(103, 6)))
+            .withLeg(0, l => l
+                .home(c => c.withThrow(100, 3))
+                .away(c => c.withThrow(101, 4)))
+            .withLeg(1, l => l
+                .home(c => c.withThrow(102, 5))
+                .away(c => c.withThrow(103, 6)))
             .build();
 
         it('can change to 1 dart average', async () => {

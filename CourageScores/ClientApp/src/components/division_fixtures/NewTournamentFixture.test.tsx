@@ -15,10 +15,10 @@ import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
 import {INewTournamentFixtureProps, NewTournamentFixture} from "./NewTournamentFixture";
-import {divisionBuilder, fixtureDateBuilder, INoteBuilder} from "../../helpers/builders/divisions";
+import {divisionBuilder, fixtureDateBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
-import {ITournamentBuilder, tournamentBuilder} from "../../helpers/builders/tournaments";
+import {tournamentBuilder} from "../../helpers/builders/tournaments";
 import {renderDate} from "../../helpers/rendering";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
@@ -116,7 +116,7 @@ describe('NewTournamentFixture', () => {
 
         it('renders all tournament types in dropdown', async () => {
             const otherDate = fixtureDateBuilder('2024-08-29')
-                .withTournament((t: ITournamentBuilder) => t
+                .withTournament(t => t
                     .type('SINGLES')
                     .winner('WINNER'))
                 .build();
@@ -132,13 +132,13 @@ describe('NewTournamentFixture', () => {
 
         it('renders notes from tournament dates if different types of tournament', async () => {
             const otherDate = fixtureDateBuilder('2024-08-29')
-                .withTournament((t: ITournamentBuilder) => t
+                .withTournament(t => t
                     .type('SINGLES')
                     .winner('WINNER'))
-                .withTournament((t: ITournamentBuilder) => t
+                .withTournament(t => t
                     .type('')
                     .winner('WINNER'))
-                .withNote((n: INoteBuilder) => n.note('SINGLES'))
+                .withNote(n => n.note('SINGLES'))
                 .build();
             await renderComponent(
                 props('2024-09-02', proposedFixture1, proposedFixture2),
@@ -152,10 +152,10 @@ describe('NewTournamentFixture', () => {
 
         it('renders other tournaments when there are no unique types or notes', async () => {
             const otherDate = fixtureDateBuilder('2024-08-29')
-                .withTournament((t: ITournamentBuilder) => t
+                .withTournament(t => t
                     .type('SINGLES')
                     .winner('WINNER'))
-                .withTournament((t: ITournamentBuilder) => t
+                .withTournament(t => t
                     .type('')
                     .winner('WINNER'))
                 .build();
@@ -313,12 +313,8 @@ describe('NewTournamentFixture', () => {
         });
 
         it('creates a divisional tournament copying winners from another date', async () => {
-            const tournament = tournamentBuilder()
-                .type('SINGLES')
-                .winner('WINNER')
-                .build();
             const otherDate = fixtureDateBuilder('2024-08-29')
-                .withTournament(tournament)
+                .withTournament(b => b.type('SINGLES').winner('WINNER'))
                 .build();
             await renderComponent(
                 props('2024-09-02', proposedFixture1),
@@ -341,7 +337,10 @@ describe('NewTournamentFixture', () => {
                     address: 'ADDRESS 1',
                     id: expect.any(String),
                     seasonId: season.id,
-                    sides: [ tournament.winningSide ],
+                    sides: [ {
+                        id: expect.any(String),
+                        name: 'WINNER',
+                    } ],
                     type: 'SINGLES final',
                     singleRound: false,
                 }

@@ -15,6 +15,7 @@ import {getScoreFromThrows} from "../../helpers/sayg";
 import {isLegWinner} from "../../helpers/superleague";
 import {usePreferences} from "../common/PreferencesContainer";
 import {NumberKeyboard} from "../common/NumberKeyboard";
+import {LegPlayerSequenceDto} from "../../interfaces/models/dtos/Game/Sayg/LegPlayerSequenceDto";
 
 export interface IPlayLegProps {
     leg?: LegDto;
@@ -73,9 +74,16 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         const firstPlayer: IBootstrapDropdownItem = players.filter(p => p.value === firstPlayerName)[0];
         const secondPlayer: IBootstrapDropdownItem = players.filter(p => p.value !== firstPlayerName)[0];
 
-        newLeg.playerSequence = [firstPlayer, secondPlayer];
-        newLeg.currentThrow = firstPlayer.value;
+        newLeg.playerSequence = [toLegPlayerSequence(firstPlayer), toLegPlayerSequence(secondPlayer)];
+        newLeg.currentThrow = firstPlayer.value as string;
         await onChange(newLeg);
+    }
+
+    function toLegPlayerSequence(option: IBootstrapDropdownItem): LegPlayerSequenceDto {
+        return {
+            text: option.text as string,
+            value: option.value as string,
+        };
     }
 
     function opposite(player: 'home' | 'away'): 'away' | 'home' {
@@ -227,7 +235,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             {leg!.isLastLeg && homeScore === awayScore && homeScore > 0 ? (<p>Who won the bull?</p>) : (
                 <p>Who plays first?</p>)}
             {playerOptions().map((op: IBootstrapDropdownItem) => (<button key={op.value} className="btn btn-primary margin-right"
-                                                                          onClick={() => firstPlayerChanged(op.value)}>🎯<br/>{op.text}</button>))}
+                                                                          onClick={() => firstPlayerChanged(op.value as string)}>🎯<br/>{op.text}</button>))}
         </div>) : null}
         {!showWhoPlaysNextPrompt ? (<PreviousPlayerScore
             leg={leg!}

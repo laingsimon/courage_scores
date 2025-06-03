@@ -91,7 +91,7 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
 
     function playerSort(alreadySelected: TeamPlayerDto[]): (optionA: IBootstrapDropdownItem, optionB: IBootstrapDropdownItem) => number {
         function getSortableKey(option: IBootstrapDropdownItem): string {
-            const playingInAnotherTournament: DivisionTournamentFixtureDetailsDto | undefined = alreadyPlaying![option.value];
+            const playingInAnotherTournament: DivisionTournamentFixtureDetailsDto | undefined = alreadyPlaying![option.value as string];
             const isSelected = any(alreadySelected, p => p.id === option.value);
             return `${playingInAnotherTournament && !isSelected ? 'B' : 'A'}|${option.collapsedText}`;
         }
@@ -132,9 +132,9 @@ export function EditSuperleagueMatch({ index, match, tournamentData, setMatchDat
             const player = players.find(p => p.value === playerId)!;
             newMatch[side].players = [{
                 id: playerId,
-                name: player.text
+                name: player.text as string
             }];
-            newMatch[side].name = player.text;
+            newMatch[side].name = player.text as string;
 
             await setMatchData(newMatch);
         } catch (e) {

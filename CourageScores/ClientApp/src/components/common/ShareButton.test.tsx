@@ -3,7 +3,7 @@ import {
     brandingProps,
     cleanUp,
     doClick,
-    findButton,
+    findButton, IBrowserNavigator,
     iocProps,
     renderApp,
     TestContext
@@ -20,7 +20,7 @@ describe('ShareButton', () => {
 
     beforeEach(() => {
         shareData = null;
-        (navigator as any).share = async (data: ShareData) => shareData = data;
+        (navigator as IBrowserNavigator).share = async (data: ShareData) => shareData = data;
     })
 
     async function renderComponent(props: IShareButtonProps, name?: string, currentPath?: string) {

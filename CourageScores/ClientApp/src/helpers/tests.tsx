@@ -16,6 +16,8 @@ import {IPreferenceData, PreferencesContainer} from "../components/common/Prefer
 import {Cookies, useCookies} from "react-cookie";
 import {UntypedPromise} from "../interfaces/UntypedPromise";
 import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
+import {IDependencies} from "../components/common/IDependencies";
+import {IClientActionResultDto} from "../components/common/IClientActionResultDto";
 
 /* istanbul ignore file */
 
@@ -24,9 +26,8 @@ export async function doClick(container: Element, selector?: string, ignoreDisab
     if (!item) {
         throw new Error(`Element to click was not found: ${selector || (container ? container.innerHTML : '<no container>')}`)
     }
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    const anyItem: any = item;
     if (!ignoreDisabledCheck) {
+        const anyItem = item as { disabled?: boolean };
         expect(anyItem!.disabled || false).toEqual(false);
     }
     const clickEvent = new MouseEvent('click', {bubbles: true});
@@ -55,8 +56,7 @@ export async function doKeyPress(container: Element, key: string) {
     });
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export async function setFile(container: Element, selector: string, file: any, user?: UserEvent) {
+export async function setFile(container: Element, selector: string, file: string, user?: UserEvent) {
     const input = container.querySelector(selector);
     if (!input) {
         throw new Error(`Could not find element with selector ${selector} in ${container.innerHTML}`);
@@ -95,8 +95,7 @@ export function api<T>(methods: Partial<T>): T {
     return Object.assign({}, methods) as T;
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export function iocProps(props?: any) : IIocContainerProps {
+export function iocProps(props?: Partial<IDependencies & IIocContainerProps>) : IIocContainerProps {
     const mockWebSocketFactory = new MockSocketFactory();
     const mockParentHeight: IParentHeight = {
         cancelInterval() {
@@ -107,19 +106,19 @@ export function iocProps(props?: any) : IIocContainerProps {
         }
     };
     const mockHttp: IHttp = {
-        get(relativeUrl: string): any {
+        get(relativeUrl: string): Promise<IClientActionResultDto<unknown>> {
             throw new Error(`GET ${relativeUrl} attempted; mock api should be injected`);
         },
-        delete(relativeUrl: string): any {
+        delete(relativeUrl: string): Promise<IClientActionResultDto<unknown>> {
             throw new Error(`DELETE ${relativeUrl} attempted; mock api should be injected`);
         },
-        put(relativeUrl: string): any {
+        put(relativeUrl: string): Promise<IClientActionResultDto<unknown>> {
             throw new Error(`PUT ${relativeUrl} attempted; mock api should be injected`);
         },
-        patch(relativeUrl: string): any {
+        patch(relativeUrl: string): Promise<IClientActionResultDto<unknown>> {
             throw new Error(`PATCH ${relativeUrl} attempted; mock api should be injected`);
         },
-        post(relativeUrl: string): any {
+        post(relativeUrl: string): Promise<IClientActionResultDto<unknown>> {
             throw new Error(`POST ${relativeUrl} attempted; mock api should be injected`);
         }
     }
@@ -132,7 +131,7 @@ export function iocProps(props?: any) : IIocContainerProps {
     return Object.assign({}, defaultProps, props);
 }
 
-export function brandingProps(props?: any): IBrandingContainerProps {
+export function brandingProps(props?: Partial<IBrandingContainerProps>): IBrandingContainerProps {
     const defaultProps: IBrandingContainerProps = {
         name: 'Courage Scores',
         facebook: '',
@@ -146,10 +145,11 @@ export function brandingProps(props?: any): IBrandingContainerProps {
     return Object.assign({}, defaultProps, props);
 }
 
+export type ErrorValue = IError | string | string[] | IClientActionResultDto<unknown>;
 export class ErrorState {
-    error?: any;
+    error?: ErrorValue;
 
-    setError(err: IError | string) {
+    setError(err: ErrorValue) {
         const error: IError = err as IError;
         if (error.message) {
             this.error = {
@@ -165,7 +165,7 @@ export class ErrorState {
         expect(this.error).toBeFalsy();
     }
 
-    verifyErrorEquals(expected: any) {
+    verifyErrorEquals(expected: ErrorValue) {
         expect(this.error).toBeTruthy();
         expect(this.error).toEqual(expected);
     }
@@ -173,7 +173,7 @@ export class ErrorState {
 
 export class MockSocketFactory {
     subscriptions: ISubscriptions = {};
-    sent: any[] = [];
+    sent: string[] = [];
     socket: WebSocket | null = null;
     createSocket = this.__createSocket.bind(this);
     socketWasCreated = this.__socketWasCreated.bind(this);
@@ -182,7 +182,7 @@ export class MockSocketFactory {
         const socket: WebSocket = {
             close: () => {},
             readyState: 1,
-            send: (data: any) => {
+            send: (data: string) => {
                 const message = JSON.parse(data);
                 if (message.type === MessageType.subscribed) {
                     this.subscriptions[message.id] = { id: '', type: LiveDataType.sayg, errorHandler: noop, updateHandler: noop };
@@ -191,8 +191,7 @@ export class MockSocketFactory {
                 }
                 this.sent.push(message);
             },
-            type: 'MockWebSocket',
-        } as any;
+        } as WebSocket;
         this.socket = socket;
         return socket;
     }
@@ -202,7 +201,7 @@ export class MockSocketFactory {
     }
 }
 
-export function appProps(props?: any, errorState?: ErrorState): IAppContainerProps {
+export function appProps(props?: Partial<IAppContainerProps>, errorState?: ErrorState): IAppContainerProps {
     const defaultProps: IAppContainerProps = {
         appLoading: false,
         onError: (err: IError | string) => {
@@ -259,7 +258,7 @@ export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBr
     const cookies = new Cookies();
     cookies.update();
 
-    const currentPathAsInitialEntry: any = currentPath;
+    const currentPathAsInitialEntry: string = currentPath;
     let root: ReactDOM.Root;
     await act(async () => {
         const component = (<MemoryRouter initialEntries={[currentPathAsInitialEntry]}>
@@ -429,4 +428,12 @@ export class Prompts {
 context.prompts.respondToConfirm('${msg?.replaceAll('\n', '\\n')}', true);`);
         };
     }
+}
+
+export interface IBrowserWindow {
+    open: (url: string) => void;
+}
+
+export interface IBrowserNavigator {
+    share: (data: ShareData) => void;
 }

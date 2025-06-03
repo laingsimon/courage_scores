@@ -13,8 +13,8 @@ export function RefreshControl({ id, type }: IRefreshControlProps) {
 
     function getRefreshOptions(): IBootstrapDropdownItem[] {
         return [
-            { value: false, text: '⏸️ Paused', collapsedText: '⏸️' },
-            { value: true, text: '▶️ Live', collapsedText: '▶️' },
+            { value: 'false', text: '⏸️ Paused', collapsedText: '⏸️' },
+            { value: 'true', text: '▶️ Live', collapsedText: '▶️' },
         ];
     }
 
@@ -26,8 +26,8 @@ export function RefreshControl({ id, type }: IRefreshControlProps) {
         <BootstrapDropdown
             className="margin-left float-end"
             options={getRefreshOptions()}
-            onChange={async (v: boolean) => enableLiveUpdates(v, { id, type })}
-            value={!!subscriptions[id]}
+            onChange={async (v: string) => enableLiveUpdates(v === 'true', { id, type })}
+            value={subscriptions[id] ? 'true' : 'false'}
             slim={true} />
     </>);
 }

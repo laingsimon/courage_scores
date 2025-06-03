@@ -17,14 +17,7 @@ import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
-import {
-    divisionBuilder,
-    divisionDataBuilder,
-    fixtureDateBuilder,
-    IDivisionFixtureBuilder,
-    INoteBuilder
-} from "../../helpers/builders/divisions";
-import {ITournamentBuilder, ITournamentSideBuilder} from "../../helpers/builders/tournaments";
+import {divisionBuilder, divisionDataBuilder, fixtureDateBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {teamBuilder} from "../../helpers/builders/teams";
 
@@ -62,7 +55,7 @@ describe('DivisionFixtureDate', () => {
         showPlayers = null;
     });
 
-    async function renderComponent(props: IDivisionFixtureDateProps, divisionData: IDivisionDataContainerProps, account: UserDto | null, excludeControls?: boolean, teams?: TeamDto[]) {
+    async function renderComponent(props: IDivisionFixtureDateProps, divisionData: IDivisionDataContainerProps, account?: UserDto, excludeControls?: boolean, teams?: TeamDto[]) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
@@ -82,15 +75,18 @@ describe('DivisionFixtureDate', () => {
         return date.toISOString();
     }
 
+    function teamDto(name: string): TeamDto {
+        return teamBuilder(name).build();
+    }
+
     describe('when logged out', () => {
         const team: TeamDto = teamBuilder('TEAM').build();
-        const season: SeasonDto = seasonBuilder('SEASON').build();
         const division: DivisionDto = divisionBuilder('DIVISION').build();
-        const account = null;
+        const account: UserDto | undefined = undefined;
 
         it('renders league fixtures', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.bye('HOME'))
+                .withFixture(f => f.bye(teamBuilder('HOME').build()))
                 .build();
             await renderComponent({
                 date: fixtureDate,
@@ -101,8 +97,8 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd.withFixture(f => f.bye(teamBuilder('HOME').build())), '2023-05-06T00:00:00')
+                .season()
                 .withTeam(team)
                 .build(), account);
 
@@ -120,7 +116,7 @@ describe('DivisionFixtureDate', () => {
 
         it('renders league qualifier/knockout fixtures', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.playing('HOME', 'AWAY').knockout())
+                .withFixture(f => f.playing(teamDto('HOME'), teamDto('AWAY')).knockout())
                 .build();
             await renderComponent({
                 date: fixtureDate,
@@ -131,8 +127,8 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd.withFixture(f => f.playing(teamDto('HOME'), teamDto('AWAY')).knockout()), '2023-05-06T00:00:00')
+                .season()
                 .withTeam(team)
                 .build(), account);
 
@@ -151,8 +147,8 @@ describe('DivisionFixtureDate', () => {
         it('does not render league qualifier/knockout byes', async () => {
             const homeTeamId = createTemporaryId();
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.bye(teamBuilder('A BYE HOME', homeTeamId)).knockout(), homeTeamId)
-                .withFixture((f: IDivisionFixtureBuilder) => f.playing('ANOTHER HOME', 'ANOTHER AWAY').knockout())
+                .withFixture(f => f.bye(teamBuilder('A BYE HOME', homeTeamId).build()).knockout(), homeTeamId)
+                .withFixture(f => f.playing(teamDto('ANOTHER HOME'), teamDto('ANOTHER AWAY')).knockout())
                 .build();
             await renderComponent({
                 date: fixtureDate,
@@ -163,8 +159,10 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd
+                    .withFixture(f => f.bye(teamBuilder('A BYE HOME', homeTeamId).build()).knockout(), homeTeamId)
+                    .withFixture(f => f.playing(teamDto('ANOTHER HOME'), teamDto('ANOTHER AWAY')).knockout()), '2023-05-06T00:00:00')
+                .season()
                 .withTeam(team)
                 .build(), account);
 
@@ -179,10 +177,7 @@ describe('DivisionFixtureDate', () => {
 
         it('renders tournament fixtures', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withTournament((t: ITournamentBuilder) => t
-                    .type('TYPE')
-                    .address('ADDRESS')
-                    .build())
+                .withTournament(t => t.type('TYPE').address('ADDRESS'))
                 .build();
             await renderComponent({
                 date: fixtureDate,
@@ -193,8 +188,8 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd.withTournament(t => t.type('TYPE').address('ADDRESS')), '2023-05-06T00:00:00')
+                .season()
                 .withTeam(team)
                 .build(), account);
 
@@ -211,11 +206,7 @@ describe('DivisionFixtureDate', () => {
 
         it('renders tournament fixtures with winner', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withTournament((t: ITournamentBuilder) => t
-                    .type('TYPE')
-                    .address('ADDRESS')
-                    .winner('WINNER')
-                    .build())
+                .withTournament(t => t.type('TYPE').address('ADDRESS').winner('WINNER'))
                 .build();
             await renderComponent({
                 date: fixtureDate,
@@ -226,8 +217,8 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd.withTournament(t => t.type('TYPE').address('ADDRESS').winner('WINNER')), '2023-05-06T00:00:00')
+                .season()
                 .withTeam(team)
                 .build(), account);
 
@@ -245,7 +236,7 @@ describe('DivisionFixtureDate', () => {
 
         it('renders notes', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withNote((n: INoteBuilder) => n.note('NOTE'))
+                .withNote(n => n.note('NOTE'))
                 .build();
             await renderComponent({
                 date: fixtureDate,
@@ -256,8 +247,8 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd.withNote(n => n.note('NOTE')), '2023-05-06T00:00:00')
+                .season()
                 .withTeam(team)
                 .build(), account);
 
@@ -275,7 +266,7 @@ describe('DivisionFixtureDate', () => {
 
         it('renders past dates', async () => {
             const fixtureDate = fixtureDateBuilder(getDate(-1))
-                .withNote((n: INoteBuilder) => n.note('NOTE'))
+                .withNote(n => n.note('NOTE'))
                 .build();
             await renderComponent({
                 date: fixtureDate,
@@ -286,8 +277,8 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd.withNote(n => n.note('NOTE')), '2023-05-06T00:00:00')
+                .season()
                 .withTeam(team)
                 .build(), account);
 
@@ -300,7 +291,7 @@ describe('DivisionFixtureDate', () => {
 
         it('renders today', async () => {
             const fixtureDate = fixtureDateBuilder(getDate(0))
-                .withNote((n: INoteBuilder) => n.note('NOTE'))
+                .withNote(n => n.note('NOTE'))
                 .build();
             await renderComponent({
                 date: fixtureDate,
@@ -311,8 +302,8 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd.withNote(n => n.note('NOTE')), '2023-05-06T00:00:00')
+                .season()
                 .withTeam(team)
                 .build(), account);
 
@@ -325,7 +316,7 @@ describe('DivisionFixtureDate', () => {
 
         it('renders future dates', async () => {
             const fixtureDate = fixtureDateBuilder(getDate(1))
-                .withNote((n: INoteBuilder) => n.note('NOTE'))
+                .withNote(n => n.note('NOTE'))
                 .build();
             await renderComponent({
                 date: fixtureDate,
@@ -336,8 +327,8 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd.withNote(n => n.note('NOTE')), '2023-05-06T00:00:00')
+                .season()
                 .withTeam(team)
                 .build(), account);
 
@@ -350,11 +341,10 @@ describe('DivisionFixtureDate', () => {
 
         it('renders who is playing', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withTournament((t: ITournamentBuilder) => t
+                .withTournament(t => t
                         .type('TYPE')
                         .address('ADDRESS')
-                        .withSide((s: ITournamentSideBuilder) => s.name('SIDE').withPlayer('PLAYER'))
-                        .build())
+                        .withSide(s => s.name('SIDE').withPlayer('PLAYER')))
                 .build();
             await renderComponent(
                 {
@@ -367,8 +357,11 @@ describe('DivisionFixtureDate', () => {
                     showPlayers: {'2023-05-06T00:00:00': true},
                 },
                 divisionDataBuilder(division)
-                    .withFixtureDate(fixtureDate)
-                    .season(season)
+                    .withFixtureDate(fd => fd.withTournament(t => t
+                        .type('TYPE')
+                        .address('ADDRESS')
+                        .withSide(s => s.name('SIDE').withPlayer('PLAYER'))), '2023-05-06T00:00:00')
+                    .season()
                     .withTeam(team)
                     .build(),
                 account);
@@ -385,10 +378,10 @@ describe('DivisionFixtureDate', () => {
         it('can show who is playing', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
                 .withTournament(
-                    (t: ITournamentBuilder) => t
+                    t => t
                         .type('TYPE')
                         .address('ADDRESS')
-                        .withSide((s: ITournamentSideBuilder) => s.name('SIDE').withPlayer('PLAYER')))
+                        .withSide(s => s.name('SIDE').withPlayer('PLAYER')))
                 .build();
             await renderComponent({
                 date: fixtureDate,
@@ -399,8 +392,12 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd.withTournament(
+                    t => t
+                        .type('TYPE')
+                        .address('ADDRESS')
+                        .withSide(s => s.name('SIDE').withPlayer('PLAYER'))), '2023-05-06T00:00:00')
+                .season()
                 .withTeam(team)
                 .build(), account);
 
@@ -413,11 +410,10 @@ describe('DivisionFixtureDate', () => {
 
         it('can hide who is playing', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withTournament((t: ITournamentBuilder) => t
+                .withTournament(t => t
                     .type('TYPE')
                     .address('ADDRESS')
-                    .withSide((s: ITournamentSideBuilder) => s.name('SIDE').withPlayer('PLAYER'))
-                    .build())
+                    .withSide(s => s.name('SIDE').withPlayer('PLAYER')))
                 .build();
             await renderComponent({
                 date: fixtureDate,
@@ -430,8 +426,11 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd.withTournament(t => t
+                    .type('TYPE')
+                    .address('ADDRESS')
+                    .withSide(s => s.name('SIDE').withPlayer('PLAYER'))), '2023-05-06T00:00:00')
+                .season()
                 .withTeam(team)
                 .build(), account);
 
@@ -442,10 +441,10 @@ describe('DivisionFixtureDate', () => {
 
         it('does not show who is playing option when controls are disabled', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withTournament((t: ITournamentBuilder) => t
+                .withTournament(t => t
                     .type('TYPE')
                     .address('ADDRESS')
-                    .withSide((s: ITournamentSideBuilder) => s.name('SIDE').withPlayer('PLAYER')))
+                    .withSide(s => s.name('SIDE').withPlayer('PLAYER')))
                 .build();
             await renderComponent({
                 date: fixtureDate,
@@ -456,8 +455,11 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd .withTournament(t => t
+                    .type('TYPE')
+                    .address('ADDRESS')
+                    .withSide(s => s.name('SIDE').withPlayer('PLAYER'))), '2023-05-06T00:00:00')
+                .season()
                 .withTeam(team)
                 .build(), account, true);
 
@@ -488,11 +490,8 @@ describe('DivisionFixtureDate', () => {
 
         it('renders without potential league fixtures when any tournaments exist', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.bye(team), team.id)
-                .withTournament((t: ITournamentBuilder) => t
-                    .type('TYPE')
-                    .address('ADDRESS')
-                    .build())
+                .withFixture(f => f.bye(team), team.id)
+                .withTournament(t => t.type('TYPE').address('ADDRESS'))
                 .build();
             await renderComponent({
                 date: fixtureDate,
@@ -503,8 +502,10 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd
+                    .withFixture(f => f.bye(team), team.id)
+                    .withTournament(t => t.type('TYPE').address('ADDRESS')), '2023-05-06T00:00:00')
+                .season()
                 .withTeam(team)
                 .build(), account);
 
@@ -522,12 +523,9 @@ describe('DivisionFixtureDate', () => {
             const homeTeam = teamBuilder('HOME').build();
             const awayTeam = teamBuilder('AWAY').build();
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.bye(team), team.id)
-                .withFixture((f: IDivisionFixtureBuilder) => f.playing(homeTeam, awayTeam), homeTeam.id)
-                .withTournament((t: ITournamentBuilder) => t
-                    .type('TYPE')
-                    .address('ADDRESS')
-                    .build())
+                .withFixture(f => f.bye(team), team.id)
+                .withFixture(f => f.playing(homeTeam, awayTeam), homeTeam.id)
+                .withTournament(t => t.type('TYPE').address('ADDRESS'))
                 .build();
             await renderComponent({
                 date: fixtureDate,
@@ -538,8 +536,11 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd
+                    .withFixture(f => f.bye(team), team.id)
+                    .withFixture(f => f.playing(homeTeam, awayTeam), homeTeam.id)
+                    .withTournament(t => t.type('TYPE').address('ADDRESS')), '2023-05-06T00:00:00')
+                .season()
                 .withTeam(team).withTeam(homeTeam).withTeam(awayTeam)
                 .build(), account);
 
@@ -557,8 +558,8 @@ describe('DivisionFixtureDate', () => {
 
         it('renders without teams that are assigned to another fixture on the same date', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.bye(team), team.id)
-                .withFixture((f: IDivisionFixtureBuilder) => f.playing(anotherTeam, team))
+                .withFixture(f => f.bye(team), team.id)
+                .withFixture(f => f.playing(anotherTeam, team))
                 .build();
             await renderComponent({
                 date: fixtureDate,
@@ -569,8 +570,10 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd
+                    .withFixture(f => f.bye(team), team.id)
+                    .withFixture(f => f.playing(anotherTeam, team)), '2023-05-06T00:00:00')
+                .season()
                 .withTeam(team)
                 .build(), account);
 
@@ -584,7 +587,7 @@ describe('DivisionFixtureDate', () => {
 
         it('can update fixtures', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.bye(team), team.id)
+                .withFixture(f => f.bye(team), team.id)
                 .build();
             await renderComponent({
                 date: fixtureDate,
@@ -595,8 +598,8 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd.withFixture(f => f.bye(team), team.id), '2023-05-06T00:00:00')
+                .season()
                 .withTeam(team).withTeam(anotherTeam)
                 .build(), account);
             const table = context.container.querySelector('table')!;
@@ -618,7 +621,7 @@ describe('DivisionFixtureDate', () => {
 
         it('cannot change isKnockout when fixtures exist', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.playing(anotherTeam, team))
+                .withFixture(f => f.playing(anotherTeam, team))
                 .build();
 
             await renderComponent({
@@ -630,8 +633,8 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd.withFixture(f => f.playing(anotherTeam, team)), '2023-05-06T00:00:00')
+                .season()
                 .withTeam(team)
                 .build(), account);
 
@@ -651,8 +654,8 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd, '2023-05-06T00:00:00')
+                .season()
                 .withTeam(team)
                 .build(), account);
 
@@ -679,7 +682,7 @@ describe('DivisionFixtureDate', () => {
 
         it('can render venues after isKnockout change with no existing fixtures', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.bye(team).knockout().accoladesCount(), team.id)
+                .withFixture(f => f.bye(team).knockout().accoladesCount(), team.id)
                 .build();
 
             await renderComponent({
@@ -691,8 +694,8 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd.withFixture(f => f.bye(team).knockout().accoladesCount(), team.id), '2023-05-06T00:00:00')
+                .season()
                 .withTeam(team)
                 .build(), account);
 
@@ -702,7 +705,7 @@ describe('DivisionFixtureDate', () => {
 
         it('can add a note', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.bye(team), team.id)
+                .withFixture(f => f.bye(team), team.id)
                 .build();
             await renderComponent({
                 date: fixtureDate,
@@ -713,8 +716,8 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd.withFixture(f => f.bye(team), team.id), '2023-05-06T00:00:00')
+                .season()
                 .withTeam(team)
                 .build(), account);
 
@@ -727,8 +730,9 @@ describe('DivisionFixtureDate', () => {
             const awayTeam = teamBuilder('AWAY')
                 .forSeason(season, division)
                 .build();
+            const fixtureId = createTemporaryId();
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.playing(team, awayTeam).knockout())
+                .withFixture(f => f.playing(team, awayTeam).knockout(), fixtureId)
                 .build();
             await renderComponent({
                 date: fixtureDate,
@@ -739,8 +743,8 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd.withFixture(f => f.playing(team, awayTeam).knockout(), fixtureId), '2023-05-06T00:00:00')
+                .season(s => s, season.id)
                 .withTeam(team)
                 .build(), account, undefined, [team, awayTeam]);
 
@@ -762,7 +766,7 @@ describe('DivisionFixtureDate', () => {
                 .forSeason(season, superleagueDivision)
                 .build();
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.playing(team, awayTeam).knockout())
+                .withFixture(f => f.playing(team, awayTeam).knockout())
                 .build();
             await renderComponent({
                 date: fixtureDate,
@@ -773,8 +777,8 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(superleagueDivision)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd.withFixture(f => f.playing(team, awayTeam).knockout()), '2023-05-06T00:00:00')
+                .season()
                 .withTeam(team)
                 .build(), account, undefined, [team, awayTeam]);
 
@@ -792,7 +796,7 @@ describe('DivisionFixtureDate', () => {
                 .forSeason(season, division)
                 .build();
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture((f: IDivisionFixtureBuilder) => f.bye(team.address).knockout())
+                .withFixture(f => f.bye(team).knockout())
                 .build();
             await renderComponent({
                 date: fixtureDate,
@@ -803,8 +807,8 @@ describe('DivisionFixtureDate', () => {
                 startAddNote,
                 setNewFixtures,
             }, divisionDataBuilder(division)
-                .withFixtureDate(fixtureDate)
-                .season(season)
+                .withFixtureDate(fd => fd.withFixture(f => f.bye(team).knockout()), '2023-05-06T00:00:00')
+                .season(s => s, season.id)
                 .withTeam(team)
                 .build(), account, undefined, [team, awayTeam]);
 

@@ -21,7 +21,7 @@ export interface ITournamentDetailsProps {
 
 export function TournamentDetails({ tournamentData, disabled, setTournamentData }: ITournamentDetailsProps) {
     const {teams, divisions} = useApp();
-    const allDivisions: IBootstrapDropdownItem = {value: null, text: 'All divisions'};
+    const allDivisions: IBootstrapDropdownItem = {text: 'All divisions'};
 
     function getExportTables(): { [key: string]: string[] } {
         let saygDataIds: string[] = [];

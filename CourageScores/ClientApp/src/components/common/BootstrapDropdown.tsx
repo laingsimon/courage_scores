@@ -1,28 +1,24 @@
-import {useEffect, useRef, useState} from 'react';
+import {ReactElement, useEffect, useRef, useState} from 'react';
 import {ButtonDropdown, DropdownMenu, DropdownToggle} from "./ButtonDropdown";
 import {isEmpty} from "../../helpers/collections";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IBootstrapDropdownItem {
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    value: any;
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    text?: any;  // Element | string
+    value?: string;
+    text?: string | ReactElement;
     collapsedText?: string;
     disabled?: boolean;
     className?: string;
 }
 
 export interface IBootstrapDropdownProps {
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    value?: any;
+    value?: string;
     options?: IBootstrapDropdownItem[];
     color?: string;
     className?: string;
     disabled?: boolean;
     readOnly?: boolean;
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    onChange?(value: any): UntypedPromise;
+    onChange?(value?: string): UntypedPromise;
     onOpen?(willBeOpen: boolean): UntypedPromise;
     slim?: boolean;
     datatype?: string;
@@ -90,7 +86,7 @@ export function BootstrapDropdown({value, onChange, options, color, className, d
                 className={`text-dark${slim ? '' : ' dropdown-text-min-width'}`}>{selectedOption ? (selectedOption.collapsedText || selectedOption.text) || value : value}</span>
         </DropdownToggle>
         <DropdownMenu className="max-height-250 overflow-auto">
-            {options.map((o: IBootstrapDropdownItem) => (<button key={o.value}
+            {options.map((o: IBootstrapDropdownItem, index: number) => (<button key={o.value ?? index}
                                                                        disabled={o.disabled || false}
                                                                        role="menuitem"
                                                                        className={`dropdown-item ${getItemClassName(o)}`}

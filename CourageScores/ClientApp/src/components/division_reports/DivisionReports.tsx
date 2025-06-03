@@ -25,7 +25,7 @@ export function DivisionReports() {
     const [gettingData, setGettingData] = useState<boolean>(false);
     const {reportApi} = useDependencies();
     const topCount: number = getParameterDefault('top', 15, Number.parseInt);
-    const activeReport: string | null = getParameterDefault<string | null>('report', null, (x: string) => x);
+    const activeReport: string | undefined = getParameterDefault<string | undefined>('report', undefined, (x: string) => x);
     const {setTitle} = useBranding();
 
     function getParameterDefault<T>(name: string, defaultValue: T, converter: (value: string) => T): T {

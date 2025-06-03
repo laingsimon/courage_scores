@@ -1,5 +1,6 @@
 import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import {Layout} from "./Layout";
+import {IError} from "../common/IError";
 
 describe('Layout', () => {
     let context: TestContext;
@@ -8,7 +9,7 @@ describe('Layout', () => {
         await cleanUp(context);
     });
 
-    async function renderComponent(error: any, embed: boolean) {
+    async function renderComponent(error?: IError, embed?: boolean) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
@@ -32,7 +33,7 @@ describe('Layout', () => {
         });
 
         it('when no error present', async () => {
-            await renderComponent(null, false);
+            await renderComponent(undefined, false);
 
             expect(context.container.querySelector('.heading')).toBeTruthy();
             expect(context.container.querySelector('header')).toBeTruthy();
@@ -53,7 +54,7 @@ describe('Layout', () => {
         });
 
         it('when no error present', async () => {
-            await renderComponent(null, true);
+            await renderComponent(undefined, true);
 
             expect(context.container.querySelector('.heading')).toBeFalsy();
             expect(context.container.querySelector('header')).toBeFalsy();

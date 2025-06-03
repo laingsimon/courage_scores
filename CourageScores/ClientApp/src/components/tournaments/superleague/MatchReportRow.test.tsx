@@ -9,9 +9,9 @@
 } from "../../../helpers/tests";
 import {IMatchReportRowProps, MatchReportRow} from "./MatchReportRow";
 import {LegThrowDto} from "../../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
-import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
-import {saygBuilder} from "../../../helpers/builders/sayg";
+import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
+import {BuilderParam} from "../../../helpers/builders/builders";
 
 describe('MatchReportRow', () => {
     let context: TestContext;
@@ -40,7 +40,7 @@ describe('MatchReportRow', () => {
         return Array.from(row.querySelectorAll('td')).map(th => th.textContent!);
     }
 
-    function createLeg(homeWinner?: boolean, awayWinner?: boolean): LegDto {
+    function createLeg(homeWinner?: boolean, awayWinner?: boolean): BuilderParam<ILegBuilder> {
         const winningThrows: LegThrowDto[] = [
             {score: 90, noOfDarts: 3},
             {score: 100, noOfDarts: 3},
@@ -56,15 +56,18 @@ describe('MatchReportRow', () => {
             {score: 90, noOfDarts: 3},
         ];
 
-        return {
-            home: {
-                throws: homeWinner ? winningThrows : notWinningThrows
-            },
-            away: {
-                throws: awayWinner ? winningThrows : notWinningThrows
-            },
-            startingScore: 501,
-        };
+        function addThrows(builder: ILegCompetitorScoreBuilder, throws: LegThrowDto[]): ILegCompetitorScoreBuilder {
+            for (const thr of throws) {
+                builder = builder.withThrow(thr.score!, thr.noOfDarts);
+            }
+
+            return builder;
+        }
+
+        return b => b
+            .startingScore(501)
+            .home(c => addThrows(c, homeWinner ? winningThrows : notWinningThrows))
+            .away(c => addThrows(c, awayWinner ? winningThrows : notWinningThrows));
     }
 
     describe('renders', () => {

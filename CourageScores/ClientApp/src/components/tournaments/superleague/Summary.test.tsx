@@ -8,9 +8,9 @@ import {
     TestContext
 } from "../../../helpers/tests";
 import {ISummaryProps, Summary} from "./Summary";
-import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
-import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../helpers/builders/sayg";
+import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {tournamentMatchBuilder} from "../../../helpers/builders/tournaments";
+import {BuilderParam} from "../../../helpers/builders/builders";
 
 describe('Summary', () => {
     let context: TestContext;
@@ -36,7 +36,7 @@ describe('Summary', () => {
         return Array.from(row.querySelectorAll(tagName)).map(th => th.textContent!);
     }
 
-    function createLeg(homeWinner?: boolean, awayWinner?: boolean): LegDto {
+    function createLeg(homeWinner?: boolean, awayWinner?: boolean): BuilderParam<ILegBuilder> {
         function winningThrows(c: ILegCompetitorScoreBuilder) {
             return c
                 .withThrow(90)
@@ -55,11 +55,10 @@ describe('Summary', () => {
                 .withThrow(90);
         }
 
-        return legBuilder()
-            .home((c: ILegCompetitorScoreBuilder) => homeWinner ? winningThrows(c) : notWinningThrows(c))
-            .away((c: ILegCompetitorScoreBuilder) => awayWinner ? winningThrows(c) : notWinningThrows(c))
-            .startingScore(501)
-            .build();
+        return (b) => b
+            .home(c => homeWinner ? winningThrows(c) : notWinningThrows(c))
+            .away(c => awayWinner ? winningThrows(c) : notWinningThrows(c))
+            .startingScore(501);
     }
 
     describe('renders', () => {

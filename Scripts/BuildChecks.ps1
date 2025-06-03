@@ -90,7 +90,7 @@ If ($ErrorThreshold -gt 0)
     $FilesOverThreshold = [array] (Get-Files -MinLines $ErrorThreshold -MaxLines $MaxLines)
     If ($FilesOverThreshold.Length -gt 0)
     {
-        Print-Files -Heading "$($FilesOverThreshold.Length) file/s exceeding limit" -Files $FilesOverThreshold -Comments $ExceedingComments
+        Print-Files -Heading "$($FilesOverThreshold.Length) $($Extension) file/s exceeding limit" -Files $FilesOverThreshold -Comments $ExceedingComments
         [Console]::Error.WriteLine("There are $($FilesOverThreshold.Length) $($Extension) file/s that have more than $($ErrorThreshold) lines")
     }
     elseif ($GitHubEvent -eq "pull_request")

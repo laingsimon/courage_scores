@@ -4,19 +4,20 @@ import {useApp} from "./AppContainer";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 import {IServerSideException} from "../../interfaces/IServerSideException";
 import {IServerSideError} from "../../interfaces/IServerSideError";
+import {IClientActionResultDto} from "./IClientActionResultDto";
 
-export interface IErrorDisplayProps {
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    errors?: any;
-    messages?: string[];
-    warnings?: string[];
+export type IErrorDisplayProps = Omit<IClientActionResultDto<unknown>, 'errors'> & {
+    errors?: (string | IServerSidePropertyException | IServerSideValidationErrors)[] | IServerSideValidationErrors;
     onClose(): UntypedPromise;
-    title?: string;
+    Exception?: IServerSideException;
+}
+
+interface IServerSidePropertyException {
     Exception?: IServerSideException;
 }
 
 export interface IServerSideValidationErrors {
-    [ key: string ]: string[];
+    [ key: string ]: (string | IServerSidePropertyException)[];
 }
 
 export function ErrorDisplay({errors, messages, warnings, onClose, title, Exception}: IErrorDisplayProps) {
@@ -26,7 +27,7 @@ export function ErrorDisplay({errors, messages, warnings, onClose, title, Except
     function renderValidationErrors(errors: IServerSideValidationErrors, key?: number) {
         return (<ol className="text-danger" key={key}>
             {Object.keys(errors).map((key: string) => {
-                return (<li key={key}>{key} {errors[key].map(((e: string, index: number) => (<p key={index}>{e}</p>)))}</li>)
+                return (<li key={key}>{key} {errors[key].map(((e: string | IServerSidePropertyException, index: number) => (<p key={index}>{e.toString()}</p>)))}</li>)
             })}
         </ol>)
     }
@@ -72,7 +73,7 @@ export function ErrorDisplay({errors, messages, warnings, onClose, title, Except
             });
         } else {
             reportClientSideException({
-                message: errors.join('\n'),
+                message: (errors as string[]).join('\n'),
                 stack: null,
             });
         }
@@ -82,7 +83,7 @@ export function ErrorDisplay({errors, messages, warnings, onClose, title, Except
         <div>
             {Exception ? renderServerSideException(Exception) : null}
             {errors && errors.length !== undefined
-                ? errors.map((e: string, index: number) => {
+                ? (errors as string[]).map((e: string, index: number) => {
                     return renderError(e, index);
                 })
                 : null}
