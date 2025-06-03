@@ -11,6 +11,7 @@
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
 import {
@@ -31,7 +32,6 @@ import { matchOptionsBuilder } from '../../helpers/builders/games';
 import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
 import { PatchTournamentDto } from '../../interfaces/models/dtos/Game/PatchTournamentDto';
 import { PatchTournamentRoundDto } from '../../interfaces/models/dtos/Game/PatchTournamentRoundDto';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
 import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
 import { ISaygApi } from '../../interfaces/apis/ISaygApi';
 import { saygBuilder } from '../../helpers/builders/sayg';
@@ -159,21 +159,6 @@ describe('PrintableSheetMatch', () => {
     ): IPrintableSheetMatchProps {
         props.roundIndex = index;
         return props;
-    }
-
-    function user(
-        recordScoresAsYouGo?: boolean,
-        showDebugOptions?: boolean,
-    ): UserDto {
-        return {
-            name: '',
-            emailAddress: '',
-            givenName: '',
-            access: {
-                recordScoresAsYouGo,
-                showDebugOptions,
-            },
-        };
     }
 
     describe('renders', () => {
@@ -1100,7 +1085,10 @@ describe('PrintableSheetMatch', () => {
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
                 patchable(props(matchData, true)),
-                appProps({ account: user(true) }, reportedError),
+                appProps(
+                    { account: user({ recordScoresAsYouGo: true }) },
+                    reportedError,
+                ),
             );
 
             await doClick(findButton(context.container, START_SCORING));
@@ -1164,7 +1152,10 @@ describe('PrintableSheetMatch', () => {
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
                 patchable(withRoundIndex(props(matchData, true), 1)),
-                appProps({ account: user(true) }, reportedError),
+                appProps(
+                    { account: user({ recordScoresAsYouGo: true }) },
+                    reportedError,
+                ),
             );
 
             await doClick(findButton(context.container, START_SCORING));
@@ -1290,7 +1281,15 @@ describe('PrintableSheetMatch', () => {
                     patchable(props(matchData, true)),
                     tournamentDataWithMatch!.round!,
                 ),
-                appProps({ account: user(true, true) }, reportedError),
+                appProps(
+                    {
+                        account: user({
+                            recordScoresAsYouGo: true,
+                            showDebugOptions: true,
+                        }),
+                    },
+                    reportedError,
+                ),
             );
             context.prompts.respondToConfirm(
                 'Are you sure you want to delete the sayg data for this match?',
@@ -1359,7 +1358,15 @@ describe('PrintableSheetMatch', () => {
                     patchable(props(matchData, true)),
                     tournamentDataWithMatch!.round!,
                 ),
-                appProps({ account: user(true, true) }, reportedError),
+                appProps(
+                    {
+                        account: user({
+                            recordScoresAsYouGo: true,
+                            showDebugOptions: true,
+                        }),
+                    },
+                    reportedError,
+                ),
             );
             context.prompts.respondToConfirm(
                 'Are you sure you want to delete the sayg data for this match?',
@@ -1422,7 +1429,15 @@ describe('PrintableSheetMatch', () => {
                     patchable(props(matchData, true)),
                     tournamentDataWithMatch!.round!,
                 ),
-                appProps({ account: user(true, true) }, reportedError),
+                appProps(
+                    {
+                        account: user({
+                            recordScoresAsYouGo: true,
+                            showDebugOptions: true,
+                        }),
+                    },
+                    reportedError,
+                ),
             );
             context.prompts.respondToConfirm(
                 'Are you sure you want to delete the sayg data for this match?',

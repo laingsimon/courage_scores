@@ -13,6 +13,7 @@ import {
     renderApp,
     setFile,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { any } from '../../helpers/collections';
 import { createTemporaryId, repeat } from '../../helpers/projection';
@@ -319,25 +320,6 @@ describe('Score', () => {
         }
     }
 
-    function user(
-        manageScores?: boolean,
-        uploadPhotos?: boolean,
-        inputResults?: boolean,
-        teamId?: string,
-    ): UserDto {
-        return {
-            name: '',
-            emailAddress: '',
-            givenName: '',
-            access: {
-                manageScores,
-                uploadPhotos,
-                inputResults,
-            },
-            teamId,
-        };
-    }
-
     describe('when logged out', () => {
         const account: UserDto | undefined = undefined;
         let fixture: GameDto;
@@ -524,7 +506,7 @@ describe('Score', () => {
     });
 
     describe('when logged in', () => {
-        const account: UserDto = user(true);
+        const account: UserDto = user({ manageScores: true });
         let appData: IAppContainerProps;
 
         function successfullyAddPlayers(
@@ -1376,7 +1358,10 @@ describe('Score', () => {
         });
 
         it('does not render photos button when not permitted', async () => {
-            const notPermitted = user(true, false);
+            const notPermitted = user({
+                manageScores: true,
+                uploadPhotos: false,
+            });
             const appData = getDefaultAppData(notPermitted);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
@@ -1386,7 +1371,7 @@ describe('Score', () => {
         });
 
         it('can open photo manager to view photos', async () => {
-            const permitted = user(true, true);
+            const permitted = user({ manageScores: true, uploadPhotos: true });
             const appData = getDefaultAppData(permitted);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
@@ -1401,7 +1386,7 @@ describe('Score', () => {
         });
 
         it('can close photo manager', async () => {
-            const permitted = user(true, true);
+            const permitted = user({ manageScores: true, uploadPhotos: true });
             const appData = getDefaultAppData(permitted);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
@@ -1417,7 +1402,7 @@ describe('Score', () => {
         });
 
         it('can upload photo', async () => {
-            const permitted = user(true, true);
+            const permitted = user({ manageScores: true, uploadPhotos: true });
             const appData = getDefaultAppData(permitted);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
@@ -1441,7 +1426,7 @@ describe('Score', () => {
         });
 
         it('handles error when uploading photo', async () => {
-            const permitted = user(true, true);
+            const permitted = user({ manageScores: true, uploadPhotos: true });
             const appData = getDefaultAppData(permitted);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
@@ -1461,7 +1446,7 @@ describe('Score', () => {
         });
 
         it('can delete photo', async () => {
-            const permitted = user(true, true);
+            const permitted = user({ manageScores: true, uploadPhotos: true });
             const appData = getDefaultAppData(permitted);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
@@ -1494,7 +1479,7 @@ describe('Score', () => {
         });
 
         it('handles error when deleting photo', async () => {
-            const permitted = user(true, true);
+            const permitted = user({ manageScores: true, uploadPhotos: true });
             const appData = getDefaultAppData(permitted);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
@@ -1583,7 +1568,10 @@ describe('Score', () => {
     });
 
     describe('when logged in as a home clerk', () => {
-        const account: UserDto = user(false, false, true, createTemporaryId());
+        const account: UserDto = user(
+            { manageScores: false, uploadPhotos: false, inputResults: true },
+            createTemporaryId(),
+        );
         const appData = getDefaultAppData(account);
         const fixture = getUnplayedFixtureData(appData);
 
@@ -1700,7 +1688,10 @@ describe('Score', () => {
     });
 
     describe('when logged in as an away clerk', () => {
-        const account: UserDto = user(false, false, true, createTemporaryId());
+        const account: UserDto = user(
+            { manageScores: false, uploadPhotos: false, inputResults: true },
+            createTemporaryId(),
+        );
         const appData = getDefaultAppData(account);
         const fixture = getUnplayedFixtureData(appData);
 

@@ -30,6 +30,8 @@ import { UntypedPromise } from '../interfaces/UntypedPromise';
 import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType';
 import { IDependencies } from '../components/common/IDependencies';
 import { IClientActionResultDto } from '../components/common/IClientActionResultDto';
+import { AccessDto } from '../interfaces/models/dtos/Identity/AccessDto';
+import { UserDto } from '../interfaces/models/dtos/Identity/UserDto';
 
 /* istanbul ignore file */
 
@@ -553,4 +555,14 @@ export interface IBrowserWindow {
 
 export interface IBrowserNavigator {
     share: (data: ShareData) => void;
+}
+
+export function user(access: AccessDto, teamId?: string): UserDto {
+    return {
+        name: '',
+        givenName: '',
+        emailAddress: '',
+        access,
+        teamId,
+    };
 }

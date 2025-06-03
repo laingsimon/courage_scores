@@ -9,6 +9,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import {
     ITournamentContainerProps,
@@ -159,21 +160,6 @@ describe('MatchSayg', () => {
         );
     }
 
-    function user(
-        recordScoresAsYouGo?: boolean,
-        showDebugOptions?: boolean,
-    ): UserDto {
-        return {
-            emailAddress: '',
-            name: '',
-            givenName: '',
-            access: {
-                recordScoresAsYouGo,
-                showDebugOptions,
-            },
-        };
-    }
-
     describe('renders', () => {
         const matchOptions = matchOptionsBuilder().build();
         const sideA = sideBuilder('SIDE A').withPlayer('PLAYER A').build();
@@ -182,8 +168,8 @@ describe('MatchSayg', () => {
             .withPlayer('PLAYER C 1')
             .withPlayer('PLAYER C 2')
             .build();
-        const notPermitted: UserDto = user(false);
-        const permitted: UserDto = user(true);
+        const notPermitted: UserDto = user({ recordScoresAsYouGo: false });
+        const permitted: UserDto = user({ recordScoresAsYouGo: true });
         const containerProps = new tournamentContainerPropsBuilder({
             saveTournament,
             setTournamentData,
@@ -526,8 +512,11 @@ describe('MatchSayg', () => {
             .withPlayer('PLAYER B 1')
             .withPlayer('PLAYER B 2')
             .build();
-        const permitted: UserDto = user(true);
-        const permittedWithDebug: UserDto = user(true, true);
+        const permitted: UserDto = user({ recordScoresAsYouGo: true });
+        const permittedWithDebug: UserDto = user({
+            recordScoresAsYouGo: true,
+            showDebugOptions: true,
+        });
         const containerProps = new tournamentContainerPropsBuilder({
             saveTournament,
             setTournamentData,
