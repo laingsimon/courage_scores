@@ -101,6 +101,22 @@ describe('DivisionFixtureDate', () => {
         return teamBuilder(name).build();
     }
 
+    function props(
+        date: DivisionFixtureDateDto,
+        customisations?: Partial<IDivisionFixtureDateProps>,
+    ): IDivisionFixtureDateProps {
+        return {
+            date,
+            showPlayers: {},
+            setShowPlayers,
+            onTournamentChanged,
+            setEditNote,
+            startAddNote,
+            setNewFixtures,
+            ...customisations,
+        };
+    }
+
     describe('when logged out', () => {
         const team: TeamDto = teamBuilder('TEAM').build();
         const division: DivisionDto = divisionBuilder('DIVISION').build();
@@ -111,15 +127,7 @@ describe('DivisionFixtureDate', () => {
                 .withFixture((f) => f.bye(teamBuilder('HOME').build()))
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    showPlayers: {},
-                    setShowPlayers,
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) =>
@@ -153,15 +161,7 @@ describe('DivisionFixtureDate', () => {
                 )
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    showPlayers: {},
-                    setShowPlayers,
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) =>
@@ -210,15 +210,7 @@ describe('DivisionFixtureDate', () => {
                 )
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    showPlayers: {},
-                    setShowPlayers,
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) =>
@@ -265,15 +257,7 @@ describe('DivisionFixtureDate', () => {
                 .withTournament((t) => t.type('TYPE').address('ADDRESS'))
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    setShowPlayers,
-                    showPlayers: {},
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) =>
@@ -306,15 +290,7 @@ describe('DivisionFixtureDate', () => {
                 )
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    setShowPlayers,
-                    showPlayers: {},
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) =>
@@ -349,15 +325,7 @@ describe('DivisionFixtureDate', () => {
                 .withNote((n) => n.note('NOTE'))
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    setShowPlayers,
-                    showPlayers: {},
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) => fd.withNote((n) => n.note('NOTE')),
@@ -386,15 +354,7 @@ describe('DivisionFixtureDate', () => {
                 .withNote((n) => n.note('NOTE'))
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    setShowPlayers,
-                    showPlayers: {},
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) => fd.withNote((n) => n.note('NOTE')),
@@ -418,15 +378,7 @@ describe('DivisionFixtureDate', () => {
                 .withNote((n) => n.note('NOTE'))
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    setShowPlayers,
-                    showPlayers: {},
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) => fd.withNote((n) => n.note('NOTE')),
@@ -450,15 +402,7 @@ describe('DivisionFixtureDate', () => {
                 .withNote((n) => n.note('NOTE'))
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    setShowPlayers,
-                    showPlayers: {},
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) => fd.withNote((n) => n.note('NOTE')),
@@ -487,15 +431,9 @@ describe('DivisionFixtureDate', () => {
                 )
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    setShowPlayers,
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
+                props(fixtureDate, {
                     showPlayers: { '2023-05-06T00:00:00': true },
-                },
+                }),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) =>
@@ -534,15 +472,7 @@ describe('DivisionFixtureDate', () => {
                 )
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    showPlayers: {},
-                    setShowPlayers,
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) =>
@@ -583,17 +513,11 @@ describe('DivisionFixtureDate', () => {
                 )
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
+                props(fixtureDate, {
                     showPlayers: {
                         '2023-05-06T00:00:00': true,
                     },
-                    setShowPlayers,
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                }),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) =>
@@ -632,15 +556,7 @@ describe('DivisionFixtureDate', () => {
                 )
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    showPlayers: {},
-                    setShowPlayers,
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) =>
@@ -696,15 +612,7 @@ describe('DivisionFixtureDate', () => {
                 .withTournament((t) => t.type('TYPE').address('ADDRESS'))
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    showPlayers: {},
-                    setShowPlayers,
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) =>
@@ -746,15 +654,7 @@ describe('DivisionFixtureDate', () => {
                 .withTournament((t) => t.type('TYPE').address('ADDRESS'))
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    showPlayers: {},
-                    setShowPlayers,
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) =>
@@ -803,15 +703,7 @@ describe('DivisionFixtureDate', () => {
                 .withFixture((f) => f.playing(anotherTeam, team))
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    showPlayers: {},
-                    setShowPlayers,
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) =>
@@ -843,15 +735,7 @@ describe('DivisionFixtureDate', () => {
                 .withFixture((f) => f.bye(team), team.id)
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    showPlayers: {},
-                    setShowPlayers,
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) => fd.withFixture((f) => f.bye(team), team.id),
@@ -889,15 +773,7 @@ describe('DivisionFixtureDate', () => {
                 .build();
 
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    showPlayers: {},
-                    setShowPlayers,
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) =>
@@ -921,15 +797,7 @@ describe('DivisionFixtureDate', () => {
                 '2023-05-06T00:00:00',
             ).build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    showPlayers: {},
-                    setShowPlayers,
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(division)
                     .withFixtureDate((fd) => fd, '2023-05-06T00:00:00')
                     .season()
@@ -976,15 +844,7 @@ describe('DivisionFixtureDate', () => {
                 .build();
 
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    showPlayers: {},
-                    setShowPlayers,
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) =>
@@ -1013,15 +873,7 @@ describe('DivisionFixtureDate', () => {
                 .withFixture((f) => f.bye(team), team.id)
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    showPlayers: {},
-                    setShowPlayers,
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) => fd.withFixture((f) => f.bye(team), team.id),
@@ -1050,15 +902,7 @@ describe('DivisionFixtureDate', () => {
                 )
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    showPlayers: {},
-                    setShowPlayers,
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) =>
@@ -1102,15 +946,7 @@ describe('DivisionFixtureDate', () => {
                 .withFixture((f) => f.playing(team, awayTeam).knockout())
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    showPlayers: {},
-                    setShowPlayers,
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(superleagueDivision)
                     .withFixtureDate(
                         (fd) =>
@@ -1144,15 +980,7 @@ describe('DivisionFixtureDate', () => {
                 .withFixture((f) => f.bye(team).knockout())
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    showPlayers: {},
-                    setShowPlayers,
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                },
+                props(fixtureDate),
                 divisionDataBuilder(division)
                     .withFixtureDate(
                         (fd) => fd.withFixture((f) => f.bye(team).knockout()),
