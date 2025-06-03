@@ -7,8 +7,7 @@ import {
     ErrorState, findButton,
     iocProps, noop,
     renderApp,
-    TestContext,
-    user
+    TestContext
 } from "../../../helpers/tests";
 import {IMasterDrawProps, MasterDraw} from "./MasterDraw";
 import {renderDate} from "../../../helpers/rendering";
@@ -25,6 +24,7 @@ import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
 import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {saygBuilder} from "../../../helpers/builders/sayg";
 import {START_SCORING} from "../tournaments";
+import {AccessDto} from "../../../interfaces/models/dtos/Identity/AccessDto";
 import {tournamentContainerPropsBuilder} from "../tournamentContainerPropsBuilder";
 import {teamBuilder} from "../../../helpers/builders/teams";
 import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
@@ -140,6 +140,15 @@ describe('MasterDraw', () => {
     async function patchData(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string): Promise<boolean> {
         patchedData.push({ patch, nestInRound, saygId });
         return true;
+    }
+
+    function user(access: AccessDto): UserDto {
+        return {
+            name: '',
+            givenName: '',
+            emailAddress: '',
+            access,
+        }
     }
 
     function props(template: Partial<IMasterDrawProps>): IMasterDrawProps {

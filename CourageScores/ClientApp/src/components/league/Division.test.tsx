@@ -10,8 +10,7 @@ import {
     iocProps,
     noop,
     renderApp,
-    TestContext,
-    user
+    TestContext
 } from "../../helpers/tests";
 import {Division, IRequestedDivisionDataDto} from "./Division";
 import {any} from "../../helpers/collections";
@@ -37,6 +36,8 @@ import {IFeatureApi} from "../../interfaces/apis/IFeatureApi";
 import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
 import {DivisionUriContainer, IDivisionUriContainerProps, UrlStyle} from "./DivisionUriContainer";
 import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
+import {AccessDto} from "../../interfaces/models/dtos/Identity/AccessDto";
 
 describe('Division', () => {
     let context: TestContext;
@@ -99,6 +100,15 @@ describe('Division', () => {
             </DivisionUriContainer>),
             route,
             address);
+    }
+
+    function user(access: AccessDto): UserDto {
+        return {
+            name: '',
+            givenName: '',
+            emailAddress: '',
+            access,
+        }
     }
 
     describe('when out of season', () => {
