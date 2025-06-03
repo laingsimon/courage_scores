@@ -1,12 +1,13 @@
 ﻿/* istanbul ignore file */
 
-import { IAddableBuilder, IBuilder } from './builders';
+import { BuilderParam, IAddableBuilder, IBuilder } from './builders';
 import { PlayerPerformanceDto } from '../../interfaces/models/dtos/Division/PlayerPerformanceDto';
 import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
 import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/DivisionPlayerDto';
 import { NotablePlayerDto } from '../../interfaces/models/dtos/Game/NotablePlayerDto';
 import { ISelectablePlayer } from '../../components/common/PlayerSelection';
 import { createTemporaryId } from '../projection';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
 
 export interface IPlayerBuilder
     extends IAddableBuilder<
@@ -16,8 +17,8 @@ export interface IPlayerBuilder
     score(score: number): IPlayerBuilder;
     noId(): IPlayerBuilder;
     email(email?: string): IPlayerBuilder;
-    team(team: any): IPlayerBuilder;
-    singles(metricsFunc: any): IPlayerBuilder;
+    team(team: TeamDto): IPlayerBuilder;
+    singles(b: BuilderParam<IPlayerPerformanceBuilder>): IPlayerBuilder;
 }
 
 export function playerBuilder(name?: string, id?: string): IPlayerBuilder {
@@ -52,16 +53,12 @@ export function playerBuilder(name?: string, id?: string): IPlayerBuilder {
             player.emailAddress = email;
             return builder;
         },
-        team: (team: any) => {
-            player.teamId = team.id ? team.id : team;
+        team: (team: TeamDto) => {
+            player.teamId = team.id;
             return builder;
         },
-        singles: (
-            metricsFunc: (
-                metricsBuilder: IPlayerPerformanceBuilder,
-            ) => PlayerPerformanceDto,
-        ) => {
-            player.singles = metricsFunc(playerPerformanceBuilder());
+        singles: (b: BuilderParam<IPlayerPerformanceBuilder>) => {
+            player.singles = b(playerPerformanceBuilder()).build();
             return builder;
         },
     };
