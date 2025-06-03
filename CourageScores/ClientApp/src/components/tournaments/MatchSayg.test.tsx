@@ -158,6 +158,23 @@ describe('MatchSayg', () => {
                 <MatchSayg {...props} />
             </TournamentContainer>,
         );
+        reportedError.verifyNoError();
+    }
+
+    function matchSaygProps(
+        customisations: Partial<IMatchSaygProps>,
+    ): IMatchSaygProps {
+        return {
+            match: null!,
+            matchOptions: null!,
+            matchIndex: 0,
+            patchData,
+            ...customisations,
+        };
+    }
+
+    function dialog() {
+        return context.container.querySelector('.modal-dialog');
     }
 
     describe('renders', () => {
@@ -174,6 +191,13 @@ describe('MatchSayg', () => {
             saveTournament,
             setTournamentData,
         });
+        const sideASideBTournament = tournamentBuilder()
+            .round((b) =>
+                b.withMatch((m) =>
+                    m.sideA(sideA).sideB(sideB).saygId(createTemporaryId()),
+                ),
+            )
+            .build();
 
         it('shows no sayg links when no players', async () => {
             const tournamentData = tournamentBuilder()
@@ -187,65 +211,37 @@ describe('MatchSayg', () => {
 
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
-                {
-                    match,
-                    matchIndex: 0,
-                    patchData,
-                    matchOptions,
-                },
+                matchSaygProps({ match, matchOptions }),
                 permitted,
             );
 
-            reportedError.verifyNoError();
             expect(context.container.innerHTML).not.toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
         it('shows no sayg links when no data and not logged in', async () => {
-            const tournamentData = tournamentBuilder()
-                .round((b) =>
-                    b.withMatch((m) =>
-                        m.sideA(sideA).sideB(sideB).saygId(createTemporaryId()),
-                    ),
-                )
-                .build();
-
             await renderComponent(
-                containerProps.withTournament(tournamentData).build(),
-                {
-                    match: tournamentData.round?.matches![0]!,
-                    matchIndex: 0,
-                    patchData,
+                containerProps.withTournament(sideASideBTournament).build(),
+                matchSaygProps({
+                    match: sideASideBTournament.round?.matches![0]!,
                     matchOptions,
-                },
+                }),
             );
 
-            reportedError.verifyNoError();
             expect(context.container.innerHTML).not.toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
         it('shows no sayg links when no data and not permitted', async () => {
-            const tournamentData = tournamentBuilder()
-                .round((b) =>
-                    b.withMatch((m) =>
-                        m.sideA(sideA).sideB(sideB).saygId(createTemporaryId()),
-                    ),
-                )
-                .build();
-
             await renderComponent(
-                containerProps.withTournament(tournamentData).build(),
-                {
-                    match: tournamentData.round?.matches![0]!,
-                    matchIndex: 0,
-                    patchData,
+                containerProps.withTournament(sideASideBTournament).build(),
+                matchSaygProps({
+                    match: sideASideBTournament.round?.matches![0]!,
                     matchOptions,
-                },
+                }),
                 notPermitted,
             );
 
-            reportedError.verifyNoError();
             expect(context.container.innerHTML).not.toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
@@ -261,15 +257,12 @@ describe('MatchSayg', () => {
 
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
-                {
+                matchSaygProps({
                     match: tournamentData.round?.matches![0]!,
-                    matchIndex: 0,
-                    patchData,
                     matchOptions,
-                },
+                }),
             );
 
-            reportedError.verifyNoError();
             expect(context.container.innerHTML).not.toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
@@ -285,116 +278,68 @@ describe('MatchSayg', () => {
 
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
-                {
+                matchSaygProps({
                     match: tournamentData.round?.matches![0]!,
-                    matchIndex: 0,
-                    patchData,
                     matchOptions,
-                },
+                }),
             );
 
-            reportedError.verifyNoError();
             expect(context.container.innerHTML).not.toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
         it('shows view sayg link when data and not logged in', async () => {
-            const tournamentData = tournamentBuilder()
-                .round((b) =>
-                    b.withMatch((m) =>
-                        m.sideA(sideA).sideB(sideB).saygId(createTemporaryId()),
-                    ),
-                )
-                .build();
-
             await renderComponent(
-                containerProps.withTournament(tournamentData).build(),
-                {
-                    match: tournamentData.round?.matches![0]!,
-                    matchIndex: 0,
-                    patchData,
+                containerProps.withTournament(sideASideBTournament).build(),
+                matchSaygProps({
+                    match: sideASideBTournament.round?.matches![0]!,
                     matchOptions,
                     showViewSayg: true,
-                },
+                }),
             );
 
-            reportedError.verifyNoError();
             expect(context.container.innerHTML).toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
         it('shows view sayg link when data and not permitted', async () => {
-            const tournamentData = tournamentBuilder()
-                .round((b) =>
-                    b.withMatch((m) =>
-                        m.sideA(sideA).sideB(sideB).saygId(createTemporaryId()),
-                    ),
-                )
-                .build();
-
             await renderComponent(
-                containerProps.withTournament(tournamentData).build(),
-                {
-                    match: tournamentData.round?.matches![0]!,
-                    matchIndex: 0,
-                    patchData,
+                containerProps.withTournament(sideASideBTournament).build(),
+                matchSaygProps({
+                    match: sideASideBTournament.round?.matches![0]!,
                     matchOptions,
                     showViewSayg: true,
-                },
+                }),
                 notPermitted,
             );
 
-            reportedError.verifyNoError();
             expect(context.container.innerHTML).toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
         it('does not show view sayg link when data and not permitted and not requested', async () => {
-            const tournamentData = tournamentBuilder()
-                .round((b) =>
-                    b.withMatch((m) =>
-                        m.sideA(sideA).sideB(sideB).saygId(createTemporaryId()),
-                    ),
-                )
-                .build();
-
             await renderComponent(
-                containerProps.withTournament(tournamentData).build(),
-                {
-                    match: tournamentData.round?.matches![0]!,
-                    matchIndex: 0,
-                    patchData,
+                containerProps.withTournament(sideASideBTournament).build(),
+                matchSaygProps({
+                    match: sideASideBTournament.round?.matches![0]!,
                     matchOptions,
-                    showViewSayg: false,
-                },
+                }),
                 notPermitted,
             );
 
-            reportedError.verifyNoError();
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
         it('shows edit sayg link when data and permitted', async () => {
-            const tournamentData = tournamentBuilder()
-                .round((b) =>
-                    b.withMatch((m) =>
-                        m.sideA(sideA).sideB(sideB).saygId(createTemporaryId()),
-                    ),
-                )
-                .build();
-
             await renderComponent(
-                containerProps.withTournament(tournamentData).build(),
-                {
-                    match: tournamentData.round?.matches![0]!,
-                    matchIndex: 0,
-                    patchData,
+                containerProps.withTournament(sideASideBTournament).build(),
+                matchSaygProps({
+                    match: sideASideBTournament.round?.matches![0]!,
                     matchOptions,
-                },
+                }),
                 permitted,
             );
 
-            reportedError.verifyNoError();
             expect(context.container.innerHTML).toContain(START_SCORING);
         });
 
@@ -410,40 +355,26 @@ describe('MatchSayg', () => {
 
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
-                {
+                matchSaygProps({
                     match: tournamentData.round?.matches![0]!,
-                    matchIndex: 0,
-                    patchData,
                     matchOptions,
-                },
+                }),
                 permitted,
             );
 
-            reportedError.verifyNoError();
             expect(context.container.innerHTML).toContain(START_SCORING);
         });
 
         it('shows edit sayg link when no data and both sides have single players', async () => {
-            const tournamentData = tournamentBuilder()
-                .round((b) =>
-                    b.withMatch((m) =>
-                        m.sideA(sideA).sideB(sideB).saygId(createTemporaryId()),
-                    ),
-                )
-                .build();
-
             await renderComponent(
-                containerProps.withTournament(tournamentData).build(),
-                {
-                    match: tournamentData.round?.matches![0]!,
-                    matchIndex: 0,
-                    patchData,
+                containerProps.withTournament(sideASideBTournament).build(),
+                matchSaygProps({
+                    match: sideASideBTournament.round?.matches![0]!,
                     matchOptions,
-                },
+                }),
                 permitted,
             );
 
-            reportedError.verifyNoError();
             expect(context.container.innerHTML).toContain(START_SCORING);
         });
 
@@ -458,16 +389,13 @@ describe('MatchSayg', () => {
 
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
-                {
+                matchSaygProps({
                     match: tournamentData.round?.matches![0]!,
-                    matchIndex: 0,
-                    patchData,
                     matchOptions,
-                },
+                }),
                 permitted,
             );
 
-            reportedError.verifyNoError();
             expect(context.container.innerHTML).not.toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
@@ -483,16 +411,13 @@ describe('MatchSayg', () => {
 
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
-                {
+                matchSaygProps({
                     match: tournamentData.round?.matches![0]!,
-                    matchIndex: 0,
-                    patchData,
                     matchOptions,
-                },
+                }),
                 permitted,
             );
 
-            reportedError.verifyNoError();
             expect(context.container.innerHTML).not.toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
@@ -521,6 +446,10 @@ describe('MatchSayg', () => {
             saveTournament,
             setTournamentData,
         });
+        const sideASideBTournament = tournamentBuilder()
+            .round((b) => b.withMatch((m) => m.sideA(sideA).sideB(sideB)))
+            .build();
+        let saygData: RecordedScoreAsYouGoDto;
 
         async function enterScore(score: number, noOfDarts?: number) {
             await keyPad(
@@ -557,28 +486,29 @@ describe('MatchSayg', () => {
 
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
-                {
-                    match,
-                    matchIndex: 0,
-                    patchData,
-                    matchOptions,
-                    readOnly,
-                },
+                matchSaygProps({ match, matchOptions, readOnly }),
                 permitted,
             );
-            reportedError.verifyNoError();
-            const createDataButton = context.container.querySelector('button')!;
-            expect(createDataButton.textContent).toEqual(START_SCORING);
-            await doClick(createDataButton);
-            const dialog = context.container.querySelector('.modal-dialog')!;
+            await doClick(findButton(context.container, START_SCORING));
 
             reportedError.verifyNoError();
-            await doClick(findButton(dialog, `🎯${match.sideA.name}`)); // pick sideA goes first
+            await doClick(findButton(dialog(), `🎯${match.sideA.name}`)); // pick sideA goes first
             patchedData = [];
             await enterFirstPlayerScores(sideAScores);
 
             reportedError.verifyNoError();
         }
+
+        beforeEach(() => {
+            saygData = saygBuilder()
+                .numberOfLegs(matchOptions.numberOfLegs!)
+                .scores(0, 0)
+                .yourName(sideA.name!)
+                .opponentName(sideB.name)
+                .startingScore(501)
+                .addTo(saygDataLookup)
+                .build();
+        });
 
         it('navigates to live data', async () => {
             const saygId = createTemporaryId();
@@ -592,15 +522,12 @@ describe('MatchSayg', () => {
 
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
-                {
+                matchSaygProps({
                     match: tournamentData.round?.matches![0]!,
-                    matchIndex: 0,
-                    patchData,
                     matchOptions,
                     showViewSayg: true,
-                },
+                }),
             );
-            reportedError.verifyNoError();
 
             const viewLink = context.container.querySelector('a')!;
             expect(viewLink.textContent).toEqual('📊 1 - 2');
@@ -617,19 +544,14 @@ describe('MatchSayg', () => {
                 .build();
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
-                {
-                    match: tournamentData.round!.matches![0],
-                    matchIndex: 0,
-                    patchData,
+                matchSaygProps({
+                    match: tournamentData.round?.matches![0]!,
                     matchOptions,
-                },
+                }),
                 permitted,
             );
-            reportedError.verifyNoError();
-            const createDataButton = context.container.querySelector('button')!;
-            expect(createDataButton.textContent).toEqual(START_SCORING);
 
-            await doClick(createDataButton);
+            await doClick(findButton(context.container, START_SCORING));
 
             context.prompts.alertWasShown('Save the tournament first');
             expect(tournamentSaved).toBeNull();
@@ -637,24 +559,16 @@ describe('MatchSayg', () => {
         });
 
         it('saves the tournament before creating data', async () => {
-            const tournamentData = tournamentBuilder()
-                .round((b) => b.withMatch((m) => m.sideA(sideA).sideB(sideB)))
-                .build();
             await renderComponent(
-                containerProps.withTournament(tournamentData).build(),
-                {
-                    match: tournamentData.round!.matches![0],
-                    matchIndex: 0,
-                    patchData,
+                containerProps.withTournament(sideASideBTournament).build(),
+                matchSaygProps({
+                    match: sideASideBTournament.round?.matches![0]!,
                     matchOptions,
-                },
+                }),
                 permitted,
             );
-            reportedError.verifyNoError();
-            const createDataButton = context.container.querySelector('button')!;
-            expect(createDataButton.textContent).toEqual(START_SCORING);
 
-            await doClick(createDataButton);
+            await doClick(findButton(context.container, START_SCORING));
 
             reportedError.verifyNoError();
             context.prompts.alertWasNotShown('');
@@ -664,58 +578,42 @@ describe('MatchSayg', () => {
         });
 
         it('creates sayg data for match', async () => {
-            const tournamentData = tournamentBuilder()
-                .round((b) => b.withMatch((m) => m.sideA(sideA).sideB(sideB)))
-                .build();
             await renderComponent(
-                containerProps.withTournament(tournamentData).build(),
-                {
-                    match: tournamentData.round!.matches![0],
-                    matchIndex: 0,
-                    patchData,
+                containerProps.withTournament(sideASideBTournament).build(),
+                matchSaygProps({
+                    match: sideASideBTournament.round?.matches![0]!,
                     matchOptions,
-                },
+                }),
                 permitted,
             );
-            reportedError.verifyNoError();
-            const createDataButton = context.container.querySelector('button')!;
-            expect(createDataButton.textContent).toEqual(START_SCORING);
 
-            await doClick(createDataButton);
+            await doClick(findButton(context.container, START_SCORING));
 
             reportedError.verifyNoError();
             expect(addedSayg).toEqual({
-                id: tournamentData.id,
+                id: sideASideBTournament.id,
                 saygRequest: {
                     matchOptions,
-                    matchId: tournamentData.round?.matches![0].id,
+                    matchId: sideASideBTournament.round?.matches![0].id,
                 },
             });
         });
 
         it('shows error if unable to create sayg data', async () => {
-            const tournamentData = tournamentBuilder()
-                .round((b) => b.withMatch((m) => m.sideA(sideA).sideB(sideB)))
-                .build();
             await renderComponent(
-                containerProps.withTournament(tournamentData).build(),
-                {
-                    match: tournamentData.round!.matches![0],
-                    matchIndex: 0,
-                    patchData,
+                containerProps.withTournament(sideASideBTournament).build(),
+                matchSaygProps({
+                    match: sideASideBTournament.round?.matches![0]!,
                     matchOptions,
-                },
+                }),
                 permitted,
             );
-            reportedError.verifyNoError();
-            const createDataButton = context.container.querySelector('button')!;
-            expect(createDataButton.textContent).toEqual(START_SCORING);
             apiResponse = {
                 success: false,
                 errors: ['SOME ERROR'],
             };
 
-            await doClick(createDataButton);
+            await doClick(findButton(context.container, START_SCORING));
 
             reportedError.verifyNoError();
             expect(updatedTournament).toBeNull();
@@ -723,36 +621,25 @@ describe('MatchSayg', () => {
         });
 
         it('updates tournament data and shows dialog once data created', async () => {
-            const tournamentData = tournamentBuilder()
-                .round((b) => b.withMatch((m) => m.sideA(sideA).sideB(sideB)))
-                .build();
-
             await renderComponent(
-                containerProps.withTournament(tournamentData).build(),
-                {
-                    match: tournamentData.round!.matches![0],
-                    matchIndex: 0,
-                    patchData,
+                containerProps.withTournament(sideASideBTournament).build(),
+                matchSaygProps({
+                    match: sideASideBTournament.round?.matches![0]!,
                     matchOptions,
-                },
+                }),
                 permitted,
             );
-            reportedError.verifyNoError();
-            const createDataButton = context.container.querySelector('button')!;
-            expect(createDataButton.textContent).toEqual(START_SCORING);
 
-            await doClick(createDataButton);
+            await doClick(findButton(context.container, START_SCORING));
 
             reportedError.verifyNoError();
             expect(updatedTournament).toEqual({
-                id: tournamentData.id,
+                id: sideASideBTournament.id,
                 type: 'SAYG ADDED',
                 address: '',
                 date: '',
             });
-            expect(
-                context.container.querySelector('.modal-dialog'),
-            ).toBeTruthy();
+            expect(dialog()).toBeTruthy();
         });
 
         it('does not show live link in dialog if sideA won', async () => {
@@ -786,26 +673,22 @@ describe('MatchSayg', () => {
 
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
-                {
-                    match: tournamentData.round!.matches![0],
-                    matchIndex: 0,
-                    patchData,
+                matchSaygProps({
+                    match: tournamentData.round?.matches![0]!,
                     matchOptions,
-                },
+                }),
                 permitted,
             );
-            reportedError.verifyNoError();
             const createDataButton = context.container.querySelector('button')!;
             expect(createDataButton.textContent).toEqual('📊 3 - 0');
 
             await doClick(createDataButton);
 
-            const dialog = context.container.querySelector('.modal-dialog')!;
-            expect(dialog).toBeTruthy();
+            expect(dialog()).toBeTruthy();
             expect(
-                dialog.querySelector('.modal-header')!.textContent,
+                dialog()!.querySelector('.modal-header')!.textContent,
             ).toContain('SIDE A vs SIDE B - best of 1');
-            expect(dialog.innerHTML).toContain('Match statistics');
+            expect(dialog()!.innerHTML).toContain('Match statistics');
         });
 
         it('does not show live link in dialog if sideB won', async () => {
@@ -839,26 +722,22 @@ describe('MatchSayg', () => {
 
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
-                {
-                    match: tournamentData.round!.matches![0],
-                    matchIndex: 0,
-                    patchData,
+                matchSaygProps({
+                    match: tournamentData.round?.matches![0]!,
                     matchOptions,
-                },
+                }),
                 permitted,
             );
-            reportedError.verifyNoError();
             const createDataButton = context.container.querySelector('button')!;
             expect(createDataButton.textContent).toEqual('📊 0 - 3');
 
             await doClick(createDataButton);
 
-            const dialog = context.container.querySelector('.modal-dialog')!;
-            expect(dialog).toBeTruthy();
+            expect(dialog()).toBeTruthy();
             expect(
-                dialog.querySelector('.modal-header')!.textContent,
+                dialog()!.querySelector('.modal-header')!.textContent,
             ).toContain('SIDE A vs SIDE B - best of 1');
-            expect(dialog.innerHTML).toContain('Match statistics');
+            expect(dialog()!.innerHTML).toContain('Match statistics');
         });
 
         it('can close dialog', async () => {
@@ -873,37 +752,20 @@ describe('MatchSayg', () => {
 
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
-                {
-                    match: tournamentData.round!.matches![0],
-                    matchIndex: 0,
-                    patchData,
+                matchSaygProps({
+                    match: tournamentData.round?.matches![0]!,
                     matchOptions,
-                },
+                }),
                 permitted,
             );
-            reportedError.verifyNoError();
-            const createDataButton = context.container.querySelector('button')!;
-            expect(createDataButton.textContent).toEqual(START_SCORING);
-            await doClick(createDataButton);
-            const dialog = context.container.querySelector('.modal-dialog')!;
+            await doClick(findButton(context.container, START_SCORING));
 
-            await doClick(findButton(dialog, 'Close'));
+            await doClick(findButton(dialog(), 'Close'));
 
-            expect(
-                context.container.querySelector('.modal-dialog'),
-            ).toBeFalsy();
+            expect(dialog()).toBeFalsy();
         });
 
         it('can patch data with updated score', async () => {
-            const saygData = saygBuilder()
-                .numberOfLegs(matchOptions.numberOfLegs!)
-                .scores(0, 0)
-                .yourName(sideA.name!)
-                .opponentName(sideB.name)
-                .startingScore(501)
-                .addTo(saygDataLookup)
-                .build();
-
             await executeSaygScoringTest(
                 (m) => m.sideA(sideA).sideB(sideB).saygId(saygData.id),
                 [177, 177, 100, 47],
@@ -926,15 +788,6 @@ describe('MatchSayg', () => {
         });
 
         it('reports and patches hi-checks when single-player', async () => {
-            const saygData = saygBuilder()
-                .numberOfLegs(matchOptions.numberOfLegs!)
-                .scores(0, 0)
-                .yourName(sideA.name!)
-                .opponentName(sideB.name)
-                .startingScore(501)
-                .addTo(saygDataLookup)
-                .build();
-
             await executeSaygScoringTest(
                 (m) => m.sideA(sideA).sideB(sideB).saygId(saygData.id),
                 [100, 100, 100, 50, 151],
@@ -958,15 +811,6 @@ describe('MatchSayg', () => {
         });
 
         it('reports and patches 180s when single-player', async () => {
-            const saygData = saygBuilder()
-                .numberOfLegs(matchOptions.numberOfLegs!)
-                .scores(0, 0)
-                .yourName(sideA.name!)
-                .opponentName(sideB.name)
-                .startingScore(501)
-                .addTo(saygDataLookup)
-                .build();
-
             await executeSaygScoringTest(
                 (m) => m.sideA(sideA).sideB(sideB).saygId(saygData.id),
                 [180],
@@ -1065,15 +909,6 @@ describe('MatchSayg', () => {
         });
 
         it('does not report or patch hi-checks when readonly', async () => {
-            const saygData = saygBuilder()
-                .numberOfLegs(matchOptions.numberOfLegs!)
-                .scores(0, 0)
-                .yourName(sideA.name!)
-                .opponentName(sideB.name)
-                .startingScore(501)
-                .addTo(saygDataLookup)
-                .build();
-
             await executeSaygScoringTest(
                 (m) => m.sideA(sideA).sideB(sideB).saygId(saygData.id),
                 [100, 100, 100, 50, 151],
@@ -1088,15 +923,6 @@ describe('MatchSayg', () => {
         });
 
         it('does not report or patch 180 when readonly', async () => {
-            const saygData = saygBuilder()
-                .numberOfLegs(matchOptions.numberOfLegs!)
-                .scores(0, 0)
-                .yourName(sideA.name!)
-                .opponentName(sideB.name)
-                .startingScore(501)
-                .addTo(saygDataLookup)
-                .build();
-
             await executeSaygScoringTest(
                 (m) => m.sideA(sideA).sideB(sideB).saygId(saygData.id),
                 [180],
@@ -1107,14 +933,6 @@ describe('MatchSayg', () => {
         });
 
         it('confirms before deleting sayg', async () => {
-            const saygData = saygBuilder()
-                .numberOfLegs(matchOptions.numberOfLegs!)
-                .scores(0, 0)
-                .yourName(sideA.name!)
-                .opponentName(sideB.name)
-                .startingScore(501)
-                .addTo(saygDataLookup)
-                .build();
             const tournamentData = tournamentBuilder()
                 .round((b) =>
                     b.withMatch((m) =>
@@ -1125,26 +943,20 @@ describe('MatchSayg', () => {
 
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
-                {
-                    match: tournamentData.round!.matches![0],
-                    matchIndex: 0,
-                    patchData,
+                matchSaygProps({
+                    match: tournamentData.round?.matches![0]!,
                     matchOptions,
-                },
+                }),
                 permittedWithDebug,
             );
-            reportedError.verifyNoError();
-            const createDataButton = context.container.querySelector('button')!;
-            expect(createDataButton.textContent).toEqual(START_SCORING);
-            await doClick(createDataButton);
-            const dialog = context.container.querySelector('.modal-dialog')!;
+            await doClick(findButton(context.container, START_SCORING));
             context.prompts.respondToConfirm(
                 'Are you sure you want to delete the sayg data for this match?',
                 false,
             );
 
-            await doClick(findButton(dialog, 'Debug options'));
-            const deleteButton = dialog.querySelector(
+            await doClick(findButton(dialog(), 'Debug options'));
+            const deleteButton = dialog()!.querySelector(
                 '.dropdown-item.text-danger',
             )!;
             expect(deleteButton.textContent).toEqual('Delete sayg');
@@ -1157,14 +969,6 @@ describe('MatchSayg', () => {
         });
 
         it('can delete sayg then close dialog and update tournament data', async () => {
-            const saygData = saygBuilder()
-                .numberOfLegs(matchOptions.numberOfLegs!)
-                .scores(0, 0)
-                .yourName(sideA.name!)
-                .opponentName(sideB.name)
-                .startingScore(501)
-                .addTo(saygDataLookup)
-                .build();
             const matchId = createTemporaryId();
             const tournamentData = tournamentBuilder()
                 .round((b) =>
@@ -1177,19 +981,13 @@ describe('MatchSayg', () => {
 
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
-                {
-                    match: tournamentData.round!.matches![0],
-                    matchIndex: 0,
-                    patchData,
+                matchSaygProps({
+                    match: tournamentData.round?.matches![0]!,
                     matchOptions,
-                },
+                }),
                 permittedWithDebug,
             );
-            reportedError.verifyNoError();
-            const createDataButton = context.container.querySelector('button')!;
-            expect(createDataButton.textContent).toEqual(START_SCORING);
-            await doClick(createDataButton);
-            const dialog = context.container.querySelector('.modal-dialog')!;
+            await doClick(findButton(context.container, START_SCORING));
             context.prompts.respondToConfirm(
                 'Are you sure you want to delete the sayg data for this match?',
                 true,
@@ -1203,8 +1001,8 @@ describe('MatchSayg', () => {
                 success: true,
             };
 
-            await doClick(findButton(dialog, 'Debug options'));
-            const deleteButton = dialog.querySelector(
+            await doClick(findButton(dialog(), 'Debug options'));
+            const deleteButton = dialog()!.querySelector(
                 '.dropdown-item.text-danger',
             )!;
             expect(deleteButton.textContent).toEqual('Delete sayg');
@@ -1216,20 +1014,10 @@ describe('MatchSayg', () => {
                 matchId: matchId,
             });
             expect(updatedTournament).toEqual(tournamentData);
-            expect(
-                context.container.querySelector('.modal-dialog'),
-            ).toBeFalsy();
+            expect(dialog()).toBeFalsy();
         });
 
         it('shows error if unable to delete sayg', async () => {
-            const saygData = saygBuilder()
-                .numberOfLegs(matchOptions.numberOfLegs!)
-                .scores(0, 0)
-                .yourName(sideA.name!)
-                .opponentName(sideB.name)
-                .startingScore(501)
-                .addTo(saygDataLookup)
-                .build();
             const matchId = createTemporaryId();
             const tournamentData = tournamentBuilder()
                 .round((b) =>
@@ -1242,19 +1030,13 @@ describe('MatchSayg', () => {
 
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
-                {
-                    match: tournamentData.round!.matches![0],
-                    matchIndex: 0,
-                    patchData,
+                matchSaygProps({
+                    match: tournamentData.round?.matches![0]!,
                     matchOptions,
-                },
+                }),
                 permittedWithDebug,
             );
-            reportedError.verifyNoError();
-            const createDataButton = context.container.querySelector('button')!;
-            expect(createDataButton.textContent).toEqual(START_SCORING);
-            await doClick(createDataButton);
-            const dialog = context.container.querySelector('.modal-dialog')!;
+            await doClick(findButton(context.container, START_SCORING));
             context.prompts.respondToConfirm(
                 'Are you sure you want to delete the sayg data for this match?',
                 true,
@@ -1264,8 +1046,8 @@ describe('MatchSayg', () => {
                 errors: ['SOME ERROR'],
             };
 
-            await doClick(findButton(dialog, 'Debug options'));
-            const deleteButton = dialog.querySelector(
+            await doClick(findButton(dialog(), 'Debug options'));
+            const deleteButton = dialog()!.querySelector(
                 '.dropdown-item.text-danger',
             )!;
             expect(deleteButton.textContent).toEqual('Delete sayg');
@@ -1277,9 +1059,7 @@ describe('MatchSayg', () => {
                 matchId: matchId,
             });
             expect(updatedTournament).toBeNull();
-            expect(
-                context.container.querySelector('.modal-dialog'),
-            ).toBeTruthy();
+            expect(dialog()).toBeTruthy();
         });
     });
 });
