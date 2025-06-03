@@ -36,6 +36,7 @@ import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionD
 import { renderDate } from '../../helpers/rendering';
 import { createTemporaryId } from '../../helpers/projection';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
+import { IFullScreen } from '../common/IFullScreen';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -107,6 +108,19 @@ describe('LiveSayg', () => {
         );
     }
 
+    function fullScreenProps(
+        customisations?: Partial<IFullScreen>,
+    ): IFullScreen {
+        return {
+            isFullScreen: false,
+            canGoFullScreen: false,
+            enterFullScreen: noop,
+            exitFullScreen: noop,
+            toggleFullScreen: noop,
+            ...customisations,
+        };
+    }
+
     describe('render', () => {
         it('requests match', async () => {
             const sayg = saygBuilder().addTo(saygData).build();
@@ -114,13 +128,7 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
-                            isFullScreen: false,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        fullScreen: fullScreenProps(),
                     },
                     reportedError,
                 ),
@@ -138,13 +146,7 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
-                            isFullScreen: false,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        fullScreen: fullScreenProps(),
                     },
                     reportedError,
                 ),
@@ -166,13 +168,7 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
-                            isFullScreen: false,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        fullScreen: fullScreenProps(),
                     },
                     reportedError,
                 ),
@@ -203,13 +199,7 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
-                            isFullScreen: false,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        fullScreen: fullScreenProps(),
                     },
                     reportedError,
                 ),
@@ -236,13 +226,9 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
+                        fullScreen: fullScreenProps({
                             isFullScreen: true,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        }),
                     },
                     reportedError,
                 ),
@@ -264,13 +250,9 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
+                        fullScreen: fullScreenProps({
                             isFullScreen: true,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        }),
                     },
                     reportedError,
                 ),
@@ -311,13 +293,9 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
+                        fullScreen: fullScreenProps({
                             isFullScreen: true,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        }),
                     },
                     reportedError,
                 ),
@@ -373,13 +351,9 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
+                        fullScreen: fullScreenProps({
                             isFullScreen: true,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        }),
                     },
                     reportedError,
                 ),
@@ -412,13 +386,7 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
-                            isFullScreen: false,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        fullScreen: fullScreenProps(),
                     },
                     reportedError,
                 ),
@@ -441,13 +409,7 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
-                            isFullScreen: false,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        fullScreen: fullScreenProps(),
                         divisions: [division as DivisionDto],
                     },
                     reportedError,
@@ -465,13 +427,7 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
-                            isFullScreen: false,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        fullScreen: fullScreenProps(),
                     },
                     reportedError,
                 ),
@@ -491,13 +447,7 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
-                            isFullScreen: false,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        fullScreen: fullScreenProps(),
                     },
                     reportedError,
                 ),
@@ -521,13 +471,7 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
-                            isFullScreen: false,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        fullScreen: fullScreenProps(),
                         divisions: [division as DivisionDto],
                     },
                     reportedError,
@@ -550,13 +494,7 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
-                            isFullScreen: false,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        fullScreen: fullScreenProps(),
                         divisions: [division],
                     },
                     reportedError,
@@ -584,13 +522,7 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
-                            isFullScreen: false,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        fullScreen: fullScreenProps(),
                         divisions: [division as DivisionDto],
                     },
                     reportedError,
@@ -613,13 +545,7 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
-                            isFullScreen: false,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        fullScreen: fullScreenProps(),
                         divisions: [division],
                     },
                     reportedError,
@@ -647,13 +573,7 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
-                            isFullScreen: false,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        fullScreen: fullScreenProps(),
                         divisions: [division as DivisionDto],
                     },
                     reportedError,
@@ -682,14 +602,12 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
-                            isFullScreen: false,
-                            canGoFullScreen: false,
+                        fullScreen: fullScreenProps({
                             enterFullScreen: async () => (isFullScreen = true),
                             exitFullScreen: async () => (isFullScreen = false),
                             toggleFullScreen: async () =>
                                 (isFullScreen = !isFullScreen),
-                        },
+                        }),
                     },
                     reportedError,
                 ),
@@ -711,13 +629,9 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
+                        fullScreen: fullScreenProps({
                             isFullScreen: true,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        }),
                     },
                     reportedError,
                 ),
@@ -749,13 +663,7 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
-                            isFullScreen: false,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        fullScreen: fullScreenProps(),
                     },
                     reportedError,
                 ),
@@ -779,13 +687,7 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
-                            isFullScreen: false,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        fullScreen: fullScreenProps(),
                     },
                     reportedError,
                 ),
@@ -809,13 +711,7 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
-                            isFullScreen: false,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        fullScreen: fullScreenProps(),
                     },
                     reportedError,
                 ),
@@ -839,13 +735,7 @@ describe('LiveSayg', () => {
             await renderComponent(
                 appProps(
                     {
-                        fullScreen: {
-                            isFullScreen: false,
-                            canGoFullScreen: false,
-                            enterFullScreen: noop,
-                            exitFullScreen: noop,
-                            toggleFullScreen: noop,
-                        },
+                        fullScreen: fullScreenProps(),
                     },
                     reportedError,
                 ),
