@@ -14,6 +14,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
 import { ILegBuilder, saygBuilder } from '../../helpers/builders/sayg';
@@ -37,6 +38,7 @@ import {
 } from '../../helpers/sayg';
 import { UntypedPromise } from '../../interfaces/UntypedPromise';
 import { isLegWinner } from '../../helpers/superleague';
+import { sum } from '../../helpers/collections';
 
 describe('SaygIntegrationTest', () => {
     let context: TestContext;
@@ -123,6 +125,25 @@ describe('SaygIntegrationTest', () => {
         return ps.querySelector('div:nth-child(5)')!.textContent;
     }
 
+    function getPreviousScores() {
+        return Array.from(
+            context.container.querySelectorAll(
+                'div[datatype="previous-scores"] > div',
+            ),
+        );
+    }
+
+    function props(
+        sayg: UpdateRecordedScoreAsYouGoDto,
+        customisations?: Partial<ISaygLoadingContainerProps>,
+    ): ISaygLoadingContainerProps {
+        return {
+            id: sayg.id!,
+            liveOptions: {},
+            ...customisations,
+        };
+    }
+
     describe('when unstarted', () => {
         let sayg: UpdateRecordedScoreAsYouGoDto;
 
@@ -148,10 +169,7 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('can load two player details', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-            });
+            await renderComponent(props(sayg));
 
             expect(context.container.textContent).toContain('CONTENDER');
             expect(context.container.textContent).toContain('OPPONENT');
@@ -160,20 +178,13 @@ describe('SaygIntegrationTest', () => {
         it('can load single player details', async () => {
             sayg.opponentName = undefined;
 
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-            });
+            await renderComponent(props(sayg));
 
             expect(context.container.textContent).toContain('CONTENDER');
         });
 
         it('asks who should start', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
 
             expect(context.container.textContent).toContain('Who plays first?');
             const buttons = Array.from(
@@ -195,10 +206,7 @@ describe('SaygIntegrationTest', () => {
         it('does not ask who should start for single-player matches', async () => {
             sayg.opponentName = undefined;
 
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-            });
+            await renderComponent(props(sayg));
 
             expect(context.container.textContent).not.toContain(
                 'Who plays first?',
@@ -206,20 +214,12 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('shows first home score in the player score card as entered', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
 
             await playsFirst(context, 'CONTENDER');
             await keyPad(context, ['1', '2', '0']);
 
-            const previousScores = Array.from(
-                context.container.querySelectorAll(
-                    'div[datatype="previous-scores"] > div',
-                ),
-            );
+            const previousScores = getPreviousScores();
             expect(previousScores.length).toEqual(1);
             expect(
                 Array.from(
@@ -231,21 +231,13 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('shows first away score in the player score card as entered', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
 
             await playsFirst(context, 'CONTENDER');
             await keyPad(context, ['1', '2', '0', ENTER_SCORE_BUTTON]); // home
             await keyPad(context, ['2', '6', ENTER_SCORE_BUTTON]); // away
 
-            const previousScores = Array.from(
-                context.container.querySelectorAll(
-                    'div[datatype="previous-scores"] > div',
-                ),
-            );
+            const previousScores = getPreviousScores();
             expect(previousScores.length).toEqual(1);
             expect(
                 Array.from(
@@ -257,20 +249,12 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('does not show remaining score in score card when no score entered', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
 
             await playsFirst(context, 'CONTENDER');
             await keyPad(context, ['1', '2', '0', ENTER_SCORE_BUTTON]); // home
 
-            const previousScores = Array.from(
-                context.container.querySelectorAll(
-                    'div[datatype="previous-scores"] > div',
-                ),
-            );
+            const previousScores = getPreviousScores();
             expect(previousScores.length).toEqual(1);
             expect(
                 Array.from(
@@ -282,21 +266,13 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('shows remaining score in score card when score entered', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
 
             await playsFirst(context, 'CONTENDER');
             await keyPad(context, ['1', '2', '0', ENTER_SCORE_BUTTON]); // home
             await keyPad(context, ['6', '2']); // away
 
-            const previousScores = Array.from(
-                context.container.querySelectorAll(
-                    'div[datatype="previous-scores"] > div',
-                ),
-            );
+            const previousScores = getPreviousScores();
             expect(previousScores.length).toEqual(1);
             expect(
                 Array.from(
@@ -308,11 +284,7 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('allows first score to be recorded via key pad', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
 
             await playsFirst(context, 'CONTENDER');
             await keyPad(context, ['1', '2', '0', ENTER_SCORE_BUTTON]);
@@ -326,11 +298,7 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('switches to second player after first', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
 
             await playsFirst(context, 'CONTENDER');
             await enterScores(
@@ -351,11 +319,7 @@ describe('SaygIntegrationTest', () => {
 
         it('does switch to second player if single player', async () => {
             sayg.opponentName = undefined;
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
 
             await enterScores(
                 context,
@@ -416,20 +380,13 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('can load details', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-            });
+            await renderComponent(props(sayg));
 
             assertWaitingForScoreFor('OPPONENT');
         });
 
         it('records a checkout with 1 dart', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
 
             // opponent first
             await enterScores(context, checkoutScores, nonCheckoutScores);
@@ -443,11 +400,7 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('records a checkout with 2 darts', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
 
             // opponent first
             await enterScores(context, checkoutScores, nonCheckoutScores);
@@ -461,11 +414,7 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('records a checkout with 3 darts', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
 
             // opponent first
             await enterScores(context, checkoutScores, nonCheckoutScores);
@@ -481,33 +430,22 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('can close the checkout dialog', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
 
             // opponent first
             await enterScores(context, checkoutScores, nonCheckoutScores);
             await doClick(findButton(context.container, 'Close'));
 
             expect(sayg.legs[0].currentThrow).toEqual('away');
-            expect(
-                sayg.legs[0].away!.throws!.reduce(
-                    (total, thr) => total + (thr.score || 0),
-                    0,
-                ),
-            ).toEqual(481);
+            expect(sum(sayg.legs[0].away!.throws, (thr) => thr.score!)).toEqual(
+                481,
+            );
             expect(sayg.homeScore).toEqual(0);
             expect(sayg.awayScore).toEqual(0);
         });
 
         it('can close the checkout dialog and re-checkout', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
 
             // opponent first
             await enterScores(context, checkoutScores, nonCheckoutScores);
@@ -523,11 +461,7 @@ describe('SaygIntegrationTest', () => {
         it('asks who should start final leg', async () => {
             sayg.numberOfLegs = 3;
 
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
 
             // opponent first
             await enterScores(context, checkoutScores, nonCheckoutScores); // leg1: opponent starts & wins
@@ -561,13 +495,13 @@ describe('SaygIntegrationTest', () => {
         it('does not ask who should start final leg', async () => {
             sayg.numberOfLegs = 3;
 
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-                firstLegPlayerSequence: ['away', 'home'],
-                finalLegPlayerSequence: ['away', 'home'],
-            });
+            await renderComponent(
+                props(sayg, {
+                    autoSave: true,
+                    firstLegPlayerSequence: ['away', 'home'],
+                    finalLegPlayerSequence: ['away', 'home'],
+                }),
+            );
 
             // opponent first
             await enterScores(context, checkoutScores, nonCheckoutScores); // leg1: opponent starts & wins
@@ -588,11 +522,7 @@ describe('SaygIntegrationTest', () => {
         it('records who plays the final leg after up for the bull', async () => {
             sayg.numberOfLegs = 3;
 
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
 
             // opponent first
             await enterScores(context, checkoutScores, nonCheckoutScores); // leg1: opponent starts & wins
@@ -662,10 +592,7 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('presents statistics for two player', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-            });
+            await renderComponent(props(sayg));
 
             expect(context.container.textContent).toContain('Match statistics');
             const headerCells = Array.from(
@@ -703,10 +630,7 @@ describe('SaygIntegrationTest', () => {
                 .withLeg(2, (l) => buildLeg(l, 'home', 'home'))
                 .addTo(saygData)
                 .build();
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-            });
+            await renderComponent(props(sayg));
 
             expect(context.container.textContent).toContain('Match statistics');
             const headerRows = Array.from(
@@ -728,24 +652,11 @@ describe('SaygIntegrationTest', () => {
         });
 
         describe('when permitted', () => {
-            const account: UserDto = {
-                givenName: '',
-                emailAddress: '',
-                name: '',
-                access: {
-                    recordScoresAsYouGo: true,
-                },
-            };
+            const account = user({ recordScoresAsYouGo: true });
             let dialog: HTMLDivElement;
 
             beforeEach(async () => {
-                await renderComponent(
-                    {
-                        id: sayg.id!,
-                        liveOptions: {},
-                    },
-                    account,
-                );
+                await renderComponent(props(sayg), account);
                 const rows = Array.from(
                     context.container.querySelectorAll('.table tbody tr'),
                 );
@@ -797,24 +708,11 @@ describe('SaygIntegrationTest', () => {
         });
 
         describe('when not permitted', () => {
-            const account: UserDto = {
-                givenName: '',
-                emailAddress: '',
-                name: '',
-                access: {
-                    recordScoresAsYouGo: false,
-                },
-            };
+            const account = user({ recordScoresAsYouGo: false });
             let firstThrowCells: HTMLTableCellElement[];
 
             beforeEach(async () => {
-                await renderComponent(
-                    {
-                        id: sayg.id!,
-                        liveOptions: {},
-                    },
-                    account,
-                );
+                await renderComponent(props(sayg), account);
                 const rows = Array.from(
                     context.container.querySelectorAll('.table tbody tr'),
                 );
@@ -869,20 +767,12 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('shows edited home score in the score card', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
             // contender first
             await enterScores(context, [100, 101], [50, 51]);
             expect(sayg.legs[0].home.throws![1].score).toEqual(101);
             expect(sayg.legs[0].home.score).toEqual(201);
-            const previousScores = Array.from(
-                context.container.querySelectorAll(
-                    'div[datatype="previous-scores"] > div',
-                ),
-            );
+            const previousScores = getPreviousScores();
             expect(previousScores.map(homeScore)).toEqual(['100', '101']); // home scores
             expect(previousScores.map(homeRemaining)).toEqual(['401', '300']); // home remaining
 
@@ -899,18 +789,10 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('shows edited home score in the score card home column only when no away score', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
             // contender first
             await enterScores(context, [100], []);
-            const previousScores = Array.from(
-                context.container.querySelectorAll(
-                    'div[datatype="previous-scores"] > div',
-                ),
-            );
+            const previousScores = getPreviousScores();
             expect(previousScores.map(homeScore)).toEqual(['100']); // home scores
             expect(previousScores.map(homeRemaining)).toEqual(['401']); // home remaining
             expect(previousScores.map(noOfDarts)).toEqual(['3']); // no-of-darts
@@ -930,20 +812,12 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('updates following score results as throw is edited', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
             // contender first
             await enterScores(context, [100, 101], [50, 51]);
             expect(sayg.legs[0].home.throws![1].score).toEqual(101);
             expect(sayg.legs[0].home.score).toEqual(201);
-            const previousScores = Array.from(
-                context.container.querySelectorAll(
-                    'div[datatype="previous-scores"] > div',
-                ),
-            );
+            const previousScores = getPreviousScores();
             expect(previousScores.map(homeScore)).toEqual(['100', '101']); // home scores
             expect(previousScores.map(homeRemaining)).toEqual(['401', '300']); // home remaining
 
@@ -957,21 +831,13 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('can change a previous home score', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
             // contender first
             await enterScores(context, [100, 101], [50, 51]);
             expect(sayg.legs[0].home.throws![1].score).toEqual(101);
             expect(sayg.legs[0].home.score).toEqual(201);
 
-            const previousScores = Array.from(
-                context.container.querySelectorAll(
-                    'div[datatype="previous-scores"] > div',
-                ),
-            );
+            const previousScores = getPreviousScores();
             const secondHomeScore =
                 previousScores[1].querySelector('div:first-child')!; // home score
             await doClick(secondHomeScore);
@@ -982,21 +848,13 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('can change a previous away score', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
             // contender first
             await enterScores(context, [100, 101], [50, 51]);
             expect(sayg.legs[0].away.throws![1].score).toEqual(51);
             expect(sayg.legs[0].away.score).toEqual(101);
 
-            const previousScores = Array.from(
-                context.container.querySelectorAll(
-                    'div[datatype="previous-scores"] > div',
-                ),
-            );
+            const previousScores = getPreviousScores();
             const secondAwayScore =
                 previousScores[1].querySelector('div:last-child')!; // away score
             await doClick(secondAwayScore);
@@ -1007,21 +865,13 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('can cancel editing a previous home score', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
             // contender first
             await enterScores(context, [100, 101], [50, 51]);
             expect(sayg.legs[0].home.throws![1].score).toEqual(101);
             expect(sayg.legs[0].home.score).toEqual(201);
 
-            const previousScores = Array.from(
-                context.container.querySelectorAll(
-                    'div[datatype="previous-scores"] > div',
-                ),
-            );
+            const previousScores = getPreviousScores();
             const secondHomeScore =
                 previousScores[1].querySelector('div:first-child')!; // home score
             await doClick(secondHomeScore);
@@ -1032,21 +882,13 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('can cancel editing a previous away score', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
             // contender first
             await enterScores(context, [100, 101], [50, 51]);
             expect(sayg.legs[0].away.throws![1].score).toEqual(51);
             expect(sayg.legs[0].away.score).toEqual(101);
 
-            const previousScores = Array.from(
-                context.container.querySelectorAll(
-                    'div[datatype="previous-scores"] > div',
-                ),
-            );
+            const previousScores = getPreviousScores();
             const secondAwayScore =
                 previousScores[1].querySelector('div:last-child')!; // away score
             await doClick(secondAwayScore);
@@ -1057,11 +899,7 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('bust scores are excluded from total remaining score after edit', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
             // contender first
             await enterScores(
                 context,
@@ -1072,11 +910,7 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.legs[0].home.throws![3].score).toEqual(30);
             expect(sayg.legs[0].home.score).toEqual(390);
 
-            const previousScores = Array.from(
-                context.container.querySelectorAll(
-                    'div[datatype="previous-scores"] > div',
-                ),
-            );
+            const previousScores = getPreviousScores();
             const lastHomeScore =
                 previousScores[3].querySelector('div:first-child')!; // home score
             await doClick(lastHomeScore);
@@ -1087,11 +921,7 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('editing a bust score to make it non-bust should affect the total remaining score', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
             // contender first
             await enterScores(
                 context,
@@ -1104,11 +934,7 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.legs[0].home.throws![4].score).toEqual(120);
             expect(sayg.legs[0].home.score).toEqual(400);
 
-            const previousScores = Array.from(
-                context.container.querySelectorAll(
-                    'div[datatype="previous-scores"] > div',
-                ),
-            );
+            const previousScores = getPreviousScores();
             const lastHomeScore =
                 previousScores[4].querySelector('div:first-child')!; // home score
             await doClick(lastHomeScore);
@@ -1119,21 +945,13 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('can edit a different previous score', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
             // contender first
             await enterScores(context, [100, 101], [50, 51]);
             expect(sayg.legs[0].away.throws![1].score).toEqual(51);
             expect(sayg.legs[0].away.score).toEqual(101);
 
-            const previousScores = Array.from(
-                context.container.querySelectorAll(
-                    'div[datatype="previous-scores"] > div',
-                ),
-            );
+            const previousScores = getPreviousScores();
             const secondHomeScore =
                 previousScores[1].querySelector('div:first-child')!; // home score
             const secondAwayScore =
@@ -1147,22 +965,14 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('asks for checkout darts if correction results in a checkout', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
             // contender first
             await enterScores(
                 context,
                 [100, 101 /*=201*/, 100 /*=301*/, 100 /*=401*/, 10 /*=411*/], // 411
                 [51, 52, 53, 54],
             );
-            const previousScores = Array.from(
-                context.container.querySelectorAll(
-                    'div[datatype="previous-scores"] > div',
-                ),
-            );
+            const previousScores = getPreviousScores();
             const secondHomeScore =
                 previousScores[4].querySelector('div:first-child')!; // home score
             await doClick(secondHomeScore);
@@ -1179,11 +989,7 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('can change home checkout for previous leg', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
             // contender first
             await enterScores(
                 context,
@@ -1203,11 +1009,7 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('cannot change checkout for previous leg after scores recorded', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
             // contender first
             await enterScores(
                 context,
@@ -1226,11 +1028,7 @@ describe('SaygIntegrationTest', () => {
         });
 
         it('can change checkout for previous leg after score entered and then removed', async () => {
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                autoSave: true,
-            });
+            await renderComponent(props(sayg, { autoSave: true }));
             // contender first
             await enterScores(
                 context,
@@ -1293,13 +1091,13 @@ describe('SaygIntegrationTest', () => {
 
         it('reports a 180', async () => {
             const recorded180s: string[] = [];
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                async on180(sideName: string): UntypedPromise {
-                    recorded180s.push(sideName);
-                },
-            });
+            await renderComponent(
+                props(sayg, {
+                    async on180(sideName: string): UntypedPromise {
+                        recorded180s.push(sideName);
+                    },
+                }),
+            );
 
             // contender first
             await keyPad(context, ['1', '8', '0', ENTER_SCORE_BUTTON]);
@@ -1309,16 +1107,16 @@ describe('SaygIntegrationTest', () => {
 
         it('reports a hi-check', async () => {
             const recordedHiChecks: { sideName: string; score: number }[] = [];
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                async onHiCheck(
-                    sideName: string,
-                    score: number,
-                ): UntypedPromise {
-                    recordedHiChecks.push({ sideName, score });
-                },
-            });
+            await renderComponent(
+                props(sayg, {
+                    async onHiCheck(
+                        sideName: string,
+                        score: number,
+                    ): UntypedPromise {
+                        recordedHiChecks.push({ sideName, score });
+                    },
+                }),
+            );
 
             // contender first
             await enterScores(context, checkoutScores, nonCheckoutScores);
@@ -1331,19 +1129,19 @@ describe('SaygIntegrationTest', () => {
 
         it('reports a leg complete', async () => {
             let newScores: { homeScore: number; awayScore: number };
-            await renderComponent({
-                id: sayg.id!,
-                liveOptions: {},
-                async onScoreChange(
-                    homeScore: number,
-                    awayScore: number,
-                ): UntypedPromise {
-                    newScores = {
-                        homeScore,
-                        awayScore,
-                    };
-                },
-            });
+            await renderComponent(
+                props(sayg, {
+                    async onScoreChange(
+                        homeScore: number,
+                        awayScore: number,
+                    ): UntypedPromise {
+                        newScores = {
+                            homeScore,
+                            awayScore,
+                        };
+                    },
+                }),
+            );
 
             // contender first
             await enterScores(context, checkoutScores, nonCheckoutScores);
