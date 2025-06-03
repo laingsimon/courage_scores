@@ -6,6 +6,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { IScoreCardHeadingProps, ScoreCardHeading } from './ScoreCardHeading';
 import {
@@ -176,6 +177,26 @@ describe('ScoreCardHeading', () => {
         };
     }
 
+    function leagueFixtureContainerProps(
+        submissionData: GameDto,
+        customisations?: Partial<ILeagueFixtureContainerProps>,
+    ): ILeagueFixtureContainerProps {
+        return {
+            division: divisionBuilder(
+                'DIVISION',
+                submissionData.divisionId,
+            ).build(),
+            season: seasonBuilder('SEASON', submissionData.seasonId).build(),
+            home: null!,
+            away: null!,
+            disabled: false,
+            readOnly: false,
+            awayPlayers: [],
+            homePlayers: [],
+            ...customisations,
+        };
+    }
+
     describe('when logged out', () => {
         const access = '';
         const account: UserDto | undefined = undefined;
@@ -193,22 +214,7 @@ describe('ScoreCardHeading', () => {
                 .awaySubmission()
                 .build();
             const winner = '';
-            const fixtureData: ILeagueFixtureContainerProps = {
-                division: divisionBuilder(
-                    'DIVISION',
-                    submissionData.divisionId,
-                ).build(),
-                season: seasonBuilder(
-                    'SEASON',
-                    submissionData.seasonId,
-                ).build(),
-                home: null!,
-                away: null!,
-                disabled: false,
-                readOnly: false,
-                awayPlayers: [],
-                homePlayers: [],
-            };
+            const fixtureData = leagueFixtureContainerProps(submissionData);
 
             it('renders home team details', async () => {
                 await renderComponent(
@@ -258,22 +264,7 @@ describe('ScoreCardHeading', () => {
                 .withMatchOption((o) => o.numberOfLegs(7))
                 .build();
             const winner = 'home';
-            const fixtureData: ILeagueFixtureContainerProps = {
-                division: divisionBuilder(
-                    'DIVISION',
-                    submissionData.divisionId,
-                ).build(),
-                season: seasonBuilder(
-                    'SEASON',
-                    submissionData.seasonId,
-                ).build(),
-                home: null!,
-                away: null!,
-                disabled: false,
-                readOnly: false,
-                awayPlayers: [],
-                homePlayers: [],
-            };
+            const fixtureData = leagueFixtureContainerProps(submissionData);
 
             it('renders home team details', async () => {
                 await renderComponent(
@@ -323,22 +314,7 @@ describe('ScoreCardHeading', () => {
                 .withMatchOption((o) => o.numberOfLegs(7))
                 .build();
             const winner = 'away';
-            const fixtureData: ILeagueFixtureContainerProps = {
-                division: divisionBuilder(
-                    'DIVISION',
-                    submissionData.divisionId,
-                ).build(),
-                season: seasonBuilder(
-                    'SEASON',
-                    submissionData.seasonId,
-                ).build(),
-                home: null!,
-                away: null!,
-                disabled: false,
-                readOnly: false,
-                awayPlayers: [],
-                homePlayers: [],
-            };
+            const fixtureData = leagueFixtureContainerProps(submissionData);
 
             it('renders home team details', async () => {
                 await renderComponent(
@@ -371,12 +347,7 @@ describe('ScoreCardHeading', () => {
     describe('when an admin', () => {
         const access = 'admin';
         const team: TeamDto = teamBuilder('TEAM').build();
-        const account: UserDto = {
-            name: '',
-            givenName: '',
-            emailAddress: '',
-            teamId: team.id,
-        };
+        const account: UserDto = user({}, team.id);
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const season: SeasonDto = seasonBuilder('SEASON').build();
         const homePlayer = playerBuilder('HOME PLAYER').build();
@@ -388,22 +359,7 @@ describe('ScoreCardHeading', () => {
                 .forDivision(division)
                 .playing('HOME', 'AWAY')
                 .build();
-            const fixtureData: ILeagueFixtureContainerProps = {
-                division: divisionBuilder(
-                    'DIVISION',
-                    submissionData.divisionId,
-                ).build(),
-                season: seasonBuilder(
-                    'SEASON',
-                    submissionData.seasonId,
-                ).build(),
-                home: null!,
-                away: null!,
-                disabled: false,
-                readOnly: false,
-                awayPlayers: [],
-                homePlayers: [],
-            };
+            const fixtureData = leagueFixtureContainerProps(submissionData);
 
             it('does not show home submission toggle', async () => {
                 await renderComponent(
@@ -477,22 +433,7 @@ describe('ScoreCardHeading', () => {
                     m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2),
                 )
                 .build();
-            const fixtureData: ILeagueFixtureContainerProps = {
-                division: divisionBuilder(
-                    'DIVISION',
-                    submissionData.divisionId,
-                ).build(),
-                season: seasonBuilder(
-                    'SEASON',
-                    submissionData.seasonId,
-                ).build(),
-                home: null!,
-                away: null!,
-                disabled: false,
-                readOnly: false,
-                awayPlayers: [],
-                homePlayers: [],
-            };
+            const fixtureData = leagueFixtureContainerProps(submissionData);
 
             it('shows unpublished alert when submission team identified', async () => {
                 const updated = '2023-04-05';
@@ -597,22 +538,7 @@ describe('ScoreCardHeading', () => {
                     m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2),
                 )
                 .build();
-            const fixtureData: ILeagueFixtureContainerProps = {
-                division: divisionBuilder(
-                    'DIVISION',
-                    submissionData.divisionId,
-                ).build(),
-                season: seasonBuilder(
-                    'SEASON',
-                    submissionData.seasonId,
-                ).build(),
-                home: null!,
-                away: null!,
-                disabled: false,
-                readOnly: false,
-                awayPlayers: [],
-                homePlayers: [],
-            };
+            const fixtureData = leagueFixtureContainerProps(submissionData);
 
             it('shows away submission toggle', async () => {
                 await renderComponent(
@@ -668,22 +594,7 @@ describe('ScoreCardHeading', () => {
                     .playing('HOME', 'AWAY')
                     .homeSubmission()
                     .build();
-                const fixtureData: ILeagueFixtureContainerProps = {
-                    division: divisionBuilder(
-                        'DIVISION',
-                        submissionData.divisionId,
-                    ).build(),
-                    season: seasonBuilder(
-                        'SEASON',
-                        submissionData.seasonId,
-                    ).build(),
-                    home: null!,
-                    away: null!,
-                    disabled: false,
-                    readOnly: false,
-                    awayPlayers: [],
-                    homePlayers: [],
-                };
+                const fixtureData = leagueFixtureContainerProps(submissionData);
 
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
@@ -713,22 +624,7 @@ describe('ScoreCardHeading', () => {
                     .playing('HOME', 'AWAY')
                     .homeSubmission()
                     .build();
-                const fixtureData: ILeagueFixtureContainerProps = {
-                    division: divisionBuilder(
-                        'DIVISION',
-                        submissionData.divisionId,
-                    ).build(),
-                    season: seasonBuilder(
-                        'SEASON',
-                        submissionData.seasonId,
-                    ).build(),
-                    home: null!,
-                    away: null!,
-                    disabled: false,
-                    readOnly: false,
-                    awayPlayers: [],
-                    homePlayers: [],
-                };
+                const fixtureData = leagueFixtureContainerProps(submissionData);
 
                 it('shows unpublished alert when submission team identified', async () => {
                     const teams = [team];
@@ -793,22 +689,7 @@ describe('ScoreCardHeading', () => {
                     .homeSubmission()
                     .awaySubmission()
                     .build();
-                const fixtureData: ILeagueFixtureContainerProps = {
-                    division: divisionBuilder(
-                        'DIVISION',
-                        submissionData.divisionId,
-                    ).build(),
-                    season: seasonBuilder(
-                        'SEASON',
-                        submissionData.seasonId,
-                    ).build(),
-                    home: null!,
-                    away: null!,
-                    disabled: false,
-                    readOnly: false,
-                    awayPlayers: [],
-                    homePlayers: [],
-                };
+                const fixtureData = leagueFixtureContainerProps(submissionData);
 
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
@@ -841,22 +722,7 @@ describe('ScoreCardHeading', () => {
                     .homeSubmission()
                     .awaySubmission()
                     .build();
-                const fixtureData: ILeagueFixtureContainerProps = {
-                    division: divisionBuilder(
-                        'DIVISION',
-                        submissionData.divisionId,
-                    ).build(),
-                    season: seasonBuilder(
-                        'SEASON',
-                        submissionData.seasonId,
-                    ).build(),
-                    home: null!,
-                    away: null!,
-                    disabled: false,
-                    readOnly: false,
-                    awayPlayers: [],
-                    homePlayers: [],
-                };
+                const fixtureData = leagueFixtureContainerProps(submissionData);
 
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
@@ -944,22 +810,7 @@ describe('ScoreCardHeading', () => {
                             .scores(1, 2),
                     )
                     .build();
-                const fixtureData: ILeagueFixtureContainerProps = {
-                    division: divisionBuilder(
-                        'DIVISION',
-                        submissionData.divisionId,
-                    ).build(),
-                    season: seasonBuilder(
-                        'SEASON',
-                        submissionData.seasonId,
-                    ).build(),
-                    home: null!,
-                    away: null!,
-                    disabled: false,
-                    readOnly: false,
-                    awayPlayers: [],
-                    homePlayers: [],
-                };
+                const fixtureData = leagueFixtureContainerProps(submissionData);
 
                 it('shows home submission toggle', async () => {
                     await renderComponent(
@@ -1010,22 +861,7 @@ describe('ScoreCardHeading', () => {
                     .homeSubmission()
                     .awaySubmission()
                     .build();
-                const fixtureData: ILeagueFixtureContainerProps = {
-                    division: divisionBuilder(
-                        'DIVISION',
-                        submissionData.divisionId,
-                    ).build(),
-                    season: seasonBuilder(
-                        'SEASON',
-                        submissionData.seasonId,
-                    ).build(),
-                    home: null!,
-                    away: null!,
-                    disabled: false,
-                    readOnly: false,
-                    awayPlayers: [],
-                    homePlayers: [],
-                };
+                const fixtureData = leagueFixtureContainerProps(submissionData);
 
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
@@ -1058,22 +894,7 @@ describe('ScoreCardHeading', () => {
                     .homeSubmission()
                     .awaySubmission()
                     .build();
-                const fixtureData: ILeagueFixtureContainerProps = {
-                    division: divisionBuilder(
-                        'DIVISION',
-                        submissionData.divisionId,
-                    ).build(),
-                    season: seasonBuilder(
-                        'SEASON',
-                        submissionData.seasonId,
-                    ).build(),
-                    home: null!,
-                    away: null!,
-                    disabled: false,
-                    readOnly: false,
-                    awayPlayers: [],
-                    homePlayers: [],
-                };
+                const fixtureData = leagueFixtureContainerProps(submissionData);
 
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
@@ -1104,22 +925,7 @@ describe('ScoreCardHeading', () => {
                     .homeSubmission()
                     .awaySubmission()
                     .build();
-                const fixtureData: ILeagueFixtureContainerProps = {
-                    division: divisionBuilder(
-                        'DIVISION',
-                        submissionData.divisionId,
-                    ).build(),
-                    season: seasonBuilder(
-                        'SEASON',
-                        submissionData.seasonId,
-                    ).build(),
-                    home: null!,
-                    away: null!,
-                    disabled: false,
-                    readOnly: false,
-                    awayPlayers: [],
-                    homePlayers: [],
-                };
+                const fixtureData = leagueFixtureContainerProps(submissionData);
 
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
@@ -1208,22 +1014,7 @@ describe('ScoreCardHeading', () => {
                             .scores(1, 2),
                     )
                     .build();
-                const fixtureData: ILeagueFixtureContainerProps = {
-                    division: divisionBuilder(
-                        'DIVISION',
-                        submissionData.divisionId,
-                    ).build(),
-                    season: seasonBuilder(
-                        'SEASON',
-                        submissionData.seasonId,
-                    ).build(),
-                    home: null!,
-                    away: null!,
-                    disabled: false,
-                    readOnly: false,
-                    awayPlayers: [],
-                    homePlayers: [],
-                };
+                const fixtureData = leagueFixtureContainerProps(submissionData);
 
                 it('shows away submission toggle', async () => {
                     await renderComponent(
