@@ -11,6 +11,7 @@ import {
     noop,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import {
     IMatchPlayerSelectionProps,
@@ -184,25 +185,10 @@ describe('MatchPlayerSelection', () => {
         };
     }
 
-    function user(
-        recordScoresAsYouGo?: boolean,
-        managePlayers?: boolean,
-    ): UserDto {
-        return {
-            givenName: '',
-            name: '',
-            emailAddress: '',
-            access: {
-                recordScoresAsYouGo,
-                managePlayers,
-            },
-        };
-    }
-
     describe('renders', () => {
         const season: SeasonDto = seasonBuilder('SEASON').build();
         const division: DivisionDto = divisionBuilder('DIVISION').build();
-        const account: UserDto = user();
+        const account: UserDto = user({});
         const homePlayer: TeamPlayerDto & ISelectablePlayer =
             playerBuilder('HOME').build();
         const awayPlayer: TeamPlayerDto & ISelectablePlayer =
@@ -553,7 +539,7 @@ describe('MatchPlayerSelection', () => {
 
         it('when permitted to record scores as you go', async () => {
             await renderComponent(
-                user(true),
+                user({ recordScoresAsYouGo: true }),
                 props(
                     matchBuilder()
                         .withHome(homePlayer)
@@ -571,7 +557,7 @@ describe('MatchPlayerSelection', () => {
 
         it('when not permitted to record scores as you go', async () => {
             await renderComponent(
-                user(false),
+                user({ recordScoresAsYouGo: false }),
                 props(
                     matchBuilder()
                         .withHome(homePlayer)
@@ -591,7 +577,10 @@ describe('MatchPlayerSelection', () => {
     describe('interactivity', () => {
         const season: SeasonDto = seasonBuilder('SEASON').build();
         const division: DivisionDto = divisionBuilder('DIVISION').build();
-        const account: UserDto = user(false, true);
+        const account: UserDto = user({
+            recordScoresAsYouGo: false,
+            managePlayers: true,
+        });
         const homePlayer: TeamPlayerDto & ISelectablePlayer =
             playerBuilder('HOME').build();
         const awayPlayer: TeamPlayerDto & ISelectablePlayer =
@@ -1107,7 +1096,7 @@ describe('MatchPlayerSelection', () => {
 
         it('can open sayg dialog in fullscreen', async () => {
             await renderComponent(
-                user(true),
+                user({ recordScoresAsYouGo: true }),
                 props(
                     matchBuilder()
                         .scores(1, 1)
@@ -1128,7 +1117,7 @@ describe('MatchPlayerSelection', () => {
 
         it('opens sayg dialog without opening in fullscreen', async () => {
             await renderComponent(
-                user(true),
+                user({ recordScoresAsYouGo: true }),
                 props(
                     matchBuilder()
                         .scores(3, 1)
@@ -1163,7 +1152,7 @@ describe('MatchPlayerSelection', () => {
                     ),
                 );
             await renderComponent(
-                user(true),
+                user({ recordScoresAsYouGo: true }),
                 props(match),
                 defaultContainerProps,
                 defaultMatchType,
@@ -1201,7 +1190,7 @@ describe('MatchPlayerSelection', () => {
                     ),
                 );
             await renderComponent(
-                user(true),
+                user({ recordScoresAsYouGo: true }),
                 props(match),
                 defaultContainerProps,
                 defaultMatchType,
@@ -1239,7 +1228,7 @@ describe('MatchPlayerSelection', () => {
                     ),
                 );
             await renderComponent(
-                user(true),
+                user({ recordScoresAsYouGo: true }),
                 props(match),
                 defaultContainerProps,
                 defaultMatchType,
@@ -1283,7 +1272,7 @@ describe('MatchPlayerSelection', () => {
                     ),
                 );
             await renderComponent(
-                user(true),
+                user({ recordScoresAsYouGo: true }),
                 props(match),
                 defaultContainerProps,
                 defaultMatchType,
@@ -1346,7 +1335,7 @@ describe('MatchPlayerSelection', () => {
                         .scores(0, 3),
                 );
             await renderComponent(
-                user(true),
+                user({ recordScoresAsYouGo: true }),
                 props(match),
                 defaultContainerProps,
                 defaultMatchType,
@@ -1361,7 +1350,7 @@ describe('MatchPlayerSelection', () => {
 
         it('can close sayg dialog', async () => {
             await renderComponent(
-                user(true),
+                user({ recordScoresAsYouGo: true }),
                 props(
                     matchBuilder()
                         .scores(1, 1)

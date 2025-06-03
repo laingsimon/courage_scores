@@ -12,6 +12,7 @@ import {
     renderApp,
     setFile,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { Tournament } from './Tournament';
 import { any } from '../../helpers/collections';
@@ -188,15 +189,6 @@ describe('Tournament', () => {
     ) {
         const key: string = `${divisionId}_${seasonId}`;
         divisionDataLookup[key] = data;
-    }
-
-    function user(access: AccessDto): UserDto {
-        return {
-            name: '',
-            emailAddress: '',
-            givenName: '',
-            access: access,
-        };
     }
 
     function buildPhoto(name: string): PhotoReferenceDto {
