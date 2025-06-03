@@ -33,8 +33,6 @@ import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto';
 import { ICreatePlayerFor } from './Score';
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
-import { ISelectablePlayer } from '../common/PlayerSelection';
 import { playerBuilder } from '../../helpers/builders/players';
 import {
     IMatchBuilder,
@@ -48,6 +46,9 @@ import { createTemporaryId } from '../../helpers/projection';
 import { CHECKOUT_3_DART, ENTER_SCORE_BUTTON } from '../../helpers/constants';
 import { checkoutWith, keyPad } from '../../helpers/sayg';
 import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto';
+import { ILegBuilder } from '../../helpers/builders/sayg';
+import { BuilderParam } from '../../helpers/builders/builders';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
 
 describe('MatchPlayerSelection', () => {
     const emptyTeam: GameTeamDto = { id: '', name: '' };
@@ -133,21 +134,20 @@ describe('MatchPlayerSelection', () => {
             undefined,
             'tbody',
         );
+
+        reportedError.verifyNoError();
     }
 
     function assertSelectedPlayer(
         cell: HTMLTableCellElement,
         expected?: string,
     ) {
-        const displayedItem = cell.querySelector(
-            '.btn-group .dropdown-toggle',
-        )!;
-        expect(displayedItem).toBeTruthy();
+        const player = cell.querySelector('.btn-group .dropdown-toggle')!;
 
         if (expected) {
-            expect(displayedItem.textContent).toEqual(expected);
+            expect(player.textContent).toEqual(expected);
         } else {
-            expect(displayedItem.textContent!.trim()).toEqual('');
+            expect(player.textContent!.trim()).toEqual('');
         }
     }
 
@@ -164,7 +164,6 @@ describe('MatchPlayerSelection', () => {
 
     function assertScore(cell: HTMLTableCellElement, expected: string) {
         const input = cell.querySelector('input')!;
-        expect(input).toBeTruthy();
         expect(input.value).toEqual(expected);
     }
 
@@ -185,19 +184,26 @@ describe('MatchPlayerSelection', () => {
         };
     }
 
-    describe('renders', () => {
-        const season: SeasonDto = seasonBuilder('SEASON').build();
-        const division: DivisionDto = divisionBuilder('DIVISION').build();
-        const account: UserDto = user({});
-        const homePlayer: TeamPlayerDto & ISelectablePlayer =
-            playerBuilder('HOME').build();
-        const awayPlayer: TeamPlayerDto & ISelectablePlayer =
-            playerBuilder('AWAY').build();
-        const newPlayer: TeamPlayerDto & ISelectablePlayer = playerBuilder(
-            'Add a player...',
-            NEW_PLAYER,
-        ).build();
-        const defaultMatchType: IMatchTypeContainerProps = {
+    function leagueFixtureContainerProps(
+        customisations?: Partial<ILeagueFixtureContainerProps>,
+    ): ILeagueFixtureContainerProps {
+        return {
+            disabled: false,
+            readOnly: false,
+            season: null!,
+            division: null!,
+            homePlayers: [],
+            awayPlayers: [],
+            home: emptyTeam,
+            away: emptyTeam,
+            ...customisations,
+        };
+    }
+
+    function matchTypeContainerProps(
+        customisations?: Partial<IMatchTypeContainerProps>,
+    ): IMatchTypeContainerProps {
+        return {
             otherMatches: [],
             matchOptions: matchOptionsBuilder()
                 .numberOfLegs(5)
@@ -206,27 +212,83 @@ describe('MatchPlayerSelection', () => {
             homePlayers: [],
             awayPlayers: [],
             setCreatePlayerFor,
+            ...customisations,
         };
-        const defaultContainerProps: ILeagueFixtureContainerProps = {
-            disabled: false,
-            readOnly: false,
-            season: season,
-            division: division,
+    }
+
+    function homeThenAway(
+        home: number,
+        away: number,
+        currentThrow?: 'home' | 'away',
+    ): BuilderParam<ILegBuilder> {
+        return (l) =>
+            l
+                .playerSequence('home', 'away')
+                .home((c) => c.withThrow(home))
+                .away((c) => c.withThrow(away))
+                .currentThrow(currentThrow ?? 'away')
+                .startingScore(501);
+    }
+
+    function noScores(
+        currentThrow: 'home' | 'away',
+    ): BuilderParam<ILegBuilder> {
+        return (l) =>
+            l
+                .playerSequence('home', 'away')
+                .home()
+                .away()
+                .currentThrow(currentThrow)
+                .startingScore(501);
+    }
+
+    function drawingMatch(
+        homePlayer: TeamPlayerDto,
+        awayPlayer: TeamPlayerDto,
+    ): IMatchBuilder {
+        return matchBuilder()
+            .scores(0, 0)
+            .withHome(homePlayer)
+            .withAway(awayPlayer);
+    }
+
+    describe('renders', () => {
+        const season: SeasonDto = seasonBuilder('SEASON').build();
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const account: UserDto = user({});
+        const homePlayer = playerBuilder('HOME').build();
+        const awayPlayer = playerBuilder('AWAY').build();
+        const newPlayer = playerBuilder('Add a player...', NEW_PLAYER).build();
+        const defaultContainerProps = leagueFixtureContainerProps({
             homePlayers: [homePlayer, newPlayer],
             awayPlayers: [awayPlayer, newPlayer],
-            home: emptyTeam,
-            away: emptyTeam,
-        };
+        });
 
-        it('when no players selected', async () => {
+        async function render(
+            props: IMatchPlayerSelectionProps,
+            containerProps?: ILeagueFixtureContainerProps,
+            matchTypeProps?: IMatchTypeContainerProps,
+        ) {
+            await renderAs(account, props, containerProps, matchTypeProps);
+        }
+
+        async function renderAs(
+            account: UserDto,
+            props: IMatchPlayerSelectionProps,
+            containerProps?: ILeagueFixtureContainerProps,
+            matchTypeProps?: IMatchTypeContainerProps,
+        ) {
             await renderComponent(
                 account,
-                props(matchBuilder().withHome().withAway()),
-                defaultContainerProps,
-                defaultMatchType,
+                props,
+                containerProps ?? defaultContainerProps,
+                matchTypeProps ?? matchTypeContainerProps(),
             );
+        }
 
-            reportedError.verifyNoError();
+        it('when no players selected', async () => {
+            await render(props(matchBuilder().withHome().withAway()));
+
             const cells = Array.from(context.container.querySelectorAll('td'));
             assertSelectedPlayer(cells[0], undefined);
             assertScore(cells[1], '');
@@ -235,14 +297,10 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('when no scores', async () => {
-            await renderComponent(
-                account,
+            await render(
                 props(matchBuilder().withHome(homePlayer).withAway(awayPlayer)),
-                defaultContainerProps,
-                defaultMatchType,
             );
 
-            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             assertScore(cells[1], '');
             assertScore(cells[3], '');
@@ -253,19 +311,15 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('when home winner', async () => {
-            await renderComponent(
-                account,
+            await render(
                 props(
                     matchBuilder()
                         .withHome(homePlayer)
                         .withAway(awayPlayer)
                         .scores(3, 1),
                 ),
-                defaultContainerProps,
-                defaultMatchType,
             );
 
-            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             assertSelectedPlayer(cells[0], 'HOME');
             assertScore(cells[1], '3');
@@ -278,19 +332,15 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('when home player has not won but has more legs', async () => {
-            await renderComponent(
-                account,
+            await render(
                 props(
                     matchBuilder()
                         .withHome(homePlayer)
                         .withAway(awayPlayer)
                         .scores(2, 1),
                 ),
-                defaultContainerProps,
-                defaultMatchType,
             );
 
-            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             assertSelectedPlayer(cells[0], 'HOME');
             assertScore(cells[1], '2');
@@ -303,19 +353,15 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('when away winner', async () => {
-            await renderComponent(
-                account,
+            await render(
                 props(
                     matchBuilder()
                         .withHome(homePlayer)
                         .withAway(awayPlayer)
                         .scores(1, 3),
                 ),
-                defaultContainerProps,
-                defaultMatchType,
             );
 
-            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             assertSelectedPlayer(cells[0], 'HOME');
             assertScore(cells[1], '1');
@@ -328,19 +374,15 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('when away player has not won but has more legs', async () => {
-            await renderComponent(
-                account,
+            await render(
                 props(
                     matchBuilder()
                         .withHome(homePlayer)
                         .withAway(awayPlayer)
                         .scores(1, 2),
                 ),
-                defaultContainerProps,
-                defaultMatchType,
             );
 
-            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             assertSelectedPlayer(cells[0], 'HOME');
             assertScore(cells[1], '1');
@@ -353,19 +395,15 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('when a draw', async () => {
-            await renderComponent(
-                account,
+            await render(
                 props(
                     matchBuilder()
                         .withHome(homePlayer)
                         .withAway(awayPlayer)
                         .scores(1, 1),
                 ),
-                defaultContainerProps,
-                defaultMatchType,
             );
 
-            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             assertSelectedPlayer(cells[0], 'HOME');
             assertScore(cells[1], '1');
@@ -379,19 +417,14 @@ describe('MatchPlayerSelection', () => {
 
         it('possible home players', async () => {
             const anotherHomePlayer = playerBuilder('ANOTHER HOME').build();
-            const containerProps: ILeagueFixtureContainerProps = {
-                disabled: false,
-                readOnly: false,
+            const containerProps = leagueFixtureContainerProps({
                 season: season,
                 division: division,
                 homePlayers: [homePlayer, anotherHomePlayer],
                 awayPlayers: [awayPlayer],
-                home: emptyTeam,
-                away: emptyTeam,
-            };
+            });
 
-            await renderComponent(
-                account,
+            await render(
                 props(
                     matchBuilder()
                         .withHome(homePlayer)
@@ -399,10 +432,8 @@ describe('MatchPlayerSelection', () => {
                         .scores(1, 1),
                 ),
                 containerProps,
-                defaultMatchType,
             );
 
-            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             assertSelectablePlayers(cells[0], ['HOME', 'ANOTHER HOME']);
             assertSelectablePlayers(cells[4], ['AWAY']);
@@ -410,19 +441,14 @@ describe('MatchPlayerSelection', () => {
 
         it('possible away players', async () => {
             const anotherAwayPlayer = playerBuilder('ANOTHER AWAY').build();
-            const containerProps: ILeagueFixtureContainerProps = {
-                disabled: false,
-                readOnly: false,
+            const containerProps = leagueFixtureContainerProps({
                 season: season,
                 division: division,
                 homePlayers: [homePlayer],
                 awayPlayers: [awayPlayer, anotherAwayPlayer],
-                home: emptyTeam,
-                away: emptyTeam,
-            };
+            });
 
-            await renderComponent(
-                account,
+            await render(
                 props(
                     matchBuilder()
                         .withHome(homePlayer)
@@ -430,10 +456,8 @@ describe('MatchPlayerSelection', () => {
                         .scores(1, 1),
                 ),
                 containerProps,
-                defaultMatchType,
             );
 
-            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             assertSelectablePlayers(cells[0], ['HOME']);
             assertSelectablePlayers(cells[4], ['AWAY', 'ANOTHER AWAY']);
@@ -441,17 +465,13 @@ describe('MatchPlayerSelection', () => {
 
         it('when home players are selected for other matches', async () => {
             const anotherHomePlayer = playerBuilder('ANOTHER HOME').build();
-            const containerProps: ILeagueFixtureContainerProps = {
-                disabled: false,
-                readOnly: false,
+            const containerProps = leagueFixtureContainerProps({
                 season: season,
                 division: division,
                 homePlayers: [homePlayer, anotherHomePlayer],
                 awayPlayers: [awayPlayer],
-                home: emptyTeam,
-                away: emptyTeam,
-            };
-            const matchTypeProps: IMatchTypeContainerProps = {
+            });
+            const matchTypeProps = matchTypeContainerProps({
                 otherMatches: [
                     {
                         id: createTemporaryId(),
@@ -461,17 +481,9 @@ describe('MatchPlayerSelection', () => {
                         awayPlayers: [],
                     },
                 ],
-                matchOptions: matchOptionsBuilder()
-                    .playerCount(1)
-                    .numberOfLegs(5)
-                    .build(),
-                setCreatePlayerFor,
-                awayPlayers: [],
-                homePlayers: [],
-            };
+            });
 
-            await renderComponent(
-                account,
+            await render(
                 props(
                     matchBuilder()
                         .withHome(homePlayer)
@@ -482,7 +494,6 @@ describe('MatchPlayerSelection', () => {
                 matchTypeProps,
             );
 
-            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             assertSelectablePlayers(cells[0], ['HOME']);
             assertSelectablePlayers(cells[4], ['AWAY']);
@@ -490,17 +501,13 @@ describe('MatchPlayerSelection', () => {
 
         it('when away players are selected for other matches', async () => {
             const anotherAwayPlayer = playerBuilder('ANOTHER AWAY').build();
-            const containerProps: ILeagueFixtureContainerProps = {
-                disabled: false,
-                readOnly: false,
+            const containerProps = leagueFixtureContainerProps({
                 season: season,
                 division: division,
                 homePlayers: [homePlayer],
                 awayPlayers: [awayPlayer, anotherAwayPlayer],
-                home: emptyTeam,
-                away: emptyTeam,
-            };
-            const matchTypeProps: IMatchTypeContainerProps = {
+            });
+            const matchTypeProps = matchTypeContainerProps({
                 otherMatches: [
                     {
                         id: createTemporaryId(),
@@ -510,17 +517,9 @@ describe('MatchPlayerSelection', () => {
                         awayPlayers: [anotherAwayPlayer],
                     },
                 ],
-                matchOptions: matchOptionsBuilder()
-                    .playerCount(1)
-                    .numberOfLegs(5)
-                    .build(),
-                setCreatePlayerFor,
-                awayPlayers: [],
-                homePlayers: [],
-            };
+            });
 
-            await renderComponent(
-                account,
+            await render(
                 props(
                     matchBuilder()
                         .withHome(homePlayer)
@@ -531,14 +530,13 @@ describe('MatchPlayerSelection', () => {
                 matchTypeProps,
             );
 
-            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             assertSelectablePlayers(cells[0], ['HOME']);
             assertSelectablePlayers(cells[4], ['AWAY']);
         });
 
         it('when permitted to record scores as you go', async () => {
-            await renderComponent(
+            await renderAs(
                 user({ recordScoresAsYouGo: true }),
                 props(
                     matchBuilder()
@@ -546,17 +544,14 @@ describe('MatchPlayerSelection', () => {
                         .withAway(awayPlayer)
                         .scores(1, 1),
                 ),
-                defaultContainerProps,
-                defaultMatchType,
             );
 
-            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             expect(cells[0].textContent).toContain('📊');
         });
 
         it('when not permitted to record scores as you go', async () => {
-            await renderComponent(
+            await renderAs(
                 user({ recordScoresAsYouGo: false }),
                 props(
                     matchBuilder()
@@ -564,11 +559,8 @@ describe('MatchPlayerSelection', () => {
                         .withAway(awayPlayer)
                         .scores(1, 1),
                 ),
-                defaultContainerProps,
-                defaultMatchType,
             );
 
-            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             expect(cells[0].textContent).not.toContain('📊');
         });
@@ -581,44 +573,47 @@ describe('MatchPlayerSelection', () => {
             recordScoresAsYouGo: false,
             managePlayers: true,
         });
-        const homePlayer: TeamPlayerDto & ISelectablePlayer =
-            playerBuilder('HOME').build();
-        const awayPlayer: TeamPlayerDto & ISelectablePlayer =
-            playerBuilder('AWAY').build();
-        const newPlayer: TeamPlayerDto & ISelectablePlayer = playerBuilder(
-            'Add a player...',
-            NEW_PLAYER,
-        ).build();
-        const defaultMatchType: IMatchTypeContainerProps = {
-            otherMatches: [],
+        const homePlayer = playerBuilder('HOME').build();
+        const awayPlayer = playerBuilder('AWAY').build();
+        const newPlayer = playerBuilder('Add a player...', NEW_PLAYER).build();
+        const defaultMatchType = matchTypeContainerProps({
             matchOptions: matchOptionsBuilder()
                 .playerCount(1)
                 .numberOfLegs(5)
                 .startingScore(501)
                 .build(),
-            setCreatePlayerFor,
-            awayPlayers: [],
-            homePlayers: [],
-        };
-        const defaultContainerProps: ILeagueFixtureContainerProps = {
-            disabled: false,
-            readOnly: false,
+        });
+        const defaultContainerProps = leagueFixtureContainerProps({
             season: season,
             division: division,
             homePlayers: [homePlayer, newPlayer],
             awayPlayers: [awayPlayer, newPlayer],
-            away: emptyTeam,
-            home: emptyTeam,
-        };
+        });
 
-        it('can set home player', async () => {
+        async function render(
+            props: IMatchPlayerSelectionProps,
+            containerProps?: ILeagueFixtureContainerProps,
+            matchTypeProps?: IMatchTypeContainerProps,
+        ) {
+            await renderAs(account, props, containerProps, matchTypeProps);
+        }
+
+        async function renderAs(
+            account: UserDto,
+            props: IMatchPlayerSelectionProps,
+            containerProps?: ILeagueFixtureContainerProps,
+            matchTypeProps?: IMatchTypeContainerProps,
+        ) {
             await renderComponent(
                 account,
-                props(matchBuilder().withHome().withAway()),
-                defaultContainerProps,
-                defaultMatchType,
+                props,
+                containerProps ?? defaultContainerProps,
+                matchTypeProps ?? defaultMatchType,
             );
-            reportedError.verifyNoError();
+        }
+
+        it('can set home player', async () => {
+            await render(props(matchBuilder().withHome().withAway()));
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await selectPlayer(cells[0], 'HOME');
@@ -632,13 +627,7 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('can add a home player', async () => {
-            await renderComponent(
-                account,
-                props(matchBuilder().withHome().withAway()),
-                defaultContainerProps,
-                defaultMatchType,
-            );
-            reportedError.verifyNoError();
+            await render(props(matchBuilder().withHome().withAway()));
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await selectPlayer(cells[0], 'Add a player...');
@@ -652,13 +641,7 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('can remove/unset a home player', async () => {
-            await renderComponent(
-                account,
-                props(matchBuilder().withHome(homePlayer).withAway()),
-                defaultContainerProps,
-                defaultMatchType,
-            );
-            reportedError.verifyNoError();
+            await render(props(matchBuilder().withHome(homePlayer).withAway()));
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await selectPlayer(cells[0], ' ');
@@ -672,13 +655,7 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('can set away player', async () => {
-            await renderComponent(
-                account,
-                props(matchBuilder().withHome().withAway()),
-                defaultContainerProps,
-                defaultMatchType,
-            );
-            reportedError.verifyNoError();
+            await render(props(matchBuilder().withHome().withAway()));
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await selectPlayer(cells[4], 'AWAY');
@@ -692,13 +669,7 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('can add an away player', async () => {
-            await renderComponent(
-                account,
-                props(matchBuilder().withHome().withAway()),
-                defaultContainerProps,
-                defaultMatchType,
-            );
-            reportedError.verifyNoError();
+            await render(props(matchBuilder().withHome().withAway()));
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await selectPlayer(cells[4], 'Add a player...');
@@ -712,13 +683,7 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('can remove/unset an away player', async () => {
-            await renderComponent(
-                account,
-                props(matchBuilder().withHome().withAway(awayPlayer)),
-                defaultContainerProps,
-                defaultMatchType,
-            );
-            reportedError.verifyNoError();
+            await render(props(matchBuilder().withHome().withAway(awayPlayer)));
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await selectPlayer(cells[4], ' ');
@@ -732,13 +697,7 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('can update home score', async () => {
-            await renderComponent(
-                account,
-                props(matchBuilder().withHome().withAway()),
-                defaultContainerProps,
-                defaultMatchType,
-            );
-            reportedError.verifyNoError();
+            await render(props(matchBuilder().withHome().withAway()));
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await doChange(cells[1], 'input', '3', context.user);
@@ -752,13 +711,7 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('can update away score', async () => {
-            await renderComponent(
-                account,
-                props(matchBuilder().withHome().withAway()),
-                defaultContainerProps,
-                defaultMatchType,
-            );
-            reportedError.verifyNoError();
+            await render(props(matchBuilder().withHome().withAway()));
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await doChange(cells[3], 'input', '3', context.user);
@@ -772,13 +725,7 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('sets homeScore to numberOfLegs if greater than numberOfLegs', async () => {
-            await renderComponent(
-                account,
-                props(matchBuilder().withHome().withAway()),
-                defaultContainerProps,
-                defaultMatchType,
-            );
-            reportedError.verifyNoError();
+            await render(props(matchBuilder().withHome().withAway()));
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await doChange(cells[1], 'input', '6', context.user);
@@ -792,13 +739,7 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('sets awayScore to numberOfLegs if greater than numberOfLegs', async () => {
-            await renderComponent(
-                account,
-                props(matchBuilder().withHome().withAway()),
-                defaultContainerProps,
-                defaultMatchType,
-            );
-            reportedError.verifyNoError();
+            await render(props(matchBuilder().withHome().withAway()));
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await doChange(cells[3], 'input', '6', context.user);
@@ -812,15 +753,11 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('changes away score down if entered home score + existing away score > numberOfLegs', async () => {
-            await renderComponent(
-                account,
+            await render(
                 props(
                     matchBuilder().scores(undefined, 3).withHome().withAway(),
                 ),
-                defaultContainerProps,
-                defaultMatchType,
             );
-            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await doChange(cells[1], 'input', '3', context.user);
@@ -834,15 +771,11 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('changes home score down if entered away score + existing home score > numberOfLegs', async () => {
-            await renderComponent(
-                account,
+            await render(
                 props(
                     matchBuilder().scores(3, undefined).withHome().withAway(),
                 ),
-                defaultContainerProps,
-                defaultMatchType,
             );
-            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await doChange(cells[3], 'input', '3', context.user);
@@ -856,26 +789,13 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('can update match options [playerCount]', async () => {
-            await renderComponent(
-                account,
-                props(
-                    matchBuilder()
-                        .scores(1, 1)
-                        .withHome(homePlayer)
-                        .withAway(awayPlayer),
-                ),
-                defaultContainerProps,
-                defaultMatchType,
-            );
-            reportedError.verifyNoError();
+            await render(props(drawingMatch(homePlayer, awayPlayer)));
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[4], '🛠'));
-            const matchOptionsDialog =
-                cells[4].querySelector('div.modal-dialog')!;
-            expect(matchOptionsDialog).toBeTruthy();
+            const dialog = cells[4].querySelector('div.modal-dialog')!;
 
             await doChange(
-                matchOptionsDialog,
+                dialog,
                 'input[name="playerCount"]',
                 '3',
                 context.user,
@@ -889,26 +809,13 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('can update match options [numberOfLegs]', async () => {
-            await renderComponent(
-                account,
-                props(
-                    matchBuilder()
-                        .scores(1, 1)
-                        .withHome(homePlayer)
-                        .withAway(awayPlayer),
-                ),
-                defaultContainerProps,
-                defaultMatchType,
-            );
-            reportedError.verifyNoError();
+            await render(props(drawingMatch(homePlayer, awayPlayer)));
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[4], '🛠'));
-            const matchOptionsDialog =
-                cells[4].querySelector('div.modal-dialog')!;
-            expect(matchOptionsDialog).toBeTruthy();
+            const dialog = cells[4].querySelector('div.modal-dialog')!;
 
             await doChange(
-                matchOptionsDialog,
+                dialog,
                 'input[name="numberOfLegs"]',
                 '3',
                 context.user,
@@ -922,26 +829,13 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('can update match options [startingScore]', async () => {
-            await renderComponent(
-                account,
-                props(
-                    matchBuilder()
-                        .scores(1, 1)
-                        .withHome(homePlayer)
-                        .withAway(awayPlayer),
-                ),
-                defaultContainerProps,
-                defaultMatchType,
-            );
-            reportedError.verifyNoError();
+            await render(props(drawingMatch(homePlayer, awayPlayer)));
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[4], '🛠'));
-            const matchOptionsDialog =
-                cells[4].querySelector('div.modal-dialog')!;
-            expect(matchOptionsDialog).toBeTruthy();
+            const dialog = cells[4].querySelector('div.modal-dialog')!;
 
             await doChange(
-                matchOptionsDialog,
+                dialog,
                 'input[name="startingScore"]',
                 '601',
                 context.user,
@@ -955,48 +849,29 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('can close match options dialog', async () => {
-            await renderComponent(
-                account,
-                props(
-                    matchBuilder()
-                        .scores(1, 1)
-                        .withHome(homePlayer)
-                        .withAway(awayPlayer),
-                ),
-                defaultContainerProps,
-                defaultMatchType,
-            );
-            reportedError.verifyNoError();
+            await render(props(drawingMatch(homePlayer, awayPlayer)));
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[4], '🛠'));
-            const matchOptionsDialog =
-                cells[4].querySelector('div.modal-dialog');
-            expect(matchOptionsDialog).toBeTruthy();
+            const dialog = cells[4].querySelector('div.modal-dialog');
 
-            await doClick(findButton(matchOptionsDialog, 'Close'));
+            await doClick(findButton(dialog, 'Close'));
 
             reportedError.verifyNoError();
             expect(cells[4].querySelector('div.modal-dialog')).toBeFalsy();
         });
 
         it('cannot modify players when readonly', async () => {
-            const containerProps: ILeagueFixtureContainerProps = {
-                disabled: false,
+            const containerProps = leagueFixtureContainerProps({
                 readOnly: true,
                 season: season,
                 division: division,
                 homePlayers: [homePlayer, newPlayer],
                 awayPlayers: [awayPlayer, newPlayer],
-                home: emptyTeam,
-                away: emptyTeam,
-            };
-            await renderComponent(
-                account,
+            });
+            await render(
                 props(matchBuilder().withHome().withAway()),
                 containerProps,
-                defaultMatchType,
             );
-            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await selectPlayer(cells[0], 'HOME');
@@ -1011,23 +886,17 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('cannot modify scores when readonly', async () => {
-            const containerProps: ILeagueFixtureContainerProps = {
-                disabled: false,
+            const containerProps = leagueFixtureContainerProps({
                 readOnly: true,
                 season: season,
                 division: division,
                 homePlayers: [homePlayer, newPlayer],
                 awayPlayers: [awayPlayer, newPlayer],
-                away: emptyTeam,
-                home: emptyTeam,
-            };
-            await renderComponent(
-                account,
+            });
+            await render(
                 props(matchBuilder().withHome().withAway()),
                 containerProps,
-                defaultMatchType,
             );
-            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await doChange(cells[1], 'input', '3', context.user);
@@ -1042,25 +911,21 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('cannot modify players when disabled', async () => {
-            const containerProps: ILeagueFixtureContainerProps = {
+            const containerProps = leagueFixtureContainerProps({
                 disabled: true,
-                readOnly: false,
                 season: season,
                 division: division,
                 homePlayers: [homePlayer, newPlayer],
                 awayPlayers: [awayPlayer, newPlayer],
                 home: teamBuilder('HOME_TEAM').build(),
                 away: teamBuilder('AWAY_TEAM').build(),
-            };
+            });
 
-            await renderComponent(
-                account,
+            await render(
                 props(matchBuilder().withHome().withAway()),
                 containerProps,
-                defaultMatchType,
             );
 
-            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             expect(
                 Array.from(cells[0].querySelectorAll('.dropdown-item')),
@@ -1071,42 +936,30 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('cannot modify scores when disabled', async () => {
-            const containerProps: ILeagueFixtureContainerProps = {
+            const containerProps = leagueFixtureContainerProps({
                 disabled: true,
-                readOnly: false,
                 season: season,
                 division: division,
                 homePlayers: [homePlayer, newPlayer],
                 awayPlayers: [awayPlayer, newPlayer],
                 home: teamBuilder('HOME_TEAM').build(),
                 away: teamBuilder('AWAY_TEAM').build(),
-            };
+            });
 
-            await renderComponent(
-                account,
+            await render(
                 props(matchBuilder().withHome().withAway()),
                 containerProps,
-                defaultMatchType,
             );
-            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             expect(cells[1].querySelector('input')).toBeFalsy();
             expect(cells[3].querySelector('input')).toBeFalsy();
         });
 
         it('can open sayg dialog in fullscreen', async () => {
-            await renderComponent(
+            await renderAs(
                 user({ recordScoresAsYouGo: true }),
-                props(
-                    matchBuilder()
-                        .scores(1, 1)
-                        .withHome(homePlayer)
-                        .withAway(awayPlayer),
-                ),
-                defaultContainerProps,
-                defaultMatchType,
+                props(drawingMatch(homePlayer, awayPlayer)),
             );
-            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await doClick(findButton(cells[0], '📊'));
@@ -1116,7 +969,7 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('opens sayg dialog without opening in fullscreen', async () => {
-            await renderComponent(
+            await renderAs(
                 user({ recordScoresAsYouGo: true }),
                 props(
                     matchBuilder()
@@ -1124,10 +977,7 @@ describe('MatchPlayerSelection', () => {
                         .withHome(homePlayer)
                         .withAway(awayPlayer),
                 ),
-                defaultContainerProps,
-                defaultMatchType,
             );
-            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await doClick(findButton(cells[0], '📊'));
@@ -1137,35 +987,17 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('can record home sayg 180', async () => {
-            const match = matchBuilder()
-                .scores(0, 0)
-                .withHome(homePlayer)
-                .withAway(awayPlayer)
-                .sayg((s) =>
-                    s.withLeg(0, (l) =>
-                        l
-                            .playerSequence('home', 'away')
-                            .home()
-                            .away()
-                            .currentThrow('home')
-                            .startingScore(501),
-                    ),
-                );
-            await renderComponent(
-                user({ recordScoresAsYouGo: true }),
-                props(match),
-                defaultContainerProps,
-                defaultMatchType,
+            const match = drawingMatch(homePlayer, awayPlayer).sayg((s) =>
+                s.withLeg(0, noScores('home')),
             );
-            reportedError.verifyNoError();
+            await renderAs(user({ recordScoresAsYouGo: true }), props(match));
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[0], '📊'));
-            const saygDialog = cells[0].querySelector('div.modal-dialog')!;
 
             await keyPad(
                 context,
                 ['1', '8', '0', ENTER_SCORE_BUTTON],
-                saygDialog,
+                cells[0].querySelector('div.modal-dialog')!,
             );
 
             expect(additional180).toEqual({
@@ -1175,35 +1007,17 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('can record away sayg 180', async () => {
-            const match = matchBuilder()
-                .scores(0, 0)
-                .withHome(homePlayer)
-                .withAway(awayPlayer)
-                .sayg((s) =>
-                    s.withLeg(0, (l) =>
-                        l
-                            .playerSequence('home', 'away')
-                            .home()
-                            .away()
-                            .currentThrow('away')
-                            .startingScore(501),
-                    ),
-                );
-            await renderComponent(
-                user({ recordScoresAsYouGo: true }),
-                props(match),
-                defaultContainerProps,
-                defaultMatchType,
+            const match = drawingMatch(homePlayer, awayPlayer).sayg((s) =>
+                s.withLeg(0, noScores('away')),
             );
-            reportedError.verifyNoError();
+            await renderAs(user({ recordScoresAsYouGo: true }), props(match));
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[0], '📊'));
-            const saygDialog = cells[0].querySelector('div.modal-dialog')!;
 
             await keyPad(
                 context,
                 ['1', '8', '0', ENTER_SCORE_BUTTON],
-                saygDialog,
+                cells[0].querySelector('div.modal-dialog')!,
             );
 
             expect(additional180).toEqual({
@@ -1213,27 +1027,10 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('can record home sayg hi-check', async () => {
-            const match = matchBuilder()
-                .scores(0, 0)
-                .withHome(homePlayer)
-                .withAway(awayPlayer)
-                .sayg((s) =>
-                    s.withLeg(0, (l) =>
-                        l
-                            .playerSequence('home', 'away')
-                            .home((c) => c.withThrow(400))
-                            .away((c) => c.withThrow(0))
-                            .currentThrow('home')
-                            .startingScore(501),
-                    ),
-                );
-            await renderComponent(
-                user({ recordScoresAsYouGo: true }),
-                props(match),
-                defaultContainerProps,
-                defaultMatchType,
+            const match = drawingMatch(homePlayer, awayPlayer).sayg((s) =>
+                s.withLeg(0, homeThenAway(400, 0, 'home')),
             );
-            reportedError.verifyNoError();
+            await renderAs(user({ recordScoresAsYouGo: true }), props(match));
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[0], '📊'));
             const saygDialog = cells[0].querySelector('div.modal-dialog')!;
@@ -1257,27 +1054,10 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('can record away sayg hi-check', async () => {
-            const match = matchBuilder()
-                .scores(0, 0)
-                .withHome(homePlayer)
-                .withAway(awayPlayer)
-                .sayg((s) =>
-                    s.withLeg(0, (l) =>
-                        l
-                            .playerSequence('home', 'away')
-                            .home((c) => c.withThrow(0))
-                            .away((c) => c.withThrow(400))
-                            .currentThrow('away')
-                            .startingScore(501),
-                    ),
-                );
-            await renderComponent(
-                user({ recordScoresAsYouGo: true }),
-                props(match),
-                defaultContainerProps,
-                defaultMatchType,
+            const match = drawingMatch(homePlayer, awayPlayer).sayg((s) =>
+                s.withLeg(0, homeThenAway(0, 400)),
             );
-            reportedError.verifyNoError();
+            await renderAs(user({ recordScoresAsYouGo: true }), props(match));
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[0], '📊'));
             const saygDialog = cells[0].querySelector('div.modal-dialog')!;
@@ -1307,40 +1087,13 @@ describe('MatchPlayerSelection', () => {
                 .withAway(awayPlayer)
                 .sayg((s) =>
                     s
-                        .withLeg(0, (l) =>
-                            l
-                                .playerSequence('home', 'away')
-                                .home((c) => c.withThrow(400))
-                                .away((c) => c.withThrow(501))
-                                .currentThrow('away')
-                                .startingScore(501),
-                        )
-                        .withLeg(1, (l) =>
-                            l
-                                .playerSequence('home', 'away')
-                                .home((c) => c.withThrow(400))
-                                .away((c) => c.withThrow(501))
-                                .currentThrow('away')
-                                .startingScore(501),
-                        )
-                        .withLeg(2, (l) =>
-                            l
-                                .playerSequence('home', 'away')
-                                .home((c) => c.withThrow(0))
-                                .away((c) => c.withThrow(400))
-                                .currentThrow('away')
-                                .startingScore(501),
-                        )
+                        .withLeg(0, homeThenAway(400, 501))
+                        .withLeg(1, homeThenAway(400, 501))
+                        .withLeg(2, homeThenAway(0, 400))
                         .numberOfLegs(5)
                         .scores(0, 3),
                 );
-            await renderComponent(
-                user({ recordScoresAsYouGo: true }),
-                props(match),
-                defaultContainerProps,
-                defaultMatchType,
-            );
-            reportedError.verifyNoError();
+            await renderAs(user({ recordScoresAsYouGo: true }), props(match));
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[0], '📊'));
 
@@ -1349,22 +1102,13 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('can close sayg dialog', async () => {
-            await renderComponent(
+            await renderAs(
                 user({ recordScoresAsYouGo: true }),
-                props(
-                    matchBuilder()
-                        .scores(1, 1)
-                        .withHome(homePlayer)
-                        .withAway(awayPlayer),
-                ),
-                defaultContainerProps,
-                defaultMatchType,
+                props(drawingMatch(homePlayer, awayPlayer)),
             );
-            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[0], '📊'));
             const saygDialog = cells[0].querySelector('div.modal-dialog');
-            expect(saygDialog).toBeTruthy();
 
             await doClick(findButton(saygDialog, 'Close'));
 
