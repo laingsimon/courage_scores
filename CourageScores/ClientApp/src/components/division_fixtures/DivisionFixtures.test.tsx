@@ -9,8 +9,10 @@ import {
     ErrorState,
     findButton,
     iocProps,
+    noop,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { DivisionFixtures } from './DivisionFixtures';
 import {
@@ -82,12 +84,6 @@ describe('DivisionFixtures', () => {
         newFixtures = updatedFixtures;
     }
 
-    async function setDivisionData() {}
-
-    async function onReloadDivision(_?: boolean) {
-        return null;
-    }
-
     afterEach(async () => {
         await cleanUp(context);
     });
@@ -133,6 +129,8 @@ describe('DivisionFixtures', () => {
             route,
             path,
         );
+
+        reportedError.verifyNoError();
     }
 
     function getInSeasonDivisionData(): IDivisionDataContainerProps {
@@ -144,8 +142,8 @@ describe('DivisionFixtures', () => {
             )
             .name('A division')
             .withTeam(team)
-            .onReloadDivision(onReloadDivision)
-            .setDivisionData(setDivisionData)
+            .onReloadDivision(noop)
+            .setDivisionData(noop)
             .build();
     }
 
@@ -211,11 +209,53 @@ describe('DivisionFixtures', () => {
         return teamBuilder(name).build();
     }
 
+    function getFixturesForDate(
+        fixtureDateElement: Element,
+        expectedCount?: number,
+    ) {
+        const fixtures = fixtureDateElement.querySelectorAll('table tbody tr');
+        expect(fixtures.length).toEqual(expectedCount ?? fixtures.length);
+        return Array.from(fixtures);
+    }
+
+    function getDialog() {
+        return context.container.querySelector('.modal-dialog');
+    }
+
+    function getNote(fixtureDateElement: Element) {
+        return fixtureDateElement.querySelector('.alert');
+    }
+
+    function getAdminSection() {
+        return context.container.querySelector(
+            'div[datatype="fixture-management-1"]',
+        );
+    }
+
+    function getTournamentProposals(
+        fixtureDateElement: Element,
+        count?: number,
+    ) {
+        const tournaments = fixtureDateElement.querySelectorAll(
+            'table tbody tr:not([datatype="new-tournament-fixture"])',
+        );
+        expect(tournaments.length).toEqual(count ?? tournaments.length);
+        return Array.from(tournaments);
+    }
+
+    function getDeleteAllButton() {
+        return findButton(context.container, '⚠️ Delete all league fixtures');
+    }
+
     describe('when logged out', () => {
         const account: UserDto | undefined = undefined;
+        let divisionData: IDivisionDataContainerProps;
+
+        beforeEach(() => {
+            divisionData = getInSeasonDivisionData();
+        });
 
         it('renders notes', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
                     .withNote((n) => n.note('Finals night!'))
@@ -224,17 +264,14 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct');
-            const noteElement =
-                fixtureDateElement.querySelector('.alert-warning')!;
-            expect(noteElement).toBeTruthy();
-            expect(noteElement.textContent).toEqual('📌Finals night!');
+            expect(getNote(fixtureDateElement)!.textContent).toEqual(
+                '📌Finals night!',
+            );
         });
 
         it('renders played league fixtures', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
                     .withFixture((f) =>
@@ -245,14 +282,10 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct');
-            const fixturesForDate =
-                fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(
-                fixturesForDate[0],
+                getFixturesForDate(fixtureDateElement, 1)[0],
                 'home1',
                 '1',
                 '2',
@@ -262,7 +295,6 @@ describe('DivisionFixtures', () => {
         });
 
         it('renders played knockout fixtures', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
                     .withFixture((f) =>
@@ -279,14 +311,10 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct');
-            const fixturesForDate =
-                fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(
-                fixturesForDate[0],
+                getFixturesForDate(fixtureDateElement, 1)[0],
                 'home2 - knockout',
                 '3',
                 '4',
@@ -296,7 +324,6 @@ describe('DivisionFixtures', () => {
         });
 
         it('renders postponed fixtures', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
                     .withFixture((f) =>
@@ -311,14 +338,10 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct');
-            const fixturesForDate =
-                fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(
-                fixturesForDate[0],
+                getFixturesForDate(fixtureDateElement, 1)[0],
                 'home3',
                 'P',
                 'P',
@@ -328,7 +351,6 @@ describe('DivisionFixtures', () => {
         });
 
         it('renders byes', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
                     .withFixture((f) =>
@@ -339,14 +361,10 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct');
-            const fixturesForDate =
-                fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(
-                fixturesForDate[0],
+                getFixturesForDate(fixtureDateElement, 1)[0],
                 'home4 - bye',
                 '',
                 '',
@@ -356,17 +374,13 @@ describe('DivisionFixtures', () => {
         });
 
         it('renders played tournaments', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
                     .withTournament((t) =>
                         t
                             .address('an address')
-                            .date('2022-10-13T00:00:00')
                             .type('Pairs')
-                            .notes('Someone to run the venue')
                             .forSeason(divisionData.season)
-                            .withSide((s) => s.name('The winning side'))
                             .winner('The winning side'),
                     )
                     .build(),
@@ -374,14 +388,10 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, "13 OctWho's playing?");
-            const fixturesForDate =
-                fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertTournament(
-                fixturesForDate[0],
+                getFixturesForDate(fixtureDateElement, 1)[0],
                 'Pairs at an address',
                 'The winning side',
                 account,
@@ -389,16 +399,12 @@ describe('DivisionFixtures', () => {
         });
 
         it('renders unplayed tournaments', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
                     .withTournament((t) =>
                         t
                             .address('another address')
-                            .date('2022-10-13T00:00:00')
-                            .notes('Someone to run the venue')
                             .forSeason(divisionData.season)
-                            .withSide((s) => s.name('The winning side'))
                             .type('Pairs'),
                     )
                     .build(),
@@ -406,33 +412,23 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, "13 OctWho's playing?");
-            const fixturesForDate =
-                fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertTournament(
-                fixturesForDate[0],
+                getFixturesForDate(fixtureDateElement, 1)[0],
                 'Pairs at another address',
                 account,
             );
         });
 
         it('renders tournament players', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
                     .withTournament((t) =>
                         t
-                            .address('another address')
-                            .date('2022-10-13T00:00:00')
-                            .notes('Someone to run the venue')
                             .forSeason(divisionData.season)
                             .withSide((s) =>
-                                s
-                                    .name('The winning side')
-                                    .withPlayer('SIDE PLAYER'),
+                                s.name('SIDE').withPlayer('SIDE PLAYER'),
                             )
                             .type('Pairs'),
                     )
@@ -446,23 +442,15 @@ describe('DivisionFixtures', () => {
                 '/division#show-who-is-playing',
             );
 
-            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             expect(fixtureDateElement.textContent).toContain('SIDE PLAYER');
         });
 
         it('can change filters', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
                     .withTournament((t) =>
-                        t
-                            .address('another address')
-                            .date('2022-10-13T00:00:00')
-                            .notes('Someone to run the venue')
-                            .forSeason(divisionData.season)
-                            .withSide((s) => s.name('The winning side'))
-                            .type('Pairs'),
+                        t.forSeason(divisionData.season).type('Pairs'),
                     )
                     .build(),
             );
@@ -475,22 +463,13 @@ describe('DivisionFixtures', () => {
                 filterContainer.querySelector('.dropdown-menu'),
                 'League fixtures',
             );
-
-            reportedError.verifyNoError();
         });
 
         it('hides filters when no controls', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
                     .withTournament((t) =>
-                        t
-                            .address('another address')
-                            .date('2022-10-13T00:00:00')
-                            .notes('Someone to run the venue')
-                            .forSeason(divisionData.season)
-                            .withSide((s) => s.name('The winning side'))
-                            .type('Pairs'),
+                        t.forSeason(divisionData.season).type('Pairs'),
                     )
                     .build(),
             );
@@ -502,7 +481,6 @@ describe('DivisionFixtures', () => {
                 true,
             );
 
-            reportedError.verifyNoError();
             const filterContainer = context.container.querySelector(
                 '.content-background > div[datatype="fixture-filters"]',
             );
@@ -510,17 +488,10 @@ describe('DivisionFixtures', () => {
         });
 
         it('filters fixtures dates', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
                     .withTournament((t) =>
-                        t
-                            .address('another address')
-                            .date('2022-10-13T00:00:00')
-                            .notes('Someone to run the venue')
-                            .forSeason(divisionData.season)
-                            .withSide((s) => s.name('The winning side'))
-                            .type('Pairs'),
+                        t.forSeason(divisionData.season).type('Pairs'),
                     )
                     .build(),
             );
@@ -531,23 +502,18 @@ describe('DivisionFixtures', () => {
                 '/divisions?date=2020-01-01',
             );
 
-            reportedError.verifyNoError();
             expect(context.container.textContent).not.toContain(
                 'Pairs at another address',
             );
         });
 
         it('filters fixtures', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
                     .withTournament((t) =>
                         t
                             .address('another address')
-                            .date('2022-10-13T00:00:00')
-                            .notes('Someone to run the venue')
                             .forSeason(divisionData.season)
-                            .withSide((s) => s.name('The winning side'))
                             .type('Pairs'),
                     )
                     .build(),
@@ -559,24 +525,16 @@ describe('DivisionFixtures', () => {
                 '/divisions?date=2022-10-13&type=tournaments',
             );
 
-            reportedError.verifyNoError();
             expect(context.container.textContent).toContain(
                 'Pairs at another address',
             );
         });
 
         it('filters fixtures dates after fixtures', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
                     .withTournament((t) =>
-                        t
-                            .address('another address')
-                            .date('2022-10-13T00:00:00')
-                            .notes('Someone to run the venue')
-                            .forSeason(divisionData.season)
-                            .withSide((s) => s.name('The winning side'))
-                            .type('Pairs'),
+                        t.forSeason(divisionData.season).type('Pairs'),
                     )
                     .build(),
             );
@@ -587,26 +545,24 @@ describe('DivisionFixtures', () => {
                 '/divisions?date=2022-10-13&type=league',
             );
 
-            reportedError.verifyNoError();
             expect(context.container.textContent).not.toContain('📅');
         });
     });
 
     describe('when logged in', () => {
-        const account: UserDto = {
-            name: '',
-            givenName: '',
-            emailAddress: '',
-            access: {
-                manageGames: true,
-                manageTournaments: true,
-                manageNotes: true,
-                manageScores: true,
-            },
-        };
+        const account = user({
+            manageGames: true,
+            manageTournaments: true,
+            manageNotes: true,
+            manageScores: true,
+        });
+        let divisionData: IDivisionDataContainerProps;
+
+        beforeEach(() => {
+            divisionData = getInSeasonDivisionData();
+        });
 
         it('renders notes', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder(divisionData.season!.startDate)
                     .withNote((n) => n.note('Finals night!'))
@@ -615,16 +571,14 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '3 Feb📌 Add noteQualifier');
-            const noteElement = fixtureDateElement.querySelector('.alert')!;
-            expect(noteElement).toBeTruthy();
-            expect(noteElement.textContent).toEqual('📌Finals night!Edit');
+            expect(getNote(fixtureDateElement)!.textContent).toEqual(
+                '📌Finals night!Edit',
+            );
         });
 
         it('renders played league fixtures', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
                     .withFixture((f) =>
@@ -635,14 +589,9 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
-            assertFixtureDate(fixtureDateElement, '13 Oct📌 Add note');
-            const fixturesForDate =
-                fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(
-                fixturesForDate[0],
+                getFixturesForDate(fixtureDateElement, 1)[0],
                 'home1',
                 '1',
                 '2',
@@ -652,7 +601,6 @@ describe('DivisionFixtures', () => {
         });
 
         it('renders played knockout fixtures', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
                     .withFixture((f) =>
@@ -669,14 +617,9 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
-            assertFixtureDate(fixtureDateElement, '13 Oct📌 Add note');
-            const fixturesForDate =
-                fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(
-                fixturesForDate[0],
+                getFixturesForDate(fixtureDateElement, 1)[0],
                 'home2 - knockout',
                 '3',
                 '4',
@@ -686,7 +629,6 @@ describe('DivisionFixtures', () => {
         });
 
         it('renders postponed fixtures', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
                     .withFixture((f) =>
@@ -703,14 +645,9 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
-            assertFixtureDate(fixtureDateElement, '13 Oct📌 Add note');
-            const fixturesForDate =
-                fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(
-                fixturesForDate[0],
+                getFixturesForDate(fixtureDateElement, 1)[0],
                 'home3',
                 'P',
                 'P',
@@ -720,7 +657,6 @@ describe('DivisionFixtures', () => {
         });
 
         it('renders byes', async () => {
-            const divisionData = getInSeasonDivisionData();
             const team = teamBuilder('home4 - bye').build();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
@@ -730,15 +666,9 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
-            assertFixtureDate(fixtureDateElement, '13 Oct📌 Add noteQualifier');
-            const fixturesForDate = fixtureDateElement.querySelectorAll(
-                'table tbody tr:not([datatype="new-tournament-fixture"])',
-            );
-            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(
-                fixturesForDate[0],
+                getTournamentProposals(fixtureDateElement, 1)[0],
                 'home4 - bye',
                 '',
                 '',
@@ -748,17 +678,13 @@ describe('DivisionFixtures', () => {
         });
 
         it('renders played tournaments', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
                     .withTournament((t) =>
                         t
                             .address('an address')
-                            .date('2022-10-13T00:00:00')
                             .type('Pairs')
                             .forSeason(divisionData.season)
-                            .notes('Someone to run the venue')
-                            .withSide((s) => s.name('The winning side'))
                             .winner('The winning side'),
                     )
                     .build(),
@@ -766,18 +692,9 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
-            assertFixtureDate(
-                fixtureDateElement,
-                "13 Oct📌 Add noteWho's playing?",
-            );
-            const fixturesForDate = fixtureDateElement.querySelectorAll(
-                'table tbody tr:not([datatype="new-tournament-fixture"])',
-            );
-            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertTournament(
-                fixturesForDate[0],
+                getTournamentProposals(fixtureDateElement, 1)[0],
                 'Pairs at an address',
                 'The winning side',
                 account,
@@ -785,35 +702,22 @@ describe('DivisionFixtures', () => {
         });
 
         it('renders unplayed tournaments', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
                     .withTournament((t) =>
                         t
                             .address('another address')
-                            .date('2022-10-13T00:00:00')
                             .type('Pairs')
-                            .forSeason(divisionData.season)
-                            .notes('Someone to run the venue')
-                            .withSide((s) => s.name('The winning side')),
+                            .forSeason(divisionData.season),
                     )
                     .build(),
             );
 
             await renderComponent(divisionData, account);
 
-            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
-            assertFixtureDate(
-                fixtureDateElement,
-                "13 Oct📌 Add noteWho's playing?",
-            );
-            const fixturesForDate = fixtureDateElement.querySelectorAll(
-                'table tbody tr:not([datatype="new-tournament-fixture"])',
-            );
-            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertTournament(
-                fixturesForDate[0],
+                getTournamentProposals(fixtureDateElement, 1)[0],
                 'Pairs at another address',
                 undefined,
                 account,
@@ -822,7 +726,6 @@ describe('DivisionFixtures', () => {
 
         it('reloads tournaments if they are changed', async () => {
             let divisionReloaded: boolean = false;
-            const divisionData = getInSeasonDivisionData();
             divisionData.onReloadDivision = async () => {
                 divisionReloaded = true;
                 return divisionData;
@@ -832,7 +735,6 @@ describe('DivisionFixtures', () => {
                     .withTournament((t) =>
                         t
                             .address('another address')
-                            .date('2022-10-13T00:00:00')
                             .forSeason(divisionData.season)
                             .proposed(),
                     )
@@ -845,25 +747,20 @@ describe('DivisionFixtures', () => {
             );
 
             const fixtureDateElement = getFixtureDateElement(0, account);
-            await doSelectOption(
-                fixtureDateElement.querySelector(
-                    '.address-dropdown .dropdown-menu',
-                ),
-                'another address',
+            const addressDropdown = fixtureDateElement.querySelector(
+                '.address-dropdown .dropdown-menu',
             );
+            await doSelectOption(addressDropdown, 'another address');
             await doClick(findButton(fixtureDateElement, '➕'));
 
-            reportedError.verifyNoError();
             expect(divisionReloaded).toEqual(true);
             expect(newFixtures).not.toBeNull();
         });
 
         it('can add a note', async () => {
-            const divisionData = getInSeasonDivisionData();
-            const team = teamBuilder('home5 - bye').build();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
-                    .withFixture((f) => f.bye(team), team.id)
+                    .withFixture((f) => f)
                     .build(),
             );
             await renderComponent(divisionData, account);
@@ -871,14 +768,10 @@ describe('DivisionFixtures', () => {
 
             await doClick(findButton(fixtureDateElement, '📌 Add note'));
 
-            reportedError.verifyNoError();
-            const dialog = context.container.querySelector('.modal-dialog')!;
-            expect(dialog).toBeTruthy();
-            expect(dialog.textContent).toContain('Create note');
+            expect(getDialog()!.textContent).toContain('Create note');
         });
 
         it('can edit a note', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
                     .withNote((n) => n.note('A note'))
@@ -887,19 +780,13 @@ describe('DivisionFixtures', () => {
             await renderComponent(divisionData, account);
             const fixtureDateElement = getFixtureDateElement(0, account);
 
-            await doClick(
-                findButton(fixtureDateElement.querySelector('.alert'), 'Edit'),
-            );
+            await doClick(findButton(getNote(fixtureDateElement), 'Edit'));
 
-            reportedError.verifyNoError();
-            const dialog = context.container.querySelector('.modal-dialog')!;
-            expect(dialog).toBeTruthy();
-            expect(dialog.textContent).toContain('Edit note');
+            expect(getDialog()!.textContent).toContain('Edit note');
         });
 
         it('can save changes to notes', async () => {
             let divisionReloaded: boolean = false;
-            const divisionData = getInSeasonDivisionData();
             divisionData.onReloadDivision = async () => {
                 divisionReloaded = true;
                 return divisionData;
@@ -911,11 +798,9 @@ describe('DivisionFixtures', () => {
             );
             await renderComponent(divisionData, account);
             const fixtureDateElement = getFixtureDateElement(0, account);
-            await doClick(
-                findButton(fixtureDateElement.querySelector('.alert'), 'Edit'),
-            );
+            await doClick(findButton(getNote(fixtureDateElement), 'Edit'));
 
-            const dialog = context.container.querySelector('.modal-dialog')!;
+            const dialog = getDialog()!;
             await doChange(
                 dialog,
                 'textarea[name="note"]',
@@ -924,16 +809,12 @@ describe('DivisionFixtures', () => {
             );
             await doClick(findButton(dialog, 'Save'));
 
-            reportedError.verifyNoError();
-            expect(
-                context.container.querySelector('.modal-dialog'),
-            ).toBeFalsy();
+            expect(getDialog()).toBeFalsy();
             expect(divisionReloaded).toEqual(true);
             expect(updatedNote).not.toBeNull();
         });
 
         it('can close edit notes dialog', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
                     .withNote((n) => n.note('A note'))
@@ -941,106 +822,52 @@ describe('DivisionFixtures', () => {
             );
             await renderComponent(divisionData, account);
             const fixtureDateElement = getFixtureDateElement(0, account);
-            await doClick(
-                findButton(fixtureDateElement.querySelector('.alert'), 'Edit'),
-            );
-            const dialog = context.container.querySelector('.modal-dialog');
+            await doClick(findButton(getNote(fixtureDateElement), 'Edit'));
 
-            await doClick(findButton(dialog, 'Close'));
+            await doClick(findButton(getDialog()!, 'Close'));
 
-            reportedError.verifyNoError();
-            expect(
-                context.container.querySelector('.modal-dialog'),
-            ).toBeFalsy();
+            expect(getDialog()).toBeFalsy();
         });
 
         it('can open add date dialog', async () => {
-            const divisionData = getInSeasonDivisionData();
             await renderComponent(divisionData, account);
 
-            await doClick(
-                findButton(
-                    context.container.querySelector(
-                        'div[datatype="fixture-management-1"]',
-                    ),
-                    '➕ Add date',
-                ),
-            );
+            await doClick(findButton(getAdminSection(), '➕ Add date'));
 
-            reportedError.verifyNoError();
-            const dialog = context.container.querySelector('.modal-dialog')!;
-            expect(dialog).toBeTruthy();
-            expect(dialog.textContent).toContain('Add date');
+            expect(getDialog()!.textContent).toContain('Add date');
         });
 
         it('can close add date dialog', async () => {
-            const divisionData = getInSeasonDivisionData();
             await renderComponent(divisionData, account);
 
-            await doClick(
-                findButton(
-                    context.container.querySelector(
-                        'div[datatype="fixture-management-1"]',
-                    ),
-                    '➕ Add date',
-                ),
-            );
-            await doClick(
-                findButton(
-                    context.container.querySelector('.modal-dialog'),
-                    'Close',
-                ),
-            );
+            await doClick(findButton(getAdminSection(), '➕ Add date'));
+            await doClick(findButton(getDialog()!, 'Close'));
 
-            reportedError.verifyNoError();
-            const dialog = context.container.querySelector('.modal-dialog');
-            expect(dialog).toBeFalsy();
+            expect(getDialog()).toBeFalsy();
         });
 
         it('prevents adding a date when no date selected', async () => {
-            const divisionData = getInSeasonDivisionData();
             await renderComponent(divisionData, account);
-            await doClick(
-                findButton(
-                    context.container.querySelector(
-                        'div[datatype="fixture-management-1"]',
-                    ),
-                    '➕ Add date',
-                ),
-            );
-            const dialog = context.container.querySelector('.modal-dialog')!;
+            await doClick(findButton(getAdminSection(), '➕ Add date'));
 
-            await doClick(findButton(dialog, 'Add date'));
+            await doClick(findButton(getDialog(), 'Add date'));
 
-            reportedError.verifyNoError();
             expect(newFixtures).toBeNull();
             context.prompts.alertWasShown('Select a date first');
         });
 
         it('does not add date if already exists', async () => {
-            const divisionData = getInSeasonDivisionData();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-10-13T00:00:00')
                     .withNote((n) => n.note('A note'))
                     .withTournament((t) =>
-                        t
-                            .address('another address')
-                            .date('2022-10-13T00:00:00')
-                            .proposed()
-                            .forSeason(divisionData.season),
+                        t.proposed().forSeason(divisionData.season),
                     )
                     .build(),
             );
             await renderComponent(divisionData, account);
-            await doClick(
-                findButton(
-                    context.container.querySelector(
-                        'div[datatype="fixture-management-1"]',
-                    ),
-                    '➕ Add date',
-                ),
-            );
-            const dialog = context.container.querySelector('.modal-dialog')!;
+            await doClick(findButton(getAdminSection(), '➕ Add date'));
+            const dialog = getDialog()!;
 
             await doChange(
                 dialog,
@@ -1050,12 +877,10 @@ describe('DivisionFixtures', () => {
             );
             await doClick(findButton(dialog, 'Add date'));
 
-            reportedError.verifyNoError();
             expect(newFixtures).toBeNull();
         });
 
         it('can add a date', async () => {
-            const divisionData = getInSeasonDivisionData();
             const team = teamBuilder('TEAM')
                 .address('ADDRESS')
                 .forSeason(divisionData.season, divisionData)
@@ -1069,15 +894,8 @@ describe('DivisionFixtures', () => {
                 undefined,
                 [team, outOfSeasonTeam],
             );
-            await doClick(
-                findButton(
-                    context.container.querySelector(
-                        'div[datatype="fixture-management-1"]',
-                    ),
-                    '➕ Add date',
-                ),
-            );
-            const dialog = context.container.querySelector('.modal-dialog')!;
+            await doClick(findButton(getAdminSection(), '➕ Add date'));
+            const dialog = getDialog()!;
 
             await doChange(
                 dialog,
@@ -1088,40 +906,29 @@ describe('DivisionFixtures', () => {
             await doClick(dialog, 'input[name="isKnockout"]');
             await doClick(findButton(dialog, 'Add date'));
 
-            reportedError.verifyNoError();
             expect(newFixtures).not.toBeNull();
             expect(newFixtures!.length).toEqual(1);
-            expect(newFixtures![0].date).toEqual('2023-05-06T00:00:00');
-            expect(newFixtures![0].isNew).toEqual(true);
-            expect(newFixtures![0].isKnockout).toEqual(true);
-            expect(newFixtures![0].fixtures!.length).toEqual(1);
-            expect(newFixtures![0].fixtures![0].fixturesUsingAddress).toEqual(
-                [],
-            );
-            expect(newFixtures![0].fixtures![0].homeTeam.id).toEqual(team.id);
-            expect(newFixtures![0].fixtures![0].homeTeam.name).toEqual(
-                team.name,
-            );
-            expect(newFixtures![0].fixtures![0].homeTeam.address).toEqual(
-                team.address,
-            );
-            expect(newFixtures![0].fixtures![0].awayTeam).toBeUndefined();
-            expect(newFixtures![0].fixtures![0].isKnockout).toEqual(true);
-            expect(newFixtures![0].fixtures![0].accoladesCount).toEqual(true);
-            expect(newFixtures![0].fixtures![0].fixturesUsingAddress).toEqual(
-                [],
-            );
-            expect(newFixtures![0].tournamentFixtures![0].address).toEqual(
-                'ADDRESS',
-            );
-            expect(newFixtures![0].tournamentFixtures![0].proposed).toEqual(
-                true,
-            );
-            expect(newFixtures![0].tournamentFixtures![0].sides).toEqual([]);
+            const singleFixtureDate = newFixtures![0];
+            expect(singleFixtureDate.date).toEqual('2023-05-06T00:00:00');
+            expect(singleFixtureDate.isNew).toEqual(true);
+            expect(singleFixtureDate.isKnockout).toEqual(true);
+            expect(singleFixtureDate.fixtures!.length).toEqual(1);
+            const singleFixture = singleFixtureDate.fixtures![0];
+            expect(singleFixture.fixturesUsingAddress).toEqual([]);
+            expect(singleFixture.homeTeam.id).toEqual(team.id);
+            expect(singleFixture.homeTeam.name).toEqual(team.name);
+            expect(singleFixture.homeTeam.address).toEqual(team.address);
+            expect(singleFixture.awayTeam).toBeUndefined();
+            expect(singleFixture.isKnockout).toEqual(true);
+            expect(singleFixture.accoladesCount).toEqual(true);
+            expect(singleFixture.fixturesUsingAddress).toEqual([]);
+            const singleTournament = singleFixtureDate.tournamentFixtures![0];
+            expect(singleTournament.address).toEqual('ADDRESS');
+            expect(singleTournament.proposed).toEqual(true);
+            expect(singleTournament.sides).toEqual([]);
         });
 
         it('does not add teams with deleted seasons to new date', async () => {
-            const divisionData = getInSeasonDivisionData();
             const team = teamBuilder('TEAM')
                 .address('ADDRESS')
                 .forSeason(divisionData.season, divisionData)
@@ -1138,15 +945,8 @@ describe('DivisionFixtures', () => {
                 undefined,
                 [team, deletedTeam],
             );
-            await doClick(
-                findButton(
-                    context.container.querySelector(
-                        'div[datatype="fixture-management-1"]',
-                    ),
-                    '➕ Add date',
-                ),
-            );
-            const dialog = context.container.querySelector('.modal-dialog')!;
+            await doClick(findButton(getAdminSection(), '➕ Add date'));
+            const dialog = getDialog()!;
 
             await doChange(
                 dialog,
@@ -1157,39 +957,28 @@ describe('DivisionFixtures', () => {
             await doClick(dialog, 'input[name="isKnockout"]');
             await doClick(findButton(dialog, 'Add date'));
 
-            reportedError.verifyNoError();
             expect(newFixtures).not.toBeNull();
             expect(newFixtures!.length).toEqual(1);
-            expect(newFixtures![0].date).toEqual('2023-05-06T00:00:00');
-            expect(newFixtures![0].isNew).toEqual(true);
-            expect(newFixtures![0].isKnockout).toEqual(true);
-            expect(newFixtures![0].fixtures!.length).toEqual(1);
-            expect(newFixtures![0].fixtures![0].fixturesUsingAddress).toEqual(
-                [],
-            );
-            expect(newFixtures![0].fixtures![0].homeTeam.id).toEqual(team.id);
-            expect(newFixtures![0].fixtures![0].homeTeam.name).toEqual(
-                team.name,
-            );
-            expect(newFixtures![0].fixtures![0].homeTeam.address).toEqual(
-                team.address,
-            );
-            expect(newFixtures![0].fixtures![0].awayTeam).toBeUndefined();
-            expect(newFixtures![0].fixtures![0].isKnockout).toEqual(true);
-            expect(newFixtures![0].fixtures![0].accoladesCount).toEqual(true);
-            expect(newFixtures![0].fixtures![0].fixturesUsingAddress).toEqual(
-                [],
-            );
-            expect(newFixtures![0].tournamentFixtures![0].address).toEqual(
-                'ADDRESS',
-            );
-            expect(newFixtures![0].tournamentFixtures![0].proposed).toEqual(
-                true,
-            );
+            const singleFixtureDate = newFixtures![0];
+            expect(singleFixtureDate.date).toEqual('2023-05-06T00:00:00');
+            expect(singleFixtureDate.isNew).toEqual(true);
+            expect(singleFixtureDate.isKnockout).toEqual(true);
+            expect(singleFixtureDate.fixtures!.length).toEqual(1);
+            const singleFixture = singleFixtureDate.fixtures![0];
+            expect(singleFixture.fixturesUsingAddress).toEqual([]);
+            expect(singleFixture.homeTeam.id).toEqual(team.id);
+            expect(singleFixture.homeTeam.name).toEqual(team.name);
+            expect(singleFixture.homeTeam.address).toEqual(team.address);
+            expect(singleFixture.awayTeam).toBeUndefined();
+            expect(singleFixture.isKnockout).toEqual(true);
+            expect(singleFixture.accoladesCount).toEqual(true);
+            expect(singleFixture.fixturesUsingAddress).toEqual([]);
+            const singleTournament = singleFixtureDate.tournamentFixtures![0];
+            expect(singleTournament.address).toEqual('ADDRESS');
+            expect(singleTournament.proposed).toEqual(true);
         });
 
         it('renders new dates correctly', async () => {
-            const divisionData = getInSeasonDivisionData();
             const homeTeam = teamBuilder('HOME').build();
             divisionData.fixtures!.push(
                 fixtureDateBuilder('2022-05-06T00:00:00')
@@ -1199,98 +988,56 @@ describe('DivisionFixtures', () => {
             );
 
             await renderComponent(divisionData, account);
-
-            reportedError.verifyNoError();
         });
 
         it('can open create new fixtures dialog', async () => {
-            const divisionData = getInSeasonDivisionData();
             await renderComponent(divisionData, account);
 
-            await doClick(
-                findButton(
-                    context.container.querySelector(
-                        'div[datatype="fixture-management-1"]',
-                    ),
-                    '🗓️ Create fixtures',
-                ),
-            );
+            await doClick(findButton(getAdminSection(), '🗓️ Create fixtures'));
 
-            reportedError.verifyNoError();
-            const dialog = context.container.querySelector('.modal-dialog')!;
-            expect(dialog).toBeTruthy();
-            expect(dialog.textContent).toContain('Create season fixtures...');
+            expect(getDialog()!.textContent).toContain(
+                'Create season fixtures...',
+            );
         });
 
         it('can close create new fixtures dialog', async () => {
-            const divisionData = getInSeasonDivisionData();
             await renderComponent(divisionData, account);
-            await doClick(
-                findButton(
-                    context.container.querySelector(
-                        'div[datatype="fixture-management-1"]',
-                    ),
-                    '🗓️ Create fixtures',
-                ),
-            );
-            reportedError.verifyNoError();
+            await doClick(findButton(getAdminSection(), '🗓️ Create fixtures'));
 
-            await doClick(
-                findButton(
-                    context.container.querySelector('.modal-dialog'),
-                    'Close',
-                ),
-            );
+            await doClick(findButton(getDialog()!, 'Close'));
 
-            const dialog = context.container.querySelector('.modal-dialog');
-            expect(dialog).toBeFalsy();
+            expect(getDialog()).toBeFalsy();
         });
 
         describe('bulk delete', () => {
+            const seasonName = 'SEASON';
+            const dryRunPrompt = `Are you sure you want to delete all un-played league fixtures from ALL DIVISIONS in the ${seasonName} season?
+
+A dry-run of the deletion will run first.`;
+            const executePrompt = `All the fixtures CAN be deleted without issue, are you sure you want to actually delete 1 fixtures from ${seasonName}?
+
+a message`;
+
             it('does not delete any fixtures if user cancels prompt', async () => {
-                const divisionData = getInSeasonDivisionData();
                 account!.access!.bulkDeleteLeagueFixtures = true;
                 await renderComponent(divisionData, account);
-                context.prompts.respondToConfirm(
-                    `Are you sure you want to delete all un-played league fixtures from ALL DIVISIONS in the ${divisionData.season!.name} season?
+                context.prompts.respondToConfirm(dryRunPrompt, false);
 
-A dry-run of the deletion will run first.`,
-                    false,
-                );
+                await doClick(getDeleteAllButton());
 
-                await doClick(
-                    findButton(
-                        context.container,
-                        '⚠️ Delete all league fixtures',
-                    ),
-                );
-
-                reportedError.verifyNoError();
                 expect(bulkDeleteRequest).toBeNull();
             });
 
             it('handles a failure when dry running the delete', async () => {
-                const divisionData = getInSeasonDivisionData();
                 account!.access!.bulkDeleteLeagueFixtures = true;
                 await renderComponent(divisionData, account);
-                context.prompts.respondToConfirm(
-                    `Are you sure you want to delete all un-played league fixtures from ALL DIVISIONS in the ${divisionData.season!.name} season?
-
-A dry-run of the deletion will run first.`,
-                    true,
-                );
+                context.prompts.respondToConfirm(dryRunPrompt, true);
                 bulkDeleteResponse = {
                     success: false,
                 };
 
-                await doClick(
-                    findButton(
-                        context.container,
-                        '⚠️ Delete all league fixtures',
-                    ),
-                );
+                await doClick(getDeleteAllButton());
 
-                reportedError.verifyNoError();
                 expect(bulkDeleteRequest).toEqual({
                     seasonId: divisionData.season!.id,
                     executeDelete: false,
@@ -1301,28 +1048,16 @@ A dry-run of the deletion will run first.`,
             });
 
             it('exits if no fixtures are identified', async () => {
-                const divisionData = getInSeasonDivisionData();
                 account!.access!.bulkDeleteLeagueFixtures = true;
                 await renderComponent(divisionData, account);
-                context.prompts.respondToConfirm(
-                    `Are you sure you want to delete all un-played league fixtures from ALL DIVISIONS in the ${divisionData.season!.name} season?
-
-A dry-run of the deletion will run first.`,
-                    true,
-                );
+                context.prompts.respondToConfirm(dryRunPrompt, true);
                 bulkDeleteResponse = {
                     success: true,
                     result: [],
                 };
 
-                await doClick(
-                    findButton(
-                        context.container,
-                        '⚠️ Delete all league fixtures',
-                    ),
-                );
+                await doClick(getDeleteAllButton());
 
-                reportedError.verifyNoError();
                 expect(bulkDeleteRequest).toEqual({
                     seasonId: divisionData.season!.id,
                     executeDelete: false,
@@ -1331,35 +1066,18 @@ A dry-run of the deletion will run first.`,
             });
 
             it('does not delete any fixtures if user cancels dry run result prompt', async () => {
-                const divisionData = getInSeasonDivisionData();
                 account!.access!.bulkDeleteLeagueFixtures = true;
                 await renderComponent(divisionData, account);
-                context.prompts.respondToConfirm(
-                    `Are you sure you want to delete all un-played league fixtures from ALL DIVISIONS in the ${divisionData.season!.name} season?
-
-A dry-run of the deletion will run first.`,
-                    true,
-                );
+                context.prompts.respondToConfirm(dryRunPrompt, true);
                 bulkDeleteResponse = {
                     success: true,
                     result: ['a fixture that can be deleted'],
                     messages: ['a message'],
                 };
-                context.prompts.respondToConfirm(
-                    `All the fixtures CAN be deleted without issue, are you sure you want to actually delete 1 fixtures from ${divisionData.season!.name}?
+                context.prompts.respondToConfirm(executePrompt, false);
 
-a message`,
-                    false,
-                );
+                await doClick(getDeleteAllButton());
 
-                await doClick(
-                    findButton(
-                        context.container,
-                        '⚠️ Delete all league fixtures',
-                    ),
-                );
-
-                reportedError.verifyNoError();
                 expect(bulkDeleteRequest).toEqual({
                     seasonId: divisionData.season!.id,
                     executeDelete: false,
@@ -1367,82 +1085,54 @@ a message`,
             });
 
             it('deletes all fixtures if user confirms dry run result prompt', async () => {
-                const divisionData = getInSeasonDivisionData();
                 account!.access!.bulkDeleteLeagueFixtures = true;
                 await renderComponent(divisionData, account);
                 Object.defineProperty(window, 'location', {
                     configurable: true,
                     value: { reload: jest.fn() },
                 });
-                context.prompts.respondToConfirm(
-                    `Are you sure you want to delete all un-played league fixtures from ALL DIVISIONS in the ${divisionData.season!.name} season?
-
-A dry-run of the deletion will run first.`,
-                    true,
-                );
+                context.prompts.respondToConfirm(dryRunPrompt, true);
                 bulkDeleteResponse = {
                     success: true,
                     result: ['a fixture that can be deleted'],
                     messages: ['a message'],
                 };
-                context.prompts.respondToConfirm(
-                    `All the fixtures CAN be deleted without issue, are you sure you want to actually delete 1 fixtures from ${divisionData.season!.name}?
+                context.prompts.respondToConfirm(executePrompt, true);
 
-a message`,
-                    true,
-                );
+                await doClick(getDeleteAllButton());
 
-                await doClick(
-                    findButton(
-                        context.container,
-                        '⚠️ Delete all league fixtures',
-                    ),
-                );
-
-                reportedError.verifyNoError();
                 expect(bulkDeleteRequest).toEqual({
                     seasonId: divisionData.season!.id,
                     executeDelete: true,
                 });
                 expect(window.location.reload).toHaveBeenCalled();
             });
-        });
 
-        it('reports an error if actual delete fails', async () => {
-            const divisionData = getInSeasonDivisionData();
-            account!.access!.bulkDeleteLeagueFixtures = true;
-            await renderComponent(divisionData, account);
-            context.prompts.respondToConfirm(
-                `Are you sure you want to delete all un-played league fixtures from ALL DIVISIONS in the ${divisionData.season!.name} season?
+            it('reports an error if actual delete fails', async () => {
+                account!.access!.bulkDeleteLeagueFixtures = true;
+                await renderComponent(divisionData, account);
+                context.prompts.respondToConfirm(dryRunPrompt, true);
+                bulkDeleteResponse = {
+                    success: true,
+                    result: ['a fixture that can be deleted'],
+                    messages: ['a message'],
+                };
+                context.prompts.respondToConfirm(
+                    executePrompt,
+                    true,
+                    () => (bulkDeleteResponse!.success = false),
+                );
 
-A dry-run of the deletion will run first.`,
-                true,
-            );
-            bulkDeleteResponse = {
-                success: true,
-                result: ['a fixture that can be deleted'],
-                messages: ['a message'],
-            };
-            context.prompts.respondToConfirm(
-                `All the fixtures CAN be deleted without issue, are you sure you want to actually delete 1 fixtures from ${divisionData.season!.name}?
+                await doClick(getDeleteAllButton());
 
-a message`,
-                true,
-                () => (bulkDeleteResponse!.success = false),
-            );
-
-            await doClick(
-                findButton(context.container, '⚠️ Delete all league fixtures'),
-            );
-
-            reportedError.verifyNoError();
-            expect(bulkDeleteRequest).toEqual({
-                seasonId: divisionData.season!.id,
-                executeDelete: true,
+                expect(bulkDeleteRequest).toEqual({
+                    seasonId: divisionData.season!.id,
+                    executeDelete: true,
+                });
+                context.prompts.alertWasShown(
+                    'There was an error deleting all the fixtures, some fixtures may have been deleted',
+                );
             });
-            context.prompts.alertWasShown(
-                'There was an error deleting all the fixtures, some fixtures may have been deleted',
-            );
         });
     });
 });
