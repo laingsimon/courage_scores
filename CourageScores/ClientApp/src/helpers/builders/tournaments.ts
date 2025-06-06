@@ -313,7 +313,7 @@ export interface ITournamentMatchBuilder extends IBuilder<TournamentMatchDto> {
         score?: number,
         ...players: TeamPlayerDto[]
     ): ITournamentMatchBuilder;
-    saygId(id: string): ITournamentMatchBuilder;
+    saygId(id?: string): ITournamentMatchBuilder;
     noId(): ITournamentMatchBuilder;
 }
 
@@ -374,7 +374,7 @@ export function tournamentMatchBuilder(id?: string): ITournamentMatchBuilder {
             match.sideB.players = (match.sideB.players || []).concat(players);
             return builder;
         },
-        saygId: (id: string) => {
+        saygId: (id?: string) => {
             match.saygId = id;
             return builder;
         },
