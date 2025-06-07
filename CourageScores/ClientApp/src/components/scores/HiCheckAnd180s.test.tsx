@@ -7,14 +7,15 @@ import {
     doSelectOption,
     findButton,
     iocProps,
-    renderApp, TestContext
-} from "../../helpers/tests";
-import {HiCheckAnd180s, IHiCheckAnd180sProps} from "./HiCheckAnd180s";
-import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
-import {divisionBuilder} from "../../helpers/builders/divisions";
-import {seasonBuilder} from "../../helpers/builders/seasons";
-import {fixtureBuilder} from "../../helpers/builders/games";
-import {playerBuilder} from "../../helpers/builders/players";
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import { HiCheckAnd180s, IHiCheckAnd180sProps } from './HiCheckAnd180s';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
+import { divisionBuilder } from '../../helpers/builders/divisions';
+import { seasonBuilder } from '../../helpers/builders/seasons';
+import { fixtureBuilder } from '../../helpers/builders/games';
+import { playerBuilder } from '../../helpers/builders/players';
 
 describe('HiCheckAnd180s', () => {
     let context: TestContext;
@@ -37,10 +38,11 @@ describe('HiCheckAnd180s', () => {
             iocProps(),
             brandingProps(),
             appProps(),
-            (<HiCheckAnd180s {...props} />),
+            <HiCheckAnd180s {...props} />,
             undefined,
             undefined,
-            'tbody');
+            'tbody',
+        );
     }
 
     describe('when logged out', () => {
@@ -63,7 +65,9 @@ describe('HiCheckAnd180s', () => {
             const cells = context.container.querySelectorAll('td');
             expect(cells.length).toEqual(1);
             expect(cells[0].colSpan).toEqual(5);
-            expect(cells[0].textContent).toEqual('Select some player/s to add 180s and hi-checks');
+            expect(cells[0].textContent).toEqual(
+                'Select some player/s to add 180s and hi-checks',
+            );
         });
 
         it('when no selected players', async () => {
@@ -83,14 +87,16 @@ describe('HiCheckAnd180s', () => {
             const cells = context.container.querySelectorAll('td');
             expect(cells.length).toEqual(1);
             expect(cells[0].colSpan).toEqual(5);
-            expect(cells[0].textContent).toEqual('Select some player/s to add 180s and hi-checks');
+            expect(cells[0].textContent).toEqual(
+                'Select some player/s to add 180s and hi-checks',
+            );
         });
 
         it('when empty selected players', async () => {
             const fixtureData = fixtureBuilder()
                 .forDivision(division)
                 .forSeason(season)
-                .withMatch(m => m.withHome().withAway())
+                .withMatch((m) => m.withHome().withAway())
                 .build();
 
             await renderComponent({
@@ -103,7 +109,9 @@ describe('HiCheckAnd180s', () => {
             const cells = context.container.querySelectorAll('td');
             expect(cells.length).toEqual(1);
             expect(cells[0].colSpan).toEqual(5);
-            expect(cells[0].textContent).toEqual('Select some player/s to add 180s and hi-checks');
+            expect(cells[0].textContent).toEqual(
+                'Select some player/s to add 180s and hi-checks',
+            );
         });
 
         it('when no 180s or hi-checks', async () => {
@@ -112,7 +120,7 @@ describe('HiCheckAnd180s', () => {
             const fixtureData = fixtureBuilder()
                 .forDivision(division)
                 .forSeason(season)
-                .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                .withMatch((m) => m.withHome(homePlayer).withAway(awayPlayer))
                 .build();
 
             await renderComponent({
@@ -135,7 +143,7 @@ describe('HiCheckAnd180s', () => {
             const fixtureData = fixtureBuilder()
                 .forDivision(division)
                 .forSeason(season)
-                .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                .withMatch((m) => m.withHome(homePlayer).withAway(awayPlayer))
                 .with180(homePlayer)
                 .build();
 
@@ -161,7 +169,7 @@ describe('HiCheckAnd180s', () => {
             const fixtureData = fixtureBuilder()
                 .forDivision(division)
                 .forSeason(season)
-                .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                .withMatch((m) => m.withHome(homePlayer).withAway(awayPlayer))
                 .withHiCheck(homePlayer, 100)
                 .build();
 
@@ -203,14 +211,16 @@ describe('HiCheckAnd180s', () => {
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(1);
                 expect(cells[0].colSpan).toEqual(5);
-                expect(cells[0].textContent).toEqual('Select some player/s to add 180s and hi-checks');
+                expect(cells[0].textContent).toEqual(
+                    'Select some player/s to add 180s and hi-checks',
+                );
             });
 
             it('when no selected players', async () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch(m => m.withHome().withAway())
+                    .withMatch((m) => m.withHome().withAway())
                     .build();
 
                 await renderComponent({
@@ -223,7 +233,9 @@ describe('HiCheckAnd180s', () => {
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(1);
                 expect(cells[0].colSpan).toEqual(5);
-                expect(cells[0].textContent).toEqual('Select some player/s to add 180s and hi-checks');
+                expect(cells[0].textContent).toEqual(
+                    'Select some player/s to add 180s and hi-checks',
+                );
             });
 
             it('when no 180s or hi-checks', async () => {
@@ -232,7 +244,9 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m) =>
+                        m.withHome(homePlayer).withAway(awayPlayer),
+                    )
                     .build();
 
                 await renderComponent({
@@ -261,7 +275,9 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m) =>
+                        m.withHome(homePlayer).withAway(awayPlayer),
+                    )
                     .with180(homePlayer)
                     .build();
 
@@ -286,7 +302,9 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m) =>
+                        m.withHome(homePlayer).withAway(awayPlayer),
+                    )
                     .withHiCheck(homePlayer, 100)
                     .build();
 
@@ -313,7 +331,9 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m) =>
+                        m.withHome(homePlayer).withAway(awayPlayer),
+                    )
                     .with180(homePlayer)
                     .build();
 
@@ -324,14 +344,18 @@ describe('HiCheckAnd180s', () => {
                     setFixtureData,
                 });
                 const td180s = context.container.querySelectorAll('td')[0];
-                const addPlayerContainer = td180s.querySelector('ol li:last-child')!;
-                await doSelectOption(addPlayerContainer.querySelector('.dropdown-menu')!, 'AWAY player');
+                const addPlayerContainer =
+                    td180s.querySelector('ol li:last-child')!;
+                await doSelectOption(
+                    addPlayerContainer.querySelector('.dropdown-menu')!,
+                    'AWAY player',
+                );
                 await doClick(findButton(addPlayerContainer, '➕'));
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData!.oneEighties).toEqual([
-                    {id: homePlayer.id, name: homePlayer.name},
-                    {id: awayPlayer.id, name: awayPlayer.name}
+                    { id: homePlayer.id, name: homePlayer.name },
+                    { id: awayPlayer.id, name: awayPlayer.name },
                 ]);
             });
 
@@ -341,7 +365,9 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m) =>
+                        m.withHome(homePlayer).withAway(awayPlayer),
+                    )
                     .with180(homePlayer)
                     .build();
 
@@ -365,7 +391,9 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m) =>
+                        m.withHome(homePlayer).withAway(awayPlayer),
+                    )
                     .withHiCheck(homePlayer, 100)
                     .build();
 
@@ -376,15 +404,24 @@ describe('HiCheckAnd180s', () => {
                     setFixtureData,
                 });
                 const tdHiChecks = context.container.querySelectorAll('td')[2];
-                const addPlayerContainer = tdHiChecks.querySelector('ol li:last-child')!;
-                await doChange(addPlayerContainer, 'input', '140', context.user);
-                await doSelectOption(addPlayerContainer.querySelector('.dropdown-menu')!, 'AWAY player')
+                const addPlayerContainer =
+                    tdHiChecks.querySelector('ol li:last-child')!;
+                await doChange(
+                    addPlayerContainer,
+                    'input',
+                    '140',
+                    context.user,
+                );
+                await doSelectOption(
+                    addPlayerContainer.querySelector('.dropdown-menu')!,
+                    'AWAY player',
+                );
                 await doClick(findButton(addPlayerContainer, '➕'));
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData!.over100Checkouts).toEqual([
-                    {id: homePlayer.id, name: homePlayer.name, score: 100},
-                    {id: awayPlayer.id, name: awayPlayer.name, score: 140}
+                    { id: homePlayer.id, name: homePlayer.name, score: 100 },
+                    { id: awayPlayer.id, name: awayPlayer.name, score: 140 },
                 ]);
             });
 
@@ -394,7 +431,9 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m) =>
+                        m.withHome(homePlayer).withAway(awayPlayer),
+                    )
                     .withHiCheck(homePlayer, 100)
                     .build();
 

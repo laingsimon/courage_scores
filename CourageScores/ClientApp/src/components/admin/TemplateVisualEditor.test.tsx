@@ -1,4 +1,4 @@
-﻿import {AdminContainer} from "./AdminContainer";
+﻿import { AdminContainer } from './AdminContainer';
 import {
     appProps,
     brandingProps,
@@ -7,11 +7,15 @@ import {
     ErrorState,
     findButton,
     iocProps,
-    renderApp, TestContext
-} from "../../helpers/tests";
-import {ITemplateVisualEditorProps, TemplateVisualEditor} from "./TemplateVisualEditor";
-import {TemplateDto} from "../../interfaces/models/dtos/Season/Creation/TemplateDto";
-import {createTemporaryId} from "../../helpers/projection";
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import {
+    ITemplateVisualEditorProps,
+    TemplateVisualEditor,
+} from './TemplateVisualEditor';
+import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto';
+import { createTemporaryId } from '../../helpers/projection';
 
 describe('TemplateVisualEditor', () => {
     let context: TestContext;
@@ -36,9 +40,10 @@ describe('TemplateVisualEditor', () => {
             iocProps(),
             brandingProps(),
             appProps({}, reportedError),
-            (<AdminContainer accounts={[]} tables={[]}>
+            <AdminContainer accounts={[]} tables={[]}>
                 <TemplateVisualEditor {...props} />
-            </AdminContainer>));
+            </AdminContainer>,
+        );
     }
 
     describe('renders', () => {
@@ -53,9 +58,13 @@ describe('TemplateVisualEditor', () => {
                 onUpdate,
             });
 
-            const sharedAddresses = context.container.querySelector('div > ul:nth-child(1)')!;
+            const sharedAddresses = context.container.querySelector(
+                'div > ul:nth-child(1)',
+            )!;
             expect(sharedAddresses.querySelectorAll('li').length).toEqual(1); // heading, no addresses
-            const divisions = context.container.querySelector('div > ul:nth-child(2)')!;
+            const divisions = context.container.querySelector(
+                'div > ul:nth-child(2)',
+            )!;
             expect(divisions.querySelectorAll('li').length).toEqual(1); //heading, no divisions
         });
 
@@ -64,13 +73,15 @@ describe('TemplateVisualEditor', () => {
                 template: {
                     id: createTemporaryId(),
                     name: '',
-                    sharedAddresses: [ [ 'A' ] ],
+                    sharedAddresses: [['A']],
                     divisions: [],
                 },
                 onUpdate,
             });
 
-            const sharedAddresses = context.container.querySelector('div > ul:nth-child(1)')!;
+            const sharedAddresses = context.container.querySelector(
+                'div > ul:nth-child(1)',
+            )!;
             expect(sharedAddresses.textContent).toContain('A ×');
         });
 
@@ -80,15 +91,19 @@ describe('TemplateVisualEditor', () => {
                     id: createTemporaryId(),
                     name: '',
                     sharedAddresses: [],
-                    divisions: [{
-                        sharedAddresses: [ [ 'B' ] ],
-                        dates: [],
-                    }],
+                    divisions: [
+                        {
+                            sharedAddresses: [['B']],
+                            dates: [],
+                        },
+                    ],
                 },
                 onUpdate,
             });
 
-            const divisions = context.container.querySelector('div > ul:nth-child(2)')!;
+            const divisions = context.container.querySelector(
+                'div > ul:nth-child(2)',
+            )!;
             expect(divisions.textContent).toContain('B ×');
         });
     });
@@ -104,14 +119,16 @@ describe('TemplateVisualEditor', () => {
                 },
                 onUpdate,
             });
-            const sharedAddresses = context.container.querySelector('div > ul:nth-child(1)');
+            const sharedAddresses = context.container.querySelector(
+                'div > ul:nth-child(1)',
+            );
 
             await doClick(findButton(sharedAddresses, '➕ Add shared address'));
 
             expect(update).toEqual({
                 id: expect.any(String),
                 name: '',
-                sharedAddresses: [ [] ],
+                sharedAddresses: [[]],
                 divisions: [],
             });
         });
@@ -126,7 +143,9 @@ describe('TemplateVisualEditor', () => {
                 },
                 onUpdate,
             });
-            const divisions = context.container.querySelector('div > ul:nth-child(2)');
+            const divisions = context.container.querySelector(
+                'div > ul:nth-child(2)',
+            );
 
             await doClick(findButton(divisions, '➕ Add another division'));
 
@@ -134,10 +153,12 @@ describe('TemplateVisualEditor', () => {
                 id: expect.any(String),
                 sharedAddresses: [],
                 name: '',
-                divisions: [{
-                    dates: [],
-                    sharedAddresses: [],
-                }],
+                divisions: [
+                    {
+                        dates: [],
+                        sharedAddresses: [],
+                    },
+                ],
             });
         });
     });

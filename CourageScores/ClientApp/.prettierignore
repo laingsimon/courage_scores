@@ -1,0 +1,13 @@
+﻿# prettier ignore statements
+
+tsconfig.json
+vite-env.d.ts
+vite.config.ts
+eslint.config.js
+index.html
+setup.jest.js
+package.json
+package-lock.json
+public/*
+src/interfaces/apis/*
+src/interfaces/models/*

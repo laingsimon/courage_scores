@@ -5,9 +5,12 @@
     ErrorState,
     iocProps,
     renderApp,
-    TestContext
-} from "../../../helpers/tests";
-import {IMatchLogTableHeadingProps, MatchLogTableHeading} from "./MatchLogTableHeading";
+    TestContext,
+} from '../../../helpers/tests';
+import {
+    IMatchLogTableHeadingProps,
+    MatchLogTableHeading,
+} from './MatchLogTableHeading';
 
 describe('MatchLogTableHeading', () => {
     let context: TestContext;
@@ -26,14 +29,17 @@ describe('MatchLogTableHeading', () => {
             iocProps(),
             brandingProps(),
             appProps({}, reportedError),
-            (<MatchLogTableHeading {...props} />),
+            <MatchLogTableHeading {...props} />,
             undefined,
             undefined,
-            'tbody');
+            'tbody',
+        );
     }
 
     function getRowContent(row: HTMLTableRowElement): string[] {
-        return Array.from(row.querySelectorAll('th')).map(th => th.textContent!);
+        return Array.from(row.querySelectorAll('th')).map(
+            (th) => th.textContent!,
+        );
     }
 
     describe('renders', () => {
@@ -44,10 +50,34 @@ describe('MatchLogTableHeading', () => {
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(context.container.querySelectorAll('tr')) as HTMLTableRowElement[];
+            const rows = Array.from(
+                context.container.querySelectorAll('tr'),
+            ) as HTMLTableRowElement[];
             expect(rows.length).toEqual(2);
-            expect(getRowContent(rows[0])).toEqual(['TEAM', 'Dart average', '', '']);
-            expect(getRowContent(rows[1])).toEqual(['Player', 'L', 'AD', 'GS', 'SL', '100+', '140+', '180', 'T', 'Player', 'Team', 'GD', '1', '2', '3', '4']);
+            expect(getRowContent(rows[0])).toEqual([
+                'TEAM',
+                'Dart average',
+                '',
+                '',
+            ]);
+            expect(getRowContent(rows[1])).toEqual([
+                'Player',
+                'L',
+                'AD',
+                'GS',
+                'SL',
+                '100+',
+                '140+',
+                '180',
+                'T',
+                'Player',
+                'Team',
+                'GD',
+                '1',
+                '2',
+                '3',
+                '4',
+            ]);
         });
 
         it('correct dart average offset', async () => {
@@ -57,7 +87,9 @@ describe('MatchLogTableHeading', () => {
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(context.container.querySelectorAll('tr')) as HTMLTableRowElement[];
+            const rows = Array.from(
+                context.container.querySelectorAll('tr'),
+            ) as HTMLTableRowElement[];
             expect(rows.length).toEqual(2);
             const cells = Array.from(rows[0].querySelectorAll('th'));
             expect(cells.length).toEqual(4);

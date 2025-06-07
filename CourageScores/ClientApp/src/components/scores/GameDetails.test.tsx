@@ -6,12 +6,13 @@ import {
     doClick,
     ErrorState,
     iocProps,
-    renderApp, TestContext
-} from "../../helpers/tests";
-import {GameDetails, IGameDetailsProps} from "./GameDetails";
-import {fixtureBuilder} from "../../helpers/builders/games";
-import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
-import {seasonBuilder} from "../../helpers/builders/seasons";
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import { GameDetails, IGameDetailsProps } from './GameDetails';
+import { fixtureBuilder } from '../../helpers/builders/games';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
+import { seasonBuilder } from '../../helpers/builders/seasons';
 
 describe('GameDetails', () => {
     let context: TestContext;
@@ -36,11 +37,15 @@ describe('GameDetails', () => {
             iocProps(),
             brandingProps(),
             appProps({}, reportedError),
-            (<GameDetails {...props} />));
+            <GameDetails {...props} />,
+        );
     }
 
     describe('when not logged in', () => {
-        const season = seasonBuilder().starting('2023-04-01').ending('2024-04-08').build();
+        const season = seasonBuilder()
+            .starting('2023-04-01')
+            .ending('2024-04-08')
+            .build();
 
         it('when postponed = false and isKnockout=true', async () => {
             const fixtureData: GameDto = fixtureBuilder()
@@ -77,7 +82,9 @@ describe('GameDetails', () => {
             });
 
             const component = context.container;
-            expect(component.textContent).toContain('Playing at: ADDRESSPostponed');
+            expect(component.textContent).toContain(
+                'Playing at: ADDRESSPostponed',
+            );
         });
 
         it('when postponed=true and isKnockout=true', async () => {
@@ -144,11 +151,16 @@ describe('GameDetails', () => {
     });
 
     describe('when an admin', () => {
-        const season = seasonBuilder().starting('2023-04-01').ending('2024-04-08').build();
+        const season = seasonBuilder()
+            .starting('2023-04-01')
+            .ending('2024-04-08')
+            .build();
 
         describe('renders', () => {
             it('date', async () => {
-                const fixtureData: GameDto = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: GameDto = fixtureBuilder(
+                    '2023-04-01T20:30:00',
+                )
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
                     .build();
@@ -161,13 +173,17 @@ describe('GameDetails', () => {
                     season,
                 });
 
-                const input = context.container.querySelector('input[name="date"]') as HTMLInputElement;
+                const input = context.container.querySelector(
+                    'input[name="date"]',
+                ) as HTMLInputElement;
                 expect(input).toBeTruthy();
                 expect(input.value).toEqual('2023-04-01');
             });
 
             it('address', async () => {
-                const fixtureData: GameDto = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: GameDto = fixtureBuilder(
+                    '2023-04-01T20:30:00',
+                )
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
                     .build();
@@ -180,13 +196,17 @@ describe('GameDetails', () => {
                     season,
                 });
 
-                const input = context.container.querySelector('input[name="address"]') as HTMLInputElement;
+                const input = context.container.querySelector(
+                    'input[name="address"]',
+                ) as HTMLInputElement;
                 expect(input).toBeTruthy();
                 expect(input.value).toEqual('ADDRESS');
             });
 
             it('postponed', async () => {
-                const fixtureData: GameDto = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: GameDto = fixtureBuilder(
+                    '2023-04-01T20:30:00',
+                )
                     .postponed()
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
@@ -200,13 +220,17 @@ describe('GameDetails', () => {
                     season,
                 });
 
-                const input = context.container.querySelector('input[name="postponed"]') as HTMLInputElement;
+                const input = context.container.querySelector(
+                    'input[name="postponed"]',
+                ) as HTMLInputElement;
                 expect(input).toBeTruthy();
                 expect(input.checked).toEqual(true);
             });
 
             it('isKnockout', async () => {
-                const fixtureData: GameDto = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: GameDto = fixtureBuilder(
+                    '2023-04-01T20:30:00',
+                )
                     .knockout()
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
@@ -220,13 +244,17 @@ describe('GameDetails', () => {
                     season,
                 });
 
-                const input = context.container.querySelector('input[name="isKnockout"]') as HTMLInputElement;
+                const input = context.container.querySelector(
+                    'input[name="isKnockout"]',
+                ) as HTMLInputElement;
                 expect(input).toBeTruthy();
                 expect(input.checked).toEqual(true);
             });
 
             it('accoladesCount', async () => {
-                const fixtureData: GameDto = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: GameDto = fixtureBuilder(
+                    '2023-04-01T20:30:00',
+                )
                     .postponed()
                     .accoladesCount()
                     .address('ADDRESS')
@@ -241,7 +269,9 @@ describe('GameDetails', () => {
                     season,
                 });
 
-                const input = context.container.querySelector('input[name="accoladesCount"]') as HTMLInputElement;
+                const input = context.container.querySelector(
+                    'input[name="accoladesCount"]',
+                ) as HTMLInputElement;
                 expect(input).toBeTruthy();
                 expect(input.checked).toEqual(true);
             });
@@ -249,7 +279,9 @@ describe('GameDetails', () => {
 
         describe('changes', () => {
             it('date', async () => {
-                const fixtureData: GameDto = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: GameDto = fixtureBuilder(
+                    '2023-04-01T20:30:00',
+                )
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
                     .build();
@@ -261,14 +293,21 @@ describe('GameDetails', () => {
                     setFixtureData,
                     season,
                 });
-                await doChange(context.container, 'input[name="date"]', '2023-05-01', context.user);
+                await doChange(
+                    context.container,
+                    'input[name="date"]',
+                    '2023-05-01',
+                    context.user,
+                );
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData!.date).toEqual('2023-05-01');
             });
 
             it('address', async () => {
-                const fixtureData: GameDto = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: GameDto = fixtureBuilder(
+                    '2023-04-01T20:30:00',
+                )
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
                     .build();
@@ -280,14 +319,21 @@ describe('GameDetails', () => {
                     setFixtureData,
                     season,
                 });
-                await doChange(context.container, 'input[name="address"]', 'NEW ADDRESS', context.user);
+                await doChange(
+                    context.container,
+                    'input[name="address"]',
+                    'NEW ADDRESS',
+                    context.user,
+                );
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData!.address).toEqual('NEW ADDRESS');
             });
 
             it('postponed', async () => {
-                const fixtureData: GameDto = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: GameDto = fixtureBuilder(
+                    '2023-04-01T20:30:00',
+                )
                     .postponed()
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
@@ -307,7 +353,9 @@ describe('GameDetails', () => {
             });
 
             it('isKnockout', async () => {
-                const fixtureData: GameDto = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: GameDto = fixtureBuilder(
+                    '2023-04-01T20:30:00',
+                )
                     .knockout()
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
@@ -327,7 +375,9 @@ describe('GameDetails', () => {
             });
 
             it('accoladesCount', async () => {
-                const fixtureData: GameDto = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: GameDto = fixtureBuilder(
+                    '2023-04-01T20:30:00',
+                )
                     .accoladesCount()
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
@@ -340,7 +390,10 @@ describe('GameDetails', () => {
                     setFixtureData,
                     season,
                 });
-                await doClick(context.container, 'input[name="accoladesCount"]');
+                await doClick(
+                    context.container,
+                    'input[name="accoladesCount"]',
+                );
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData!.accoladesCount).toEqual(false);

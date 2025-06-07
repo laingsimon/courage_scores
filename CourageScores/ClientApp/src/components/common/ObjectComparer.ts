@@ -2,7 +2,11 @@
     const xKeys = Object.keys(x || {}).sort((a, b) => a.localeCompare(b));
     const yKeys = Object.keys(y || {}).sort((a, b) => a.localeCompare(b));
 
-    if ((xKeys.length === 0 && yKeys.length === 0) || typeof x === "string" || typeof y === "string") {
+    if (
+        (xKeys.length === 0 && yKeys.length === 0) ||
+        typeof x === 'string' ||
+        typeof y === 'string'
+    ) {
         // primitive type
         return x === y;
     }

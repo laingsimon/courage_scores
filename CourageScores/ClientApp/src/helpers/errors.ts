@@ -1,7 +1,7 @@
-import {UserDto} from "../interfaces/models/dtos/Identity/UserDto";
-import {IError} from "../components/common/IError";
-import {ErrorDetailDto} from "../interfaces/models/dtos/ErrorDetailDto";
-import {createTemporaryId} from "./projection";
+import { UserDto } from '../interfaces/models/dtos/Identity/UserDto';
+import { IError } from '../components/common/IError';
+import { ErrorDetailDto } from '../interfaces/models/dtos/ErrorDetailDto';
+import { createTemporaryId } from './projection';
 
 export function mapError(error: string | IError): IError {
     const errorObject: IError = error as IError;
@@ -9,13 +9,16 @@ export function mapError(error: string | IError): IError {
         console.error(error);
     }
     if (errorObject.message) {
-        return {message: errorObject.message, stack: errorObject.stack};
+        return { message: errorObject.message, stack: errorObject.stack };
     }
 
-    return {message: error as string};
+    return { message: error as string };
 }
 
-export function mapForLogging(error: IError, account?: UserDto): ErrorDetailDto {
+export function mapForLogging(
+    error: IError,
+    account?: UserDto,
+): ErrorDetailDto {
     // noinspection JSUnresolvedReference
     const userAgent = window.navigator.userAgent;
 
@@ -29,5 +32,5 @@ export function mapForLogging(error: IError, account?: UserDto): ErrorDetailDto 
         userAgent: userAgent,
         url: window.location.href,
         id: createTemporaryId(),
-    }
+    };
 }

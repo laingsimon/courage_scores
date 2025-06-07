@@ -5,21 +5,22 @@ import {
     cleanUp,
     doChange,
     doClick,
-    doSelectOption, ErrorState,
+    doSelectOption,
+    ErrorState,
     findButton,
     iocProps,
     renderApp,
-    TestContext
-} from "../../helpers/tests";
-import {EditSeason, IEditSeasonProps} from "./EditSeason";
-import {EditSeasonDto} from "../../interfaces/models/dtos/Season/EditSeasonDto";
-import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
-import {IClientActionResultDto} from "../common/IClientActionResultDto";
-import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
-import {divisionBuilder} from "../../helpers/builders/divisions";
-import {seasonBuilder} from "../../helpers/builders/seasons";
-import {ISeasonApi} from "../../interfaces/apis/ISeasonApi";
-import {DivisionDataSeasonDto} from "../../interfaces/models/dtos/Division/DivisionDataSeasonDto";
+    TestContext,
+} from '../../helpers/tests';
+import { EditSeason, IEditSeasonProps } from './EditSeason';
+import { EditSeasonDto } from '../../interfaces/models/dtos/Season/EditSeasonDto';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
+import { IClientActionResultDto } from '../common/IClientActionResultDto';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
+import { divisionBuilder } from '../../helpers/builders/divisions';
+import { seasonBuilder } from '../../helpers/builders/seasons';
+import { ISeasonApi } from '../../interfaces/apis/ISeasonApi';
+import { DivisionDataSeasonDto } from '../../interfaces/models/dtos/Division/DivisionDataSeasonDto';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -37,14 +38,18 @@ describe('EditSeason', () => {
     let apiResponse: IClientActionResultDto<SeasonDto>;
     let deletedId: string | null;
     const seasonApi = api<ISeasonApi>({
-        update: async (data: EditSeasonDto): Promise<IClientActionResultDto<SeasonDto>> => {
+        update: async (
+            data: EditSeasonDto,
+        ): Promise<IClientActionResultDto<SeasonDto>> => {
             updatedSeason = data;
             return apiResponse;
         },
-        delete: async (id: string): Promise<IClientActionResultDto<SeasonDto>> => {
+        delete: async (
+            id: string,
+        ): Promise<IClientActionResultDto<SeasonDto>> => {
             deletedId = id;
             return apiResponse;
-        }
+        },
     });
 
     async function onClose() {
@@ -59,9 +64,7 @@ describe('EditSeason', () => {
         saveError = err;
     }
 
-    async function onUpdateData(_: EditSeasonDto) {
-
-    }
+    async function onUpdateData(_: EditSeasonDto) {}
 
     afterEach(async () => {
         await cleanUp(context);
@@ -78,15 +81,23 @@ describe('EditSeason', () => {
         };
     });
 
-    async function renderComponent(props: IEditSeasonProps, seasons: SeasonDto[], divisions: DivisionDto[]) {
+    async function renderComponent(
+        props: IEditSeasonProps,
+        seasons: SeasonDto[],
+        divisions: DivisionDto[],
+    ) {
         context = await renderApp(
-            iocProps({seasonApi}),
+            iocProps({ seasonApi }),
             brandingProps(),
-            appProps({
-                seasons,
-                divisions
-            }, reportedError),
-            (<EditSeason {...props} />));
+            appProps(
+                {
+                    seasons,
+                    divisions,
+                },
+                reportedError,
+            ),
+            <EditSeason {...props} />,
+        );
     }
 
     const division1 = divisionBuilder('DIVISION 1').build();
@@ -102,18 +113,27 @@ describe('EditSeason', () => {
 
     it('updates season name', async () => {
         let updatedData: EditSeasonDto;
-        await renderComponent({
-            data: season,
-            onUpdateData: async (update: EditSeasonDto) => {
-                updatedData = update;
+        await renderComponent(
+            {
+                data: season,
+                onUpdateData: async (update: EditSeasonDto) => {
+                    updatedData = update;
+                },
+                setSaveError,
+                onClose,
+                onSave,
             },
-            setSaveError,
-            onClose,
-            onSave,
-        }, [season], divisions);
+            [season],
+            divisions,
+        );
         reportedError.verifyNoError();
 
-        await doChange(context.container, 'input[name="name"]', 'NEW SEASON NAME', context.user);
+        await doChange(
+            context.container,
+            'input[name="name"]',
+            'NEW SEASON NAME',
+            context.user,
+        );
 
         reportedError.verifyNoError();
         expect(updatedData!.id).toEqual(season.id);
@@ -122,23 +142,37 @@ describe('EditSeason', () => {
 
     it('updates season dates', async () => {
         let updatedData: EditSeasonDto;
-        await renderComponent({
-            data: season,
-            onUpdateData: async (update: EditSeasonDto) => {
-                updatedData = update;
+        await renderComponent(
+            {
+                data: season,
+                onUpdateData: async (update: EditSeasonDto) => {
+                    updatedData = update;
+                },
+                setSaveError,
+                onClose,
+                onSave,
             },
-            setSaveError,
-            onClose,
-            onSave,
-        }, [season], divisions);
+            [season],
+            divisions,
+        );
         reportedError.verifyNoError();
 
-        await doChange(context.container, 'input[name="startDate"]', '2023-06-01', context.user);
+        await doChange(
+            context.container,
+            'input[name="startDate"]',
+            '2023-06-01',
+            context.user,
+        );
         reportedError.verifyNoError();
         expect(updatedData!.id).toEqual(season.id);
         expect(updatedData!.startDate).toEqual('2023-06-01');
 
-        await doChange(context.container, 'input[name="endDate"]', '2023-09-01', context.user);
+        await doChange(
+            context.container,
+            'input[name="endDate"]',
+            '2023-09-01',
+            context.user,
+        );
         reportedError.verifyNoError();
         expect(updatedData!.id).toEqual(season.id);
         expect(updatedData!.endDate).toEqual('2023-09-01');
@@ -146,19 +180,27 @@ describe('EditSeason', () => {
 
     it('can select a division', async () => {
         let updatedData: EditSeasonDto;
-        await renderComponent({
-            data: season,
-            onUpdateData: async (update: EditSeasonDto) => {
-                updatedData = update;
+        await renderComponent(
+            {
+                data: season,
+                onUpdateData: async (update: EditSeasonDto) => {
+                    updatedData = update;
+                },
+                setSaveError,
+                onClose,
+                onSave,
             },
-            setSaveError,
-            onClose,
-            onSave,
-        }, [season], divisions);
+            [season],
+            divisions,
+        );
         reportedError.verifyNoError();
 
-        const divisionOptions = Array.from(context.container.querySelectorAll('.list-group-item'));
-        const unselectedDivision = divisionOptions.filter(d => d.className.indexOf('active') === -1)[0];
+        const divisionOptions = Array.from(
+            context.container.querySelectorAll('.list-group-item'),
+        );
+        const unselectedDivision = divisionOptions.filter(
+            (d) => d.className.indexOf('active') === -1,
+        )[0];
         expect(unselectedDivision.textContent).toEqual(division2.name);
         await doClick(unselectedDivision);
 
@@ -169,19 +211,27 @@ describe('EditSeason', () => {
 
     it('can unselect a division', async () => {
         let updatedData: EditSeasonDto;
-        await renderComponent({
-            data: season,
-            onUpdateData: async (update: EditSeasonDto) => {
-                updatedData = update;
+        await renderComponent(
+            {
+                data: season,
+                onUpdateData: async (update: EditSeasonDto) => {
+                    updatedData = update;
+                },
+                setSaveError,
+                onClose,
+                onSave,
             },
-            setSaveError,
-            onClose,
-            onSave,
-        }, [season], divisions);
+            [season],
+            divisions,
+        );
         reportedError.verifyNoError();
 
-        const divisionOptions = Array.from(context.container.querySelectorAll('.list-group-item'));
-        const selectedDivision = divisionOptions.filter(d => d.className.indexOf('active') !== -1)[0];
+        const divisionOptions = Array.from(
+            context.container.querySelectorAll('.list-group-item'),
+        );
+        const selectedDivision = divisionOptions.filter(
+            (d) => d.className.indexOf('active') !== -1,
+        )[0];
         expect(selectedDivision.textContent).toEqual(division1.name);
         await doClick(selectedDivision);
 
@@ -195,18 +245,25 @@ describe('EditSeason', () => {
         seasonWithoutId.id = undefined;
         const otherSeason = seasonBuilder('OTHER SEASON').build();
         let updatedData: EditSeasonDto;
-        await renderComponent({
-            data: seasonWithoutId as EditSeasonDto & DivisionDataSeasonDto,
-            onUpdateData: async (update: EditSeasonDto) => {
-                updatedData = update;
+        await renderComponent(
+            {
+                data: seasonWithoutId as EditSeasonDto & DivisionDataSeasonDto,
+                onUpdateData: async (update: EditSeasonDto) => {
+                    updatedData = update;
+                },
+                setSaveError,
+                onClose,
+                onSave,
             },
-            setSaveError,
-            onClose,
-            onSave,
-        }, [otherSeason], divisions);
+            [otherSeason],
+            divisions,
+        );
         reportedError.verifyNoError();
 
-        await doSelectOption(context.container.querySelector('.dropdown-menu'), 'OTHER SEASON');
+        await doSelectOption(
+            context.container.querySelector('.dropdown-menu'),
+            'OTHER SEASON',
+        );
 
         reportedError.verifyNoError();
         expect(updatedData!.copyTeamsFromSeasonId).toEqual(otherSeason.id);
@@ -215,13 +272,17 @@ describe('EditSeason', () => {
     it('prevents save when season name is empty', async () => {
         const seasonWithoutName = Object.assign({}, season);
         seasonWithoutName.name = '';
-        await renderComponent({
-            data: seasonWithoutName,
-            setSaveError,
-            onClose,
-            onSave,
-            onUpdateData,
-        }, [seasonWithoutName], divisions);
+        await renderComponent(
+            {
+                data: seasonWithoutName,
+                setSaveError,
+                onClose,
+                onSave,
+                onUpdateData,
+            },
+            [seasonWithoutName],
+            divisions,
+        );
 
         await doClick(findButton(context.container, 'Update season'));
 
@@ -230,13 +291,17 @@ describe('EditSeason', () => {
     });
 
     it('saves season updates', async () => {
-        await renderComponent({
-            data: season,
-            setSaveError,
-            onClose,
-            onSave,
-            onUpdateData,
-        }, [season], divisions);
+        await renderComponent(
+            {
+                data: season,
+                setSaveError,
+                onClose,
+                onSave,
+                onUpdateData,
+            },
+            [season],
+            divisions,
+        );
         reportedError.verifyNoError();
 
         await doClick(findButton(context.container, 'Update season'));
@@ -249,16 +314,20 @@ describe('EditSeason', () => {
     });
 
     it('reports saveError if an error during save', async () => {
-        await renderComponent({
-            data: season,
-            setSaveError,
-            onClose,
-            onSave,
-            onUpdateData,
-        }, [season], divisions);
+        await renderComponent(
+            {
+                data: season,
+                setSaveError,
+                onClose,
+                onSave,
+                onUpdateData,
+            },
+            [season],
+            divisions,
+        );
         reportedError.verifyNoError();
         apiResponse = {
-            success: false
+            success: false,
         };
 
         await doClick(findButton(context.container, 'Update season'));
@@ -268,32 +337,48 @@ describe('EditSeason', () => {
     });
 
     it('confirms if season should be deleted', async () => {
-        await renderComponent({
-            data: season,
-            setSaveError,
-            onClose,
-            onSave,
-            onUpdateData,
-        }, [season], divisions);
+        await renderComponent(
+            {
+                data: season,
+                setSaveError,
+                onClose,
+                onSave,
+                onUpdateData,
+            },
+            [season],
+            divisions,
+        );
         reportedError.verifyNoError();
-        context.prompts.respondToConfirm('Are you sure you want to delete the SEASON season?', true);
+        context.prompts.respondToConfirm(
+            'Are you sure you want to delete the SEASON season?',
+            true,
+        );
 
         await doClick(findButton(context.container, 'Delete season'));
 
-        context.prompts.confirmWasShown('Are you sure you want to delete the SEASON season?');
+        context.prompts.confirmWasShown(
+            'Are you sure you want to delete the SEASON season?',
+        );
         expect(saved).toEqual(false);
     });
 
     it('deletes season', async () => {
-        await renderComponent({
-            data: season,
-            setSaveError,
-            onClose,
-            onSave,
-            onUpdateData,
-        }, [season], divisions);
+        await renderComponent(
+            {
+                data: season,
+                setSaveError,
+                onClose,
+                onSave,
+                onUpdateData,
+            },
+            [season],
+            divisions,
+        );
         reportedError.verifyNoError();
-        context.prompts.respondToConfirm('Are you sure you want to delete the SEASON season?', true);
+        context.prompts.respondToConfirm(
+            'Are you sure you want to delete the SEASON season?',
+            true,
+        );
 
         await doClick(findButton(context.container, 'Delete season'));
 
@@ -302,17 +387,24 @@ describe('EditSeason', () => {
     });
 
     it('reports saveError if season cannot be deleted', async () => {
-        await renderComponent({
-            data: season,
-            setSaveError,
-            onClose,
-            onSave,
-            onUpdateData,
-        }, [season], divisions);
+        await renderComponent(
+            {
+                data: season,
+                setSaveError,
+                onClose,
+                onSave,
+                onUpdateData,
+            },
+            [season],
+            divisions,
+        );
         reportedError.verifyNoError();
-        context.prompts.respondToConfirm('Are you sure you want to delete the SEASON season?', true);
+        context.prompts.respondToConfirm(
+            'Are you sure you want to delete the SEASON season?',
+            true,
+        );
         apiResponse = {
-            success: false
+            success: false,
         };
 
         await doClick(findButton(context.container, 'Delete season'));
@@ -323,15 +415,22 @@ describe('EditSeason', () => {
     });
 
     it('navigates to home when season deleted', async () => {
-        await renderComponent({
-            data: season,
-            setSaveError,
-            onClose,
-            onSave,
-            onUpdateData,
-        }, [season], divisions);
+        await renderComponent(
+            {
+                data: season,
+                setSaveError,
+                onClose,
+                onSave,
+                onUpdateData,
+            },
+            [season],
+            divisions,
+        );
         reportedError.verifyNoError();
-        context.prompts.respondToConfirm('Are you sure you want to delete the SEASON season?', true);
+        context.prompts.respondToConfirm(
+            'Are you sure you want to delete the SEASON season?',
+            true,
+        );
 
         await doClick(findButton(context.container, 'Delete season'));
 

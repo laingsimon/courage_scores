@@ -5,13 +5,14 @@ import {
     doSelectOption,
     ErrorState,
     iocProps,
-    renderApp, TestContext
-} from "../../helpers/tests";
-import {IPickTemplateProps, PickTemplate} from "./PickTemplate";
-import {createTemporaryId} from "../../helpers/projection";
-import {TemplateDto} from "../../interfaces/models/dtos/Season/Creation/TemplateDto";
-import {IClientActionResultDto} from "../common/IClientActionResultDto";
-import {ActionResultDto} from "../../interfaces/models/dtos/ActionResultDto";
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import { IPickTemplateProps, PickTemplate } from './PickTemplate';
+import { createTemporaryId } from '../../helpers/projection';
+import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto';
+import { IClientActionResultDto } from '../common/IClientActionResultDto';
+import { ActionResultDto } from '../../interfaces/models/dtos/ActionResultDto';
 
 describe('PickTemplate', () => {
     let context: TestContext;
@@ -36,7 +37,8 @@ describe('PickTemplate', () => {
             iocProps(),
             brandingProps(),
             appProps({}, reportedError),
-            (<PickTemplate {...props} />));
+            <PickTemplate {...props} />,
+        );
     }
 
     describe('renders', () => {
@@ -84,7 +86,9 @@ describe('PickTemplate', () => {
             });
 
             reportedError.verifyNoError();
-            expect(context.container.innerHTML).toContain('spinner-border spinner-border-sm');
+            expect(context.container.innerHTML).toContain(
+                'spinner-border spinner-border-sm',
+            );
         });
 
         it('when no template selected', async () => {
@@ -92,7 +96,7 @@ describe('PickTemplate', () => {
                 selectedTemplate: null,
                 loading: false,
                 templates: {
-                    result: [compatibleTemplate, incompatibleTemplate]
+                    result: [compatibleTemplate, incompatibleTemplate],
                 },
                 setSelectedTemplate,
             });
@@ -108,7 +112,7 @@ describe('PickTemplate', () => {
                 selectedTemplate: compatibleTemplate,
                 loading: false,
                 templates: {
-                    result: [compatibleTemplate, incompatibleTemplate]
+                    result: [compatibleTemplate, incompatibleTemplate],
                 },
                 setSelectedTemplate,
             });
@@ -116,7 +120,9 @@ describe('PickTemplate', () => {
             reportedError.verifyNoError();
             const dropdown = context.container.querySelector('.dropdown-menu')!;
             expect(dropdown).toBeTruthy();
-            expect(dropdown.querySelector('.active')!.textContent).toEqual('COMPATIBLECOMPATIBLE DESCRIPTION');
+            expect(dropdown.querySelector('.active')!.textContent).toEqual(
+                'COMPATIBLECOMPATIBLE DESCRIPTION',
+            );
         });
 
         it('compatible template errors, warnings and messages', async () => {
@@ -124,7 +130,7 @@ describe('PickTemplate', () => {
                 selectedTemplate: compatibleTemplate,
                 loading: false,
                 templates: {
-                    result: [compatibleTemplate, incompatibleTemplate]
+                    result: [compatibleTemplate, incompatibleTemplate],
                 },
                 setSelectedTemplate,
             });
@@ -133,11 +139,27 @@ describe('PickTemplate', () => {
             const alert = context.container.querySelector('.alert')!;
             expect(alert).toBeTruthy();
             expect(alert.className).toContain('alert-success');
-            expect(alert.querySelector('h4')!.textContent).toEqual('✔ Compatible with this season');
-            expect(Array.from(alert.querySelectorAll('ol:nth-child(2) li')).map(li => li.textContent)).toEqual(['ERROR']);
-            expect(Array.from(alert.querySelectorAll('ol:nth-child(3) li')).map(li => li.textContent)).toEqual(['WARNING']);
-            expect(Array.from(alert.querySelectorAll('ol:nth-child(4) li')).map(li => li.textContent)).toEqual(['MESSAGE']);
-            expect(alert.querySelector('div[datatype="view-health-check"]')).toBeTruthy();
+            expect(alert.querySelector('h4')!.textContent).toEqual(
+                '✔ Compatible with this season',
+            );
+            expect(
+                Array.from(alert.querySelectorAll('ol:nth-child(2) li')).map(
+                    (li) => li.textContent,
+                ),
+            ).toEqual(['ERROR']);
+            expect(
+                Array.from(alert.querySelectorAll('ol:nth-child(3) li')).map(
+                    (li) => li.textContent,
+                ),
+            ).toEqual(['WARNING']);
+            expect(
+                Array.from(alert.querySelectorAll('ol:nth-child(4) li')).map(
+                    (li) => li.textContent,
+                ),
+            ).toEqual(['MESSAGE']);
+            expect(
+                alert.querySelector('div[datatype="view-health-check"]'),
+            ).toBeTruthy();
         });
 
         it('incompatible template errors, warnings and messages', async () => {
@@ -145,7 +167,7 @@ describe('PickTemplate', () => {
                 selectedTemplate: incompatibleTemplate,
                 loading: false,
                 templates: {
-                    result: [compatibleTemplate, incompatibleTemplate]
+                    result: [compatibleTemplate, incompatibleTemplate],
                 },
                 setSelectedTemplate,
             });
@@ -154,11 +176,27 @@ describe('PickTemplate', () => {
             const alert = context.container.querySelector('.alert')!;
             expect(alert).toBeTruthy();
             expect(alert.className).toContain('alert-warning');
-            expect(alert.querySelector('h4')!.textContent).toEqual('🚫 Incompatible with this season');
-            expect(Array.from(alert.querySelectorAll('ol:nth-child(2) li')).map(li => li.textContent)).toEqual(['ERROR']);
-            expect(Array.from(alert.querySelectorAll('ol:nth-child(3) li')).map(li => li.textContent)).toEqual(['WARNING']);
-            expect(Array.from(alert.querySelectorAll('ol:nth-child(4) li')).map(li => li.textContent)).toEqual(['MESSAGE']);
-            expect(alert.querySelector('div[datatype="view-health-check"]')).toBeFalsy();
+            expect(alert.querySelector('h4')!.textContent).toEqual(
+                '🚫 Incompatible with this season',
+            );
+            expect(
+                Array.from(alert.querySelectorAll('ol:nth-child(2) li')).map(
+                    (li) => li.textContent,
+                ),
+            ).toEqual(['ERROR']);
+            expect(
+                Array.from(alert.querySelectorAll('ol:nth-child(3) li')).map(
+                    (li) => li.textContent,
+                ),
+            ).toEqual(['WARNING']);
+            expect(
+                Array.from(alert.querySelectorAll('ol:nth-child(4) li')).map(
+                    (li) => li.textContent,
+                ),
+            ).toEqual(['MESSAGE']);
+            expect(
+                alert.querySelector('div[datatype="view-health-check"]'),
+            ).toBeFalsy();
         });
 
         it('when selected template has no errors, warnings or messages', async () => {
@@ -184,7 +222,7 @@ describe('PickTemplate', () => {
                 selectedTemplate: quietTemplate,
                 loading: false,
                 templates: {
-                    result: [compatibleTemplate, incompatibleTemplate]
+                    result: [compatibleTemplate, incompatibleTemplate],
                 },
                 setSelectedTemplate,
             });
@@ -193,7 +231,9 @@ describe('PickTemplate', () => {
             const alert = context.container.querySelector('.alert')!;
             expect(alert).toBeTruthy();
             expect(alert.className).toContain('alert-success');
-            expect(context.container.querySelectorAll('.alert > ol').length).toEqual(0);
+            expect(
+                context.container.querySelectorAll('.alert > ol').length,
+            ).toEqual(0);
         });
     });
 
@@ -238,7 +278,7 @@ describe('PickTemplate', () => {
                 selectedTemplate: null,
                 loading: false,
                 templates: {
-                    result: [compatibleTemplate, incompatibleTemplate]
+                    result: [compatibleTemplate, incompatibleTemplate],
                 },
                 setSelectedTemplate,
             });

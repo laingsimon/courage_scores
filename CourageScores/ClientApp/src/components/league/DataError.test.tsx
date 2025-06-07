@@ -1,8 +1,18 @@
-import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../helpers/tests";
-import {DataError} from "./DataError";
-import {DivisionDataContainer, IDivisionDataContainerProps} from "./DivisionDataContainer";
-import {createTemporaryId} from "../../helpers/projection";
-import {DataErrorDto} from "../../interfaces/models/dtos/Division/DataErrorDto";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    iocProps,
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import { DataError } from './DataError';
+import {
+    DivisionDataContainer,
+    IDivisionDataContainerProps,
+} from './DivisionDataContainer';
+import { createTemporaryId } from '../../helpers/projection';
+import { DataErrorDto } from '../../interfaces/models/dtos/Division/DataErrorDto';
 
 describe('DataError', () => {
     let context: TestContext;
@@ -11,32 +21,37 @@ describe('DataError', () => {
         await cleanUp(context);
     });
 
-    async function setDivisionData() {
-
-    }
+    async function setDivisionData() {}
 
     async function onReloadDivision() {
         return null;
     }
 
-    async function renderComponent(containerProps: IDivisionDataContainerProps, dataError: DataErrorDto) {
+    async function renderComponent(
+        containerProps: IDivisionDataContainerProps,
+        dataError: DataErrorDto,
+    ) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
             appProps(),
-            (<DivisionDataContainer {...containerProps}>
-                <DataError dataError={dataError}/>
-            </DivisionDataContainer>));
+            <DivisionDataContainer {...containerProps}>
+                <DataError dataError={dataError} />
+            </DivisionDataContainer>,
+        );
     }
 
     describe('renders', () => {
         it('message and no ids', async () => {
-            await renderComponent({
-                id: '',
-                name: '',
-                setDivisionData,
-                onReloadDivision,
-            }, { message: 'SOME MESSAGE' });
+            await renderComponent(
+                {
+                    id: '',
+                    name: '',
+                    setDivisionData,
+                    onReloadDivision,
+                },
+                { message: 'SOME MESSAGE' },
+            );
 
             expect(context.container.textContent).toContain('SOME MESSAGE');
             expect(context.container.querySelectorAll('a').length).toEqual(0);
@@ -55,11 +70,14 @@ describe('DataError', () => {
                 {
                     message: 'SOME MESSAGE',
                     gameId,
-                });
+                },
+            );
 
             expect(context.container.textContent).toContain('SOME MESSAGE');
             expect(context.container.querySelectorAll('a').length).toEqual(1);
-            const link = context.container.querySelector('a') as HTMLAnchorElement;
+            const link = context.container.querySelector(
+                'a',
+            ) as HTMLAnchorElement;
             expect(link.textContent).toEqual('View fixture');
             expect(link.href).toEqual(`http://localhost/score/${gameId}`);
         });
@@ -77,13 +95,18 @@ describe('DataError', () => {
                 {
                     message: 'SOME MESSAGE',
                     tournamentId,
-                });
+                },
+            );
 
             expect(context.container.textContent).toContain('SOME MESSAGE');
             expect(context.container.querySelectorAll('a').length).toEqual(1);
-            const link = context.container.querySelector('a') as HTMLAnchorElement;
+            const link = context.container.querySelector(
+                'a',
+            ) as HTMLAnchorElement;
             expect(link.textContent).toEqual('View tournament');
-            expect(link.href).toEqual(`http://localhost/tournament/${tournamentId}`);
+            expect(link.href).toEqual(
+                `http://localhost/tournament/${tournamentId}`,
+            );
         });
 
         it('with teamId', async () => {
@@ -99,13 +122,18 @@ describe('DataError', () => {
                 {
                     message: 'SOME MESSAGE',
                     teamId,
-                });
+                },
+            );
 
             expect(context.container.textContent).toContain('SOME MESSAGE');
             expect(context.container.querySelectorAll('a').length).toEqual(1);
-            const link = context.container.querySelector('a') as HTMLAnchorElement;
+            const link = context.container.querySelector(
+                'a',
+            ) as HTMLAnchorElement;
             expect(link.textContent).toEqual('View team');
-            expect(link.href).toEqual(`http://localhost/division/${divisionId}/team:${teamId}`);
+            expect(link.href).toEqual(
+                `http://localhost/division/${divisionId}/team:${teamId}`,
+            );
         });
 
         it('with playerId only', async () => {
@@ -121,7 +149,8 @@ describe('DataError', () => {
                 {
                     message: 'SOME MESSAGE',
                     playerId,
-                });
+                },
+            );
 
             expect(context.container.textContent).toContain('SOME MESSAGE');
             expect(context.container.querySelectorAll('a').length).toEqual(0);
@@ -142,13 +171,18 @@ describe('DataError', () => {
                     message: 'SOME MESSAGE',
                     teamId,
                     playerId,
-                });
+                },
+            );
 
             expect(context.container.textContent).toContain('SOME MESSAGE');
             expect(context.container.querySelectorAll('a').length).toEqual(1);
-            const link = context.container.querySelector('a') as HTMLAnchorElement;
+            const link = context.container.querySelector(
+                'a',
+            ) as HTMLAnchorElement;
             expect(link.textContent).toEqual('View player');
-            expect(link.href).toEqual(`http://localhost/division/${divisionId}/player:${playerId}@${teamId}`);
+            expect(link.href).toEqual(
+                `http://localhost/division/${divisionId}/player:${playerId}@${teamId}`,
+            );
         });
     });
 });

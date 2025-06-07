@@ -1,4 +1,4 @@
-import {AdminContainer} from "./AdminContainer";
+import { AdminContainer } from './AdminContainer';
 import {
     appProps,
     brandingProps,
@@ -7,9 +7,9 @@ import {
     findButton,
     iocProps,
     renderApp,
-    TestContext
-} from "../../helpers/tests";
-import {ISharedAddressesProps, SharedAddresses} from "./SharedAddresses";
+    TestContext,
+} from '../../helpers/tests';
+import { ISharedAddressesProps, SharedAddresses } from './SharedAddresses';
 
 describe('SharedAddresses', () => {
     let context: TestContext;
@@ -27,17 +27,17 @@ describe('SharedAddresses', () => {
         updatedAddresses = addresses;
     }
 
-    async function setHighlight(_?: string) {
-    }
+    async function setHighlight(_?: string) {}
 
     async function renderComponent(props: ISharedAddressesProps) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
             appProps(),
-            (<AdminContainer tables={[]} accounts={[]}>
+            <AdminContainer tables={[]} accounts={[]}>
                 <SharedAddresses {...props} />
-            </AdminContainer>));
+            </AdminContainer>,
+        );
     }
 
     describe('renders', () => {
@@ -50,8 +50,12 @@ describe('SharedAddresses', () => {
                 setHighlight,
             });
 
-            const heading = context.container.querySelector('ul li.list-group-item:first-child')!;
-            expect(heading.className).toEqual('list-group-item bg-warning text-light');
+            const heading = context.container.querySelector(
+                'ul li.list-group-item:first-child',
+            )!;
+            expect(heading.className).toEqual(
+                'list-group-item bg-warning text-light',
+            );
         });
 
         it('with empty list of shared addresses', async () => {
@@ -63,20 +67,24 @@ describe('SharedAddresses', () => {
                 setHighlight,
             });
 
-            const items = Array.from(context.container.querySelectorAll('ul li.list-group-item')) as HTMLElement[];
+            const items = Array.from(
+                context.container.querySelectorAll('ul li.list-group-item'),
+            ) as HTMLElement[];
             expect(items.length).toEqual(1); // heading only
         });
 
         it('with list of shared addresses', async () => {
             await renderComponent({
-                addresses: [ [ 'A' ] ],
+                addresses: [['A']],
                 className: 'bg-warning',
                 onUpdate,
                 highlight: '',
                 setHighlight,
             });
 
-            const items = Array.from(context.container.querySelectorAll('ul li.list-group-item')) as HTMLElement[];
+            const items = Array.from(
+                context.container.querySelectorAll('ul li.list-group-item'),
+            ) as HTMLElement[];
             items.shift(); // exclude the heading
             expect(items[0].textContent).toContain('A ×');
         });
@@ -91,17 +99,20 @@ describe('SharedAddresses', () => {
                 highlight: '',
                 setHighlight,
             });
-            const addButton = findButton(context.container, '➕ Add shared address');
+            const addButton = findButton(
+                context.container,
+                '➕ Add shared address',
+            );
             expect(addButton).toBeTruthy();
 
             await doClick(addButton);
 
-            expect(updatedAddresses).toEqual([ [] ]);
+            expect(updatedAddresses).toEqual([[]]);
         });
 
         it('can delete shared address', async () => {
             await renderComponent({
-                addresses: [ [] ],
+                addresses: [[]],
                 className: 'bg-warning',
                 onUpdate,
                 highlight: '',
@@ -110,12 +121,15 @@ describe('SharedAddresses', () => {
 
             await doClick(findButton(context.container, '🗑️ Remove'));
 
-            expect(updatedAddresses).toEqual([ ]);
+            expect(updatedAddresses).toEqual([]);
         });
 
         it('can update shared address', async () => {
             await renderComponent({
-                addresses: [ [ 'A', 'B' ], [ 'C', 'D' ] ],
+                addresses: [
+                    ['A', 'B'],
+                    ['C', 'D'],
+                ],
                 className: 'bg-warning',
                 onUpdate,
                 highlight: '',
@@ -124,22 +138,29 @@ describe('SharedAddresses', () => {
 
             await doClick(findButton(context.container, 'B ×'));
 
-            expect(updatedAddresses).toEqual([ [ 'A' ], [ 'C', 'D' ] ]);
+            expect(updatedAddresses).toEqual([['A'], ['C', 'D']]);
         });
 
         it('can add suggested shared addresses', async () => {
             await renderComponent({
-                addresses: [ [ 'A', 'B' ] ],
+                addresses: [['A', 'B']],
                 className: 'bg-warning',
                 onUpdate,
                 highlight: '',
                 setHighlight,
-                mnemonicsThatCanShareAddresses: [ [ 'C', 'D' ] ],
+                mnemonicsThatCanShareAddresses: [['C', 'D']],
             });
 
-            await doClick(context.container.querySelector('ul[datatype="shareable-addresses"] > li')!);
+            await doClick(
+                context.container.querySelector(
+                    'ul[datatype="shareable-addresses"] > li',
+                )!,
+            );
 
-            expect(updatedAddresses).toEqual([ [ 'A', 'B' ], [ 'C', 'D' ] ]);
+            expect(updatedAddresses).toEqual([
+                ['A', 'B'],
+                ['C', 'D'],
+            ]);
         });
     });
 });

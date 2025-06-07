@@ -1,13 +1,13 @@
-import {ISubscriptions} from "./ISubscriptions";
-import {IWebSocketContext} from "./IWebSocketContext";
-import {ILiveWebSocket} from "./ILiveWebSocket";
-import {ISubscriptionRequest} from "./ISubscriptionRequest";
-import {IUpdateStrategy} from "./IUpdateStrategy";
-import {WebSocketMode} from "./WebSocketMode";
-import {IStrategyData} from "./IStrategyData";
-import {ISubscription} from "./ISubscription";
-import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
-import {UntypedPromise} from "../interfaces/UntypedPromise";
+import { ISubscriptions } from './ISubscriptions';
+import { IWebSocketContext } from './IWebSocketContext';
+import { ILiveWebSocket } from './ILiveWebSocket';
+import { ISubscriptionRequest } from './ISubscriptionRequest';
+import { IUpdateStrategy } from './IUpdateStrategy';
+import { WebSocketMode } from './WebSocketMode';
+import { IStrategyData } from './IStrategyData';
+import { ISubscription } from './ISubscription';
+import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType';
+import { UntypedPromise } from '../interfaces/UntypedPromise';
 
 interface IMultiModeLiveWebSocketProps {
     socketContext: IWebSocketContext;
@@ -20,21 +20,25 @@ interface IMultiModeLiveWebSocketProps {
 
 export class MultiModeLiveWebSocket implements ILiveWebSocket {
     private readonly socketContext: IWebSocketContext;
-    private readonly setSubscriptions: (subscriptions: ISubscriptions) => UntypedPromise;
-    private readonly setSocketContext: (socket: IWebSocketContext) => UntypedPromise;
+    private readonly setSubscriptions: (
+        subscriptions: ISubscriptions,
+    ) => UntypedPromise;
+    private readonly setSocketContext: (
+        socket: IWebSocketContext,
+    ) => UntypedPromise;
     private readonly webSocketStrategy: IUpdateStrategy;
     private readonly pollingStrategy: IUpdateStrategy;
 
     public subscriptions: ISubscriptions;
 
     constructor({
-                    socketContext,
-                    subscriptions,
-                    setSubscriptions,
-                    setSocketContext,
-                    webSocketStrategy,
-                    pollingStrategy,
-                }: IMultiModeLiveWebSocketProps) {
+        socketContext,
+        subscriptions,
+        setSubscriptions,
+        setSocketContext,
+        webSocketStrategy,
+        pollingStrategy,
+    }: IMultiModeLiveWebSocketProps) {
         this.socketContext = socketContext;
         this.subscriptions = subscriptions;
         this.setSubscriptions = setSubscriptions;
@@ -45,7 +49,9 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
     async publish(id: string, type: LiveDataType, data: any): Promise<boolean> {
-        const strategies: IUpdateStrategy[] = this.getAllStrategies(this.socketContext);
+        const strategies: IUpdateStrategy[] = this.getAllStrategies(
+            this.socketContext,
+        );
         const strategyProps: IStrategyData = {
             context: this.socketContext,
             subscriptions: this.subscriptions,
@@ -57,19 +63,28 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
         }
 
         for (const strategy of strategies) {
-            const published: IWebSocketContext | null = await strategy.publish(strategyProps, id, type, data);
+            const published: IWebSocketContext | null = await strategy.publish(
+                strategyProps,
+                id,
+                type,
+                data,
+            );
             if (published) {
                 await this.setSocketContext(published);
                 return true;
             }
         }
 
-        console.error('Unable to publish update; no strategy was able to publish the update');
+        console.error(
+            'Unable to publish update; no strategy was able to publish the update',
+        );
         return false;
     }
 
     async unsubscribe(id: string) {
-        const strategies: IUpdateStrategy[] = this.getAllStrategies(this.socketContext);
+        const strategies: IUpdateStrategy[] = this.getAllStrategies(
+            this.socketContext,
+        );
         const strategyProps: IStrategyData = {
             context: this.socketContext,
             subscriptions: this.subscriptions,
@@ -80,7 +95,10 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
             s.refresh(strategyProps);
         }
 
-        const newSubscriptions: ISubscriptions = Object.assign({}, this.subscriptions);
+        const newSubscriptions: ISubscriptions = Object.assign(
+            {},
+            this.subscriptions,
+        );
         delete newSubscriptions[id];
         delete this.subscriptions[id];
         await this.setSubscriptions(newSubscriptions);
@@ -93,35 +111,52 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
         };
 
         for (const strategy of strategies) {
-            newStrategyProps.context = await strategy.unsubscribe(newStrategyProps, id);
+            newStrategyProps.context = await strategy.unsubscribe(
+                newStrategyProps,
+                id,
+            );
         }
 
         await this.setSocketContext(newStrategyProps.context);
     }
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
-    async subscribe(request: ISubscriptionRequest, dataHandler?: (data: any) => void, errorHandler?: (error: any) => void) {
+    async subscribe(
+        request: ISubscriptionRequest,
+        dataHandler?: (data: any) => void,
+        errorHandler?: (error: any) => void,
+    ) {
         if (this.subscriptions[request.id]) {
             console.log(`WARN: ${request.type} subscription is being replaced`);
         }
 
-        const newSubscriptions: ISubscriptions = Object.assign({}, this.subscriptions);
+        const newSubscriptions: ISubscriptions = Object.assign(
+            {},
+            this.subscriptions,
+        );
         const newSubscription: ISubscription = {
             id: request.id,
             type: request.type,
             /* eslint-disable @typescript-eslint/no-explicit-any */
-            updateHandler: dataHandler || ((msg: any) => {
-                /* istanbul ignore next */
-                console.log(msg);
-            }),
+            updateHandler:
+                dataHandler ||
+                ((msg: any) => {
+                    /* istanbul ignore next */
+                    console.log(msg);
+                }),
             /* eslint-disable @typescript-eslint/no-explicit-any */
-            errorHandler: errorHandler || ((err: any) => {
-                /* istanbul ignore next */
-                console.error(err);
-            }),
+            errorHandler:
+                errorHandler ||
+                ((err: any) => {
+                    /* istanbul ignore next */
+                    console.error(err);
+                }),
         };
         newSubscriptions[request.id] = newSubscription;
-        let newSocketContext: IWebSocketContext = Object.assign({}, this.socketContext);
+        let newSocketContext: IWebSocketContext = Object.assign(
+            {},
+            this.socketContext,
+        );
         let subscribed = false;
         const strategyProps: IStrategyData = {
             context: newSocketContext,
@@ -138,7 +173,10 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
             }
 
             strategy.refresh(strategyProps);
-            const result: IWebSocketContext | null = await strategy.subscribe(strategyProps, request);
+            const result: IWebSocketContext | null = await strategy.subscribe(
+                strategyProps,
+                request,
+            );
             if (result) {
                 newSocketContext = result;
                 newSubscription.method = mode;
@@ -146,7 +184,9 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
                 break;
             } else {
                 // this strategy is unusable exclude it from future iterations
-                newSocketContext.modes = newSocketContext.modes.filter((m: WebSocketMode) => m !== mode);
+                newSocketContext.modes = newSocketContext.modes.filter(
+                    (m: WebSocketMode) => m !== mode,
+                );
             }
         }
 
@@ -160,7 +200,9 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
 
     private getAllStrategies(context: IWebSocketContext): IUpdateStrategy[] {
         return context.modes
-            .map((mode: WebSocketMode): IUpdateStrategy | null => this.getStrategy(mode))
+            .map((mode: WebSocketMode): IUpdateStrategy | null =>
+                this.getStrategy(mode),
+            )
             .filter((m: IUpdateStrategy | null) => m !== null);
     }
 

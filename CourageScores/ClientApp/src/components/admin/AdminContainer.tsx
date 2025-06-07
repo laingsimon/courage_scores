@@ -1,5 +1,5 @@
-import React, {createContext, useContext} from "react";
-import {IAdmin} from "./IAdmin";
+import React, { createContext, useContext } from 'react';
+import { IAdmin } from './IAdmin';
 
 const AdminContext = createContext({});
 
@@ -12,8 +12,8 @@ export interface IAdminContainerProps extends IAdmin {
 }
 
 /* istanbul ignore next */
-export function AdminContainer({children, ...data}: IAdminContainerProps) {
-    return (<AdminContext.Provider value={data}>
-        {children}
-    </AdminContext.Provider>)
+export function AdminContainer({ children, ...data }: IAdminContainerProps) {
+    return (
+        <AdminContext.Provider value={data}>{children}</AdminContext.Provider>
+    );
 }

@@ -3,23 +3,35 @@
     brandingProps,
     cleanUp,
     doClick,
-    doSelectOption, ErrorState,
+    doSelectOption,
+    ErrorState,
     findButton,
     iocProps,
-    renderApp, TestContext
-} from "../../helpers/tests";
-import {createTemporaryId} from "../../helpers/projection";
-import {renderDate} from "../../helpers/rendering";
-import {DivisionFixtureDate, IDivisionFixtureDateProps} from "./DivisionFixtureDate";
-import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
-import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
-import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
-import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
-import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
-import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
-import {divisionBuilder, divisionDataBuilder, fixtureDateBuilder} from "../../helpers/builders/divisions";
-import {seasonBuilder} from "../../helpers/builders/seasons";
-import {teamBuilder} from "../../helpers/builders/teams";
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import { createTemporaryId } from '../../helpers/projection';
+import { renderDate } from '../../helpers/rendering';
+import {
+    DivisionFixtureDate,
+    IDivisionFixtureDateProps,
+} from './DivisionFixtureDate';
+import {
+    DivisionDataContainer,
+    IDivisionDataContainerProps,
+} from '../league/DivisionDataContainer';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
+import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto';
+import {
+    divisionBuilder,
+    divisionDataBuilder,
+    fixtureDateBuilder,
+} from '../../helpers/builders/divisions';
+import { seasonBuilder } from '../../helpers/builders/seasons';
+import { teamBuilder } from '../../helpers/builders/teams';
 
 describe('DivisionFixtureDate', () => {
     let context: TestContext;
@@ -55,18 +67,28 @@ describe('DivisionFixtureDate', () => {
         showPlayers = null;
     });
 
-    async function renderComponent(props: IDivisionFixtureDateProps, divisionData: IDivisionDataContainerProps, account?: UserDto, excludeControls?: boolean, teams?: TeamDto[]) {
+    async function renderComponent(
+        props: IDivisionFixtureDateProps,
+        divisionData: IDivisionDataContainerProps,
+        account?: UserDto,
+        excludeControls?: boolean,
+        teams?: TeamDto[],
+    ) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
-            appProps({
-                account,
-                controls: !excludeControls,
-                teams: teams || [],
-            }, reportedError),
-            (<DivisionDataContainer {...divisionData}>
+            appProps(
+                {
+                    account,
+                    controls: !excludeControls,
+                    teams: teams || [],
+                },
+                reportedError,
+            ),
+            <DivisionDataContainer {...divisionData}>
                 <DivisionFixtureDate {...props} />
-            </DivisionDataContainer>));
+            </DivisionDataContainer>,
+        );
     }
 
     function getDate(daysFromToday: number) {
@@ -79,6 +101,22 @@ describe('DivisionFixtureDate', () => {
         return teamBuilder(name).build();
     }
 
+    function props(
+        date: DivisionFixtureDateDto,
+        customisations?: Partial<IDivisionFixtureDateProps>,
+    ): IDivisionFixtureDateProps {
+        return {
+            date,
+            showPlayers: {},
+            setShowPlayers,
+            onTournamentChanged,
+            setEditNote,
+            startAddNote,
+            setNewFixtures,
+            ...customisations,
+        };
+    }
+
     describe('when logged out', () => {
         const team: TeamDto = teamBuilder('TEAM').build();
         const division: DivisionDto = divisionBuilder('DIVISION').build();
@@ -86,21 +124,23 @@ describe('DivisionFixtureDate', () => {
 
         it('renders league fixtures', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture(f => f.bye(teamBuilder('HOME').build()))
+                .withFixture((f) => f.bye(teamBuilder('HOME').build()))
                 .build();
-            await renderComponent({
-                date: fixtureDate,
-                showPlayers: {},
-                setShowPlayers,
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd.withFixture(f => f.bye(teamBuilder('HOME').build())), '2023-05-06T00:00:00')
-                .season()
-                .withTeam(team)
-                .build(), account);
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(division)
+                    .withFixtureDate(
+                        (fd) =>
+                            fd.withFixture((f) =>
+                                f.bye(teamBuilder('HOME').build()),
+                            ),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season()
+                    .withTeam(team)
+                    .build(),
+                account,
+            );
 
             reportedError.verifyNoError();
             const heading = context.container.querySelector('h4')!;
@@ -116,21 +156,27 @@ describe('DivisionFixtureDate', () => {
 
         it('renders league qualifier/knockout fixtures', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture(f => f.playing(teamDto('HOME'), teamDto('AWAY')).knockout())
+                .withFixture((f) =>
+                    f.playing(teamDto('HOME'), teamDto('AWAY')).knockout(),
+                )
                 .build();
-            await renderComponent({
-                date: fixtureDate,
-                showPlayers: {},
-                setShowPlayers,
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd.withFixture(f => f.playing(teamDto('HOME'), teamDto('AWAY')).knockout()), '2023-05-06T00:00:00')
-                .season()
-                .withTeam(team)
-                .build(), account);
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(division)
+                    .withFixtureDate(
+                        (fd) =>
+                            fd.withFixture((f) =>
+                                f
+                                    .playing(teamDto('HOME'), teamDto('AWAY'))
+                                    .knockout(),
+                            ),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season()
+                    .withTeam(team)
+                    .build(),
+                account,
+            );
 
             reportedError.verifyNoError();
             const heading = context.container.querySelector('h4')!;
@@ -147,24 +193,55 @@ describe('DivisionFixtureDate', () => {
         it('does not render league qualifier/knockout byes', async () => {
             const homeTeamId = createTemporaryId();
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture(f => f.bye(teamBuilder('A BYE HOME', homeTeamId).build()).knockout(), homeTeamId)
-                .withFixture(f => f.playing(teamDto('ANOTHER HOME'), teamDto('ANOTHER AWAY')).knockout())
+                .withFixture(
+                    (f) =>
+                        f
+                            .bye(teamBuilder('A BYE HOME', homeTeamId).build())
+                            .knockout(),
+                    homeTeamId,
+                )
+                .withFixture((f) =>
+                    f
+                        .playing(
+                            teamDto('ANOTHER HOME'),
+                            teamDto('ANOTHER AWAY'),
+                        )
+                        .knockout(),
+                )
                 .build();
-            await renderComponent({
-                date: fixtureDate,
-                showPlayers: {},
-                setShowPlayers,
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd
-                    .withFixture(f => f.bye(teamBuilder('A BYE HOME', homeTeamId).build()).knockout(), homeTeamId)
-                    .withFixture(f => f.playing(teamDto('ANOTHER HOME'), teamDto('ANOTHER AWAY')).knockout()), '2023-05-06T00:00:00')
-                .season()
-                .withTeam(team)
-                .build(), account);
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(division)
+                    .withFixtureDate(
+                        (fd) =>
+                            fd
+                                .withFixture(
+                                    (f) =>
+                                        f
+                                            .bye(
+                                                teamBuilder(
+                                                    'A BYE HOME',
+                                                    homeTeamId,
+                                                ).build(),
+                                            )
+                                            .knockout(),
+                                    homeTeamId,
+                                )
+                                .withFixture((f) =>
+                                    f
+                                        .playing(
+                                            teamDto('ANOTHER HOME'),
+                                            teamDto('ANOTHER AWAY'),
+                                        )
+                                        .knockout(),
+                                ),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season()
+                    .withTeam(team)
+                    .build(),
+                account,
+            );
 
             reportedError.verifyNoError();
             const table = context.container.querySelector('table')!;
@@ -177,21 +254,23 @@ describe('DivisionFixtureDate', () => {
 
         it('renders tournament fixtures', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withTournament(t => t.type('TYPE').address('ADDRESS'))
+                .withTournament((t) => t.type('TYPE').address('ADDRESS'))
                 .build();
-            await renderComponent({
-                date: fixtureDate,
-                setShowPlayers,
-                showPlayers: {},
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd.withTournament(t => t.type('TYPE').address('ADDRESS')), '2023-05-06T00:00:00')
-                .season()
-                .withTeam(team)
-                .build(), account);
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(division)
+                    .withFixtureDate(
+                        (fd) =>
+                            fd.withTournament((t) =>
+                                t.type('TYPE').address('ADDRESS'),
+                            ),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season()
+                    .withTeam(team)
+                    .build(),
+                account,
+            );
 
             reportedError.verifyNoError();
             const heading = context.container.querySelector('h4')!;
@@ -206,21 +285,28 @@ describe('DivisionFixtureDate', () => {
 
         it('renders tournament fixtures with winner', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withTournament(t => t.type('TYPE').address('ADDRESS').winner('WINNER'))
+                .withTournament((t) =>
+                    t.type('TYPE').address('ADDRESS').winner('WINNER'),
+                )
                 .build();
-            await renderComponent({
-                date: fixtureDate,
-                setShowPlayers,
-                showPlayers: {},
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd.withTournament(t => t.type('TYPE').address('ADDRESS').winner('WINNER')), '2023-05-06T00:00:00')
-                .season()
-                .withTeam(team)
-                .build(), account);
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(division)
+                    .withFixtureDate(
+                        (fd) =>
+                            fd.withTournament((t) =>
+                                t
+                                    .type('TYPE')
+                                    .address('ADDRESS')
+                                    .winner('WINNER'),
+                            ),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season()
+                    .withTeam(team)
+                    .build(),
+                account,
+            );
 
             reportedError.verifyNoError();
             const heading = context.container.querySelector('h4')!;
@@ -236,21 +322,20 @@ describe('DivisionFixtureDate', () => {
 
         it('renders notes', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withNote(n => n.note('NOTE'))
+                .withNote((n) => n.note('NOTE'))
                 .build();
-            await renderComponent({
-                date: fixtureDate,
-                setShowPlayers,
-                showPlayers: {},
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd.withNote(n => n.note('NOTE')), '2023-05-06T00:00:00')
-                .season()
-                .withTeam(team)
-                .build(), account);
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(division)
+                    .withFixtureDate(
+                        (fd) => fd.withNote((n) => n.note('NOTE')),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season()
+                    .withTeam(team)
+                    .build(),
+                account,
+            );
 
             reportedError.verifyNoError();
             const heading = context.container.querySelector('h4')!;
@@ -266,21 +351,20 @@ describe('DivisionFixtureDate', () => {
 
         it('renders past dates', async () => {
             const fixtureDate = fixtureDateBuilder(getDate(-1))
-                .withNote(n => n.note('NOTE'))
+                .withNote((n) => n.note('NOTE'))
                 .build();
-            await renderComponent({
-                date: fixtureDate,
-                setShowPlayers,
-                showPlayers: {},
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd.withNote(n => n.note('NOTE')), '2023-05-06T00:00:00')
-                .season()
-                .withTeam(team)
-                .build(), account);
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(division)
+                    .withFixtureDate(
+                        (fd) => fd.withNote((n) => n.note('NOTE')),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season()
+                    .withTeam(team)
+                    .build(),
+                account,
+            );
 
             reportedError.verifyNoError();
             const component = context.container.querySelector('div')!;
@@ -291,21 +375,20 @@ describe('DivisionFixtureDate', () => {
 
         it('renders today', async () => {
             const fixtureDate = fixtureDateBuilder(getDate(0))
-                .withNote(n => n.note('NOTE'))
+                .withNote((n) => n.note('NOTE'))
                 .build();
-            await renderComponent({
-                date: fixtureDate,
-                setShowPlayers,
-                showPlayers: {},
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd.withNote(n => n.note('NOTE')), '2023-05-06T00:00:00')
-                .season()
-                .withTeam(team)
-                .build(), account);
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(division)
+                    .withFixtureDate(
+                        (fd) => fd.withNote((n) => n.note('NOTE')),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season()
+                    .withTeam(team)
+                    .build(),
+                account,
+            );
 
             reportedError.verifyNoError();
             const component = context.container.querySelector('div')!;
@@ -316,21 +399,20 @@ describe('DivisionFixtureDate', () => {
 
         it('renders future dates', async () => {
             const fixtureDate = fixtureDateBuilder(getDate(1))
-                .withNote(n => n.note('NOTE'))
+                .withNote((n) => n.note('NOTE'))
                 .build();
-            await renderComponent({
-                date: fixtureDate,
-                setShowPlayers,
-                showPlayers: {},
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd.withNote(n => n.note('NOTE')), '2023-05-06T00:00:00')
-                .season()
-                .withTeam(team)
-                .build(), account);
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(division)
+                    .withFixtureDate(
+                        (fd) => fd.withNote((n) => n.note('NOTE')),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season()
+                    .withTeam(team)
+                    .build(),
+                account,
+            );
 
             reportedError.verifyNoError();
             const component = context.container.querySelector('div')!;
@@ -341,30 +423,35 @@ describe('DivisionFixtureDate', () => {
 
         it('renders who is playing', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withTournament(t => t
+                .withTournament((t) =>
+                    t
                         .type('TYPE')
                         .address('ADDRESS')
-                        .withSide(s => s.name('SIDE').withPlayer('PLAYER')))
+                        .withSide((s) => s.name('SIDE').withPlayer('PLAYER')),
+                )
                 .build();
             await renderComponent(
-                {
-                    date: fixtureDate,
-                    setShowPlayers,
-                    onTournamentChanged,
-                    setEditNote,
-                    startAddNote,
-                    setNewFixtures,
-                    showPlayers: {'2023-05-06T00:00:00': true},
-                },
+                props(fixtureDate, {
+                    showPlayers: { '2023-05-06T00:00:00': true },
+                }),
                 divisionDataBuilder(division)
-                    .withFixtureDate(fd => fd.withTournament(t => t
-                        .type('TYPE')
-                        .address('ADDRESS')
-                        .withSide(s => s.name('SIDE').withPlayer('PLAYER'))), '2023-05-06T00:00:00')
+                    .withFixtureDate(
+                        (fd) =>
+                            fd.withTournament((t) =>
+                                t
+                                    .type('TYPE')
+                                    .address('ADDRESS')
+                                    .withSide((s) =>
+                                        s.name('SIDE').withPlayer('PLAYER'),
+                                    ),
+                            ),
+                        '2023-05-06T00:00:00',
+                    )
                     .season()
                     .withTeam(team)
                     .build(),
-                account);
+                account,
+            );
 
             reportedError.verifyNoError();
             const table = context.container.querySelector('table')!;
@@ -377,93 +464,124 @@ describe('DivisionFixtureDate', () => {
 
         it('can show who is playing', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withTournament(
-                    t => t
+                .withTournament((t) =>
+                    t
                         .type('TYPE')
                         .address('ADDRESS')
-                        .withSide(s => s.name('SIDE').withPlayer('PLAYER')))
+                        .withSide((s) => s.name('SIDE').withPlayer('PLAYER')),
+                )
                 .build();
-            await renderComponent({
-                date: fixtureDate,
-                showPlayers: {},
-                setShowPlayers,
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd.withTournament(
-                    t => t
-                        .type('TYPE')
-                        .address('ADDRESS')
-                        .withSide(s => s.name('SIDE').withPlayer('PLAYER'))), '2023-05-06T00:00:00')
-                .season()
-                .withTeam(team)
-                .build(), account);
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(division)
+                    .withFixtureDate(
+                        (fd) =>
+                            fd.withTournament((t) =>
+                                t
+                                    .type('TYPE')
+                                    .address('ADDRESS')
+                                    .withSide((s) =>
+                                        s.name('SIDE').withPlayer('PLAYER'),
+                                    ),
+                            ),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season()
+                    .withTeam(team)
+                    .build(),
+                account,
+            );
 
-            await doClick(context.container.querySelector('input[type="checkbox"][id^="showPlayers_"]')!);
+            await doClick(
+                context.container.querySelector(
+                    'input[type="checkbox"][id^="showPlayers_"]',
+                )!,
+            );
 
             expect(showPlayers).toEqual({
-                '2023-05-06T00:00:00': true
+                '2023-05-06T00:00:00': true,
             });
         });
 
         it('can hide who is playing', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withTournament(t => t
-                    .type('TYPE')
-                    .address('ADDRESS')
-                    .withSide(s => s.name('SIDE').withPlayer('PLAYER')))
+                .withTournament((t) =>
+                    t
+                        .type('TYPE')
+                        .address('ADDRESS')
+                        .withSide((s) => s.name('SIDE').withPlayer('PLAYER')),
+                )
                 .build();
-            await renderComponent({
-                date: fixtureDate,
-                showPlayers: {
-                    '2023-05-06T00:00:00': true
-                },
-                setShowPlayers,
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd.withTournament(t => t
-                    .type('TYPE')
-                    .address('ADDRESS')
-                    .withSide(s => s.name('SIDE').withPlayer('PLAYER'))), '2023-05-06T00:00:00')
-                .season()
-                .withTeam(team)
-                .build(), account);
+            await renderComponent(
+                props(fixtureDate, {
+                    showPlayers: {
+                        '2023-05-06T00:00:00': true,
+                    },
+                }),
+                divisionDataBuilder(division)
+                    .withFixtureDate(
+                        (fd) =>
+                            fd.withTournament((t) =>
+                                t
+                                    .type('TYPE')
+                                    .address('ADDRESS')
+                                    .withSide((s) =>
+                                        s.name('SIDE').withPlayer('PLAYER'),
+                                    ),
+                            ),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season()
+                    .withTeam(team)
+                    .build(),
+                account,
+            );
 
-            await doClick(context.container.querySelector('input[type="checkbox"][id^="showPlayers_"]')!);
+            await doClick(
+                context.container.querySelector(
+                    'input[type="checkbox"][id^="showPlayers_"]',
+                )!,
+            );
 
             expect(showPlayers).toEqual({});
         });
 
         it('does not show who is playing option when controls are disabled', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withTournament(t => t
-                    .type('TYPE')
-                    .address('ADDRESS')
-                    .withSide(s => s.name('SIDE').withPlayer('PLAYER')))
+                .withTournament((t) =>
+                    t
+                        .type('TYPE')
+                        .address('ADDRESS')
+                        .withSide((s) => s.name('SIDE').withPlayer('PLAYER')),
+                )
                 .build();
-            await renderComponent({
-                date: fixtureDate,
-                showPlayers: {},
-                setShowPlayers,
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd .withTournament(t => t
-                    .type('TYPE')
-                    .address('ADDRESS')
-                    .withSide(s => s.name('SIDE').withPlayer('PLAYER'))), '2023-05-06T00:00:00')
-                .season()
-                .withTeam(team)
-                .build(), account, true);
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(division)
+                    .withFixtureDate(
+                        (fd) =>
+                            fd.withTournament((t) =>
+                                t
+                                    .type('TYPE')
+                                    .address('ADDRESS')
+                                    .withSide((s) =>
+                                        s.name('SIDE').withPlayer('PLAYER'),
+                                    ),
+                            ),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season()
+                    .withTeam(team)
+                    .build(),
+                account,
+                true,
+            );
 
-            expect(context.container.querySelector('input[type="checkbox"][id^="showPlayers_"]')).toBeFalsy();
+            expect(
+                context.container.querySelector(
+                    'input[type="checkbox"][id^="showPlayers_"]',
+                ),
+            ).toBeFalsy();
         });
     });
 
@@ -490,30 +608,38 @@ describe('DivisionFixtureDate', () => {
 
         it('renders without potential league fixtures when any tournaments exist', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture(f => f.bye(team), team.id)
-                .withTournament(t => t.type('TYPE').address('ADDRESS'))
+                .withFixture((f) => f.bye(team), team.id)
+                .withTournament((t) => t.type('TYPE').address('ADDRESS'))
                 .build();
-            await renderComponent({
-                date: fixtureDate,
-                showPlayers: {},
-                setShowPlayers,
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd
-                    .withFixture(f => f.bye(team), team.id)
-                    .withTournament(t => t.type('TYPE').address('ADDRESS')), '2023-05-06T00:00:00')
-                .season()
-                .withTeam(team)
-                .build(), account);
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(division)
+                    .withFixtureDate(
+                        (fd) =>
+                            fd
+                                .withFixture((f) => f.bye(team), team.id)
+                                .withTournament((t) =>
+                                    t.type('TYPE').address('ADDRESS'),
+                                ),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season()
+                    .withTeam(team)
+                    .build(),
+                account,
+            );
 
             reportedError.verifyNoError();
             const table = context.container.querySelector('table')!;
             expect(table).toBeTruthy();
-            expect(table.querySelectorAll('tr:not([datatype="new-tournament-fixture"])').length).toEqual(1);
-            const row = table.querySelector('tr:not([datatype="new-tournament-fixture"])')!;
+            expect(
+                table.querySelectorAll(
+                    'tr:not([datatype="new-tournament-fixture"])',
+                ).length,
+            ).toEqual(1);
+            const row = table.querySelector(
+                'tr:not([datatype="new-tournament-fixture"])',
+            )!;
             expect(row.textContent).not.toContain('Bye');
             expect(row.textContent).not.toContain('TEAM');
             expect(row.textContent).toContain('TYPE at ADDRESS');
@@ -523,97 +649,119 @@ describe('DivisionFixtureDate', () => {
             const homeTeam = teamBuilder('HOME').build();
             const awayTeam = teamBuilder('AWAY').build();
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture(f => f.bye(team), team.id)
-                .withFixture(f => f.playing(homeTeam, awayTeam), homeTeam.id)
-                .withTournament(t => t.type('TYPE').address('ADDRESS'))
+                .withFixture((f) => f.bye(team), team.id)
+                .withFixture((f) => f.playing(homeTeam, awayTeam), homeTeam.id)
+                .withTournament((t) => t.type('TYPE').address('ADDRESS'))
                 .build();
-            await renderComponent({
-                date: fixtureDate,
-                showPlayers: {},
-                setShowPlayers,
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd
-                    .withFixture(f => f.bye(team), team.id)
-                    .withFixture(f => f.playing(homeTeam, awayTeam), homeTeam.id)
-                    .withTournament(t => t.type('TYPE').address('ADDRESS')), '2023-05-06T00:00:00')
-                .season()
-                .withTeam(team).withTeam(homeTeam).withTeam(awayTeam)
-                .build(), account);
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(division)
+                    .withFixtureDate(
+                        (fd) =>
+                            fd
+                                .withFixture((f) => f.bye(team), team.id)
+                                .withFixture(
+                                    (f) => f.playing(homeTeam, awayTeam),
+                                    homeTeam.id,
+                                )
+                                .withTournament((t) =>
+                                    t.type('TYPE').address('ADDRESS'),
+                                ),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season()
+                    .withTeam(team)
+                    .withTeam(homeTeam)
+                    .withTeam(awayTeam)
+                    .build(),
+                account,
+            );
 
             reportedError.verifyNoError();
             const table = context.container.querySelector('table')!;
             expect(table).toBeTruthy();
             expect(table.querySelectorAll('tr').length).toEqual(2);
             const rows = Array.from(table.querySelectorAll('tr'));
-            expect(rows.map(row => row.querySelector('td:nth-child(1)')!.textContent)).toEqual([ 'HOME', 'TYPE at ADDRESS' ]);
-            expect(rows.map(row => {
-                const activeItem = row.querySelector('td:nth-child(5) .dropdown-item.active');
-                return activeItem ? activeItem.textContent : null;
-            })).toEqual([ 'AWAY', null ]); // null because tournaments don't have a dropdown to select away team
+            expect(
+                rows.map(
+                    (row) => row.querySelector('td:nth-child(1)')!.textContent,
+                ),
+            ).toEqual(['HOME', 'TYPE at ADDRESS']);
+            expect(
+                rows.map((row) => {
+                    const activeItem = row.querySelector(
+                        'td:nth-child(5) .dropdown-item.active',
+                    );
+                    return activeItem ? activeItem.textContent : null;
+                }),
+            ).toEqual(['AWAY', null]); // null because tournaments don't have a dropdown to select away team
         });
 
         it('renders without teams that are assigned to another fixture on the same date', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture(f => f.bye(team), team.id)
-                .withFixture(f => f.playing(anotherTeam, team))
+                .withFixture((f) => f.bye(team), team.id)
+                .withFixture((f) => f.playing(anotherTeam, team))
                 .build();
-            await renderComponent({
-                date: fixtureDate,
-                showPlayers: {},
-                setShowPlayers,
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd
-                    .withFixture(f => f.bye(team), team.id)
-                    .withFixture(f => f.playing(anotherTeam, team)), '2023-05-06T00:00:00')
-                .season()
-                .withTeam(team)
-                .build(), account);
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(division)
+                    .withFixtureDate(
+                        (fd) =>
+                            fd
+                                .withFixture((f) => f.bye(team), team.id)
+                                .withFixture((f) =>
+                                    f.playing(anotherTeam, team),
+                                ),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season()
+                    .withTeam(team)
+                    .build(),
+                account,
+            );
 
             reportedError.verifyNoError();
             const table = context.container.querySelector('table')!;
             expect(table).toBeTruthy();
             expect(table.querySelectorAll('tr').length).toEqual(1);
-            const homeTeams = Array.from(table.querySelectorAll('tr td:first-child')).map(td => td.textContent);
+            const homeTeams = Array.from(
+                table.querySelectorAll('tr td:first-child'),
+            ).map((td) => td.textContent);
             expect(homeTeams).not.toContain('TEAM');
         });
 
         it('can update fixtures', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture(f => f.bye(team), team.id)
+                .withFixture((f) => f.bye(team), team.id)
                 .build();
-            await renderComponent({
-                date: fixtureDate,
-                showPlayers: {},
-                setShowPlayers,
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd.withFixture(f => f.bye(team), team.id), '2023-05-06T00:00:00')
-                .season()
-                .withTeam(team).withTeam(anotherTeam)
-                .build(), account);
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(division)
+                    .withFixtureDate(
+                        (fd) => fd.withFixture((f) => f.bye(team), team.id),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season()
+                    .withTeam(team)
+                    .withTeam(anotherTeam)
+                    .build(),
+                account,
+            );
             const table = context.container.querySelector('table')!;
             const expected = Object.assign({}, fixtureDate);
             const expectedAwayTeam = {
                 id: anotherTeam.id,
                 name: anotherTeam.name,
             };
-            expected.fixtures![0] = Object.assign(
-                {},
-                expected.fixtures![0],
-                {awayTeam: expectedAwayTeam, originalAwayTeamId: 'unset'});
+            expected.fixtures![0] = Object.assign({}, expected.fixtures![0], {
+                awayTeam: expectedAwayTeam,
+                originalAwayTeamId: 'unset',
+            });
 
-            await doSelectOption(table.querySelector('.dropdown-menu')!, 'ANOTHER TEAM');
+            await doSelectOption(
+                table.querySelector('.dropdown-menu')!,
+                'ANOTHER TEAM',
+            );
 
             reportedError.verifyNoError();
             expect(newFixtures).toEqual([expected]);
@@ -621,105 +769,121 @@ describe('DivisionFixtureDate', () => {
 
         it('cannot change isKnockout when fixtures exist', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture(f => f.playing(anotherTeam, team))
+                .withFixture((f) => f.playing(anotherTeam, team))
                 .build();
 
-            await renderComponent({
-                date: fixtureDate,
-                showPlayers: {},
-                setShowPlayers,
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd.withFixture(f => f.playing(anotherTeam, team)), '2023-05-06T00:00:00')
-                .season()
-                .withTeam(team)
-                .build(), account);
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(division)
+                    .withFixtureDate(
+                        (fd) =>
+                            fd.withFixture((f) => f.playing(anotherTeam, team)),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season()
+                    .withTeam(team)
+                    .build(),
+                account,
+            );
 
-            const toggle = context.container.querySelector('input[type="checkbox"][id^="isKnockout_"]');
+            const toggle = context.container.querySelector(
+                'input[type="checkbox"][id^="isKnockout_"]',
+            );
             expect(toggle).toBeFalsy();
         });
 
         it('can change isKnockout when no fixtures exist', async () => {
-            const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .build();
-            await renderComponent({
-                date: fixtureDate,
-                showPlayers: {},
-                setShowPlayers,
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd, '2023-05-06T00:00:00')
-                .season()
-                .withTeam(team)
-                .build(), account);
+            const fixtureDate = fixtureDateBuilder(
+                '2023-05-06T00:00:00',
+            ).build();
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(division)
+                    .withFixtureDate((fd) => fd, '2023-05-06T00:00:00')
+                    .season()
+                    .withTeam(team)
+                    .build(),
+                account,
+            );
 
-            await doClick(context.container.querySelector('input[type="checkbox"][id^="isKnockout_"]')!);
+            await doClick(
+                context.container.querySelector(
+                    'input[type="checkbox"][id^="isKnockout_"]',
+                )!,
+            );
 
-            expect(newFixtures).toEqual([{
-                date: '2023-05-06T00:00:00',
-                fixtures: [{
-                    id: team.id,
-                    homeTeam: {
-                        id: team.id,
-                        address: team.address,
-                        name: team.name,
-                    },
+            expect(newFixtures).toEqual([
+                {
+                    date: '2023-05-06T00:00:00',
+                    fixtures: [
+                        {
+                            id: team.id,
+                            homeTeam: {
+                                id: team.id,
+                                address: team.address,
+                                name: team.name,
+                            },
+                            isKnockout: true,
+                            accoladesCount: true,
+                            fixturesUsingAddress: [],
+                        },
+                    ],
+                    tournamentFixtures: [],
+                    notes: [],
                     isKnockout: true,
-                    accoladesCount: true,
-                    fixturesUsingAddress: [],
-                }],
-                tournamentFixtures: [],
-                notes: [],
-                isKnockout: true,
-            }]);
+                },
+            ]);
         });
 
         it('can render venues after isKnockout change with no existing fixtures', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture(f => f.bye(team).knockout().accoladesCount(), team.id)
+                .withFixture(
+                    (f) => f.bye(team).knockout().accoladesCount(),
+                    team.id,
+                )
                 .build();
 
-            await renderComponent({
-                date: fixtureDate,
-                showPlayers: {},
-                setShowPlayers,
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd.withFixture(f => f.bye(team).knockout().accoladesCount(), team.id), '2023-05-06T00:00:00')
-                .season()
-                .withTeam(team)
-                .build(), account);
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(division)
+                    .withFixtureDate(
+                        (fd) =>
+                            fd.withFixture(
+                                (f) => f.bye(team).knockout().accoladesCount(),
+                                team.id,
+                            ),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season()
+                    .withTeam(team)
+                    .build(),
+                account,
+            );
 
             reportedError.verifyNoError();
-            expect(context.container.querySelector('input[type="checkbox"][id^="isKnockout_"]')).toBeTruthy();
+            expect(
+                context.container.querySelector(
+                    'input[type="checkbox"][id^="isKnockout_"]',
+                ),
+            ).toBeTruthy();
         });
 
         it('can add a note', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture(f => f.bye(team), team.id)
+                .withFixture((f) => f.bye(team), team.id)
                 .build();
-            await renderComponent({
-                date: fixtureDate,
-                showPlayers: {},
-                setShowPlayers,
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd.withFixture(f => f.bye(team), team.id), '2023-05-06T00:00:00')
-                .season()
-                .withTeam(team)
-                .build(), account);
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(division)
+                    .withFixtureDate(
+                        (fd) => fd.withFixture((f) => f.bye(team), team.id),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season()
+                    .withTeam(team)
+                    .build(),
+                account,
+            );
 
             await doClick(findButton(context.container, '📌 Add note'));
 
@@ -732,21 +896,29 @@ describe('DivisionFixtureDate', () => {
                 .build();
             const fixtureId = createTemporaryId();
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture(f => f.playing(team, awayTeam).knockout(), fixtureId)
+                .withFixture(
+                    (f) => f.playing(team, awayTeam).knockout(),
+                    fixtureId,
+                )
                 .build();
-            await renderComponent({
-                date: fixtureDate,
-                showPlayers: {},
-                setShowPlayers,
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd.withFixture(f => f.playing(team, awayTeam).knockout(), fixtureId), '2023-05-06T00:00:00')
-                .season(s => s, season.id)
-                .withTeam(team)
-                .build(), account, undefined, [team, awayTeam]);
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(division)
+                    .withFixtureDate(
+                        (fd) =>
+                            fd.withFixture(
+                                (f) => f.playing(team, awayTeam).knockout(),
+                                fixtureId,
+                            ),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season((s) => s, season.id)
+                    .withTeam(team)
+                    .build(),
+                account,
+                undefined,
+                [team, awayTeam],
+            );
 
             reportedError.verifyNoError();
             const heading = context.container.querySelector('h4')!;
@@ -757,30 +929,39 @@ describe('DivisionFixtureDate', () => {
             expect(table.querySelectorAll('tr').length).toEqual(1);
             const row = table.querySelector('tr')!;
             expect(row.innerHTML).toContain('TEAM');
-            expect(row.querySelector('td:nth-child(5) .dropdown-toggle')!.textContent).toEqual('AWAY');
+            expect(
+                row.querySelector('td:nth-child(5) .dropdown-toggle')!
+                    .textContent,
+            ).toEqual('AWAY');
         });
 
         it('does not render league qualifier/knockout fixtures for superleague divisions', async () => {
-            const superleagueDivision: DivisionDto = divisionBuilder('DIVISION').superleague().build();
+            const superleagueDivision: DivisionDto = divisionBuilder('DIVISION')
+                .superleague()
+                .build();
             const awayTeam = teamBuilder('AWAY')
                 .forSeason(season, superleagueDivision)
                 .build();
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture(f => f.playing(team, awayTeam).knockout())
+                .withFixture((f) => f.playing(team, awayTeam).knockout())
                 .build();
-            await renderComponent({
-                date: fixtureDate,
-                showPlayers: {},
-                setShowPlayers,
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(superleagueDivision)
-                .withFixtureDate(fd => fd.withFixture(f => f.playing(team, awayTeam).knockout()), '2023-05-06T00:00:00')
-                .season()
-                .withTeam(team)
-                .build(), account, undefined, [team, awayTeam]);
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(superleagueDivision)
+                    .withFixtureDate(
+                        (fd) =>
+                            fd.withFixture((f) =>
+                                f.playing(team, awayTeam).knockout(),
+                            ),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season()
+                    .withTeam(team)
+                    .build(),
+                account,
+                undefined,
+                [team, awayTeam],
+            );
 
             reportedError.verifyNoError();
             const heading = context.container.querySelector('h4')!;
@@ -796,21 +977,22 @@ describe('DivisionFixtureDate', () => {
                 .forSeason(season, division)
                 .build();
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture(f => f.bye(team).knockout())
+                .withFixture((f) => f.bye(team).knockout())
                 .build();
-            await renderComponent({
-                date: fixtureDate,
-                showPlayers: {},
-                setShowPlayers,
-                onTournamentChanged,
-                setEditNote,
-                startAddNote,
-                setNewFixtures,
-            }, divisionDataBuilder(division)
-                .withFixtureDate(fd => fd.withFixture(f => f.bye(team).knockout()), '2023-05-06T00:00:00')
-                .season(s => s, season.id)
-                .withTeam(team)
-                .build(), account, undefined, [team, awayTeam]);
+            await renderComponent(
+                props(fixtureDate),
+                divisionDataBuilder(division)
+                    .withFixtureDate(
+                        (fd) => fd.withFixture((f) => f.bye(team).knockout()),
+                        '2023-05-06T00:00:00',
+                    )
+                    .season((s) => s, season.id)
+                    .withTeam(team)
+                    .build(),
+                account,
+                undefined,
+                [team, awayTeam],
+            );
 
             reportedError.verifyNoError();
             const heading = context.container.querySelector('h4')!;
@@ -821,7 +1003,10 @@ describe('DivisionFixtureDate', () => {
             expect(table.querySelectorAll('tr').length).toEqual(1);
             const row = table.querySelector('tr')!;
             expect(row.innerHTML).toContain('TEAM');
-            expect(row.querySelector('td:nth-child(5) .dropdown-toggle')!.textContent).toEqual('');
+            expect(
+                row.querySelector('td:nth-child(5) .dropdown-toggle')!
+                    .textContent,
+            ).toEqual('');
         });
     });
 });

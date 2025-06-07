@@ -1,4 +1,4 @@
-﻿import {isEqual} from "./ObjectComparer";
+﻿import { isEqual } from './ObjectComparer';
 
 describe('ObjectComparer', () => {
     describe('isEqual', () => {

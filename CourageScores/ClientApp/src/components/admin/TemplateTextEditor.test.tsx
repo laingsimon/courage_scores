@@ -1,4 +1,4 @@
-﻿import {AdminContainer} from "./AdminContainer";
+﻿import { AdminContainer } from './AdminContainer';
 import {
     cleanUp,
     renderApp,
@@ -7,12 +7,16 @@ import {
     brandingProps,
     appProps,
     ErrorState,
-    TestContext, noop
-} from "../../helpers/tests";
-import {ITemplateTextEditorProps, TemplateTextEditor} from "./TemplateTextEditor";
-import {createTemporaryId} from "../../helpers/projection";
-import {TemplateDto} from "../../interfaces/models/dtos/Season/Creation/TemplateDto";
-import {EditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/EditTemplateDto";
+    TestContext,
+    noop,
+} from '../../helpers/tests';
+import {
+    ITemplateTextEditorProps,
+    TemplateTextEditor,
+} from './TemplateTextEditor';
+import { createTemporaryId } from '../../helpers/projection';
+import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto';
+import { EditTemplateDto } from '../../interfaces/models/dtos/Season/Creation/EditTemplateDto';
 
 describe('TemplateTextEditor', () => {
     let context: TestContext;
@@ -42,9 +46,10 @@ describe('TemplateTextEditor', () => {
             iocProps(),
             brandingProps(),
             appProps({}, reportedError),
-            (<AdminContainer tables={[]} accounts={[]}>
+            <AdminContainer tables={[]} accounts={[]}>
                 <TemplateTextEditor {...props} />
-            </AdminContainer>));
+            </AdminContainer>,
+        );
     }
 
     describe('interactivity', () => {
@@ -58,7 +63,9 @@ describe('TemplateTextEditor', () => {
                 setValid,
             });
 
-            const textarea = context.container.querySelector('textarea') as HTMLTextAreaElement;
+            const textarea = context.container.querySelector(
+                'textarea',
+            ) as HTMLTextAreaElement;
             expect(textarea.value).toEqual('{}');
         });
 
@@ -106,7 +113,12 @@ describe('TemplateTextEditor', () => {
             });
 
             await doChange(context.container, 'textarea', 'foo', context.user);
-            await doChange(context.container, 'textarea', '{"a": "b"}', context.user);
+            await doChange(
+                context.container,
+                'textarea',
+                '{"a": "b"}',
+                context.user,
+            );
 
             expect(valid).toEqual(true);
             expect(update).toEqual({
@@ -146,8 +158,12 @@ describe('TemplateTextEditor', () => {
                 sharedAddresses: [],
                 divisions: [],
             };
-            const textarea = context.container.querySelector('textarea') as HTMLTextAreaElement;
-            expect(textarea.value).toEqual(JSON.stringify(editableTemplate, null, '  '));
+            const textarea = context.container.querySelector(
+                'textarea',
+            ) as HTMLTextAreaElement;
+            expect(textarea.value).toEqual(
+                JSON.stringify(editableTemplate, null, '  '),
+            );
         });
 
         it('does not transform single line excel whitespace input', async () => {
@@ -164,9 +180,16 @@ describe('TemplateTextEditor', () => {
             });
             const input = '   ';
 
-            await doChange(context.container, 'textarea[placeholder="Copy from excel"]', input, context.user);
+            await doChange(
+                context.container,
+                'textarea[placeholder="Copy from excel"]',
+                input,
+                context.user,
+            );
 
-            const textareaOutput = context.container.querySelector('textarea[placeholder="Copy into template"]') as HTMLTextAreaElement;
+            const textareaOutput = context.container.querySelector(
+                'textarea[placeholder="Copy into template"]',
+            ) as HTMLTextAreaElement;
             expect(textareaOutput.value).toEqual('');
         });
 
@@ -184,14 +207,21 @@ describe('TemplateTextEditor', () => {
             });
             const input = 'A\tB\t\tC\t\D';
 
-            await doChange(context.container, 'textarea[placeholder="Copy from excel"]', input, context.user);
+            await doChange(
+                context.container,
+                'textarea[placeholder="Copy from excel"]',
+                input,
+                context.user,
+            );
 
-            const textareaOutput = context.container.querySelector('textarea[placeholder="Copy into template"]') as HTMLTextAreaElement;
+            const textareaOutput = context.container.querySelector(
+                'textarea[placeholder="Copy into template"]',
+            ) as HTMLTextAreaElement;
             expect(JSON.parse(textareaOutput.value)).toEqual({
                 fixtures: [
-                    {home: 'A', away: 'B'},
-                    {home: 'C', away: 'D'}
-                ]
+                    { home: 'A', away: 'B' },
+                    { home: 'C', away: 'D' },
+                ],
             });
         });
 
@@ -207,23 +237,32 @@ describe('TemplateTextEditor', () => {
                 onUpdate,
                 setValid,
             });
-            const input = 'A\tB\t\tC\t\D\n' +
-                'E\tF\t\tG\tH\n\n';
+            const input = 'A\tB\t\tC\t\D\n' + 'E\tF\t\tG\tH\n\n';
 
-            await doChange(context.container, 'textarea[placeholder="Copy from excel"]', input, context.user);
+            await doChange(
+                context.container,
+                'textarea[placeholder="Copy from excel"]',
+                input,
+                context.user,
+            );
 
-            const textareaOutput = context.container.querySelector('textarea[placeholder="Copy into template"]') as HTMLTextAreaElement;
-            expect(JSON.parse('[' + textareaOutput.value + ']')).toEqual([{
-                fixtures: [
-                    {home: 'A', away: 'B'},
-                    {home: 'C', away: 'D'}
-                ]
-            }, {
-                fixtures: [
-                    {home: 'E', away: 'F'},
-                    {home: 'G', away: 'H'}
-                ]
-            }]);
+            const textareaOutput = context.container.querySelector(
+                'textarea[placeholder="Copy into template"]',
+            ) as HTMLTextAreaElement;
+            expect(JSON.parse('[' + textareaOutput.value + ']')).toEqual([
+                {
+                    fixtures: [
+                        { home: 'A', away: 'B' },
+                        { home: 'C', away: 'D' },
+                    ],
+                },
+                {
+                    fixtures: [
+                        { home: 'E', away: 'F' },
+                        { home: 'G', away: 'H' },
+                    ],
+                },
+            ]);
         });
 
         it('transforms single line excel bye fixture input correctly', async () => {
@@ -240,14 +279,18 @@ describe('TemplateTextEditor', () => {
             });
             const input = 'A\t-\t\tC\t\D';
 
-            await doChange(context.container, 'textarea[placeholder="Copy from excel"]', input, context.user);
+            await doChange(
+                context.container,
+                'textarea[placeholder="Copy from excel"]',
+                input,
+                context.user,
+            );
 
-            const textareaOutput = context.container.querySelector('textarea[placeholder="Copy into template"]') as HTMLTextAreaElement;
+            const textareaOutput = context.container.querySelector(
+                'textarea[placeholder="Copy into template"]',
+            ) as HTMLTextAreaElement;
             expect(JSON.parse(textareaOutput.value)).toEqual({
-                fixtures: [
-                    {home: 'A'},
-                    {home: 'C', away: 'D'}
-                ]
+                fixtures: [{ home: 'A' }, { home: 'C', away: 'D' }],
             });
         });
 
@@ -265,10 +308,22 @@ describe('TemplateTextEditor', () => {
             });
             const input = 'A\t-\t\tC\t\D';
 
-            await doChange(context.container, 'textarea[placeholder="Copy from excel"]', input, context.user);
-            await doChange(context.container, 'textarea[placeholder="Copy from excel"]', '', context.user);
+            await doChange(
+                context.container,
+                'textarea[placeholder="Copy from excel"]',
+                input,
+                context.user,
+            );
+            await doChange(
+                context.container,
+                'textarea[placeholder="Copy from excel"]',
+                '',
+                context.user,
+            );
 
-            const textareaOutput = context.container.querySelector('textarea[placeholder="Copy into template"]') as HTMLTextAreaElement;
+            const textareaOutput = context.container.querySelector(
+                'textarea[placeholder="Copy into template"]',
+            ) as HTMLTextAreaElement;
             expect(textareaOutput.value).toEqual('');
         });
     });

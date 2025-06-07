@@ -1,23 +1,27 @@
 ﻿/* istanbul ignore file */
 
-import {BuilderParam, IAddableBuilder, IBuilder} from "./builders";
-import {IDatedDivisionFixtureDto} from "../../components/division_fixtures/IDatedDivisionFixtureDto";
-import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
-import {createTemporaryId} from "../projection";
-import {GameMatchDto} from "../../interfaces/models/dtos/Game/GameMatchDto";
-import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
-import {IRecordedSaygBuilder, saygBuilder} from "./sayg";
-import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
-import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
-import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
-import {GameTeamDto} from "../../interfaces/models/dtos/Game/GameTeamDto";
-import {teamBuilder} from "./teams";
+import { BuilderParam, IAddableBuilder, IBuilder } from './builders';
+import { IDatedDivisionFixtureDto } from '../../components/division_fixtures/IDatedDivisionFixtureDto';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
+import { createTemporaryId } from '../projection';
+import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto';
+import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
+import { IRecordedSaygBuilder, saygBuilder } from './sayg';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
+import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto';
+import { teamBuilder } from './teams';
 
-export interface IFixtureBuilder extends IAddableBuilder<IDatedDivisionFixtureDto & GameDto> {
+export interface IFixtureBuilder
+    extends IAddableBuilder<IDatedDivisionFixtureDto & GameDto> {
     playing(home: string, away: string): IFixtureBuilder;
     teams(home: GameTeamDto, away: GameTeamDto): IFixtureBuilder;
     bye(venue: string, id?: string): IFixtureBuilder;
-    manOfTheMatch(homePlayer?: TeamPlayerDto, awayPlayer?: TeamPlayerDto): IFixtureBuilder;
+    manOfTheMatch(
+        homePlayer?: TeamPlayerDto,
+        awayPlayer?: TeamPlayerDto,
+    ): IFixtureBuilder;
     knockout(): IFixtureBuilder;
     postponed(): IFixtureBuilder;
     accoladesCount(): IFixtureBuilder;
@@ -27,11 +31,19 @@ export interface IFixtureBuilder extends IAddableBuilder<IDatedDivisionFixtureDt
     with180(player: TeamPlayerDto): IFixtureBuilder;
     withHiCheck(player: TeamPlayerDto, score: number): IFixtureBuilder;
     withMatch(builder?: BuilderParam<IMatchBuilder>): IFixtureBuilder;
-    withMatchOption(builder?: BuilderParam<IMatchOptionsBuilder>): IFixtureBuilder;
+    withMatchOption(
+        builder?: BuilderParam<IMatchOptionsBuilder>,
+    ): IFixtureBuilder;
     editor(name: string): IFixtureBuilder;
     author(name: string): IFixtureBuilder;
-    homeSubmission(builder?: BuilderParam<IFixtureBuilder>, id?: string): IFixtureBuilder;
-    awaySubmission(builder?: BuilderParam<IFixtureBuilder>, id?: string): IFixtureBuilder;
+    homeSubmission(
+        builder?: BuilderParam<IFixtureBuilder>,
+        id?: string,
+    ): IFixtureBuilder;
+    awaySubmission(
+        builder?: BuilderParam<IFixtureBuilder>,
+        id?: string,
+    ): IFixtureBuilder;
     updated(time: string): IFixtureBuilder;
 }
 
@@ -70,7 +82,10 @@ export function fixtureBuilder(date?: string, id?: string): IFixtureBuilder {
             fixture.awayTeam = undefined;
             return builder;
         },
-        manOfTheMatch: (homePlayer?: TeamPlayerDto, awayPlayer?: TeamPlayerDto) => {
+        manOfTheMatch: (
+            homePlayer?: TeamPlayerDto,
+            awayPlayer?: TeamPlayerDto,
+        ) => {
             if (homePlayer) {
                 fixture.home.manOfTheMatch = homePlayer.id;
             }
@@ -108,7 +123,9 @@ export function fixtureBuilder(date?: string, id?: string): IFixtureBuilder {
             return builder;
         },
         withHiCheck: (player: TeamPlayerDto, score: number) => {
-            fixture.over100Checkouts?.push(Object.assign({}, player, { score }));
+            fixture.over100Checkouts?.push(
+                Object.assign({}, player, { score }),
+            );
             return builder;
         },
         withMatch: (b?: BuilderParam<IMatchBuilder>) => {
@@ -186,17 +203,15 @@ export function matchBuilder(): IMatchBuilder {
             return builder;
         },
         sayg: (b?: BuilderParam<IRecordedSaygBuilder>) => {
-            match.sayg = b
-                ? b(saygBuilder()).build()
-                : saygBuilder().build();
+            match.sayg = b ? b(saygBuilder()).build() : saygBuilder().build();
             return builder;
-        }
+        },
     };
 
     return builder;
 }
 
-export interface IMatchOptionsBuilder extends IBuilder<GameMatchOptionDto>{
+export interface IMatchOptionsBuilder extends IBuilder<GameMatchOptionDto> {
     numberOfLegs(legs: number): IMatchOptionsBuilder;
     startingScore(score: number): IMatchOptionsBuilder;
     playerCount(count: number): IMatchOptionsBuilder;

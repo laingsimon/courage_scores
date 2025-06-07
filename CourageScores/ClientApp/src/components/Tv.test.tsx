@@ -7,31 +7,31 @@ import {
     findButton,
     iocProps,
     renderApp,
-    TestContext
-} from "../helpers/tests";
-import {Tv} from "./Tv";
-import {ILiveApi} from "../interfaces/apis/ILiveApi";
-import {WatchableDataDto} from "../interfaces/models/dtos/Live/WatchableDataDto";
-import {createTemporaryId} from "../helpers/projection";
-import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
-import {PublicationMode} from "../interfaces/models/dtos/Live/PublicationMode";
-import {IAppContainerProps} from "./common/AppContainer";
-import {UserDto} from "../interfaces/models/dtos/Identity/UserDto";
+    TestContext,
+} from '../helpers/tests';
+import { Tv } from './Tv';
+import { ILiveApi } from '../interfaces/apis/ILiveApi';
+import { WatchableDataDto } from '../interfaces/models/dtos/Live/WatchableDataDto';
+import { createTemporaryId } from '../helpers/projection';
+import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType';
+import { PublicationMode } from '../interfaces/models/dtos/Live/PublicationMode';
+import { IAppContainerProps } from './common/AppContainer';
+import { UserDto } from '../interfaces/models/dtos/Identity/UserDto';
 
 describe('Tv', () => {
     let context: TestContext;
     let request: {
-        type: string,
+        type: string;
     } | null;
     let connections: WatchableDataDto[] = [];
 
     const liveApi = api<ILiveApi>({
         async watch(type: string): Promise<WatchableDataDto[]> {
             request = {
-                type: type
+                type: type,
             };
             return connections;
-        }
+        },
     });
 
     afterEach(async () => {
@@ -41,14 +41,15 @@ describe('Tv', () => {
     beforeEach(() => {
         connections = [];
         request = null;
-    })
+    });
 
     async function renderComponent(appProps: IAppContainerProps) {
         context = await renderApp(
-            iocProps({liveApi}),
+            iocProps({ liveApi }),
             brandingProps(),
             appProps,
-            (<Tv/>));
+            <Tv />,
+        );
     }
 
     describe('when logged out', () => {
@@ -82,25 +83,25 @@ describe('Tv', () => {
         };
 
         it('does not render login link', async () => {
-            await renderComponent(appProps({account}));
+            await renderComponent(appProps({ account }));
 
             expect(context.container.textContent).not.toContain('Login');
         });
 
         it('does not render refresh', async () => {
-            await renderComponent(appProps({account}));
+            await renderComponent(appProps({ account }));
 
             expect(context.container.textContent).not.toContain('Refresh');
         });
 
         it('renders no access', async () => {
-            await renderComponent(appProps({account}));
+            await renderComponent(appProps({ account }));
 
             expect(context.container.textContent).toContain('No access');
         });
 
         it('does not request links', async () => {
-            await renderComponent(appProps({account}));
+            await renderComponent(appProps({ account }));
 
             expect(request).toBeNull();
         });
@@ -117,204 +118,274 @@ describe('Tv', () => {
         };
 
         it('requests links', async () => {
-            await renderComponent(appProps({account}));
+            await renderComponent(appProps({ account }));
 
             expect(request).toEqual({
-                type: ''
+                type: '',
             });
         });
 
         it('renders connections with tournament event details', async () => {
-            connections = [{
-                id: createTemporaryId(),
-                dataType: LiveDataType.tournament,
-                absoluteUrl: 'http://somewhere/match/ID',
-                relativeUrl: '/match/ID',
-                eventDetails: {
-                    type: 'TYPE',
-                    venue: 'VENUE',
+            connections = [
+                {
+                    id: createTemporaryId(),
+                    dataType: LiveDataType.tournament,
+                    absoluteUrl: 'http://somewhere/match/ID',
+                    relativeUrl: '/match/ID',
+                    eventDetails: {
+                        type: 'TYPE',
+                        venue: 'VENUE',
+                    },
+                    lastUpdate: '',
                 },
-                lastUpdate: '',
-            }];
+            ];
 
-            await renderComponent(appProps({account}));
+            await renderComponent(appProps({ account }));
 
-            const items = Array.from(context.container.querySelectorAll('.list-group-item')) as HTMLAnchorElement[];
-            expect(items.map(i => i.textContent)).toEqual(['🏆 TYPE at VENUE']);
+            const items = Array.from(
+                context.container.querySelectorAll('.list-group-item'),
+            ) as HTMLAnchorElement[];
+            expect(items.map((i) => i.textContent)).toEqual([
+                '🏆 TYPE at VENUE',
+            ]);
         });
 
         it('renders connections with sayg and tournament event details', async () => {
-            connections = [{
-                id: createTemporaryId(),
-                dataType: LiveDataType.sayg,
-                absoluteUrl: 'http://somewhere/match/ID',
-                relativeUrl: '/match/ID',
-                eventDetails: {
-                    type: 'TYPE',
-                    venue: 'VENUE',
-                    opponents: [ 'CHALLENGER', 'OPPONENT' ],
+            connections = [
+                {
+                    id: createTemporaryId(),
+                    dataType: LiveDataType.sayg,
+                    absoluteUrl: 'http://somewhere/match/ID',
+                    relativeUrl: '/match/ID',
+                    eventDetails: {
+                        type: 'TYPE',
+                        venue: 'VENUE',
+                        opponents: ['CHALLENGER', 'OPPONENT'],
+                    },
+                    lastUpdate: '',
                 },
-                lastUpdate: '',
-            }];
+            ];
 
-            await renderComponent(appProps({account}));
+            await renderComponent(appProps({ account }));
 
-            const items = Array.from(context.container.querySelectorAll('.list-group-item')) as HTMLAnchorElement[];
-            expect(items.map(i => i.textContent)).toEqual(['🎯 CHALLENGER vs OPPONENT at VENUE']);
+            const items = Array.from(
+                context.container.querySelectorAll('.list-group-item'),
+            ) as HTMLAnchorElement[];
+            expect(items.map((i) => i.textContent)).toEqual([
+                '🎯 CHALLENGER vs OPPONENT at VENUE',
+            ]);
         });
 
         it('renders connections with sayg event details but no tournament event details', async () => {
-            connections = [{
-                id: createTemporaryId(),
-                dataType: LiveDataType.sayg,
-                absoluteUrl: 'http://somewhere/match/ID',
-                relativeUrl: '/match/ID',
-                eventDetails: {
-                    opponents: [ 'CHALLENGER', 'OPPONENT' ],
+            connections = [
+                {
+                    id: createTemporaryId(),
+                    dataType: LiveDataType.sayg,
+                    absoluteUrl: 'http://somewhere/match/ID',
+                    relativeUrl: '/match/ID',
+                    eventDetails: {
+                        opponents: ['CHALLENGER', 'OPPONENT'],
+                    },
+                    lastUpdate: '',
                 },
-                lastUpdate: '',
-            }];
+            ];
 
-            await renderComponent(appProps({account}));
+            await renderComponent(appProps({ account }));
 
-            const items = Array.from(context.container.querySelectorAll('.list-group-item')) as HTMLAnchorElement[];
-            expect(items.map(i => i.textContent)).toEqual(['🎯 CHALLENGER vs OPPONENT']);
+            const items = Array.from(
+                context.container.querySelectorAll('.list-group-item'),
+            ) as HTMLAnchorElement[];
+            expect(items.map((i) => i.textContent)).toEqual([
+                '🎯 CHALLENGER vs OPPONENT',
+            ]);
         });
 
         it('renders connections with absolute urls', async () => {
-            connections = [{
-                id: createTemporaryId(),
-                dataType: LiveDataType.sayg,
-                absoluteUrl: 'http://somewhere/match/ID',
-                relativeUrl: '/match/ID',
-                lastUpdate: '',
-            }];
+            connections = [
+                {
+                    id: createTemporaryId(),
+                    dataType: LiveDataType.sayg,
+                    absoluteUrl: 'http://somewhere/match/ID',
+                    relativeUrl: '/match/ID',
+                    lastUpdate: '',
+                },
+            ];
 
-            await renderComponent(appProps({account}));
+            await renderComponent(appProps({ account }));
 
-            const items = Array.from(context.container.querySelectorAll('.list-group-item')) as HTMLAnchorElement[];
-            expect(items.map(i => i.href)).toEqual(['http://somewhere/match/ID']);
+            const items = Array.from(
+                context.container.querySelectorAll('.list-group-item'),
+            ) as HTMLAnchorElement[];
+            expect(items.map((i) => i.href)).toEqual([
+                'http://somewhere/match/ID',
+            ]);
         });
 
         it('renders connections with only relative urls', async () => {
-            connections = [{
-                id: createTemporaryId(),
-                dataType: LiveDataType.sayg,
-                relativeUrl: '/match/ID',
-                lastUpdate: '',
-            }];
+            connections = [
+                {
+                    id: createTemporaryId(),
+                    dataType: LiveDataType.sayg,
+                    relativeUrl: '/match/ID',
+                    lastUpdate: '',
+                },
+            ];
 
-            await renderComponent(appProps({account}));
+            await renderComponent(appProps({ account }));
 
-            const items = Array.from(context.container.querySelectorAll('.list-group-item')) as HTMLAnchorElement[];
-            expect(items.map(i => i.href)).toEqual(['http://localhost/match/ID']);
+            const items = Array.from(
+                context.container.querySelectorAll('.list-group-item'),
+            ) as HTMLAnchorElement[];
+            expect(items.map((i) => i.href)).toEqual([
+                'http://localhost/match/ID',
+            ]);
         });
 
         it('renders websocket connections', async () => {
-            connections = [{
-                id: createTemporaryId(),
-                dataType: LiveDataType.sayg,
-                relativeUrl: '/match/ID',
-                publicationMode: PublicationMode.webSocket,
-                lastUpdate: '2024-02-26T11:27:07+00:00',
-            }];
+            connections = [
+                {
+                    id: createTemporaryId(),
+                    dataType: LiveDataType.sayg,
+                    relativeUrl: '/match/ID',
+                    publicationMode: PublicationMode.webSocket,
+                    lastUpdate: '2024-02-26T11:27:07+00:00',
+                },
+            ];
 
-            await renderComponent(appProps({account}));
+            await renderComponent(appProps({ account }));
 
-            const item = context.container.querySelector('.list-group-item') as HTMLAnchorElement;
-            expect(item.querySelector('.badge')!.className).toEqual('badge rounded-pill bg-primary');
-            expect(item.querySelector('.badge')!.textContent).toEqual(' @ ' + new Date('2024-02-26T11:27:07+00:00').toLocaleTimeString());
+            const item = context.container.querySelector(
+                '.list-group-item',
+            ) as HTMLAnchorElement;
+            expect(item.querySelector('.badge')!.className).toEqual(
+                'badge rounded-pill bg-primary',
+            );
+            expect(item.querySelector('.badge')!.textContent).toEqual(
+                ' @ ' +
+                    new Date('2024-02-26T11:27:07+00:00').toLocaleTimeString(),
+            );
         });
 
         it('renders polling connections', async () => {
-            connections = [{
-                id: createTemporaryId(),
-                dataType: LiveDataType.sayg,
-                relativeUrl: '/match/ID',
-                publicationMode: PublicationMode.polling,
-                lastUpdate: '2024-02-26T11:27:07+00:00',
-            }];
+            connections = [
+                {
+                    id: createTemporaryId(),
+                    dataType: LiveDataType.sayg,
+                    relativeUrl: '/match/ID',
+                    publicationMode: PublicationMode.polling,
+                    lastUpdate: '2024-02-26T11:27:07+00:00',
+                },
+            ];
 
-            await renderComponent(appProps({account}));
+            await renderComponent(appProps({ account }));
 
-            const item = context.container.querySelector('.list-group-item') as HTMLAnchorElement;
-            expect(item.querySelector('.badge')!.className).toEqual('badge rounded-pill bg-secondary');
-            expect(item.querySelector('.badge')!.textContent).toEqual(' @ ' + new Date('2024-02-26T11:27:07+00:00').toLocaleTimeString());
+            const item = context.container.querySelector(
+                '.list-group-item',
+            ) as HTMLAnchorElement;
+            expect(item.querySelector('.badge')!.className).toEqual(
+                'badge rounded-pill bg-secondary',
+            );
+            expect(item.querySelector('.badge')!.textContent).toEqual(
+                ' @ ' +
+                    new Date('2024-02-26T11:27:07+00:00').toLocaleTimeString(),
+            );
         });
 
         it('renders sayg connections', async () => {
-            connections = [{
-                id: createTemporaryId(),
-                dataType: LiveDataType.sayg,
-                relativeUrl: '/match/ID',
-                lastUpdate: '',
-            }];
+            connections = [
+                {
+                    id: createTemporaryId(),
+                    dataType: LiveDataType.sayg,
+                    relativeUrl: '/match/ID',
+                    lastUpdate: '',
+                },
+            ];
 
-            await renderComponent(appProps({account}));
+            await renderComponent(appProps({ account }));
 
-            const item = context.container.querySelector('.list-group-item') as HTMLAnchorElement;
+            const item = context.container.querySelector(
+                '.list-group-item',
+            ) as HTMLAnchorElement;
             expect(item.textContent).toContain('Live match');
         });
 
         it('renders tournament connections', async () => {
-            connections = [{
-                id: createTemporaryId(),
-                dataType: LiveDataType.tournament,
-                relativeUrl: '/match/ID',
-                lastUpdate: '',
-            }];
+            connections = [
+                {
+                    id: createTemporaryId(),
+                    dataType: LiveDataType.tournament,
+                    relativeUrl: '/match/ID',
+                    lastUpdate: '',
+                },
+            ];
 
-            await renderComponent(appProps({account}));
+            await renderComponent(appProps({ account }));
 
-            const item = context.container.querySelector('.list-group-item') as HTMLAnchorElement;
+            const item = context.container.querySelector(
+                '.list-group-item',
+            ) as HTMLAnchorElement;
             expect(item.textContent).toContain('Tournament');
         });
 
         it('renders connections without last update', async () => {
-            connections = [{
-                id: createTemporaryId(),
-                dataType: LiveDataType.sayg,
-                relativeUrl: '/match/ID',
-                lastUpdate: '',
-            }];
+            connections = [
+                {
+                    id: createTemporaryId(),
+                    dataType: LiveDataType.sayg,
+                    relativeUrl: '/match/ID',
+                    lastUpdate: '',
+                },
+            ];
 
-            await renderComponent(appProps({account}));
+            await renderComponent(appProps({ account }));
 
-            const item = context.container.querySelector('.list-group-item') as HTMLAnchorElement;
+            const item = context.container.querySelector(
+                '.list-group-item',
+            ) as HTMLAnchorElement;
             expect(item.textContent).toContain('Live match');
         });
 
         it('renders connections with unknown data type', async () => {
-            connections = [{
-                id: createTemporaryId(),
-                dataType: 'foo',
-                relativeUrl: '/match/ID',
-                lastUpdate: '',
-            }];
+            connections = [
+                {
+                    id: createTemporaryId(),
+                    dataType: 'foo',
+                    relativeUrl: '/match/ID',
+                    lastUpdate: '',
+                },
+            ];
 
-            await renderComponent(appProps({account}));
+            await renderComponent(appProps({ account }));
 
-            const item = context.container.querySelector('.list-group-item') as HTMLAnchorElement;
+            const item = context.container.querySelector(
+                '.list-group-item',
+            ) as HTMLAnchorElement;
             expect(item.textContent).toContain('foo');
         });
 
         it('can reload connections', async () => {
-            await renderComponent(appProps({account}));
+            await renderComponent(appProps({ account }));
             request = null;
 
-            connections = [{
-                id: createTemporaryId(),
-                dataType: 'foo',
-                relativeUrl: '/match/ID',
-                lastUpdate: '',
-            }];
+            connections = [
+                {
+                    id: createTemporaryId(),
+                    dataType: 'foo',
+                    relativeUrl: '/match/ID',
+                    lastUpdate: '',
+                },
+            ];
             await doClick(findButton(context.container, 'Refresh'));
 
             expect(request).toEqual({
-                type: ''
+                type: '',
             });
-            const items = Array.from(context.container.querySelectorAll('.list-group-item')) as HTMLAnchorElement[];
-            expect(items.map(i => i.href)).toEqual(['http://localhost/match/ID']);
+            const items = Array.from(
+                context.container.querySelectorAll('.list-group-item'),
+            ) as HTMLAnchorElement[];
+            expect(items.map((i) => i.href)).toEqual([
+                'http://localhost/match/ID',
+            ]);
         });
     });
 });

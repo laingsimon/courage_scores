@@ -6,13 +6,14 @@ import {
     doChange,
     iocProps,
     brandingProps,
-    appProps, TestContext
-} from "../../helpers/tests";
-import {EditThrow, IEditThrowProps} from "./EditThrow";
-import {toDictionary} from "../../helpers/collections";
-import {valueChanged} from "../../helpers/events";
-import {LegThrowDto} from "../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
-import React from "react";
+    appProps,
+    TestContext,
+} from '../../helpers/tests';
+import { EditThrow, IEditThrowProps } from './EditThrow';
+import { toDictionary } from '../../helpers/collections';
+import { valueChanged } from '../../helpers/events';
+import { LegThrowDto } from '../../interfaces/models/dtos/Game/Sayg/LegThrowDto';
+import React from 'react';
 
 describe('EditThrow', () => {
     let context: TestContext;
@@ -38,9 +39,7 @@ describe('EditThrow', () => {
     }
 
     async function onChange(event: React.ChangeEvent<HTMLInputElement>) {
-        await valueChanged(
-            {},
-            (v: {}) => changed = v)(event);
+        await valueChanged({}, (v: {}) => (changed = v))(event);
     }
 
     async function renderComponent(props: IEditThrowProps) {
@@ -48,7 +47,8 @@ describe('EditThrow', () => {
             iocProps(),
             brandingProps(),
             appProps(),
-            <EditThrow {...props} />);
+            <EditThrow {...props} />,
+        );
     }
 
     describe('renders', () => {
@@ -65,7 +65,9 @@ describe('EditThrow', () => {
                 onClose,
             });
 
-            expect(context.container.textContent).toContain('Edit throw 4 for HOME');
+            expect(context.container.textContent).toContain(
+                'Edit throw 4 for HOME',
+            );
         });
 
         it('away competitor name in title', async () => {
@@ -81,7 +83,9 @@ describe('EditThrow', () => {
                 onClose,
             });
 
-            expect(context.container.textContent).toContain('Edit throw 4 for AWAY');
+            expect(context.container.textContent).toContain(
+                'Edit throw 4 for AWAY',
+            );
         });
 
         it('throw details', async () => {
@@ -97,8 +101,13 @@ describe('EditThrow', () => {
                 onClose,
             });
 
-            const inputs = Array.from(context.container.querySelectorAll('input'));
-            const inputMap = toDictionary(inputs, i => i.getAttribute('name')!);
+            const inputs = Array.from(
+                context.container.querySelectorAll('input'),
+            );
+            const inputMap = toDictionary(
+                inputs,
+                (i) => i.getAttribute('name')!,
+            );
             expect(inputMap['score'].value).toEqual('1');
             expect(inputMap['noOfDarts'].value).toEqual('2');
         });
@@ -114,8 +123,13 @@ describe('EditThrow', () => {
                 onClose,
             });
 
-            const inputs = Array.from(context.container.querySelectorAll('input'));
-            const inputMap = toDictionary(inputs, i => i.getAttribute('name')!);
+            const inputs = Array.from(
+                context.container.querySelectorAll('input'),
+            );
+            const inputMap = toDictionary(
+                inputs,
+                (i) => i.getAttribute('name')!,
+            );
             expect(inputMap['score'].value).toEqual('');
             expect(inputMap['noOfDarts'].value).toEqual('');
         });
@@ -171,7 +185,12 @@ describe('EditThrow', () => {
                 onClose,
             });
 
-            await doChange(context.container, 'input[name="score"]', '100', context.user);
+            await doChange(
+                context.container,
+                'input[name="score"]',
+                '100',
+                context.user,
+            );
 
             expect(changed).toEqual({
                 score: 100,
@@ -191,7 +210,12 @@ describe('EditThrow', () => {
                 onClose,
             });
 
-            await doChange(context.container, 'input[name="noOfDarts"]', '3', context.user);
+            await doChange(
+                context.container,
+                'input[name="noOfDarts"]',
+                '3',
+                context.user,
+            );
 
             expect(changed).toEqual({
                 noOfDarts: 3,

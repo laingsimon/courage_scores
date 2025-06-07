@@ -1,14 +1,14 @@
-import {sum} from "../../helpers/collections";
-import {ifNaN, round2dp} from "../../helpers/rendering";
-import {valueChanged} from "../../helpers/events";
-import {useState} from "react";
-import {EditThrow} from "./EditThrow";
-import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
-import {LegThrowDto} from "../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
-import {LegCompetitorScoreDto} from "../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
-import {ILegDisplayOptions} from "./ILegDisplayOptions";
-import {UntypedPromise} from "../../interfaces/UntypedPromise";
-import {isLegWinner} from "../../helpers/superleague";
+import { sum } from '../../helpers/collections';
+import { ifNaN, round2dp } from '../../helpers/rendering';
+import { valueChanged } from '../../helpers/events';
+import { useState } from 'react';
+import { EditThrow } from './EditThrow';
+import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto';
+import { LegThrowDto } from '../../interfaces/models/dtos/Game/Sayg/LegThrowDto';
+import { LegCompetitorScoreDto } from '../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto';
+import { ILegDisplayOptions } from './ILegDisplayOptions';
+import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { isLegWinner } from '../../helpers/superleague';
 
 export interface ILegStatisticsProps {
     leg: LegDto;
@@ -38,10 +38,21 @@ interface ILegStatisticsDetail {
     checkout: boolean;
 }
 
-export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDartAverage, onChangeLeg, updateLegDisplayOptions, legDisplayOptions }: ILegStatisticsProps) {
+export function LegStatistics({
+    leg,
+    home,
+    away,
+    legNumber,
+    singlePlayer,
+    oneDartAverage,
+    onChangeLeg,
+    updateLegDisplayOptions,
+    legDisplayOptions,
+}: ILegStatisticsProps) {
     const homeStats: LegCompetitorScoreDto = leg.home;
     const awayStats: LegCompetitorScoreDto = leg.away;
-    const [throwUnderEdit, setThrowUnderEdit] = useState<IEditableLegThrowDto | null>(null);
+    const [throwUnderEdit, setThrowUnderEdit] =
+        useState<IEditableLegThrowDto | null>(null);
 
     if ((homeStats.noOfDarts || 0) + (awayStats.noOfDarts || 0) === 0) {
         return null;
@@ -52,10 +63,11 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
         let noOfDarts: number = 0;
 
         return (throws || []).map((thr: LegThrowDto) => {
-            score += (score + (thr.score || 0)) > (leg.startingScore || 0)
-                ? 0 /* bust */
-                : (thr.score || 0);
-            noOfDarts += (thr.noOfDarts || 0);
+            score +=
+                score + (thr.score || 0) > (leg.startingScore || 0)
+                    ? 0 /* bust */
+                    : thr.score || 0;
+            noOfDarts += thr.noOfDarts || 0;
             const threeDartAverage = score / (noOfDarts / 3);
 
             return {
@@ -77,17 +89,26 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
         }
 
         const thr = leg[competitor].throws[index];
-        const throwUnderEdit: IEditableLegThrowDto = Object.assign({
-            index,
-            competitor,
-        }, thr);
+        const throwUnderEdit: IEditableLegThrowDto = Object.assign(
+            {
+                index,
+                competitor,
+            },
+            thr,
+        );
         setThrowUnderEdit(throwUnderEdit);
     }
 
     async function saveThrowChange() {
         const newLeg: LegDto = Object.assign({}, leg);
-        const competitor: LegCompetitorScoreDto = Object.assign({}, leg[throwUnderEdit!.competitor!]);
-        const newThrow: IEditableLegThrowDto = Object.assign({}, throwUnderEdit);
+        const competitor: LegCompetitorScoreDto = Object.assign(
+            {},
+            leg[throwUnderEdit!.competitor!],
+        );
+        const newThrow: IEditableLegThrowDto = Object.assign(
+            {},
+            throwUnderEdit,
+        );
         // @ts-ignore
         delete newThrow.competitor;
         // @ts-ignore
@@ -95,10 +116,18 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
 
         newLeg[throwUnderEdit!.competitor!] = competitor;
         competitor.throws = (competitor.throws || [])
-            .map((thr: LegThrowDto, index: number) => index === throwUnderEdit!.index ? newThrow : thr)
+            .map((thr: LegThrowDto, index: number) =>
+                index === throwUnderEdit!.index ? newThrow : thr,
+            )
             .filter((thr: LegThrowDto) => (thr.noOfDarts || 0) > 0);
-        competitor.score = sum(competitor.throws, (thr: LegThrowDto) => thr.score || 0);
-        competitor.noOfDarts = sum(competitor.throws, (thr: LegThrowDto) => thr.noOfDarts || 0);
+        competitor.score = sum(
+            competitor.throws,
+            (thr: LegThrowDto) => thr.score || 0,
+        );
+        competitor.noOfDarts = sum(
+            competitor.throws,
+            (thr: LegThrowDto) => thr.noOfDarts || 0,
+        );
 
         if (onChangeLeg) {
             await onChangeLeg(newLeg);
@@ -106,35 +135,62 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
         setThrowUnderEdit(null);
     }
 
-    function renderThrows(throws: LegThrowDto[] | undefined, competitor: string) {
+    function renderThrows(
+        throws: LegThrowDto[] | undefined,
+        competitor: string,
+    ) {
         const legStatistics: ILegStatisticsDetail[] = getLegStatistics(throws);
 
-        return (<table className="table-sm">
-            <thead>
-            <tr>
-                <th>Threw</th>
-                <th>Score</th>
-                <th>{legDisplayOptions.showAverage ? 'Avg' : 'Darts'}</th>
-            </tr>
-            </thead>
-            <tbody>
-            {legStatistics.map((stats: ILegStatisticsDetail, index: number) => <tr key={index} className={stats.checkout ? 'bg-winner' : ''} onClick={() => editThrow(index, competitor)}>
-                <td className={`${stats.thisScore >= 100 ? ' text-danger' : ''}${stats.thisScore === 180 ? ' fw-bold' : ''}`}>
-                    {stats.thisScore}
-                </td>
-                <td>{stats.remaining}</td>
-                <td>
-                    {legDisplayOptions.showAverage
-                        ? ifNaN((oneDartAverage ? round2dp(stats.oneDartRunningAverage) : round2dp(stats.threeDartRunningAverage)), '-')
-                        : stats.thisNoOfDarts}
-                </td>
-            </tr>)}
-            </tbody>
-        </table>);
+        return (
+            <table className="table-sm">
+                <thead>
+                    <tr>
+                        <th>Threw</th>
+                        <th>Score</th>
+                        <th>
+                            {legDisplayOptions.showAverage ? 'Avg' : 'Darts'}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {legStatistics.map(
+                        (stats: ILegStatisticsDetail, index: number) => (
+                            <tr
+                                key={index}
+                                className={stats.checkout ? 'bg-winner' : ''}
+                                onClick={() => editThrow(index, competitor)}>
+                                <td
+                                    className={`${stats.thisScore >= 100 ? ' text-danger' : ''}${stats.thisScore === 180 ? ' fw-bold' : ''}`}>
+                                    {stats.thisScore}
+                                </td>
+                                <td>{stats.remaining}</td>
+                                <td>
+                                    {legDisplayOptions.showAverage
+                                        ? ifNaN(
+                                              oneDartAverage
+                                                  ? round2dp(
+                                                        stats.oneDartRunningAverage,
+                                                    )
+                                                  : round2dp(
+                                                        stats.threeDartRunningAverage,
+                                                    ),
+                                              '-',
+                                          )
+                                        : stats.thisNoOfDarts}
+                                </td>
+                            </tr>
+                        ),
+                    )}
+                </tbody>
+            </table>
+        );
     }
 
     async function toggleShowAverage() {
-        const options: ILegDisplayOptions = Object.assign({}, legDisplayOptions);
+        const options: ILegDisplayOptions = Object.assign(
+            {},
+            legDisplayOptions,
+        );
         options.showAverage = !legDisplayOptions.showAverage;
         if (updateLegDisplayOptions) {
             await updateLegDisplayOptions(options);
@@ -144,48 +200,170 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
     const homeWinner = isLegWinner(leg, 'home');
     const awayWinner = isLegWinner(leg, 'away');
 
-    return (<tr>
-        <td>
-            Leg: {legNumber}<br/>
-            {(homeWinner || awayWinner) && !singlePlayer
-                ? (<>Winner: <strong className="text-primary">{homeWinner ? home : away}</strong></>)
-                : null}
-            {updateLegDisplayOptions ? (<div className="form-check form-switch margin-right">
-                <input className="form-check-input" type="checkbox" name="showThrows" id={`showThrows_${legNumber}`}
-                       checked={legDisplayOptions.showThrows} onChange={valueChanged(legDisplayOptions, updateLegDisplayOptions)} />
-                <label className="form-check-label small" htmlFor={`showThrows_${legNumber}`}>Details</label>
-            </div>) : null}
-            {legDisplayOptions.showThrows && updateLegDisplayOptions ? (<button className="btn btn-sm btn-outline-primary margin-right" onClick={toggleShowAverage}>
-                {legDisplayOptions.showAverage ? (<span>Click to show <strong>No. of darts</strong></span>) : null}
-                {!legDisplayOptions.showAverage ? (<span>Click to show <strong>running average</strong></span>) : null}
-            </button>) : (legDisplayOptions.showThrows ? (<span>
-                {!legDisplayOptions.showAverage ? (<span>No. of darts</span>) : null}
-                {legDisplayOptions.showAverage ? (<span>running average</span>) : null}
-            </span>) : null)}
-            {throwUnderEdit
-                ? (<EditThrow
-                    {...throwUnderEdit}
-                    home={home}
-                    away={away}
-                    onSave={saveThrowChange}
-                    onChange={valueChanged(throwUnderEdit, setThrowUnderEdit)}
-                    onClose={async () => setThrowUnderEdit(null)} />)
-                : null}
-        </td>
-        <td className={(homeWinner || leg.home.score === leg.startingScore) ? 'bg-winner' : ''}>
-            <span>Average: <strong>{ifNaN(round2dp((homeStats.score || 0) / ((homeStats.noOfDarts || 0) / 3) / (oneDartAverage ? 3 : 1)), '-')}</strong> ({homeStats.noOfDarts} darts)<br/>
-            {homeWinner
-                ? (<div>Checkout: <strong>{leg.home.throws![leg.home.throws!.length - 1].score}</strong></div>)
-                : (<div>Remaining: <strong>{(leg.startingScore || 0) - (homeStats.score || 0)}</strong></div>)}
-            </span>
-            {legDisplayOptions.showThrows ? (renderThrows(leg.home.throws, 'home')) : null}
-        </td>
-        {singlePlayer ? null : (<td className={(awayWinner || leg.away.score === leg.startingScore) ? 'bg-winner' : ''}>
-            <span>Average: <strong>{ifNaN(round2dp((awayStats.score || 0) / ((awayStats.noOfDarts || 0) / 3) / (oneDartAverage ? 3 : 1)), '-')}</strong> ({awayStats.noOfDarts} darts)<br/>
-            {awayWinner
-                ? (<div>Checkout: <strong>{leg.away.throws![leg.away.throws!.length - 1].score}</strong></div>)
-                : (<div>Remaining: <strong>{(leg.startingScore || 0) - (awayStats.score || 0)}</strong></div>)}</span>
-            {legDisplayOptions.showThrows ? (renderThrows(leg.away.throws, 'away')) : null}
-        </td>)}
-    </tr>);
+    return (
+        <tr>
+            <td>
+                Leg: {legNumber}
+                <br />
+                {(homeWinner || awayWinner) && !singlePlayer ? (
+                    <>
+                        Winner:{' '}
+                        <strong className="text-primary">
+                            {homeWinner ? home : away}
+                        </strong>
+                    </>
+                ) : null}
+                {updateLegDisplayOptions ? (
+                    <div className="form-check form-switch margin-right">
+                        <input
+                            className="form-check-input"
+                            type="checkbox"
+                            name="showThrows"
+                            id={`showThrows_${legNumber}`}
+                            checked={legDisplayOptions.showThrows}
+                            onChange={valueChanged(
+                                legDisplayOptions,
+                                updateLegDisplayOptions,
+                            )}
+                        />
+                        <label
+                            className="form-check-label small"
+                            htmlFor={`showThrows_${legNumber}`}>
+                            Details
+                        </label>
+                    </div>
+                ) : null}
+                {legDisplayOptions.showThrows && updateLegDisplayOptions ? (
+                    <button
+                        className="btn btn-sm btn-outline-primary margin-right"
+                        onClick={toggleShowAverage}>
+                        {legDisplayOptions.showAverage ? (
+                            <span>
+                                Click to show <strong>No. of darts</strong>
+                            </span>
+                        ) : null}
+                        {!legDisplayOptions.showAverage ? (
+                            <span>
+                                Click to show <strong>running average</strong>
+                            </span>
+                        ) : null}
+                    </button>
+                ) : legDisplayOptions.showThrows ? (
+                    <span>
+                        {!legDisplayOptions.showAverage ? (
+                            <span>No. of darts</span>
+                        ) : null}
+                        {legDisplayOptions.showAverage ? (
+                            <span>running average</span>
+                        ) : null}
+                    </span>
+                ) : null}
+                {throwUnderEdit ? (
+                    <EditThrow
+                        {...throwUnderEdit}
+                        home={home}
+                        away={away}
+                        onSave={saveThrowChange}
+                        onChange={valueChanged(
+                            throwUnderEdit,
+                            setThrowUnderEdit,
+                        )}
+                        onClose={async () => setThrowUnderEdit(null)}
+                    />
+                ) : null}
+            </td>
+            <td
+                className={
+                    homeWinner || leg.home.score === leg.startingScore
+                        ? 'bg-winner'
+                        : ''
+                }>
+                <span>
+                    Average:{' '}
+                    <strong>
+                        {ifNaN(
+                            round2dp(
+                                (homeStats.score || 0) /
+                                    ((homeStats.noOfDarts || 0) / 3) /
+                                    (oneDartAverage ? 3 : 1),
+                            ),
+                            '-',
+                        )}
+                    </strong>{' '}
+                    ({homeStats.noOfDarts} darts)
+                    <br />
+                    {homeWinner ? (
+                        <div>
+                            Checkout:{' '}
+                            <strong>
+                                {
+                                    leg.home.throws![
+                                        leg.home.throws!.length - 1
+                                    ].score
+                                }
+                            </strong>
+                        </div>
+                    ) : (
+                        <div>
+                            Remaining:{' '}
+                            <strong>
+                                {(leg.startingScore || 0) -
+                                    (homeStats.score || 0)}
+                            </strong>
+                        </div>
+                    )}
+                </span>
+                {legDisplayOptions.showThrows
+                    ? renderThrows(leg.home.throws, 'home')
+                    : null}
+            </td>
+            {singlePlayer ? null : (
+                <td
+                    className={
+                        awayWinner || leg.away.score === leg.startingScore
+                            ? 'bg-winner'
+                            : ''
+                    }>
+                    <span>
+                        Average:{' '}
+                        <strong>
+                            {ifNaN(
+                                round2dp(
+                                    (awayStats.score || 0) /
+                                        ((awayStats.noOfDarts || 0) / 3) /
+                                        (oneDartAverage ? 3 : 1),
+                                ),
+                                '-',
+                            )}
+                        </strong>{' '}
+                        ({awayStats.noOfDarts} darts)
+                        <br />
+                        {awayWinner ? (
+                            <div>
+                                Checkout:{' '}
+                                <strong>
+                                    {
+                                        leg.away.throws![
+                                            leg.away.throws!.length - 1
+                                        ].score
+                                    }
+                                </strong>
+                            </div>
+                        ) : (
+                            <div>
+                                Remaining:{' '}
+                                <strong>
+                                    {(leg.startingScore || 0) -
+                                        (awayStats.score || 0)}
+                                </strong>
+                            </div>
+                        )}
+                    </span>
+                    {legDisplayOptions.showThrows
+                        ? renderThrows(leg.away.throws, 'away')
+                        : null}
+                </td>
+            )}
+        </tr>
+    );
 }

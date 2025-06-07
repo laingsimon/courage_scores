@@ -1,4 +1,4 @@
-import {AdminContainer} from "./AdminContainer";
+import { AdminContainer } from './AdminContainer';
 import {
     appProps,
     brandingProps,
@@ -8,9 +8,11 @@ import {
     findButton,
     iocProps,
     renderApp,
-    TestContext, triggerMouseLeave, triggerMouseMove
-} from "../../helpers/tests";
-import {ISharedAddressProps, SharedAddress} from "./SharedAddress";
+    TestContext,
+    triggerMouseLeave,
+    triggerMouseMove,
+} from '../../helpers/tests';
+import { ISharedAddressProps, SharedAddress } from './SharedAddress';
 
 describe('SharedAddress', () => {
     let context: TestContext;
@@ -45,9 +47,10 @@ describe('SharedAddress', () => {
             iocProps(),
             brandingProps(),
             appProps(),
-            (<AdminContainer tables={[]} accounts={[]}>
+            <AdminContainer tables={[]} accounts={[]}>
                 <SharedAddress {...props} />
-            </AdminContainer>));
+            </AdminContainer>,
+        );
     }
 
     describe('renders', () => {
@@ -61,15 +64,18 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            const addressBadges = Array.from(context.container.querySelectorAll('button.badge')) as HTMLButtonElement[];
+            const addressBadges = Array.from(
+                context.container.querySelectorAll('button.badge'),
+            ) as HTMLButtonElement[];
             expect(addressBadges).toEqual([]);
-            const newAddressBadge = context.container.querySelector('span.badge');
+            const newAddressBadge =
+                context.container.querySelector('span.badge');
             expect(newAddressBadge).toBeTruthy();
         });
 
         it('single address item', async () => {
             await renderComponent({
-                address: [ 'A' ],
+                address: ['A'],
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
@@ -77,15 +83,18 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            const addressBadges = Array.from(context.container.querySelectorAll('button.badge')) as HTMLButtonElement[];
-            expect(addressBadges.map(b => b.textContent)).toEqual([ 'A ×' ]);
-            const newAddressBadge = context.container.querySelector('span.badge');
+            const addressBadges = Array.from(
+                context.container.querySelectorAll('button.badge'),
+            ) as HTMLButtonElement[];
+            expect(addressBadges.map((b) => b.textContent)).toEqual(['A ×']);
+            const newAddressBadge =
+                context.container.querySelector('span.badge');
             expect(newAddressBadge).toBeTruthy();
         });
 
         it('multiple address items', async () => {
             await renderComponent({
-                address: [ 'A', 'B' ],
+                address: ['A', 'B'],
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
@@ -93,13 +102,18 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            const addressBadges = Array.from(context.container.querySelectorAll('button.badge')) as HTMLButtonElement[];
-            expect(addressBadges.map(b => b.textContent)).toEqual([ 'A ×', 'B ×' ]);
+            const addressBadges = Array.from(
+                context.container.querySelectorAll('button.badge'),
+            ) as HTMLButtonElement[];
+            expect(addressBadges.map((b) => b.textContent)).toEqual([
+                'A ×',
+                'B ×',
+            ]);
         });
 
         it('with correct className', async () => {
             await renderComponent({
-                address: [ 'A' ],
+                address: ['A'],
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
@@ -107,15 +121,22 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            const addressBadges = Array.from(context.container.querySelectorAll('button.badge')) as HTMLButtonElement[];
-            expect(addressBadges.map(b => b.className.indexOf(' bg-warning') !== -1)).toEqual([ true ]);
-            const newAddressBadge = context.container.querySelector('span.badge')!;
+            const addressBadges = Array.from(
+                context.container.querySelectorAll('button.badge'),
+            ) as HTMLButtonElement[];
+            expect(
+                addressBadges.map(
+                    (b) => b.className.indexOf(' bg-warning') !== -1,
+                ),
+            ).toEqual([true]);
+            const newAddressBadge =
+                context.container.querySelector('span.badge')!;
             expect(newAddressBadge.className).toContain(' bg-warning');
         });
 
         it('with highlight', async () => {
             await renderComponent({
-                address: [ 'A' ],
+                address: ['A'],
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
@@ -123,7 +144,8 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            const newAddressBadge = context.container.querySelector('button.badge')!;
+            const newAddressBadge =
+                context.container.querySelector('button.badge')!;
             expect(newAddressBadge.className).toContain(' bg-danger');
         });
     });
@@ -131,7 +153,7 @@ describe('SharedAddress', () => {
     describe('interactivity', () => {
         it('can add address', async () => {
             await renderComponent({
-                address: [ 'A' ],
+                address: ['A'],
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
@@ -147,7 +169,7 @@ describe('SharedAddress', () => {
 
         it('adds address when enter is pressed', async () => {
             await renderComponent({
-                address: [ 'A' ],
+                address: ['A'],
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
@@ -156,14 +178,17 @@ describe('SharedAddress', () => {
             });
 
             await doChange(context.container, 'input', 'B', context.user);
-            await context.user!.type(context.container.querySelector('input')!, '{Enter}');
+            await context.user!.type(
+                context.container.querySelector('input')!,
+                '{Enter}',
+            );
 
             expect(updatedAddresses).toEqual(['A', 'B']);
         });
 
         it('new address code is reset to empty when address has been added', async () => {
             await renderComponent({
-                address: [ 'A' ],
+                address: ['A'],
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
@@ -179,7 +204,7 @@ describe('SharedAddress', () => {
 
         it('cannot add address with empty code (Button click)', async () => {
             await renderComponent({
-                address: [ 'A' ],
+                address: ['A'],
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
@@ -195,7 +220,7 @@ describe('SharedAddress', () => {
 
         it('cannot add address with empty code (Enter key press)', async () => {
             await renderComponent({
-                address: [ 'A' ],
+                address: ['A'],
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
@@ -204,14 +229,17 @@ describe('SharedAddress', () => {
             });
 
             await doChange(context.container, 'input', '', context.user);
-            await context.user!.type(context.container.querySelector('input')!, '{Enter}');
+            await context.user!.type(
+                context.container.querySelector('input')!,
+                '{Enter}',
+            );
 
             context.prompts.alertWasShown('Enter a code for the team');
         });
 
         it('can remove address', async () => {
             await renderComponent({
-                address: [ 'A', 'B' ],
+                address: ['A', 'B'],
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
@@ -226,7 +254,7 @@ describe('SharedAddress', () => {
 
         it('can remove last address', async () => {
             await renderComponent({
-                address: [ 'A' ],
+                address: ['A'],
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
@@ -241,7 +269,7 @@ describe('SharedAddress', () => {
 
         it('can delete shared address', async () => {
             await renderComponent({
-                address: [ 'A' ],
+                address: ['A'],
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
@@ -256,7 +284,7 @@ describe('SharedAddress', () => {
 
         it('sets highlight', async () => {
             await renderComponent({
-                address: [ 'A' ],
+                address: ['A'],
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
@@ -264,7 +292,10 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            await triggerMouseMove(context.container.querySelector('button.badge')!, true);
+            await triggerMouseMove(
+                context.container.querySelector('button.badge')!,
+                true,
+            );
 
             expect(highlightedMnemonic).toEqual('A');
         });
@@ -272,7 +303,7 @@ describe('SharedAddress', () => {
         it('removes highlight when mouse leaves', async () => {
             highlightedMnemonic = 'A';
             await renderComponent({
-                address: [ 'A' ],
+                address: ['A'],
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
@@ -280,7 +311,10 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            await triggerMouseLeave(context.container.querySelector('button.badge')!, true);
+            await triggerMouseLeave(
+                context.container.querySelector('button.badge')!,
+                true,
+            );
 
             expect(highlightedMnemonic).toBeUndefined();
         });
@@ -288,7 +322,7 @@ describe('SharedAddress', () => {
         it('removes highlight when mouse moves and ctrl not pressed', async () => {
             highlightedMnemonic = 'A';
             await renderComponent({
-                address: [ 'A' ],
+                address: ['A'],
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
@@ -296,7 +330,10 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            await triggerMouseMove(context.container.querySelector('button.badge')!, false);
+            await triggerMouseMove(
+                context.container.querySelector('button.badge')!,
+                false,
+            );
 
             expect(highlightedMnemonic).toBeUndefined();
         });

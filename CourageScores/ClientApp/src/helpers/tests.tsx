@@ -1,48 +1,75 @@
-﻿import {act, fireEvent} from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import {MemoryRouter, Route, Routes} from "react-router";
-import {IocContainer, IIocContainerProps} from "../components/common/IocContainer";
-import {AppContainer, IAppContainerProps} from "../components/common/AppContainer";
-import ReactDOM from "react-dom/client";
-import {BrandingContainer, IBrandingContainerProps} from "../components/common/BrandingContainer";
-import {UserEvent} from "@testing-library/user-event/setup/setup";
-import {IError} from "../components/common/IError";
-import {ISubscriptions} from "../live/ISubscriptions";
-import {IParentHeight} from "../components/layout/ParentHeight";
-import {IHttp} from "../api/http";
-import {ReactNode, useEffect} from "react";
-import {MessageType} from "../interfaces/models/dtos/MessageType";
-import {IPreferenceData, PreferencesContainer} from "../components/common/PreferencesContainer";
-import {Cookies, useCookies} from "react-cookie";
-import {UntypedPromise} from "../interfaces/UntypedPromise";
-import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
-import {IDependencies} from "../components/common/IDependencies";
-import {IClientActionResultDto} from "../components/common/IClientActionResultDto";
+﻿import { act, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { MemoryRouter, Route, Routes } from 'react-router';
+import {
+    IocContainer,
+    IIocContainerProps,
+} from '../components/common/IocContainer';
+import {
+    AppContainer,
+    IAppContainerProps,
+} from '../components/common/AppContainer';
+import ReactDOM from 'react-dom/client';
+import {
+    BrandingContainer,
+    IBrandingContainerProps,
+} from '../components/common/BrandingContainer';
+import { UserEvent } from '@testing-library/user-event/setup/setup';
+import { IError } from '../components/common/IError';
+import { ISubscriptions } from '../live/ISubscriptions';
+import { IParentHeight } from '../components/layout/ParentHeight';
+import { IHttp } from '../api/http';
+import { ReactNode, useEffect } from 'react';
+import { MessageType } from '../interfaces/models/dtos/MessageType';
+import {
+    IPreferenceData,
+    PreferencesContainer,
+} from '../components/common/PreferencesContainer';
+import { Cookies, useCookies } from 'react-cookie';
+import { UntypedPromise } from '../interfaces/UntypedPromise';
+import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType';
+import { IDependencies } from '../components/common/IDependencies';
+import { IClientActionResultDto } from '../components/common/IClientActionResultDto';
+import { AccessDto } from '../interfaces/models/dtos/Identity/AccessDto';
+import { UserDto } from '../interfaces/models/dtos/Identity/UserDto';
 
 /* istanbul ignore file */
 
-export async function doClick(container: Element, selector?: string, ignoreDisabledCheck?: boolean) {
+export async function doClick(
+    container: Element,
+    selector?: string,
+    ignoreDisabledCheck?: boolean,
+) {
     const item = selector ? container.querySelector(selector) : container;
     if (!item) {
-        throw new Error(`Element to click was not found: ${selector || (container ? container.innerHTML : '<no container>')}`)
+        throw new Error(
+            `Element to click was not found: ${selector || (container ? container.innerHTML : '<no container>')}`,
+        );
     }
     if (!ignoreDisabledCheck) {
         const anyItem = item as { disabled?: boolean };
         expect(anyItem!.disabled || false).toEqual(false);
     }
-    const clickEvent = new MouseEvent('click', {bubbles: true});
+    const clickEvent = new MouseEvent('click', { bubbles: true });
     await act(async () => {
         item!.dispatchEvent(clickEvent);
     });
 }
 
-export async function doChange(container: Element, selector: string, text: string, user?: UserEvent) {
+export async function doChange(
+    container: Element,
+    selector: string,
+    text: string,
+    user?: UserEvent,
+) {
     const input = container.querySelector(selector);
     if (!input) {
-        throw new Error(`Could not find element with selector ${selector} in ${container.innerHTML}`);
+        throw new Error(
+            `Could not find element with selector ${selector} in ${container.innerHTML}`,
+        );
     }
 
-    fireEvent.change(input, {target: {value: text}});
+    fireEvent.change(input, { target: { value: text } });
     if (!user) {
         throw new Error('user not available');
     }
@@ -50,19 +77,29 @@ export async function doChange(container: Element, selector: string, text: strin
 }
 
 export async function doKeyPress(container: Element, key: string) {
-    const keyboardEvent = new KeyboardEvent('keyup', { bubbles: true, key: key });
+    const keyboardEvent = new KeyboardEvent('keyup', {
+        bubbles: true,
+        key: key,
+    });
     await act(async () => {
         container!.dispatchEvent(keyboardEvent);
     });
 }
 
-export async function setFile(container: Element, selector: string, file: string, user?: UserEvent) {
+export async function setFile(
+    container: Element,
+    selector: string,
+    file: string,
+    user?: UserEvent,
+) {
     const input = container.querySelector(selector);
     if (!input) {
-        throw new Error(`Could not find element with selector ${selector} in ${container.innerHTML}`);
+        throw new Error(
+            `Could not find element with selector ${selector} in ${container.innerHTML}`,
+        );
     }
 
-    fireEvent.change(input, {target: {files: [file]}});
+    fireEvent.change(input, { target: { files: [file] } });
     if (!user) {
         throw new Error('user not available');
     }
@@ -70,14 +107,20 @@ export async function setFile(container: Element, selector: string, file: string
 }
 
 export async function triggerMouseMove(element: Element, ctrlDown: boolean) {
-    const mouseEvent = new MouseEvent('mousemove', { bubbles: true, ctrlKey: ctrlDown });
+    const mouseEvent = new MouseEvent('mousemove', {
+        bubbles: true,
+        ctrlKey: ctrlDown,
+    });
     await act(async () => {
         element!.dispatchEvent(mouseEvent);
     });
 }
 
 export async function triggerMouseLeave(element: Element, ctrlDown: boolean) {
-    const mouseEvent = new MouseEvent('mouseout', { bubbles: true, ctrlKey: ctrlDown });
+    const mouseEvent = new MouseEvent('mouseout', {
+        bubbles: true,
+        ctrlKey: ctrlDown,
+    });
     await act(async () => {
         element!.dispatchEvent(mouseEvent);
     });
@@ -95,33 +138,42 @@ export function api<T>(methods: Partial<T>): T {
     return Object.assign({}, methods) as T;
 }
 
-export function iocProps(props?: Partial<IDependencies & IIocContainerProps>) : IIocContainerProps {
+export function iocProps(
+    props?: Partial<IDependencies & IIocContainerProps>,
+): IIocContainerProps {
     const mockWebSocketFactory = new MockSocketFactory();
     const mockParentHeight: IParentHeight = {
-        cancelInterval() {
-        },
-        publishContentHeight() {
-        },
-        setupInterval() {
-        }
+        cancelInterval() {},
+        publishContentHeight() {},
+        setupInterval() {},
     };
     const mockHttp: IHttp = {
         get(relativeUrl: string): Promise<IClientActionResultDto<unknown>> {
-            throw new Error(`GET ${relativeUrl} attempted; mock api should be injected`);
+            throw new Error(
+                `GET ${relativeUrl} attempted; mock api should be injected`,
+            );
         },
         delete(relativeUrl: string): Promise<IClientActionResultDto<unknown>> {
-            throw new Error(`DELETE ${relativeUrl} attempted; mock api should be injected`);
+            throw new Error(
+                `DELETE ${relativeUrl} attempted; mock api should be injected`,
+            );
         },
         put(relativeUrl: string): Promise<IClientActionResultDto<unknown>> {
-            throw new Error(`PUT ${relativeUrl} attempted; mock api should be injected`);
+            throw new Error(
+                `PUT ${relativeUrl} attempted; mock api should be injected`,
+            );
         },
         patch(relativeUrl: string): Promise<IClientActionResultDto<unknown>> {
-            throw new Error(`PATCH ${relativeUrl} attempted; mock api should be injected`);
+            throw new Error(
+                `PATCH ${relativeUrl} attempted; mock api should be injected`,
+            );
         },
         post(relativeUrl: string): Promise<IClientActionResultDto<unknown>> {
-            throw new Error(`POST ${relativeUrl} attempted; mock api should be injected`);
-        }
-    }
+            throw new Error(
+                `POST ${relativeUrl} attempted; mock api should be injected`,
+            );
+        },
+    };
 
     const defaultProps: IIocContainerProps = {
         overrideHttp: mockHttp,
@@ -131,7 +183,9 @@ export function iocProps(props?: Partial<IDependencies & IIocContainerProps>) : 
     return Object.assign({}, defaultProps, props);
 }
 
-export function brandingProps(props?: Partial<IBrandingContainerProps>): IBrandingContainerProps {
+export function brandingProps(
+    props?: Partial<IBrandingContainerProps>,
+): IBrandingContainerProps {
     const defaultProps: IBrandingContainerProps = {
         name: 'Courage Scores',
         facebook: '',
@@ -145,7 +199,11 @@ export function brandingProps(props?: Partial<IBrandingContainerProps>): IBrandi
     return Object.assign({}, defaultProps, props);
 }
 
-export type ErrorValue = IError | string | string[] | IClientActionResultDto<unknown>;
+export type ErrorValue =
+    | IError
+    | string
+    | string[]
+    | IClientActionResultDto<unknown>;
 export class ErrorState {
     error?: ErrorValue;
 
@@ -154,7 +212,7 @@ export class ErrorState {
         if (error.message) {
             this.error = {
                 message: error.message,
-                stack: error.stack
+                stack: error.stack,
             };
         } else {
             this.error = err as string;
@@ -185,7 +243,12 @@ export class MockSocketFactory {
             send: (data: string) => {
                 const message = JSON.parse(data);
                 if (message.type === MessageType.subscribed) {
-                    this.subscriptions[message.id] = { id: '', type: LiveDataType.sayg, errorHandler: noop, updateHandler: noop };
+                    this.subscriptions[message.id] = {
+                        id: '',
+                        type: LiveDataType.sayg,
+                        errorHandler: noop,
+                        updateHandler: noop,
+                    };
                 } else if (message.type === MessageType.unsubscribed) {
                     delete this.subscriptions[message.id];
                 }
@@ -201,7 +264,10 @@ export class MockSocketFactory {
     }
 }
 
-export function appProps(props?: Partial<IAppContainerProps>, errorState?: ErrorState): IAppContainerProps {
+export function appProps(
+    props?: Partial<IAppContainerProps>,
+    errorState?: ErrorState,
+): IAppContainerProps {
     const defaultProps: IAppContainerProps = {
         appLoading: false,
         onError: (err: IError | string) => {
@@ -237,14 +303,25 @@ export function appProps(props?: Partial<IAppContainerProps>, errorState?: Error
             enterFullScreen: noop,
             exitFullScreen: noop,
             toggleFullScreen: noop,
-        }
+        },
     };
 
     return Object.assign({}, defaultProps, props);
 }
 
-export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBrandingContainerProps, appProps: IAppContainerProps, content: ReactNode, route?: string, currentPath?: string, containerTag?: string, initialPreferences?: IPreferenceData): Promise<TestContext> {
-    const container = document.createElement(containerTag || 'div') as HTMLElement;
+export async function renderApp(
+    iocProps: IIocContainerProps,
+    brandingProps: IBrandingContainerProps,
+    appProps: IAppContainerProps,
+    content: ReactNode,
+    route?: string,
+    currentPath?: string,
+    containerTag?: string,
+    initialPreferences?: IPreferenceData,
+): Promise<TestContext> {
+    const container = document.createElement(
+        containerTag || 'div',
+    ) as HTMLElement;
     document.body.appendChild(container);
 
     if (!route) {
@@ -261,21 +338,31 @@ export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBr
     const currentPathAsInitialEntry: string = currentPath;
     let root: ReactDOM.Root;
     await act(async () => {
-        const component = (<MemoryRouter initialEntries={[currentPathAsInitialEntry]}>
-            <Routes>
-                <Route path={route} element={<IocContainer {...iocProps}>
-                    <BrandingContainer {...brandingProps}>
-                        <AppContainer {...appProps}>
-                            <ReplaceCookieOnLoad cookieName="preferences" cookieValue={initialPreferences}>
-                                <PreferencesContainer insecure={true}>
-                                    {content}
-                                </PreferencesContainer>
-                            </ReplaceCookieOnLoad>
-                        </AppContainer>
-                    </BrandingContainer>
-                </IocContainer>}/>
-            </Routes>
-        </MemoryRouter>);
+        const component = (
+            <MemoryRouter initialEntries={[currentPathAsInitialEntry]}>
+                <Routes>
+                    <Route
+                        path={route}
+                        element={
+                            <IocContainer {...iocProps}>
+                                <BrandingContainer {...brandingProps}>
+                                    <AppContainer {...appProps}>
+                                        <ReplaceCookieOnLoad
+                                            cookieName="preferences"
+                                            cookieValue={initialPreferences}>
+                                            <PreferencesContainer
+                                                insecure={true}>
+                                                {content}
+                                            </PreferencesContainer>
+                                        </ReplaceCookieOnLoad>
+                                    </AppContainer>
+                                </BrandingContainer>
+                            </IocContainer>
+                        }
+                    />
+                </Routes>
+            </MemoryRouter>
+        );
         root = ReactDOM.createRoot(container);
         root.render(component);
     });
@@ -298,9 +385,10 @@ export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBr
 
 function ReplaceCookieOnLoad({ cookieName, cookieValue, children }) {
     /* eslint-disable @typescript-eslint/no-unused-vars */
-    const [ _, setCookie, removeCookie ] = useCookies([cookieName]);
+    const [_, setCookie, removeCookie] = useCookies([cookieName]);
 
-    useEffect(() => {
+    useEffect(
+        () => {
             // clear the cookie on load
             if (cookieValue) {
                 setCookie(cookieName, cookieValue);
@@ -309,9 +397,10 @@ function ReplaceCookieOnLoad({ cookieName, cookieValue, children }) {
             }
         },
         /* eslint-disable react-hooks/exhaustive-deps */
-        []);
+        [],
+    );
 
-    return (<>{children}</>);
+    return <>{children}</>;
 }
 
 export async function cleanUp(context: TestContext): UntypedPromise {
@@ -320,20 +409,33 @@ export async function cleanUp(context: TestContext): UntypedPromise {
     }
 }
 
-export function findButton(container: Element | undefined | null, text: string): IFoundButton {
+export function findButton(
+    container: Element | undefined | null,
+    text: string,
+): IFoundButton {
     if (!container) {
         throw new Error('Container is null');
     }
-    const matching = Array.from(container.querySelectorAll('.btn, button')).filter(b => b.textContent === text) as HTMLButtonElement[];
+    const matching = Array.from(
+        container.querySelectorAll('.btn, button'),
+    ).filter((b) => b.textContent === text) as HTMLButtonElement[];
     if (matching.length === 1) {
         return matching[0];
     }
     if (matching.length === 0) {
-        const buttons: string = Array.from(container.querySelectorAll('.btn, button')).map(b => b.textContent).join(', ');
+        const buttons: string = Array.from(
+            container.querySelectorAll('.btn, button'),
+        )
+            .map((b) => b.textContent)
+            .join(', ');
 
-        throw new Error(`Unable to find button with text = ${text} - buttons are ${buttons}`);
+        throw new Error(
+            `Unable to find button with text = ${text} - buttons are ${buttons}`,
+        );
     }
-    throw new Error(`Multiple buttons (${matching.length}) exist with text = ${text}`);
+    throw new Error(
+        `Multiple buttons (${matching.length}) exist with text = ${text}`,
+    );
 }
 
 export interface IFoundButton extends Element {
@@ -341,22 +443,34 @@ export interface IFoundButton extends Element {
     href?: string;
 }
 
-export async function doSelectOption(container: Element | undefined | null, text: string) {
+export async function doSelectOption(
+    container: Element | undefined | null,
+    text: string,
+) {
     if (!container) {
         throw new Error('Container not supplied');
     }
 
-    if (!container.className || container.className.indexOf('dropdown-menu') === -1) {
+    if (
+        !container.className ||
+        container.className.indexOf('dropdown-menu') === -1
+    ) {
         throw new Error('Container must be a dropdown menu');
     }
 
-    const items = Array.from(container.querySelectorAll('.dropdown-item')) as HTMLElement[];
-    const matchingItems = items.filter(i => i.textContent === text);
+    const items = Array.from(
+        container.querySelectorAll('.dropdown-item'),
+    ) as HTMLElement[];
+    const matchingItems = items.filter((i) => i.textContent === text);
     if (matchingItems.length === 0) {
-        throw new Error(`Could not find item with text: ${text}, possible options: ${items.map(i => `"${i.textContent}"`).join(', ')}`);
+        throw new Error(
+            `Could not find item with text: ${text}, possible options: ${items.map((i) => `"${i.textContent}"`).join(', ')}`,
+        );
     }
     if (matchingItems.length > 1) {
-        throw new Error(`${matchingItems.length} items match given text: ${text}`);
+        throw new Error(
+            `${matchingItems.length} items match given text: ${text}`,
+        );
     }
 
     await doClick(matchingItems[0]);
@@ -370,7 +484,9 @@ export class Prompts {
     private readonly alerts: string[] = [];
     private readonly confirms: (string | undefined)[] = [];
     private readonly responses: { [message: string]: boolean } = {};
-    private readonly beforeResponses: { [message: string]: (() => void) | undefined } = {};
+    private readonly beforeResponses: {
+        [message: string]: (() => void) | undefined;
+    } = {};
 
     constructor() {
         this.init();
@@ -400,7 +516,11 @@ export class Prompts {
         expect(this.confirms).toEqual([]);
     }
 
-    public respondToConfirm(message: string, response: boolean, beforeResponse?: () => void) {
+    public respondToConfirm(
+        message: string,
+        response: boolean,
+        beforeResponse?: () => void,
+    ) {
         this.responses[message] = response;
         this.beforeResponses[message] = beforeResponse;
     }
@@ -422,7 +542,6 @@ export class Prompts {
                 return this.responses[msg];
             }
 
-
             throw new Error(`Unexpected confirmation: '${msg?.replaceAll('\n', '\\n')}', add the following setup to the test
 
 context.prompts.respondToConfirm('${msg?.replaceAll('\n', '\\n')}', true);`);
@@ -436,4 +555,14 @@ export interface IBrowserWindow {
 
 export interface IBrowserNavigator {
     share: (data: ShareData) => void;
+}
+
+export function user(access: AccessDto, teamId?: string): UserDto {
+    return {
+        name: '',
+        givenName: '',
+        emailAddress: '',
+        access,
+        teamId,
+    };
 }

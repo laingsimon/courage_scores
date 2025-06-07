@@ -1,7 +1,15 @@
-import {appProps, brandingProps, cleanUp, doClick, iocProps, renderApp, TestContext} from "../../helpers/tests";
-import {DebugOptions} from "./DebugOptions";
-import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
-import React from "react";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    iocProps,
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import { DebugOptions } from './DebugOptions';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
+import React from 'react';
 
 describe('DebugOptions', () => {
     let context: TestContext;
@@ -10,16 +18,20 @@ describe('DebugOptions', () => {
         await cleanUp(context);
     });
 
-    async function renderComponent(account: UserDto | undefined, children: React.ReactNode) {
+    async function renderComponent(
+        account: UserDto | undefined,
+        children: React.ReactNode,
+    ) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
-            appProps({account}),
-            (<DebugOptions>{children}</DebugOptions>));
+            appProps({ account }),
+            <DebugOptions>{children}</DebugOptions>,
+        );
     }
 
     it('does not render when logged out', async () => {
-        await renderComponent(undefined, (<span>item</span>));
+        await renderComponent(undefined, <span>item</span>);
 
         const button = context.container.querySelector('.dropdown-menu');
         expect(button).toBeFalsy();
@@ -33,7 +45,7 @@ describe('DebugOptions', () => {
             access: {},
         };
 
-        await renderComponent(account, (<span>item</span>));
+        await renderComponent(account, <span>item</span>);
 
         const button = context.container.querySelector('.dropdown-menu');
         expect(button).toBeFalsy();
@@ -46,10 +58,10 @@ describe('DebugOptions', () => {
             givenName: '',
             access: {
                 showDebugOptions: false,
-            }
+            },
         };
 
-        await renderComponent(account, (<span>item</span>));
+        await renderComponent(account, <span>item</span>);
 
         const button = context.container.querySelector('.dropdown-menu');
         expect(button).toBeFalsy();
@@ -62,10 +74,10 @@ describe('DebugOptions', () => {
             givenName: '',
             access: {
                 showDebugOptions: true,
-            }
+            },
         };
 
-        await renderComponent(account, (<span>item</span>));
+        await renderComponent(account, <span>item</span>);
 
         const button = context.container.querySelector('.dropdown-menu');
         expect(button).toBeTruthy();
@@ -78,13 +90,15 @@ describe('DebugOptions', () => {
             givenName: '',
             access: {
                 showDebugOptions: true,
-            }
+            },
         };
-        await renderComponent(account, (<span>item</span>));
+        await renderComponent(account, <span>item</span>);
 
         await doClick(context.container, '.dropdown-toggle');
 
-        expect(context.container.querySelector('.dropdown-menu.show')).toBeTruthy();
+        expect(
+            context.container.querySelector('.dropdown-menu.show'),
+        ).toBeTruthy();
     });
 
     it('can collapse dropdown', async () => {
@@ -94,13 +108,15 @@ describe('DebugOptions', () => {
             givenName: '',
             access: {
                 showDebugOptions: true,
-            }
+            },
         };
-        await renderComponent(account, (<span>item</span>));
+        await renderComponent(account, <span>item</span>);
         await doClick(context.container, '.dropdown-menu');
 
         await doClick(context.container, '.dropdown-menu');
 
-        expect(context.container.querySelector('.dropdown-menu.show')).toBeFalsy();
+        expect(
+            context.container.querySelector('.dropdown-menu.show'),
+        ).toBeFalsy();
     });
 });

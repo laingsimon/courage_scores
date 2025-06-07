@@ -1,19 +1,19 @@
-import React, {createContext, useContext} from "react";
-import {IDivisionUri, IIdish} from "./IDivisionUri";
-import {isGuid} from "../../helpers/projection";
-import {any} from "../../helpers/collections";
-import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
-import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
-import {useApp} from "../common/AppContainer";
-import {useLocation, useParams} from "react-router";
+import React, { createContext, useContext } from 'react';
+import { IDivisionUri, IIdish } from './IDivisionUri';
+import { isGuid } from '../../helpers/projection';
+import { any } from '../../helpers/collections';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
+import { useApp } from '../common/AppContainer';
+import { useLocation, useParams } from 'react-router';
 
-function makeIdish(item: { id: string, name?: string}): IIdish {
+function makeIdish(item: { id: string; name?: string }): IIdish {
     return {
         id: item.id,
         name: item.name,
         toString: () => {
             return item.name || item.id;
-        }
+        },
     };
 }
 
@@ -37,11 +37,15 @@ export interface IDivisionUriContainerProps {
 }
 
 /* istanbul ignore next */
-export function DivisionUriContainer({ children, urlStyle, mode: overrideMode }: IDivisionUriContainerProps) {
-    const {divisions, seasons} = useApp();
-    const {divisionId, mode, seasonId} = useParams();
+export function DivisionUriContainer({
+    children,
+    urlStyle,
+    mode: overrideMode,
+}: IDivisionUriContainerProps) {
+    const { divisions, seasons } = useApp();
+    const { divisionId, mode, seasonId } = useParams();
     const location = useLocation();
-    const {onError} = useApp();
+    const { onError } = useApp();
 
     function getDivisionIdIsh(idish?: string): IIdish {
         if (isGuid(idish)) {
@@ -52,7 +56,9 @@ export function DivisionUriContainer({ children, urlStyle, mode: overrideMode }:
             return INVALID;
         }
 
-        const division: DivisionDto = divisions.filter((d: DivisionDto) => d.name.toLowerCase() === idish.toLowerCase())[0];
+        const division: DivisionDto = divisions.filter(
+            (d: DivisionDto) => d.name.toLowerCase() === idish.toLowerCase(),
+        )[0];
         return division ? makeIdish(division) : INVALID;
     }
 
@@ -60,7 +66,7 @@ export function DivisionUriContainer({ children, urlStyle, mode: overrideMode }:
         const search = new URLSearchParams(location.search);
 
         if (!search.has('division')) {
-            return [ INVALID ];
+            return [INVALID];
         }
 
         const divisions: string[] = search.getAll('division');
@@ -76,22 +82,27 @@ export function DivisionUriContainer({ children, urlStyle, mode: overrideMode }:
             return undefined;
         }
 
-        const season: SeasonDto = seasons.filter((s: SeasonDto) => s.name.toLowerCase() === idish.toLowerCase())[0];
+        const season: SeasonDto = seasons.filter(
+            (s: SeasonDto) => s.name.toLowerCase() === idish.toLowerCase(),
+        )[0];
         return season ? makeIdish(season) : INVALID;
     }
 
     const data: IDivisionUri = {
         requestedMode: overrideMode || mode,
-        requestedDivisions: urlStyle === 'single-division'
-            ? [ getDivisionIdIsh(divisionId) ]
-            : getDivisionIdsFromUrl(),
+        requestedDivisions:
+            urlStyle === 'single-division'
+                ? [getDivisionIdIsh(divisionId)]
+                : getDivisionIdsFromUrl(),
         requestedSeason: getSeasonId(seasonId),
     };
 
     try {
-        return (<DivisionUriContext.Provider value={data}>
-            {children}
-        </DivisionUriContext.Provider>);
+        return (
+            <DivisionUriContext.Provider value={data}>
+                {children}
+            </DivisionUriContext.Provider>
+        );
     } catch (e) {
         onError(e);
     }

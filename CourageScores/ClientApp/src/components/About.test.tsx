@@ -1,9 +1,15 @@
-import {appProps, cleanUp, iocProps, renderApp, TestContext} from "../helpers/tests";
-import {renderDate} from "../helpers/rendering";
-import {About} from "./About";
-import {IBuild} from "./common/IBuild";
-import {IBrandingContainerProps} from "./common/BrandingContainer";
-import {IBrandingData} from "./common/IBrandingData";
+import {
+    appProps,
+    cleanUp,
+    iocProps,
+    renderApp,
+    TestContext,
+} from '../helpers/tests';
+import { renderDate } from '../helpers/rendering';
+import { About } from './About';
+import { IBuild } from './common/IBuild';
+import { IBrandingContainerProps } from './common/BrandingContainer';
+import { IBrandingData } from './common/IBrandingData';
 
 describe('About', () => {
     let context: TestContext;
@@ -20,17 +26,23 @@ describe('About', () => {
         await cleanUp(context);
     });
 
-    async function renderComponent(build: IBuild, branding: IBrandingContainerProps) {
+    async function renderComponent(
+        build: IBuild,
+        branding: IBrandingContainerProps,
+    ) {
         context = await renderApp(
             iocProps(),
             branding,
-            appProps({build}),
-            (<About/>));
+            appProps({ build }),
+            <About />,
+        );
     }
 
     function getRow(title: string): HTMLTableRowElement {
-        const rows: HTMLTableRowElement[] = Array.from(context.container.querySelectorAll('table.table tbody tr'));
-        const row = rows.filter(row => {
+        const rows: HTMLTableRowElement[] = Array.from(
+            context.container.querySelectorAll('table.table tbody tr'),
+        );
+        const row = rows.filter((row) => {
             const heading = row.querySelector('th') as HTMLTableCellElement;
             return heading.textContent === title;
         })[0];
@@ -41,12 +53,15 @@ describe('About', () => {
 
     describe('with build information', () => {
         it('shows branch', async () => {
-            await renderComponent({
-                branch: 'BRANCH',
-                version: '0123456789abcdef',
-                date: '2023-04-05T06:07:08',
-                prName: 'my PR title',
-            }, emptyBranding);
+            await renderComponent(
+                {
+                    branch: 'BRANCH',
+                    version: '0123456789abcdef',
+                    date: '2023-04-05T06:07:08',
+                    prName: 'my PR title',
+                },
+                emptyBranding,
+            );
 
             const branchRow = getRow('Branch');
             const cell = branchRow.querySelector('td') as HTMLTableCellElement;
@@ -54,41 +69,54 @@ describe('About', () => {
         });
 
         it('shows version', async () => {
-            await renderComponent({
-                branch: 'BRANCH',
-                version: '0123456789abcdef',
-                date: '2023-04-05T06:07:08',
-                prName: 'my PR title',
-            }, emptyBranding);
+            await renderComponent(
+                {
+                    branch: 'BRANCH',
+                    version: '0123456789abcdef',
+                    date: '2023-04-05T06:07:08',
+                    prName: 'my PR title',
+                },
+                emptyBranding,
+            );
 
             const branchRow = getRow('Version');
             const cell = branchRow.querySelector('td') as HTMLTableCellElement;
             const link = cell.querySelector('a') as HTMLAnchorElement;
-            expect(link.href).toEqual(`https://github.com/laingsimon/courage_scores/commit/0123456789abcdef`);
+            expect(link.href).toEqual(
+                `https://github.com/laingsimon/courage_scores/commit/0123456789abcdef`,
+            );
             expect(link.textContent).toEqual('my PR title (01234567)');
         });
 
         it('shows version with PR link', async () => {
-            await renderComponent({
-                branch: 'BRANCH',
-                version: '0123456789abcdef',
-                date: '2023-04-05T06:07:08',
-                prName: 'my PR title',
-                prLink: 'https://github.com/laingsimon/courage_scores/pulls/1234',
-            }, emptyBranding);
+            await renderComponent(
+                {
+                    branch: 'BRANCH',
+                    version: '0123456789abcdef',
+                    date: '2023-04-05T06:07:08',
+                    prName: 'my PR title',
+                    prLink: 'https://github.com/laingsimon/courage_scores/pulls/1234',
+                },
+                emptyBranding,
+            );
 
             const branchRow = getRow('Version');
             const cell = branchRow.querySelector('td') as HTMLTableCellElement;
             const link = cell.querySelector('a') as HTMLAnchorElement;
-            expect(link.href).toEqual(`https://github.com/laingsimon/courage_scores/pulls/1234`);
+            expect(link.href).toEqual(
+                `https://github.com/laingsimon/courage_scores/pulls/1234`,
+            );
             expect(link.textContent).toEqual('my PR title (01234567)');
         });
 
         it('shows empty when no version', async () => {
-            await renderComponent({
-                branch: 'BRANCH',
-                date: '2023-04-05T06:07:08',
-            }, emptyBranding);
+            await renderComponent(
+                {
+                    branch: 'BRANCH',
+                    date: '2023-04-05T06:07:08',
+                },
+                emptyBranding,
+            );
 
             const branchRow = getRow('Version');
             const cell = branchRow.querySelector('td') as HTMLTableCellElement;
@@ -97,15 +125,21 @@ describe('About', () => {
 
         it('shows date', async () => {
             const buildDate = '2023-04-05T06:07:08Z';
-            await renderComponent({
-                branch: 'BRANCH',
-                version: '0123456789abcdef',
-                date: buildDate,
-            }, emptyBranding);
+            await renderComponent(
+                {
+                    branch: 'BRANCH',
+                    version: '0123456789abcdef',
+                    date: buildDate,
+                },
+                emptyBranding,
+            );
 
             const branchRow = getRow('Date');
             const cell = branchRow.querySelector('td') as HTMLTableCellElement;
-            const expectedDate = renderDate(buildDate) + ' ' + new Date(buildDate).toLocaleTimeString();
+            const expectedDate =
+                renderDate(buildDate) +
+                ' ' +
+                new Date(buildDate).toLocaleTimeString();
             expect(cell.textContent).toEqual(expectedDate);
         });
     });
@@ -123,7 +157,9 @@ describe('About', () => {
             });
 
             const links = Array.from(context.container.querySelectorAll('a'));
-            const websiteLink = links.filter(link => link.textContent === 'COURAGE SCORES')[0];
+            const websiteLink = links.filter(
+                (link) => link.textContent === 'COURAGE SCORES',
+            )[0];
             expect(websiteLink).toBeTruthy();
             expect(websiteLink.href).toEqual('https://couragescores/');
         });
@@ -139,7 +175,9 @@ describe('About', () => {
                 facebook: '',
             });
 
-            const custodians = Array.from(context.container.querySelectorAll('p')).filter(p => p.textContent!.indexOf('Custodians') !== -1)[0];
+            const custodians = Array.from(
+                context.container.querySelectorAll('p'),
+            ).filter((p) => p.textContent!.indexOf('Custodians') !== -1)[0];
             expect(custodians).toBeTruthy();
             expect(custodians.textContent).toContain('Simon');
             expect(custodians.textContent).toContain('Laing');
