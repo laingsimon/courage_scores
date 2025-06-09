@@ -18,7 +18,7 @@ export interface ITournamentBuilder
     address(address: string): ITournamentBuilder;
     winner(name: string, id?: string, teamId?: string): ITournamentBuilder;
     withSide(
-        builder?: BuilderParam<ITournamentSideBuilder>,
+        ...builder: BuilderParam<ITournamentSideBuilder>[]
     ): ITournamentBuilder;
     withPlayer(playerOrId: any): ITournamentBuilder;
     date(date: string): ITournamentBuilder;
@@ -75,11 +75,10 @@ export function tournamentBuilder(id?: string): ITournamentBuilder {
             };
             return builder;
         },
-        withSide: (b?: BuilderParam<ITournamentSideBuilder>, name?: string) => {
-            const side = b
-                ? b(sideBuilder(name)).build()
-                : sideBuilder().build();
-            tournament.sides?.push(side);
+        withSide: (...sides: BuilderParam<ITournamentSideBuilder>[]) => {
+            tournament.sides = (tournament.sides ?? []).concat(
+                sides.map((b) => b(sideBuilder()).build()),
+            );
             return builder;
         },
         withPlayer: (playerOrId: any) => {
