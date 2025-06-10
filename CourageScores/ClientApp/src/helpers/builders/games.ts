@@ -30,7 +30,7 @@ export interface IFixtureBuilder
     forDivision(division: DivisionDto): IFixtureBuilder;
     with180(player: TeamPlayerDto): IFixtureBuilder;
     withHiCheck(player: TeamPlayerDto, score: number): IFixtureBuilder;
-    withMatch(builder?: BuilderParam<IMatchBuilder>): IFixtureBuilder;
+    withMatch(...builder: BuilderParam<IMatchBuilder>[]): IFixtureBuilder;
     withMatchOption(
         builder?: BuilderParam<IMatchOptionsBuilder>,
     ): IFixtureBuilder;
@@ -128,11 +128,9 @@ export function fixtureBuilder(date?: string, id?: string): IFixtureBuilder {
             );
             return builder;
         },
-        withMatch: (b?: BuilderParam<IMatchBuilder>) => {
-            const match = b
-                ? b(matchBuilder()).build()
-                : matchBuilder().build();
-            fixture.matches?.push(match);
+        withMatch: (...b: BuilderParam<IMatchBuilder>[]) => {
+            const matches = b.map((bb) => bb(matchBuilder()).build());
+            fixture.matches = (fixture.matches ?? []).concat(matches);
             return builder;
         },
         withMatchOption: (b?: BuilderParam<IMatchOptionsBuilder>) => {

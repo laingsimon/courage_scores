@@ -15,7 +15,7 @@ import {
     TestContext,
     user,
 } from '../../helpers/tests';
-import { any } from '../../helpers/collections';
+import { any, take } from '../../helpers/collections';
 import { createTemporaryId, repeat } from '../../helpers/projection';
 import { Score } from './Score';
 import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
@@ -27,13 +27,12 @@ import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
 import { IAppContainerProps } from '../common/AppContainer';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto';
 import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
 import { playerBuilder } from '../../helpers/builders/players';
 import { divisionBuilder } from '../../helpers/builders/divisions';
 import { seasonBuilder } from '../../helpers/builders/seasons';
 import { teamBuilder } from '../../helpers/builders/teams';
-import { fixtureBuilder, IMatchBuilder } from '../../helpers/builders/games';
+import { fixtureBuilder } from '../../helpers/builders/games';
 import { IFailedRequest } from '../common/IFailedRequest';
 import { IGameApi } from '../../interfaces/apis/IGameApi';
 import { IPlayerApi } from '../../interfaces/apis/IPlayerApi';
@@ -41,10 +40,8 @@ import { UploadPhotoDto } from '../../interfaces/models/dtos/UploadPhotoDto';
 import { PhotoReferenceDto } from '../../interfaces/models/dtos/PhotoReferenceDto';
 import { IFeatureApi } from '../../interfaces/apis/IFeatureApi';
 import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto';
-import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
-import { BuilderParam } from '../../helpers/builders/builders';
 import { IDatedDivisionFixtureDto } from '../division_fixtures/IDatedDivisionFixtureDto';
-import { DivisionFixtureTeamDto } from '../../interfaces/models/dtos/Division/DivisionFixtureTeamDto';
+import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto';
 
 interface ICreatedPlayer {
     divisionId: string;
@@ -54,11 +51,14 @@ interface ICreatedPlayer {
     newPlayer: TeamPlayerDto;
 }
 
+type FixtureData = IDatedDivisionFixtureDto & GameDto;
+type EditPlayer = EditTeamPlayerDto;
+
 describe('Score', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let fixtureDataMap: {
-        [fixtureId: string]: IDatedDivisionFixtureDto & GameDto;
+        [fixtureId: string]: FixtureData;
     } = {};
     let updatedFixtures: { [fixtureId: string]: RecordScoresDto };
     let createdPlayer: ICreatedPlayer | null;
@@ -72,63 +72,40 @@ describe('Score', () => {
     let deletedPhoto: { id: string; photoId: string } | null;
     let deletePhotoResponse: IClientActionResultDto<GameDto> | null;
     const gameApi = api<IGameApi>({
-        get: async (fixtureId: string) => {
-            if (
-                any(
-                    Object.keys(fixtureDataMap),
-                    (key: string) => key === fixtureId,
-                )
-            ) {
-                return fixtureDataMap[fixtureId];
+        get: async (id: string) => {
+            if (any(Object.keys(fixtureDataMap), (key: string) => key === id)) {
+                return fixtureDataMap[id];
             }
 
             throw new Error('Unexpected request for fixture data');
         },
-        updateScores: async (
-            fixtureId: string,
-            fixtureData: RecordScoresDto,
-        ) => {
-            updatedFixtures[fixtureId] = fixtureData;
+        updateScores: async (id: string, data: RecordScoresDto) => {
+            updatedFixtures[id] = data;
             return (
                 saveGameApiResult || {
                     success: true,
                     messages: ['Fixture updated'],
-                    result: fixtureData as GameDto,
+                    result: data as GameDto,
                 }
             );
         },
-        async uploadPhoto(
-            request: UploadPhotoDto,
-            file: File,
-        ): Promise<IClientActionResultDto<GameDto>> {
-            uploadedPhoto = { request, file };
+        async uploadPhoto(r: UploadPhotoDto, f: File) {
+            uploadedPhoto = { request: r, file: f };
             return uploadPhotoResponse!;
         },
-        async deletePhoto(
-            id: string,
-            photoId: string,
-        ): Promise<IClientActionResultDto<GameDto>> {
+        async deletePhoto(id: string, photoId: string) {
             deletedPhoto = { id, photoId };
             return deletePhotoResponse!;
         },
     });
     const playerApi = api<IPlayerApi>({
-        create: async (
-            divisionId: string,
-            seasonId: string,
-            teamId: string,
-            playerDetails: EditTeamPlayerDto,
-        ) => {
-            const newPlayer = Object.assign(
-                playerBuilder().build(),
-                playerDetails,
-            );
+        create: async (d: string, s: string, t: string, p: EditPlayer) => {
             createdPlayer = {
-                divisionId,
-                seasonId,
-                teamId,
-                playerDetails,
-                newPlayer,
+                divisionId: d,
+                seasonId: s,
+                teamId: t,
+                playerDetails: p,
+                newPlayer: Object.assign(playerBuilder().build(), p),
             };
             if (!newPlayerApiResult) {
                 throw new Error(
@@ -140,7 +117,7 @@ describe('Score', () => {
     });
     const featureApi = api<IFeatureApi>({
         async getFeatures(): Promise<ConfiguredFeatureDto[]> {
-            const feature: ConfiguredFeatureDto = {
+            const feature = {
                 name: 'PhotosEnabled',
                 configuredValue: 'true',
                 id: 'af2ef520-8153-42b0-9ef4-d8419daebc23',
@@ -149,10 +126,68 @@ describe('Score', () => {
             return [feature];
         },
     });
-    const originalConsoleLog = console.log;
+    const addAPlayer = 'Add a player...';
+    const nbsp = ' ';
+    const nbspx2 = nbsp + nbsp;
+    const nbsbAddAPlayer = nbsp + addAPlayer;
+    const homePlayer = 'Home player';
+    const homePlayerAdd = homePlayer + addAPlayer;
+    const awayPlayer = 'Away player';
+    const awayPlayerAdd = awayPlayer + addAPlayer;
+    const addHomePairs = homePlayerAdd + nbspx2 + homePlayerAdd;
+    const addAwayPairs = awayPlayerAdd + nbspx2 + awayPlayerAdd;
+    const addHomeTriples =
+        homePlayerAdd + nbspx2 + homePlayerAdd + nbspx2 + homePlayerAdd;
+    const addAwayTriples =
+        awayPlayerAdd + nbspx2 + awayPlayerAdd + nbspx2 + awayPlayerAdd;
+    const selectPlayers = 'Select some player/s to add 180s and hi-checks';
+
+    function join(...values: string[]) {
+        return values.join(nbsp);
+    }
 
     async function reloadTeams() {
         teamsReloaded = true;
+    }
+
+    function assertEmptyScoreCard() {
+        const container = contentBackground()!;
+        const tableBody = container.querySelector('table tbody')!;
+        const rows = tableBody.querySelectorAll('tr');
+        expect(rows.length).toEqual(12);
+        assertRow(rows[0], 'Singles');
+        assertRow(rows[1], '', '', '', '', '');
+        assertRow(rows[2], '', '', '', '', '');
+        assertRow(rows[3], '', '', '', '', '');
+        assertRow(rows[4], '', '', '', '', '');
+        assertRow(rows[5], '', '', '', '', '');
+        assertRow(rows[6], 'Pairs');
+        assertRow(rows[7], '', '', '', '', '');
+        assertRow(rows[8], '', '', '', '', '');
+        assertRow(rows[9], 'Triples');
+        assertRow(rows[10], '', '', '', '', '');
+        assertRow(rows[11], '');
+    }
+
+    function assertScoreCardForClerk() {
+        const container = contentBackground()!;
+        const tableBody = container.querySelector('table tbody')!;
+        const rows = tableBody.querySelectorAll('tr');
+        expect(rows.length).toEqual(14);
+        assertRow(rows[0], 'Singles');
+        assertRow(rows[1], homePlayer, '', '', '', awayPlayer);
+        assertRow(rows[2], homePlayer, '', '', '', awayPlayer);
+        assertRow(rows[3], homePlayer, '', '', '', awayPlayer);
+        assertRow(rows[4], homePlayer, '', '', '', awayPlayer);
+        assertRow(rows[5], homePlayer, '', '', '', awayPlayer);
+        assertRow(rows[6], 'Pairs');
+        assertRow(rows[7], addHomePairs, '', '', '', addAwayPairs);
+        assertRow(rows[8], addHomePairs, '', '', '', addAwayPairs);
+        assertRow(rows[9], 'Triples');
+        assertRow(rows[10], addHomeTriples, '', '', '', addAwayTriples);
+        assertRow(rows[11], 'Man of the match');
+        assertRow(rows[12], '', '', '');
+        assertRow(rows[13], selectPlayers);
     }
 
     beforeEach(() => {
@@ -171,17 +206,17 @@ describe('Score', () => {
 
     afterEach(async () => {
         await cleanUp(context);
-        console.log = originalConsoleLog;
     });
 
-    async function renderComponent(
-        id: string,
-        appContainerProps: IAppContainerProps,
-    ) {
+    function dialog() {
+        return context.container.querySelector('.modal-dialog');
+    }
+
+    async function renderComponent(id: string, props: IAppContainerProps) {
         context = await renderApp(
             iocProps({ gameApi, playerApi, featureApi }),
             brandingProps(),
-            appContainerProps,
+            props,
             <Score />,
             '/:fixtureId',
             '/' + id,
@@ -216,9 +251,9 @@ describe('Score', () => {
         );
     }
 
-    function getUnplayedFixtureData(appData: IAppContainerProps) {
-        const homeTeam = appData.teams.filter((t) => t.name === 'Home team')[0];
-        const awayTeam = appData.teams.filter((t) => t.name === 'Away team')[0];
+    function getUnplayedFixtureData(appData: IAppContainerProps): GameDto {
+        const homeTeam = appData.teams.find((t) => t.name === 'Home team')!;
+        const awayTeam = appData.teams.find((t) => t.name === 'Away team')!;
 
         return fixtureBuilder('2023-01-02T00:00:00')
             .forSeason(appData.seasons[0])
@@ -230,12 +265,8 @@ describe('Score', () => {
     }
 
     function getPlayedFixtureData(appData: IAppContainerProps): GameDto {
-        const homeTeam: TeamDto = appData.teams.filter(
-            (t: TeamDto) => t.name === 'Home team',
-        )[0];
-        const awayTeam: TeamDto = appData.teams.filter(
-            (t: TeamDto) => t.name === 'Away team',
-        )[0];
+        const homeTeam = appData.teams.find((t) => t.name === 'Home team')!;
+        const awayTeam = appData.teams.find((t) => t.name === 'Away team')!;
 
         const firstDivision: DivisionDto = appData.divisions[0];
         const firstSeason: SeasonDto = appData.seasons[0];
@@ -245,27 +276,21 @@ describe('Score', () => {
                 return { name, id: createTemporaryId() };
             }
 
-            const teamSeason: TeamSeasonDto = team.seasons.filter(
-                (ts: TeamSeasonDto) =>
-                    ts.seasonId === firstSeason.id && !ts.deleted,
-            )[0];
-            const player: TeamPlayerDto = teamSeason.players!.filter(
-                (p: TeamPlayerDto) => p.name === name,
-            )[0];
+            const teamSeason = team.seasons.find(
+                (ts) => ts.seasonId === firstSeason.id && !ts.deleted,
+            )!;
+            const player = teamSeason.players!.find((p) => p.name === name);
             return (
                 player || { name: name + ' Not found', id: createTemporaryId() }
             );
         }
 
-        function createMatch(
-            homeScore: number,
-            awayScore: number,
-        ): BuilderParam<IMatchBuilder> {
+        function createMatch(home: number, away: number) {
             return (b) =>
                 b
                     .withHome(findPlayer(homeTeam, 'Home player'))
                     .withAway(findPlayer(awayTeam, 'Away player'))
-                    .scores(homeScore, awayScore);
+                    .scores(home, away);
         }
 
         return fixtureBuilder('2023-01-02T00:00:00')
@@ -287,14 +312,11 @@ describe('Score', () => {
                     ? firstDivision
                     : divisionBuilder('DIVISION').build(),
             )
-            .withMatch(createMatch(3, 2))
-            .withMatch(createMatch(3, 2))
-            .withMatch(createMatch(3, 2))
-            .withMatch(createMatch(3, 2))
-            .withMatch(createMatch(3, 2))
-            .withMatch(createMatch(3, 0))
-            .withMatch(createMatch(3, 0))
-            .withMatch(createMatch(3, 0))
+            .withMatch(createMatch(3, 2), createMatch(3, 2)) // first 2 singles
+            .withMatch(createMatch(3, 2), createMatch(3, 2)) // second 2 singles
+            .withMatch(createMatch(3, 2)) // final singles
+            .withMatch(createMatch(3, 0), createMatch(3, 0)) // pairs
+            .withMatch(createMatch(3, 0)) // triples
             .with180(findPlayer(homeTeam, 'Home player'))
             .withHiCheck(findPlayer(awayTeam, 'Away player'), 140)
             .updated('2023-01-02T04:05:06')
@@ -302,10 +324,7 @@ describe('Score', () => {
             .build();
     }
 
-    function assertMatchRow(
-        tr: HTMLTableRowElement,
-        ...expectedCellText: string[]
-    ) {
+    function assertRow(tr: HTMLTableRowElement, ...expectedCellText: string[]) {
         const cellText = Array.from(tr.querySelectorAll('td')).map((td) =>
             td.textContent!.trim(),
         );
@@ -313,11 +332,27 @@ describe('Score', () => {
         expect(cellText.length).toEqual(expectedCellText.length);
 
         for (let index = 0; index < cellText.length; index++) {
-            const cellTextValue = cellText[index];
-            const expectedCellTextValue = expectedCellText[index];
-
-            expect(cellTextValue).toContain(expectedCellTextValue);
+            expect(cellText[index]).toContain(expectedCellText[index]);
         }
+    }
+
+    function contentBackground() {
+        return context.container.querySelector('.content-background');
+    }
+
+    function matchRow(matchNo: number = 1) {
+        const selector = `.content-background table tbody tr:nth-child(${matchNo + 1})`;
+        return context.container.querySelector(selector);
+    }
+
+    async function selectPlayer(name: string, m: number, s: 'home' | 'away') {
+        const col = s === 'home' ? 1 : 5;
+        const players = matchRow(m)!.querySelector(`td:nth-child(${col})`)!;
+        await doSelectOption(players.querySelector('.dropdown-menu')!, name);
+    }
+
+    function assertError(message: string) {
+        expect(reportedError.error).toContain(message);
     }
 
     describe('when logged out', () => {
@@ -335,7 +370,7 @@ describe('Score', () => {
 
             await renderComponent(fixture.id, appData);
 
-            expect(reportedError.error).toEqual('Game could not be found');
+            assertError('Game could not be found');
         });
 
         it('renders when fixture data not returned successfully', async () => {
@@ -343,31 +378,21 @@ describe('Score', () => {
                 status: 400,
                 errors: { key: ['Some error'] },
             };
-            fixtureDataMap[fixture.id] =
-                failedRequest as IDatedDivisionFixtureDto & GameDto;
+            fixtureDataMap[fixture.id] = failedRequest as FixtureData;
 
             await renderComponent(fixture.id, appData);
 
-            expect(reportedError.error).toEqual(
+            assertError(
                 'Error accessing fixture: Code: 400 -- key: Some error',
             );
         });
 
         it('renders when home or away are not defined', async () => {
-            fixtureDataMap[fixture.id] = {
-                id: '',
-                date: '',
-                address: '',
-                away: null!,
-                home: null!,
-                homeTeam: null! as DivisionFixtureTeamDto,
-            } as IDatedDivisionFixtureDto & GameDto;
+            fixtureDataMap[fixture.id] = {} as FixtureData;
 
             await renderComponent(fixture.id, appData);
 
-            expect(reportedError.error).toEqual(
-                'Either home or away team are undefined for this game',
-            );
+            assertError('Either home or away team are undefined for this game');
         });
 
         it('renders score card with no results', async () => {
@@ -375,12 +400,8 @@ describe('Score', () => {
 
             await renderComponent(fixture.id, appData);
 
-            reportedError.verifyNoError();
-            const container = context.container.querySelector(
-                '.content-background',
-            )!;
-            const tableBody = container.querySelector('table tbody')!;
-            const singleRow = tableBody.querySelector('tr td')!;
+            const container = contentBackground()!;
+            const singleRow = container.querySelector('table tbody tr td')!;
             expect(singleRow.textContent).toEqual('No scores, yet');
         });
 
@@ -389,82 +410,23 @@ describe('Score', () => {
 
             await renderComponent(fixture.id, appData);
 
-            reportedError.verifyNoError();
-            const container = context.container.querySelector(
-                '.content-background',
-            )!;
+            const container = contentBackground()!;
             const tableBody = container.querySelector('table tbody')!;
-            const matchRows = tableBody.querySelectorAll('tr');
-            expect(matchRows.length).toEqual(12);
-            assertMatchRow(matchRows[0], 'Singles');
-            assertMatchRow(
-                matchRows[1],
-                'Home player',
-                '3',
-                '',
-                '2',
-                'Away player',
-            );
-            assertMatchRow(
-                matchRows[2],
-                'Home player',
-                '3',
-                '',
-                '2',
-                'Away player',
-            );
-            assertMatchRow(
-                matchRows[3],
-                'Home player',
-                '3',
-                '',
-                '2',
-                'Away player',
-            );
-            assertMatchRow(
-                matchRows[4],
-                'Home player',
-                '3',
-                '',
-                '2',
-                'Away player',
-            );
-            assertMatchRow(
-                matchRows[5],
-                'Home player',
-                '3',
-                '',
-                '2',
-                'Away player',
-            );
-            assertMatchRow(matchRows[6], 'Pairs');
-            assertMatchRow(
-                matchRows[7],
-                'Home player',
-                '3',
-                '',
-                '0',
-                'Away player',
-            );
-            assertMatchRow(
-                matchRows[8],
-                'Home player',
-                '3',
-                '',
-                '0',
-                'Away player',
-            );
-            assertMatchRow(matchRows[9], 'Triples');
-            assertMatchRow(
-                matchRows[10],
-                'Home player',
-                '3',
-                '',
-                '0',
-                'Away player',
-            );
-            assertMatchRow(
-                matchRows[11],
+            const rows = Array.from(tableBody.querySelectorAll('tr'));
+            expect(rows.length).toEqual(12);
+            assertRow(rows[0], 'Singles');
+            assertRow(rows[1], 'Home player', '3', '', '2', 'Away player');
+            assertRow(rows[2], 'Home player', '3', '', '2', 'Away player');
+            assertRow(rows[3], 'Home player', '3', '', '2', 'Away player');
+            assertRow(rows[4], 'Home player', '3', '', '2', 'Away player');
+            assertRow(rows[5], 'Home player', '3', '', '2', 'Away player');
+            assertRow(rows[6], 'Pairs');
+            assertRow(rows[7], 'Home player', '3', '', '0', 'Away player');
+            assertRow(rows[8], 'Home player', '3', '', '0', 'Away player');
+            assertRow(rows[9], 'Triples');
+            assertRow(rows[10], 'Home player', '3', '', '0', 'Away player');
+            assertRow(
+                rows[11],
                 '180sHome player',
                 '',
                 '100+ c/oAway player (140)',
@@ -477,9 +439,7 @@ describe('Score', () => {
 
             await renderComponent(fixture.id, appData);
 
-            expect(reportedError.error).toEqual(
-                'App has finished loading, no divisions are available',
-            );
+            assertError('App has finished loading, no divisions are available');
         });
 
         it('renders when no seasons', async () => {
@@ -488,9 +448,7 @@ describe('Score', () => {
 
             await renderComponent(fixture.id, appData);
 
-            expect(reportedError.error).toEqual(
-                'App has finished loading, no seasons are available',
-            );
+            assertError('App has finished loading, no seasons are available');
         });
 
         it('renders when no teams', async () => {
@@ -499,251 +457,150 @@ describe('Score', () => {
 
             await renderComponent(fixture.id, appData);
 
-            expect(reportedError.error).toEqual(
-                'App has finished loading, no teams are available',
-            );
+            assertError('App has finished loading, no teams are available');
         });
     });
 
     describe('when logged in', () => {
-        const account: UserDto = user({ manageScores: true });
+        const account = user({ manageScores: true });
         let appData: IAppContainerProps;
+        let fixture: GameDto;
 
-        function successfullyAddPlayers(
-            createdPlayer: ICreatedPlayer,
-        ): IClientActionResultDto<TeamDto> {
-            // the data is mutated in-memory here to allow multiple updates to be applied in the same test, i.e. multiple additional players
-            const existingTeam: TeamDto = appData.teams.filter(
-                (t: TeamDto) => t.id === createdPlayer.teamId,
-            )[0];
-            const existingTeamSeason: TeamSeasonDto =
-                existingTeam.seasons!.filter(
-                    (ts: TeamSeasonDto) =>
-                        ts.seasonId === createdPlayer.seasonId,
-                )[0];
-
-            if (existingTeamSeason) {
-                existingTeamSeason.players = existingTeamSeason.players!.concat(
-                    [createdPlayer.newPlayer],
-                );
+        function addPlayerToSeason(ts: TeamSeasonDto, player: ICreatedPlayer) {
+            if (ts.seasonId === player.seasonId) {
+                ts.players = (ts.players ?? []).concat(player.newPlayer);
             }
 
-            return {
-                success: true,
-                result: existingTeam,
+            return ts;
+        }
+
+        function modifySeasonOnAdd(
+            modify: (ts: TeamSeasonDto, p: ICreatedPlayer) => TeamSeasonDto,
+            truncate?: boolean,
+        ) {
+            return (player: ICreatedPlayer) => {
+                const team = appData.teams.find((t) => t.id === player.teamId)!;
+                const newTeam: TeamDto = {
+                    ...team,
+                    seasons: team
+                        .seasons!.map((ts) => {
+                            const newTs = { ...ts };
+                            return modify(newTs, player);
+                        })
+                        .filter(() => truncate !== true),
+                };
+
+                return {
+                    success: true,
+                    result: newTeam,
+                };
             };
+        }
+
+        function getScores(
+            tagName: string,
+            selector: (e: Element) => string,
+        ): string[] {
+            const matches = Array.from(
+                context.container.querySelectorAll('table tbody tr'),
+            );
+            return matches.flatMap((match) => {
+                const tds = Array.from(match.querySelectorAll('td')).filter(
+                    (td) => td.colSpan !== 2,
+                );
+                return Array.from(
+                    tds.flatMap((td) =>
+                        Array.from(td.querySelectorAll(tagName)).map(selector),
+                    ),
+                );
+            });
         }
 
         beforeEach(() => {
             appData = getDefaultAppData(account);
+            fixture = getPlayedFixtureData(appData);
         });
 
         it('renders score card without results', async () => {
-            const fixture = getUnplayedFixtureData(appData);
+            fixture = getUnplayedFixtureData(appData);
 
             await renderComponent(fixture.id, appData);
 
-            reportedError.verifyNoError();
-            const container = context.container.querySelector(
-                '.content-background',
-            )!;
-            const tableBody = container.querySelector('table tbody')!;
-            const matchRows = tableBody.querySelectorAll('tr');
-            expect(matchRows.length).toEqual(14);
-            assertMatchRow(matchRows[0], 'Singles');
-            assertMatchRow(
-                matchRows[1],
-                'Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...',
-            );
-            assertMatchRow(
-                matchRows[2],
-                'Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...',
-            );
-            assertMatchRow(
-                matchRows[3],
-                'Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...',
-            );
-            assertMatchRow(
-                matchRows[4],
-                'Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...',
-            );
-            assertMatchRow(
-                matchRows[5],
-                'Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...',
-            );
-            assertMatchRow(matchRows[6], 'Pairs');
-            assertMatchRow(
-                matchRows[7],
-                'Home playerAdd a player...  Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...  Away playerAdd a player...',
-            );
-            assertMatchRow(
-                matchRows[8],
-                'Home playerAdd a player...  Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...  Away playerAdd a player...',
-            );
-            assertMatchRow(matchRows[9], 'Triples');
-            assertMatchRow(
-                matchRows[10],
-                'Home playerAdd a player...  Home playerAdd a player...  Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...  Away playerAdd a player...  Away playerAdd a player...',
-            );
-            assertMatchRow(matchRows[11], 'Man of the match');
-            assertMatchRow(matchRows[12], '', '', '');
-            assertMatchRow(
-                matchRows[13],
-                'Select some player/s to add 180s and hi-checks',
-            );
+            assertScoreCardForClerk();
         });
 
         it('renders score card with results', async () => {
-            const fixture = getPlayedFixtureData(appData);
-
             await renderComponent(fixture.id, appData);
 
-            reportedError.verifyNoError();
-            const container = context.container.querySelector(
-                '.content-background',
-            )!;
+            const container = contentBackground()!;
             const tableBody = container.querySelector('table tbody')!;
-            const matchRows = tableBody.querySelectorAll('tr');
-            expect(matchRows.length).toEqual(14);
-            assertMatchRow(matchRows[0], 'Singles');
-            assertMatchRow(
-                matchRows[1],
-                'Home playerAdd a player...',
+            const rows = tableBody.querySelectorAll('tr');
+            expect(rows.length).toEqual(14);
+            assertRow(rows[0], 'Singles');
+            assertRow(rows[1], homePlayer, '', '', '', awayPlayer);
+            assertRow(rows[2], homePlayer, '', '', '', awayPlayer);
+            assertRow(rows[3], homePlayer, '', '', '', awayPlayer);
+            assertRow(rows[4], homePlayer, '', '', '', awayPlayer);
+            assertRow(rows[5], homePlayer, '', '', '', awayPlayer);
+            assertRow(rows[6], 'Pairs');
+            assertRow(
+                rows[7],
+                join(homePlayer, homePlayerAdd, nbsbAddAPlayer),
                 '',
                 '',
                 '',
-                'Away playerAdd a player...',
+                join(awayPlayer, awayPlayerAdd, nbsbAddAPlayer),
             );
-            assertMatchRow(
-                matchRows[2],
-                'Home playerAdd a player...',
+            assertRow(
+                rows[8],
+                join(homePlayer, homePlayerAdd, nbsbAddAPlayer),
                 '',
                 '',
                 '',
-                'Away playerAdd a player...',
+                join(awayPlayer, awayPlayerAdd, nbsbAddAPlayer),
             );
-            assertMatchRow(
-                matchRows[3],
-                'Home playerAdd a player...',
+            assertRow(rows[9], 'Triples');
+            assertRow(
+                rows[10],
+                join(homePlayer, homePlayerAdd, nbsbAddAPlayer, nbsbAddAPlayer),
                 '',
                 '',
                 '',
-                'Away playerAdd a player...',
+                join(awayPlayer, awayPlayerAdd, nbsbAddAPlayer, nbsbAddAPlayer),
             );
-            assertMatchRow(
-                matchRows[4],
-                'Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...',
-            );
-            assertMatchRow(
-                matchRows[5],
-                'Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...',
-            );
-            assertMatchRow(matchRows[6], 'Pairs');
-            assertMatchRow(
-                matchRows[7],
-                'Home player Home playerAdd a player...  Add a player...',
-                '',
-                '',
-                '',
-                'Away player Away playerAdd a player...  Add a player...',
-            );
-            assertMatchRow(
-                matchRows[7],
-                'Home player Home playerAdd a player...  Add a player...',
-                '',
-                '',
-                '',
-                'Away player Away playerAdd a player...  Add a player...',
-            );
-            assertMatchRow(matchRows[9], 'Triples');
-            assertMatchRow(
-                matchRows[10],
-                'Home player Home playerAdd a player...  Add a player...  Add a player...',
-                '',
-                '',
-                '',
-                'Away player Away playerAdd a player...  Add a player...  Add a player...',
-            );
-            assertMatchRow(matchRows[11], 'Man of the match');
-            assertMatchRow(matchRows[12], '', '', '');
-            assertMatchRow(matchRows[13], '180s', '', '100+ c/o');
+            assertRow(rows[11], 'Man of the match');
+            assertRow(rows[12], '', '', '');
+            assertRow(rows[13], '180s', '', '100+ c/o');
         });
 
         it('renders when no divisions', async () => {
             appData.divisions = [];
-            const fixture = getPlayedFixtureData(appData);
+            fixture = getPlayedFixtureData(appData);
 
             await renderComponent(fixture.id, appData);
 
-            expect(reportedError.error).toEqual(
-                'App has finished loading, no divisions are available',
-            );
+            assertError('App has finished loading, no divisions are available');
         });
 
         it('renders when no seasons', async () => {
             appData.seasons = [];
-            const fixture = getPlayedFixtureData(appData);
+            fixture = getPlayedFixtureData(appData);
 
             await renderComponent(fixture.id, appData);
 
-            expect(reportedError.error).toEqual(
-                'App has finished loading, no seasons are available',
-            );
+            assertError('App has finished loading, no seasons are available');
         });
 
         it('renders when no teams', async () => {
             appData.teams = [];
-            const fixture = getPlayedFixtureData(appData);
+            fixture = getPlayedFixtureData(appData);
 
             await renderComponent(fixture.id, appData);
 
-            expect(reportedError.error).toEqual(
-                'App has finished loading, no teams are available',
-            );
+            assertError('App has finished loading, no teams are available');
         });
 
         it('renders when team has no seasons', async () => {
-            const fixture = getPlayedFixtureData(appData);
             appData.teams = appData.teams.map((t) => {
                 if (t.name === 'Home team') {
                     t.seasons = undefined;
@@ -753,11 +610,10 @@ describe('Score', () => {
 
             await renderComponent(fixture.id, appData);
 
-            expect(reportedError.error).toEqual('home team has no seasons');
+            assertError('home team has no seasons');
         });
 
         it('renders when team is not registered to season', async () => {
-            const fixture = getPlayedFixtureData(appData);
             appData.teams = appData.teams.map((t: TeamDto) => {
                 if (t.name === 'Home team') {
                     t.seasons = [];
@@ -767,355 +623,169 @@ describe('Score', () => {
 
             await renderComponent(fixture.id, appData);
 
-            expect(reportedError.error).toContain(
-                'home team has not registered for this season: ',
-            );
+            assertError('home team has not registered for this season: ');
         });
 
         it('renders when team not found', async () => {
             appData.teams = appData.teams.filter(
                 (t: TeamDto) => t.name !== 'Home team',
             );
-            const fixture = getPlayedFixtureData(appData);
+            fixture = getPlayedFixtureData(appData);
 
             await renderComponent(fixture.id, appData);
 
-            expect(reportedError.error).toContain(
-                'home team could not be found - ',
-            );
+            assertError('home team could not be found - ');
         });
 
         it('renders previously renamed players', async () => {
-            const fixture = getPlayedFixtureData(appData);
-            const homeTeam = appData.teams.filter(
-                (t) => t.name === 'Home team',
-            )[0];
-            const newHomeTeamPlayer = playerBuilder('New name')
-                .captain()
-                .build();
-            homeTeam.seasons![0].players!.push(newHomeTeamPlayer);
+            const homeTeam = appData.teams.find((t) => t.name === 'Home team')!;
+            const newPlayer = playerBuilder('New name').captain().build();
+            homeTeam.seasons![0].players!.push(newPlayer);
             const firstSinglesMatch = fixtureDataMap[fixture.id]!.matches![0];
-            firstSinglesMatch.homePlayers![0] = Object.assign(
-                {},
-                newHomeTeamPlayer,
-                { name: 'Old name' },
-            );
+            firstSinglesMatch.homePlayers![0] = Object.assign({}, newPlayer, {
+                name: 'Old name',
+            });
 
             await renderComponent(fixture.id, appData);
 
-            const firstSinglesRow = context.container.querySelector(
-                '.content-background table tbody tr:nth-child(2)',
-            )!;
-            const playerSelection =
-                firstSinglesRow.querySelector('td:nth-child(1)')!;
-            expect(
-                playerSelection.querySelector('.dropdown-toggle')!.textContent,
-            ).toEqual('New name (nee Old name)');
-            const selectedPlayer = playerSelection.querySelector(
-                '.dropdown-menu .active',
-            )!;
-            expect(selectedPlayer.textContent).toEqual(
-                'New name (nee Old name)',
-            );
+            const players = matchRow(1)!.querySelector('td:nth-child(1)')!;
+            const toggle = players.querySelector('.dropdown-toggle')!;
+            expect(toggle.textContent).toEqual('New name (nee Old name)');
+            const item = players.querySelector('.dropdown-menu .active')!;
+            expect(item.textContent).toEqual('New name (nee Old name)');
         });
 
         it('can add a player to home team', async () => {
-            const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
-            newPlayerApiResult = successfullyAddPlayers;
+            newPlayerApiResult = modifySeasonOnAdd(addPlayerToSeason);
 
-            reportedError.verifyNoError();
-            const firstSinglesRow = context.container.querySelector(
-                '.content-background table tbody tr:nth-child(2)',
-            )!;
-            const playerSelection =
-                firstSinglesRow.querySelector('td:nth-child(1)')!;
-            await doSelectOption(
-                playerSelection.querySelector('.dropdown-menu')!,
-                'Add a player...',
-            );
-            const addPlayerDialog =
-                context.container.querySelector('.modal-dialog')!;
-            expect(addPlayerDialog.textContent).toContain(
-                'Create home player...',
-            );
+            await selectPlayer(addAPlayer, 1, 'home');
+            expect(dialog()!.textContent).toContain('Create home player...');
             await doChange(
-                addPlayerDialog,
+                dialog()!,
                 'input[name="name"]',
                 'NEW PLAYER',
                 context.user,
             );
-            await doClick(findButton(addPlayerDialog, 'Add player'));
+            await doClick(findButton(dialog(), 'Add player'));
 
-            reportedError.verifyNoError();
             expect(teamsReloaded).toEqual(true);
             expect(createdPlayer).not.toBeNull();
-            expect(
-                context.container.querySelector('.modal-dialog'),
-            ).toBeFalsy();
+            expect(dialog()).toBeFalsy();
         });
 
         it('can add multiple players to home team', async () => {
-            const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
-            newPlayerApiResult = successfullyAddPlayers;
+            newPlayerApiResult = modifySeasonOnAdd(addPlayerToSeason);
 
-            reportedError.verifyNoError();
-            const firstSinglesRow = context.container.querySelector(
-                '.content-background table tbody tr:nth-child(2)',
-            )!;
-            const playerSelection =
-                firstSinglesRow.querySelector('td:nth-child(1)')!;
-            await doSelectOption(
-                playerSelection.querySelector('.dropdown-menu')!,
-                'Add a player...',
-            );
-            const addPlayerDialog =
-                context.container.querySelector('.modal-dialog')!;
-            expect(addPlayerDialog.textContent).toContain(
-                'Create home player...',
-            );
-            await doClick(addPlayerDialog, 'input[name="multiple"]');
+            await selectPlayer(addAPlayer, 1, 'home');
+            expect(dialog()!.textContent).toContain('Create home player...');
+            await doClick(dialog()!, 'input[name="multiple"]');
             await doChange(
-                addPlayerDialog,
+                dialog()!,
                 'textarea[name="name"]',
                 'NEW PLAYER 1\nNEW PLAYER 2',
                 context.user,
             );
-            await doClick(findButton(addPlayerDialog, 'Add players'));
+            await doClick(findButton(dialog(), 'Add players'));
 
-            reportedError.verifyNoError();
             expect(teamsReloaded).toEqual(true);
             expect(createdPlayer).not.toBeNull();
-            expect(
-                context.container.querySelector('.modal-dialog'),
-            ).toBeFalsy();
+            expect(dialog()).toBeFalsy();
         });
 
         it('can handle missing team season during add new player', async () => {
-            const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
-            newPlayerApiResult = (createdPlayer) => {
-                const existingTeam = Object.assign(
-                    {},
-                    appData.teams.filter(
-                        (t) => t.id === createdPlayer.teamId,
-                    )[0],
-                );
-                existingTeam.seasons = existingTeam.seasons!.filter(
-                    (_: TeamSeasonDto) => false,
-                ); // return no team seasons
+            newPlayerApiResult = modifySeasonOnAdd((t) => t, true);
 
-                return {
-                    success: true,
-                    result: existingTeam,
-                };
-            };
-
-            reportedError.verifyNoError();
-            const firstSinglesRow = context.container.querySelector(
-                '.content-background table tbody tr:nth-child(2)',
-            )!;
-            const playerSelection =
-                firstSinglesRow.querySelector('td:nth-child(1)')!;
-            await doSelectOption(
-                playerSelection.querySelector('.dropdown-menu')!,
-                'Add a player...',
-            );
-            const addPlayerDialog =
-                context.container.querySelector('.modal-dialog')!;
-            expect(addPlayerDialog.textContent).toContain(
-                'Create home player...',
-            );
+            await selectPlayer(addAPlayer, 1, 'home');
+            expect(dialog()!.textContent).toContain('Create home player...');
             await doChange(
-                addPlayerDialog,
+                dialog()!,
                 'input[name="name"]',
                 'NEW PLAYER',
                 context.user,
             );
-            await doClick(findButton(addPlayerDialog, 'Add player'));
+            await doClick(findButton(dialog(), 'Add player'));
 
-            expect(reportedError.error).toEqual(
-                'Could not find updated teamSeason',
-            );
+            assertError('Could not find updated teamSeason');
             expect(teamsReloaded).toEqual(true);
             expect(createdPlayer).not.toBeNull();
-            expect(
-                context.container.querySelector('.modal-dialog'),
-            ).toBeFalsy();
+            expect(dialog()).toBeFalsy();
         });
 
         it('can handle deleted team season during add new player', async () => {
-            const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
-            newPlayerApiResult = (createdPlayer) => {
-                const existingTeam = Object.assign(
-                    {},
-                    appData.teams.filter(
-                        (t) => t.id === createdPlayer.teamId,
-                    )[0],
-                );
-                for (const teamSeasonDto of existingTeam.seasons!) {
-                    teamSeasonDto.deleted = '2020-01-02T04:05:06Z'; // modify the team season so it is deleted
-                }
+            newPlayerApiResult = modifySeasonOnAdd((ts) => {
+                ts.deleted = '2020-01-02T04:05:06Z'; // modify the team season so it is deleted
+                return ts;
+            });
 
-                return {
-                    success: true,
-                    result: existingTeam,
-                };
-            };
-
-            reportedError.verifyNoError();
-            const firstSinglesRow = context.container.querySelector(
-                '.content-background table tbody tr:nth-child(2)',
-            )!;
-            const playerSelection =
-                firstSinglesRow.querySelector('td:nth-child(1)')!;
-            await doSelectOption(
-                playerSelection.querySelector('.dropdown-menu')!,
-                'Add a player...',
-            );
-            const addPlayerDialog =
-                context.container.querySelector('.modal-dialog')!;
-            expect(addPlayerDialog.textContent).toContain(
-                'Create home player...',
-            );
+            await selectPlayer(addAPlayer, 1, 'home');
+            expect(dialog()!.textContent).toContain('Create home player...');
             await doChange(
-                addPlayerDialog,
+                dialog()!,
                 'input[name="name"]',
                 'NEW PLAYER',
                 context.user,
             );
-            await doClick(findButton(addPlayerDialog, 'Add player'));
+            await doClick(findButton(dialog(), 'Add player'));
 
-            expect(reportedError.error).toEqual(
-                'Could not find updated teamSeason',
-            );
+            assertError('Could not find updated teamSeason');
             expect(teamsReloaded).toEqual(true);
             expect(createdPlayer).not.toBeNull();
-            expect(
-                context.container.querySelector('.modal-dialog'),
-            ).toBeFalsy();
+            expect(dialog()).toBeFalsy();
         });
 
         it('can handle new player not found after creating new player', async () => {
-            const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
-            newPlayerApiResult = (createdPlayer) => {
-                const existingTeam = Object.assign(
-                    {},
-                    appData.teams.filter(
-                        (t) => t.id === createdPlayer.teamId,
-                    )[0],
-                );
-                existingTeam.seasons = existingTeam.seasons!.map(
-                    (ts: TeamSeasonDto) => {
-                        return Object.assign({}, ts);
-                    },
-                );
+            newPlayerApiResult = modifySeasonOnAdd((ts) => ts);
 
-                return {
-                    success: true,
-                    result: existingTeam,
-                };
-            };
-
-            reportedError.verifyNoError();
-            const firstSinglesRow = context.container.querySelector(
-                '.content-background table tbody tr:nth-child(2)',
-            )!;
-            const playerSelection =
-                firstSinglesRow.querySelector('td:nth-child(1)')!;
-            await doSelectOption(
-                playerSelection.querySelector('.dropdown-menu')!,
-                'Add a player...',
-            );
-            const addPlayerDialog =
-                context.container.querySelector('.modal-dialog')!;
-            expect(addPlayerDialog.textContent).toContain(
-                'Create home player...',
-            );
+            await selectPlayer(addAPlayer, 1, 'home');
+            expect(dialog()!.textContent).toContain('Create home player...');
             await doChange(
-                addPlayerDialog,
+                dialog()!,
                 'input[name="name"]',
                 'NEW PLAYER',
                 context.user,
             );
-            await doClick(findButton(addPlayerDialog, 'Add player'));
+            await doClick(findButton(dialog(), 'Add player'));
 
-            expect(reportedError.error).toEqual(
+            assertError(
                 'Could not find new player in updated season, looking for player with name: "NEW PLAYER"',
             );
             expect(teamsReloaded).toEqual(true);
             expect(createdPlayer).not.toBeNull();
-            expect(
-                context.container.querySelector('.modal-dialog'),
-            ).toBeFalsy();
+            expect(dialog()).toBeFalsy();
         });
 
         it('can add a player to away team', async () => {
-            const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
 
-            reportedError.verifyNoError();
-            const firstSinglesRow = context.container.querySelector(
-                '.content-background table tbody tr:nth-child(2)',
-            )!;
-            const playerSelection =
-                firstSinglesRow.querySelector('td:nth-child(5)')!;
-            await doSelectOption(
-                playerSelection.querySelector('.dropdown-menu')!,
-                'Add a player...',
-            );
+            await selectPlayer(addAPlayer, 1, 'away');
 
-            const addPlayerDialog =
-                context.container.querySelector('.modal-dialog')!;
-            expect(addPlayerDialog.textContent).toContain(
-                'Create away player...',
-            );
+            expect(dialog()!.textContent).toContain('Create away player...');
         });
 
         it('can close add player dialog', async () => {
-            const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
-            reportedError.verifyNoError();
-            const firstSinglesRow = context.container.querySelector(
-                '.content-background table tbody tr:nth-child(2)',
-            )!;
-            const playerSelection =
-                firstSinglesRow.querySelector('td:nth-child(5)')!;
-            await doSelectOption(
-                playerSelection.querySelector('.dropdown-menu')!,
-                'Add a player...',
-            );
+            await selectPlayer(addAPlayer, 1, 'away');
 
-            await doClick(
-                findButton(
-                    context.container.querySelector('.modal-dialog')!,
-                    'Cancel',
-                ),
-            );
+            await doClick(findButton(dialog()!, 'Cancel'));
 
-            const addPlayerDialog =
-                context.container.querySelector('.modal-dialog');
-            expect(addPlayerDialog).toBeFalsy();
+            expect(dialog()).toBeFalsy();
         });
 
         it('can save scores', async () => {
-            const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
 
             await doClick(findButton(context.container, 'Save'));
 
-            reportedError.verifyNoError();
-            expect(updatedFixtures[fixture.id]).not.toBeNull();
-            expect(updatedFixtures[fixture.id].lastUpdated).toEqual(
-                fixture.updated,
-            );
+            const updatedFixture = updatedFixtures[fixture.id];
+            expect(updatedFixture.lastUpdated).toEqual(fixture.updated);
         });
 
         it('renders error if save fails', async () => {
-            const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
             saveGameApiResult = {
                 success: false,
@@ -1123,69 +793,43 @@ describe('Score', () => {
 
             await doClick(findButton(context.container, 'Save'));
 
-            expect(context.container.textContent).toContain(
-                'Could not save score',
-            );
+            const textContent = context.container.textContent;
+            expect(textContent).toContain('Could not save score');
         });
 
         it('can change player', async () => {
-            const homeTeam = appData.teams.filter(
-                (t) => t.name === 'Home team',
-            )[0];
+            const homeTeam = appData.teams.find((t) => t.name === 'Home team')!;
             const anotherHomePlayer = playerBuilder('Another player').build();
             homeTeam.seasons![0].players!.push(anotherHomePlayer);
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
-            const firstSinglesRow = context.container.querySelector(
-                '.content-background table tbody tr:nth-child(2)',
-            )!;
-            const playerSelection =
-                firstSinglesRow.querySelector('td:nth-child(1)')!;
 
-            await doSelectOption(
-                playerSelection.querySelector('.dropdown-menu'),
-                'Another player',
-            );
+            await selectPlayer('Another player', 1, 'home');
             await doClick(findButton(context.container, 'Save'));
 
-            reportedError.verifyNoError();
-            expect(updatedFixtures[fixture.id]).not.toBeNull();
-            expect(updatedFixtures[fixture.id].lastUpdated).toEqual(
-                fixture.updated,
-            );
-            expect(updatedFixtures[fixture.id].matches![0].homePlayers).toEqual(
-                [anotherHomePlayer],
-            );
+            const updatedFixture = updatedFixtures[fixture.id];
+            expect(updatedFixture.lastUpdated).toEqual(fixture.updated);
+            const homePlayers = updatedFixture.matches![0].homePlayers;
+            expect(homePlayers).toEqual([anotherHomePlayer]);
         });
 
         it('can change match options', async () => {
-            const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
-            const firstSinglesRow = context.container.querySelector(
-                '.content-background table tbody tr:nth-child(2)',
-            )!;
-            const playerSelection =
-                firstSinglesRow.querySelector('td:nth-child(5)')!;
+            const players = matchRow(1)!.querySelector('td:nth-child(5)')!;
 
-            await doClick(findButton(playerSelection, '🛠'));
-            const dialog = context.container.querySelector('.modal-dialog')!;
+            await doClick(findButton(players, '🛠'));
             await doChange(
-                dialog,
+                dialog()!,
                 'input[name="numberOfLegs"]',
                 '30',
                 context.user,
             );
-            await doClick(findButton(dialog, 'Close'));
+            await doClick(findButton(dialog(), 'Close'));
             await doClick(findButton(context.container, 'Save'));
 
-            reportedError.verifyNoError();
-            expect(updatedFixtures[fixture.id]).not.toBeNull();
-            expect(updatedFixtures[fixture.id].lastUpdated).toEqual(
-                fixture.updated,
-            );
-            expect(
-                updatedFixtures[fixture.id].matchOptions![0].numberOfLegs,
-            ).toEqual(30);
+            const updatedFixture = updatedFixtures[fixture.id];
+            expect(updatedFixture.lastUpdated).toEqual(fixture.updated);
+            expect(updatedFixture.matchOptions![0].numberOfLegs).toEqual(30);
         });
 
         it('can unpublish unselected submission', async () => {
@@ -1194,45 +838,30 @@ describe('Score', () => {
             fixtureData.homeSubmission = getPlayedFixtureData(appData);
             fixtureData.awaySubmission = getPlayedFixtureData(appData);
             await renderComponent(fixtureData.id, appData);
-            reportedError.verifyNoError();
 
             await doClick(findButton(context.container, 'Unpublish'));
 
-            reportedError.verifyNoError();
             context.prompts.alertWasShown(
                 'Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved',
             );
-            const matches = Array.from(
-                context.container.querySelectorAll('table tbody tr'),
+            const scores = getScores(
+                'input',
+                (i) => (i as HTMLInputElement).value,
             );
-            const allScores = matches.flatMap((match) => {
-                const tds = Array.from(match.querySelectorAll('td')).filter(
-                    (td) => td.colSpan !== 2,
-                );
-                return Array.from(
-                    tds.flatMap((td) =>
-                        Array.from(td.querySelectorAll('input')),
-                    ),
-                );
-            });
-            expect(allScores.map((input) => input.value)).toEqual(
-                repeat(16, (_) => ''),
-            ); // 16 = 8 matches * 2 sides
+            expect(scores).toEqual(repeat(16, (_) => '')); // 16 = 8 matches * 2 sides
             const manOfTheMatchHeadingRow = Array.from(
                 context.container.querySelectorAll('td'),
-            ).filter((td) => td.textContent === 'Man of the match')[0];
-            const manOfTheMatchDataRow = manOfTheMatchHeadingRow.parentElement!
+            ).find((td) => td.textContent === 'Man of the match')!;
+            const motm = manOfTheMatchHeadingRow.parentElement!
                 .nextSibling as HTMLTableRowElement;
             expect(
-                manOfTheMatchDataRow.querySelector(
-                    'td:nth-child(1) .dropdown-toggle',
-                )!.textContent,
-            ).toEqual(' ');
+                motm.querySelector('td:nth-child(1) .dropdown-toggle')!
+                    .textContent,
+            ).toEqual(nbsp);
             expect(
-                manOfTheMatchDataRow.querySelector(
-                    'td:nth-child(3) .dropdown-toggle',
-                )!.textContent,
-            ).toEqual(' ');
+                motm.querySelector('td:nth-child(3) .dropdown-toggle')!
+                    .textContent,
+            ).toEqual(nbsp);
             const oneEightiesRow = context.container.querySelector(
                 'tr[datatype="merge-180s"] td:nth-child(1)',
             )!;
@@ -1253,32 +882,18 @@ describe('Score', () => {
                 match.awayScore = 1;
             }
             await renderComponent(fixtureData.id, appData);
-            reportedError.verifyNoError();
+
             await doClick(
                 context.container,
                 'span[title="See home submission"]',
             );
-            reportedError.verifyNoError();
 
             await doClick(findButton(context.container, 'Unpublish'));
 
-            reportedError.verifyNoError();
             context.prompts.alertWasShown(
                 'Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved',
             );
-            const matches = Array.from(
-                context.container.querySelectorAll('table tbody tr'),
-            );
-            const allScores = matches.flatMap((match) => {
-                const tds = Array.from(match.querySelectorAll('td')).filter(
-                    (td) => td.colSpan !== 2,
-                );
-                return Array.from(
-                    tds.flatMap((td) =>
-                        Array.from(td.querySelectorAll('strong')),
-                    ),
-                ).map((str) => str.textContent);
-            });
+            const allScores = getScores('strong', (s) => s.textContent!);
             expect(allScores).toEqual(repeat(16, (_) => '1')); // 16 = 8 matches * 2 sides
         });
 
@@ -1292,32 +907,18 @@ describe('Score', () => {
                 match.awayScore = 2;
             }
             await renderComponent(fixtureData.id, appData);
-            reportedError.verifyNoError();
+
             await doClick(
                 context.container,
                 'span[title="See away submission"]',
             );
-            reportedError.verifyNoError();
 
             await doClick(findButton(context.container, 'Unpublish'));
 
-            reportedError.verifyNoError();
             context.prompts.alertWasShown(
                 'Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved',
             );
-            const matches = Array.from(
-                context.container.querySelectorAll('table tbody tr'),
-            );
-            const allScores = matches.flatMap((match) => {
-                const tds = Array.from(match.querySelectorAll('td')).filter(
-                    (td) => td.colSpan !== 2,
-                );
-                return Array.from(
-                    tds.flatMap((td) =>
-                        Array.from(td.querySelectorAll('strong')),
-                    ),
-                ).map((str) => str.textContent);
-            });
+            const allScores = getScores('strong', (s) => s.textContent!);
             expect(allScores).toEqual(repeat(16, (_) => '2')); // 16 = 8 matches * 2 sides
         });
 
@@ -1335,8 +936,6 @@ describe('Score', () => {
             fixtureData.away.manOfTheMatch = undefined;
 
             await renderComponent(fixtureData.id, appData);
-
-            reportedError.verifyNoError();
         });
 
         it('can show when only away submission present', async () => {
@@ -1353,15 +952,10 @@ describe('Score', () => {
             fixtureData.away.manOfTheMatch = undefined;
 
             await renderComponent(fixtureData.id, appData);
-
-            reportedError.verifyNoError();
         });
 
         it('does not render photos button when not permitted', async () => {
-            const notPermitted = user({
-                manageScores: true,
-                uploadPhotos: false,
-            });
+            const notPermitted = user({ manageScores: true });
             const appData = getDefaultAppData(notPermitted);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
@@ -1379,9 +973,8 @@ describe('Score', () => {
 
             await doClick(findButton(context.container, '📷 Photos'));
 
-            const dialog = context.container.querySelector('.modal-dialog')!;
             expect(
-                dialog.querySelector('div[datatype="upload-control"]'),
+                dialog()!.querySelector('div[datatype="upload-control"]'),
             ).toBeTruthy();
         });
 
@@ -1392,13 +985,10 @@ describe('Score', () => {
             fixtureData.resultsPublished = false;
             await renderComponent(fixtureData.id, appData);
             await doClick(findButton(context.container, '📷 Photos'));
-            const dialog = context.container.querySelector('.modal-dialog');
 
-            await doClick(findButton(dialog, 'Close'));
+            await doClick(findButton(dialog(), 'Close'));
 
-            expect(
-                context.container.querySelector('.modal-dialog'),
-            ).toBeFalsy();
+            expect(dialog()).toBeFalsy();
         });
 
         it('can upload photo', async () => {
@@ -1408,21 +998,16 @@ describe('Score', () => {
             fixtureData.resultsPublished = false;
             await renderComponent(fixtureData.id, appData);
             await doClick(findButton(context.container, '📷 Photos'));
-            const dialog = context.container.querySelector('.modal-dialog')!;
             uploadPhotoResponse = {
                 success: true,
                 result: fixtureData,
             };
 
             const file = 'a photo';
-            await setFile(dialog, 'input[type="file"]', file, context.user);
+            await setFile(dialog()!, 'input[type="file"]', file, context.user);
 
-            expect(uploadedPhoto).toEqual({
-                request: {
-                    id: fixtureData.id,
-                },
-                file: 'a photo',
-            });
+            expect(uploadedPhoto?.request.id).toEqual(fixtureData.id);
+            expect(uploadedPhoto?.file).toEqual(file);
         });
 
         it('handles error when uploading photo', async () => {
@@ -1432,14 +1017,12 @@ describe('Score', () => {
             fixtureData.resultsPublished = false;
             await renderComponent(fixtureData.id, appData);
             await doClick(findButton(context.container, '📷 Photos'));
-            const dialog = context.container.querySelector('.modal-dialog')!;
             uploadPhotoResponse = {
                 success: false,
                 errors: ['SOME ERROR'],
             };
 
-            const file = 'a photo';
-            await setFile(dialog, 'input[type="file"]', file, context.user);
+            await setFile(dialog()!, 'input[type="file"]', 'any', context.user);
 
             expect(uploadedPhoto).not.toBeNull();
             expect(context.container.textContent).toContain('SOME ERROR');
@@ -1460,7 +1043,6 @@ describe('Score', () => {
             fixtureData.photos = [photo];
             await renderComponent(fixtureData.id, appData);
             await doClick(findButton(context.container, '📷 Photos'));
-            const dialog = context.container.querySelector('.modal-dialog');
             deletePhotoResponse = {
                 success: true,
                 result: fixtureData,
@@ -1470,7 +1052,7 @@ describe('Score', () => {
                 true,
             );
 
-            await doClick(findButton(dialog, '🗑'));
+            await doClick(findButton(dialog()!, '🗑'));
 
             expect(deletedPhoto).toEqual({
                 id: fixtureData.id,
@@ -1493,7 +1075,6 @@ describe('Score', () => {
             fixtureData.photos = [photo];
             await renderComponent(fixtureData.id, appData);
             await doClick(findButton(context.container, '📷 Photos'));
-            const dialog = context.container.querySelector('.modal-dialog');
             deletePhotoResponse = {
                 success: false,
                 errors: ['SOME ERROR'],
@@ -1503,14 +1084,13 @@ describe('Score', () => {
                 true,
             );
 
-            await doClick(findButton(dialog, '🗑'));
+            await doClick(findButton(dialog(), '🗑'));
 
             expect(deletedPhoto).not.toBeNull();
             expect(context.container.textContent).toContain('SOME ERROR');
         });
 
         it('can change to qualifier', async () => {
-            const fixture = getPlayedFixtureData(appData);
             fixture.isKnockout = false;
             await renderComponent(fixture.id, appData);
 
@@ -1518,17 +1098,13 @@ describe('Score', () => {
             await doClick(findButton(context.container, 'Save'));
 
             const updatedFixture = updatedFixtures[fixture.id];
-            expect(updatedFixture).not.toBeNull();
             expect(updatedFixture.isKnockout).toEqual(true);
-            expect(
-                updatedFixture.matchOptions!.map(
-                    (mo: GameMatchOptionDto) => mo.numberOfLegs,
-                ),
-            ).toEqual([3, 3, 3, 3, 3, 3, 3, 0]);
+            const matchOptions = updatedFixture.matchOptions!;
+            const legs = matchOptions.map((mo) => mo.numberOfLegs);
+            expect(legs).toEqual([3, 3, 3, 3, 3, 3, 3, 0]);
         });
 
         it('can change to league fixture', async () => {
-            const fixture = getPlayedFixtureData(appData);
             fixture.isKnockout = true;
             await renderComponent(fixture.id, appData);
 
@@ -1536,128 +1112,37 @@ describe('Score', () => {
             await doClick(findButton(context.container, 'Save'));
 
             const updatedFixture = updatedFixtures[fixture.id];
-            expect(updatedFixture).not.toBeNull();
             expect(updatedFixture.isKnockout).toEqual(false);
-            expect(
-                updatedFixture.matchOptions!.map(
-                    (mo: GameMatchOptionDto) => mo.numberOfLegs,
-                ),
-            ).toEqual([5, 5, 5, 5, 5, 3, 3, 3]);
+            const matchOptions = updatedFixture.matchOptions!;
+            const legs = matchOptions.map((mo) => mo.numberOfLegs);
+            expect(legs).toEqual([5, 5, 5, 5, 5, 3, 3, 3]);
         });
 
         it('can change to league fixture when match options are missing', async () => {
-            const fixture = getPlayedFixtureData(appData);
             fixture.isKnockout = true;
-            fixture.matchOptions = fixture.matchOptions!.filter(
-                (_: GameMatchOptionDto, index: number) => index < 5,
-            );
+            fixture.matchOptions = take(fixture.matchOptions!, 5);
             await renderComponent(fixture.id, appData);
 
             await doClick(context.container, 'input[name="isKnockout"]');
             await doClick(findButton(context.container, 'Save'));
 
             const updatedFixture = updatedFixtures[fixture.id];
-            expect(updatedFixture).not.toBeNull();
             expect(updatedFixture.isKnockout).toEqual(false);
-            expect(
-                updatedFixture.matchOptions!.map(
-                    (mo: GameMatchOptionDto) => mo.numberOfLegs,
-                ),
-            ).toEqual([5, 5, 5, 5, 5, 3, 3, 3]);
+            const matchOptions = updatedFixture.matchOptions!;
+            const legs = matchOptions.map((mo) => mo.numberOfLegs);
+            expect(legs).toEqual([5, 5, 5, 5, 5, 3, 3, 3]);
         });
     });
 
     describe('when logged in as a home clerk', () => {
-        const account: UserDto = user(
-            { manageScores: false, uploadPhotos: false, inputResults: true },
-            createTemporaryId(),
-        );
+        const account = user({ inputResults: true }, createTemporaryId());
         const appData = getDefaultAppData(account);
         const fixture = getUnplayedFixtureData(appData);
 
         it('renders score card without results', async () => {
             await renderComponent(fixture.id, appData);
 
-            reportedError.verifyNoError();
-            const container = context.container.querySelector(
-                '.content-background',
-            )!;
-            const tableBody = container.querySelector('table tbody')!;
-            const matchRows = tableBody.querySelectorAll('tr');
-            expect(matchRows.length).toEqual(14);
-            assertMatchRow(matchRows[0], 'Singles');
-            assertMatchRow(
-                matchRows[1],
-                'Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...',
-            );
-            assertMatchRow(
-                matchRows[2],
-                'Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...',
-            );
-            assertMatchRow(
-                matchRows[3],
-                'Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...',
-            );
-            assertMatchRow(
-                matchRows[4],
-                'Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...',
-            );
-            assertMatchRow(
-                matchRows[5],
-                'Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...',
-            );
-            assertMatchRow(matchRows[6], 'Pairs');
-            assertMatchRow(
-                matchRows[7],
-                'Home playerAdd a player...  Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...  Away playerAdd a player...',
-            );
-            assertMatchRow(
-                matchRows[8],
-                'Home playerAdd a player...  Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...  Away playerAdd a player...',
-            );
-            assertMatchRow(matchRows[9], 'Triples');
-            assertMatchRow(
-                matchRows[10],
-                'Home playerAdd a player...  Home playerAdd a player...  Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...  Away playerAdd a player...  Away playerAdd a player...',
-            );
-            assertMatchRow(matchRows[11], 'Man of the match');
-            assertMatchRow(matchRows[12], '', '', '');
-            assertMatchRow(
-                matchRows[13],
-                'Select some player/s to add 180s and hi-checks',
-            );
+            assertScoreCardForClerk();
         });
 
         it('renders published score card', async () => {
@@ -1665,145 +1150,26 @@ describe('Score', () => {
 
             await renderComponent(fixture.id, appData);
 
-            reportedError.verifyNoError();
-            const container = context.container.querySelector(
-                '.content-background',
-            )!;
-            const tableBody = container.querySelector('table tbody')!;
-            const matchRows = tableBody.querySelectorAll('tr');
-            expect(matchRows.length).toEqual(12);
-            assertMatchRow(matchRows[0], 'Singles');
-            assertMatchRow(matchRows[1], '', '', '', '', '');
-            assertMatchRow(matchRows[2], '', '', '', '', '');
-            assertMatchRow(matchRows[3], '', '', '', '', '');
-            assertMatchRow(matchRows[4], '', '', '', '', '');
-            assertMatchRow(matchRows[5], '', '', '', '', '');
-            assertMatchRow(matchRows[6], 'Pairs');
-            assertMatchRow(matchRows[7], '', '', '', '', '');
-            assertMatchRow(matchRows[8], '', '', '', '', '');
-            assertMatchRow(matchRows[9], 'Triples');
-            assertMatchRow(matchRows[10], '', '', '', '', '');
-            assertMatchRow(matchRows[11], '');
+            assertEmptyScoreCard();
         });
     });
 
     describe('when logged in as an away clerk', () => {
-        const account: UserDto = user(
-            { manageScores: false, uploadPhotos: false, inputResults: true },
-            createTemporaryId(),
-        );
+        const account = user({ inputResults: true }, createTemporaryId());
         const appData = getDefaultAppData(account);
         const fixture = getUnplayedFixtureData(appData);
 
         it('renders score card without results', async () => {
             await renderComponent(fixture.id, appData);
 
-            reportedError.verifyNoError();
-            const container = context.container.querySelector(
-                '.content-background',
-            )!;
-            const tableBody = container.querySelector('table tbody')!;
-            const matchRows = tableBody.querySelectorAll('tr');
-            expect(matchRows.length).toEqual(14);
-            assertMatchRow(matchRows[0], 'Singles');
-            assertMatchRow(
-                matchRows[1],
-                'Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...',
-            );
-            assertMatchRow(
-                matchRows[2],
-                'Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...',
-            );
-            assertMatchRow(
-                matchRows[3],
-                'Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...',
-            );
-            assertMatchRow(
-                matchRows[4],
-                'Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...',
-            );
-            assertMatchRow(
-                matchRows[5],
-                'Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...',
-            );
-            assertMatchRow(matchRows[6], 'Pairs');
-            assertMatchRow(
-                matchRows[7],
-                'Home playerAdd a player...  Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...  Away playerAdd a player...',
-            );
-            assertMatchRow(
-                matchRows[8],
-                'Home playerAdd a player...  Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...  Away playerAdd a player...',
-            );
-            assertMatchRow(matchRows[9], 'Triples');
-            assertMatchRow(
-                matchRows[10],
-                'Home playerAdd a player...  Home playerAdd a player...  Home playerAdd a player...',
-                '',
-                '',
-                '',
-                'Away playerAdd a player...  Away playerAdd a player...  Away playerAdd a player...',
-            );
-            assertMatchRow(matchRows[11], 'Man of the match');
-            assertMatchRow(matchRows[12], '', '', '');
-            assertMatchRow(
-                matchRows[13],
-                'Select some player/s to add 180s and hi-checks',
-            );
+            assertScoreCardForClerk();
         });
 
         it('renders published score card', async () => {
             fixture.resultsPublished = true;
-
             await renderComponent(fixture.id, appData);
 
-            reportedError.verifyNoError();
-            const container = context.container.querySelector(
-                '.content-background',
-            )!;
-            const tableBody = container.querySelector('table tbody')!;
-            const matchRows = tableBody.querySelectorAll('tr');
-            expect(matchRows.length).toEqual(12);
-            assertMatchRow(matchRows[0], 'Singles');
-            assertMatchRow(matchRows[1], '', '', '', '', '');
-            assertMatchRow(matchRows[2], '', '', '', '', '');
-            assertMatchRow(matchRows[3], '', '', '', '', '');
-            assertMatchRow(matchRows[4], '', '', '', '', '');
-            assertMatchRow(matchRows[5], '', '', '', '', '');
-            assertMatchRow(matchRows[6], 'Pairs');
-            assertMatchRow(matchRows[7], '', '', '', '', '');
-            assertMatchRow(matchRows[8], '', '', '', '', '');
-            assertMatchRow(matchRows[9], 'Triples');
-            assertMatchRow(matchRows[10], '', '', '', '', '');
-            assertMatchRow(matchRows[11], '');
+            assertEmptyScoreCard();
         });
     });
 });

@@ -380,7 +380,7 @@ describe('MergeMatch', () => {
                         .author('AWAY CAPTAIN')
                         .withMatch((m) => m.withHome().withAway()),
                 )
-                .withMatch()
+                .withMatch((m) => m)
                 .build();
             await renderComponent({
                 readOnly: false,
@@ -389,7 +389,7 @@ describe('MergeMatch', () => {
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
                 fixtureData: fixtureBuilder()
-                    .withMatch()
+                    .withMatch((m) => m)
                     .playing('HOME', 'AWAY')
                     .build(),
                 setFixtureData,
@@ -429,7 +429,7 @@ describe('MergeMatch', () => {
                                 .scores(1, 2),
                         ),
                 )
-                .withMatch()
+                .withMatch((m) => m)
                 .build();
             await renderComponent({
                 readOnly: false,
@@ -438,7 +438,7 @@ describe('MergeMatch', () => {
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
                 fixtureData: fixtureBuilder()
-                    .withMatch()
+                    .withMatch((m) => m)
                     .playing('HOME', 'AWAY')
                     .build(),
                 setFixtureData,
@@ -483,7 +483,7 @@ describe('MergeMatch', () => {
                                 .scores(1, 2),
                         ),
                 )
-                .withMatch()
+                .withMatch((m) => m)
                 .build();
             await renderComponent({
                 readOnly: false,
@@ -492,7 +492,7 @@ describe('MergeMatch', () => {
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
                 fixtureData: fixtureBuilder()
-                    .withMatch()
+                    .withMatch((m) => m)
                     .playing('HOME', 'AWAY')
                     .build(),
                 setFixtureData,
