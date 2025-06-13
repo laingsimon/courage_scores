@@ -1,4 +1,4 @@
-import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import { UntypedPromise } from '../../interfaces/UntypedPromise';
 
 export interface IFailedRequest {
     status?: number;

@@ -1,12 +1,15 @@
-import {count, sum} from "./collections";
-import {LegThrowDto} from "../interfaces/models/dtos/Game/Sayg/LegThrowDto";
-import {ScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto";
-import {LegDto} from "../interfaces/models/dtos/Game/Sayg/LegDto";
-import {LegCompetitorScoreDto} from "../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
-import {ISuperleagueSayg} from "../components/tournaments/superleague/ISuperleagueSayg";
-import {getScoreFromThrows} from "./sayg";
+import { count, sum } from './collections';
+import { LegThrowDto } from '../interfaces/models/dtos/Game/Sayg/LegThrowDto';
+import { ScoreAsYouGoDto } from '../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto';
+import { LegDto } from '../interfaces/models/dtos/Game/Sayg/LegDto';
+import { LegCompetitorScoreDto } from '../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto';
+import { ISuperleagueSayg } from '../components/tournaments/superleague/ISuperleagueSayg';
+import { getScoreFromThrows } from './sayg';
 
-export function playerOverallAverage(saygData: ScoreAsYouGoDto | null | undefined, sideName: string): number | null {
+export function playerOverallAverage(
+    saygData: ScoreAsYouGoDto | null | undefined,
+    sideName: string,
+): number | null {
     if (!saygData || !saygData.legs) {
         return null;
     }
@@ -17,30 +20,51 @@ export function playerOverallAverage(saygData: ScoreAsYouGoDto | null | undefine
 
         return {
             score: getScoreFromThrows(leg.startingScore || 0, side.throws),
-            noOfDarts: sum(side.throws, (thr: LegThrowDto) => thr.noOfDarts || 0),
+            noOfDarts: sum(
+                side.throws,
+                (thr: LegThrowDto) => thr.noOfDarts || 0,
+            ),
         };
     });
 
-    return sum(metrics, m => m.score) / sum(metrics, m => m.noOfDarts);
+    return sum(metrics, (m) => m.score) / sum(metrics, (m) => m.noOfDarts);
 }
 
-export function countMatch100(saygData: ScoreAsYouGoDto | null | undefined, accumulatorName: string): number | null {
+export function countMatch100(
+    saygData: ScoreAsYouGoDto | null | undefined,
+    accumulatorName: string,
+): number | null {
     return countMatchThrowsBetween(saygData, accumulatorName, 100, 140);
 }
 
-export function countMatch140(saygData: ScoreAsYouGoDto | null | undefined, accumulatorName: string): number | null {
+export function countMatch140(
+    saygData: ScoreAsYouGoDto | null | undefined,
+    accumulatorName: string,
+): number | null {
     return countMatchThrowsBetween(saygData, accumulatorName, 140, 180);
 }
 
-export function countMatch180(saygData: ScoreAsYouGoDto | null | undefined, accumulatorName: string): number | null {
+export function countMatch180(
+    saygData: ScoreAsYouGoDto | null | undefined,
+    accumulatorName: string,
+): number | null {
     return countMatchThrowsBetween(saygData, accumulatorName, 180);
 }
 
-export function matchTons(saygData: ScoreAsYouGoDto | null | undefined, accumulatorName: string): number {
-    return (countMatch100(saygData, accumulatorName) || 0) + (countMatch140(saygData, accumulatorName) || 0) + ((countMatch180(saygData, accumulatorName) || 0) * 2);
+export function matchTons(
+    saygData: ScoreAsYouGoDto | null | undefined,
+    accumulatorName: string,
+): number {
+    return (
+        (countMatch100(saygData, accumulatorName) || 0) +
+        (countMatch140(saygData, accumulatorName) || 0) +
+        (countMatch180(saygData, accumulatorName) || 0) * 2
+    );
 }
 
-export function getNoOfLegs(saygData: ScoreAsYouGoDto | null | undefined): number | null {
+export function getNoOfLegs(
+    saygData: ScoreAsYouGoDto | null | undefined,
+): number | null {
     if (!saygData) {
         return null;
     }
@@ -48,20 +72,27 @@ export function getNoOfLegs(saygData: ScoreAsYouGoDto | null | undefined): numbe
     return Object.keys(saygData.legs || {})
         .map((legKey: string): LegDto => saygData.legs![legKey])
         .filter((leg: LegDto): number => {
-            return leg.home!.noOfDarts || (leg.away ? leg.away.noOfDarts || 0 : 0);
-        })
-        .length;
+            return (
+                leg.home!.noOfDarts || (leg.away ? leg.away.noOfDarts || 0 : 0)
+            );
+        }).length;
 }
 
-export function sumOverThrows(saygData: ScoreAsYouGoDto | null | undefined, accumulatorName: string, prop: string): number | null {
+export function sumOverThrows(
+    saygData: ScoreAsYouGoDto | null | undefined,
+    accumulatorName: string,
+    prop: string,
+): number | null {
     if (!saygData) {
         return null;
     }
 
-    return sum(Object.keys(saygData.legs || {})
-        .map((legKey: string): LegDto => saygData.legs![legKey])
-        .flatMap((leg: LegDto) => (leg)[accumulatorName].throws)
-        .map((thr: LegThrowDto) => thr[prop]));
+    return sum(
+        Object.keys(saygData.legs || {})
+            .map((legKey: string): LegDto => saygData.legs![legKey])
+            .flatMap((leg: LegDto) => leg[accumulatorName].throws)
+            .map((thr: LegThrowDto) => thr[prop]),
+    );
 }
 
 export function maxNoOfThrowsAllMatches(saygMatches: ISuperleagueSayg[]) {
@@ -111,10 +142,16 @@ export function getMatchWinner(saygData: ScoreAsYouGoDto) {
 
 export function isLegWinner(leg: LegDto, accumulatorName: string): boolean {
     const accumulator = leg[accumulatorName];
-    return getScoreFromThrows(leg.startingScore || 0, accumulator.throws) === leg.startingScore;
+    return (
+        getScoreFromThrows(leg.startingScore || 0, accumulator.throws) ===
+        leg.startingScore
+    );
 }
 
-export function legsWon(saygMatches: ISuperleagueSayg[], accumulatorName: string): number {
+export function legsWon(
+    saygMatches: ISuperleagueSayg[],
+    accumulatorName: string,
+): number {
     return sum(saygMatches, (map: ISuperleagueSayg) => {
         const saygData: ScoreAsYouGoDto | undefined = map.saygData;
         if (!saygData || !saygData.legs) {
@@ -124,27 +161,41 @@ export function legsWon(saygMatches: ISuperleagueSayg[], accumulatorName: string
         // no of legs won in this match
         return count(
             Object.keys(saygData.legs).map((key: string) => saygData.legs[key]),
-            (leg: LegDto) => isLegWinner(leg, accumulatorName));
+            (leg: LegDto) => isLegWinner(leg, accumulatorName),
+        );
     });
 }
 
-export function countLegThrowsBetween(leg: LegDto, accumulatorName: string, lowerInclusive: number, upperExclusive?: number): number {
+export function countLegThrowsBetween(
+    leg: LegDto,
+    accumulatorName: string,
+    lowerInclusive: number,
+    upperExclusive?: number,
+): number {
     const accumulator: LegCompetitorScoreDto = leg[accumulatorName] || {};
     const throws = accumulator.throws || [];
-    return count(throws, thr => (thr.score || 0) >= lowerInclusive && (!upperExclusive || (thr.score || 0) < upperExclusive));
+    return count(
+        throws,
+        (thr) =>
+            (thr.score || 0) >= lowerInclusive &&
+            (!upperExclusive || (thr.score || 0) < upperExclusive),
+    );
 }
 
 export function legTons(leg: LegDto, accumulatorName: string): number {
-    return countLegThrowsBetween(leg, accumulatorName, 100, 140)
-        + countLegThrowsBetween(leg, accumulatorName, 140, 180)
-        + (countLegThrowsBetween(leg, accumulatorName, 180) * 2);
+    return (
+        countLegThrowsBetween(leg, accumulatorName, 100, 140) +
+        countLegThrowsBetween(leg, accumulatorName, 140, 180) +
+        countLegThrowsBetween(leg, accumulatorName, 180) * 2
+    );
 }
 
 export function legTonsSplit(leg: LegDto, accumulatorName: string): string {
     const oneEighties = countLegThrowsBetween(leg, accumulatorName, 180);
-    const tons = countLegThrowsBetween(leg, accumulatorName, 100, 140)
-        + countLegThrowsBetween(leg, accumulatorName, 140, 180)
-        + (oneEighties);
+    const tons =
+        countLegThrowsBetween(leg, accumulatorName, 100, 140) +
+        countLegThrowsBetween(leg, accumulatorName, 140, 180) +
+        oneEighties;
 
     if (oneEighties === 0) {
         return `${tons}`;
@@ -162,7 +213,10 @@ export function legActualDarts(leg: LegDto, accumulatorName: string): number {
     return sum(accumulator.throws, (thr: LegThrowDto) => thr.noOfDarts || 0);
 }
 
-export function legGameShot(leg: LegDto, accumulatorName: string): number | null {
+export function legGameShot(
+    leg: LegDto,
+    accumulatorName: string,
+): number | null {
     const accumulator: LegCompetitorScoreDto = leg[accumulatorName];
     if (!accumulator || !accumulator.throws) {
         return null;
@@ -174,7 +228,10 @@ export function legGameShot(leg: LegDto, accumulatorName: string): number | null
         : null;
 }
 
-export function legScoreLeft(leg: LegDto, accumulatorName: string): number | null {
+export function legScoreLeft(
+    leg: LegDto,
+    accumulatorName: string,
+): number | null {
     const accumulator: LegCompetitorScoreDto = leg[accumulatorName];
     if (!accumulator || !accumulator.throws) {
         return null;
@@ -182,20 +239,31 @@ export function legScoreLeft(leg: LegDto, accumulatorName: string): number | nul
 
     return isLegWinner(leg, accumulatorName)
         ? null
-        : (leg.startingScore || 0) - getScoreFromThrows(leg.startingScore || 0, accumulator.throws);
+        : (leg.startingScore || 0) -
+              getScoreFromThrows(leg.startingScore || 0, accumulator.throws);
 }
 
-function countMatchThrowsBetween(saygData: ScoreAsYouGoDto | null | undefined, accumulatorName: string, lowerInclusive: number, upperExclusive?: number): number | null {
+function countMatchThrowsBetween(
+    saygData: ScoreAsYouGoDto | null | undefined,
+    accumulatorName: string,
+    lowerInclusive: number,
+    upperExclusive?: number,
+): number | null {
     if (!saygData || !saygData.legs) {
         return null;
     }
 
-    return sum(Object.keys(saygData.legs).map((legIndex: string) => {
-        const leg: LegDto = saygData.legs![legIndex];
-        const accumulator: LegCompetitorScoreDto = leg[accumulatorName];
+    return sum(
+        Object.keys(saygData.legs).map((legIndex: string) => {
+            const leg: LegDto = saygData.legs![legIndex];
+            const accumulator: LegCompetitorScoreDto = leg[accumulatorName];
 
-        return count(
-            accumulator.throws!,
-            (thr: LegThrowDto) => (thr.score || 0) >= lowerInclusive && (!upperExclusive || (thr.score || 0) < upperExclusive));
-    }));
+            return count(
+                accumulator.throws!,
+                (thr: LegThrowDto) =>
+                    (thr.score || 0) >= lowerInclusive &&
+                    (!upperExclusive || (thr.score || 0) < upperExclusive),
+            );
+        }),
+    );
 }

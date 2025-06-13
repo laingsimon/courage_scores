@@ -1,9 +1,21 @@
-import {api, appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestContext} from "../../helpers/tests";
-import {DivisionHealth} from "./DivisionHealth";
-import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
-import {createTemporaryId} from "../../helpers/projection";
-import {SeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto";
-import {SeasonApi} from "../../interfaces/apis/ISeasonApi";
+import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    ErrorState,
+    iocProps,
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import { DivisionHealth } from './DivisionHealth';
+import {
+    DivisionDataContainer,
+    IDivisionDataContainerProps,
+} from '../league/DivisionDataContainer';
+import { createTemporaryId } from '../../helpers/projection';
+import { SeasonHealthCheckResultDto } from '../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto';
+import { SeasonApi } from '../../interfaces/apis/ISeasonApi';
 
 describe('DivisionHealth', () => {
     let context: TestContext;
@@ -13,12 +25,10 @@ describe('DivisionHealth', () => {
     const seasonApi = api<SeasonApi>({
         getHealth: async (id: string): Promise<SeasonHealthCheckResultDto> => {
             return apiResponse(id);
-        }
+        },
     });
 
-    async function setDivisionData() {
-
-    }
+    async function setDivisionData() {}
 
     async function onReloadDivision() {
         return null;
@@ -31,7 +41,7 @@ describe('DivisionHealth', () => {
                 success: true,
                 errors: [],
                 warnings: [],
-                messages: []
+                messages: [],
             };
         };
         reportedError = new ErrorState();
@@ -41,14 +51,17 @@ describe('DivisionHealth', () => {
         await cleanUp(context);
     });
 
-    async function renderComponent(divisionDataProps: IDivisionDataContainerProps) {
+    async function renderComponent(
+        divisionDataProps: IDivisionDataContainerProps,
+    ) {
         context = await renderApp(
-            iocProps({seasonApi}),
+            iocProps({ seasonApi }),
             brandingProps(),
             appProps({}, reportedError),
-            (<DivisionDataContainer {...divisionDataProps}>
-                <DivisionHealth/>
-            </DivisionDataContainer>));
+            <DivisionDataContainer {...divisionDataProps}>
+                <DivisionHealth />
+            </DivisionDataContainer>,
+        );
     }
 
     function assertHeading(text: string, className: string) {
@@ -95,7 +108,11 @@ describe('DivisionHealth', () => {
         });
 
         reportedError.verifyNoError();
-        expect(context.container.querySelector('div[datatype="view-health-check"]')).toBeTruthy();
+        expect(
+            context.container.querySelector(
+                'div[datatype="view-health-check"]',
+            ),
+        ).toBeTruthy();
     });
 
     it('when success and no errors or warnings should show healthy', async () => {

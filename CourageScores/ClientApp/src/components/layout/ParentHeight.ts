@@ -12,11 +12,15 @@ export interface IWindow {
 export class ParentHeight implements IParentHeight {
     handle?: number;
     lastHeight?: number;
-    getHeight : () => number;
-    getParent : () => IWindow;
+    getHeight: () => number;
+    getParent: () => IWindow;
     extraHeight: number;
 
-    constructor(extraHeight : number, getHeight?: () => number, getParent?: () => IWindow) {
+    constructor(
+        extraHeight: number,
+        getHeight?: () => number,
+        getParent?: () => IWindow,
+    ) {
         this.handle = undefined;
         this.lastHeight = undefined;
         this.extraHeight = extraHeight;
@@ -29,7 +33,10 @@ export class ParentHeight implements IParentHeight {
             return;
         }
 
-        this.handle = window.setInterval(this.publishContentHeight.bind(this), frequency || 250);
+        this.handle = window.setInterval(
+            this.publishContentHeight.bind(this),
+            frequency || 250,
+        );
     }
 
     cancelInterval(): void {

@@ -1,20 +1,33 @@
-import {doClick, findButton, TestContext} from "./tests";
-import {ENTER_SCORE_BUTTON} from "./constants";
-import {LegThrowDto} from "../interfaces/models/dtos/Game/Sayg/LegThrowDto";
+import { doClick, findButton, TestContext } from './tests';
+import { ENTER_SCORE_BUTTON } from './constants';
+import { LegThrowDto } from '../interfaces/models/dtos/Game/Sayg/LegThrowDto';
 
 export async function playsFirst(context: TestContext, name: string) {
     await doClick(findButton(context.container, '🎯' + name));
 }
 
-export async function keyPad(context: TestContext, keys: string[], dialog?: Element) {
+export async function keyPad(
+    context: TestContext,
+    keys: string[],
+    dialog?: Element,
+) {
     for (const key of keys) {
         await doClick(findButton(dialog || context.container, key));
     }
 }
 
-export async function enterScores(context: TestContext, homeScores: number[], awayScores: number[], awayFirst?: boolean) {
+export async function enterScores(
+    context: TestContext,
+    homeScores: number[],
+    awayScores: number[],
+    awayFirst?: boolean,
+) {
     const scores: number[] = [];
-    for (let index = 0; index < Math.max(homeScores.length, awayScores.length); index++) {
+    for (
+        let index = 0;
+        index < Math.max(homeScores.length, awayScores.length);
+        index++
+    ) {
         scores.push(awayFirst ? awayScores[index] : homeScores[index]);
         scores.push(awayFirst ? homeScores[index] : awayScores[index]);
     }
@@ -28,15 +41,26 @@ export async function enterScores(context: TestContext, homeScores: number[], aw
     }
 }
 
-export async function checkoutWith(context: TestContext, noOfDarts: string, dialog?: Element) {
-    const buttonContainer = (dialog || context.container).querySelector('div[datatype="gameshot-buttons-score"]');
+export async function checkoutWith(
+    context: TestContext,
+    noOfDarts: string,
+    dialog?: Element,
+) {
+    const buttonContainer = (dialog || context.container).querySelector(
+        'div[datatype="gameshot-buttons-score"]',
+    );
     await doClick(findButton(buttonContainer, noOfDarts));
 }
 
-export function getScoreFromThrows(startingScore: number, throws?: LegThrowDto[]): number {
+export function getScoreFromThrows(
+    startingScore: number,
+    throws?: LegThrowDto[],
+): number {
     return (throws || []).reduce(
-        (total: number, thr: LegThrowDto) => (total + (thr.score || 0)) > startingScore
-            ? total /* bust */
-            : total + (thr.score || 0),
-        0);
+        (total: number, thr: LegThrowDto) =>
+            total + (thr.score || 0) > startingScore
+                ? total /* bust */
+                : total + (thr.score || 0),
+        0,
+    );
 }

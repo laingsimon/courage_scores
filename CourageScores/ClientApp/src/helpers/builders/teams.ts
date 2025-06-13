@@ -1,15 +1,21 @@
 ﻿/* istanbul ignore file */
 
-import {IAddableBuilder} from "./builders";
-import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
-import {EditTeamDto} from "../../interfaces/models/dtos/Team/EditTeamDto";
-import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
-import {createTemporaryId} from "../projection";
-import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
-import {GameTeamDto} from "../../interfaces/models/dtos/Game/GameTeamDto";
+import { IAddableBuilder } from './builders';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
+import { EditTeamDto } from '../../interfaces/models/dtos/Team/EditTeamDto';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
+import { createTemporaryId } from '../projection';
+import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto';
+import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto';
 
-export interface ITeamBuilder extends IAddableBuilder<TeamDto & EditTeamDto & GameTeamDto> {
-    forSeason(seasonOrId: any, divisionOrId?: any, players?: TeamPlayerDto[], deleted?: boolean): ITeamBuilder;
+export interface ITeamBuilder
+    extends IAddableBuilder<TeamDto & EditTeamDto & GameTeamDto> {
+    forSeason(
+        seasonOrId: any,
+        divisionOrId?: any,
+        players?: TeamPlayerDto[],
+        deleted?: boolean,
+    ): ITeamBuilder;
     address(address: string): ITeamBuilder;
     season(seasonOrId: any): ITeamBuilder;
     division(divisionOrId: any): ITeamBuilder;
@@ -26,16 +32,25 @@ export function teamBuilder(name?: string, id?: string): ITeamBuilder {
         seasons: [],
     };
 
-    const builder: ITeamBuilder  = {
+    const builder: ITeamBuilder = {
         build: () => team,
         addTo: (map: any) => {
             map[team.id] = team;
             return builder;
         },
-        forSeason: (seasonOrId: any, divisionOrId?: any, players?: TeamPlayerDto[], deleted?: boolean) => {
+        forSeason: (
+            seasonOrId: any,
+            divisionOrId?: any,
+            players?: TeamPlayerDto[],
+            deleted?: boolean,
+        ) => {
             const teamSeason: TeamSeasonDto = {
-                seasonId: seasonOrId && seasonOrId.id ? seasonOrId.id : seasonOrId,
-                divisionId: divisionOrId && divisionOrId.id ? divisionOrId.id : divisionOrId,
+                seasonId:
+                    seasonOrId && seasonOrId.id ? seasonOrId.id : seasonOrId,
+                divisionId:
+                    divisionOrId && divisionOrId.id
+                        ? divisionOrId.id
+                        : divisionOrId,
                 players: players || [],
             };
             if (deleted) {

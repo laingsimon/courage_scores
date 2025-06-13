@@ -4,19 +4,20 @@ import {
     brandingProps,
     cleanUp,
     doChange,
-    doClick, ErrorState,
+    doClick,
+    ErrorState,
     findButton,
     iocProps,
     renderApp,
-    TestContext
-} from "../../helpers/tests";
-import {EditDivision, IEditDivisionProps} from "./EditDivision";
-import {divisionBuilder} from "../../helpers/builders/divisions";
-import {EditDivisionDto} from "../../interfaces/models/dtos/EditDivisionDto";
-import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
-import {IClientActionResultDto} from "../common/IClientActionResultDto";
-import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
-import {IDivisionApi} from "../../interfaces/apis/IDivisionApi";
+    TestContext,
+} from '../../helpers/tests';
+import { EditDivision, IEditDivisionProps } from './EditDivision';
+import { divisionBuilder } from '../../helpers/builders/divisions';
+import { EditDivisionDto } from '../../interfaces/models/dtos/EditDivisionDto';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
+import { IClientActionResultDto } from '../common/IClientActionResultDto';
+import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
+import { IDivisionApi } from '../../interfaces/apis/IDivisionApi';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -42,7 +43,7 @@ describe('EditDivision', () => {
         delete: async (id: string) => {
             deletedId = id;
             return apiResponse;
-        }
+        },
     });
 
     afterEach(async () => {
@@ -79,10 +80,11 @@ describe('EditDivision', () => {
 
     async function renderComponent(props: IEditDivisionProps) {
         context = await renderApp(
-            iocProps({divisionApi}),
+            iocProps({ divisionApi }),
             brandingProps(),
             appProps({}, reportedError),
-            (<EditDivision {...props} />));
+            <EditDivision {...props} />,
+        );
     }
 
     it('updates division name', async () => {
@@ -96,7 +98,12 @@ describe('EditDivision', () => {
         });
         reportedError.verifyNoError();
 
-        await doChange(context.container, 'input[name="name"]', 'NEW DIVISION NAME', context.user);
+        await doChange(
+            context.container,
+            'input[name="name"]',
+            'NEW DIVISION NAME',
+            context.user,
+        );
 
         reportedError.verifyNoError();
         expect(updatedData!.id).toEqual(division.id);
@@ -137,7 +144,9 @@ describe('EditDivision', () => {
     });
 
     it('saves division updates', async () => {
-        const division = divisionBuilder('DIVISION').updated('2024-01-01').build();
+        const division = divisionBuilder('DIVISION')
+            .updated('2024-01-01')
+            .build();
         await renderComponent({
             data: division,
             onUpdateData,
@@ -167,7 +176,7 @@ describe('EditDivision', () => {
         });
         reportedError.verifyNoError();
         apiResponse = {
-            success: false
+            success: false,
         };
 
         await doClick(findButton(context.container, 'Update division'));
@@ -186,11 +195,16 @@ describe('EditDivision', () => {
             setSaveError,
         });
         reportedError.verifyNoError();
-        context.prompts.respondToConfirm('Are you sure you want to delete the DIVISION division?', true);
+        context.prompts.respondToConfirm(
+            'Are you sure you want to delete the DIVISION division?',
+            true,
+        );
 
         await doClick(findButton(context.container, 'Delete division'));
 
-        context.prompts.confirmWasShown('Are you sure you want to delete the DIVISION division?');
+        context.prompts.confirmWasShown(
+            'Are you sure you want to delete the DIVISION division?',
+        );
         expect(saved).toEqual(false);
     });
 
@@ -204,7 +218,10 @@ describe('EditDivision', () => {
             setSaveError,
         });
         reportedError.verifyNoError();
-        context.prompts.respondToConfirm('Are you sure you want to delete the DIVISION division?', true);
+        context.prompts.respondToConfirm(
+            'Are you sure you want to delete the DIVISION division?',
+            true,
+        );
 
         await doClick(findButton(context.container, 'Delete division'));
 
@@ -222,9 +239,12 @@ describe('EditDivision', () => {
             setSaveError,
         });
         reportedError.verifyNoError();
-        context.prompts.respondToConfirm('Are you sure you want to delete the DIVISION division?', true);
+        context.prompts.respondToConfirm(
+            'Are you sure you want to delete the DIVISION division?',
+            true,
+        );
         apiResponse = {
-            success: false
+            success: false,
         };
 
         await doClick(findButton(context.container, 'Delete division'));
@@ -244,7 +264,10 @@ describe('EditDivision', () => {
             setSaveError,
         });
         reportedError.verifyNoError();
-        context.prompts.respondToConfirm('Are you sure you want to delete the DIVISION division?', true);
+        context.prompts.respondToConfirm(
+            'Are you sure you want to delete the DIVISION division?',
+            true,
+        );
 
         await doClick(findButton(context.container, 'Delete division'));
 

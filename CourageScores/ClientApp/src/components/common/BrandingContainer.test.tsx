@@ -1,6 +1,14 @@
-import {appProps, brandingProps, cleanUp, doChange, iocProps, renderApp, TestContext} from "../../helpers/tests";
-import {BrandingContainer, useBranding} from "./BrandingContainer";
-import {IBrandingData} from "./IBrandingData";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doChange,
+    iocProps,
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import { BrandingContainer, useBranding } from './BrandingContainer';
+import { IBrandingData } from './IBrandingData';
 
 describe('BrandingContainer', () => {
     let context: TestContext;
@@ -14,9 +22,10 @@ describe('BrandingContainer', () => {
             iocProps(),
             brandingProps(),
             appProps(),
-            (<BrandingContainer {...props}>
+            <BrandingContainer {...props}>
                 <ChangeTitle />
-            </BrandingContainer>));
+            </BrandingContainer>,
+        );
     }
 
     it('changes title to given text', async () => {
@@ -25,7 +34,12 @@ describe('BrandingContainer', () => {
         };
         await renderComponent(branding);
 
-        await doChange(context.container, 'input[name="title"]', 'TITLE', context.user);
+        await doChange(
+            context.container,
+            'input[name="title"]',
+            'TITLE',
+            context.user,
+        );
 
         expect(document.title).toEqual('TITLE - BRAND NAME');
     });
@@ -36,7 +50,12 @@ describe('BrandingContainer', () => {
         };
         await renderComponent(branding);
 
-        await doChange(context.container, 'input[name="title"]', '', context.user);
+        await doChange(
+            context.container,
+            'input[name="title"]',
+            '',
+            context.user,
+        );
 
         expect(document.title).toEqual('BRAND NAME');
     });
@@ -44,11 +63,14 @@ describe('BrandingContainer', () => {
     function ChangeTitle() {
         const { setTitle } = useBranding();
 
-        return (<>
-            <input
-                value="-unset-"
-                name="title"
-                onChange={(event) => setTitle(event.target.value)} />
-        </>)
+        return (
+            <>
+                <input
+                    value="-unset-"
+                    name="title"
+                    onChange={(event) => setTitle(event.target.value)}
+                />
+            </>
+        );
     }
 });

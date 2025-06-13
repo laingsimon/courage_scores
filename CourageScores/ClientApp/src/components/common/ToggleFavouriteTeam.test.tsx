@@ -1,14 +1,21 @@
 import {
     appProps,
     brandingProps,
-    cleanUp, doClick, findButton,
-    iocProps, noop,
-    renderApp, TestContext
-} from "../../helpers/tests";
-import {IToggleFavouriteTeamProps, ToggleFavouriteTeam} from "./ToggleFavouriteTeam";
-import {IPreferenceData} from "./PreferencesContainer";
-import {createTemporaryId} from "../../helpers/projection";
-import {DivisionDataContainer} from "../league/DivisionDataContainer";
+    cleanUp,
+    doClick,
+    findButton,
+    iocProps,
+    noop,
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import {
+    IToggleFavouriteTeamProps,
+    ToggleFavouriteTeam,
+} from './ToggleFavouriteTeam';
+import { IPreferenceData } from './PreferencesContainer';
+import { createTemporaryId } from '../../helpers/projection';
+import { DivisionDataContainer } from '../league/DivisionDataContainer';
 
 describe('ToggleFavouriteTeam', () => {
     let context: TestContext;
@@ -17,41 +24,52 @@ describe('ToggleFavouriteTeam', () => {
         await cleanUp(context);
     });
 
-    beforeEach(() => {
-    });
+    beforeEach(() => {});
 
-    async function renderComponent(props: IToggleFavouriteTeamProps, favouritesEnabled: boolean, initialPreferences?: IPreferenceData) {
+    async function renderComponent(
+        props: IToggleFavouriteTeamProps,
+        favouritesEnabled: boolean,
+        initialPreferences?: IPreferenceData,
+    ) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
             appProps(),
-            (<DivisionDataContainer onReloadDivision={noop}
-                                    setDivisionData={noop}
-                                    name="DIVISION"
-                                    favouritesEnabled={favouritesEnabled}>
+            <DivisionDataContainer
+                onReloadDivision={noop}
+                setDivisionData={noop}
+                name="DIVISION"
+                favouritesEnabled={favouritesEnabled}>
                 <ToggleFavouriteTeam {...props} />
-            </DivisionDataContainer>),
+            </DivisionDataContainer>,
             undefined,
             undefined,
             undefined,
-            initialPreferences);
+            initialPreferences,
+        );
     }
 
     describe('renders', () => {
         it('when team is a favourite', async () => {
             const teamId: string = createTemporaryId();
 
-            await renderComponent({ teamId }, true, { favouriteTeamIds: [ teamId ]});
+            await renderComponent({ teamId }, true, {
+                favouriteTeamIds: [teamId],
+            });
 
-            expect(context.container.querySelector('button')!.className).not.toContain('opacity-25');
+            expect(
+                context.container.querySelector('button')!.className,
+            ).not.toContain('opacity-25');
         });
 
         it('when team is not a favourite', async () => {
             const teamId: string = createTemporaryId();
 
-            await renderComponent({ teamId }, true, { favouriteTeamIds: [ ]});
+            await renderComponent({ teamId }, true, { favouriteTeamIds: [] });
 
-            expect(context.container.querySelector('button')!.className).toContain('opacity-25');
+            expect(
+                context.container.querySelector('button')!.className,
+            ).toContain('opacity-25');
         });
 
         it('nothing when favourites not enabled', async () => {
@@ -67,24 +85,28 @@ describe('ToggleFavouriteTeam', () => {
         it('can add a team to being a favourite', async () => {
             const teamId: string = createTemporaryId();
             const otherTeamId: string = createTemporaryId();
-            await renderComponent({ teamId }, true, { favouriteTeamIds: [ otherTeamId ]});
+            await renderComponent({ teamId }, true, {
+                favouriteTeamIds: [otherTeamId],
+            });
 
             await doClick(findButton(context.container, '⭐'));
 
             expect(context.cookies!.get('preferences')).toEqual({
-                favouriteTeamIds: [ otherTeamId, teamId ],
+                favouriteTeamIds: [otherTeamId, teamId],
             });
         });
 
         it('can remove a team from being a favourite', async () => {
             const teamId: string = createTemporaryId();
             const otherTeamId: string = createTemporaryId();
-            await renderComponent({ teamId }, true, { favouriteTeamIds: [ otherTeamId, teamId ]});
+            await renderComponent({ teamId }, true, {
+                favouriteTeamIds: [otherTeamId, teamId],
+            });
 
             await doClick(findButton(context.container, '⭐'));
 
             expect(context.cookies!.get('preferences')).toEqual({
-                favouriteTeamIds: [ otherTeamId ],
+                favouriteTeamIds: [otherTeamId],
             });
         });
     });

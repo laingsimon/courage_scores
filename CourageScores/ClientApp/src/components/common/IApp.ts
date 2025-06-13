@@ -1,12 +1,12 @@
-﻿import {IBuild} from "./IBuild";
-import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
-import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
-import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
-import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
-import {IError} from "./IError";
-import {IBrowserType} from "./IBrowserType";
-import {UntypedPromise} from "../../interfaces/UntypedPromise";
-import {IFullScreen} from "./IFullScreen";
+﻿import { IBuild } from './IBuild';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
+import { IError } from './IError';
+import { IBrowserType } from './IBrowserType';
+import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { IFullScreen } from './IFullScreen';
 
 export interface IApp {
     error?: IError;

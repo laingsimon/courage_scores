@@ -1,11 +1,13 @@
-import {useDivisionData} from "./DivisionDataContainer";
+import { useDivisionData } from './DivisionDataContainer';
 
 export interface IPrintDivisionHeadingProps {
     hideDivision?: boolean;
 }
 
-export function PrintDivisionHeading({hideDivision}: IPrintDivisionHeadingProps) {
-    const {season, name} = useDivisionData();
+export function PrintDivisionHeading({
+    hideDivision,
+}: IPrintDivisionHeadingProps) {
+    const { season, name } = useDivisionData();
 
     if (!season) {
         return null;
@@ -15,7 +17,14 @@ export function PrintDivisionHeading({hideDivision}: IPrintDivisionHeadingProps)
         return null;
     }
 
-    return <div datatype="print-division-heading" className="d-screen-none float-end">
-        <strong className="mx-2 d-inline-block fs-3">{hideDivision ? '' : `${name}, `}{season.name}</strong>
-    </div>;
+    return (
+        <div
+            datatype="print-division-heading"
+            className="d-screen-none float-end">
+            <strong className="mx-2 d-inline-block fs-3">
+                {hideDivision ? '' : `${name}, `}
+                {season.name}
+            </strong>
+        </div>
+    );
 }
