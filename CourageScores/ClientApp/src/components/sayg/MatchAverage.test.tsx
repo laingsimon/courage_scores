@@ -1,5 +1,13 @@
-import {appProps, brandingProps, cleanUp, doClick, iocProps, renderApp, TestContext} from "../../helpers/tests";
-import {IMatchAverageProps, MatchAverage} from "./MatchAverage";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    iocProps,
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import { IMatchAverageProps, MatchAverage } from './MatchAverage';
 
 describe('MatchAverage', () => {
     let context: TestContext;
@@ -25,7 +33,8 @@ describe('MatchAverage', () => {
             <MatchAverage {...props} />,
             undefined,
             undefined,
-            'tbody');
+            'tbody',
+        );
     }
 
     it('renders nothing when no averages', async () => {
@@ -127,7 +136,9 @@ describe('MatchAverage', () => {
             oneDartAverage: true,
             setOneDartAverage,
         });
-        const toggle = context.container.querySelector('input[id="oneDartAverage"]') as HTMLInputElement;
+        const toggle = context.container.querySelector(
+            'input[id="oneDartAverage"]',
+        ) as HTMLInputElement;
         expect(toggle.checked).toEqual(true);
 
         await doClick(toggle);

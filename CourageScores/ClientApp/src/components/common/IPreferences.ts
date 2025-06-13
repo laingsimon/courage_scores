@@ -1,4 +1,4 @@
-import {PreferenceValue} from "./PreferencesContainer";
+import { PreferenceValue } from './PreferencesContainer';
 
 export interface IPreferences {
     getPreference<T>(name: string): T | undefined;

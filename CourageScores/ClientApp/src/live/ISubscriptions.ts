@@ -1,5 +1,5 @@
-﻿import {ISubscription} from "./ISubscription";
+﻿import { ISubscription } from './ISubscription';
 
 export interface ISubscriptions {
-    [key: string]: ISubscription
+    [key: string]: ISubscription;
 }

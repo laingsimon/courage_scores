@@ -1,21 +1,24 @@
-import {useState} from "react";
-import {Dialog} from "../common/Dialog";
-import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
-import {asyncClear, propChanged, stateChanged} from "../../helpers/events";
-import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
-import {useTournament} from "./TournamentContainer";
-import {any, sortBy} from "../../helpers/collections";
-import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
-import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
-import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
-import {createTemporaryId, repeat} from "../../helpers/projection";
-import {MatchSayg} from "./MatchSayg";
-import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
-import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
-import {ILayoutDataForMatch} from "./layout/ILayoutDataForMatch";
-import {ILayoutDataForSide} from "./layout/ILayoutDataForSide";
-import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
-import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import { useState } from 'react';
+import { Dialog } from '../common/Dialog';
+import {
+    BootstrapDropdown,
+    IBootstrapDropdownItem,
+} from '../common/BootstrapDropdown';
+import { asyncClear, propChanged, stateChanged } from '../../helpers/events';
+import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
+import { useTournament } from './TournamentContainer';
+import { any, sortBy } from '../../helpers/collections';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
+import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto';
+import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto';
+import { createTemporaryId, repeat } from '../../helpers/projection';
+import { MatchSayg } from './MatchSayg';
+import { PatchTournamentDto } from '../../interfaces/models/dtos/Game/PatchTournamentDto';
+import { PatchTournamentRoundDto } from '../../interfaces/models/dtos/Game/PatchTournamentRoundDto';
+import { ILayoutDataForMatch } from './layout/ILayoutDataForMatch';
+import { ILayoutDataForSide } from './layout/ILayoutDataForSide';
+import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
+import { UntypedPromise } from '../../interfaces/UntypedPromise';
 
 export interface IPrintableSheetMatchProps {
     matchData: ILayoutDataForMatch;
@@ -23,7 +26,10 @@ export interface IPrintableSheetMatchProps {
     matchIndex: number;
     possibleSides: TournamentSideDto[];
     editable?: boolean;
-    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean): UntypedPromise;
+    patchData?(
+        patch: PatchTournamentDto | PatchTournamentRoundDto,
+        nestInRound?: boolean,
+    ): UntypedPromise;
     round?: TournamentRoundDto;
 }
 
@@ -33,32 +39,53 @@ interface IEditSide {
     designation: 'A' | 'B';
 }
 
-export function PrintableSheetMatch({ round, matchData, possibleSides, roundIndex, matchIndex, editable, patchData } : IPrintableSheetMatchProps) {
-    const { tournamentData, setTournamentData, matchOptionDefaults } = useTournament();
-    const matchOptions = matchData.matchOptions || { numberOfLegs: tournamentData.bestOf || matchOptionDefaults?.numberOfLegs || 5 };
-    const [ editSide, setEditSide ] = useState<IEditSide | undefined>(undefined);
-    const [ bestOf, setBestOf ] = useState<string>(matchOptions.numberOfLegs ? matchOptions.numberOfLegs.toString() : '5');
-    const possibleSideOptions: IBootstrapDropdownItem[] = possibleSides.sort(sortBy('name')).map((side: TournamentSideDto): IBootstrapDropdownItem => { return {
-        value: side.id,
-        text: side.name,
-    }});
+export function PrintableSheetMatch({
+    round,
+    matchData,
+    possibleSides,
+    roundIndex,
+    matchIndex,
+    editable,
+    patchData,
+}: IPrintableSheetMatchProps) {
+    const { tournamentData, setTournamentData, matchOptionDefaults } =
+        useTournament();
+    const matchOptions = matchData.matchOptions || {
+        numberOfLegs:
+            tournamentData.bestOf || matchOptionDefaults?.numberOfLegs || 5,
+    };
+    const [editSide, setEditSide] = useState<IEditSide | undefined>(undefined);
+    const [bestOf, setBestOf] = useState<string>(
+        matchOptions.numberOfLegs ? matchOptions.numberOfLegs.toString() : '5',
+    );
+    const possibleSideOptions: IBootstrapDropdownItem[] = possibleSides
+        .sort(sortBy('name'))
+        .map((side: TournamentSideDto): IBootstrapDropdownItem => {
+            return {
+                value: side.id,
+                text: side.name,
+            };
+        });
     const win = {
         value: bestOf,
         text: 'Win',
     };
     const lose = {
-       value: '0',
-       text: 'Lose',
+        value: '0',
+        text: 'Lose',
     };
-    const teamSides = any(tournamentData.sides, side => !!side.teamId);
+    const teamSides = any(tournamentData.sides, (side) => !!side.teamId);
     const possibleScoreOptions: IBootstrapDropdownItem[] = teamSides
-            ? [ win, lose ]
-            : repeat(Math.ceil(Number.parseInt(bestOf) / 2) + 1, (index: number): IBootstrapDropdownItem => {
-                 return {
+        ? [win, lose]
+        : repeat(
+              Math.ceil(Number.parseInt(bestOf) / 2) + 1,
+              (index: number): IBootstrapDropdownItem => {
+                  return {
                       value: index.toString(),
-                      text: index.toString()
-                 };
-           });
+                      text: index.toString(),
+                  };
+              },
+          );
     const readOnly: boolean = !round;
 
     function beginEditSide(designation: 'A' | 'B') {
@@ -82,13 +109,16 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
         const side: ILayoutDataForSide = matchData['side' + designation];
         const editSide: IEditSide = {
             sideId: side.id!,
-            score: (designation === 'A' ? matchData.scoreA : matchData.scoreB) || '0',
+            score:
+                (designation === 'A' ? matchData.scoreA : matchData.scoreB) ||
+                '0',
             designation: designation,
         };
 
         if (!editSide.sideId && side.mnemonic) {
             // find the side with this name
-            const preSelectSide: IBootstrapDropdownItem = possibleSideOptions.filter(o => o.text === side.mnemonic)[0];
+            const preSelectSide: IBootstrapDropdownItem =
+                possibleSideOptions.filter((o) => o.text === side.mnemonic)[0];
             if (preSelectSide) {
                 editSide.sideId = preSelectSide.value as string;
             }
@@ -98,11 +128,27 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
     }
 
     function renderSide(side: ILayoutDataForSide, type: 'A' | 'B') {
-        return <div className="no-wrap pe-3">
-            {side.link && !editable ? (<span datatype={`side${type}name`}>{side.link}</span>) : (<span datatype={`side${type}name`}>{side.name}</span>)}
-            {side.mnemonic ? <span className="text-secondary-50 opacity-75 small" datatype={`side${type}mnemonic`}>{side.mnemonic && side.showMnemonic ? side.mnemonic : null}</span> : null}
-            {!side.name && (!side.mnemonic || !side.showMnemonic) ? <>&nbsp;</>: null}
-        </div>
+        return (
+            <div className="no-wrap pe-3">
+                {side.link && !editable ? (
+                    <span datatype={`side${type}name`}>{side.link}</span>
+                ) : (
+                    <span datatype={`side${type}name`}>{side.name}</span>
+                )}
+                {side.mnemonic ? (
+                    <span
+                        className="text-secondary-50 opacity-75 small"
+                        datatype={`side${type}mnemonic`}>
+                        {side.mnemonic && side.showMnemonic
+                            ? side.mnemonic
+                            : null}
+                    </span>
+                ) : null}
+                {!side.name && (!side.mnemonic || !side.showMnemonic) ? (
+                    <>&nbsp;</>
+                ) : null}
+            </div>
+        );
     }
 
     function getEmptyRound(): TournamentRoundDto {
@@ -113,12 +159,19 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
         };
     }
 
-    function getEditableRound(newTournamentData: TournamentGameDto, addIfNotExists?: boolean) {
-        let newRound: TournamentRoundDto = newTournamentData.round || getEmptyRound();
+    function getEditableRound(
+        newTournamentData: TournamentGameDto,
+        addIfNotExists?: boolean,
+    ) {
+        let newRound: TournamentRoundDto =
+            newTournamentData.round || getEmptyRound();
         newTournamentData.round = newRound;
 
         for (let index = 0; index < roundIndex; index++) {
-            const nextRound: TournamentRoundDto = Object.assign({}, newRound.nextRound || (addIfNotExists ? getEmptyRound() : null));
+            const nextRound: TournamentRoundDto = Object.assign(
+                {},
+                newRound.nextRound || (addIfNotExists ? getEmptyRound() : null),
+            );
             newRound.nextRound = nextRound;
             newRound = nextRound;
 
@@ -142,8 +195,14 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
             return;
         }
 
-        const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
-        const newRound: TournamentRoundDto = getEditableRound(newTournamentData, true);
+        const newTournamentData: TournamentGameDto = Object.assign(
+            {},
+            tournamentData,
+        );
+        const newRound: TournamentRoundDto = getEditableRound(
+            newTournamentData,
+            true,
+        );
 
         let currentMatch: TournamentMatchDto;
         let currentMatchOptions: GameMatchOptionDto;
@@ -161,10 +220,17 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
             currentMatchOptions = newRound.matchOptions![matchIndex];
         }
         const newMatch: TournamentMatchDto = Object.assign({}, currentMatch);
-        const newMatchOptions: GameMatchOptionDto = Object.assign({}, currentMatchOptions);
+        const newMatchOptions: GameMatchOptionDto = Object.assign(
+            {},
+            currentMatchOptions,
+        );
 
-        newMatch['side' + editSide.designation] = possibleSides.filter((s: TournamentSideDto) => s.id === editSide.sideId)[0];
-        newMatch['score' + editSide.designation] = Number.parseInt(editSide.score);
+        newMatch['side' + editSide.designation] = possibleSides.filter(
+            (s: TournamentSideDto) => s.id === editSide.sideId,
+        )[0];
+        newMatch['score' + editSide.designation] = Number.parseInt(
+            editSide.score,
+        );
         newMatchOptions.numberOfLegs = newBestOf;
 
         newRound.matches![matchIndex] = newMatch;
@@ -175,8 +241,14 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
     }
 
     async function onRemove() {
-        const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
-        const newRound: TournamentRoundDto = getEditableRound(newTournamentData, true);
+        const newTournamentData: TournamentGameDto = Object.assign(
+            {},
+            tournamentData,
+        );
+        const newRound: TournamentRoundDto = getEditableRound(
+            newTournamentData,
+            true,
+        );
 
         const currentMatch: TournamentMatchDto = newRound.matches![matchIndex];
         const newMatch: TournamentMatchDto = Object.assign({}, currentMatch);
@@ -184,9 +256,14 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
         newMatch['side' + editSide?.designation] = { players: [] };
         newMatch['score' + editSide?.designation] = null;
 
-        if ((!newMatch.sideA || !newMatch.sideA.id) && (!newMatch.sideB || !newMatch.sideB.id)) {
+        if (
+            (!newMatch.sideA || !newMatch.sideA.id) &&
+            (!newMatch.sideB || !newMatch.sideB.id)
+        ) {
             // match is empty, it can be removed
-            newRound.matches = newRound.matches!.filter((_: TournamentMatchDto, index: number) => index !== matchIndex);
+            newRound.matches = newRound.matches!.filter(
+                (_: TournamentMatchDto, index: number) => index !== matchIndex,
+            );
         } else {
             newRound.matches![matchIndex] = newMatch;
         }
@@ -195,17 +272,21 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
         setEditSide(undefined);
     }
 
-    async function patchRoundData(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) {
+    async function patchRoundData(
+        patch: PatchTournamentDto | PatchTournamentRoundDto,
+        nestInRound?: boolean,
+    ) {
         if (!nestInRound) {
             // e.g. 180s/hi-checks, which don't apply to rounds, so can be pass up without including the nested round info.
             await patchData!(patch, nestInRound);
             return;
         }
 
-        let nestedPatch: PatchTournamentRoundDto = patch as PatchTournamentRoundDto;
+        let nestedPatch: PatchTournamentRoundDto =
+            patch as PatchTournamentRoundDto;
         for (let index = 0; index < roundIndex; index++) {
             nestedPatch = {
-                nextRound: nestedPatch
+                nextRound: nestedPatch,
             };
         }
 
@@ -217,7 +298,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
             return '';
         }
 
-        if (Number.parseInt(score!) > (Number.parseInt(bestOf) / 2.0)) {
+        if (Number.parseInt(score!) > Number.parseInt(bestOf) / 2.0) {
             return win.text;
         }
 
@@ -225,92 +306,141 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
     }
 
     function renderEditSideDialog() {
-        const oppositeSideId = editSide?.designation === 'A'
-            ? matchData.sideB ? matchData.sideB.id : null
-            : matchData.sideA ? matchData.sideA.id : null;
+        const oppositeSideId =
+            editSide?.designation === 'A'
+                ? matchData.sideB
+                    ? matchData.sideB.id
+                    : null
+                : matchData.sideA
+                  ? matchData.sideA.id
+                  : null;
 
-        return (<Dialog title="Edit match" className="d-print-none">
-            <div className="form-group input-group mb-3 d-print-none">
-                <div className="input-group-prepend">
-                    <span className="input-group-text">Side</span>
-                </div>
-                <BootstrapDropdown
-                    value={editSide!.sideId}
-                    options={possibleSideOptions.filter((s: IBootstrapDropdownItem) => s.value !== oppositeSideId)}
-                    onChange={propChanged(editSide, setEditSide, 'sideId')}
-                    className="margin-right" />
+        return (
+            <Dialog title="Edit match" className="d-print-none">
+                <div className="form-group input-group mb-3 d-print-none">
+                    <div className="input-group-prepend">
+                        <span className="input-group-text">Side</span>
+                    </div>
+                    <BootstrapDropdown
+                        value={editSide!.sideId}
+                        options={possibleSideOptions.filter(
+                            (s: IBootstrapDropdownItem) =>
+                                s.value !== oppositeSideId,
+                        )}
+                        onChange={propChanged(editSide, setEditSide, 'sideId')}
+                        className="margin-right"
+                    />
 
-                <div className="input-group-prepend">
-                    <span className="input-group-text">Score</span>
+                    <div className="input-group-prepend">
+                        <span className="input-group-text">Score</span>
+                    </div>
+                    <BootstrapDropdown
+                        value={editSide!.score}
+                        options={possibleScoreOptions}
+                        slim={true}
+                        onChange={propChanged(editSide, setEditSide, 'score')}
+                    />
                 </div>
-                <BootstrapDropdown
-                    value={editSide!.score}
-                    options={possibleScoreOptions}
-                    slim={true}
-                    onChange={propChanged(editSide, setEditSide, 'score')} />
-            </div>
-            <div>
-                Best of <input value={bestOf} name="bestOf" type="number" min="1" className="width-50" onChange={stateChanged(setBestOf)} /> legs
-            </div>
-            <div className="modal-footer px-0 pb-0 mt-3">
-                <div className="left-aligned mx-0">
-                    <button className="btn btn-secondary" onClick={asyncClear(setEditSide)}>Close</button>
+                <div>
+                    Best of{' '}
+                    <input
+                        value={bestOf}
+                        name="bestOf"
+                        type="number"
+                        min="1"
+                        className="width-50"
+                        onChange={stateChanged(setBestOf)}
+                    />{' '}
+                    legs
                 </div>
-                {matchData['side' + editSide?.designation] && matchData['side' + editSide?.designation].id ? (<button className="btn btn-danger" onClick={onRemove}>
-                    Remove
-                </button>) : null}
-                <button className="btn btn-primary" onClick={onSave}>
-                    Save
-                </button>
-            </div>
-        </Dialog>)
+                <div className="modal-footer px-0 pb-0 mt-3">
+                    <div className="left-aligned mx-0">
+                        <button
+                            className="btn btn-secondary"
+                            onClick={asyncClear(setEditSide)}>
+                            Close
+                        </button>
+                    </div>
+                    {matchData['side' + editSide?.designation] &&
+                    matchData['side' + editSide?.designation].id ? (
+                        <button className="btn btn-danger" onClick={onRemove}>
+                            Remove
+                        </button>
+                    ) : null}
+                    <button className="btn btn-primary" onClick={onSave}>
+                        Save
+                    </button>
+                </div>
+            </Dialog>
+        );
     }
 
-    return (<>
-        {editSide ? renderEditSideDialog() : null}
-        <div datatype="match"
-             className={`p-0 border-solid border-1 m-1 position-relative`}>
-            {matchData.mnemonic && !matchData.hideMnemonic
-                ? (<span datatype="match-mnemonic" className="position-absolute right-0 opacity-75">
-                        <span className="small rounded-circle bg-secondary opacity-75 text-light p-1 position-absolute"
-                              style={{left: -10, top: -10}}>
+    return (
+        <>
+            {editSide ? renderEditSideDialog() : null}
+            <div
+                datatype="match"
+                className={`p-0 border-solid border-1 m-1 position-relative`}>
+                {matchData.mnemonic && !matchData.hideMnemonic ? (
+                    <span
+                        datatype="match-mnemonic"
+                        className="position-absolute right-0 opacity-75">
+                        <span
+                            className="small rounded-circle bg-secondary opacity-75 text-light p-1 position-absolute"
+                            style={{ left: -10, top: -10 }}>
                             {matchData.mnemonic}
                         </span>
-                    </span>)
-                : null}
-            {matchData.numberOfSidesOnTheNight
-                ? (<span datatype="match-mnemonic" className="position-absolute left-0 opacity-75">
+                    </span>
+                ) : null}
+                {matchData.numberOfSidesOnTheNight ? (
+                    <span
+                        datatype="match-mnemonic"
+                        className="position-absolute left-0 opacity-75">
                         <span
                             className="small rounded-circle bg-light border-solid border-1 border-info p-1 position-absolute text-center"
-                            style={{left: -10, top: -10, minWidth: '28px'}}>
+                            style={{ left: -10, top: -10, minWidth: '28px' }}>
                             {matchData.numberOfSidesOnTheNight}
                         </span>
-                    </span>)
-                : null}
-            <div datatype="sideA"
-                 onClick={editable ? () => beginEditSide('A') : undefined}
-                 className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideA' ? 'bg-winner fw-bold' : ''}`}>
-                {renderSide(matchData.sideA, 'A')}
-                <div datatype="scoreA">{teamSides ? teamWinLose(matchData.scoreA) : matchData.scoreA || ''}</div>
-            </div>
-            <div className="text-center dotted-line-through">
-                        <span className="px-3 bg-white position-relative">
-                            vs
-                            {matchData.match && !teamSides ? (<MatchSayg
+                    </span>
+                ) : null}
+                <div
+                    datatype="sideA"
+                    onClick={editable ? () => beginEditSide('A') : undefined}
+                    className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideA' ? 'bg-winner fw-bold' : ''}`}>
+                    {renderSide(matchData.sideA, 'A')}
+                    <div datatype="scoreA">
+                        {teamSides
+                            ? teamWinLose(matchData.scoreA)
+                            : matchData.scoreA || ''}
+                    </div>
+                </div>
+                <div className="text-center dotted-line-through">
+                    <span className="px-3 bg-white position-relative">
+                        vs
+                        {matchData.match && !teamSides ? (
+                            <MatchSayg
                                 match={matchData.match}
                                 matchOptions={matchOptions}
                                 matchIndex={matchIndex}
                                 patchData={patchRoundData}
                                 readOnly={readOnly}
-                                showViewSayg={true}/>) : null}
-                        </span>
+                                showViewSayg={true}
+                            />
+                        ) : null}
+                    </span>
+                </div>
+                <div
+                    datatype="sideB"
+                    onClick={editable ? () => beginEditSide('B') : undefined}
+                    className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideB' ? 'bg-winner fw-bold' : ''}`}>
+                    {renderSide(matchData.sideB, 'B')}
+                    <div datatype="scoreB">
+                        {teamSides
+                            ? teamWinLose(matchData.scoreB)
+                            : matchData.scoreB || ''}
+                    </div>
+                </div>
             </div>
-            <div datatype="sideB"
-                 onClick={editable ? () => beginEditSide('B') : undefined}
-                 className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideB' ? 'bg-winner fw-bold' : ''}`}>
-                {renderSide(matchData.sideB, 'B')}
-                <div datatype="scoreB">{teamSides ? teamWinLose(matchData.scoreB) : matchData.scoreB || ''}</div>
-            </div>
-        </div>
-    </>);
+        </>
+    );
 }

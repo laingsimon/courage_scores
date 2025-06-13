@@ -1,4 +1,4 @@
-import {AdminContainer} from "./AdminContainer";
+import { AdminContainer } from './AdminContainer';
 import {
     appProps,
     brandingProps,
@@ -7,12 +7,13 @@ import {
     ErrorState,
     findButton,
     iocProps,
-    renderApp, TestContext
-} from "../../helpers/tests";
-import {ITemplateDivisionProps, TemplateDivision} from "./TemplateDivision";
-import {DivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto";
-import {FixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto";
-import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import { ITemplateDivisionProps, TemplateDivision } from './TemplateDivision';
+import { DivisionTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto';
+import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto';
+import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto';
 
 describe('TemplateDivision', () => {
     let context: TestContext;
@@ -44,17 +45,17 @@ describe('TemplateDivision', () => {
         copyToDivisionIndex = destinationDivisionIndex;
     }
 
-    async function setHighlight(_?: string) {
-    }
+    async function setHighlight(_?: string) {}
 
     async function renderComponent(props: ITemplateDivisionProps) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
             appProps({}, reportedError),
-            (<AdminContainer accounts={[]} tables={[]}>
+            <AdminContainer accounts={[]} tables={[]}>
                 <TemplateDivision {...props} />
-            </AdminContainer>));
+            </AdminContainer>,
+        );
     }
 
     describe('renders', () => {
@@ -75,14 +76,16 @@ describe('TemplateDivision', () => {
             });
 
             const heading = context.container.querySelector('h6')!;
-            expect(heading.textContent).toEqual('⬆️ Division 1 (click to collapse)');
+            expect(heading.textContent).toEqual(
+                '⬆️ Division 1 (click to collapse)',
+            );
         });
 
         it('division shared addresses', async () => {
             await renderComponent({
                 divisionNo: 1,
                 division: {
-                    sharedAddresses: [ [ 'A' ] ],
+                    sharedAddresses: [['A']],
                     dates: [],
                 },
                 templateSharedAddresses: [],
@@ -94,7 +97,9 @@ describe('TemplateDivision', () => {
                 setHighlight,
             });
 
-            const divisionSharedAddresses = context.container.querySelector('div > ul:nth-child(2)')!;
+            const divisionSharedAddresses = context.container.querySelector(
+                'div > ul:nth-child(2)',
+            )!;
             expect(divisionSharedAddresses.textContent).toContain('A ×');
         });
 
@@ -103,12 +108,16 @@ describe('TemplateDivision', () => {
                 divisionNo: 1,
                 division: {
                     sharedAddresses: [],
-                    dates: [{
-                        fixtures: [{
-                            home: 'A',
-                            away: 'B',
-                        }],
-                    }],
+                    dates: [
+                        {
+                            fixtures: [
+                                {
+                                    home: 'A',
+                                    away: 'B',
+                                },
+                            ],
+                        },
+                    ],
                 },
                 templateSharedAddresses: [],
                 onUpdate,
@@ -119,7 +128,9 @@ describe('TemplateDivision', () => {
                 setHighlight,
             });
 
-            const dates = context.container.querySelector('div > ul:nth-child(3)')!;
+            const dates = context.container.querySelector(
+                'div > ul:nth-child(3)',
+            )!;
             expect(dates.textContent).toContain('A - B ×');
         });
 
@@ -159,8 +170,17 @@ describe('TemplateDivision', () => {
                 setHighlight,
             });
 
-            const sharableAddresses: Element[] = Array.from(context.container.querySelectorAll('ul[datatype="shareable-addresses"] > li'));
-            expect(sharableAddresses.map(d => d.textContent)).toEqual([ '1,5', '2,6', '3,7', '4,8' ]);
+            const sharableAddresses: Element[] = Array.from(
+                context.container.querySelectorAll(
+                    'ul[datatype="shareable-addresses"] > li',
+                ),
+            );
+            expect(sharableAddresses.map((d) => d.textContent)).toEqual([
+                '1,5',
+                '2,6',
+                '3,7',
+                '4,8',
+            ]);
         });
     });
 
@@ -184,7 +204,9 @@ describe('TemplateDivision', () => {
 
             await doClick(heading);
 
-            expect(heading.textContent).toEqual('⬇️ Division 1 (click to expand)');
+            expect(heading.textContent).toEqual(
+                '⬇️ Division 1 (click to expand)',
+            );
         });
 
         it('can collapse division', async () => {
@@ -207,7 +229,9 @@ describe('TemplateDivision', () => {
             await doClick(heading);
             await doClick(heading);
 
-            expect(heading.textContent).toEqual('⬆️ Division 1 (click to collapse)');
+            expect(heading.textContent).toEqual(
+                '⬆️ Division 1 (click to collapse)',
+            );
         });
 
         it('can update shared addresses', async () => {
@@ -226,10 +250,12 @@ describe('TemplateDivision', () => {
                 setHighlight,
             });
 
-            await doClick(findButton(context.container, '➕ Add shared address'));
+            await doClick(
+                findButton(context.container, '➕ Add shared address'),
+            );
 
             expect(update).toEqual({
-                sharedAddresses: [ [] ],
+                sharedAddresses: [[]],
                 dates: [],
             });
         });
@@ -254,9 +280,11 @@ describe('TemplateDivision', () => {
 
             expect(update).toEqual({
                 sharedAddresses: [],
-                dates: [{
-                    fixtures: [],
-                }],
+                dates: [
+                    {
+                        fixtures: [],
+                    },
+                ],
             });
         });
 
@@ -286,12 +314,16 @@ describe('TemplateDivision', () => {
                 divisionNo: 1,
                 division: {
                     sharedAddresses: [],
-                    dates: [{
-                        fixtures: [{
-                            home: 'A',
-                            away: 'B',
-                        }],
-                    }],
+                    dates: [
+                        {
+                            fixtures: [
+                                {
+                                    home: 'A',
+                                    away: 'B',
+                                },
+                            ],
+                        },
+                    ],
                 },
                 templateSharedAddresses: [],
                 onUpdate,

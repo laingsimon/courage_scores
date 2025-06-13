@@ -1,4 +1,4 @@
-import {AdminContainer} from "./AdminContainer";
+import { AdminContainer } from './AdminContainer';
 import {
     appProps,
     brandingProps,
@@ -7,10 +7,14 @@ import {
     ErrorState,
     findButton,
     iocProps,
-    renderApp, TestContext
-} from "../../helpers/tests";
-import {ITemplateDivisionsProps, TemplateDivisions} from "./TemplateDivisions";
-import {DivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto";
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import {
+    ITemplateDivisionsProps,
+    TemplateDivisions,
+} from './TemplateDivisions';
+import { DivisionTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto';
 
 describe('TemplateDivisions', () => {
     let context: TestContext;
@@ -30,17 +34,17 @@ describe('TemplateDivisions', () => {
         update = value;
     }
 
-    async function setHighlight(_?: string) {
-    }
+    async function setHighlight(_?: string) {}
 
     async function renderComponent(props: ITemplateDivisionsProps) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
             appProps({}, reportedError),
-            (<AdminContainer accounts={[]} tables={[]}>
+            <AdminContainer accounts={[]} tables={[]}>
                 <TemplateDivisions {...props} />
-            </AdminContainer>));
+            </AdminContainer>,
+        );
     }
 
     describe('renders', () => {
@@ -53,7 +57,8 @@ describe('TemplateDivisions', () => {
                 setHighlight,
             });
 
-            const prefix = context.container.querySelector('ul li:first-child')!;
+            const prefix =
+                context.container.querySelector('ul li:first-child')!;
             expect(prefix.textContent).toEqual('Divisions');
         });
 
@@ -66,24 +71,31 @@ describe('TemplateDivisions', () => {
                 setHighlight,
             });
 
-            const divisionElements = Array.from(context.container.querySelectorAll('ul li'));
+            const divisionElements = Array.from(
+                context.container.querySelectorAll('ul li'),
+            );
             expect(divisionElements.length).toEqual(1); // heading
         });
 
         it('existing divisions', async () => {
             await renderComponent({
-                divisions: [{
-                    dates: [],
-                    sharedAddresses: [],
-                }],
+                divisions: [
+                    {
+                        dates: [],
+                        sharedAddresses: [],
+                    },
+                ],
                 templateSharedAddresses: [],
                 onUpdate,
                 highlight: '',
                 setHighlight,
             });
 
-            const divisionElement = context.container.querySelector('ul li:nth-child(2)')!;
-            expect(divisionElement.textContent).toContain('Division 1 (click to collapse)');
+            const divisionElement =
+                context.container.querySelector('ul li:nth-child(2)')!;
+            expect(divisionElement.textContent).toContain(
+                'Division 1 (click to collapse)',
+            );
         });
     });
 
@@ -97,20 +109,26 @@ describe('TemplateDivisions', () => {
                 setHighlight,
             });
 
-            await doClick(findButton(context.container, '➕ Add another division'));
+            await doClick(
+                findButton(context.container, '➕ Add another division'),
+            );
 
-            expect(update).toEqual([{
-                dates: [],
-                sharedAddresses: [],
-            }]);
+            expect(update).toEqual([
+                {
+                    dates: [],
+                    sharedAddresses: [],
+                },
+            ]);
         });
 
         it('can delete a division', async () => {
             await renderComponent({
-                divisions: [{
-                    dates: [],
-                    sharedAddresses: [],
-                }],
+                divisions: [
+                    {
+                        dates: [],
+                        sharedAddresses: [],
+                    },
+                ],
                 templateSharedAddresses: [],
                 onUpdate,
                 highlight: '',
@@ -124,49 +142,65 @@ describe('TemplateDivisions', () => {
 
         it('can update a division', async () => {
             await renderComponent({
-                divisions: [{
-                    dates: [],
-                    sharedAddresses: [ [ 'A' ] ],
-                }, {
-                    dates: [],
-                    sharedAddresses: [ [ 'B' ] ],
-                }],
+                divisions: [
+                    {
+                        dates: [],
+                        sharedAddresses: [['A']],
+                    },
+                    {
+                        dates: [],
+                        sharedAddresses: [['B']],
+                    },
+                ],
                 templateSharedAddresses: [],
                 onUpdate,
                 highlight: '',
                 setHighlight,
             });
 
-            await doClick(findButton(context.container.querySelector('ul>li:nth-child(2)'), '➕ Add a week'));
+            await doClick(
+                findButton(
+                    context.container.querySelector('ul>li:nth-child(2)'),
+                    '➕ Add a week',
+                ),
+            );
 
-            expect(update).toEqual([{
-                dates: [{
-                    fixtures: [],
-                }],
-                sharedAddresses: [ [ 'A' ] ],
-            }, {
-                dates: [],
-                sharedAddresses: [ [ 'B' ] ],
-            }]);
+            expect(update).toEqual([
+                {
+                    dates: [
+                        {
+                            fixtures: [],
+                        },
+                    ],
+                    sharedAddresses: [['A']],
+                },
+                {
+                    dates: [],
+                    sharedAddresses: [['B']],
+                },
+            ]);
         });
 
         it('can copy details between templates', async () => {
             await renderComponent({
-                divisions: [{
-                    dates: [ {
-                        fixtures: [
-                            { home: 'A', away: 'B' },
-                        ]
-                    }],
-                    sharedAddresses: [ [ 'A' ] ],
-                }, {
-                    dates: [ {
-                        fixtures: [
-                            { home: 'C', away: 'D' },
-                        ]
-                    }],
-                    sharedAddresses: [ [ 'B' ] ],
-                }],
+                divisions: [
+                    {
+                        dates: [
+                            {
+                                fixtures: [{ home: 'A', away: 'B' }],
+                            },
+                        ],
+                        sharedAddresses: [['A']],
+                    },
+                    {
+                        dates: [
+                            {
+                                fixtures: [{ home: 'C', away: 'D' }],
+                            },
+                        ],
+                        sharedAddresses: [['B']],
+                    },
+                ],
                 templateSharedAddresses: [],
                 onUpdate,
                 highlight: '',
@@ -175,21 +209,24 @@ describe('TemplateDivisions', () => {
 
             await doClick(findButton(context.container, 'Copy to division 2'));
 
-            expect(update).toEqual([{
-                dates: [ {
-                    fixtures: [
-                        { home: 'A', away: 'B' },
-                    ]
-                }],
-                sharedAddresses: [ [ 'A' ] ],
-            }, {
-                dates: [ {
-                    fixtures: [
-                        { home: '2A', away: '2B' },
-                    ]
-                }],
-                sharedAddresses: [ [ '2A' ] ],
-            }]);
+            expect(update).toEqual([
+                {
+                    dates: [
+                        {
+                            fixtures: [{ home: 'A', away: 'B' }],
+                        },
+                    ],
+                    sharedAddresses: [['A']],
+                },
+                {
+                    dates: [
+                        {
+                            fixtures: [{ home: '2A', away: '2B' }],
+                        },
+                    ],
+                    sharedAddresses: [['2A']],
+                },
+            ]);
         });
     });
 });

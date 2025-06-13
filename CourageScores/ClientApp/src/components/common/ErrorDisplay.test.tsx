@@ -6,9 +6,9 @@ import {
     findButton,
     iocProps,
     renderApp,
-    TestContext
-} from "../../helpers/tests";
-import {ErrorDisplay, IErrorDisplayProps} from "./ErrorDisplay";
+    TestContext,
+} from '../../helpers/tests';
+import { ErrorDisplay, IErrorDisplayProps } from './ErrorDisplay';
 
 describe('ErrorDisplay', () => {
     let context: TestContext;
@@ -32,9 +32,10 @@ describe('ErrorDisplay', () => {
             appProps({
                 reportClientSideException: (err: Error) => {
                     reportedClientSideException = err;
-                }
+                },
             }),
-            (<ErrorDisplay {...props} />));
+            <ErrorDisplay {...props} />,
+        );
     }
 
     describe('with client side exception', () => {
@@ -111,7 +112,7 @@ describe('ErrorDisplay', () => {
         it('reports error to API', async () => {
             await renderComponent({
                 errors: {
-                    property: ['some property error']
+                    property: ['some property error'],
                 },
                 warnings: [],
                 messages: [],
@@ -119,7 +120,7 @@ describe('ErrorDisplay', () => {
                 Exception: {
                     Type: 'dotnet type',
                     StackTrace: ['dotnet', 'stack', 'trace'],
-                    Message: 'dotnet message'
+                    Message: 'dotnet message',
                 },
                 onClose,
             });
@@ -130,7 +131,7 @@ describe('ErrorDisplay', () => {
         it('renders correctly', async () => {
             await renderComponent({
                 errors: {
-                    property: ['some property error']
+                    property: ['some property error'],
                 },
                 warnings: [],
                 messages: [],
@@ -138,7 +139,7 @@ describe('ErrorDisplay', () => {
                 Exception: {
                     Type: 'dotnet type',
                     StackTrace: ['dotnet', 'stack', 'trace'],
-                    Message: 'dotnet message'
+                    Message: 'dotnet message',
                 },
                 onClose,
             });
@@ -153,14 +154,14 @@ describe('ErrorDisplay', () => {
         it('renders correctly with no stack trace', async () => {
             await renderComponent({
                 errors: {
-                    property: ['some property error']
+                    property: ['some property error'],
                 },
                 warnings: [],
                 messages: [],
                 title: '',
                 Exception: {
                     Type: 'dotnet type',
-                    Message: 'dotnet message'
+                    Message: 'dotnet message',
                 },
                 onClose,
             });
@@ -175,9 +176,11 @@ describe('ErrorDisplay', () => {
     describe('multiple server side exceptions', () => {
         it('renders validation errors', async () => {
             await renderComponent({
-                errors: [{
-                    property: ['The property field is required'],
-                }],
+                errors: [
+                    {
+                        property: ['The property field is required'],
+                    },
+                ],
                 messages: [],
                 warnings: [],
                 title: '',
@@ -186,17 +189,21 @@ describe('ErrorDisplay', () => {
 
             const dialog = context.container.querySelector('div.modal-dialog')!;
             expect(dialog).toBeTruthy();
-            expect(dialog.textContent).toContain('The property field is required');
+            expect(dialog.textContent).toContain(
+                'The property field is required',
+            );
         });
 
         it('renders server-side errors', async () => {
             await renderComponent({
-                errors: [{
-                    Exception: {
-                        Type: 'System.NullReferenceException',
-                        Message: 'Some message',
+                errors: [
+                    {
+                        Exception: {
+                            Type: 'System.NullReferenceException',
+                            Message: 'Some message',
+                        },
                     },
-                }],
+                ],
                 messages: [],
                 warnings: [],
                 title: '',
@@ -205,7 +212,9 @@ describe('ErrorDisplay', () => {
 
             const dialog = context.container.querySelector('div.modal-dialog')!;
             expect(dialog).toBeTruthy();
-            expect(dialog.textContent).toContain('System.NullReferenceException');
+            expect(dialog.textContent).toContain(
+                'System.NullReferenceException',
+            );
         });
 
         it('ignore null errors', async () => {

@@ -1,5 +1,5 @@
-import {GameMatchDto} from "../../interfaces/models/dtos/Game/GameMatchDto";
-import {GamePlayerDto} from "../../interfaces/models/dtos/Game/GamePlayerDto";
+import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto';
+import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto';
 
 export function matchEquals(x?: GameMatchDto, y?: GameMatchDto): boolean {
     if (!x && !y) {
@@ -10,13 +10,18 @@ export function matchEquals(x?: GameMatchDto, y?: GameMatchDto): boolean {
         return false;
     }
 
-    return x.homeScore === y.homeScore
-        && x.awayScore === y.awayScore
-        && playersEqual(x.homePlayers, y.homePlayers)
-        && playersEqual(x.awayPlayers, y.awayPlayers);
+    return (
+        x.homeScore === y.homeScore &&
+        x.awayScore === y.awayScore &&
+        playersEqual(x.homePlayers, y.homePlayers) &&
+        playersEqual(x.awayPlayers, y.awayPlayers)
+    );
 }
 
-function playersEqual(xPlayers?: GamePlayerDto[], yPlayers?: GamePlayerDto[]): boolean {
+function playersEqual(
+    xPlayers?: GamePlayerDto[],
+    yPlayers?: GamePlayerDto[],
+): boolean {
     if (!xPlayers && !yPlayers) {
         return true;
     }

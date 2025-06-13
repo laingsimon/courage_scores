@@ -5,13 +5,17 @@
     ErrorState,
     iocProps,
     renderApp,
-    TestContext
-} from "../../../helpers/tests";
-import {IMatchReportRowProps, MatchReportRow} from "./MatchReportRow";
-import {LegThrowDto} from "../../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
-import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
-import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
-import {BuilderParam} from "../../../helpers/builders/builders";
+    TestContext,
+} from '../../../helpers/tests';
+import { IMatchReportRowProps, MatchReportRow } from './MatchReportRow';
+import { LegThrowDto } from '../../../interfaces/models/dtos/Game/Sayg/LegThrowDto';
+import { RecordedScoreAsYouGoDto } from '../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
+import {
+    ILegBuilder,
+    ILegCompetitorScoreBuilder,
+    saygBuilder,
+} from '../../../helpers/builders/sayg';
+import { BuilderParam } from '../../../helpers/builders/builders';
 
 describe('MatchReportRow', () => {
     let context: TestContext;
@@ -30,33 +34,42 @@ describe('MatchReportRow', () => {
             iocProps(),
             brandingProps(),
             appProps({}, reportedError),
-            (<MatchReportRow {...props} />),
+            <MatchReportRow {...props} />,
             undefined,
             undefined,
-            'tbody');
+            'tbody',
+        );
     }
 
     function getRowContent(row: HTMLTableRowElement): string[] {
-        return Array.from(row.querySelectorAll('td')).map(th => th.textContent!);
+        return Array.from(row.querySelectorAll('td')).map(
+            (th) => th.textContent!,
+        );
     }
 
-    function createLeg(homeWinner?: boolean, awayWinner?: boolean): BuilderParam<ILegBuilder> {
+    function createLeg(
+        homeWinner?: boolean,
+        awayWinner?: boolean,
+    ): BuilderParam<ILegBuilder> {
         const winningThrows: LegThrowDto[] = [
-            {score: 90, noOfDarts: 3},
-            {score: 100, noOfDarts: 3},
-            {score: 110, noOfDarts: 3},
-            {score: 120, noOfDarts: 3},
-            {score: 81, noOfDarts: 3},
+            { score: 90, noOfDarts: 3 },
+            { score: 100, noOfDarts: 3 },
+            { score: 110, noOfDarts: 3 },
+            { score: 120, noOfDarts: 3 },
+            { score: 81, noOfDarts: 3 },
         ];
         const notWinningThrows: LegThrowDto[] = [
-            {score: 90, noOfDarts: 3},
-            {score: 90, noOfDarts: 3},
-            {score: 90, noOfDarts: 3},
-            {score: 90, noOfDarts: 3},
-            {score: 90, noOfDarts: 3},
+            { score: 90, noOfDarts: 3 },
+            { score: 90, noOfDarts: 3 },
+            { score: 90, noOfDarts: 3 },
+            { score: 90, noOfDarts: 3 },
+            { score: 90, noOfDarts: 3 },
         ];
 
-        function addThrows(builder: ILegCompetitorScoreBuilder, throws: LegThrowDto[]): ILegCompetitorScoreBuilder {
+        function addThrows(
+            builder: ILegCompetitorScoreBuilder,
+            throws: LegThrowDto[],
+        ): ILegCompetitorScoreBuilder {
             for (const thr of throws) {
                 builder = builder.withThrow(thr.score!, thr.noOfDarts);
             }
@@ -64,10 +77,15 @@ describe('MatchReportRow', () => {
             return builder;
         }
 
-        return b => b
-            .startingScore(501)
-            .home(c => addThrows(c, homeWinner ? winningThrows : notWinningThrows))
-            .away(c => addThrows(c, awayWinner ? winningThrows : notWinningThrows));
+        return (b) =>
+            b
+                .startingScore(501)
+                .home((c) =>
+                    addThrows(c, homeWinner ? winningThrows : notWinningThrows),
+                )
+                .away((c) =>
+                    addThrows(c, awayWinner ? winningThrows : notWinningThrows),
+                );
     }
 
     describe('renders', () => {
@@ -89,7 +107,7 @@ describe('MatchReportRow', () => {
         it('when no sayg legs', async () => {
             await renderComponent({
                 matchIndex: 1,
-                saygData: {legs: null!},
+                saygData: { legs: null! },
                 noOfThrows: 3,
                 noOfLegs: 3,
                 hostPlayerName: 'HOST',
@@ -140,8 +158,27 @@ describe('MatchReportRow', () => {
             const rows = Array.from(context.container.querySelectorAll('tr'));
             expect(getRowContent(rows[0])).toEqual([
                 'M1',
-                '33.4', 'HOST', '1', '90', '100', '110', '120', '15', '81', '', '3',
-                '30', 'OPPONENT', '90', '90', '90', '90', '15', '', '51', '0',
+                '33.4',
+                'HOST',
+                '1',
+                '90',
+                '100',
+                '110',
+                '120',
+                '15',
+                '81',
+                '',
+                '3',
+                '30',
+                'OPPONENT',
+                '90',
+                '90',
+                '90',
+                '90',
+                '15',
+                '',
+                '51',
+                '0',
             ]);
         });
 
@@ -163,8 +200,23 @@ describe('MatchReportRow', () => {
             reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('tr'));
             expect(getRowContent(rows[1])).toEqual([
-                '2', '90', '90', '90', '90', '15', '', '51', '0',
-                '90', '100', '110', '120', '15', '81', '', '3',
+                '2',
+                '90',
+                '90',
+                '90',
+                '90',
+                '15',
+                '',
+                '51',
+                '0',
+                '90',
+                '100',
+                '110',
+                '120',
+                '15',
+                '81',
+                '',
+                '3',
             ]);
         });
 
@@ -172,8 +224,10 @@ describe('MatchReportRow', () => {
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, createLeg(true, false))
                 .build();
-            saygData.legs[0].home.throws!.forEach((thr, index) => thr.score = 100 + (index * 10));
-            saygData.legs[0].away.throws!.forEach(thr => thr.score = 99);
+            saygData.legs[0].home.throws!.forEach(
+                (thr, index) => (thr.score = 100 + index * 10),
+            );
+            saygData.legs[0].away.throws!.forEach((thr) => (thr.score = 99));
 
             await renderComponent({
                 matchIndex: 0,
@@ -186,18 +240,29 @@ describe('MatchReportRow', () => {
 
             reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('tr'));
-            const hostScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((_, index) => index >= 4 && index < 8);
-            const opponentScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((_, index) => index >= 14 && index < 18);
-            expect(hostScoreCells.map(td => td.className.trim())).toEqual(['text-danger', 'text-danger', 'text-danger', 'text-danger']);
-            expect(opponentScoreCells.map(td => td.className.trim())).toEqual(['', '', '', '']);
+            const hostScoreCells = Array.from(
+                rows[0].querySelectorAll('td'),
+            ).filter((_, index) => index >= 4 && index < 8);
+            const opponentScoreCells = Array.from(
+                rows[0].querySelectorAll('td'),
+            ).filter((_, index) => index >= 14 && index < 18);
+            expect(hostScoreCells.map((td) => td.className.trim())).toEqual([
+                'text-danger',
+                'text-danger',
+                'text-danger',
+                'text-danger',
+            ]);
+            expect(opponentScoreCells.map((td) => td.className.trim())).toEqual(
+                ['', '', '', ''],
+            );
         });
 
         it('highlights 180 scores', async () => {
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, createLeg(true, false))
                 .build();
-            saygData.legs[0].home.throws!.forEach(thr => thr.score = 180);
-            saygData.legs[0].away.throws!.forEach(thr => thr.score = 179);
+            saygData.legs[0].home.throws!.forEach((thr) => (thr.score = 180));
+            saygData.legs[0].away.throws!.forEach((thr) => (thr.score = 179));
 
             await renderComponent({
                 matchIndex: 0,
@@ -210,18 +275,29 @@ describe('MatchReportRow', () => {
 
             reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('tr'));
-            const hostScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((_, index) => index >= 4 && index < 8);
-            const opponentScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((_, index) => index >= 14 && index < 18);
-            expect(hostScoreCells.map(td => td.className.trim())).toEqual(['text-danger fw-bold', 'text-danger fw-bold', 'text-danger fw-bold', 'text-danger fw-bold']);
-            expect(opponentScoreCells.map(td => td.className.trim())).toEqual(['text-danger', 'text-danger', 'text-danger', 'text-danger']);
+            const hostScoreCells = Array.from(
+                rows[0].querySelectorAll('td'),
+            ).filter((_, index) => index >= 4 && index < 8);
+            const opponentScoreCells = Array.from(
+                rows[0].querySelectorAll('td'),
+            ).filter((_, index) => index >= 14 && index < 18);
+            expect(hostScoreCells.map((td) => td.className.trim())).toEqual([
+                'text-danger fw-bold',
+                'text-danger fw-bold',
+                'text-danger fw-bold',
+                'text-danger fw-bold',
+            ]);
+            expect(opponentScoreCells.map((td) => td.className.trim())).toEqual(
+                ['text-danger', 'text-danger', 'text-danger', 'text-danger'],
+            );
         });
 
         it('shows non-180-tons correctly', async () => {
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, createLeg(true, false))
                 .build();
-            saygData.legs[0].home.throws!.forEach(thr => thr.score = 120);
-            saygData.legs[0].away.throws!.forEach(thr => thr.score = 130);
+            saygData.legs[0].home.throws!.forEach((thr) => (thr.score = 120));
+            saygData.legs[0].away.throws!.forEach((thr) => (thr.score = 130));
 
             await renderComponent({
                 matchIndex: 0,
@@ -244,8 +320,8 @@ describe('MatchReportRow', () => {
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, createLeg(true, false))
                 .build();
-            saygData.legs[0].home.throws!.forEach(thr => thr.score = 180);
-            saygData.legs[0].away.throws!.forEach(thr => thr.score = 180);
+            saygData.legs[0].home.throws!.forEach((thr) => (thr.score = 180));
+            saygData.legs[0].away.throws!.forEach((thr) => (thr.score = 180));
 
             await renderComponent({
                 matchIndex: 0,

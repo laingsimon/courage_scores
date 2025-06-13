@@ -1,12 +1,12 @@
-import React, {createContext, useContext, useEffect, useState} from "react";
-import {useDependencies} from "../components/common/IocContainer";
-import {useApp} from "../components/common/AppContainer";
-import {ILive} from "./ILive";
-import {ILiveOptions} from "./ILiveOptions";
-import {ISubscriptionRequest} from "./ISubscriptionRequest";
-import {UntypedPromise} from "../interfaces/UntypedPromise";
-import {hasAccess} from "../helpers/conditions";
-import {isEmpty} from "../helpers/collections";
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useDependencies } from '../components/common/IocContainer';
+import { useApp } from '../components/common/AppContainer';
+import { ILive } from './ILive';
+import { ILiveOptions } from './ILiveOptions';
+import { ISubscriptionRequest } from './ISubscriptionRequest';
+import { UntypedPromise } from '../interfaces/UntypedPromise';
+import { hasAccess } from '../helpers/conditions';
+import { isEmpty } from '../helpers/collections';
 
 const LiveContext = createContext({});
 
@@ -20,20 +20,31 @@ export interface ILiveContainerProps {
     liveOptions: ILiveOptions;
 }
 
-export function LiveContainer({children, onDataUpdate, liveOptions}: ILiveContainerProps) {
-    const {webSocket} = useDependencies();
-    const {onError, account} = useApp();
-    const canConnect: boolean = hasAccess(account, access => access.useWebSockets);
-    const [pendingSubscriptions, setPendingSubscriptions] = useState<ISubscriptionRequest[]>([]);
+export function LiveContainer({
+    children,
+    onDataUpdate,
+    liveOptions,
+}: ILiveContainerProps) {
+    const { webSocket } = useDependencies();
+    const { onError, account } = useApp();
+    const canConnect: boolean = hasAccess(
+        account,
+        (access) => access.useWebSockets,
+    );
+    const [pendingSubscriptions, setPendingSubscriptions] = useState<
+        ISubscriptionRequest[]
+    >([]);
     const [subscribing, setSubscribing] = useState<boolean>(false);
 
-    useEffect(() => {
-        if (liveOptions && liveOptions.subscribeAtStartup) {
-            setPendingSubscriptions(liveOptions.subscribeAtStartup);
-        }
-    },
-    // eslint-disable-next-line
-    [account]);
+    useEffect(
+        () => {
+            if (liveOptions && liveOptions.subscribeAtStartup) {
+                setPendingSubscriptions(liveOptions.subscribeAtStartup);
+            }
+        },
+        // eslint-disable-next-line
+        [account],
+    );
 
     useEffect(() => {
         if (isEmpty(pendingSubscriptions) || subscribing) {
@@ -44,11 +55,16 @@ export function LiveContainer({children, onDataUpdate, liveOptions}: ILiveContai
 
         // noinspection JSIgnoredPromiseFromCall
         enableLiveUpdates(true, nextPendingSubscription).then(() => {
-            setPendingSubscriptions(pendingSubscriptions.filter((_, index) => index > 0));
+            setPendingSubscriptions(
+                pendingSubscriptions.filter((_, index) => index > 0),
+            );
         });
     }, [account, pendingSubscriptions, subscribing]);
 
-    async function enableLiveUpdates(enabled: boolean, request: ISubscriptionRequest) {
+    async function enableLiveUpdates(
+        enabled: boolean,
+        request: ISubscriptionRequest,
+    ) {
         try {
             /* istanbul ignore next */
             if (subscribing) {
@@ -73,7 +89,7 @@ export function LiveContainer({children, onDataUpdate, liveOptions}: ILiveContai
         subscriptions: webSocket.subscriptions,
     };
 
-    return (<LiveContext.Provider value={props}>
-        {children}
-    </LiveContext.Provider>)
+    return (
+        <LiveContext.Provider value={props}>{children}</LiveContext.Provider>
+    );
 }

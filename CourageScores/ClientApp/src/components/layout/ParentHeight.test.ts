@@ -1,14 +1,21 @@
-import {IWindow, ParentHeight} from "./ParentHeight";
+import { IWindow, ParentHeight } from './ParentHeight';
 
 describe('ParentHeight', () => {
-    let intervalCreated : any | undefined;
-    let intervalCleared : number | undefined;
-    let postedMessage : {message: any, targetOrigin: any, transfer: any} | null;
+    let intervalCreated: any | undefined;
+    let intervalCleared: number | undefined;
+    let postedMessage: {
+        message: any;
+        targetOrigin: any;
+        transfer: any;
+    } | null;
     let nextHandle: number = 1;
 
-    (window as any).setInterval = (handler: TimerHandler, timeout?: number | undefined) => {
+    (window as any).setInterval = (
+        handler: TimerHandler,
+        timeout?: number | undefined,
+    ) => {
         const handle: number = nextHandle++;
-        intervalCreated = {func: handler, freq: timeout, handle};
+        intervalCreated = { func: handler, freq: timeout, handle };
         return handle;
     };
 
@@ -18,8 +25,8 @@ describe('ParentHeight', () => {
 
     const parentMock: IWindow = {
         postMessage: (message: any, targetOrigin: string, transfer?: any) => {
-            postedMessage = {message, targetOrigin, transfer};
-        }
+            postedMessage = { message, targetOrigin, transfer };
+        },
     };
 
     beforeEach(() => {
@@ -30,7 +37,11 @@ describe('ParentHeight', () => {
 
     describe('setupInterval', () => {
         it('should setup interval', () => {
-            const sut = new ParentHeight(100, () => 100, () => parentMock);
+            const sut = new ParentHeight(
+                100,
+                () => 100,
+                () => parentMock,
+            );
 
             sut.setupInterval(200);
 
@@ -39,7 +50,11 @@ describe('ParentHeight', () => {
         });
 
         it('should setup interval with default time', () => {
-            const sut = new ParentHeight(100, () => 100, () => parentMock);
+            const sut = new ParentHeight(
+                100,
+                () => 100,
+                () => parentMock,
+            );
 
             sut.setupInterval();
 
@@ -48,7 +63,11 @@ describe('ParentHeight', () => {
         });
 
         it('should not setup interval if no parent', () => {
-            const sut = new ParentHeight(100, () => 100, () => null!);
+            const sut = new ParentHeight(
+                100,
+                () => 100,
+                () => null!,
+            );
 
             sut.setupInterval(200);
 
@@ -56,7 +75,11 @@ describe('ParentHeight', () => {
         });
 
         it('should not setup interval if already setup', () => {
-            const sut = new ParentHeight(100, () => 100, () => parentMock);
+            const sut = new ParentHeight(
+                100,
+                () => 100,
+                () => parentMock,
+            );
             sut.setupInterval(200);
 
             sut.setupInterval(250);
@@ -68,7 +91,11 @@ describe('ParentHeight', () => {
 
     describe('cancelInterval', () => {
         it('should not clear interval if not setup', () => {
-            const sut = new ParentHeight(100, () => 100, () => parentMock);
+            const sut = new ParentHeight(
+                100,
+                () => 100,
+                () => parentMock,
+            );
 
             sut.cancelInterval();
 
@@ -76,7 +103,11 @@ describe('ParentHeight', () => {
         });
 
         it('should clear interval', () => {
-            const sut = new ParentHeight(100, () => 100, () => parentMock);
+            const sut = new ParentHeight(
+                100,
+                () => 100,
+                () => parentMock,
+            );
             sut.setupInterval(200);
 
             sut.cancelInterval();
@@ -89,7 +120,11 @@ describe('ParentHeight', () => {
         let currentHeight = 0;
 
         it('should publish content height if never published before', async () => {
-            const sut = new ParentHeight(100, () => currentHeight, () => parentMock);
+            const sut = new ParentHeight(
+                100,
+                () => currentHeight,
+                () => parentMock,
+            );
             currentHeight = 123;
             sut.setupInterval(200);
 
@@ -103,7 +138,11 @@ describe('ParentHeight', () => {
         });
 
         it('should publish content height if different to before', async () => {
-            const sut = new ParentHeight(100, () => currentHeight, () => parentMock);
+            const sut = new ParentHeight(
+                100,
+                () => currentHeight,
+                () => parentMock,
+            );
             currentHeight = 123;
             sut.setupInterval(200);
             intervalCreated.func(); // publishContentHeight()
@@ -119,7 +158,11 @@ describe('ParentHeight', () => {
         });
 
         it('should not publish content height if same as before', async () => {
-            const sut = new ParentHeight(100, () => currentHeight, () => parentMock);
+            const sut = new ParentHeight(
+                100,
+                () => currentHeight,
+                () => parentMock,
+            );
             currentHeight = 123;
             sut.setupInterval(200);
             intervalCreated.func(); // publishContentHeight()

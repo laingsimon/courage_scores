@@ -1,5 +1,5 @@
-import {AndFilter, Filter, NotFilter, NullFilter, OrFilter} from "./Filter";
-import {IFilter} from "./IFilter";
+import { AndFilter, Filter, NotFilter, NullFilter, OrFilter } from './Filter';
+import { IFilter } from './IFilter';
 
 describe('Filter', () => {
     describe('Filter', () => {
@@ -33,7 +33,7 @@ describe('Filter', () => {
 
         it('returns false', () => {
             const filter1 = new Filter((x: any) => x < 10);
-            const filter2 = new Filter((x: any)=> x < 5);
+            const filter2 = new Filter((x: any) => x < 5);
             const andFilter = new AndFilter([filter1, filter2]);
 
             const result = andFilter.apply(5);
@@ -104,7 +104,7 @@ describe('Filter', () => {
         it('returns true', () => {
             const filter: IFilter<string> = new NullFilter();
 
-            const result = filter.apply("anything");
+            const result = filter.apply('anything');
 
             expect(result).toEqual(true);
         });

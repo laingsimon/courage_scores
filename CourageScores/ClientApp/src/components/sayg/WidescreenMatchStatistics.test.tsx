@@ -1,8 +1,20 @@
-import {api, appProps, brandingProps, cleanUp, doClick, iocProps, renderApp, TestContext} from "../../helpers/tests";
-import {ISaygLoadingContainerProps, SaygLoadingContainer} from "./SaygLoadingContainer";
-import {saygBuilder} from "../../helpers/builders/sayg";
-import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
-import {ISaygApi} from "../../interfaces/apis/ISaygApi";
+import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    iocProps,
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import {
+    ISaygLoadingContainerProps,
+    SaygLoadingContainer,
+} from './SaygLoadingContainer';
+import { saygBuilder } from '../../helpers/builders/sayg';
+import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
+import { ISaygApi } from '../../interfaces/apis/ISaygApi';
 
 describe('WidescreenMatchStatistics', () => {
     let context: TestContext;
@@ -23,12 +35,13 @@ describe('WidescreenMatchStatistics', () => {
 
     async function renderComponent(saygProps: ISaygLoadingContainerProps) {
         context = await renderApp(
-            iocProps({saygApi}),
+            iocProps({ saygApi }),
             brandingProps(),
             appProps(),
             <SaygLoadingContainer {...saygProps} />,
             '/test',
-            '/test?widescreen=true');
+            '/test?widescreen=true',
+        );
     }
 
     describe('single player', () => {
@@ -40,7 +53,9 @@ describe('WidescreenMatchStatistics', () => {
                 .opponentName()
                 .scores(1, 2)
                 .numberOfLegs(5)
-                .withLeg(0, l => l.startingScore(501).home(c => c.withThrow(100)))
+                .withLeg(0, (l) =>
+                    l.startingScore(501).home((c) => c.withThrow(100)),
+                )
                 .addTo(saygData)
                 .build();
         });
@@ -54,8 +69,12 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
-            const headingElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerHeading"]')!;
+            const homeColumn = context.container.querySelector(
+                'div[datatype="home-column"]',
+            )!;
+            const headingElement = homeColumn.querySelector(
+                'div[datatype="WidescreenSaygPlayerHeading"]',
+            )!;
             expect(headingElement.textContent).toContain('HOME');
         });
 
@@ -68,8 +87,12 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
-            const playerElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayer"]')!;
+            const homeColumn = context.container.querySelector(
+                'div[datatype="home-column"]',
+            )!;
+            const playerElement = homeColumn.querySelector(
+                'div[datatype="WidescreenSaygPlayer"]',
+            )!;
             expect(playerElement.textContent).toContain('401');
         });
 
@@ -82,8 +105,12 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
-            const statisticsElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerStatistic"]')!;
+            const homeColumn = context.container.querySelector(
+                'div[datatype="home-column"]',
+            )!;
+            const statisticsElement = homeColumn.querySelector(
+                'div[datatype="WidescreenSaygPlayerStatistic"]',
+            )!;
             expect(statisticsElement.textContent).toContain('Darts3');
         });
 
@@ -96,8 +123,12 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
-            const detailsElement = homeColumn.querySelector('div[datatype="WidescreenSaygMatchDetails"]')!;
+            const homeColumn = context.container.querySelector(
+                'div[datatype="home-column"]',
+            )!;
+            const detailsElement = homeColumn.querySelector(
+                'div[datatype="WidescreenSaygMatchDetails"]',
+            )!;
             expect(detailsElement.textContent).toContain('Best of 5');
         });
 
@@ -110,7 +141,9 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const separatorColumn = context.container.querySelector('div[datatype="separator-column"]');
+            const separatorColumn = context.container.querySelector(
+                'div[datatype="separator-column"]',
+            );
             expect(separatorColumn).toBeFalsy();
         });
 
@@ -123,7 +156,9 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const awayColumn = context.container.querySelector('div[datatype="away-column"]');
+            const awayColumn = context.container.querySelector(
+                'div[datatype="away-column"]',
+            );
             expect(awayColumn).toBeFalsy();
         });
     });
@@ -137,10 +172,12 @@ describe('WidescreenMatchStatistics', () => {
                 .opponentName('AWAY')
                 .scores(1, 2)
                 .numberOfLegs(5)
-                .withLeg(0, l => l
-                    .startingScore(501)
-                    .home(c => c.withThrow(100))
-                    .away(c => c.withThrow(100).withThrow(100)))
+                .withLeg(0, (l) =>
+                    l
+                        .startingScore(501)
+                        .home((c) => c.withThrow(100))
+                        .away((c) => c.withThrow(100).withThrow(100)),
+                )
                 .addTo(saygData)
                 .build();
         });
@@ -154,8 +191,12 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
-            const headingElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerHeading"]')!;
+            const homeColumn = context.container.querySelector(
+                'div[datatype="home-column"]',
+            )!;
+            const headingElement = homeColumn.querySelector(
+                'div[datatype="WidescreenSaygPlayerHeading"]',
+            )!;
             expect(headingElement.textContent).toContain('HOME');
         });
 
@@ -168,8 +209,12 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
-            const headingElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayer"]')!;
+            const homeColumn = context.container.querySelector(
+                'div[datatype="home-column"]',
+            )!;
+            const headingElement = homeColumn.querySelector(
+                'div[datatype="WidescreenSaygPlayer"]',
+            )!;
             expect(headingElement.textContent).toContain('401');
         });
 
@@ -182,8 +227,12 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
-            const statisticsElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerStatistic"]')!;
+            const homeColumn = context.container.querySelector(
+                'div[datatype="home-column"]',
+            )!;
+            const statisticsElement = homeColumn.querySelector(
+                'div[datatype="WidescreenSaygPlayerStatistic"]',
+            )!;
             expect(statisticsElement.textContent).toContain('Darts3');
         });
 
@@ -196,8 +245,12 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
-            const detailsElement = homeColumn.querySelector('div[datatype="WidescreenSaygMatchDetails"]')!;
+            const homeColumn = context.container.querySelector(
+                'div[datatype="home-column"]',
+            )!;
+            const detailsElement = homeColumn.querySelector(
+                'div[datatype="WidescreenSaygMatchDetails"]',
+            )!;
             expect(detailsElement.textContent).toContain('Best of 5');
         });
 
@@ -210,7 +263,9 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const separatorColumn = context.container.querySelector('div[datatype="separator-column"]');
+            const separatorColumn = context.container.querySelector(
+                'div[datatype="separator-column"]',
+            );
             expect(separatorColumn).toBeTruthy();
         });
 
@@ -223,8 +278,12 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const awayColumn = context.container.querySelector('div[datatype="away-column"]')!;
-            const headingElement = awayColumn.querySelector('div[datatype="WidescreenSaygPlayerHeading"]')!;
+            const awayColumn = context.container.querySelector(
+                'div[datatype="away-column"]',
+            )!;
+            const headingElement = awayColumn.querySelector(
+                'div[datatype="WidescreenSaygPlayerHeading"]',
+            )!;
             expect(headingElement.textContent).toContain('AWAY');
         });
 
@@ -237,8 +296,12 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const awayColumn = context.container.querySelector('div[datatype="away-column"]')!;
-            const headingElement = awayColumn.querySelector('div[datatype="WidescreenSaygPlayer"]')!;
+            const awayColumn = context.container.querySelector(
+                'div[datatype="away-column"]',
+            )!;
+            const headingElement = awayColumn.querySelector(
+                'div[datatype="WidescreenSaygPlayer"]',
+            )!;
             expect(headingElement.textContent).toContain('301');
         });
 
@@ -251,8 +314,12 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const awayColumn = context.container.querySelector('div[datatype="away-column"]')!;
-            const statisticsElement = awayColumn.querySelector('div[datatype="WidescreenSaygPlayerStatistic"]')!;
+            const awayColumn = context.container.querySelector(
+                'div[datatype="away-column"]',
+            )!;
+            const statisticsElement = awayColumn.querySelector(
+                'div[datatype="WidescreenSaygPlayerStatistic"]',
+            )!;
             expect(statisticsElement.textContent).toContain('Darts6');
         });
 
@@ -265,8 +332,12 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
-            const detailsElement = homeColumn.querySelector('div[datatype="WidescreenSaygMatchDetails"]')!;
+            const homeColumn = context.container.querySelector(
+                'div[datatype="home-column"]',
+            )!;
+            const detailsElement = homeColumn.querySelector(
+                'div[datatype="WidescreenSaygMatchDetails"]',
+            )!;
             expect(detailsElement.textContent).toContain('Best of 5');
         });
     });
@@ -278,10 +349,12 @@ describe('WidescreenMatchStatistics', () => {
                 .opponentName('AWAY')
                 .scores(3, 2)
                 .numberOfLegs(5)
-                .withLeg(0, l => l
-                    .startingScore(501)
-                    .home(c => c.withThrow(501))
-                    .away(c => c.withThrow(100).withThrow(100)))
+                .withLeg(0, (l) =>
+                    l
+                        .startingScore(501)
+                        .home((c) => c.withThrow(501))
+                        .away((c) => c.withThrow(100).withThrow(100)),
+                )
                 .addTo(saygData)
                 .build();
 
@@ -293,8 +366,12 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
-            const playerElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayer"]')!;
+            const homeColumn = context.container.querySelector(
+                'div[datatype="home-column"]',
+            )!;
+            const playerElement = homeColumn.querySelector(
+                'div[datatype="WidescreenSaygPlayer"]',
+            )!;
             expect(playerElement.textContent).toContain('🎉');
         });
 
@@ -304,10 +381,12 @@ describe('WidescreenMatchStatistics', () => {
                 .opponentName('AWAY')
                 .scores(1, 3)
                 .numberOfLegs(5)
-                .withLeg(0, l => l
-                    .startingScore(501)
-                    .home(c => c.withThrow(100))
-                    .away(c => c.withThrow(401).withThrow(100)))
+                .withLeg(0, (l) =>
+                    l
+                        .startingScore(501)
+                        .home((c) => c.withThrow(100))
+                        .away((c) => c.withThrow(401).withThrow(100)),
+                )
                 .addTo(saygData)
                 .build();
 
@@ -319,8 +398,12 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
 
-            const awayColumn = context.container.querySelector('div[datatype="away-column"]')!;
-            const playerElement = awayColumn.querySelector('div[datatype="WidescreenSaygPlayer"]')!;
+            const awayColumn = context.container.querySelector(
+                'div[datatype="away-column"]',
+            )!;
+            const playerElement = awayColumn.querySelector(
+                'div[datatype="WidescreenSaygPlayer"]',
+            )!;
             expect(playerElement.textContent).toContain('🎉');
         });
     });
@@ -334,10 +417,12 @@ describe('WidescreenMatchStatistics', () => {
                 .opponentName('AWAY')
                 .scores(1, 2)
                 .numberOfLegs(5)
-                .withLeg(0, l => l
-                    .startingScore(501)
-                    .home(c => c.withThrow(100))
-                    .away(c => c.withThrow(100).withThrow(100)))
+                .withLeg(0, (l) =>
+                    l
+                        .startingScore(501)
+                        .home((c) => c.withThrow(100))
+                        .away((c) => c.withThrow(100).withThrow(100)),
+                )
                 .addTo(saygData)
                 .build();
         });
@@ -350,14 +435,20 @@ describe('WidescreenMatchStatistics', () => {
                     canSubscribe: true,
                 },
             });
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
-            const statisticsElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerStatistic"]')!;
+            const homeColumn = context.container.querySelector(
+                'div[datatype="home-column"]',
+            )!;
+            const statisticsElement = homeColumn.querySelector(
+                'div[datatype="WidescreenSaygPlayerStatistic"]',
+            )!;
             const sup = statisticsElement.querySelector('sup')!;
             expect(sup.textContent).toEqual('3');
 
             await doClick(sup);
 
-            expect(statisticsElement.querySelector('sup')!.textContent).toEqual('1');
+            expect(statisticsElement.querySelector('sup')!.textContent).toEqual(
+                '1',
+            );
         });
 
         it('can switch to 1 dart average - via away', async () => {
@@ -368,14 +459,20 @@ describe('WidescreenMatchStatistics', () => {
                     canSubscribe: true,
                 },
             });
-            const homeColumn = context.container.querySelector('div[datatype="away-column"]')!;
-            const statisticsElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerStatistic"]')!;
+            const homeColumn = context.container.querySelector(
+                'div[datatype="away-column"]',
+            )!;
+            const statisticsElement = homeColumn.querySelector(
+                'div[datatype="WidescreenSaygPlayerStatistic"]',
+            )!;
             const sup = statisticsElement.querySelector('sup')!;
             expect(sup.textContent).toEqual('3');
 
             await doClick(sup);
 
-            expect(statisticsElement.querySelector('sup')!.textContent).toEqual('1');
+            expect(statisticsElement.querySelector('sup')!.textContent).toEqual(
+                '1',
+            );
         });
 
         it('can switch to 3 dart average', async () => {
@@ -386,8 +483,12 @@ describe('WidescreenMatchStatistics', () => {
                     canSubscribe: true,
                 },
             });
-            const homeColumn = context.container.querySelector('div[datatype="home-column"]')!;
-            const statisticsElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerStatistic"]')!;
+            const homeColumn = context.container.querySelector(
+                'div[datatype="home-column"]',
+            )!;
+            const statisticsElement = homeColumn.querySelector(
+                'div[datatype="WidescreenSaygPlayerStatistic"]',
+            )!;
             const sup = statisticsElement.querySelector('sup')!;
             expect(sup.textContent).toEqual('3');
             await doClick(sup);
@@ -395,7 +496,9 @@ describe('WidescreenMatchStatistics', () => {
 
             await doClick(sup);
 
-            expect(statisticsElement.querySelector('sup')!.textContent).toEqual('3');
+            expect(statisticsElement.querySelector('sup')!.textContent).toEqual(
+                '3',
+            );
         });
-    })
+    });
 });

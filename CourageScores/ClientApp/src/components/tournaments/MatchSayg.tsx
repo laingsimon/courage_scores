@@ -1,36 +1,43 @@
-import {Link} from "react-router";
-import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {useState} from "react";
-import {CreateTournamentSaygDto} from "../../interfaces/models/dtos/Game/CreateTournamentSaygDto";
-import {IClientActionResultDto} from "../common/IClientActionResultDto";
-import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
-import {useApp} from "../common/AppContainer";
-import {useDependencies} from "../common/IocContainer";
-import {ErrorDisplay} from "../common/ErrorDisplay";
-import {ILiveOptions} from "../../live/ILiveOptions";
-import {Dialog} from "../common/Dialog";
-import {ILoadedScoreAsYouGoDto, SaygLoadingContainer} from "../sayg/SaygLoadingContainer";
-import {MatchHeading} from "./MatchHeading";
-import {DebugOptions} from "../common/DebugOptions";
-import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
-import {count} from "../../helpers/collections";
-import {useTournament} from "./TournamentContainer";
-import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
-import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
-import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentPlayerDto";
-import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
-import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
-import {add180, addHiCheck} from "../common/Accolades";
-import {START_SCORING} from "./tournaments";
-import {UntypedPromise} from "../../interfaces/UntypedPromise";
-import {asyncClear} from "../../helpers/events";
-import {hasAccess} from "../../helpers/conditions";
+import { Link } from 'react-router';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
+import { useState } from 'react';
+import { CreateTournamentSaygDto } from '../../interfaces/models/dtos/Game/CreateTournamentSaygDto';
+import { IClientActionResultDto } from '../common/IClientActionResultDto';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
+import { useApp } from '../common/AppContainer';
+import { useDependencies } from '../common/IocContainer';
+import { ErrorDisplay } from '../common/ErrorDisplay';
+import { ILiveOptions } from '../../live/ILiveOptions';
+import { Dialog } from '../common/Dialog';
+import {
+    ILoadedScoreAsYouGoDto,
+    SaygLoadingContainer,
+} from '../sayg/SaygLoadingContainer';
+import { MatchHeading } from './MatchHeading';
+import { DebugOptions } from '../common/DebugOptions';
+import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
+import { count } from '../../helpers/collections';
+import { useTournament } from './TournamentContainer';
+import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto';
+import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
+import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto';
+import { PatchTournamentDto } from '../../interfaces/models/dtos/Game/PatchTournamentDto';
+import { PatchTournamentRoundDto } from '../../interfaces/models/dtos/Game/PatchTournamentRoundDto';
+import { add180, addHiCheck } from '../common/Accolades';
+import { START_SCORING } from './tournaments';
+import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { asyncClear } from '../../helpers/events';
+import { hasAccess } from '../../helpers/conditions';
 
 export interface IMatchSaygProps {
     match: TournamentMatchDto;
     matchIndex: number;
     matchOptions: GameMatchOptionDto;
-    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string): UntypedPromise;
+    patchData?(
+        patch: PatchTournamentDto | PatchTournamentRoundDto,
+        nestInRound?: boolean,
+        saygId?: string,
+    ): UntypedPromise;
     readOnly?: boolean;
     showViewSayg?: boolean;
     firstLegPlayerSequence?: ('home' | 'away')[];
@@ -39,25 +46,43 @@ export interface IMatchSaygProps {
 }
 
 export function MatchSayg({
-                              match, matchIndex, matchOptions, patchData, readOnly, showViewSayg, firstLegPlayerSequence,
-                              finalLegPlayerSequence, initialOneDartAverage } : IMatchSaygProps) {
-    const {tournamentData, setTournamentData, saveTournament} = useTournament();
-    const {account, onError, fullScreen} = useApp();
-    const {tournamentApi, settings} = useDependencies();
+    match,
+    matchIndex,
+    matchOptions,
+    patchData,
+    readOnly,
+    showViewSayg,
+    firstLegPlayerSequence,
+    finalLegPlayerSequence,
+    initialOneDartAverage,
+}: IMatchSaygProps) {
+    const { tournamentData, setTournamentData, saveTournament } =
+        useTournament();
+    const { account, onError, fullScreen } = useApp();
+    const { tournamentApi, settings } = useDependencies();
     const [saygOpen, setSaygOpen] = useState<boolean>(false);
     const [creatingSayg, setCreatingSayg] = useState<boolean>(false);
-    const [saveError, setSaveError] = useState<IClientActionResultDto<TournamentGameDto> | undefined>(undefined);
+    const [saveError, setSaveError] = useState<
+        IClientActionResultDto<TournamentGameDto> | undefined
+    >(undefined);
     const saygId: string = match.saygId!;
     const scoreA: number = match.scoreA!;
     const scoreB: number = match.scoreB!;
-    const onHiCheck: (player: TournamentPlayerDto, score: number) => UntypedPromise = addHiCheck(tournamentData, setTournamentData!);
-    const on180: (player: TournamentPlayerDto) => UntypedPromise = add180(tournamentData, setTournamentData!);
-    const kioskMode: boolean = hasAccess(account, access => access.kioskMode);
+    const onHiCheck: (
+        player: TournamentPlayerDto,
+        score: number,
+    ) => UntypedPromise = addHiCheck(tournamentData, setTournamentData!);
+    const on180: (player: TournamentPlayerDto) => UntypedPromise = add180(
+        tournamentData,
+        setTournamentData!,
+    );
+    const kioskMode: boolean = hasAccess(account, (access) => access.kioskMode);
 
     async function changeDialogState(state: boolean) {
         setSaygOpen(state);
         const numberOfLegs: number = matchOptions.numberOfLegs!;
-        const finished: boolean = (scoreA > numberOfLegs / 2.0) || (scoreB > numberOfLegs / 2.0);
+        const finished: boolean =
+            scoreA > numberOfLegs / 2.0 || scoreB > numberOfLegs / 2.0;
 
         if (!state && fullScreen.isFullScreen) {
             await fullScreen.exitFullScreen();
@@ -94,7 +119,8 @@ export function MatchSayg({
                 matchOptions: matchOptions,
                 matchId: match.id,
             };
-            const response: IClientActionResultDto<TournamentGameDto> = await tournamentApi.addSayg(tournamentData.id, request);
+            const response: IClientActionResultDto<TournamentGameDto> =
+                await tournamentApi.addSayg(tournamentData.id, request);
             if (response.success) {
                 await setTournamentData!(response.result!);
                 await changeDialogState(true);
@@ -111,15 +137,20 @@ export function MatchSayg({
 
     function canShowLiveSayg(): boolean {
         const hasSaygData: boolean = !!saygId;
-        const hasSidesSelected: boolean = match.sideA !== null && match.sideB !== null;
+        const hasSidesSelected: boolean =
+            match.sideA !== null && match.sideB !== null;
 
         return hasSidesSelected && hasSaygData;
     }
 
     function canOpenSaygDialog(): boolean {
-        const isPermitted: boolean = hasAccess(account, access => access.recordScoresAsYouGo);
+        const isPermitted: boolean = hasAccess(
+            account,
+            (access) => access.recordScoresAsYouGo,
+        );
         const hasSaygData: boolean = !!saygId;
-        const hasSidesSelected: boolean = match.sideA !== null && match.sideB !== null;
+        const hasSidesSelected: boolean =
+            match.sideA !== null && match.sideB !== null;
 
         if (!hasSidesSelected) {
             return false;
@@ -146,62 +177,117 @@ export function MatchSayg({
             return true;
         }
 
-        return ((match.sideA.players || []).length === 1 && (match.sideB.players || []).length === 1)
-            || (!!match.sideA.teamId && !!match.sideB.teamId);
+        return (
+            ((match.sideA.players || []).length === 1 &&
+                (match.sideB.players || []).length === 1) ||
+            (!!match.sideA.teamId && !!match.sideB.teamId)
+        );
     }
 
     function renderSaygDialog() {
         const numberOfLegs: number = matchOptions.numberOfLegs!;
-        const finished: boolean = (scoreA > numberOfLegs / 2.0) || (scoreB > numberOfLegs / 2.0);
+        const finished: boolean =
+            scoreA > numberOfLegs / 2.0 || scoreB > numberOfLegs / 2.0;
         const liveOptions: ILiveOptions = {
             publish: true,
         };
 
-        return (<Dialog className="text-start" fullScreen={true}>
-            <SaygLoadingContainer
-                id={saygId}
-                onHiCheck={recordHiCheck}
-                on180={record180}
-                autoSave={true}
-                liveOptions={liveOptions}
-                onSaved={patchData ? (async (data: ILoadedScoreAsYouGoDto) => {
-                    await patchData({
-                        match: {
-                            sideA: match.sideA.id,
-                            sideB: match.sideB.id,
-                            scoreA: data.homeScore,
-                            scoreB: data.awayScore,
-                        }
-                    }, true, saygId);
-                }): undefined}
-                firstLegPlayerSequence={firstLegPlayerSequence}
-                finalLegPlayerSequence={finalLegPlayerSequence}
-                onFinished={fullScreen.exitFullScreen}
-                initialOneDartAverage={initialOneDartAverage}>
-                {finished ? (<MatchHeading match={match} />) : null}
-            </SaygLoadingContainer>
-            {finished || !fullScreen.isFullScreen ? (<div className="modal-footer px-0 pb-0 mt-3">
-                <div className="left-aligned mx-0">
-                    <button className={`btn btn-secondary${kioskMode ? ' fs-4' : ''}`} onClick={async () => await changeDialogState(false)}>Close</button>
-                    {!finished && !fullScreen.isFullScreen ? <button className={`btn btn-secondary ms-2${kioskMode ? ' fs-4' : ''}`} onClick={async () => fullScreen.enterFullScreen()}>Full screen</button> : null}
-                </div>
-                <DebugOptions>
-                    <a target="_blank" rel="noreferrer" href={`${settings.apiHost}/api/Sayg/${saygId}`} className="dropdown-item">
-                        <strong>Sayg data</strong><small className="d-block">{saygId}</small>
-                    </a>
-                    <a className="dropdown-item" target="_blank" rel="noreferrer" href={`/live/match/${saygId}`}>Live match statistics</a>
-                    <button disabled={!saygId} className="dropdown-item text-danger" onClick={deleteSayg}>
-                        Delete sayg
-                    </button>
-                    <a target="_blank" rel="noreferrer" href={`${settings.apiHost}/api/Tournament/${tournamentData.id}`} className="dropdown-item">
-                        <strong>Tournament data</strong><small className="d-block">{tournamentData.id}</small>
-                    </a>
-                    <a className="dropdown-item" target="_blank" rel="noreferrer" href={`/live/match/${saygId}`}>
-                        👁️ Live
-                    </a>
-                </DebugOptions>
-            </div>) : null}
-        </Dialog>)
+        return (
+            <Dialog className="text-start" fullScreen={true}>
+                <SaygLoadingContainer
+                    id={saygId}
+                    onHiCheck={recordHiCheck}
+                    on180={record180}
+                    autoSave={true}
+                    liveOptions={liveOptions}
+                    onSaved={
+                        patchData
+                            ? async (data: ILoadedScoreAsYouGoDto) => {
+                                  await patchData(
+                                      {
+                                          match: {
+                                              sideA: match.sideA.id,
+                                              sideB: match.sideB.id,
+                                              scoreA: data.homeScore,
+                                              scoreB: data.awayScore,
+                                          },
+                                      },
+                                      true,
+                                      saygId,
+                                  );
+                              }
+                            : undefined
+                    }
+                    firstLegPlayerSequence={firstLegPlayerSequence}
+                    finalLegPlayerSequence={finalLegPlayerSequence}
+                    onFinished={fullScreen.exitFullScreen}
+                    initialOneDartAverage={initialOneDartAverage}>
+                    {finished ? <MatchHeading match={match} /> : null}
+                </SaygLoadingContainer>
+                {finished || !fullScreen.isFullScreen ? (
+                    <div className="modal-footer px-0 pb-0 mt-3">
+                        <div className="left-aligned mx-0">
+                            <button
+                                className={`btn btn-secondary${kioskMode ? ' fs-4' : ''}`}
+                                onClick={async () =>
+                                    await changeDialogState(false)
+                                }>
+                                Close
+                            </button>
+                            {!finished && !fullScreen.isFullScreen ? (
+                                <button
+                                    className={`btn btn-secondary ms-2${kioskMode ? ' fs-4' : ''}`}
+                                    onClick={async () =>
+                                        fullScreen.enterFullScreen()
+                                    }>
+                                    Full screen
+                                </button>
+                            ) : null}
+                        </div>
+                        <DebugOptions>
+                            <a
+                                target="_blank"
+                                rel="noreferrer"
+                                href={`${settings.apiHost}/api/Sayg/${saygId}`}
+                                className="dropdown-item">
+                                <strong>Sayg data</strong>
+                                <small className="d-block">{saygId}</small>
+                            </a>
+                            <a
+                                className="dropdown-item"
+                                target="_blank"
+                                rel="noreferrer"
+                                href={`/live/match/${saygId}`}>
+                                Live match statistics
+                            </a>
+                            <button
+                                disabled={!saygId}
+                                className="dropdown-item text-danger"
+                                onClick={deleteSayg}>
+                                Delete sayg
+                            </button>
+                            <a
+                                target="_blank"
+                                rel="noreferrer"
+                                href={`${settings.apiHost}/api/Tournament/${tournamentData.id}`}
+                                className="dropdown-item">
+                                <strong>Tournament data</strong>
+                                <small className="d-block">
+                                    {tournamentData.id}
+                                </small>
+                            </a>
+                            <a
+                                className="dropdown-item"
+                                target="_blank"
+                                rel="noreferrer"
+                                href={`/live/match/${saygId}`}>
+                                👁️ Live
+                            </a>
+                        </DebugOptions>
+                    </div>
+                ) : null}
+            </Dialog>
+        );
     }
 
     async function recordHiCheck(sideName: string, score: number) {
@@ -209,13 +295,18 @@ export function MatchSayg({
             return;
         }
 
-        const side: TournamentSideDto = sideName === 'home' ? match.sideA : match.sideB;
+        const side: TournamentSideDto =
+            sideName === 'home' ? match.sideA : match.sideB;
         if (count(side.players) === 1) {
             await onHiCheck(side.players![0], score);
 
             if (patchData) {
                 await patchData({
-                    additionalOver100Checkout: Object.assign({}, side.players![0], {score}),
+                    additionalOver100Checkout: Object.assign(
+                        {},
+                        side.players![0],
+                        { score },
+                    ),
                 });
             }
         }
@@ -226,7 +317,8 @@ export function MatchSayg({
             return;
         }
 
-        const side: TournamentSideDto = sideName === 'home' ? match.sideA : match.sideB;
+        const side: TournamentSideDto =
+            sideName === 'home' ? match.sideA : match.sideB;
         if (count(side.players) === 1) {
             await on180(side.players![0]);
 
@@ -239,18 +331,25 @@ export function MatchSayg({
     }
 
     async function deleteSayg() {
-        if (!window.confirm('Are you sure you want to delete the sayg data for this match?')) {
+        if (
+            !window.confirm(
+                'Are you sure you want to delete the sayg data for this match?',
+            )
+        ) {
             return;
         }
 
         try {
-            const response: IClientActionResultDto<TournamentGameDto> = await tournamentApi.deleteSayg(tournamentData.id, match.id);
+            const response: IClientActionResultDto<TournamentGameDto> =
+                await tournamentApi.deleteSayg(tournamentData.id, match.id);
             if (!response.success) {
                 onError(response);
                 return;
             }
 
-            const clearScores = window.confirm('Clear match score (to allow scores to be re-recorded?)');
+            const clearScores = window.confirm(
+                'Clear match score (to allow scores to be re-recorded?)',
+            );
             if (clearScores) {
                 const responseRound = response.result!.round!;
                 const responseMatch = responseRound.matches![matchIndex];
@@ -270,25 +369,36 @@ export function MatchSayg({
         }
     }
 
-    return (<>
-        {canShowLiveSayg() && !canOpenSaygDialog() && showViewSayg
-            ? (<Link className={`btn btn-sm float-start p-0 no-wrap${kioskMode ? ' fs-4' : ''}`} to={`/live/match/?id=${saygId}${initialOneDartAverage ? '#average=1' : ''}`}>
-                📊 {scoreA || scoreB ? (`${scoreA} - ${scoreB}`) : null}
-            </Link>)
-            : null}
-        {canOpenSaygDialog()
-            ? (<button className={`btn btn-sm btn-primary float-start d-print-none no-wrap${kioskMode ? ' fs-4' : ''}`} onClick={openSaygDialog}>
-                {creatingSayg
-                    ? (<LoadingSpinnerSmall/>)
-                    : (scoreA || scoreB ? `📊 ${scoreA} - ${scoreB}` : START_SCORING)}
-            </button>)
-            : null}
-        {saveError
-            ? (<ErrorDisplay
-                {...saveError}
-                onClose={asyncClear(setSaveError)}
-                title="Could not create sayg session"/>)
-            : null}
-        {saygOpen ? renderSaygDialog() : null}
-    </>);
+    return (
+        <>
+            {canShowLiveSayg() && !canOpenSaygDialog() && showViewSayg ? (
+                <Link
+                    className={`btn btn-sm float-start p-0 no-wrap${kioskMode ? ' fs-4' : ''}`}
+                    to={`/live/match/?id=${saygId}${initialOneDartAverage ? '#average=1' : ''}`}>
+                    📊 {scoreA || scoreB ? `${scoreA} - ${scoreB}` : null}
+                </Link>
+            ) : null}
+            {canOpenSaygDialog() ? (
+                <button
+                    className={`btn btn-sm btn-primary float-start d-print-none no-wrap${kioskMode ? ' fs-4' : ''}`}
+                    onClick={openSaygDialog}>
+                    {creatingSayg ? (
+                        <LoadingSpinnerSmall />
+                    ) : scoreA || scoreB ? (
+                        `📊 ${scoreA} - ${scoreB}`
+                    ) : (
+                        START_SCORING
+                    )}
+                </button>
+            ) : null}
+            {saveError ? (
+                <ErrorDisplay
+                    {...saveError}
+                    onClose={asyncClear(setSaveError)}
+                    title="Could not create sayg session"
+                />
+            ) : null}
+            {saygOpen ? renderSaygDialog() : null}
+        </>
+    );
 }
