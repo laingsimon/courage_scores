@@ -13,6 +13,8 @@ export interface ISeasonBuilder
     withDivisionId(divisionOrId: any): ISeasonBuilder;
     isCurrent(): ISeasonBuilder;
     updated(date: string): ISeasonBuilder;
+    id(id: string): ISeasonBuilder;
+    name(name: string): ISeasonBuilder;
 }
 
 export function seasonBuilder(name?: string, id?: string): ISeasonBuilder {
@@ -62,6 +64,14 @@ export function seasonBuilder(name?: string, id?: string): ISeasonBuilder {
         },
         updated: (date: string) => {
             season.updated = date;
+            return builder;
+        },
+        id: (id: string) => {
+            season.id = id;
+            return builder;
+        },
+        name: (name: string) => {
+            season.name = name;
             return builder;
         },
     };
