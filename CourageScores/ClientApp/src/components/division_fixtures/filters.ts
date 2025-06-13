@@ -25,16 +25,13 @@ export interface IFixtureMapping {
     tournamentFixture?: DivisionTournamentFixtureDetailsDto;
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export function isLastFixtureBeforeToday(
     renderContext: IRenderContext,
-    fixtures: any,
-    date: any,
+    fixtures: { date: string }[],
+    date: string,
 ): boolean {
     if (!renderContext.lastFixtureDateBeforeToday) {
-        const dates = fixtures
-            .map((f: { date: string }) => f.date)
-            .filter(isInPast);
+        const dates = fixtures.map((f) => f.date).filter(isInPast);
         // Assumes all dates are sorted
         if (any(dates)) {
             renderContext.lastFixtureDateBeforeToday = dates[dates.length - 1];
