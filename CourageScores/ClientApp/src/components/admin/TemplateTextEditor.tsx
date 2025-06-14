@@ -1,9 +1,9 @@
-import React, {useState} from "react";
-import {stateChanged} from "../../helpers/events";
-import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
-import {FixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto";
-import {EditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/EditTemplateDto";
-import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import React, { useState } from 'react';
+import { stateChanged } from '../../helpers/events';
+import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto';
+import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto';
+import { EditTemplateDto } from '../../interfaces/models/dtos/Season/Creation/EditTemplateDto';
+import { UntypedPromise } from '../../interfaces/UntypedPromise';
 
 export interface ITemplateTextEditorProps {
     template: EditTemplateDto;
@@ -11,18 +11,30 @@ export interface ITemplateTextEditorProps {
     onUpdate(update: EditTemplateDto): UntypedPromise;
 }
 
-export function TemplateTextEditor({ template, setValid, onUpdate }: ITemplateTextEditorProps) {
-    const [ editing, setEditing ] = useState<string>(formatTemplateAsSingleLine(template));
+export function TemplateTextEditor({
+    template,
+    setValid,
+    onUpdate,
+}: ITemplateTextEditorProps) {
+    const [editing, setEditing] = useState<string>(
+        formatTemplateAsSingleLine(template),
+    );
     const [fixtureToFormat, setFixtureToFormat] = useState<string>('');
 
     function formatTemplateAsSingleLine(t: EditTemplateDto): string {
         let jsonString = JSON.stringify(t, excludePropertiesFromEdit, '  ');
 
         // fixture inlining
-        jsonString = jsonString.replaceAll(',\n              "away"', ', "away"');
+        jsonString = jsonString.replaceAll(
+            ',\n              "away"',
+            ', "away"',
+        );
         jsonString = jsonString.replaceAll('"\n            }', '" }');
         jsonString = jsonString.replaceAll('{\n              "', '{ "');
-        jsonString = jsonString.replaceAll(', "away": null\n            }', ' }');
+        jsonString = jsonString.replaceAll(
+            ', "away": null\n            }',
+            ' }',
+        );
 
         // division shared address inlining
         jsonString = jsonString.replaceAll('[\n          "', '[ "');
@@ -37,8 +49,10 @@ export function TemplateTextEditor({ template, setValid, onUpdate }: ITemplateTe
         return jsonString;
     }
 
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    function excludePropertiesFromEdit(key: string, value: any) {
+    function excludePropertiesFromEdit(
+        key: string,
+        value: string | object | number,
+    ) {
         switch (key) {
             case 'id':
             case 'created':
@@ -56,7 +70,9 @@ export function TemplateTextEditor({ template, setValid, onUpdate }: ITemplateTe
         }
     }
 
-    async function updateTemplateEvent(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    async function updateTemplateEvent(
+        e: React.ChangeEvent<HTMLTextAreaElement>,
+    ) {
         const json: string = e.target.value;
 
         setEditing(json);
@@ -73,7 +89,10 @@ export function TemplateTextEditor({ template, setValid, onUpdate }: ITemplateTe
 
     function formatFixtureInput(): string {
         const lines: string[] = fixtureToFormat.split('\n');
-        return lines.filter((l: string) => l.trim() !== '').map(formatFixtureLine).join(', ');
+        return lines
+            .filter((l: string) => l.trim() !== '')
+            .map(formatFixtureLine)
+            .join(', ');
     }
 
     function formatFixtureLine(excelLine: string): string {
@@ -102,24 +121,35 @@ export function TemplateTextEditor({ template, setValid, onUpdate }: ITemplateTe
         }
 
         const toFormat: DateTemplateDto = {
-            fixtures: [...generateFixtures(fixtures)]
+            fixtures: [...generateFixtures(fixtures)],
         };
 
         return JSON.stringify(toFormat, null, '    ');
     }
 
-    return (<>
-        <textarea className="width-100 min-height-100"
-          rows={15}
-          value={editing}
-          onChange={updateTemplateEvent}>
-        </textarea>
-        <div className="mt-3 text-secondary">
-            <div>Authoring tools: Copy fixture template from excel (per division)</div>
-            <textarea value={fixtureToFormat} className="d-inline-block width-100" placeholder="Copy from excel"
-                      onChange={stateChanged(setFixtureToFormat)}></textarea>
-            <textarea value={formatFixtureInput()} className="d-inline-block width-100"
-                      placeholder="Copy into template" readOnly={true}></textarea>
-        </div>
-    </>);
+    return (
+        <>
+            <textarea
+                className="width-100 min-height-100"
+                rows={15}
+                value={editing}
+                onChange={updateTemplateEvent}></textarea>
+            <div className="mt-3 text-secondary">
+                <div>
+                    Authoring tools: Copy fixture template from excel (per
+                    division)
+                </div>
+                <textarea
+                    value={fixtureToFormat}
+                    className="d-inline-block width-100"
+                    placeholder="Copy from excel"
+                    onChange={stateChanged(setFixtureToFormat)}></textarea>
+                <textarea
+                    value={formatFixtureInput()}
+                    className="d-inline-block width-100"
+                    placeholder="Copy into template"
+                    readOnly={true}></textarea>
+            </div>
+        </>
+    );
 }

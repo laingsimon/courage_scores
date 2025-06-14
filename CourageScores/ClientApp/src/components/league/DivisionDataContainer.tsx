@@ -1,5 +1,5 @@
-import React, {createContext, useContext} from "react";
-import {IDivisionData} from "./IDivisionData";
+import React, { createContext, useContext } from 'react';
+import { IDivisionData } from './IDivisionData';
 
 const DivisionDataContext = createContext({});
 
@@ -12,8 +12,13 @@ export interface IDivisionDataContainerProps extends IDivisionData {
 }
 
 /* istanbul ignore next */
-export function DivisionDataContainer({children, ...data}: IDivisionDataContainerProps) {
-    return (<DivisionDataContext.Provider value={data}>
-        {children}
-    </DivisionDataContext.Provider>)
+export function DivisionDataContainer({
+    children,
+    ...data
+}: IDivisionDataContainerProps) {
+    return (
+        <DivisionDataContext.Provider value={data}>
+            {children}
+        </DivisionDataContext.Provider>
+    );
 }

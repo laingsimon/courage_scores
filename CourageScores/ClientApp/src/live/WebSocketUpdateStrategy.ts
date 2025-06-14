@@ -1,14 +1,14 @@
-import {IUpdateStrategy} from "./IUpdateStrategy";
-import {IWebSocketContext} from "./IWebSocketContext";
-import {any} from "../helpers/collections";
-import {ISubscriptions} from "./ISubscriptions";
-import {ISubscriptionRequest} from "./ISubscriptionRequest";
-import {ISubscription} from "./ISubscription";
-import {MessageType} from "../interfaces/models/dtos/MessageType";
-import {IStrategyData} from "./IStrategyData";
-import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
-import {LiveMessageDto} from "../interfaces/models/dtos/LiveMessageDto";
-import {IError} from "../components/common/IError";
+import { IUpdateStrategy } from './IUpdateStrategy';
+import { IWebSocketContext } from './IWebSocketContext';
+import { any } from '../helpers/collections';
+import { ISubscriptions } from './ISubscriptions';
+import { ISubscriptionRequest } from './ISubscriptionRequest';
+import { ISubscription } from './ISubscription';
+import { MessageType } from '../interfaces/models/dtos/MessageType';
+import { IStrategyData } from './IStrategyData';
+import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType';
+import { LiveMessageDto } from '../interfaces/models/dtos/LiveMessageDto';
+import { IError } from '../components/common/IError';
 
 export class WebSocketUpdateStrategy implements IUpdateStrategy {
     private readonly createSocket: () => WebSocket;
@@ -23,12 +23,19 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         }
 
         /* eslint-disable @typescript-eslint/no-explicit-any */
-        props.context.webSocket.onmessage = ((msg: any) => this.handleWebSocketMessage(props, msg));
-        props.context.webSocket.onclose = (async () => await props.setContext(await this.handleDisconnect(props.context)));
+        props.context.webSocket.onmessage = (msg: any) =>
+            this.handleWebSocketMessage(props, msg);
+        props.context.webSocket.onclose = async () =>
+            await props.setContext(await this.handleDisconnect(props.context));
     }
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
-    async publish(props: IStrategyData, id: string, type: LiveDataType, data: any): Promise<IWebSocketContext | null> {
+    async publish(
+        props: IStrategyData,
+        id: string,
+        type: LiveDataType,
+        data: any,
+    ): Promise<IWebSocketContext | null> {
         let context: IWebSocketContext | null = props.context;
         if (!props.context.webSocket) {
             context = await this.createSocketAndWaitForReady(props);
@@ -47,15 +54,20 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         return context;
     }
 
-    async unsubscribe(props: IStrategyData, id: string): Promise<IWebSocketContext> {
+    async unsubscribe(
+        props: IStrategyData,
+        id: string,
+    ): Promise<IWebSocketContext> {
         if (!props.context.webSocket) {
             return props.context;
         }
 
-        props.context.webSocket.send(JSON.stringify({
-            type: MessageType.unsubscribed,
-            id: id,
-        }));
+        props.context.webSocket.send(
+            JSON.stringify({
+                type: MessageType.unsubscribed,
+                id: id,
+            }),
+        );
 
         const anySubscriptions: boolean = any(Object.keys(props.subscriptions));
         if (anySubscriptions) {
@@ -68,7 +80,10 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         return newContext;
     }
 
-    async subscribe(props: IStrategyData, request?: ISubscriptionRequest): Promise<IWebSocketContext | null> {
+    async subscribe(
+        props: IStrategyData,
+        request?: ISubscriptionRequest,
+    ): Promise<IWebSocketContext | null> {
         let context: IWebSocketContext | null = props.context;
         if (!context.webSocket) {
             context = await this.createSocketAndWaitForReady(props);
@@ -78,16 +93,20 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         }
 
         if (context.webSocket) {
-            context.webSocket.send(JSON.stringify({
-                type: MessageType.subscribed,
-                id: request!.id,
-            }));
+            context.webSocket.send(
+                JSON.stringify({
+                    type: MessageType.subscribed,
+                    id: request!.id,
+                }),
+            );
         }
 
         return context;
     }
 
-    private async awaitReady(context: IWebSocketContext): Promise<IWebSocketContext | null> {
+    private async awaitReady(
+        context: IWebSocketContext,
+    ): Promise<IWebSocketContext | null> {
         if (!context.webSocket || context.webSocket.readyState === 1) {
             return context;
         }
@@ -95,14 +114,20 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         return new Promise((resolve, reject) => {
             const handle = window.setInterval(() => {
                 try {
-                    if (context.webSocket && context.webSocket.readyState === 0) {
+                    if (
+                        context.webSocket &&
+                        context.webSocket.readyState === 0
+                    ) {
                         // connecting...
                         /* istanbul ignore next */
                         return;
                     }
 
                     window.clearInterval(handle);
-                    if (context.webSocket && context.webSocket.readyState === 1) {
+                    if (
+                        context.webSocket &&
+                        context.webSocket.readyState === 1
+                    ) {
                         /* istanbul ignore next */
                         resolve(context);
                     } else if (context.webSocket) {
@@ -117,13 +142,17 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
                     /* istanbul ignore next */
                     window.clearInterval(handle);
                     /* istanbul ignore next */
-                    reject(error.message || 'Error waiting for socket to be ready');
+                    reject(
+                        error.message || 'Error waiting for socket to be ready',
+                    );
                 }
             }, 100);
         });
     }
 
-    private async createSocketAndWaitForReady(props: IStrategyData): Promise<IWebSocketContext | null>{
+    private async createSocketAndWaitForReady(
+        props: IStrategyData,
+    ): Promise<IWebSocketContext | null> {
         const socket: WebSocket = this.createSocket();
         const newContext: IWebSocketContext = Object.assign({}, props.context);
         newContext.webSocket = socket;
@@ -135,9 +164,13 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         return await this.awaitReady(newContext);
     }
 
-    private publishToSubscribers(allSubscriptions: ISubscriptions, id: string, data: any) {
+    private publishToSubscribers(
+        allSubscriptions: ISubscriptions,
+        id: string,
+        data: any,
+    ) {
         const subscriptions: ISubscription[] = id
-            ? [ allSubscriptions[id] ].filter((s: ISubscription) => s)
+            ? [allSubscriptions[id]].filter((s: ISubscription) => s)
             : Object.values(allSubscriptions);
 
         const update = new Date();
@@ -148,9 +181,13 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
     }
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
-    private alertSubscribers(allSubscriptions: ISubscriptions, id: string, error: any) {
+    private alertSubscribers(
+        allSubscriptions: ISubscriptions,
+        id: string,
+        error: any,
+    ) {
         const subscriptions: ISubscription[] = id
-            ? [ allSubscriptions[id] ].filter((s: ISubscription) => s)
+            ? [allSubscriptions[id]].filter((s: ISubscription) => s)
             : Object.values(allSubscriptions);
 
         for (const subscription of subscriptions) {
@@ -158,7 +195,10 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         }
     }
 
-    private async handleWebSocketMessage(props: IStrategyData, messageEvent: any) {
+    private async handleWebSocketMessage(
+        props: IStrategyData,
+        messageEvent: any,
+    ) {
         if (messageEvent.type !== 'message') {
             console.log(`Unhandled message: ${JSON.stringify(messageEvent)}`);
             return;
@@ -167,14 +207,20 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         const jsonData = JSON.parse(messageEvent.data);
         switch (jsonData.type) {
             case MessageType.update: {
-                this.publishToSubscribers(props.subscriptions, jsonData.id, jsonData.data);
+                this.publishToSubscribers(
+                    props.subscriptions,
+                    jsonData.id,
+                    jsonData.data,
+                );
                 break;
             }
             case MessageType.marco: {
                 // send back polo
-                props.context.webSocket?.send(JSON.stringify({
-                    type: MessageType.polo,
-                }));
+                props.context.webSocket?.send(
+                    JSON.stringify({
+                        type: MessageType.polo,
+                    }),
+                );
                 break;
             }
             case MessageType.polo: {
@@ -184,7 +230,11 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
             case MessageType.error: {
                 console.error(jsonData);
                 if (jsonData.message) {
-                    this.alertSubscribers(props.subscriptions, jsonData.id, jsonData.message);
+                    this.alertSubscribers(
+                        props.subscriptions,
+                        jsonData.id,
+                        jsonData.message,
+                    );
                 }
                 break;
             }
@@ -195,7 +245,9 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         }
     }
 
-    private async handleDisconnect(context: IWebSocketContext): Promise<IWebSocketContext> {
+    private async handleDisconnect(
+        context: IWebSocketContext,
+    ): Promise<IWebSocketContext> {
         console.error('Socket disconnected');
         const newContext: IWebSocketContext = Object.assign({}, context);
         newContext.webSocket = undefined;

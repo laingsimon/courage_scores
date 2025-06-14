@@ -1,5 +1,5 @@
-import React, {createContext, useContext} from "react";
-import {IMatchType} from "./IMatchType";
+import React, { createContext, useContext } from 'react';
+import { IMatchType } from './IMatchType';
 
 const MatchTypeContext = createContext({});
 
@@ -12,8 +12,13 @@ export interface IMatchTypeContainerProps extends IMatchType {
 }
 
 /* istanbul ignore next */
-export function MatchTypeContainer({children, ...data}: IMatchTypeContainerProps) {
-    return (<MatchTypeContext.Provider value={data}>
-        {children}
-    </MatchTypeContext.Provider>)
+export function MatchTypeContainer({
+    children,
+    ...data
+}: IMatchTypeContainerProps) {
+    return (
+        <MatchTypeContext.Provider value={data}>
+            {children}
+        </MatchTypeContext.Provider>
+    );
 }

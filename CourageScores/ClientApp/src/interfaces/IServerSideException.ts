@@ -3,4 +3,3 @@ export interface IServerSideException {
     StackTrace?: string[];
     Message: string;
 }
-

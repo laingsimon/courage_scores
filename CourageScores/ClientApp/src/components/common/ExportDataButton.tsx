@@ -1,19 +1,19 @@
-import {useApp} from "./AppContainer";
-import {any} from "../../helpers/collections";
-import {useDependencies} from "./IocContainer";
-import {useState} from "react";
-import {LoadingSpinnerSmall} from "./LoadingSpinnerSmall";
-import {ExportDataRequestDto} from "../../interfaces/models/dtos/Data/ExportDataRequestDto";
-import {ExportDataResultDto} from "../../interfaces/models/dtos/Data/ExportDataResultDto";
-import {IClientActionResultDto} from "./IClientActionResultDto";
+import { useApp } from './AppContainer';
+import { any } from '../../helpers/collections';
+import { useDependencies } from './IocContainer';
+import { useState } from 'react';
+import { LoadingSpinnerSmall } from './LoadingSpinnerSmall';
+import { ExportDataRequestDto } from '../../interfaces/models/dtos/Data/ExportDataRequestDto';
+import { ExportDataResultDto } from '../../interfaces/models/dtos/Data/ExportDataResultDto';
+import { IClientActionResultDto } from './IClientActionResultDto';
 
 export interface IExportDataButtonProps extends ExportDataRequestDto {
     tables?: { [key: string]: string[] };
 }
 
-export function ExportDataButton({tables}: IExportDataButtonProps) {
-    const {account, onError} = useApp();
-    const {dataApi} = useDependencies();
+export function ExportDataButton({ tables }: IExportDataButtonProps) {
+    const { account, onError } = useApp();
+    const { dataApi } = useDependencies();
     const [exporting, setExporting] = useState<boolean>(false);
 
     if (!account || !account.access || !account.access.exportData) {
@@ -39,9 +39,12 @@ export function ExportDataButton({tables}: IExportDataButtonProps) {
                 tables,
             };
 
-            const response: IClientActionResultDto<ExportDataResultDto> = await dataApi.export(request);
+            const response: IClientActionResultDto<ExportDataResultDto> =
+                await dataApi.export(request);
             if (response.success) {
-                window.open(`data:application/zip;base64,${response.result!.zip}`);
+                window.open(
+                    `data:application/zip;base64,${response.result!.zip}`,
+                );
             } else {
                 window.alert('Unable to export data');
             }
@@ -53,9 +56,9 @@ export function ExportDataButton({tables}: IExportDataButtonProps) {
         }
     }
 
-    return (<button className="btn btn-sm btn-outline-primary" onClick={doExport}>
-        {exporting
-            ? (<LoadingSpinnerSmall/>)
-            : '🛒'}
-    </button>);
+    return (
+        <button className="btn btn-sm btn-outline-primary" onClick={doExport}>
+            {exporting ? <LoadingSpinnerSmall /> : '🛒'}
+        </button>
+    );
 }

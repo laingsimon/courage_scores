@@ -1,7 +1,7 @@
-import React, {createContext, useContext} from "react";
-import {LiveContainer} from "../../live/LiveContainer";
-import {ITournament} from "./ITournament";
-import {ILiveOptions} from "../../live/ILiveOptions";
+import React, { createContext, useContext } from 'react';
+import { LiveContainer } from '../../live/LiveContainer';
+import { ITournament } from './ITournament';
+import { ILiveOptions } from '../../live/ILiveOptions';
 
 const TournamentContext = createContext({});
 
@@ -21,9 +21,13 @@ export function TournamentContainer(props: ITournamentContainerProps) {
     delete data.children;
     delete data.liveOptions;
 
-    return (<LiveContainer liveOptions={props.liveOptions!} onDataUpdate={props.setTournamentData}>
-        <TournamentContext.Provider value={data}>
-            {props.children}
-        </TournamentContext.Provider>
-    </LiveContainer>)
+    return (
+        <LiveContainer
+            liveOptions={props.liveOptions!}
+            onDataUpdate={props.setTournamentData}>
+            <TournamentContext.Provider value={data}>
+                {props.children}
+            </TournamentContext.Provider>
+        </LiveContainer>
+    );
 }

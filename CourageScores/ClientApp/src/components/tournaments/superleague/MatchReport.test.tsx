@@ -5,13 +5,18 @@ import {
     ErrorState,
     iocProps,
     renderApp,
-    TestContext
-} from "../../../helpers/tests";
-import {IMatchReportProps, MatchReport} from "./MatchReport";
-import {ISuperleagueSaygMatchMapping} from "./ISuperleagueSaygMatchMapping";
-import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../helpers/builders/sayg";
-import {divisionBuilder} from "../../../helpers/builders/divisions";
-import {tournamentMatchBuilder} from "../../../helpers/builders/tournaments";
+    TestContext,
+} from '../../../helpers/tests';
+import { IMatchReportProps, MatchReport } from './MatchReport';
+import { ISuperleagueSaygMatchMapping } from './ISuperleagueSaygMatchMapping';
+import {
+    ILegBuilder,
+    ILegCompetitorScoreBuilder,
+    saygBuilder,
+} from '../../../helpers/builders/sayg';
+import { divisionBuilder } from '../../../helpers/builders/divisions';
+import { tournamentMatchBuilder } from '../../../helpers/builders/tournaments';
+import { BuilderParam } from '../../../helpers/builders/builders';
 
 describe('MatchReport', () => {
     let context: TestContext;
@@ -30,14 +35,23 @@ describe('MatchReport', () => {
             iocProps(),
             brandingProps(),
             appProps({}, reportedError),
-            (<MatchReport {...props} />));
+            <MatchReport {...props} />,
+        );
     }
 
-    function getRowContent(row: HTMLTableRowElement, tagName: string): string[] {
-        return Array.from(row.querySelectorAll(tagName)).map(th => th.textContent!);
+    function getRowContent(
+        row: HTMLTableRowElement,
+        tagName: string,
+    ): string[] {
+        return Array.from(row.querySelectorAll(tagName)).map(
+            (th) => th.textContent!,
+        );
     }
 
-    function createLeg(homeWinner: boolean, awayWinner: boolean) {
+    function createLeg(
+        homeWinner: boolean,
+        awayWinner: boolean,
+    ): BuilderParam<ILegBuilder> {
         function winningThrows(c: ILegCompetitorScoreBuilder) {
             return c
                 .withThrow(90)
@@ -56,11 +70,15 @@ describe('MatchReport', () => {
                 .withThrow(90);
         }
 
-        return legBuilder()
-            .home((c: ILegCompetitorScoreBuilder) => homeWinner ? winningThrows(c) : notWinningThrows(c))
-            .away((c: ILegCompetitorScoreBuilder) => awayWinner ? winningThrows(c) : notWinningThrows(c))
-            .startingScore(501)
-            .build();
+        return (b) =>
+            b
+                .home((c) =>
+                    homeWinner ? winningThrows(c) : notWinningThrows(c),
+                )
+                .away((c) =>
+                    awayWinner ? winningThrows(c) : notWinningThrows(c),
+                )
+                .startingScore(501);
     }
 
     describe('renders', () => {
@@ -72,12 +90,16 @@ describe('MatchReport', () => {
                 gender: 'GENDER',
                 host: 'HOST',
                 opponent: 'OPPONENT',
-                saygMatches: []
+                saygMatches: [],
             });
 
             reportedError.verifyNoError();
-            expect(context.container.querySelector('h2')!.textContent).toEqual('SOMERSET DARTS ORGANISATION');
-            expect(context.container.querySelector('h3')!.textContent).toEqual('DIVISION (GENDER)');
+            expect(context.container.querySelector('h2')!.textContent).toEqual(
+                'SOMERSET DARTS ORGANISATION',
+            );
+            expect(context.container.querySelector('h3')!.textContent).toEqual(
+                'DIVISION (GENDER)',
+            );
         });
 
         it('correct heading rows', async () => {
@@ -88,21 +110,49 @@ describe('MatchReport', () => {
                 gender: 'GENDER',
                 host: 'HOST',
                 opponent: 'OPPONENT',
-                saygMatches: []
+                saygMatches: [],
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(context.container.querySelectorAll('thead tr')) as HTMLTableRowElement[];
+            const rows = Array.from(
+                context.container.querySelectorAll('thead tr'),
+            ) as HTMLTableRowElement[];
             expect(rows.length).toEqual(3);
             expect(getRowContent(rows[0], 'th')).toEqual(['HOSTvOPPONENT']);
             expect(rows[0].querySelector('th')!.colSpan).toEqual(23);
-            expect(getRowContent(rows[1], 'th')).toEqual(['', 'Scores', '', '', 'Scores', '']);
+            expect(getRowContent(rows[1], 'th')).toEqual([
+                '',
+                'Scores',
+                '',
+                '',
+                'Scores',
+                '',
+            ]);
             expect(rows[1].querySelectorAll('th')[1].colSpan).toEqual(4);
             expect(rows[1].querySelectorAll('th')[4].colSpan).toEqual(4);
             expect(getRowContent(rows[2], 'th')).toEqual([
                 'Set',
-                'Ave', 'Players Name', 'Leg', '1', '2', '3', '4', 'AD', 'GS', 'SL', 'Tons',
-                'Ave', 'Players Name', '1', '2', '3', '4', 'AD', 'GS', 'SL', 'Tons'
+                'Ave',
+                'Players Name',
+                'Leg',
+                '1',
+                '2',
+                '3',
+                '4',
+                'AD',
+                'GS',
+                'SL',
+                'Tons',
+                'Ave',
+                'Players Name',
+                '1',
+                '2',
+                '3',
+                '4',
+                'AD',
+                'GS',
+                'SL',
+                'Tons',
             ]);
         });
 
@@ -112,8 +162,8 @@ describe('MatchReport', () => {
                 saygData: saygBuilder()
                     .withLeg(0, createLeg(true, false))
                     .withLeg(1, createLeg(true, false))
-                    .build()
-            }
+                    .build(),
+            };
 
             await renderComponent({
                 division: divisionBuilder('DIVISION').build(),
@@ -126,11 +176,33 @@ describe('MatchReport', () => {
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(context.container.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
+            const rows = Array.from(
+                context.container.querySelectorAll('tbody tr'),
+            ) as HTMLTableRowElement[];
             expect(rows.length).toEqual(3);
             expect(getRowContent(rows[0], 'td')).toEqual([
-                'M1', '33.4', 'A', '1', '90', '100', '110', '120', '15', '81', '', '3', '30',
-                'B', '90', '90', '90', '90', '15', '', '51', '0'
+                'M1',
+                '33.4',
+                'A',
+                '1',
+                '90',
+                '100',
+                '110',
+                '120',
+                '15',
+                '81',
+                '',
+                '3',
+                '30',
+                'B',
+                '90',
+                '90',
+                '90',
+                '90',
+                '15',
+                '',
+                '51',
+                '0',
             ]);
         });
 
@@ -140,8 +212,8 @@ describe('MatchReport', () => {
                 saygData: saygBuilder()
                     .withLeg(0, createLeg(true, false))
                     .withLeg(1, createLeg(true, false))
-                    .build()
-            }
+                    .build(),
+            };
 
             await renderComponent({
                 division: divisionBuilder('DIVISION').build(),
@@ -154,9 +226,12 @@ describe('MatchReport', () => {
             });
 
             reportedError.verifyNoError();
-            const legsWonContainer = context.container.querySelector('table.table + div')!;
+            const legsWonContainer =
+                context.container.querySelector('table.table + div')!;
             expect(legsWonContainer).toBeTruthy();
-            const legsWon = Array.from(legsWonContainer.querySelectorAll('div'));
+            const legsWon = Array.from(
+                legsWonContainer.querySelectorAll('div'),
+            );
             expect(legsWon[0].textContent).toEqual('Legs won: 2');
             expect(legsWon[1].textContent).toEqual('Legs won: 0');
         });
@@ -169,12 +244,16 @@ describe('MatchReport', () => {
                 gender: 'GENDER',
                 host: 'HOST',
                 opponent: 'OPPONENT',
-                saygMatches: []
+                saygMatches: [],
             });
 
             reportedError.verifyNoError();
-            expect(context.container.querySelector('h2')!.textContent).toEqual('SOMERSET DARTS ORGANISATION');
-            expect(context.container.querySelector('h3')!.textContent).toEqual('(GENDER)');
+            expect(context.container.querySelector('h2')!.textContent).toEqual(
+                'SOMERSET DARTS ORGANISATION',
+            );
+            expect(context.container.querySelector('h3')!.textContent).toEqual(
+                '(GENDER)',
+            );
         });
     });
 });

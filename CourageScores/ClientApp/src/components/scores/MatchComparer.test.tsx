@@ -1,7 +1,7 @@
-import {matchEquals} from "./MatchComparer";
-import {createTemporaryId} from "../../helpers/projection";
-import {matchBuilder} from "../../helpers/builders/games";
-import {playerBuilder} from "../../helpers/builders/players";
+import { matchEquals } from './MatchComparer';
+import { createTemporaryId } from '../../helpers/projection';
+import { matchBuilder } from '../../helpers/builders/games';
+import { playerBuilder } from '../../helpers/builders/players';
 
 describe('MatchComparer', () => {
     describe('matchEquals', () => {
@@ -26,7 +26,8 @@ describe('MatchComparer', () => {
         it('when homeScores are different', () => {
             const result = matchEquals(
                 matchBuilder().withHome().withAway().scores(1, 3).build(),
-                matchBuilder().withHome().withAway().scores(2, 3).build());
+                matchBuilder().withHome().withAway().scores(2, 3).build(),
+            );
 
             expect(result).toEqual(false);
         });
@@ -34,7 +35,8 @@ describe('MatchComparer', () => {
         it('when awayScores are different', () => {
             const result = matchEquals(
                 matchBuilder().withHome().withAway().scores(1, 3).build(),
-                matchBuilder().withHome().withAway().scores(1, 4).build());
+                matchBuilder().withHome().withAway().scores(1, 4).build(),
+            );
 
             expect(result).toEqual(false);
         });
@@ -42,7 +44,8 @@ describe('MatchComparer', () => {
         it('when no homePlayers or awayPlayers', () => {
             const result = matchEquals(
                 matchBuilder().scores(1, 3).build(),
-                matchBuilder().scores(1, 3).build());
+                matchBuilder().scores(1, 3).build(),
+            );
 
             expect(result).toEqual(true);
         });
@@ -50,15 +53,23 @@ describe('MatchComparer', () => {
         it('when null homePlayers', () => {
             const result = matchEquals(
                 matchBuilder().scores(1, 3).build(),
-                matchBuilder().withAway('PLAYER').scores(1, 3).build());
+                matchBuilder()
+                    .withAway(playerBuilder('PLAYER').build())
+                    .scores(1, 3)
+                    .build(),
+            );
 
             expect(result).toEqual(false);
         });
 
         it('when null awayPlayers', () => {
             const result = matchEquals(
-                matchBuilder().withHome('PLAYER').scores(1, 3).build(),
-                matchBuilder().scores(1, 3).build());
+                matchBuilder()
+                    .withHome(playerBuilder('PLAYER').build())
+                    .scores(1, 3)
+                    .build(),
+                matchBuilder().scores(1, 3).build(),
+            );
 
             expect(result).toEqual(false);
         });
@@ -66,7 +77,8 @@ describe('MatchComparer', () => {
         it('when null homePlayers and null awayPlayers', () => {
             const result = matchEquals(
                 matchBuilder().scores(1, 3).build(),
-                matchBuilder().scores(1, 3).build());
+                matchBuilder().scores(1, 3).build(),
+            );
 
             expect(result).toEqual(true);
         });
@@ -77,9 +89,15 @@ describe('MatchComparer', () => {
 
             const result = matchEquals(
                 matchBuilder()
-                    .withHome(homePlayer).withAway(awayPlayer).scores(1, 2).build(),
+                    .withHome(homePlayer)
+                    .withAway(awayPlayer)
+                    .scores(1, 2)
+                    .build(),
                 matchBuilder()
-                    .withHome(playerBuilder('').build()).withAway(awayPlayer).scores(1, 2).build()
+                    .withHome(playerBuilder('').build())
+                    .withAway(awayPlayer)
+                    .scores(1, 2)
+                    .build(),
             );
 
             expect(result).toEqual(false);
@@ -100,7 +118,7 @@ describe('MatchComparer', () => {
                     .withHome(playerBuilder().build())
                     .withAway(awayPlayer)
                     .scores(1, 2)
-                    .build()
+                    .build(),
             );
 
             expect(result).toEqual(false);
@@ -120,7 +138,7 @@ describe('MatchComparer', () => {
                     .withHome(homePlayer)
                     .withAway(playerBuilder().build())
                     .scores(1, 2)
-                    .build()
+                    .build(),
             );
 
             expect(result).toEqual(false);
@@ -141,7 +159,7 @@ describe('MatchComparer', () => {
                     .withAway(awayPlayer)
                     .withAway(playerBuilder().build())
                     .scores(1, 2)
-                    .build()
+                    .build(),
             );
 
             expect(result).toEqual(false);
@@ -161,7 +179,7 @@ describe('MatchComparer', () => {
                     .withHome(playerBuilder('', homePlayerId).build())
                     .withAway(playerBuilder('', awayPlayerId).build())
                     .scores(1, 2)
-                    .build()
+                    .build(),
             );
 
             expect(result).toEqual(true);

@@ -1,21 +1,21 @@
-import React, {createContext, useContext, useEffect, useState} from "react";
-import {useDependencies} from "../common/IocContainer";
-import {useApp} from "../common/AppContainer";
-import {Loading} from "../common/Loading";
-import {ErrorDisplay} from "../common/ErrorDisplay";
-import {ScoreAsYouGo} from "./ScoreAsYouGo";
-import {LiveContainer} from "../../live/LiveContainer";
-import {ISayg} from "./ISayg";
-import {IClientActionResultDto} from "../common/IClientActionResultDto";
-import {ILiveOptions} from "../../live/ILiveOptions";
-import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
-import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
-import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
-import {EditableSaygContainer} from "./EditableSaygContainer";
-import {ILegDisplayOptions} from "./ILegDisplayOptions";
-import {UntypedPromise} from "../../interfaces/UntypedPromise";
-import {isLegWinner} from "../../helpers/superleague";
-import {retry} from "../../helpers/retry";
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useDependencies } from '../common/IocContainer';
+import { useApp } from '../common/AppContainer';
+import { Loading } from '../common/Loading';
+import { ErrorDisplay } from '../common/ErrorDisplay';
+import { ScoreAsYouGo } from './ScoreAsYouGo';
+import { LiveContainer } from '../../live/LiveContainer';
+import { ISayg } from './ISayg';
+import { IClientActionResultDto } from '../common/IClientActionResultDto';
+import { ILiveOptions } from '../../live/ILiveOptions';
+import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
+import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType';
+import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto';
+import { EditableSaygContainer } from './EditableSaygContainer';
+import { ILegDisplayOptions } from './ILegDisplayOptions';
+import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { isLegWinner } from '../../helpers/superleague';
+import { retry } from '../../helpers/retry';
 
 const SaygContext = createContext({});
 
@@ -48,16 +48,35 @@ export interface ILoadedScoreAsYouGoDto extends UpdateRecordedScoreAsYouGoDto {
     lastUpdated?: string;
 }
 
-export function SaygLoadingContainer({ children, id, defaultData, autoSave, on180, onHiCheck, onScoreChange, onSaved,
-                                         onLoadError, matchStatisticsOnly, lastLegDisplayOptions, liveOptions,
-                                        firstLegPlayerSequence, finalLegPlayerSequence, onFinished, initialOneDartAverage }: ISaygLoadingContainerProps) {
-    const [sayg, setSayg] = useState<ILoadedScoreAsYouGoDto | undefined>(defaultData);
-    const [saveError, setSaveError] = useState<IClientActionResultDto<ILoadedScoreAsYouGoDto> | null>(null);
+export function SaygLoadingContainer({
+    children,
+    id,
+    defaultData,
+    autoSave,
+    on180,
+    onHiCheck,
+    onScoreChange,
+    onSaved,
+    onLoadError,
+    matchStatisticsOnly,
+    lastLegDisplayOptions,
+    liveOptions,
+    firstLegPlayerSequence,
+    finalLegPlayerSequence,
+    onFinished,
+    initialOneDartAverage,
+}: ISaygLoadingContainerProps) {
+    const [sayg, setSayg] = useState<ILoadedScoreAsYouGoDto | undefined>(
+        defaultData,
+    );
+    const [saveError, setSaveError] =
+        useState<IClientActionResultDto<ILoadedScoreAsYouGoDto> | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-    const {saygApi, webSocket} = useDependencies();
-    const {onError} = useApp();
+    const { saygApi, webSocket } = useDependencies();
+    const { onError } = useApp();
 
-    useEffect(() => {
+    useEffect(
+        () => {
             /* istanbul ignore next */
             if (loading) {
                 /* istanbul ignore next */
@@ -69,7 +88,8 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
             loadData();
         },
         // eslint-disable-next-line
-        []);
+        [],
+    );
 
     async function loadData() {
         try {
@@ -78,7 +98,8 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
                 return;
             }
 
-            const saygData: ILoadedScoreAsYouGoDto | null = await saygApi.get(id);
+            const saygData: ILoadedScoreAsYouGoDto | null =
+                await saygApi.get(id);
 
             if (!saygData || !saygData.legs) {
                 if (onLoadError) {
@@ -104,26 +125,26 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         }
     }
 
-    async function saveDataAndGetId(useData?: UpdateRecordedScoreAsYouGoDto): Promise<string | undefined> {
-        return await retry(
-            async () => {
-                const response: IClientActionResultDto<ILoadedScoreAsYouGoDto> = await saygApi.upsert(useData || sayg!);
-                if (response.success) {
-                    response.result!.lastUpdated = response.result!.updated;
-                    setSayg(response.result);
+    async function saveDataAndGetId(
+        useData?: UpdateRecordedScoreAsYouGoDto,
+    ): Promise<string | undefined> {
+        return await retry(async () => {
+            const response: IClientActionResultDto<ILoadedScoreAsYouGoDto> =
+                await saygApi.upsert(useData || sayg!);
+            if (response.success) {
+                response.result!.lastUpdated = response.result!.updated;
+                setSayg(response.result);
 
-                    if (onSaved) {
-                        await onSaved(response.result!);
-                    }
-
-                    return '#' + response.result!.id;
-                } else {
-                    setSaveError(response);
-                    return undefined;
+                if (onSaved) {
+                    await onSaved(response.result!);
                 }
-            },
-            'Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.'
-        );
+
+                return '#' + response.result!.id;
+            } else {
+                setSaveError(response);
+                return undefined;
+            }
+        }, 'Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.');
     }
 
     async function onChange(newData: ILoadedScoreAsYouGoDto) {
@@ -135,24 +156,48 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
 
         const newFirstLeg: LegDto = newData.legs[0];
         const oldFirstLeg: LegDto = sayg!.legs[0];
-        const newLastLeg: LegDto = newData.legs[Object.keys(newData.legs).length - 1];
-        const oldLastLeg: LegDto = sayg!.legs[Object.keys(sayg!.legs).length - 1];
-        const newLastLegHasWinner: boolean = newLastLeg && (isLegWinner(newLastLeg, 'home') || isLegWinner(newLastLeg, 'away'));
-        const oldLastLegHasWinner: boolean = oldLastLeg && (isLegWinner(oldLastLeg, 'home') || isLegWinner(oldLastLeg, 'away'));
+        const newLastLeg: LegDto =
+            newData.legs[Object.keys(newData.legs).length - 1];
+        const oldLastLeg: LegDto =
+            sayg!.legs[Object.keys(sayg!.legs).length - 1];
+        const newLastLegHasWinner: boolean =
+            newLastLeg &&
+            (isLegWinner(newLastLeg, 'home') ||
+                isLegWinner(newLastLeg, 'away'));
+        const oldLastLegHasWinner: boolean =
+            oldLastLeg &&
+            (isLegWinner(oldLastLeg, 'home') ||
+                isLegWinner(oldLastLeg, 'away'));
 
-        if ((newFirstLeg && !oldFirstLeg && newFirstLeg.currentThrow)
-            || (newLastLeg && oldLastLeg && newLastLegHasWinner && !oldLastLegHasWinner)
-            || (newLastLeg && oldLastLeg && newLastLeg.currentThrow && !oldLastLeg.currentThrow)) {
+        if (
+            (newFirstLeg && !oldFirstLeg && newFirstLeg.currentThrow) ||
+            (newLastLeg &&
+                oldLastLeg &&
+                newLastLegHasWinner &&
+                !oldLastLegHasWinner) ||
+            (newLastLeg &&
+                oldLastLeg &&
+                newLastLeg.currentThrow &&
+                !oldLastLeg.currentThrow)
+        ) {
             await saveDataAndGetId(newSayg);
         }
     }
 
-    async function updateSayg(newData: UpdateRecordedScoreAsYouGoDto): Promise<UpdateRecordedScoreAsYouGoDto> {
-        const newSayg: UpdateRecordedScoreAsYouGoDto = Object.assign({}, sayg, newData);
+    async function updateSayg(
+        newData: UpdateRecordedScoreAsYouGoDto,
+    ): Promise<UpdateRecordedScoreAsYouGoDto> {
+        const newSayg: UpdateRecordedScoreAsYouGoDto = Object.assign(
+            {},
+            sayg,
+            newData,
+        );
         setSayg(newSayg);
         if (liveOptions.publish) {
             try {
-                if (!await webSocket.publish(id, LiveDataType.sayg, newSayg)) {
+                if (
+                    !(await webSocket.publish(id, LiveDataType.sayg, newSayg))
+                ) {
                     window.alert('Unable to publish updated data');
                 }
             } catch (e) {
@@ -164,7 +209,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
     }
 
     if (loading) {
-        return (<Loading/>);
+        return <Loading />;
     }
 
     const saygProps: ISayg = {
@@ -174,46 +219,76 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
     };
 
     try {
-        return (<LiveContainer liveOptions={liveOptions} onDataUpdate={async (data: ILoadedScoreAsYouGoDto) => setSayg(data)}>
-            <EditableSaygContainer>
-            <SaygContext.Provider value={saygProps}>
-                {saveError ? (
-                    <ErrorDisplay {...saveError} onClose={async () => setSaveError(null)} title="Could not save data"/>) : null}
-                {sayg ? (<div className="d-flex flex-column flex-grow-1 flex-fill">
-                    {children}
-                    <ScoreAsYouGo
-                        startingScore={sayg.startingScore || 0}
-                        numberOfLegs={sayg.numberOfLegs || 0}
-                        onHiCheck={onHiCheck!}
-                        on180={on180!}
-                        onChange={onChange}
-                        homeScore={sayg.homeScore}
-                        awayScore={sayg.awayScore}
-                        away={sayg.opponentName}
-                        home={sayg.yourName || ''}
-                        data={sayg}
-                        singlePlayer={!sayg.opponentName}
-                        onLegComplete={async (homeScore: number, awayScore: number) => {
-                            const sayg = await updateSayg({homeScore, awayScore} as UpdateRecordedScoreAsYouGoDto);
-                            if (autoSave) {
-                                await saveDataAndGetId(sayg);
-                            }
-                            if (onScoreChange) {
-                                await onScoreChange(homeScore, awayScore);
-                            }
-                        }}
-                        lastLegDisplayOptions={lastLegDisplayOptions}
-                        matchStatisticsOnly={matchStatisticsOnly}
-                        saveDataAndGetId={saveDataAndGetId}
-                        firstLegPlayerSequence={firstLegPlayerSequence}
-                        finalLegPlayerSequence={finalLegPlayerSequence}
-                        onFinished={onFinished}
-                        initialOneDartAverage={initialOneDartAverage}
-                    />
-                </div>) : null}
-            </SaygContext.Provider>
-            </EditableSaygContainer>
-        </LiveContainer>);
+        return (
+            <LiveContainer
+                liveOptions={liveOptions}
+                onDataUpdate={async (data: ILoadedScoreAsYouGoDto) =>
+                    setSayg(data)
+                }>
+                <EditableSaygContainer>
+                    <SaygContext.Provider value={saygProps}>
+                        {saveError ? (
+                            <ErrorDisplay
+                                {...saveError}
+                                onClose={async () => setSaveError(null)}
+                                title="Could not save data"
+                            />
+                        ) : null}
+                        {sayg ? (
+                            <div className="d-flex flex-column flex-grow-1 flex-fill">
+                                {children}
+                                <ScoreAsYouGo
+                                    startingScore={sayg.startingScore || 0}
+                                    numberOfLegs={sayg.numberOfLegs || 0}
+                                    onHiCheck={onHiCheck!}
+                                    on180={on180!}
+                                    onChange={onChange}
+                                    homeScore={sayg.homeScore}
+                                    awayScore={sayg.awayScore}
+                                    away={sayg.opponentName}
+                                    home={sayg.yourName || ''}
+                                    data={sayg}
+                                    singlePlayer={!sayg.opponentName}
+                                    onLegComplete={async (
+                                        homeScore: number,
+                                        awayScore: number,
+                                    ) => {
+                                        const sayg = await updateSayg({
+                                            homeScore,
+                                            awayScore,
+                                        } as UpdateRecordedScoreAsYouGoDto);
+                                        if (autoSave) {
+                                            await saveDataAndGetId(sayg);
+                                        }
+                                        if (onScoreChange) {
+                                            await onScoreChange(
+                                                homeScore,
+                                                awayScore,
+                                            );
+                                        }
+                                    }}
+                                    lastLegDisplayOptions={
+                                        lastLegDisplayOptions
+                                    }
+                                    matchStatisticsOnly={matchStatisticsOnly}
+                                    saveDataAndGetId={saveDataAndGetId}
+                                    firstLegPlayerSequence={
+                                        firstLegPlayerSequence
+                                    }
+                                    finalLegPlayerSequence={
+                                        finalLegPlayerSequence
+                                    }
+                                    onFinished={onFinished}
+                                    initialOneDartAverage={
+                                        initialOneDartAverage
+                                    }
+                                />
+                            </div>
+                        ) : null}
+                    </SaygContext.Provider>
+                </EditableSaygContainer>
+            </LiveContainer>
+        );
     } catch (e) {
         /* istanbul ignore next */
         onError(e);

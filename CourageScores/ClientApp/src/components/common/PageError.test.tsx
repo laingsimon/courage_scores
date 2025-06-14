@@ -2,14 +2,15 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick, ErrorState,
+    doClick,
+    ErrorState,
     findButton,
     iocProps,
     renderApp,
-    TestContext
-} from "../../helpers/tests";
-import {PageError} from "./PageError";
-import {IError} from "./IError";
+    TestContext,
+} from '../../helpers/tests';
+import { PageError } from './PageError';
+import { IError } from './IError';
 
 describe('PageError', () => {
     let context: TestContext;
@@ -21,7 +22,7 @@ describe('PageError', () => {
         await cleanUp(context);
     });
 
-    function clearError() {
+    async function clearError() {
         appError = null;
     }
 
@@ -36,12 +37,16 @@ describe('PageError', () => {
         context = await renderApp(
             iocProps(),
             brandingProps(),
-            appProps({
-                error: appError,
-                reportClientSideException,
-                clearError,
-            }, reportedError),
-            (<PageError error={appError}/>));
+            appProps(
+                {
+                    error: appError,
+                    reportClientSideException,
+                    clearError,
+                },
+                reportedError,
+            ),
+            <PageError error={appError} />,
+        );
 
         // don't allow onError to be called - would call infinite-loop/recursion
         reportedError.verifyNoError();
@@ -53,14 +58,16 @@ describe('PageError', () => {
         beforeEach(() => {
             error = {
                 message: 'MESSAGE',
-                stack: 'STACK'
+                stack: 'STACK',
             };
         });
 
         it('shows error details', async () => {
             await renderComponent(error);
 
-            const message = context.container.querySelector('div.content-background > p > span:first-child')!;
+            const message = context.container.querySelector(
+                'div.content-background > p > span:first-child',
+            )!;
             expect(message).toBeTruthy();
             expect(message.textContent).toEqual(error.message);
         });
@@ -68,7 +75,9 @@ describe('PageError', () => {
         it('shows stack toggle', async () => {
             await renderComponent(error);
 
-            const toggle = context.container.querySelector('div.content-background > p > span.form-switch')!;
+            const toggle = context.container.querySelector(
+                'div.content-background > p > span.form-switch',
+            )!;
             expect(toggle).toBeTruthy();
         });
 
@@ -77,29 +86,44 @@ describe('PageError', () => {
 
             await renderComponent(error);
 
-            const toggle = context.container.querySelector('div.content-background > p > span.form-switch');
+            const toggle = context.container.querySelector(
+                'div.content-background > p > span.form-switch',
+            );
             expect(toggle).toBeFalsy();
         });
 
         it('shows stack', async () => {
             await renderComponent(error);
 
-            await doClick(context.container, 'div.content-background > p > span.form-switch > input');
+            await doClick(
+                context.container,
+                'div.content-background > p > span.form-switch > input',
+            );
 
-            const stack = context.container.querySelector('div.content-background > pre')!;
+            const stack = context.container.querySelector(
+                'div.content-background > pre',
+            )!;
             expect(stack).toBeTruthy();
             expect(stack.textContent).toEqual(error.stack);
         });
 
         it('hides stack', async () => {
             await renderComponent(error);
-            await doClick(context.container, 'div.content-background > p > span.form-switch > input');
+            await doClick(
+                context.container,
+                'div.content-background > p > span.form-switch > input',
+            );
             // toggle on
 
-            await doClick(context.container, 'div.content-background > p > span.form-switch > input');
+            await doClick(
+                context.container,
+                'div.content-background > p > span.form-switch > input',
+            );
             // toggle off
 
-            const stack = context.container.querySelector('div.content-background > pre');
+            const stack = context.container.querySelector(
+                'div.content-background > pre',
+            );
             expect(stack).toBeFalsy();
         });
 
@@ -132,7 +156,9 @@ describe('PageError', () => {
         it('shows error details', async () => {
             await renderComponent(error as IError);
 
-            const message = context.container.querySelector('div.content-background > p > span:first-child')!;
+            const message = context.container.querySelector(
+                'div.content-background > p > span:first-child',
+            )!;
             expect(message).toBeTruthy();
             expect(message.textContent).toEqual('MESSAGE');
         });
@@ -140,7 +166,9 @@ describe('PageError', () => {
         it('does not show stack toggle', async () => {
             await renderComponent(error as IError);
 
-            const toggle = context.container.querySelector('div.content-background > p > span.form-switch');
+            const toggle = context.container.querySelector(
+                'div.content-background > p > span.form-switch',
+            );
             expect(toggle).toBeFalsy();
         });
 

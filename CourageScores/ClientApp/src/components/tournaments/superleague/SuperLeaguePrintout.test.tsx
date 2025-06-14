@@ -2,41 +2,52 @@ import {
     api,
     appProps,
     brandingProps,
-    cleanUp, doClick,
+    cleanUp,
+    doClick,
     doSelectOption,
-    ErrorState, findButton,
-    iocProps, MockSocketFactory, noop,
-    renderApp, TestContext
-} from "../../../helpers/tests";
-import {ISuperLeaguePrintoutProps, SuperLeaguePrintout} from "./SuperLeaguePrintout";
-import {ITournamentContainerProps, TournamentContainer} from "../TournamentContainer";
-import {act} from "@testing-library/react";
-import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
-import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
-import {TournamentGameDto} from "../../../interfaces/models/dtos/Game/TournamentGameDto";
-import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
-import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../helpers/builders/sayg";
+    ErrorState,
+    findButton,
+    iocProps,
+    MockSocketFactory,
+    noop,
+    renderApp,
+    TestContext,
+} from '../../../helpers/tests';
 import {
-    ITournamentMatchBuilder,
-    ITournamentRoundBuilder,
-    tournamentBuilder
-} from "../../../helpers/builders/tournaments";
-import {divisionBuilder} from "../../../helpers/builders/divisions";
-import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
-import {MessageType} from "../../../interfaces/models/dtos/MessageType";
-import {AccessDto} from "../../../interfaces/models/dtos/Identity/AccessDto";
-import {UpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
-import {IClientActionResultDto} from "../../common/IClientActionResultDto";
-import {CHECKOUT_2_DART} from "../../../helpers/constants";
-import {checkoutWith, enterScores} from "../../../helpers/sayg";
-import {START_SCORING} from "../tournaments";
-import {tournamentContainerPropsBuilder} from "../tournamentContainerPropsBuilder";
+    ISuperLeaguePrintoutProps,
+    SuperLeaguePrintout,
+} from './SuperLeaguePrintout';
+import {
+    ITournamentContainerProps,
+    TournamentContainer,
+} from '../TournamentContainer';
+import { act } from '@testing-library/react';
+import { RecordedScoreAsYouGoDto } from '../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
+import { TournamentGameDto } from '../../../interfaces/models/dtos/Game/TournamentGameDto';
+import { DivisionDto } from '../../../interfaces/models/dtos/DivisionDto';
+import {
+    ILegBuilder,
+    ILegCompetitorScoreBuilder,
+    saygBuilder,
+} from '../../../helpers/builders/sayg';
+import { tournamentBuilder } from '../../../helpers/builders/tournaments';
+import { divisionBuilder } from '../../../helpers/builders/divisions';
+import { ISaygApi } from '../../../interfaces/apis/ISaygApi';
+import { MessageType } from '../../../interfaces/models/dtos/MessageType';
+import { AccessDto } from '../../../interfaces/models/dtos/Identity/AccessDto';
+import { UpdateRecordedScoreAsYouGoDto } from '../../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
+import { IClientActionResultDto } from '../../common/IClientActionResultDto';
+import { CHECKOUT_2_DART } from '../../../helpers/constants';
+import { checkoutWith, enterScores } from '../../../helpers/sayg';
+import { START_SCORING } from '../tournaments';
+import { tournamentContainerPropsBuilder } from '../tournamentContainerPropsBuilder';
+import { BuilderParam } from '../../../helpers/builders/builders';
 
 describe('SuperLeaguePrintout', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let saygApiResponseMap: { [id: string]: RecordedScoreAsYouGoDto } = {};
-    let saygDataRequests: { [ id: string ]: number };
+    let saygDataRequests: { [id: string]: number };
     let socketFactory: MockSocketFactory;
     let patchSuccess: boolean;
 
@@ -53,12 +64,14 @@ describe('SuperLeaguePrintout', () => {
 
             throw new Error('Unexpected request for sayg data: ' + id);
         },
-        async upsert(data: UpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> {
+        async upsert(
+            data: UpdateRecordedScoreAsYouGoDto,
+        ): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> {
             return {
                 success: true,
-                result: data as any,
-            }
-        }
+                result: data as RecordedScoreAsYouGoDto,
+            };
+        },
     });
 
     afterEach(async () => {
@@ -79,22 +92,38 @@ describe('SuperLeaguePrintout', () => {
         return patchSuccess;
     }
 
-    async function renderComponent(tournamentData: ITournamentContainerProps, props: ISuperLeaguePrintoutProps, access: AccessDto) {
+    async function renderComponent(
+        tournamentData: ITournamentContainerProps,
+        props: ISuperLeaguePrintoutProps,
+        access: AccessDto,
+    ) {
         context = await renderApp(
             iocProps({
                 saygApi,
                 socketFactory: socketFactory.createSocket,
             }),
             brandingProps(),
-            appProps({
-                account: { access },
-            }, reportedError),
-            (<TournamentContainer {...tournamentData}>
+            appProps(
+                {
+                    account: {
+                        emailAddress: '',
+                        givenName: '',
+                        name: '',
+                        access,
+                    },
+                },
+                reportedError,
+            ),
+            <TournamentContainer {...tournamentData}>
                 <SuperLeaguePrintout {...props} />
-            </TournamentContainer>));
+            </TournamentContainer>,
+        );
     }
 
-    function createLeg(homeWinner?: boolean, awayWinner?: boolean): LegDto {
+    function createLeg(
+        homeWinner?: boolean,
+        awayWinner?: boolean,
+    ): BuilderParam<ILegBuilder> {
         function winningThrows(c: ILegCompetitorScoreBuilder) {
             return c
                 .withThrow(90)
@@ -113,11 +142,15 @@ describe('SuperLeaguePrintout', () => {
                 .withThrow(90);
         }
 
-        return legBuilder()
-            .home((c: ILegCompetitorScoreBuilder) => homeWinner ? winningThrows(c) : notWinningThrows(c))
-            .away((c: ILegCompetitorScoreBuilder) => awayWinner ? winningThrows(c) : notWinningThrows(c))
-            .startingScore(501)
-            .build();
+        return (b) =>
+            b
+                .home((c) =>
+                    homeWinner ? winningThrows(c) : notWinningThrows(c),
+                )
+                .away((c) =>
+                    awayWinner ? winningThrows(c) : notWinningThrows(c),
+                )
+                .startingScore(501);
     }
 
     describe('renders', () => {
@@ -136,25 +169,36 @@ describe('SuperLeaguePrintout', () => {
                 .withLeg(1, createLeg(false, true))
                 .build();
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
-                        .sideA('A', 1)
-                        .sideB('B', 2))
-                    .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData2.id)
-                        .sideA('C', 3)
-                        .sideB('D', 4)))
+                .round((r) =>
+                    r
+                        .withMatch((m) =>
+                            m.saygId(saygData1.id).sideA('A', 1).sideB('B', 2),
+                        )
+                        .withMatch((m) =>
+                            m.saygId(saygData2.id).sideA('C', 3).sideB('D', 4),
+                        ),
+                )
                 .build();
             const division: DivisionDto = divisionBuilder('DIVISION').build();
             saygApiResponseMap = {};
             saygApiResponseMap[saygData1.id] = saygData1;
             saygApiResponseMap[saygData2.id] = saygData2;
 
-            await renderComponent(containerProps.withTournament(tournamentData).build(), { division }, access);
+            await renderComponent(
+                containerProps.withTournament(tournamentData).build(),
+                { division },
+                access,
+            );
 
             reportedError.verifyNoError();
-            const headings = Array.from(context.container.querySelectorAll('h2'));
-            expect(headings.map(h => h.textContent)).toEqual([
-                'Master draw', 'Match log', 'Summary', 'SOMERSET DARTS ORGANISATION'
+            const headings = Array.from(
+                context.container.querySelectorAll('h2'),
+            );
+            expect(headings.map((h) => h.textContent)).toEqual([
+                'Master draw',
+                'Match log',
+                'Summary',
+                'SOMERSET DARTS ORGANISATION',
             ]);
         });
     });
@@ -176,23 +220,41 @@ describe('SuperLeaguePrintout', () => {
                     .withLeg(1, createLeg(false, true))
                     .build();
                 const tournamentData: TournamentGameDto = tournamentBuilder()
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
-                            .sideA('A', 1)
-                            .sideB('B', 2))
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData2.id)
-                            .sideA('C', 3)
-                            .sideB('D', 4)))
+                    .round((r) =>
+                        r
+                            .withMatch((m) =>
+                                m
+                                    .saygId(saygData1.id)
+                                    .sideA('A', 1)
+                                    .sideB('B', 2),
+                            )
+                            .withMatch((m) =>
+                                m
+                                    .saygId(saygData2.id)
+                                    .sideA('C', 3)
+                                    .sideB('D', 4),
+                            ),
+                    )
                     .build();
-                const division: DivisionDto = divisionBuilder('DIVISION').build();
+                const division: DivisionDto =
+                    divisionBuilder('DIVISION').build();
                 saygApiResponseMap = {};
                 saygApiResponseMap[saygData1.id] = saygData1;
                 saygApiResponseMap[saygData2.id] = saygData2;
-                await renderComponent(containerProps.withTournament(tournamentData).build(), { division }, access);
+                await renderComponent(
+                    containerProps.withTournament(tournamentData).build(),
+                    { division },
+                    access,
+                );
 
-                await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
+                await doSelectOption(
+                    context.container.querySelector('.dropdown-menu'),
+                    '▶️ Live',
+                );
 
-                expect(Object.keys(socketFactory.subscriptions).sort()).toEqual([ saygData1.id, saygData2.id, tournamentData.id ].sort());
+                expect(Object.keys(socketFactory.subscriptions).sort()).toEqual(
+                    [saygData1.id, saygData2.id, tournamentData.id].sort(),
+                );
             });
 
             it('can handle live updates', async () => {
@@ -205,22 +267,46 @@ describe('SuperLeaguePrintout', () => {
                     .withLeg(1, createLeg(false, true))
                     .build();
                 const tournamentData: TournamentGameDto = tournamentBuilder()
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
-                            .sideA('A', 1)
-                            .sideB('B', 2))
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData2.id)
-                            .sideA('C', 3)
-                            .sideB('D', 4)))
+                    .round((r) =>
+                        r
+                            .withMatch((m) =>
+                                m
+                                    .saygId(saygData1.id)
+                                    .sideA('A', 1)
+                                    .sideB('B', 2),
+                            )
+                            .withMatch((m) =>
+                                m
+                                    .saygId(saygData2.id)
+                                    .sideA('C', 3)
+                                    .sideB('D', 4),
+                            ),
+                    )
                     .build();
-                const division: DivisionDto = divisionBuilder('DIVISION').build();
+                const division: DivisionDto =
+                    divisionBuilder('DIVISION').build();
                 saygApiResponseMap = {};
                 saygApiResponseMap[saygData1.id] = saygData1;
                 saygApiResponseMap[saygData2.id] = saygData2;
-                await renderComponent(containerProps.withTournament(tournamentData).build(), { division }, access);
-                await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
-                expect(context.container.querySelector('div[datatype="match-report"] > div > div:nth-child(1)')!.textContent).toEqual('Legs won: 2');
-                expect(context.container.querySelector('div[datatype="match-report"] > div > div:nth-child(2)')!.textContent).toEqual('Legs won: 2');
+                await renderComponent(
+                    containerProps.withTournament(tournamentData).build(),
+                    { division },
+                    access,
+                );
+                await doSelectOption(
+                    context.container.querySelector('.dropdown-menu'),
+                    '▶️ Live',
+                );
+                expect(
+                    context.container.querySelector(
+                        'div[datatype="match-report"] > div > div:nth-child(1)',
+                    )!.textContent,
+                ).toEqual('Legs won: 2');
+                expect(
+                    context.container.querySelector(
+                        'div[datatype="match-report"] > div > div:nth-child(2)',
+                    )!.textContent,
+                ).toEqual('Legs won: 2');
 
                 //send through some data
                 const newSaygData = saygBuilder(saygData1.id)
@@ -234,13 +320,21 @@ describe('SuperLeaguePrintout', () => {
                         data: JSON.stringify({
                             type: MessageType.update,
                             id: newSaygData.id,
-                            data: newSaygData
+                            data: newSaygData,
                         }),
                     } as MessageEvent<string>);
                 });
 
-                expect(context.container.querySelector('div[datatype="match-report"] > div > div:nth-child(1)')!.textContent).toEqual('Legs won: 2');
-                expect(context.container.querySelector('div[datatype="match-report"] > div > div:nth-child(2)')!.textContent).toEqual('Legs won: 3');
+                expect(
+                    context.container.querySelector(
+                        'div[datatype="match-report"] > div > div:nth-child(1)',
+                    )!.textContent,
+                ).toEqual('Legs won: 2');
+                expect(
+                    context.container.querySelector(
+                        'div[datatype="match-report"] > div > div:nth-child(2)',
+                    )!.textContent,
+                ).toEqual('Legs won: 3');
             });
 
             it('can stop live updates', async () => {
@@ -253,22 +347,41 @@ describe('SuperLeaguePrintout', () => {
                     .withLeg(1, createLeg(false, true))
                     .build();
                 const tournamentData: TournamentGameDto = tournamentBuilder()
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
-                            .sideA('A', 1)
-                            .sideB('B', 2))
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData2.id)
-                            .sideA('C', 3)
-                            .sideB('D', 4)))
+                    .round((r) =>
+                        r
+                            .withMatch((m) =>
+                                m
+                                    .saygId(saygData1.id)
+                                    .sideA('A', 1)
+                                    .sideB('B', 2),
+                            )
+                            .withMatch((m) =>
+                                m
+                                    .saygId(saygData2.id)
+                                    .sideA('C', 3)
+                                    .sideB('D', 4),
+                            ),
+                    )
                     .build();
-                const division: DivisionDto = divisionBuilder('DIVISION').build();
+                const division: DivisionDto =
+                    divisionBuilder('DIVISION').build();
                 saygApiResponseMap = {};
                 saygApiResponseMap[saygData1.id] = saygData1;
                 saygApiResponseMap[saygData2.id] = saygData2;
-                await renderComponent(containerProps.withTournament(tournamentData).build(), { division }, access);
-                await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
+                await renderComponent(
+                    containerProps.withTournament(tournamentData).build(),
+                    { division },
+                    access,
+                );
+                await doSelectOption(
+                    context.container.querySelector('.dropdown-menu'),
+                    '▶️ Live',
+                );
 
-                await doSelectOption(context.container.querySelector('.dropdown-menu'), '⏸️ Paused');
+                await doSelectOption(
+                    context.container.querySelector('.dropdown-menu'),
+                    '⏸️ Paused',
+                );
 
                 expect(Object.keys(socketFactory.subscriptions)).toEqual([]);
             });
@@ -283,26 +396,50 @@ describe('SuperLeaguePrintout', () => {
                     .withLeg(1, createLeg(false, true))
                     .build();
                 const tournamentData: TournamentGameDto = tournamentBuilder()
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
-                            .sideA('A', 1)
-                            .sideB('B', 2))
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData2.id)
-                            .sideA('C', 3)
-                            .sideB('D', 4)))
+                    .round((r) =>
+                        r
+                            .withMatch((m) =>
+                                m
+                                    .saygId(saygData1.id)
+                                    .sideA('A', 1)
+                                    .sideB('B', 2),
+                            )
+                            .withMatch((m) =>
+                                m
+                                    .saygId(saygData2.id)
+                                    .sideA('C', 3)
+                                    .sideB('D', 4),
+                            ),
+                    )
                     .build();
-                const division: DivisionDto = divisionBuilder('DIVISION').build();
+                const division: DivisionDto =
+                    divisionBuilder('DIVISION').build();
                 saygApiResponseMap = {};
                 saygApiResponseMap[saygData1.id] = saygData1;
                 saygApiResponseMap[saygData2.id] = saygData2;
-                await renderComponent(containerProps.withTournament(tournamentData).build(), { division }, access);
-                await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
-                await doSelectOption(context.container.querySelector('.dropdown-menu'), '⏸️ Paused');
+                await renderComponent(
+                    containerProps.withTournament(tournamentData).build(),
+                    { division },
+                    access,
+                );
+                await doSelectOption(
+                    context.container.querySelector('.dropdown-menu'),
+                    '▶️ Live',
+                );
+                await doSelectOption(
+                    context.container.querySelector('.dropdown-menu'),
+                    '⏸️ Paused',
+                );
                 expect(Object.keys(socketFactory.subscriptions)).toEqual([]);
 
-                await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
+                await doSelectOption(
+                    context.container.querySelector('.dropdown-menu'),
+                    '▶️ Live',
+                );
 
-                expect(Object.keys(socketFactory.subscriptions).sort()).toEqual([ tournamentData.id, saygData1.id, saygData2.id ].sort());
+                expect(Object.keys(socketFactory.subscriptions).sort()).toEqual(
+                    [tournamentData.id, saygData1.id, saygData2.id].sort(),
+                );
             });
         });
 
@@ -324,15 +461,25 @@ describe('SuperLeaguePrintout', () => {
                     .addTo(saygApiResponseMap)
                     .build();
                 const tournamentData: TournamentGameDto = tournamentBuilder()
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
-                            .sideA('PLAYER A')
-                            .sideB('PLAYER B')))
+                    .round((r) =>
+                        r.withMatch((m) =>
+                            m
+                                .saygId(saygData1.id)
+                                .sideA('PLAYER A')
+                                .sideB('PLAYER B'),
+                        ),
+                    )
                     .build();
-                const division: DivisionDto = divisionBuilder('DIVISION').build();
-                await renderComponent(containerProps.withTournament(tournamentData).build(), { division }, access);
+                const division: DivisionDto =
+                    divisionBuilder('DIVISION').build();
+                await renderComponent(
+                    containerProps.withTournament(tournamentData).build(),
+                    { division },
+                    access,
+                );
                 await doClick(findButton(context.container, START_SCORING));
-                const dialog = context.container.querySelector('div.modal-dialog')!;
+                const dialog =
+                    context.container.querySelector('div.modal-dialog')!;
                 expect(saygDataRequests[saygData1.id]).toEqual(2); // data is loaded as the dialog opens
                 patchSuccess = false;
 
@@ -345,7 +492,9 @@ describe('SuperLeaguePrintout', () => {
                 expect(dialog.textContent).toContain('Match statistics');
                 await doClick(findButton(dialog, 'Close')); // close the match statistics dialog
 
-                const summary = context.container.querySelector('div[datatype="summary"]')!;
+                const summary = context.container.querySelector(
+                    'div[datatype="summary"]',
+                )!;
                 expect(summary.textContent).toContain('PLAYER A'); // player should be shown in the table
                 expect(saygDataRequests[saygData1.id]).toEqual(2); // data isn't reloaded if the patch fails
             });
@@ -361,15 +510,25 @@ describe('SuperLeaguePrintout', () => {
                     .addTo(saygApiResponseMap)
                     .build();
                 const tournamentData: TournamentGameDto = tournamentBuilder()
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
-                            .sideA('PLAYER A')
-                            .sideB('PLAYER B')))
+                    .round((r) =>
+                        r.withMatch((m) =>
+                            m
+                                .saygId(saygData1.id)
+                                .sideA('PLAYER A')
+                                .sideB('PLAYER B'),
+                        ),
+                    )
                     .build();
-                const division: DivisionDto = divisionBuilder('DIVISION').build();
-                await renderComponent(containerProps.withTournament(tournamentData).build(), { division, patchData }, access);
+                const division: DivisionDto =
+                    divisionBuilder('DIVISION').build();
+                await renderComponent(
+                    containerProps.withTournament(tournamentData).build(),
+                    { division, patchData },
+                    access,
+                );
                 await doClick(findButton(context.container, START_SCORING));
-                const dialog = context.container.querySelector('div.modal-dialog')!;
+                const dialog =
+                    context.container.querySelector('div.modal-dialog')!;
                 expect(saygDataRequests[saygData1.id]).toEqual(2); // data is loaded as the dialog opens
                 patchSuccess = false;
 
@@ -382,7 +541,9 @@ describe('SuperLeaguePrintout', () => {
                 expect(dialog.textContent).toContain('Match statistics');
                 await doClick(findButton(dialog, 'Close')); // close the match statistics dialog
 
-                const summary = context.container.querySelector('div[datatype="summary"]')!;
+                const summary = context.container.querySelector(
+                    'div[datatype="summary"]',
+                )!;
                 expect(summary.textContent).toContain('PLAYER A'); // player should be shown in the table
                 expect(saygDataRequests[saygData1.id]).toEqual(2); // data isn't reloaded if the patch fails
             });

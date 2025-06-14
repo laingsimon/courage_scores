@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedReference
 
-import {createTemporaryId, isGuid, repeat} from './projection';
+import { createTemporaryId, isGuid, repeat } from './projection';
 
 describe('projection', () => {
     describe('createTemporaryId', () => {
@@ -14,13 +14,13 @@ describe('projection', () => {
 
     describe('repeat', () => {
         it('should return empty array', () => {
-            const result = repeat(0, i => i);
+            const result = repeat(0, (i) => i);
 
             expect(result).toEqual([]);
         });
 
         it('should return array of items', () => {
-            const result = repeat(2, i => i);
+            const result = repeat(2, (i) => i);
 
             expect(result).toEqual([0, 1]);
         });

@@ -5,13 +5,17 @@ import {
     ErrorState,
     iocProps,
     renderApp,
-    TestContext
-} from "../../../helpers/tests";
-import {ISummaryDataRowProps, SummaryDataRow} from "./SummaryDataRow";
-import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
-import {LegThrowDto} from "../../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
-import {ScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto";
-import {saygBuilder} from "../../../helpers/builders/sayg";
+    TestContext,
+} from '../../../helpers/tests';
+import { ISummaryDataRowProps, SummaryDataRow } from './SummaryDataRow';
+import { LegThrowDto } from '../../../interfaces/models/dtos/Game/Sayg/LegThrowDto';
+import { ScoreAsYouGoDto } from '../../../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto';
+import {
+    ILegBuilder,
+    ILegCompetitorScoreBuilder,
+    saygBuilder,
+} from '../../../helpers/builders/sayg';
+import { BuilderParam } from '../../../helpers/builders/builders';
 
 describe('SummaryDataRow', () => {
     let context: TestContext;
@@ -30,41 +34,61 @@ describe('SummaryDataRow', () => {
             iocProps(),
             brandingProps(),
             appProps({}, reportedError),
-            (<SummaryDataRow {...props} />),
+            <SummaryDataRow {...props} />,
             undefined,
             undefined,
-            'tbody');
+            'tbody',
+        );
     }
 
-    function getRowContent(row: HTMLTableRowElement, tagName: string): string[] {
-        return Array.from(row.querySelectorAll(tagName)).map(th => th.textContent!);
+    function getRowContent(
+        row: HTMLTableRowElement,
+        tagName: string,
+    ): string[] {
+        return Array.from(row.querySelectorAll(tagName)).map(
+            (th) => th.textContent!,
+        );
     }
 
-    function createLeg(homeWinner?: boolean, awayWinner?: boolean): LegDto {
+    function createLeg(
+        homeWinner?: boolean,
+        awayWinner?: boolean,
+    ): BuilderParam<ILegBuilder> {
         const winningThrows: LegThrowDto[] = [
-            {score: 90, noOfDarts: 3},
-            {score: 100, noOfDarts: 3},
-            {score: 110, noOfDarts: 3},
-            {score: 120, noOfDarts: 3},
-            {score: 81, noOfDarts: 3},
+            { score: 90, noOfDarts: 3 },
+            { score: 100, noOfDarts: 3 },
+            { score: 110, noOfDarts: 3 },
+            { score: 120, noOfDarts: 3 },
+            { score: 81, noOfDarts: 3 },
         ];
         const notWinningThrows: LegThrowDto[] = [
-            {score: 90, noOfDarts: 3},
-            {score: 90, noOfDarts: 3},
-            {score: 90, noOfDarts: 3},
-            {score: 90, noOfDarts: 3},
-            {score: 90, noOfDarts: 3},
+            { score: 90, noOfDarts: 3 },
+            { score: 90, noOfDarts: 3 },
+            { score: 90, noOfDarts: 3 },
+            { score: 90, noOfDarts: 3 },
+            { score: 90, noOfDarts: 3 },
         ];
 
-        return {
-            home: {
-                throws: homeWinner ? winningThrows : notWinningThrows
-            },
-            away: {
-                throws: awayWinner ? winningThrows : notWinningThrows
-            },
-            startingScore: 501,
-        };
+        function addThrows(
+            builder: ILegCompetitorScoreBuilder,
+            throws: LegThrowDto[],
+        ): ILegCompetitorScoreBuilder {
+            for (const thr of throws) {
+                builder = builder.withThrow(thr.score!, thr.noOfDarts);
+            }
+
+            return builder;
+        }
+
+        return (b) =>
+            b
+                .startingScore(501)
+                .home((c) =>
+                    addThrows(c, homeWinner ? winningThrows : notWinningThrows),
+                )
+                .away((c) =>
+                    addThrows(c, awayWinner ? winningThrows : notWinningThrows),
+                );
     }
 
     describe('renders', () => {
@@ -86,8 +110,21 @@ describe('SummaryDataRow', () => {
             reportedError.verifyNoError();
             const row = context.container.querySelector('tr')!;
             expect(getRowContent(row, 'td')).toEqual([
-                '1', 'HOST', '2', '6', '6', '0', '0', '33.4',
-                'OPPONENT', '3', '0', '0', '0', '0', '30',
+                '1',
+                'HOST',
+                '2',
+                '6',
+                '6',
+                '0',
+                '0',
+                '33.4',
+                'OPPONENT',
+                '3',
+                '0',
+                '0',
+                '0',
+                '0',
+                '30',
             ]);
         });
 

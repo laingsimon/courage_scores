@@ -1,30 +1,33 @@
-import {useDependencies} from "./components/common/IocContainer";
-import React, {useEffect, useState} from "react";
-import {Layout} from "./components/layout/Layout";
-import {Route, Routes} from "react-router";
-import {Home} from "./components/Home";
-import {Score} from "./components/scores/Score";
-import {AdminHome} from "./components/admin/AdminHome";
-import {Tournament} from "./components/tournaments/Tournament";
-import {Practice} from "./components/practice/Practice";
-import {AppContainer} from "./components/common/AppContainer";
-import {About} from "./components/About";
-import {mapError, mapForLogging} from "./helpers/errors";
-import {getBuild} from "./helpers/build";
-import {LiveSayg} from "./components/sayg/LiveSayg";
-import {IApp} from "./components/common/IApp";
-import {DivisionDto} from "./interfaces/models/dtos/DivisionDto";
-import {SeasonDto} from "./interfaces/models/dtos/Season/SeasonDto";
-import {TeamDto} from "./interfaces/models/dtos/Team/TeamDto";
-import {UserDto} from "./interfaces/models/dtos/Identity/UserDto";
-import {Tv} from "./components/Tv";
-import {IBrowserType} from "./components/common/IBrowserType";
-import {PreferencesContainer} from "./components/common/PreferencesContainer";
-import {DivisionUriContainer, UrlStyle} from "./components/league/DivisionUriContainer";
-import {Division} from "./components/league/Division";
-import {IError} from "./components/common/IError";
-import {IFullScreen} from "./components/common/IFullScreen";
-import {AnalyseScores} from "./components/analysis/AnalyseScores";
+import { useDependencies } from './components/common/IocContainer';
+import React, { useEffect, useState } from 'react';
+import { Layout } from './components/layout/Layout';
+import { Route, Routes } from 'react-router';
+import { Home } from './components/Home';
+import { Score } from './components/scores/Score';
+import { AdminHome } from './components/admin/AdminHome';
+import { Tournament } from './components/tournaments/Tournament';
+import { Practice } from './components/practice/Practice';
+import { AppContainer } from './components/common/AppContainer';
+import { About } from './components/About';
+import { mapError, mapForLogging } from './helpers/errors';
+import { getBuild } from './helpers/build';
+import { LiveSayg } from './components/sayg/LiveSayg';
+import { IApp } from './components/common/IApp';
+import { DivisionDto } from './interfaces/models/dtos/DivisionDto';
+import { SeasonDto } from './interfaces/models/dtos/Season/SeasonDto';
+import { TeamDto } from './interfaces/models/dtos/Team/TeamDto';
+import { UserDto } from './interfaces/models/dtos/Identity/UserDto';
+import { Tv } from './components/Tv';
+import { IBrowserType } from './components/common/IBrowserType';
+import { PreferencesContainer } from './components/common/PreferencesContainer';
+import {
+    DivisionUriContainer,
+    UrlStyle,
+} from './components/league/DivisionUriContainer';
+import { Division } from './components/league/Division';
+import { IError } from './components/common/IError';
+import { IFullScreen } from './components/common/IFullScreen';
+import { AnalyseScores } from './components/analysis/AnalyseScores';
 
 export interface IAppProps {
     embed?: boolean;
@@ -32,17 +35,28 @@ export interface IAppProps {
     testRoute?: React.ReactNode;
 }
 
-export function App({embed, controls, testRoute}: IAppProps) {
-    const {divisionApi, accountApi, seasonApi, teamApi, errorApi, settings, parentHeight} = useDependencies();
+export function App({ embed, controls, testRoute }: IAppProps) {
+    const {
+        divisionApi,
+        accountApi,
+        seasonApi,
+        teamApi,
+        errorApi,
+        settings,
+        parentHeight,
+    } = useDependencies();
     const [account, setAccount] = useState<UserDto | undefined>(undefined);
     const [divisions, setDivisions] = useState<DivisionDto[]>([]);
     const [seasons, setSeasons] = useState<SeasonDto[]>([]);
     const [teams, setTeams] = useState<TeamDto[]>([]);
     const [appLoading, setAppLoading] = useState<boolean | null>(null);
     const [error, setError] = useState<IError | undefined>(undefined);
-    const [isFullScreen, setIsFullScreen] = useState<boolean>(document.fullscreenElement != null); // intentional single equals to cover the undefined case
+    const [isFullScreen, setIsFullScreen] = useState<boolean>(
+        document.fullscreenElement != null,
+    ); // intentional single equals to cover the undefined case
 
-    useEffect(() => {
+    useEffect(
+        () => {
             // should only fire on componentDidMount
             document.body.className = embed ? 'embed' : 'darts-background';
 
@@ -50,7 +64,8 @@ export function App({embed, controls, testRoute}: IAppProps) {
             reloadAll();
         },
         // eslint-disable-next-line
-        []);
+        [],
+    );
 
     useEffect(() => {
         // should only fire once (on page load)
@@ -66,7 +81,7 @@ export function App({embed, controls, testRoute}: IAppProps) {
 
         return () => {
             removeEventListener('fullscreenchange', onFullScreenChange);
-        }
+        };
     });
 
     function onError(error: string | IError) {
@@ -123,8 +138,12 @@ export function App({embed, controls, testRoute}: IAppProps) {
     }
 
     const browser: IBrowserType = {
-        mobile: window.navigator.userAgent.indexOf(' Mobile ') !== -1 || window.location.search.indexOf('mobile') !== -1,
-        tv: window.navigator.userAgent.indexOf(' TV ') !== -1 || window.location.search.indexOf('tv') !== -1,
+        mobile:
+            window.navigator.userAgent.indexOf(' Mobile ') !== -1 ||
+            window.location.search.indexOf('mobile') !== -1,
+        tv:
+            window.navigator.userAgent.indexOf(' TV ') !== -1 ||
+            window.location.search.indexOf('tv') !== -1,
     };
 
     const fullScreen: IFullScreen = {
@@ -147,7 +166,7 @@ export function App({embed, controls, testRoute}: IAppProps) {
             }
 
             await this.enterFullScreen();
-        }
+        },
     };
     fullScreen.exitFullScreen = fullScreen.exitFullScreen.bind(fullScreen);
     fullScreen.enterFullScreen = fullScreen.enterFullScreen.bind(fullScreen);
@@ -178,41 +197,135 @@ export function App({embed, controls, testRoute}: IAppProps) {
     };
 
     try {
-        return (<AppContainer {...appData}>
-            <PreferencesContainer>
-                <Layout>
-                    <Routes>
-                        <Route path='/' element={<Home/>}/>
-                        <Route path='/division/:divisionId' element={<DivisionUriContainer urlStyle={UrlStyle.Single}><Division/></DivisionUriContainer>} />
-                        <Route path='/division/:divisionId/:mode' element={<DivisionUriContainer urlStyle={UrlStyle.Single}><Division/></DivisionUriContainer>} />
-                        <Route path='/division/:divisionId/:mode/:seasonId' element={<DivisionUriContainer urlStyle={UrlStyle.Single}><Division/></DivisionUriContainer>} />
-                        <Route path='/teams/:seasonId' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="teams"><Division/></DivisionUriContainer>} />
-                        <Route path='/players/:seasonId' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="players"><Division/></DivisionUriContainer>} />
-                        <Route path='/fixtures/:seasonId' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="fixtures"><Division/></DivisionUriContainer>} />
-                        <Route path='/teams' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="teams"><Division/></DivisionUriContainer>} />
-                        <Route path='/players' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="players"><Division/></DivisionUriContainer>} />
-                        <Route path='/fixtures' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="fixtures"><Division/></DivisionUriContainer>} />
-                        <Route path='/score/:fixtureId' element={<Score/>}/>
-                        <Route path='/admin' element={<AdminHome/>}/>
-                        <Route path='/admin/:mode' element={<AdminHome/>}/>
-                        <Route path='/tournament/:tournamentId' element={<Tournament/>}/>
-                        <Route path='/practice' element={<Practice/>}/>
-                        <Route path='/about' element={<About/>}/>
-                        <Route path='/live/:type' element={<LiveSayg />}/>
-                        <Route path='/live' element={<LiveSayg />}/>
-                        <Route path='/tv' element={<Tv/>}/>
-                        <Route path='/analyse/:season' element={<AnalyseScores/>}/>
-                        {testRoute}
-                    </Routes>
-                </Layout>
-            </PreferencesContainer>
-        </AppContainer>);
+        return (
+            <AppContainer {...appData}>
+                <PreferencesContainer>
+                    <Layout>
+                        <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route
+                                path="/division/:divisionId"
+                                element={
+                                    <DivisionUriContainer
+                                        urlStyle={UrlStyle.Single}>
+                                        <Division />
+                                    </DivisionUriContainer>
+                                }
+                            />
+                            <Route
+                                path="/division/:divisionId/:mode"
+                                element={
+                                    <DivisionUriContainer
+                                        urlStyle={UrlStyle.Single}>
+                                        <Division />
+                                    </DivisionUriContainer>
+                                }
+                            />
+                            <Route
+                                path="/division/:divisionId/:mode/:seasonId"
+                                element={
+                                    <DivisionUriContainer
+                                        urlStyle={UrlStyle.Single}>
+                                        <Division />
+                                    </DivisionUriContainer>
+                                }
+                            />
+                            <Route
+                                path="/teams/:seasonId"
+                                element={
+                                    <DivisionUriContainer
+                                        urlStyle={UrlStyle.Multiple}
+                                        mode="teams">
+                                        <Division />
+                                    </DivisionUriContainer>
+                                }
+                            />
+                            <Route
+                                path="/players/:seasonId"
+                                element={
+                                    <DivisionUriContainer
+                                        urlStyle={UrlStyle.Multiple}
+                                        mode="players">
+                                        <Division />
+                                    </DivisionUriContainer>
+                                }
+                            />
+                            <Route
+                                path="/fixtures/:seasonId"
+                                element={
+                                    <DivisionUriContainer
+                                        urlStyle={UrlStyle.Multiple}
+                                        mode="fixtures">
+                                        <Division />
+                                    </DivisionUriContainer>
+                                }
+                            />
+                            <Route
+                                path="/teams"
+                                element={
+                                    <DivisionUriContainer
+                                        urlStyle={UrlStyle.Multiple}
+                                        mode="teams">
+                                        <Division />
+                                    </DivisionUriContainer>
+                                }
+                            />
+                            <Route
+                                path="/players"
+                                element={
+                                    <DivisionUriContainer
+                                        urlStyle={UrlStyle.Multiple}
+                                        mode="players">
+                                        <Division />
+                                    </DivisionUriContainer>
+                                }
+                            />
+                            <Route
+                                path="/fixtures"
+                                element={
+                                    <DivisionUriContainer
+                                        urlStyle={UrlStyle.Multiple}
+                                        mode="fixtures">
+                                        <Division />
+                                    </DivisionUriContainer>
+                                }
+                            />
+                            <Route
+                                path="/score/:fixtureId"
+                                element={<Score />}
+                            />
+                            <Route path="/admin" element={<AdminHome />} />
+                            <Route
+                                path="/admin/:mode"
+                                element={<AdminHome />}
+                            />
+                            <Route
+                                path="/tournament/:tournamentId"
+                                element={<Tournament />}
+                            />
+                            <Route path="/practice" element={<Practice />} />
+                            <Route path="/about" element={<About />} />
+                            <Route path="/live/:type" element={<LiveSayg />} />
+                            <Route path="/live" element={<LiveSayg />} />
+                            <Route path="/tv" element={<Tv />} />
+                            <Route
+                                path="/analyse/:season"
+                                element={<AnalyseScores />}
+                            />
+                            {testRoute}
+                        </Routes>
+                    </Layout>
+                </PreferencesContainer>
+            </AppContainer>
+        );
     } catch (e) {
         /* istanbul ignore next */
         onError(e!);
         /* istanbul ignore next */
-        return (<AppContainer {...appData}>
-            <span>Error</span>
-        </AppContainer>);
+        return (
+            <AppContainer {...appData}>
+                <span>Error</span>
+            </AppContainer>
+        );
     }
 }

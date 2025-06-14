@@ -68,12 +68,14 @@ function Get-Logs($Url)
 
     $DotNetResults = Get-ChildItem -Path $ExtractPath -Filter "*build*with-dotnet.txt" | Get-DotNetFailures
     $TypescriptBuildFailures = Get-ChildItem -Path $ExtractPath -Filter "*publish*with-dotnet.txt" | Get-TypescriptBuildFailures
+    $PrettierFormattingFailures = Get-ChildItem -Path $ExtractPath -Filter "*publish*with-dotnet.txt" | Get-PrettierFormattingFailures
+
     if (!($TypescriptBuildFailures -like "*error*npm run build*"))
     {
         $JestResults = Get-ChildItem -Path $ExtractPath -Filter "*publish*with-dotnet.txt" | Get-JestFailures
     }
 
-    return $DotNetResults,$TypescriptBuildFailures,$JestResults
+    return $DotNetResults,$PrettierFormattingFailures,$TypescriptBuildFailures,$JestResults
 }
 
 function Get-LinesBetween($Path, $Start, $End, [switch] $Inclusive)
@@ -141,14 +143,39 @@ function Get-TypescriptBuildFailures([Parameter(ValueFromPipeline)] $Path)
     }
 }
 
+function Get-PrettierFormattingFailures([Parameter(ValueFromPipeline)] $Path)
+{
+    process {
+        $BuildLines = Get-LinesBetween -Path $Path -Start "*Checking formatting..." -End "*Code style issues*" -Inclusive | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
+        $IncorrectlyFormattedFiles = ($BuildLines | Where-Object { $_ -like "*[warn] *" }).Count
+        $AllFilesFormattedCorrectly = ($BuildLines | Where-Object { $_ -like "*All matched files use Prettier code style!" }).Count -ge 1
+
+        if ($AllFilesFormattedCorrectly)
+        {
+            return
+        }
+
+        if ($IncorrectlyFormattedFiles -gt 0)
+        {
+            Write-Output "#### Prettier check:`n$($CodeBlock)`n$($BuildLines -join "`n")`n$($CodeBlock)"
+        }
+    }
+}
+
 function Get-JestFailures([Parameter(ValueFromPipeline)] $Path)
 {
     process {
-        $TestLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Summary of all failing tests*" -End "*Ran all test suites." | Remove-Timestamp
+        $TestLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Summary of all failing tests*" -End "*Ran all test suites." | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
         if ($TestLines.Count -eq 0)
         {
-            $TestLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Test Suites:*" -End "*Ran all test suites." | Remove-Timestamp
+            $TestLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Test Suites:*" -End "*Ran all test suites." | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
         }
+
+        if ($TestLines.Count -eq 0)
+        {
+            return
+        }
+
         Write-Output "#### React tests:`n$($CodeBlock)`n$($TestLines -join "`n")`n$($CodeBlock)"
     }
 }

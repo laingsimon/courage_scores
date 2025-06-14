@@ -1,37 +1,43 @@
 import {
     appProps,
     brandingProps,
-    cleanUp, doChange,
-    doClick, doSelectOption,
-    ErrorState, findButton,
+    cleanUp,
+    doChange,
+    doClick,
+    doSelectOption,
+    ErrorState,
+    findButton,
     iocProps,
     renderApp,
-    TestContext
-} from "../../helpers/tests";
-import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
-import {IPrintableSheetProps, PrintableSheet} from "./PrintableSheet";
-import {renderDate} from "../../helpers/rendering";
-import {createTemporaryId} from "../../helpers/projection";
-import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
-import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
-import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
-import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
-import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
-import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
+    TestContext,
+    user,
+} from '../../helpers/tests';
 import {
-    ITournamentMatchBuilder, ITournamentRoundBuilder,
+    ITournamentContainerProps,
+    TournamentContainer,
+} from './TournamentContainer';
+import { IPrintableSheetProps, PrintableSheet } from './PrintableSheet';
+import { renderDate } from '../../helpers/rendering';
+import { createTemporaryId } from '../../helpers/projection';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
+import {
+    ITournamentRoundBuilder,
     ITournamentSideBuilder,
     sideBuilder,
-    tournamentBuilder
-} from "../../helpers/builders/tournaments";
-import {IMatchOptionsBuilder, matchOptionsBuilder} from "../../helpers/builders/games";
-import {playerBuilder} from "../../helpers/builders/players";
-import {teamBuilder} from "../../helpers/builders/teams";
-import {seasonBuilder} from "../../helpers/builders/seasons";
-import {divisionBuilder} from "../../helpers/builders/divisions";
-import {IAppContainerProps} from "../common/AppContainer";
-import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
-import {tournamentContainerPropsBuilder} from "./tournamentContainerPropsBuilder";
+    tournamentBuilder,
+} from '../../helpers/builders/tournaments';
+import { matchOptionsBuilder } from '../../helpers/builders/games';
+import { playerBuilder } from '../../helpers/builders/players';
+import { teamBuilder } from '../../helpers/builders/teams';
+import { seasonBuilder } from '../../helpers/builders/seasons';
+import { divisionBuilder } from '../../helpers/builders/divisions';
+import { IAppContainerProps } from '../common/AppContainer';
+import { tournamentContainerPropsBuilder } from './tournamentContainerPropsBuilder';
+import { BuilderParam } from '../../helpers/builders/builders';
+import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
 
 interface ISideInfo {
     sideAwinner?: boolean;
@@ -69,100 +75,142 @@ describe('PrintableSheet', () => {
         editTournament = value;
     }
 
-    async function renderComponent(containerProps: ITournamentContainerProps, props: IPrintableSheetProps, appProps: IAppContainerProps) {
+    async function renderComponent(
+        containerProps: ITournamentContainerProps,
+        props: IPrintableSheetProps,
+        appProps: IAppContainerProps,
+    ) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
             appProps,
-            (<TournamentContainer {...containerProps}>
+            <TournamentContainer {...containerProps}>
                 <PrintableSheet {...props} />
-            </TournamentContainer>));
+            </TournamentContainer>,
+        );
     }
 
-    function createSide(name: string, players?: TeamPlayerDto[]): TournamentSideDto {
-        let side: ITournamentSideBuilder = sideBuilder(name);
+    function createSide(
+        name: string,
+        player?: TeamPlayerDto,
+    ): BuilderParam<ITournamentSideBuilder> {
+        return (builder) => {
+            const side = builder.name(name);
 
-        if (players && players.length === 1) {
-            side = side.withPlayer(players[0]);
+            return player ? side.withPlayer(player) : side;
+        };
+    }
+
+    function side(name: string, player: TeamPlayerDto) {
+        return createSide(name, player)(sideBuilder()).build();
+    }
+
+    function getAccolades<T>(
+        name: string,
+        selector?: (e: Element) => T,
+        container?: Element,
+    ): T[] {
+        container = container ?? context.container;
+        return Array.from(
+            container.querySelectorAll(`div[data-accolades="${name}"] div`),
+        ).map(selector ?? ((e) => e.textContent! as T));
+    }
+
+    function getPlayers(round: Element, name: string) {
+        const parent = round.querySelector(`div[data-accolades="${name}"]`);
+        if (!parent) {
+            return null;
         }
 
-        return side.build();
+        return {
+            players: getAccolades(name, undefined, round),
+        };
     }
 
     function getRounds() {
-        return Array.from(context.container.querySelectorAll('div[datatype^="round-"]'))
-            .map(round => {
+        const round = 'div[datatype^="round-"]';
+        return Array.from(context.container.querySelectorAll(round)).map(
+            (r) => {
                 return {
-                    //element: round,
-                    oneEighties: round.querySelector('div[data-accolades="180s"]') ? {
-                        //element: round.querySelector('div[data-accolades="180s"]'),
-                        players: Array.from(round.querySelectorAll('div[data-accolades="180s"] div')).map(e => e.textContent),
-                    } : null,
-                    hiChecks: round.querySelector('div[data-accolades="hi-checks"]') ? {
-                        //element: round.querySelector('div[data-accolades="hi-checks"]'),
-                        players: Array.from(round.querySelectorAll('div[data-accolades="180s"] div')).map(e => e.textContent),
-                    } : null,
-                    heading: round.querySelector('h5[datatype="round-name"]')!.textContent,
-                    matches: Array.from(round.querySelectorAll('div[datatype="match"]'))
-                        .map((match: Element): ISideInfo => {
-                            function setInfo(selector: string, name: string, getter: (element: Element) => any) {
-                                const element = match.querySelector(selector);
-                                if (element) {
-                                    const value = getter(element);
-                                    if (value) {
-                                        info[name] = value;
-                                    }
+                    oneEighties: getPlayers(r, '180s'),
+                    hiChecks: getPlayers(r, 'hi-checks'),
+                    heading: find('round-name', r)!.textContent,
+                    matches: Array.from(
+                        r.querySelectorAll('div[datatype="match"]'),
+                    ).map((match: Element): ISideInfo => {
+                        function setInfo(
+                            selector: string,
+                            name: string,
+                            getter: (element: Element) => any,
+                        ) {
+                            const element = match.querySelector(selector);
+                            if (element) {
+                                const value = getter(element);
+                                if (value) {
+                                    info[name] = value;
                                 }
                             }
+                        }
 
-                            const info: ISideInfo = {
-                                saygLink: match.querySelector('a')
-                                    ? match.querySelector('a')!.href
-                                    : undefined,
-                            };
+                        const info: ISideInfo = {
+                            saygLink: match.querySelector('a')?.href,
+                        };
 
-                            setInfo(
-                                'div[datatype="sideA"]',
-                                'sideAwinner',
-                                (e: Element) => e.className.indexOf('bg-winner') !== -1);
-                            setInfo(
-                                'div[datatype="sideB"]',
-                                'sideBwinner',
-                                (e: Element) => e.className.indexOf('bg-winner') !== -1);
-                            setInfo(
-                                'span[datatype="sideAname"]',
-                                'sideAname',
-                                (e: Element) => e.textContent!.trim());
-                            setInfo(
-                                'span[datatype="sideBname"]',
-                                'sideBname',
-                                (e: Element) => e.textContent!.trim());
-                            setInfo(
-                                'span[datatype="sideAmnemonic"]',
-                                'sideAmnemonic',
-                                (e: Element) => e.textContent!.trim());
-                            setInfo(
-                                'span[datatype="sideBmnemonic"]',
-                                'sideBmnemonic',
-                                (e: Element) => e.textContent!.trim());
-                            setInfo(
-                                'div[datatype="scoreA"]',
-                                'scoreA',
-                                (e: Element) => e.textContent!.trim());
-                            setInfo(
-                                'div[datatype="scoreB"]',
-                                'scoreB',
-                                (e: Element) => e.textContent!.trim());
+                        setInfo(
+                            'div[datatype="sideA"]',
+                            'sideAwinner',
+                            (e: Element) =>
+                                e.className.indexOf('bg-winner') !== -1,
+                        );
+                        setInfo(
+                            'div[datatype="sideB"]',
+                            'sideBwinner',
+                            (e: Element) =>
+                                e.className.indexOf('bg-winner') !== -1,
+                        );
+                        setInfo(
+                            'span[datatype="sideAname"]',
+                            'sideAname',
+                            (e: Element) => e.textContent!.trim(),
+                        );
+                        setInfo(
+                            'span[datatype="sideBname"]',
+                            'sideBname',
+                            (e: Element) => e.textContent!.trim(),
+                        );
+                        setInfo(
+                            'span[datatype="sideAmnemonic"]',
+                            'sideAmnemonic',
+                            (e: Element) => e.textContent!.trim(),
+                        );
+                        setInfo(
+                            'span[datatype="sideBmnemonic"]',
+                            'sideBmnemonic',
+                            (e: Element) => e.textContent!.trim(),
+                        );
+                        setInfo(
+                            'div[datatype="scoreA"]',
+                            'scoreA',
+                            (e: Element) => e.textContent!.trim(),
+                        );
+                        setInfo(
+                            'div[datatype="scoreB"]',
+                            'scoreB',
+                            (e: Element) => e.textContent!.trim(),
+                        );
 
-                            return info;
-                        }),
-                }
-            });
+                        return info;
+                    }),
+                };
+            },
+        );
     }
 
-    function getWhoIsPlaying<T>(selector: (e: Element) => T): T[] {
-        return Array.from(context.container.querySelectorAll('div[datatype="playing"] li'))
-            .map(selector);
+    function getWhoIsPlaying<T>(selector?: (e: Element) => T): T[] {
+        const s = 'div[datatype="playing"] li';
+        return Array.from(context.container.querySelectorAll(s)).map(
+            selector ?? ((li) => whoIsPlayingText(li) as T),
+        );
     }
 
     function whoIsPlayingText(li: Element): string {
@@ -172,27 +220,44 @@ describe('PrintableSheet', () => {
     }
 
     function linkHref(container: Element): string | null {
-        const link = container.querySelector('a');
-        return link ? link.href : null;
+        return container.querySelector('a')?.href ?? null;
     }
 
-    function getAccolades<T>(name: string, selector: (e: Element) => T): T[] {
-        return Array.from(context.container.querySelectorAll('div[data-accolades="' + name + '"] div'))
-            .map(selector);
-    }
-
-    function getWinner(): { name: string, link?: string } {
-        const winnerElement = context.container.querySelector('div[datatype="winner"]')!;
+    function getWinner(): { name: string; link?: string } {
+        const winnerElement = find('winner')!;
 
         return {
             name: winnerElement.querySelector('span')!.textContent!,
-            link: winnerElement.querySelector('a')
-                ? winnerElement.querySelector('a')!.href
-                : undefined,
+            link: winnerElement.querySelector('a')?.href,
         };
     }
 
-    function match(sideA: string, scoreA: string, sideB: string, scoreB: string, winner?: string, saygLink?: string): ISideInfo {
+    function find(dataType: string, container?: Element) {
+        return (context.container ?? container).querySelector(
+            `[datatype="${dataType}"]`,
+        );
+    }
+
+    function getDialog() {
+        return context.container.querySelector('div.modal-dialog');
+    }
+
+    async function setPlayerAndScore(side: string, score: string) {
+        const dialog = getDialog()!;
+        const sideSelector = 'div.btn-group:nth-child(2) .dropdown-menu';
+        const scoreSelector = 'div.btn-group:nth-child(4) .dropdown-menu';
+        await doSelectOption(dialog.querySelector(sideSelector), side);
+        await doSelectOption(dialog.querySelector(scoreSelector), score);
+    }
+
+    function match(
+        sideA: string,
+        scoreA: string,
+        sideB: string,
+        scoreB: string,
+        winner?: string,
+        saygLink?: string,
+    ): ISideInfo {
         return {
             sideAname: sideA,
             sideBname: sideB,
@@ -204,49 +269,74 @@ describe('PrintableSheet', () => {
         };
     }
 
+    async function render(
+        containerProps: tournamentContainerPropsBuilder,
+        app?: Partial<IAppContainerProps>,
+        props?: IPrintableSheetProps,
+    ) {
+        await renderComponent(
+            containerProps.build(),
+            props ?? {},
+            appProps(app ?? {}, reportedError),
+        );
+    }
+
+    async function renderEditable(
+        containerProps: tournamentContainerPropsBuilder,
+        app?: Partial<IAppContainerProps>,
+    ) {
+        await render(containerProps, app, { editable: true });
+    }
+
+    function makeMatch(
+        round: ITournamentRoundBuilder,
+        sideA: BuilderParam<ITournamentSideBuilder> | TournamentSideDto,
+        sideB: BuilderParam<ITournamentSideBuilder> | TournamentSideDto,
+        scoreA: number,
+        scoreB: number,
+        numberOfLegs: number = 3,
+    ) {
+        return round
+            .withMatch((m) => m.sideA(sideA, scoreA).sideB(sideB, scoreB))
+            .withMatchOption((o) => o.numberOfLegs(numberOfLegs));
+    }
+
     describe('played tournament', () => {
-        const sideA: TournamentSideDto = createSide('a');
-        const sideB: TournamentSideDto = createSide('b');
-        const sideC: TournamentSideDto = createSide('c');
-        const sideD: TournamentSideDto = createSide('d');
-        const sideE: TournamentSideDto = createSide('e');
-        const sideF: TournamentSideDto = createSide('f');
-        const sideG: TournamentSideDto = createSide('g');
-        const sideH: TournamentSideDto = createSide('h');
-        const sideI: TournamentSideDto = createSide('i');
-        const sideJ: TournamentSideDto = createSide('j');
-        const sideK: TournamentSideDto = createSide('k');
-        const sideL: TournamentSideDto = createSide('l');
+        const sideA: BuilderParam<ITournamentSideBuilder> = createSide('a');
+        const sideB: BuilderParam<ITournamentSideBuilder> = createSide('b');
+        const sideC: BuilderParam<ITournamentSideBuilder> = createSide('c');
+        const sideD: BuilderParam<ITournamentSideBuilder> = createSide('d');
+        const sideE: BuilderParam<ITournamentSideBuilder> = createSide('e');
+        const sideF: BuilderParam<ITournamentSideBuilder> = createSide('f');
+        const sideG: BuilderParam<ITournamentSideBuilder> = createSide('g');
+        const sideH: BuilderParam<ITournamentSideBuilder> = createSide('h');
+        const sideI: BuilderParam<ITournamentSideBuilder> = createSide('i');
+        const sideJ: BuilderParam<ITournamentSideBuilder> = createSide('j');
+        const sideK: BuilderParam<ITournamentSideBuilder> = createSide('k');
+        const sideL: BuilderParam<ITournamentSideBuilder> = createSide('l');
         const division: DivisionDto = divisionBuilder('DIVISION').build();
-        const season: SeasonDto = seasonBuilder('SEASON').withDivision(division).build();
+        const season = seasonBuilder('SEASON').withDivision(division).build();
         const anotherSeason: SeasonDto = seasonBuilder('SEASON').build();
         const matchOptionDefaults = matchOptionsBuilder().build();
         const player1: TeamPlayerDto = playerBuilder('PLAYER 1').build();
         const player2: TeamPlayerDto = playerBuilder('PLAYER 2').build();
-        const account: UserDto = {
-            name: '',
-            givenName: '',
-            emailAddress: '',
-            access: {}
-        };
-        const player1Team: TeamDto = teamBuilder('TEAM')
+        const account = user({});
+        const player1Team = teamBuilder('TEAM')
             .forSeason(season, division, [player1])
             .build();
-        const player2Team: TeamDto = teamBuilder('TEAM')
+        const player2Team = teamBuilder('TEAM')
             .forSeason(season, division, [player2])
             .build();
-        const noPlayerTeam: TeamDto = teamBuilder('TEAM')
+        const noPlayerTeam = teamBuilder('TEAM')
             .forSeason(season, division)
             .build();
-        const sideASinglePlayer: TournamentSideDto = createSide('A', [player1]);
-        const sideBSinglePlayer: TournamentSideDto = createSide('B', [player2]);
-        const singlePlayerTournament: TournamentGameDto = tournamentBuilder()
-            .withSide(sideASinglePlayer)
-            .withSide(sideBSinglePlayer)
+        const singles: TournamentGameDto = tournamentBuilder()
+            .withSide((b) => b.name('A').withPlayer(player1))
+            .withSide((b) => b.name('B').withPlayer(player2))
             .build();
-        let twoRoundTournament4Sides: TournamentGameDto;
-        let oneRoundTournament2Sides: TournamentGameDto;
-        const containerProps = new tournamentContainerPropsBuilder({
+        let twoRounds4Sides: TournamentGameDto;
+        let oneRound2Sides: TournamentGameDto;
+        const props = new tournamentContainerPropsBuilder({
             season,
             division,
             matchOptionDefaults,
@@ -255,74 +345,55 @@ describe('PrintableSheet', () => {
         });
 
         beforeEach(() => {
-            twoRoundTournament4Sides = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2))
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 2).sideB(sideD, 1))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideB, 2).sideB(sideC, 1))
-                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
-                .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
+            twoRounds4Sides = tournamentBuilder()
+                .round((r) => {
+                    r = makeMatch(r, sideA, sideB, 1, 2);
+                    r = makeMatch(r, sideC, sideD, 2, 1);
+                    return r.round((r) => makeMatch(r, sideB, sideC, 2, 1));
+                })
+                .withSide(sideA, sideB, sideC, sideD)
                 .build();
 
-            oneRoundTournament2Sides = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
-                        .sideA(sideASinglePlayer, 1)
-                        .sideB(sideBSinglePlayer, 2))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
-                .withSide(sideASinglePlayer)
-                .withSide(sideBSinglePlayer)
+            oneRound2Sides = tournamentBuilder()
+                .round((r) =>
+                    makeMatch(r, side('A', player1), side('B', player2), 1, 2),
+                )
+                .withSide((b) => b.name('A').withPlayer(player1))
+                .withSide((b) => b.name('B').withPlayer(player2))
                 .build();
         });
 
         it('renders tournament with one round', async () => {
-            await renderComponent(
-                containerProps.withTournament(oneRoundTournament2Sides).build(),
-                {},
-                appProps({}, reportedError));
+            await render(props.withTournament(oneRound2Sides));
 
-            const rounds = getRounds();
-            expect(rounds.length).toEqual(1);
-            expect(rounds[0].matches).toEqual([
+            expect(getRounds()[0].matches).toEqual([
                 match('A', '1', 'B', '2', 'b'),
             ]);
         });
 
         it('renders tournament with sayg id', async () => {
             const saygId = createTemporaryId();
-            oneRoundTournament2Sides.round!.matches![0].saygId = saygId;
+            oneRound2Sides.round!.matches![0].saygId = saygId;
 
-            await renderComponent(
-                containerProps.withTournament(oneRoundTournament2Sides).build(),
-                {},
-                appProps({}, reportedError));
+            await render(props.withTournament(oneRound2Sides));
 
-            const rounds = getRounds();
-            expect(rounds.length).toEqual(1);
-            expect(rounds[0].matches).toEqual([
-                match('A', '1', 'B', '2', 'b', 'http://localhost/live/match/?id=' + saygId),
+            const liveUrl = 'http://localhost/live/match/?id=' + saygId;
+            expect(getRounds()[0].matches).toEqual([
+                match('A', '1', 'B', '2', 'b', liveUrl),
             ]);
         });
 
         it('renders incomplete tournament with six sides and one round', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 0).sideB(sideB, 0))
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 0).sideB(sideD, 0))
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideE, 0).sideB(sideF, 0))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
-                .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE).withSide(sideF)
+                .round((r) => {
+                    r = makeMatch(r, sideA, sideB, 0, 0);
+                    r = makeMatch(r, sideC, sideD, 0, 0);
+                    return makeMatch(r, sideE, sideF, 0, 0);
+                })
+                .withSide(sideA, sideB, sideC, sideD, sideE, sideF)
                 .build();
 
-            await renderComponent(
-                containerProps.withTournament(tournamentData).build(),
-                {},
-                appProps({}, reportedError));
+            await render(props.withTournament(tournamentData));
 
             const rounds = getRounds();
             expect(rounds.length).toEqual(3);
@@ -332,17 +403,14 @@ describe('PrintableSheet', () => {
                 match('e', '0', 'f', '0'),
             ]);
             expect(rounds[1].matches).toEqual([
-                { sideBmnemonic: 'winner(M1)', },
-                { sideBmnemonic: 'winner(M2)', },
+                { sideBmnemonic: 'winner(M1)' },
+                { sideBmnemonic: 'winner(M2)' },
             ]);
             expect(rounds[2].matches).toEqual([{}]);
         });
 
         it('renders tournament with 2 rounds', async () => {
-            await renderComponent(
-                containerProps.withTournament(twoRoundTournament4Sides).build(),
-                {},
-                appProps({}, reportedError));
+            await render(props.withTournament(twoRounds4Sides));
 
             const rounds = getRounds();
             expect(rounds.length).toEqual(2);
@@ -350,31 +418,23 @@ describe('PrintableSheet', () => {
                 match('a', '1', 'b', '2', 'b'),
                 match('c', '2', 'd', '1', 'a'),
             ]);
-            expect(rounds[1].matches).toEqual([
-                match('b', '2', 'c', '1', 'a'),
-            ]);
+            expect(rounds[1].matches).toEqual([match('b', '2', 'c', '1', 'a')]);
         });
 
         it('renders tournament with 3 rounds', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2))
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 2).sideB(sideD, 1))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideE, 2).sideB(sideB, 1))
-                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                        .round((r: ITournamentRoundBuilder) => r
-                            .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 2).sideB(sideE, 1))
-                            .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))))
-                .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE)
+                .round((r) => {
+                    r = makeMatch(r, sideA, sideB, 1, 2);
+                    r = makeMatch(r, sideC, sideD, 2, 1);
+                    return r.round((r) => {
+                        r = makeMatch(r, sideE, sideB, 2, 1);
+                        return r.round((r) => makeMatch(r, sideC, sideE, 2, 1));
+                    });
+                })
+                .withSide(sideA, sideB, sideC, sideD, sideE)
                 .build();
 
-            await renderComponent(
-                containerProps.withTournament(tournamentData).build(),
-                {},
-                appProps({}, reportedError));
+            await render(props.withTournament(tournamentData));
 
             const rounds = getRounds();
             expect(rounds.length).toEqual(3);
@@ -384,49 +444,37 @@ describe('PrintableSheet', () => {
             ]);
             expect(rounds[1].matches).toEqual([
                 match('e', '2', 'b', '1', 'a'),
-                { sideBmnemonic: 'b', },
+                { sideBmnemonic: 'b' },
             ]);
-            expect(rounds[2].matches).toEqual([
-                match('c', '2', 'e', '1', 'a'),
-            ]);
+            expect(rounds[2].matches).toEqual([match('c', '2', 'e', '1', 'a')]);
         });
 
         it('renders tournament with 4 rounds', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2))
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 2).sideB(sideD, 1))
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideE, 2).sideB(sideF, 1))
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideG, 1).sideB(sideH, 2))
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideI, 1).sideB(sideJ, 2))
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideK, 1).sideB(sideL, 2))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideB, 2).sideB(sideC, 1))
-                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideE, 2).sideB(sideH, 1))
-                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                        .round((r: ITournamentRoundBuilder) => r
-                            .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideB, 2).sideB(sideE, 1))
-                            .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideJ, 2).sideB(sideL, 1))
-                            .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                            .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                            .round((r: ITournamentRoundBuilder) => r
-                                .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideB, 2).sideB(sideJ, 1))
-                                .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))))
-                .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE).withSide(sideF)
-                .withSide(sideG).withSide(sideH).withSide(sideI).withSide(sideJ).withSide(sideK).withSide(sideL)
+                .round((r) => {
+                    r = makeMatch(r, sideA, sideB, 1, 2);
+                    r = makeMatch(r, sideC, sideD, 2, 1);
+                    r = makeMatch(r, sideE, sideF, 2, 1);
+                    r = makeMatch(r, sideG, sideH, 1, 2);
+                    r = makeMatch(r, sideI, sideJ, 1, 2);
+                    r = makeMatch(r, sideK, sideL, 1, 2);
+                    return r.round((r) => {
+                        r = makeMatch(r, sideB, sideC, 2, 1);
+                        r = makeMatch(r, sideE, sideH, 2, 1);
+                        return r.round((r) => {
+                            r = makeMatch(r, sideB, sideE, 2, 1);
+                            r = makeMatch(r, sideJ, sideL, 2, 1);
+                            return r.round((r) =>
+                                makeMatch(r, sideB, sideJ, 2, 1),
+                            );
+                        });
+                    });
+                })
+                .withSide(sideA, sideB, sideC, sideD, sideE, sideF, sideG)
+                .withSide(sideH, sideI, sideJ, sideK, sideL)
                 .build();
 
-            await renderComponent(
-                containerProps.withTournament(tournamentData).build(),
-                {},
-                appProps({}, reportedError));
+            await render(props.withTournament(tournamentData));
 
             const rounds = getRounds();
             expect(rounds.length).toEqual(4);
@@ -441,164 +489,170 @@ describe('PrintableSheet', () => {
             expect(rounds[1].matches).toEqual([
                 match('b', '2', 'c', '1', 'a'),
                 match('e', '2', 'h', '1', 'a'),
-                { sideBmnemonic: 'e', },
-                { sideBmnemonic: 'h', },
+                { sideBmnemonic: 'e' },
+                { sideBmnemonic: 'h' },
             ]);
             expect(rounds[2].matches).toEqual([
                 match('b', '2', 'e', '1', 'a'),
                 match('j', '2', 'l', '1', 'a'),
             ]);
-            expect(rounds[3].matches).toEqual([
-                match('b', '2', 'j', '1', 'a'),
-            ]);
+            expect(rounds[3].matches).toEqual([match('b', '2', 'j', '1', 'a')]);
         });
 
         it('does not render winner when insufficient legs played', async () => {
-            oneRoundTournament2Sides.round!.matchOptions![0].numberOfLegs = 5;
+            oneRound2Sides.round!.matchOptions![0].numberOfLegs = 5;
 
-            await renderComponent(
-                containerProps.withTournament(oneRoundTournament2Sides).build(),
-                {},
-                appProps({ teams: [player2Team], divisions: [division] }, reportedError));
-
-            const winner = getWinner();
-            expect(winner).toEqual({
-                name: ' ',
+            await render(props.withTournament(oneRound2Sides), {
+                teams: [player2Team],
+                divisions: [division],
             });
+
+            expect(getWinner().name).toEqual(' ');
         });
 
         it('does not render winner when 2 matches in final round (semi final is last round so far)', async () => {
-            const sideCSinglePlayer: TournamentSideDto = createSide('C', [playerBuilder('PLAYER 3').build()]);
-            const sideDSinglePlayer: TournamentSideDto = createSide('D', [playerBuilder('PLAYER 4').build()]);
-            const sideESinglePlayer: TournamentSideDto = createSide('E', [playerBuilder('PLAYER 5').build()]);
+            const sideCSinglePlayer: BuilderParam<ITournamentSideBuilder> =
+                createSide('C', playerBuilder('PLAYER 3').build());
+            const sideDSinglePlayer: BuilderParam<ITournamentSideBuilder> =
+                createSide('D', playerBuilder('PLAYER 4').build());
             const tournamentData = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
-                        .sideA(sideASinglePlayer, 1)
-                        .sideB(sideBSinglePlayer, 3))
-                    .withMatch((m: ITournamentMatchBuilder) => m
-                        .sideA(sideCSinglePlayer, 0)
-                        .sideB(sideDSinglePlayer, 0))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(5))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(5)))
-                .withSide(sideASinglePlayer)
-                .withSide(sideBSinglePlayer)
-                .withSide(sideCSinglePlayer)
-                .withSide(sideDSinglePlayer)
-                .withSide(sideESinglePlayer)
+                .round((r) => {
+                    r = makeMatch(
+                        r,
+                        side('A', player1),
+                        side('B', player2),
+                        1,
+                        3,
+                        5,
+                    );
+                    return makeMatch(
+                        r,
+                        sideCSinglePlayer,
+                        sideDSinglePlayer,
+                        0,
+                        0,
+                        5,
+                    );
+                })
+                .withSide((b) => b.name('A').withPlayer(player1))
+                .withSide((b) => b.name('B').withPlayer(player2))
+                .withSide((b) => b.name('C').withPlayer('PLAYER 3'))
+                .withSide((b) => b.name('D').withPlayer('PLAYER 4'))
+                .withSide((b) => b.name('E').withPlayer('PLAYER 5'))
                 .build();
 
-            await renderComponent(
-                containerProps.withTournament(tournamentData).build(),
-                {},
-                appProps({teams: [player2Team], divisions: [division]}, reportedError));
-
-            expect(getWinner()).toEqual({
-                name: ' ',
+            await render(props.withTournament(tournamentData), {
+                teams: [player2Team],
+                divisions: [division],
             });
+
+            expect(getWinner().name).toEqual(' ');
         });
 
         it('renders winner', async () => {
-            await renderComponent(
-                containerProps.withTournament(oneRoundTournament2Sides).build(),
-                {},
-                appProps({ teams: [player2Team], divisions: [division] }, reportedError));
+            await render(props.withTournament(oneRound2Sides), {
+                teams: [player2Team],
+                divisions: [division],
+            });
 
-            const winner = getWinner();
-            expect(winner.name).toEqual('B');
-            expect(winner.link).toEqual(`http://localhost/division/${division.name}/player:${encodeURI(player2.name)}@TEAM/${season.name}`);
+            expect(getWinner().name).toEqual('B');
+            expect(getWinner().link).toEqual(
+                `http://localhost/division/${division.name}/player:${encodeURI(player2.name)}@TEAM/${season.name}`,
+            );
         });
 
         it('renders winner when cross-divisional', async () => {
-            await renderComponent(
-                containerProps.withTournament(oneRoundTournament2Sides).build(),
-                {},
-                appProps({ teams: [player2Team], divisions: [division] }, reportedError));
+            await render(props.withTournament(oneRound2Sides), {
+                teams: [player2Team],
+                divisions: [division],
+            });
 
-            const winner = getWinner();
-            expect(winner.name).toEqual('B');
-            expect(winner.link).toEqual(`http://localhost/division/${division.name}/player:${encodeURI(player2.name)}@TEAM/${season.name}`);
+            expect(getWinner().name).toEqual('B');
+            expect(getWinner().link).toEqual(
+                `http://localhost/division/${division.name}/player:${encodeURI(player2.name)}@TEAM/${season.name}`,
+            );
         });
 
         it('renders who is playing (singles)', async () => {
-            await renderComponent(
-                containerProps.withTournament(singlePlayerTournament).build(),
-                {},
-                appProps({ teams: [player1Team], divisions: [division] }, reportedError));
+            await render(props.withTournament(singles), {
+                teams: [player1Team],
+                divisions: [division],
+            });
 
-            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
-            expect(getWhoIsPlaying(linkHref)).toEqual([`http://localhost/division/${division.name}/player:${encodeURI('PLAYER 1')}@TEAM/${season.name}`, null]);
+            expect(getWhoIsPlaying()).toEqual(['1 - A', '2 - B']);
+            expect(getWhoIsPlaying(linkHref)).toEqual([
+                `http://localhost/division/${division.name}/player:${encodeURI('PLAYER 1')}@TEAM/${season.name}`,
+                null,
+            ]);
         });
 
         it('renders who is playing without links when team season deleted', async () => {
-            const team: TeamDto = teamBuilder('TEAM')
+            const team = teamBuilder('TEAM')
                 .forSeason(season, division, [player1], true)
                 .build();
 
-            await renderComponent(
-                containerProps.withTournament(singlePlayerTournament).build(),
-                {},
-                appProps({ teams: [team], divisions: [division] }, reportedError));
+            await render(props.withTournament(singles), {
+                teams: [team],
+                divisions: [division],
+            });
 
-            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
+            expect(getWhoIsPlaying()).toEqual(['1 - A', '2 - B']);
             expect(getWhoIsPlaying(linkHref)).toEqual([null, null]);
         });
 
         it('renders who is playing (teams)', async () => {
-            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM').build();
-            const sideA: TournamentSideDto = createSide('A');
-            sideA.teamId = noPlayerTeam.id;
-            const sideB: TournamentSideDto = createSide('B');
-            sideB.teamId = anotherTeam.id;
-            const tournamentData: TournamentGameDto = tournamentBuilder()
-                .withSide(sideA)
-                .withSide(sideB)
+            const anotherTeam = teamBuilder('ANOTHER TEAM').build();
+            const tournamentData = tournamentBuilder()
+                .withSide((b) => b.name('A').teamId(noPlayerTeam.id))
+                .withSide((b) => b.name('B').teamId(anotherTeam.id))
                 .build();
 
-            await renderComponent(
-                containerProps.withTournament(tournamentData).build(),
-                {},
-                appProps({ teams: [noPlayerTeam], divisions: [division] }, reportedError));
+            await render(props.withTournament(tournamentData), {
+                teams: [noPlayerTeam],
+                divisions: [division],
+            });
 
-            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
+            const whosPlaying = getWhoIsPlaying(whoIsPlayingText);
+            expect(whosPlaying).toEqual(['1 - A', '2 - B']);
             expect(getWhoIsPlaying(linkHref)).toEqual([
                 `http://localhost/division/${division.name}/team:TEAM/${season.name}`,
-                `http://localhost/division/${division.name}/team:${sideB.teamId}/${season.name}`]);
+                `http://localhost/division/${division.name}/team:${anotherTeam.id}/${season.name}`,
+            ]);
         });
 
         it('renders who is playing when cross-divisional', async () => {
-            await renderComponent(
-                containerProps.withTournament(singlePlayerTournament).build(),
-                {},
-                appProps({ teams: [noPlayerTeam], divisions: [division] }, reportedError));
+            await render(props.withTournament(singles), {
+                teams: [noPlayerTeam],
+                divisions: [division],
+            });
 
-            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
+            expect(getWhoIsPlaying()).toEqual(['1 - A', '2 - B']);
             expect(getWhoIsPlaying(linkHref)).toEqual([null, null]);
         });
 
         it('renders who is playing when team not found', async () => {
-            const team: TeamDto = teamBuilder('TEAM')
-                .forSeason(anotherSeason, division, [ player1, player2 ])
+            const team = teamBuilder('TEAM')
+                .forSeason(anotherSeason, division, [player1, player2])
                 .build();
 
-            await renderComponent(
-                containerProps.withTournament(singlePlayerTournament).build(),
-                {},
-                appProps({ teams: [team], divisions: [division] }, reportedError));
+            await render(props.withTournament(singles), {
+                teams: [team],
+                divisions: [division],
+            });
 
-            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
+            expect(getWhoIsPlaying()).toEqual(['1 - A', '2 - B']);
             expect(getWhoIsPlaying(linkHref)).toEqual([null, null]);
         });
 
         it('renders who is playing with no shows', async () => {
-            oneRoundTournament2Sides.sides!.push(sideBuilder('C').noShow().build());
+            oneRound2Sides.sides!.push(sideBuilder('C').noShow().build());
 
-            await renderComponent(
-                containerProps.withTournament(oneRoundTournament2Sides).build(),
-                {},
-                appProps({ teams: [], divisions: [division] }, reportedError));
+            await render(props.withTournament(oneRound2Sides), {
+                teams: [],
+                divisions: [division],
+            });
 
-            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B', '-3 - C-']);
+            expect(getWhoIsPlaying()).toEqual(['1 - A', '2 - B', '-3 - C-']);
             expect(getWhoIsPlaying(linkHref)).toEqual([null, null, null]);
         });
 
@@ -610,292 +664,293 @@ describe('PrintableSheet', () => {
                 .date('2023-06-01')
                 .build();
 
-            await renderComponent(
-                containerProps.withTournament(tournamentData).build(),
-                {},
-                appProps({}, reportedError));
+            await render(props.withTournament(tournamentData));
 
-            const heading = context.container.querySelector('div[datatype="heading"]')!;
-            expect(heading.textContent).toEqual(`TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES🔗🖨️`);
+            expect(find('heading')!.textContent).toEqual(
+                `TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES🔗🖨️`,
+            );
         });
 
         it('renders 180s', async () => {
-            oneRoundTournament2Sides.oneEighties!.push(player1, player2, player1, player1);
-            await renderComponent(
-                containerProps.withTournament(oneRoundTournament2Sides).build(),
-                {},
-                appProps({ teams: [player1Team], divisions: [division] }, reportedError));
+            oneRound2Sides.oneEighties!.push(player1, player2);
+            oneRound2Sides.oneEighties!.push(player1, player1);
+            await render(props.withTournament(oneRound2Sides), {
+                teams: [player1Team],
+                divisions: [division],
+            });
 
-            expect(getAccolades('180s', d => d.textContent)).toEqual(['PLAYER 1 x 3', 'PLAYER 2 x 1']);
-            expect(getAccolades('180s', linkHref))
-                .toEqual([`http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null]);
+            const names = getAccolades('180s');
+            expect(names).toEqual(['PLAYER 1 x 3', 'PLAYER 2 x 1']);
+            expect(getAccolades('180s', linkHref)).toEqual([
+                `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`,
+                null,
+            ]);
         });
 
         it('renders 180s when cross-divisional', async () => {
-            oneRoundTournament2Sides.oneEighties!.push(player1, player2, player1, player1);
-            await renderComponent(
-                containerProps.withTournament(oneRoundTournament2Sides).build(),
-                {},
-                appProps({ teams: [player1Team], divisions: [division] }, reportedError));
+            oneRound2Sides.oneEighties!.push(player1, player2);
+            oneRound2Sides.oneEighties!.push(player1, player1);
+            await render(props.withTournament(oneRound2Sides), {
+                teams: [player1Team],
+                divisions: [division],
+            });
 
-            expect(getAccolades('180s', d => d.textContent)).toEqual(['PLAYER 1 x 3', 'PLAYER 2 x 1']);
-            expect(getAccolades('180s', linkHref)).toEqual([`http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null]);
+            const names = getAccolades('180s');
+            expect(names).toEqual(['PLAYER 1 x 3', 'PLAYER 2 x 1']);
+            expect(getAccolades('180s', linkHref)).toEqual([
+                `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`,
+                null,
+            ]);
         });
 
         it('renders 180s where team division cannot be found', async () => {
-            oneRoundTournament2Sides.oneEighties!.push(player1, player2, player1, player1);
-            const team: TeamDto = teamBuilder('TEAM')
+            oneRound2Sides.oneEighties!.push(player1, player2);
+            oneRound2Sides.oneEighties!.push(player1, player1);
+            const team = teamBuilder('TEAM')
                 .forSeason(season, null, [player1])
                 .build();
 
-            await renderComponent(
-                containerProps.withTournament(oneRoundTournament2Sides).build(),
-                {},
-                appProps({ teams: [team], divisions: [division] }, reportedError));
+            await render(props.withTournament(oneRound2Sides), {
+                teams: [team],
+                divisions: [division],
+            });
 
-            expect(getAccolades('180s', d => d.textContent)).toEqual(['PLAYER 1 x 3', 'PLAYER 2 x 1']);
-            expect(getAccolades('180s', linkHref))
-                .toEqual([`http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null]);
+            const names = getAccolades('180s');
+            expect(names).toEqual(['PLAYER 1 x 3', 'PLAYER 2 x 1']);
+            expect(getAccolades('180s', linkHref)).toEqual([
+                `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`,
+                null,
+            ]);
         });
 
         it('renders hi checks', async () => {
-            oneRoundTournament2Sides.over100Checkouts!.push(Object.assign({}, player1, {score: 100}));
-            oneRoundTournament2Sides.over100Checkouts!.push(Object.assign({}, player2, {score: 120}));
+            oneRound2Sides.over100Checkouts!.push({ ...player1, score: 100 });
+            oneRound2Sides.over100Checkouts!.push({ ...player2, score: 120 });
 
-            await renderComponent(
-                containerProps.withTournament(oneRoundTournament2Sides).build(),
-                {},
-                appProps({ teams: [player1Team], divisions: [division] }, reportedError));
+            await render(props.withTournament(oneRound2Sides), {
+                teams: [player1Team],
+                divisions: [division],
+            });
 
-            expect(getAccolades('hi-checks', d => d.textContent)).toEqual(['PLAYER 1 (100)', 'PLAYER 2 (120)']);
-            expect(getAccolades('hi-checks', linkHref))
-                .toEqual([`http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null]);
+            const names = getAccolades('hi-checks');
+            expect(names).toEqual(['PLAYER 1 (100)', 'PLAYER 2 (120)']);
+            expect(getAccolades('hi-checks', linkHref)).toEqual([
+                `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`,
+                null,
+            ]);
         });
 
         it('renders hi checks when cross-divisional', async () => {
-            oneRoundTournament2Sides.over100Checkouts!.push(Object.assign({}, player1, {score: 100}));
-            oneRoundTournament2Sides.over100Checkouts!.push(Object.assign({}, player2, {score: 120}));
+            oneRound2Sides.over100Checkouts!.push({ ...player1, score: 100 });
+            oneRound2Sides.over100Checkouts!.push({ ...player2, score: 120 });
 
-            await renderComponent(
-                containerProps.withTournament(oneRoundTournament2Sides).build(),
-                {},
-                appProps({ teams: [player1Team], divisions: [division] }, reportedError));
+            await render(props.withTournament(oneRound2Sides), {
+                teams: [player1Team],
+                divisions: [division],
+            });
 
-            expect(getAccolades('hi-checks', d => d.textContent)).toEqual(['PLAYER 1 (100)', 'PLAYER 2 (120)']);
-            expect(getAccolades('hi-checks', linkHref)).toEqual([`http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null]);
+            const names = getAccolades('hi-checks');
+            expect(names).toEqual(['PLAYER 1 (100)', 'PLAYER 2 (120)']);
+            expect(getAccolades('hi-checks', linkHref)).toEqual([
+                `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`,
+                null,
+            ]);
         });
 
         it('cannot set match side a when not permitted', async () => {
-            await renderComponent(
-                containerProps.withTournament(twoRoundTournament4Sides).build(),
-                {editable: false},
-                appProps({}, reportedError));
+            await render(props.withTournament(twoRounds4Sides));
 
-            await doClick(context.container.querySelector('div[datatype="sideA"]')!);
+            await doClick(find('sideA')!);
 
-            expect(context.container.querySelector('div.modal-dialog')).toBeFalsy();
+            expect(getDialog()).toBeFalsy();
         });
 
         it('can edit match side a', async () => {
-            twoRoundTournament4Sides.sides!.push(sideE);
-            await renderComponent(
-                containerProps.withTournament(twoRoundTournament4Sides).build(),
-                {editable: true},
-                appProps({}, reportedError));
+            twoRounds4Sides.sides!.push(sideE(sideBuilder()).build());
+            await renderEditable(props.withTournament(twoRounds4Sides));
 
-            await doClick(context.container.querySelector('div[datatype="sideA"]')!);
-            const dialog = context.container.querySelector('div.modal-dialog')!;
-            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), sideE.name!); // side
-            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(4) .dropdown-menu'), '2'); // score
-            await doClick(findButton(dialog, 'Save'));
+            await doClick(find('sideA')!);
+            await setPlayerAndScore('e', '2');
+            await doClick(findButton(getDialog(), 'Save'));
 
-            expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament!.round!.matches![0].sideA.id).toEqual(sideE.id);
-            expect(updatedTournament!.round!.matches![0].scoreA).toEqual(2);
+            const matches = updatedTournament!.round!.matches!;
+            expect(matches[0].sideA.name).toEqual('e');
+            expect(matches[0].scoreA).toEqual(2);
         });
 
         it('can remove match side a', async () => {
-            await renderComponent(
-                containerProps.withTournament(twoRoundTournament4Sides).build(),
-                {editable: true},
-                appProps({}, reportedError));
-            await doClick(context.container.querySelector('div[datatype="sideA"]')!);
+            await renderEditable(props.withTournament(twoRounds4Sides));
+            await doClick(find('sideA')!);
 
             await doClick(findButton(context.container, 'Remove'));
 
-            expect(updatedTournament).not.toBeNull();
             expect(updatedTournament!.round!.matches![0].sideA.id).toBeFalsy();
             expect(updatedTournament!.round!.matches![0].scoreA).toBeNull();
         });
 
         it('can edit match side b', async () => {
-            twoRoundTournament4Sides.sides!.push(sideE);
-            await renderComponent(
-                containerProps.withTournament(twoRoundTournament4Sides).build(),
-                {editable: true},
-                appProps({}, reportedError));
+            twoRounds4Sides.sides!.push(sideE(sideBuilder()).build());
+            await renderEditable(props.withTournament(twoRounds4Sides));
 
-            await doClick(context.container.querySelector('div[datatype="sideB"]')!);
-            const dialog = context.container.querySelector('div.modal-dialog')!;
-            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), sideE.name!); // side
-            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(4) .dropdown-menu'), '2'); // score
-            await doClick(findButton(dialog, 'Save'));
+            await doClick(find('sideB')!);
+            await setPlayerAndScore('e', '2');
+            await doClick(findButton(getDialog(), 'Save'));
 
-            expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament!.round!.matches![0].sideB.id).toEqual(sideE.id);
-            expect(updatedTournament!.round!.matches![0].scoreB).toEqual(2);
+            const matches = updatedTournament!.round!.matches!;
+            expect(matches[0].sideB.name).toEqual('e');
+            expect(matches[0].scoreB).toEqual(2);
         });
 
         it('can remove match side b', async () => {
-            await renderComponent(
-                containerProps.withTournament(twoRoundTournament4Sides).build(),
-                {editable: true},
-                appProps({}, reportedError));
-            await doClick(context.container.querySelector('div[datatype="sideB"]')!);
+            await renderEditable(props.withTournament(twoRounds4Sides));
+            await doClick(find('sideB')!);
 
             await doClick(findButton(context.container, 'Remove'));
 
-            expect(updatedTournament).not.toBeNull();
             expect(updatedTournament!.round!.matches![0].sideB.id).toBeFalsy();
             expect(updatedTournament!.round!.matches![0].scoreB).toBeNull();
         });
 
         it('can edit 180s', async () => {
-            await renderComponent(
-                containerProps.withTournament(twoRoundTournament4Sides).withAllPlayers([player1]).build(),
-                {editable: true},
-                appProps({}, reportedError));
+            await renderEditable(
+                props.withTournament(twoRounds4Sides).withAllPlayers([player1]),
+            );
 
-            await doClick(context.container.querySelector('div[data-accolades="180s"]')!);
-            const dialog = context.container.querySelector('div.modal-dialog')!;
-            await doSelectOption(dialog.querySelector('.dropdown-menu'), player1.name);
-            await doClick(findButton(dialog, '➕'));
+            const s180s = 'div[data-accolades="180s"]';
+            await doClick(context.container.querySelector(s180s)!);
+            await doSelectOption(
+                getDialog()!.querySelector('.dropdown-menu'),
+                player1.name,
+            );
+            await doClick(findButton(getDialog(), '➕'));
 
-            expect(updatedTournament).not.toBeNull();
             expect(updatedTournament!.oneEighties).toEqual([
-                { id: player1.id, name: player1.name }
+                { id: player1.id, name: player1.name },
             ]);
         });
 
         it('can edit hi checks', async () => {
-            await renderComponent(
-                containerProps.withTournament(twoRoundTournament4Sides).withAllPlayers([player1]).build(),
-                {editable: true},
-                appProps({}, reportedError));
+            await renderEditable(
+                props.withTournament(twoRounds4Sides).withAllPlayers([player1]),
+            );
 
-            await doClick(context.container.querySelector('div[data-accolades="hi-checks"]')!);
-            const dialog = context.container.querySelector('div.modal-dialog')!;
-            await doSelectOption(dialog.querySelector('.dropdown-menu'), player1.name);
-            await doChange(dialog, 'input', '123', context.user);
-            await doClick(findButton(dialog, '➕'));
+            const hiChecks = 'div[data-accolades="hi-checks"]';
+            await doClick(context.container.querySelector(hiChecks)!);
+            await doSelectOption(
+                getDialog()!.querySelector('.dropdown-menu'),
+                player1.name,
+            );
+            await doChange(getDialog()!, 'input', '123', context.user);
+            await doClick(findButton(getDialog(), '➕'));
 
-            expect(updatedTournament).not.toBeNull();
             expect(updatedTournament!.over100Checkouts).toEqual([
-                { id: player1.id, name: player1.name, score: 123 }
+                { id: player1.id, name: player1.name, score: 123 },
             ]);
         });
 
         it('can edit side', async () => {
-            sideA.players = [ player1 ];
-            await renderComponent(
-                containerProps.withTournament(twoRoundTournament4Sides).withAllPlayers([player1]).build(),
-                {editable: true},
-                appProps({account}, reportedError));
+            await renderEditable(
+                props.withTournament(twoRounds4Sides).withAllPlayers([player1]),
+                { account },
+            );
 
-            const playing = context.container.querySelector('div[datatype="playing"]')!;
-            await doClick(playing.querySelector('li')!);
-            const dialog = context.container.querySelector('div.modal-dialog')!;
-            await doChange(dialog, 'input[name="name"]', 'NEW SIDE A', context.user);
-            await doClick(findButton(dialog, 'Update'));
+            await doClick(find('playing')!.querySelector('li')!);
+            await doChange(
+                getDialog()!,
+                'input[name="name"]',
+                'NEW SIDE A',
+                context.user,
+            );
+            await doClick(findButton(getDialog(), 'Update'));
 
-            expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament!.sides!.map((s: TournamentSideDto) => s.name))
-                .toEqual([sideB.name, sideC.name, sideD.name, 'NEW SIDE A']);
+            const names = updatedTournament!.sides!.map((s) => s.name);
+            expect(names).toEqual(['b', 'c', 'd', 'NEW SIDE A']);
         });
 
         it('can close edit side dialog', async () => {
-            await renderComponent(
-                containerProps.withTournament(twoRoundTournament4Sides).withAllPlayers([player1]).build(),
-                {editable: true},
-                appProps({account}, reportedError));
+            await renderEditable(
+                props.withTournament(twoRounds4Sides).withAllPlayers([player1]),
+                { account },
+            );
 
-            const playing = context.container.querySelector('div[datatype="playing"]')!;
-            await doClick(playing.querySelector('li')!);
-            const dialog = context.container.querySelector('div.modal-dialog');
-            await doClick(findButton(dialog, 'Close'));
+            await doClick(find('playing')!.querySelector('li')!);
+            await doClick(findButton(getDialog(), 'Close'));
 
             expect(updatedTournament).toBeNull();
-            expect(context.container.querySelector('div.modal-dialog')).toBeFalsy();
+            expect(getDialog()).toBeFalsy();
         });
 
         it('can add a side', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideASinglePlayer, 1).sideB(sideBSinglePlayer, 2)))
-                .withSide(sideASinglePlayer).withSide(sideBSinglePlayer)
+                .round((r) =>
+                    r.withMatch((m) =>
+                        m
+                            .sideA(side('A', player1), 1)
+                            .sideB(side('B', player2), 2),
+                    ),
+                )
+                .withSide((b) => b.name('A').withPlayer(player1))
+                .withSide((b) => b.name('B').withPlayer(player2))
                 .build();
-            const player3: TeamPlayerDto = playerBuilder('PLAYER 3').build();
-            const player3Team: TeamDto = teamBuilder('TEAM')
+            const player3 = playerBuilder('PLAYER 3').build();
+            const player3Team = teamBuilder('TEAM')
                 .forSeason(season, division, [player3])
                 .build();
-            await renderComponent(
-                containerProps.withTournament(tournamentData).withAllPlayers([player1, player2, player3]).withAlreadyPlaying({}).build(),
-                {editable: true},
-                appProps({account, teams: [player1Team, player2Team, player3Team]}, reportedError));
-            await doClick(context.container.querySelector('li[datatype="add-side"]')!);
+            await renderEditable(
+                props
+                    .withTournament(tournamentData)
+                    .withAllPlayers([player1, player2, player3]),
+                { account, teams: [player1Team, player2Team, player3Team] },
+            );
+            await doClick(find('add-side')!);
 
-            const dialog = context.container.querySelector('div.modal-dialog')!;
-            await doChange(dialog, 'input[name="name"]', 'NEW SIDE', context.user);
-            await doClick(dialog.querySelector('.list-group li.list-group-item:not(.disabled)')!); // select a player
-            await doClick(findButton(dialog, 'Add'));
+            await doChange(
+                getDialog()!,
+                'input[name="name"]',
+                'NEW SIDE',
+                context.user,
+            );
+            const selector = '.list-group li.list-group-item:not(.disabled)';
+            await doClick(getDialog()!.querySelector(selector)!); // select a player
+            await doClick(findButton(getDialog(), 'Add'));
 
-            expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament!.sides!.map((s: TournamentSideDto) => s.name))
-                .toEqual([sideASinglePlayer.name, sideBSinglePlayer.name, 'NEW SIDE']);
+            const names = updatedTournament!.sides!.map((s) => s.name);
+            expect(names).toEqual(['A', 'B', 'NEW SIDE']);
         });
 
         it('can remove a side', async () => {
-            await renderComponent(
-                containerProps.withTournament(oneRoundTournament2Sides).withAlreadyPlaying({}).build(),
-                {editable: true},
-                appProps({account}, reportedError));
-            context.prompts.respondToConfirm('Are you sure you want to remove A?', true);
+            await renderEditable(props.withTournament(oneRound2Sides), {
+                account,
+            });
+            context.prompts.respondToConfirm(
+                'Are you sure you want to remove A?',
+                true,
+            );
 
-            const playing = context.container.querySelector('div[datatype="playing"]')!;
-            await doClick(playing.querySelector('li.list-group-item')!);
-            const dialog = context.container.querySelector('div.modal-dialog')!;
-            await doClick(findButton(dialog, 'Delete side'));
+            await doClick(
+                find('playing')!.querySelector('li.list-group-item')!,
+            );
+            await doClick(findButton(getDialog(), 'Delete side'));
 
-            expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament!.sides!.map((s: TournamentSideDto) => s.name))
-                .toEqual([sideBSinglePlayer.name]);
+            expect(updatedTournament!.sides!.map((s) => s.name)).toEqual(['B']);
         });
     });
 
     describe('unplayed tournament', () => {
-        const sideA: TournamentSideDto = createSide('A');
-        const sideB: TournamentSideDto = createSide('B');
-        const division: DivisionDto = divisionBuilder('DIVISION').build();
-        const season: SeasonDto = seasonBuilder('SEASON')
-            .withDivision(division)
-            .build();
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON').withDivision(division).build();
         const matchOptionDefaults = matchOptionsBuilder().build();
-        const account: UserDto = {
-            name: '',
-            givenName: '',
-            emailAddress: '',
-            access: {}
-        };
-        const player1: TeamPlayerDto = playerBuilder('PLAYER 1').build();
-        const player1Team: TeamDto = teamBuilder('TEAM')
+        const account = user({});
+        const player1 = playerBuilder('PLAYER 1').build();
+        const player1Team = teamBuilder('TEAM')
             .forSeason(season, division, [player1])
             .build();
         const emptyTournament: TournamentGameDto = tournamentBuilder().build();
-        const sideAandBTournament: TournamentGameDto = tournamentBuilder()
-            .withSide(sideA)
-            .withSide(sideB)
+        const sideAandB: TournamentGameDto = tournamentBuilder()
+            .withSide((b) => b.name('A'))
+            .withSide((b) => b.name('B'))
             .build();
-        const containerProps = new tournamentContainerPropsBuilder({
+        const props = new tournamentContainerPropsBuilder({
             season,
             division,
             matchOptionDefaults,
@@ -904,59 +959,43 @@ describe('PrintableSheet', () => {
         });
 
         it('renders tournament with 2 sides', async () => {
-            await renderComponent(
-                containerProps.withTournament(sideAandBTournament).withAlreadyPlaying({}).build(),
-                {},
-                appProps({}, reportedError));
+            await render(props.withTournament(sideAandB));
 
-            const rounds = getRounds();
-            expect(rounds.length).toEqual(1);
-            expect(rounds[0]).toEqual({
+            expect(getRounds()[0]).toEqual({
                 heading: 'Final',
-                hiChecks: {players: []},
-                oneEighties: {players: []},
+                hiChecks: { players: [] },
+                oneEighties: { players: [] },
                 matches: [{}],
             });
         });
 
         it('renders tournament with 2 sides and one no-show', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .withSide(sideA)
-                .withSide(sideB)
-                .withSide(sideBuilder('NO SHOW').noShow().build())
+                .withSide((b) => b.name('A'))
+                .withSide((b) => b.name('B'))
+                .withSide((b) => b.name('NO SHOW').noShow())
                 .build();
 
-            await renderComponent(
-                containerProps.withTournament(tournamentData).withAlreadyPlaying({}).build(),
-                {},
-                appProps({}, reportedError));
+            await render(props.withTournament(tournamentData));
 
-            const rounds = getRounds();
-            expect(rounds.length).toEqual(1);
-            expect(rounds[0]).toEqual({
+            expect(getRounds()[0]).toEqual({
                 heading: 'Final',
-                hiChecks: {players: []},
-                oneEighties: {players: []},
+                hiChecks: { players: [] },
+                oneEighties: { players: [] },
                 matches: [{}],
             });
         });
 
         it('renders who is playing', async () => {
-            await renderComponent(
-                containerProps.withTournament(sideAandBTournament).build(),
-                {},
-                appProps({}, reportedError));
+            await render(props.withTournament(sideAandB));
 
-            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
+            expect(getWhoIsPlaying()).toEqual(['1 - A', '2 - B']);
         });
 
         it('renders who is playing when cross-divisional', async () => {
-            await renderComponent(
-                containerProps.withTournament(sideAandBTournament).build(),
-                {},
-                appProps({}, reportedError));
+            await render(props.withTournament(sideAandB));
 
-            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
+            expect(getWhoIsPlaying()).toEqual(['1 - A', '2 - B']);
         });
 
         it('renders heading', async () => {
@@ -967,146 +1006,131 @@ describe('PrintableSheet', () => {
                 .date('2023-06-01')
                 .build();
 
-            await renderComponent(
-                containerProps.withTournament(tournamentData).build(),
-                {},
-                appProps({}, reportedError));
+            await render(props.withTournament(tournamentData));
 
-            const heading = context.container.querySelector('div[datatype="heading"]')!;
-            expect(heading.textContent).toEqual(`TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES🔗🖨️`);
+            expect(find('heading')!.textContent).toEqual(
+                `TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES🔗🖨️`,
+            );
         });
 
         it('can set match side a', async () => {
-            await renderComponent(
-                containerProps.withTournament(sideAandBTournament).build(),
-                {editable: true},
-                appProps({}, reportedError));
+            await renderEditable(props.withTournament(sideAandB));
 
-            await doClick(context.container.querySelector('div[datatype="sideA"]')!);
-            const dialog = context.container.querySelector('div.modal-dialog')!;
-            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), sideA.name!); // side
-            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(4) .dropdown-menu'), '2'); // score
-            await doClick(findButton(dialog, 'Save'));
+            await doClick(find('sideA')!);
+            await setPlayerAndScore('A', '2');
+            await doClick(findButton(getDialog(), 'Save'));
 
-            expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament!.round!.matches![0].sideA.id).toEqual(sideA.id);
-            expect(updatedTournament!.round!.matches![0].scoreA).toEqual(2);
+            const matches = updatedTournament!.round!.matches!;
+            expect(matches[0].sideA.name).toEqual('A');
+            expect(matches[0].scoreA).toEqual(2);
         });
 
         it('can set match side b', async () => {
-            await renderComponent(
-                containerProps.withTournament(sideAandBTournament).build(),
-                {editable: true},
-                appProps({}, reportedError));
+            await renderEditable(props.withTournament(sideAandB));
 
-            await doClick(context.container.querySelector('div[datatype="sideB"]')!);
-            const dialog = context.container.querySelector('div.modal-dialog')!;
-            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), sideA.name!); // side
-            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(4) .dropdown-menu'), '2'); // score
-            await doClick(findButton(dialog, 'Save'));
+            await doClick(find('sideB')!);
+            await setPlayerAndScore('A', '2');
+            await doClick(findButton(getDialog(), 'Save'));
 
-            expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament!.round!.matches![0].sideB.id).toEqual(sideA.id);
-            expect(updatedTournament!.round!.matches![0].scoreB).toEqual(2);
+            const matches = updatedTournament!.round!.matches!;
+            expect(matches[0].sideB.name).toEqual('A');
+            expect(matches[0].scoreB).toEqual(2);
         });
 
         it('cannot set match side to no-show side', async () => {
-            const noShowSide: TournamentSideDto = createSide('NO SHOW');
-            noShowSide.noShow = true;
             const tournamentData: TournamentGameDto = tournamentBuilder()
-                .withSide(sideA)
-                .withSide(sideB)
-                .withSide(noShowSide)
+                .withSide((b) => b.name('A'))
+                .withSide((b) => b.name('B'))
+                .withSide((b) => b.name('NO SHOW').noShow())
                 .build();
-            await renderComponent(
-                containerProps.withTournament(tournamentData).build(),
-                {editable: true},
-                appProps({}, reportedError));
+            await renderEditable(props.withTournament(tournamentData));
 
-            await doClick(context.container.querySelector('div[datatype="sideB"]')!);
+            await doClick(find('sideB')!);
 
-            const dialog = context.container.querySelector('div.modal-dialog')!;
-            const sides = Array.from(dialog.querySelectorAll('div.btn-group:nth-child(2) .dropdown-menu .dropdown-item'));
-            expect(sides.map(s => s.textContent)).toEqual([ 'A', 'B' ]);
+            const selector =
+                'div.btn-group:nth-child(2) .dropdown-menu .dropdown-item';
+            const sides = Array.from(getDialog()!.querySelectorAll(selector));
+            expect(sides.map((s) => s.textContent)).toEqual(['A', 'B']);
         });
 
         it('can add a side', async () => {
-            await renderComponent(
-                containerProps.withTournament(emptyTournament).withAlreadyPlaying({}).withAllPlayers([player1]).build(),
-                {editable: true},
-                appProps({teams: [player1Team], account}, reportedError));
+            await renderEditable(
+                props.withTournament(emptyTournament).withAllPlayers([player1]),
+                { teams: [player1Team], account },
+            );
 
-            await doClick(context.container.querySelector('li[datatype="add-side"]')!);
-            const dialog = context.container.querySelector('div.modal-dialog')!;
-            await doChange(dialog, 'input[name="name"]', 'NEW SIDE', context.user);
-            await doClick(dialog.querySelector('.list-group li.list-group-item')!); // select a player
-            await doClick(findButton(dialog, 'Add'));
+            await doClick(find('add-side')!);
+            await doChange(
+                getDialog()!,
+                'input[name="name"]',
+                'NEW SIDE',
+                context.user,
+            );
+            const player = '.list-group li.list-group-item';
+            await doClick(getDialog()!.querySelector(player)!); // select a player
+            await doClick(findButton(getDialog(), 'Add'));
 
-            expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament!.sides!.map((s: TournamentSideDto) => s.name)).toEqual(['NEW SIDE']);
+            const names = updatedTournament!.sides!.map((s) => s.name);
+            expect(names).toEqual(['NEW SIDE']);
         });
 
         it('can add sides from hint', async () => {
-            await renderComponent(
-                containerProps.withTournament(emptyTournament).withAlreadyPlaying({}).withAllPlayers([player1]).build(),
-                {editable: true},
-                appProps({teams: [player1Team], account}, reportedError));
+            await renderEditable(
+                props.withTournament(emptyTournament).withAllPlayers([player1]),
+                { teams: [player1Team], account },
+            );
 
-            await doClick(context.container.querySelector('div[datatype="add-sides-hint"] > span')!);
+            const selector = 'div[datatype="add-sides-hint"] > span';
+            await doClick(context.container.querySelector(selector)!);
 
-            expect(context.container.querySelector('div.modal-dialog')).toBeTruthy();
+            expect(getDialog()).toBeTruthy();
         });
 
         it('does not show add sides hint when some sides', async () => {
-            await renderComponent(
-                containerProps.withTournament(sideAandBTournament).withAlreadyPlaying({}).withAllPlayers([player1]).build(),
-                {editable: true},
-                appProps({teams: [player1Team], account}, reportedError));
+            await renderEditable(
+                props.withTournament(sideAandB).withAllPlayers([player1]),
+                { teams: [player1Team], account },
+            );
 
-            expect(context.container.querySelector('div[datatype="add-sides-hint"]')).toBeFalsy();
+            expect(find('add-sides-hint')).toBeFalsy();
         });
 
         it('can close add a side dialog', async () => {
-            await renderComponent(
-                containerProps.withTournament(emptyTournament).withAlreadyPlaying({}).withAllPlayers([player1]).build(),
-                {editable: true},
-                appProps({teams: [player1Team], account}, reportedError));
+            await renderEditable(
+                props.withTournament(emptyTournament).withAllPlayers([player1]),
+                { teams: [player1Team], account },
+            );
 
-            await doClick(context.container.querySelector('li[datatype="add-side"]')!);
-            const dialog = context.container.querySelector('div.modal-dialog')!;
-            await doClick(findButton(dialog, 'Close'));
+            await doClick(find('add-side')!);
+            await doClick(findButton(getDialog(), 'Close'));
 
             expect(updatedTournament).toBeNull();
-            expect(context.container.querySelector('div.modal-dialog')).toBeFalsy();
+            expect(getDialog()).toBeFalsy();
         });
 
         it('can remove a side', async () => {
-            await renderComponent(
-                containerProps.withTournament(sideAandBTournament).build(),
-                {editable: true},
-                appProps({account}, reportedError));
-            context.prompts.respondToConfirm('Are you sure you want to remove A?', true);
+            await renderEditable(props.withTournament(sideAandB), {
+                account,
+            });
+            context.prompts.respondToConfirm(
+                'Are you sure you want to remove A?',
+                true,
+            );
 
-            const playing = context.container.querySelector('div[datatype="playing"]')!;
-            await doClick(playing.querySelector('li.list-group-item')!);
-            const dialog = context.container.querySelector('div.modal-dialog');
-            await doClick(findButton(dialog, 'Delete side'));
+            await doClick(
+                find('playing')!.querySelector('li.list-group-item')!,
+            );
+            await doClick(findButton(getDialog(), 'Delete side'));
 
-            expect(updatedTournament).not.toBeNull();
-            expect(updatedTournament!.sides!.map((s: TournamentSideDto) => s.name))
-                .toEqual([sideB.name]);
+            expect(updatedTournament!.sides!.map((s) => s.name)).toEqual(['B']);
         });
     });
 
     describe('interactivity', () => {
-        const division: DivisionDto = divisionBuilder('DIVISION').build();
-        const season: SeasonDto = seasonBuilder('SEASON')
-            .withDivision(division)
-            .build();
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON').withDivision(division).build();
         const matchOptionDefaults = matchOptionsBuilder().build();
-        const tournamentData: TournamentGameDto = tournamentBuilder()
-            .round((r: ITournamentRoundBuilder) => r)
-            .build();
+        const tournamentData = tournamentBuilder().round().build();
         const containerProps = new tournamentContainerPropsBuilder({
             season,
             division,
@@ -1116,25 +1140,25 @@ describe('PrintableSheet', () => {
         });
 
         it('can edit tournament when permitted', async () => {
-            await renderComponent(
-                containerProps.withTournament(tournamentData).withAlreadyPlaying({}).build(),
-                {editable: true},
-                appProps({}, reportedError));
+            await renderEditable(containerProps.withTournament(tournamentData));
 
-            await doClick(context.container.querySelector('div[datatype="heading"]')!);
+            await doClick(find('heading')!);
 
             expect(editTournament).toEqual(true);
         });
 
         it('cannot edit tournament when not permitted', async () => {
-            const readonlyContainerProps = containerProps.withTournament(tournamentData).withAlreadyPlaying({}).build();
+            const readonlyContainerProps = containerProps
+                .withTournament(tournamentData)
+                .build();
             readonlyContainerProps.setEditTournament = undefined;
             await renderComponent(
                 readonlyContainerProps,
-                {editable: true},
-                appProps({}, reportedError));
+                { editable: true },
+                appProps({}, reportedError),
+            );
 
-            await doClick(context.container.querySelector('div[datatype="heading"]')!);
+            await doClick(find('heading')!);
 
             expect(editTournament).toEqual(null);
         });

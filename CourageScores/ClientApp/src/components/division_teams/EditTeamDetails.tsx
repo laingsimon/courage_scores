@@ -1,15 +1,18 @@
-import {useState} from 'react';
-import {ErrorDisplay} from "../common/ErrorDisplay";
-import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
-import {useDependencies} from "../common/IocContainer";
-import {useApp} from "../common/AppContainer";
-import {handleChange} from "../../helpers/events";
-import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
-import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
-import {EditTeamDto} from "../../interfaces/models/dtos/Team/EditTeamDto";
-import {IClientActionResultDto} from "../common/IClientActionResultDto";
-import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import { useState } from 'react';
+import { ErrorDisplay } from '../common/ErrorDisplay';
+import {
+    BootstrapDropdown,
+    IBootstrapDropdownItem,
+} from '../common/BootstrapDropdown';
+import { useDependencies } from '../common/IocContainer';
+import { useApp } from '../common/AppContainer';
+import { handleChange } from '../../helpers/events';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
+import { EditTeamDto } from '../../interfaces/models/dtos/Team/EditTeamDto';
+import { IClientActionResultDto } from '../common/IClientActionResultDto';
+import { UntypedPromise } from '../../interfaces/UntypedPromise';
 
 export interface IEditTeamDetailsProps {
     divisionId: string;
@@ -21,14 +24,25 @@ export interface IEditTeamDetailsProps {
     lastUpdated?: string;
 }
 
-export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, seasonId, team, lastUpdated}: IEditTeamDetailsProps) {
-    const {divisions, onError} = useApp();
-    const {teamApi} = useDependencies();
+export function EditTeamDetails({
+    divisionId,
+    onSaved,
+    onChange,
+    onCancel,
+    seasonId,
+    team,
+    lastUpdated,
+}: IEditTeamDetailsProps) {
+    const { divisions, onError } = useApp();
+    const { teamApi } = useDependencies();
     const [saving, setSaving] = useState<boolean>(false);
-    const [saveError, setSaveError] = useState<IClientActionResultDto<TeamDto> | null>(null);
-    const divisionOptions: IBootstrapDropdownItem[] = divisions.map((division: DivisionDto) => {
-        return {value: division.id, text: division.name};
-    });
+    const [saveError, setSaveError] =
+        useState<IClientActionResultDto<TeamDto> | null>(null);
+    const divisionOptions: IBootstrapDropdownItem[] = divisions.map(
+        (division: DivisionDto) => {
+            return { value: division.id, text: division.name };
+        },
+    );
 
     async function saveChanges() {
         if (!team.name) {
@@ -45,15 +59,16 @@ export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, season
         setSaving(true);
 
         try {
-            const response: IClientActionResultDto<TeamDto> = await teamApi.update({
-                id: team.id || undefined,
-                name: team.name,
-                address: team.address,
-                divisionId: divisionId,
-                seasonId: seasonId,
-                newDivisionId: team.newDivisionId,
-                lastUpdated: lastUpdated,
-            });
+            const response: IClientActionResultDto<TeamDto> =
+                await teamApi.update({
+                    id: team.id || undefined,
+                    name: team.name,
+                    address: team.address,
+                    divisionId: divisionId,
+                    seasonId: seasonId,
+                    newDivisionId: team.newDivisionId,
+                    lastUpdated: lastUpdated,
+                });
 
             if (response.success) {
                 if (onChange) {
@@ -73,45 +88,75 @@ export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, season
         }
     }
 
-    return (<div>
-        <h4>Team details</h4>
-        <div className="input-group mb-3">
-            <div className="input-group-prepend">
-                <label htmlFor="name" className="input-group-text">Name</label>
+    return (
+        <div>
+            <h4>Team details</h4>
+            <div className="input-group mb-3">
+                <div className="input-group-prepend">
+                    <label htmlFor="name" className="input-group-text">
+                        Name
+                    </label>
+                </div>
+                <input
+                    disabled={saving}
+                    type="text"
+                    className="form-control"
+                    id="name"
+                    name="name"
+                    value={team.name}
+                    onChange={handleChange(onChange)}
+                />
             </div>
-            <input disabled={saving} type="text" className="form-control"
-                   id="name" name="name" value={team.name} onChange={handleChange(onChange)}/>
-        </div>
-        <div className="input-group mb-3">
-            <div className="input-group-prepend">
-                <label htmlFor="address" className="input-group-text">Address</label>
+            <div className="input-group mb-3">
+                <div className="input-group-prepend">
+                    <label htmlFor="address" className="input-group-text">
+                        Address
+                    </label>
+                </div>
+                <input
+                    disabled={saving}
+                    type="text"
+                    className="form-control"
+                    id="address"
+                    name="address"
+                    value={team.address}
+                    onChange={handleChange(onChange)}
+                />
             </div>
-            <input disabled={saving} type="text" className="form-control"
-                   id="address" name="address" value={team.address} onChange={handleChange(onChange)}/>
-        </div>
-        <div className="input-group mb-3">
-            <div className="input-group-prepend">
-                <span className="input-group-text">Division</span>
+            <div className="input-group mb-3">
+                <div className="input-group-prepend">
+                    <span className="input-group-text">Division</span>
+                </div>
+                <BootstrapDropdown
+                    disabled={saving || !team.id || !onChange}
+                    options={divisionOptions}
+                    value={team.newDivisionId}
+                    onChange={
+                        onChange
+                            ? (newDivisionId: string) =>
+                                  onChange('newDivisionId', newDivisionId)
+                            : undefined
+                    }
+                />
             </div>
-            <BootstrapDropdown
-                disabled={saving || !team.id || !onChange}
-                options={divisionOptions}
-                value={team.newDivisionId}
-                onChange={onChange ? ((newDivisionId) => onChange('newDivisionId', newDivisionId)) : undefined}/>
-        </div>
-        <div className="modal-footer px-0 pb-0">
-            <div className="left-aligned">
-                <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
+            <div className="modal-footer px-0 pb-0">
+                <div className="left-aligned">
+                    <button className="btn btn-secondary" onClick={onCancel}>
+                        Cancel
+                    </button>
+                </div>
+                <button className="btn btn-primary" onClick={saveChanges}>
+                    {saving ? <LoadingSpinnerSmall /> : null}
+                    {team.id ? 'Save team' : 'Add team'}
+                </button>
             </div>
-            <button className="btn btn-primary" onClick={saveChanges}>
-                {saving
-                    ? (<LoadingSpinnerSmall/>)
-                    : null}
-                {team.id ? 'Save team' : 'Add team'}
-            </button>
+            {saveError ? (
+                <ErrorDisplay
+                    {...saveError}
+                    onClose={async () => setSaveError(null)}
+                    title="Could not save team details"
+                />
+            ) : null}
         </div>
-        {saveError
-            ? (<ErrorDisplay {...(saveError as object)} onClose={async () => setSaveError(null)} title="Could not save team details"/>)
-            : null}
-    </div>)
+    );
 }

@@ -4,17 +4,19 @@
     brandingProps,
     cleanUp,
     doClick,
-    doSelectOption, ErrorState,
+    doSelectOption,
+    ErrorState,
     findButton,
     iocProps,
-    renderApp, TestContext
-} from "../../helpers/tests";
-import {UserAdmin} from "./UserAdmin";
-import {AdminContainer} from "./AdminContainer";
-import {UpdateAccessDto} from "../../interfaces/models/dtos/Identity/UpdateAccessDto";
-import {IClientActionResultDto} from "../common/IClientActionResultDto";
-import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
-import {IAccountApi} from "../../interfaces/apis/IAccountApi";
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import { UserAdmin } from './UserAdmin';
+import { AdminContainer } from './AdminContainer';
+import { UpdateAccessDto } from '../../interfaces/models/dtos/Identity/UpdateAccessDto';
+import { IClientActionResultDto } from '../common/IClientActionResultDto';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
+import { IAccountApi } from '../../interfaces/apis/IAccountApi';
 
 describe('UserAdmin', () => {
     let context: TestContext;
@@ -26,8 +28,8 @@ describe('UserAdmin', () => {
     const accountApi = api<IAccountApi>({
         update: async (update: UpdateAccessDto) => {
             updatedAccess = update;
-            return apiResponse || {success: true};
-        }
+            return apiResponse || { success: true };
+        },
     });
 
     afterEach(async () => {
@@ -43,21 +45,27 @@ describe('UserAdmin', () => {
 
     async function renderComponent(accounts: UserDto[], account: UserDto) {
         context = await renderApp(
-            iocProps({accountApi}),
+            iocProps({ accountApi }),
             brandingProps(),
-            appProps({
-                account,
-                reloadAccount: () => {
-                    accountReloaded = true;
+            appProps(
+                {
+                    account,
+                    reloadAccount: async () => {
+                        accountReloaded = true;
+                    },
                 },
-            }, reportedError),
-            (<AdminContainer accounts={accounts} tables={[]}>
-                <UserAdmin/>
-            </AdminContainer>));
+                reportedError,
+            ),
+            <AdminContainer accounts={accounts} tables={[]}>
+                <UserAdmin />
+            </AdminContainer>,
+        );
     }
 
     function getAccess(name: string): HTMLInputElement {
-        const item = context.container.querySelector(`input[id="${name}"]`) as HTMLInputElement;
+        const item = context.container.querySelector(
+            `input[id="${name}"]`,
+        ) as HTMLInputElement;
         expect(item).toBeTruthy();
         return item;
     }
@@ -97,7 +105,7 @@ describe('UserAdmin', () => {
             name: 'Admin',
             access: {
                 manageAccess: true,
-            }
+            },
         };
         const otherAccount: UserDto = {
             givenName: '',
@@ -106,7 +114,10 @@ describe('UserAdmin', () => {
         };
         await renderComponent([account, otherAccount], account);
 
-        await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Test 1');
+        await doSelectOption(
+            context.container.querySelector('.dropdown-menu'),
+            'Test 1',
+        );
 
         reportedError.verifyNoError();
         expect(context.container.textContent).toContain('Manage access');
@@ -120,7 +131,7 @@ describe('UserAdmin', () => {
             name: 'Admin',
             access: {
                 manageAccess: true,
-            }
+            },
         };
         const otherAccount: UserDto = {
             givenName: '',
@@ -128,11 +139,14 @@ describe('UserAdmin', () => {
             name: 'Other user',
             access: {
                 manageAccess: true,
-            }
+            },
         };
         await renderComponent([account, otherAccount], account);
 
-        await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Other user');
+        await doSelectOption(
+            context.container.querySelector('.dropdown-menu'),
+            'Other user',
+        );
 
         reportedError.verifyNoError();
         expect(context.container.textContent).toContain('Manage access');
@@ -146,7 +160,7 @@ describe('UserAdmin', () => {
             name: 'Admin',
             access: {
                 manageAccess: true,
-            }
+            },
         };
         const otherAccount: UserDto = {
             givenName: '',
@@ -154,10 +168,13 @@ describe('UserAdmin', () => {
             name: 'Other user',
             access: {
                 manageAccess: true,
-            }
+            },
         };
         await renderComponent([account, otherAccount], account);
-        await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Other user');
+        await doSelectOption(
+            context.container.querySelector('.dropdown-menu'),
+            'Other user',
+        );
         await doClick(getAccess('manageGames'));
 
         await doClick(findButton(context.container, 'Set access'));
@@ -179,7 +196,7 @@ describe('UserAdmin', () => {
             name: 'Admin',
             access: {
                 manageAccess: true,
-            }
+            },
         };
         const otherAccount: UserDto = {
             givenName: '',
@@ -187,18 +204,23 @@ describe('UserAdmin', () => {
             name: 'Other user',
             access: {
                 manageAccess: true,
-            }
+            },
         };
         await renderComponent([account, otherAccount], account);
-        await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Other user');
+        await doSelectOption(
+            context.container.querySelector('.dropdown-menu'),
+            'Other user',
+        );
         await doClick(getAccess('manageGames'));
-        apiResponse = {success: false, errors: ['SOME ERROR']};
+        apiResponse = { success: false, errors: ['SOME ERROR'] };
 
         await doClick(findButton(context.container, 'Set access'));
 
         reportedError.verifyNoError();
         expect(context.container.textContent).toContain('SOME ERROR');
-        expect(context.container.textContent).toContain('Could not save access');
+        expect(context.container.textContent).toContain(
+            'Could not save access',
+        );
     });
 
     it('can close error dialog after save failure', async () => {
@@ -208,7 +230,7 @@ describe('UserAdmin', () => {
             name: 'Admin',
             access: {
                 manageAccess: true,
-            }
+            },
         };
         const otherAccount: UserDto = {
             givenName: '',
@@ -216,18 +238,25 @@ describe('UserAdmin', () => {
             name: 'Other user',
             access: {
                 manageAccess: true,
-            }
+            },
         };
         await renderComponent([account, otherAccount], account);
-        await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Other user');
+        await doSelectOption(
+            context.container.querySelector('.dropdown-menu'),
+            'Other user',
+        );
         await doClick(getAccess('manageGames'));
-        apiResponse = {success: false, errors: ['SOME ERROR']};
+        apiResponse = { success: false, errors: ['SOME ERROR'] };
         await doClick(findButton(context.container, 'Set access'));
-        expect(context.container.textContent).toContain('Could not save access');
+        expect(context.container.textContent).toContain(
+            'Could not save access',
+        );
 
         await doClick(findButton(context.container, 'Close'));
 
-        expect(context.container.textContent).not.toContain('Could not save access');
+        expect(context.container.textContent).not.toContain(
+            'Could not save access',
+        );
     });
 
     it('can change access for self', async () => {
@@ -237,7 +266,7 @@ describe('UserAdmin', () => {
             name: 'Admin',
             access: {
                 manageAccess: true,
-            }
+            },
         };
         const otherAccount: UserDto = {
             givenName: '',
@@ -245,7 +274,7 @@ describe('UserAdmin', () => {
             name: 'Other user',
             access: {
                 manageAccess: true,
-            }
+            },
         };
         await renderComponent([account, otherAccount], account);
         await doClick(getAccess('manageGames'));

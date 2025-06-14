@@ -56,14 +56,6 @@ if ($GitHubEvent -eq "pull_request")
 }
 
 $NpmAuditResult = Invoke-NpmCommand -Command "audit"
-If ($NpmAuditResult.output -ne "")
-{
-    Write-Output $NpmAuditResult.output
-}
-If ($NpmAuditResult.error -ne "")
-{
-    Write-Error $NpmAuditResult.error
-}
 If ($NpmAuditResult.ExitCode -ne 0)
 {
     $BypassInstruction="Add comment to this PR with the content **$($BypassNpmAuditViaCommentCommentContent)** to bypass these vulnerabilities when the workflow runs next"

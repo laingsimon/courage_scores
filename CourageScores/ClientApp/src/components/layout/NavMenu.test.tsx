@@ -1,11 +1,20 @@
-import {appProps, brandingProps, cleanUp, doClick, iocProps, renderApp, TestContext} from "../../helpers/tests";
-import {NavMenu} from "./NavMenu";
-import {ISettings} from "../../api/settings";
-import {IBrandingContainerProps} from "../common/BrandingContainer";
-import {divisionBuilder} from "../../helpers/builders/divisions";
-import {seasonBuilder} from "../../helpers/builders/seasons";
-import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
-import {IAppContainerProps} from "../common/AppContainer";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    iocProps,
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import { NavMenu } from './NavMenu';
+import { ISettings } from '../../api/settings';
+import { IBrandingContainerProps } from '../common/BrandingContainer';
+import { divisionBuilder } from '../../helpers/builders/divisions';
+import { seasonBuilder } from '../../helpers/builders/seasons';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
+import { IAppContainerProps } from '../common/AppContainer';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
 
 describe('NavMenu', () => {
     let context: TestContext;
@@ -15,22 +24,32 @@ describe('NavMenu', () => {
         await cleanUp(context);
     });
 
-    function clearError() {
+    async function clearError() {
         errorCleared = true;
     }
 
-    async function renderComponent(settings: ISettings, appContainerProps: IAppContainerProps, branding?: IBrandingContainerProps, route?: string, currentPath?: string) {
+    async function renderComponent(
+        settings: ISettings,
+        appContainerProps: IAppContainerProps,
+        branding?: IBrandingContainerProps,
+        route?: string,
+        currentPath?: string,
+    ) {
         errorCleared = false;
 
-        branding = branding || {name: '', menu: {beforeDivisions: [], afterDivisions: []}};
+        branding = branding || {
+            name: '',
+            menu: { beforeDivisions: [], afterDivisions: [] },
+        };
 
         context = await renderApp(
-            iocProps({settings}),
+            iocProps({ settings }),
             branding ?? brandingProps(),
             appContainerProps,
-            (<NavMenu/>),
+            <NavMenu />,
             route || '/practice',
-            currentPath || '/practice?q=value');
+            currentPath || '/practice?q=value',
+        );
     }
 
     function isExpanded() {
@@ -62,19 +81,22 @@ describe('NavMenu', () => {
         const settings: ISettings = {
             apiHost: 'https://localhost',
             invalidateCacheOnNextRequest: false,
-        }
+        };
         const seasons = [currentSeason, otherSeason];
         const divisions = [division];
-        const account: UserDto | null = null;
+        const account: UserDto | undefined = undefined;
 
         it('when app loading', async () => {
-            await renderComponent(settings, appProps({
-                account,
-                divisions,
-                seasons,
-                appLoading: true,
-                clearError,
-            }));
+            await renderComponent(
+                settings,
+                appProps({
+                    account,
+                    divisions,
+                    seasons,
+                    appLoading: true,
+                    clearError,
+                }),
+            );
 
             expect(context.container.textContent).not.toContain('ERROR:');
             const menu = context.container.querySelector('nav')!;
@@ -84,7 +106,9 @@ describe('NavMenu', () => {
         });
 
         it('before and after division menu items', async () => {
-            await renderComponent(settings, appProps({
+            await renderComponent(
+                settings,
+                appProps({
                     account,
                     divisions,
                     seasons,
@@ -95,52 +119,84 @@ describe('NavMenu', () => {
                     name: '',
                     menu: {
                         beforeDivisions: [
-                            {text: 'BEFORE 1', url: 'https://localhost/BEFORE1'},
-                            {text: 'BEFORE 2', url: 'https://localhost/BEFORE2'},
+                            {
+                                text: 'BEFORE 1',
+                                url: 'https://localhost/BEFORE1',
+                            },
+                            {
+                                text: 'BEFORE 2',
+                                url: 'https://localhost/BEFORE2',
+                            },
                         ],
                         afterDivisions: [
-                            {text: 'AFTER 1', url: 'https://localhost/AFTER1'},
-                            {text: 'AFTER 2', url: 'https://localhost/AFTER2'},
-                        ]
-                    }
-                });
+                            {
+                                text: 'AFTER 1',
+                                url: 'https://localhost/AFTER1',
+                            },
+                            {
+                                text: 'AFTER 2',
+                                url: 'https://localhost/AFTER2',
+                            },
+                        ],
+                    },
+                },
+            );
 
             expect(context.container.textContent).not.toContain('ERROR:');
-            const listItems = Array.from(context.container.querySelectorAll('nav li'));
-            expect(listItems.map(li => li.textContent)).toEqual(['BEFORE 1', 'BEFORE 2', 'DIVISION', 'AFTER 1', 'AFTER 2', 'Login']);
-            expect(listItems.map(li => li.querySelector('a')!.href)).toEqual([
+            const listItems = Array.from(
+                context.container.querySelectorAll('nav li'),
+            );
+            expect(listItems.map((li) => li.textContent)).toEqual([
+                'BEFORE 1',
+                'BEFORE 2',
+                'DIVISION',
+                'AFTER 1',
+                'AFTER 2',
+                'Login',
+            ]);
+            expect(listItems.map((li) => li.querySelector('a')!.href)).toEqual([
                 'https://localhost/BEFORE1',
                 'https://localhost/BEFORE2',
-                'http://localhost/teams/' + currentSeason.name + '/?division=' + division.name,
+                'http://localhost/teams/' +
+                    currentSeason.name +
+                    '/?division=' +
+                    division.name,
                 'https://localhost/AFTER1',
                 'https://localhost/AFTER2',
-                `https://localhost/api/Account/Login/?redirectUrl=${encodeURIComponent('https://localhost/practice?q=value')}`]);
+                `https://localhost/api/Account/Login/?redirectUrl=${encodeURIComponent('https://localhost/practice?q=value')}`,
+            ]);
         });
 
         it('divisions', async () => {
-            await renderComponent(settings, appProps({
+            await renderComponent(
+                settings,
+                appProps({
                     account,
                     divisions,
                     seasons,
                     appLoading: false,
                     clearError,
                 }),
-                {name: '', menu: {beforeDivisions: [], afterDivisions: []}});
+                { name: '', menu: { beforeDivisions: [], afterDivisions: [] } },
+            );
 
             expect(context.container.textContent).not.toContain('ERROR:');
             const items = getDivisionItems();
-            const divisionItems = items.map(item => item.textContent);
+            const divisionItems = items.map((item) => item.textContent);
             expect(divisionItems).toEqual(['DIVISION']);
         });
 
         it('login prompt', async () => {
-            await renderComponent(settings, appProps({
-                account,
-                divisions,
-                seasons,
-                appLoading: false,
-                clearError,
-            }));
+            await renderComponent(
+                settings,
+                appProps({
+                    account,
+                    divisions,
+                    seasons,
+                    appLoading: false,
+                    clearError,
+                }),
+            );
 
             expect(context.container.textContent).not.toContain('ERROR:');
             const menu = context.container.querySelector('nav')!;
@@ -150,13 +206,16 @@ describe('NavMenu', () => {
         });
 
         it('navigates to login', async () => {
-            await renderComponent(settings, appProps({
-                account,
-                divisions,
-                seasons,
-                appLoading: false,
-                clearError,
-            }));
+            await renderComponent(
+                settings,
+                appProps({
+                    account,
+                    divisions,
+                    seasons,
+                    appLoading: false,
+                    clearError,
+                }),
+            );
             expect(context.container.textContent).not.toContain('ERROR:');
             const menu = context.container.querySelector('nav')!;
             const items = Array.from(menu.querySelectorAll('li'));
@@ -164,30 +223,39 @@ describe('NavMenu', () => {
 
             const link = loginItem.querySelector('a')!;
             expect(link).toBeTruthy();
-            expect(link.href).toEqual(`https://localhost/api/Account/Login/?redirectUrl=${encodeURIComponent('https://localhost/practice?q=value')}`);
+            expect(link.href).toEqual(
+                `https://localhost/api/Account/Login/?redirectUrl=${encodeURIComponent('https://localhost/practice?q=value')}`,
+            );
         });
 
         it('clears error on navigate', async () => {
-            await renderComponent(settings, appProps({
-                account,
-                divisions,
-                seasons,
-                appLoading: false,
-                clearError,
-            }), {
-                name: '',
-                menu: {
-                    beforeDivisions: [{
-                        text: 'Practice',
-                        url: '/practice',
-                    }],
-                    afterDivisions: [],
-                }
-            });
+            await renderComponent(
+                settings,
+                appProps({
+                    account,
+                    divisions,
+                    seasons,
+                    appLoading: false,
+                    clearError,
+                }),
+                {
+                    name: '',
+                    menu: {
+                        beforeDivisions: [
+                            {
+                                text: 'Practice',
+                                url: '/practice',
+                            },
+                        ],
+                        afterDivisions: [],
+                    },
+                },
+            );
             expect(context.container.textContent).not.toContain('ERROR:');
             const menu = context.container.querySelector('nav')!;
-            const practiceItem = Array.from(menu.querySelectorAll('li'))
-                .filter(li => li.textContent === 'Practice')[0];
+            const practiceItem = Array.from(menu.querySelectorAll('li')).filter(
+                (li) => li.textContent === 'Practice',
+            )[0];
             expect(practiceItem).toBeTruthy();
 
             const link = practiceItem.querySelector('a')!;
@@ -198,40 +266,50 @@ describe('NavMenu', () => {
         });
 
         it('renders nav-menu error', async () => {
-            await renderComponent(settings, appProps({
-                account,
-                divisions: [null],
-                seasons,
-                appLoading: false,
-                clearError,
-            }));
+            await renderComponent(
+                settings,
+                appProps({
+                    account,
+                    divisions: [null! as DivisionDto],
+                    seasons,
+                    appLoading: false,
+                    clearError,
+                }),
+            );
 
             expect(context.container.textContent).toContain('ERROR:');
         });
 
         it('collapses on navigate', async () => {
-            await renderComponent(settings, appProps({
-                account,
-                divisions,
-                seasons,
-                appLoading: false,
-                clearError,
-            }), {
-                name: '',
-                menu: {
-                    beforeDivisions: [{
-                        text: 'Practice',
-                        url: '/practice',
-                    }],
-                    afterDivisions: [],
-                }
-            });
+            await renderComponent(
+                settings,
+                appProps({
+                    account,
+                    divisions,
+                    seasons,
+                    appLoading: false,
+                    clearError,
+                }),
+                {
+                    name: '',
+                    menu: {
+                        beforeDivisions: [
+                            {
+                                text: 'Practice',
+                                url: '/practice',
+                            },
+                        ],
+                        afterDivisions: [],
+                    },
+                },
+            );
             expect(context.container.textContent).not.toContain('ERROR:');
             const menu = context.container.querySelector('nav')!;
             await doClick(context.container.querySelector('.navbar-toggler')!);
             expect(isExpanded()).toEqual(true);
-            const practiceItem = Array.from(menu.querySelectorAll('li'))
-                .filter(li => li.textContent === 'Practice')[0];
+            const practiceItem = Array.from(menu.querySelectorAll('li')).filter(
+                (li) => li.textContent === 'Practice',
+            )[0];
             expect(practiceItem).toBeTruthy();
 
             const link = practiceItem.querySelector('a')!;
@@ -242,13 +320,16 @@ describe('NavMenu', () => {
         });
 
         it('collapses and expands with brand', async () => {
-            await renderComponent(settings, appProps({
-                account,
-                divisions,
-                seasons,
-                appLoading: false,
-                clearError,
-            }));
+            await renderComponent(
+                settings,
+                appProps({
+                    account,
+                    divisions,
+                    seasons,
+                    appLoading: false,
+                    clearError,
+                }),
+            );
             expect(context.container.textContent).not.toContain('ERROR:');
             await doClick(context.container.querySelector('.navbar-brand')!);
             expect(isExpanded()).toEqual(true);
@@ -259,27 +340,34 @@ describe('NavMenu', () => {
         });
 
         it('should highlight route', async () => {
-            await renderComponent(settings, appProps({
-                account,
-                divisions,
-                seasons,
-                appLoading: false,
-                clearError,
-            }), {
-                name: '',
-                menu: {
-                    beforeDivisions: [{
-                        text: 'Practice',
-                        url: '/practice',
-                    }],
-                    afterDivisions: [],
-                }
-            });
+            await renderComponent(
+                settings,
+                appProps({
+                    account,
+                    divisions,
+                    seasons,
+                    appLoading: false,
+                    clearError,
+                }),
+                {
+                    name: '',
+                    menu: {
+                        beforeDivisions: [
+                            {
+                                text: 'Practice',
+                                url: '/practice',
+                            },
+                        ],
+                        afterDivisions: [],
+                    },
+                },
+            );
             expect(context.container.textContent).not.toContain('ERROR:');
 
             const menu = context.container.querySelector('nav')!;
-            const practiceItem = Array.from(menu.querySelectorAll('li'))
-                .filter(li => li.textContent === 'Practice')[0];
+            const practiceItem = Array.from(menu.querySelectorAll('li')).filter(
+                (li) => li.textContent === 'Practice',
+            )[0];
             expect(practiceItem).toBeTruthy();
             const link = practiceItem.querySelector('a')!;
             expect(link.className).toContain('nav-item-active');
@@ -289,11 +377,15 @@ describe('NavMenu', () => {
             const division1 = divisionBuilder('DIVISION 1').build();
             const division2 = divisionBuilder('DIVISION 2').build();
 
-            const onlyDivision1SeasonCurrent = seasonBuilder('SEASON - ONLY DIVISION 1')
+            const onlyDivision1SeasonCurrent = seasonBuilder(
+                'SEASON - ONLY DIVISION 1',
+            )
                 .withDivision(division1)
                 .isCurrent()
                 .build();
-            const bothDivisionsSeasonsNotCurrent = seasonBuilder('SEASON - ONLY DIVISION 1')
+            const bothDivisionsSeasonsNotCurrent = seasonBuilder(
+                'SEASON - ONLY DIVISION 1',
+            )
                 .withDivision(division1)
                 .withDivision(division2)
                 .build();
@@ -303,24 +395,30 @@ describe('NavMenu', () => {
                 appProps({
                     account,
                     divisions: [division1, division2],
-                    seasons: [onlyDivision1SeasonCurrent, bothDivisionsSeasonsNotCurrent],
+                    seasons: [
+                        onlyDivision1SeasonCurrent,
+                        bothDivisionsSeasonsNotCurrent,
+                    ],
                     appLoading: false,
                     clearError,
                 }),
                 undefined,
                 '/teams/:seasonId',
-                `/teams/${onlyDivision1SeasonCurrent.id}?division=${division1.id}`);
+                `/teams/${onlyDivision1SeasonCurrent.id}?division=${division1.id}`,
+            );
             expect(context.container.textContent).not.toContain('ERROR:');
 
             const items = getDivisionItems();
-            const divisionItems = items.map(item => item.textContent);
+            const divisionItems = items.map((item) => item.textContent);
             expect(divisionItems).toEqual(['DIVISION 1']);
         });
 
         it('should render all divisions when no active season', async () => {
             const division1 = divisionBuilder('DIVISION 1').build();
             const division2 = divisionBuilder('DIVISION 2').build();
-            const bothDivisionsSeasonsNotCurrent = seasonBuilder('SEASON - ONLY DIVISION 1')
+            const bothDivisionsSeasonsNotCurrent = seasonBuilder(
+                'SEASON - ONLY DIVISION 1',
+            )
                 .withDivision(division1)
                 .withDivision(division2)
                 .build();
@@ -336,11 +434,12 @@ describe('NavMenu', () => {
                 }),
                 undefined,
                 '/teams/:seasonId',
-                `/teams/${bothDivisionsSeasonsNotCurrent.id}/?division=${division1.id}`);
+                `/teams/${bothDivisionsSeasonsNotCurrent.id}/?division=${division1.id}`,
+            );
             expect(context.container.textContent).not.toContain('ERROR:');
 
             const items = getDivisionItems();
-            const divisionItems = items.map(item => item.textContent);
+            const divisionItems = items.map((item) => item.textContent);
             expect(divisionItems).toEqual(['DIVISION 1', 'DIVISION 2']);
         });
     });
@@ -354,16 +453,17 @@ describe('NavMenu', () => {
         const settings: ISettings = {
             apiHost: 'https://localhost',
             invalidateCacheOnNextRequest: false,
-        }
+        };
         const seasons = [
             currentSeason,
-            seasonBuilder('OTHER SEASON').withDivision(division).build()];
+            seasonBuilder('OTHER SEASON').withDivision(division).build(),
+        ];
         const divisions = [division];
         const account: UserDto = {
             name: '',
             emailAddress: '',
             access: {
-                manageAccess: true
+                manageAccess: true,
             },
             givenName: 'Simon',
         };
@@ -374,30 +474,36 @@ describe('NavMenu', () => {
                 emailAddress: '',
                 access: {},
                 givenName: 'Not an admin',
-            }
-            await renderComponent(settings, appProps({
-                account: nonAdminAccount,
-                divisions,
-                seasons,
-                appLoading: false,
-                clearError,
-            }));
+            };
+            await renderComponent(
+                settings,
+                appProps({
+                    account: nonAdminAccount,
+                    divisions,
+                    seasons,
+                    appLoading: false,
+                    clearError,
+                }),
+            );
             expect(context.container.textContent).not.toContain('ERROR:');
 
             const menu = context.container.querySelector('nav')!;
             const items = Array.from(menu.querySelectorAll('li'));
-            const itemsText = items.map(li => li.textContent);
-            expect(itemsText.filter(t => t === 'Admin')).toEqual([]);
+            const itemsText = items.map((li) => li.textContent);
+            expect(itemsText.filter((t) => t === 'Admin')).toEqual([]);
         });
 
         it('should show admin link', async () => {
-            await renderComponent(settings, appProps({
-                account,
-                divisions,
-                seasons,
-                appLoading: false,
-                clearError,
-            }));
+            await renderComponent(
+                settings,
+                appProps({
+                    account,
+                    divisions,
+                    seasons,
+                    appLoading: false,
+                    clearError,
+                }),
+            );
             expect(context.container.textContent).not.toContain('ERROR:');
 
             const menu = context.container.querySelector('nav')!;
@@ -407,13 +513,16 @@ describe('NavMenu', () => {
         });
 
         it('should show logout link', async () => {
-            await renderComponent(settings, appProps({
-                account,
-                divisions,
-                seasons,
-                appLoading: false,
-                clearError,
-            }));
+            await renderComponent(
+                settings,
+                appProps({
+                    account,
+                    divisions,
+                    seasons,
+                    appLoading: false,
+                    clearError,
+                }),
+            );
             expect(context.container.textContent).not.toContain('ERROR:');
 
             const menu = context.container.querySelector('nav')!;
@@ -423,13 +532,16 @@ describe('NavMenu', () => {
         });
 
         it('should navigate to logout', async () => {
-            await renderComponent(settings, appProps({
-                account,
-                divisions,
-                seasons,
-                appLoading: false,
-                clearError,
-            }));
+            await renderComponent(
+                settings,
+                appProps({
+                    account,
+                    divisions,
+                    seasons,
+                    appLoading: false,
+                    clearError,
+                }),
+            );
             expect(context.container.textContent).not.toContain('ERROR:');
 
             const menu = context.container.querySelector('nav')!;
@@ -437,7 +549,9 @@ describe('NavMenu', () => {
             const logoutItem = items[items.length - 1];
             const link = logoutItem.querySelector('a')!;
             expect(link).toBeTruthy();
-            expect(link.href).toEqual(`https://localhost/api/Account/Logout/?redirectUrl=${encodeURIComponent('https://localhost/practice?q=value')}`);
+            expect(link.href).toEqual(
+                `https://localhost/api/Account/Logout/?redirectUrl=${encodeURIComponent('https://localhost/practice?q=value')}`,
+            );
         });
-    })
+    });
 });

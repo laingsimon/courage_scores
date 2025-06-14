@@ -1,30 +1,33 @@
-import {MultiModeLiveWebSocket} from "./MultiModeLiveWebSocket";
-import {IWebSocketContext} from "./IWebSocketContext";
-import {ISubscriptions} from "./ISubscriptions";
-import {createTemporaryId} from "../helpers/projection";
-import {ILiveWebSocket} from "./ILiveWebSocket";
-import {WebSocketMode} from "./WebSocketMode";
-import {IUpdateStrategy} from "./IUpdateStrategy";
-import {ISubscriptionRequest} from "./ISubscriptionRequest";
-import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
-import {IStrategyData} from "./IStrategyData";
+import { MultiModeLiveWebSocket } from './MultiModeLiveWebSocket';
+import { IWebSocketContext } from './IWebSocketContext';
+import { ISubscriptions } from './ISubscriptions';
+import { createTemporaryId } from '../helpers/projection';
+import { ILiveWebSocket } from './ILiveWebSocket';
+import { WebSocketMode } from './WebSocketMode';
+import { IUpdateStrategy } from './IUpdateStrategy';
+import { ISubscriptionRequest } from './ISubscriptionRequest';
+import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType';
+import { IStrategyData } from './IStrategyData';
 
 interface IMockUpdateStrategy extends IUpdateStrategy {
     refreshRequest: IStrategyData[];
     refreshed: number;
 
-    publishRequest?: { props: IStrategyData, id: string, data: any };
+    publishRequest?: { props: IStrategyData; id: string; data: any };
     publishResponse?: IWebSocketContext | null;
 
-    subscribeRequest?: { props: IStrategyData, request: ISubscriptionRequest };
+    subscribeRequest?: { props: IStrategyData; request: ISubscriptionRequest };
     subscribeResponse?: IWebSocketContext | null;
 
-    unsubscribeRequest?: { props: IStrategyData, id: string };
+    unsubscribeRequest?: { props: IStrategyData; id: string };
     unsubscribeResponse?: IWebSocketContext | null;
 }
 
 describe('MultiModeLiveWebSocket', () => {
-    const socketAndPollingContext: IWebSocketContext = createWebSocketContext(WebSocketMode.socket, WebSocketMode.polling);
+    const socketAndPollingContext: IWebSocketContext = createWebSocketContext(
+        WebSocketMode.socket,
+        WebSocketMode.polling,
+    );
     let newSocketContext: IWebSocketContext | null;
     let newSubscriptions: ISubscriptions | null;
     let pollingStrategy: IMockUpdateStrategy;
@@ -46,22 +49,44 @@ describe('MultiModeLiveWebSocket', () => {
                 this.refreshRequest.push(props);
                 this.refreshed++;
             },
-            async publish(props: IStrategyData, id: string, type: string, data: any): Promise<IWebSocketContext | null> {
+            async publish(
+                props: IStrategyData,
+                id: string,
+                type: string,
+                data: any,
+            ): Promise<IWebSocketContext | null> {
                 this.publishRequest = { props, id, type, data };
-                return this.publishResponse === undefined ? props.context : this.publishResponse;
+                return this.publishResponse === undefined
+                    ? props.context
+                    : this.publishResponse;
             },
-            async subscribe(props: IStrategyData, request: ISubscriptionRequest): Promise<IWebSocketContext | null> {
+            async subscribe(
+                props: IStrategyData,
+                request: ISubscriptionRequest,
+            ): Promise<IWebSocketContext | null> {
                 this.subscribeRequest = { props, request };
-                return this.subscribeResponse === undefined ? props.context : this.subscribeResponse;
+                return this.subscribeResponse === undefined
+                    ? props.context
+                    : this.subscribeResponse;
             },
-            async unsubscribe(props: IStrategyData, id: string): Promise<IWebSocketContext> {
+            async unsubscribe(
+                props: IStrategyData,
+                id: string,
+            ): Promise<IWebSocketContext> {
                 this.unsubscribeRequest = { props, id };
-                return this.unsubscribeResponse === undefined ? props.context : this.unsubscribeResponse;
-            }
-        }
+                return this.unsubscribeResponse === undefined
+                    ? props.context
+                    : this.unsubscribeResponse;
+            },
+        };
     }
 
-    function multiModeLiveWebSocket(socketContext: IWebSocketContext, pollingStrategy?: IMockUpdateStrategy, webSocketStrategy?: IMockUpdateStrategy, subscriptions?: ISubscriptions): ILiveWebSocket {
+    function multiModeLiveWebSocket(
+        socketContext: IWebSocketContext,
+        pollingStrategy?: IMockUpdateStrategy,
+        webSocketStrategy?: IMockUpdateStrategy,
+        subscriptions?: ISubscriptions,
+    ): ILiveWebSocket {
         return new MultiModeLiveWebSocket({
             setSocketContext,
             setSubscriptions,
@@ -72,9 +97,11 @@ describe('MultiModeLiveWebSocket', () => {
         });
     }
 
-    function createWebSocketContext(...modes: WebSocketMode[]): IWebSocketContext {
+    function createWebSocketContext(
+        ...modes: WebSocketMode[]
+    ): IWebSocketContext {
         return {
-            modes
+            modes,
         };
     }
 
@@ -88,27 +115,46 @@ describe('MultiModeLiveWebSocket', () => {
     describe('publish', () => {
         it('throws if there are no strategies', async () => {
             const socketContext: IWebSocketContext = createWebSocketContext();
-            const socket: ILiveWebSocket = multiModeLiveWebSocket(socketContext);
+            const socket: ILiveWebSocket =
+                multiModeLiveWebSocket(socketContext);
             let error: string | undefined;
-            console.error = (msg: string) => error = msg;
+            console.error = (msg: string) => (error = msg);
 
-            const result = await socket.publish(createTemporaryId(), LiveDataType.sayg, 'data');
+            const result = await socket.publish(
+                createTemporaryId(),
+                LiveDataType.sayg,
+                'data',
+            );
 
             expect(result).toEqual(false);
-            expect(error).toEqual('Unable to publish update; no strategy was able to publish the update');
+            expect(error).toEqual(
+                'Unable to publish update; no strategy was able to publish the update',
+            );
         });
 
         it('refreshes all strategies', async () => {
-            const socket: ILiveWebSocket = multiModeLiveWebSocket(socketAndPollingContext, pollingStrategy, webSocketStrategy);
+            const socket: ILiveWebSocket = multiModeLiveWebSocket(
+                socketAndPollingContext,
+                pollingStrategy,
+                webSocketStrategy,
+            );
 
-            await socket.publish(createTemporaryId(), LiveDataType.sayg, 'data');
+            await socket.publish(
+                createTemporaryId(),
+                LiveDataType.sayg,
+                'data',
+            );
 
             expect(pollingStrategy.refreshed).toEqual(1);
             expect(webSocketStrategy.refreshed).toEqual(1);
         });
 
         it('publishes via the first strategy only', async () => {
-            const socket: ILiveWebSocket = multiModeLiveWebSocket(socketAndPollingContext, pollingStrategy, webSocketStrategy);
+            const socket: ILiveWebSocket = multiModeLiveWebSocket(
+                socketAndPollingContext,
+                pollingStrategy,
+                webSocketStrategy,
+            );
             webSocketStrategy.publishResponse = { modes: [] };
             const id: string = createTemporaryId();
 
@@ -129,7 +175,11 @@ describe('MultiModeLiveWebSocket', () => {
         });
 
         it('publishes via the second strategy if the first strategy cannot publish', async () => {
-            const socket: ILiveWebSocket = multiModeLiveWebSocket(socketAndPollingContext, pollingStrategy, webSocketStrategy);
+            const socket: ILiveWebSocket = multiModeLiveWebSocket(
+                socketAndPollingContext,
+                pollingStrategy,
+                webSocketStrategy,
+            );
             webSocketStrategy.publishResponse = null;
             pollingStrategy.publishResponse = { modes: [] };
             const id: string = createTemporaryId();
@@ -161,18 +211,28 @@ describe('MultiModeLiveWebSocket', () => {
         });
 
         it('throws if all strategies could not publish', async () => {
-            const socket: ILiveWebSocket = multiModeLiveWebSocket(socketAndPollingContext, pollingStrategy, webSocketStrategy);
+            const socket: ILiveWebSocket = multiModeLiveWebSocket(
+                socketAndPollingContext,
+                pollingStrategy,
+                webSocketStrategy,
+            );
             webSocketStrategy.publishResponse = null;
             pollingStrategy.publishResponse = null;
             let error: string | undefined;
-            console.error = (msg: string) => error = msg;
+            console.error = (msg: string) => (error = msg);
 
-            const result = await socket.publish(createTemporaryId(), LiveDataType.sayg, 'data');
+            const result = await socket.publish(
+                createTemporaryId(),
+                LiveDataType.sayg,
+                'data',
+            );
 
             expect(result).toEqual(false);
             expect(webSocketStrategy.publishRequest).toBeTruthy();
             expect(pollingStrategy.publishRequest).toBeTruthy();
-            expect(error).toEqual('Unable to publish update; no strategy was able to publish the update');
+            expect(error).toEqual(
+                'Unable to publish update; no strategy was able to publish the update',
+            );
         });
     });
 
@@ -180,7 +240,11 @@ describe('MultiModeLiveWebSocket', () => {
         it('refreshes all strategies', async () => {
             const pollingStrategy = mockStrategy();
             const webSocketStrategy = mockStrategy();
-            const socket: ILiveWebSocket = multiModeLiveWebSocket(socketAndPollingContext, pollingStrategy, webSocketStrategy);
+            const socket: ILiveWebSocket = multiModeLiveWebSocket(
+                socketAndPollingContext,
+                pollingStrategy,
+                webSocketStrategy,
+            );
 
             await socket.unsubscribe(createTemporaryId());
 
@@ -197,7 +261,12 @@ describe('MultiModeLiveWebSocket', () => {
                 errorHandler: () => {},
                 updateHandler: () => {},
             };
-            const socket: ILiveWebSocket = multiModeLiveWebSocket(socketAndPollingContext, pollingStrategy, webSocketStrategy, initialSubscriptions);
+            const socket: ILiveWebSocket = multiModeLiveWebSocket(
+                socketAndPollingContext,
+                pollingStrategy,
+                webSocketStrategy,
+                initialSubscriptions,
+            );
 
             await socket.unsubscribe(id);
 
@@ -208,14 +277,18 @@ describe('MultiModeLiveWebSocket', () => {
             const id = createTemporaryId();
             const pollingStrategy = mockStrategy();
             const webSocketStrategy = mockStrategy();
-            const socket: ILiveWebSocket = multiModeLiveWebSocket(socketAndPollingContext, pollingStrategy, webSocketStrategy);
+            const socket: ILiveWebSocket = multiModeLiveWebSocket(
+                socketAndPollingContext,
+                pollingStrategy,
+                webSocketStrategy,
+            );
 
             await socket.unsubscribe(id);
 
             expect(webSocketStrategy.unsubscribeRequest).toEqual({
                 props: {
                     context: {
-                        modes: [ WebSocketMode.socket, WebSocketMode.polling ],
+                        modes: [WebSocketMode.socket, WebSocketMode.polling],
                     },
                     subscriptions: {},
                     setContext: expect.any(Function),
@@ -226,7 +299,7 @@ describe('MultiModeLiveWebSocket', () => {
             expect(pollingStrategy.unsubscribeRequest).toEqual({
                 props: {
                     context: {
-                        modes: [ WebSocketMode.socket, WebSocketMode.polling ],
+                        modes: [WebSocketMode.socket, WebSocketMode.polling],
                     },
                     subscriptions: {},
                     setContext: expect.any(Function),
@@ -247,9 +320,14 @@ describe('MultiModeLiveWebSocket', () => {
                 errorHandler: () => {},
                 updateHandler: () => {},
             };
-            const socket: ILiveWebSocket = multiModeLiveWebSocket(socketAndPollingContext, pollingStrategy, webSocketStrategy, initialSubscriptions);
+            const socket: ILiveWebSocket = multiModeLiveWebSocket(
+                socketAndPollingContext,
+                pollingStrategy,
+                webSocketStrategy,
+                initialSubscriptions,
+            );
             let warn: string | undefined;
-            console.log = (msg: string) => warn = msg;
+            console.log = (msg: string) => (warn = msg);
 
             await socket.subscribe({ id, type: LiveDataType.sayg });
 
@@ -258,7 +336,11 @@ describe('MultiModeLiveWebSocket', () => {
 
         it('adds subscription and updates state', async () => {
             const id = 'NEW_ID';
-            const socket: ILiveWebSocket = multiModeLiveWebSocket(socketAndPollingContext, pollingStrategy, webSocketStrategy);
+            const socket: ILiveWebSocket = multiModeLiveWebSocket(
+                socketAndPollingContext,
+                pollingStrategy,
+                webSocketStrategy,
+            );
 
             await socket.subscribe({ id, type: LiveDataType.sayg });
 
@@ -269,7 +351,7 @@ describe('MultiModeLiveWebSocket', () => {
                     method: WebSocketMode.socket,
                     errorHandler: expect.any(Function),
                     updateHandler: expect.any(Function),
-                }
+                },
             });
         });
 
@@ -278,23 +360,34 @@ describe('MultiModeLiveWebSocket', () => {
             const pollingStrategy = mockStrategy();
             const webSocketStrategy = mockStrategy();
             const socketContext: IWebSocketContext = createWebSocketContext();
-            const socket: ILiveWebSocket = multiModeLiveWebSocket(socketContext, pollingStrategy, webSocketStrategy);
+            const socket: ILiveWebSocket = multiModeLiveWebSocket(
+                socketContext,
+                pollingStrategy,
+                webSocketStrategy,
+            );
 
-            const result = await socket.subscribe({ id, type: LiveDataType.sayg });
+            const result = await socket.subscribe({
+                id,
+                type: LiveDataType.sayg,
+            });
 
             expect(result).toEqual(false);
         });
 
         it('subscribes via the first strategy', async () => {
             const id = 'NEW_ID';
-            const socket: ILiveWebSocket = multiModeLiveWebSocket(socketAndPollingContext, pollingStrategy, webSocketStrategy);
+            const socket: ILiveWebSocket = multiModeLiveWebSocket(
+                socketAndPollingContext,
+                pollingStrategy,
+                webSocketStrategy,
+            );
 
             await socket.subscribe({ id, type: LiveDataType.sayg });
 
             expect(webSocketStrategy.subscribeRequest).toEqual({
                 props: {
                     context: {
-                        modes: [ WebSocketMode.socket, WebSocketMode.polling ],
+                        modes: [WebSocketMode.socket, WebSocketMode.polling],
                     },
                     subscriptions: {
                         NEW_ID: {
@@ -317,7 +410,11 @@ describe('MultiModeLiveWebSocket', () => {
 
         it('does not subscribe via subsequent strategies', async () => {
             const id = 'NEW_ID';
-            const socket: ILiveWebSocket = multiModeLiveWebSocket(socketAndPollingContext, pollingStrategy, webSocketStrategy);
+            const socket: ILiveWebSocket = multiModeLiveWebSocket(
+                socketAndPollingContext,
+                pollingStrategy,
+                webSocketStrategy,
+            );
 
             await socket.subscribe({ id, type: LiveDataType.sayg });
 
@@ -328,30 +425,42 @@ describe('MultiModeLiveWebSocket', () => {
             const id = 'NEW_ID';
             const pollingStrategy = mockStrategy();
             const webSocketStrategy = mockStrategy();
-            const socket: ILiveWebSocket = multiModeLiveWebSocket(socketAndPollingContext, pollingStrategy, webSocketStrategy);
+            const socket: ILiveWebSocket = multiModeLiveWebSocket(
+                socketAndPollingContext,
+                pollingStrategy,
+                webSocketStrategy,
+            );
 
             await socket.subscribe({ id, type: LiveDataType.sayg });
 
             expect(newSocketContext).toEqual({
-                modes: [ WebSocketMode.socket, WebSocketMode.polling ],
+                modes: [WebSocketMode.socket, WebSocketMode.polling],
             });
         });
 
         it('removes strategy if unable to subscribe', async () => {
             const id = 'NEW_ID';
-            const socket: ILiveWebSocket = multiModeLiveWebSocket(socketAndPollingContext, pollingStrategy, webSocketStrategy);
+            const socket: ILiveWebSocket = multiModeLiveWebSocket(
+                socketAndPollingContext,
+                pollingStrategy,
+                webSocketStrategy,
+            );
             webSocketStrategy.subscribeResponse = null;
 
             await socket.subscribe({ id, type: LiveDataType.sayg });
 
             expect(newSocketContext).toEqual({
-                modes: [ WebSocketMode.polling ],
+                modes: [WebSocketMode.polling],
             });
         });
 
         it('subscribes via subsequent strategy if first fails', async () => {
             const id = 'NEW_ID';
-            const socket: ILiveWebSocket = multiModeLiveWebSocket(socketAndPollingContext, pollingStrategy, webSocketStrategy);
+            const socket: ILiveWebSocket = multiModeLiveWebSocket(
+                socketAndPollingContext,
+                pollingStrategy,
+                webSocketStrategy,
+            );
             webSocketStrategy.subscribeResponse = null;
 
             await socket.subscribe({ id, type: LiveDataType.sayg });
@@ -360,7 +469,7 @@ describe('MultiModeLiveWebSocket', () => {
             expect(pollingStrategy.subscribeRequest).toEqual({
                 props: {
                     context: {
-                        modes: [ WebSocketMode.polling ],
+                        modes: [WebSocketMode.polling],
                     },
                     subscriptions: {
                         NEW_ID: {
@@ -384,7 +493,11 @@ describe('MultiModeLiveWebSocket', () => {
         it('does not update subscriptions if no strategies', async () => {
             const id = 'NEW_ID';
             const socketContext: IWebSocketContext = createWebSocketContext();
-            const socket: ILiveWebSocket = multiModeLiveWebSocket(socketContext, pollingStrategy, webSocketStrategy);
+            const socket: ILiveWebSocket = multiModeLiveWebSocket(
+                socketContext,
+                pollingStrategy,
+                webSocketStrategy,
+            );
             webSocketStrategy.subscribeResponse = null;
 
             await socket.subscribe({ id, type: LiveDataType.sayg });
@@ -395,11 +508,18 @@ describe('MultiModeLiveWebSocket', () => {
         it('returns false if all strategies fail to subscribe', async () => {
             const id = 'NEW_ID';
             const socketContext: IWebSocketContext = createWebSocketContext();
-            const socket: ILiveWebSocket = multiModeLiveWebSocket(socketContext, pollingStrategy, webSocketStrategy);
+            const socket: ILiveWebSocket = multiModeLiveWebSocket(
+                socketContext,
+                pollingStrategy,
+                webSocketStrategy,
+            );
             webSocketStrategy.subscribeResponse = null;
             pollingStrategy.subscribeResponse = null;
 
-            const result = await socket.subscribe({ id, type: LiveDataType.sayg });
+            const result = await socket.subscribe({
+                id,
+                type: LiveDataType.sayg,
+            });
 
             expect(result).toEqual(false);
         });
@@ -407,7 +527,11 @@ describe('MultiModeLiveWebSocket', () => {
         it('does not update subscriptions if all fails to subscribe', async () => {
             const id = 'NEW_ID';
             const socketContext: IWebSocketContext = createWebSocketContext();
-            const socket: ILiveWebSocket = multiModeLiveWebSocket(socketContext, pollingStrategy, webSocketStrategy);
+            const socket: ILiveWebSocket = multiModeLiveWebSocket(
+                socketContext,
+                pollingStrategy,
+                webSocketStrategy,
+            );
             webSocketStrategy.subscribeResponse = null;
             pollingStrategy.subscribeResponse = null;
 

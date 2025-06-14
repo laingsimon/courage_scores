@@ -1,24 +1,31 @@
 ﻿/* istanbul ignore file */
 
-import {IAddableBuilder, IBuilder} from "./builders";
-import {PlayerPerformanceDto} from "../../interfaces/models/dtos/Division/PlayerPerformanceDto";
-import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
-import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
-import {NotablePlayerDto} from "../../interfaces/models/dtos/Game/NotablePlayerDto";
-import {ISelectablePlayer} from "../../components/common/PlayerSelection";
-import {createTemporaryId} from "../projection";
+import { BuilderParam, IAddableBuilder, IBuilder } from './builders';
+import { PlayerPerformanceDto } from '../../interfaces/models/dtos/Division/PlayerPerformanceDto';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
+import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/DivisionPlayerDto';
+import { NotablePlayerDto } from '../../interfaces/models/dtos/Game/NotablePlayerDto';
+import { ISelectablePlayer } from '../../components/common/PlayerSelection';
+import { createTemporaryId } from '../projection';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
 
-export interface IPlayerBuilder extends IAddableBuilder<TeamPlayerDto & DivisionPlayerDto & NotablePlayerDto & ISelectablePlayer> {
+export interface IPlayerBuilder
+    extends IAddableBuilder<
+        TeamPlayerDto & DivisionPlayerDto & NotablePlayerDto & ISelectablePlayer
+    > {
     captain(): IPlayerBuilder;
     score(score: number): IPlayerBuilder;
     noId(): IPlayerBuilder;
     email(email?: string): IPlayerBuilder;
-    team(team: any): IPlayerBuilder;
-    singles(metricsFunc: any): IPlayerBuilder;
+    team(team: TeamDto): IPlayerBuilder;
+    singles(b: BuilderParam<IPlayerPerformanceBuilder>): IPlayerBuilder;
 }
 
 export function playerBuilder(name?: string, id?: string): IPlayerBuilder {
-    const player: TeamPlayerDto & DivisionPlayerDto & NotablePlayerDto & ISelectablePlayer = {
+    const player: TeamPlayerDto &
+        DivisionPlayerDto &
+        NotablePlayerDto &
+        ISelectablePlayer = {
         id: id || createTemporaryId(),
         name: name || '',
         team: undefined!,
@@ -46,12 +53,12 @@ export function playerBuilder(name?: string, id?: string): IPlayerBuilder {
             player.emailAddress = email;
             return builder;
         },
-        team: (team: any) => {
-            player.teamId = team.id ? team.id : team;
+        team: (team: TeamDto) => {
+            player.teamId = team.id;
             return builder;
         },
-        singles: (metricsFunc: (metricsBuilder: IPlayerPerformanceBuilder) => PlayerPerformanceDto) => {
-            player.singles = metricsFunc(playerPerformanceBuilder());
+        singles: (b: BuilderParam<IPlayerPerformanceBuilder>) => {
+            player.singles = b(playerPerformanceBuilder()).build();
             return builder;
         },
     };
@@ -59,13 +66,13 @@ export function playerBuilder(name?: string, id?: string): IPlayerBuilder {
     return builder;
 }
 
-export interface IPlayerPerformanceBuilder extends IBuilder<PlayerPerformanceDto> {
+export interface IPlayerPerformanceBuilder
+    extends IBuilder<PlayerPerformanceDto> {
     matchesPlayed(count: number): IPlayerPerformanceBuilder;
 }
 
 export function playerPerformanceBuilder(): IPlayerPerformanceBuilder {
-    const metrics: PlayerPerformanceDto = {
-    };
+    const metrics: PlayerPerformanceDto = {};
 
     const builder: IPlayerPerformanceBuilder = {
         build: () => metrics,

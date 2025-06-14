@@ -1,6 +1,6 @@
 import React from 'react';
-import {UntypedPromise} from "../../interfaces/UntypedPromise";
-import {useApp} from "./AppContainer";
+import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { useApp } from './AppContainer';
 
 export interface IDialogProps {
     children: React.ReactNode;
@@ -12,28 +12,52 @@ export interface IDialogProps {
     fullScreen?: boolean;
 }
 
-export function Dialog({children, onClose, title, slim, className, contentWidth, fullScreen}: IDialogProps) {
-    const {fullScreen: appFullScreen} = useApp();
+export function Dialog({
+    children,
+    onClose,
+    title,
+    slim,
+    className,
+    contentWidth,
+    fullScreen,
+}: IDialogProps) {
+    const { fullScreen: appFullScreen } = useApp();
     const isFullScreen = appFullScreen.isFullScreen;
 
-    return (<div className="text-start">
-        <div className={`modal fade show text-black ${className || ''}`} role="dialog" style={{display: 'block'}}>
-            <div className={`modal-dialog${fullScreen ? ' position-static' : ' modal-dialog-centered'}${slim || fullScreen ? '' : ' modal-dialog-larger-max-width'}${contentWidth ? ' modal-sm' : ''}`}>
-                <div className={`modal-content${fullScreen ? ' position-absolute top-0 bottom-0 left-0 right-0 border-0' : ''}`}>
-                    {title ? (<div className="modal-header justify-content-center">
-                        <h5>{title}</h5>
-                    </div>) : null}
-                    <div className={`modal-body${fullScreen ? ' p-0' : ''}${isFullScreen ? ' d-flex': ''}`}>
-                        {children}
-                    </div>
-                    {onClose ? (<div className="modal-footer">
-                        <div className="left-aligned">
-                            <button className="btn btn-secondary" onClick={onClose}>Close</button>
+    return (
+        <div className="text-start">
+            <div
+                className={`modal fade show text-black ${className || ''}`}
+                role="dialog"
+                style={{ display: 'block' }}>
+                <div
+                    className={`modal-dialog${fullScreen ? ' position-static' : ' modal-dialog-centered'}${slim || fullScreen ? '' : ' modal-dialog-larger-max-width'}${contentWidth ? ' modal-sm' : ''}`}>
+                    <div
+                        className={`modal-content${fullScreen ? ' position-absolute top-0 bottom-0 left-0 right-0 border-0' : ''}`}>
+                        {title ? (
+                            <div className="modal-header justify-content-center">
+                                <h5>{title}</h5>
+                            </div>
+                        ) : null}
+                        <div
+                            className={`modal-body${fullScreen ? ' p-0' : ''}${isFullScreen ? ' d-flex' : ''}`}>
+                            {children}
                         </div>
-                    </div>) : null}
+                        {onClose ? (
+                            <div className="modal-footer">
+                                <div className="left-aligned">
+                                    <button
+                                        className="btn btn-secondary"
+                                        onClick={onClose}>
+                                        Close
+                                    </button>
+                                </div>
+                            </div>
+                        ) : null}
+                    </div>
                 </div>
             </div>
+            <div className="modal-backdrop fade show"></div>
         </div>
-        <div className="modal-backdrop fade show"></div>
-    </div>)
+    );
 }

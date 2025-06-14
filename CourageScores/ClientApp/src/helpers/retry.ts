@@ -1,4 +1,9 @@
-﻿export async function retry<T>(action: () => Promise<T>, message: string, times: number = 10, defaultValue?: T): Promise<T | undefined> {
+﻿export async function retry<T>(
+    action: () => Promise<T>,
+    message: string,
+    times: number = 10,
+    defaultValue?: T,
+): Promise<T | undefined> {
     for (let attempt = 1; attempt <= times; attempt++) {
         try {
             return await action();

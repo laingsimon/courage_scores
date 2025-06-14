@@ -1,7 +1,10 @@
-﻿import {addSide,} from "./tournaments";
-import {sideBuilder, tournamentBuilder} from "../../helpers/builders/tournaments";
-import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
-import {playerBuilder} from "../../helpers/builders/players";
+﻿import { addSide } from './tournaments';
+import {
+    sideBuilder,
+    tournamentBuilder,
+} from '../../helpers/builders/tournaments';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
+import { playerBuilder } from '../../helpers/builders/players';
 
 describe('tournaments', () => {
     describe('addSide', () => {
@@ -15,12 +18,19 @@ describe('tournaments', () => {
                 .build();
             newSide.id = '';
 
-            const updatedTournament: TournamentGameDto = addSide(currentTournament, newSide, { addAsIndividuals: false });
+            const updatedTournament: TournamentGameDto = addSide(
+                currentTournament,
+                newSide,
+                { addAsIndividuals: false },
+            );
 
             expect(updatedTournament.sides!.length).toEqual(1);
             expect(updatedTournament.sides![0].id).not.toEqual('');
             expect(updatedTournament.sides![0].name).toEqual('SIDE');
-            expect(updatedTournament.sides![0].players).toEqual([ player1, player2 ]);
+            expect(updatedTournament.sides![0].players).toEqual([
+                player1,
+                player2,
+            ]);
         });
 
         it('can add each player as a discrete side', () => {
@@ -33,15 +43,19 @@ describe('tournaments', () => {
                 .build();
             newSide.id = '';
 
-            const updatedTournament: TournamentGameDto = addSide(currentTournament, newSide, { addAsIndividuals: true });
+            const updatedTournament: TournamentGameDto = addSide(
+                currentTournament,
+                newSide,
+                { addAsIndividuals: true },
+            );
 
             expect(updatedTournament.sides!.length).toEqual(2);
             expect(updatedTournament.sides![0].id).not.toEqual('');
             expect(updatedTournament.sides![0].name).toEqual('PLAYER 1');
-            expect(updatedTournament.sides![0].players).toEqual([ player1 ]);
+            expect(updatedTournament.sides![0].players).toEqual([player1]);
             expect(updatedTournament.sides![1].id).not.toEqual('');
             expect(updatedTournament.sides![1].name).toEqual('PLAYER 2');
-            expect(updatedTournament.sides![1].players).toEqual([ player2 ]);
-        })
+            expect(updatedTournament.sides![1].players).toEqual([player2]);
+        });
     });
 });

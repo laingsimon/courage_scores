@@ -1,21 +1,22 @@
-import {AdminContainer, IAdminContainerProps} from "./AdminContainer";
+import { AdminContainer, IAdminContainerProps } from './AdminContainer';
 import {
     api,
     appProps,
     brandingProps,
     cleanUp,
     doChange,
-    doClick, ErrorState,
+    doClick,
+    ErrorState,
     findButton,
     iocProps,
     renderApp,
-    TestContext
-} from "../../helpers/tests";
-import {ExportData} from "./ExportData";
-import {ExportDataRequestDto} from "../../interfaces/models/dtos/Data/ExportDataRequestDto";
-import {ExportDataResultDto} from "../../interfaces/models/dtos/Data/ExportDataResultDto";
-import {IClientActionResultDto} from "../common/IClientActionResultDto";
-import {IDataApi} from "../../interfaces/apis/IDataApi";
+    TestContext,
+} from '../../helpers/tests';
+import { ExportData } from './ExportData';
+import { ExportDataRequestDto } from '../../interfaces/models/dtos/Data/ExportDataRequestDto';
+import { ExportDataResultDto } from '../../interfaces/models/dtos/Data/ExportDataResultDto';
+import { IClientActionResultDto } from '../common/IClientActionResultDto';
+import { IDataApi } from '../../interfaces/apis/IDataApi';
 
 describe('ExportData', () => {
     let context: TestContext;
@@ -23,10 +24,12 @@ describe('ExportData', () => {
     let exportRequest: ExportDataRequestDto | null;
     let apiResponse: IClientActionResultDto<ExportDataResultDto> | null;
     const dataApi = api<IDataApi>({
-        export: async (request: ExportDataRequestDto): Promise<IClientActionResultDto<ExportDataResultDto>> => {
+        export: async (
+            request: ExportDataRequestDto,
+        ): Promise<IClientActionResultDto<ExportDataResultDto>> => {
             exportRequest = request;
-            return apiResponse || {success: true, result: {zip: ''}};
-        }
+            return apiResponse || { success: true, result: { zip: '' } };
+        },
     });
 
     afterEach(async () => {
@@ -41,20 +44,28 @@ describe('ExportData', () => {
 
     async function renderComponent(adminProps: IAdminContainerProps) {
         context = await renderApp(
-            iocProps({dataApi}),
+            iocProps({ dataApi }),
             brandingProps(),
-            appProps({
-                account: {},
-            }, reportedError),
-            (<AdminContainer {...adminProps}>
-                <ExportData/>
-            </AdminContainer>));
+            appProps(
+                {
+                    account: {
+                        name: '',
+                        emailAddress: '',
+                        givenName: '',
+                    },
+                },
+                reportedError,
+            ),
+            <AdminContainer {...adminProps}>
+                <ExportData />
+            </AdminContainer>,
+        );
     }
 
     const props: IAdminContainerProps = {
         tables: [
-            {name: 'Table 1', canExport: true, partitionKey: ''},
-            {name: 'Table 2', canExport: false, partitionKey: ''}
+            { name: 'Table 1', canExport: true, partitionKey: '' },
+            { name: 'Table 2', canExport: false, partitionKey: '' },
         ],
         accounts: [],
     };
@@ -64,14 +75,19 @@ describe('ExportData', () => {
 
         reportedError.verifyNoError();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
-        expect(tables.map(t => t.textContent)).toEqual(['Table 1', 'Table 2']);
+        expect(tables.map((t) => t.textContent)).toEqual([
+            'Table 1',
+            'Table 2',
+        ]);
     });
 
     it('can select exportable table', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table1 = tables.filter(t => t.textContent!.indexOf('Table 1') !== -1)[0];
+        const table1 = tables.filter(
+            (t) => t.textContent!.indexOf('Table 1') !== -1,
+        )[0];
         expect(table1).toBeTruthy();
         expect(table1.className).toContain('active');
 
@@ -84,7 +100,9 @@ describe('ExportData', () => {
         await renderComponent(props);
         reportedError.verifyNoError();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table2 = tables.filter(t => t.textContent!.indexOf('Table 2') !== -1)[0];
+        const table2 = tables.filter(
+            (t) => t.textContent!.indexOf('Table 2') !== -1,
+        )[0];
         expect(table2).toBeTruthy();
         expect(table2.className).not.toContain('active');
 
@@ -97,7 +115,9 @@ describe('ExportData', () => {
         await renderComponent(props);
         reportedError.verifyNoError();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table1 = tables.filter(t => t.textContent!.indexOf('Table 1') !== -1)[0];
+        const table1 = tables.filter(
+            (t) => t.textContent!.indexOf('Table 1') !== -1,
+        )[0];
         expect(table1.className).toContain('active');
         await doClick(table1); // deselect table 1
 
@@ -111,7 +131,12 @@ describe('ExportData', () => {
     it('can export data with password', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        await doChange(context.container, 'input[name="password"]', 'pass', context.user);
+        await doChange(
+            context.container,
+            'input[name="password"]',
+            'pass',
+            context.user,
+        );
 
         await doClick(findButton(context.container, 'Export data'));
 
@@ -119,7 +144,7 @@ describe('ExportData', () => {
         expect(exportRequest).toEqual({
             includeDeletedEntries: true,
             password: 'pass',
-            tables: {'Table 1': []},
+            tables: { 'Table 1': [] },
         });
     });
 
@@ -133,7 +158,7 @@ describe('ExportData', () => {
         expect(exportRequest).toEqual({
             includeDeletedEntries: true,
             password: '',
-            tables: {'Table 1': []},
+            tables: { 'Table 1': [] },
         });
     });
 
@@ -148,7 +173,7 @@ describe('ExportData', () => {
         expect(exportRequest).toEqual({
             includeDeletedEntries: false,
             password: '',
-            tables: {'Table 1': []},
+            tables: { 'Table 1': [] },
         });
     });
 
@@ -158,37 +183,47 @@ describe('ExportData', () => {
         apiResponse = {
             success: true,
             result: {
-                zip: 'ZIP CONTENT'
+                zip: 'ZIP CONTENT',
             },
         };
         await doClick(findButton(context.container, 'Export data'));
 
         reportedError.verifyNoError();
-        const downloadButton = context.container.querySelector('a[download="export.zip"]') as HTMLAnchorElement;
-        expect(downloadButton.href).toEqual('data:application/zip;base64,ZIP CONTENT');
+        const downloadButton = context.container.querySelector(
+            'a[download="export.zip"]',
+        ) as HTMLAnchorElement;
+        expect(downloadButton.href).toEqual(
+            'data:application/zip;base64,ZIP CONTENT',
+        );
     });
 
     it('can handle error during export', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        apiResponse = {success: false};
+        apiResponse = { success: false };
 
         await doClick(findButton(context.container, 'Export data'));
 
         reportedError.verifyNoError();
         expect(exportRequest).not.toBeNull();
-        expect(context.container.textContent).toContain('Could not export data');
+        expect(context.container.textContent).toContain(
+            'Could not export data',
+        );
     });
 
     it('can close error report from export', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        apiResponse = {success: false};
+        apiResponse = { success: false };
         await doClick(findButton(context.container, 'Export data'));
-        expect(context.container.textContent).toContain('Could not export data');
+        expect(context.container.textContent).toContain(
+            'Could not export data',
+        );
 
         await doClick(findButton(context.container, 'Close'));
 
-        expect(context.container.textContent).not.toContain('Could not export data');
+        expect(context.container.textContent).not.toContain(
+            'Could not export data',
+        );
     });
 });
