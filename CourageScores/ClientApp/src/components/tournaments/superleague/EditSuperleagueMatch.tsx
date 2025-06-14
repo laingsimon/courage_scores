@@ -25,6 +25,11 @@ import { useTournament } from '../TournamentContainer';
 import { DivisionTournamentFixtureDetailsDto } from '../../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto';
 import { hasAccess } from '../../../helpers/conditions';
 
+interface TeamAndSeason {
+    team: TeamDto;
+    season: TeamSeasonDto;
+}
+
 export interface IEditSuperleagueMatchProps {
     index?: number;
     match: TournamentMatchDto;
@@ -91,8 +96,15 @@ export function EditSuperleagueMatch({
         );
     }
 
-    function getTeam(name?: string): TeamDto | undefined {
-        return teams.filter((t: TeamDto) => t.name === name)[0];
+    function getTeamSeason(name?: string): TeamAndSeason | undefined {
+        const seasonId = tournamentData.seasonId;
+        const teamsByName = teams.filter((t: TeamDto) => t.name === name);
+        return teamsByName
+            .flatMap(
+                (team) =>
+                    team.seasons?.map((ts) => ({ team, season: ts })) ?? [],
+            )
+            .find((a) => a.season.seasonId === seasonId && !a.season.deleted);
     }
 
     function getPlayersForTeamName(
@@ -103,16 +115,9 @@ export function EditSuperleagueMatch({
             match.sideB.players || [],
         );
 
-        return teams
-            .filter((t: TeamDto) => t.name === name)
-            .map((t) =>
-                t.seasons!.find(
-                    (ts: TeamSeasonDto) =>
-                        ts.seasonId === tournamentData.seasonId && !ts.deleted,
-                ),
-            )
-            .flatMap((ts) => ts?.players || [])
-            .filter(
+        const team = getTeamSeason(name)!;
+        return team.season
+            .players!.filter(
                 (p) =>
                     !any(alreadySelected, (selected) => selected.id === p.id),
             )
@@ -189,9 +194,9 @@ export function EditSuperleagueMatch({
                     side === 'sideA'
                         ? tournamentData.host!
                         : tournamentData.opponent!;
-                const team = teams.find((t: TeamDto) => t.name === teamName);
-                if (team) {
-                    setAddPlayerDialogOpen(team);
+                const teamSeason = getTeamSeason(teamName);
+                if (teamSeason) {
+                    setAddPlayerDialogOpen(getTeamSeason(teamName)!.team);
                     setNewPlayerDetails({ name: '', captain: false });
                 } else {
                     onError(`Unable to find team with name '${teamName}'`);
@@ -227,8 +232,7 @@ export function EditSuperleagueMatch({
             return;
         }
 
-        const roundPatch: PatchTournamentRoundDto =
-            patch as PatchTournamentRoundDto;
+        const roundPatch = patch as PatchTournamentRoundDto;
         if (patchData) {
             await patchData(roundPatch, nestInRound, saygId);
         }
@@ -254,23 +258,20 @@ export function EditSuperleagueMatch({
         );
     }
 
-    function editPlayer(playerToFind: TeamPlayerDto, team: TeamDto) {
-        const teamSeason = team.seasons!.filter(
-            (ts) => ts.seasonId === tournamentData.seasonId && !ts.deleted,
-        )[0];
-        const player = teamSeason.players!.filter(
+    function editPlayer(playerToFind: TeamPlayerDto, team: TeamAndSeason) {
+        const player = team.season.players!.filter(
             (p) => p.id === playerToFind.id,
         )[0];
 
         if (!player) {
             alert(
-                `Unable to find player ${playerToFind.name} (id: ${playerToFind.id}) in team ${team.name}`,
+                `Unable to find player ${playerToFind.name} (id: ${playerToFind.id}) in team ${team.team.name}`,
             );
             return;
         }
 
         setEditingPlayer(player);
-        setEditingPlayerTeam(team);
+        setEditingPlayerTeam(team.team);
     }
 
     function renderEditPlayer() {
@@ -342,7 +343,7 @@ export function EditSuperleagueMatch({
                             onClick={() =>
                                 editPlayer(
                                     match.sideA!.players![0],
-                                    getTeam(tournamentData.host)!,
+                                    getTeamSeason(tournamentData.host)!,
                                 )
                             }>
                             ✏️
@@ -377,7 +378,7 @@ export function EditSuperleagueMatch({
                             onClick={() =>
                                 editPlayer(
                                     match.sideB!.players![0],
-                                    getTeam(tournamentData.opponent)!,
+                                    getTeamSeason(tournamentData.opponent)!,
                                 )
                             }>
                             ✏️
