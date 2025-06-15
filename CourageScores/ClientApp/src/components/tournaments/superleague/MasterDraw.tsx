@@ -50,10 +50,10 @@ export function MasterDraw({
     ];
     const teamOptions: IBootstrapDropdownItem[] = teams
         .filter((t: TeamDto) => {
-            return !!t.seasons?.filter(
+            return !!t.seasons?.find(
                 (ts: TeamSeasonDto) =>
                     ts.seasonId === tournamentData.seasonId && !ts.deleted,
-            )[0];
+            );
         })
         .map((t: TeamDto): IBootstrapDropdownItem => {
             return {

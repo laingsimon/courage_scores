@@ -18,7 +18,6 @@ import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/Di
 import { DivisionTeamDto } from '../../interfaces/models/dtos/Division/DivisionTeamDto';
 import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
 import { IEditableDivisionFixtureDateDto } from './IEditableDivisionFixtureDateDto';
-import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto';
 import { usePreferences } from '../common/PreferencesContainer';
 import { ToggleFavouriteTeam } from '../common/ToggleFavouriteTeam';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
@@ -216,8 +215,7 @@ export function DivisionFixture({
             .filter((t: TeamDto) =>
                 any(
                     t.seasons!,
-                    (ts: TeamSeasonDto) =>
-                        ts.seasonId === season!.id && !ts.deleted,
+                    (ts) => ts.seasonId === season!.id && !ts.deleted,
                 ),
             )
             .map((t: TeamDto): IBootstrapDropdownItem => {

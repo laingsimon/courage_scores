@@ -26,10 +26,10 @@ export function ScoreCardHeading({
 }: IScoreCardHeadingProps) {
     const { account, onError, teams } = useApp();
     const { division, season } = useLeagueFixture();
-    const submissionTeam: TeamDto | null =
+    const submissionTeam: TeamDto | undefined =
         account && access === 'clerk' && account.teamId
-            ? teams.filter((t) => t.id === account.teamId)[0]
-            : null;
+            ? teams.find((t) => t.id === account.teamId)
+            : undefined;
     const opposingTeam =
         submissionTeam && data.home.id === submissionTeam.id
             ? data.away

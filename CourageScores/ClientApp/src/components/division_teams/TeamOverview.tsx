@@ -21,7 +21,7 @@ export function TeamOverview({ teamId }: ITeamOverviewProps) {
         name: divisionName,
     } = useDivisionData();
     const { teams } = useApp();
-    const team = teams.filter((t) => t.id === teamId)[0];
+    const team = teams.find((t) => t.id === teamId);
     const fixtures = divisionDataFixtures!
         .map((fixtureDate) => {
             return {

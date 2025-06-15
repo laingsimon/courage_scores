@@ -235,11 +235,11 @@ export function Tournament() {
             )
             .map(
                 (t: TeamDto) =>
-                    t.seasons!.filter(
+                    t.seasons!.find(
                         (ts: TeamSeasonDto) =>
                             ts.seasonId === tournamentData.seasonId &&
                             !ts.deleted,
-                    )[0],
+                    )!,
             )
             .filter((teamSeasonDto: TeamSeasonDto) => teamSeasonDto)
             .flatMap((teamSeason: TeamSeasonDto) =>

@@ -13,7 +13,6 @@ import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dto
 import { usePreferences } from '../common/PreferencesContainer';
 import { ToggleFavouriteTeam } from '../common/ToggleFavouriteTeam';
 import { Link } from 'react-router';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
 import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto';
 import { UntypedPromise } from '../../interfaces/UntypedPromise';
 import { hasAccess } from '../../helpers/conditions';
@@ -164,9 +163,7 @@ export function TournamentFixture({
 
     function renderWinner(winningSide: TournamentSideDto) {
         if (winningSide.teamId) {
-            const team: TeamDto = teams.filter(
-                (t) => t.id === winningSide.teamId,
-            )[0];
+            const team = teams.find((t) => t.id === winningSide.teamId);
 
             if (team) {
                 return (

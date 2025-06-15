@@ -294,9 +294,7 @@ export function Score() {
         teamType: string,
         matches: GameMatchDto[],
     ): (TeamPlayerDto & ISelectablePlayer)[] | undefined {
-        const teamData: TeamDto = teams.filter(
-            (t: TeamDto) => t.id === teamId,
-        )[0];
+        const teamData = teams.find((t: TeamDto) => t.id === teamId);
 
         if (!teamData) {
             onError(`${teamType} team could not be found - ${teamId}`);
@@ -309,10 +307,9 @@ export function Score() {
         }
 
         const teamSeasons: { [p: string]: TeamSeasonDto } = Object.fromEntries(
-            teamData.seasons.map((season: TeamSeasonDto) => [
-                season.seasonId,
-                season,
-            ]),
+            teamData.seasons
+                .filter((ts) => !ts.deleted)
+                .map((season: TeamSeasonDto) => [season.seasonId, season]),
         );
 
         if (!teamSeasons[seasonId]) {
@@ -829,8 +826,8 @@ export function Score() {
             `${fixtureData.home.name} vs ${fixtureData.away.name} - ${renderDate(fixtureData.date)}`,
         );
         const accountTeam = account
-            ? teams.filter((t) => t.id === account.teamId)[0]
-            : null;
+            ? teams.find((t) => t.id === account.teamId)
+            : undefined;
 
         return (
             <div>
