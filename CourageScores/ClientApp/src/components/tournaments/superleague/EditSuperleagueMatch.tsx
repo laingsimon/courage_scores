@@ -115,9 +115,9 @@ export function EditSuperleagueMatch({
             match.sideB.players || [],
         );
 
-        const team = getTeamSeason(name)!;
-        return team.season
-            .players!.filter(
+        const team = getTeamSeason(name);
+        return (team?.season?.players ?? [])
+            .filter(
                 (p) =>
                     !any(alreadySelected, (selected) => selected.id === p.id),
             )
