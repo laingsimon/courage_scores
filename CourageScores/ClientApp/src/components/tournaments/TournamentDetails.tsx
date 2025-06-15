@@ -81,10 +81,10 @@ export function TournamentDetails({
     function getTeamIdForPlayer(player: TournamentPlayerDto): string | null {
         const teamToSeasonMaps = teams.map((t: TeamDto) => {
             return {
-                teamSeason: t.seasons!.filter(
+                teamSeason: t.seasons!.find(
                     (ts: TeamSeasonDto) =>
                         ts.seasonId === tournamentData.seasonId && !ts.deleted,
-                )[0],
+                ),
                 team: t,
             };
         });

@@ -209,7 +209,7 @@ export function PrintableSheet({ editable, patchData }: IPrintableSheetProps) {
 
     function getLinkToSide(side: TournamentSideDto) {
         if (side && side.teamId && division) {
-            const team: TeamDto = teams.filter((t) => t.id === side.teamId)[0];
+            const team = teams.find((t) => t.id === side.teamId);
 
             return (
                 <Link
@@ -241,10 +241,10 @@ export function PrintableSheet({ editable, patchData }: IPrintableSheetProps) {
     } {
         const teamAndDivisionMapping = teams
             .map((t) => {
-                const teamSeason: TeamSeasonDto = t.seasons!.filter(
+                const teamSeason = t.seasons!.find(
                     (ts: TeamSeasonDto) =>
                         ts.seasonId === season!.id && !ts.deleted,
-                )[0];
+                );
                 if (!teamSeason) {
                     return null;
                 }

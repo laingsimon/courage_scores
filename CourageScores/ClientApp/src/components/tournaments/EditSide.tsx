@@ -81,9 +81,9 @@ export function EditSide({
             .sort(sortBy('text')),
     );
     const allPossiblePlayers: ITeamPlayerMap[] = teams.flatMap((t: TeamDto) => {
-        const teamSeason: TeamSeasonDto = t.seasons!.filter(
-            (ts: TeamSeasonDto) => ts.seasonId === season!.id && !ts.deleted,
-        )[0];
+        const teamSeason = t.seasons!.find(
+            (ts) => ts.seasonId === season!.id && !ts.deleted,
+        );
         if (teamSeason && isTeamSeasonForDivision(teamSeason)) {
             return (
                 teamSeason.players!.map((p: TeamPlayerDto): ITeamPlayerMap => {
@@ -122,9 +122,9 @@ export function EditSide({
     }
 
     function teamSeasonForSameDivision(team: TeamDto): boolean {
-        const teamSeason: TeamSeasonDto = team.seasons!.filter(
+        const teamSeason = team.seasons!.find(
             (ts: TeamSeasonDto) => ts.seasonId === season!.id && !ts.deleted,
-        )[0];
+        );
         if (!teamSeason) {
             return false;
         }
@@ -217,7 +217,7 @@ export function EditSide({
         try {
             const newSide: TournamentSideDto = Object.assign({}, side);
             if (teamId) {
-                const team = teams.filter((t: TeamDto) => t.id === teamId)[0];
+                const team = teams.find((t: TeamDto) => t.id === teamId)!;
                 newSide.name = newSide.name || team.name;
 
                 newSide.teamId = team.id;

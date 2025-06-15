@@ -4,7 +4,6 @@ import { any } from '../../helpers/collections';
 import { useApp } from './AppContainer';
 import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
 import { NotablePlayerDto } from '../../interfaces/models/dtos/Game/NotablePlayerDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
 import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto';
 import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto';
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
@@ -100,11 +99,11 @@ export function MultiPlayerSelection({
     }
 
     function getTeamName(playerId: string): string | null {
-        const team: TeamDto = teams.filter((t) => {
-            const teamSeason: TeamSeasonDto = t.seasons!.filter(
+        const team = teams.find((t) => {
+            const teamSeason: TeamSeasonDto = t.seasons!.find(
                 (ts: TeamSeasonDto) =>
                     ts.seasonId === season!.id && !ts.deleted,
-            )[0];
+            )!;
             if (!teamSeason) {
                 return null;
             }
@@ -113,7 +112,7 @@ export function MultiPlayerSelection({
                 teamSeason.players!,
                 (p: TeamPlayerDto) => p.id === playerId,
             );
-        })[0];
+        });
 
         return team ? team.name : null;
     }

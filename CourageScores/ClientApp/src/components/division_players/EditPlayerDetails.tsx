@@ -161,12 +161,10 @@ export function EditPlayerDetails({
 
     function getDivisionIdForTeam(): string {
         const teamId = newTeamId || (team ? team.id : null) || player.teamId;
-        const theTeam: TeamDto = teams.filter(
-            (t: TeamDto) => t.id === teamId,
-        )[0];
-        const teamSeason: TeamSeasonDto = theTeam.seasons!.filter(
-            (ts: TeamSeasonDto) => ts.seasonId === seasonId,
-        )[0];
+        const theTeam = teams.find((t: TeamDto) => t.id === teamId);
+        const teamSeason = theTeam?.seasons!.find(
+            (ts) => ts.seasonId === seasonId,
+        );
         if (teamSeason && teamSeason.divisionId) {
             return teamSeason.divisionId;
         }
@@ -225,9 +223,9 @@ export function EditPlayerDetails({
     }
 
     function teamSeasonForSameDivision(team: TeamDto): boolean {
-        const teamSeason: TeamSeasonDto = team.seasons!.filter(
+        const teamSeason = team.seasons!.find(
             (ts: TeamSeasonDto) => ts.seasonId === seasonId && !ts.deleted,
-        )[0];
+        );
         if (!teamSeason) {
             return false;
         }
