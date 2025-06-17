@@ -49,7 +49,6 @@ import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
 import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
 import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto';
 import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto';
 import { ISelectablePlayer } from '../common/PlayerSelection';
 import { RecordScoresDto } from '../../interfaces/models/dtos/Game/RecordScoresDto';
 import { PhotoManager } from '../common/PhotoManager';
@@ -58,6 +57,7 @@ import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFea
 import { useBranding } from '../common/BrandingContainer';
 import { NavLink } from '../common/NavLink';
 import { hasAccess } from '../../helpers/conditions';
+import { getTeamSeasons } from '../../helpers/teams';
 
 export interface ICreatePlayerFor {
     side: string;
@@ -136,12 +136,10 @@ export function Score() {
             }
 
             try {
-                const updatedTeamSeason: TeamSeasonDto =
-                    updatedTeamDetails.seasons!.filter(
-                        (ts: TeamSeasonDto) =>
-                            ts.seasonId === fixtureData!.seasonId &&
-                            !ts.deleted,
-                    )[0];
+                const updatedTeamSeason = getTeamSeasons(
+                    updatedTeamDetails,
+                    fixtureData!.seasonId,
+                )[0];
                 if (!updatedTeamSeason) {
                     /* istanbul ignore next */
                     console.log(updatedTeamDetails);
@@ -294,9 +292,7 @@ export function Score() {
         teamType: string,
         matches: GameMatchDto[],
     ): (TeamPlayerDto & ISelectablePlayer)[] | undefined {
-        const teamData: TeamDto = teams.filter(
-            (t: TeamDto) => t.id === teamId,
-        )[0];
+        const teamData = teams.find((t: TeamDto) => t.id === teamId);
 
         if (!teamData) {
             onError(`${teamType} team could not be found - ${teamId}`);
@@ -308,25 +304,18 @@ export function Score() {
             return;
         }
 
-        const teamSeasons: { [p: string]: TeamSeasonDto } = Object.fromEntries(
-            teamData.seasons.map((season: TeamSeasonDto) => [
-                season.seasonId,
-                season,
-            ]),
-        );
-
-        if (!teamSeasons[seasonId]) {
+        const teamSeason = getTeamSeasons(teamData, seasonId)[0];
+        if (!teamSeason) {
             onError(
                 `${teamType} team has not registered for this season: ${seasonId}`,
             );
             return;
         }
 
-        const players: (ISelectablePlayer & IRenamedPlayer)[] = teamSeasons[
-            seasonId
-        ].players!.map(
-            (p: TeamPlayerDto) => p as ISelectablePlayer & IRenamedPlayer,
-        ); // copy the players list
+        const players: (ISelectablePlayer & IRenamedPlayer)[] =
+            teamSeason.players!.map(
+                (p: TeamPlayerDto) => p as ISelectablePlayer & IRenamedPlayer,
+            ); // copy the players list
 
         for (const match of matches) {
             const matchPlayers: ICaptainMatchPlayer[] =
@@ -829,8 +818,8 @@ export function Score() {
             `${fixtureData.home.name} vs ${fixtureData.away.name} - ${renderDate(fixtureData.date)}`,
         );
         const accountTeam = account
-            ? teams.filter((t) => t.id === account.teamId)[0]
-            : null;
+            ? teams.find((t) => t.id === account.teamId)
+            : undefined;
 
         return (
             <div>

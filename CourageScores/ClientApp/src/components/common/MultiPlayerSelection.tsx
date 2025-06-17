@@ -4,13 +4,13 @@ import { any } from '../../helpers/collections';
 import { useApp } from './AppContainer';
 import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
 import { NotablePlayerDto } from '../../interfaces/models/dtos/Game/NotablePlayerDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
 import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto';
 import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto';
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
 import { Link } from 'react-router';
 import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { findTeam } from '../../helpers/teams';
 
 export interface IMultiPlayerSelectionProps {
     onAddPlayer?(player: ISelectablePlayer, score: number): UntypedPromise;
@@ -100,22 +100,15 @@ export function MultiPlayerSelection({
     }
 
     function getTeamName(playerId: string): string | null {
-        const team: TeamDto = teams.filter((t) => {
-            const teamSeason: TeamSeasonDto = t.seasons!.filter(
-                (ts: TeamSeasonDto) =>
-                    ts.seasonId === season!.id && !ts.deleted,
-            )[0];
-            if (!teamSeason) {
-                return null;
-            }
-
+        const predicate = (teamSeason: TeamSeasonDto) => {
             return any(
                 teamSeason.players!,
                 (p: TeamPlayerDto) => p.id === playerId,
             );
-        })[0];
+        };
 
-        return team ? team.name : null;
+        const found = findTeam(teams, predicate, season!.id);
+        return found?.team.name ?? null;
     }
 
     try {

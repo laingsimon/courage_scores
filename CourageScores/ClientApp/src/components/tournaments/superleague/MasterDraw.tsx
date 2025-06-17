@@ -16,7 +16,7 @@ import { useState } from 'react';
 import { createTemporaryId } from '../../../helpers/projection';
 import { any, isEmpty } from '../../../helpers/collections';
 import { useTournament } from '../TournamentContainer';
-import { TeamSeasonDto } from '../../../interfaces/models/dtos/Team/TeamSeasonDto';
+import { getTeamsInSeason } from '../../../helpers/teams';
 
 export interface IMasterDrawProps {
     patchData?(
@@ -48,19 +48,14 @@ export function MasterDraw({
         { text: 'Men', value: 'men' },
         { text: 'Women', value: 'women' },
     ];
-    const teamOptions: IBootstrapDropdownItem[] = teams
-        .filter((t: TeamDto) => {
-            return !!t.seasons?.filter(
-                (ts: TeamSeasonDto) =>
-                    ts.seasonId === tournamentData.seasonId && !ts.deleted,
-            )[0];
-        })
-        .map((t: TeamDto): IBootstrapDropdownItem => {
+    const teamOptions = getTeamsInSeason(teams, tournamentData.seasonId).map(
+        (t: TeamDto): IBootstrapDropdownItem => {
             return {
                 text: t.name,
                 value: t.name,
             };
-        });
+        },
+    );
 
     async function updateAndSaveTournamentData(data: TournamentGameDto) {
         await setTournamentData(data, true);

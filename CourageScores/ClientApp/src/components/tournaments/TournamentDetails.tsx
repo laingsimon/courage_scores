@@ -8,13 +8,11 @@ import {
 import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto';
 import { any, distinct } from '../../helpers/collections';
 import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
 import { useApp } from '../common/AppContainer';
 import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
-import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto';
 import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto';
 import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { findTeam } from '../../helpers/teams';
 
 export interface ITournamentDetailsProps {
     tournamentData: TournamentGameDto;
@@ -79,29 +77,13 @@ export function TournamentDetails({
     }
 
     function getTeamIdForPlayer(player: TournamentPlayerDto): string | null {
-        const teamToSeasonMaps = teams.map((t: TeamDto) => {
-            return {
-                teamSeason: t.seasons!.filter(
-                    (ts: TeamSeasonDto) =>
-                        ts.seasonId === tournamentData.seasonId && !ts.deleted,
-                )[0],
-                team: t,
-            };
-        });
-        const teamsWithPlayer = teamToSeasonMaps.filter(
-            (map) =>
-                map.teamSeason &&
-                any(
-                    map.teamSeason!.players!,
-                    (p: TeamPlayerDto) => p.id === player.id,
-                ),
+        const found = findTeam(
+            teams,
+            (ts) => any(ts.players, (p) => p.id === player.id),
+            tournamentData.seasonId,
         );
 
-        if (any(teamsWithPlayer)) {
-            return teamsWithPlayer[0].team.id;
-        }
-
-        return null;
+        return found?.team.id ?? null;
     }
 
     return (
