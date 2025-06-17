@@ -20,6 +20,7 @@ import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentG
 import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto';
 import { UntypedPromise } from '../../interfaces/UntypedPromise';
 import { hasAccess } from '../../helpers/conditions';
+import { getTeamSeasons } from '../../helpers/teams';
 
 export interface IEditSideProps {
     side: TournamentSideDto;
@@ -81,10 +82,8 @@ export function EditSide({
             .sort(sortBy('text')),
     );
     const allPossiblePlayers: ITeamPlayerMap[] = teams.flatMap((t: TeamDto) => {
-        const teamSeason = t.seasons!.find(
-            (ts) => ts.seasonId === season!.id && !ts.deleted,
-        );
-        if (teamSeason && isTeamSeasonForDivision(teamSeason)) {
+        const teamSeason = getTeamSeasons(t, season!.id, divisionId)[0];
+        if (teamSeason) {
             return (
                 teamSeason.players!.map((p: TeamPlayerDto): ITeamPlayerMap => {
                     return { id: p.id, name: p.name, team: t };
@@ -122,22 +121,8 @@ export function EditSide({
     }
 
     function teamSeasonForSameDivision(team: TeamDto): boolean {
-        const teamSeason = team.seasons!.find(
-            (ts: TeamSeasonDto) => ts.seasonId === season!.id && !ts.deleted,
-        );
-        if (!teamSeason) {
-            return false;
-        }
-
-        return isTeamSeasonForDivision(teamSeason);
-    }
-
-    function isTeamSeasonForDivision(teamSeason: TeamSeasonDto): boolean {
-        return !(
-            divisionId &&
-            teamSeason.divisionId &&
-            teamSeason.divisionId !== divisionId
-        );
+        const teamSeason = getTeamSeasons(team, season!.id, divisionId);
+        return any(teamSeason);
     }
 
     function getOtherSidePlayerSelectedIn(
@@ -322,9 +307,7 @@ export function EditSide({
     }
 
     function getDivisionForTeamSeason(team: TeamDto): string {
-        const teamSeason: TeamSeasonDto = team.seasons!.filter(
-            (ts: TeamSeasonDto) => ts.seasonId === season!.id,
-        )[0];
+        const teamSeason: TeamSeasonDto = getTeamSeasons(team, season!.id)[0];
         if (teamSeason && teamSeason.divisionId) {
             return teamSeason.divisionId;
         }

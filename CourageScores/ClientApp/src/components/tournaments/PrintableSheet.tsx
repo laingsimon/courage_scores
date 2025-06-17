@@ -15,13 +15,11 @@ import { useBranding } from '../common/BrandingContainer';
 import { RefreshControl } from '../common/RefreshControl';
 import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
 import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto';
-import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
 import { addSide, removeSide, sideChanged } from './tournaments';
 import { getLayoutData } from './competition';
 import { NotableTournamentPlayerDto } from '../../interfaces/models/dtos/Game/NotableTournamentPlayerDto';
 import { PrintableSheetMatch } from './PrintableSheetMatch';
 import { EditSide, ISaveSideOptions } from './EditSide';
-import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto';
 import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
 import { Dialog } from '../common/Dialog';
@@ -38,6 +36,7 @@ import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType';
 import { Link } from 'react-router';
 import { ILayoutDataForRound } from './layout/ILayoutDataForRound';
 import { ILayoutDataForMatch } from './layout/ILayoutDataForMatch';
+import { findTeam } from '../../helpers/teams';
 
 export interface IPrintableSheetProps {
     editable?: boolean;
@@ -239,42 +238,28 @@ export function PrintableSheet({ editable, patchData }: IPrintableSheetProps) {
         team?: TeamDto;
         division?: DivisionDto;
     } {
-        const teamAndDivisionMapping = teams
-            .map((t) => {
-                const teamSeason = t.seasons!.find(
-                    (ts: TeamSeasonDto) =>
-                        ts.seasonId === season!.id && !ts.deleted,
-                );
-                if (!teamSeason) {
-                    return null;
-                }
+        const found = findTeam(
+            teams,
+            (ts) => any(ts.players, (p) => p.id === player.id),
+            season!.id,
+        );
 
-                const hasPlayer: boolean = any(
-                    teamSeason.players,
-                    (p: TeamPlayerDto) => p.id === player.id,
-                );
-                return hasPlayer
-                    ? { team: t, divisionId: teamSeason.divisionId }
-                    : null;
-            })
-            .filter((a) => a !== null)[0];
-
-        if (!teamAndDivisionMapping) {
+        if (!found) {
             return {};
         }
 
-        if (teamAndDivisionMapping.divisionId) {
+        if (found.teamSeason.divisionId) {
             const teamDivision = divisions.filter(
-                (d) => d.id === teamAndDivisionMapping.divisionId,
+                (d) => d.id === found.teamSeason.divisionId,
             )[0];
             return {
-                team: teamAndDivisionMapping.team,
+                team: found.team,
                 division: teamDivision || division,
             };
         }
 
         return {
-            team: teamAndDivisionMapping.team,
+            team: found.team,
             division: division,
         };
     }

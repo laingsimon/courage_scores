@@ -19,7 +19,6 @@ import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionD
 import { EditFixtureDateNoteDto } from '../../interfaces/models/dtos/EditFixtureDateNoteDto';
 import { IEditableDivisionFixtureDateDto } from './IEditableDivisionFixtureDateDto';
 import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto';
 import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto';
 import { DivisionFixtureDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDto';
 import { IFilter } from './IFilter';
@@ -31,6 +30,7 @@ import { hasAccess } from '../../helpers/conditions';
 import { useDependencies } from '../common/IocContainer';
 import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
 import { Link } from 'react-router';
+import { getTeamsInSeason } from '../../helpers/teams';
 
 export interface IDivisionFixturesProps {
     setNewFixtures(fixtures: DivisionFixtureDateDto[]): UntypedPromise;
@@ -106,15 +106,7 @@ export function DivisionFixtures({ setNewFixtures }: IDivisionFixturesProps) {
         date: string,
         isKnockout: boolean,
     ): IEditableDivisionFixtureDateDto {
-        const seasonalTeams: TeamDto[] = teams.filter((t: TeamDto) => {
-            return any(
-                t.seasons,
-                (ts: TeamSeasonDto) =>
-                    ts.seasonId === season!.id &&
-                    ts.divisionId === divisionId &&
-                    !ts.deleted,
-            );
-        });
+        const seasonalTeams = getTeamsInSeason(teams, season!.id, divisionId);
 
         return {
             isNew: true,

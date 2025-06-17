@@ -11,9 +11,9 @@ import { DivisionTemplateDto } from '../../interfaces/models/dtos/Season/Creatio
 import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto';
 import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto';
 import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto';
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
 import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { getTeamsInSeason } from '../../helpers/teams';
 
 export interface IPlaceholderMappings {
     [placeholder: string]: string;
@@ -58,22 +58,14 @@ export function AssignPlaceholders({
         );
     }
 
-    function getAddress(team: TeamDto): string {
-        return team.address || team.name;
+    function getAddress(team?: TeamDto): string {
+        return team?.address ?? team?.name ?? team?.id ?? '';
     }
 
     function getTeamsWithUniqueAddresses(
         division: DivisionDto,
     ): IBootstrapDropdownItem[] {
-        const teamsInDivision: TeamDto[] = teams.filter((t: TeamDto) =>
-            any(
-                t.seasons,
-                (ts: TeamSeasonDto) =>
-                    ts.seasonId === seasonId &&
-                    ts.divisionId === division.id &&
-                    !ts.deleted,
-            ),
-        );
+        const teamsInDivision = getTeamsInSeason(teams, seasonId, division.id);
         const addressCounts: { [address: string]: number } = {};
         for (const team of teamsInDivision) {
             const address = getAddress(team);
@@ -104,15 +96,7 @@ export function AssignPlaceholders({
         division: DivisionDto,
         sharedAddressSize: number,
     ): IBootstrapDropdownItem[] {
-        const teamsInDivision: TeamDto[] = teams.filter((t: TeamDto) =>
-            any(
-                t.seasons,
-                (ts: TeamSeasonDto) =>
-                    ts.seasonId === seasonId &&
-                    ts.divisionId === division.id &&
-                    !ts.deleted,
-            ),
-        );
+        const teamsInDivision = getTeamsInSeason(teams, seasonId, division.id);
         const addressCounts: { [address: string]: number } = {};
         for (const team of teamsInDivision) {
             if (addressCounts[getAddress(team)] === undefined) {
@@ -172,20 +156,16 @@ export function AssignPlaceholders({
         const division = divisions[divisionIndex];
 
         if (teamId) {
-            const teamsInDivision: TeamDto[] = teams.filter((t: TeamDto) =>
-                any(
-                    t.seasons,
-                    (ts: TeamSeasonDto) =>
-                        ts.seasonId === seasonId &&
-                        ts.divisionId === division.id &&
-                        !ts.deleted,
-                ),
+            const teamsInDivision = getTeamsInSeason(
+                teams,
+                seasonId,
+                division.id,
             );
-            const team: TeamDto = teamsInDivision.filter(
-                (t: TeamDto) => t.id === teamId,
-            )[0];
+            const teamAddress = getAddress(
+                teamsInDivision.find((t) => t.id === teamId),
+            );
             const otherTeamsWithSameAddress: TeamDto[] = teamsInDivision
-                .filter((t: TeamDto) => getAddress(t) === getAddress(team))
+                .filter((t: TeamDto) => getAddress(t) === teamAddress)
                 .filter((t: TeamDto) => t.id !== teamId);
 
             newMappings[placeholder] = teamId;

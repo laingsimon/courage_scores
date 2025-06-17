@@ -6,7 +6,7 @@ import {
 import { ErrorDisplay } from '../common/ErrorDisplay';
 import { useDependencies } from '../common/IocContainer';
 import { useApp } from '../common/AppContainer';
-import { sortBy } from '../../helpers/collections';
+import { any, sortBy } from '../../helpers/collections';
 import { handleChange, stateChanged } from '../../helpers/events';
 import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
 import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
@@ -15,6 +15,7 @@ import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto';
 import { IClientActionResultDto } from '../common/IClientActionResultDto';
 import { EditTeamPlayerDto } from '../../interfaces/models/dtos/Team/EditTeamPlayerDto';
 import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { getTeamSeasons } from '../../helpers/teams';
 
 export interface IEditPlayerDetailsProps {
     onSaved(team: TeamDto, newPlayers: TeamPlayerDto[] | null): UntypedPromise;
@@ -140,8 +141,9 @@ export function EditPlayerDetails({
                 return [];
             }
 
-            const teamSeason: TeamSeasonDto = response.result!.seasons!.filter(
-                (ts: TeamSeasonDto) => ts.seasonId === seasonId && !ts.deleted,
+            const teamSeason: TeamSeasonDto = getTeamSeasons(
+                response.result!,
+                seasonId,
             )[0];
             const newPlayers: TeamPlayerDto[] =
                 multiCreationResponse.playerDetails.map(
@@ -161,10 +163,8 @@ export function EditPlayerDetails({
 
     function getDivisionIdForTeam(): string {
         const teamId = newTeamId || (team ? team.id : null) || player.teamId;
-        const theTeam = teams.find((t: TeamDto) => t.id === teamId);
-        const teamSeason = theTeam?.seasons!.find(
-            (ts) => ts.seasonId === seasonId,
-        );
+        const found = teams.find((t: TeamDto) => t.id === teamId);
+        const teamSeason = found ? getTeamSeasons(found, seasonId)[0] : null;
         if (teamSeason && teamSeason.divisionId) {
             return teamSeason.divisionId;
         }
@@ -223,17 +223,8 @@ export function EditPlayerDetails({
     }
 
     function teamSeasonForSameDivision(team: TeamDto): boolean {
-        const teamSeason = team.seasons!.find(
-            (ts: TeamSeasonDto) => ts.seasonId === seasonId && !ts.deleted,
-        );
-        if (!teamSeason) {
-            return false;
-        }
-
-        return !(
-            divisionId &&
-            teamSeason.divisionId &&
-            teamSeason.divisionId !== (player.newDivisionId || divisionId)
+        return any(
+            getTeamSeasons(team, seasonId, player.newDivisionId ?? divisionId),
         );
     }
 

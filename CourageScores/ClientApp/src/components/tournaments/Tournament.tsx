@@ -44,6 +44,7 @@ import { useBranding } from '../common/BrandingContainer';
 import { renderDate } from '../../helpers/rendering';
 import { isEqual } from '../common/ObjectComparer';
 import { retry } from '../../helpers/retry';
+import { getTeamsInSeason } from '../../helpers/teams';
 
 export interface ITournamentPlayerMap {
     [id: string]: DivisionTournamentFixtureDetailsDto;
@@ -229,18 +230,12 @@ export function Tournament() {
                   .map((side: TournamentSideDto) => side.teamId!)
             : [];
 
-        const players: ISelectablePlayer[] = teams
-            .filter((t: TeamDto) =>
+        const players: ISelectablePlayer[] = getTeamsInSeason(
+            teams.filter((t: TeamDto) =>
                 any(selectedTournamentTeams, (id: string) => id === t.id),
-            )
-            .map(
-                (t: TeamDto) =>
-                    t.seasons!.find(
-                        (ts: TeamSeasonDto) =>
-                            ts.seasonId === tournamentData.seasonId &&
-                            !ts.deleted,
-                    )!,
-            )
+            ),
+            tournamentData.seasonId,
+        )
             .filter((teamSeasonDto: TeamSeasonDto) => teamSeasonDto)
             .flatMap((teamSeason: TeamSeasonDto) =>
                 teamSeason.players!.map(

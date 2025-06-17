@@ -24,6 +24,7 @@ import { TeamSeasonDto } from '../../../interfaces/models/dtos/Team/TeamSeasonDt
 import { useTournament } from '../TournamentContainer';
 import { DivisionTournamentFixtureDetailsDto } from '../../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto';
 import { hasAccess } from '../../../helpers/conditions';
+import { getTeamSeasons } from '../../../helpers/teams';
 
 interface TeamAndSeason {
     team: TeamDto;
@@ -99,12 +100,14 @@ export function EditSuperleagueMatch({
     function getTeamSeason(name?: string): TeamAndSeason | undefined {
         const seasonId = tournamentData.seasonId;
         const teamsByName = teams.filter((t: TeamDto) => t.name === name);
-        return teamsByName
-            .flatMap(
-                (team) =>
-                    team.seasons?.map((ts) => ({ team, season: ts })) ?? [],
-            )
-            .find((a) => a.season.seasonId === seasonId && !a.season.deleted);
+
+        return teamsByName.flatMap(
+            (team) =>
+                getTeamSeasons(team, seasonId).map((ts) => ({
+                    team,
+                    season: ts,
+                })) ?? [],
+        )[0];
     }
 
     function getPlayersForTeamName(

@@ -22,6 +22,7 @@ import { usePreferences } from '../common/PreferencesContainer';
 import { ToggleFavouriteTeam } from '../common/ToggleFavouriteTeam';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
 import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { getTeamsInSeason } from '../../helpers/teams';
 
 export interface IDivisionFixtureProps {
     fixture: IEditableDivisionFixtureDto;
@@ -210,15 +211,11 @@ export function DivisionFixture({
     }
 
     function renderKnockoutAwayTeams() {
-        const options: IBootstrapDropdownItem[] = allTeams
-            .filter((t: TeamDto) => t.id !== fixture.homeTeam.id)
-            .filter((t: TeamDto) =>
-                any(
-                    t.seasons!,
-                    (ts) => ts.seasonId === season!.id && !ts.deleted,
-                ),
-            )
-            .map((t: TeamDto): IBootstrapDropdownItem => {
+        const allTeamsExceptHome = allTeams.filter(
+            (t) => t.id !== fixture.homeTeam.id,
+        );
+        const options = getTeamsInSeason(allTeamsExceptHome, season!.id).map(
+            (t: TeamDto): IBootstrapDropdownItem => {
                 const otherFixtureSameDate: DivisionFixtureDto | null =
                     isSelectedInAnotherFixtureOnThisDate(t);
                 const unavailableReason: string | null = otherFixtureSameDate
@@ -234,7 +231,8 @@ export function DivisionFixture({
                         : t.name,
                     disabled: !!otherFixtureSameDate,
                 };
-            });
+            },
+        );
 
         return (
             <BootstrapDropdown

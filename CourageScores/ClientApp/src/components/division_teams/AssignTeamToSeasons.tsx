@@ -11,6 +11,7 @@ import { DivisionTeamDto } from '../../interfaces/models/dtos/Division/DivisionT
 import { IClientActionResultDto } from '../common/IClientActionResultDto';
 import { ModifyTeamSeasonDto } from '../../interfaces/models/dtos/Team/ModifyTeamSeasonDto';
 import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { getTeamSeasons } from '../../helpers/teams';
 
 export interface IAssignTeamToSeasonsProps {
     teamOverview: DivisionTeamDto;
@@ -36,7 +37,7 @@ export function AssignTeamToSeasons({
     const { teamApi } = useDependencies();
     const team = teams.find((t) => t.id === teamOverview.id)!;
     const initialSeasonIds: string[] = team
-        ? team.seasons!.filter((ts) => !ts.deleted).map((ts) => ts.seasonId!)
+        ? getTeamSeasons(team).map((ts) => ts.seasonId!)
         : [];
     const [selectedSeasonIds, setSelectedSeasonIds]: [
         string[],

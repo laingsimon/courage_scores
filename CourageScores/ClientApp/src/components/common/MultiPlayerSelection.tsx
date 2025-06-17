@@ -10,6 +10,7 @@ import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
 import { Link } from 'react-router';
 import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { findTeam } from '../../helpers/teams';
 
 export interface IMultiPlayerSelectionProps {
     onAddPlayer?(player: ISelectablePlayer, score: number): UntypedPromise;
@@ -99,22 +100,15 @@ export function MultiPlayerSelection({
     }
 
     function getTeamName(playerId: string): string | null {
-        const team = teams.find((t) => {
-            const teamSeason: TeamSeasonDto = t.seasons!.find(
-                (ts: TeamSeasonDto) =>
-                    ts.seasonId === season!.id && !ts.deleted,
-            )!;
-            if (!teamSeason) {
-                return null;
-            }
-
+        const predicate = (teamSeason: TeamSeasonDto) => {
             return any(
                 teamSeason.players!,
                 (p: TeamPlayerDto) => p.id === playerId,
             );
-        });
+        };
 
-        return team ? team.name : null;
+        const found = findTeam(teams, predicate, season!.id);
+        return found?.team.name ?? null;
     }
 
     try {
