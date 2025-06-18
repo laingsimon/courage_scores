@@ -4,6 +4,7 @@ import {
     brandingProps,
     cleanUp,
     doClick,
+    doSelectOption,
     ErrorState,
     findButton,
     iocProps,
@@ -77,6 +78,7 @@ describe('AssignTeamToSeasons', () => {
                     reloadAll: async () => {},
                     teams,
                     seasons,
+                    divisions: [division],
                 },
                 reportedError,
             ),
@@ -130,16 +132,11 @@ describe('AssignTeamToSeasons', () => {
             );
             const seasons = Array.from(
                 context.container.querySelectorAll(
-                    '.list-group .list-group-item',
+                    'ul li[data-type="existing-season"]',
                 ),
             );
-            expect(seasons.length).toEqual(2);
-            expect(seasons.map((s) => s.textContent)).toEqual([
-                'PREVIOUS SEASON',
-                'SEASON',
-            ]);
-            expect(seasons[0].className).not.toContain('active');
-            expect(seasons[1].className).toContain('active');
+            const boundSeason = seasons[0];
+            expect(boundSeason.textContent).toContain('SEASON & DIVISION');
         });
     });
 
@@ -152,25 +149,28 @@ describe('AssignTeamToSeasons', () => {
         it('can change copy team from current season', async () => {
             const team: TeamDto = teamBuilder('TEAM').build();
             await renderComponent(team, [team], [season], season, division);
+            context.prompts.respondToConfirm(
+                'Are you sure you want to associate this season?',
+                true,
+            );
 
-            await doClick(context.container, '.list-group .list-group-item'); // select the season
-            await doClick(findButton(context.container, 'Apply changes'));
+            const newSeasonItem = context.container.querySelector(
+                'ul li[data-type="new-season"]',
+            )!;
+            await doSelectOption(
+                newSeasonItem.querySelectorAll('.dropdown-menu')[0],
+                'SEASON',
+            );
+            await doSelectOption(
+                newSeasonItem.querySelectorAll('.dropdown-menu')[2],
+                'SEASON',
+            );
+            await doClick(findButton(context.container, '➕'));
             reportedError.verifyNoError();
             expect(apiDeleted).toEqual([]);
             expect(apiAdded.length).toEqual(1);
             expect(apiAdded[0].copyPlayersFromSeasonId).toEqual(season.id);
             expect(apiAdded[0].divisionId).toEqual(division.id);
-
-            await doClick(
-                context.container,
-                'input[id="copyTeamFromCurrentSeason"]',
-            );
-            await doClick(findButton(context.container, 'Apply changes'));
-            reportedError.verifyNoError();
-            expect(apiDeleted).toEqual([]);
-            expect(apiAdded.length).toEqual(2);
-            expect(apiAdded[1].copyPlayersFromSeasonId).toBeUndefined();
-            expect(apiAdded[1].divisionId).toEqual(division.id);
         });
 
         it('can unassign a selected season', async () => {
@@ -187,22 +187,16 @@ describe('AssignTeamToSeasons', () => {
                 season,
                 division,
             );
+            context.prompts.respondToConfirm(
+                'Are you sure you want to remove TEAM from SEASON and division DIVISION?',
+                true,
+            );
 
             await doClick(
                 context.container,
-                '.list-group .list-group-item.active',
+                'ul li[data-type="existing-season"] button',
             );
 
-            const items = Array.from(
-                context.container.querySelectorAll(
-                    '.list-group .list-group-item',
-                ),
-            );
-            expect(items.map((i) => i.className)).toEqual([
-                'list-group-item',
-                'list-group-item bg-danger',
-            ]);
-            await doClick(findButton(context.container, 'Apply changes'));
             reportedError.verifyNoError();
             expect(apiAdded).toEqual([]);
             expect(apiDeleted).toEqual([
@@ -224,22 +218,19 @@ describe('AssignTeamToSeasons', () => {
                 season,
                 division,
             );
-
-            await doClick(
-                context.container,
-                '.list-group .list-group-item:not(.active)',
+            context.prompts.respondToConfirm(
+                'Are you sure you want to associate this season?',
+                true,
             );
 
-            const items = Array.from(
-                context.container.querySelectorAll(
-                    '.list-group .list-group-item',
-                ),
+            const newSeasonItem = context.container.querySelector(
+                'ul li[data-type="new-season"]',
+            )!;
+            await doSelectOption(
+                newSeasonItem.querySelectorAll('.dropdown-menu')[0],
+                'PREVIOUS SEASON',
             );
-            expect(items.map((i) => i.className)).toEqual([
-                'list-group-item bg-success',
-                'list-group-item active',
-            ]);
-            await doClick(findButton(context.container, 'Apply changes'));
+            await doClick(findButton(context.container, '➕'));
             reportedError.verifyNoError();
             expect(apiAdded).toEqual([
                 {
@@ -267,18 +258,21 @@ describe('AssignTeamToSeasons', () => {
                 division,
             );
             console.error = () => {};
-            await doClick(
-                context.container,
-                '.list-group .list-group-item:not(.active)',
-            );
             apiResponse = {
                 success: false,
             };
+            context.prompts.respondToConfirm(
+                'Are you sure you want to remove TEAM from SEASON and division DIVISION?',
+                true,
+            );
 
-            await doClick(findButton(context.container, 'Apply changes'));
+            await doClick(
+                context.container,
+                'ul li[data-type="existing-season"] button',
+            );
 
-            context.prompts.alertWasShown(
-                'There were 1 error/s when applying these changes; some changes may not have been saved',
+            expect(context.container.textContent).toContain(
+                'Could not modify team',
             );
         });
 
