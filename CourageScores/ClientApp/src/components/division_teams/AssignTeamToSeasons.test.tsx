@@ -259,6 +259,17 @@ describe('AssignTeamToSeasons', () => {
 
         it('can assign an unselected season for any division', async () => {
             await render();
+
+            await doClick(findButton(context.container, '➕'));
+
+            reportedError.verifyNoError();
+            expect(apiAdded).toEqual([]);
+            expect(apiDeleted).toEqual([]);
+            context.prompts.alertWasShown('Select a season first');
+        });
+
+        it('can assign an unselected season for any division', async () => {
+            await render();
             context.prompts.respondToConfirm(addPrompt, true);
 
             await selectSeasonToAdd('PREVIOUS SEASON');
