@@ -217,7 +217,7 @@ describe('AssignTeamToSeasons', () => {
         it('can unassign a selected season', async () => {
             await render();
             context.prompts.respondToConfirm(
-                'Are you sure you want to remove TEAM from SEASON and division DIVISION?',
+                'Are you sure you want to remove TEAM from SEASON and DIVISION?',
                 true,
             );
 
@@ -233,7 +233,7 @@ describe('AssignTeamToSeasons', () => {
         it('does not unassign a selected season', async () => {
             await render();
             context.prompts.respondToConfirm(
-                'Are you sure you want to remove TEAM from SEASON and division DIVISION?',
+                'Are you sure you want to remove TEAM from SEASON and DIVISION?',
                 false,
             );
 
@@ -351,7 +351,7 @@ describe('AssignTeamToSeasons', () => {
                 success: false,
             };
             context.prompts.respondToConfirm(
-                'Are you sure you want to remove TEAM from SEASON and division DIVISION?',
+                'Are you sure you want to remove TEAM from SEASON and DIVISION?',
                 true,
             );
 

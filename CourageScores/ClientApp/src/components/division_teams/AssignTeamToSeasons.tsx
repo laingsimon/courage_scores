@@ -51,7 +51,7 @@ export function AssignTeamToSeasons({
 
         const seasonAssignment = season?.name ?? 'Season not found';
         const divisionAssignment = teamSeason.divisionId
-            ? ` and division ${division?.name ?? 'Division not found'}`
+            ? ` and ${division?.name ?? 'Division not found'}`
             : '';
         const message = `Are you sure you want to remove ${team.name} from ${seasonAssignment}${divisionAssignment}?`;
         if (!confirm(message)) {
