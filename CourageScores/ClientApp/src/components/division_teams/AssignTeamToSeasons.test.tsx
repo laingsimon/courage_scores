@@ -230,6 +230,33 @@ describe('AssignTeamToSeasons', () => {
             ]);
         });
 
+        it('does not unassign a selected season', async () => {
+            await render();
+            context.prompts.respondToConfirm(
+                'Are you sure you want to remove TEAM from SEASON and division DIVISION?',
+                false,
+            );
+
+            await removeFirstAssignedSeason();
+
+            reportedError.verifyNoError();
+            expect(apiAdded).toEqual([]);
+            expect(apiDeleted).toEqual([]);
+        });
+
+        it('does not assign an unselected season for any division', async () => {
+            await render();
+            context.prompts.respondToConfirm(addPrompt, false);
+
+            await selectSeasonToAdd('PREVIOUS SEASON');
+            await selectDivisionForNewSeason('Any');
+            await doClick(findButton(context.container, '➕'));
+
+            reportedError.verifyNoError();
+            expect(apiAdded).toEqual([]);
+            expect(apiDeleted).toEqual([]);
+        });
+
         it('can assign an unselected season for any division', async () => {
             await render();
             context.prompts.respondToConfirm(addPrompt, true);
