@@ -8,6 +8,7 @@ import {
     ErrorState,
     findButton,
     iocProps,
+    noop,
     renderApp,
     TestContext,
 } from '../../helpers/tests';
@@ -16,7 +17,6 @@ import { AssignTeamToSeasons } from './AssignTeamToSeasons';
 import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
 import { DivisionTeamDto } from '../../interfaces/models/dtos/Division/DivisionTeamDto';
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
 import { IClientActionResultDto } from '../common/IClientActionResultDto';
 import { teamBuilder } from '../../helpers/builders/teams';
@@ -44,10 +44,6 @@ describe('AssignTeamToSeasons', () => {
         },
     });
 
-    async function onReloadDivision(): Promise<DivisionDataDto | null> {
-        return null;
-    }
-
     async function onClose() {
         closed = true;
     }
@@ -69,22 +65,23 @@ describe('AssignTeamToSeasons', () => {
         seasons: SeasonDto[],
         currentSeason: SeasonDto,
         division: DivisionDto,
+        divisions: DivisionDto[],
     ) {
         context = await renderApp(
             iocProps({ teamApi }),
             brandingProps(),
             appProps(
                 {
-                    reloadAll: async () => {},
+                    reloadAll: noop,
                     teams,
                     seasons,
-                    divisions: [division],
+                    divisions: divisions,
                 },
                 reportedError,
             ),
             <DivisionDataContainer
                 season={currentSeason}
-                onReloadDivision={onReloadDivision}
+                onReloadDivision={noop}
                 name={division.name}
                 id={division.id}>
                 <AssignTeamToSeasons
@@ -103,7 +100,9 @@ describe('AssignTeamToSeasons', () => {
 
         it('when team not found', async () => {
             const team = teamBuilder('TEAM').build();
-            await renderComponent(team, [], [season], season, division);
+            await renderComponent(team, [], [season], season, division, [
+                division,
+            ]);
 
             reportedError.verifyNoError();
             expect(context.container.textContent).toContain(
@@ -124,6 +123,7 @@ describe('AssignTeamToSeasons', () => {
                 [season, otherSeason],
                 season,
                 division,
+                [division],
             );
 
             reportedError.verifyNoError();
@@ -141,30 +141,71 @@ describe('AssignTeamToSeasons', () => {
     });
 
     describe('interactivity', () => {
-        const season: SeasonDto = seasonBuilder('SEASON')
+        const season = seasonBuilder('SEASON')
             .starting('2023-05-01T00:00:00')
             .build();
-        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const division = divisionBuilder('DIVISION').build();
+        const anotherDivision = divisionBuilder('ANOTHER DIVISION').build();
+        const team = teamBuilder('TEAM').forSeason(season, division).build();
+        const otherSeason = seasonBuilder('PREVIOUS SEASON')
+            .starting('2023-02-01T00:00:00')
+            .build();
+        const addPrompt = 'Are you sure you want to associate this season?';
 
-        it('can change copy team from current season', async () => {
-            const team: TeamDto = teamBuilder('TEAM').build();
-            await renderComponent(team, [team], [season], season, division);
-            context.prompts.respondToConfirm(
-                'Are you sure you want to associate this season?',
-                true,
-            );
-
+        async function selectSeasonToAdd(name: string) {
             const newSeasonItem = context.container.querySelector(
                 'ul li[data-type="new-season"]',
             )!;
             await doSelectOption(
                 newSeasonItem.querySelectorAll('.dropdown-menu')[0],
-                'SEASON',
+                name,
             );
+        }
+
+        async function selectDivisionForNewSeason(name: string) {
+            const newSeasonItem = context.container.querySelector(
+                'ul li[data-type="new-season"]',
+            )!;
+            await doSelectOption(
+                newSeasonItem.querySelectorAll('.dropdown-menu')[1],
+                name,
+            );
+        }
+
+        async function removeFirstAssignedSeason() {
+            await doClick(
+                context.container,
+                'ul li[data-type="existing-season"] button',
+            );
+        }
+
+        async function selectCopyFromSeason(name: string) {
+            const newSeasonItem = context.container.querySelector(
+                'ul li[data-type="new-season"]',
+            )!;
             await doSelectOption(
                 newSeasonItem.querySelectorAll('.dropdown-menu')[2],
-                'SEASON',
+                name,
             );
+        }
+
+        async function render() {
+            await renderComponent(
+                team,
+                [team],
+                [season, otherSeason],
+                season,
+                division,
+                [division, anotherDivision],
+            );
+        }
+
+        it('can change copy team from current season', async () => {
+            await render();
+            context.prompts.respondToConfirm(addPrompt, true);
+
+            await selectSeasonToAdd('PREVIOUS SEASON');
+            await selectCopyFromSeason('SEASON');
             await doClick(findButton(context.container, '➕'));
             reportedError.verifyNoError();
             expect(apiDeleted).toEqual([]);
@@ -174,28 +215,13 @@ describe('AssignTeamToSeasons', () => {
         });
 
         it('can unassign a selected season', async () => {
-            const team: TeamDto = teamBuilder('TEAM')
-                .forSeason(season, division)
-                .build();
-            const otherSeason: SeasonDto = seasonBuilder('PREVIOUS SEASON')
-                .starting('2023-02-01T00:00:00')
-                .build();
-            await renderComponent(
-                team,
-                [team],
-                [season, otherSeason],
-                season,
-                division,
-            );
+            await render();
             context.prompts.respondToConfirm(
                 'Are you sure you want to remove TEAM from SEASON and division DIVISION?',
                 true,
             );
 
-            await doClick(
-                context.container,
-                'ul li[data-type="existing-season"] button',
-            );
+            await removeFirstAssignedSeason();
 
             reportedError.verifyNoError();
             expect(apiAdded).toEqual([]);
@@ -204,59 +230,84 @@ describe('AssignTeamToSeasons', () => {
             ]);
         });
 
-        it('can assign an unselected season', async () => {
-            const team: TeamDto = teamBuilder('TEAM')
-                .forSeason(season, division)
-                .build();
-            const otherSeason: SeasonDto = seasonBuilder('PREVIOUS SEASON')
-                .starting('2023-02-01T00:00:00')
-                .build();
-            await renderComponent(
-                team,
-                [team],
-                [season, otherSeason],
-                season,
-                division,
-            );
-            context.prompts.respondToConfirm(
-                'Are you sure you want to associate this season?',
-                true,
-            );
+        it('can assign an unselected season for any division', async () => {
+            await render();
+            context.prompts.respondToConfirm(addPrompt, true);
 
-            const newSeasonItem = context.container.querySelector(
-                'ul li[data-type="new-season"]',
-            )!;
-            await doSelectOption(
-                newSeasonItem.querySelectorAll('.dropdown-menu')[0],
-                'PREVIOUS SEASON',
-            );
+            await selectSeasonToAdd('PREVIOUS SEASON');
+            await selectDivisionForNewSeason('Any');
             await doClick(findButton(context.container, '➕'));
+
             reportedError.verifyNoError();
             expect(apiAdded).toEqual([
                 {
                     id: team.id,
                     seasonId: otherSeason.id,
                     copyPlayersFromSeasonId: season.id,
+                    divisionId: undefined,
+                },
+            ]);
+            expect(apiDeleted).toEqual([]);
+        });
+
+        it('can assign an unselected season without copying from a previous season', async () => {
+            await render();
+            context.prompts.respondToConfirm(addPrompt, true);
+
+            await selectSeasonToAdd('PREVIOUS SEASON');
+            await selectCopyFromSeason('Nowhere');
+            await doClick(findButton(context.container, '➕'));
+
+            reportedError.verifyNoError();
+            expect(apiAdded).toEqual([
+                {
+                    id: team.id,
+                    seasonId: otherSeason.id,
+                    copyPlayersFromSeasonId: undefined,
                     divisionId: division.id,
                 },
             ]);
             expect(apiDeleted).toEqual([]);
         });
 
-        it('reports any errors during save', async () => {
-            const team: TeamDto = teamBuilder('TEAM')
-                .forSeason(season, division)
-                .build();
-            const otherSeason: SeasonDto = seasonBuilder('PREVIOUS SEASON')
-                .starting('2023-02-01T00:00:00')
-                .build();
-            await renderComponent(
-                team,
-                [team],
-                [season, otherSeason],
-                season,
-                division,
+        it('can assign an unselected season', async () => {
+            await render();
+            context.prompts.respondToConfirm(addPrompt, true);
+
+            await selectSeasonToAdd('PREVIOUS SEASON');
+            await selectDivisionForNewSeason('ANOTHER DIVISION');
+            await doClick(findButton(context.container, '➕'));
+
+            reportedError.verifyNoError();
+            expect(apiAdded).toEqual([
+                {
+                    id: team.id,
+                    seasonId: otherSeason.id,
+                    copyPlayersFromSeasonId: season.id,
+                    divisionId: anotherDivision.id,
+                },
+            ]);
+            expect(apiDeleted).toEqual([]);
+        });
+
+        it('reports any errors during add', async () => {
+            await render();
+            apiResponse = {
+                success: false,
+            };
+            context.prompts.respondToConfirm(addPrompt, true);
+
+            await selectSeasonToAdd('PREVIOUS SEASON');
+            await doClick(findButton(context.container, '➕'));
+
+            reportedError.verifyNoError();
+            expect(context.container.textContent).toContain(
+                'Could not modify team',
             );
+        });
+
+        it('reports any errors during remove', async () => {
+            await render();
             console.error = () => {};
             apiResponse = {
                 success: false,
@@ -266,10 +317,7 @@ describe('AssignTeamToSeasons', () => {
                 true,
             );
 
-            await doClick(
-                context.container,
-                'ul li[data-type="existing-season"] button',
-            );
+            await removeFirstAssignedSeason();
 
             expect(context.container.textContent).toContain(
                 'Could not modify team',
@@ -277,19 +325,7 @@ describe('AssignTeamToSeasons', () => {
         });
 
         it('can close', async () => {
-            const team: TeamDto = teamBuilder('TEAM')
-                .forSeason(season, division)
-                .build();
-            const otherSeason: SeasonDto = seasonBuilder('PREVIOUS SEASON')
-                .starting('2023-02-01T00:00:00')
-                .build();
-            await renderComponent(
-                team,
-                [team],
-                [season, otherSeason],
-                season,
-                division,
-            );
+            await render();
 
             await doClick(findButton(context.container, 'Close'));
 
