@@ -1,5 +1,5 @@
-﻿import {retry} from "./retry";
-import {noop} from "./tests";
+﻿import { retry } from './retry';
+import { noop } from './tests';
 
 describe('retry', () => {
     let response: boolean;
@@ -9,13 +9,16 @@ describe('retry', () => {
         window.confirm = (message?: string) => {
             prompts.push(message!);
             return response;
-        }
+        };
         prompts = [];
         response = true;
         console.error = noop;
     });
 
-    function throwForNAttempts<T>(attempts: number, finalValue: T): () => Promise<T | undefined> {
+    function throwForNAttempts<T>(
+        attempts: number,
+        finalValue: T,
+    ): () => Promise<T | undefined> {
         let attempt = 1;
         return async () => {
             try {
@@ -27,7 +30,7 @@ describe('retry', () => {
             } finally {
                 attempt++;
             }
-        }
+        };
     }
 
     it('returns value if successful on first attempt', async () => {
@@ -44,7 +47,8 @@ describe('retry', () => {
 
         const result = await retry(
             throwForNAttempts(2, 'success'),
-            'retry prompt');
+            'retry prompt',
+        );
 
         expect(result).toEqual('success');
         expect(prompts).toEqual(['retry prompt']);
@@ -57,7 +61,8 @@ describe('retry', () => {
             throwForNAttempts(2, 'success'),
             'retry prompt',
             3,
-            'default value');
+            'default value',
+        );
 
         expect(result).toEqual('default value');
         expect(prompts).toEqual(['retry prompt']);
@@ -70,9 +75,14 @@ describe('retry', () => {
             throwForNAttempts(5, 'success'),
             'retry prompt',
             3,
-            'default value');
+            'default value',
+        );
 
         expect(result).toEqual('default value');
-        expect(prompts).toEqual(['retry prompt', 'retry prompt', 'retry prompt']);
+        expect(prompts).toEqual([
+            'retry prompt',
+            'retry prompt',
+            'retry prompt',
+        ]);
     });
 });

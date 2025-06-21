@@ -6,10 +6,10 @@
     ErrorState,
     iocProps,
     renderApp,
-    TestContext
-} from "../../helpers/tests";
-import {ITableSelectionProps, TableSelection} from "./TableSelection";
-import {TableDto} from "../../interfaces/models/dtos/Data/TableDto";
+    TestContext,
+} from '../../helpers/tests';
+import { ITableSelectionProps, TableSelection } from './TableSelection';
+import { TableDto } from '../../interfaces/models/dtos/Data/TableDto';
 
 describe('TableSelection', () => {
     let context: TestContext;
@@ -34,7 +34,8 @@ describe('TableSelection', () => {
             iocProps(),
             brandingProps(),
             appProps({}, reportedError),
-            (<TableSelection {...props} />));
+            <TableSelection {...props} />,
+        );
     }
 
     const tableA: TableDto = {
@@ -66,7 +67,7 @@ describe('TableSelection', () => {
         });
 
         const items = Array.from(context.container.querySelectorAll('li'));
-        const itemText = items.map(i => i.textContent);
+        const itemText = items.map((i) => i.textContent);
         expect(itemText).toEqual(['A', 'B']);
     });
 

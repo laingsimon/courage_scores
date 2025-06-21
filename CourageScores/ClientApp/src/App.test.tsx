@@ -1,61 +1,73 @@
-import {api, cleanUp, doClick, findButton, iocProps, noop, Prompts, TestContext} from "./helpers/tests";
-import {App} from "./App";
-import {act} from "@testing-library/react";
-import {MemoryRouter, Route} from "react-router";
-import {IocContainer, IIocContainerProps} from "./components/common/IocContainer";
-import ReactDOM from "react-dom/client";
-import {useApp} from "./components/common/AppContainer";
-import {BrandingContainer} from "./components/common/BrandingContainer";
-import {UserDto} from "./interfaces/models/dtos/Identity/UserDto";
-import {SeasonDto} from "./interfaces/models/dtos/Season/SeasonDto";
-import {TeamDto} from "./interfaces/models/dtos/Team/TeamDto";
-import {ErrorDetailDto} from "./interfaces/models/dtos/ErrorDetailDto";
-import {DivisionDto} from "./interfaces/models/dtos/DivisionDto";
-import {IBuild} from "./components/common/IBuild";
-import {IClientActionResultDto} from "./components/common/IClientActionResultDto";
-import {divisionBuilder} from "./helpers/builders/divisions";
-import {IAccountApi} from "./interfaces/apis/IAccountApi";
-import {IErrorApi} from "./interfaces/apis/IErrorApi";
-import {IDivisionApi} from "./interfaces/apis/IDivisionApi";
-import {ISeasonApi} from "./interfaces/apis/ISeasonApi";
-import {ITeamApi} from "./interfaces/apis/ITeamApi";
-import React from "react";
-import {CookiesProvider} from "react-cookie";
+import {
+    api,
+    cleanUp,
+    doClick,
+    findButton,
+    iocProps,
+    noop,
+    Prompts,
+    TestContext,
+} from './helpers/tests';
+import { App } from './App';
+import { act } from '@testing-library/react';
+import { MemoryRouter, Route } from 'react-router';
+import {
+    IocContainer,
+    IIocContainerProps,
+} from './components/common/IocContainer';
+import ReactDOM from 'react-dom/client';
+import { useApp } from './components/common/AppContainer';
+import { BrandingContainer } from './components/common/BrandingContainer';
+import { UserDto } from './interfaces/models/dtos/Identity/UserDto';
+import { SeasonDto } from './interfaces/models/dtos/Season/SeasonDto';
+import { TeamDto } from './interfaces/models/dtos/Team/TeamDto';
+import { ErrorDetailDto } from './interfaces/models/dtos/ErrorDetailDto';
+import { DivisionDto } from './interfaces/models/dtos/DivisionDto';
+import { IBuild } from './components/common/IBuild';
+import { IClientActionResultDto } from './components/common/IClientActionResultDto';
+import { divisionBuilder } from './helpers/builders/divisions';
+import { IAccountApi } from './interfaces/apis/IAccountApi';
+import { IErrorApi } from './interfaces/apis/IErrorApi';
+import { IDivisionApi } from './interfaces/apis/IDivisionApi';
+import { ISeasonApi } from './interfaces/apis/ISeasonApi';
+import { ITeamApi } from './interfaces/apis/ITeamApi';
+import React from 'react';
+import { CookiesProvider } from 'react-cookie';
+import { ISettings } from './api/settings';
 
 describe('App', () => {
     let context: TestContext;
-    let allDivisions: any = [];
+    let allDivisions: Promise<DivisionDto[]>;
     let account: UserDto | null = null;
     let allSeasons: SeasonDto[] = [];
     let allTeams: TeamDto[] = [];
     let reportedError: ErrorDetailDto | null;
-    let settings: any;
+    let settings: ISettings;
     let fullScreenRequested: boolean;
     let fullScreenExited: boolean;
+    let invalidateCacheOnNextRequest: boolean;
 
     const divisionApi = api<IDivisionApi>({
         getAll: async (): Promise<DivisionDto[]> => {
-            if (allDivisions.length || allDivisions.length === 0) {
-                return allDivisions;
-            }
-
             return await allDivisions;
-        }
+        },
     });
     const accountApi = api<IAccountApi>({
-        account: async (): Promise<UserDto | null> => account
+        account: async (): Promise<UserDto | null> => account,
     });
     const seasonApi = api<ISeasonApi>({
-        getAll: async (): Promise<SeasonDto[]> => allSeasons
+        getAll: async (): Promise<SeasonDto[]> => allSeasons,
     });
     const teamApi = api<ITeamApi>({
-        getAll: async (): Promise<TeamDto[]> => allTeams
+        getAll: async (): Promise<TeamDto[]> => allTeams,
     });
     const errorApi = api<IErrorApi>({
-        add: async (error: ErrorDetailDto): Promise<IClientActionResultDto<ErrorDetailDto>> => {
+        add: async (
+            error: ErrorDetailDto,
+        ): Promise<IClientActionResultDto<ErrorDetailDto>> => {
             reportedError = error;
             return { success: true };
-        }
+        },
     });
 
     afterEach(async () => {
@@ -64,18 +76,34 @@ describe('App', () => {
 
     beforeEach(() => {
         reportedError = null;
-        settings = {};
+        settings = {
+            get invalidateCacheOnNextRequest(): boolean {
+                return invalidateCacheOnNextRequest;
+            },
+            set invalidateCacheOnNextRequest(value: boolean) {
+                invalidateCacheOnNextRequest = value;
+            },
+            get apiHost(): string {
+                return '';
+            },
+        };
         fullScreenExited = false;
         fullScreenRequested = false;
+        invalidateCacheOnNextRequest = false;
+        allDivisions = Promise.resolve([]);
         // @ts-ignore
         // noinspection JSConstantReassignment
         document.fullscreenElement = null;
         // @ts-ignore
         // noinspection JSConstantReassignment
         document.fullscreenEnabled = false;
-    })
+    });
 
-    async function renderComponent(build?: IBuild, embed?: boolean, testRoute?: React.ReactNode) {
+    async function renderComponent(
+        build?: IBuild,
+        embed?: boolean,
+        testRoute?: React.ReactNode,
+    ) {
         if (build) {
             createBuildElements(build);
         }
@@ -89,29 +117,38 @@ describe('App', () => {
                 errorApi,
                 settings,
             }),
-            (<BrandingContainer name='COURAGE LEAGUE'>
-                <App controls={true} embed={embed} testRoute={testRoute}/>
-            </BrandingContainer>),
-            testRoute ? '/test' : undefined);
+            <BrandingContainer name="COURAGE LEAGUE">
+                <App controls={true} embed={embed} testRoute={testRoute} />
+            </BrandingContainer>,
+            testRoute ? '/test' : undefined,
+        );
 
-        document.body.requestFullscreen = async (_?: FullscreenOptions) => { fullScreenRequested = true };
-        document.exitFullscreen = async () => { fullScreenExited = true; };
+        document.body.requestFullscreen = async (_?: FullscreenOptions) => {
+            fullScreenRequested = true;
+        };
+        document.exitFullscreen = async () => {
+            fullScreenExited = true;
+        };
     }
 
-    async function renderApp(iocProps: IIocContainerProps, content: React.ReactNode, currentPath?: string): Promise<TestContext> {
+    async function renderApp(
+        iocProps: IIocContainerProps,
+        content: React.ReactNode,
+        currentPath?: string,
+    ): Promise<TestContext> {
         const container = document.createElement('div');
         document.body.appendChild(container);
 
         let root: ReactDOM.Root;
         await act(async () => {
-            const component = (<MemoryRouter initialEntries={[currentPath || '/']}>
-                <IocContainer {...iocProps}>
-                    <CookiesProvider>
-                        {content}
-                    </CookiesProvider>
-                </IocContainer>
-            </MemoryRouter>);
-            root = ReactDOM.createRoot(container)
+            const component = (
+                <MemoryRouter initialEntries={[currentPath || '/']}>
+                    <IocContainer {...iocProps}>
+                        <CookiesProvider>{content}</CookiesProvider>
+                    </IocContainer>
+                </MemoryRouter>
+            );
+            root = ReactDOM.createRoot(container);
             root.render(component);
         });
 
@@ -151,11 +188,19 @@ describe('App', () => {
     }
 
     function assertSocialLinks() {
-        const socialLinks = Array.from(context.container.querySelectorAll('div.social-header a[href]')) as HTMLAnchorElement[];
+        const socialLinks = Array.from(
+            context.container.querySelectorAll('div.social-header a[href]'),
+        ) as HTMLAnchorElement[];
         expect(socialLinks.length).toEqual(3);
-        const email = socialLinks.filter(a => a.getAttribute('href')!.indexOf('mailto:') !== -1)[0];
-        const facebook = socialLinks.filter(a => isForDomain(a, 'www.facebook.com'))[0];
-        const twitter = socialLinks.filter(a => isForDomain(a, 'twitter.com'))[0];
+        const email = socialLinks.filter(
+            (a) => a.getAttribute('href')!.indexOf('mailto:') !== -1,
+        )[0];
+        const facebook = socialLinks.filter((a) =>
+            isForDomain(a, 'www.facebook.com'),
+        )[0];
+        const twitter = socialLinks.filter((a) =>
+            isForDomain(a, 'twitter.com'),
+        )[0];
         expect(email).toBeTruthy();
         expect(facebook).toBeTruthy();
         expect(twitter).toBeTruthy();
@@ -167,17 +212,21 @@ describe('App', () => {
         expect(heading.textContent).toEqual('COURAGE LEAGUE');
     }
 
-    function assertMenu(loading?: boolean) {
+    async function assertMenu(loading?: boolean) {
         const header = context.container.querySelector('header')!;
         expect(header).toBeTruthy();
         const menuItems = Array.from(header.querySelectorAll('li.nav-item'));
-        const menuItemText = menuItems.map(li => li.textContent);
-        const divisionMenuItems = loading ? [] : allDivisions.map((d: DivisionDto) => d.name);
+        const menuItemText = menuItems.map((li) => li.textContent);
+        const divisionMenuItems = loading
+            ? []
+            : (await allDivisions).map((d: DivisionDto) => d.name);
         const expectedMenuItemsAfterDivisions: string[] = [];
 
         if (!loading) {
             if (account) {
-                expectedMenuItemsAfterDivisions.push(`Logout (${account.givenName})`);
+                expectedMenuItemsAfterDivisions.push(
+                    `Logout (${account.givenName})`,
+                );
             } else {
                 expectedMenuItemsAfterDivisions.push('Login');
             }
@@ -185,32 +234,75 @@ describe('App', () => {
             expectedMenuItemsAfterDivisions.push(''); // spinner
         }
 
-        const expectedMenuItems = divisionMenuItems.concat(expectedMenuItemsAfterDivisions);
+        const expectedMenuItems = divisionMenuItems.concat(
+            expectedMenuItemsAfterDivisions,
+        );
         expect(menuItemText).toEqual(expectedMenuItems);
     }
 
     function TestElement() {
-        const {onError, clearError, invalidateCacheAndTryAgain, reportClientSideException} = useApp();
-        const error = {message: 'ERROR'};
+        const {
+            onError,
+            clearError,
+            invalidateCacheAndTryAgain,
+            reportClientSideException,
+        } = useApp();
+        const error = { message: 'ERROR' };
 
-        return (<div>
-            <button className="btn" onClick={() => onError(error)}>onError</button>
-            <button className="btn" onClick={clearError}>clearError</button>
-            <button className="btn" onClick={invalidateCacheAndTryAgain}>invalidateCacheAndTryAgain</button>
-            <button className="btn" onClick={() => reportClientSideException(error)}>reportClientSideException</button>
-        </div>);
+        return (
+            <div>
+                <button className="btn" onClick={() => onError(error)}>
+                    onError
+                </button>
+                <button className="btn" onClick={clearError}>
+                    clearError
+                </button>
+                <button className="btn" onClick={invalidateCacheAndTryAgain}>
+                    invalidateCacheAndTryAgain
+                </button>
+                <button
+                    className="btn"
+                    onClick={() => reportClientSideException(error)}>
+                    reportClientSideException
+                </button>
+            </div>
+        );
     }
 
     function FullScreenElement() {
-        const {fullScreen} = useApp();
+        const { fullScreen } = useApp();
 
-        return (<div>
-            <input type="checkbox" readOnly name="isFullScreen" checked={fullScreen.isFullScreen} />
-            <input type="checkbox" readOnly name="canGoFullScreen" checked={fullScreen.canGoFullScreen} />
-            <button className="btn" onClick={() => fullScreen.exitFullScreen()}>exitFullScreen</button>
-            <button className="btn" onClick={() => fullScreen.enterFullScreen()}>enterFullScreen</button>
-            <button className="btn" onClick={() => fullScreen.toggleFullScreen()}>toggleFullScreen</button>
-        </div>)
+        return (
+            <div>
+                <input
+                    type="checkbox"
+                    readOnly
+                    name="isFullScreen"
+                    checked={fullScreen.isFullScreen}
+                />
+                <input
+                    type="checkbox"
+                    readOnly
+                    name="canGoFullScreen"
+                    checked={fullScreen.canGoFullScreen}
+                />
+                <button
+                    className="btn"
+                    onClick={() => fullScreen.exitFullScreen()}>
+                    exitFullScreen
+                </button>
+                <button
+                    className="btn"
+                    onClick={() => fullScreen.enterFullScreen()}>
+                    enterFullScreen
+                </button>
+                <button
+                    className="btn"
+                    onClick={() => fullScreen.toggleFullScreen()}>
+                    toggleFullScreen
+                </button>
+            </div>
+        );
     }
 
     describe('renders', () => {
@@ -219,7 +311,7 @@ describe('App', () => {
 
             assertSocialLinks();
             assertHeading();
-            assertMenu();
+            await assertMenu();
         });
 
         it('with build information', async () => {
@@ -231,13 +323,15 @@ describe('App', () => {
 
             assertSocialLinks();
             assertHeading();
-            assertMenu();
+            await assertMenu();
         });
 
         it('embedded', async () => {
             await renderComponent(undefined, true);
 
-            const socialLinks = Array.from(context.container.querySelectorAll('div.social-header a[href]'));
+            const socialLinks = Array.from(
+                context.container.querySelectorAll('div.social-header a[href]'),
+            );
             expect(socialLinks.length).toEqual(0);
             const heading = context.container.querySelector('h1.heading');
             expect(heading).toBeFalsy();
@@ -256,20 +350,20 @@ describe('App', () => {
 
             assertSocialLinks();
             assertHeading();
-            assertMenu();
+            await assertMenu();
         });
 
         it('with divisions', async () => {
-            allDivisions = [
+            allDivisions = Promise.resolve([
                 divisionBuilder('Division One').build(),
-                divisionBuilder('Division Two').build()
-            ];
+                divisionBuilder('Division Two').build(),
+            ]);
 
             await renderComponent();
 
             assertSocialLinks();
             assertHeading();
-            assertMenu();
+            await assertMenu();
         });
 
         it('when still loading', async () => {
@@ -279,7 +373,7 @@ describe('App', () => {
 
             assertSocialLinks();
             assertHeading();
-            assertMenu(true);
+            await assertMenu(true);
         });
     });
 
@@ -288,7 +382,8 @@ describe('App', () => {
             await renderComponent(
                 undefined,
                 false,
-                (<Route path='/test' element={<TestElement/>}/>));
+                <Route path="/test" element={<TestElement />} />,
+            );
             console.error = noop;
 
             await doClick(findButton(context.container, 'onError'));
@@ -297,46 +392,61 @@ describe('App', () => {
                 message: 'ERROR',
                 source: 'UI',
             });
-            expect(context.container.textContent).toContain('An error occurred');
+            expect(context.container.textContent).toContain(
+                'An error occurred',
+            );
         });
 
         it('can report client side exception directly', async () => {
             await renderComponent(
                 undefined,
                 false,
-                (<Route path='/test' element={<TestElement/>}/>));
+                <Route path="/test" element={<TestElement />} />,
+            );
 
-            await doClick(findButton(context.container, 'reportClientSideException'));
+            await doClick(
+                findButton(context.container, 'reportClientSideException'),
+            );
 
             expect(reportedError).not.toEqual({
                 message: 'ERROR',
                 source: 'UI',
             });
-            expect(context.container.textContent).not.toContain('An error occurred');
+            expect(context.container.textContent).not.toContain(
+                'An error occurred',
+            );
         });
 
         it('can invalidate caches', async () => {
             await renderComponent(
                 undefined,
                 false,
-                (<Route path='/test' element={<TestElement/>}/>));
+                <Route path="/test" element={<TestElement />} />,
+            );
 
-            await doClick(findButton(context.container, 'invalidateCacheAndTryAgain'));
+            await doClick(
+                findButton(context.container, 'invalidateCacheAndTryAgain'),
+            );
 
             expect(settings.invalidateCacheOnNextRequest).toEqual(true);
-            expect(context.container.textContent).not.toContain('An error occurred');
+            expect(context.container.textContent).not.toContain(
+                'An error occurred',
+            );
         });
 
         it('can clear error', async () => {
             await renderComponent(
                 undefined,
                 false,
-                (<Route path='/test' element={<TestElement/>}/>));
+                <Route path="/test" element={<TestElement />} />,
+            );
             await doClick(findButton(context.container, 'onError'));
 
             await doClick(findButton(context.container, 'Clear error'));
 
-            expect(context.container.textContent).not.toContain('An error occurred');
+            expect(context.container.textContent).not.toContain(
+                'An error occurred',
+            );
         });
 
         describe('enterFullscreen', () => {
@@ -347,8 +457,11 @@ describe('App', () => {
                 await renderComponent(
                     undefined,
                     false,
-                    (<Route path='/test' element={<FullScreenElement/>}/>));
-                const canGoFullScreen = context.container.querySelector('input[name="canGoFullScreen"]')! as HTMLInputElement;
+                    <Route path="/test" element={<FullScreenElement />} />,
+                );
+                const canGoFullScreen = context.container.querySelector(
+                    'input[name="canGoFullScreen"]',
+                )! as HTMLInputElement;
                 expect(canGoFullScreen.checked).toEqual(true);
 
                 await doClick(findButton(context.container, 'enterFullScreen'));
@@ -360,8 +473,11 @@ describe('App', () => {
                 await renderComponent(
                     undefined,
                     false,
-                    (<Route path='/test' element={<FullScreenElement/>}/>));
-                const canGoFullScreen = context.container.querySelector('input[name="canGoFullScreen"]')! as HTMLInputElement;
+                    <Route path="/test" element={<FullScreenElement />} />,
+                );
+                const canGoFullScreen = context.container.querySelector(
+                    'input[name="canGoFullScreen"]',
+                )! as HTMLInputElement;
                 expect(canGoFullScreen.checked).toEqual(false);
 
                 await doClick(findButton(context.container, 'enterFullScreen'));
@@ -378,8 +494,11 @@ describe('App', () => {
                 await renderComponent(
                     undefined,
                     false,
-                    (<Route path='/test' element={<FullScreenElement/>}/>));
-                const wasFullScreen = context.container.querySelector('input[name="isFullScreen"]')! as HTMLInputElement;
+                    <Route path="/test" element={<FullScreenElement />} />,
+                );
+                const wasFullScreen = context.container.querySelector(
+                    'input[name="isFullScreen"]',
+                )! as HTMLInputElement;
                 expect(wasFullScreen.checked).toEqual(true);
 
                 await doClick(findButton(context.container, 'exitFullScreen'));
@@ -391,11 +510,14 @@ describe('App', () => {
                 await renderComponent(
                     undefined,
                     false,
-                    (<Route path='/test' element={<FullScreenElement/>}/>));
+                    <Route path="/test" element={<FullScreenElement />} />,
+                );
                 // @ts-ignore
                 // noinspection JSConstantReassignment
                 document.fullscreenEnabled = true;
-                const wasFullScreen = context.container.querySelector('input[name="isFullScreen"]')! as HTMLInputElement;
+                const wasFullScreen = context.container.querySelector(
+                    'input[name="isFullScreen"]',
+                )! as HTMLInputElement;
                 expect(wasFullScreen.checked).toEqual(false);
 
                 await doClick(findButton(context.container, 'exitFullScreen'));
@@ -412,13 +534,20 @@ describe('App', () => {
                 await renderComponent(
                     undefined,
                     false,
-                    (<Route path='/test' element={<FullScreenElement/>}/>));
-                const canGoFullScreen = context.container.querySelector('input[name="canGoFullScreen"]')! as HTMLInputElement;
+                    <Route path="/test" element={<FullScreenElement />} />,
+                );
+                const canGoFullScreen = context.container.querySelector(
+                    'input[name="canGoFullScreen"]',
+                )! as HTMLInputElement;
                 expect(canGoFullScreen.checked).toEqual(true);
-                const wasFullScreen = context.container.querySelector('input[name="isFullScreen"]')! as HTMLInputElement;
+                const wasFullScreen = context.container.querySelector(
+                    'input[name="isFullScreen"]',
+                )! as HTMLInputElement;
                 expect(wasFullScreen.checked).toEqual(false);
 
-                await doClick(findButton(context.container, 'toggleFullScreen'));
+                await doClick(
+                    findButton(context.container, 'toggleFullScreen'),
+                );
 
                 expect(fullScreenRequested).toEqual(true);
                 expect(fullScreenExited).toEqual(false);
@@ -434,13 +563,20 @@ describe('App', () => {
                 await renderComponent(
                     undefined,
                     false,
-                    (<Route path='/test' element={<FullScreenElement/>}/>));
-                const canGoFullScreen = context.container.querySelector('input[name="canGoFullScreen"]')! as HTMLInputElement;
+                    <Route path="/test" element={<FullScreenElement />} />,
+                );
+                const canGoFullScreen = context.container.querySelector(
+                    'input[name="canGoFullScreen"]',
+                )! as HTMLInputElement;
                 expect(canGoFullScreen.checked).toEqual(true);
-                const wasFullScreen = context.container.querySelector('input[name="isFullScreen"]')! as HTMLInputElement;
+                const wasFullScreen = context.container.querySelector(
+                    'input[name="isFullScreen"]',
+                )! as HTMLInputElement;
                 expect(wasFullScreen.checked).toEqual(true);
 
-                await doClick(findButton(context.container, 'toggleFullScreen'));
+                await doClick(
+                    findButton(context.container, 'toggleFullScreen'),
+                );
 
                 expect(fullScreenRequested).toEqual(false);
                 expect(fullScreenExited).toEqual(true);

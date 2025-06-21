@@ -4,22 +4,25 @@ import {
     brandingProps,
     cleanUp,
     doChange,
-    doClick, ErrorState,
+    doClick,
+    ErrorState,
     findButton,
-    iocProps, noop,
+    IBrowserNavigator,
+    iocProps,
+    noop,
     renderApp,
-    TestContext
-} from "../../helpers/tests";
-import {Practice} from "./Practice";
-import {createTemporaryId} from "../../helpers/projection";
-import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
-import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
-import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
-import {IClientActionResultDto} from "../common/IClientActionResultDto";
-import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../helpers/builders/sayg";
-import {ISaygApi} from "../../interfaces/apis/ISaygApi";
-import {CHECKOUT_3_DART, ENTER_SCORE_BUTTON} from "../../helpers/constants";
-import {checkoutWith, keyPad} from "../../helpers/sayg";
+    TestContext,
+} from '../../helpers/tests';
+import { Practice } from './Practice';
+import { createTemporaryId } from '../../helpers/projection';
+import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
+import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
+import { IClientActionResultDto } from '../common/IClientActionResultDto';
+import { saygBuilder } from '../../helpers/builders/sayg';
+import { ISaygApi } from '../../interfaces/apis/ISaygApi';
+import { CHECKOUT_3_DART, ENTER_SCORE_BUTTON } from '../../helpers/constants';
+import { checkoutWith, keyPad } from '../../helpers/sayg';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -33,21 +36,27 @@ describe('Practice', () => {
     let reportedError: ErrorState;
     let saygData: { [key: string]: RecordedScoreAsYouGoDto };
     let shareData: ShareData | null;
-    let apiResultFunc: ((data: UpdateRecordedScoreAsYouGoDto) => IClientActionResultDto<RecordedScoreAsYouGoDto>);
-    let fullScreenState: { isFullScreen: boolean, canGoFullScreen: boolean };
+    let apiResultFunc: (
+        data: UpdateRecordedScoreAsYouGoDto,
+    ) => IClientActionResultDto<RecordedScoreAsYouGoDto>;
+    let fullScreenState: { isFullScreen: boolean; canGoFullScreen: boolean };
 
     const saygApi = api<ISaygApi>({
         get: async (id: string): Promise<RecordedScoreAsYouGoDto | null> => {
             return saygData[id];
         },
-        upsert: async (data: UpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> => {
+        upsert: async (
+            data: UpdateRecordedScoreAsYouGoDto,
+        ): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> => {
             if (!data.id) {
                 data.id = createTemporaryId();
             }
             saygData[data.id] = data as RecordedScoreAsYouGoDto;
             return apiResultFunc(data);
         },
-        delete: async (id: string): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> => {
+        delete: async (
+            id: string,
+        ): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> => {
             delete saygData[id];
             return {
                 success: true,
@@ -66,11 +75,11 @@ describe('Practice', () => {
             return {
                 result: data,
                 success: true,
-            } as IClientActionResultDto<RecordedScoreAsYouGoDto>
+            } as IClientActionResultDto<RecordedScoreAsYouGoDto>;
         };
         shareData = null;
-        // noinspection JSValidateTypes
-        (navigator as any).share = (data: ShareData) => shareData = data;
+        (navigator as IBrowserNavigator).share = (data: ShareData) =>
+            (shareData = data);
 
         fullScreenState = {
             isFullScreen: false,
@@ -78,7 +87,11 @@ describe('Practice', () => {
         };
     });
 
-    async function renderComponent(account?: UserDto, hash?: string, appLoading?: boolean) {
+    async function renderComponent(
+        account?: UserDto,
+        hash?: string,
+        appLoading?: boolean,
+    ) {
         const fullScreen = {
             isFullScreen: fullScreenState.isFullScreen,
             canGoFullScreen: fullScreenState.canGoFullScreen,
@@ -94,31 +107,41 @@ describe('Practice', () => {
         };
 
         context = await renderApp(
-            iocProps({saygApi}),
+            iocProps({ saygApi }),
             brandingProps(),
-            appProps({
-                account: account,
-                appLoading: appLoading || false,
-                fullScreen: fullScreen,
-            }, reportedError),
-            (<Practice/>),
+            appProps(
+                {
+                    account: account,
+                    appLoading: appLoading || false,
+                    fullScreen: fullScreen,
+                },
+                reportedError,
+            ),
+            <Practice />,
             '/practice',
-            '/practice' + hash);
+            '/practice' + hash,
+        );
     }
 
     function assertNoDataError() {
-        const dataError = context.container.querySelector('div[data-name="data-error"]') as HTMLElement;
+        const dataError = context.container.querySelector(
+            'div[data-name="data-error"]',
+        ) as HTMLElement;
         expect(dataError).toBeFalsy();
     }
 
     function assertDataError(error: string) {
-        const dataError = context.container.querySelector('div[data-name="data-error"]') as HTMLElement;
+        const dataError = context.container.querySelector(
+            'div[data-name="data-error"]',
+        ) as HTMLElement;
         expect(dataError).toBeTruthy();
         expect(dataError.textContent).toContain(error);
     }
 
     function assertInputValue(name: string, value: string) {
-        const input = context.container.querySelector(`input[name="${name}"]`) as HTMLInputElement;
+        const input = context.container.querySelector(
+            `input[name="${name}"]`,
+        ) as HTMLInputElement;
         expect(input).toBeTruthy();
         expect(input.value).toEqual(value);
     }
@@ -131,7 +154,9 @@ describe('Practice', () => {
 
             reportedError.verifyNoError();
             assertNoDataError();
-            expect(context.container.querySelector('.loading-background')).not.toBeNull();
+            expect(
+                context.container.querySelector('.loading-background'),
+            ).not.toBeNull();
         });
 
         it('renders given no saved data', async () => {
@@ -171,7 +196,14 @@ describe('Practice', () => {
             reportedError.verifyNoError();
             assertDataError('Data not found');
 
-            await doClick(findButton(context.container.querySelector('div[data-name="data-error"]'), 'Clear'));
+            await doClick(
+                findButton(
+                    context.container.querySelector(
+                        'div[data-name="data-error"]',
+                    ),
+                    'Clear',
+                ),
+            );
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(`/practice`);
         });
@@ -180,9 +212,7 @@ describe('Practice', () => {
             const jsonData: RecordedScoreAsYouGoDto = saygBuilder()
                 .startingScore(123)
                 .numberOfLegs(2)
-                .withLeg(0, (l: ILegBuilder) => l
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                .withLeg(0, (l) => l.home().away())
                 .scores(1)
                 .yourName('Simon')
                 .addTo(saygData)
@@ -228,9 +258,7 @@ describe('Practice', () => {
             const jsonData: RecordedScoreAsYouGoDto = saygBuilder()
                 .startingScore(123)
                 .numberOfLegs(2)
-                .withLeg(0, (l: ILegBuilder) => l
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                .withLeg(0, (l) => l.home().away())
                 .scores(1)
                 .yourName('Simon')
                 .addTo(saygData)
@@ -246,7 +274,7 @@ describe('Practice', () => {
             expect(shareData).toEqual({
                 text: 'Practice',
                 title: 'Practice',
-                url: `/practice#${jsonData.id}`
+                url: `/practice#${jsonData.id}`,
             });
         });
 
@@ -273,7 +301,7 @@ describe('Practice', () => {
             expect(shareData).toEqual({
                 text: 'Practice',
                 title: 'Practice',
-                url: `/practice#${jsonData.id}`
+                url: `/practice#${jsonData.id}`,
             });
         });
 
@@ -282,12 +310,19 @@ describe('Practice', () => {
             reportedError.verifyNoError();
             assertNoDataError();
 
-            await doChange(context.container, 'input[name="yourName"]', 'YOU', context.user);
+            await doChange(
+                context.container,
+                'input[name="yourName"]',
+                'YOU',
+                context.user,
+            );
 
             await doClick(findButton(context.container, 'Save '));
             const id = Object.keys(saygData)[0];
             expect(saygData[id].yourName).toEqual('YOU');
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/practice?yourName=YOU&startingScore=501&numberOfLegs=3`);
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(
+                `/practice?yourName=YOU&startingScore=501&numberOfLegs=3`,
+            );
         });
 
         it('can change number of legs', async () => {
@@ -295,21 +330,38 @@ describe('Practice', () => {
             reportedError.verifyNoError();
             assertNoDataError();
 
-            await doChange(context.container, 'input[name="numberOfLegs"]', '7', context.user);
+            await doChange(
+                context.container,
+                'input[name="numberOfLegs"]',
+                '7',
+                context.user,
+            );
 
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/practice?numberOfLegs=7&yourName=you&startingScore=501`);
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(
+                `/practice?numberOfLegs=7&yourName=you&startingScore=501`,
+            );
         });
 
         it('can clear opponent name', async () => {
             await renderComponent(account, '');
             reportedError.verifyNoError();
             assertNoDataError();
-            await doChange(context.container, 'input[name="opponentName"]', 'THEM', context.user);
+            await doChange(
+                context.container,
+                'input[name="opponentName"]',
+                'THEM',
+                context.user,
+            );
             await doClick(findButton(context.container, 'Save '));
             const id = Object.keys(saygData)[0];
             expect(saygData[id].opponentName).toEqual('THEM');
 
-            await doChange(context.container, 'input[name="opponentName"]', '', context.user);
+            await doChange(
+                context.container,
+                'input[name="opponentName"]',
+                '',
+                context.user,
+            );
 
             await doClick(findButton(context.container, 'Save '));
             expect(saygData[id].opponentName).toEqual('');
@@ -323,11 +375,16 @@ describe('Practice', () => {
                 throw new Error('some error');
             };
             console.error = noop;
-            context.prompts.respondToConfirm('Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.', false);
+            context.prompts.respondToConfirm(
+                'Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.',
+                false,
+            );
 
             await doClick(findButton(context.container, 'Save '));
 
-            context.prompts.confirmWasShown('Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.');
+            context.prompts.confirmWasShown(
+                'Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.',
+            );
         });
 
         it('can restart practice', async () => {
@@ -349,10 +406,16 @@ describe('Practice', () => {
             await doClick(findButton(context.container, 'Restart...'));
 
             await doClick(findButton(context.container, 'Save '));
-            expect(saygData[jsonData.id].startingScore).toEqual(jsonData.startingScore);
-            expect(saygData[jsonData.id].numberOfLegs).toEqual(jsonData.numberOfLegs);
+            expect(saygData[jsonData.id].startingScore).toEqual(
+                jsonData.startingScore,
+            );
+            expect(saygData[jsonData.id].numberOfLegs).toEqual(
+                jsonData.numberOfLegs,
+            );
             expect(saygData[jsonData.id].yourName).toEqual(jsonData.yourName);
-            expect(saygData[jsonData.id].opponentName).toEqual(jsonData.opponentName);
+            expect(saygData[jsonData.id].opponentName).toEqual(
+                jsonData.opponentName,
+            );
             expect(saygData[jsonData.id].homeScore).toEqual(0);
             expect(saygData[jsonData.id].awayScore).toEqual(0);
             expect(Object.keys(saygData[jsonData.id].legs)).toEqual(['0']);
@@ -363,17 +426,19 @@ describe('Practice', () => {
             reportedError.verifyNoError();
             assertNoDataError();
 
-            await keyPad(context, ['1','8','0', ENTER_SCORE_BUTTON]);
+            await keyPad(context, ['1', '8', '0', ENTER_SCORE_BUTTON]);
 
             await doClick(findButton(context.container, 'Save '));
             const id = Object.keys(saygData)[0];
             expect(saygData[id].legs[0].home).toEqual({
                 noOfDarts: 3,
                 score: 180,
-                throws: [{
-                    noOfDarts: 3,
-                    score: 180,
-                }],
+                throws: [
+                    {
+                        noOfDarts: 3,
+                        score: 180,
+                    },
+                ],
             });
         });
 
@@ -381,10 +446,15 @@ describe('Practice', () => {
             await renderComponent(account, '');
             reportedError.verifyNoError();
             assertNoDataError();
-            await doChange(context.container, 'input[name="startingScore"]', '501', context.user);
-            await keyPad(context, ['1','8','0', ENTER_SCORE_BUTTON]);
-            await keyPad(context, ['1','8','0', ENTER_SCORE_BUTTON]);
-            await keyPad(context, ['1','4','1', ENTER_SCORE_BUTTON]);
+            await doChange(
+                context.container,
+                'input[name="startingScore"]',
+                '501',
+                context.user,
+            );
+            await keyPad(context, ['1', '8', '0', ENTER_SCORE_BUTTON]);
+            await keyPad(context, ['1', '8', '0', ENTER_SCORE_BUTTON]);
+            await keyPad(context, ['1', '4', '1', ENTER_SCORE_BUTTON]);
             await checkoutWith(context, CHECKOUT_3_DART);
 
             await doClick(findButton(context.container, 'Save '));
@@ -415,9 +485,7 @@ describe('Practice', () => {
             const jsonData: RecordedScoreAsYouGoDto = saygBuilder()
                 .startingScore(123)
                 .numberOfLegs(2)
-                .withLeg(0, (l: ILegBuilder) => l
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                .withLeg(0, (l) => l.home().away())
                 .scores(1)
                 .yourName('Simon')
                 .addTo(saygData)
@@ -478,10 +546,16 @@ describe('Practice', () => {
             await doClick(findButton(context.container, 'Restart...'));
 
             await doClick(findButton(context.container, 'Save '));
-            expect(saygData[jsonData.id].startingScore).toEqual(jsonData.startingScore);
-            expect(saygData[jsonData.id].numberOfLegs).toEqual(jsonData.numberOfLegs);
+            expect(saygData[jsonData.id].startingScore).toEqual(
+                jsonData.startingScore,
+            );
+            expect(saygData[jsonData.id].numberOfLegs).toEqual(
+                jsonData.numberOfLegs,
+            );
             expect(saygData[jsonData.id].yourName).toEqual(jsonData.yourName);
-            expect(saygData[jsonData.id].opponentName).toEqual(jsonData.opponentName);
+            expect(saygData[jsonData.id].opponentName).toEqual(
+                jsonData.opponentName,
+            );
             expect(saygData[jsonData.id].homeScore).toEqual(0);
             expect(saygData[jsonData.id].awayScore).toEqual(0);
             expect(Object.keys(saygData[jsonData.id].legs)).toEqual(['0']);

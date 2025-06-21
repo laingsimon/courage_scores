@@ -1,6 +1,6 @@
-import {mapError, mapForLogging} from "./errors";
-import {noop} from "./tests";
-import {UserDto} from "../interfaces/models/dtos/Identity/UserDto";
+import { mapError, mapForLogging } from './errors';
+import { noop } from './tests';
+import { UserDto } from '../interfaces/models/dtos/Identity/UserDto';
 
 describe('errors', () => {
     describe('mapError', () => {
@@ -8,14 +8,14 @@ describe('errors', () => {
 
         beforeEach(() => {
             console.error = noop;
-        })
+        });
 
         afterEach(() => {
             console.error = oldConsoleError;
-        })
+        });
 
         it('returns stack if provided', () => {
-            const result = mapError({message: 'MESSAGE', stack: 'STACK'});
+            const result = mapError({ message: 'MESSAGE', stack: 'STACK' });
 
             expect(result.message).toEqual('MESSAGE');
             expect(result.stack).toEqual('STACK');
@@ -36,7 +36,10 @@ describe('errors', () => {
                 emailAddress: '',
                 givenName: '',
             };
-            const result = mapForLogging({message: 'MESSAGE', stack: 'FRAME1\nFRAME2', type: 'TYPE'}, account);
+            const result = mapForLogging(
+                { message: 'MESSAGE', stack: 'FRAME1\nFRAME2', type: 'TYPE' },
+                account,
+            );
             const today = new Date().toISOString();
 
             expect(result.source).toEqual('UI');
@@ -55,13 +58,20 @@ describe('errors', () => {
                 emailAddress: '',
                 givenName: '',
             };
-            const result = mapForLogging({message: 'MESSAGE', type: 'TYPE'}, account);
+            const result = mapForLogging(
+                { message: 'MESSAGE', type: 'TYPE' },
+                account,
+            );
 
             expect(result.stack).toBeUndefined();
         });
 
         it('accepts logged out user', () => {
-            const result = mapForLogging({message: 'MESSAGE', stack: 'FRAME1\nFRAME2', type: 'TYPE'});
+            const result = mapForLogging({
+                message: 'MESSAGE',
+                stack: 'FRAME1\nFRAME2',
+                type: 'TYPE',
+            });
 
             expect(result.userName).toBeUndefined();
         });
@@ -72,7 +82,10 @@ describe('errors', () => {
                 emailAddress: '',
                 givenName: '',
             };
-            const result = mapForLogging({message: 'MESSAGE', stack: 'FRAME1\nFRAME2'}, account);
+            const result = mapForLogging(
+                { message: 'MESSAGE', stack: 'FRAME1\nFRAME2' },
+                account,
+            );
 
             expect(result.type).toBeUndefined();
         });

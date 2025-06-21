@@ -1,7 +1,10 @@
-﻿import {UserDto} from "../interfaces/models/dtos/Identity/UserDto";
-import {AccessDto} from "../interfaces/models/dtos/Identity/AccessDto";
+﻿import { UserDto } from '../interfaces/models/dtos/Identity/UserDto';
+import { AccessDto } from '../interfaces/models/dtos/Identity/AccessDto';
 
-export function hasAccess(account: UserDto | undefined, getAccess: (access: AccessDto) => boolean | undefined): boolean {
+export function hasAccess(
+    account: UserDto | undefined,
+    getAccess: (access: AccessDto) => boolean | undefined,
+): boolean {
     // account && account.access && account.access.manageTournaments
     if (!account || !account.access) {
         return false;

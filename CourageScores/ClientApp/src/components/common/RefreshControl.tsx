@@ -1,20 +1,19 @@
-import {BootstrapDropdown, IBootstrapDropdownItem} from "./BootstrapDropdown";
-import {useLive} from "../../live/LiveContainer";
-import {useApp} from "./AppContainer";
-import {ISubscriptionRequest} from "../../live/ISubscriptionRequest";
+import { BootstrapDropdown, IBootstrapDropdownItem } from './BootstrapDropdown';
+import { useLive } from '../../live/LiveContainer';
+import { useApp } from './AppContainer';
+import { ISubscriptionRequest } from '../../live/ISubscriptionRequest';
 
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-export interface IRefreshControlProps extends ISubscriptionRequest {
-}
+export interface IRefreshControlProps extends ISubscriptionRequest {}
 
 export function RefreshControl({ id, type }: IRefreshControlProps) {
-    const {enableLiveUpdates, subscriptions} = useLive();
-    const {account} = useApp();
+    const { enableLiveUpdates, subscriptions } = useLive();
+    const { account } = useApp();
 
     function getRefreshOptions(): IBootstrapDropdownItem[] {
         return [
-            { value: false, text: '⏸️ Paused', collapsedText: '⏸️' },
-            { value: true, text: '▶️ Live', collapsedText: '▶️' },
+            { value: 'false', text: '⏸️ Paused', collapsedText: '⏸️' },
+            { value: 'true', text: '▶️ Live', collapsedText: '▶️' },
         ];
     }
 
@@ -22,12 +21,17 @@ export function RefreshControl({ id, type }: IRefreshControlProps) {
         return null;
     }
 
-    return (<>
-        <BootstrapDropdown
-            className="margin-left float-end"
-            options={getRefreshOptions()}
-            onChange={async (v: boolean) => enableLiveUpdates(v, { id, type })}
-            value={!!subscriptions[id]}
-            slim={true} />
-    </>);
+    return (
+        <>
+            <BootstrapDropdown
+                className="margin-left float-end"
+                options={getRefreshOptions()}
+                onChange={async (v: string) =>
+                    enableLiveUpdates(v === 'true', { id, type })
+                }
+                value={subscriptions[id] ? 'true' : 'false'}
+                slim={true}
+            />
+        </>
+    );
 }

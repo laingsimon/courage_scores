@@ -1,20 +1,21 @@
-import {AdminContainer} from "./AdminContainer";
+import { AdminContainer } from './AdminContainer';
 import {
     api,
     appProps,
     brandingProps,
     cleanUp,
-    doClick, ErrorState,
+    doClick,
+    ErrorState,
     findButton,
     iocProps,
     renderApp,
-    TestContext
-} from "../../helpers/tests";
-import {SocketAdmin} from "./SocketAdmin";
-import {createTemporaryId} from "../../helpers/projection";
-import {WebSocketDto} from "../../interfaces/models/dtos/Live/WebSocketDto";
-import {IClientActionResultDto} from "../common/IClientActionResultDto";
-import {ILiveApi} from "../../interfaces/apis/ILiveApi";
+    TestContext,
+} from '../../helpers/tests';
+import { SocketAdmin } from './SocketAdmin';
+import { createTemporaryId } from '../../helpers/projection';
+import { WebSocketDto } from '../../interfaces/models/dtos/Live/WebSocketDto';
+import { IClientActionResultDto } from '../common/IClientActionResultDto';
+import { ILiveApi } from '../../interfaces/apis/ILiveApi';
 
 describe('SocketAdmin', () => {
     let context: TestContext;
@@ -26,10 +27,12 @@ describe('SocketAdmin', () => {
 
     const liveApi = api<ILiveApi>({
         getAll: async () => {
-            return getSocketsApiResult || {
-                success: true,
-                result: allSockets,
-            };
+            return (
+                getSocketsApiResult || {
+                    success: true,
+                    result: allSockets,
+                }
+            );
         },
         close: async (id: string) => {
             closedSocket = id;
@@ -51,15 +54,23 @@ describe('SocketAdmin', () => {
 
     async function renderComponent() {
         context = await renderApp(
-            iocProps({liveApi}),
+            iocProps({ liveApi }),
             brandingProps(),
-            appProps({
-                account: {},
-                appLoading: false,
-            }, reportedError),
-            (<AdminContainer tables={[]} accounts={[]}>
-                <SocketAdmin/>
-            </AdminContainer>));
+            appProps(
+                {
+                    account: {
+                        name: '',
+                        emailAddress: '',
+                        givenName: '',
+                    },
+                    appLoading: false,
+                },
+                reportedError,
+            ),
+            <AdminContainer tables={[]} accounts={[]}>
+                <SocketAdmin />
+            </AdminContainer>,
+        );
     }
 
     describe('renders', () => {
@@ -72,15 +83,12 @@ describe('SocketAdmin', () => {
         it('when sockets cannot be retrieved', async () => {
             getSocketsApiResult = {
                 success: false,
-                errors: [
-                    'ERROR 1',
-                    'ERROR 2',
-                ],
+                errors: ['ERROR 1', 'ERROR 2'],
             };
 
             await renderComponent();
 
-            reportedError.verifyErrorEquals('ERROR 1,ERROR 2')
+            reportedError.verifyErrorEquals('ERROR 1,ERROR 2');
         });
 
         it('open socket for logged out user', async () => {
@@ -91,11 +99,13 @@ describe('SocketAdmin', () => {
                 receivedMessages: 1,
                 sentMessages: 2,
             };
-            allSockets = [ socket ];
+            allSockets = [socket];
 
             await renderComponent();
 
-            const socketItem = context.container.querySelector('li[title="' + socket.id + '"]')!;
+            const socketItem = context.container.querySelector(
+                'li[title="' + socket.id + '"]',
+            )!;
             expect(socketItem.textContent).toContain('Logged out user');
             expect(socketItem.textContent).toContain('▶ 10:06:21');
             expect(socketItem.textContent).toContain('⬆ 1');
@@ -110,11 +120,13 @@ describe('SocketAdmin', () => {
                 receivedMessages: 1,
                 sentMessages: 2,
             };
-            allSockets = [ socket ];
+            allSockets = [socket];
 
             await renderComponent();
 
-            const socketItem = context.container.querySelector('li[title="' + socket.id + '"]')!;
+            const socketItem = context.container.querySelector(
+                'li[title="' + socket.id + '"]',
+            )!;
             expect(socketItem.textContent).toContain('▶ -');
         });
 
@@ -127,11 +139,13 @@ describe('SocketAdmin', () => {
                 receivedMessages: 1,
                 sentMessages: 0,
             };
-            allSockets = [ socket ];
+            allSockets = [socket];
 
             await renderComponent();
 
-            const socketItem = context.container.querySelector('li[title="' + socket.id + '"]')!;
+            const socketItem = context.container.querySelector(
+                'li[title="' + socket.id + '"]',
+            )!;
             expect(socketItem.textContent).toContain('USER');
         });
 
@@ -144,11 +158,13 @@ describe('SocketAdmin', () => {
                 receivedMessages: 1,
                 sentMessages: 2,
             };
-            allSockets = [ socket ];
+            allSockets = [socket];
 
             await renderComponent();
 
-            const socketItem = context.container.querySelector('li[title="' + socket.id + '"]')!;
+            const socketItem = context.container.querySelector(
+                'li[title="' + socket.id + '"]',
+            )!;
             expect(socketItem.textContent).toContain('⬇ 2');
         });
 
@@ -167,13 +183,15 @@ describe('SocketAdmin', () => {
                 receivedMessages: 1,
                 sentMessages: 0,
             };
-            allSockets = [ socket1, socket2 ];
+            allSockets = [socket1, socket2];
 
             await renderComponent();
 
-            const socketItems = Array.from(context.container.querySelectorAll('li'));
-            const ids = socketItems.map(li => li.getAttribute('title'));
-            expect(ids).toEqual([ socket2.id, socket1.id ]);
+            const socketItems = Array.from(
+                context.container.querySelectorAll('li'),
+            );
+            const ids = socketItems.map((li) => li.getAttribute('title'));
+            expect(ids).toEqual([socket2.id, socket1.id]);
         });
     });
 
@@ -187,9 +205,12 @@ describe('SocketAdmin', () => {
                 receivedMessages: 1,
                 sentMessages: 2,
             };
-            allSockets = [ socket ];
+            allSockets = [socket];
             await renderComponent();
-            context.prompts.respondToConfirm('Are you sure you want to close this socket', true);
+            context.prompts.respondToConfirm(
+                'Are you sure you want to close this socket',
+                true,
+            );
 
             await doClick(findButton(context.container, '🗑'));
 
@@ -205,9 +226,12 @@ describe('SocketAdmin', () => {
                 receivedMessages: 1,
                 sentMessages: 2,
             };
-            allSockets = [ socket ];
+            allSockets = [socket];
             await renderComponent();
-            context.prompts.respondToConfirm('Are you sure you want to close this socket', false);
+            context.prompts.respondToConfirm(
+                'Are you sure you want to close this socket',
+                false,
+            );
 
             await doClick(findButton(context.container, '🗑'));
 
@@ -233,12 +257,15 @@ describe('SocketAdmin', () => {
                 receivedMessages: 1,
                 sentMessages: 2,
             };
-            allSockets = [ socketToDelete ];
+            allSockets = [socketToDelete];
             await renderComponent();
-            context.prompts.respondToConfirm('Are you sure you want to close this socket', true);
+            context.prompts.respondToConfirm(
+                'Are you sure you want to close this socket',
+                true,
+            );
             expect(context.container.textContent).toContain('TO DELETE');
 
-            allSockets = [ newSocket ];
+            allSockets = [newSocket];
             await doClick(findButton(context.container, '🗑'));
 
             expect(context.container.textContent).toContain('NEW');
@@ -253,13 +280,16 @@ describe('SocketAdmin', () => {
                 receivedMessages: 1,
                 sentMessages: 2,
             };
-            allSockets = [ socket ];
+            allSockets = [socket];
             apiResult = {
                 success: false,
-                errors: [ 'ERROR' ],
+                errors: ['ERROR'],
             };
             await renderComponent();
-            context.prompts.respondToConfirm('Are you sure you want to close this socket', true);
+            context.prompts.respondToConfirm(
+                'Are you sure you want to close this socket',
+                true,
+            );
 
             await doClick(findButton(context.container, '🗑'));
 

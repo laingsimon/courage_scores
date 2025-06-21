@@ -4,11 +4,12 @@ import {
     cleanUp,
     doClick,
     findButton,
+    IBrowserNavigator,
     iocProps,
     renderApp,
-    TestContext
-} from "../../helpers/tests";
-import {IShareButtonProps, ShareButton} from "./ShareButton";
+    TestContext,
+} from '../../helpers/tests';
+import { IShareButtonProps, ShareButton } from './ShareButton';
 
 describe('ShareButton', () => {
     let context: TestContext;
@@ -20,26 +21,35 @@ describe('ShareButton', () => {
 
     beforeEach(() => {
         shareData = null;
-        (navigator as any).share = async (data: ShareData) => shareData = data;
-    })
+        (navigator as IBrowserNavigator).share = async (data: ShareData) =>
+            (shareData = data);
+    });
 
-    async function renderComponent(props: IShareButtonProps, name?: string, currentPath?: string) {
+    async function renderComponent(
+        props: IShareButtonProps,
+        name?: string,
+        currentPath?: string,
+    ) {
         context = await renderApp(
             iocProps(),
-            brandingProps({name}),
+            brandingProps({ name }),
             appProps(),
-            (<ShareButton {...props} />),
+            <ShareButton {...props} />,
             undefined,
-            currentPath);
+            currentPath,
+        );
     }
 
     describe('with get hash function', () => {
         it('shares page with given title and text', async () => {
-            await renderComponent({
-                title: 'TITLE',
-                text: 'TEXT',
-                getHash: async () => '#HASH',
-            }, 'Courage Scores');
+            await renderComponent(
+                {
+                    title: 'TITLE',
+                    text: 'TEXT',
+                    getHash: async () => '#HASH',
+                },
+                'Courage Scores',
+            );
 
             await doClick(findButton(context.container, '🔗'));
 
@@ -51,9 +61,12 @@ describe('ShareButton', () => {
         });
 
         it('shares page with default title and text', async () => {
-            await renderComponent({
-                getHash: async () => '#HASH'
-            }, 'Courage Scores');
+            await renderComponent(
+                {
+                    getHash: async () => '#HASH',
+                },
+                'Courage Scores',
+            );
 
             await doClick(findButton(context.container, '🔗'));
 
@@ -65,9 +78,12 @@ describe('ShareButton', () => {
         });
 
         it('shares page without any hash', async () => {
-            await renderComponent({
-                getHash: async () => '',
-            }, 'Courage Scores');
+            await renderComponent(
+                {
+                    getHash: async () => '',
+                },
+                'Courage Scores',
+            );
 
             await doClick(findButton(context.container, '🔗'));
 
@@ -90,10 +106,14 @@ describe('ShareButton', () => {
 
     describe('using location hash', () => {
         it('shares page with given title and text', async () => {
-            await renderComponent({
-                title: 'TITLE',
-                text: 'TEXT'
-            }, 'Courage Scores', '/test/#HASH');
+            await renderComponent(
+                {
+                    title: 'TITLE',
+                    text: 'TEXT',
+                },
+                'Courage Scores',
+                '/test/#HASH',
+            );
 
             await doClick(findButton(context.container, '🔗'));
 
@@ -117,9 +137,12 @@ describe('ShareButton', () => {
         });
 
         it('shares page without any hash', async () => {
-            await renderComponent({
-                getHash: async () => '',
-            }, 'Courage Scores');
+            await renderComponent(
+                {
+                    getHash: async () => '',
+                },
+                'Courage Scores',
+            );
 
             await doClick(findButton(context.container, '🔗'));
 

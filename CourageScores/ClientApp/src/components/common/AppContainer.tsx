@@ -1,5 +1,5 @@
-import React, {createContext, useContext} from "react";
-import {IApp} from "./IApp";
+import React, { createContext, useContext } from 'react';
+import { IApp } from './IApp';
 
 const AppContext = createContext({});
 
@@ -12,8 +12,6 @@ export interface IAppContainerProps extends IApp {
 }
 
 /* istanbul ignore next */
-export function AppContainer({children, ...data}: IAppContainerProps) {
-    return (<AppContext.Provider value={data}>
-        {children}
-    </AppContext.Provider>)
+export function AppContainer({ children, ...data }: IAppContainerProps) {
+    return <AppContext.Provider value={data}>{children}</AppContext.Provider>;
 }

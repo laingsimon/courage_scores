@@ -18,14 +18,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Azure.Storage.Blobs" Version="12.24.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.5" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.5" />
-        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.5" />
-        <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.49.0" />
-        <PackageReference Include="SixLabors.ImageSharp" Version="3.1.8" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1"/>
-        <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="8.1.1" />
+        <PackageReference Include="Azure.Storage.Blobs" Version="12.24.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.6" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.6" />
+        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.6" />
+        <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.52.0" />
+        <PackageReference Include="SixLabors.ImageSharp" Version="3.1.10" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.1"/>
+        <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="9.0.1" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     </ItemGroup>
 
@@ -63,6 +63,7 @@
     <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
         <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm install --no-audit --no-fund"/>
+        <Exec WorkingDirectory="$(SpaRoot)" Command="npx prettier . --check"/>
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --outDir $(ProjectDir)$(PublishDir)wwwroot"/>
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm test -- --coverage --reporters=jest-junit --reporters=default" UseUtf8Encoding="Always"/>
 

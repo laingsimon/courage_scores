@@ -6,13 +6,17 @@ import {
     ErrorState,
     findButton,
     iocProps,
-    renderApp, TestContext
-} from "../../helpers/tests";
-import {IMergeManOfTheMatchProps, MergeManOfTheMatch} from "./MergeManOfTheMatch";
-import {playerBuilder} from "../../helpers/builders/players";
-import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
-import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
-import {fixtureBuilder, IFixtureBuilder} from "../../helpers/builders/games";
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import {
+    IMergeManOfTheMatchProps,
+    MergeManOfTheMatch,
+} from './MergeManOfTheMatch';
+import { playerBuilder } from '../../helpers/builders/players';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
+import { fixtureBuilder } from '../../helpers/builders/games';
 
 describe('MergeManOfTheMatch', () => {
     let context: TestContext;
@@ -37,10 +41,11 @@ describe('MergeManOfTheMatch', () => {
             iocProps(),
             brandingProps(),
             appProps({}, reportedError),
-            (<MergeManOfTheMatch {...props} />),
+            <MergeManOfTheMatch {...props} />,
             undefined,
             undefined,
-            'tbody');
+            'tbody',
+        );
     }
 
     describe('renders', () => {
@@ -51,8 +56,8 @@ describe('MergeManOfTheMatch', () => {
             const data: GameDto = fixtureBuilder()
                 .playing('HOME', 'AWAY')
                 .manOfTheMatch(player)
-                .homeSubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
-                .awaySubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
+                .homeSubmission((s) => s.playing('HOME', 'AWAY'))
+                .awaySubmission((s) => s.playing('HOME', 'AWAY'))
                 .build();
 
             await renderComponent({ data, allPlayers, setData });
@@ -64,9 +69,9 @@ describe('MergeManOfTheMatch', () => {
         it('when away merged', async () => {
             const data: GameDto = fixtureBuilder()
                 .playing('HOME', 'AWAY')
-                .manOfTheMatch(null, player)
-                .homeSubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
-                .awaySubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
+                .manOfTheMatch(undefined, player)
+                .homeSubmission((s) => s.playing('HOME', 'AWAY'))
+                .awaySubmission((s) => s.playing('HOME', 'AWAY'))
                 .build();
 
             await renderComponent({ data, allPlayers, setData });
@@ -78,8 +83,8 @@ describe('MergeManOfTheMatch', () => {
         it('when nothing to merge for home', async () => {
             const data: GameDto = fixtureBuilder()
                 .playing('HOME', 'AWAY')
-                .homeSubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
-                .awaySubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
+                .homeSubmission((s) => s.playing('HOME', 'AWAY'))
+                .awaySubmission((s) => s.playing('HOME', 'AWAY'))
                 .build();
 
             await renderComponent({ data, allPlayers, setData });
@@ -91,8 +96,8 @@ describe('MergeManOfTheMatch', () => {
         it('when nothing to merge for away', async () => {
             const data: GameDto = fixtureBuilder()
                 .playing('HOME', 'AWAY')
-                .homeSubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
-                .awaySubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
+                .homeSubmission((s) => s.playing('HOME', 'AWAY'))
+                .awaySubmission((s) => s.playing('HOME', 'AWAY'))
                 .build();
 
             await renderComponent({ data, allPlayers, setData });
@@ -104,8 +109,10 @@ describe('MergeManOfTheMatch', () => {
         it('when home unmerged', async () => {
             const data: GameDto = fixtureBuilder()
                 .playing('HOME', 'AWAY')
-                .homeSubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY').manOfTheMatch(player))
-                .awaySubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
+                .homeSubmission((s) =>
+                    s.playing('HOME', 'AWAY').manOfTheMatch(player),
+                )
+                .awaySubmission((s) => s.playing('HOME', 'AWAY'))
                 .build();
 
             await renderComponent({ data, allPlayers, setData });
@@ -117,8 +124,10 @@ describe('MergeManOfTheMatch', () => {
         it('when away unmerged', async () => {
             const data: GameDto = fixtureBuilder()
                 .playing('HOME', 'AWAY')
-                .homeSubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
-                .awaySubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY').manOfTheMatch(null, player))
+                .homeSubmission((s) => s.playing('HOME', 'AWAY'))
+                .awaySubmission((s) =>
+                    s.playing('HOME', 'AWAY').manOfTheMatch(undefined, player),
+                )
                 .build();
 
             await renderComponent({ data, allPlayers, setData });
@@ -135,12 +144,19 @@ describe('MergeManOfTheMatch', () => {
         it('can change home man of match', async () => {
             const data: GameDto = fixtureBuilder()
                 .playing('HOME', 'AWAY')
-                .homeSubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY').manOfTheMatch(player))
-                .awaySubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
+                .homeSubmission((s) =>
+                    s.playing('HOME', 'AWAY').manOfTheMatch(player),
+                )
+                .awaySubmission((s) => s.playing('HOME', 'AWAY'))
                 .build();
             await renderComponent({ data, allPlayers, setData });
 
-            await doClick(findButton(context.container.querySelector('td:nth-child(1)'), 'Use MOM'));
+            await doClick(
+                findButton(
+                    context.container.querySelector('td:nth-child(1)'),
+                    'Use MOM',
+                ),
+            );
 
             reportedError.verifyNoError();
             expect(updatedData).not.toBeNull();
@@ -150,16 +166,23 @@ describe('MergeManOfTheMatch', () => {
         it('can change away man of match', async () => {
             const data: GameDto = fixtureBuilder()
                 .playing('HOME', 'AWAY')
-                .homeSubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
-                .awaySubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY').manOfTheMatch(null, player))
+                .homeSubmission((s) => s.playing('HOME', 'AWAY'))
+                .awaySubmission((s) =>
+                    s.playing('HOME', 'AWAY').manOfTheMatch(undefined, player),
+                )
                 .build();
             await renderComponent({ data, allPlayers, setData });
 
-            await doClick(findButton(context.container.querySelector('td:nth-child(3)'), 'Use MOM'));
+            await doClick(
+                findButton(
+                    context.container.querySelector('td:nth-child(3)'),
+                    'Use MOM',
+                ),
+            );
 
             reportedError.verifyNoError();
             expect(updatedData).not.toBeNull();
             expect(updatedData!.away.manOfTheMatch).toEqual(player.id);
         });
-    })
+    });
 });

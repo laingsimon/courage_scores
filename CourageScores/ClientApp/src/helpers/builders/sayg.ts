@@ -1,15 +1,21 @@
 ﻿/* istanbul ignore file */
 
-import {IAddableBuilder, IBuilder} from "./builders";
-import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
-import {createTemporaryId} from "../projection";
-import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
-import {LegCompetitorScoreDto} from "../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
-import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
+import { BuilderParam, IAddableBuilder, IBuilder } from './builders';
+import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
+import { createTemporaryId } from '../projection';
+import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto';
+import { LegCompetitorScoreDto } from '../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto';
+import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
 
-export interface IRecordedSaygBuilder extends IAddableBuilder<RecordedScoreAsYouGoDto & UpdateRecordedScoreAsYouGoDto> {
+export interface IRecordedSaygBuilder
+    extends IAddableBuilder<
+        RecordedScoreAsYouGoDto & UpdateRecordedScoreAsYouGoDto
+    > {
     scores(home: number, away?: number): IRecordedSaygBuilder;
-    withLeg(id: number, legOrBuilderFunc: any): IRecordedSaygBuilder;
+    withLeg(
+        id: number,
+        builder?: BuilderParam<ILegBuilder>,
+    ): IRecordedSaygBuilder;
     yourName(name: string): IRecordedSaygBuilder;
     opponentName(name?: string): IRecordedSaygBuilder;
     updated(updated: string): IRecordedSaygBuilder;
@@ -37,11 +43,8 @@ export function saygBuilder(id?: string): IRecordedSaygBuilder {
             sayg.awayScore = away;
             return builder;
         },
-        withLeg: (id: number, legOrBuilderFunc: any) => {
-            const leg = legOrBuilderFunc instanceof Function
-                ? legOrBuilderFunc(legBuilder())
-                : legOrBuilderFunc;
-            sayg.legs[id] = leg.build ? leg.build() : leg;
+        withLeg: (id: number, b?: BuilderParam<ILegBuilder>) => {
+            sayg.legs[id] = b ? b(legBuilder()).build() : legBuilder().build();
             return builder;
         },
         yourName: (name: string) => {
@@ -71,7 +74,7 @@ export function saygBuilder(id?: string): IRecordedSaygBuilder {
         noId: () => {
             sayg.id = undefined!;
             return builder;
-        }
+        },
     };
 
     return builder;
@@ -82,8 +85,8 @@ export interface ILegBuilder extends IBuilder<LegDto> {
     currentThrow(homeOrAway: string): ILegBuilder;
     playerSequence(homeOrAway: string, awayOrHome: string): ILegBuilder;
     lastLeg(): ILegBuilder;
-    home(competitorOrBuilderFunc: any): ILegBuilder;
-    away(competitorOrBuilderFunc: any): ILegBuilder;
+    home(builder?: BuilderParam<ILegCompetitorScoreBuilder>): ILegBuilder;
+    away(builder?: BuilderParam<ILegCompetitorScoreBuilder>): ILegBuilder;
 }
 
 export function legBuilder(): ILegBuilder {
@@ -114,18 +117,16 @@ export function legBuilder(): ILegBuilder {
             leg.isLastLeg = true;
             return builder;
         },
-        home: (competitorOrBuilderFunc: any) => {
-            const competitor = competitorOrBuilderFunc instanceof Function
-                ? competitorOrBuilderFunc(saygCompetitorBuilder())
-                : competitorOrBuilderFunc;
-            leg.home = competitor.build ? competitor.build() : competitor;
+        home: (b?: BuilderParam<ILegCompetitorScoreBuilder>) => {
+            leg.home = b
+                ? b(saygCompetitorBuilder()).build()
+                : saygCompetitorBuilder().build();
             return builder;
         },
-        away: (competitorOrBuilderFunc: any) => {
-            const competitor = competitorOrBuilderFunc instanceof Function
-                ? competitorOrBuilderFunc(saygCompetitorBuilder())
-                : competitorOrBuilderFunc;
-            leg.away = competitor.build ? competitor.build() : competitor;
+        away: (b?: BuilderParam<ILegCompetitorScoreBuilder>) => {
+            leg.away = b
+                ? b(saygCompetitorBuilder()).build()
+                : saygCompetitorBuilder().build();
             return builder;
         },
     };
@@ -133,7 +134,8 @@ export function legBuilder(): ILegBuilder {
     return builder;
 }
 
-export interface ILegCompetitorScoreBuilder extends IBuilder<LegCompetitorScoreDto> {
+export interface ILegCompetitorScoreBuilder
+    extends IBuilder<LegCompetitorScoreDto> {
     withThrow(score: number, noOfDarts?: number): ILegCompetitorScoreBuilder;
 }
 
@@ -153,7 +155,7 @@ export function saygCompetitorBuilder(): ILegCompetitorScoreBuilder {
             });
             competitor.noOfDarts = competitor.noOfDarts || 0;
             competitor.score = competitor.score || 0;
-            competitor.noOfDarts += (noOfDarts || 3);
+            competitor.noOfDarts += noOfDarts || 3;
             competitor.score += score;
             return builder;
         },

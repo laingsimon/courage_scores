@@ -10,30 +10,30 @@ import {
     MockSocketFactory,
     noop,
     renderApp,
-    TestContext
-} from "../../helpers/tests";
-import {act} from "@testing-library/react";
+    TestContext,
+} from '../../helpers/tests';
+import { act } from '@testing-library/react';
 import {
     ILoadedScoreAsYouGoDto,
     ISaygLoadingContainerProps,
     SaygLoadingContainer,
-    useSayg
-} from "./SaygLoadingContainer";
-import {any} from "../../helpers/collections";
-import {ILegBuilder, ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../helpers/builders/sayg";
-import {useLive} from "../../live/LiveContainer";
-import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
-import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
-import {IClientActionResultDto} from "../common/IClientActionResultDto";
-import {ISubscriptions} from "../../live/ISubscriptions";
-import {ILiveOptions} from "../../live/ILiveOptions";
-import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
-import {IAppContainerProps} from "../common/AppContainer";
-import {ISaygApi} from "../../interfaces/apis/ISaygApi";
-import {ISubscriptionRequest} from "../../live/ISubscriptionRequest";
-import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
-import {MessageType} from "../../interfaces/models/dtos/MessageType";
-import {UntypedPromise} from "../../interfaces/UntypedPromise";
+    useSayg,
+} from './SaygLoadingContainer';
+import { any } from '../../helpers/collections';
+import { legBuilder, saygBuilder } from '../../helpers/builders/sayg';
+import { useLive } from '../../live/LiveContainer';
+import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
+import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
+import { IClientActionResultDto } from '../common/IClientActionResultDto';
+import { ISubscriptions } from '../../live/ISubscriptions';
+import { ILiveOptions } from '../../live/ILiveOptions';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
+import { IAppContainerProps } from '../common/AppContainer';
+import { ISaygApi } from '../../interfaces/apis/ISaygApi';
+import { ISubscriptionRequest } from '../../live/ISubscriptionRequest';
+import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType';
+import { MessageType } from '../../interfaces/models/dtos/MessageType';
+import { UntypedPromise } from '../../interfaces/UntypedPromise';
 
 describe('SaygLoadingContainer', () => {
     let context: TestContext;
@@ -46,17 +46,21 @@ describe('SaygLoadingContainer', () => {
 
     const saygApi = api<ISaygApi>({
         get: async (id: string): Promise<RecordedScoreAsYouGoDto | null> => {
-            if (!any(Object.keys(saygDataMap), key => key === id)) {
+            if (!any(Object.keys(saygDataMap), (key) => key === id)) {
                 throw new Error('Unexpected request for sayg data');
             }
 
             return saygDataMap[id];
         },
-        upsert: async (data: UpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> => {
-            return apiResponse || {
-                success: true,
-                result: Object.assign({id: 'NEW_ID', yourName: ''}, data),
-            };
+        upsert: async (
+            data: UpdateRecordedScoreAsYouGoDto,
+        ): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> => {
+            return (
+                apiResponse || {
+                    success: true,
+                    result: Object.assign({ id: 'NEW_ID', yourName: '' }, data),
+                }
+            );
         },
     });
 
@@ -67,20 +71,17 @@ describe('SaygLoadingContainer', () => {
         reportedError = new ErrorState();
         saved = null;
         loadError = null;
-    })
+    });
 
     afterEach(async () => {
         await cleanUp(context);
     });
 
-    async function on180(_: string) {
-    }
+    async function on180(_: string) {}
 
-    async function onHiCheck(_: string, __: number) {
-    }
+    async function onHiCheck(_: string, __: number) {}
 
-    async function onScoreChange(_: number, __: number) {
-    }
+    async function onScoreChange(_: number, __: number) {}
 
     async function onSaved(data: ILoadedScoreAsYouGoDto) {
         saved = data;
@@ -90,26 +91,33 @@ describe('SaygLoadingContainer', () => {
         loadError = error;
     }
 
-    async function renderComponent(props: ISaygLoadingContainerProps, appContainerProps?: IAppContainerProps) {
+    async function renderComponent(
+        props: ISaygLoadingContainerProps,
+        appContainerProps?: IAppContainerProps,
+    ) {
         context = await renderApp(
-            iocProps({saygApi, socketFactory: socketFactory.createSocket}),
+            iocProps({ saygApi, socketFactory: socketFactory.createSocket }),
             brandingProps(),
             appContainerProps || appProps({}, reportedError),
-            <SaygLoadingContainer {...props} />);
+            <SaygLoadingContainer {...props} />,
+        );
     }
 
     describe('loading and saving', () => {
         it('gets sayg data for given id', async () => {
             const saygData = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
-                    .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                .withLeg(0, (l) => l.startingScore(501).home().away())
                 .addTo(saygDataMap)
                 .build();
             let containerProps: IExtractedProps;
             await renderComponent({
-                children: (<TestComponent onLoaded={(data: IExtractedProps) => containerProps = data}/>),
+                children: (
+                    <TestComponent
+                        onLoaded={(data: IExtractedProps) =>
+                            (containerProps = data)
+                        }
+                    />
+                ),
                 id: saygData.id,
                 autoSave: false,
                 on180,
@@ -134,15 +142,18 @@ describe('SaygLoadingContainer', () => {
         it('uses default data if given no id', async () => {
             let containerProps: IExtractedProps;
             await renderComponent({
-                children: (<TestComponent onLoaded={(data: IExtractedProps) => containerProps = data}/>),
+                children: (
+                    <TestComponent
+                        onLoaded={(data: IExtractedProps) =>
+                            (containerProps = data)
+                        }
+                    />
+                ),
                 id: '',
                 defaultData: saygBuilder()
                     .noId()
                     .yourName('HOME')
-                    .withLeg(0, (l: ILegBuilder) => l
-                        .home((c: ILegCompetitorScoreBuilder) => c)
-                        .away((c: ILegCompetitorScoreBuilder) => c)
-                        .startingScore(501))
+                    .withLeg(0, (l) => l.home().away().startingScore(501))
                     .build(),
                 autoSave: false,
                 on180,
@@ -161,10 +172,10 @@ describe('SaygLoadingContainer', () => {
                 sayg: {
                     legs: {
                         0: legBuilder()
-                            .home((c: ILegCompetitorScoreBuilder) => c)
-                            .away((c: ILegCompetitorScoreBuilder) => c)
+                            .home()
+                            .away()
                             .startingScore(501)
-                            .build()
+                            .build(),
                     },
                     yourName: 'HOME',
                 },
@@ -177,7 +188,7 @@ describe('SaygLoadingContainer', () => {
             const id = 'NO_DATA_ID';
             saygDataMap[id] = null!;
             await renderComponent({
-                children: (<TestComponent onLoaded={noop}/>),
+                children: <TestComponent onLoaded={noop} />,
                 id: id,
                 autoSave: false,
                 on180,
@@ -200,7 +211,7 @@ describe('SaygLoadingContainer', () => {
                 legs: null!,
             };
             await renderComponent({
-                children: (<TestComponent onLoaded={noop} />),
+                children: <TestComponent onLoaded={noop} />,
                 id: id,
                 autoSave: false,
                 on180,
@@ -217,16 +228,17 @@ describe('SaygLoadingContainer', () => {
 
         it('sets lastUpdated in sayg data', async () => {
             const saygData = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
-                    .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                .withLeg(0, (l) => l.startingScore(501).home().away())
                 .updated('2023-07-21')
                 .addTo(saygDataMap)
                 .build();
             let sayg: ILoadedScoreAsYouGoDto;
             await renderComponent({
-                children: (<TestComponent onLoaded={(data: IExtractedProps) => sayg = data.sayg }/>),
+                children: (
+                    <TestComponent
+                        onLoaded={(data: IExtractedProps) => (sayg = data.sayg)}
+                    />
+                ),
                 id: saygData.id,
                 autoSave: false,
                 on180,
@@ -244,17 +256,20 @@ describe('SaygLoadingContainer', () => {
         it('should be able to update sayg data', async () => {
             let containerProps: IExtractedProps;
             await renderComponent({
-                children: (<TestComponent onLoaded={(data: IExtractedProps) => containerProps = data }/>),
+                children: (
+                    <TestComponent
+                        onLoaded={(data: IExtractedProps) =>
+                            (containerProps = data)
+                        }
+                    />
+                ),
                 id: '',
                 defaultData: saygBuilder()
                     .yourName('DEFAULT')
-                    .withLeg(0, (l: ILegBuilder) => l
-                        .home((c: ILegCompetitorScoreBuilder) => c)
-                        .away((c: ILegCompetitorScoreBuilder) => c)
-                        .startingScore(501))
+                    .withLeg(0, (l) => l.home().away().startingScore(501))
                     .build(),
                 autoSave: false,
-                liveOptions: { },
+                liveOptions: {},
                 on180,
                 onHiCheck,
                 onScoreChange,
@@ -264,14 +279,18 @@ describe('SaygLoadingContainer', () => {
             expect(containerProps!.sayg.yourName).toEqual('DEFAULT');
 
             await act(async () => {
-                await containerProps.setSayg(saygBuilder()
-                    .yourName('HOME')
-                    .withLeg(0, (l: ILegBuilder) => l
-                        .home((c: ILegCompetitorScoreBuilder) => c.withThrow(1, 0))
-                        .away((c: ILegCompetitorScoreBuilder) => c.withThrow(0, 1))
-                        .startingScore(501))
-                    .lastUpdated('2023-07-21')
-                    .build());
+                await containerProps.setSayg(
+                    saygBuilder()
+                        .yourName('HOME')
+                        .withLeg(0, (l) =>
+                            l
+                                .home((c) => c.withThrow(1, 0))
+                                .away((c) => c.withThrow(0, 1))
+                                .startingScore(501),
+                        )
+                        .lastUpdated('2023-07-21')
+                        .build(),
+                );
             });
 
             reportedError.verifyNoError();
@@ -281,14 +300,17 @@ describe('SaygLoadingContainer', () => {
         it('should be able to save data and get id', async () => {
             let containerProps: IExtractedProps;
             await renderComponent({
-                children: (<TestComponent onLoaded={(data: IExtractedProps) => containerProps = data}/>),
+                children: (
+                    <TestComponent
+                        onLoaded={(data: IExtractedProps) =>
+                            (containerProps = data)
+                        }
+                    />
+                ),
                 id: '',
                 defaultData: saygBuilder()
                     .yourName('HOME')
-                    .withLeg(0, (l: ILegBuilder) => l
-                        .home((c: ILegCompetitorScoreBuilder) => c)
-                        .away((c: ILegCompetitorScoreBuilder) => c)
-                        .startingScore(501))
+                    .withLeg(0, (l) => l.home().away().startingScore(501))
                     .build(),
                 autoSave: false,
                 on180,
@@ -312,15 +334,18 @@ describe('SaygLoadingContainer', () => {
         it('should handle error during upsert', async () => {
             let containerProps: IExtractedProps;
             await renderComponent({
-                children: (<TestComponent onLoaded={(data: IExtractedProps) => containerProps = data}/>),
+                children: (
+                    <TestComponent
+                        onLoaded={(data: IExtractedProps) =>
+                            (containerProps = data)
+                        }
+                    />
+                ),
                 id: '',
                 defaultData: saygBuilder()
                     .noId()
                     .yourName('HOME')
-                    .withLeg(0, (l: ILegBuilder) => l
-                        .home((c: ILegCompetitorScoreBuilder) => c)
-                        .away((c: ILegCompetitorScoreBuilder) => c)
-                        .startingScore(501))
+                    .withLeg(0, (l) => l.home().away().startingScore(501))
                     .build(),
                 autoSave: false,
                 on180,
@@ -330,7 +355,7 @@ describe('SaygLoadingContainer', () => {
                 onSaved,
                 liveOptions: {},
             });
-            apiResponse = {success: false, errors: ['SOME ERROR']};
+            apiResponse = { success: false, errors: ['SOME ERROR'] };
             let result: string | undefined;
 
             await act(async () => {
@@ -340,21 +365,26 @@ describe('SaygLoadingContainer', () => {
             expect(saved).toBeNull();
             expect(result).toBeUndefined();
             expect(containerProps!.sayg.id).toBeUndefined();
-            expect(context.container.textContent).toContain('Could not save data');
+            expect(context.container.textContent).toContain(
+                'Could not save data',
+            );
             expect(context.container.textContent).toContain('SOME ERROR');
         });
 
         it('should be able to close error details after upsert failure', async () => {
             let containerProps: IExtractedProps;
             await renderComponent({
-                children: (<TestComponent onLoaded={(data: IExtractedProps) => containerProps = data}/>),
+                children: (
+                    <TestComponent
+                        onLoaded={(data: IExtractedProps) =>
+                            (containerProps = data)
+                        }
+                    />
+                ),
                 id: '',
                 defaultData: saygBuilder()
                     .yourName('HOME')
-                    .withLeg(0, (l: ILegBuilder) => l
-                        .home((c: ILegCompetitorScoreBuilder) => c)
-                        .away((c: ILegCompetitorScoreBuilder) => c)
-                        .startingScore(501))
+                    .withLeg(0, (l) => l.home().away().startingScore(501))
                     .build(),
                 autoSave: false,
                 on180,
@@ -364,29 +394,36 @@ describe('SaygLoadingContainer', () => {
                 onSaved,
                 liveOptions: {},
             });
-            apiResponse = {success: false, errors: ['SOME ERROR']};
+            apiResponse = { success: false, errors: ['SOME ERROR'] };
             await act(async () => {
                 await containerProps.saveDataAndGetId();
             });
-            expect(context.container.textContent).toContain('Could not save data');
+            expect(context.container.textContent).toContain(
+                'Could not save data',
+            );
 
             await doClick(findButton(context.container, 'Close'));
 
-            expect(context.container.textContent).not.toContain('Could not save data');
+            expect(context.container.textContent).not.toContain(
+                'Could not save data',
+            );
         });
 
         it('should handle exception during upsert', async () => {
             let containerProps: IExtractedProps;
             await renderComponent({
-                children: (<TestComponent onLoaded={(data: IExtractedProps) => containerProps = data}/>),
+                children: (
+                    <TestComponent
+                        onLoaded={(data: IExtractedProps) =>
+                            (containerProps = data)
+                        }
+                    />
+                ),
                 id: '',
                 defaultData: saygBuilder()
                     .noId()
                     .yourName('HOME')
-                    .withLeg(0, (l: ILegBuilder) => l
-                        .home((c: ILegCompetitorScoreBuilder) => c)
-                        .away((c: ILegCompetitorScoreBuilder) => c)
-                        .startingScore(501))
+                    .withLeg(0, (l) => l.home().away().startingScore(501))
                     .build(),
                 autoSave: false,
                 on180,
@@ -398,10 +435,13 @@ describe('SaygLoadingContainer', () => {
             });
             apiResponse = {
                 success: true,
-                result: ('SOMETHING THAT WILL TRIGGER AN EXCEPTION' as unknown) as RecordedScoreAsYouGoDto,
+                result: 'SOMETHING THAT WILL TRIGGER AN EXCEPTION' as unknown as RecordedScoreAsYouGoDto,
             } as IClientActionResultDto<RecordedScoreAsYouGoDto>;
             let result: string | undefined;
-            context.prompts.respondToConfirm('Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.', false);
+            context.prompts.respondToConfirm(
+                'Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.',
+                false,
+            );
             console.error = noop;
 
             await act(async () => {
@@ -411,18 +451,20 @@ describe('SaygLoadingContainer', () => {
             expect(saved).toBeNull();
             expect(result).toBeUndefined();
             expect(containerProps!.sayg.id).toBeUndefined();
-            context.prompts.confirmWasShown('Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.');
+            context.prompts.confirmWasShown(
+                'Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.',
+            );
         });
     });
 
     describe('live updates', () => {
         it('given sayg, when enabling, creates a socket', async () => {
-            let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => UntypedPromise;
+            let enableLiveUpdates: (
+                enabled: boolean,
+                request: ISubscriptionRequest,
+            ) => UntypedPromise;
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
-                    .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                .withLeg(0, (l) => l.startingScore(501).home().away())
                 .addTo(saygDataMap)
                 .build();
             const account: UserDto = {
@@ -431,35 +473,47 @@ describe('SaygLoadingContainer', () => {
                 givenName: '',
                 access: { useWebSockets: true },
             };
-            await renderComponent({
-                children: (<TestComponent onLoaded={(data: IExtractedProps) => {
-                    enableLiveUpdates = data.enableLiveUpdates;
-                }} />),
-                id: saygData.id,
-                autoSave: false,
-                on180,
-                onHiCheck,
-                onScoreChange,
-                onLoadError,
-                onSaved,
-                liveOptions: {},
-            }, appProps({ account }, reportedError));
+            await renderComponent(
+                {
+                    children: (
+                        <TestComponent
+                            onLoaded={(data: IExtractedProps) => {
+                                enableLiveUpdates = data.enableLiveUpdates;
+                            }}
+                        />
+                    ),
+                    id: saygData.id,
+                    autoSave: false,
+                    on180,
+                    onHiCheck,
+                    onScoreChange,
+                    onLoadError,
+                    onSaved,
+                    liveOptions: {},
+                },
+                appProps({ account }, reportedError),
+            );
 
             await act(async () => {
-                await enableLiveUpdates(true, { id: saygData.id, type: LiveDataType.sayg });
+                await enableLiveUpdates(true, {
+                    id: saygData.id,
+                    type: LiveDataType.sayg,
+                });
             });
 
             expect(socketFactory.socketWasCreated()).toEqual(true);
-            expect(Object.keys(socketFactory.subscriptions)).toEqual([saygData.id]);
+            expect(Object.keys(socketFactory.subscriptions)).toEqual([
+                saygData.id,
+            ]);
         });
 
         it('given error live message type, shows error', async () => {
-            let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => UntypedPromise;
+            let enableLiveUpdates: (
+                enabled: boolean,
+                request: ISubscriptionRequest,
+            ) => UntypedPromise;
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
-                    .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                .withLeg(0, (l) => l.startingScore(501).home().away())
                 .addTo(saygDataMap)
                 .build();
             const account: UserDto = {
@@ -468,22 +522,32 @@ describe('SaygLoadingContainer', () => {
                 emailAddress: '',
                 access: { useWebSockets: true },
             };
-            await renderComponent({
-                children: (<TestComponent onLoaded={(data: IExtractedProps) => {
-                    enableLiveUpdates = data.enableLiveUpdates;
-                }} />),
-                id: saygData.id,
-                autoSave: false,
-                on180,
-                onHiCheck,
-                onScoreChange,
-                onLoadError,
-                onSaved,
-                liveOptions: {},
-            }, appProps({ account }, reportedError));
+            await renderComponent(
+                {
+                    children: (
+                        <TestComponent
+                            onLoaded={(data: IExtractedProps) => {
+                                enableLiveUpdates = data.enableLiveUpdates;
+                            }}
+                        />
+                    ),
+                    id: saygData.id,
+                    autoSave: false,
+                    on180,
+                    onHiCheck,
+                    onScoreChange,
+                    onLoadError,
+                    onSaved,
+                    liveOptions: {},
+                },
+                appProps({ account }, reportedError),
+            );
 
             await act(async () => {
-                await enableLiveUpdates(true, { id: saygData.id, type: LiveDataType.sayg });
+                await enableLiveUpdates(true, {
+                    id: saygData.id,
+                    type: LiveDataType.sayg,
+                });
             });
             await act(async () => {
                 console.error = () => {};
@@ -493,8 +557,8 @@ describe('SaygLoadingContainer', () => {
                     type: 'message',
                     data: JSON.stringify({
                         type: 'Error',
-                        message: 'Some error message'
-                    })
+                        message: 'Some error message',
+                    }),
                 } as MessageEvent<string>);
             });
 
@@ -502,20 +566,17 @@ describe('SaygLoadingContainer', () => {
         });
 
         it('given update live message type, updates sayg data', async () => {
-            let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => UntypedPromise;
+            let enableLiveUpdates: (
+                enabled: boolean,
+                request: ISubscriptionRequest,
+            ) => UntypedPromise;
             let renderedData: UpdateRecordedScoreAsYouGoDto;
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
-                    .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                .withLeg(0, (l) => l.startingScore(501).home().away())
                 .addTo(saygDataMap)
                 .build();
             const newSaygData = saygBuilder(saygData.id)
-                .withLeg(0, (l: ILegBuilder) => l
-                    .startingScore(601)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                .withLeg(0, (l) => l.startingScore(601).home().away())
                 .build();
             const account: UserDto = {
                 emailAddress: '',
@@ -523,24 +584,34 @@ describe('SaygLoadingContainer', () => {
                 givenName: '',
                 access: { useWebSockets: true },
             };
-            await renderComponent({
-                children: (<TestComponent onLoaded={(data: IExtractedProps) => {
-                    enableLiveUpdates = data.enableLiveUpdates;
-                    renderedData = data.sayg;
-                }} />),
-                id: saygData.id,
-                autoSave: false,
-                on180,
-                onHiCheck,
-                onScoreChange,
-                onLoadError,
-                onSaved,
-                liveOptions: {},
-            }, appProps({ account }, reportedError));
+            await renderComponent(
+                {
+                    children: (
+                        <TestComponent
+                            onLoaded={(data: IExtractedProps) => {
+                                enableLiveUpdates = data.enableLiveUpdates;
+                                renderedData = data.sayg;
+                            }}
+                        />
+                    ),
+                    id: saygData.id,
+                    autoSave: false,
+                    on180,
+                    onHiCheck,
+                    onScoreChange,
+                    onLoadError,
+                    onSaved,
+                    liveOptions: {},
+                },
+                appProps({ account }, reportedError),
+            );
             expect(renderedData!).toEqual(saygData);
 
             await act(async () => {
-                await enableLiveUpdates(true, { id: saygData.id, type: LiveDataType.sayg });
+                await enableLiveUpdates(true, {
+                    id: saygData.id,
+                    type: LiveDataType.sayg,
+                });
             });
             await act(async () => {
                 expect(socketFactory.socketWasCreated()).toEqual(true);
@@ -550,7 +621,7 @@ describe('SaygLoadingContainer', () => {
                         type: MessageType.update,
                         data: newSaygData,
                         id: newSaygData.id,
-                    })
+                    }),
                 } as MessageEvent<string>);
             });
 
@@ -559,18 +630,22 @@ describe('SaygLoadingContainer', () => {
         });
 
         it('given no socket, when disabling, does nothing', async () => {
-            let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => UntypedPromise;
+            let enableLiveUpdates: (
+                enabled: boolean,
+                request: ISubscriptionRequest,
+            ) => UntypedPromise;
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
-                    .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                .withLeg(0, (l) => l.startingScore(501).home().away())
                 .addTo(saygDataMap)
                 .build();
             await renderComponent({
-                children: (<TestComponent onLoaded={(data: IExtractedProps) => {
-                    enableLiveUpdates = data.enableLiveUpdates;
-                }} />),
+                children: (
+                    <TestComponent
+                        onLoaded={(data: IExtractedProps) => {
+                            enableLiveUpdates = data.enableLiveUpdates;
+                        }}
+                    />
+                ),
                 id: saygData.id,
                 autoSave: false,
                 on180,
@@ -582,19 +657,22 @@ describe('SaygLoadingContainer', () => {
             });
 
             await act(async () => {
-                await enableLiveUpdates(false, { id: saygData.id, type: LiveDataType.sayg });
+                await enableLiveUpdates(false, {
+                    id: saygData.id,
+                    type: LiveDataType.sayg,
+                });
             });
 
             expect(socketFactory.socketWasCreated()).toEqual(false);
         });
 
         it('given an open socket, when disabling, closes socket', async () => {
-            let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => UntypedPromise;
+            let enableLiveUpdates: (
+                enabled: boolean,
+                request: ISubscriptionRequest,
+            ) => UntypedPromise;
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
-                    .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
+                .withLeg(0, (l) => l.startingScore(501).home().away())
                 .addTo(saygDataMap)
                 .build();
             const account: UserDto = {
@@ -603,26 +681,39 @@ describe('SaygLoadingContainer', () => {
                 givenName: '',
                 access: { useWebSockets: true },
             };
-            await renderComponent({
-                children: (<TestComponent onLoaded={(data: IExtractedProps) => {
-                    enableLiveUpdates = data.enableLiveUpdates;
-                }} />),
-                id: saygData.id,
-                autoSave: false,
-                on180,
-                onHiCheck,
-                onScoreChange,
-                onLoadError,
-                onSaved,
-                liveOptions: {},
-            }, appProps({ account }, reportedError));
+            await renderComponent(
+                {
+                    children: (
+                        <TestComponent
+                            onLoaded={(data: IExtractedProps) => {
+                                enableLiveUpdates = data.enableLiveUpdates;
+                            }}
+                        />
+                    ),
+                    id: saygData.id,
+                    autoSave: false,
+                    on180,
+                    onHiCheck,
+                    onScoreChange,
+                    onLoadError,
+                    onSaved,
+                    liveOptions: {},
+                },
+                appProps({ account }, reportedError),
+            );
             await act(async () => {
-                await enableLiveUpdates(true, { id: saygData.id, type: LiveDataType.sayg });
+                await enableLiveUpdates(true, {
+                    id: saygData.id,
+                    type: LiveDataType.sayg,
+                });
             });
 
             await act(async () => {
                 // now close the socket
-                await enableLiveUpdates(false, { id: saygData.id, type: LiveDataType.sayg });
+                await enableLiveUpdates(false, {
+                    id: saygData.id,
+                    type: LiveDataType.sayg,
+                });
             });
 
             expect(socketFactory.socketWasCreated()).toEqual(true);
@@ -631,24 +722,38 @@ describe('SaygLoadingContainer', () => {
     });
 
     interface IExtractedProps {
-        sayg: ILoadedScoreAsYouGoDto,
-        setSayg(newData: ILoadedScoreAsYouGoDto): Promise<ILoadedScoreAsYouGoDto>,
-        saveDataAndGetId(useData?: ILoadedScoreAsYouGoDto): Promise<string | undefined>,
-        enableLiveUpdates(enabled: boolean, request: ISubscriptionRequest): UntypedPromise,
-        subscriptions: ISubscriptions,
-        liveOptions: ILiveOptions
+        sayg: ILoadedScoreAsYouGoDto;
+        setSayg(
+            newData: ILoadedScoreAsYouGoDto,
+        ): Promise<ILoadedScoreAsYouGoDto>;
+        saveDataAndGetId(
+            useData?: ILoadedScoreAsYouGoDto,
+        ): Promise<string | undefined>;
+        enableLiveUpdates(
+            enabled: boolean,
+            request: ISubscriptionRequest,
+        ): UntypedPromise;
+        subscriptions: ISubscriptions;
+        liveOptions: ILiveOptions;
     }
 
     interface ITestComponentProps {
         onLoaded(props: IExtractedProps): void;
     }
 
-    function TestComponent({onLoaded}: ITestComponentProps) {
-        const {sayg, setSayg, saveDataAndGetId} = useSayg();
-        const {subscriptions, enableLiveUpdates, liveOptions} = useLive();
+    function TestComponent({ onLoaded }: ITestComponentProps) {
+        const { sayg, setSayg, saveDataAndGetId } = useSayg();
+        const { subscriptions, enableLiveUpdates, liveOptions } = useLive();
 
-        onLoaded({sayg, setSayg, saveDataAndGetId, enableLiveUpdates, subscriptions, liveOptions});
+        onLoaded({
+            sayg,
+            setSayg,
+            saveDataAndGetId,
+            enableLiveUpdates,
+            subscriptions,
+            liveOptions,
+        });
 
-        return (<div>Loaded</div>)
+        return <div>Loaded</div>;
     }
 });

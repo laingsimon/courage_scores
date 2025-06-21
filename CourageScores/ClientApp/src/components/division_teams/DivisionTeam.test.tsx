@@ -4,37 +4,43 @@ import {
     brandingProps,
     cleanUp,
     doChange,
-    doClick, ErrorState,
+    doClick,
+    ErrorState,
     findButton,
     iocProps,
     renderApp,
-    TestContext
-} from "../../helpers/tests";
-import {createTemporaryId} from "../../helpers/projection";
-import {DivisionTeam} from "./DivisionTeam";
-import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
-import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
-import {EditTeamDto} from "../../interfaces/models/dtos/Team/EditTeamDto";
-import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
-import {DivisionTeamDto} from "../../interfaces/models/dtos/Division/DivisionTeamDto";
-import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
-import {IClientActionResultDto} from "../common/IClientActionResultDto";
-import {seasonBuilder} from "../../helpers/builders/seasons";
-import {divisionBuilder} from "../../helpers/builders/divisions";
-import {ITeamApi} from "../../interfaces/apis/ITeamApi";
-import {IPreferenceData} from "../common/PreferencesContainer";
+    TestContext,
+} from '../../helpers/tests';
+import { createTemporaryId } from '../../helpers/projection';
+import { DivisionTeam } from './DivisionTeam';
+import {
+    DivisionDataContainer,
+    IDivisionDataContainerProps,
+} from '../league/DivisionDataContainer';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
+import { EditTeamDto } from '../../interfaces/models/dtos/Team/EditTeamDto';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
+import { DivisionTeamDto } from '../../interfaces/models/dtos/Division/DivisionTeamDto';
+import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
+import { IClientActionResultDto } from '../common/IClientActionResultDto';
+import { seasonBuilder } from '../../helpers/builders/seasons';
+import { divisionBuilder } from '../../helpers/builders/divisions';
+import { ITeamApi } from '../../interfaces/apis/ITeamApi';
+import { IPreferenceData } from '../common/PreferencesContainer';
 
 describe('DivisionTeam', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedTeam: EditTeamDto |  null;
+    let updatedTeam: EditTeamDto | null;
     let apiResponse: IClientActionResultDto<TeamDto> | undefined;
 
     const teamApi = api<ITeamApi>({
-        update: async (team: EditTeamDto): Promise<IClientActionResultDto<TeamDto>> => {
+        update: async (
+            team: EditTeamDto,
+        ): Promise<IClientActionResultDto<TeamDto>> => {
             updatedTeam = team;
-            return apiResponse || {success: true, result: team as TeamDto};
-        }
+            return apiResponse || { success: true, result: team as TeamDto };
+        },
     });
 
     async function onReloadDivision(): Promise<DivisionDataDto | null> {
@@ -51,30 +57,39 @@ describe('DivisionTeam', () => {
         updatedTeam = null;
     });
 
-    async function renderComponent(team: DivisionTeamDto, account: UserDto | null, divisionData: IDivisionDataContainerProps, teams?: TeamDto[], preferenceData?: IPreferenceData) {
+    async function renderComponent(
+        team: DivisionTeamDto,
+        account: UserDto | undefined,
+        divisionData: IDivisionDataContainerProps,
+        teams?: TeamDto[],
+        preferenceData?: IPreferenceData,
+    ) {
         context = await renderApp(
-            iocProps({teamApi}),
+            iocProps({ teamApi }),
             brandingProps(),
-            appProps({
-                account,
-                divisions: [],
-                teams: teams || [],
-                seasons: []
-            }, reportedError),
-            (<DivisionDataContainer {...divisionData} >
-                <DivisionTeam team={team}/>
-            </DivisionDataContainer>),
+            appProps(
+                {
+                    account,
+                    divisions: [],
+                    teams: teams || [],
+                    seasons: [],
+                },
+                reportedError,
+            ),
+            <DivisionDataContainer {...divisionData}>
+                <DivisionTeam team={team} />
+            </DivisionDataContainer>,
             undefined,
             undefined,
             'tbody',
-            preferenceData);
+            preferenceData,
+        );
     }
 
     describe('when logged out', () => {
-        const account: UserDto | null = null;
+        const account: UserDto | undefined = undefined;
         const division = divisionBuilder('DIVISION').build();
-        const season = seasonBuilder('SEASON')
-            .build();
+        const season = seasonBuilder('SEASON').build();
 
         it('renders team details', async () => {
             const team: DivisionTeamDto = {
@@ -89,20 +104,17 @@ describe('DivisionTeam', () => {
                 address: '',
             };
 
-            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: ''});
+            await renderComponent(team, account, {
+                id: division.id,
+                season,
+                onReloadDivision,
+                name: '',
+            });
             reportedError.verifyNoError();
 
             const cells = Array.from(context.container.querySelectorAll('td'));
-            const cellText = cells.map(c => c.textContent);
-            expect(cellText).toEqual([
-                'TEAM',
-                '1',
-                '2',
-                '3',
-                '4',
-                '5',
-                '6'
-            ]);
+            const cellText = cells.map((c) => c.textContent);
+            expect(cellText).toEqual(['TEAM', '1', '2', '3', '4', '5', '6']);
         });
 
         it('does not render editing controls', async () => {
@@ -118,10 +130,16 @@ describe('DivisionTeam', () => {
                 address: '',
             };
 
-            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: ''});
+            await renderComponent(team, account, {
+                id: division.id,
+                season,
+                onReloadDivision,
+                name: '',
+            });
             reportedError.verifyNoError();
 
-            const firstCell = context.container.querySelector('td:first-child')!;
+            const firstCell =
+                context.container.querySelector('td:first-child')!;
             expect(firstCell.textContent).toEqual('TEAM');
             expect(firstCell.querySelector('button')).toBeFalsy();
         });
@@ -147,12 +165,13 @@ describe('DivisionTeam', () => {
                     season,
                     onReloadDivision,
                     name: '',
-                    favouritesEnabled: true
+                    favouritesEnabled: true,
                 },
                 undefined,
                 {
-                    favouriteTeamIds: [ team.id ],
-                });
+                    favouriteTeamIds: [team.id!],
+                },
+            );
             reportedError.verifyNoError();
 
             const row = context.container.querySelector('tr')!;
@@ -180,12 +199,13 @@ describe('DivisionTeam', () => {
                     season,
                     onReloadDivision,
                     name: '',
-                    favouritesEnabled: true
+                    favouritesEnabled: true,
                 },
                 undefined,
                 {
-                    favouriteTeamIds: [ '1234' ],
-                });
+                    favouriteTeamIds: ['1234'],
+                },
+            );
             reportedError.verifyNoError();
 
             const row = context.container.querySelector('tr')!;
@@ -213,12 +233,13 @@ describe('DivisionTeam', () => {
                     season,
                     onReloadDivision,
                     name: '',
-                    favouritesEnabled: true
+                    favouritesEnabled: true,
                 },
                 undefined,
                 {
                     favouriteTeamIds: [],
-                });
+                },
+            );
             reportedError.verifyNoError();
 
             const row = context.container.querySelector('tr')!;
@@ -233,12 +254,10 @@ describe('DivisionTeam', () => {
             givenName: '',
             access: {
                 manageTeams: true,
-            }
+            },
         };
         const division = divisionBuilder('DIVISION').build();
-        const season = seasonBuilder('SEASON')
-            .withDivision(division)
-            .build();
+        const season = seasonBuilder('SEASON').withDivision(division).build();
 
         it('can edit team', async () => {
             const team: DivisionTeamDto = {
@@ -252,7 +271,12 @@ describe('DivisionTeam', () => {
                 difference: 6,
                 address: '',
             };
-            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: ''});
+            await renderComponent(team, account, {
+                id: division.id,
+                season,
+                onReloadDivision,
+                name: '',
+            });
             reportedError.verifyNoError();
             const firstCell = context.container.querySelector('td:first-child');
 
@@ -277,13 +301,24 @@ describe('DivisionTeam', () => {
                 updated: '2023-07-01T00:00:00',
                 address: '',
             };
-            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: ''});
+            await renderComponent(team, account, {
+                id: division.id,
+                season,
+                onReloadDivision,
+                name: '',
+            });
             reportedError.verifyNoError();
-            const firstCell = context.container.querySelector('td:first-child')!;
+            const firstCell =
+                context.container.querySelector('td:first-child')!;
             await doClick(findButton(firstCell, '✏️'));
             const dialog = context.container.querySelector('.modal-dialog')!;
 
-            await doChange(dialog, 'input[name="name"]', 'NEW TEAM', context.user);
+            await doChange(
+                dialog,
+                'input[name="name"]',
+                'NEW TEAM',
+                context.user,
+            );
             await doClick(findButton(dialog, 'Save team'));
 
             reportedError.verifyNoError();
@@ -304,15 +339,27 @@ describe('DivisionTeam', () => {
                 difference: 6,
                 address: '',
             };
-            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: ''});
+            await renderComponent(team, account, {
+                id: division.id,
+                season,
+                onReloadDivision,
+                name: '',
+            });
             reportedError.verifyNoError();
             const firstCell = context.container.querySelector('td:first-child');
             await doClick(findButton(firstCell, '✏️'));
 
-            await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Cancel'));
+            await doClick(
+                findButton(
+                    context.container.querySelector('.modal-dialog'),
+                    'Cancel',
+                ),
+            );
 
             reportedError.verifyNoError();
-            expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+            expect(
+                context.container.querySelector('.modal-dialog'),
+            ).toBeFalsy();
         });
 
         it('can show add to season dialog', async () => {
@@ -328,9 +375,15 @@ describe('DivisionTeam', () => {
                 address: '',
                 seasons: [],
             };
-            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: ''}, [team]);
+            await renderComponent(
+                team,
+                account,
+                { id: division.id, season, onReloadDivision, name: '' },
+                [team],
+            );
             reportedError.verifyNoError();
-            const firstCell = context.container.querySelector('td:first-child')!;
+            const firstCell =
+                context.container.querySelector('td:first-child')!;
 
             await doClick(findButton(firstCell, '➕'));
 
@@ -353,7 +406,12 @@ describe('DivisionTeam', () => {
                 address: '',
                 seasons: [],
             };
-            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: ''}, [team]);
+            await renderComponent(
+                team,
+                account,
+                { id: division.id, season, onReloadDivision, name: '' },
+                [team],
+            );
             reportedError.verifyNoError();
             const firstCell = context.container.querySelector('td:first-child');
             await doClick(findButton(firstCell, '➕'));
@@ -361,7 +419,9 @@ describe('DivisionTeam', () => {
 
             await doClick(findButton(dialog, 'Close'));
 
-            expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+            expect(
+                context.container.querySelector('.modal-dialog'),
+            ).toBeFalsy();
         });
 
         it('renders when team is not a favourite and an admin', async () => {
@@ -385,12 +445,13 @@ describe('DivisionTeam', () => {
                     season,
                     onReloadDivision,
                     name: '',
-                    favouritesEnabled: true
+                    favouritesEnabled: true,
                 },
                 undefined,
                 {
-                    favouriteTeamIds: [ '1234' ],
-                });
+                    favouriteTeamIds: ['1234'],
+                },
+            );
             reportedError.verifyNoError();
 
             const row = context.container.querySelector('tr')!;

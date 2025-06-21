@@ -1,5 +1,7 @@
 param([int] $ErrorThreshold, [int] $WarningThreshold, [string] $Extension)
 
+$currentDirectory = (Get-Item .).FullName
+$branch = $env:GITHUB_HEAD_REF
 Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1"
 
 Function Get-Files($MinLines, $MaxLines)
@@ -8,10 +10,10 @@ Function Get-Files($MinLines, $MaxLines)
     return Get-ChildItem -Recurse `
         | Where-Object { $_.Name.EndsWith($Extension) } `
         | Where-Object { $_.FullName.Contains("node_modules") -eq $False } `
-        | Select-Object @{ label='name'; expression={$_.name} }, @{ label='lines'; expression={(Get-Content $_.FullName | Measure-Object -Line).Lines} } `
+        | Select-Object @{ label='fullName'; expression={$_.FullName} }, @{ label='name'; expression={$_.name} }, @{ label='lines'; expression={(Get-Content $_.FullName | Measure-Object -Line).Lines} } `
         | Where-Object { $_.lines -gt $MinLines -and $_.lines -le $MaxLines } `
         | Sort-Object -descending -property 'lines' `
-        | Select-Object @{ label='row'; expression = {"| $($_.name) | $($_.lines) |" } }
+        | Select-Object @{ label='row'; expression = {"| [$($_.name)](../blob/$($branch)/$([System.IO.Path]::GetRelativePath($currentDirectory, $_.fullName))) | $($_.lines) |" } }
 }
 
 Function Print-Files($Heading, $Files, $Comments) 
@@ -90,7 +92,7 @@ If ($ErrorThreshold -gt 0)
     $FilesOverThreshold = [array] (Get-Files -MinLines $ErrorThreshold -MaxLines $MaxLines)
     If ($FilesOverThreshold.Length -gt 0)
     {
-        Print-Files -Heading "$($FilesOverThreshold.Length) file/s exceeding limit" -Files $FilesOverThreshold -Comments $ExceedingComments
+        Print-Files -Heading "$($FilesOverThreshold.Length) $($Extension) file/s exceeding limit" -Files $FilesOverThreshold -Comments $ExceedingComments
         [Console]::Error.WriteLine("There are $($FilesOverThreshold.Length) $($Extension) file/s that have more than $($ErrorThreshold) lines")
     }
     elseif ($GitHubEvent -eq "pull_request")

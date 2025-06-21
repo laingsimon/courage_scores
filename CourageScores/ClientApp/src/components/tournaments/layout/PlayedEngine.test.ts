@@ -1,15 +1,15 @@
-import {PlayedEngine} from "./PlayedEngine";
-import {ILayoutEngine} from "./ILayoutEngine";
-import {ILayoutRequest} from "./ILayoutRequest";
-import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
-import {GameMatchOptionDto} from "../../../interfaces/models/dtos/Game/GameMatchOptionDto";
-import {TournamentRoundDto} from "../../../interfaces/models/dtos/Game/TournamentRoundDto";
-import {createTemporaryId} from "../../../helpers/projection";
-import {TournamentMatchDto} from "../../../interfaces/models/dtos/Game/TournamentMatchDto";
-import {ILayoutDataForSide} from "./ILayoutDataForSide";
-import {ILayoutDataForMatch} from "./ILayoutDataForMatch";
-import {ILayoutDataForRound} from "./ILayoutDataForRound";
-import {ReactElement} from "react";
+import { PlayedEngine } from './PlayedEngine';
+import { ILayoutEngine } from './ILayoutEngine';
+import { ILayoutRequest } from './ILayoutRequest';
+import { TournamentSideDto } from '../../../interfaces/models/dtos/Game/TournamentSideDto';
+import { GameMatchOptionDto } from '../../../interfaces/models/dtos/Game/GameMatchOptionDto';
+import { TournamentRoundDto } from '../../../interfaces/models/dtos/Game/TournamentRoundDto';
+import { createTemporaryId } from '../../../helpers/projection';
+import { TournamentMatchDto } from '../../../interfaces/models/dtos/Game/TournamentMatchDto';
+import { ILayoutDataForSide } from './ILayoutDataForSide';
+import { ILayoutDataForMatch } from './ILayoutDataForMatch';
+import { ILayoutDataForRound } from './ILayoutDataForRound';
+import { ReactElement } from 'react';
 
 interface ISideLayoutInfo {
     side?: ILayoutDataForSide;
@@ -25,22 +25,30 @@ describe('PlayedEngine', () => {
         return {
             key: 'link',
             type: '',
-            props: {side},
-        }
+            props: { side },
+        };
     }
 
-    function request(round: TournamentRoundDto, ...sides: TournamentSideDto[]): ILayoutRequest {
+    function request(
+        round: TournamentRoundDto,
+        ...sides: TournamentSideDto[]
+    ): ILayoutRequest {
         return {
             sides: sides,
             context: {
                 matchOptionDefaults,
                 getLinkToSide,
             },
-            round: round
+            round: round,
         };
     }
 
-    function playedRound(name: string, nextRound?: TournamentRoundDto, matchOptions?: GameMatchOptionDto[], ...matches: TournamentMatchDto[]): TournamentRoundDto {
+    function playedRound(
+        name: string,
+        nextRound?: TournamentRoundDto,
+        matchOptions?: GameMatchOptionDto[],
+        ...matches: TournamentMatchDto[]
+    ): TournamentRoundDto {
         return {
             id: createTemporaryId(),
             name: name,
@@ -50,7 +58,12 @@ describe('PlayedEngine', () => {
         };
     }
 
-    function playedMatch(sideA?: TournamentSideDto, scoreA?: number, sideB?: TournamentSideDto, scoreB?: number): TournamentMatchDto {
+    function playedMatch(
+        sideA?: TournamentSideDto,
+        scoreA?: number,
+        sideB?: TournamentSideDto,
+        scoreB?: number,
+    ): TournamentMatchDto {
         return {
             id: createTemporaryId(),
             sideA: sideA!,
@@ -68,7 +81,10 @@ describe('PlayedEngine', () => {
         };
     }
 
-    function unplayedRound(name: string, ...matches: ILayoutDataForMatch[]): ILayoutDataForRound {
+    function unplayedRound(
+        name: string,
+        ...matches: ILayoutDataForMatch[]
+    ): ILayoutDataForRound {
         return {
             matches,
             preRound: false,
@@ -78,7 +94,13 @@ describe('PlayedEngine', () => {
         };
     }
 
-    function unplayedMatch(a: string, vs: string, m: string, otn?: string, showMnemonic?: string): ILayoutDataForMatch {
+    function unplayedMatch(
+        a: string,
+        vs: string,
+        m: string,
+        otn?: string,
+        showMnemonic?: string,
+    ): ILayoutDataForMatch {
         return {
             scoreA: '',
             scoreB: '',
@@ -89,16 +111,22 @@ describe('PlayedEngine', () => {
         };
     }
 
-    function unplayedSide(mnemonic: string, showMnemonic?: boolean): ILayoutDataForSide {
+    function unplayedSide(
+        mnemonic: string,
+        showMnemonic?: boolean,
+    ): ILayoutDataForSide {
         return {
             mnemonic,
             name: '',
             showMnemonic,
             id: '',
-        }
+        };
     }
 
-    function expectedRound(name: string, ...matches: ILayoutDataForMatch[]): ILayoutDataForRound {
+    function expectedRound(
+        name: string,
+        ...matches: ILayoutDataForMatch[]
+    ): ILayoutDataForRound {
         return {
             matches,
             preRound: false,
@@ -109,7 +137,13 @@ describe('PlayedEngine', () => {
         };
     }
 
-    function expectedMatch(a?: ISideLayoutInfo, vs?: ISideLayoutInfo, m?: string, otn?: string, matchOptions?: GameMatchOptionDto): ILayoutDataForMatch {
+    function expectedMatch(
+        a?: ISideLayoutInfo,
+        vs?: ISideLayoutInfo,
+        m?: string,
+        otn?: string,
+        matchOptions?: GameMatchOptionDto,
+    ): ILayoutDataForMatch {
         return {
             matchOptions,
             scoreA: a ? a.score!.toString() : '',
@@ -122,7 +156,13 @@ describe('PlayedEngine', () => {
         };
     }
 
-    function expectedMatchFromMatch(match: TournamentMatchDto, winner?: string, m?: string, otn?: string, matchOptions?: GameMatchOptionDto): ILayoutDataForMatch {
+    function expectedMatchFromMatch(
+        match: TournamentMatchDto,
+        winner?: string,
+        m?: string,
+        otn?: string,
+        matchOptions?: GameMatchOptionDto,
+    ): ILayoutDataForMatch {
         return {
             matchOptions,
             scoreA: match.scoreA!.toString(),
@@ -152,7 +192,10 @@ describe('PlayedEngine', () => {
         };
     }
 
-    function getShowMnemonic(side: string, instruction?: string): boolean | undefined {
+    function getShowMnemonic(
+        side: string,
+        instruction?: string,
+    ): boolean | undefined {
         if (instruction && instruction.indexOf('!' + side) !== -1) {
             return false;
         }
@@ -187,22 +230,49 @@ describe('PlayedEngine', () => {
                     unplayedMatch('winner(M1)', 'winner(M2)', 'M3'),
                 ),
             ];
-            const engine: ILayoutEngine = new PlayedEngine(new MockEngine(unplayedLayout));
+            const engine: ILayoutEngine = new PlayedEngine(
+                new MockEngine(unplayedLayout),
+            );
             const side1: TournamentSideDto = playedSide('SIDE 1');
             const side2: TournamentSideDto = playedSide('SIDE 2');
             const matchOptions: GameMatchOptionDto = {
                 numberOfLegs: 5,
             };
-            const semiFinal1: TournamentMatchDto = playedMatch(side1, 3, side2, 1);
-            const semiFinal: TournamentRoundDto = playedRound('Semi-Final', playedRound('Final'), [matchOptions], semiFinal1, playedMatch());
+            const semiFinal1: TournamentMatchDto = playedMatch(
+                side1,
+                3,
+                side2,
+                1,
+            );
+            const semiFinal: TournamentRoundDto = playedRound(
+                'Semi-Final',
+                playedRound('Final'),
+                [matchOptions],
+                semiFinal1,
+                playedMatch(),
+            );
 
-            const result: ILayoutDataForRound[] = engine.calculate(request(semiFinal, side1, side2));
+            const result: ILayoutDataForRound[] = engine.calculate(
+                request(semiFinal, side1, side2),
+            );
 
             expect(result).toEqual([
                 expectedRound(
                     'Semi-Final',
-                    expectedMatchFromMatch(semiFinal1, 'sideA', undefined, undefined, matchOptions),
-                    expectedMatch(expectedSide('C'), expectedSide('D'), 'M2', undefined, matchOptions),
+                    expectedMatchFromMatch(
+                        semiFinal1,
+                        'sideA',
+                        undefined,
+                        undefined,
+                        matchOptions,
+                    ),
+                    expectedMatch(
+                        expectedSide('C'),
+                        expectedSide('D'),
+                        'M2',
+                        undefined,
+                        matchOptions,
+                    ),
                 ),
                 expectedRound(
                     'Final',
@@ -223,22 +293,49 @@ describe('PlayedEngine', () => {
                     unplayedMatch('winner(M1)', 'winner(M2)', 'M3'),
                 ),
             ];
-            const engine: ILayoutEngine = new PlayedEngine(new MockEngine(unplayedLayout));
+            const engine: ILayoutEngine = new PlayedEngine(
+                new MockEngine(unplayedLayout),
+            );
             const side1: TournamentSideDto = playedSide('SIDE 1');
             const side2: TournamentSideDto = playedSide('SIDE 2');
             const matchOptions: GameMatchOptionDto = {
                 numberOfLegs: 5,
             };
-            const semiFinal1: TournamentMatchDto = playedMatch(side1, 2, side2, 3);
-            const semiFinal: TournamentRoundDto = playedRound('Semi-Final', playedRound('Final'), [matchOptions], semiFinal1, playedMatch());
+            const semiFinal1: TournamentMatchDto = playedMatch(
+                side1,
+                2,
+                side2,
+                3,
+            );
+            const semiFinal: TournamentRoundDto = playedRound(
+                'Semi-Final',
+                playedRound('Final'),
+                [matchOptions],
+                semiFinal1,
+                playedMatch(),
+            );
 
-            const result: ILayoutDataForRound[] = engine.calculate(request(semiFinal, side1, side2));
+            const result: ILayoutDataForRound[] = engine.calculate(
+                request(semiFinal, side1, side2),
+            );
 
             expect(result).toEqual([
                 expectedRound(
                     'Semi-Final',
-                    expectedMatchFromMatch(semiFinal1, 'sideB', undefined, undefined, matchOptions),
-                    expectedMatch(expectedSide('C'), expectedSide('D'), 'M2', undefined, matchOptions),
+                    expectedMatchFromMatch(
+                        semiFinal1,
+                        'sideB',
+                        undefined,
+                        undefined,
+                        matchOptions,
+                    ),
+                    expectedMatch(
+                        expectedSide('C'),
+                        expectedSide('D'),
+                        'M2',
+                        undefined,
+                        matchOptions,
+                    ),
                 ),
                 expectedRound(
                     'Final',
@@ -259,7 +356,9 @@ describe('PlayedEngine', () => {
                     unplayedMatch('winner(M1)', 'winner(M2)', 'M3'),
                 ),
             ];
-            const engine: ILayoutEngine = new PlayedEngine(new MockEngine(unplayedLayout));
+            const engine: ILayoutEngine = new PlayedEngine(
+                new MockEngine(unplayedLayout),
+            );
             const side1: TournamentSideDto = playedSide('SIDE 1');
             const side2: TournamentSideDto = playedSide('SIDE 2');
             const side3: TournamentSideDto = playedSide('SIDE 3');
@@ -267,24 +366,46 @@ describe('PlayedEngine', () => {
             const matchOptions: GameMatchOptionDto = {
                 numberOfLegs: 5,
             };
-            const semiFinal1: TournamentMatchDto = playedMatch(side1, 1, side2, 3);
-            const semiFinal2: TournamentMatchDto = playedMatch(side3, 3, side4, 0);
-            const semiFinal: TournamentRoundDto = playedRound('Semi-Final', playedRound('Final'), [matchOptions], semiFinal1, semiFinal2);
+            const semiFinal1: TournamentMatchDto = playedMatch(
+                side1,
+                1,
+                side2,
+                3,
+            );
+            const semiFinal2: TournamentMatchDto = playedMatch(
+                side3,
+                3,
+                side4,
+                0,
+            );
+            const semiFinal: TournamentRoundDto = playedRound(
+                'Semi-Final',
+                playedRound('Final'),
+                [matchOptions],
+                semiFinal1,
+                semiFinal2,
+            );
 
-            const result: ILayoutDataForRound[] = engine.calculate(request(semiFinal, side1, side2));
+            const result: ILayoutDataForRound[] = engine.calculate(
+                request(semiFinal, side1, side2),
+            );
 
             const finalRound: ILayoutDataForRound = result[1];
-            expect(finalRound.possibleSides).toEqual([ side2, side3 ]);
+            expect(finalRound.possibleSides).toEqual([side2, side3]);
         });
     });
 
     describe('edge cases', () => {
         it('when unplayed engine returns empty', () => {
             const unplayedLayout: ILayoutDataForRound[] = [];
-            const engine: ILayoutEngine = new PlayedEngine(new MockEngine(unplayedLayout));
+            const engine: ILayoutEngine = new PlayedEngine(
+                new MockEngine(unplayedLayout),
+            );
             const final: TournamentRoundDto = playedRound('Final');
 
-            const result: ILayoutDataForRound[] = engine.calculate(request(final));
+            const result: ILayoutDataForRound[] = engine.calculate(
+                request(final),
+            );
 
             expect(result).toEqual([]);
         });
@@ -301,7 +422,9 @@ describe('PlayedEngine', () => {
                     unplayedMatch('winner(M1)', 'winner(M2)', 'M3'),
                 ),
             ];
-            const engine: ILayoutEngine = new PlayedEngine(new MockEngine(unplayedLayout));
+            const engine: ILayoutEngine = new PlayedEngine(
+                new MockEngine(unplayedLayout),
+            );
             const side1: TournamentSideDto = playedSide('SIDE 1');
             const side2: TournamentSideDto = playedSide('SIDE 2');
             const side3: TournamentSideDto = playedSide('SIDE 3');
@@ -309,19 +432,60 @@ describe('PlayedEngine', () => {
             const matchOptions: GameMatchOptionDto = {
                 numberOfLegs: 5,
             };
-            const semiFinal1: TournamentMatchDto = playedMatch(side1, 1, side2, 3);
-            const semiFinal2: TournamentMatchDto = playedMatch(side3, 3, side4, 0);
-            const extraMatch: TournamentMatchDto = playedMatch(side1, 2, side4, 3);
-            const semiFinal: TournamentRoundDto = playedRound('Semi-Final', playedRound('Final'), [matchOptions], semiFinal1, semiFinal2, extraMatch);
+            const semiFinal1: TournamentMatchDto = playedMatch(
+                side1,
+                1,
+                side2,
+                3,
+            );
+            const semiFinal2: TournamentMatchDto = playedMatch(
+                side3,
+                3,
+                side4,
+                0,
+            );
+            const extraMatch: TournamentMatchDto = playedMatch(
+                side1,
+                2,
+                side4,
+                3,
+            );
+            const semiFinal: TournamentRoundDto = playedRound(
+                'Semi-Final',
+                playedRound('Final'),
+                [matchOptions],
+                semiFinal1,
+                semiFinal2,
+                extraMatch,
+            );
 
-            const result: ILayoutDataForRound[] = engine.calculate(request(semiFinal, side1, side2));
+            const result: ILayoutDataForRound[] = engine.calculate(
+                request(semiFinal, side1, side2),
+            );
 
             expect(result).toEqual([
                 expectedRound(
                     'Semi-Final',
-                    expectedMatchFromMatch(semiFinal1, 'sideB', undefined, undefined, matchOptions),
-                    expectedMatchFromMatch(semiFinal2, 'sideA', undefined, undefined, matchOptions),
-                    expectedMatchFromMatch(extraMatch, 'sideB', undefined, undefined), // extra, unexpected, match
+                    expectedMatchFromMatch(
+                        semiFinal1,
+                        'sideB',
+                        undefined,
+                        undefined,
+                        matchOptions,
+                    ),
+                    expectedMatchFromMatch(
+                        semiFinal2,
+                        'sideA',
+                        undefined,
+                        undefined,
+                        matchOptions,
+                    ),
+                    expectedMatchFromMatch(
+                        extraMatch,
+                        'sideB',
+                        undefined,
+                        undefined,
+                    ), // extra, unexpected, match
                 ),
                 expectedRound(
                     'Final',

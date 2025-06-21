@@ -4,16 +4,17 @@ import {
     brandingProps,
     cleanUp,
     doClick,
+    IBrowserWindow,
     iocProps,
     renderApp,
-    TestContext
-} from "../../helpers/tests";
-import {ExportDataButton, IExportDataButtonProps} from "./ExportDataButton";
-import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
-import {ExportDataRequestDto} from "../../interfaces/models/dtos/Data/ExportDataRequestDto";
-import {ExportDataResultDto} from "../../interfaces/models/dtos/Data/ExportDataResultDto";
-import {IClientActionResultDto} from "./IClientActionResultDto";
-import {IDataApi} from "../../interfaces/apis/IDataApi";
+    TestContext,
+} from '../../helpers/tests';
+import { ExportDataButton, IExportDataButtonProps } from './ExportDataButton';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
+import { ExportDataRequestDto } from '../../interfaces/models/dtos/Data/ExportDataRequestDto';
+import { ExportDataResultDto } from '../../interfaces/models/dtos/Data/ExportDataResultDto';
+import { IClientActionResultDto } from './IClientActionResultDto';
+import { IDataApi } from '../../interfaces/apis/IDataApi';
 
 describe('ExportDataButton', () => {
     let context: TestContext;
@@ -21,9 +22,11 @@ describe('ExportDataButton', () => {
     let apiResult: IClientActionResultDto<ExportDataResultDto> | null;
 
     const dataApi = api<IDataApi>({
-        export: async (request: ExportDataRequestDto): Promise<IClientActionResultDto<ExportDataResultDto>> => {
+        export: async (
+            request: ExportDataRequestDto,
+        ): Promise<IClientActionResultDto<ExportDataResultDto>> => {
             exportRequest = request;
-            return apiResult || {success: false};
+            return apiResult || { success: false };
         },
     });
 
@@ -31,14 +34,18 @@ describe('ExportDataButton', () => {
         await cleanUp(context);
     });
 
-    async function renderComponent(props: IExportDataButtonProps, account?: UserDto) {
+    async function renderComponent(
+        props: IExportDataButtonProps,
+        account?: UserDto,
+    ) {
         exportRequest = null;
         apiResult = null;
         context = await renderApp(
-            iocProps({dataApi}),
+            iocProps({ dataApi }),
             brandingProps(),
-            appProps({account}),
-            (<ExportDataButton {...props} />));
+            appProps({ account }),
+            <ExportDataButton {...props} />,
+        );
     }
 
     describe('when logged out', () => {
@@ -57,7 +64,7 @@ describe('ExportDataButton', () => {
             name: '',
             givenName: '',
             access: {
-                exportData: false
+                exportData: false,
             },
         };
 
@@ -74,7 +81,7 @@ describe('ExportDataButton', () => {
             name: '',
             givenName: '',
             access: {
-                exportData: true
+                exportData: true,
             },
         };
 
@@ -85,12 +92,15 @@ describe('ExportDataButton', () => {
         });
 
         it('when something to export, renders button', async () => {
-            await renderComponent({
-                tables: {
-                    tournamentGame: ['id1'],
-                    recordedScoreAsYouGo: ['id2', 'id3'],
-                }
-            }, account);
+            await renderComponent(
+                {
+                    tables: {
+                        tournamentGame: ['id1'],
+                        recordedScoreAsYouGo: ['id2', 'id3'],
+                    },
+                },
+                account,
+            );
 
             const button = context.container.querySelector('button')!;
             expect(button).toBeTruthy();
@@ -98,12 +108,15 @@ describe('ExportDataButton', () => {
         });
 
         it('when clicked, tries to export data', async () => {
-            await renderComponent({
-                tables: {
-                    tournamentGame: ['id1'],
-                    recordedScoreAsYouGo: ['id2', 'id3'],
-                }
-            }, account);
+            await renderComponent(
+                {
+                    tables: {
+                        tournamentGame: ['id1'],
+                        recordedScoreAsYouGo: ['id2', 'id3'],
+                    },
+                },
+                account,
+            );
             const button = context.container.querySelector('button')!;
 
             await doClick(button);
@@ -119,12 +132,15 @@ describe('ExportDataButton', () => {
         });
 
         it('when clicked, handles error during export', async () => {
-            await renderComponent({
-                tables: {
-                    tournamentGame: ['id1'],
-                    recordedScoreAsYouGo: ['id2', 'id3'],
-                }
-            }, account);
+            await renderComponent(
+                {
+                    tables: {
+                        tournamentGame: ['id1'],
+                        recordedScoreAsYouGo: ['id2', 'id3'],
+                    },
+                },
+                account,
+            );
             const button = context.container.querySelector('button')!;
 
             await doClick(button);
@@ -134,28 +150,33 @@ describe('ExportDataButton', () => {
         });
 
         it('when clicked, allows download of content', async () => {
-            await renderComponent({
-                tables: {
-                    tournamentGame: ['id1'],
-                    recordedScoreAsYouGo: ['id2', 'id3'],
-                }
-            }, account);
+            await renderComponent(
+                {
+                    tables: {
+                        tournamentGame: ['id1'],
+                        recordedScoreAsYouGo: ['id2', 'id3'],
+                    },
+                },
+                account,
+            );
             const button = context.container.querySelector('button')!;
             apiResult = {
                 success: true,
                 result: {
-                    zip: 'ZIP CONTENT'
+                    zip: 'ZIP CONTENT',
                 },
             };
             let openedWindow: string | undefined;
-            (window as any).open = (url: string) => {
+            (window as IBrowserWindow).open = (url: string) => {
                 openedWindow = url;
-            }
+            };
 
             await doClick(button);
 
             expect(exportRequest).not.toBeNull();
-            expect(openedWindow).toEqual('data:application/zip;base64,ZIP CONTENT');
+            expect(openedWindow).toEqual(
+                'data:application/zip;base64,ZIP CONTENT',
+            );
         });
     });
 });

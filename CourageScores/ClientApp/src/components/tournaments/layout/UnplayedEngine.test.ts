@@ -1,10 +1,10 @@
-import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
-import {repeat} from "../../../helpers/projection";
-import {UnplayedEngine} from "./UnplayedEngine";
-import {ILayoutEngine} from "./ILayoutEngine";
-import {ILayoutDataForSide} from "./ILayoutDataForSide";
-import {ILayoutDataForMatch} from "./ILayoutDataForMatch";
-import {ILayoutDataForRound} from "./ILayoutDataForRound";
+import { TournamentSideDto } from '../../../interfaces/models/dtos/Game/TournamentSideDto';
+import { repeat } from '../../../helpers/projection';
+import { UnplayedEngine } from './UnplayedEngine';
+import { ILayoutEngine } from './ILayoutEngine';
+import { ILayoutDataForSide } from './ILayoutDataForSide';
+import { ILayoutDataForMatch } from './ILayoutDataForMatch';
+import { ILayoutDataForRound } from './ILayoutDataForRound';
 
 describe('UnplayedEngine', () => {
     let possibleSides: TournamentSideDto[] | null;
@@ -16,10 +16,16 @@ describe('UnplayedEngine', () => {
                 id: index.toString(),
                 noShow: false,
             };
-        })
+        });
     }
 
-    function match(a: string, vs: string, m: string, otn?: string, showMnemonic?: string): ILayoutDataForMatch {
+    function match(
+        a: string,
+        vs: string,
+        m: string,
+        otn?: string,
+        showMnemonic?: string,
+    ): ILayoutDataForMatch {
         return {
             scoreA: '',
             scoreB: '',
@@ -30,7 +36,10 @@ describe('UnplayedEngine', () => {
         };
     }
 
-    function getShowMnemonic(side: string, instruction?: string): boolean | undefined {
+    function getShowMnemonic(
+        side: string,
+        instruction?: string,
+    ): boolean | undefined {
         if (instruction && instruction.indexOf('!' + side) !== -1) {
             return false;
         }
@@ -41,16 +50,22 @@ describe('UnplayedEngine', () => {
         return undefined;
     }
 
-    function side(mnemonic: string, showMnemonic?: boolean): ILayoutDataForSide {
+    function side(
+        mnemonic: string,
+        showMnemonic?: boolean,
+    ): ILayoutDataForSide {
         return {
             mnemonic,
             name: '',
             showMnemonic,
             id: '',
-        }
+        };
     }
 
-    function round(name: string, ...matches: ILayoutDataForMatch[]): ILayoutDataForRound {
+    function round(
+        name: string,
+        ...matches: ILayoutDataForMatch[]
+    ): ILayoutDataForRound {
         return {
             matches,
             preRound: false,
@@ -124,10 +139,7 @@ describe('UnplayedEngine', () => {
                 match('G', 'winner(M1)', 'M4', '4', 'vs'),
                 match('winner(M2)', 'winner(M3)', 'M5', '3', 'a, vs'),
             ),
-            round(
-                'Final',
-                match('winner(M4)', 'winner(M5)', 'M6', '2', ''),
-            ),
+            round('Final', match('winner(M4)', 'winner(M5)', 'M6', '2', '')),
         ]);
     });
 
@@ -151,10 +163,7 @@ describe('UnplayedEngine', () => {
                 match('winner(M1)', 'winner(M2)', 'M5', '4', ''),
                 match('winner(M3)', 'winner(M4)', 'M6', '3', ''),
             ),
-            round(
-                'Final',
-                match('winner(M5)', 'winner(M6)', 'M7', '2', ''),
-            ),
+            round('Final', match('winner(M5)', 'winner(M6)', 'M7', '2', '')),
         ]);
     });
 
@@ -166,9 +175,7 @@ describe('UnplayedEngine', () => {
         });
 
         expect(result).toEqual([
-            preRound(
-                match('A', 'B', 'M1', '9', ''),
-            ),
+            preRound(match('A', 'B', 'M1', '9', '')),
             round(
                 'Quarter-Final',
                 match('C', 'D', 'M2', '8', ''),
@@ -181,10 +188,7 @@ describe('UnplayedEngine', () => {
                 match('winner(M2)', 'winner(M3)', 'M6', '4', ''),
                 match('winner(M4)', 'winner(M5)', 'M7', '3', ''),
             ),
-            round(
-                'Final',
-                match('winner(M6)', 'winner(M7)', 'M8', '2', ''),
-            ),
+            round('Final', match('winner(M6)', 'winner(M7)', 'M8', '2', '')),
         ]);
     });
 
@@ -212,10 +216,7 @@ describe('UnplayedEngine', () => {
                 match('winner(M3)', 'winner(M4)', 'M7', '4', ''),
                 match('winner(M5)', 'winner(M6)', 'M8', '3', ''),
             ),
-            round(
-                'Final',
-                match('winner(M7)', 'winner(M8)', 'M9', '2', ''),
-            ),
+            round('Final', match('winner(M7)', 'winner(M8)', 'M9', '2', '')),
         ]);
     });
 
@@ -226,11 +227,11 @@ describe('UnplayedEngine', () => {
             sides: possibleSides,
         });
 
-        expect(result.map(r => r.name)).toEqual([
+        expect(result.map((r) => r.name)).toEqual([
             'Round 1',
             'Quarter-Final',
             'Semi-Final',
-            'Final'
+            'Final',
         ]);
     });
 
@@ -241,12 +242,12 @@ describe('UnplayedEngine', () => {
             sides: possibleSides,
         });
 
-        expect(result.map(r => r.name)).toEqual([
+        expect(result.map((r) => r.name)).toEqual([
             'Round 1',
             'Round 2',
             'Quarter-Final',
             'Semi-Final',
-            'Final'
+            'Final',
         ]);
     });
 });

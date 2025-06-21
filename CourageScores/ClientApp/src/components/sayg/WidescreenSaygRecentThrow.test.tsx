@@ -1,5 +1,15 @@
-import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../helpers/tests";
-import {IWidescreenSaygRecentThrowProps, WidescreenSaygRecentThrow} from "./WidescreenSaygRecentThrow";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    iocProps,
+    renderApp,
+    TestContext,
+} from '../../helpers/tests';
+import {
+    IWidescreenSaygRecentThrowProps,
+    WidescreenSaygRecentThrow,
+} from './WidescreenSaygRecentThrow';
 
 describe('WidescreenSaygRecentThrow', () => {
     let context: TestContext;
@@ -13,7 +23,8 @@ describe('WidescreenSaygRecentThrow', () => {
             iocProps(),
             brandingProps(),
             appProps(),
-            <WidescreenSaygRecentThrow {...props} />);
+            <WidescreenSaygRecentThrow {...props} />,
+        );
     }
 
     async function getClassName(props: IWidescreenSaygRecentThrowProps) {
@@ -31,13 +42,19 @@ describe('WidescreenSaygRecentThrow', () => {
         });
 
         it('100+ in red', async () => {
-            const className = await getClassName({ score: 100, throwNumber: 1 });
+            const className = await getClassName({
+                score: 100,
+                throwNumber: 1,
+            });
 
             expect(className).toContain('text-danger');
         });
 
         it('180s in bold red', async () => {
-            const className = await getClassName({ score: 180, throwNumber: 1 });
+            const className = await getClassName({
+                score: 180,
+                throwNumber: 1,
+            });
 
             expect(className).toContain('text-danger');
             expect(className).toContain('fw-bold');
