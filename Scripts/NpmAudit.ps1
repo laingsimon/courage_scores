@@ -164,8 +164,8 @@ If ($NpmAuditResult.ExitCode -ne 0 -and $BypassNpmAuditViaCommentComments.Length
     Exit 0
 }
 
-if ($NpmAuditResult.ExitCode -eq 0 -and $SilencedVulnerabilitiesShouldBeRemoved -eq $true)
+if ($Vulnerabilities.Count -eq 0 -and $SilencedVulnerabilitiesShouldBeRemoved -eq $true)
 {
     Exit -1 ## silenced vulnerabilities should be removed, fail the build
 }
-Exit $NpmAuditResult.ExitCode
+Exit 0
