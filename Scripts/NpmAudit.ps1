@@ -7,10 +7,8 @@ $GitHubMarkdownCodeBlock="``````"
 Import-Module -Name "$PSScriptRoot/NpmFunctions.psm1"
 Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1"
 
-## May consider moving these to another file...
-$SilencedVulnerabilities = @{
-    "GHSA-v6h2-p8h4-qcjw" = "brace-expansion Regular Expression Denial of Service vulnerability via eslint@9.29.0, ts-jest@29.4.0 and typescript-eslint@8.34.1"
-}
+$SilencedVulnerabilitiesPath = "silenced-vulnerabilities.txt"
+$SilencedVulnerabilities = (get-content -Path "$PSScriptRoot\..\$($SilencedVulnerabilitiesPath)") | ConvertFrom-StringData
 $SilencedVulnerabilitiesShouldBeRemoved = $false
 
 Function Write-Message($Message)
@@ -26,7 +24,7 @@ Function Extract-Vulnerabilities($NpmAuditResult)
         if ($SilencedVulnerabilities.Count -ge 0)
         {
             # some vulnerabilities are needlessly silenced
-            Write-Host -ForegroundColor Red "All silenced vulnerabilies should be removed: $($SilencedVulnerabilities.Keys)"
+            Write-Host -ForegroundColor Red "All silenced vulnerabilies ($($SilencedVulnerabilitiesPath)) should be removed: $($SilencedVulnerabilities.Keys)"
             $SilencedVulnerabilitiesShouldBeRemoved = $true
         }
         return
@@ -66,7 +64,7 @@ Function Extract-Vulnerabilities($NpmAuditResult)
         if ($Ignored.ContainsKey($Vulnerability) -eq $false -and $Vulnerabilities.ContainsKey($Vulnerability) -eq $false)
         {
             # can remove this vulnerability
-            Write-Host -ForegroundColor Red "$($Vulnerability) should be removed from the silenced-vulnerabilities list"
+            Write-Host -ForegroundColor Red "$($Vulnerability) should be removed from the silenced-vulnerabilities list ($($SilencedVulnerabilitiesPath))"
             $SilencedVulnerabilitiesShouldBeRemoved = $true
         }
     }
