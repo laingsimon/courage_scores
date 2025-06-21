@@ -55,7 +55,7 @@ if ($GitHubEvent -eq "pull_request")
     $OutdatedComments = [array] (Get-PullRequestComments -GitHubToken $Token -Repo $Repo -CommentsUrl $CommentsUrl -CommentHeading $OutdatedCommentHeading)
 }
 
-$NpmAuditResult = Invoke-NpmCommand -Command "audit"
+$NpmAuditResult = Invoke-NpmCommand -Command "audit --audit-level=moderate"
 If ($NpmAuditResult.ExitCode -ne 0)
 {
     $BypassInstruction="Add comment to this PR with the content **$($BypassNpmAuditViaCommentCommentContent)** to bypass these vulnerabilities when the workflow runs next"
