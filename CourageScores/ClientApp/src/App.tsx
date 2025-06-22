@@ -307,6 +307,10 @@ export function App({ embed, controls, testRoute }: IAppProps) {
                                 path="/practice"
                                 element={<PracticeMatch />}
                             />
+                            <Route
+                                path="/practice/:type"
+                                element={<PracticeMatch />}
+                            />
                             <Route path="/about" element={<About />} />
                             <Route path="/live/:type" element={<LiveSayg />} />
                             <Route path="/live" element={<LiveSayg />} />
