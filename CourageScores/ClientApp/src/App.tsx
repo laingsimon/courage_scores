@@ -6,7 +6,7 @@ import { Home } from './components/Home';
 import { Score } from './components/scores/Score';
 import { AdminHome } from './components/admin/AdminHome';
 import { Tournament } from './components/tournaments/Tournament';
-import { Practice } from './components/practice/Practice';
+import { PracticeMatch } from './components/practice/PracticeMatch';
 import { AppContainer } from './components/common/AppContainer';
 import { About } from './components/About';
 import { mapError, mapForLogging } from './helpers/errors';
@@ -303,7 +303,10 @@ export function App({ embed, controls, testRoute }: IAppProps) {
                                 path="/tournament/:tournamentId"
                                 element={<Tournament />}
                             />
-                            <Route path="/practice" element={<Practice />} />
+                            <Route
+                                path="/practice"
+                                element={<PracticeMatch />}
+                            />
                             <Route path="/about" element={<About />} />
                             <Route path="/live/:type" element={<LiveSayg />} />
                             <Route path="/live" element={<LiveSayg />} />

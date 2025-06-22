@@ -14,7 +14,7 @@ interface IPracticeScoreAsYouGoDto extends UpdateRecordedScoreAsYouGoDto {
     loaded: boolean;
 }
 
-export function Practice() {
+export function PracticeMatch() {
     const { onError, account, appLoading, fullScreen } = useApp();
     const [dataError, setDataError] = useState<string | null>(null);
     const location = useLocation();

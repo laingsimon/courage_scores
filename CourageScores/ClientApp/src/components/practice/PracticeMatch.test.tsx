@@ -13,7 +13,7 @@ import {
     renderApp,
     TestContext,
 } from '../../helpers/tests';
-import { Practice } from './Practice';
+import { PracticeMatch } from './PracticeMatch';
 import { createTemporaryId } from '../../helpers/projection';
 import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
 import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
@@ -31,7 +31,7 @@ jest.mock('react-router', () => ({
     useNavigate: () => mockedUsedNavigate,
 }));
 
-describe('Practice', () => {
+describe('PracticeMatch', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let saygData: { [key: string]: RecordedScoreAsYouGoDto };
@@ -117,7 +117,7 @@ describe('Practice', () => {
                 },
                 reportedError,
             ),
-            <Practice />,
+            <PracticeMatch />,
             '/practice',
             '/practice' + hash,
         );
