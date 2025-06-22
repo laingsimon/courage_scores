@@ -45,7 +45,7 @@ export function PracticeMatch() {
 
     async function clearError() {
         setDataError(null);
-        navigate('/practice');
+        navigate('/practice/match');
     }
 
     async function noop() {
@@ -83,7 +83,7 @@ export function PracticeMatch() {
                     autoSave={false}
                     onSaved={async (data: ILoadedScoreAsYouGoDto) => {
                         if (location.hash !== `#${data.id}`) {
-                            navigate(`/practice#${data.id}`);
+                            navigate(`/practice/match#${data.id}`);
                         }
                     }}
                     liveOptions={liveOptions}

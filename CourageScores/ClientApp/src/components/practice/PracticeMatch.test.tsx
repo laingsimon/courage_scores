@@ -118,8 +118,8 @@ describe('PracticeMatch', () => {
                 reportedError,
             ),
             <PracticeMatch />,
-            '/practice',
-            '/practice' + hash,
+            '/practice/match',
+            '/practice/match' + hash,
         );
     }
 
@@ -205,7 +205,7 @@ describe('PracticeMatch', () => {
                 ),
             );
 
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/practice`);
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/practice/match`);
         });
 
         it('renders given valid unfinished json data', async () => {
@@ -274,7 +274,7 @@ describe('PracticeMatch', () => {
             expect(shareData).toEqual({
                 text: 'Practice',
                 title: 'Practice',
-                url: `/practice#${jsonData.id}`,
+                url: `/practice/match#${jsonData.id}`,
             });
         });
 
@@ -301,7 +301,7 @@ describe('PracticeMatch', () => {
             expect(shareData).toEqual({
                 text: 'Practice',
                 title: 'Practice',
-                url: `/practice#${jsonData.id}`,
+                url: `/practice/match#${jsonData.id}`,
             });
         });
 
@@ -321,7 +321,7 @@ describe('PracticeMatch', () => {
             const id = Object.keys(saygData)[0];
             expect(saygData[id].yourName).toEqual('YOU');
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                `/practice?yourName=YOU&startingScore=501&numberOfLegs=3`,
+                `/practice/match?yourName=YOU&startingScore=501&numberOfLegs=3`,
             );
         });
 
@@ -338,7 +338,7 @@ describe('PracticeMatch', () => {
             );
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                `/practice?numberOfLegs=7&yourName=you&startingScore=501`,
+                `/practice/match?numberOfLegs=7&yourName=you&startingScore=501`,
             );
         });
 
