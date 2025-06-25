@@ -62,7 +62,7 @@ export function EditSaygPracticeOptions() {
         setQueryNumber(newQuery, 'startingScore', newSayg!.startingScore!);
         setQueryNumber(newQuery, 'numberOfLegs', newSayg!.numberOfLegs!);
 
-        const to: string = '/practice?' + newQuery + location.hash;
+        const to: string = '/practice/match?' + newQuery + location.hash;
         navigate(to);
 
         await setSayg(newSayg);

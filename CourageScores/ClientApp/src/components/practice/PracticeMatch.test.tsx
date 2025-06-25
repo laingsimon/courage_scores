@@ -13,7 +13,7 @@ import {
     renderApp,
     TestContext,
 } from '../../helpers/tests';
-import { Practice } from './Practice';
+import { PracticeMatch } from './PracticeMatch';
 import { createTemporaryId } from '../../helpers/projection';
 import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
 import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
@@ -31,7 +31,7 @@ jest.mock('react-router', () => ({
     useNavigate: () => mockedUsedNavigate,
 }));
 
-describe('Practice', () => {
+describe('PracticeMatch', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let saygData: { [key: string]: RecordedScoreAsYouGoDto };
@@ -117,9 +117,9 @@ describe('Practice', () => {
                 },
                 reportedError,
             ),
-            <Practice />,
-            '/practice',
-            '/practice' + hash,
+            <PracticeMatch />,
+            '/practice/match',
+            '/practice/match' + hash,
         );
     }
 
@@ -205,7 +205,7 @@ describe('Practice', () => {
                 ),
             );
 
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/practice`);
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/practice/match`);
         });
 
         it('renders given valid unfinished json data', async () => {
@@ -274,7 +274,7 @@ describe('Practice', () => {
             expect(shareData).toEqual({
                 text: 'Practice',
                 title: 'Practice',
-                url: `/practice#${jsonData.id}`,
+                url: `/practice/match#${jsonData.id}`,
             });
         });
 
@@ -301,7 +301,7 @@ describe('Practice', () => {
             expect(shareData).toEqual({
                 text: 'Practice',
                 title: 'Practice',
-                url: `/practice#${jsonData.id}`,
+                url: `/practice/match#${jsonData.id}`,
             });
         });
 
@@ -321,7 +321,7 @@ describe('Practice', () => {
             const id = Object.keys(saygData)[0];
             expect(saygData[id].yourName).toEqual('YOU');
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                `/practice?yourName=YOU&startingScore=501&numberOfLegs=3`,
+                `/practice/match?yourName=YOU&startingScore=501&numberOfLegs=3`,
             );
         });
 
@@ -338,7 +338,7 @@ describe('Practice', () => {
             );
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                `/practice?numberOfLegs=7&yourName=you&startingScore=501`,
+                `/practice/match?numberOfLegs=7&yourName=you&startingScore=501`,
             );
         });
 
