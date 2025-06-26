@@ -28,6 +28,7 @@ import { Division } from './components/league/Division';
 import { IError } from './components/common/IError';
 import { IFullScreen } from './components/common/IFullScreen';
 import { AnalyseScores } from './components/analysis/AnalyseScores';
+import { PracticeCheckouts } from './components/practice/PracticeCheckouts';
 
 export interface IAppProps {
     embed?: boolean;
@@ -308,8 +309,12 @@ export function App({ embed, controls, testRoute }: IAppProps) {
                                 element={<PracticeMatch />}
                             />
                             <Route
-                                path="/practice/:type"
+                                path="/practice/match"
                                 element={<PracticeMatch />}
+                            />
+                            <Route
+                                path="/practice/checkouts"
+                                element={<PracticeCheckouts />}
                             />
                             <Route path="/about" element={<About />} />
                             <Route path="/live/:type" element={<LiveSayg />} />
