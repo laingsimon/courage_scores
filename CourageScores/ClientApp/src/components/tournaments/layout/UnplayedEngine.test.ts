@@ -209,7 +209,7 @@ describe('UnplayedEngine', () => {
                 match('E', 'F', 'M3', '8', ''),
                 match('G', 'H', 'M4', '7', ''),
                 match('I', 'J', 'M5', '6', ''),
-                match('winner(M1)', 'winner(M2)', 'M6', '5', ''),
+                match('winner(M1)', 'winner(M2)', 'M6', '5', 'a,vs'),
             ),
             round(
                 'Semi-Final',
