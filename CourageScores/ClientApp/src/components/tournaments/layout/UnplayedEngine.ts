@@ -185,18 +185,16 @@ export class UnplayedEngine implements ILayoutEngine {
             const sideAMnemonic: string = pair[0];
             const sideBMnemonic: string | undefined = pair[1]; // could be, but shouldn't be, undefined
 
+            const numberOfSidesOnTheNight: string =
+                context.onTheNightMnemonics.next();
             const sideASide: ILayoutDataForSide = this.side(
                 sideAMnemonic,
                 sideAMnemonic.startsWith('winner') || undefined,
             );
-
             const sideBSide: ILayoutDataForSide = this.side(
                 sideBMnemonic,
                 sideBMnemonic?.startsWith('winner') || undefined,
             );
-
-            const numberOfSidesOnTheNight: string =
-                context.onTheNightMnemonics.next();
 
             return this.match(
                 context,
