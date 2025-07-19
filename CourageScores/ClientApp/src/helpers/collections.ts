@@ -289,3 +289,25 @@ export function skip<T>(items: T[] | undefined, count: number): T[] {
 
     return items.filter((_, index) => index >= count);
 }
+
+export function batchValues<T>(values: Iterable<T>, size: number = 2): T[][] {
+    return Array.from(batchValuesImpl(values, size));
+}
+
+function* batchValuesImpl<T>(
+    values: Iterable<T>,
+    size: number,
+): Generator<T[]> {
+    let batch: T[] = [];
+    for (const value of values) {
+        batch.push(value);
+        if (batch.length >= size) {
+            yield batch;
+            batch = [];
+        }
+    }
+
+    if (batch.length > 0) {
+        yield batch;
+    }
+}
