@@ -142,7 +142,7 @@ export function PracticeCheckouts() {
         score: getIntParam('initial', DEFAULT_INITIAL_SCORE),
     };
     return (
-        <div className="p-3 content-background d-flex flex-column justify-content-stretch">
+        <div className="p-3 ps-0 content-background d-flex flex-column justify-content-stretch">
             <h2 className="text-center">
                 Checkouts
                 <button
