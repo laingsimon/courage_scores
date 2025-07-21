@@ -7,7 +7,7 @@ import {
     getSideMnemonicGenerator,
     IMnemonicGenerator,
 } from './MnemonicGenerators';
-import { any, skip, take } from '../../../helpers/collections';
+import { any, batchValues, skip, take } from '../../../helpers/collections';
 import { ILayoutRequest } from './ILayoutRequest';
 import { ILayoutDataForRound } from './ILayoutDataForRound';
 import { ILayoutDataForMatch } from './ILayoutDataForMatch';
@@ -103,12 +103,7 @@ export class UnplayedEngine implements ILayoutEngine {
             : [];
 
         const remainingSidesForThisRoundExceptRequiredToPlayOffAgainstPreviousRound: number =
-            previousRound
-                ? Math.max(
-                      remainingSides.length - previousRound.matches.length,
-                      0,
-                  )
-                : remainingSides.length;
+            previousRound ? 0 : remainingSides.length;
         const remainingSidesExceptThoseRequiredForPreRound: string[] = take(
             remainingSides,
             remainingSidesForThisRoundExceptRequiredToPlayOffAgainstPreviousRound,
@@ -129,8 +124,11 @@ export class UnplayedEngine implements ILayoutEngine {
                     remainingSides,
                     remainingSidesForThisRoundExceptRequiredToPlayOffAgainstPreviousRound,
                 ),
-                previousRound && previousRound.preRound,
+                any(remainingSides),
             );
+        while (any(remainingSides)) {
+            remainingSides.shift();
+        }
 
         return {
             matches: thisRoundMatches.concat(previousRoundWinnerMatches),
@@ -168,63 +166,39 @@ export class UnplayedEngine implements ILayoutEngine {
         context: IRequestContext,
         previousRoundMatches: ILayoutDataForMatch[],
         remainingSides: string[],
-        preRound?: boolean,
+        showMnemonics: boolean,
     ): ILayoutDataForMatch[] {
-        const matches: ILayoutDataForMatch[] = [];
-
-        while (any(previousRoundMatches)) {
-            const matchA: ILayoutDataForMatch | undefined =
-                previousRoundMatches.shift();
-            const matchB: ILayoutDataForMatch | undefined =
-                preRound && any(remainingSides)
-                    ? undefined
-                    : previousRoundMatches.shift(); // could be null;
-            const sideB: string = matchB
-                ? `winner(${matchB.mnemonic})`
-                : this.throwIfNull(
-                      remainingSides.shift()!,
-                      `No remaining sides for match ${matchA!.mnemonic} to be played against`,
-                  );
+        return Array.from(
+            batchValues(
+                remainingSides.concat(
+                    previousRoundMatches.map((m) => `winner(${m.mnemonic})`),
+                ),
+                2,
+            ),
+        ).map((pair) => {
+            const sideAMnemonic: string = pair[0];
+            const sideBMnemonic: string | undefined = pair[1]; // could be, but shouldn't be, undefined
 
             const numberOfSidesOnTheNight: string =
                 context.onTheNightMnemonics.next();
-            const bothSidesAreWinners: boolean | undefined =
-                sideB.startsWith('winner') || undefined;
-            const matchAWinnerSide: ILayoutDataForSide = this.side(
-                `winner(${matchA!.mnemonic})`,
-                bothSidesAreWinners && !preRound ? undefined : true,
+            const sideASide: ILayoutDataForSide = this.side(
+                sideAMnemonic,
+                (showMnemonics && sideAMnemonic.startsWith('winner')) ||
+                    undefined,
             );
             const sideBSide: ILayoutDataForSide = this.side(
-                sideB,
-                bothSidesAreWinners && preRound ? true : undefined,
+                sideBMnemonic,
+                (showMnemonics && sideBMnemonic?.startsWith('winner')) ||
+                    undefined,
             );
 
-            matches.push(
-                !matchB
-                    ? this.match(
-                          context,
-                          sideBSide,
-                          matchAWinnerSide,
-                          numberOfSidesOnTheNight,
-                      )
-                    : this.match(
-                          context,
-                          matchAWinnerSide,
-                          sideBSide,
-                          numberOfSidesOnTheNight,
-                      ),
+            return this.match(
+                context,
+                sideASide,
+                sideBSide,
+                numberOfSidesOnTheNight,
             );
-        }
-
-        return matches;
-    }
-
-    private throwIfNull<T>(value: T, message: string): T {
-        if (!value) {
-            throw new Error(message);
-        }
-
-        return value;
+        });
     }
 
     private side(mnemonic: string, showMnemonic?: boolean): ILayoutDataForSide {

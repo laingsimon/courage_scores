@@ -14,7 +14,7 @@ interface IPracticeScoreAsYouGoDto extends UpdateRecordedScoreAsYouGoDto {
     loaded: boolean;
 }
 
-export function Practice() {
+export function PracticeMatch() {
     const { onError, account, appLoading, fullScreen } = useApp();
     const [dataError, setDataError] = useState<string | null>(null);
     const location = useLocation();
@@ -45,7 +45,7 @@ export function Practice() {
 
     async function clearError() {
         setDataError(null);
-        navigate('/practice');
+        navigate('/practice/match');
     }
 
     async function noop() {
@@ -83,7 +83,7 @@ export function Practice() {
                     autoSave={false}
                     onSaved={async (data: ILoadedScoreAsYouGoDto) => {
                         if (location.hash !== `#${data.id}`) {
-                            navigate(`/practice#${data.id}`);
+                            navigate(`/practice/match#${data.id}`);
                         }
                     }}
                     liveOptions={liveOptions}

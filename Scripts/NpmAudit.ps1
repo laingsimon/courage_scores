@@ -7,9 +7,69 @@ $GitHubMarkdownCodeBlock="``````"
 Import-Module -Name "$PSScriptRoot/NpmFunctions.psm1"
 Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1"
 
+$SilencedVulnerabilitiesPath = "silenced-vulnerabilities.txt"
+$SilencedVulnerabilities = (get-content -Path "$PSScriptRoot\..\$($SilencedVulnerabilitiesPath)") | ConvertFrom-StringData
+$SilencedVulnerabilitiesShouldBeRemoved = $false
+
 Function Write-Message($Message)
 {
     [Console]::Out.WriteLine($Message)
+}
+
+Function Extract-Vulnerabilities($NpmAuditResult)
+{
+    if ($NpmAuditResult.ExitCode -eq 0)
+    {
+        # no vulnerabilities, exit early
+        if ($SilencedVulnerabilities.Count -ge 0)
+        {
+            # some vulnerabilities are needlessly silenced
+            Write-Host -ForegroundColor Red "All silenced vulnerabilies ($($SilencedVulnerabilitiesPath)) should be removed: $($SilencedVulnerabilities.Keys)"
+            $SilencedVulnerabilitiesShouldBeRemoved = $true
+        }
+        return
+    }
+
+    $Regex = "(.+) - https://github.com/advisories/(GHSA-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+)"
+    $Matches = [System.Text.RegularExpressions.Regex]::Matches($NpmAuditResult.output, $Regex, [System.Text.RegularExpressions.RegexOptions]::Multiline)
+    $Vulnerabilities = @{}
+    $Ignored = @{}
+
+    $Matches | ForEach-Object {
+        $Vulnerability = $_.Groups[2].Value
+        $Description = $_.Groups[1].Value
+
+        if ($Vulnerabilities.ContainsKey($Vulnerability)) 
+        {
+            return
+        }
+
+        if ($SilencedVulnerabilities.ContainsKey($vulnerability))
+        {
+            if ($Ignored.ContainsKey($Vulnerability) -eq $false)
+            { 
+                $Ignored.Add($Vulnerability, $true)
+                Write-Host -ForegroundColor DarkRed "Ignoring vulnerability $($Vulnerability) ($($SilencedVulnerabilities[$Vulnerability]))"
+            }
+            return
+        }
+
+        Write-Host -ForegroundColor Red "Found vulnerability $($Vulnerability) ($($Description))"
+        $Vulnerabilities.Add($Vulnerability, $Description)
+    }
+
+    $SilencedVulnerabilities.Keys | ForEach-Object {
+        $Vulnerability = $_
+
+        if ($Ignored.ContainsKey($Vulnerability) -eq $false -and $Vulnerabilities.ContainsKey($Vulnerability) -eq $false)
+        {
+            # can remove this vulnerability
+            Write-Host -ForegroundColor Red "$($Vulnerability) should be removed from the silenced-vulnerabilities list ($($SilencedVulnerabilitiesPath))"
+            $SilencedVulnerabilitiesShouldBeRemoved = $true
+        }
+    }
+
+    return $Vulnerabilities
 }
 
 $RefName=$env:GITHUB_REF_NAME # will be in the format <pr_number>/merge
@@ -55,8 +115,11 @@ if ($GitHubEvent -eq "pull_request")
     $OutdatedComments = [array] (Get-PullRequestComments -GitHubToken $Token -Repo $Repo -CommentsUrl $CommentsUrl -CommentHeading $OutdatedCommentHeading)
 }
 
-$NpmAuditResult = Invoke-NpmCommand -Command "audit --audit-level=moderate"
-If ($NpmAuditResult.ExitCode -ne 0)
+$NpmAuditResult = Invoke-NpmCommand -Command "audit"
+$Vulnerabilities = Extract-Vulnerabilities -NpmAuditResult $NpmAuditResult
+$FormattedVulnerabilities = $Vulnerabilities.Keys | Select-Object @{ label='url'; expression={"$($Vulnerabilities[$_]) - https://github.com/advisories/$($_)"} } | Join-String -property url -Separator "`n"
+
+If ($Vulnerabilities.Count -gt 0)
 {
     $BypassInstruction="Add comment to this PR with the content **$($BypassNpmAuditViaCommentCommentContent)** to bypass these vulnerabilities when the workflow runs next"
     if ($BypassNpmAuditViaCommentComments.Length -gt 0)
@@ -66,11 +129,11 @@ If ($NpmAuditResult.ExitCode -ne 0)
 
     if ($GitHubEvent -eq "pull_request")
     {
-        Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $AuditComments -Markdown "#### $($AuditCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($NpmAuditResult.output)`n$($NpmAuditResult.error)`n$($GitHubMarkdownCodeBlock)`n$($BypassInstruction)"
+        Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $AuditComments -Markdown "#### $($AuditCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($FormattedVulnerabilities)`n$($NpmAuditResult.error)`n$($GitHubMarkdownCodeBlock)`n$($BypassInstruction)"
     }
     else
     {
-        Write-Host "#### $($AuditCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($NpmAuditResult.output)`n$($NpmAuditResult.error)`n$($GitHubMarkdownCodeBlock)`n$($BypassInstruction)"
+        Write-Host "#### $($AuditCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($FormattedVulnerabilities)`n$($NpmAuditResult.error)`n$($GitHubMarkdownCodeBlock)`n$($BypassInstruction)"
     }
 }
 elseif ($GitHubEvent -eq "pull_request")
@@ -101,4 +164,8 @@ If ($NpmAuditResult.ExitCode -ne 0 -and $BypassNpmAuditViaCommentComments.Length
     Exit 0
 }
 
-Exit $NpmAuditResult.ExitCode
+if ($Vulnerabilities.Count -eq 0 -and $SilencedVulnerabilitiesShouldBeRemoved -eq $true)
+{
+    Exit -1 ## silenced vulnerabilities should be removed, fail the build
+}
+Exit 0
