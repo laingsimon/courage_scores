@@ -403,8 +403,8 @@ describe('PrintableSheet', () => {
                 match('e', '0', 'f', '0'),
             ]);
             expect(rounds[1].matches).toEqual([
-                { sideBmnemonic: 'winner(M1)' },
-                { sideBmnemonic: 'winner(M2)' },
+                {},
+                { sideAmnemonic: 'winner(M1)', sideBmnemonic: 'winner(M2)' },
             ]);
             expect(rounds[2].matches).toEqual([{}]);
         });
@@ -489,8 +489,8 @@ describe('PrintableSheet', () => {
             expect(rounds[1].matches).toEqual([
                 match('b', '2', 'c', '1', 'a'),
                 match('e', '2', 'h', '1', 'a'),
-                { sideBmnemonic: 'e' },
-                { sideBmnemonic: 'h' },
+                { sideAmnemonic: 'b', sideBmnemonic: 'c' },
+                { sideAmnemonic: 'e', sideBmnemonic: 'h' },
             ]);
             expect(rounds[2].matches).toEqual([
                 match('b', '2', 'e', '1', 'a'),
