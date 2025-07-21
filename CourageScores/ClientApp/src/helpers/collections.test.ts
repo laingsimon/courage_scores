@@ -3,6 +3,7 @@
 import {
     all,
     any,
+    batchValues,
     count,
     distinct,
     elementAt,
@@ -533,6 +534,32 @@ describe('collections', () => {
             const result: string[] = skip(['a', 'b'], 1);
 
             expect(result).toEqual(['b']);
+        });
+    });
+
+    describe('batchValues', () => {
+        it('returns empty array when passed empty', () => {
+            const result = batchValues([]);
+
+            expect(result).toEqual([]);
+        });
+
+        it('returns one batch with one item when passed a single entry', () => {
+            const result = batchValues([1]);
+
+            expect(result).toEqual([[1]]);
+        });
+
+        it('returns a single batch with 2 items when passed 2 items', () => {
+            const result = batchValues([1, 2]);
+
+            expect(result).toEqual([[1, 2]]);
+        });
+
+        it('returns 2 batches when passed 3 items and batch size is 2', () => {
+            const result = batchValues([1, 2, 3]);
+
+            expect(result).toEqual([[1, 2], [3]]);
         });
     });
 });
