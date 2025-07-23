@@ -152,7 +152,7 @@ function Format-ReleaseDescription($Commits, $Milestone)
         }
         else
         {
-            $Ancillary.Add(  ( Format-AncillaryMessage -Message $Commit.comment.Trim() )  )
+            $Ancillary.Add(  ( Format-AncillaryChange -Message $Commit.comment.Trim() )  )
         }
     }
     
