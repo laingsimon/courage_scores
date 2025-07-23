@@ -207,7 +207,7 @@ function Format-AncillaryChange($Message)
     $DependabotUpdate = [System.Text.RegularExpressions.Regex]::Match($Message, $DependabotRegex)
     if ($DependabotUpdate.Success -eq $true)
     {
-        return "Update $($DependabotUpdate.Groups[1].Value) to $($DependabotUpdate.Groups[3].Value)"
+        return "Update **$($DependabotUpdate.Groups[1].Value)** to $($DependabotUpdate.Groups[3].Value)"
     }
 
     return $Message
