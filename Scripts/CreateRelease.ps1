@@ -152,7 +152,8 @@ function Format-ReleaseDescription($Commits, $Milestone)
         }
         else
         {
-            $Ancillary.Add($Commit.comment.Trim())
+            
+            $Ancillary.Add(Format-AncillaryMessage -Message $Commit.comment.Trim())
         }
     }
     
@@ -198,6 +199,19 @@ function Format-ReleaseDescription($Commits, $Milestone)
     }
 
     return "$($ChangeDescription)$($BugFixDescription)$($AncillaryDescription)`n"
+}
+
+function Format-AncillaryChange($Message)
+{
+    ## Bump jest from 30.0.4 to 30.0.5 in /CourageScores/ClientApp
+    $DependabotRegex = "^Bump (.+) from ([0-9.]+) to ([0-9.]+) in .+"
+    $DependabotUpdate = [System.Text.RegularExpressions.Regex]::Match($Message, $DependabotRegex)
+    if ($DependabotUpdate.Success -eq $true)
+    {
+        return "Update $($DependabotUpdate.Groups[1].Value) to $($DependabotUpdate.Groups[3].Value)"
+    }
+
+    return $Message
 }
 
 function Create-PullRequest($Milestone, $Description, $Head, $Base)
