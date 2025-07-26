@@ -168,4 +168,9 @@ if ($Vulnerabilities.Count -eq 0 -and $SilencedVulnerabilitiesShouldBeRemoved -e
 {
     Exit -1 ## silenced vulnerabilities should be removed, fail the build
 }
+
+if ($Vulnerabilities.Count -gt 0)
+{
+    Exit -2 ## some vulnerabilities exist, either resolve them or ignore them
+}
 Exit 0
