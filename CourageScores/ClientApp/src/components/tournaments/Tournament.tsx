@@ -236,7 +236,7 @@ export function Tournament() {
             ),
             tournamentData.seasonId,
         )
-            .filter((teamSeasonDto: TeamSeasonDto) => teamSeasonDto)
+            .flatMap((teamDto: TeamDto) => teamDto?.seasons ?? [])
             .flatMap((teamSeason: TeamSeasonDto) =>
                 teamSeason.players!.map(
                     (p: TeamPlayerDto) => p as ISelectablePlayer,
