@@ -441,6 +441,7 @@ describe('Tournament', () => {
                     '.content-background',
                 )!;
                 expect(container.className).toContain('loading-background');
+                reportedError.verifyNoError();
             });
 
             it('when tournament not found', async () => {
@@ -473,6 +474,7 @@ describe('Tournament', () => {
                 expect(heading().textContent).toContain(
                     'TYPE at ADDRESS on 2 Jan - NOTES🔗🖨️',
                 );
+                reportedError.verifyNoError();
             });
 
             it('tournament with team sides only', async () => {
@@ -485,6 +487,7 @@ describe('Tournament', () => {
                 expect(heading().textContent).toContain(
                     'TYPE at ADDRESS on 2 Jan - NOTES🔗🖨️',
                 );
+                reportedError.verifyNoError();
             });
 
             it('tournament with sides and players', async () => {
@@ -501,6 +504,7 @@ describe('Tournament', () => {
                 const selector = 'div[datatype="printable-sheet"]';
                 const printable = context.container.querySelector(selector);
                 expect(printable).toBeTruthy();
+                reportedError.verifyNoError();
             });
         });
 
