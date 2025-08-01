@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using CourageScores;
@@ -76,10 +77,18 @@ app.UseCors(cors =>
 var robotsTag = configuration["X-Robots-Tag"];
 if (!string.IsNullOrEmpty(robotsTag))
 {
+    Debug.WriteLine($"Setting X-Robots-Tag to {robotsTag} in every response");
     app.Use(async (context, next) =>
     {
-       context.Response.Headers.Append("X-Robots-Tag", robotsTag);
-       await next.Invoke();
+        context.Response.OnStarting(state =>
+        {
+            var context = (HttpContext)state;
+            Debug.WriteLine("Setting X-Robots-Tag");
+            context.Response.Headers.Append("X-Robots-Tag", robotsTag);
+            return Task.CompletedTask;
+        }, context);
+
+        await next.Invoke();
     });
 }
 
