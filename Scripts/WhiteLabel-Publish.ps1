@@ -1,4 +1,4 @@
-param($PublishDir, [switch] $KeepCustomHeaders)
+param($PublishDir, $RobotsTag)
 
 $FilesToCopyIntoBrand = "layout.css","web.config","manifest.json","host.html","parentHeight.js","privacy-policy.html","terms-of-service.html"
 $WorkingDirectory = (Get-Item .).FullName
@@ -28,10 +28,10 @@ function Set-BuiltContent([string] $File, [string] $Content)
     [System.IO.File]::WriteAllText($File, $AllContent, [System.Text.Encoding]::UTF8)
 }
 
-function Remove-CustomHeaderFromWebConfig([string] $File)
+function Set-RobotsTagHeaderInWebConfig([string] $File)
 {
     $AllContent = Get-Content -Path $File -Raw -Encoding UTF8
-    $AllContent = [System.Text.RegularExpressions.Regex]::Replace($AllContent, "<customHeaders>(.+)<\/customHeaders>", "", $RegexSingleLine)
+    $AllContent = [System.Text.RegularExpressions.Regex]::Replace($AllContent, "$RobotsTag", $RobotsTag, $RegexSingleLine)
 
     $Brand = $([System.IO.Path]::GetFileName([System.IO.Path]::GetDirectoryName($File)))
     $FileName = $([System.IO.Path]::GetFileName($File))
@@ -58,8 +58,5 @@ Get-ChildItem -Path "$BuildDir" -Directory `
             Copy-Item $FileToCopy "$($Directory.FullName)/$_"
         }
 
-        if ($KeepCustomHeaders -ne $true)
-        {
-            Remove-CustomHeaderFromWebConfig -File "$($Directory.FullName)/web.config"
-        }
+        Set-RobotsTagHeaderInWebConfig -File "$($Directory.FullName)/web.config"
     }
