@@ -1,4 +1,4 @@
-param($PublishDir)
+param($PublishDir, [switch] $KeepCustomHeaders)
 
 $FilesToCopyIntoBrand = "layout.css","web.config","manifest.json","host.html","parentHeight.js","privacy-policy.html","terms-of-service.html"
 $WorkingDirectory = (Get-Item .).FullName
@@ -58,5 +58,8 @@ Get-ChildItem -Path "$BuildDir" -Directory `
             Copy-Item $FileToCopy "$($Directory.FullName)/$_"
         }
 
-        Remove-CustomHeaderFromWebConfig -File "$($Directory.FullName)/web.config"
+        if ($KeepCustomHeaders -ne $true)
+        {
+            Remove-CustomHeaderFromWebConfig -File "$($Directory.FullName)/web.config"
+        }
     }
