@@ -1,6 +1,6 @@
 param($PublishDir, $RobotsTag)
 
-$FilesToCopyIntoBrand = "layout.css","web.config","manifest.json","host.html","parentHeight.js","privacy-policy.html","terms-of-service.html"
+$FilesToCopyIntoBrand = "layout.css","manifest.json","host.html","parentHeight.js","privacy-policy.html","terms-of-service.html"
 $WorkingDirectory = (Get-Item .).FullName
 $RegexSingleLine=[System.Text.RegularExpressions.RegexOptions]::Singleline
 $BuildDir="$($WorkingDirectory)/$($PublishDir)"
