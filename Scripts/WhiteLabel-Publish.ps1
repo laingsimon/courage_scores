@@ -31,7 +31,7 @@ function Set-BuiltContent([string] $File, [string] $Content)
 function Set-WebConfigContent([string] $File)
 {
     $AllContent = Get-Content -Path $File -Raw -Encoding UTF8
-    $AllContent = [System.Text.RegularExpressions.Regex]::Replace($AllContent, "$RobotsTag", $RobotsTag, $RegexSingleLine)
+    $AllContent = [System.Text.RegularExpressions.Regex]::Replace($AllContent, "`$RobotsTag", $RobotsTag, $RegexSingleLine)
 
     $Brand = $([System.IO.Path]::GetFileName([System.IO.Path]::GetDirectoryName($File)))
     $FileName = $([System.IO.Path]::GetFileName($File))
