@@ -15,6 +15,10 @@ on:
       commit-date:
         required: true
         type: string
+      robots-tag-header:
+        required: false
+        type: string
+        default: noindex
 permissions:
   pull-requests: write  
 jobs:
@@ -71,7 +75,7 @@ jobs:
 
       - name: Setup whitelabel variants
         shell: pwsh
-        run: ../../Scripts/WhiteLabel-Publish.ps1 -PublishDir ../myapp/wwwroot
+        run: ../../Scripts/WhiteLabel-Publish.ps1 -PublishDir ../myapp/wwwroot ${{ inputs.robots-tag-header }}
         working-directory: ./CourageScores/ClientApp
 
       - name: Publish react coverage
