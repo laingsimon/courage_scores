@@ -75,7 +75,7 @@ jobs:
 
       - name: Setup whitelabel variants
         shell: pwsh
-        run: ../../Scripts/WhiteLabel-Publish.ps1 -PublishDir ../myapp/wwwroot --RobotsTag ${{ inputs.robots-tag-header }}
+        run: ../../Scripts/WhiteLabel-Publish.ps1 -PublishDir ../myapp/wwwroot ${{ inputs.robots-tag-header }}
         working-directory: ./CourageScores/ClientApp
 
       - name: Publish react coverage
