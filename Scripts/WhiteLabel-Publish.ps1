@@ -28,7 +28,7 @@ function Set-BuiltContent([string] $File, [string] $Content)
     [System.IO.File]::WriteAllText($File, $AllContent, [System.Text.Encoding]::UTF8)
 }
 
-function Set-RobotsTagHeaderInWebConfig([string] $File)
+function Set-WebConfigContent([string] $File)
 {
     $AllContent = Get-Content -Path $File -Raw -Encoding UTF8
     $AllContent = [System.Text.RegularExpressions.Regex]::Replace($AllContent, "$RobotsTag", $RobotsTag, $RegexSingleLine)
@@ -58,5 +58,5 @@ Get-ChildItem -Path "$BuildDir" -Directory `
             Copy-Item $FileToCopy "$($Directory.FullName)/$_"
         }
 
-        Set-RobotsTagHeaderInWebConfig -File "$($Directory.FullName)/web.config"
+        Set-WebConfigContent -File "$($Directory.FullName)/web.config"
     }
