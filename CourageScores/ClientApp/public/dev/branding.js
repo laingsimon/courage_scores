@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 window.branding = {
     name: 'Courage Scores',
     email: 'info@couragescores.co.uk',
