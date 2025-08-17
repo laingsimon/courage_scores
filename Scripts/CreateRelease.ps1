@@ -131,6 +131,7 @@ function Format-ReleaseDescription($Commits, $Milestone)
     $Ancillary = New-Object System.Collections.Generic.List[string]
     $BugFixes = @{}
     $IssueTypeCache = @{}
+    $Updates = New-Object System.Collections.Generic.List[string]
 
     $Commits | ForEach-Object {
         $Commit = $_
@@ -159,13 +160,22 @@ function Format-ReleaseDescription($Commits, $Milestone)
         }
         else
         {
-            $Ancillary.Add(  ( Format-AncillaryChange -Message $Commit.comment.Trim() )  )
+            $AncillaryChange = Format-AncillaryChange -Message $Commit.comment.Trim()
+            if ($AncillaryChange -match "``Nuget``" -or $AncillaryChange -match "``Npm``")
+            {
+                $Updates.Add($AncillaryChange)
+            }
+            else
+            {
+                $Ancillary.Add($AncillaryChange)
+            }
         }
     }
     
     $ChangeDescription = ""
     $BugFixDescription = ""
     $AncillaryDescription = ""
+    $UpdatesDescription = ""
     
     $Changes.Keys | ForEach-Object {
         if ($ChangeDescription -eq "")
@@ -191,7 +201,7 @@ function Format-ReleaseDescription($Commits, $Milestone)
         $BugFixDescription = "$($BugFixDescription)- #$($_)`n"
     }
 
-    $Ancillary | Sort-Object | ForEach-Object {
+    $Ancillary | ForEach-Object {
         if ($AncillaryDescription -eq "")
         {
             if ($ChangeDescription -ne "" -or $BugFixDescription -ne "")
@@ -204,7 +214,20 @@ function Format-ReleaseDescription($Commits, $Milestone)
         $AncillaryDescription = "$($AncillaryDescription)- $($_)`n"
     }
 
-    return "$($ChangeDescription)$($BugFixDescription)$($AncillaryDescription)`n"
+    $Updates | Sort-Object | ForEach-Object {
+        if ($UpdatesDescription -eq "")
+        {
+            if ($ChangeDescription -ne "" -or $BugFixDescription -ne "" -or $AncillaryDescription -ne "")
+            {
+                $UpdatesDescription = "`n"
+            }
+            $UpdatesDescription = "$($UpdatesDescription)### Updates`n"
+        }
+
+        $UpdatesDescription = "$($UpdatesDescription)- $($_)`n"
+    }
+
+    return "$($ChangeDescription)$($BugFixDescription)$($AncillaryDescription)$($UpdatesDescription)`n"
 }
 
 function Format-AncillaryChange($Message)
