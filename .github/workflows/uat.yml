@@ -30,6 +30,7 @@ jobs:
       branch-name: 'main'
       commit-sha: ${{ github.sha }}
       commit-date: ${{ needs.setup.outputs.commit-date }}
+      frame-host-url: "http://thecourageleague.co.uk"
 
   report_tests:
     runs-on: ubuntu-latest

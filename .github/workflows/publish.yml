@@ -19,6 +19,9 @@ on:
         required: false
         type: string
         default: noindex
+      frame-host-url:
+        required: false
+        type: string
 permissions:
   pull-requests: write  
 jobs:
@@ -75,7 +78,7 @@ jobs:
 
       - name: Setup whitelabel variants
         shell: pwsh
-        run: ../../Scripts/WhiteLabel-Publish.ps1 -PublishDir ../myapp/wwwroot ${{ inputs.robots-tag-header }}
+        run: ../../Scripts/WhiteLabel-Publish.ps1 -PublishDir ../myapp/wwwroot ${{ inputs.robots-tag-header }} ${{ inputs.frame-host-url }}
         working-directory: ./CourageScores/ClientApp
 
       - name: Publish react coverage

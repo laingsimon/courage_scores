@@ -29,6 +29,7 @@ jobs:
       commit-sha: ${{ github.sha }}
       commit-date: ${{ needs.setup.outputs.commit-date }}
       robots-tag-header: all
+      frame-host-url: "http://thecourageleague.co.uk"
 
   report_tests:
     runs-on: ubuntu-latest
