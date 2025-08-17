@@ -191,7 +191,7 @@ function Format-ReleaseDescription($Commits, $Milestone)
         $BugFixDescription = "$($BugFixDescription)- #$($_)`n"
     }
 
-    $Ancillary | ForEach-Object {
+    $Ancillary | Sort-Object | ForEach-Object {
         if ($AncillaryDescription -eq "")
         {
             if ($ChangeDescription -ne "" -or $BugFixDescription -ne "")
@@ -217,25 +217,25 @@ function Format-AncillaryChange($Message)
     $DependabotUpdate = [System.Text.RegularExpressions.Regex]::Match($Message, $DependabotFromAndToNpmRegex)
     if ($DependabotUpdate.Success -eq $true)
     {
-        return "[Npm] Update **$($DependabotUpdate.Groups[1].Value)** to $($DependabotUpdate.Groups[3].Value)"
+        return "``Npm`` Update **$($DependabotUpdate.Groups[1].Value)** to $($DependabotUpdate.Groups[3].Value)"
     }
 
     $DependabotUpdate = [System.Text.RegularExpressions.Regex]::Match($Message, $DependabotFromAndToNugetRegex)
     if ($DependabotUpdate.Success -eq $true)
     {
-        return "[Nuget] Update **$($DependabotUpdate.Groups[1].Value)** to $($DependabotUpdate.Groups[3].Value)"
+        return "``Nuget`` Update **$($DependabotUpdate.Groups[1].Value)** to $($DependabotUpdate.Groups[3].Value)"
     }
 
     $DependabotUpdate = [System.Text.RegularExpressions.Regex]::Match($Message, $DependabotUpdateNpmRegex)
     if ($DependabotUpdate.Success -eq $true)
     {
-        return "[Npm] Update **$($DependabotUpdate.Groups[1].Value)**"
+        return "``Npm`` Update **$($DependabotUpdate.Groups[1].Value)**"
     }
 
     $DependabotUpdate = [System.Text.RegularExpressions.Regex]::Match($Message, $DependabotUpdateNugetRegex)
     if ($DependabotUpdate.Success -eq $true)
     {
-        return "[Nuget] Update **$($DependabotUpdate.Groups[1].Value)** to $($DependabotUpdate.Groups[2].Value)"
+        return "``Nuget`` Update **$($DependabotUpdate.Groups[1].Value)** to $($DependabotUpdate.Groups[2].Value)"
     }
 
     return $Message
