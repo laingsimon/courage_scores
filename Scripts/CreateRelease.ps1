@@ -214,6 +214,7 @@ function Format-AncillaryChange($Message)
     $DependabotUpdateNpmRegex = "^Bump (.+) in .+"
     $DependabotFromAndToNugetRegex = "^Bump (.+) from (.+) to (.+)"
     $DependabotUpdateNugetRegex = "^Bump (.+) to (.+)"
+    $DependabotUpdateMultipleNugetRegex = "^Bump (.+) and (\d) others"
     $DependabotUpdate = [System.Text.RegularExpressions.Regex]::Match($Message, $DependabotFromAndToNpmRegex)
     if ($DependabotUpdate.Success -eq $true)
     {
@@ -236,6 +237,12 @@ function Format-AncillaryChange($Message)
     if ($DependabotUpdate.Success -eq $true)
     {
         return "``Nuget`` Update **$($DependabotUpdate.Groups[1].Value)** to $($DependabotUpdate.Groups[2].Value)"
+    }
+
+    $DependabotUpdate = [System.Text.RegularExpressions.Regex]::Match($Message, $DependabotUpdateMultipleNugetRegex)
+    if ($DependabotUpdate.Success -eq $true)
+    {
+        return "``Nuget`` Update **$($DependabotUpdate.Groups[1].Value)** and $($DependabotUpdate.Groups[2].Value) others"
     }
 
     return $Message
