@@ -63,21 +63,28 @@ function Get-TicketType($IssueReference, $IssueTypeCache)
         return $IssueTypeCache[$IssueReference]
     }
 
-    $Response = Invoke-GitHubApiGetRequest -Uri "https://api.github.com/repos/$($Repo)/issues/$($IssueReference)/labels"
-
-    $name = @{label='name'; expression={$_.name}}
-
-    # Write-Host -ForegroundColor Magenta $Response
-    $labels = (ConvertFrom-Json -InputObject $Response) | Select-Object -Property $name
     $type = "issue"
+    try
+    {
+        $Response = Invoke-GitHubApiGetRequest -Uri "https://api.github.com/repos/$($Repo)/issues/$($IssueReference)/labels"
 
-    $labels | ForEach-Object {
-        $name = $_.name
+        $name = @{label='name'; expression={$_.name}}
 
-        if ($name -eq "bug")
-        {
-            $type = "bug"
+        # Write-Host -ForegroundColor Magenta $Response
+        $labels = (ConvertFrom-Json -InputObject $Response) | Select-Object -Property $name
+
+        $labels | ForEach-Object {
+            $name = $_.name
+
+            if ($name -eq "bug")
+            {
+                $type = "bug"
+            }
         }
+    }
+    catch 
+    {
+        Write-Error "Could not find issue $($IssueReference) in repo $($Repo): $($_.Exception)"
     }
 
 
