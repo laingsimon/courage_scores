@@ -1,6 +1,6 @@
-param($PublishDir)
+param($PublishDir, $RobotsTag, $FrameHostUrl)
 
-$FilesToCopyIntoBrand = "layout.css","web.config","manifest.json","host.html","parentHeight.js","privacy-policy.html","terms-of-service.html"
+$FilesToCopyIntoBrand = "web.config","robots.txt","layout.css","manifest.json","host.html","parentHeight.js","privacy-policy.html","terms-of-service.html"
 $WorkingDirectory = (Get-Item .).FullName
 $RegexSingleLine=[System.Text.RegularExpressions.RegexOptions]::Singleline
 $BuildDir="$($WorkingDirectory)/$($PublishDir)"
@@ -28,10 +28,17 @@ function Set-BuiltContent([string] $File, [string] $Content)
     [System.IO.File]::WriteAllText($File, $AllContent, [System.Text.Encoding]::UTF8)
 }
 
-function Remove-CustomHeaderFromWebConfig([string] $File)
+function Set-WebConfigContent([string] $File)
 {
     $AllContent = Get-Content -Path $File -Raw -Encoding UTF8
-    $AllContent = [System.Text.RegularExpressions.Regex]::Replace($AllContent, "<customHeaders>(.+)<\/customHeaders>", "", $RegexSingleLine)
+    Write-Host "Replacing $($green)X-Robots-Tag$($reset) with $($blue)$($RobotsTag)$($reset)"
+    $AllContent = $AllContent -replace "<add name=""X-Robots-Tag"" value=""noindex"" />", "<add name=""X-Robots-Tag"" value=""$($RobotsTag)"" />"
+    if ($FrameHostUrl -ne "" -and $FrameHostUrl -ne $null)
+    {
+        Write-Host "Permitting site to be framed from $($blue)$($FrameHostUrl)$($reset)"
+        $AllContent = $AllContent -replace "<add name=""X-Frame-Options"" value=""DENY"" />", "<add name=""X-Frame-Options"" value=""ALLOW-FROM ($($FrameHostUrl))"" />"
+        $AllContent = $AllContent -replace "<add name=""Content-Security-Policy"" value=""default-src 'self' data:"" />", "<add name=""Content-Security-Policy"" value=""default-src 'self' data:; frame-ancestors $($FrameHostUrl)"" />"
+    }
 
     $Brand = $([System.IO.Path]::GetFileName([System.IO.Path]::GetDirectoryName($File)))
     $FileName = $([System.IO.Path]::GetFileName($File))
@@ -58,5 +65,5 @@ Get-ChildItem -Path "$BuildDir" -Directory `
             Copy-Item $FileToCopy "$($Directory.FullName)/$_"
         }
 
-        Remove-CustomHeaderFromWebConfig -File "$($Directory.FullName)/web.config"
+        Set-WebConfigContent -File "$($Directory.FullName)/web.config"
     }

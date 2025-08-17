@@ -63,21 +63,28 @@ function Get-TicketType($IssueReference, $IssueTypeCache)
         return $IssueTypeCache[$IssueReference]
     }
 
-    $Response = Invoke-GitHubApiGetRequest -Uri "https://api.github.com/repos/$($Repo)/issues/$($IssueReference)/labels"
-
-    $name = @{label='name'; expression={$_.name}}
-
-    # Write-Host -ForegroundColor Magenta $Response
-    $labels = (ConvertFrom-Json -InputObject $Response) | Select-Object -Property $name
     $type = "issue"
+    try
+    {
+        $Response = Invoke-GitHubApiGetRequest -Uri "https://api.github.com/repos/$($Repo)/issues/$($IssueReference)/labels"
 
-    $labels | ForEach-Object {
-        $name = $_.name
+        $name = @{label='name'; expression={$_.name}}
 
-        if ($name -eq "bug")
-        {
-            $type = "bug"
+        # Write-Host -ForegroundColor Magenta $Response
+        $labels = (ConvertFrom-Json -InputObject $Response) | Select-Object -Property $name
+
+        $labels | ForEach-Object {
+            $name = $_.name
+
+            if ($name -eq "bug")
+            {
+                $type = "bug"
+            }
         }
+    }
+    catch 
+    {
+        Write-Error "Could not find issue $($IssueReference) in repo $($Repo): $($_.Exception)"
     }
 
 
@@ -124,6 +131,7 @@ function Format-ReleaseDescription($Commits, $Milestone)
     $Ancillary = New-Object System.Collections.Generic.List[string]
     $BugFixes = @{}
     $IssueTypeCache = @{}
+    $Updates = New-Object System.Collections.Generic.List[string]
 
     $Commits | ForEach-Object {
         $Commit = $_
@@ -152,13 +160,22 @@ function Format-ReleaseDescription($Commits, $Milestone)
         }
         else
         {
-            $Ancillary.Add(  ( Format-AncillaryChange -Message $Commit.comment.Trim() )  )
+            $AncillaryChange = Format-AncillaryChange -Message $Commit.comment.Trim()
+            if ($AncillaryChange -match "``Nuget``" -or $AncillaryChange -match "``Npm``")
+            {
+                $Updates.Add($AncillaryChange)
+            }
+            else
+            {
+                $Ancillary.Add($AncillaryChange)
+            }
         }
     }
     
     $ChangeDescription = ""
     $BugFixDescription = ""
     $AncillaryDescription = ""
+    $UpdatesDescription = ""
     
     $Changes.Keys | ForEach-Object {
         if ($ChangeDescription -eq "")
@@ -197,24 +214,58 @@ function Format-ReleaseDescription($Commits, $Milestone)
         $AncillaryDescription = "$($AncillaryDescription)- $($_)`n"
     }
 
-    return "$($ChangeDescription)$($BugFixDescription)$($AncillaryDescription)`n"
+    $Updates | Sort-Object | ForEach-Object {
+        if ($UpdatesDescription -eq "")
+        {
+            if ($ChangeDescription -ne "" -or $BugFixDescription -ne "" -or $AncillaryDescription -ne "")
+            {
+                $UpdatesDescription = "`n"
+            }
+            $UpdatesDescription = "$($UpdatesDescription)### Updates`n"
+        }
+
+        $UpdatesDescription = "$($UpdatesDescription)- $($_)`n"
+    }
+
+    return "$($ChangeDescription)$($BugFixDescription)$($AncillaryDescription)$($UpdatesDescription)`n"
 }
 
 function Format-AncillaryChange($Message)
 {
     ## Bump jest from 30.0.4 to 30.0.5 in /CourageScores/ClientApp
-    $DependabotFromAndToRegex = "^Bump (.+) from ([0-9.]+) to ([0-9.]+) in .+"
-    $DependabotUpdateRegex = "^Bump (.+) in .+"
-    $DependabotUpdate = [System.Text.RegularExpressions.Regex]::Match($Message, $DependabotFromAndToRegex)
+    $DependabotFromAndToNpmRegex = "^Bump (.+) from ([0-9.]+) to ([0-9.]+) in .+"
+    $DependabotUpdateNpmRegex = "^Bump (.+) in .+"
+    $DependabotFromAndToNugetRegex = "^Bump (.+) from (.+) to (.+)"
+    $DependabotUpdateNugetRegex = "^Bump (.+) to (.+)"
+    $DependabotUpdateMultipleNugetRegex = "^Bump (.+) and (\d) others"
+    $DependabotUpdate = [System.Text.RegularExpressions.Regex]::Match($Message, $DependabotFromAndToNpmRegex)
     if ($DependabotUpdate.Success -eq $true)
     {
-        return "Update **$($DependabotUpdate.Groups[1].Value)** to $($DependabotUpdate.Groups[3].Value)"
+        return "``Npm`` Update **$($DependabotUpdate.Groups[1].Value)** to $($DependabotUpdate.Groups[3].Value)"
     }
 
-    $DependabotUpdate = [System.Text.RegularExpressions.Regex]::Match($Message, $DependabotUpdateRegex)
+    $DependabotUpdate = [System.Text.RegularExpressions.Regex]::Match($Message, $DependabotFromAndToNugetRegex)
     if ($DependabotUpdate.Success -eq $true)
     {
-        return "Update **$($DependabotUpdate.Groups[1].Value)**"
+        return "``Nuget`` Update **$($DependabotUpdate.Groups[1].Value)** to $($DependabotUpdate.Groups[3].Value)"
+    }
+
+    $DependabotUpdate = [System.Text.RegularExpressions.Regex]::Match($Message, $DependabotUpdateNpmRegex)
+    if ($DependabotUpdate.Success -eq $true)
+    {
+        return "``Npm`` Update **$($DependabotUpdate.Groups[1].Value)**"
+    }
+
+    $DependabotUpdate = [System.Text.RegularExpressions.Regex]::Match($Message, $DependabotUpdateNugetRegex)
+    if ($DependabotUpdate.Success -eq $true)
+    {
+        return "``Nuget`` Update **$($DependabotUpdate.Groups[1].Value)** to $($DependabotUpdate.Groups[2].Value)"
+    }
+
+    $DependabotUpdate = [System.Text.RegularExpressions.Regex]::Match($Message, $DependabotUpdateMultipleNugetRegex)
+    if ($DependabotUpdate.Success -eq $true)
+    {
+        return "``Nuget`` Update **$($DependabotUpdate.Groups[1].Value)** and $($DependabotUpdate.Groups[2].Value) others"
     }
 
     return $Message
