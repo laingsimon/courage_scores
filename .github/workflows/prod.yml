@@ -28,7 +28,7 @@ jobs:
       branch-name: 'release'
       commit-sha: ${{ github.sha }}
       commit-date: ${{ needs.setup.outputs.commit-date }}
-      robots-tag: all
+      robots-tag-header: all
 
   report_tests:
     runs-on: ubuntu-latest
