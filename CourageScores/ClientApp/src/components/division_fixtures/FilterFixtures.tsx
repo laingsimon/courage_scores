@@ -39,6 +39,7 @@ export function FilterFixtures() {
                     {text}
                 </Link>
             ),
+            className: 'px-0',
         };
     }
 

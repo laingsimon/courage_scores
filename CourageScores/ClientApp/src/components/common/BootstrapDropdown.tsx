@@ -133,7 +133,7 @@ export function BootstrapDropdown({
                         key={o.value ?? index}
                         disabled={o.disabled || false}
                         role="menuitem"
-                        className={`dropdown-item px-0 ${getItemClassName(o)}`}
+                        className={`dropdown-item ${getItemClassName(o)}`}
                         onClick={async () =>
                             onChange ? await onChange(o.value) : null
                         }>
