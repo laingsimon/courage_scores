@@ -6,11 +6,11 @@ namespace CourageScores.Models.Adapters.Game;
 
 public class TournamentMatchAdapter : IAdapter<TournamentMatch, TournamentMatchDto>
 {
-    private readonly IAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
+    private readonly ISimpleAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
     private readonly IUserService _userService;
 
     public TournamentMatchAdapter(
-        IAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter,
+        ISimpleAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter,
         IUserService userService)
     {
         _tournamentSideAdapter = tournamentSideAdapter;

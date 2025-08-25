@@ -27,15 +27,9 @@ public class TournamentMatchAdapterTests
         _user = _user.SetAccess(recordScoresAsYouGo: true);
         _userService = new Mock<IUserService>();
         _adapter = new TournamentMatchAdapter(
-            new MockAdapter<TournamentSide, TournamentSideDto>(
-                new[]
-                {
-                    SideA, SideB,
-                },
-                new[]
-                {
-                    SideADto, SideBDto,
-                }),
+            new MockSimpleAdapter<TournamentSide, TournamentSideDto>(
+                [SideA, SideB, null!],
+                [SideADto, SideBDto, null!]),
             _userService.Object);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);

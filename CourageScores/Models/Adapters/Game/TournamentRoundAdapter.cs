@@ -8,11 +8,11 @@ public class TournamentRoundAdapter : IAdapter<TournamentRound, TournamentRoundD
 {
     private readonly IAdapter<TournamentMatch, TournamentMatchDto> _matchAdapter;
     private readonly ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> _matchOptionAdapter;
-    private readonly IAdapter<TournamentSide, TournamentSideDto> _sideAdapter;
+    private readonly ISimpleAdapter<TournamentSide, TournamentSideDto> _sideAdapter;
 
     public TournamentRoundAdapter(
         IAdapter<TournamentMatch, TournamentMatchDto> matchAdapter,
-        IAdapter<TournamentSide, TournamentSideDto> sideAdapter,
+        ISimpleAdapter<TournamentSide, TournamentSideDto> sideAdapter,
         ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> matchOptionAdapter)
     {
         _matchAdapter = matchAdapter;

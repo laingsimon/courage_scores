@@ -53,6 +53,6 @@ public class UpdateRecordedScoreAsYouGoDtoAdapter : IUpdateRecordedScoreAsYouGoD
                 : $"Team not found: {side.TeamId}";
         }
 
-        return side.Id.ToString();
+        return side.Id?.ToString() ?? "unknown side";
     }
 }

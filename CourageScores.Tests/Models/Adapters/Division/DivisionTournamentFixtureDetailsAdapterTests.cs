@@ -21,14 +21,14 @@ public class DivisionTournamentFixtureDetailsAdapterTests
 
     private readonly CancellationToken _token = new();
     private DivisionTournamentFixtureDetailsAdapter _adapter = null!;
-    private Mock<IAdapter<TournamentSide, TournamentSideDto>> _tournamentSideAdapter = null!;
+    private Mock<ISimpleAdapter<TournamentSide, TournamentSideDto>> _tournamentSideAdapter = null!;
     private Mock<ITournamentTypeResolver> _tournamentTypeResolver = null!;
     private Mock<IAdapter<TournamentMatch,TournamentMatchDto>> _tournamentMatchAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _tournamentSideAdapter = new Mock<IAdapter<TournamentSide, TournamentSideDto>>();
+        _tournamentSideAdapter = new Mock<ISimpleAdapter<TournamentSide, TournamentSideDto>>();
         _tournamentTypeResolver = new Mock<ITournamentTypeResolver>();
         _tournamentMatchAdapter = new Mock<IAdapter<TournamentMatch, TournamentMatchDto>>();
         _adapter = new DivisionTournamentFixtureDetailsAdapter(_tournamentSideAdapter.Object, _tournamentTypeResolver.Object, _tournamentMatchAdapter.Object);

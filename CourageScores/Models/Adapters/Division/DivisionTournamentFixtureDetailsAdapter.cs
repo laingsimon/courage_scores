@@ -9,12 +9,12 @@ namespace CourageScores.Models.Adapters.Division;
 
 public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtureDetailsAdapter
 {
-    private readonly IAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
+    private readonly ISimpleAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
     private readonly ITournamentTypeResolver _tournamentTypeResolver;
     private readonly IAdapter<TournamentMatch, TournamentMatchDto> _tournamentMatchAdapter;
 
     public DivisionTournamentFixtureDetailsAdapter(
-        IAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter,
+        ISimpleAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter,
         ITournamentTypeResolver tournamentTypeResolver,
         IAdapter<TournamentMatch, TournamentMatchDto> tournamentMatchAdapter)
     {

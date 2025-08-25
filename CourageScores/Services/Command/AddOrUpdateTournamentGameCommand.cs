@@ -22,13 +22,13 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
     private readonly ICachingSeasonService _seasonService;
     private readonly IAdapter<TournamentPlayer, TournamentPlayerDto> _tournamentPlayerAdapter;
     private readonly IAdapter<TournamentRound, TournamentRoundDto> _tournamentRoundAdapter;
-    private readonly IAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
+    private readonly ISimpleAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
     private readonly IUpdateRecordedScoreAsYouGoDtoAdapter _updateRecordedScoreAsYouGoDtoAdapter;
     private readonly IWebSocketMessageProcessor _processor;
 
     public AddOrUpdateTournamentGameCommand(
         ICachingSeasonService seasonService,
-        IAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter,
+        ISimpleAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter,
         IAdapter<TournamentRound, TournamentRoundDto> tournamentRoundAdapter,
         IAuditingHelper auditingHelper,
         ScopedCacheManagementFlags cacheFlags,
@@ -129,7 +129,6 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         {
             side.Id = Guid.NewGuid();
         }
-        await _auditingHelper.SetUpdated(side, token);
 
         await UpdatePlayers(side.Players, token);
     }
@@ -143,7 +142,6 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         {
             side.Id = equivalentSide.Id;
         }
-        await _auditingHelper.SetUpdated(side, token);
 
         await UpdatePlayers(side.Players, token);
     }

@@ -4,7 +4,7 @@ using CourageScores.Services;
 
 namespace CourageScores.Models.Adapters.Game;
 
-public class TournamentSideAdapter : IAdapter<TournamentSide, TournamentSideDto>
+public class TournamentSideAdapter : ISimpleAdapter<TournamentSide, TournamentSideDto>
 {
     private readonly IAdapter<TournamentPlayer, TournamentPlayerDto> _playerAdapter;
 
@@ -22,7 +22,7 @@ public class TournamentSideAdapter : IAdapter<TournamentSide, TournamentSideDto>
             TeamId = model.TeamId,
             Players = await model.Players.SelectAsync(p => _playerAdapter.Adapt(p, token)).ToList(),
             NoShow = model.NoShow,
-        }.AddAuditProperties(model);
+        };
     }
 
     public async Task<TournamentSide> Adapt(TournamentSideDto dto, CancellationToken token)
@@ -34,6 +34,6 @@ public class TournamentSideAdapter : IAdapter<TournamentSide, TournamentSideDto>
             TeamId = dto.TeamId,
             Players = await dto.Players.SelectAsync(p => _playerAdapter.Adapt(p, token)).ToList(),
             NoShow = dto.NoShow,
-        }.AddAuditProperties(dto);
+        };
     }
 }
