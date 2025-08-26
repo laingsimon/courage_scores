@@ -114,9 +114,9 @@ export function Summary({
                                     saygData={map.saygData!}
                                     matchNo={index + 1}
                                     showWinner={showWinner}
-                                    hostPlayerName={map.match.sideA.name!}
+                                    hostPlayerName={map.match.sideA!.name!}
                                     hostScore={map.match.scoreA!}
-                                    opponentPlayerName={map.match.sideB.name!}
+                                    opponentPlayerName={map.match.sideB!.name!}
                                     opponentScore={map.match.scoreB!}
                                 />
                             ),

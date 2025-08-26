@@ -99,7 +99,10 @@ export function MasterDraw({
     }
 
     async function updateNewMatch(update: TournamentMatchDto) {
-        if (!isEmpty(update.sideA.players) && !isEmpty(update.sideB.players)) {
+        if (
+            !isEmpty(update.sideA?.players) &&
+            !isEmpty(update.sideB?.players)
+        ) {
             const newRound = Object.assign({}, tournamentData.round!);
             newRound.matches = (tournamentData.round?.matches || []).concat(
                 update,

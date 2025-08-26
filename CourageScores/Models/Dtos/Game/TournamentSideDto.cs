@@ -3,8 +3,13 @@
 namespace CourageScores.Models.Dtos.Game;
 
 [ExcludeFromCodeCoverage]
-public class TournamentSideDto : AuditedDto
+public class TournamentSideDto
 {
+    /// <summary>
+    /// The id of this side (null if no side selected in a match
+    /// </summary>
+    public Guid? Id { get; set; }
+
     /// <summary>
     /// Optional name for the side, e.g. Riverside
     /// </summary>
@@ -12,7 +17,7 @@ public class TournamentSideDto : AuditedDto
 
     /// <summary>
     /// Optional id for the team
-    /// </summary>    
+    /// </summary>
     public Guid? TeamId { get; set; }
 
     /// <summary>

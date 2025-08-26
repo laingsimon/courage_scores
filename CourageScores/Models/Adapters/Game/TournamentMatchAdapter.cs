@@ -6,11 +6,11 @@ namespace CourageScores.Models.Adapters.Game;
 
 public class TournamentMatchAdapter : IAdapter<TournamentMatch, TournamentMatchDto>
 {
-    private readonly IAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
+    private readonly ISimpleAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
     private readonly IUserService _userService;
 
     public TournamentMatchAdapter(
-        IAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter,
+        ISimpleAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter,
         IUserService userService)
     {
         _tournamentSideAdapter = tournamentSideAdapter;
@@ -24,8 +24,8 @@ public class TournamentMatchAdapter : IAdapter<TournamentMatch, TournamentMatchD
             Id = model.Id,
             ScoreA = model.ScoreA,
             ScoreB = model.ScoreB,
-            SideA = await _tournamentSideAdapter.Adapt(model.SideA, token),
-            SideB = await _tournamentSideAdapter.Adapt(model.SideB, token),
+            SideA = model.SideA != null ? await _tournamentSideAdapter.Adapt(model.SideA, token) : null,
+            SideB = model.SideB != null ? await _tournamentSideAdapter.Adapt(model.SideB, token) : null,
             SaygId = model.SaygId,
         }.AddAuditProperties(model);
     }
@@ -40,8 +40,8 @@ public class TournamentMatchAdapter : IAdapter<TournamentMatch, TournamentMatchD
             Id = dto.Id,
             ScoreA = dto.ScoreA,
             ScoreB = dto.ScoreB,
-            SideA = await _tournamentSideAdapter.Adapt(dto.SideA, token),
-            SideB = await _tournamentSideAdapter.Adapt(dto.SideB, token),
+            SideA = dto.SideA != null ? await _tournamentSideAdapter.Adapt(dto.SideA, token) : null,
+            SideB = dto.SideB != null ? await _tournamentSideAdapter.Adapt(dto.SideB, token) : null,
             SaygId = dto.SaygId != null && permitted ? dto.SaygId : null,
         }.AddAuditProperties(dto);
     }

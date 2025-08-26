@@ -388,7 +388,7 @@ export function LiveSuperleagueTournamentDisplay({
                                 </td>
                                 <td
                                     className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>
-                                    {firstInitialAndLastNames(m.sideA.name)}
+                                    {firstInitialAndLastNames(m.sideA?.name)}
                                 </td>
                                 <td
                                     className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>
@@ -399,7 +399,7 @@ export function LiveSuperleagueTournamentDisplay({
                                     {getScore(m, 'away')}
                                 </td>
                                 <td className={awayWinner ? 'fw-bold' : ''}>
-                                    {firstInitialAndLastNames(m.sideB.name)}
+                                    {firstInitialAndLastNames(m.sideB?.name)}
                                 </td>
                                 <td
                                     className={`text-danger ${awayWinner ? 'fw-bold' : ''}`}>
@@ -432,14 +432,14 @@ export function LiveSuperleagueTournamentDisplay({
                     datatype="live-scores">
                     <div className="d-flex flex-row justify-content-center bg-success text-black fs-4 rounded-top-3">
                         <span className="flex-grow-1 px-3 text-end flex-basis-0">
-                            {firstInitialAndLastNames(lastMatch!.sideA.name)}
+                            {firstInitialAndLastNames(lastMatch!.sideA?.name)}
                         </span>
                         <span>
                             {getScore(lastMatch!, 'home')} -{' '}
                             {getScore(lastMatch!, 'away')}
                         </span>
                         <span className="flex-grow-1 px-3 text-start flex-basis-0">
-                            {firstInitialAndLastNames(lastMatch!.sideB.name)}
+                            {firstInitialAndLastNames(lastMatch!.sideB?.name)}
                         </span>
                     </div>
                     <div className="d-flex flex-row justify-content-center text-success">

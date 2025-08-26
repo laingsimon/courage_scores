@@ -27,15 +27,9 @@ public class TournamentMatchAdapterTests
         _user = _user.SetAccess(recordScoresAsYouGo: true);
         _userService = new Mock<IUserService>();
         _adapter = new TournamentMatchAdapter(
-            new MockAdapter<TournamentSide, TournamentSideDto>(
-                new[]
-                {
-                    SideA, SideB,
-                },
-                new[]
-                {
-                    SideADto, SideBDto,
-                }),
+            new MockSimpleAdapter<TournamentSide, TournamentSideDto>(
+                [SideA, SideB, null!],
+                [SideADto, SideBDto, null!]),
             _userService.Object);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
@@ -75,6 +69,21 @@ public class TournamentMatchAdapterTests
         var result = await _adapter.Adapt(model, _token);
 
         Assert.That(result.SaygId, Is.Null);
+    }
+
+    [Test]
+    public async Task Adapt_GivenModelWithoutSides_SetsSidesToNull()
+    {
+        var model = new TournamentMatch
+        {
+            SideA = null,
+            SideB = null,
+        };
+
+        var result = await _adapter.Adapt(model, _token);
+
+        Assert.That(result.SideA, Is.Null);
+        Assert.That(result.SideB, Is.Null);
     }
 
     [TestCase(false, false, false)]
@@ -121,5 +130,20 @@ public class TournamentMatchAdapterTests
         var result = await _adapter.Adapt(dto, _token);
 
         Assert.That(result.SaygId, Is.Null);
+    }
+
+    [Test]
+    public async Task Adapt_GivenDtoWithoutSides_SetsSidesToNull()
+    {
+        var dto = new TournamentMatchDto
+        {
+            SideA = null,
+            SideB = null,
+        };
+
+        var result = await _adapter.Adapt(dto, _token);
+
+        Assert.That(result.SideA, Is.Null);
+        Assert.That(result.SideB, Is.Null);
     }
 }

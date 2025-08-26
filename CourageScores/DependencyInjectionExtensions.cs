@@ -202,7 +202,7 @@ public static class DependencyInjectionExtensions
         AddAdapter<GameTeam, GameTeamDto, GameTeamAdapter>(services);
         AddAdapter<NotablePlayer, NotablePlayerDto, NotablePlayerAdapter>(services);
         AddAdapter<TournamentGame, TournamentGameDto, TournamentGameAdapter>(services);
-        AddAdapter<TournamentSide, TournamentSideDto, TournamentSideAdapter>(services);
+        services.AddScoped<ISimpleAdapter<TournamentSide, TournamentSideDto>, TournamentSideAdapter>();
         AddAdapter<TournamentMatch, TournamentMatchDto, TournamentMatchAdapter>(services);
         AddAdapter<TournamentRound, TournamentRoundDto, TournamentRoundAdapter>(services);
         AddAdapter<FixtureDateNote, FixtureDateNoteDto, FixtureDateNoteAdapter>(services);

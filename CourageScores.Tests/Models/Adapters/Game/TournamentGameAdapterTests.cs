@@ -24,7 +24,7 @@ public class TournamentGameAdapterTests
     private readonly CancellationToken _token = new();
     private readonly TournamentGameAdapter _adapter = new(
         new MockAdapter<TournamentRound, TournamentRoundDto>(Round, RoundDto),
-        new MockAdapter<TournamentSide, TournamentSideDto>(Side, SideDto),
+        new MockSimpleAdapter<TournamentSide, TournamentSideDto>(Side, SideDto),
         new MockAdapter<TournamentPlayer, TournamentPlayerDto>(OneEightyPlayer, OneEightyPlayerDto),
         new MockAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto>(HiCheckPlayer, HiCheckPlayerDto),
         new MockSimpleAdapter<PhotoReference, PhotoReferenceDto>(PhotoReference, PhotoReferenceDto));

@@ -774,7 +774,7 @@ describe('PrintableSheet', () => {
             await doClick(findButton(getDialog(), 'Save'));
 
             const matches = updatedTournament!.round!.matches!;
-            expect(matches[0].sideA.name).toEqual('e');
+            expect(matches[0].sideA!.name).toEqual('e');
             expect(matches[0].scoreA).toEqual(2);
         });
 
@@ -784,7 +784,7 @@ describe('PrintableSheet', () => {
 
             await doClick(findButton(context.container, 'Remove'));
 
-            expect(updatedTournament!.round!.matches![0].sideA.id).toBeFalsy();
+            expect(updatedTournament!.round!.matches![0].sideA!.id).toBeFalsy();
             expect(updatedTournament!.round!.matches![0].scoreA).toBeNull();
         });
 
@@ -797,7 +797,7 @@ describe('PrintableSheet', () => {
             await doClick(findButton(getDialog(), 'Save'));
 
             const matches = updatedTournament!.round!.matches!;
-            expect(matches[0].sideB.name).toEqual('e');
+            expect(matches[0].sideB!.name).toEqual('e');
             expect(matches[0].scoreB).toEqual(2);
         });
 
@@ -807,7 +807,7 @@ describe('PrintableSheet', () => {
 
             await doClick(findButton(context.container, 'Remove'));
 
-            expect(updatedTournament!.round!.matches![0].sideB.id).toBeFalsy();
+            expect(updatedTournament!.round!.matches![0].sideB!.id).toBeFalsy();
             expect(updatedTournament!.round!.matches![0].scoreB).toBeNull();
         });
 
@@ -1021,7 +1021,7 @@ describe('PrintableSheet', () => {
             await doClick(findButton(getDialog(), 'Save'));
 
             const matches = updatedTournament!.round!.matches!;
-            expect(matches[0].sideA.name).toEqual('A');
+            expect(matches[0].sideA!.name).toEqual('A');
             expect(matches[0].scoreA).toEqual(2);
         });
 
@@ -1033,7 +1033,7 @@ describe('PrintableSheet', () => {
             await doClick(findButton(getDialog(), 'Save'));
 
             const matches = updatedTournament!.round!.matches!;
-            expect(matches[0].sideB.name).toEqual('A');
+            expect(matches[0].sideB!.name).toEqual('A');
             expect(matches[0].scoreB).toEqual(2);
         });
 

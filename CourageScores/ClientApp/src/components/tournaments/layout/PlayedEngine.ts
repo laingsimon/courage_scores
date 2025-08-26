@@ -256,17 +256,17 @@ export class PlayedEngine implements ILayoutEngine {
     ): string | undefined {
         const numberOfLegs: number = matchOptions.numberOfLegs || 5;
         if (playedMatch.scoreA! > numberOfLegs / 2.0) {
-            winners.push(playedMatch.sideA);
+            winners.push(playedMatch.sideA!);
             this.setSidePlayingInNextRound(
-                playedMatch.sideA,
+                playedMatch.sideA!,
                 nextRound,
                 unplayedMatch,
             );
             return 'sideA';
         } else if (playedMatch.scoreB! > numberOfLegs / 2.0) {
-            winners.push(playedMatch.sideB);
+            winners.push(playedMatch.sideB!);
             this.setSidePlayingInNextRound(
-                playedMatch.sideB,
+                playedMatch.sideB!,
                 nextRound,
                 unplayedMatch,
             );

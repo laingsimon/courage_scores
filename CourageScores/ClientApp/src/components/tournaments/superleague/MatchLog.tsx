@@ -35,8 +35,8 @@ export function MatchLog({
                         return (
                             <p key={index} className="text-warning">
                                 ⚠ No data available for the match between{' '}
-                                {matchDataMap.match.sideA.name} and{' '}
-                                {matchDataMap.match.sideB.name}
+                                {matchDataMap.match.sideA?.name} and{' '}
+                                {matchDataMap.match.sideB?.name}
                             </p>
                         );
                     }
@@ -73,7 +73,7 @@ export function MatchLog({
                                             }
                                             noOfThrows={noOfThrows}
                                             player={
-                                                matchDataMap.match.sideA.name!
+                                                matchDataMap.match.sideA!.name!
                                             }
                                             playerOverallAverage={
                                                 homePlayerAverage
@@ -107,7 +107,7 @@ export function MatchLog({
                                             }
                                             noOfThrows={noOfThrows}
                                             player={
-                                                matchDataMap.match.sideB.name!
+                                                matchDataMap.match.sideB!.name!
                                             }
                                             playerOverallAverage={
                                                 awayPlayerAverage

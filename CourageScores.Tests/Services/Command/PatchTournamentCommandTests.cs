@@ -128,8 +128,8 @@ public class PatchTournamentCommandTests
         {
             Match = new PatchTournamentMatchDto
             {
-                SideA = match.SideA.Id,
-                SideB = match.SideB.Id,
+                SideA = match.SideA.Id.Value,
+                SideB = match.SideB.Id.Value,
                 ScoreA = 1,
                 ScoreB = 2,
             },
@@ -174,8 +174,8 @@ public class PatchTournamentCommandTests
         {
             Match = new PatchTournamentMatchDto
             {
-                SideA = match.SideA.Id,
-                SideB = match.SideB.Id,
+                SideA = match.SideA.Id.Value,
+                SideB = match.SideB.Id.Value,
             },
         };
         _tournament.Round = new TournamentRound

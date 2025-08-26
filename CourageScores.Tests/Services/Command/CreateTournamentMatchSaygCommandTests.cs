@@ -93,6 +93,30 @@ public class CreateTournamentMatchSaygCommandTests
     }
 
     [Test]
+    public async Task ApplyUpdate_WithoutHomeOrAwaySides_ReturnsUnsuccessful()
+    {
+        var match = new TournamentMatch
+        {
+            Id = _request.MatchId,
+        };
+        _tournament.Round = new TournamentRound
+        {
+            Matches =
+            {
+                match,
+            },
+        };
+
+        var result = await _command.WithRequest(_request).ApplyUpdate(_tournament, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Is.EqualTo(new[]
+        {
+            "Match does not have both sides set",
+        }));
+    }
+
+    [Test]
     public async Task ApplyUpdate_WithExistingSaygForMatch_ReturnsSuccessful()
     {
         var match = new TournamentMatch

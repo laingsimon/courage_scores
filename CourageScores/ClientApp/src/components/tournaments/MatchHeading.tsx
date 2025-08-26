@@ -7,8 +7,8 @@ export interface ISuperleagueMatchHeadingProps {
 
 export function MatchHeading({ match }: ISuperleagueMatchHeadingProps) {
     const { sayg } = useSayg();
-    const home: string | undefined = match.sideA.name;
-    const away: string | undefined = match.sideB.name;
+    const home: string | undefined = match.sideA?.name;
+    const away: string | undefined = match.sideB?.name;
 
     return (
         <h5 className="modal-header justify-content-center">

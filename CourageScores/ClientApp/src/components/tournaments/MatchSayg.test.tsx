@@ -206,8 +206,8 @@ describe('MatchSayg', () => {
                 )
                 .build();
             const match = tournamentData.round?.matches![0]!;
-            match.sideA.players = undefined;
-            match.sideB.players = undefined;
+            match.sideA!.players = undefined;
+            match.sideB!.players = undefined;
 
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
@@ -492,7 +492,7 @@ describe('MatchSayg', () => {
             await doClick(findButton(context.container, START_SCORING));
 
             reportedError.verifyNoError();
-            await doClick(findButton(dialog(), `🎯${match.sideA.name}`)); // pick sideA goes first
+            await doClick(findButton(dialog(), `🎯${match.sideA!.name}`)); // pick sideA goes first
             patchedData = [];
             await enterFirstPlayerScores(sideAScores);
 

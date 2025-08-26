@@ -244,8 +244,8 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenTournamentExistsNoSideNames_ReturnsNoSideName()
     {
-        _tournament.Round!.Matches[0].SideA.Name = null;
-        _tournament.Round!.Matches[0].SideB.Name = null;
+        _tournament.Round!.Matches[0].SideA!.Name = null;
+        _tournament.Round!.Matches[0].SideB!.Name = null;
         SetTournamentDetails(type: "KNOCKOUT");
 
         var report = await _report.GetReport(_playerLookup, _token);
@@ -259,8 +259,8 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenTournamentExistsEmptySideNames_ReturnsNoSideName()
     {
-        _tournament.Round!.Matches[0].SideA.Name = "";
-        _tournament.Round!.Matches[0].SideB.Name = "";
+        _tournament.Round!.Matches[0].SideA!.Name = "";
+        _tournament.Round!.Matches[0].SideB!.Name = "";
         SetTournamentDetails(type: "Knockout");
 
         var report = await _report.GetReport(_playerLookup, _token);

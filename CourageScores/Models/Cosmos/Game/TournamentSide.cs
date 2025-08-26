@@ -1,7 +1,9 @@
 ﻿namespace CourageScores.Models.Cosmos.Game;
 
-public class TournamentSide : AuditedEntity, IGameVisitable
+public class TournamentSide : IGameVisitable
 {
+    public Guid? Id { get; set; }
+
     /// <summary>
     /// Optional name for the side, e.g. Riverside
     /// </summary>
@@ -9,7 +11,7 @@ public class TournamentSide : AuditedEntity, IGameVisitable
 
     /// <summary>
     /// Optional id for the team
-    /// </summary>    
+    /// </summary>
     public Guid? TeamId { get; set; }
 
     /// <summary>

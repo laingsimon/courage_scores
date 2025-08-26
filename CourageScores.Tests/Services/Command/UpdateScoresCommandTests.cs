@@ -99,7 +99,7 @@ public class UpdateScoresCommandTests
         _teamService = new Mock<ITeamService>();
         _cacheFlags = new ScopedCacheManagementFlags();
         _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(_auditingHelper.Object, _seasonService.Object, _cacheFlags);
-        _matchOptionAdapter = new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(null, null);
+        _matchOptionAdapter = new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>([null], [null]);
         _scoresAdapter = new Mock<IUpdateScoresAdapter>();
         _submissionComparer = new Mock<IEqualityComparer<CosmosGame>>();
         _command = new UpdateScoresCommand(
