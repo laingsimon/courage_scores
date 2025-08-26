@@ -149,7 +149,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
     private static ActionResult<TournamentMatch> PatchMatch(IReadOnlyCollection<TournamentMatch> matches, PatchTournamentMatchDto patchMatch)
     {
         var match = matches
-            .SingleOrDefault(m => m.SideA.Id == patchMatch.SideA && m.SideB.Id == patchMatch.SideB);
+            .SingleOrDefault(m => m.SideA?.Id == patchMatch.SideA && m.SideB?.Id == patchMatch.SideB);
 
         if (match == null)
         {

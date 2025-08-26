@@ -71,6 +71,21 @@ public class TournamentMatchAdapterTests
         Assert.That(result.SaygId, Is.Null);
     }
 
+    [Test]
+    public async Task Adapt_GivenModelWithoutSides_SetsSidesToNull()
+    {
+        var model = new TournamentMatch
+        {
+            SideA = null,
+            SideB = null,
+        };
+
+        var result = await _adapter.Adapt(model, _token);
+
+        Assert.That(result.SideA, Is.Null);
+        Assert.That(result.SideB, Is.Null);
+    }
+
     [TestCase(false, false, false)]
     [TestCase(true, false, false)]
     [TestCase(true, true, true)]
@@ -115,5 +130,20 @@ public class TournamentMatchAdapterTests
         var result = await _adapter.Adapt(dto, _token);
 
         Assert.That(result.SaygId, Is.Null);
+    }
+
+    [Test]
+    public async Task Adapt_GivenDtoWithoutSides_SetsSidesToNull()
+    {
+        var dto = new TournamentMatchDto
+        {
+            SideA = null,
+            SideB = null,
+        };
+
+        var result = await _adapter.Adapt(dto, _token);
+
+        Assert.That(result.SideA, Is.Null);
+        Assert.That(result.SideB, Is.Null);
     }
 }

@@ -184,7 +184,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         if (sayg == null)
         {
             // sayg not found... should remove the id as it's no longer valid
-            context.Warnings.Add($"Could not find sayg session for match: {match.SideA.Name} vs {match.SideB.Name}, session has been removed and will need to be re-created (was {saygId})");
+            context.Warnings.Add($"Could not find sayg session for match: {match.SideA?.Name ?? "home"} vs {match.SideB?.Name ?? "away"}, session has been removed and will need to be re-created (was {saygId})");
             match.SaygId = null;
             return;
         }
