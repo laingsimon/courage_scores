@@ -105,7 +105,7 @@ export function TournamentFixture({
                             key={index}
                             className="d-flex flex-row justify-content-stretch">
                             <div className="flex-grow-1 text-end flex-basis-0 fw-bold">
-                                {match.sideA.name}
+                                {match.sideA?.name}
                             </div>
                             <div className="width-50 text-center">
                                 {match.scoreA}
@@ -115,7 +115,7 @@ export function TournamentFixture({
                                 {match.scoreB}
                             </div>
                             <div className="flex-grow-1 flex-basis-0 fw-bold">
-                                {match.sideB.name}
+                                {match.sideB?.name}
                             </div>
                         </div>
                     ))}

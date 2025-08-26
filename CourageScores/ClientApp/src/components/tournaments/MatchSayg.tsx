@@ -178,9 +178,9 @@ export function MatchSayg({
         }
 
         return (
-            ((match.sideA.players || []).length === 1 &&
-                (match.sideB.players || []).length === 1) ||
-            (!!match.sideA.teamId && !!match.sideB.teamId)
+            ((match.sideA?.players || []).length === 1 &&
+                (match.sideB?.players || []).length === 1) ||
+            (!!match.sideA?.teamId && !!match.sideB?.teamId)
         );
     }
 
@@ -206,8 +206,8 @@ export function MatchSayg({
                                   await patchData(
                                       {
                                           match: {
-                                              sideA: match.sideA.id,
-                                              sideB: match.sideB.id,
+                                              sideA: match.sideA!.id,
+                                              sideB: match.sideB!.id,
                                               scoreA: data.homeScore,
                                               scoreB: data.awayScore,
                                           },
@@ -295,16 +295,16 @@ export function MatchSayg({
             return;
         }
 
-        const side: TournamentSideDto =
+        const side: TournamentSideDto | undefined =
             sideName === 'home' ? match.sideA : match.sideB;
-        if (count(side.players) === 1) {
-            await onHiCheck(side.players![0], score);
+        if (count(side?.players) === 1) {
+            await onHiCheck(side!.players![0], score);
 
             if (patchData) {
                 await patchData({
                     additionalOver100Checkout: Object.assign(
                         {},
-                        side.players![0],
+                        side!.players![0],
                         { score },
                     ),
                 });
@@ -317,14 +317,14 @@ export function MatchSayg({
             return;
         }
 
-        const side: TournamentSideDto =
+        const side: TournamentSideDto | undefined =
             sideName === 'home' ? match.sideA : match.sideB;
-        if (count(side.players) === 1) {
-            await on180(side.players![0]);
+        if (count(side?.players) === 1) {
+            await on180(side!.players![0]);
 
             if (patchData) {
                 await patchData({
-                    additional180: side.players![0],
+                    additional180: side!.players![0],
                 });
             }
         }

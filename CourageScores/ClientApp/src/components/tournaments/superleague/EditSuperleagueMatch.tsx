@@ -91,8 +91,9 @@ export function EditSuperleagueMatch({
                     (_: TournamentMatchDto, i: number) => i !== index,
                 )
                 .flatMap((match: TournamentMatchDto) => {
-                    const matchSide: TournamentSideDto = match[side];
-                    return matchSide.players || [];
+                    const matchSide: TournamentSideDto | undefined =
+                        match[side];
+                    return matchSide?.players || [];
                 }) || []
         );
     }
@@ -114,8 +115,8 @@ export function EditSuperleagueMatch({
         name: string,
         alreadySelected: TeamPlayerDto[],
     ): IBootstrapDropdownItem[] {
-        const selectedForThisMatch = (match.sideA.players || []).concat(
-            match.sideB.players || [],
+        const selectedForThisMatch = (match.sideA?.players || []).concat(
+            match.sideB?.players || [],
         );
 
         const team = getTeamSeason(name);
