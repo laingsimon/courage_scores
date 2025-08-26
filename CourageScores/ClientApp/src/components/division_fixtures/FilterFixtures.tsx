@@ -34,11 +34,12 @@ export function FilterFixtures() {
             value: value,
             text: (
                 <Link
-                    className="text-decoration-none text-dark"
+                    className="text-decoration-none text-dark px-3 d-flex"
                     to={`${location.pathname}${replaceSearch(type, value)}${location.hash}`}>
                     {text}
                 </Link>
             ),
+            className: 'px-0',
         };
     }
 

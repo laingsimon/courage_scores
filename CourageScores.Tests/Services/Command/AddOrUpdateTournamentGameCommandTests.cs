@@ -56,7 +56,7 @@ public class AddOrUpdateTournamentGameCommandTests
     };
 
     private Mock<ICachingSeasonService> _seasonService = null!;
-    private IAdapter<TournamentSide, TournamentSideDto> _sideAdapter = null!;
+    private ISimpleAdapter<TournamentSide, TournamentSideDto> _sideAdapter = null!;
     private IAdapter<TournamentRound, TournamentRoundDto> _roundAdapter = null!;
     private Mock<IAuditingHelper> _auditingHelper = null!;
     private AddOrUpdateTournamentGameCommand _command = null!;

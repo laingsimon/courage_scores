@@ -223,10 +223,10 @@ public class FinalsNightReport : CompositeReport
 
             yield return Row(
                 Cell(text: $"{divisionPrefix}{tournamentType} runner up"),
-                Cell(text: string.IsNullOrEmpty(runnerUp.Name) ? "⚠️ <no side name>" : runnerUp.Name, tournamentId: tournament.Id, division: division));
+                Cell(text: string.IsNullOrEmpty(runnerUp?.Name) ? "⚠️ <no side name>" : runnerUp.Name, tournamentId: tournament.Id, division: division));
             yield return Row(
                 Cell(text: $"{divisionPrefix}{tournamentType} winner"),
-                Cell(text: string.IsNullOrEmpty(winner.Name) ? "⚠️ <no side name>" : winner.Name, tournamentId: tournament.Id, division: division));
+                Cell(text: string.IsNullOrEmpty(winner?.Name) ? "⚠️ <no side name>" : winner.Name, tournamentId: tournament.Id, division: division));
         }
     }
 

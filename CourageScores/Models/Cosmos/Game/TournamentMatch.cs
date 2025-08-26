@@ -8,12 +8,12 @@ public class TournamentMatch : AuditedEntity, IGameVisitable
     /// <summary>
     /// Who is playing from side a
     /// </summary>
-    public TournamentSide SideA { get; set; } = null!;
+    public TournamentSide? SideA { get; set; }
 
     /// <summary>
     /// Who is playing from side b
     /// </summary>
-    public TournamentSide SideB { get; set; } = null!;
+    public TournamentSide? SideB { get; set; }
 
     /// <summary>
     /// The score for side a

@@ -48,7 +48,7 @@ public class TournamentRound : AuditedEntity, IGameVisitable
             var match = Matches.Single();
             visitor.VisitFinal(scope, match);
 
-            if (match.ScoreA != null && match.ScoreB != null)
+            if (match.ScoreA != null && match.ScoreB != null && match.SideA != null && match.SideB != null)
             {
                 var noOfLegs = MatchOptions.SingleOrDefault()?.NumberOfLegs ?? scope.Tournament?.BestOf ?? 5;
                 if (match.ScoreA > (noOfLegs / 2.0))

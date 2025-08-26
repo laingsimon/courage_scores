@@ -168,8 +168,8 @@ describe('PlayedEngine', () => {
             scoreA: match.scoreA!.toString(),
             scoreB: match.scoreB!.toString(),
             sideA: {
-                id: match.sideA.id,
-                name: match.sideA.name!,
+                id: match.sideA!.id,
+                name: match.sideA!.name!,
                 link: {
                     key: 'link',
                     props: { side: match.sideA },
@@ -177,8 +177,8 @@ describe('PlayedEngine', () => {
                 },
             },
             sideB: {
-                id: match.sideB.id,
-                name: match.sideB.name!,
+                id: match.sideB!.id,
+                name: match.sideB!.name!,
                 link: {
                     key: 'link',
                     props: { side: match.sideB },

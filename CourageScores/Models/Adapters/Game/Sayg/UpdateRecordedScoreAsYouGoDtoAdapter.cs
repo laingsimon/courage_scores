@@ -38,14 +38,14 @@ public class UpdateRecordedScoreAsYouGoDtoAdapter : IUpdateRecordedScoreAsYouGoD
         };
     }
 
-    private async Task<string> GetSideName(TournamentSide side, CancellationToken token)
+    private async Task<string> GetSideName(TournamentSide? side, CancellationToken token)
     {
-        if (!string.IsNullOrEmpty(side.Name))
+        if (!string.IsNullOrEmpty(side?.Name))
         {
             return side.Name;
         }
 
-        if (side.TeamId != null)
+        if (side?.TeamId != null)
         {
             var team = await _teamService.Get(side.TeamId.Value, token);
             return team != null
@@ -53,6 +53,6 @@ public class UpdateRecordedScoreAsYouGoDtoAdapter : IUpdateRecordedScoreAsYouGoD
                 : $"Team not found: {side.TeamId}";
         }
 
-        return side.Id.ToString();
+        return side?.Id?.ToString() ?? "unknown side";
     }
 }
