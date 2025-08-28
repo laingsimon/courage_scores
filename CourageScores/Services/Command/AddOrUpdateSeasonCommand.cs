@@ -4,15 +4,17 @@ using CourageScores.Models.Dtos.Season;
 using CourageScores.Repository;
 using CourageScores.Services.Season;
 using CourageScores.Services.Team;
+using CosmosSeason = CourageScores.Models.Cosmos.Season.Season;
+using CosmosDivision = CourageScores.Models.Cosmos.Division;
 
 namespace CourageScores.Services.Command;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season.Season, EditSeasonDto>
+public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<CosmosSeason, EditSeasonDto>
 {
     private readonly ScopedCacheManagementFlags _cacheFlags;
     private readonly ICommandFactory _commandFactory;
-    private readonly IGenericRepository<Models.Cosmos.Division> _divisionRepository;
+    private readonly IGenericRepository<CosmosDivision> _divisionRepository;
     private readonly ICachingSeasonService _seasonService;
     private readonly ITeamService _teamService;
 
@@ -21,7 +23,7 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season.
         ITeamService teamService,
         ICommandFactory commandFactory,
         ScopedCacheManagementFlags cacheFlags,
-        IGenericRepository<Models.Cosmos.Division> divisionRepository)
+        IGenericRepository<CosmosDivision> divisionRepository)
     {
         _seasonService = seasonService;
         _teamService = teamService;
@@ -30,7 +32,7 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season.
         _divisionRepository = divisionRepository;
     }
 
-    protected override async Task<ActionResult<Models.Cosmos.Season.Season>> ApplyUpdates(Models.Cosmos.Season.Season season, EditSeasonDto update, CancellationToken token)
+    protected override async Task<ActionResult<CosmosSeason>> ApplyUpdates(CosmosSeason season, EditSeasonDto update, CancellationToken token)
     {
         season.Name = update.Name.TrimOrDefault();
         season.EndDate = update.EndDate;
@@ -46,7 +48,7 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season.
         }
 
         _cacheFlags.EvictDivisionDataCacheForSeasonId = season.Id;
-        return new ActionResult<Models.Cosmos.Season.Season>
+        return new ActionResult<CosmosSeason>
         {
             Success = true,
             Messages =
@@ -56,12 +58,12 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season.
         };
     }
 
-    private async Task<ActionResult<Models.Cosmos.Season.Season>> AssignTeamsToNewSeason(Guid seasonId, Guid copyFromSeasonId, CancellationToken token)
+    private async Task<ActionResult<CosmosSeason>> AssignTeamsToNewSeason(Guid seasonId, Guid copyFromSeasonId, CancellationToken token)
     {
         var otherSeason = await _seasonService.Get(copyFromSeasonId, token);
         if (otherSeason == null)
         {
-            return new ActionResult<Models.Cosmos.Season.Season>
+            return new ActionResult<CosmosSeason>
             {
                 Success = false,
                 Warnings =
@@ -90,7 +92,7 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season.
             }
         }
 
-        return new ActionResult<Models.Cosmos.Season.Season>
+        return new ActionResult<CosmosSeason>
         {
             Success = true,
             Messages =
