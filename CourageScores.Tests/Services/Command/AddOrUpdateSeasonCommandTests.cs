@@ -75,6 +75,8 @@ public class AddOrUpdateSeasonCommandTests
                 _division.Id,
             },
             LastUpdated = _season.Updated,
+            FixtureStartTime = TimeSpan.FromHours(20),
+            FixtureDuration = 4,
         };
 
         var result = await _command.WithData(update).ApplyUpdate(_season, _token);
@@ -89,6 +91,30 @@ public class AddOrUpdateSeasonCommandTests
         Assert.That(_season.EndDate, Is.EqualTo(new DateTime(2022, 03, 04)));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_season.Id));
+        Assert.That(_season.FixtureStartTime, Is.EqualTo(TimeSpan.FromHours(20)));
+        Assert.That(_season.FixtureDuration, Is.EqualTo(4));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_GivenFixtureStartTimeAndDurationAreNull_UpdatesPropertiesToNull()
+    {
+        _season.FixtureStartTime = TimeSpan.FromHours(20);
+        _season.FixtureDuration = 4;
+        var update = new EditSeasonDto
+        {
+            Id = _season.Id,
+            LastUpdated = _season.Updated,
+        };
+
+        var result = await _command.WithData(update).ApplyUpdate(_season, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Season updated",
+        }));
+        Assert.That(_season.FixtureStartTime, Is.Null);
+        Assert.That(_season.FixtureDuration, Is.Null);
     }
 
     [Test]

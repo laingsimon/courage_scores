@@ -40,6 +40,8 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<CosmosSeason, EditSea
         season.Divisions = await update.DivisionIds
             .SelectAsync(async id => (await _divisionRepository.Get(id, token))!)
             .ToList();
+        season.FixtureStartTime = update.FixtureStartTime;
+        season.FixtureDuration = update.FixtureDuration;
 
         if (update.CopyTeamsFromSeasonId.HasValue && update.Id == default)
         {
