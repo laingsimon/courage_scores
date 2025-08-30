@@ -91,7 +91,7 @@ public class SeasonTemplateServiceTests
         {
             Id = divisionId,
             Name = "Division One",
-            Season = new DivisionDataSeasonDto
+            Season = new SeasonDto
             {
                 Id = _season.Id,
             },

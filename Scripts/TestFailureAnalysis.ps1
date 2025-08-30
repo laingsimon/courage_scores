@@ -239,7 +239,7 @@ $($CommentsToAdd -join "`n")
 
 $($LogLinks)"
 
-$NewCommentContent = "#### $($TestsCommentHeading)`n$($NewCommentText)"
+$NewCommentContent = "### $($TestsCommentHeading)`n$($NewCommentText)"
 
 if ($Force)
 {

@@ -27,6 +27,8 @@ public class SeasonAdapter : IAdapter<Cosmos.Season.Season, SeasonDto>
             StartDate = model.StartDate,
             Name = model.Name.TrimOrDefault(),
             IsCurrent = now >= model.StartDate.Date && now <= model.EndDate.Date,
+            FixtureStartTime = model.FixtureStartTime,
+            FixtureDuration = model.FixtureDuration,
         }.AddAuditProperties(model);
     }
 
@@ -39,6 +41,8 @@ public class SeasonAdapter : IAdapter<Cosmos.Season.Season, SeasonDto>
             EndDate = dto.EndDate,
             StartDate = dto.StartDate,
             Name = dto.Name.TrimOrDefault(),
+            FixtureStartTime = dto.FixtureStartTime,
+            FixtureDuration = dto.FixtureDuration,
         }.AddAuditProperties(dto);
     }
 }

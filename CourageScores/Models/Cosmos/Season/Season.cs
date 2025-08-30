@@ -29,6 +29,16 @@ public class Season : AuditedEntity, IPermissionedEntity
     /// </summary>
     public string Name { get; set; } = null!;
 
+    /// <summary>
+    /// The time fixtures are supposed to commence per date
+    /// </summary>
+    public TimeSpan? FixtureStartTime { get; set; }
+
+    /// <summary>
+    /// The average expected duration of each fixture, in hours
+    /// </summary>
+    public int? FixtureDuration { get; set; }
+
     [ExcludeFromCodeCoverage]
     public bool CanCreate(UserDto? user)
     {

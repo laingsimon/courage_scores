@@ -16,7 +16,6 @@ namespace CourageScores.Services.Division;
 
 public class DivisionDataDtoFactory : IDivisionDataDtoFactory
 {
-    private readonly IDivisionDataSeasonAdapter _divisionDataSeasonAdapter;
     private readonly IDivisionFixtureDateAdapter _divisionFixtureDateAdapter;
     private readonly IDivisionPlayerAdapter _divisionPlayerAdapter;
     private readonly IDivisionTeamAdapter _divisionTeamAdapter;
@@ -27,7 +26,6 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     public DivisionDataDtoFactory(
         IDivisionPlayerAdapter divisionPlayerAdapter,
         IDivisionTeamAdapter divisionTeamAdapter,
-        IDivisionDataSeasonAdapter divisionDataSeasonAdapter,
         IDivisionFixtureDateAdapter divisionFixtureDateAdapter,
         IUserService userService,
         TimeProvider clock,
@@ -35,7 +33,6 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     {
         _divisionPlayerAdapter = divisionPlayerAdapter;
         _divisionTeamAdapter = divisionTeamAdapter;
-        _divisionDataSeasonAdapter = divisionDataSeasonAdapter;
         _divisionFixtureDateAdapter = divisionFixtureDateAdapter;
         _userService = userService;
         _clock = clock;
@@ -98,7 +95,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 .ThenBy(p => p.Name)
                 .ApplyRanks()
                 .ToList(),
-            Season = await _divisionDataSeasonAdapter.Adapt(context.Season, token),
+            Season = context.Season,
             DataErrors = canShowDataErrors ? divisionData.DataErrors.ToList() : new List<DataErrorDto>(),
             Updated = divisions.Count == 1 ? divisions.ElementAt(0)?.Updated : null,
         };

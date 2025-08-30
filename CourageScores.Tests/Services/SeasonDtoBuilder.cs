@@ -53,6 +53,18 @@ public class SeasonDtoBuilder
         return this;
     }
 
+    public SeasonDtoBuilder WithFixtureStartTime(TimeSpan? time)
+    {
+        _season.FixtureStartTime = time;
+        return this;
+    }
+
+    public SeasonDtoBuilder WithFixtureDuration(int? duration)
+    {
+        _season.FixtureDuration = duration;
+        return this;
+    }
+
     public SeasonDto Build()
     {
         return _season;

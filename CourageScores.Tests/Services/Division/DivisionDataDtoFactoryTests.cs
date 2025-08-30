@@ -68,7 +68,6 @@ public class DivisionDataDtoFactoryTests
     private DivisionDataDtoFactory _factory = null!;
     private IDivisionPlayerAdapter _divisionPlayerAdapter = null!;
     private IDivisionTeamAdapter _divisionTeamAdapter = null!;
-    private IDivisionDataSeasonAdapter _divisionDataSeasonAdapter = null!;
     private Mock<IDivisionFixtureDateAdapter> _divisionFixtureDateAdapter = null!;
     private Mock<IUserService> _userService = null!;
     private Mock<TimeProvider> _clock = null!;
@@ -81,13 +80,12 @@ public class DivisionDataDtoFactoryTests
     {
         _divisionPlayerAdapter = new DivisionPlayerAdapter(new PlayerPerformanceAdapter());
         _divisionTeamAdapter = new DivisionTeamAdapter();
-        _divisionDataSeasonAdapter = new DivisionDataSeasonAdapter();
         _divisionFixtureDateAdapter = new Mock<IDivisionFixtureDateAdapter>();
         _userService = new Mock<IUserService>();
         _clock = new Mock<TimeProvider>();
         _featureService = new Mock<IFeatureService>();
         _user = null;
-        _factory = new DivisionDataDtoFactory(_divisionPlayerAdapter, _divisionTeamAdapter, _divisionDataSeasonAdapter,
+        _factory = new DivisionDataDtoFactory(_divisionPlayerAdapter, _divisionTeamAdapter,
             _divisionFixtureDateAdapter.Object, _userService.Object, _clock.Object, _featureService.Object);
 
         _clock.Setup(c => c.GetUtcNow()).Returns(new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero));

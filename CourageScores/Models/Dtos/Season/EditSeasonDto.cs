@@ -35,5 +35,15 @@ public class EditSeasonDto : IIntegrityCheckDto
     /// </summary>
     public List<Guid> DivisionIds { get; set; } = new();
 
+    /// <summary>
+    /// The time fixtures are supposed to commence per date
+    /// </summary>
+    public TimeSpan? FixtureStartTime { get; set; }
+
+    /// <summary>
+    /// The average expected duration of each fixture, in hours
+    /// </summary>
+    public int? FixtureDuration { get; set; }
+
     public DateTime? LastUpdated { get; set; }
 }

@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos.Season;
 
 namespace CourageScores.Models.Dtos.Division;
 
@@ -13,5 +14,5 @@ public class DivisionDataDto
     public List<DivisionTeamDto> Teams { get; set; } = new();
     public List<DivisionFixtureDateDto> Fixtures { get; set; } = new();
     public List<DivisionPlayerDto> Players { get; set; } = new();
-    public DivisionDataSeasonDto? Season { get; set; }
+    public SeasonDto? Season { get; set; }
 }
