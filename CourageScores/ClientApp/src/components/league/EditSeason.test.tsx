@@ -20,7 +20,6 @@ import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
 import { divisionBuilder } from '../../helpers/builders/divisions';
 import { seasonBuilder } from '../../helpers/builders/seasons';
 import { ISeasonApi } from '../../interfaces/apis/ISeasonApi';
-import { DivisionDataSeasonDto } from '../../interfaces/models/dtos/Division/DivisionDataSeasonDto';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -285,7 +284,7 @@ describe('EditSeason', () => {
         let updatedData: EditSeasonDto;
         await renderComponent(
             {
-                data: seasonWithoutId as EditSeasonDto & DivisionDataSeasonDto,
+                data: seasonWithoutId as EditSeasonDto & SeasonDto,
                 onUpdateData: async (update: EditSeasonDto) => {
                     updatedData = update;
                 },

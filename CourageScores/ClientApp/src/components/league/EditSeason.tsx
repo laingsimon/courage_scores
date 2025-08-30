@@ -6,7 +6,6 @@ import { useDependencies } from '../common/IocContainer';
 import { useApp } from '../common/AppContainer';
 import { useNavigate } from 'react-router';
 import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { DivisionDataSeasonDto } from '../../interfaces/models/dtos/Division/DivisionDataSeasonDto';
 import { EditSeasonDto } from '../../interfaces/models/dtos/Season/EditSeasonDto';
 import { UntypedPromise } from '../../interfaces/UntypedPromise';
 import { IClientActionResultDto } from '../common/IClientActionResultDto';
@@ -16,7 +15,7 @@ export interface IEditSeasonProps {
     onClose(): UntypedPromise;
     onSave(): UntypedPromise;
     setSaveError(error: IClientActionResultDto<SeasonDto>): UntypedPromise;
-    data: EditSeasonDto & DivisionDataSeasonDto;
+    data: EditSeasonDto & SeasonDto;
     onUpdateData(season: EditSeasonDto): UntypedPromise;
 }
 
