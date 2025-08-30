@@ -11,4 +11,6 @@ public class DivisionDataSeasonDto
     public DateTime EndDate { get; set; }
     public List<DivisionDto> Divisions { get; set; } = new();
     public DateTime? Updated { get; set; }
+    public TimeSpan? FixtureStartTime { get; set; }
+    public int? FixtureDuration { get; set; }
 }

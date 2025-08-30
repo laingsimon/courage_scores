@@ -15,6 +15,8 @@ public class DivisionDataSeasonAdapter : IDivisionDataSeasonAdapter
             EndDate = season.EndDate,
             Divisions = season.Divisions,
             Updated = season.Updated,
+            FixtureStartTime = season.FixtureStartTime,
+            FixtureDuration = season.FixtureDuration,
         });
     }
 }

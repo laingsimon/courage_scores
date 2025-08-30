@@ -19,6 +19,8 @@ public class DivisionDataSeasonAdapterTests
             .WithDates(new DateTime(2001, 02, 03), new DateTime(2002, 03, 04))
             .WithDivisions(division)
             .Updated(new DateTime(2003, 04, 05))
+            .WithFixtureStartTime(TimeSpan.FromHours(4))
+            .WithFixtureDuration(4)
             .Build();
 
         var result = await _adapter.Adapt(model, _token);
@@ -32,5 +34,7 @@ public class DivisionDataSeasonAdapterTests
             division,
         }));
         Assert.That(result.Updated, Is.EqualTo(model.Updated));
+        Assert.That(result.FixtureStartTime, Is.EqualTo(model.FixtureStartTime));
+        Assert.That(result.FixtureDuration, Is.EqualTo(model.FixtureDuration));
     }
 }
