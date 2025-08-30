@@ -3,6 +3,7 @@ using System.Reflection;
 using CourageScores;
 using CourageScores.Binders;
 using CourageScores.Filters;
+using CourageScores.Formatters;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Newtonsoft.Json.Converters;
 
@@ -27,6 +28,7 @@ builder.Services
     {
         options.Filters.Add<CacheManagementFilter>();
         options.AddCommaSeparatedArrayModelBinderProvider();
+        options.OutputFormatters.Add(new CalendarTextOutputFormatter());
     })
     .AddNewtonsoftJson(options =>
     {
