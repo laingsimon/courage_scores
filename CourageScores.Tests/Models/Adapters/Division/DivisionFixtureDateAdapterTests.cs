@@ -3,6 +3,7 @@ using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Identity;
+using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Identity;
 using CourageScores.Tests.Models.Cosmos.Game;
@@ -60,10 +61,12 @@ public class DivisionFixtureDateAdapterTests
     private Mock<IDivisionFixtureAdapter> _divisionFixtureAdapter = null!;
     private Mock<IDivisionTournamentFixtureDetailsAdapter> _divisionTournamentFixtureDetailsAdapter = null!;
     private UserDto? _user;
+    private SeasonDto _season = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
+        _season = new SeasonDto();
         _user = _user.SetAccess();
         _userService = new Mock<IUserService>();
         _divisionFixtureAdapter = new Mock<IDivisionFixtureAdapter>();
@@ -71,7 +74,7 @@ public class DivisionFixtureDateAdapterTests
         _adapter = new DivisionFixtureDateAdapter(_userService.Object, _divisionFixtureAdapter.Object, _divisionTournamentFixtureDetailsAdapter.Object);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _divisionFixtureAdapter.Setup(a => a.Adapt(LeagueFixture, TeamA, TeamB, HomeDivision, AwayDivision, _token)).ReturnsAsync(LeagueFixtureDto);
+        _divisionFixtureAdapter.Setup(a => a.Adapt(LeagueFixture, _season, TeamA, TeamB, HomeDivision, AwayDivision, _token)).ReturnsAsync(LeagueFixtureDto);
     }
 
     [Test]
@@ -91,6 +94,7 @@ public class DivisionFixtureDateAdapterTests
             Array.Empty<CosmosGame>(),
             true,
             EmptyTeamIdToDivisionLookup,
+            _season,
             _token);
 
         _divisionTournamentFixtureDetailsAdapter.Verify(a => a.ForUnselectedVenue(It.IsAny<IEnumerable<TeamDto>>(), _token), Times.Never);
@@ -117,6 +121,7 @@ public class DivisionFixtureDateAdapterTests
             Array.Empty<CosmosGame>(),
             true,
             EmptyTeamIdToDivisionLookup,
+            _season,
             _token);
 
         _divisionTournamentFixtureDetailsAdapter.Verify(a => a.ForUnselectedVenue(It.IsAny<IEnumerable<TeamDto>>(), _token), Times.Never);
@@ -150,6 +155,7 @@ public class DivisionFixtureDateAdapterTests
             Array.Empty<CosmosGame>(),
             true,
             EmptyTeamIdToDivisionLookup,
+            _season,
             _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));
@@ -175,6 +181,7 @@ public class DivisionFixtureDateAdapterTests
             Array.Empty<CosmosGame>(),
             false,
             EmptyTeamIdToDivisionLookup,
+            _season,
             _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));
@@ -200,6 +207,7 @@ public class DivisionFixtureDateAdapterTests
             Array.Empty<CosmosGame>(),
             true,
             TeamIdToDivisionLookupABC,
+            _season,
             _token);
 
         _divisionFixtureAdapter.Verify(a => a.ForUnselectedTeam(It.IsAny<TeamDto>(), It.IsAny<bool>(), It.IsAny<IReadOnlyCollection<CosmosGame>>(), It.IsAny<DivisionDto?>(), _token), Times.Never);
@@ -230,6 +238,7 @@ public class DivisionFixtureDateAdapterTests
             Array.Empty<CosmosGame>(),
             true,
             TeamIdToDivisionLookupABC,
+            _season,
             _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));
@@ -253,6 +262,7 @@ public class DivisionFixtureDateAdapterTests
             Array.Empty<CosmosGame>(),
             false,
             TeamIdToDivisionLookupABC,
+            _season,
             _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));
@@ -298,6 +308,7 @@ public class DivisionFixtureDateAdapterTests
             new[] { otherDivisionGame },
             true,
             teamIdToDivisionLookup,
+            _season,
             _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));
@@ -326,6 +337,7 @@ public class DivisionFixtureDateAdapterTests
             Array.Empty<CosmosGame>(),
             true,
             TeamIdToDivisionLookupABC,
+            _season,
             _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));
@@ -352,7 +364,7 @@ public class DivisionFixtureDateAdapterTests
             HomeTeam = new DivisionFixtureTeamDto(),
         };
         _user = null;
-        _divisionFixtureAdapter.Setup(a => a.Adapt(game, TeamA, TeamB, HomeDivision, AwayDivision, _token)).ReturnsAsync(knockoutGameDto);
+        _divisionFixtureAdapter.Setup(a => a.Adapt(game, _season, TeamA, TeamB, HomeDivision, AwayDivision, _token)).ReturnsAsync(knockoutGameDto);
         _divisionFixtureAdapter.Setup(a => a.ForUnselectedTeam(TeamC, true, Array.Empty<CosmosGame>(), HomeDivision, _token)).ReturnsAsync(proposedGameDto);
 
         var result = await _adapter.Adapt(
@@ -364,6 +376,7 @@ public class DivisionFixtureDateAdapterTests
             Array.Empty<CosmosGame>(),
             true,
             TeamIdToDivisionLookupABC,
+            _season,
             _token);
 
         _divisionFixtureAdapter.Verify(a => a.ForUnselectedTeam(TeamC, true, Array.Empty<CosmosGame>(), HomeDivision, _token));
@@ -392,6 +405,7 @@ public class DivisionFixtureDateAdapterTests
             Array.Empty<CosmosGame>(),
             true,
             new Dictionary<Guid, DivisionDto?>(),
+            _season,
             _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));

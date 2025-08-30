@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
+using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services;
 using CourageScores.Services.Identity;
@@ -25,7 +26,8 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         _divisionTournamentFixtureDetailsAdapter = divisionTournamentFixtureDetailsAdapter;
     }
 
-    public async Task<DivisionFixtureDateDto> Adapt(DateTime date,
+    public async Task<DivisionFixtureDateDto> Adapt(
+        DateTime date,
         IReadOnlyCollection<CosmosGame> gamesForDate,
         IReadOnlyCollection<TournamentGame> tournamentGamesForDate,
         IReadOnlyCollection<FixtureDateNoteDto> notesForDate,
@@ -33,6 +35,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         IReadOnlyCollection<CosmosGame> otherFixturesForDate,
         bool includeProposals,
         IReadOnlyDictionary<Guid, DivisionDto?> teamIdToDivisionLookup,
+        SeasonDto season,
         CancellationToken token)
     {
         var user = await _userService.GetUser(token);
@@ -42,7 +45,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         return new DivisionFixtureDateDto
         {
             Date = date,
-            Fixtures = (await FixturesPerDate(gamesForDate, teams, includeFixtureProposals, otherFixturesForDate, teamIdToDivisionLookup, token).ToList())
+            Fixtures = (await FixturesPerDate(gamesForDate, season, teams, includeFixtureProposals, otherFixturesForDate, teamIdToDivisionLookup, token).ToList())
                 .OrderBy(f => f.HomeTeam.Name).ToList(),
             TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate, teams, canCreateTournaments && gamesForDate.Count == 0 && includeProposals, token)
                 .OrderByAsync(f => f.Address).ToList(),
@@ -52,6 +55,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
 
     private async IAsyncEnumerable<DivisionFixtureDto> FixturesPerDate(
         IEnumerable<CosmosGame> games,
+        SeasonDto season,
         IReadOnlyCollection<TeamDto> teams,
         bool includeFixtureProposals,
         IReadOnlyCollection<CosmosGame> otherFixturesForDate,
@@ -71,6 +75,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
 
             yield return await _divisionFixtureAdapter.Adapt(
                 game,
+                season,
                 teams.SingleOrDefault(t => t.Id == game.Home.Id),
                 teams.SingleOrDefault(t => t.Id == game.Away.Id),
                 homeDivision,

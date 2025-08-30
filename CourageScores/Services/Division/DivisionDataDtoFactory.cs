@@ -268,6 +268,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 gamesForDate.Except(inDivisionGames).ToArray(),
                 includeProposals,
                 teamIdToDivisionLookup,
+                context.Season,
                 token);
         }
     }
