@@ -15,6 +15,8 @@ export interface ISeasonBuilder
     updated(date: string): ISeasonBuilder;
     id(id: string): ISeasonBuilder;
     name(name: string): ISeasonBuilder;
+    fixtureStartTime(startTime: string): ISeasonBuilder;
+    fixtureDuration(duration: number): ISeasonBuilder;
 }
 
 export function seasonBuilder(name?: string, id?: string): ISeasonBuilder {
@@ -56,6 +58,14 @@ export function seasonBuilder(name?: string, id?: string): ISeasonBuilder {
             season.divisionIds.push(
                 divisionOrId.id ? divisionOrId.id : divisionOrId,
             );
+            return builder;
+        },
+        fixtureStartTime: (startTime: string) => {
+            season.fixtureStartTime = startTime;
+            return builder;
+        },
+        fixtureDuration: (duration: number) => {
+            season.fixtureDuration = duration;
             return builder;
         },
         isCurrent: () => {

@@ -32,4 +32,14 @@ public class SeasonDto : AuditedDto
     /// Is this the current season?
     /// </summary>
     public bool IsCurrent { get; set; }
+
+    /// <summary>
+    /// The time fixtures are supposed to commence per date
+    /// </summary>
+    public TimeSpan? FixtureStartTime { get; set; }
+
+    /// <summary>
+    /// The average expected duration of each fixture, in hours
+    /// </summary>
+    public int? FixtureDuration { get; set; }
 }

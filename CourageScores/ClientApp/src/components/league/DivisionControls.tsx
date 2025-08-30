@@ -13,7 +13,6 @@ import { any, isEmpty, sortBy } from '../../helpers/collections';
 import { renderDate } from '../../helpers/rendering';
 import { useApp } from '../common/AppContainer';
 import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
-import { DivisionDataSeasonDto } from '../../interfaces/models/dtos/Division/DivisionDataSeasonDto';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
 import { EditSeasonDto } from '../../interfaces/models/dtos/Season/EditSeasonDto';
@@ -22,7 +21,7 @@ import { UntypedPromise } from '../../interfaces/UntypedPromise';
 import { asyncClear } from '../../helpers/events';
 
 export interface IDivisionControlsProps {
-    originalSeasonData?: DivisionDataSeasonDto;
+    originalSeasonData?: SeasonDto;
     onDivisionOrSeasonChanged?(
         preventReloadIfIdsAreTheSame?: boolean,
     ): UntypedPromise;
@@ -54,9 +53,7 @@ export function DivisionControls({
     const [saveError, setSaveError] = useState<
         IClientActionResultDto<DivisionDto> | undefined
     >(undefined);
-    const [seasonData, setSeasonData] = useState<DivisionDataSeasonDto | null>(
-        null,
-    );
+    const [seasonData, setSeasonData] = useState<SeasonDto | null>(null);
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
     const [divisionData, setDivisionData] = useState<DivisionDataDto | null>(
         null,
@@ -140,18 +137,13 @@ export function DivisionControls({
         );
     }
 
-    function toEditableSeason(seasonData: DivisionDataSeasonDto) {
-        const data: DivisionDataSeasonDto & EditSeasonDto = Object.assign(
-            {},
-            seasonData,
-        );
+    function toEditableSeason(seasonData: SeasonDto) {
+        const data: SeasonDto & EditSeasonDto = Object.assign({}, seasonData);
         data.divisionIds = (seasonData.divisions || []).map((d) => d.id);
         return data;
     }
 
-    function firstValidDivisionNameForSeason(
-        season: DivisionDataSeasonDto,
-    ): string | null {
+    function firstValidDivisionNameForSeason(season: SeasonDto): string | null {
         if (
             originalDivisionData &&
             (isEmpty(season.divisions) ||

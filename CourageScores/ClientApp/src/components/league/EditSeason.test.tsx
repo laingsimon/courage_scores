@@ -20,7 +20,6 @@ import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
 import { divisionBuilder } from '../../helpers/builders/divisions';
 import { seasonBuilder } from '../../helpers/builders/seasons';
 import { ISeasonApi } from '../../interfaces/apis/ISeasonApi';
-import { DivisionDataSeasonDto } from '../../interfaces/models/dtos/Division/DivisionDataSeasonDto';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -178,6 +177,44 @@ describe('EditSeason', () => {
         expect(updatedData!.endDate).toEqual('2023-09-01');
     });
 
+    it('updates season fixture timings', async () => {
+        let updatedData: EditSeasonDto;
+        await renderComponent(
+            {
+                data: season,
+                onUpdateData: async (update: EditSeasonDto) => {
+                    updatedData = update;
+                },
+                setSaveError,
+                onClose,
+                onSave,
+            },
+            [season],
+            divisions,
+        );
+        reportedError.verifyNoError();
+
+        await doChange(
+            context.container,
+            'input[name="fixtureStartTime"]',
+            '20:30',
+            context.user,
+        );
+        reportedError.verifyNoError();
+        expect(updatedData!.id).toEqual(season.id);
+        expect(updatedData!.fixtureStartTime).toEqual('20:30');
+
+        await doChange(
+            context.container,
+            'input[name="fixtureDuration"]',
+            '5',
+            context.user,
+        );
+        reportedError.verifyNoError();
+        expect(updatedData!.id).toEqual(season.id);
+        expect(updatedData!.fixtureDuration).toEqual(5);
+    });
+
     it('can select a division', async () => {
         let updatedData: EditSeasonDto;
         await renderComponent(
@@ -247,7 +284,7 @@ describe('EditSeason', () => {
         let updatedData: EditSeasonDto;
         await renderComponent(
             {
-                data: seasonWithoutId as EditSeasonDto & DivisionDataSeasonDto,
+                data: seasonWithoutId as EditSeasonDto & SeasonDto,
                 onUpdateData: async (update: EditSeasonDto) => {
                     updatedData = update;
                 },
