@@ -37,6 +37,7 @@ public class TypeScriptInterfaceFactory
                 : null,
             Interfaces = type.GetInterfaces()
                 .Where(i => i.Namespace?.StartsWith("CourageScores") == true)
+                .Where(i => i.GetCustomAttribute<ExcludeFromTypeScriptAttribute>() == null)
                 .Select(t => Create(t, type))
                 .ToList(),
             PartialExtensions = type.GetCustomAttribute<PartialExtensionAttribute>()?.TypeNames.ToList() ?? new List<string>(),
