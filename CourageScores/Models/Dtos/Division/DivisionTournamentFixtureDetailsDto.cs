@@ -64,10 +64,10 @@ public class DivisionTournamentFixtureDetailsDto : ICalendarEventProvider
     {
         if (SingleRound && !string.IsNullOrEmpty(Host) && !string.IsNullOrEmpty(Opponent))
         {
-            return $"{Host} v {Opponent}";
+            return $"🎯 {Host} v {Opponent}";
         }
 
-        return $"{Type}";
+        return $"🎯 {Type}";
     }
 
     private IEnumerable<string> CalendarEventCategories()

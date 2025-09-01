@@ -40,9 +40,9 @@ public class DivisionFixtureDto : ICalendarEventProvider
         return Task.FromResult<CalendarEvent?>(new CalendarEvent
         {
             Id = Id,
-            Title = hasScores 
-                ? $"{HomeTeam.Name} {HomeScore} - {AwayScore} {AwayTeam!.Name}"
-                : $"{HomeTeam.Name} v {AwayTeam!.Name}",
+            Title = hasScores
+                ? $"🎯 {HomeTeam.Name} {HomeScore} - {AwayScore} {AwayTeam!.Name}"
+                : $"🎯 {HomeTeam.Name} v {AwayTeam!.Name}",
             Location = HomeTeam.Address,
             Confirmed = !Proposal,
             FromInclusive = FromTime.Value,

@@ -30,7 +30,7 @@ public class FixtureDateNoteDto : AuditedDto, ICalendarEventProvider
     {
         return Task.FromResult<CalendarEvent?>(new CalendarEvent
         {
-            Title = Note,
+            Title = $"🏷️ {Note}",
             FromInclusive = Date,
             ToExclusive = Date.AddDays(1),
             Id = Id,
