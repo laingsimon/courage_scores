@@ -38,6 +38,7 @@ public class DivisionTournamentFixtureDetailsDto : ICalendarEventProvider
         {
             Id = Id,
             Title = CalendarEventTitle(),
+            Description = CalendarDescription(),
             Categories = CalendarEventCategories().ToList(),
             FromInclusive = Date,
             ToExclusive = Date.AddDays(1),
@@ -46,6 +47,17 @@ public class DivisionTournamentFixtureDetailsDto : ICalendarEventProvider
             Confirmed = !Proposed,
             Version = 1,
         });
+    }
+
+    private string? CalendarDescription()
+    {
+        if (Sides.Count == 0)
+        {
+            return Notes;
+        }
+
+        var sideNames = string.Join(", ", Sides.Select(s => s.Name));
+        return string.IsNullOrEmpty(Notes) ? sideNames : $"{sideNames}\n{Notes}";
     }
 
     private string CalendarEventTitle()
