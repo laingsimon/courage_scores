@@ -1,5 +1,6 @@
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
+using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
@@ -9,6 +10,7 @@ public interface IDivisionFixtureAdapter
 {
     Task<DivisionFixtureDto> Adapt(
         CosmosGame game,
+        SeasonDto season,
         TeamDto? homeTeam,
         TeamDto? awayTeam,
         DivisionDto? homeDivision,

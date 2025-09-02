@@ -19,11 +19,11 @@ public class SeasonHasRightNumberOfTeamsWithSharedAddressTests
     public async Task Check_GivenNoRequiredSharedAddressesAndNonePresent_ReturnsSuccess()
     {
         var template = new TemplateDto();
-        var division1 = new DivisionDataDto
+        var division1 = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
         };
-        var division2 = new DivisionDataDto
+        var division2 = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
         };
@@ -72,11 +72,11 @@ public class SeasonHasRightNumberOfTeamsWithSharedAddressTests
                 }.ToList(),
             },
         };
-        var division1 = new DivisionDataDto
+        var division1 = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
         };
-        var division2 = new DivisionDataDto
+        var division2 = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
         };
@@ -125,11 +125,11 @@ public class SeasonHasRightNumberOfTeamsWithSharedAddressTests
                 }.ToList(),
             },
         };
-        var division1 = new DivisionDataDto
+        var division1 = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
         };
-        var division2 = new DivisionDataDto
+        var division2 = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
         };
@@ -178,11 +178,11 @@ public class SeasonHasRightNumberOfTeamsWithSharedAddressTests
                 }.ToList(),
             },
         };
-        var division1 = new DivisionDataDto
+        var division1 = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
         };
-        var division2 = new DivisionDataDto
+        var division2 = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
         };

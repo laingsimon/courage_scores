@@ -87,7 +87,7 @@ public class SeasonTemplateServiceTests
         _season = new SeasonDtoBuilder()
             .WithDivisions(new DivisionDtoBuilder(divisionId).Build())
             .Build();
-        _division = new DivisionDataDto
+        _division = new DivisionDataDto(null)
         {
             Id = divisionId,
             Name = "Division One",

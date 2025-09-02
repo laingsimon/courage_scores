@@ -35,7 +35,7 @@ public class FixtureDateAssignmentStrategyTests
     [SetUp]
     public void SetupEachTest()
     {
-        _division1 = new DivisionDataDto
+        _division1 = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
         };
@@ -128,7 +128,7 @@ public class FixtureDateAssignmentStrategyTests
             Date = new DateTime(2001, 01, 08),
             Notes = { new FixtureDateNoteDto() },
         };
-        var division = new DivisionDataDto
+        var division = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
             Fixtures = { dateWithNote },
@@ -160,7 +160,7 @@ public class FixtureDateAssignmentStrategyTests
                 TemplateDate(TemplateFixture("C", "D")),
                 TemplateDate(TemplateFixture("D", "C"))
             ));
-        var division2 = new DivisionDataDto
+        var division2 = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
         };
@@ -189,7 +189,7 @@ public class FixtureDateAssignmentStrategyTests
         var template = Template(TemplateDivision(
             TemplateDate(TemplateFixture("A", "B"), TemplateFixture("C", "D")),
             TemplateDate(TemplateFixture("B", "C"), TemplateFixture("D", "A"))));
-        var division = new DivisionDataDto
+        var division = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
             Fixtures =
@@ -223,7 +223,7 @@ public class FixtureDateAssignmentStrategyTests
             Date = new DateTime(2001, 01, 08),
             TournamentFixtures = { new DivisionTournamentFixtureDetailsDto() },
         };
-        var division = new DivisionDataDto
+        var division = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
             Fixtures = { dateWithTournament },
@@ -249,7 +249,7 @@ public class FixtureDateAssignmentStrategyTests
         var template = Template(TemplateDivision(
             TemplateDate(TemplateFixture("A", "B"), TemplateFixture("C", "D")),
             TemplateDate(TemplateFixture("B", "C"), TemplateFixture("D", "A"))));
-        var division = new DivisionDataDto
+        var division = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
         };
@@ -343,7 +343,7 @@ public class FixtureDateAssignmentStrategyTests
 
     private static DivisionDataDto OutputDivision(params DivisionFixtureDateDto[] dates)
     {
-        return new DivisionDataDto
+        return new DivisionDataDto(null)
         {
             Fixtures = dates.ToList(),
         };

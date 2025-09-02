@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using CourageScores.Filters;
+using CourageScores.Formatters;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Adapters.Game;
@@ -79,6 +80,7 @@ public static class DependencyInjectionExtensions
         services.AddSingleton<IJsonSerializerService, JsonSerializerService>();
         services.AddScoped<IWebSocketContractFactory, WebSocketContractFactory>();
         services.AddSingleton(Random.Shared);
+        services.AddSingleton<ICalendarWriter, CalendarWriter>();
 
         AddServices(services);
         AddRepositories(services);

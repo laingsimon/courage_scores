@@ -50,6 +50,9 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
             Opponent = tournamentGame.SingleRound
                 ? tournamentGame.Opponent
                 : null,
+
+            Updated = tournamentGame.Updated,
+            Host = tournamentGame.Host,
         };
     }
 

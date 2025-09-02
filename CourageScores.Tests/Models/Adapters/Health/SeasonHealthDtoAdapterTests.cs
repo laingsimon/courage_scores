@@ -28,7 +28,7 @@ public class SeasonHealthDtoAdapterTests
         var season = new SeasonDtoBuilder()
             .WithDates(new DateTime(2001, 02, 03), new DateTime(2002, 03, 04))
             .Build();
-        var division = new DivisionDataDto();
+        var division = new DivisionDataDto(null);
         var divisionDto = new DivisionHealthDto();
         var mapping = new SeasonHealthDtoAdapter.SeasonAndDivisions(season, new List<DivisionDataDto>
         {

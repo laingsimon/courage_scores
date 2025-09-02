@@ -31,7 +31,7 @@ public class DtoRepository
     {
         yield return dtoType;
 
-        if (dtoType.BaseType != null && dtoType.BaseType.Namespace != null && dtoType.BaseType!.Namespace.StartsWith("CourageScores"))
+        if (dtoType.BaseType != null && dtoType.BaseType.Namespace != null && dtoType.BaseType!.Namespace.StartsWith("CourageScores") && dtoType.BaseType.GetCustomAttribute<ExcludeFromTypeScriptAttribute>() == null)
         {
             foreach (var baseTypes in AndAnyCourageScoresClassesOrInterfaces(dtoType.BaseType!))
             {
@@ -41,7 +41,10 @@ public class DtoRepository
 
         foreach (var interfaceType in dtoType.GetInterfaces().Where(t => t.Namespace != null && t.Namespace.StartsWith("CourageScores")))
         {
-            yield return interfaceType;
+            if (interfaceType.GetCustomAttribute<ExcludeFromTypeScriptAttribute>() == null)
+            {
+                yield return interfaceType;
+            }
         }
     }
 
