@@ -10,6 +10,7 @@ using CourageScores.Services.Division;
 using CourageScores.Services.Identity;
 using CourageScores.Tests.Models.Cosmos.Game;
 using CourageScores.Tests.Models.Dtos;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using NUnit.Framework;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
@@ -74,6 +75,7 @@ public class DivisionDataDtoFactoryTests
     private Mock<IFeatureService> _featureService = null!;
     private UserDto? _user;
     private ConfiguredFeatureDto? _vetoedFeature;
+    private Mock<IConfiguration> _configuration = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -84,9 +86,11 @@ public class DivisionDataDtoFactoryTests
         _userService = new Mock<IUserService>();
         _clock = new Mock<TimeProvider>();
         _featureService = new Mock<IFeatureService>();
+        _configuration = new Mock<IConfiguration>();
         _user = null;
         _factory = new DivisionDataDtoFactory(_divisionPlayerAdapter, _divisionTeamAdapter,
-            _divisionFixtureDateAdapter.Object, _userService.Object, _clock.Object, _featureService.Object);
+            _divisionFixtureDateAdapter.Object, _userService.Object, _clock.Object, _featureService.Object,
+            _configuration.Object);
 
         _clock.Setup(c => c.GetUtcNow()).Returns(new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero));
         Helper.SetupDivisionFixtureDateDtoReturnWithDate(_divisionFixtureDateAdapter, _token);

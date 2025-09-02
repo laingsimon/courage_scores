@@ -42,7 +42,7 @@ public class NoMoreThanTemplateDivisionTeamCountTests
                 },
             },
         }; // template has 2 teams
-        var division = new DivisionDataDto
+        var division = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
         };
@@ -82,7 +82,7 @@ public class NoMoreThanTemplateDivisionTeamCountTests
                 },
             },
         }; // template has 1 team
-        var division = new DivisionDataDto
+        var division = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
         };
@@ -123,7 +123,7 @@ public class NoMoreThanTemplateDivisionTeamCountTests
                 },
             },
         }; // template has 2 teams
-        var division = new DivisionDataDto
+        var division = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
         };
@@ -164,7 +164,7 @@ public class NoMoreThanTemplateDivisionTeamCountTests
                 },
             },
         }; // template has 2 teams
-        var division = new DivisionDataDto
+        var division = new DivisionDataDto(null)
         {
             Name = "Division One",
             Id = Guid.NewGuid(),

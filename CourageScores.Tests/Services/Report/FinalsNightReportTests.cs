@@ -55,8 +55,8 @@ public class FinalsNightReportTests
         _division1 = new DivisionDtoBuilder(name: "Division 1").Build();
         _division2 = new DivisionDtoBuilder(name: "Division 2").Build();
         _divisions = new[] { _division1, _division2, };
-        _divisionData1 = new DivisionDataDto { Id = _division1.Id, Name = _division1.Name, };
-        _divisionData2 = new DivisionDataDto { Id = _division2.Id, Name = _division2.Name, };
+        _divisionData1 = new DivisionDataDto(null) { Id = _division1.Id, Name = _division1.Name, };
+        _divisionData2 = new DivisionDataDto(null) { Id = _division2.Id, Name = _division2.Name, };
         _season = new SeasonDtoBuilder().WithDivisions(_division1, _division2).Build();
         _user = _user.SetAccess(manageScores: true, runReports: true);
         _playerLookup = new PlayerLookup();

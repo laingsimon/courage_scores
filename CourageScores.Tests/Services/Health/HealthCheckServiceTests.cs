@@ -45,11 +45,11 @@ public class HealthCheckServiceTests
             _healthCheckFactory.Object,
             _seasonAdapter.Object);
         _user = _user.SetAccess(runHealthChecks: true);
-        _division1 = new DivisionDataDto
+        _division1 = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
         };
-        _division2 = new DivisionDataDto
+        _division2 = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
         };
@@ -130,7 +130,7 @@ public class HealthCheckServiceTests
         _seasonService.Setup(s => s.Get(seasonWithMissingDivision.Id, _token)).ReturnsAsync(seasonWithMissingDivision);
         _divisionService
             .Setup(d => d.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId.Contains(divisionId)), _token))
-            .ReturnsAsync(() => new DivisionDataDto
+            .ReturnsAsync(() => new DivisionDataDto(null)
             {
                 Id = divisionId,
                 DataErrors =

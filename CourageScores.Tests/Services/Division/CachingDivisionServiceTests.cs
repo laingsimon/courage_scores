@@ -18,7 +18,7 @@ namespace CourageScores.Tests.Services.Division;
 public class CachingDivisionServiceTests
 {
     private readonly CancellationToken _token = new();
-    private readonly DivisionDataDto _divisionData = new();
+    private readonly DivisionDataDto _divisionData = new(null);
     private readonly DivisionDto? _divisionDto = new();
     private readonly List<DivisionDto> _allDivisions = new()
     {

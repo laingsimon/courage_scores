@@ -22,6 +22,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     private readonly IUserService _userService;
     private readonly TimeProvider _clock;
     private readonly IFeatureService _featureService;
+    private readonly IConfiguration _configuration;
 
     public DivisionDataDtoFactory(
         IDivisionPlayerAdapter divisionPlayerAdapter,
@@ -29,7 +30,8 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         IDivisionFixtureDateAdapter divisionFixtureDateAdapter,
         IUserService userService,
         TimeProvider clock,
-        IFeatureService featureService)
+        IFeatureService featureService,
+        IConfiguration configuration)
     {
         _divisionPlayerAdapter = divisionPlayerAdapter;
         _divisionTeamAdapter = divisionTeamAdapter;
@@ -37,6 +39,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         _userService = userService;
         _clock = clock;
         _featureService = featureService;
+        _configuration = configuration;
     }
 
     public async Task<DivisionDataDto> CreateDivisionDataDto(DivisionDataContext context, IReadOnlyCollection<DivisionDto?> divisions, bool includeProposals, CancellationToken token)
@@ -68,7 +71,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         var user = await _userService.GetUser(token);
         var canShowDataErrors = user?.Access?.ImportData == true;
 
-        return new DivisionDataDto
+        return new DivisionDataDto(_configuration["ProductName"])
         {
             Id = (divisions.Count == 1 ? divisions.ElementAt(0)?.Id : null) ?? Guid.Empty,
             Name = GetDivisionName(divisions),
@@ -104,7 +107,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     public Task<DivisionDataDto> SeasonNotFound(IReadOnlyCollection<DivisionDto?> divisions, IEnumerable<SeasonDto> allSeasons,
         CancellationToken token)
     {
-        return Task.FromResult(new DivisionDataDto
+        return Task.FromResult(new DivisionDataDto(_configuration["ProductName"])
         {
             Id = (divisions.Count == 1 ? divisions.ElementAt(0)?.Id : null) ?? Guid.Empty,
             Name = (divisions.Count == 1 ? divisions.ElementAt(0)?.Name ?? "<unnamed division>" : null) ?? "<all divisions>",
@@ -120,7 +123,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
 
     public DivisionDataDto DivisionNotFound(IReadOnlyCollection<Guid> divisionIds, IReadOnlyCollection<DivisionDto> deletedDivisions)
     {
-        return new DivisionDataDto
+        return new DivisionDataDto(_configuration["ProductName"])
         {
             Id = divisionIds.Count == 1 ? divisionIds.ElementAt(0) : Guid.Empty,
             DataErrors =
@@ -335,9 +338,9 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     }
 
     [ExcludeFromCodeCoverage]
-    private static DivisionDataDto DataError(Guid divisionId, string message)
+    private DivisionDataDto DataError(Guid divisionId, string message)
     {
-        return new DivisionDataDto
+        return new DivisionDataDto(_configuration["ProductName"])
         {
             Id = divisionId,
             DataErrors =

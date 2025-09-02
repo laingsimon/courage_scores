@@ -8,6 +8,13 @@ namespace CourageScores.Models.Dtos.Division;
 [ExcludeFromCodeCoverage]
 public class DivisionDataDto : ICalendarProvider
 {
+    private readonly string? _productName;
+
+    public DivisionDataDto(string? productName)
+    {
+        _productName = productName;
+    }
+
     public Guid Id { get; set; }
     public string Name { get; set; } = null!;
     public DateTime? Updated { get; set; }
@@ -23,8 +30,8 @@ public class DivisionDataDto : ICalendarProvider
         return new Calendar
         {
             Events = await Fixtures.SelectManyAsync(fd => fd.GetEvents(token)).ToList(),
-            Name = $"Courage League - {Season?.Name}",
-            Description = "Courage League fixtures and events",
+            Name = $"{_productName ?? "Courage Scores"} - {Season?.Name}",
+            Description = $"{_productName ?? "Courage Scores"} fixtures and events",
             RefreshInterval = TimeSpan.FromDays(1),
         };
     }
