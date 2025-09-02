@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net.Mime;
+using System.Text;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Net.Http.Headers;
 
@@ -44,6 +45,15 @@ public class CalendarTextOutputFormatter : TextOutputFormatter
 
         using var buffer = new StringWriter();
         await calendarWriter.WriteToStream(calendar, buffer, token);
+
+        var contentDisposition = new ContentDisposition
+        {
+            FileName = calendar.Name + ".ics",
+            CreationDate = DateTime.UtcNow,
+            Inline = false,
+            Size = buffer.GetStringBuilder().Length,
+        };
+        httpContext.Response.Headers.Append(HeaderNames.ContentDisposition, contentDisposition.ToString());
         await httpContext.Response.WriteAsync(buffer.GetStringBuilder().ToString(), selectedEncoding, cancellationToken: token);
     }
 }
