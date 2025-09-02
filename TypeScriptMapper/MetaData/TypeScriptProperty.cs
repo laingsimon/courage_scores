@@ -61,33 +61,60 @@ public class TypeScriptProperty : ITypeScriptMember
     {
         var type = _property.DeclaringType;
         var property = _property;
-        try
+        if (type!.ContainsGenericParameters)
         {
-            if (type!.ContainsGenericParameters)
+            type = type.MakeGenericType(typeof(object));
+            property = type.GetProperty(_property.Name)!;
+        }
+
+        if (type.IsAbstract)
+        {
+            return false;
+        }
+
+        object? instance = null;
+        foreach (var args in type.GetConstructors().Select(GetArgsForConstructor))
+        {
+            try
             {
-                type = type.MakeGenericType(typeof(object));
-                property = type.GetProperty(_property.Name)!;
+                instance = Activator.CreateInstance(type, args);
+                break;
             }
-
-            if (type.IsAbstract)
+            catch
             {
-                return false;
-            }
-
-            var instance = Activator.CreateInstance(type);
-            var propertyValue = property.GetValue(instance);
-
-            if (propertyValue != default)
-            {
-                return true;
+                // ignore
             }
         }
-        catch
+
+        if (instance == null)
         {
-            // do nothing
+            return false;
+        }
+
+        var propertyValue = property.GetValue(instance);
+
+        if (propertyValue != default)
+        {
+            return true;
         }
 
         return false;
+    }
+
+    private object[] GetArgsForConstructor(ConstructorInfo ctor)
+    {
+        return ctor.GetParameters().Select(GetDefaultValueForType).ToArray();
+    }
+
+    private object GetDefaultValueForType(ParameterInfo param)
+    {
+        var type = param.ParameterType;
+        if (type == typeof(string))
+        {
+            return string.Empty;
+        }
+
+        return Activator.CreateInstance(type)!;
     }
 
     public bool IsImplementationOf(ITypeScriptMember member)
