@@ -23,7 +23,7 @@ public class DivisionDataDto : ICalendarProvider
         return new Calendar
         {
             Events = await Fixtures.SelectManyAsync(fd => fd.GetEvents(token)).ToList(),
-            Name = "Courage League",
+            Name = $"Courage League - {Season?.Name}",
             Description = "Courage League fixtures and events",
             RefreshInterval = TimeSpan.FromDays(1),
         };
