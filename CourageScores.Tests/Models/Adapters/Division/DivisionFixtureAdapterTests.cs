@@ -37,7 +37,11 @@ public class DivisionFixtureAdapterTests
     [SetUp]
     public void SetupEachTest()
     {
-        _season = new SeasonDto();
+        _season = new SeasonDto
+        {
+            FixtureStartTime = TimeSpan.FromHours(21),
+            FixtureDuration = 2
+        };
         _divisionFixtureTeamAdapter = new Mock<IDivisionFixtureTeamAdapter>();
         _featureService = new Mock<IFeatureService>();
         _clock = new Mock<TimeProvider>();
@@ -131,6 +135,25 @@ public class DivisionFixtureAdapterTests
         Assert.That(result.HomeTeam, Is.EqualTo(_homeTeamDto));
         Assert.That(result.AwayTeam, Is.EqualTo(_awayTeamDto));
         Assert.That(result.IsKnockout, Is.EqualTo(game.IsKnockout));
+    }
+
+    [Test]
+    public async Task Adapt_WithNoMatchOptions_SetsHomeAndAwayScoresToNull()
+    {
+        var game = new GameBuilder()
+            .WithAddress("address")
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithMatch(m => m
+                .WithScores(1, 2)
+                .WithHomePlayers(new GamePlayer())
+                .WithAwayPlayers(new GamePlayer()))
+            .WithTeams(_homeTeam, _awayTeam)
+            .Build();
+
+        var result = await _adapter.Adapt(game, _season, _homeTeam, _awayTeam, null, null, _token);
+
+        Assert.That(result.HomeScore, Is.EqualTo(0));
+        Assert.That(result.AwayScore, Is.EqualTo(0));
     }
 
     [Test]
@@ -355,6 +378,25 @@ public class DivisionFixtureAdapterTests
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Away, _awayTeam.Address, _token));
         Assert.That(result.HomeScore, Is.EqualTo(6));
         Assert.That(result.AwayScore, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task Adapt_WithConfiguredStartTimeAndDuration_SetsStartAndEndTimeCorrectly()
+    {
+        var game = new GameBuilder()
+            .WithAddress("address")
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithMatch(m => m
+                .WithScores(1, 2)
+                .WithHomePlayers(new GamePlayer())
+                .WithAwayPlayers(new GamePlayer()))
+            .WithTeams(_homeTeam, _awayTeam)
+            .Build();
+
+        var result = await _adapter.Adapt(game, _season, _homeTeam, _awayTeam, null, null, _token);
+
+        Assert.That(result.FromTime, Is.EqualTo(new DateTime(2001, 02, 03, 21, 0, 0)));
+        Assert.That(result.ToTime, Is.EqualTo(new DateTime(2001, 02, 03, 21+2, 0, 0)));
     }
 
     [TestCase(true, true)]
