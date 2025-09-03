@@ -160,13 +160,11 @@ export function FilterFixtures() {
                     ➖
                 </Link>
             ) : null}
-            {teamId ? (
-                <a
-                    className="btn btn-sm btn-outline-primary margin-left"
-                    href={`${calendarUrl}&teamId=${teamId}`}>
-                    🗓️
-                </a>
-            ) : null}
+            <a
+                className="btn btn-sm btn-outline-primary margin-left"
+                href={`${calendarUrl}${teamId ? `&teamId=${teamId}` : ''}`}>
+                🗓️
+            </a>
         </div>
     );
 }
