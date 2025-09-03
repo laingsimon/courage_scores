@@ -57,7 +57,7 @@ public class DivisionTournamentFixtureDetailsDto : ICalendarEventProvider
         }
 
         var sideNames = string.Join(", ", Sides.Select(s => s.Name));
-        return string.IsNullOrEmpty(Notes) ? sideNames : $"{sideNames}\n{Notes}";
+        return string.Join("\n", [ Type, sideNames, Notes ]).Trim();
     }
 
     private string CalendarEventTitle()
