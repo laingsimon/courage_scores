@@ -2,6 +2,8 @@
 
 public class CalendarWriter : ICalendarWriter
 {
+    private static readonly TimeZoneInfo UkTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/London");
+
     public async Task WriteToStream(Calendar calendar, TextWriter textWriter, CancellationToken token)
     {
         await textWriter.WriteLineAsync("BEGIN:VCALENDAR");
@@ -80,9 +82,11 @@ public class CalendarWriter : ICalendarWriter
         await textWriter.WriteLineAsync("END:VALARM");
     }
 
-    private static string FormatDateTime(DateTime dateTime)
+    private static string FormatDateTime(DateTime localDateTime)
     {
-        return dateTime.ToString("yyyyMMddTHHmmss");
+        var offset = UkTimeZone.GetUtcOffset(localDateTime);
+        var utcDateTime = localDateTime.Subtract(offset);
+        return utcDateTime.ToString("yyyyMMddTHHmmss") + "Z";
     }
 
     private static string FormatTimeSpanAsInterval(TimeSpan interval)

@@ -40,6 +40,7 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
 
         var startTime = season.FixtureStartTime ?? TimeSpan.FromHours(20);
         var duration = season.FixtureDuration ?? 3;
+        var localDate = DateTime.SpecifyKind(game.Date, DateTimeKind.Local);
 
         return new DivisionFixtureDto
         {
@@ -58,9 +59,9 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
             HomeDivision = homeDivision,
             AwayDivision = awayDivision,
 
-            FromTime = game.Date.Add(startTime),
-            ToTime = game.Date.Add(startTime).AddHours(duration),
-            Updated = game.Updated,
+            FromTime = localDate.Add(startTime),
+            ToTime = localDate.Add(startTime).AddHours(duration),
+            Updated = DateTime.SpecifyKind(game.Updated, DateTimeKind.Local),
         };
     }
 

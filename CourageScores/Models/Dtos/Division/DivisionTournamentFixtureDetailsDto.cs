@@ -34,14 +34,15 @@ public class DivisionTournamentFixtureDetailsDto : ICalendarEventProvider
             return Task.FromResult<CalendarEvent?>(null);
         }
 
+        var localDate = DateTime.SpecifyKind(Date, DateTimeKind.Local);
         return Task.FromResult<CalendarEvent?>(new CalendarEvent
         {
             Id = Id,
             Title = CalendarEventTitle(),
             Description = CalendarDescription(),
             Categories = CalendarEventCategories().ToList(),
-            FromInclusive = Date,
-            ToExclusive = Date.AddDays(1),
+            FromInclusive = localDate,
+            ToExclusive = localDate.AddDays(1),
             LastUpdated = Updated.Value,
             Location = Address,
             Confirmed = !Proposed,
