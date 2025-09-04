@@ -49,13 +49,8 @@ public class DivisionTournamentFixtureDetailsDto : ICalendarEventProvider
         });
     }
 
-    private string? CalendarDescription()
+    private string CalendarDescription()
     {
-        if (Sides.Count == 0)
-        {
-            return Notes;
-        }
-
         var sideNames = string.Join(", ", Sides.Select(s => s.Name));
         return string.Join("\n", [ Type, sideNames, Notes ]).Trim();
     }
