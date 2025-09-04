@@ -66,7 +66,16 @@ public class CalendarWriter : ICalendarWriter
             await textWriter.WriteLineAsync($"LOCATION:{EncodeValue(calendarEvent.Location)}");
         }
 
+        await WriteNoReminder(textWriter);
+
         await textWriter.WriteLineAsync("END:VEVENT");
+    }
+
+    private static async Task WriteNoReminder(TextWriter textWriter)
+    {
+        await textWriter.WriteLineAsync("BEGIN:VALARM");
+        await textWriter.WriteLineAsync("ACTION:NONE");
+        await textWriter.WriteLineAsync("END:VALARM");
     }
 
     private static string FormatDateTime(DateTime dateTime)
