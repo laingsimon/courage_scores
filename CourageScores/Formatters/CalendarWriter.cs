@@ -63,6 +63,11 @@ public class CalendarWriter : ICalendarWriter
             await textWriter.WriteLineAsync($"LOCATION:{EncodeValue(calendarEvent.Location)}");
         }
 
+        if (!string.IsNullOrEmpty(calendarEvent.Description))
+        {
+            await textWriter.WriteLineAsync($"DESCRIPTION:{EncodeValue(calendarEvent.Description)}");
+        }
+
         await WriteNoReminder(textWriter);
 
         await textWriter.WriteLineAsync("END:VEVENT");

@@ -387,6 +387,32 @@ public class CalendarWriterTests
                 : Does.Not.Contain(expected));
     }
 
+    [TestCase(null, "DESCRIPTION:", false)]
+    [TestCase("", "DESCRIPTION:", false)]
+    [TestCase("desc", "DESCRIPTION:desc", true)]
+    public async Task WriteToStream_GivenEvent_WritesDescription(string description, string expected, bool contains)
+    {
+        var calendar = new Calendar
+        {
+            Events =
+            {
+                new CalendarEvent
+                {
+                    Title = "title",
+                    Description = description,
+                }
+            }
+        };
+
+        await _writer.WriteToStream(calendar, _textWriter, _token);
+
+        Assert.That(
+            _textWriter.GetStringBuilder().ToString(),
+            contains
+                ? Does.Contain(expected + Environment.NewLine)
+                : Does.Not.Contain(expected));
+    }
+
     //   ----------------------------------------------------------------------
     //                                                         70th character ^
     [TestCase(
