@@ -2,6 +2,8 @@
 
 public class CalendarWriter : ICalendarWriter
 {
+    private static readonly TimeZoneInfo UkTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/London");
+
     public async Task WriteToStream(Calendar calendar, TextWriter textWriter, CancellationToken token)
     {
         await textWriter.WriteLineAsync("BEGIN:VCALENDAR");
@@ -9,6 +11,9 @@ public class CalendarWriter : ICalendarWriter
         await textWriter.WriteLineAsync($"PRODID:{calendar.Id}");
         await textWriter.WriteLineAsync("CALSCALE:GREGORIAN");
         await textWriter.WriteLineAsync($"METHOD:{EncodeValue(calendar.Method)}");
+
+        await textWriter.WriteLineAsync($"TIMEZONE-ID:{UkTimeZone.StandardName}"); // Europe/London
+        await textWriter.WriteLineAsync($"X-WR-TIMEZONE:{UkTimeZone.StandardName}"); // Europe/London
 
         if (!string.IsNullOrEmpty(calendar.Name))
         {
@@ -21,9 +26,6 @@ public class CalendarWriter : ICalendarWriter
             await textWriter.WriteLineAsync($"DESCRIPTION:{EncodeValue(calendar.Description)}");
             await textWriter.WriteLineAsync($"X-WR-CALDESC:{EncodeValue(calendar.Description)}");
         }
-
-        await textWriter.WriteLineAsync($"TIMEZONE-ID:{TimeZoneInfo.Local.StandardName}"); // Europe/London
-        await textWriter.WriteLineAsync($"X-WR-TIMEZONE:{TimeZoneInfo.Local.StandardName}"); // Europe/London
 
         if (calendar.RefreshInterval != null)
         {
@@ -48,9 +50,9 @@ public class CalendarWriter : ICalendarWriter
         await textWriter.WriteLineAsync($"SEQUENCE:{calendarEvent.Version}");
         await textWriter.WriteLineAsync($"STATUS:{(calendarEvent.Confirmed ? "CONFIRMED" : "TENTATIVE")}");
         await textWriter.WriteLineAsync($"TRANSP:{(calendarEvent.Private ? "OPAQUE" : "TRANSPARENT")}");
-        await textWriter.WriteLineAsync($"DTSTART:{FormatDateTime(calendarEvent.FromInclusive)}");
-        await textWriter.WriteLineAsync($"DTEND:{FormatDateTime(calendarEvent.ToExclusive)}");
-        await textWriter.WriteLineAsync($"DTSTAMP:{FormatDateTime(calendarEvent.LastUpdated)}");
+        await textWriter.WriteLineAsync(FormatDateTime("DTSTART", calendarEvent.FromInclusive));
+        await textWriter.WriteLineAsync(FormatDateTime("DTEND", calendarEvent.ToExclusive));
+        await textWriter.WriteLineAsync(FormatDateTime("DTSTAMP", calendarEvent.LastUpdated));
         if (calendarEvent.Categories.Count > 0)
         {
             await textWriter.WriteLineAsync($"CATEGORIES:{string.Join(",", calendarEvent.Categories.Select(EncodeValue))}");
@@ -66,6 +68,11 @@ public class CalendarWriter : ICalendarWriter
             await textWriter.WriteLineAsync($"LOCATION:{EncodeValue(calendarEvent.Location)}");
         }
 
+        if (!string.IsNullOrEmpty(calendarEvent.Description))
+        {
+            await textWriter.WriteLineAsync($"DESCRIPTION:{EncodeValue(calendarEvent.Description)}");
+        }
+
         await WriteNoReminder(textWriter);
 
         await textWriter.WriteLineAsync("END:VEVENT");
@@ -78,9 +85,16 @@ public class CalendarWriter : ICalendarWriter
         await textWriter.WriteLineAsync("END:VALARM");
     }
 
-    private static string FormatDateTime(DateTime dateTime)
+    private static string FormatDateTime(string name, DateTime localDateTime)
     {
-        return dateTime.ToString("yyyyMMddTHHmmss");
+        if (localDateTime.TimeOfDay == TimeSpan.Zero)
+        {
+            return $"{name};VALUE=DATE:{localDateTime:yyyyMMdd}";
+        }
+
+        var offset = UkTimeZone.GetUtcOffset(localDateTime);
+        var utcDateTime = localDateTime.Subtract(offset);
+        return $"{name}:{utcDateTime:yyyyMMdd'T'HHmmss}Z";
     }
 
     private static string FormatTimeSpanAsInterval(TimeSpan interval)

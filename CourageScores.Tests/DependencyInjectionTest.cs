@@ -1,4 +1,5 @@
-﻿using CourageScores.Repository;
+﻿using System.Reflection;
+using CourageScores.Repository;
 using CourageScores.Services.Command;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
@@ -68,6 +69,7 @@ public class DependencyInjectionTest
 
         return commands
             .Where(t => t.IsClass && !t.IsAbstract)
+            .Where(t => !t.Attributes.HasFlag(TypeAttributes.NestedPrivate))
             .Select(t =>
             {
                 if (!t.IsGenericTypeDefinition)

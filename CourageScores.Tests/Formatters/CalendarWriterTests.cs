@@ -100,18 +100,6 @@ public class CalendarWriterTests
                 : Does.Not.Contain(expected));
     }
 
-    [Test]
-    public async Task WriteToStream_WhenCalled_WritesTimeZoneId()
-    {
-        var calendar = new Calendar();
-
-        await _writer.WriteToStream(calendar, _textWriter, _token);
-
-        Assert.That(
-            _textWriter.GetStringBuilder().ToString(),
-            Does.Contain($"TIMEZONE-ID:{TimeZoneInfo.Local.StandardName}" + Environment.NewLine));
-    }
-
     [TestCase(null, "REFRESH-INTERVAL;VALUE=DURATION:", false)]
     [TestCase("0.12:00:00.000", "REFRESH-INTERVAL;VALUE=DURATION:P12H", true)]
     public async Task WriteToStream_WhenCalled_WritesRefreshInterval(string? interval, string expected, bool contains)
@@ -266,19 +254,19 @@ public class CalendarWriterTests
     }
 
     [Test]
-    public async Task WriteToStream_GivenEvent_WritesStartAndEndTime()
+    public async Task WriteToStream_GivenEvent_WritesStartAndEndTimeInUtc()
     {
-        var startTime = new DateTime(2001, 02, 03, 04, 05, 06);
-        var endTime = new DateTime(2002, 03, 04, 05, 06, 07);
+        var startTime = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.FromHours(0)); // this is a GMT time
+        var endTime = new DateTimeOffset(2003, 04, 05, 06, 07, 08, TimeSpan.FromHours(1)); // this is a BST time
         var calendar = new Calendar
         {
             Events =
             {
                 new CalendarEvent
                 {
-                    Title = "title",
-                    FromInclusive = startTime,
-                    ToExclusive = endTime,
+                    Title = "starts in GMT ends in BST",
+                    FromInclusive = startTime.DateTime,
+                    ToExclusive = endTime.DateTime,
                 }
             }
         };
@@ -288,10 +276,10 @@ public class CalendarWriterTests
         var content = _textWriter.GetStringBuilder().ToString();
         Assert.That(
             content,
-            Does.Contain("DTSTART:20010203T040506" + Environment.NewLine));
+            Does.Contain("DTSTART:20010203T040506Z" + Environment.NewLine));
         Assert.That(
             content,
-            Does.Contain("DTEND:20020304T050607" + Environment.NewLine));
+            Does.Contain("DTEND:20030405T050708Z" + Environment.NewLine));
     }
 
     [Test]
@@ -314,7 +302,7 @@ public class CalendarWriterTests
 
         Assert.That(
             _textWriter.GetStringBuilder().ToString(),
-            Does.Contain("DTSTAMP:20010203T040506" + Environment.NewLine));
+            Does.Contain("DTSTAMP:20010203T040506Z" + Environment.NewLine));
     }
 
     [TestCase("", "CATEGORIES:", false)]
@@ -386,6 +374,32 @@ public class CalendarWriterTests
                 {
                     Title = "title",
                     Location = location,
+                }
+            }
+        };
+
+        await _writer.WriteToStream(calendar, _textWriter, _token);
+
+        Assert.That(
+            _textWriter.GetStringBuilder().ToString(),
+            contains
+                ? Does.Contain(expected + Environment.NewLine)
+                : Does.Not.Contain(expected));
+    }
+
+    [TestCase(null, "DESCRIPTION:", false)]
+    [TestCase("", "DESCRIPTION:", false)]
+    [TestCase("desc", "DESCRIPTION:desc", true)]
+    public async Task WriteToStream_GivenEvent_WritesDescription(string description, string expected, bool contains)
+    {
+        var calendar = new Calendar
+        {
+            Events =
+            {
+                new CalendarEvent
+                {
+                    Title = "title",
+                    Description = description,
                 }
             }
         };

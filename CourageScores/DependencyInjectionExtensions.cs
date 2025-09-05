@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Reflection;
 using CourageScores.Filters;
 using CourageScores.Formatters;
 using CourageScores.Models.Adapters;
@@ -126,7 +127,8 @@ public static class DependencyInjectionExtensions
         var commandTypes = commandAssembly
             .GetTypes()
             .Where(t => t.IsClass && !t.IsAbstract)
-            .Where(t => t.IsAssignableTo(typeof(IUpdateCommand)));
+            .Where(t => t.IsAssignableTo(typeof(IUpdateCommand)))
+            .Where(t => !t.Attributes.HasFlag(TypeAttributes.NestedPrivate));
 
         foreach (var commandType in commandTypes)
         {
