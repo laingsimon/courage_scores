@@ -50,9 +50,9 @@ public class CalendarWriter : ICalendarWriter
         await textWriter.WriteLineAsync($"SEQUENCE:{calendarEvent.Version}");
         await textWriter.WriteLineAsync($"STATUS:{(calendarEvent.Confirmed ? "CONFIRMED" : "TENTATIVE")}");
         await textWriter.WriteLineAsync($"TRANSP:{(calendarEvent.Private ? "OPAQUE" : "TRANSPARENT")}");
-        await textWriter.WriteLineAsync($"DTSTART:{FormatDateTime(calendarEvent.FromInclusive)}");
-        await textWriter.WriteLineAsync($"DTEND:{FormatDateTime(calendarEvent.ToExclusive)}");
-        await textWriter.WriteLineAsync($"DTSTAMP:{FormatDateTime(calendarEvent.LastUpdated)}");
+        await textWriter.WriteLineAsync(FormatDateTime("DTSTART", calendarEvent.FromInclusive));
+        await textWriter.WriteLineAsync(FormatDateTime("DTEND", calendarEvent.ToExclusive));
+        await textWriter.WriteLineAsync(FormatDateTime("DTSTAMP", calendarEvent.LastUpdated));
         if (calendarEvent.Categories.Count > 0)
         {
             await textWriter.WriteLineAsync($"CATEGORIES:{string.Join(",", calendarEvent.Categories.Select(EncodeValue))}");
@@ -85,11 +85,16 @@ public class CalendarWriter : ICalendarWriter
         await textWriter.WriteLineAsync("END:VALARM");
     }
 
-    private static string FormatDateTime(DateTime localDateTime)
+    private static string FormatDateTime(string name, DateTime localDateTime)
     {
+        if (localDateTime.TimeOfDay == TimeSpan.Zero)
+        {
+            return $"{name};VALUE=DATE:{localDateTime:yyyyMMdd}";
+        }
+
         var offset = UkTimeZone.GetUtcOffset(localDateTime);
         var utcDateTime = localDateTime.Subtract(offset);
-        return utcDateTime.ToString("yyyyMMddTHHmmss") + "Z";
+        return $"{name}:{utcDateTime:yyyyMMdd'T'HHmmss}Z";
     }
 
     private static string FormatTimeSpanAsInterval(TimeSpan interval)
