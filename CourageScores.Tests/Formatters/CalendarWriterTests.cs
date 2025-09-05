@@ -100,18 +100,6 @@ public class CalendarWriterTests
                 : Does.Not.Contain(expected));
     }
 
-    [Test]
-    public async Task WriteToStream_WhenCalled_WritesTimeZoneId()
-    {
-        var calendar = new Calendar();
-
-        await _writer.WriteToStream(calendar, _textWriter, _token);
-
-        Assert.That(
-            _textWriter.GetStringBuilder().ToString(),
-            Does.Contain($"TIMEZONE-ID:{TimeZoneInfo.Local.StandardName}" + Environment.NewLine));
-    }
-
     [TestCase(null, "REFRESH-INTERVAL;VALUE=DURATION:", false)]
     [TestCase("0.12:00:00.000", "REFRESH-INTERVAL;VALUE=DURATION:P12H", true)]
     public async Task WriteToStream_WhenCalled_WritesRefreshInterval(string? interval, string expected, bool contains)

@@ -22,9 +22,6 @@ public class CalendarWriter : ICalendarWriter
             await textWriter.WriteLineAsync($"X-WR-CALDESC:{EncodeValue(calendar.Description)}");
         }
 
-        await textWriter.WriteLineAsync($"TIMEZONE-ID:{TimeZoneInfo.Local.StandardName}"); // Europe/London
-        await textWriter.WriteLineAsync($"X-WR-TIMEZONE:{TimeZoneInfo.Local.StandardName}"); // Europe/London
-
         if (calendar.RefreshInterval != null)
         {
             await textWriter.WriteLineAsync($"REFRESH-INTERVAL;VALUE=DURATION:{FormatTimeSpanAsInterval(calendar.RefreshInterval.Value)}");
