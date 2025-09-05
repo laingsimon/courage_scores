@@ -12,6 +12,9 @@ public class CalendarWriter : ICalendarWriter
         await textWriter.WriteLineAsync("CALSCALE:GREGORIAN");
         await textWriter.WriteLineAsync($"METHOD:{EncodeValue(calendar.Method)}");
 
+        await textWriter.WriteLineAsync($"TIMEZONE-ID:{UkTimeZone.StandardName}"); // Europe/London
+        await textWriter.WriteLineAsync($"X-WR-TIMEZONE:{UkTimeZone.StandardName}"); // Europe/London
+
         if (!string.IsNullOrEmpty(calendar.Name))
         {
             await textWriter.WriteLineAsync($"NAME:{EncodeValue(calendar.Name)}");
