@@ -34,7 +34,7 @@ public class DivisionFixtureDateDto
             }
         }
 
-        foreach (var tournamentFixture in TournamentFixtures)
+        foreach (var tournamentFixture in TournamentFixtures.Where((f, index) => index == 0 || !f.SingleRound))
         {
             token.ThrowIfCancellationRequested();
             var calendarEvent = await tournamentFixture.GetEvent(token);
