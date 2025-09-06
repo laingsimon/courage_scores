@@ -417,7 +417,7 @@ export function LiveSuperleagueTournamentDisplay({
                             </td>
                             <td></td>
                             <td className="text-secondary" colSpan={3}>
-                                {totals.home}
+                                {totals.away}
                             </td>
                         </tr>
                     </tfoot>

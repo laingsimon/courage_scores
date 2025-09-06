@@ -19,7 +19,7 @@ public class EachDivisionHasRightNumberOfTeamsWithSharedAddressTests
     public async Task Check_GivenNoRequiredSharedAddressesAndNonePresent_ReturnsSuccess()
     {
         var template = new TemplateDto();
-        var division = new DivisionDataDto
+        var division = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
         };
@@ -61,7 +61,7 @@ public class EachDivisionHasRightNumberOfTeamsWithSharedAddressTests
                 },
             },
         };
-        var division = new DivisionDataDto
+        var division = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
         };
@@ -103,7 +103,7 @@ public class EachDivisionHasRightNumberOfTeamsWithSharedAddressTests
                 },
             },
         };
-        var division = new DivisionDataDto
+        var division = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
         };
@@ -145,7 +145,7 @@ public class EachDivisionHasRightNumberOfTeamsWithSharedAddressTests
                 },
             },
         };
-        var division = new DivisionDataDto
+        var division = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
             Name = "Division One",

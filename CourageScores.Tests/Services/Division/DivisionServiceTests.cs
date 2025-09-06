@@ -43,7 +43,7 @@ public class DivisionServiceTests
     private static readonly TeamDto Division2Team = new TeamDtoBuilder()
         .WithSeason(s => s.ForSeason(Season, Division2))
         .Build();
-    private static readonly DivisionDataDto Empty = new DivisionDataDto();
+    private static readonly DivisionDataDto Empty = new DivisionDataDto(null);
     private static readonly CosmosGame Division1GameInSeason = new GameBuilder()
         .ForDivision(Division1)
         .WithDate(new DateTime(2001, 02, 01))

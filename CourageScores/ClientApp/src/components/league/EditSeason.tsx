@@ -6,7 +6,6 @@ import { useDependencies } from '../common/IocContainer';
 import { useApp } from '../common/AppContainer';
 import { useNavigate } from 'react-router';
 import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { DivisionDataSeasonDto } from '../../interfaces/models/dtos/Division/DivisionDataSeasonDto';
 import { EditSeasonDto } from '../../interfaces/models/dtos/Season/EditSeasonDto';
 import { UntypedPromise } from '../../interfaces/UntypedPromise';
 import { IClientActionResultDto } from '../common/IClientActionResultDto';
@@ -16,7 +15,7 @@ export interface IEditSeasonProps {
     onClose(): UntypedPromise;
     onSave(): UntypedPromise;
     setSaveError(error: IClientActionResultDto<SeasonDto>): UntypedPromise;
-    data: EditSeasonDto & DivisionDataSeasonDto;
+    data: EditSeasonDto & SeasonDto;
     onUpdateData(season: EditSeasonDto): UntypedPromise;
 }
 
@@ -157,6 +156,36 @@ export function EditSeason({
                     onChange={valueChanged(data, onUpdateData)}
                     value={(data.endDate || '').substring(0, 10)}
                     type="date"
+                    className="form-control margin-right"
+                />
+            </div>
+            <div className="input-group mb-3">
+                <div className="input-group-prepend">
+                    <label htmlFor="startDate" className="input-group-text">
+                        Start time
+                    </label>
+                </div>
+                <input
+                    readOnly={saving}
+                    id="fixtureStartTime"
+                    name="fixtureStartTime"
+                    onChange={valueChanged(data, onUpdateData)}
+                    value={data.fixtureStartTime || '20:00'}
+                    type="time"
+                    className="form-control margin-right"
+                />
+                <div className="input-group-prepend">
+                    <label htmlFor="endDate" className="input-group-text">
+                        Duration (hrs)
+                    </label>
+                </div>
+                <input
+                    readOnly={saving}
+                    id="fixtureDuration"
+                    name="fixtureDuration"
+                    onChange={valueChanged(data, onUpdateData)}
+                    value={data.fixtureDuration || 4}
+                    type="number"
                     className="form-control margin-right"
                 />
             </div>

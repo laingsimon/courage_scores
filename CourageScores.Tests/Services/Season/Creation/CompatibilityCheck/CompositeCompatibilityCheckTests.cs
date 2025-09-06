@@ -17,7 +17,7 @@ public class CompositeCompatibilityCheckTests
     private readonly TemplateDto _template = new();
     private readonly TemplateMatchContext _context = new(
         new SeasonDto(),
-        new[] { new DivisionDataDto() },
+        new[] { new DivisionDataDto(null) },
         new Dictionary<Guid, TeamDto[]>(),
         new Dictionary<string, Guid>());
 

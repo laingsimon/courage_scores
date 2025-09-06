@@ -10,6 +10,7 @@ using CourageScores.Services.Division;
 using CourageScores.Services.Identity;
 using CourageScores.Tests.Models.Cosmos.Game;
 using CourageScores.Tests.Models.Dtos;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using NUnit.Framework;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
@@ -68,27 +69,28 @@ public class DivisionDataDtoFactoryTests
     private DivisionDataDtoFactory _factory = null!;
     private IDivisionPlayerAdapter _divisionPlayerAdapter = null!;
     private IDivisionTeamAdapter _divisionTeamAdapter = null!;
-    private IDivisionDataSeasonAdapter _divisionDataSeasonAdapter = null!;
     private Mock<IDivisionFixtureDateAdapter> _divisionFixtureDateAdapter = null!;
     private Mock<IUserService> _userService = null!;
     private Mock<TimeProvider> _clock = null!;
     private Mock<IFeatureService> _featureService = null!;
     private UserDto? _user;
     private ConfiguredFeatureDto? _vetoedFeature;
+    private Mock<IConfiguration> _configuration = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
         _divisionPlayerAdapter = new DivisionPlayerAdapter(new PlayerPerformanceAdapter());
         _divisionTeamAdapter = new DivisionTeamAdapter();
-        _divisionDataSeasonAdapter = new DivisionDataSeasonAdapter();
         _divisionFixtureDateAdapter = new Mock<IDivisionFixtureDateAdapter>();
         _userService = new Mock<IUserService>();
         _clock = new Mock<TimeProvider>();
         _featureService = new Mock<IFeatureService>();
+        _configuration = new Mock<IConfiguration>();
         _user = null;
-        _factory = new DivisionDataDtoFactory(_divisionPlayerAdapter, _divisionTeamAdapter, _divisionDataSeasonAdapter,
-            _divisionFixtureDateAdapter.Object, _userService.Object, _clock.Object, _featureService.Object);
+        _factory = new DivisionDataDtoFactory(_divisionPlayerAdapter, _divisionTeamAdapter,
+            _divisionFixtureDateAdapter.Object, _userService.Object, _clock.Object, _featureService.Object,
+            _configuration.Object);
 
         _clock.Setup(c => c.GetUtcNow()).Returns(new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero));
         Helper.SetupDivisionFixtureDateDtoReturnWithDate(_divisionFixtureDateAdapter, _token);

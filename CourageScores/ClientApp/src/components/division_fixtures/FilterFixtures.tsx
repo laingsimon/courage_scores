@@ -10,11 +10,14 @@ import { useBranding } from '../common/BrandingContainer';
 import { getFilter, IInitialisedFilters } from './filters';
 import { usePreferences } from '../common/PreferencesContainer';
 import { Link, useLocation } from 'react-router';
+import { useDependencies } from '../common/IocContainer';
 
 export function FilterFixtures() {
-    const { teams, favouritesEnabled, superleague } = useDivisionData();
+    const { id, season, teams, favouritesEnabled, superleague } =
+        useDivisionData();
     const { getPreference, upsertPreference } = usePreferences();
     const { name } = useBranding();
+    const { settings } = useDependencies();
     const location = useLocation();
     const teamFilters: IBootstrapDropdownItem[] =
         teams?.sort(sortBy('name')).map((t) => {
@@ -24,6 +27,7 @@ export function FilterFixtures() {
     const favouriteTeamIds: string[] =
         getPreference<string[]>('favouriteTeamIds') || [];
     const filter: IInitialisedFilters = getFilter(location);
+    const calendarUrl: string = `${settings.apiHost}/api/Division/Data?divisionId=${id}&seasonId=${season?.id}&content-type=text/calendar`;
 
     function getFilterOption(
         type: string,
@@ -104,6 +108,19 @@ export function FilterFixtures() {
         return '?' + search.toString();
     }
 
+    function findTeamId(teamName?: string): string | undefined {
+        if (!teamName) {
+            return;
+        }
+
+        return teams?.find(
+            (t) =>
+                t.name.trim().toLowerCase() === teamName.trim().toLowerCase(),
+        )?.id;
+    }
+
+    const teamId = findTeamId(filter.team);
+
     return (
         <div className="mb-3" datatype="fixture-filters">
             {superleague ? null : (
@@ -143,6 +160,11 @@ export function FilterFixtures() {
                     ➖
                 </Link>
             ) : null}
+            <a
+                className="btn btn-sm btn-outline-primary margin-left"
+                href={`${calendarUrl}${teamId ? `&teamId=${teamId}` : ''}`}>
+                🗓️
+            </a>
         </div>
     );
 }

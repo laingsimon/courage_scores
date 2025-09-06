@@ -152,7 +152,7 @@ public class AddressAssignmentStrategyTests
                 b => b.WithDates(d => d.WithFixture("D", "B"), d => d.WithFixture("D")),
                 b => b.WithDates(d => d.WithFixture("C")))
             .Build();
-        var division3 = new DivisionDataDto
+        var division3 = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
         };
@@ -468,7 +468,7 @@ public class AddressAssignmentStrategyTests
 
     private static DivisionDataDto DivisionDataDto(string name)
     {
-        return new DivisionDataDto
+        return new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
             Name = name,

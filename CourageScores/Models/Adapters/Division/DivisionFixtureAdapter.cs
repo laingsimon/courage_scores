@@ -1,6 +1,7 @@
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services;
@@ -28,7 +29,7 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
         _userService = userService;
     }
 
-    public async Task<DivisionFixtureDto> Adapt(CosmosGame game, TeamDto? homeTeam, TeamDto? awayTeam, DivisionDto? homeDivision, DivisionDto? awayDivision, CancellationToken token)
+    public async Task<DivisionFixtureDto> Adapt(CosmosGame game, SeasonDto season, TeamDto? homeTeam, TeamDto? awayTeam, DivisionDto? homeDivision, DivisionDto? awayDivision, CancellationToken token)
     {
         var matches = game.Matches.Where(m => m.Deleted == null).ToArray();
         var numberOfMatchesWithPlayers = matches.Count(m => m.HomePlayers.Any() && m.AwayPlayers.Any());
@@ -36,6 +37,10 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
         var showScores = game.IsKnockout
             ? numberOfMatchesWithPlayers >= 4 // knockouts can be won, potentially, after 4 matches have been played
             : numberOfMatchesWithPlayers == matches.Length;
+
+        var startTime = season.FixtureStartTime ?? TimeSpan.FromHours(20);
+        var duration = season.FixtureDuration ?? 3;
+        var localDate = DateTime.SpecifyKind(game.Date, DateTimeKind.Local);
 
         return new DivisionFixtureDto
         {
@@ -53,6 +58,10 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
             AccoladesCount = game.AccoladesCount,
             HomeDivision = homeDivision,
             AwayDivision = awayDivision,
+
+            FromTime = localDate.Add(startTime),
+            ToTime = localDate.Add(startTime).AddHours(duration),
+            Updated = DateTime.SpecifyKind(game.Updated, DateTimeKind.Local),
         };
     }
 

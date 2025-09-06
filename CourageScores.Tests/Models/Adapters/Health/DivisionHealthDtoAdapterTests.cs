@@ -27,7 +27,7 @@ public class DivisionHealthDtoAdapterTests
         var dateModel = new DivisionFixtureDateDto();
         var dateDto = new DivisionDateHealthDto();
         var team = new DivisionTeamDto();
-        var model = new DivisionDataDto
+        var model = new DivisionDataDto(null)
         {
             Id = Guid.NewGuid(),
             Name = "DIVISION",

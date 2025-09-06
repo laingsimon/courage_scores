@@ -27,8 +27,8 @@ public class SameNumberOfDivisionsTests
                 new DivisionTemplateDto(),
             },
         };
-        var division1 = new DivisionDataDto();
-        var division2 = new DivisionDataDto();
+        var division1 = new DivisionDataDto(null);
+        var division2 = new DivisionDataDto(null);
 
         var result = await _check.Check(template, TemplateMatchContext(new[]
         {
@@ -50,7 +50,7 @@ public class SameNumberOfDivisionsTests
                 new DivisionTemplateDto(),
             },
         };
-        var division = new DivisionDataDto();
+        var division = new DivisionDataDto(null);
 
         var result = await _check.Check(template, TemplateMatchContext(new[]
         {

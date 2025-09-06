@@ -83,6 +83,7 @@ public static class DivisionDataDtoFactoryTestHelpers
             It.Is<CosmosGame[]>(games => otherFixturesForDate == null || games.SequenceEqual(otherFixturesForDate)),
             includeProposals,
             It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
+            It.IsAny<SeasonDto>(),
             token));
     }
 
@@ -98,6 +99,7 @@ public static class DivisionDataDtoFactoryTestHelpers
                 It.IsAny<IReadOnlyCollection<CosmosGame>>(),
                 It.IsAny<bool>(),
                 It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
+                It.IsAny<SeasonDto>(),
                 token))
             .ReturnsAsync((
                 DateTime date,
@@ -108,6 +110,7 @@ public static class DivisionDataDtoFactoryTestHelpers
                 IReadOnlyCollection<CosmosGame> _,
                 bool _,
                 IReadOnlyDictionary<Guid, DivisionDto?> _,
+                SeasonDto _,
                 CancellationToken _) => new DivisionFixtureDateDto
                 {
                     Date = date,

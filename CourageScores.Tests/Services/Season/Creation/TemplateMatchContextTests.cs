@@ -16,11 +16,11 @@ public class TemplateMatchContextTests
     private static readonly TeamDto TeamB = new TeamDtoBuilder().WithAddress("B").Build();
     private static readonly TeamDto TeamC = new TeamDtoBuilder().WithAddress("C").Build();
 
-    private static readonly DivisionDataDto Division1 = new DivisionDataDto
+    private static readonly DivisionDataDto Division1 = new DivisionDataDto(null)
     {
         Id = Guid.NewGuid(),
     };
-    private static readonly DivisionDataDto Division2 = new DivisionDataDto
+    private static readonly DivisionDataDto Division2 = new DivisionDataDto(null)
     {
         Id = Guid.NewGuid(),
     };
@@ -253,7 +253,7 @@ public class TemplateMatchContextTests
     [Test]
     public void SharedAddressesFromSeason_GivenNoTeams_ReturnsEmpty()
     {
-        var seasonDivision = new DivisionDataDto();
+        var seasonDivision = new DivisionDataDto(null);
         var templateDivision = new DivisionTemplateDto();
         var mapping = new TemplateMatchContext.DivisionSharedAddressMapping(
             seasonDivision,
@@ -268,7 +268,7 @@ public class TemplateMatchContextTests
     [Test]
     public void SharedAddressesFromSeason_GivenUniqueAddressesForEachTeam_ReturnsEmpty()
     {
-        var seasonDivision = new DivisionDataDto();
+        var seasonDivision = new DivisionDataDto(null);
         var templateDivision = new DivisionTemplateDto();
         var mapping = new TemplateMatchContext.DivisionSharedAddressMapping(
             seasonDivision,
@@ -284,7 +284,7 @@ public class TemplateMatchContextTests
     public void SharedAddressesFromSeason_GivenSomeSharedAddresses_ReturnsTeamsWithSharedAddress()
     {
         var teamA2 = new TeamDtoBuilder().WithAddress("A").Build();
-        var seasonDivision = new DivisionDataDto();
+        var seasonDivision = new DivisionDataDto(null);
         var templateDivision = new DivisionTemplateDto();
         var mapping = new TemplateMatchContext.DivisionSharedAddressMapping(
             seasonDivision,
@@ -303,7 +303,7 @@ public class TemplateMatchContextTests
     public void SharedAddressesFromSeason_GivenSomeSharedAddressesIncludingWhitespace_ReturnsTeamsWithSharedAddress()
     {
         var teamAWithWhiteSpace = new TeamDtoBuilder().WithAddress("A ").Build();
-        var seasonDivision = new DivisionDataDto();
+        var seasonDivision = new DivisionDataDto(null);
         var templateDivision = new DivisionTemplateDto();
         var mapping = new TemplateMatchContext.DivisionSharedAddressMapping(
             seasonDivision,
@@ -321,7 +321,7 @@ public class TemplateMatchContextTests
     [Test]
     public void SharedAddressesFromSeason_GivenSomeSharedAddressesDifferentCase_ReturnsTeamsWithSharedAddress()
     {
-        var seasonDivision = new DivisionDataDto();
+        var seasonDivision = new DivisionDataDto(null);
         var templateDivision = new DivisionTemplateDto();
         var mapping = new TemplateMatchContext.DivisionSharedAddressMapping(
             seasonDivision,

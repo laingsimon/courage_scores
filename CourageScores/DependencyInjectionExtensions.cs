@@ -1,5 +1,7 @@
 ﻿using System.Collections.Concurrent;
+using System.Reflection;
 using CourageScores.Filters;
+using CourageScores.Formatters;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Adapters.Game;
@@ -79,6 +81,7 @@ public static class DependencyInjectionExtensions
         services.AddSingleton<IJsonSerializerService, JsonSerializerService>();
         services.AddScoped<IWebSocketContractFactory, WebSocketContractFactory>();
         services.AddSingleton(Random.Shared);
+        services.AddSingleton<ICalendarWriter, CalendarWriter>();
 
         AddServices(services);
         AddRepositories(services);
@@ -124,7 +127,8 @@ public static class DependencyInjectionExtensions
         var commandTypes = commandAssembly
             .GetTypes()
             .Where(t => t.IsClass && !t.IsAbstract)
-            .Where(t => t.IsAssignableTo(typeof(IUpdateCommand)));
+            .Where(t => t.IsAssignableTo(typeof(IUpdateCommand)))
+            .Where(t => !t.Attributes.HasFlag(TypeAttributes.NestedPrivate));
 
         foreach (var commandType in commandTypes)
         {
@@ -225,7 +229,6 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IDivisionTournamentFixtureDetailsAdapter, DivisionTournamentFixtureDetailsAdapter>();
         services.AddScoped<IDivisionPlayerAdapter, DivisionPlayerAdapter>();
         services.AddScoped<IDivisionTeamAdapter, DivisionTeamAdapter>();
-        services.AddScoped<IDivisionDataSeasonAdapter, DivisionDataSeasonAdapter>();
         services.AddScoped<IDivisionFixtureDateAdapter, DivisionFixtureDateAdapter>();
         services.AddScoped<IDivisionFixtureTeamAdapter, DivisionFixtureTeamAdapter>();
         services.AddScoped<IPlayerPerformanceAdapter, PlayerPerformanceAdapter>();
