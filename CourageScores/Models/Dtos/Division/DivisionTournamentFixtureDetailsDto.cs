@@ -50,13 +50,12 @@ public class DivisionTournamentFixtureDetailsDto : ICalendarEventProvider
         });
     }
 
-    private string CalendarDescription()
+    private string? CalendarDescription()
     {
         var sideNames = string.Join(", ", Sides.Select(s => s.Name));
         if (SingleRound)
         {
-            // only return sides for superleague tournaments
-            return sideNames;
+            return null;
         }
 
         return string.Join("\n", [ Type, sideNames, Notes ]).Trim();
