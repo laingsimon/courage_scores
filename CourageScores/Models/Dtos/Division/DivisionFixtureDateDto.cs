@@ -24,7 +24,7 @@ public class DivisionFixtureDateDto
             }
         }
 
-        foreach (var fixture in Fixtures)
+        foreach (var fixture in Fixtures.Where((f, index) => index == 0 || !f.SingleRound))
         {
             token.ThrowIfCancellationRequested();
             var calendarEvent = await fixture.GetEvent(token);
