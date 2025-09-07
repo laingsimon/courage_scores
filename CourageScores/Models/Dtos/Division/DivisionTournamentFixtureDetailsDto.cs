@@ -49,37 +49,23 @@ public class DivisionTournamentFixtureDetailsDto : ICalendarEventProvider
             Location = Address,
             Confirmed = !Proposed,
             Version = 1,
+            Url = Url,
         });
     }
 
     private string? CalendarDescription()
     {
         var sideNames = string.Join(", ", Sides.Select(s => s.Name));
-        if (SingleRound)
-        {
-            return null;
-        }
-
         return string.Join("\n", [ Type, sideNames, Notes ]).Trim();
     }
 
     private string CalendarEventTitle()
     {
-        if (SingleRound && !string.IsNullOrEmpty(Host) && !string.IsNullOrEmpty(Opponent))
-        {
-            return $"🎯 {Host} v {Opponent}";
-        }
-
         return $"🎯 {Type}";
     }
 
     private IEnumerable<string> CalendarEventCategories()
     {
-        if (SingleRound)
-        {
-            yield return "Superleague";
-        }
-
         if (!string.IsNullOrEmpty(Type))
         {
             yield return Type;
