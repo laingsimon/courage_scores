@@ -62,7 +62,7 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
             FromTime = localDate.Add(startTime),
             ToTime = localDate.Add(startTime).AddHours(duration),
             Updated = DateTime.SpecifyKind(game.Updated, DateTimeKind.Local),
-            // set url
+            Url = new Uri($"/scores/{game.Id}", UriKind.Relative),
         };
     }
 

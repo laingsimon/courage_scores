@@ -53,7 +53,9 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
 
             Updated = tournamentGame.Updated,
             Host = tournamentGame.Host,
-            // set url to fixture
+            Url = tournamentGame.SingleRound
+                ? new Uri($"/live/superleague/?date=2024-09-07T00:00:00{tournamentGame.Date:yyyy-MM-dd}", UriKind.Relative)
+                : new Uri($"/tournament/{tournamentGame.Id}", UriKind.Relative),
         };
     }
 

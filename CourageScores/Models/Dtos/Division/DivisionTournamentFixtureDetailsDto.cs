@@ -26,6 +26,8 @@ public class DivisionTournamentFixtureDetailsDto : ICalendarEventProvider
     public DateTime? Updated { get; init; }
     [JsonIgnore]
     public string? Host { get; init; }
+    [JsonIgnore]
+    public Uri? Url { get; init; }
 
     public Task<CalendarEvent?> GetEvent(CancellationToken cancellationToken)
     {
