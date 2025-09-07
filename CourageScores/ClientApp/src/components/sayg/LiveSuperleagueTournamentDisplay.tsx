@@ -373,12 +373,8 @@ export function LiveSuperleagueTournamentDisplay({
                     {tournament.round?.matches?.map((m: TournamentMatchDto) => {
                         const homeWinner = isWinner(m, 'home');
                         const awayWinner = isWinner(m, 'away');
-                        if (homeWinner) {
-                            totals.home++;
-                        }
-                        if (awayWinner) {
-                            totals.away++;
-                        }
+                        totals.home += getScore(m, 'home');
+                        totals.away += getScore(m, 'away');
 
                         return (
                             <tr key={m.id}>

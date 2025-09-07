@@ -220,7 +220,11 @@ export function MatchSayg({
                     }
                     firstLegPlayerSequence={firstLegPlayerSequence}
                     finalLegPlayerSequence={finalLegPlayerSequence}
-                    onFinished={fullScreen.exitFullScreen}
+                    onFinished={async () =>
+                        kioskMode
+                            ? setSaygOpen(false)
+                            : await fullScreen.exitFullScreen()
+                    }
                     initialOneDartAverage={initialOneDartAverage}>
                     {finished ? <MatchHeading match={match} /> : null}
                 </SaygLoadingContainer>

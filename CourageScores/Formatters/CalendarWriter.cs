@@ -2,7 +2,13 @@
 
 public class CalendarWriter : ICalendarWriter
 {
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private static readonly TimeZoneInfo UkTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/London");
+
+    public CalendarWriter(IHttpContextAccessor httpContextAccessor)
+    {
+        _httpContextAccessor = httpContextAccessor;
+    }
 
     public async Task WriteToStream(Calendar calendar, TextWriter textWriter, CancellationToken token)
     {
@@ -40,42 +46,6 @@ public class CalendarWriter : ICalendarWriter
         }
 
         await textWriter.WriteLineAsync("END:VCALENDAR");
-    }
-
-    private static async Task WriteToStream(CalendarEvent calendarEvent, TextWriter textWriter)
-    {
-        await textWriter.WriteLineAsync("BEGIN:VEVENT");
-        await textWriter.WriteLineAsync($"SUMMARY:{EncodeValue(calendarEvent.Title)}");
-        await textWriter.WriteLineAsync($"UID:{calendarEvent.Id}");
-        await textWriter.WriteLineAsync($"SEQUENCE:{calendarEvent.Version}");
-        await textWriter.WriteLineAsync($"STATUS:{(calendarEvent.Confirmed ? "CONFIRMED" : "TENTATIVE")}");
-        await textWriter.WriteLineAsync($"TRANSP:{(calendarEvent.Private ? "OPAQUE" : "TRANSPARENT")}");
-        await textWriter.WriteLineAsync(FormatDateTime("DTSTART", calendarEvent.FromInclusive));
-        await textWriter.WriteLineAsync(FormatDateTime("DTEND", calendarEvent.ToExclusive));
-        await textWriter.WriteLineAsync(FormatDateTime("DTSTAMP", calendarEvent.LastUpdated));
-        if (calendarEvent.Categories.Count > 0)
-        {
-            await textWriter.WriteLineAsync($"CATEGORIES:{string.Join(",", calendarEvent.Categories.Select(EncodeValue))}");
-        }
-
-        if (calendarEvent.Url != null)
-        {
-            await textWriter.WriteLineAsync($"URL:{EncodeValue(calendarEvent.Url.ToString())}");
-        }
-
-        if (!string.IsNullOrEmpty(calendarEvent.Location))
-        {
-            await textWriter.WriteLineAsync($"LOCATION:{EncodeValue(calendarEvent.Location)}");
-        }
-
-        if (!string.IsNullOrEmpty(calendarEvent.Description))
-        {
-            await textWriter.WriteLineAsync($"DESCRIPTION:{EncodeValue(calendarEvent.Description)}");
-        }
-
-        await WriteNoReminder(textWriter);
-
-        await textWriter.WriteLineAsync("END:VEVENT");
     }
 
     private static async Task WriteNoReminder(TextWriter textWriter)
@@ -129,5 +99,54 @@ public class CalendarWriter : ICalendarWriter
         }
 
         return string.Join("\n", lines.Select((line, index) => index == 0 ? line : " " + line));
+    }
+
+    private async Task WriteToStream(CalendarEvent calendarEvent, TextWriter textWriter)
+    {
+        await textWriter.WriteLineAsync("BEGIN:VEVENT");
+        await textWriter.WriteLineAsync($"SUMMARY:{EncodeValue(calendarEvent.Title)}");
+        await textWriter.WriteLineAsync($"UID:{calendarEvent.Id}");
+        await textWriter.WriteLineAsync($"SEQUENCE:{calendarEvent.Version}");
+        await textWriter.WriteLineAsync($"STATUS:{(calendarEvent.Confirmed ? "CONFIRMED" : "TENTATIVE")}");
+        await textWriter.WriteLineAsync($"TRANSP:{(calendarEvent.Private ? "OPAQUE" : "TRANSPARENT")}");
+        await textWriter.WriteLineAsync(FormatDateTime("DTSTART", calendarEvent.FromInclusive));
+        await textWriter.WriteLineAsync(FormatDateTime("DTEND", calendarEvent.ToExclusive));
+        await textWriter.WriteLineAsync(FormatDateTime("DTSTAMP", calendarEvent.LastUpdated));
+        if (calendarEvent.Categories.Count > 0)
+        {
+            await textWriter.WriteLineAsync($"CATEGORIES:{string.Join(",", calendarEvent.Categories.Select(EncodeValue))}");
+        }
+
+        if (calendarEvent.Url != null)
+        {
+            await textWriter.WriteLineAsync($"URL:{EncodeValue(FormatUrl(calendarEvent.Url))}");
+        }
+
+        if (!string.IsNullOrEmpty(calendarEvent.Location))
+        {
+            await textWriter.WriteLineAsync($"LOCATION:{EncodeValue(calendarEvent.Location)}");
+        }
+
+        if (!string.IsNullOrEmpty(calendarEvent.Description) || calendarEvent.Url != null)
+        {
+            await textWriter.WriteLineAsync(
+                $"DESCRIPTION:{EncodeValue(calendarEvent.Description ?? "") + (calendarEvent.Url != null ? "\n  " + FormatUrl(calendarEvent.Url) : "")}");
+        }
+
+        await WriteNoReminder(textWriter);
+
+        await textWriter.WriteLineAsync("END:VEVENT");
+    }
+
+    private string FormatUrl(Uri value)
+    {
+        var request = _httpContextAccessor.HttpContext?.Request;
+        if (value.IsAbsoluteUri || request == null)
+        {
+            return value.ToString();
+        }
+
+        var hostName = request.Host.ToString();
+        return new Uri(new Uri($"https://{hostName}/", UriKind.Absolute), value).ToString();
     }
 }

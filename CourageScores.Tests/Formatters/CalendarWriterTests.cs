@@ -1,4 +1,6 @@
 ﻿using CourageScores.Formatters;
+using Microsoft.AspNetCore.Http;
+using Moq;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Formatters;
@@ -9,13 +11,19 @@ public class CalendarWriterTests
     private CalendarWriter _writer = null!;
     private StringWriter _textWriter = null!;
     private CancellationToken _token;
+    private Mock<IHttpContextAccessor> _httpContextAccessor = null!;
+    private DefaultHttpContext _context = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _writer = new CalendarWriter();
+        _context = new DefaultHttpContext();
+        _httpContextAccessor = new Mock<IHttpContextAccessor>();
+        _writer = new CalendarWriter(_httpContextAccessor.Object);
         _textWriter = new StringWriter();
         _token = CancellationToken.None;
+
+        _httpContextAccessor.Setup(a => a.HttpContext).Returns(_context);
     }
 
     [Test]
@@ -336,8 +344,13 @@ public class CalendarWriterTests
     [TestCase(null, "URL:", false)]
     [TestCase("", "URL:", false)]
     [TestCase("https://localhost/", "URL:https://localhost/", true)]
+    [TestCase("some-relative-url", "URL:https://request-host/some-relative-url", true)]
+    [TestCase("/some-relative-url", "URL:https://request-host/some-relative-url", true)]
+    [TestCase("some-relative-url/", "URL:https://request-host/some-relative-url/", true)]
+    [TestCase("/some-relative-url/", "URL:https://request-host/some-relative-url/", true)]
     public async Task WriteToStream_GivenEvent_WritesUrl(string url, string expected, bool contains)
     {
+        _context.Request.Host = new HostString("request-host");
         var calendar = new Calendar
         {
             Events =
@@ -347,7 +360,7 @@ public class CalendarWriterTests
                     Title = "title",
                     Url = string.IsNullOrEmpty(url)
                         ? null
-                        : new Uri(url),
+                        : new Uri(url, url.StartsWith("http") ? UriKind.Absolute : UriKind.Relative),
                 }
             }
         };

@@ -26,6 +26,8 @@ public class DivisionTournamentFixtureDetailsDto : ICalendarEventProvider
     public DateTime? Updated { get; init; }
     [JsonIgnore]
     public string? Host { get; init; }
+    [JsonIgnore]
+    public Uri? Url { get; init; }
 
     public Task<CalendarEvent?> GetEvent(CancellationToken cancellationToken)
     {
@@ -47,10 +49,11 @@ public class DivisionTournamentFixtureDetailsDto : ICalendarEventProvider
             Location = Address,
             Confirmed = !Proposed,
             Version = 1,
+            Url = Url,
         });
     }
 
-    private string CalendarDescription()
+    private string? CalendarDescription()
     {
         var sideNames = string.Join(", ", Sides.Select(s => s.Name));
         return string.Join("\n", [ Type, sideNames, Notes ]).Trim();
@@ -58,21 +61,11 @@ public class DivisionTournamentFixtureDetailsDto : ICalendarEventProvider
 
     private string CalendarEventTitle()
     {
-        if (SingleRound && !string.IsNullOrEmpty(Host) && !string.IsNullOrEmpty(Opponent))
-        {
-            return $"🎯 {Host} v {Opponent}";
-        }
-
         return $"🎯 {Type}";
     }
 
     private IEnumerable<string> CalendarEventCategories()
     {
-        if (SingleRound)
-        {
-            yield return "Superleague";
-        }
-
         if (!string.IsNullOrEmpty(Type))
         {
             yield return Type;
