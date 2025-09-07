@@ -28,6 +28,11 @@ public class FixtureDateNoteDto : AuditedDto, ICalendarEventProvider
 
     public Task<CalendarEvent?> GetEvent(CancellationToken token)
     {
+        if (Updated == null)
+        {
+            return Task.FromResult<CalendarEvent?>(null);
+        }
+
         var localDate = DateTime.SpecifyKind(Date, DateTimeKind.Local);
         return Task.FromResult<CalendarEvent?>(new CalendarEvent
         {

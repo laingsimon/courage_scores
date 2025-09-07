@@ -53,6 +53,7 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
 
             Updated = tournamentGame.Updated,
             Host = tournamentGame.Host,
+            Url = new Uri($"/tournament/{tournamentGame.Id}", UriKind.Relative),
         };
     }
 
