@@ -127,9 +127,10 @@ public class CalendarWriter : ICalendarWriter
             await textWriter.WriteLineAsync($"LOCATION:{EncodeValue(calendarEvent.Location)}");
         }
 
-        if (!string.IsNullOrEmpty(calendarEvent.Description))
+        if (!string.IsNullOrEmpty(calendarEvent.Description) || calendarEvent.Url != null)
         {
-            await textWriter.WriteLineAsync($"DESCRIPTION:{EncodeValue(calendarEvent.Description)}");
+            await textWriter.WriteLineAsync(
+                $"DESCRIPTION:{EncodeValue(calendarEvent.Description ?? "") + (calendarEvent.Url != null ? "\n\n" + FormatUrl(calendarEvent.Url) : "")}");
         }
 
         await WriteNoReminder(textWriter);
