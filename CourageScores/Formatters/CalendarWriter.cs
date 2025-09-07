@@ -130,7 +130,7 @@ public class CalendarWriter : ICalendarWriter
         if (!string.IsNullOrEmpty(calendarEvent.Description) || calendarEvent.Url != null)
         {
             await textWriter.WriteLineAsync(
-                $"DESCRIPTION:{EncodeValue(calendarEvent.Description ?? "") + (calendarEvent.Url != null ? "\n\n" + FormatUrl(calendarEvent.Url) : "")}");
+                $"DESCRIPTION:{EncodeValue(calendarEvent.Description ?? "") + (calendarEvent.Url != null ? "\n  " + FormatUrl(calendarEvent.Url) : "")}");
         }
 
         await WriteNoReminder(textWriter);
