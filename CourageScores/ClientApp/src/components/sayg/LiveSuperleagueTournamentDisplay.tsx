@@ -374,10 +374,10 @@ export function LiveSuperleagueTournamentDisplay({
                         const homeWinner = isWinner(m, 'home');
                         const awayWinner = isWinner(m, 'away');
                         if (homeWinner) {
-                            totals.home++;
+                            totals.home += getScore(m, 'home');
                         }
                         if (awayWinner) {
-                            totals.away++;
+                            totals.away += getScore(m, 'away');
                         }
 
                         return (
