@@ -16,6 +16,7 @@ import { IUpdateLookup } from './LiveSayg';
 import { LegCompetitorScoreDto } from '../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto';
 import { hasAccess } from '../../helpers/conditions';
 import { getScoreFromThrows } from '../../helpers/sayg';
+import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
 
 export interface ILiveSuperleagueTournamentDisplayProps {
     id: string;
@@ -266,7 +267,20 @@ export function LiveSuperleagueTournamentDisplay({
         player: 'home' | 'away',
     ): boolean {
         const score = getScore(match, player);
-        const bestOf = tournament?.bestOf ?? 7;
+
+        const matchIndex = tournament?.round?.matches?.findIndex(
+            (m) => m.id === match.id,
+        );
+        const matchOptions: GameMatchOptionDto | undefined = matchIndex
+            ? tournament?.round?.matchOptions?.[matchIndex]
+            : undefined;
+
+        const saygData = matchIndex ? matchSaygData[match.id] : undefined;
+        const bestOf =
+            saygData?.numberOfLegs ??
+            matchOptions?.numberOfLegs ??
+            tournament?.bestOf ??
+            7;
         return score > bestOf / 2.0;
     }
 
