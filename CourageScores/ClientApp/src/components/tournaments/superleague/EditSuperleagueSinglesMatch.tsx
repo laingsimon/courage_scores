@@ -25,13 +25,14 @@ import { useTournament } from '../TournamentContainer';
 import { DivisionTournamentFixtureDetailsDto } from '../../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto';
 import { hasAccess } from '../../../helpers/conditions';
 import { getTeamSeasons } from '../../../helpers/teams';
+import { matchPlayerFilter } from '../../../helpers/superleague';
 
 interface TeamAndSeason {
     team: TeamDto;
     season: TeamSeasonDto;
 }
 
-export interface IEditSuperleagueMatchProps {
+export interface IEditSuperleagueSinglesMatchProps {
     index?: number;
     match: TournamentMatchDto;
     tournamentData: TournamentGameDto;
@@ -47,7 +48,7 @@ export interface IEditSuperleagueMatchProps {
     matchNumber?: number;
 }
 
-export function EditSuperleagueMatch({
+export function EditSuperleagueSinglesMatch({
     index,
     match,
     tournamentData,
@@ -57,7 +58,7 @@ export function EditSuperleagueMatch({
     deleteMatch,
     newMatch,
     matchNumber,
-}: IEditSuperleagueMatchProps) {
+}: IEditSuperleagueSinglesMatchProps) {
     const { teams, reloadTeams, onError, account } = useApp();
     const { alreadyPlaying } = useTournament();
     const oddNumberedMatch: boolean = (matchNumber ?? 1) % 2 !== 0;
@@ -90,8 +91,9 @@ export function EditSuperleagueMatch({
 
     function getAlreadySelected(side: 'sideA' | 'sideB'): TeamPlayerDto[] {
         return (
-            tournamentData.round
-                ?.matches!.filter((m: TournamentMatchDto) => m.id !== match.id)
+            tournamentData.round?.matches
+                ?.filter(matchPlayerFilter(1))
+                ?.filter((m: TournamentMatchDto) => m.id !== match.id)
                 .flatMap((match: TournamentMatchDto) => {
                     const matchSide: TournamentSideDto | undefined =
                         match[side];
