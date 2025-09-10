@@ -213,6 +213,7 @@ export function SuperLeaguePrintout({
                         showWinner={showWinner}
                         noOfThrows={noOfThrows}
                         saygMatches={saygMatches}
+                        requiredPlayerCount={1}
                     />
                 )}
                 {kioskMode ? null : (
@@ -222,6 +223,7 @@ export function SuperLeaguePrintout({
                         saygMatches={saygMatches}
                         host={tournamentData.host!}
                         opponent={tournamentData.opponent!}
+                        requiredPlayerCount={1}
                     />
                 )}
                 {kioskMode ? null : (
@@ -234,6 +236,7 @@ export function SuperLeaguePrintout({
                         showWinner={showWinner}
                         noOfThrows={noOfThrows}
                         noOfLegs={noOfLegs}
+                        requiredPlayerCount={1}
                     />
                 )}
             </div>
