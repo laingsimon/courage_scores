@@ -11,12 +11,13 @@ import {
 import { TournamentGameDto } from '../../../interfaces/models/dtos/Game/TournamentGameDto';
 import { TeamDto } from '../../../interfaces/models/dtos/Team/TeamDto';
 import { UntypedPromise } from '../../../interfaces/UntypedPromise';
-import { EditSuperleagueMatch } from './EditSuperleagueMatch';
+import { EditSuperleagueSinglesMatch } from './EditSuperleagueSinglesMatch';
 import { useState } from 'react';
 import { createTemporaryId } from '../../../helpers/projection';
 import { any, isEmpty } from '../../../helpers/collections';
 import { useTournament } from '../TournamentContainer';
 import { getTeamsInSeason } from '../../../helpers/teams';
+import { hasPlayerCount } from '../../../helpers/superleague';
 
 export interface IMasterDrawProps {
     patchData?(
@@ -177,8 +178,12 @@ export function MasterDraw({
                             <tbody>
                                 {tournamentData.round?.matches!.map(
                                     (m: TournamentMatchDto, i: number) => {
+                                        if (!hasPlayerCount(m, 1)) {
+                                            return null;
+                                        }
+
                                         return (
-                                            <EditSuperleagueMatch
+                                            <EditSuperleagueSinglesMatch
                                                 key={m.id}
                                                 index={i}
                                                 match={m}
@@ -197,7 +202,7 @@ export function MasterDraw({
                                     },
                                 )}
                                 {readOnly ? null : (
-                                    <EditSuperleagueMatch
+                                    <EditSuperleagueSinglesMatch
                                         match={newSinglesMatch}
                                         setMatchData={updateNewSinglesMatch}
                                         tournamentData={tournamentData}
