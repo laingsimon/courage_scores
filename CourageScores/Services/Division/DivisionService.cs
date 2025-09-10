@@ -76,7 +76,7 @@ public class DivisionService : IDivisionService
         }
 
         var allSeasons = await _genericSeasonService.GetAll(token).ToList();
-        var now = _clock.GetUtcNow().Date;
+        var now = filter.Date ?? _clock.GetUtcNow().Date;
         var season = filter.SeasonId == null
             ? allSeasons.Where(s => s.StartDate <= now && s.EndDate >= now && HasAnyDivision(s, divisions)).MaxBy(s => s.EndDate)
             : allSeasons.SingleOrDefault(s => s.Id == filter.SeasonId);
