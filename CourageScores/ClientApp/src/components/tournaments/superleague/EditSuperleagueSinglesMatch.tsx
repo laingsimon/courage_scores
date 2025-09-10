@@ -1,7 +1,5 @@
 ﻿import { MatchSayg } from '../MatchSayg';
 import { TournamentMatchDto } from '../../../interfaces/models/dtos/Game/TournamentMatchDto';
-import { TournamentGameDto } from '../../../interfaces/models/dtos/Game/TournamentGameDto';
-import { UntypedPromise } from '../../../interfaces/UntypedPromise';
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
@@ -20,33 +18,15 @@ import { Dialog } from '../../common/Dialog';
 import { EditPlayerDetails } from '../../division_players/EditPlayerDetails';
 import { propChanged } from '../../../helpers/events';
 import { EditTeamPlayerDto } from '../../../interfaces/models/dtos/Team/EditTeamPlayerDto';
-import { TeamSeasonDto } from '../../../interfaces/models/dtos/Team/TeamSeasonDto';
 import { useTournament } from '../TournamentContainer';
 import { DivisionTournamentFixtureDetailsDto } from '../../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto';
 import { hasAccess } from '../../../helpers/conditions';
 import { getTeamSeasons } from '../../../helpers/teams';
 import { matchPlayerFilter } from '../../../helpers/superleague';
-
-interface TeamAndSeason {
-    team: TeamDto;
-    season: TeamSeasonDto;
-}
-
-export interface IEditSuperleagueSinglesMatchProps {
-    index?: number;
-    match: TournamentMatchDto;
-    tournamentData: TournamentGameDto;
-    setMatchData(update: TournamentMatchDto): UntypedPromise;
-    deleteMatch?(): UntypedPromise;
-    readOnly?: boolean;
-    patchData?(
-        patch: PatchTournamentDto | PatchTournamentRoundDto,
-        nestInRound?: boolean,
-        saygId?: string,
-    ): Promise<boolean>;
-    newMatch?: boolean;
-    matchNumber?: number;
-}
+import {
+    IEditSuperleagueMatchProps,
+    TeamAndSeason,
+} from './EditSuperleagueMatchProps';
 
 export function EditSuperleagueSinglesMatch({
     index,
@@ -58,7 +38,7 @@ export function EditSuperleagueSinglesMatch({
     deleteMatch,
     newMatch,
     matchNumber,
-}: IEditSuperleagueSinglesMatchProps) {
+}: IEditSuperleagueMatchProps) {
     const { teams, reloadTeams, onError, account } = useApp();
     const { alreadyPlaying } = useTournament();
     const oddNumberedMatch: boolean = (matchNumber ?? 1) % 2 !== 0;
