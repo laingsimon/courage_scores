@@ -42,7 +42,7 @@ export function MasterDraw({
 }: IMasterDrawProps) {
     const { onError, teams } = useApp();
     const { matchOptionDefaults } = useTournament();
-    const [newMatch, setNewMatch] =
+    const [newSinglesMatch, setNewSinglesMatch] =
         useState<TournamentMatchDto>(getEmptyMatch());
     const genderOptions: IBootstrapDropdownItem[] = [
         { text: 'Men', value: 'men' },
@@ -98,7 +98,7 @@ export function MasterDraw({
         };
     }
 
-    async function updateNewMatch(update: TournamentMatchDto) {
+    async function updateNewSinglesMatch(update: TournamentMatchDto) {
         if (
             !isEmpty(update.sideA?.players) &&
             !isEmpty(update.sideB?.players)
@@ -114,12 +114,13 @@ export function MasterDraw({
             newData.round = newRound;
 
             await setTournamentData(newData, true);
-            setNewMatch(getEmptyMatch());
+            setNewSinglesMatch(getEmptyMatch());
         } else {
-            setNewMatch(update);
+            setNewSinglesMatch(update);
         }
     }
 
+    let singlesMatchNo = 0;
     try {
         return (
             <div className="page-break-after" datatype="master-draw">
@@ -176,36 +177,32 @@ export function MasterDraw({
                             </thead>
                             <tbody>
                                 {tournamentData.round?.matches!.map(
-                                    (
-                                        match: TournamentMatchDto,
-                                        index: number,
-                                    ) => {
+                                    (m: TournamentMatchDto, i: number) => {
                                         return (
                                             <EditSuperleagueMatch
-                                                key={match.id}
-                                                index={index}
-                                                match={match}
+                                                key={m.id}
+                                                index={i}
+                                                match={m}
                                                 setMatchData={async (update) =>
-                                                    await setMatch(
-                                                        update,
-                                                        index,
-                                                    )
+                                                    await setMatch(update, i)
                                                 }
                                                 readOnly={readOnly}
                                                 tournamentData={tournamentData}
                                                 patchData={patchData}
                                                 deleteMatch={async () =>
-                                                    await deleteMatch(index)
+                                                    await deleteMatch(i)
                                                 }
+                                                matchNumber={++singlesMatchNo}
                                             />
                                         );
                                     },
                                 )}
                                 {readOnly ? null : (
                                     <EditSuperleagueMatch
-                                        match={newMatch}
-                                        setMatchData={updateNewMatch}
+                                        match={newSinglesMatch}
+                                        setMatchData={updateNewSinglesMatch}
                                         tournamentData={tournamentData}
+                                        newMatch={true}
                                     />
                                 )}
                             </tbody>
