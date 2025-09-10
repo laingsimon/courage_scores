@@ -43,6 +43,8 @@ export interface IEditSuperleagueMatchProps {
         nestInRound?: boolean,
         saygId?: string,
     ): Promise<boolean>;
+    newMatch?: boolean;
+    matchNumber?: number;
 }
 
 export function EditSuperleagueMatch({
@@ -53,10 +55,12 @@ export function EditSuperleagueMatch({
     readOnly,
     patchData,
     deleteMatch,
+    newMatch,
+    matchNumber,
 }: IEditSuperleagueMatchProps) {
     const { teams, reloadTeams, onError, account } = useApp();
     const { alreadyPlaying } = useTournament();
-    const oddNumberedMatch: boolean = ((index ?? 0) + 1) % 2 !== 0;
+    const oddNumberedMatch: boolean = (matchNumber ?? 1) % 2 !== 0;
     const matchOptions: GameMatchOptionDto = {
         numberOfLegs: tournamentData.bestOf || 7,
     };
@@ -87,9 +91,7 @@ export function EditSuperleagueMatch({
     function getAlreadySelected(side: 'sideA' | 'sideB'): TeamPlayerDto[] {
         return (
             tournamentData.round
-                ?.matches!.filter(
-                    (_: TournamentMatchDto, i: number) => i !== index,
-                )
+                ?.matches!.filter((m: TournamentMatchDto) => m.id !== match.id)
                 .flatMap((match: TournamentMatchDto) => {
                     const matchSide: TournamentSideDto | undefined =
                         match[side];
@@ -326,16 +328,16 @@ export function EditSuperleagueMatch({
 
     try {
         return (
-            <tr key={match.id} className={index ? '' : 'd-print-none'}>
+            <tr key={match.id} className={!newMatch ? '' : 'd-print-none'}>
                 <td>
                     {deleteMatch && !readOnly ? (
                         <button
                             className="btn btn-sm btn-danger no-wrap d-print-none"
                             onClick={deleteMatch}>
-                            🗑️ {index! + 1}
+                            🗑️ {matchNumber}
                         </button>
-                    ) : index === undefined ? null : (
-                        index + 1
+                    ) : newMatch ? null : (
+                        matchNumber
                     )}
                 </td>
                 <td className="no-wrap d-table-cell text-end">
@@ -390,11 +392,11 @@ export function EditSuperleagueMatch({
                     ) : null}
                 </td>
                 <td className="d-print-none">
-                    {index === undefined ? null : (
+                    {newMatch ? null : (
                         <MatchSayg
                             match={match}
                             matchOptions={matchOptions}
-                            matchIndex={index}
+                            matchIndex={index!}
                             patchData={patchRoundData}
                             readOnly={readOnly}
                             showViewSayg={true}
