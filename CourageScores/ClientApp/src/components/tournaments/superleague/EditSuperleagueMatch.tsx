@@ -22,13 +22,38 @@ import { useTournament } from '../TournamentContainer';
 import { DivisionTournamentFixtureDetailsDto } from '../../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto';
 import { hasAccess } from '../../../helpers/conditions';
 import { getTeamSeasons } from '../../../helpers/teams';
+import { repeat } from '../../../helpers/projection';
 import { matchPlayerFilter } from '../../../helpers/superleague';
-import {
-    IEditSuperleagueMatchProps,
-    TeamAndSeason,
-} from './EditSuperleagueMatchProps';
+import { TeamSeasonDto } from '../../../interfaces/models/dtos/Team/TeamSeasonDto';
+import { TournamentGameDto } from '../../../interfaces/models/dtos/Game/TournamentGameDto';
+import { UntypedPromise } from '../../../interfaces/UntypedPromise';
 
-export function EditSuperleagueSinglesMatch({
+export interface TeamAndSeason {
+    team: TeamDto;
+    season: TeamSeasonDto;
+}
+
+export interface IEditSuperleagueMatchProps {
+    index?: number;
+    match: TournamentMatchDto;
+    tournamentData: TournamentGameDto;
+    setMatchData(update: TournamentMatchDto): UntypedPromise;
+    deleteMatch?(): UntypedPromise;
+    readOnly?: boolean;
+    patchData?(
+        patch: PatchTournamentDto | PatchTournamentRoundDto,
+        nestInRound?: boolean,
+        saygId?: string,
+    ): Promise<boolean>;
+    newMatch?: boolean;
+    matchNumber?: number;
+    playerCount: number;
+    numberOfLegs: number;
+    useFirstNameOnly?: boolean;
+    showFullNames?: boolean;
+}
+
+export function EditSuperleagueMatch({
     index,
     match,
     tournamentData,
@@ -38,12 +63,16 @@ export function EditSuperleagueSinglesMatch({
     deleteMatch,
     newMatch,
     matchNumber,
+    playerCount,
+    numberOfLegs,
+    useFirstNameOnly,
+    showFullNames,
 }: IEditSuperleagueMatchProps) {
     const { teams, reloadTeams, onError, account } = useApp();
     const { alreadyPlaying } = useTournament();
     const oddNumberedMatch: boolean = (matchNumber ?? 1) % 2 !== 0;
     const matchOptions: GameMatchOptionDto = {
-        numberOfLegs: tournamentData.bestOf || 7,
+        numberOfLegs,
     };
     const newPlayer: IBootstrapDropdownItem = {
         text: '➕ New Player/s',
@@ -72,12 +101,12 @@ export function EditSuperleagueSinglesMatch({
     function getAlreadySelected(side: 'sideA' | 'sideB'): TeamPlayerDto[] {
         return (
             tournamentData.round?.matches
-                ?.filter(matchPlayerFilter(1))
+                ?.filter(matchPlayerFilter(playerCount))
                 ?.filter((m: TournamentMatchDto) => m.id !== match.id)
                 .flatMap((match: TournamentMatchDto) => {
                     const matchSide: TournamentSideDto | undefined =
                         match[side];
-                    return matchSide?.players || [];
+                    return matchSide?.players?.filter((p) => !!p) || [];
                 }) || []
         );
     }
@@ -163,18 +192,19 @@ export function EditSuperleagueSinglesMatch({
         };
     }
 
-    async function changeHostSide(playerId: string) {
-        await changeSide(playerId, 'sideA', hostPlayers);
+    async function changeHostSide(playerId: string, index: number) {
+        await changeSide(playerId, 'sideA', hostPlayers, index);
     }
 
-    async function changeOpponentSide(playerId: string) {
-        await changeSide(playerId, 'sideB', opponentPlayers);
+    async function changeOpponentSide(playerId: string, index: number) {
+        await changeSide(playerId, 'sideB', opponentPlayers, index);
     }
 
     async function changeSide(
         playerId: string,
         side: 'sideA' | 'sideB',
         players: IBootstrapDropdownItem[],
+        index: number,
     ) {
         try {
             if (playerId === NEW_PLAYER) {
@@ -195,19 +225,28 @@ export function EditSuperleagueSinglesMatch({
             const newMatch = Object.assign({}, match);
             newMatch[side] = Object.assign({}, newMatch[side]);
             const player = players.find((p) => p.value === playerId)!;
-            newMatch[side].players = [
-                {
-                    id: playerId,
-                    name: player.text as string,
-                },
-            ];
-            newMatch[side].name = player.text as string;
+            const sidePlayer = {
+                id: playerId,
+                name: player.text as string,
+            };
+            newMatch[side].players = repeat(playerCount, (i) => {
+                const currentPlayer = newMatch[side]?.players?.[i];
+                return i === index ? sidePlayer : currentPlayer;
+            }).filter((p) => !!p);
+            newMatch[side].name = newMatch[side].players
+                .map((p) => (useFirstNameOnly ? firstNameOnly(p.name) : p.name))
+                .join(' & ');
 
             await setMatchData(newMatch);
         } catch (e) {
             // istanbul ignore next
             onError(e);
         }
+    }
+
+    function firstNameOnly(name?: string): string {
+        const names: string[] = name?.split(' ') || [];
+        return names.length >= 1 ? names[0] : (name ?? '');
     }
 
     async function patchRoundData(
@@ -308,6 +347,54 @@ export function EditSuperleagueSinglesMatch({
         return players;
     }
 
+    function hostSide(index: number) {
+        return (
+            <div key={index}>
+                {canManagePlayers && match.sideA?.players![index] ? (
+                    <button
+                        className="btn btn-sm btn-outline-primary me-1 d-print-none"
+                        onClick={() =>
+                            editPlayer(
+                                match.sideA!.players![index],
+                                getTeamSeason(tournamentData.host)!,
+                            )
+                        }>
+                        ✏️
+                    </button>
+                ) : null}
+                <BootstrapDropdown
+                    value={match.sideA?.players![index]?.id}
+                    options={appendNewPlayer(hostPlayers)}
+                    onChange={(v) => changeHostSide(v!, index)}
+                />
+            </div>
+        );
+    }
+
+    function opponentSide(index: number) {
+        return (
+            <div key={index}>
+                <BootstrapDropdown
+                    value={match.sideB?.players![index]?.id}
+                    options={appendNewPlayer(opponentPlayers)}
+                    onChange={(v) => changeOpponentSide(v!, index)}
+                />
+                {canManagePlayers && match.sideB?.players![index] ? (
+                    <button
+                        className="btn btn-sm btn-outline-primary ms-1 d-print-none"
+                        onClick={() =>
+                            editPlayer(
+                                match.sideB!.players![index],
+                                getTeamSeason(tournamentData.opponent)!,
+                            )
+                        }>
+                        ✏️
+                    </button>
+                ) : null}
+            </div>
+        );
+    }
+
     try {
         return (
             <tr key={match.id} className={!newMatch ? '' : 'd-print-none'}>
@@ -323,55 +410,13 @@ export function EditSuperleagueSinglesMatch({
                     )}
                 </td>
                 <td className="no-wrap d-table-cell text-end">
-                    {!readOnly &&
-                    canManagePlayers &&
-                    match.sideA?.players![0] ? (
-                        <button
-                            className="btn btn-sm btn-outline-primary me-1 d-print-none"
-                            onClick={() =>
-                                editPlayer(
-                                    match.sideA!.players![0],
-                                    getTeamSeason(tournamentData.host)!,
-                                )
-                            }>
-                            ✏️
-                        </button>
-                    ) : null}
-                    {readOnly ? (
-                        match.sideA?.name
-                    ) : (
-                        <BootstrapDropdown
-                            value={match.sideA?.players![0]?.id}
-                            options={appendNewPlayer(hostPlayers)}
-                            onChange={changeHostSide}
-                        />
-                    )}
+                    {readOnly && match.sideA?.name}
+                    {!readOnly && <>{repeat(playerCount, hostSide)}</>}
                 </td>
                 <td>v</td>
                 <td className="no-wrap d-table-cell">
-                    {readOnly ? (
-                        match.sideB?.name
-                    ) : (
-                        <BootstrapDropdown
-                            value={match.sideB?.players![0]?.id}
-                            options={appendNewPlayer(opponentPlayers)}
-                            onChange={changeOpponentSide}
-                        />
-                    )}
-                    {!readOnly &&
-                    canManagePlayers &&
-                    match.sideB?.players![0] ? (
-                        <button
-                            className="btn btn-sm btn-outline-primary ms-1 d-print-none"
-                            onClick={() =>
-                                editPlayer(
-                                    match.sideB!.players![0],
-                                    getTeamSeason(tournamentData.opponent)!,
-                                )
-                            }>
-                            ✏️
-                        </button>
-                    ) : null}
+                    {readOnly && match.sideB?.name}
+                    {!readOnly && <>{repeat(playerCount, opponentSide)}</>}
                 </td>
                 <td className="d-print-none">
                     {newMatch ? null : (
@@ -393,6 +438,7 @@ export function EditSuperleagueSinglesMatch({
                                     : ['home', 'away']
                             }
                             initialOneDartAverage={true}
+                            showFullNames={showFullNames}
                         />
                     )}
 
