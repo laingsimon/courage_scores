@@ -1,5 +1,8 @@
 import { useApp } from '../../common/AppContainer';
-import { legsWon } from '../../../helpers/superleague';
+import {
+    legsWon,
+    matchMappingPlayerFilter,
+} from '../../../helpers/superleague';
 import { repeat } from '../../../helpers/projection';
 import { MatchReportRow } from './MatchReportRow';
 import { ISuperleagueSaygMatchMapping } from './ISuperleagueSaygMatchMapping';
@@ -14,6 +17,7 @@ export interface IMatchReportProps {
     host: string;
     opponent: string;
     saygMatches: ISuperleagueSaygMatchMapping[];
+    requiredPlayerCount?: number;
 }
 
 export function MatchReport({
@@ -25,6 +29,7 @@ export function MatchReport({
     host,
     opponent,
     saygMatches,
+    requiredPlayerCount,
 }: IMatchReportProps) {
     const { onError } = useApp();
 
@@ -78,27 +83,33 @@ export function MatchReport({
                         </tr>
                     </thead>
                     <tbody>
-                        {saygMatches.map(
-                            (
-                                map: ISuperleagueSaygMatchMapping,
-                                matchIndex: number,
-                            ) => {
-                                return (
-                                    <MatchReportRow
-                                        key={matchIndex}
-                                        showWinner={showWinner}
-                                        matchIndex={matchIndex}
-                                        noOfLegs={noOfLegs}
-                                        saygData={map.saygData!}
-                                        noOfThrows={noOfThrows}
-                                        hostPlayerName={map.match.sideA!.name!}
-                                        opponentPlayerName={
-                                            map.match.sideB!.name!
-                                        }
-                                    />
-                                );
-                            },
-                        )}
+                        {saygMatches
+                            .filter(
+                                matchMappingPlayerFilter(requiredPlayerCount),
+                            )
+                            .map(
+                                (
+                                    map: ISuperleagueSaygMatchMapping,
+                                    matchIndex: number,
+                                ) => {
+                                    return (
+                                        <MatchReportRow
+                                            key={matchIndex}
+                                            showWinner={showWinner}
+                                            matchIndex={matchIndex}
+                                            noOfLegs={noOfLegs}
+                                            saygData={map.saygData!}
+                                            noOfThrows={noOfThrows}
+                                            hostPlayerName={
+                                                map.match.sideA!.name!
+                                            }
+                                            opponentPlayerName={
+                                                map.match.sideB!.name!
+                                            }
+                                        />
+                                    );
+                                },
+                            )}
                     </tbody>
                 </table>
                 <div className="d-flex flex-row justify-content-around">

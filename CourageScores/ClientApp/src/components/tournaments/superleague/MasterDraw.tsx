@@ -42,8 +42,7 @@ export function MasterDraw({
 }: IMasterDrawProps) {
     const { onError, teams } = useApp();
     const { matchOptionDefaults } = useTournament();
-    const [newSinglesMatch, setNewSinglesMatch] =
-        useState<TournamentMatchDto>(getEmptyMatch());
+    const [newSinglesMatch, setNewSinglesMatch] = useState(getEmptyMatch());
     const genderOptions: IBootstrapDropdownItem[] = [
         { text: 'Men', value: 'men' },
         { text: 'Women', value: 'women' },
