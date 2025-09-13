@@ -27,6 +27,7 @@ import { matchPlayerFilter } from '../../../helpers/superleague';
 import { TeamSeasonDto } from '../../../interfaces/models/dtos/Team/TeamSeasonDto';
 import { TournamentGameDto } from '../../../interfaces/models/dtos/Game/TournamentGameDto';
 import { UntypedPromise } from '../../../interfaces/UntypedPromise';
+import { TournamentPlayerDto } from '../../../interfaces/models/dtos/Game/TournamentPlayerDto';
 
 export interface TeamAndSeason {
     team: TeamDto;
@@ -99,16 +100,17 @@ export function EditSuperleagueMatch({
     );
 
     function getAlreadySelected(side: 'sideA' | 'sideB'): TeamPlayerDto[] {
+        const thisMatchSide = match[side]!;
+
         return (
             tournamentData.round?.matches
                 ?.filter(matchPlayerFilter(playerCount))
-                ?.filter((m: TournamentMatchDto) => m.id !== match.id)
                 .flatMap((match: TournamentMatchDto) => {
                     const matchSide: TournamentSideDto | undefined =
                         match[side];
                     return matchSide?.players?.filter((p) => !!p) || [];
                 }) || []
-        );
+        ).concat(thisMatchSide.players ?? []);
     }
 
     function getTeamSeason(name?: string): TeamAndSeason | undefined {
@@ -147,21 +149,28 @@ export function EditSuperleagueMatch({
                     (selectedForMatch) => selectedForMatch.id === p.id,
                 );
 
-                return {
-                    text: playingInAnotherTournament ? (
-                        <span className={isSelected ? '' : 'text-secondary'}>
-                            🚫 {p.name} (playing on{' '}
-                            {playingInAnotherTournament.type})
-                        </span>
-                    ) : (
-                        p.name
-                    ),
-                    value: p.id,
-                    collapsedText: p.name,
-                    disabled: !isSelected && !!playingInAnotherTournament,
-                } as IBootstrapDropdownItem;
+                return playerOption(p, isSelected, playingInAnotherTournament);
             })
             .sort(playerSort(selectedForThisMatch));
+    }
+
+    function playerOption(
+        p: TournamentPlayerDto,
+        isSelected?: boolean,
+        playingInAnotherTournament?: DivisionTournamentFixtureDetailsDto,
+    ): IBootstrapDropdownItem {
+        return {
+            text: playingInAnotherTournament ? (
+                <span className={isSelected ? '' : 'text-secondary'}>
+                    🚫 {p.name} (playing on {playingInAnotherTournament.type})
+                </span>
+            ) : (
+                p.name
+            ),
+            value: p.id,
+            collapsedText: p.name,
+            disabled: !isSelected && !!playingInAnotherTournament,
+        };
     }
 
     function playerSort(
@@ -347,6 +356,18 @@ export function EditSuperleagueMatch({
         return players;
     }
 
+    function prependSelectedPlayer(
+        players: IBootstrapDropdownItem[],
+        selectedPlayer?: TournamentPlayerDto,
+    ) {
+        if (!selectedPlayer) {
+            return players;
+        }
+
+        const selectedPlayerOption = playerOption(selectedPlayer, true);
+        return [selectedPlayerOption].concat(players);
+    }
+
     function hostSide(index: number) {
         return (
             <div key={index}>
@@ -364,7 +385,10 @@ export function EditSuperleagueMatch({
                 ) : null}
                 <BootstrapDropdown
                     value={match.sideA?.players![index]?.id}
-                    options={appendNewPlayer(hostPlayers)}
+                    options={prependSelectedPlayer(
+                        appendNewPlayer(hostPlayers),
+                        match.sideA?.players?.[index],
+                    )}
                     onChange={(v) => changeHostSide(v!, index)}
                 />
             </div>
@@ -376,7 +400,10 @@ export function EditSuperleagueMatch({
             <div key={index}>
                 <BootstrapDropdown
                     value={match.sideB?.players![index]?.id}
-                    options={appendNewPlayer(opponentPlayers)}
+                    options={prependSelectedPlayer(
+                        appendNewPlayer(opponentPlayers),
+                        match.sideB?.players?.[index],
+                    )}
                     onChange={(v) => changeOpponentSide(v!, index)}
                 />
                 {canManagePlayers && match.sideB?.players![index] ? (
