@@ -9,7 +9,7 @@ import { GameMatchOptionDto } from '../../../interfaces/models/dtos/Game/GameMat
 import { useApp } from '../../common/AppContainer';
 import { PatchTournamentDto } from '../../../interfaces/models/dtos/Game/PatchTournamentDto';
 import { PatchTournamentRoundDto } from '../../../interfaces/models/dtos/Game/PatchTournamentRoundDto';
-import { any } from '../../../helpers/collections';
+import { any, skip, take } from '../../../helpers/collections';
 import { TeamPlayerDto } from '../../../interfaces/models/dtos/Team/TeamPlayerDto';
 import { TournamentSideDto } from '../../../interfaces/models/dtos/Game/TournamentSideDto';
 import { NEW_PLAYER } from '../../scores/MatchPlayerSelection';
@@ -350,7 +350,12 @@ export function EditSuperleagueMatch({
 
     function appendNewPlayer(players: IBootstrapDropdownItem[]) {
         if (canManagePlayers) {
-            return players.concat(newPlayer);
+            const indexOfFirstDisabledPlayer = players.findIndex(
+                (op) => op.disabled,
+            );
+            const enabledPlayers = take(players, indexOfFirstDisabledPlayer);
+            const disabledPlayers = skip(players, indexOfFirstDisabledPlayer);
+            return enabledPlayers.concat(newPlayer).concat(disabledPlayers);
         }
 
         return players;
