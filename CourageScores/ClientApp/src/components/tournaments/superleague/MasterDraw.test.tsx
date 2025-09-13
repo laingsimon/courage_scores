@@ -19,6 +19,7 @@ import { IMasterDrawProps, MasterDraw } from './MasterDraw';
 import { renderDate } from '../../../helpers/rendering';
 import {
     ITournamentBuilder,
+    ITournamentMatchBuilder,
     tournamentBuilder,
 } from '../../../helpers/builders/tournaments';
 import {
@@ -79,6 +80,7 @@ describe('MasterDraw', () => {
         nestInRound?: boolean;
         saygId?: string;
     }[] = [];
+    const player = playerBuilder('PLAYER').build();
 
     const tournamentApi = api<ITournamentGameApi>({
         async update(): Promise<IClientActionResultDto<TournamentGameDto>> {
@@ -299,6 +301,14 @@ describe('MasterDraw', () => {
         return context.container.querySelector(selector);
     }
 
+    function withSides(a: string, b: string, saygId?: string) {
+        return (m: ITournamentMatchBuilder) =>
+            m
+                .sideA(a, undefined, player)
+                .sideB(b, undefined, player)
+                .saygId(saygId);
+    }
+
     describe('renders', () => {
         const season = seasonBuilder('SEASON').build();
         let tournament: ITournamentBuilder;
@@ -321,8 +331,8 @@ describe('MasterDraw', () => {
                     tournamentData: tournament
                         .round((r) =>
                             r
-                                .withMatch((m) => m.sideA('A').sideB('B'))
-                                .withMatch((m) => m.sideA('C').sideB('D')),
+                                .withMatch(withSides('A', 'B'))
+                                .withMatch(withSides('C', 'D')),
                         )
                         .build(),
                     readOnly: true,
@@ -373,7 +383,6 @@ describe('MasterDraw', () => {
         });
 
         it('already playing player in collapsed drop-down with their name only', async () => {
-            const player = playerBuilder('PLAYER').build();
             const team = teamBuilder('HOST')
                 .forSeason(season, null, [player])
                 .build();
@@ -386,11 +395,7 @@ describe('MasterDraw', () => {
                 props({
                     tournamentData: tournament
                         .round((r) =>
-                            r.withMatch((m) =>
-                                m
-                                    .sideA('PLAYER', undefined, player)
-                                    .sideB('SIDE B', undefined),
-                            ),
+                            r.withMatch(withSides('PLAYER', 'SIDE B')),
                         )
                         .build(),
                 }),
@@ -437,10 +442,7 @@ describe('MasterDraw', () => {
         function getSideAvBTournament(saygId?: string, matchId?: string) {
             return tournament
                 .round((r) =>
-                    r.withMatch(
-                        (m) => m.sideA('SIDE A').sideB('SIDE B').saygId(saygId),
-                        matchId,
-                    ),
+                    r.withMatch(withSides('SIDE A', 'SIDE B', saygId), matchId),
                 )
                 .build();
         }

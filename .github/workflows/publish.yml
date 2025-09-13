@@ -39,6 +39,13 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
+      - name: Run npm prettier
+        shell: pwsh
+        run: ../../Scripts/NpmPrettier.ps1
+        working-directory: ./CourageScores/ClientApp
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
       - name: Remove local only content
         shell: pwsh
         working-directory: ./CourageScores/ClientApp

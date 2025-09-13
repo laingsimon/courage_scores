@@ -42,6 +42,7 @@ import { checkoutWith, enterScores } from '../../../helpers/sayg';
 import { START_SCORING } from '../tournaments';
 import { tournamentContainerPropsBuilder } from '../tournamentContainerPropsBuilder';
 import { BuilderParam } from '../../../helpers/builders/builders';
+import { playerBuilder } from '../../../helpers/builders/players';
 
 describe('SuperLeaguePrintout', () => {
     let context: TestContext;
@@ -460,13 +461,14 @@ describe('SuperLeaguePrintout', () => {
                     .startingScore(501)
                     .addTo(saygApiResponseMap)
                     .build();
+                const player = playerBuilder('PLAYER').build();
                 const tournamentData: TournamentGameDto = tournamentBuilder()
                     .round((r) =>
                         r.withMatch((m) =>
                             m
                                 .saygId(saygData1.id)
-                                .sideA('PLAYER A')
-                                .sideB('PLAYER B'),
+                                .sideA('PLAYER A', undefined, player)
+                                .sideB('PLAYER B', undefined, player),
                         ),
                     )
                     .build();
@@ -509,13 +511,14 @@ describe('SuperLeaguePrintout', () => {
                     .startingScore(501)
                     .addTo(saygApiResponseMap)
                     .build();
+                const player = playerBuilder('PLAYER').build();
                 const tournamentData: TournamentGameDto = tournamentBuilder()
                     .round((r) =>
                         r.withMatch((m) =>
                             m
                                 .saygId(saygData1.id)
-                                .sideA('PLAYER A')
-                                .sideB('PLAYER B'),
+                                .sideA('PLAYER A', undefined, player)
+                                .sideB('PLAYER B', undefined, player),
                         ),
                     )
                     .build();

@@ -46,7 +46,7 @@ public class UserAdapterTests
 
         var result = await _adapter.Adapt(model, _token);
 
-        Assert.That(result.Access, Is.Null);
+        Assert.That(result.Access, Is.Not.Null);
     }
 
     [Test]
@@ -66,6 +66,7 @@ public class UserAdapterTests
         Assert.That(result.Name, Is.EqualTo(dto.Name));
         Assert.That(result.EmailAddress, Is.EqualTo(dto.EmailAddress));
         Assert.That(result.GivenName, Is.EqualTo(dto.GivenName));
+        Assert.That(result.Access, Is.Not.Null);
     }
 
     [Test]

@@ -212,6 +212,22 @@ public class DivisionServiceTests
     }
 
     [Test]
+    public async Task GetDivisionData_GivenNoSeasonIdFilterWhenNoActiveSeasonsExceptOnProvidedDate_ReturnsSeason()
+    {
+        _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(new[] { Division1 }, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(Empty);
+        _now = new DateTimeOffset(2001, 06, 01, 0, 0, 0, TimeSpan.Zero);
+        var filter = new DivisionDataFilter
+        {
+            DivisionId = { Division1.Id },
+            Date = Season.StartDate,
+        };
+
+        await _service.GetDivisionData(filter, _token);
+
+        _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.Is<DivisionDataContext>(c => c.Season == Season), new[] { Division1 }, false, _token));
+    }
+
+    [Test]
     public async Task GetDivisionData_GivenNoSeasonIdFilterWhenTwoActiveSeasons_UsesSeasonWithSpecifiedDivisionAssigned()
     {
         var secondSeason = new SeasonDtoBuilder(name: "DIVISION 2 - SEASON")

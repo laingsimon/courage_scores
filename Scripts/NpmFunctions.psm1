@@ -34,6 +34,42 @@ Function Get-PathToNpm()
     return $npm.Path
 }
 
+Function Invoke-NpxCommand([string] $Command)
+{
+    $currentDirectory = (Get-Item .).FullName
+
+    $processStartInfo = [System.Diagnostics.ProcessStartInfo]::new()
+    $processStartInfo.WorkingDirectory = $currentDirectory
+    $processStartInfo.CreateNoWindow = $true
+    $processStartInfo.FileName = Get-PathToNpx
+    $processStartInfo.Arguments = $Command
+    $processStartInfo.RedirectStandardOutput = $true
+    $processStartInfo.RedirectStandardError = $true
+    $processStartInfo.UseShellExecute = $false
+    $process = [System.Diagnostics.Process]::new()
+    $process.StartInfo = $processStartInfo
+    $success = $process.Start()
+    $stdOut = $process.StandardOutput.ReadToEnd()
+    $stdErr = $process.StandardError.ReadToEnd()
+    $exitCode = $process.ExitCode
+
+    return @{
+        success = $success;
+        output = $stdOut;
+        error = $stdErr;
+        exitCode = $exitCode;
+        workingDirectory = $processStartInfo.WorkingDirectory
+        path = $processStartInfo.FileName
+    }
+}
+
+Function Get-PathToNpx()
+{
+    $npx = Get-Command "npx"
+    # Write-Message "Found npx command at $($npx.Path)"
+    return $npx.Path
+}
+
 Function Format-NpmOutdatedContent($output, $error, $narrow)
 {
     $Formatted = "$($error)`n"
@@ -89,4 +125,5 @@ Function Format-NpmOutdatedContent($output, $error, $narrow)
 }
 
 Export-ModuleMember -Function Invoke-NpmCommand
+Export-ModuleMember -Function Invoke-NpxCommand
 Export-ModuleMember -Function Format-NpmOutdatedContent
