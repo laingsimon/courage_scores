@@ -12,6 +12,7 @@ import {
     noop,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { LiveSayg } from './LiveSayg';
 import { saygBuilder } from '../../helpers/builders/sayg';
@@ -757,14 +758,7 @@ describe('LiveSayg', () => {
 
     describe('updates', () => {
         let tournament1: TournamentGameDto;
-        const account: UserDto = {
-            emailAddress: '',
-            name: '',
-            givenName: '',
-            access: {
-                useWebSockets: true,
-            },
-        };
+        const account: UserDto = user({ useWebSockets: true });
 
         async function sendUpdate(update: { id: string }) {
             expect(socketFactory.socket).not.toBeNull();
