@@ -18,6 +18,7 @@ import { hasAccess } from '../../helpers/conditions';
 import { getScoreFromThrows } from '../../helpers/sayg';
 import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
 import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
+import { ifNaN } from '../../helpers/rendering';
 
 export interface ILiveSuperleagueTournamentDisplayProps {
     id: string;
@@ -452,11 +453,11 @@ export function LiveSuperleagueTournamentDisplay({
                     <tfoot>
                         <tr>
                             <td className="text-end text-secondary" colSpan={3}>
-                                {totals.home}
+                                {ifNaN(totals.home, '')}
                             </td>
                             <td></td>
                             <td className="text-secondary" colSpan={3}>
-                                {totals.away}
+                                {ifNaN(totals.away, '')}
                             </td>
                         </tr>
                     </tfoot>
