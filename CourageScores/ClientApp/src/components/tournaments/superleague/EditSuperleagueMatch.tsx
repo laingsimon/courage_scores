@@ -395,6 +395,7 @@ export function EditSuperleagueMatch({
                         match.sideA?.players?.[index],
                     )}
                     onChange={(v) => changeHostSide(v!, index)}
+                    datatype={`player-index-${index}`}
                 />
             </div>
         );
@@ -410,6 +411,7 @@ export function EditSuperleagueMatch({
                         match.sideB?.players?.[index],
                     )}
                     onChange={(v) => changeOpponentSide(v!, index)}
+                    datatype={`player-index-${index}`}
                 />
                 {canManagePlayers && match.sideB?.players![index] ? (
                     <button

@@ -49,13 +49,16 @@ export function MasterDraw({
     kioskMode,
 }: IMasterDrawProps) {
     const { onError, teams } = useApp();
-    const { matchOptionDefaults } = useTournament();
+    const { matchOptionDefaults: singlesMatchOptionDefaults } = useTournament();
     const [newSinglesMatch, setNewSinglesMatch] = useState(getEmptyMatch());
     const [newPairsMatch, setNewPairsMatch] = useState(getEmptyMatch());
     const genderOptions: IBootstrapDropdownItem[] = [
         { text: 'Men', value: 'men' },
         { text: 'Women', value: 'women' },
     ];
+    const pairsMatchOptionDefaults: GameMatchOptionDto = {
+        numberOfLegs: 5,
+    };
     const teamOptions = getTeamsInSeason(teams, tournamentData.seasonId).map(
         (t: TeamDto): IBootstrapDropdownItem => {
             return {
@@ -194,7 +197,7 @@ export function MasterDraw({
                 <h2>Master draw</h2>
                 <div className="d-flex flex-row">
                     <div>
-                        <table className="table">
+                        <table className="table" data-type="singles">
                             <thead>
                                 <tr>
                                     <th>#</th>
@@ -249,7 +252,7 @@ export function MasterDraw({
                                 updateNewMatch(
                                     1,
                                     setNewSinglesMatch,
-                                    matchOptionDefaults,
+                                    singlesMatchOptionDefaults,
                                 ),
                             )}
                         </table>
@@ -261,7 +264,7 @@ export function MasterDraw({
                         ) ? (
                             <>
                                 <h3>Pairs</h3>
-                                <table className="table">
+                                <table className="table" data-type="pairs">
                                     <thead>
                                         <tr>
                                             <th>#</th>
@@ -273,12 +276,12 @@ export function MasterDraw({
                                     </thead>
                                     {renderMatches(
                                         2,
-                                        5,
+                                        pairsMatchOptionDefaults.numberOfLegs!,
                                         newPairsMatch,
                                         updateNewMatch(
                                             2,
                                             setNewPairsMatch,
-                                            matchOptionDefaults,
+                                            pairsMatchOptionDefaults,
                                         ),
                                         {
                                             showFullNames: true,
