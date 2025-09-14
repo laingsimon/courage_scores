@@ -39,6 +39,7 @@ export interface ISaygLoadingContainerProps {
     finalLegPlayerSequence?: ('home' | 'away')[];
     onFinished?(): UntypedPromise;
     initialOneDartAverage?: boolean;
+    showFullNames?: boolean;
 
     // for testing only
     onScoreChange?(homeScore: number, awayScore: number): UntypedPromise;
@@ -65,6 +66,7 @@ export function SaygLoadingContainer({
     finalLegPlayerSequence,
     onFinished,
     initialOneDartAverage,
+    showFullNames,
 }: ISaygLoadingContainerProps) {
     const [sayg, setSayg] = useState<ILoadedScoreAsYouGoDto | undefined>(
         defaultData,
@@ -282,6 +284,7 @@ export function SaygLoadingContainer({
                                     initialOneDartAverage={
                                         initialOneDartAverage
                                     }
+                                    showFullNames={showFullNames}
                                 />
                             </div>
                         ) : null}

@@ -43,6 +43,7 @@ export interface IMatchSaygProps {
     firstLegPlayerSequence?: ('home' | 'away')[];
     finalLegPlayerSequence?: ('home' | 'away')[];
     initialOneDartAverage?: boolean;
+    showFullNames?: boolean;
 }
 
 export function MatchSayg({
@@ -55,6 +56,7 @@ export function MatchSayg({
     firstLegPlayerSequence,
     finalLegPlayerSequence,
     initialOneDartAverage,
+    showFullNames,
 }: IMatchSaygProps) {
     const { tournamentData, setTournamentData, saveTournament } =
         useTournament();
@@ -225,7 +227,8 @@ export function MatchSayg({
                             ? setSaygOpen(false)
                             : await fullScreen.exitFullScreen()
                     }
-                    initialOneDartAverage={initialOneDartAverage}>
+                    initialOneDartAverage={initialOneDartAverage}
+                    showFullNames={showFullNames}>
                     {finished ? <MatchHeading match={match} /> : null}
                 </SaygLoadingContainer>
                 {finished || !fullScreen.isFullScreen ? (

@@ -122,7 +122,7 @@ public class UserService : IUserService
 
         userToUpdate.Access = user.Access != null
             ? await _accessAdapter.Adapt(user.Access, token)
-            : null;
+            : new Access();
 
         if (loggedInUser.EmailAddress == user.EmailAddress && userToUpdate.Access?.ManageAccess == false)
         {

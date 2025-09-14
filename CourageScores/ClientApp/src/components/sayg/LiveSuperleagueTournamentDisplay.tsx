@@ -16,6 +16,9 @@ import { IUpdateLookup } from './LiveSayg';
 import { LegCompetitorScoreDto } from '../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto';
 import { hasAccess } from '../../helpers/conditions';
 import { getScoreFromThrows } from '../../helpers/sayg';
+import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
+import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
+import { ifNaN } from '../../helpers/rendering';
 
 export interface ILiveSuperleagueTournamentDisplayProps {
     id: string;
@@ -266,7 +269,20 @@ export function LiveSuperleagueTournamentDisplay({
         player: 'home' | 'away',
     ): boolean {
         const score = getScore(match, player);
-        const bestOf = tournament?.bestOf ?? 7;
+
+        const matchIndex = tournament?.round?.matches?.findIndex(
+            (m) => m.id === match.id,
+        );
+        const matchOptions: GameMatchOptionDto | undefined = matchIndex
+            ? tournament?.round?.matchOptions?.[matchIndex]
+            : undefined;
+
+        const saygData = matchIndex ? matchSaygData[match.id] : undefined;
+        const bestOf =
+            saygData?.numberOfLegs ??
+            matchOptions?.numberOfLegs ??
+            tournament?.bestOf ??
+            7;
         return score > bestOf / 2.0;
     }
 
@@ -274,17 +290,26 @@ export function LiveSuperleagueTournamentDisplay({
         return isWinner(match, 'home') || isWinner(match, 'away');
     }
 
-    function firstInitialAndLastNames(name?: string): string | undefined {
-        const names: string[] = name?.split(' ') ?? [];
-        if (names.length === 1) {
-            return name;
-        }
+    function firstInitialAndLastNames(
+        side?: TournamentSideDto,
+    ): string | undefined {
+        return (
+            side?.players
+                ?.map((player) => {
+                    const name = player?.name;
+                    const names: string[] = name?.split(' ') ?? [];
+                    if (names.length === 1) {
+                        return name;
+                    }
 
-        return names
-            .map((name, index) => {
-                return index === names.length - 1 ? name : name[0];
-            })
-            .join(' ');
+                    return names
+                        .map((name, index) => {
+                            return index === names.length - 1 ? name : name[0];
+                        })
+                        .join(' ');
+                })
+                .join(' & ') || side?.name
+        );
     }
 
     function currentScore(leg: LegDto, side: 'home' | 'away') {
@@ -317,6 +342,23 @@ export function LiveSuperleagueTournamentDisplay({
         const matchSayg: RecordedScoreAsYouGoDto | undefined =
             matchSaygData[match.id];
         return matchSayg && Object.keys(matchSayg.legs).length >= 1;
+    }
+
+    function matchSort(a: TournamentMatchDto, b: TournamentMatchDto) {
+        const playerCountA =
+            (a.sideA?.players?.length ?? 0) + (a.sideB?.players?.length ?? 0);
+        const playerCountB =
+            (b.sideA?.players?.length ?? 0) + (b.sideB?.players?.length ?? 0);
+
+        const playerCountOrder = playerCountA - playerCountB; // singles before pairs
+        if (playerCountOrder !== 0) {
+            return playerCountOrder;
+        }
+
+        const matches = tournament?.round?.matches ?? [];
+        const indexOfMatchA = matches.indexOf(a);
+        const indexOfMatchB = matches.indexOf(b);
+        return indexOfMatchA - indexOfMatchB;
     }
 
     if (!tournament) {
@@ -370,50 +412,52 @@ export function LiveSuperleagueTournamentDisplay({
                     </tr>
                 </thead>
                 <tbody>
-                    {tournament.round?.matches?.map((m: TournamentMatchDto) => {
-                        const homeWinner = isWinner(m, 'home');
-                        const awayWinner = isWinner(m, 'away');
-                        totals.home += getScore(m, 'home');
-                        totals.away += getScore(m, 'away');
+                    {tournament.round?.matches
+                        ?.sort(matchSort)
+                        ?.map((m: TournamentMatchDto) => {
+                            const homeWinner = isWinner(m, 'home');
+                            const awayWinner = isWinner(m, 'away');
+                            totals.home += getScore(m, 'home');
+                            totals.away += getScore(m, 'away');
 
-                        return (
-                            <tr key={m.id}>
-                                <td
-                                    className={`text-danger ${homeWinner ? 'fw-bold' : ''}`}>
-                                    {getAverage(m, 'home')}
-                                </td>
-                                <td
-                                    className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>
-                                    {firstInitialAndLastNames(m.sideA?.name)}
-                                </td>
-                                <td
-                                    className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>
-                                    {getScore(m, 'home')}
-                                </td>
-                                <td>-</td>
-                                <td className={awayWinner ? 'fw-bold' : ''}>
-                                    {getScore(m, 'away')}
-                                </td>
-                                <td className={awayWinner ? 'fw-bold' : ''}>
-                                    {firstInitialAndLastNames(m.sideB?.name)}
-                                </td>
-                                <td
-                                    className={`text-danger ${awayWinner ? 'fw-bold' : ''}`}>
-                                    {getAverage(m, 'away')}
-                                </td>
-                            </tr>
-                        );
-                    })}
+                            return (
+                                <tr key={m.id}>
+                                    <td
+                                        className={`text-danger ${homeWinner ? 'fw-bold' : ''}`}>
+                                        {getAverage(m, 'home')}
+                                    </td>
+                                    <td
+                                        className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>
+                                        {firstInitialAndLastNames(m.sideA)}
+                                    </td>
+                                    <td
+                                        className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>
+                                        {getScore(m, 'home')}
+                                    </td>
+                                    <td>-</td>
+                                    <td className={awayWinner ? 'fw-bold' : ''}>
+                                        {getScore(m, 'away')}
+                                    </td>
+                                    <td className={awayWinner ? 'fw-bold' : ''}>
+                                        {firstInitialAndLastNames(m.sideB)}
+                                    </td>
+                                    <td
+                                        className={`text-danger ${awayWinner ? 'fw-bold' : ''}`}>
+                                        {getAverage(m, 'away')}
+                                    </td>
+                                </tr>
+                            );
+                        })}
                 </tbody>
                 {any(tournament.round?.matches) ? (
                     <tfoot>
                         <tr>
                             <td className="text-end text-secondary" colSpan={3}>
-                                {totals.home}
+                                {ifNaN(totals.home, '')}
                             </td>
                             <td></td>
                             <td className="text-secondary" colSpan={3}>
-                                {totals.away}
+                                {ifNaN(totals.away, '')}
                             </td>
                         </tr>
                     </tfoot>
@@ -428,14 +472,14 @@ export function LiveSuperleagueTournamentDisplay({
                     datatype="live-scores">
                     <div className="d-flex flex-row justify-content-center bg-success text-black fs-4 rounded-top-3">
                         <span className="flex-grow-1 px-3 text-end flex-basis-0">
-                            {firstInitialAndLastNames(lastMatch!.sideA?.name)}
+                            {firstInitialAndLastNames(lastMatch!.sideA)}
                         </span>
                         <span>
                             {getScore(lastMatch!, 'home')} -{' '}
                             {getScore(lastMatch!, 'away')}
                         </span>
                         <span className="flex-grow-1 px-3 text-start flex-basis-0">
-                            {firstInitialAndLastNames(lastMatch!.sideB?.name)}
+                            {firstInitialAndLastNames(lastMatch!.sideB)}
                         </span>
                     </div>
                     <div className="d-flex flex-row justify-content-center text-success">
