@@ -333,6 +333,15 @@ export function LiveSuperleagueTournamentDisplay({
         return matchSayg && Object.keys(matchSayg.legs).length >= 1;
     }
 
+    function matchSort(a: TournamentMatchDto, b: TournamentMatchDto) {
+        const playerCountA =
+            (a.sideA?.players?.length ?? 0) + (a.sideB?.players?.length ?? 0);
+        const playerCountB =
+            (b.sideA?.players?.length ?? 0) + (b.sideB?.players?.length ?? 0);
+
+        return playerCountA - playerCountB; // singles before pairs
+    }
+
     if (!tournament) {
         return showLoading ? (
             <div className="flex-grow-1 bg-white">
@@ -384,40 +393,46 @@ export function LiveSuperleagueTournamentDisplay({
                     </tr>
                 </thead>
                 <tbody>
-                    {tournament.round?.matches?.map((m: TournamentMatchDto) => {
-                        const homeWinner = isWinner(m, 'home');
-                        const awayWinner = isWinner(m, 'away');
-                        totals.home += getScore(m, 'home');
-                        totals.away += getScore(m, 'away');
+                    {tournament.round?.matches
+                        ?.sort(matchSort)
+                        ?.map((m: TournamentMatchDto) => {
+                            const homeWinner = isWinner(m, 'home');
+                            const awayWinner = isWinner(m, 'away');
+                            totals.home += getScore(m, 'home');
+                            totals.away += getScore(m, 'away');
 
-                        return (
-                            <tr key={m.id}>
-                                <td
-                                    className={`text-danger ${homeWinner ? 'fw-bold' : ''}`}>
-                                    {getAverage(m, 'home')}
-                                </td>
-                                <td
-                                    className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>
-                                    {firstInitialAndLastNames(m.sideA?.name)}
-                                </td>
-                                <td
-                                    className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>
-                                    {getScore(m, 'home')}
-                                </td>
-                                <td>-</td>
-                                <td className={awayWinner ? 'fw-bold' : ''}>
-                                    {getScore(m, 'away')}
-                                </td>
-                                <td className={awayWinner ? 'fw-bold' : ''}>
-                                    {firstInitialAndLastNames(m.sideB?.name)}
-                                </td>
-                                <td
-                                    className={`text-danger ${awayWinner ? 'fw-bold' : ''}`}>
-                                    {getAverage(m, 'away')}
-                                </td>
-                            </tr>
-                        );
-                    })}
+                            return (
+                                <tr key={m.id}>
+                                    <td
+                                        className={`text-danger ${homeWinner ? 'fw-bold' : ''}`}>
+                                        {getAverage(m, 'home')}
+                                    </td>
+                                    <td
+                                        className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>
+                                        {firstInitialAndLastNames(
+                                            m.sideA?.name,
+                                        )}
+                                    </td>
+                                    <td
+                                        className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>
+                                        {getScore(m, 'home')}
+                                    </td>
+                                    <td>-</td>
+                                    <td className={awayWinner ? 'fw-bold' : ''}>
+                                        {getScore(m, 'away')}
+                                    </td>
+                                    <td className={awayWinner ? 'fw-bold' : ''}>
+                                        {firstInitialAndLastNames(
+                                            m.sideB?.name,
+                                        )}
+                                    </td>
+                                    <td
+                                        className={`text-danger ${awayWinner ? 'fw-bold' : ''}`}>
+                                        {getAverage(m, 'away')}
+                                    </td>
+                                </tr>
+                            );
+                        })}
                 </tbody>
                 {any(tournament.round?.matches) ? (
                     <tfoot>
