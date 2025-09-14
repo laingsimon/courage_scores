@@ -310,6 +310,14 @@ describe('MasterDraw', () => {
         return context.container.querySelector(selector);
     }
 
+    function alreadyPlaying(type: string, player: TournamentPlayerDto) {
+        return {
+            '1': {
+                [player.id]: tournamentBuilder().type(type).build(),
+            },
+        };
+    }
+
     function withSides(a: string, b: string, saygId?: string) {
         return (m: ITournamentMatchBuilder) =>
             m
@@ -396,9 +404,7 @@ describe('MasterDraw', () => {
                 .forSeason(season, null, [player])
                 .build();
             const containerProps = new tournamentContainerPropsBuilder()
-                .withAlreadyPlaying({
-                    [player.id]: tournamentBuilder().type('BOARD 2').build(),
-                })
+                .withAlreadyPlaying(alreadyPlaying('BOARD 2', player))
                 .build();
             await renderComponent(
                 props({
@@ -950,9 +956,7 @@ describe('MasterDraw', () => {
 
         it('cannot select a player that is already playing in another tournament', async () => {
             const containerProps = new tournamentContainerPropsBuilder()
-                .withAlreadyPlaying({
-                    [playerA.id]: tournamentBuilder().type('BOARD 2').build(),
-                })
+                .withAlreadyPlaying(alreadyPlaying('BOARD 2', playerA))
                 .build();
             await renderComponent(
                 props({

@@ -37,7 +37,10 @@ import {
 import { seasonBuilder } from '../../helpers/builders/seasons';
 import { teamBuilder } from '../../helpers/builders/teams';
 import { IPlayerApi } from '../../interfaces/apis/IPlayerApi';
-import { ITournamentPlayerMap } from './Tournament';
+import {
+    IPlayerSizeTournamentPlayerMap,
+    ITournamentPlayerMap,
+} from './Tournament';
 import { tournamentContainerPropsBuilder } from './tournamentContainerPropsBuilder';
 import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto';
 
@@ -174,8 +177,11 @@ describe('EditSide', () => {
     }
 
     function alreadyPlaying(player: TeamPlayerDto): ITournamentPlayerMap {
-        const playing: ITournamentPlayerMap = {};
-        playing[player.id] = anotherTournament;
+        const playerCountLookup: IPlayerSizeTournamentPlayerMap = {};
+        const playing: ITournamentPlayerMap = {
+            '1': playerCountLookup,
+        };
+        playerCountLookup[player.id] = anotherTournament;
         return playing;
     }
 
