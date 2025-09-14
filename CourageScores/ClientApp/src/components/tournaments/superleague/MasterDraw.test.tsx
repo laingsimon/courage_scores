@@ -53,6 +53,7 @@ import { UpdateRecordedScoreAsYouGoDto } from '../../../interfaces/models/dtos/G
 import { TournamentPlayerDto } from '../../../interfaces/models/dtos/Game/TournamentPlayerDto';
 import { TournamentSideDto } from '../../../interfaces/models/dtos/Game/TournamentSideDto';
 import { TournamentMatchDto } from '../../../interfaces/models/dtos/Game/TournamentMatchDto';
+import { IBuilder } from '../../../helpers/builders/builders';
 
 describe('MasterDraw', () => {
     let context: TestContext;
@@ -243,8 +244,16 @@ describe('MasterDraw', () => {
         reportedError.verifyNoError();
     }
 
-    function getNewMatchRow() {
-        return context.container.querySelector('table tbody tr:last-child')!;
+    function getNewSinglesMatchRow() {
+        return context.container.querySelector(
+            'table[data-type="singles"] tbody tr:last-child',
+        )!;
+    }
+
+    function getNewPairsMatchRow() {
+        return context.container.querySelector(
+            'table[data-type="pairs"] tbody tr:last-child',
+        )!;
     }
 
     function getDialog() {
@@ -421,10 +430,10 @@ describe('MasterDraw', () => {
         const playerC = playerBuilder('PLAYER C').build();
         const playerD = playerBuilder('PLAYER D').build();
         const teamA = teamBuilder('HOST')
-            .forSeason(season, division, [playerA, playerC])
+            .forSeason(season, division, [playerA, playerC, player])
             .build();
         const teamB = teamBuilder('OPPONENT')
-            .forSeason(season, division, [playerB, playerD])
+            .forSeason(season, division, [playerB, playerD, player])
             .build();
         const teamC = teamBuilder('ANOTHER TEAM').forSeason(season).build();
         let tournament: ITournamentBuilder;
@@ -440,11 +449,13 @@ describe('MasterDraw', () => {
         const masterDrawSelector = 'div[datatype="master-draw"]';
 
         function getSideAvBTournament(saygId?: string, matchId?: string) {
-            return tournament
+            const x = tournament
                 .round((r) =>
                     r.withMatch(withSides('SIDE A', 'SIDE B', saygId), matchId),
                 )
                 .build();
+
+            return { ...x, build: () => x };
         }
 
         function setPlayerCreatedCallbackForTeam(team: TeamDto) {
@@ -460,7 +471,7 @@ describe('MasterDraw', () => {
         }
 
         async function render(
-            tournament: ITournamentBuilder,
+            tournament: IBuilder<TournamentGameDto>,
             account?: UserDto,
         ) {
             await renderComponent(
@@ -553,7 +564,7 @@ describe('MasterDraw', () => {
             await select(
                 'td:nth-child(2) .dropdown-menu',
                 'PLAYER A',
-                getNewMatchRow(),
+                getNewSinglesMatchRow(),
             );
 
             expect(updatedTournament).toBeNull();
@@ -565,7 +576,7 @@ describe('MasterDraw', () => {
             await select(
                 'td:nth-child(4) .dropdown-menu',
                 'PLAYER B',
-                getNewMatchRow(),
+                getNewSinglesMatchRow(),
             );
 
             expect(updatedTournament).toBeNull();
@@ -578,14 +589,14 @@ describe('MasterDraw', () => {
             await select(
                 'td:nth-child(2) .dropdown-menu',
                 '➕ New Player/s',
-                getNewMatchRow(),
+                getNewSinglesMatchRow(),
             );
             await change('textarea', 'NEW PLAYER', getDialog()!);
             await doClick(findButton(getDialog()!, 'Add players'));
             await select(
                 'td:nth-child(2) .dropdown-menu',
                 'NEW PLAYER',
-                getNewMatchRow(),
+                getNewSinglesMatchRow(),
             );
 
             expect(createdPlayer).toEqual({
@@ -606,14 +617,14 @@ describe('MasterDraw', () => {
             await select(
                 'td:nth-child(4) .dropdown-menu',
                 '➕ New Player/s',
-                getNewMatchRow(),
+                getNewSinglesMatchRow(),
             );
             await change('textarea', 'NEW PLAYER', getDialog()!);
             await doClick(findButton(getDialog()!, 'Add players'));
             await select(
                 'td:nth-child(4) .dropdown-menu',
                 'NEW PLAYER',
-                getNewMatchRow(),
+                getNewSinglesMatchRow(),
             );
 
             expect(createdPlayer).toEqual({
@@ -632,7 +643,7 @@ describe('MasterDraw', () => {
             await select(
                 'td:nth-child(2) .dropdown-menu',
                 '➕ New Player/s',
-                getNewMatchRow(),
+                getNewSinglesMatchRow(),
             );
 
             await doClick(findButton(getDialog()!, 'Cancel'));
@@ -641,16 +652,10 @@ describe('MasterDraw', () => {
         });
 
         it('shows message when player cannot be found', async () => {
-            await render(
-                tournament.round((r) =>
-                    r.withMatch((m) =>
-                        m
-                            .sideA(playerD.name, undefined, playerD)
-                            .sideB(playerB.name, undefined, playerB),
-                    ),
-                ),
-                user({ managePlayers: true }),
-            );
+            const tournament = getSideAvBTournament();
+            tournament.round!.matches![0].sideA!.players = [playerD];
+            tournament.build = () => tournament;
+            await render(tournament, user({ managePlayers: true }));
 
             const firstMatchRow = find('table tbody tr:first-child')!;
             await doClick(
@@ -664,16 +669,7 @@ describe('MasterDraw', () => {
         });
 
         it('can edit host player', async () => {
-            await render(
-                tournament.round((r) =>
-                    r.withMatch((m) =>
-                        m
-                            .sideA(playerA.name, undefined, playerA)
-                            .sideB(playerB.name, undefined, playerB),
-                    ),
-                ),
-                user({ managePlayers: true }),
-            );
+            await render(getSideAvBTournament(), user({ managePlayers: true }));
 
             const match = find('table tbody tr:first-child')!;
             await doClick(editButton(match.querySelector('td:nth-child(2)')));
@@ -686,28 +682,19 @@ describe('MasterDraw', () => {
                 player: {
                     name: 'UPDATED PLAYER',
                 },
-                playerId: playerA.id,
+                playerId: player.id,
             });
             expect(updatedTournament!.save).toEqual(true);
             expect(updatedTournament!.updated.round?.matches).toEqual([
                 equatableMatch(
-                    equatableSide('UPDATED PLAYER', playerA),
-                    equatableSide('PLAYER B', playerB),
+                    equatableSide('UPDATED PLAYER', player),
+                    equatableSide('SIDE B', player),
                 ),
             ]);
         });
 
         it('can edit opponent player', async () => {
-            await render(
-                tournament.round((r) =>
-                    r.withMatch((m) =>
-                        m
-                            .sideA(playerA.name, undefined, playerA)
-                            .sideB(playerB.name, undefined, playerB),
-                    ),
-                ),
-                user({ managePlayers: true }),
-            );
+            await render(getSideAvBTournament(), user({ managePlayers: true }));
 
             const match = find('table tbody tr:first-child')!;
             await doClick(editButton(match.querySelector('td:nth-child(4)')));
@@ -720,28 +707,19 @@ describe('MasterDraw', () => {
                 player: {
                     name: 'UPDATED PLAYER',
                 },
-                playerId: playerB.id,
+                playerId: player.id,
             });
             expect(updatedTournament!.save).toEqual(true);
             expect(updatedTournament!.updated.round?.matches).toEqual([
                 equatableMatch(
-                    equatableSide('PLAYER A', playerA),
-                    equatableSide('UPDATED PLAYER', playerB),
+                    equatableSide('SIDE A', player),
+                    equatableSide('UPDATED PLAYER', player),
                 ),
             ]);
         });
 
         it('can close edit player dialog', async () => {
-            await render(
-                tournament.round((r) =>
-                    r.withMatch((m) =>
-                        m
-                            .sideA(playerA.name, undefined, playerA)
-                            .sideB(playerB.name, undefined, playerB),
-                    ),
-                ),
-                user({ managePlayers: true }),
-            );
+            await render(getSideAvBTournament(), user({ managePlayers: true }));
 
             const match = find('table tbody tr:first-child')!;
             await doClick(editButton(match.querySelector('td:nth-child(2)')));
@@ -759,7 +737,7 @@ describe('MasterDraw', () => {
             await select(
                 'td:nth-child(2) .dropdown-menu',
                 '➕ New Player/s',
-                getNewMatchRow(),
+                getNewSinglesMatchRow(),
             );
 
             expect(getDialog()).toBeFalsy();
@@ -786,12 +764,12 @@ describe('MasterDraw', () => {
             await select(
                 'td:nth-child(2) .dropdown-menu',
                 'PLAYER A',
-                getNewMatchRow(),
+                getNewSinglesMatchRow(),
             );
             await select(
                 'td:nth-child(4) .dropdown-menu',
                 'PLAYER B',
-                getNewMatchRow(),
+                getNewSinglesMatchRow(),
             );
 
             expect(updatedTournament!.save).toEqual(true);
@@ -807,15 +785,7 @@ describe('MasterDraw', () => {
         });
 
         it('saves tournament when sideA changed for existing match', async () => {
-            await render(
-                tournament.round((r) =>
-                    r.withMatch((m) =>
-                        m
-                            .sideA('PLAYER A', undefined, playerA)
-                            .sideB('PLAYER B', undefined, playerB),
-                    ),
-                ),
-            );
+            await render(getSideAvBTournament());
 
             await select(
                 'td:nth-child(2) .dropdown-menu',
@@ -827,21 +797,13 @@ describe('MasterDraw', () => {
             expect(updatedTournament!.updated.round?.matches).toEqual([
                 equatableMatch(
                     equatableSide('PLAYER C', playerC),
-                    equatableSide('PLAYER B', playerB),
+                    equatableSide('SIDE B', player),
                 ),
             ]);
         });
 
         it('saves tournament when sideB changed for existing match', async () => {
-            await render(
-                tournament.round((r) =>
-                    r.withMatch((m) =>
-                        m
-                            .sideA('PLAYER A', undefined, playerA)
-                            .sideB('PLAYER B', undefined, playerB),
-                    ),
-                ),
-            );
+            await render(getSideAvBTournament());
 
             await select(
                 'td:nth-child(4) .dropdown-menu',
@@ -852,10 +814,58 @@ describe('MasterDraw', () => {
             expect(updatedTournament!.save).toEqual(true);
             expect(updatedTournament!.updated.round?.matches).toEqual([
                 equatableMatch(
-                    equatableSide('PLAYER A', playerA),
+                    equatableSide('SIDE A', player),
                     equatableSide('PLAYER D', playerD),
                 ),
             ]);
+        });
+
+        it('saves tournament when all pairs players are set', async () => {
+            const matchOptionDefaults = matchOptionsBuilder()
+                .numberOfLegs(7)
+                .build();
+            const tournamentProps = new tournamentContainerPropsBuilder()
+                .withMatchOptionDefaults(matchOptionDefaults)
+                .build();
+            await renderComponent(
+                props({ tournamentData: tournament.build() }),
+                user({}),
+                tournamentProps,
+                [teamA, teamB, teamC],
+                season,
+            );
+
+            await select(
+                'td:nth-child(2) [datatype="player-index-0"] .dropdown-menu',
+                'PLAYER A',
+                getNewPairsMatchRow(),
+            );
+            await select(
+                'td:nth-child(2) [datatype="player-index-1"] .dropdown-menu',
+                'PLAYER C',
+                getNewPairsMatchRow(),
+            );
+            await select(
+                'td:nth-child(4) [datatype="player-index-0"] .dropdown-menu',
+                'PLAYER B',
+                getNewPairsMatchRow(),
+            );
+            await select(
+                'td:nth-child(4) [datatype="player-index-1"] .dropdown-menu',
+                'PLAYER D',
+                getNewPairsMatchRow(),
+            );
+
+            expect(updatedTournament!.save).toEqual(true);
+            expect(updatedTournament!.updated.round?.matches).toEqual([
+                equatableMatch(
+                    equatableSide('PLAYER & PLAYER', playerA, playerC),
+                    equatableSide('PLAYER & PLAYER', playerB, playerD),
+                ),
+            ]);
+            expect(
+                updatedTournament!.updated.round!.matchOptions![0].numberOfLegs,
+            ).toEqual(5);
         });
 
         it('cannot change host when match exists', async () => {
@@ -900,7 +910,6 @@ describe('MasterDraw', () => {
 
         it('can open sayg dialog when permitted', async () => {
             const tournamentData = getSideAvBTournament();
-
             await renderComponent(
                 props({ tournamentData: tournamentData }),
                 canRecordSayg,
