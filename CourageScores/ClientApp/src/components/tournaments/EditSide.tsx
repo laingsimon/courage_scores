@@ -411,8 +411,20 @@ export function EditSide({
                                             (p: TournamentPlayerDto) =>
                                                 p.id === player.id,
                                         );
+                                        const otherTournamentsThisPlayerIsPlayingIn: DivisionTournamentFixtureDetailsDto[] =
+                                            Object.keys(
+                                                alreadyPlaying ?? {},
+                                            ).flatMap((playerCount) => {
+                                                const players =
+                                                    alreadyPlaying![
+                                                        playerCount
+                                                    ];
+                                                return [
+                                                    players[player.id],
+                                                ].filter((p) => !!p);
+                                            });
                                         const playingInAnotherTournament: DivisionTournamentFixtureDetailsDto =
-                                            alreadyPlaying![player.id];
+                                            otherTournamentsThisPlayerIsPlayingIn[0];
                                         const selectedInAnotherSide: TournamentSideDto =
                                             getOtherSidePlayerSelectedIn(
                                                 player,
