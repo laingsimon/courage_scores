@@ -339,7 +339,15 @@ export function LiveSuperleagueTournamentDisplay({
         const playerCountB =
             (b.sideA?.players?.length ?? 0) + (b.sideB?.players?.length ?? 0);
 
-        return playerCountA - playerCountB; // singles before pairs
+        const playerCountOrder = playerCountA - playerCountB; // singles before pairs
+        if (playerCountOrder !== 0) {
+            return playerCountOrder;
+        }
+
+        const matches = tournament?.round?.matches ?? [];
+        const indexOfMatchA = matches.indexOf(a);
+        const indexOfMatchB = matches.indexOf(b);
+        return indexOfMatchA - indexOfMatchB;
     }
 
     if (!tournament) {
