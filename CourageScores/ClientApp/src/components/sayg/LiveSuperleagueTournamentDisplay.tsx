@@ -17,6 +17,7 @@ import { LegCompetitorScoreDto } from '../../interfaces/models/dtos/Game/Sayg/Le
 import { hasAccess } from '../../helpers/conditions';
 import { getScoreFromThrows } from '../../helpers/sayg';
 import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
+import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
 
 export interface ILiveSuperleagueTournamentDisplayProps {
     id: string;
@@ -288,17 +289,26 @@ export function LiveSuperleagueTournamentDisplay({
         return isWinner(match, 'home') || isWinner(match, 'away');
     }
 
-    function firstInitialAndLastNames(name?: string): string | undefined {
-        const names: string[] = name?.split(' ') ?? [];
-        if (names.length === 1) {
-            return name;
-        }
+    function firstInitialAndLastNames(
+        side?: TournamentSideDto,
+    ): string | undefined {
+        return (
+            side?.players
+                ?.map((player) => {
+                    const name = player?.name;
+                    const names: string[] = name?.split(' ') ?? [];
+                    if (names.length === 1) {
+                        return name;
+                    }
 
-        return names
-            .map((name, index) => {
-                return index === names.length - 1 ? name : name[0];
-            })
-            .join(' ');
+                    return names
+                        .map((name, index) => {
+                            return index === names.length - 1 ? name : name[0];
+                        })
+                        .join(' ');
+                })
+                .join(' & ') || side?.name
+        );
     }
 
     function currentScore(leg: LegDto, side: 'home' | 'away') {
@@ -417,9 +427,7 @@ export function LiveSuperleagueTournamentDisplay({
                                     </td>
                                     <td
                                         className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>
-                                        {firstInitialAndLastNames(
-                                            m.sideA?.name,
-                                        )}
+                                        {firstInitialAndLastNames(m.sideA)}
                                     </td>
                                     <td
                                         className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>
@@ -430,9 +438,7 @@ export function LiveSuperleagueTournamentDisplay({
                                         {getScore(m, 'away')}
                                     </td>
                                     <td className={awayWinner ? 'fw-bold' : ''}>
-                                        {firstInitialAndLastNames(
-                                            m.sideB?.name,
-                                        )}
+                                        {firstInitialAndLastNames(m.sideB)}
                                     </td>
                                     <td
                                         className={`text-danger ${awayWinner ? 'fw-bold' : ''}`}>
@@ -465,14 +471,14 @@ export function LiveSuperleagueTournamentDisplay({
                     datatype="live-scores">
                     <div className="d-flex flex-row justify-content-center bg-success text-black fs-4 rounded-top-3">
                         <span className="flex-grow-1 px-3 text-end flex-basis-0">
-                            {firstInitialAndLastNames(lastMatch!.sideA?.name)}
+                            {firstInitialAndLastNames(lastMatch!.sideA)}
                         </span>
                         <span>
                             {getScore(lastMatch!, 'home')} -{' '}
                             {getScore(lastMatch!, 'away')}
                         </span>
                         <span className="flex-grow-1 px-3 text-start flex-basis-0">
-                            {firstInitialAndLastNames(lastMatch!.sideB?.name)}
+                            {firstInitialAndLastNames(lastMatch!.sideB)}
                         </span>
                     </div>
                     <div className="d-flex flex-row justify-content-center text-success">
