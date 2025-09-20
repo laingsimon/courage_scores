@@ -128,34 +128,29 @@ export function Score() {
         ) {
             await reloadTeams();
 
-            if (playersCreated.length > 1) {
-                // multiple players created
-                setCreatePlayerFor(null);
-                setNewPlayerDetails({ name: '', captain: false });
-                return;
-            }
-
             try {
+                if (playersCreated.length > 1) {
+                    // multiple players created
+                    return;
+                }
+
                 const updatedTeamSeason = getTeamSeasons(
                     updatedTeamDetails,
                     fixtureData!.seasonId,
                 )[0];
                 if (!updatedTeamSeason) {
-                    /* istanbul ignore next */
-                    console.log(updatedTeamDetails);
                     onError('Could not find updated teamSeason');
                     return;
                 }
 
                 const newPlayers: TeamPlayerDto[] =
                     updatedTeamSeason.players!.filter(
-                        (p: TeamPlayerDto) => p.name === newPlayerDetails.name,
+                        (p: TeamPlayerDto) =>
+                            p.name === newPlayerDetails.name.trim(),
                     );
                 if (!any(newPlayers)) {
-                    /* istanbul ignore next */
-                    console.log(updatedTeamSeason);
                     onError(
-                        `Could not find new player in updated season, looking for player with name: "${newPlayerDetails.name}"`,
+                        `Could not find new player in updated season, looking for player with name: "${newPlayerDetails.name.trim()}"`,
                     );
                     return;
                 }
