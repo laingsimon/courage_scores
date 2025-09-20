@@ -28,6 +28,7 @@ import { TeamSeasonDto } from '../../../interfaces/models/dtos/Team/TeamSeasonDt
 import { TournamentGameDto } from '../../../interfaces/models/dtos/Game/TournamentGameDto';
 import { UntypedPromise } from '../../../interfaces/UntypedPromise';
 import { TournamentPlayerDto } from '../../../interfaces/models/dtos/Game/TournamentPlayerDto';
+import { IPlayerSizeTournamentPlayerMap } from '../Tournament';
 
 export interface TeamAndSeason {
     team: TeamDto;
@@ -141,9 +142,12 @@ export function EditSuperleagueMatch({
                     !any(alreadySelected, (selected) => selected.id === p.id),
             )
             .map((p: TeamPlayerDto): IBootstrapDropdownItem => {
+                const sameCountPlayersInOtherTournaments: IPlayerSizeTournamentPlayerMap =
+                    alreadyPlaying?.[`${playerCount}`] ?? {};
+
                 const playingInAnotherTournament:
                     | DivisionTournamentFixtureDetailsDto
-                    | undefined = alreadyPlaying![p.id];
+                    | undefined = sameCountPlayersInOtherTournaments[p.id];
                 const isSelected = any(
                     selectedForThisMatch,
                     (selectedForMatch) => selectedForMatch.id === p.id,
@@ -180,9 +184,14 @@ export function EditSuperleagueMatch({
         optionB: IBootstrapDropdownItem,
     ) => number {
         function getSortableKey(option: IBootstrapDropdownItem): string {
+            const otherTournamentsThisPlayerIsPlayingIn: DivisionTournamentFixtureDetailsDto[] =
+                Object.keys(alreadyPlaying ?? {}).flatMap((playerCount) => {
+                    const players = alreadyPlaying![playerCount];
+                    return [players[option.value as string]].filter((p) => !!p);
+                });
             const playingInAnotherTournament:
                 | DivisionTournamentFixtureDetailsDto
-                | undefined = alreadyPlaying![option.value as string];
+                | undefined = otherTournamentsThisPlayerIsPlayingIn[0];
             const isSelected = any(
                 alreadySelected,
                 (p) => p.id === option.value,

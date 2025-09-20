@@ -47,7 +47,11 @@ import { retry } from '../../helpers/retry';
 import { getTeamsInSeason } from '../../helpers/teams';
 
 export interface ITournamentPlayerMap {
-    [id: string]: DivisionTournamentFixtureDetailsDto;
+    [playerCount: number]: IPlayerSizeTournamentPlayerMap;
+}
+
+export interface IPlayerSizeTournamentPlayerMap {
+    [playerId: string]: DivisionTournamentFixtureDetailsDto;
 }
 
 export function Tournament() {
@@ -182,10 +186,22 @@ export function Tournament() {
                                 !f.proposed && f.id !== tournamentData.id,
                         );
                     for (const tournamentFixture of tournamentFixtures) {
-                        tournamentFixture.players!.forEach(
-                            (playerId: string) => {
-                                tournamentPlayerMap[playerId] =
-                                    tournamentFixture;
+                        tournamentFixture.sides!.forEach(
+                            (side: TournamentSideDto) => {
+                                const playerCount = side.players?.length ?? 0;
+                                if (playerCount === 0) {
+                                    return;
+                                }
+                                const playerCountPlayers =
+                                    tournamentPlayerMap[playerCount] ??
+                                    (tournamentPlayerMap[playerCount] = {});
+
+                                side.players!.forEach(
+                                    (player: TournamentPlayerDto) => {
+                                        playerCountPlayers[player.id] =
+                                            tournamentFixture;
+                                    },
+                                );
                             },
                         );
                     }
