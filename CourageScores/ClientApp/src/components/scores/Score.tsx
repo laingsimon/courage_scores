@@ -145,7 +145,7 @@ export function Score() {
 
                 const newPlayers: TeamPlayerDto[] =
                     updatedTeamSeason.players!.filter(
-                        (p: TeamPlayerDto) => 
+                        (p: TeamPlayerDto) =>
                             p.name === newPlayerDetails.name.trim(),
                     );
                 if (!any(newPlayers)) {
