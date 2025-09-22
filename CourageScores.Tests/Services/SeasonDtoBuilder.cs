@@ -65,6 +65,12 @@ public class SeasonDtoBuilder
         return this;
     }
 
+    public SeasonDtoBuilder WithAllowFavouriteTeams(bool value)
+    {
+        _season.AllowFavouriteTeams = value;
+        return this;
+    }
+
     public SeasonDto Build()
     {
         return _season;

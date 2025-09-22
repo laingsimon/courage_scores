@@ -94,7 +94,10 @@ export function DivisionTeam({ team }: IDivisionTeamProps) {
         return (
             <tr
                 className={
-                    notAFavourite && favouritesEnabled && !isAdmin
+                    notAFavourite &&
+                    favouritesEnabled &&
+                    !isAdmin &&
+                    season?.allowFavouriteTeams !== false
                         ? ' opacity-25'
                         : ''
                 }>
@@ -113,7 +116,9 @@ export function DivisionTeam({ team }: IDivisionTeamProps) {
                             ➕
                         </button>
                     ) : null}
-                    {isAdmin ? null : <ToggleFavouriteTeam teamId={team.id!} />}
+                    {isAdmin || season?.allowFavouriteTeams === false ? null : (
+                        <ToggleFavouriteTeam teamId={team.id!} />
+                    )}
                     <Link
                         to={`/division/${division.name || division.id}/team:${team.name}/${season!.name}`}>
                         {team.name}
