@@ -24,6 +24,7 @@ public class MockSimpleAdapter<TModel, TDto> : ISimpleAdapter<TModel, TDto>
 
     public Task<TDto> Adapt(TModel model, CancellationToken token)
     {
+        // ReSharper disable once VariableHidesOuterVariable
         var mappings = _model.Zip(_dto, (model, dto) => (model, dto)).ToArray();
         foreach (var mapping in mappings)
         {
@@ -38,6 +39,7 @@ public class MockSimpleAdapter<TModel, TDto> : ISimpleAdapter<TModel, TDto>
 
     public Task<TModel> Adapt(TDto dto, CancellationToken token)
     {
+        // ReSharper disable once VariableHidesOuterVariable
         var mappings = _model.Zip(_dto, (model, dto) => (model, dto)).ToArray();
         foreach (var mapping in mappings)
         {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ErrorDisplay } from '../common/ErrorDisplay';
-import { any, count, sortBy } from '../../helpers/collections';
+import { any, count, isEmpty, sortBy, sum } from '../../helpers/collections';
 import { useDependencies } from '../common/IocContainer';
 import { useApp } from '../common/AppContainer';
 import { useDivisionData } from '../league/DivisionDataContainer';
@@ -183,6 +183,14 @@ export function TournamentFixture({
         return <strong className="text-primary">{winningSide.name}</strong>;
     }
 
+    function getSuperleagueScore(side: 'scoreA' | 'scoreB') {
+        if (isEmpty(tournament.firstRoundMatches)) {
+            return;
+        }
+
+        return sum(tournament.firstRoundMatches, (m) => m[side] ?? 0);
+    }
+
     return (
         <tr
             className={
@@ -195,8 +203,11 @@ export function TournamentFixture({
                     {tournament.type} at <strong>{tournament.address}</strong>
                 </Link>
                 {tournament.singleRound && tournament.opponent ? (
-                    <span className="margin-left">
-                        vs {tournament.opponent}
+                    <span className="margin-left d-inline-flex gap-1">
+                        <span>{getSuperleagueScore('scoreA')}</span>
+                        <span>vs</span>
+                        <span>{getSuperleagueScore('scoreB')}</span>
+                        <span>{tournament.opponent}</span>
                     </span>
                 ) : null}
                 {expanded ? showTournamentSidesPlayers() : null}
