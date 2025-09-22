@@ -42,6 +42,7 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<CosmosSeason, EditSea
             .ToList();
         season.FixtureStartTime = update.FixtureStartTime;
         season.FixtureDuration = update.FixtureDuration;
+        season.AllowFavouriteTeams = update.AllowFavouriteTeams;
 
         if (update.CopyTeamsFromSeasonId.HasValue && update.Id == default)
         {
