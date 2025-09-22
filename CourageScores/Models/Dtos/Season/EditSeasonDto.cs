@@ -45,5 +45,10 @@ public class EditSeasonDto : IIntegrityCheckDto
     /// </summary>
     public int? FixtureDuration { get; set; }
 
+    /// <summary>
+    /// Allow users to set their favourite teams
+    /// </summary>
+    public bool? AllowFavouriteTeams { get; set; }
+
     public DateTime? LastUpdated { get; set; }
 }

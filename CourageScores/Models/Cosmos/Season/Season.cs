@@ -39,6 +39,11 @@ public class Season : AuditedEntity, IPermissionedEntity
     /// </summary>
     public int? FixtureDuration { get; set; }
 
+    /// <summary>
+    /// Allow users to set their favourite teams
+    /// </summary>
+    public bool? AllowFavouriteTeams { get; set; }
+
     [ExcludeFromCodeCoverage]
     public bool CanCreate(UserDto? user)
     {

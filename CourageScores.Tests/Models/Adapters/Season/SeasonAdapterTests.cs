@@ -45,6 +45,7 @@ public class SeasonAdapterTests
             EndDate = new DateTime(2002, 03, 04),
             FixtureStartTime = TimeSpan.FromHours(20),
             FixtureDuration = 4,
+            AllowFavouriteTeams = true,
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -60,6 +61,7 @@ public class SeasonAdapterTests
         }));
         Assert.That(result.FixtureStartTime, Is.EqualTo(model.FixtureStartTime));
         Assert.That(result.FixtureDuration, Is.EqualTo(model.FixtureDuration));
+        Assert.That(result.AllowFavouriteTeams, Is.EqualTo(model.AllowFavouriteTeams));
     }
 
     [Test]
@@ -153,6 +155,7 @@ public class SeasonAdapterTests
             .WithDivisions(DivisionDto)
             .WithFixtureStartTime(TimeSpan.FromHours(20))
             .WithFixtureDuration(4)
+            .WithAllowFavouriteTeams(true)
             .Build();
 
         var result = await _adapter.Adapt(dto, _token);
@@ -165,6 +168,7 @@ public class SeasonAdapterTests
         }));
         Assert.That(result.FixtureStartTime, Is.EqualTo(TimeSpan.FromHours(20)));
         Assert.That(result.FixtureDuration, Is.EqualTo(4));
+        Assert.That(result.AllowFavouriteTeams, Is.EqualTo(dto.AllowFavouriteTeams));
     }
 
     [Test]

@@ -124,7 +124,7 @@ public class UserService : IUserService
             ? await _accessAdapter.Adapt(user.Access, token)
             : new Access();
 
-        if (loggedInUser.EmailAddress == user.EmailAddress && userToUpdate.Access?.ManageAccess == false)
+        if (loggedInUser.EmailAddress == user.EmailAddress && userToUpdate.Access.ManageAccess == false)
         {
             return new ActionResultDto<UserDto>
             {

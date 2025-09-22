@@ -121,7 +121,10 @@ export function DivisionPlayer({ player, hideVenue }: IDivisionPlayerProps) {
     return (
         <tr
             className={
-                notAFavourite && favouritesEnabled && !isAdmin
+                notAFavourite &&
+                favouritesEnabled &&
+                !isAdmin &&
+                season?.allowFavouriteTeams !== false
                     ? ' opacity-25'
                     : ''
             }>
@@ -167,7 +170,8 @@ export function DivisionPlayer({ player, hideVenue }: IDivisionPlayerProps) {
                         <span className="text-warning">{player.team}</span>
                     ) : (
                         <>
-                            {isAdmin ? null : (
+                            {isAdmin ||
+                            season?.allowFavouriteTeams === false ? null : (
                                 <ToggleFavouriteTeam teamId={player.teamId!} />
                             )}
                             <Link

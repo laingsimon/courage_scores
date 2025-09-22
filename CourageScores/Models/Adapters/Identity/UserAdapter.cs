@@ -19,9 +19,7 @@ public class UserAdapter : ISimpleAdapter<User, UserDto>
             Name = model.Name,
             EmailAddress = model.EmailAddress,
             GivenName = model.GivenName,
-            Access = model.Access != null 
-                ? await _accessAdapter.Adapt(model.Access, token) 
-                : new AccessDto(),
+            Access = await _accessAdapter.Adapt(model.Access, token),
             TeamId = model.TeamId,
         };
     }
@@ -33,8 +31,8 @@ public class UserAdapter : ISimpleAdapter<User, UserDto>
             Name = dto.Name.TrimOrDefault(),
             EmailAddress = dto.EmailAddress.TrimOrDefault(),
             GivenName = dto.GivenName.TrimOrDefault(),
-            Access = dto.Access != null 
-                ? await _accessAdapter.Adapt(dto.Access, token) 
+            Access = dto.Access != null
+                ? await _accessAdapter.Adapt(dto.Access, token)
                 : new Access(),
             TeamId = dto.TeamId,
         };
