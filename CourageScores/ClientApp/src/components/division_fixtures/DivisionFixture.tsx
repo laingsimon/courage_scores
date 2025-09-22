@@ -410,7 +410,10 @@ export function DivisionFixture({
             <tr
                 className={
                     (deleting ? 'text-decoration-line-through' : '') +
-                    (notAFavourite && favouritesEnabled && !isAdmin
+                    (notAFavourite &&
+                    favouritesEnabled &&
+                    !isAdmin &&
+                    season?.allowFavouriteTeams !== false
                         ? ' opacity-25'
                         : '')
                 }>
