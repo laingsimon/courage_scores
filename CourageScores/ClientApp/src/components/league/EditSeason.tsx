@@ -160,6 +160,24 @@ export function EditSeason({
                 />
             </div>
             <div className="input-group mb-3">
+                <div className="form-check form-switch input-group-prepend">
+                    <input
+                        disabled={saving}
+                        type="checkbox"
+                        className="form-check-input"
+                        name="allowFavouriteTeams"
+                        id="allowFavouriteTeams"
+                        checked={data.allowFavouriteTeams}
+                        onChange={valueChanged(data, onUpdateData)}
+                    />
+                    <label
+                        className="form-check-label"
+                        htmlFor="allowFavouriteTeams">
+                        Allow users to set favourite teams
+                    </label>
+                </div>
+            </div>
+            <div className="input-group mb-3">
                 <div className="input-group-prepend">
                     <label htmlFor="startDate" className="input-group-text">
                         Start time
