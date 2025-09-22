@@ -167,7 +167,7 @@ export function EditSeason({
                         className="form-check-input"
                         name="allowFavouriteTeams"
                         id="allowFavouriteTeams"
-                        checked={data.allowFavouriteTeams}
+                        checked={data.allowFavouriteTeams ?? true}
                         onChange={valueChanged(data, onUpdateData)}
                     />
                     <label
