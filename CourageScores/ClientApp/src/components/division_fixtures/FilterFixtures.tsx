@@ -144,7 +144,9 @@ export function FilterFixtures() {
                 className="dynamic-width-dropdown margin-right"
             />
             <ShareButton text={`${name}, fixtures`} />
-            {favouritesEnabled && any(favouriteTeamIds) ? (
+            {favouritesEnabled &&
+            any(favouriteTeamIds) &&
+            season?.allowFavouriteTeams !== false ? (
                 <button
                     className="btn btn-sm btn-outline-danger margin-left"
                     title="Clear favourites"

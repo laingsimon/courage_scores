@@ -283,7 +283,8 @@ export function DivisionFixture({
             return fixture.awayTeam ? (
                 awayTeamId && fixture.id !== fixture.homeTeam.id ? (
                     <>
-                        {isAdmin ? null : (
+                        {isAdmin ||
+                        season?.allowFavouriteTeams === false ? null : (
                             <ToggleFavouriteTeam
                                 teamId={fixture.awayTeam!.id!}
                             />
@@ -431,7 +432,7 @@ export function DivisionFixture({
                             {fixture.homeTeam.name}
                         </Link>
                     )}
-                    {isAdmin ? null : (
+                    {isAdmin || season?.allowFavouriteTeams === false ? null : (
                         <ToggleFavouriteTeam teamId={fixture.homeTeam.id!} />
                     )}
                 </td>
