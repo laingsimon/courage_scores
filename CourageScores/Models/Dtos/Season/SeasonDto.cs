@@ -42,4 +42,9 @@ public class SeasonDto : AuditedDto
     /// The average expected duration of each fixture, in hours
     /// </summary>
     public int? FixtureDuration { get; set; }
+
+    /// <summary>
+    /// Allow users to set their favourite teams
+    /// </summary>
+    public bool? AllowFavouriteTeams { get; set; }
 }

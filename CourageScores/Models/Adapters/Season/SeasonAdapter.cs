@@ -29,6 +29,7 @@ public class SeasonAdapter : IAdapter<Cosmos.Season.Season, SeasonDto>
             IsCurrent = now >= model.StartDate.Date && now <= model.EndDate.Date,
             FixtureStartTime = model.FixtureStartTime,
             FixtureDuration = model.FixtureDuration,
+            AllowFavouriteTeams = model.AllowFavouriteTeams,
         }.AddAuditProperties(model);
     }
 
@@ -43,6 +44,7 @@ public class SeasonAdapter : IAdapter<Cosmos.Season.Season, SeasonDto>
             Name = dto.Name.TrimOrDefault(),
             FixtureStartTime = dto.FixtureStartTime,
             FixtureDuration = dto.FixtureDuration,
+            AllowFavouriteTeams = dto.AllowFavouriteTeams,
         }.AddAuditProperties(dto);
     }
 }
