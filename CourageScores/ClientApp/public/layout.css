@@ -492,3 +492,11 @@ body .width-50 {
     animation-iteration-count: 1;
     animation-timing-function: ease-in;
 }
+
+.nbsp-between-children > *:after {
+    content: " ";
+}
+
+.nbsp-between-children > *:last-child:after {
+    content: none;
+}
