@@ -229,7 +229,7 @@ describe('TournamentFixture', () => {
             reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map((td) => td.textContent);
-            expect(cellText).toEqual(['TYPE at ADDRESSvsOPPONENT']);
+            expect(cellText).toEqual(['TYPE atADDRESSvsOPPONENT']);
         });
 
         it('renders tournament won', async () => {
