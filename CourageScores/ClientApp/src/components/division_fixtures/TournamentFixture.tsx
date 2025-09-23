@@ -199,17 +199,29 @@ export function TournamentFixture({
                     : ''
             }>
             <td colSpan={tournament.winningSide ? 3 : 5}>
-                <Link to={`/tournament/${tournament.id}`}>
-                    {tournament.type} at <strong>{tournament.address}</strong>
-                </Link>
                 {tournament.singleRound && tournament.opponent ? (
-                    <span className="margin-left d-inline-flex gap-1">
-                        <span>{getSuperleagueScore('scoreA')}</span>
-                        <span>vs</span>
-                        <span>{getSuperleagueScore('scoreB')}</span>
+                    <Link
+                        className="d-inline-flex no-wrap nbsp-between-children"
+                        to={`/tournament/${tournament.id}`}>
+                        <span>{tournament.type} at</span>
+                        <strong>{tournament.address}</strong>
+                        {isEmpty(tournament.firstRoundMatches) ? (
+                            <span>vs</span>
+                        ) : (
+                            <>
+                                <span>{getSuperleagueScore('scoreA')}</span>
+                                <span>-</span>
+                                <span>{getSuperleagueScore('scoreB')}</span>
+                            </>
+                        )}
                         <span>{tournament.opponent}</span>
-                    </span>
-                ) : null}
+                    </Link>
+                ) : (
+                    <Link to={`/tournament/${tournament.id}`}>
+                        {tournament.type} at{' '}
+                        <strong>{tournament.address}</strong>
+                    </Link>
+                )}
                 {expanded ? showTournamentSidesPlayers() : null}
             </td>
             {tournament.winningSide ? (
