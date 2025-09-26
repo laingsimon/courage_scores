@@ -19,7 +19,7 @@ public class User
     /// <summary>
     /// What access does this user have?
     /// </summary>
-    public Access Access { get; set; } = new();
+    public Access? Access { get; set; } = new();
 
     [JsonIgnore]
     public Guid? TeamId { get; set; }

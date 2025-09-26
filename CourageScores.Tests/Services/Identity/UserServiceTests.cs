@@ -446,7 +446,7 @@ public class UserServiceTests
 
         var result = await _service.UpdateAccess(update, _token);
 
-        _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u => u.Name == "Other User" && u.Access.ManageGames == true)));
+        _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u => u.Name == "Other User" && u.Access!.ManageGames == true)));
         Assert.That(result.Success, Is.True);
         Assert.That(result.Messages, Is.EquivalentTo(new[] { "Access updated" }));
     }
@@ -463,7 +463,7 @@ public class UserServiceTests
 
         var result = await _service.UpdateAccess(update, _token);
 
-        _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u => u.Name == "Other User" && u.Access.ManageGames == false)));
+        _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u => u.Name == "Other User" && u.Access!.ManageGames == false)));
         Assert.That(result.Success, Is.True);
         Assert.That(result.Messages, Is.EquivalentTo(new[] { "Access updated" }));
     }
