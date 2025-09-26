@@ -19,7 +19,7 @@ public class UserAdapter : ISimpleAdapter<User, UserDto>
             Name = model.Name,
             EmailAddress = model.EmailAddress,
             GivenName = model.GivenName,
-            Access = await _accessAdapter.Adapt(model.Access, token),
+            Access = await _accessAdapter.Adapt(model.Access ?? new Access(), token),
             TeamId = model.TeamId,
         };
     }
