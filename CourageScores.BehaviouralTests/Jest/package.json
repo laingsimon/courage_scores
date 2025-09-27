@@ -1,0 +1,50 @@
+{
+  "devDependencies": {
+    "@eslint/js": "^9.37.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
+    "eslint": "^9.37.0",
+    "isomorphic-fetch": "^3.0.0",
+    "jest-environment-jsdom": "^30.2.0",
+    "jest-junit": "^16.0.0",
+    "react-dom": "^19.2.0",
+    "react-router-bootstrap": "^0.26.3",
+    "ts-jest": "^29.4.5",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.0"
+  },
+  "jest": {
+    "preset": "ts-jest/presets/js-with-ts",
+    "testEnvironment": "jest-environment-jsdom",
+    "coverageReporters": [
+      "lcov"
+    ],
+    "moduleNameMapper": {
+      "next/router": ",<rootDir>/__mocks__/next/router.js",
+      "\\.(css|less)$": "<rootDir>/src/__mocks__/style-mock.js",
+      "^.+\\.(jpg|jpeg|png|gif|webp|avif|svg)$": "<rootDir>/src/__mocks__/file-mock.js"
+    },
+    "collectCoverageFrom": [
+      "!src/index.tsx",
+      "!src/tests/**/*.ts",
+      "!coverage/**/*.js",
+      "!dist/**/*.*",
+      "!src/interfaces/apis/**/*.ts",
+      "!src/interfaces/models/**/*.ts"
+    ],
+    "setupFiles": [
+      "<rootDir>/setup.jest.js"
+    ]
+  },
+  "scripts": {
+    "compile-ts": "tsc",
+    "test": "env TZ=Europe/London jest --maxWorkers=50% --env=jsdom",
+    "compile-and-test": "tsc && env TZ=Europe/London jest --maxWorkers=50% --env=jsdom"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ]
+  }
+}
