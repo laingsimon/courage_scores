@@ -1,5 +1,6 @@
 name: Publish test results
-permissions: {}
+permissions:
+  checks: write
 
 on:
   workflow_run:
