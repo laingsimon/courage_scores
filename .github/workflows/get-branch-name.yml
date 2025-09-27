@@ -1,4 +1,5 @@
 name: Get branch name
+permissions: {}
 
 on:
   workflow_call:

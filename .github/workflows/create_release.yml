@@ -1,4 +1,7 @@
 name: Auto-create release
+permissions:
+  contents: read
+  pull-requests: write
 
 on:
   push:

@@ -1,4 +1,6 @@
 name: Deploy
+permissions:
+  deployments: write
 
 on:
   workflow_call:

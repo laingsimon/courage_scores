@@ -1,4 +1,6 @@
 name: Publish test results
+permissions:
+  checks: write
 
 on:
   workflow_run:

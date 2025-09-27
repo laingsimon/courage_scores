@@ -1,4 +1,8 @@
 name: UAT
+permissions:
+  contents: read
+  pull-requests: write
+  deployments: write
 
 on:
   push:

@@ -1,4 +1,5 @@
 name: Publish test coverage
+permissions: {}
 
 on:
   workflow_call:

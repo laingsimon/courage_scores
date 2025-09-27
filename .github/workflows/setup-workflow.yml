@@ -1,4 +1,6 @@
 name: Setup workflow
+permissions:
+  contents: read
 
 on:
   workflow_call:
@@ -18,7 +20,7 @@ on:
 
 jobs:
   branch:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     outputs:
       deploy: ${{ steps.should-deploy.outputs.deploy }}
