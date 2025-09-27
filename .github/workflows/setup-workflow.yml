@@ -20,7 +20,7 @@ on:
 
 jobs:
   branch:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     outputs:
       deploy: ${{ steps.should-deploy.outputs.deploy }}
