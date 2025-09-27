@@ -1,4 +1,8 @@
 name: PROD
+permissions:
+  contents: read
+  pull-requests: write
+  deployments: write
 
 on:
   push:

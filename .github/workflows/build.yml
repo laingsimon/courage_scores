@@ -1,4 +1,7 @@
 name: Build
+permissions:
+  contents: read
+  pull-requests: write
 
 on:
   workflow_call:
@@ -6,8 +9,6 @@ on:
       ignore_sizes:
         required: false
         type: string
-permissions:
-  pull-requests: write  
 jobs:
   with-dotnet:
     runs-on: ubuntu-latest

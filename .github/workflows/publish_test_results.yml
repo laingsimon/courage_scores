@@ -1,4 +1,5 @@
 name: Publish test results
+permissions: {}
 
 on:
   workflow_run:
