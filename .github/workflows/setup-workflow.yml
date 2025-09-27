@@ -1,4 +1,6 @@
 name: Setup workflow
+permissions:
+  contents: read
 
 on:
   workflow_call:
