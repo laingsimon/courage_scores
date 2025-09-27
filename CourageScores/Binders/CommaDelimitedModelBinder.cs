@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
@@ -9,7 +10,7 @@ namespace CourageScores.Binders;
 /// </summary>
 public class CommaDelimitedModelBinder : IModelBinder
 {
-    private static readonly Dictionary<Type, IModelBinder> TypedModelBinderCache = new Dictionary<Type, IModelBinder>();
+    private static readonly ConcurrentDictionary<Type, IModelBinder> TypedModelBinderCache = new ConcurrentDictionary<Type, IModelBinder>();
 
     private static readonly Type[] SupportedElementTypes = {
         typeof(int), typeof(long), typeof(short), typeof(byte),
@@ -28,7 +29,10 @@ public class CommaDelimitedModelBinder : IModelBinder
         {
             var typedModelBinderType = typeof(TypedModelBinder<>).MakeGenericType(elementType);
             typedModelBinder = (IModelBinder)Activator.CreateInstance(typedModelBinderType)!;
-            TypedModelBinderCache.Add(elementType, typedModelBinder);
+            if (!TypedModelBinderCache.TryAdd(elementType, typedModelBinder))
+            {
+                typedModelBinder = TypedModelBinderCache[elementType];
+            }
         }
 
         await typedModelBinder.BindModelAsync(bindingContext);
