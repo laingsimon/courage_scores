@@ -306,6 +306,8 @@ public class FinalsNightReport : CompositeReport
         }
 
         token.ThrowIfCancellationRequested();
+        yield return Row(Cell(text: "Pairs semi-finalists*"));
+        yield return Row(Cell(text: "Pairs semi-finalists*"));
         yield return Row(Cell(text: "Pairs runners up*"));
         yield return Row(Cell(text: "Pairs winner*"));
         yield return Row(Cell(text: "Singles semi-finalists*"));
