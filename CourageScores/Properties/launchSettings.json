@@ -8,7 +8,7 @@
     }
   },
   "profiles": {
-    "CourageScores": {
+    "FullApp": {
       "commandName": "Project",
       "launchBrowser": true,
       "applicationUrl": "https://localhost:7247;http://localhost:5160",
@@ -17,13 +17,21 @@
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
       }
     },
-    "CourageScoresNoBrowser": {
+    "FullAppNoBrowser": {
       "commandName": "Project",
       "launchBrowser": false,
       "applicationUrl": "https://localhost:7247;http://localhost:5160",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
+      }
+    },
+    "ApiOnly": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "applicationUrl": "https://localhost:7247;http://localhost:5160",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
   }
