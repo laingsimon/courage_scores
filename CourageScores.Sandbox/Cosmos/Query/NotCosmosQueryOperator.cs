@@ -1,0 +1,17 @@
+﻿using CourageScores.Sandbox.Cosmos.Query.Tokeniser;
+
+namespace CourageScores.Sandbox.Cosmos.Query;
+
+internal class NotCosmosQueryOperator : IQueryFilterOperator {
+    private readonly IQueryFilterOperator _operator;
+
+    public NotCosmosQueryOperator(IQueryFilterOperator @operator)
+    {
+        _operator = @operator;
+    }
+
+    public bool Matches<T>(object? value, Token token)
+    {
+        return !_operator.Matches<T>(value, token);
+    }
+}
