@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Security.Principal;
+using CourageScores.Common;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Cosmos.Identity;

@@ -1,6 +1,7 @@
 using System.Text;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Services.Data;
+using CourageScores.StubCosmos.Api;
 using Microsoft.Azure.Cosmos;
 using Moq;
 using Newtonsoft.Json;
@@ -40,13 +41,13 @@ public class TableAccessorTests
             .Returns(() => _iterator);
         _database
             .Setup(d => d.CreateContainerIfNotExistsAsync("TABLE", "/id", null, null, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(() => new MockContainerResponse(_container));
+            .ReturnsAsync(() => new StubContainerResponse(_container));
     }
 
     [Test]
     public async Task ExportData_GivenNoData_AddsTableToSet()
     {
-        _iterator = new MockFeedIterator<JObject>();
+        _iterator = new StubFeedIterator<JObject>();
 
         await _accessor.ExportData(_database.Object, _result, _builder.Object, _request, _token);
 
@@ -57,7 +58,7 @@ public class TableAccessorTests
     [Test]
     public async Task ExportData_GivenSomeData_RecordsRowCount()
     {
-        _iterator = new MockFeedIterator<JObject>(Row());
+        _iterator = new StubFeedIterator<JObject>(Row());
 
         await _accessor.ExportData(_database.Object, _result, _builder.Object, _request, _token);
 
@@ -67,7 +68,7 @@ public class TableAccessorTests
     [Test]
     public async Task ExportData_GivenSomeData_DoesNotExportDeletedRows()
     {
-        _iterator = new MockFeedIterator<JObject>(Row(deleted: new DateTime(2001, 02, 03)));
+        _iterator = new StubFeedIterator<JObject>(Row(deleted: new DateTime(2001, 02, 03)));
         _request.IncludeDeletedEntries = false;
 
         await _accessor.ExportData(_database.Object, _result, _builder.Object, _request, _token);
@@ -78,7 +79,7 @@ public class TableAccessorTests
     [Test]
     public async Task ExportData_GivenSomeData_IncludesDeletedRows()
     {
-        _iterator = new MockFeedIterator<JObject>(Row(deleted: new DateTime(2001, 02, 03)));
+        _iterator = new StubFeedIterator<JObject>(Row(deleted: new DateTime(2001, 02, 03)));
         _request.IncludeDeletedEntries = true;
 
         await _accessor.ExportData(_database.Object, _result, _builder.Object, _request, _token);
@@ -91,7 +92,7 @@ public class TableAccessorTests
     {
         var id = Guid.NewGuid();
         var otherId = Guid.NewGuid();
-        _iterator = new MockFeedIterator<JObject>(Row(id: id), Row(id: otherId));
+        _iterator = new StubFeedIterator<JObject>(Row(id: id), Row(id: otherId));
 #pragma warning disable CS0618
         _request.Tables.Add("table", new List<Guid>
         {
@@ -111,7 +112,7 @@ public class TableAccessorTests
     {
         var id = Guid.NewGuid();
         var otherId = Guid.NewGuid();
-        _iterator = new MockFeedIterator<JObject>(Row(id: id), Row(id: otherId));
+        _iterator = new StubFeedIterator<JObject>(Row(id: id), Row(id: otherId));
 #pragma warning disable CS0618
         _request.Tables.Add("table", new List<Guid>());
 #pragma warning restore CS0618
@@ -126,7 +127,7 @@ public class TableAccessorTests
     {
         var id = Guid.NewGuid();
         var otherId = Guid.NewGuid();
-        _iterator = new MockFeedIterator<JObject>(Row(id: id), Row(id: otherId));
+        _iterator = new StubFeedIterator<JObject>(Row(id: id), Row(id: otherId));
 
         await _accessor.ExportData(_database.Object, _result, _builder.Object, _request, _token);
 
@@ -137,7 +138,7 @@ public class TableAccessorTests
     public async Task ExportData_WhenCancelledBetweenBatches_AbortsEarly()
     {
         var tokenSource = new CancellationTokenSource();
-        _iterator = new MockFeedIterator<JObject>(
+        _iterator = new StubFeedIterator<JObject>(
             Row(), Row(), Row(), Row())
         {
             BatchSize = 2,
@@ -155,7 +156,7 @@ public class TableAccessorTests
     {
         var index = 0;
         var tokenSource = new CancellationTokenSource();
-        _iterator = new MockFeedIterator<JObject>(
+        _iterator = new StubFeedIterator<JObject>(
             Row(), Row(), Row(), Row())
         {
             BatchSize = 2,
@@ -174,7 +175,7 @@ public class TableAccessorTests
     [Test]
     public async Task ExportData_WhenNotCancelledWithMultipleBatches_ReturnsAllRows()
     {
-        _iterator = new MockFeedIterator<JObject>(
+        _iterator = new StubFeedIterator<JObject>(
             Row(), Row(), Row(), Row())
         {
             BatchSize = 2,

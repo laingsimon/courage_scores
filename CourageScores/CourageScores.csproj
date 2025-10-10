@@ -37,6 +37,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\CourageScores.Common\CourageScores.Common.csproj" />
       <ProjectReference Include="..\TypeScriptMapper\TypeScriptMapper.csproj" />
     </ItemGroup>
 

@@ -1,12 +1,14 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using Microsoft.Azure.Cosmos;
 using Moq;
 
-namespace CourageScores.Tests.Services.Data;
+namespace CourageScores.StubCosmos.Api;
 
-public class MockItemResponse<T> : ItemResponse<T>
+[ExcludeFromCodeCoverage]
+public class StubItemResponse<T> : ItemResponse<T>
 {
-    public MockItemResponse(
+    public StubItemResponse(
         Headers? headers = null,
         T resource = default!,
         HttpStatusCode statusCode = default,

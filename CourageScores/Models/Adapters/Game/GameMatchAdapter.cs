@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Cosmos.Game;
+﻿using CourageScores.Common;
+using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Game.Sayg;

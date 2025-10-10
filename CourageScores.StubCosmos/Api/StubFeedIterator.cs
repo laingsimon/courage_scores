@@ -2,17 +2,13 @@ using System.Collections;
 using System.Net;
 using Microsoft.Azure.Cosmos;
 using Moq;
+using Newtonsoft.Json;
 
-namespace CourageScores.Tests.Services.Data;
+namespace CourageScores.StubCosmos.Api;
 
-public class MockFeedIterator<T> : FeedIterator<T>
+public class StubFeedIterator<T>(params T[] items) : FeedIterator<T>
 {
-    private readonly List<T> _items;
-
-    public MockFeedIterator(params T[] items)
-    {
-        _items = items.ToList();
-    }
+    private readonly List<T> _items = items.ToList();
 
     // ReSharper disable once MemberCanBePrivate.Local
     // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
@@ -72,45 +68,64 @@ public class MockFeedIterator<T> : FeedIterator<T>
                 AtEndOfBatch ?? (() => { }));
         }
 
-        private class NotifyingEnumerator : IEnumerator<T>
+        private class NotifyingEnumerator(IEnumerator<T> enumerator, Action beforeRecord, Action atEnd)
+            : IEnumerator<T>
         {
-            private readonly IEnumerator<T> _enumerator;
-            private readonly Action _beforeRecord;
-            private readonly Action _atEnd;
-
-            public NotifyingEnumerator(IEnumerator<T> enumerator, Action beforeRecord, Action atEnd)
-            {
-                _enumerator = enumerator;
-                _beforeRecord = beforeRecord;
-                _atEnd = atEnd;
-            }
-
             public bool MoveNext()
             {
-                var canMoveNext = _enumerator.MoveNext();
+                var canMoveNext = enumerator.MoveNext();
                 if (canMoveNext)
                 {
-                    _beforeRecord();
+                    beforeRecord();
                 }
                 else
                 {
-                    _atEnd();
+                    atEnd();
                 }
                 return canMoveNext;
             }
 
             public void Reset()
             {
-                _enumerator.Reset();
+                enumerator.Reset();
             }
 
-            public T Current => _enumerator.Current;
+            public T Current => enumerator.Current;
             object IEnumerator.Current => Current!;
 
             public void Dispose()
             {
-                _enumerator.Dispose();
+                enumerator.Dispose();
             }
         }
     }
+
+    public FeedIterator NotGeneric()
+    {
+        return new StubFeedIterator(_items.Cast<object>().ToList());
+    }
+}
+
+file class StubFeedIterator(List<object> items) : FeedIterator
+{
+    public override Task<ResponseMessage> ReadNextAsync(CancellationToken cancellationToken = default)
+    {
+        var itemToReturn = items[0];
+        items.RemoveRange(0, 1);
+
+        var serialised = JsonConvert.SerializeObject(itemToReturn);
+        var stream = new MemoryStream();
+        using (var streamWriter = new StreamWriter(stream, leaveOpen: true))
+        {
+            streamWriter.Write(serialised);
+        }
+        stream.Seek(0, SeekOrigin.Begin);
+
+        return Task.FromResult(new ResponseMessage
+        {
+            Content = stream
+        });
+    }
+
+    public override bool HasMoreResults => items.Count > 0;
 }
