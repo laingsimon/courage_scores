@@ -198,4 +198,33 @@ public class StubContainerTests
             await StubContainerTestData.GetRows(results).ToList();
         }, Throws.TypeOf<InvalidOperationException>().And.Message.EqualTo("Text not terminated"));
     }
+
+    [Test]
+    public async Task GetItemQueryIterator_GivenAndWhereClause_ReturnsExpectedRow()
+    {
+        var expectedRecord = _expectedRecords.First(r => r.UserId != null);
+
+        var results = _container.GetItemQueryIterator<TestRecord>(@$"select * 
+from test 
+where id = '{expectedRecord.Id}'
+and userid = '{expectedRecord.UserId}'");
+        var records = await StubContainerTestData.GetRows(results).ToList();
+
+        Assert.That(records, Is.EquivalentTo([expectedRecord]));
+    }
+
+    [Test]
+    public async Task GetItemQueryIterator_GivenOrWhereClause_ReturnsExpectedRow()
+    {
+        var expectedRecord1 = _expectedRecords[0];
+        var expectedRecord2 = _expectedRecords[1];
+
+        var results = _container.GetItemQueryIterator<TestRecord>(@$"select * 
+from test 
+where id = '{expectedRecord1.Id}'
+or ID = '{expectedRecord2.Id}'");
+        var records = await StubContainerTestData.GetRows(results).ToList();
+
+        Assert.That(records, Is.EquivalentTo([expectedRecord1, expectedRecord2]));
+    }
 }

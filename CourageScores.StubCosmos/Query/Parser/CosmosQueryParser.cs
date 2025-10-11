@@ -120,6 +120,7 @@ internal class CosmosQueryParser
         private Phase? _phase;
         private FilterState<T>? _filterState;
         private LogicalCosmosQueryFilter<T>? _currentFilter;
+        private string? _lastLogicalOperator;
         private readonly List<ColumnExpression> _columns = new();
         private CosmosTable? _from;
         // private List<object> _groupBy = new();
@@ -282,6 +283,7 @@ internal class CosmosQueryParser
                     if (token.Content == "and" || token.Content == "or")
                     {
                         HandleCurrentFilter(token.Content);
+                        return;
                     }
 
                     if (_filterState != null)
@@ -301,24 +303,19 @@ internal class CosmosQueryParser
             }
         }
 
-        private void HandleCurrentFilter(string logicalStatement)
+        private void HandleCurrentFilter(string logicalOperator)
         {
             if (_filterState == null)
             {
-                QueryParserException.StateError<object>($"Cannot {logicalStatement} a statement that doesn't exist");
+                QueryParserException.StateError<object>($"Cannot {logicalOperator} a statement that doesn't exist");
                 return;
             }
 
             var thisFilter = _filterState!.BuildFilter();
 
-            if (_currentFilter == null)
-            {
-                _currentFilter = new LogicalCosmosQueryFilter<T>
-                {
-                    And = [thisFilter],
-                };
-            }
-            else if (logicalStatement == "and")
+            _currentFilter ??= new LogicalCosmosQueryFilter<T>();
+
+            if (logicalOperator == "and")
             {
                 _currentFilter = new LogicalCosmosQueryFilter<T>
                 {
@@ -326,7 +323,7 @@ internal class CosmosQueryParser
                     Or = _currentFilter.Or,
                 };
             }
-            else if (logicalStatement == "or")
+            else if (logicalOperator == "or")
             {
                 _currentFilter = new LogicalCosmosQueryFilter<T>
                 {
@@ -336,18 +333,19 @@ internal class CosmosQueryParser
             }
             else
             {
-                QueryParserException.NotSupported<object>($"Unsure how to handle '{logicalStatement}'");
+                QueryParserException.NotSupported<object>($"Unsure how to handle '{logicalOperator}'");
                 return;
             }
 
             _filterState = null;
+            _lastLogicalOperator = logicalOperator;
         }
 
         public CosmosQuery<T> BuildQuery()
         {
             if (_filterState != null)
             {
-                HandleCurrentFilter("and");
+                HandleCurrentFilter(_lastLogicalOperator ?? "and");
             }
 
             return new CosmosQuery<T>
