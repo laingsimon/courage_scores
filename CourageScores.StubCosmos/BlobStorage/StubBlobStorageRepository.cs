@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Repository;
 using CourageScores.StubCosmos.Api;
 
 namespace CourageScores.StubCosmos.BlobStorage;
 
+[ExcludeFromCodeCoverage]
 internal class StubBlobStorageRepository : IBlobStorageRepository, IStubCosmosData
 {
     private readonly Dictionary<string, byte[]?> _content = new();
