@@ -42,7 +42,7 @@ internal class CosmosQueryParser
                 Operator = NotOperator
                     ? new NotCosmosQueryOperator(GetOperator(Operator!))
                     : GetOperator(Operator!),
-                Value = Value ?? throw new InvalidOperationException("No value provided for filter"),
+                Value = Value ?? QueryParserException.StateError<Token>("No value provided for filter"),
             };
         }
 
@@ -51,7 +51,7 @@ internal class CosmosQueryParser
             var match = Regex.Match(columnName, @"^((?<alias>.+?)\.)?(?<name>.+)$");
             if (!match.Success)
             {
-                throw new ArgumentException($"Invalid column name: {columnName}");
+                return QueryParserException.SyntaxError<CosmosColumnReference>($"Unable to extract column name (and optional alias) from {columnName}");
             }
 
             return new CosmosColumnReference
@@ -75,7 +75,7 @@ internal class CosmosQueryParser
                 case "<": return CosmosQueryOperator.LessThan;
                 case "<=": return CosmosQueryOperator.LessThanOrEqualTo;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(@operator), @operator, null);
+                    return QueryParserException.SyntaxError<IQueryFilterOperator>($"Unknown operator {@operator}");
             }
         }
 
@@ -91,7 +91,8 @@ internal class CosmosQueryParser
                         return;
                     }
 
-                    throw new InvalidOperationException("Already have an operator");
+                    QueryParserException.StateError<object>("An operator has already been recorded for this filter");
+                    return;
                 }
 
                 Operator = token.Content;
@@ -100,12 +101,14 @@ internal class CosmosQueryParser
 
             if (Operator == null)
             {
-                throw new InvalidOperationException("Invalid operator type");
+                QueryParserException.StateError<object>($"An operator has already been recorded for this filter\nTried to record {token.Content} ({token.Type})");
+                return;
             }
 
             if (Value != null)
             {
-                throw new InvalidOperationException("Already have a value");
+                QueryParserException.StateError<object>($"A value has already been recorded for this filter\nTried to record {token.Content} ({token.Type})");
+                return;
             }
 
             Value = token;
@@ -159,23 +162,29 @@ internal class CosmosQueryParser
             switch (_phase)
             {
                 case Phase.Select:
-                    throw new InvalidOperationException("Cannot return text in a select");
+                    QueryParserException.NotSupported<object>("Cannot return text in a select");
+                    return;
                 case Phase.From:
-                    throw new InvalidOperationException("Cannot select from text");
+                    QueryParserException.NotSupported<object>("Cannot select from text");
+                    return;
                 case Phase.GroupBy:
-                    throw new InvalidOperationException("Cannot group by text");
+                    QueryParserException.NotSupported<object>("Cannot group by text");
+                    return;
                 case Phase.OrderBy:
-                    throw new InvalidOperationException("Cannot order by text");
+                    QueryParserException.NotSupported<object>("Cannot order by text");
+                    return;
                 case Phase.Where:
                     if (_filterState == null)
                     {
-                        throw new InvalidOperationException("No filter context");
+                        QueryParserException.StateError<object>("No current filter");
+                        return;
                     }
 
                     _filterState.Value = token;
                     break;
                 default:
-                    throw new InvalidOperationException($"Unsupported phase: {_phase}");
+                    QueryParserException.StateError<object>($"Unexpected phase {_phase}");
+                    return;
             }
         }
 
@@ -186,7 +195,8 @@ internal class CosmosQueryParser
                 case Phase.Where:
                     if (_filterState == null)
                     {
-                        throw new InvalidOperationException("No column name specified for the filter");
+                        QueryParserException.StateError<object>("No column name specified for the filter");
+                        return;
                     }
 
                     if (_filterState.Operator == "is" && token.Content == "not")
@@ -198,24 +208,8 @@ internal class CosmosQueryParser
                     _filterState!.Operator = token.Content;
                     break;
                 default:
-                    throw new InvalidOperationException($"Operators are not supported in a {_phase}");
-            }
-        }
-
-        private void AcceptOperand(Token token)
-        {
-            switch (_phase)
-            {
-                case Phase.Where:
-                    if (_filterState == null)
-                    {
-                        throw new InvalidOperationException("No column name specified for the filter");
-                    }
-
-                    _filterState.Value = token;
-                    break;
-                default:
-                    throw new InvalidOperationException($"Operands are not supported in a {_phase}");
+                    QueryParserException.StateError<object>($"Operators are not supported in a {_phase}");
+                    return;
             }
         }
 
@@ -226,9 +220,11 @@ internal class CosmosQueryParser
                 case Phase.OrderBy:
                 case Phase.From:
                 case Phase.GroupBy:
-                    throw new InvalidOperationException($"Blocks aren't supported in a {_phase}");
+                    QueryParserException.NotSupported<object>($"Blocks are not supported in a {_phase}");
+                    return;
                 default:
-                    throw new NotImplementedException();
+                    QueryParserException.NotSupported<object>($"Blocks are not supported in a {_phase}");
+                    return;
             }
         }
 
@@ -263,11 +259,14 @@ internal class CosmosQueryParser
             {
                 case Phase.Select:
                     _columns.Add(new ColumnExpression { Expression = token.Content });
-                    break;
+                    return;
                 case Phase.From:
                     if (_from == null)
                     {
-                        _from = new CosmosTable {Name = token.Content};
+                        _from = new CosmosTable
+                        {
+                            Name = token.Content,
+                        };
                     }
                     else if (_from.Alias == null)
                     {
@@ -275,10 +274,10 @@ internal class CosmosQueryParser
                     }
                     else
                     {
-                        throw new InvalidOperationException("Unexpected from token");
+                        QueryParserException.StateError<object>($"From token is invalid, name and alias have already been processed, near {token.Content}");
                     }
 
-                    break;
+                    return;
                 case Phase.Where:
                     if (token.Content == "and" || token.Content == "or")
                     {
@@ -287,16 +286,18 @@ internal class CosmosQueryParser
 
                     if (_filterState != null)
                     {
-                        throw new InvalidOperationException($"Previous filter not closed off when handling {token.Content} ({token.Type})");
+                        QueryParserException.StateError<object>($"Previous filter not closed off when handling {token.Content} ({token.Type})");
+                        return;
                     }
 
                     _filterState = new FilterState<T>
                     {
                         ColumnName = token.Content,
                     };
-                    break;
+                    return;
                 default:
-                    throw new NotImplementedException();
+                    QueryParserException.NotSupported<object>($"Query token not supported in a {_phase}");
+                    return;
             }
         }
 
@@ -304,7 +305,8 @@ internal class CosmosQueryParser
         {
             if (_filterState == null)
             {
-                throw new InvalidOperationException($"Cannot {logicalStatement} a statement that doesn't exist");
+                QueryParserException.StateError<object>($"Cannot {logicalStatement} a statement that doesn't exist");
+                return;
             }
 
             var thisFilter = _filterState!.BuildFilter();
@@ -334,7 +336,8 @@ internal class CosmosQueryParser
             }
             else
             {
-                throw new NotImplementedException();
+                QueryParserException.NotSupported<object>($"Unsure how to handle '{logicalStatement}'");
+                return;
             }
 
             _filterState = null;

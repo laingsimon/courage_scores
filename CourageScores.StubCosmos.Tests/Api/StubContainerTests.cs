@@ -1,5 +1,6 @@
 ﻿using CourageScores.Common;
 using CourageScores.StubCosmos.Api;
+using CourageScores.StubCosmos.Query.Tokeniser;
 using NUnit.Framework;
 
 namespace CourageScores.StubCosmos.Tests.Api;
@@ -154,6 +155,47 @@ public class StubContainerTests
         {
             var results = _container.GetItemQueryIterator<TestRecord>("select * from test where NonParseableType = 123");
             await StubContainerTestData.GetRows(results).ToList();
-        }, Throws.TypeOf<NotSupportedException>().And.Message.EqualTo("Unsupported type (could not find a static Parse method): Object - '123'"));
+        }, Throws.TypeOf<InvalidOperationException>().And.Message.EqualTo("Unsupported type (could not find a static Parse method): Object - '123'"));
+    }
+
+    [Test]
+    public async Task GetItemQueryIterator_GivenInvalidCharacters_Throws()
+    {
+        await Assert.ThatAsync(async () =>
+        {
+            var results = _container.GetItemQueryIterator<TestRecord>("select * from test where \\");
+            await StubContainerTestData.GetRows(results).ToList();
+        }, Throws.TypeOf<TokeniserException>().And.Message.EqualTo("Syntax Error: Unable to find token that can accept first character '\\' in query\nLocation: 1:27"));
+    }
+
+    [Test]
+    public async Task GetItemQueryIterator_GivenSingleLineComment_ReturnsExpectedRow()
+    {
+        var expectedRecord = _expectedRecords.First(r => r.UserId != null);
+
+        var results = _container.GetItemQueryIterator<TestRecord>($"select *\n//a single line comment\nfrom test where id = '{expectedRecord.Id}'");
+        var records = await StubContainerTestData.GetRows(results).ToList();
+
+        Assert.That(records, Is.EquivalentTo([expectedRecord]));
+    }
+
+    [Test]
+    public async Task GetItemQueryIterator_GivenTextIsNotClosedBeforeEndOfLine_Throws()
+    {
+        await Assert.ThatAsync(async () =>
+        {
+            var results = _container.GetItemQueryIterator<TestRecord>("select 'something\nfrom test");
+            await StubContainerTestData.GetRows(results).ToList();
+        }, Throws.TypeOf<TokeniserException>().And.Message.EqualTo("Syntax Error: Quoted section isn't terminated before the end of the line\nLocation: 2:1"));
+    }
+
+    [Test]
+    public async Task GetItemQueryIterator_GivenTextIsNotClosedBeforeEndOfText_Throws()
+    {
+        await Assert.ThatAsync(async () =>
+        {
+            var results = _container.GetItemQueryIterator<TestRecord>("select * from test where id = 'anything");
+            await StubContainerTestData.GetRows(results).ToList();
+        }, Throws.TypeOf<InvalidOperationException>().And.Message.EqualTo("Text not terminated"));
     }
 }

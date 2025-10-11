@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Fluent;
 
 namespace CourageScores.StubCosmos.Api;
 
+[ExcludeFromCodeCoverage]
 internal abstract class UnimplementedCosmosDatabase : Database
 {
     public override string Id { get; } = Guid.NewGuid().ToString();

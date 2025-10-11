@@ -17,12 +17,7 @@ internal class CommentTokenBuilder : ITokenBuilder
 
     public bool CanAccept(char chr, TokeniserContext context)
     {
-        if (_content.Length == 0)
-        {
-            return chr == '/' || chr == '-';
-        }
-
-        return true;
+        return chr == '/' || chr == '-';
     }
 
     public ITokenBuilder? Accept(char chr, TokeniserContext context)
@@ -57,7 +52,7 @@ internal class CommentTokenBuilder : ITokenBuilder
 
             // not a valid start to a comment
             // we have to throw because the first char has been hoovered up so cannot be re-read
-            throw new InvalidOperationException($"Syntax error, '{_firstChar}{chr}' is not a valid start to a comment");
+            return TokeniserException.SyntaxError<ITokenBuilder>(context, $"{_firstChar}{chr} is not a valid start to a comment");
         }
 
         _content.Append(chr);

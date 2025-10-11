@@ -49,7 +49,7 @@ internal class CosmosQueryOperator : IQueryFilterOperator
         var parseMethod = valueType.GetMethod("Parse", BindingFlags.Public | BindingFlags.Static, null, CallingConventions.Any, [typeof(string)], null);
         if (parseMethod == null)
         {
-            throw new NotSupportedException($"Unsupported type (could not find a static Parse method): {typeof(T).Name} - '{token.Content}'");
+            throw new InvalidOperationException($"Unsupported type (could not find a static Parse method): {typeof(T).Name} - '{token.Content}'");
         }
 
         return parseMethod.Invoke(null, [ token.Content ]);

@@ -12,12 +12,7 @@ internal class TextTokenBuilder : ITokenBuilder
 
     public bool CanAccept(char chr, TokeniserContext context)
     {
-        if (_content.Length == 0)
-        {
-            return chr == '\'' || chr == '"';
-        }
-
-        return true;
+        return chr == '\'' || chr == '"';
     }
 
     public ITokenBuilder? Accept(char chr, TokeniserContext context)
@@ -42,8 +37,7 @@ internal class TextTokenBuilder : ITokenBuilder
         if ((chr == '\r' || chr == '\n') && _allowMultiLine != true)
         {
             // end of line and multi-line strings not supported
-            throw new InvalidOperationException(
-                "Syntax error quoted section isn't terminated before the end of the line");
+            return TokeniserException.SyntaxError<ITokenBuilder>(context, "Quoted section isn't terminated before the end of the line");
         }
 
         if (_content.Length == 0 && _startChar == null)
@@ -72,6 +66,11 @@ internal class TextTokenBuilder : ITokenBuilder
             if (_returnContent)
             {
                 content = content.Remove(content.Length - 1, 1);
+            }
+            else
+            {
+                // not terminated
+                throw new InvalidOperationException("Text not terminated");
             }
 
             yield return new Token

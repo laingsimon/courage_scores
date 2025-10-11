@@ -6,7 +6,6 @@ internal class NumberTokenBuilder : ITokenBuilder
 {
     private readonly StringBuilder _content = new StringBuilder();
     private bool _hasDecimal;
-    private bool _isSingleLineComment;
 
     public bool CanAccept(char chr, TokeniserContext context)
     {
@@ -31,7 +30,6 @@ internal class NumberTokenBuilder : ITokenBuilder
         if (chr == '-')
         {
             // single line comment
-            _isSingleLineComment = true;
             return new CommentTokenBuilder(multiLine: false);
         }
 
@@ -42,11 +40,6 @@ internal class NumberTokenBuilder : ITokenBuilder
     {
         try
         {
-            if (_isSingleLineComment)
-            {
-                yield break;
-            }
-
             yield return new Token
             {
                 Content = _content.ToString(),
@@ -56,7 +49,6 @@ internal class NumberTokenBuilder : ITokenBuilder
         finally
         {
             _hasDecimal = false;
-            _isSingleLineComment = false;
             _content.Clear();
         }
     }

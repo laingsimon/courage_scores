@@ -74,7 +74,7 @@ internal class BlockTokenBuilder : ITokenBuilder
         var applicableTokens = knownTokens.Where(t => t.CanAccept(chr, context)).ToArray();
         if (applicableTokens.Length == 0)
         {
-            throw new InvalidOperationException($"Unable to find token that can accept first character '{chr}' in query");
+            return TokeniserException.SyntaxError<ITokenBuilder>(context, $"Unable to find token that can accept first character '{chr}' in query");
         }
         if (applicableTokens.Length > 1)
         {
@@ -85,7 +85,7 @@ internal class BlockTokenBuilder : ITokenBuilder
                 : applicableTokens;
             if (newApplicableTokens.Length > 1)
             {
-                throw new InvalidOperationException(
+                return TokeniserException.NotSupported<ITokenBuilder>(context,
                     $"Multiple tokens could handle character '{chr}' in query: {string.Join(", ", applicableTokens.Select(t => t.GetType().Name))}");
             }
 

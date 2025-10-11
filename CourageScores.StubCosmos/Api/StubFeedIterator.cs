@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using Microsoft.Azure.Cosmos;
 using Moq;
@@ -6,6 +7,7 @@ using Newtonsoft.Json;
 
 namespace CourageScores.StubCosmos.Api;
 
+[ExcludeFromCodeCoverage]
 public class StubFeedIterator<T>(params T[] items) : FeedIterator<T>
 {
     private readonly List<T> _items = items.ToList();
@@ -106,6 +108,7 @@ public class StubFeedIterator<T>(params T[] items) : FeedIterator<T>
     }
 }
 
+[ExcludeFromCodeCoverage]
 file class StubFeedIterator(List<object> items) : FeedIterator
 {
     public override Task<ResponseMessage> ReadNextAsync(CancellationToken cancellationToken = default)

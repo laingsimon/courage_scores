@@ -1,8 +1,10 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Scripts;
 
 namespace CourageScores.StubCosmos.Api;
 
+[ExcludeFromCodeCoverage]
 internal abstract class UnimplementedContainer(string id) : Container
 {
     public override Task<ContainerResponse> ReadContainerAsync(
