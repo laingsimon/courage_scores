@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.WebSockets;
 using System.Runtime.CompilerServices;
+using CourageScores.Common;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Live;

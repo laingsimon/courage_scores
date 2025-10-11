@@ -1,3 +1,4 @@
+using CourageScores.Common;
 using CourageScores.Services;
 using NUnit.Framework;
 

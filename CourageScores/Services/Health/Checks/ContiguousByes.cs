@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using CourageScores.Common;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Health;
 

@@ -1,3 +1,4 @@
+using CourageScores.Common;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Repository;

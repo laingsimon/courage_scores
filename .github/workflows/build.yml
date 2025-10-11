@@ -43,7 +43,9 @@ jobs:
       - name: Publish dotnet coverage
         uses: coverallsapp/github-action@v2.3.6
         with:
-            file: ./CourageScores.Tests/Coverage/coverage.info
+            files:
+               ./CourageScores.Tests/Coverage/coverage.info
+               ./CourageScores.StubCosmos.Tests/Coverage/coverage.info
             flag-name: dotnet
             parallel: true
             format: lcov

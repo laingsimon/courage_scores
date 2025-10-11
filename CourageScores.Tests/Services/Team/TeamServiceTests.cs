@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Adapters;
+﻿using CourageScores.Common;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;

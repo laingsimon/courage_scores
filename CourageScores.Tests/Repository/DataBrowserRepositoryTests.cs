@@ -1,4 +1,5 @@
 using CourageScores.Repository;
+using CourageScores.StubCosmos.Api;
 using CourageScores.Tests.Services.Data;
 using Microsoft.Azure.Cosmos;
 using Moq;
@@ -21,7 +22,7 @@ public class DataBrowserRepositoryTests
             Id = "name",
         };
         var repository = new DataBrowserRepository<object>(database.Object);
-        var iterator = new MockFeedIterator<ContainerProperties>(container);
+        var iterator = new StubFeedIterator<ContainerProperties>(container);
         database
             .Setup(d => d.GetContainerQueryIterator<ContainerProperties>((string?)null, null, null))
             .Returns(iterator);
@@ -36,7 +37,7 @@ public class DataBrowserRepositoryTests
     {
         var database = new Mock<Database>();
         var repository = new DataBrowserRepository<object>(database.Object);
-        var iterator = new MockFeedIterator<ContainerProperties>();
+        var iterator = new StubFeedIterator<ContainerProperties>();
         database
             .Setup(d => d.GetContainerQueryIterator<ContainerProperties>((string?)null, null, null))
             .Returns(iterator);

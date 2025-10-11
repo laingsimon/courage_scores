@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-namespace CourageScores.Services;
+namespace CourageScores.Common;
 
 [ExcludeFromCodeCoverage]
 public static class AsyncEnumerableExtensions
