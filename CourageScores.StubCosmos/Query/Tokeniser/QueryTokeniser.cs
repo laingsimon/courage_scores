@@ -4,12 +4,6 @@ internal class QueryTokeniser
 {
     public IEnumerable<Token> Tokenise(string query)
     {
-        query = query.Replace("\r", "");
-        if (string.IsNullOrEmpty(query))
-        {
-            yield break;
-        }
-
         var blockBuilder = new BlockTokenBuilder(true);
         var context = new TokeniserContext();
 
@@ -28,14 +22,9 @@ internal class QueryTokeniser
             blockBuilder.Accept(chr, context);
         }
 
-        Token? lastToken = null;
         foreach (var token in blockBuilder.AsToken())
         {
-            var thisToken = lastToken?.Type == TokenType.Operator && token.Type != TokenType.Operator
-                ? token with { Type = TokenType.Operand }
-                : token;
-            yield return thisToken;
-            lastToken = thisToken;
+            yield return token;
         }
     }
 }

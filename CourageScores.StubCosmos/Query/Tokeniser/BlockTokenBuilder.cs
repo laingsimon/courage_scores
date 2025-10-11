@@ -50,14 +50,9 @@ internal class BlockTokenBuilder : ITokenBuilder
             var newTokenBuilder = _tokenBuilder.Accept(chr, context);
             if (newTokenBuilder == null)
             {
-                Token? lastToken = null;
                 foreach (var token in _tokenBuilder.AsToken())
                 {
-                    var thisToken = lastToken?.Type == TokenType.Operator && token.Type != TokenType.Operator
-                        ? token with { Type = TokenType.Operand }
-                        : token;
-                    _tokens.Add(thisToken);
-                    lastToken = thisToken;
+                    _tokens.Add(token);
                 }
 
                 context.PreviousTokenBuilder = _tokenBuilder;

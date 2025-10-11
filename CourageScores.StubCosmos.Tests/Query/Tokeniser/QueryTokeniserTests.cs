@@ -39,7 +39,7 @@ public class QueryTokeniserTests
             "[Query:where]",
             "[Query:a]",
             "[Operator:=]",
-            "[Operand:a string with 'string' content]",
+            "[Text:a string with 'string' content]",
         ]));
     }
 
@@ -59,11 +59,11 @@ public class QueryTokeniserTests
             "[Query:where]",
             "[Query:a]",
             "[Operator:=]",
-            "[Operand:false]",
+            "[Query:false]",
             "[Query:and]",
             "[Query:b]",
             "[Operator:=]",
-            "[Operand:true]",
+            "[Query:true]",
         ]));
     }
 
@@ -83,16 +83,16 @@ public class QueryTokeniserTests
             "[Query:where]",
             "[Query:a]",
             "[Operator:=]",
-            "[Operand:false]",
+            "[Query:false]",
             "[Query:and]",
             "[Block:start]",
             "[Query:b]",
             "[Operator:=]",
-            "[Operand:true]",
+            "[Query:true]",
             "[Query:or]",
             "[Query:c]",
             "[Operator:=]",
-            "[Operand:false]",
+            "[Query:false]",
             "[Block:end]",
         ]));
     }

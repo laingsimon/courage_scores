@@ -18,6 +18,28 @@ public class StubContainerTests
         await StubContainerTestData.AddRows(_container, _expectedRecords);
     }
 
+    [TestCase(null)]
+    [TestCase("")]
+    [TestCase("  ")]
+    [TestCase("\r")]
+    public async Task GetItemQueryIterator_GivenEmptySelect_ReturnsAllRecords(string? query)
+    {
+        var results = _container.GetItemQueryIterator<TestRecord>(query);
+        var records = await StubContainerTestData.GetRows(results).ToList();
+
+        Assert.That(records, Is.EquivalentTo(_expectedRecords));
+    }
+
+    [Test]
+    public async Task GetItemQueryIterator_GivenDifferentTableToContainer_Throws()
+    {
+        await Assert.ThatAsync(async () =>
+        {
+            var results = _container.GetItemQueryIterator<TestRecord>("select * from anothertable");
+            await StubContainerTestData.GetRows(results).ToList();
+        }, Throws.InvalidOperationException.And.Message.EqualTo("Unable to run query for a different container, current container: test, query: select * from anothertable"));
+    }
+
     [Test]
     public async Task GetItemQueryIterator_GivenNoWhereClause_ReturnsAllRecords()
     {
@@ -25,6 +47,18 @@ public class StubContainerTests
         var records = await StubContainerTestData.GetRows(results).ToList();
 
         Assert.That(records, Is.EquivalentTo(_expectedRecords));
+    }
+
+    [Test]
+    public async Task GetItemQueryIterator_GivenUnknownPropertyInWhereClause_Throws()
+    {
+        await Assert.ThatAsync(
+            async () =>
+            {
+                var results = _container.GetItemQueryIterator<TestRecord>($"select * from test where foo = 'bar'");
+                await StubContainerTestData.GetRows(results).ToList();
+            },
+            Throws.ArgumentException.And.Message.EqualTo("Property foo not found on TestRecord"));
     }
 
     [Test]
@@ -55,6 +89,17 @@ public class StubContainerTests
         var expectedRecord = _expectedRecords.First(r => r.Weight != null);
 
         var results = _container.GetItemQueryIterator<TestRecord>($"select * from test where weight = {expectedRecord.Weight}");
+        var records = await StubContainerTestData.GetRows(results).ToList();
+
+        Assert.That(records, Is.EquivalentTo([expectedRecord]));
+    }
+
+    [Test]
+    public async Task GetItemQueryIterator_GivenCommentBeforeNegativeNumberInWhereClause_ReturnsSingleMatchingRecord()
+    {
+        var expectedRecord = _expectedRecords.First(r => r.Weight != null);
+
+        var results = _container.GetItemQueryIterator<TestRecord>($"select * from test where weight = --single line comment before number\n{expectedRecord.Weight}");
         var records = await StubContainerTestData.GetRows(results).ToList();
 
         Assert.That(records, Is.EquivalentTo([expectedRecord]));
@@ -100,5 +145,15 @@ public class StubContainerTests
         var records = await StubContainerTestData.GetRows(results).ToList();
 
         Assert.That(records, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetItemQueryIterator_GivenWhereValueIsForNonParseableType_Throws()
+    {
+        await Assert.ThatAsync(async () =>
+        {
+            var results = _container.GetItemQueryIterator<TestRecord>("select * from test where NonParseableType = 123");
+            await StubContainerTestData.GetRows(results).ToList();
+        }, Throws.TypeOf<NotSupportedException>().And.Message.EqualTo("Unsupported type (could not find a static Parse method): Object - '123'"));
     }
 }

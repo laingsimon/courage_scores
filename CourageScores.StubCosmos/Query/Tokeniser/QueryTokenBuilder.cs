@@ -8,12 +8,7 @@ internal class QueryTokenBuilder : ITokenBuilder
 
     public bool CanAccept(char chr, TokeniserContext context)
     {
-        if (_content.Length == 0)
-        {
-            return (chr >= 'a' && chr <= 'z') || (chr >= 'A' && chr <= 'Z') || chr == '*';
-        }
-
-        return true;
+        return (chr >= 'a' && chr <= 'z') || (chr >= 'A' && chr <= 'Z') || chr == '*';
     }
 
     public ITokenBuilder? Accept(char chr, TokeniserContext context)

@@ -18,13 +18,13 @@ internal class StubContainer(string id, string configuredKeyPath) : Unimplemente
         string? continuationToken = null,
         QueryRequestOptions? requestOptions = null)
     {
-        var query = string.IsNullOrEmpty(queryText)
+        var query = string.IsNullOrWhiteSpace(queryText)
             ? null
-            : QueryParser.Parse<T>(queryText);
+            : QueryParser.Parse<T>(queryText.Replace("\r", ""));
 
         if (query != null && query.From.Name != base.Id)
         {
-            throw new NotSupportedException(
+            throw new InvalidOperationException(
                 $"Unable to run query for a different container, current container: {base.Id}, query: {queryText}");
         }
 

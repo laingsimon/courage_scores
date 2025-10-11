@@ -42,7 +42,7 @@ internal class CosmosQueryParser
                 Operator = NotOperator
                     ? new NotCosmosQueryOperator(GetOperator(Operator!))
                     : GetOperator(Operator!),
-                Value = Value!
+                Value = Value ?? throw new InvalidOperationException("No value provided for filter"),
             };
         }
 
@@ -78,6 +78,38 @@ internal class CosmosQueryParser
                     throw new ArgumentOutOfRangeException(nameof(@operator), @operator, null);
             }
         }
+
+        public void Accept(Token token)
+        {
+            if (token.Type == TokenType.Operator)
+            {
+                if (Operator != null)
+                {
+                    if (Operator == "is" && token.Content == "not")
+                    {
+                        NotOperator = true;
+                        return;
+                    }
+
+                    throw new InvalidOperationException("Already have an operator");
+                }
+
+                Operator = token.Content;
+                return;
+            }
+
+            if (Operator == null)
+            {
+                throw new InvalidOperationException("Invalid operator type");
+            }
+
+            if (Value != null)
+            {
+                throw new InvalidOperationException("Already have a value");
+            }
+
+            Value = token;
+        }
     }
 
     private class ReaderState<T>
@@ -92,6 +124,17 @@ internal class CosmosQueryParser
 
         public void Accept(Token token)
         {
+            if (token.Type == TokenType.Comment)
+            {
+                return;
+            }
+
+            if (_filterState != null && _filterState.Value == null)
+            {
+                _filterState.Accept(token);
+                return;
+            }
+
             switch (token.Type)
             {
                 case TokenType.Query:
@@ -101,9 +144,6 @@ internal class CosmosQueryParser
                     AcceptBlock();
                     break;
                 case TokenType.Comment:
-                    break;
-                case TokenType.Operand:
-                    AcceptOperand(token);
                     break;
                 case TokenType.Operator:
                     AcceptOperator(token);

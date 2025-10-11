@@ -20,4 +20,6 @@ internal record TestRecord
     public Guid? UserId { get; set; }
 
     public string? AlwaysNull { get; set; }
+
+    public object? NonParseableType { get; set; }
 }

@@ -7,6 +7,5 @@ internal enum TokenType
     Text,
     Operator,
     Block,
-    Operand,
     Number,
 }
