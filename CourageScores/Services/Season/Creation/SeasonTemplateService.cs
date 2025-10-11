@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using CourageScores.Common;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Dtos;

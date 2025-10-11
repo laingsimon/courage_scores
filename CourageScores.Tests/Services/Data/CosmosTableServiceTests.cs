@@ -1,3 +1,5 @@
+using CourageScores.Common;
+using CourageScores.Common.Cosmos;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services;
