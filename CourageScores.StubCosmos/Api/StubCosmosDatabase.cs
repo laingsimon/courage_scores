@@ -4,9 +4,10 @@ using Microsoft.Azure.Cosmos;
 
 namespace CourageScores.StubCosmos.Api;
 
-internal class StubCosmosDatabase : UnimplementedCosmosDatabase, IStubCosmosData
+internal class StubCosmosDatabase : UnimplementedCosmosDatabase, IStubCosmosData, ISnapshottable
 {
-    private readonly Dictionary<string, StubContainer> _containers = new();
+    private readonly Dictionary<string, Dictionary<string, StubContainer>> _snapshots = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, StubContainer> _containers = new(StringComparer.OrdinalIgnoreCase);
 
     public override Task<ContainerResponse> CreateContainerIfNotExistsAsync(
         string id,
@@ -45,6 +46,7 @@ internal class StubCosmosDatabase : UnimplementedCosmosDatabase, IStubCosmosData
     public Task Clear()
     {
         _containers.Clear();
+        _snapshots.Clear();
         return Task.CompletedTask;
     }
 
@@ -58,5 +60,44 @@ internal class StubCosmosDatabase : UnimplementedCosmosDatabase, IStubCosmosData
     private class StubContainerResponse(Container container) : ContainerResponse
     {
         public override Container Container => container;
+    }
+
+    public Task CreateSnapshot(string name)
+    {
+        if (!_snapshots.TryGetValue(name, out var snapshot))
+        {
+            snapshot = new Dictionary<string, StubContainer>(StringComparer.OrdinalIgnoreCase);
+            _snapshots[name] = snapshot;
+        }
+
+        snapshot.Clear();
+        foreach (var container in _containers)
+        {
+            snapshot[container.Key] = container.Value.Clone();
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task ResetToSnapshot(string name)
+    {
+        if (!_snapshots.TryGetValue(name, out var snapshot))
+        {
+            throw new ArgumentOutOfRangeException(nameof(name), name, "Unable to find snapshot with given name");
+        }
+
+        _containers.Clear();
+        foreach (var container in snapshot)
+        {
+            _containers[container.Key] = container.Value.Clone();
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteSnapshot(string name)
+    {
+        _snapshots.Remove(name);
+        return Task.CompletedTask;
     }
 }
