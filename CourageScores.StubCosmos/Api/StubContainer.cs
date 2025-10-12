@@ -53,12 +53,6 @@ internal class StubContainer(string id, string configuredKeyPath) : Unimplemente
         return Task.CompletedTask;
     }
 
-    [ExcludeFromCodeCoverage]
-    public Dictionary<string, object> GetData()
-    {
-        return _data;
-    }
-
     /// <summary>
     /// Clone the row so the data help in the container cannot be modified directly
     /// </summary>
