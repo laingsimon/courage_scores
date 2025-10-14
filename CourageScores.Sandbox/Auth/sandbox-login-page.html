@@ -1,0 +1,58 @@
+﻿<!DOCTYPE html>
+<!--suppress JSUnresolvedLibraryURL -->
+<html lang="en">
+<head>
+    <title>Sandbox Identity Provider</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+          crossorigin="anonymous">
+</head>
+<body class="d-flex flex-row justify-content-center">
+<div class="d-flex flex-column pt-4">
+    <h2 class="mt-2 mb-4 text-center">Login to the sandbox</h2>
+
+    <form action="/api/sandbox/sign-in" method="post" class="p-3 border border-1 border-primary-muted border-dashed rounded-2">
+        <input type="hidden" name="redirectUrl" value="%redirectUrl%" />
+        <h3 class="text-center">Login as</h3>
+
+        <div class="input-group mb-2">
+            <div class="input-group-prepend">
+                <label for="name" class="input-group-text">Name</label>
+            </div>
+            <input id="name" name="name" class="form-control" />
+        </div>
+
+        <div class="input-group mb-2">
+            <div class="input-group-prepend">
+                <label for="givenName" class="input-group-text">Given Name</label>
+            </div>
+            <input id="givenName" name="givenName" class="form-control" />
+        </div>
+
+        <div class="input-group mb-2">
+            <div class="input-group-prepend">
+                <label for="emailAddress" class="input-group-text">Email</label>
+            </div>
+            <input id="emailAddress" name="emailAddress" class="form-control" />
+        </div>
+
+        <div class="d-flex flex-row justify-content-end">
+            <button class="btn btn-primary" type="submit">Login</button>
+        </div>
+    </form>
+
+    <form class="p-3" action="/api/sandbox/sign-in" method="post">
+        <input type="hidden" name="name" value="%admin_name%" />
+        <input type="hidden" name="givenName" value="%admin_givenName%" />
+        <input type="hidden" name="emailAddress" value="%admin_emailAddress%" />
+        <input type="hidden" name="redirectUrl" value="%redirectUrl%" />
+
+        <h3 class="text-center mb-4">Or</h3>
+        <div class="d-flex flex-row justify-content-end">
+            <button class="btn btn-secondary" type="submit">Login as admin user</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>
