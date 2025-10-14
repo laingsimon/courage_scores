@@ -4,7 +4,7 @@ using Microsoft.Azure.Cosmos;
 
 namespace CourageScores.StubCosmos.Api;
 
-internal class StubCosmosDatabase : UnimplementedCosmosDatabase, IStubCosmosData, ISnapshottable
+internal class StubCosmosDatabase : UnimplementedCosmosDatabase, ISnapshottable
 {
     private readonly Dictionary<string, Dictionary<string, StubContainer>> _snapshots = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, StubContainer> _containers = new(StringComparer.OrdinalIgnoreCase);
@@ -40,14 +40,6 @@ internal class StubCosmosDatabase : UnimplementedCosmosDatabase, IStubCosmosData
                     DocumentCollections = _containers.Values.Select(c => c.ToContainerItemJson()).ToList(),
                 })
             .NotGeneric();
-    }
-
-    [ExcludeFromCodeCoverage]
-    public Task Clear()
-    {
-        _containers.Clear();
-        _snapshots.Clear();
-        return Task.CompletedTask;
     }
 
     [ExcludeFromCodeCoverage]
