@@ -472,8 +472,8 @@ public class UserServiceTests
     private void CreateTicket(string fullName, string email, string givenName)
     {
         var identity = new GenericIdentity(fullName, "type");
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", email));
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", givenName));
+        identity.AddClaim(new Claim(ClaimTypes.Email, email));
+        identity.AddClaim(new Claim(ClaimTypes.GivenName, givenName));
 
         CreateTicket(new ClaimsPrincipal(identity));
     }
