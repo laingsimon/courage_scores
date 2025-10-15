@@ -1,3 +1,4 @@
+using CourageScores.Common;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Report;
 

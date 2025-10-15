@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using CourageScores.Common;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
