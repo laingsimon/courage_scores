@@ -63,6 +63,18 @@ jobs:
           VITE_APP_PR_NAME: "${{ github.event.pull_request.title }}"
           VITE_APP_PR_NUMBER: "${{ github.event.pull_request.number }}"
 
+      - name: Setup behavioural tests
+        working-directory: ./CourageScores.BehaviouralTests/Jest
+        run: npm install
+
+      - name: Run behavioural tests
+        working-directory: ./CourageScores.BehaviouralTests/Jest
+        run: npm test
+        env:
+          DOTNET_CLI_BUILD_CONFIGURATION: Release
+          GoogleAuth_ClientId: Anything
+          GoogleAuth_Secret: Anything
+
       - name: Check .tsx file sizes
         if: ${{ github.event.inputs.ignore_sizes != 'true' }}
         shell: pwsh
