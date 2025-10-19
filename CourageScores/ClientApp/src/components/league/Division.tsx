@@ -38,7 +38,7 @@ export interface IRequestedDivisionDataDto
 
 export function Division() {
     const { divisionApi, featureApi } = useDependencies();
-    const { account, onError, error, seasons, controls } = useApp();
+    const { account, onError, error, seasons, controls, divisions } = useApp();
     const { requestedDivisions, requestedSeason, requestedMode } =
         useDivisionUri();
     const [divisionData, setDivisionData] =
@@ -236,9 +236,6 @@ export function Division() {
             if (loading || error) {
                 return;
             }
-            if (!seasons.length) {
-                return;
-            }
 
             function beginReload() {
                 setDataRequested(true);
@@ -322,9 +319,30 @@ export function Division() {
         return <Loading />;
     }
 
-    const divisionDataToUse = overrideDivisionData || divisionData;
-    if (!divisionDataToUse) {
-        return <div className="p-3 content-background">No data found</div>;
+    const divisionDataToUse = overrideDivisionData ||
+        divisionData || {
+            season: {
+                id: undefined!,
+                startDate: undefined!,
+                endDate: undefined!,
+                name: 'No Season',
+            },
+            name: 'No Division',
+            id: undefined!,
+            superleague: undefined,
+            updated: undefined,
+        };
+    if (
+        !overrideDivisionData &&
+        !divisionData &&
+        divisions.length > 0 &&
+        seasons.length > 0
+    ) {
+        return (
+            <div className="p-3 content-background">
+                Requested division/season could not be found
+            </div>
+        );
     }
 
     try {
@@ -372,7 +390,7 @@ export function Division() {
                                 Fixtures
                             </NavLink>
                         </li>
-                        {divisionData!.superleague ? null : (
+                        {divisionDataToUse!.superleague ? null : (
                             <li className="nav-item">
                                 <NavLink
                                     className={
@@ -402,7 +420,7 @@ export function Division() {
                         account.access &&
                         account.access.runReports &&
                         requestedDivisions!.length === 1 &&
-                        !divisionData!.superleague ? (
+                        !divisionDataToUse!.superleague ? (
                             <li className="nav-item">
                                 <NavLink
                                     className={
@@ -419,7 +437,7 @@ export function Division() {
                         account.access &&
                         account.access.runHealthChecks &&
                         requestedDivisions!.length === 1 &&
-                        !divisionData!.superleague ? (
+                        !divisionDataToUse!.superleague ? (
                             <li className="nav-item">
                                 <NavLink
                                     className={
