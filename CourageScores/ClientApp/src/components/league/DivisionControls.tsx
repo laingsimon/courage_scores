@@ -225,6 +225,7 @@ export function DivisionControls({
                 {seasonData ? renderEditSeasonDialog() : null}
                 <ButtonDropdown
                     isOpen={openDropdown === 'season' || !originalSeasonData}
+                    datatype="season-selector"
                     toggle={() => {
                         if (any(seasons)) {
                             toggleDropdown('season');
@@ -277,6 +278,7 @@ export function DivisionControls({
                 {originalDivisionData && divisions && originalSeasonData ? (
                     <ButtonDropdown
                         isOpen={openDropdown === 'division'}
+                        datatype="division-selector"
                         toggle={() => {
                             if (any(divisions, shouldShowDivision)) {
                                 toggleDropdown('division');
