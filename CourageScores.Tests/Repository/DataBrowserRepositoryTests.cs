@@ -1,6 +1,5 @@
 using CourageScores.Repository;
 using CourageScores.StubCosmos.Api;
-using CourageScores.Tests.Services.Data;
 using Microsoft.Azure.Cosmos;
 using Moq;
 using NUnit.Framework;

@@ -2,7 +2,6 @@ using System.Net;
 using CourageScores.Common;
 using CourageScores.Filters;
 using CourageScores.Models.Dtos.Data;
-using CourageScores.Services;
 using CourageScores.Services.Data;
 using CourageScores.StubCosmos.Api;
 using Microsoft.Azure.Cosmos;

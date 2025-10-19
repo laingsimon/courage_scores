@@ -1,7 +1,6 @@
 ﻿using CourageScores.Common;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
-using CourageScores.Services;
 
 namespace CourageScores.Models.Adapters.Game;
 
