@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using CourageScores.Common.Cosmos;
 using CourageScores.StubCosmos.Query.Parser;
@@ -12,10 +13,10 @@ internal class StubContainer(string id, string configuredKeyPath) : Unimplemente
     private static readonly CosmosQueryParser QueryParser = new();
 
     private readonly string _containerId = id;
-    private readonly Dictionary<string, Dictionary<string, object>> _snapshots = new(StringComparer.OrdinalIgnoreCase);
-    private readonly Dictionary<string, object> _data = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, Dictionary<string, object>> _snapshots = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, object> _data = new(StringComparer.OrdinalIgnoreCase);
 
-    private StubContainer(string id, string configuredKeyPath, Dictionary<string, object> data, Dictionary<string, Dictionary<string, object>> snapshots)
+    private StubContainer(string id, string configuredKeyPath, ConcurrentDictionary<string, object> data, ConcurrentDictionary<string, Dictionary<string, object>> snapshots)
         :this(id, configuredKeyPath)
     {
         _data = data;
@@ -110,7 +111,7 @@ internal class StubContainer(string id, string configuredKeyPath) : Unimplemente
 
     public Task DeleteSnapshot(string name)
     {
-        _snapshots.Remove(name);
+        _snapshots.TryRemove(name, out _);
         return Task.CompletedTask;
     }
 
@@ -119,8 +120,8 @@ internal class StubContainer(string id, string configuredKeyPath) : Unimplemente
         return new StubContainer(
             _containerId,
             configuredKeyPath,
-            _data.ToDictionary(pair => pair.Key, pair => CloneRow(pair.Value)),
-            _snapshots.ToDictionary(pair => pair.Key, pair => pair.Value.ToDictionary(p => p.Key, p => CloneRow(p.Value))));
+            new ConcurrentDictionary<string, object>(_data.ToDictionary(pair => pair.Key, pair => CloneRow(pair.Value))),
+            new ConcurrentDictionary<string, Dictionary<string, object>>(_snapshots.ToDictionary(pair => pair.Key, pair => pair.Value.ToDictionary(p => p.Key, p => CloneRow(p.Value)))));
     }
 
     /// <summary>
