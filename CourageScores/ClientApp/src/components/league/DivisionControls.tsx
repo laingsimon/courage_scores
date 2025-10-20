@@ -276,7 +276,10 @@ export function DivisionControls({
                         isOpen={openDropdown === 'division'}
                         datatype="division-selector"
                         toggle={() => {
-                            if (any(divisions, shouldShowDivision)) {
+                            if (
+                                any(divisions, shouldShowDivision) ||
+                                isDivisionAdmin
+                            ) {
                                 toggleDropdown('division');
                             }
                         }}>
