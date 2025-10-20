@@ -333,10 +333,12 @@ export function Division() {
             updated: undefined,
         };
     if (
-        !overrideDivisionData &&
-        !divisionData &&
-        divisions.length > 0 &&
-        seasons.length > 0
+        (!overrideDivisionData &&
+            !divisionData &&
+            divisions.length > 0 &&
+            seasons.length > 0 &&
+            any(requestedDivisions)) ||
+        requestedSeason?.id === INVALID.id
     ) {
         return (
             <div className="p-3 content-background">
