@@ -354,19 +354,20 @@ export function DivisionFixtures({ setNewFixtures }: IDivisionFixturesProps) {
             getFixtureDateFilters(filter, {}, fixtures);
         const fixtureFilters: IFilter<IFixtureMapping> =
             getFixtureFilters(filter);
-        const resultsToRender = deletingAllFixtures
-            ? []
-            : fixtures!
-                  .filter((fd: DivisionFixtureDateDto) =>
-                      fixtureDateFilters.apply(fd),
-                  )
-                  .map((fd: DivisionFixtureDateDto) =>
-                      applyFixtureFilters(fd, fixtureFilters),
-                  )
-                  .filter((fd: DivisionFixtureDateDto) =>
-                      fixtureDateFilters.apply(fd),
-                  ) // for any post-fixture filtering, e.g. notes=only-with-fixtures
-                  .map(renderFixtureDate);
+        const resultsToRender =
+            deletingAllFixtures || !fixtures
+                ? []
+                : fixtures
+                      .filter((fd: DivisionFixtureDateDto) =>
+                          fixtureDateFilters.apply(fd),
+                      )
+                      .map((fd: DivisionFixtureDateDto) =>
+                          applyFixtureFilters(fd, fixtureFilters),
+                      )
+                      .filter((fd: DivisionFixtureDateDto) =>
+                          fixtureDateFilters.apply(fd),
+                      ) // for any post-fixture filtering, e.g. notes=only-with-fixtures
+                      .map(renderFixtureDate);
         return (
             <div className="content-background p-3">
                 {isAdmin ? (

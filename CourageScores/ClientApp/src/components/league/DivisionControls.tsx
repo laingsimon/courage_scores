@@ -225,11 +225,8 @@ export function DivisionControls({
                 {seasonData ? renderEditSeasonDialog() : null}
                 <ButtonDropdown
                     isOpen={openDropdown === 'season' || !originalSeasonData}
-                    toggle={() => {
-                        if (any(seasons)) {
-                            toggleDropdown('season');
-                        }
-                    }}>
+                    datatype="season-selector"
+                    toggle={() => toggleDropdown('season')}>
                     <button
                         className={`btn ${isSeasonAdmin ? 'btn-info' : 'btn-light'} text-nowrap`}
                         onClick={
@@ -251,13 +248,13 @@ export function DivisionControls({
                         )}
                         {isSeasonAdmin && originalSeasonData ? '✏' : ''}
                     </button>
-                    {seasons.length ? (
+                    {seasons.length || isSeasonAdmin ? (
                         <DropdownToggle
                             color={
                                 isSeasonAdmin ? 'info' : 'light'
                             }></DropdownToggle>
                     ) : null}
-                    {seasons.length ? (
+                    {seasons.length || isSeasonAdmin ? (
                         <DropdownMenu>
                             {seasons
                                 .sort(sortBy('startDate', true))
@@ -277,6 +274,7 @@ export function DivisionControls({
                 {originalDivisionData && divisions && originalSeasonData ? (
                     <ButtonDropdown
                         isOpen={openDropdown === 'division'}
+                        datatype="division-selector"
                         toggle={() => {
                             if (any(divisions, shouldShowDivision)) {
                                 toggleDropdown('division');

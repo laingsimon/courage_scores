@@ -4,7 +4,6 @@ using CourageScores.Models.Adapters;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Live;
 using CourageScores.Models.Live;
-using CourageScores.Services;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Live;
 using Moq;
