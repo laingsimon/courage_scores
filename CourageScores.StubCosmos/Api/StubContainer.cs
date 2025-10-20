@@ -28,18 +28,26 @@ internal class StubContainer(string id, string configuredKeyPath) : Unimplemente
         string? continuationToken = null,
         QueryRequestOptions? requestOptions = null)
     {
-        var query = string.IsNullOrWhiteSpace(queryText)
-            ? null
-            : QueryParser.Parse<T>(queryText.Replace("\r", ""));
-
-        if (query != null && query.From.Name != base.Id)
+        try
         {
-            throw new InvalidOperationException(
-                $"Unable to run query for a different container, current container: {base.Id}, query: {queryText}");
-        }
+            var query = string.IsNullOrWhiteSpace(queryText)
+                ? null
+                : QueryParser.Parse<T>(queryText.Replace("\r", ""));
 
-        var values = _data.Values.OfType<T>();
-        return new StubFeedIterator<T>(values.Where(row => query?.Where?.All(f => f.Matches(row)) != false).Select(CloneRow).ToArray());
+            if (query != null && query.From.Name != base.Id)
+            {
+                throw new InvalidOperationException(
+                    $"Unable to run query for a different container, current container: {base.Id}, query: {queryText}");
+            }
+
+            var values = _data.Values.OfType<T>();
+            return new StubFeedIterator<T>(values.Where(row => query?.Where?.All(f => f.Matches(row)) != false)
+                .Select(CloneRow).ToArray());
+        }
+        catch (QueryParserException exc)
+        {
+            throw new InvalidOperationException($"Unable to run query: '{queryText}'\n\n{exc.Message}", exc);
+        }
     }
 
     public override Task<ItemResponse<T>> UpsertItemAsync<T>(
