@@ -39,6 +39,9 @@
       <Content Update="Auth\fake-login-page.html">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
+      <Content Update="spa.proxy.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <RemoveDir Directories="Properties" />
