@@ -38,7 +38,7 @@ public class CachingDivisionService : ICachingDivisionService
             // invalidate caches where division id matches, any season id
             var keys = CacheKeys.Keys.Where(key =>
                 key.Filter.DivisionId.Contains(divisionId.Value) ||
-                divisionId == Guid.Empty && key.Filter.DivisionId.Any()).ToArray();
+                divisionId == Guid.Empty || !key.Filter.DivisionId.Any()).ToArray();
             InvalidateCaches(keys);
         }
 
@@ -46,7 +46,7 @@ public class CachingDivisionService : ICachingDivisionService
         {
             // invalidate caches where season id matches, any division id
             var keys = CacheKeys.Keys.Where(key =>
-                    key.Filter.SeasonId == seasonId.Value || seasonId == Guid.Empty && key.Filter.SeasonId != null)
+                    key.Filter.SeasonId == seasonId.Value || seasonId == Guid.Empty || key.Filter.SeasonId == null)
                 .ToArray();
             InvalidateCaches(keys);
         }

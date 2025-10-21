@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using CourageScores.Common.Cosmos;
 using Microsoft.Azure.Cosmos;
@@ -6,8 +7,8 @@ namespace CourageScores.StubCosmos.Api;
 
 internal class StubCosmosDatabase : UnimplementedCosmosDatabase, ISnapshottable
 {
-    private readonly Dictionary<string, Dictionary<string, StubContainer>> _snapshots = new(StringComparer.OrdinalIgnoreCase);
-    private readonly Dictionary<string, StubContainer> _containers = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, Dictionary<string, StubContainer>> _snapshots = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, StubContainer> _containers = new(StringComparer.OrdinalIgnoreCase);
 
     public override Task<ContainerResponse> CreateContainerIfNotExistsAsync(
         string id,
@@ -16,12 +17,8 @@ internal class StubCosmosDatabase : UnimplementedCosmosDatabase, ISnapshottable
         RequestOptions? requestOptions = null,
         CancellationToken cancellationToken = default)
     {
-        if (!_containers.TryGetValue(id, out _))
-        {
-            _containers.Add(id, new StubContainer(id, partitionKeyPath));
-        }
-
-        return Task.FromResult<ContainerResponse>(new StubContainerResponse(_containers[id]));
+        var container = _containers.GetOrAdd(id, _ => new StubContainer(id, partitionKeyPath));
+        return Task.FromResult<ContainerResponse>(new StubContainerResponse(container));
     }
 
     public override FeedIterator GetContainerQueryStreamIterator(
@@ -89,7 +86,7 @@ internal class StubCosmosDatabase : UnimplementedCosmosDatabase, ISnapshottable
 
     public Task DeleteSnapshot(string name)
     {
-        _snapshots.Remove(name);
+        _snapshots.TryRemove(name, out _);
         return Task.CompletedTask;
     }
 }

@@ -66,7 +66,7 @@ export function DivisionUriContainer({
         const search = new URLSearchParams(location.search);
 
         if (!search.has('division')) {
-            return [INVALID];
+            return [];
         }
 
         const divisions: string[] = search.getAll('division');

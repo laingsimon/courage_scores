@@ -159,6 +159,12 @@ export function DivisionControls({
         return null;
     }
 
+    function getSeasonDates(season: SeasonDto): string {
+        return season.startDate && season.endDate
+            ? ` (${renderDate(season.startDate)} - ${renderDate(season.endDate)})`
+            : '';
+    }
+
     function renderSeasonOption(season: SeasonDto) {
         const url: string = getDivisionUrl(
             firstValidDivisionNameForSeason(season)!,
@@ -171,8 +177,8 @@ export function DivisionControls({
                 key={season.id}
                 className={`dropdown-item ${originalSeasonData && originalSeasonData.id === season.id ? ' active' : ''}`}
                 to={url}>
-                {season.name} ({renderDate(season.startDate)} -{' '}
-                {renderDate(season.endDate)})
+                {season.name}
+                {getSeasonDates(season)}
             </Link>
         );
     }
@@ -239,9 +245,8 @@ export function DivisionControls({
                         }>
                         {originalSeasonData ? (
                             <span>
-                                {originalSeasonData.name} (
-                                {renderDate(originalSeasonData.startDate)} -{' '}
-                                {renderDate(originalSeasonData.endDate)})
+                                {originalSeasonData.name}
+                                {getSeasonDates(originalSeasonData)}
                             </span>
                         ) : (
                             <span>Select a season</span>
@@ -276,7 +281,10 @@ export function DivisionControls({
                         isOpen={openDropdown === 'division'}
                         datatype="division-selector"
                         toggle={() => {
-                            if (any(divisions, shouldShowDivision)) {
+                            if (
+                                any(divisions, shouldShowDivision) ||
+                                isDivisionAdmin
+                            ) {
                                 toggleDropdown('division');
                             }
                         }}>

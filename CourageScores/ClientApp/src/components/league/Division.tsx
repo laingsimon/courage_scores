@@ -29,6 +29,7 @@ import { INVALID, useDivisionUri } from './DivisionUriContainer';
 import { IIdish } from './IDivisionUri';
 import { IError } from '../common/IError';
 import { NavLink } from '../common/NavLink';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
 
 export interface IRequestedDivisionDataDto
     extends DivisionDataDto,
@@ -319,24 +320,29 @@ export function Division() {
         return <Loading />;
     }
 
-    const divisionDataToUse = overrideDivisionData ||
-        divisionData || {
-            season: {
-                id: undefined!,
-                startDate: undefined!,
-                endDate: undefined!,
-                name: 'No Season',
-            },
-            name: 'No Division',
-            id: undefined!,
-            superleague: undefined,
-            updated: undefined,
-        };
+    const emptySeason: SeasonDto = {
+        id: undefined!,
+        startDate: undefined!,
+        endDate: undefined!,
+        name: 'No Season',
+    };
+    const emptyDivisionData: DivisionDataDto = {
+        season: emptySeason,
+        name: 'No Division',
+        id: undefined!,
+        superleague: undefined,
+        updated: undefined,
+    };
+    const divisionDataToUse =
+        overrideDivisionData || divisionData || emptyDivisionData;
+
     if (
-        !overrideDivisionData &&
-        !divisionData &&
-        divisions.length > 0 &&
-        seasons.length > 0
+        (!overrideDivisionData &&
+            !divisionData &&
+            divisions.length > 0 &&
+            seasons.length > 0 &&
+            any(requestedDivisions)) ||
+        requestedSeason?.id === INVALID.id
     ) {
         return (
             <div className="p-3 content-background">
@@ -350,7 +356,7 @@ export function Division() {
             <div>
                 {controls || !divisionDataToUse.season ? (
                     <DivisionControls
-                        originalSeasonData={divisionDataToUse.season!}
+                        originalSeasonData={divisionDataToUse.season}
                         originalDivisionData={{
                             name: divisionDataToUse.name,
                             id: divisionDataToUse.id,
