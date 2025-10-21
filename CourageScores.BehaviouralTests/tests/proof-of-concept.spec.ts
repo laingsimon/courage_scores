@@ -12,4 +12,19 @@ test.describe('proof of concept', () => {
 
         await expect(page.getByText('Logout (Simon)')).toBeVisible();
     });
+
+    test('can add a season', async ({page}) => {
+        await page.goto('/');
+        await ensureLoggedIn(page);
+        await page.goto('/teams');
+
+        await ensureDivisionExists(page, 'Division One');
+        await ensureSeasonExists(page, 'Summer Season', ['Division One']);
+
+        await selectSeason(page, 'Summer Season');
+        await waitForLoadingToFinish(page);
+        await expect(page.locator('ul.nav-tabs')).toBeVisible();
+        const divisionTabs = page.locator('ul.nav-tabs li');
+        expect(await divisionTabs.allTextContents()).toEqual(['Teams', 'Fixtures', 'Players', 'Reports', 'Health']);
+    });
 });
