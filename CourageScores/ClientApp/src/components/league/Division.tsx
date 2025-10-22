@@ -324,11 +324,11 @@ export function Division() {
         id: undefined!,
         startDate: undefined!,
         endDate: undefined!,
-        name: 'No Season',
+        name: 'Select a season',
     };
     const emptyDivisionData: DivisionDataDto = {
         season: emptySeason,
-        name: 'No Division',
+        name: 'No division',
         id: undefined!,
         superleague: undefined,
         updated: undefined,
@@ -474,7 +474,10 @@ export function Division() {
                             Hide errors
                         </button>
                     </div>
-                ) : (
+                ) : null}
+                {(!dataErrors || !account) &&
+                any(requestedDivisions) &&
+                requestedSeason?.id !== INVALID.id ? (
                     <DivisionDataContainer
                         {...divisionDataToUse}
                         onReloadDivision={reloadDivisionData}
@@ -535,7 +538,7 @@ export function Division() {
                             />
                         ) : null}
                     </DivisionDataContainer>
-                )}
+                ) : null}
             </div>
         );
     } catch (e) {

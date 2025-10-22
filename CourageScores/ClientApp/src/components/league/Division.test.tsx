@@ -961,7 +961,7 @@ describe('Division', () => {
                     `/teams/?division=${division.name}`,
                 );
 
-                expect(getContent().innerHTML).toContain('No Division');
+                expect(getContent().innerHTML).toContain('No division');
             });
 
             it('renders error when data returns with a status code with errors', async () => {
