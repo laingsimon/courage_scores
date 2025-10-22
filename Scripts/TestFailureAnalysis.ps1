@@ -75,7 +75,12 @@ function Get-Logs($Url)
         $JestResults = Get-ChildItem -Path $ExtractPath -Filter "*publish*with-dotnet.txt" | Get-JestFailures
     }
 
-    return $DotNetResults,$PrettierFormattingFailures,$TypescriptBuildFailures,$JestResults
+    if (!($TypescriptBuildFailures -like "*error*npm run test*"))
+    {
+        $BehaviouralJestResults = Get-ChildItem -Path $ExtractPath -Filter "*run*behavioural-tests.txt" | Get-JestFailures
+    }
+
+    return $DotNetResults,$PrettierFormattingFailures,$TypescriptBuildFailures,$JestResults,$BehaviouralJestResults
 }
 
 function Get-LinesBetween($Path, $Start, $End, [switch] $Inclusive)
@@ -218,10 +223,13 @@ if ($AnalysisStatus -ne "TODO" -and $Force -ne $true)
 $CommentsToAdd = Get-Logs -Url $LogsUrl
 $DotNetJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "build / with-dotnet"
 $ReactJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "publish / with-dotnet"
+$BehaviouralTestJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "publish / run behavioural tests"
 $AnalysisJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $env:GITHUB_RUN_ID -Attempt $env:GITHUB_RUN_ATTEMPT -Name "Analyse test results (PRs only)"
 $LogLinks = "[Dotnet Logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($DotNetJobId)?pr=$($PullRequestNumber))" + `
 " `| " + `
 "[React Logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($ReactJobId)?pr=$($PullRequestNumber))" + `
+" `| " + `
+"[Behaviour test Logs](https://github.com/$($Repo)/actions/runs/$($env:GITHUB_RUN_ID)/job/$($BehaviouralTestJobId))" + `
 " `| " + `
 "[Analysis](https://github.com/$($Repo)/actions/runs/$($env:GITHUB_RUN_ID)/job/$($AnalysisJobId))"
 

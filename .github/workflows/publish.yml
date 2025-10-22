@@ -63,6 +63,25 @@ jobs:
           VITE_APP_PR_NAME: "${{ github.event.pull_request.title }}"
           VITE_APP_PR_NUMBER: "${{ github.event.pull_request.number }}"
 
+      - name: Install playwright dependencies
+        run: npm ci
+        working-directory: ./CourageScores.BehaviouralTests/
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+        working-directory: ./CourageScores.BehaviouralTests/
+
+      - name: Run Playwright tests
+        run: npx playwright test
+        working-directory: ./CourageScores.BehaviouralTests/
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: ./CourageScores.BehaviouralTests/playwright-report/
+          retention-days: 1
+
       - name: Check .tsx file sizes
         if: ${{ github.event.inputs.ignore_sizes != 'true' }}
         shell: pwsh
