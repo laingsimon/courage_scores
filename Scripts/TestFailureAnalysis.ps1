@@ -75,7 +75,7 @@ function Get-Logs($Url)
         $JestResults = Get-ChildItem -Path $ExtractPath -Filter "*publish*with-dotnet.txt" | Get-JestFailures
     }
 
-    $BehaviouralJestResults = Get-ChildItem -Path $ExtractPath -Filter "*publish*with-dotnet.txt" | Get-PlaywrightMessages
+    $BehaviouralJestResults = Get-ChildItem -Path $ExtractPath -Filter "*ui_tests*with-playwright.txt" | Get-PlaywrightMessages
 
     return $DotNetResults,$PrettierFormattingFailures,$TypescriptBuildFailures,$JestResults,$BehaviouralJestResults
 }
@@ -185,7 +185,7 @@ function Get-JestFailures([Parameter(ValueFromPipeline)] $Path)
 function Get-PlaywrightMessages([Parameter(ValueFromPipeline)] $Path)
 {
     process {
-        $Output = Get-LinesBetween -Path $Path -InclusiveStart -Start "*Running * tests using * worker" -End "*Run actions/upload-artifact*" | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
+        $Output = Get-LinesBetween -Path $Path -InclusiveStart -Start "*Running * tests using * worker" -End "*Post job cleanup.*" | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
 
         if ($Output.Count -eq 0)
         {
