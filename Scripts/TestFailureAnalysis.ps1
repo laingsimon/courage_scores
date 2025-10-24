@@ -234,10 +234,13 @@ if ($AnalysisStatus -ne "TODO" -and $Force -ne $true)
 $CommentsToAdd = Get-Logs -Url $LogsUrl
 $DotNetJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "build / with-dotnet"
 $ReactJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "publish / with-dotnet"
+$PlaywrightJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "ui_tests / with-playwright"
 $AnalysisJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $env:GITHUB_RUN_ID -Attempt $env:GITHUB_RUN_ATTEMPT -Name "Analyse test results (PRs only)"
 $LogLinks = "[Dotnet Logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($DotNetJobId)?pr=$($PullRequestNumber))" + `
 " `| " + `
 "[React Logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($ReactJobId)?pr=$($PullRequestNumber))" + `
+" `| " + `
+"[Playwright logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($PlaywrightJobId))?pr=$($PullRequestNumber))" + `
 " `| " + `
 "[Analysis](https://github.com/$($Repo)/actions/runs/$($env:GITHUB_RUN_ID)/job/$($AnalysisJobId))"
 
