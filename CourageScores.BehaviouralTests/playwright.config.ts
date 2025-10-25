@@ -1,4 +1,4 @@
-import {defineConfig, devices} from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
     testDir: './tests',
@@ -6,7 +6,7 @@ export default defineConfig({
     forbidOnly: !!process.env.CI,
     retries: 0,
     workers: process.env.CI ? 1 : undefined,
-    reporter: [['html', {open: 'never'}]],
+    reporter: [['html', { open: 'never' }]],
     use: {
         baseURL: 'https://localhost:44426',
         ignoreHTTPSErrors: true,
@@ -22,7 +22,7 @@ export default defineConfig({
     projects: [
         {
             name: 'chromium',
-            use: {...devices['Desktop Chrome']},
+            use: { ...devices['Desktop Chrome'] },
         },
 
         /*{
@@ -42,10 +42,13 @@ export default defineConfig({
     ],
 
     webServer: {
-        command: 'dotnet run --configuration Debug ' + (process.env.CI ? '' : '--no-build') + ' --launch-profile FullAppNoBrowser -- CourageScores.Sandbox.dll',
+        command:
+            'dotnet run --configuration Debug ' +
+            (process.env.CI ? '' : '--no-build') +
+            ' --launch-profile FullAppNoBrowser -- CourageScores.Sandbox.dll',
         env: {
             GoogleAuth_ClientId: 'anything',
-            GoogleAuth_Secret: 'anything'
+            GoogleAuth_Secret: 'anything',
         },
         cwd: '../CourageScores.Sandbox',
         url: 'https://localhost:7247',
