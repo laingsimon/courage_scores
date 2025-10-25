@@ -112,8 +112,15 @@ public class SeasonTemplateService : ISeasonTemplateService
             return Error<ProposalResultDto>("Template not found");
         }
 
-        var context = await CreateContext(season, request, token);
-        return await _proposalStrategy.ProposeFixtures(context, template, token);
+        try
+        {
+            var context = await CreateContext(season, request, token);
+            return await _proposalStrategy.ProposeFixtures(context, template, token);
+        }
+        catch (Exception exc)
+        {
+            return Error<ProposalResultDto>(exc.Message);
+        }
     }
 
     public async Task<ActionResultDto<SeasonHealthCheckResultDto>> GetTemplateHealth(EditTemplateDto templateDto, CancellationToken token)
