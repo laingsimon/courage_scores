@@ -240,7 +240,7 @@ $LogLinks = "[Dotnet Logs](https://github.com/$($Repo)/actions/runs/$($GitHubRun
 " `| " + `
 "[React Logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($ReactJobId)?pr=$($PullRequestNumber))" + `
 " `| " + `
-"[Playwright logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($PlaywrightJobId))?pr=$($PullRequestNumber))" + `
+"[Playwright logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($PlaywrightJobId)?pr=$($PullRequestNumber))" + `
 " `| " + `
 "[Analysis](https://github.com/$($Repo)/actions/runs/$($env:GITHUB_RUN_ID)/job/$($AnalysisJobId))"
 
