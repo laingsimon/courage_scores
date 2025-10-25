@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Security.Claims;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos;
@@ -193,13 +194,13 @@ public class UserService : IUserService
         }
 
         var claims = identity.Claims.ToDictionary(c => c.Type, c => c.Value);
-        var emailAddress = claims["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"];
+        var emailAddress = claims[ClaimTypes.Email];
 
         var user = new User
         {
             EmailAddress = emailAddress,
-            Name = claims["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
-            GivenName = claims["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"],
+            Name = claims[ClaimTypes.Name],
+            GivenName = claims[ClaimTypes.GivenName],
         };
 
         var existingUser = await _userRepository.GetUser(emailAddress);

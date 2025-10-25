@@ -1,3 +1,4 @@
+using CourageScores.Common;
 using CourageScores.Filters;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
@@ -334,7 +335,7 @@ public class CachingDivisionServiceTests
         }, _token);
         await _service.Get(divisionId, _token);
         _underlyingService.Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.SeasonId == seasonId && f.DivisionId.Contains(divisionId)), _token), Times.Exactly(2));
-        _underlyingService.Verify(s => s.Get(divisionId, _token), Times.Exactly(1));
+        _underlyingService.Verify(s => s.Get(divisionId, _token), Times.Exactly(2));
     }
 
     [Test]
@@ -370,7 +371,7 @@ public class CachingDivisionServiceTests
         await _service.Get(divisionId, _token);
         _underlyingService.Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.SeasonId == seasonId && f.DivisionId.Contains(divisionId)), _token), Times.Exactly(2));
         _underlyingService.Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.SeasonId == anotherSeasonId && f.DivisionId.Contains(divisionId)), _token), Times.Exactly(2));
-        _underlyingService.Verify(s => s.Get(divisionId, _token), Times.Exactly(1));
+        _underlyingService.Verify(s => s.Get(divisionId, _token), Times.Exactly(2));
     }
 
     [Test]

@@ -24,7 +24,7 @@ public class GenericRepository<T> : CosmosDbRepository<T>, IGenericRepository<T>
 
     public IAsyncEnumerable<T> GetSome(string where, CancellationToken token)
     {
-        return Query($"select * from {TableName} t where ({where}) and t.{nameof(AuditedEntity.Deleted)} = null", token);
+        return Query($"select * from {TableName} t where {where} and t.{nameof(AuditedEntity.Deleted)} = null", token);
     }
 
     public async Task<T> Upsert(T item, CancellationToken token)

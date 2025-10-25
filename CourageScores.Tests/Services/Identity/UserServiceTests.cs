@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Security.Principal;
+using CourageScores.Common;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Cosmos.Identity;
@@ -7,7 +8,6 @@ using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Repository;
 using CourageScores.Repository.Identity;
-using CourageScores.Services;
 using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -471,8 +471,8 @@ public class UserServiceTests
     private void CreateTicket(string fullName, string email, string givenName)
     {
         var identity = new GenericIdentity(fullName, "type");
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", email));
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", givenName));
+        identity.AddClaim(new Claim(ClaimTypes.Email, email));
+        identity.AddClaim(new Claim(ClaimTypes.GivenName, givenName));
 
         CreateTicket(new ClaimsPrincipal(identity));
     }

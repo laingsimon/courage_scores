@@ -1,0 +1,10 @@
+{
+  "SpaProxyServer": {
+    "ServerUrl": "https://localhost:44426",
+    "RedirectUrl": "",
+    "LaunchCommand": "npm start",
+    "WorkingDirectory": "../../../../CourageScores/ClientApp/",
+    "MaxTimeoutInSeconds": "120",
+    "KeepRunning": "false"
+  }
+}

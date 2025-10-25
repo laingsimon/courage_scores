@@ -79,7 +79,7 @@ export function DivisionTeams() {
                         </tr>
                     </thead>
                     <tbody>
-                        {teams!.sort(sortBy('rank')).map((team) => (
+                        {teams?.sort(sortBy('rank')).map((team) => (
                             <DivisionTeam key={team.id} team={team} />
                         ))}
                     </tbody>

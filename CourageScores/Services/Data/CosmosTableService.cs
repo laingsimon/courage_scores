@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using CourageScores.Common.Cosmos;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Services.Identity;

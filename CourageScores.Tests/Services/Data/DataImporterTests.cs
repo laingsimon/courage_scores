@@ -1,8 +1,9 @@
 using System.Net;
+using CourageScores.Common;
 using CourageScores.Filters;
 using CourageScores.Models.Dtos.Data;
-using CourageScores.Services;
 using CourageScores.Services.Data;
+using CourageScores.StubCosmos.Api;
 using Microsoft.Azure.Cosmos;
 using Moq;
 using Newtonsoft.Json.Linq;
@@ -48,14 +49,14 @@ public class DataImporterTests
                 PartitionKey = "/id",
             },
         };
-        _upsertResult = new MockItemResponse<JObject>(statusCode: HttpStatusCode.Created);
+        _upsertResult = new StubItemResponse<JObject>(statusCode: HttpStatusCode.Created);
         _importer = new DataImporter(_database.Object, _request, _result, _currentTables, _flags);
         _database
             .Setup(d => d.CreateContainerIfNotExistsAsync("TABLE", "/id", null, null, _token))
-            .ReturnsAsync(new MockContainerResponse(_container));
+            .ReturnsAsync(new StubContainerResponse(_container));
         _database
             .Setup(d => d.CreateContainerIfNotExistsAsync("TABLE_import", "/id", null, null, _token))
-            .ReturnsAsync(new MockContainerResponse(_container));
+            .ReturnsAsync(new StubContainerResponse(_container));
         _zip.Setup(z => z.EnumerateFiles("TABLE")).Returns(() => _zipFiles);
         _zip.Setup(z => z.ReadJson<JObject>(It.IsAny<string>())).ReturnsAsync(() => _fileContent);
         _container
@@ -175,7 +176,7 @@ public class DataImporterTests
     [TestCase(HttpStatusCode.OK)]
     public async Task ImportData_WhenRecordIsCreated_ReturnsSuccess(HttpStatusCode statusCode)
     {
-        _upsertResult = new MockItemResponse<JObject>(statusCode: statusCode);
+        _upsertResult = new StubItemResponse<JObject>(statusCode: statusCode);
 
         var result = await _importer.ImportData(Array.Empty<string>(), _zip.Object, _token).ToList();
 
@@ -187,7 +188,7 @@ public class DataImporterTests
     [Test]
     public async Task ImportData_WhenRecordIsNotCreated_ReturnsError()
     {
-        _upsertResult = new MockItemResponse<JObject>(statusCode: HttpStatusCode.NotAcceptable);
+        _upsertResult = new StubItemResponse<JObject>(statusCode: HttpStatusCode.NotAcceptable);
 
         var result = await _importer.ImportData(Array.Empty<string>(), _zip.Object, _token).ToList();
 

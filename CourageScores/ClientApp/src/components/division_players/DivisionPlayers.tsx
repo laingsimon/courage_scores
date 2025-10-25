@@ -55,8 +55,8 @@ export function DivisionPlayers({
                         </tr>
                     </thead>
                     <tbody>
-                        {playersToShow!
-                            .filter(
+                        {playersToShow
+                            ?.filter(
                                 (p) =>
                                     isAdmin ||
                                     p.singles?.matchesPlayed! > 0 ||
