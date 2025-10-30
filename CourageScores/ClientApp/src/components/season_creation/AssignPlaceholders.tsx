@@ -118,7 +118,11 @@ export function AssignPlaceholders({
                     ? t.name
                     : `🚫 ${t.name} (${addressCounts[address] === 1 ? `has unique address` : `${addressCounts[address]} use this venue, ${sharedAddressSize} is required`})`;
 
-                return { value: t.id, text: text, disabled: !hasSharedAddress && sharedAddressSize !== 1 };
+                return { 
+                    value: t.id, 
+                    text: text, 
+                    disabled: !hasSharedAddress && sharedAddressSize !== 1
+                };
             }),
         );
     }
