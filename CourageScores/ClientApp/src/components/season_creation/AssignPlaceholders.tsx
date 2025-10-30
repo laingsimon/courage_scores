@@ -118,7 +118,7 @@ export function AssignPlaceholders({
                     hasSharedAddress && addressCounts[address] === 1;
                 const text: string = hasSharedAddress
                     ? t.name
-                    : `${!enabled ? '🚫 ' : ''}${t.name} (${addressCounts[address] === 1 ? `has unique address` : `${addressCounts[address]} use this venue, ${sharedAddressSize} is required`})`;
+                    : `${!enabled ? '🚫 ' : ''}${t.name} (${addressCounts[address] === 1 ? `has unique address '${address}'` : `${addressCounts[address]} use this venue, ${sharedAddressSize} is required`})`;
 
                 return {
                     value: t.id,
