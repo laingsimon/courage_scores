@@ -59,7 +59,7 @@ export function AssignPlaceholders({
     }
 
     function getAddress(team?: TeamDto): string {
-        return team?.address ?? team?.name ?? team?.id ?? '';
+        return team?.address || team?.name || team?.id || '';
     }
 
     function getTeamsWithUniqueAddresses(
