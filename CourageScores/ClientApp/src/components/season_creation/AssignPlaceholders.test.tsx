@@ -274,7 +274,7 @@ describe('AssignPlaceholders', () => {
                 '⚙ Automatically assign',
                 'TEAM A',
                 'TEAM AA',
-                '🚫 TEAM C (has unique address)',
+                '🚫 TEAM C (has unique address \'ADDRESS C\')',
             ]);
         });
 
