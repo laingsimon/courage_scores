@@ -86,5 +86,6 @@ Function Get-JobId($GitHubToken, $Repo, $RunId, $Attempt, $Name)
         return $Job.id
     }
 
-    Write-Error "Unable to find jobid for workflow $($Name) in list of jobs, names are: '$($Jobs.name -join "', '")'"
+    Write-Host -ForegroundColor Red "Unable to find jobid for workflow $($Name) in list of jobs, names are: '$($Jobs.name -join "', '")'"
+    return $null
 }
