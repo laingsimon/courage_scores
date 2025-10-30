@@ -87,7 +87,12 @@ export function AssignPlaceholders({
                     ? t.name
                     : `🚫 ${t.name} (has shared address)`;
 
-                return { value: t.id, text: text, disabled: !hasUniqueAddress };
+                return {
+                    value: t.id,
+                    text: text,
+                    disabled: !hasUniqueAddress,
+                    collapsedText: t.name,
+                };
             }),
         );
     }
@@ -114,11 +119,18 @@ export function AssignPlaceholders({
                 const address = getAddress(t);
                 const hasSharedAddress: boolean =
                     addressCounts[address] === sharedAddressSize;
+                const enabled =
+                    hasSharedAddress || addressCounts[address] === 1;
                 const text: string = hasSharedAddress
                     ? t.name
-                    : `🚫 ${t.name} (${addressCounts[address] === 1 ? `has unique address` : `${addressCounts[address]} use this venue, ${sharedAddressSize} is required`})`;
+                    : `${!enabled ? '🚫 ' : ''}${t.name} (${addressCounts[address] === 1 ? `has unique address` : `${addressCounts[address]} use this venue, ${sharedAddressSize} is required`})`;
 
-                return { value: t.id, text: text, disabled: !hasSharedAddress };
+                return {
+                    value: t.id,
+                    text: text,
+                    disabled: !enabled,
+                    collapsedText: t.name,
+                };
             }),
         );
     }
@@ -170,8 +182,10 @@ export function AssignPlaceholders({
 
             newMappings[placeholder] = teamId;
             for (const otherPlaceholder of otherSharedAddressPlaceholders) {
-                const otherTeam: TeamDto = otherTeamsWithSameAddress.shift()!;
-                newMappings[otherPlaceholder] = otherTeam.id;
+                const otherTeam = otherTeamsWithSameAddress.shift();
+                if (otherTeam) {
+                    newMappings[otherPlaceholder] = otherTeam.id;
+                }
             }
         } else {
             delete newMappings[placeholder];
