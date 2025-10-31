@@ -59,7 +59,7 @@ export function AssignPlaceholders({
     }
 
     function getAddress(team?: TeamDto): string {
-        return team?.address ?? team?.name ?? team?.id ?? '';
+        return team?.address || team?.name || team?.id || '';
     }
 
     function getTeamsWithUniqueAddresses(
@@ -114,11 +114,17 @@ export function AssignPlaceholders({
                 const address = getAddress(t);
                 const hasSharedAddress: boolean =
                     addressCounts[address] === sharedAddressSize;
+                const enabled =
+                    hasSharedAddress || addressCounts[address] === 1;
                 const text: string = hasSharedAddress
                     ? t.name
-                    : `🚫 ${t.name} (${addressCounts[address] === 1 ? `has unique address` : `${addressCounts[address]} use this venue, ${sharedAddressSize} is required`})`;
+                    : `${!enabled ? '🚫 ' : ''}${t.name} (${addressCounts[address] === 1 ? `has unique address` : `${addressCounts[address]} use this venue, ${sharedAddressSize} is required`})`;
 
-                return { value: t.id, text: text, disabled: !hasSharedAddress };
+                return {
+                    value: t.id,
+                    text: text,
+                    disabled: !enabled,
+                };
             }),
         );
     }
