@@ -1,4 +1,4 @@
-﻿import {expect, Page} from "@playwright/test";
+﻿import { expect, Page } from '@playwright/test';
 
 export async function ensureDivisionExists(page: Page, name: string) {
     const divisionDropdown = page.locator('[datatype="division-selector"]');
@@ -6,8 +6,13 @@ export async function ensureDivisionExists(page: Page, name: string) {
     const openCloseButton = divisionDropdown.locator('button.dropdown-toggle');
     await openCloseButton.click();
 
-    const divisions = await divisionDropdown.getByRole('menu').locator('.dropdown-item').all();
-    const divisionNames = await Promise.all(divisions.map(async (division) => await division.textContent()));
+    const divisions = await divisionDropdown
+        .getByRole('menu')
+        .locator('.dropdown-item')
+        .all();
+    const divisionNames = await Promise.all(
+        divisions.map(async (division) => await division.textContent()),
+    );
     if (divisionNames.includes(name)) {
         // division exists, close the dropdown and continue
         await openCloseButton.click();
