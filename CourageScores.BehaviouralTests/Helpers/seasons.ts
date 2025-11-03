@@ -55,7 +55,11 @@ export async function selectSeason(page: Page, name: string) {
     await seasonDropdown.getByText(name, { exact: false }).click();
 }
 
-function getSeasonNameFromItem(text: string): string {
+function getSeasonNameFromItem(text: string | null): string {
+    if (!text) {
+        throw new Error('No name found for season');
+    }
+
     const indexOfDate = text.lastIndexOf('(');
     return text.substring(0, indexOfDate - 1);
 }
