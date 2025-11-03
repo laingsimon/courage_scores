@@ -54,7 +54,7 @@ export default defineConfig({
         url: 'https://localhost:7247',
         ignoreHTTPSErrors: true,
         reuseExistingServer: true,
-        timeout: 30_000,
+        timeout: 60_000,
         stdout: 'pipe',
         stderr: 'pipe',
     },
