@@ -39,7 +39,7 @@ export interface IRequestedDivisionDataDto
 
 export function Division() {
     const { divisionApi, featureApi } = useDependencies();
-    const { account, onError, error, seasons, controls, divisions } = useApp();
+    const { account, onError, error, seasons, controls, appLoading } = useApp();
     const { requestedDivisions, requestedSeason, requestedMode } =
         useDivisionUri();
     const [divisionData, setDivisionData] =
@@ -316,7 +316,7 @@ export function Division() {
         return '?' + ids?.map((id: IIdish) => `division=${id}`).join('&');
     }
 
-    if (loading || !dataRequested) {
+    if (loading || !dataRequested || appLoading) {
         return <Loading />;
     }
 
@@ -337,11 +337,7 @@ export function Division() {
         overrideDivisionData || divisionData || emptyDivisionData;
 
     if (
-        (!overrideDivisionData &&
-            !divisionData &&
-            divisions.length > 0 &&
-            seasons.length > 0 &&
-            any(requestedDivisions)) ||
+        any(requestedDivisions, (d) => d.id === INVALID.id) ||
         requestedSeason?.id === INVALID.id
     ) {
         return (

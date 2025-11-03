@@ -1,7 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import { IDivisionUri, IIdish } from './IDivisionUri';
 import { isGuid } from '../../helpers/projection';
-import { any } from '../../helpers/collections';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
 import { useApp } from '../common/AppContainer';
@@ -42,7 +41,7 @@ export function DivisionUriContainer({
     urlStyle,
     mode: overrideMode,
 }: IDivisionUriContainerProps) {
-    const { divisions, seasons } = useApp();
+    const { divisions, seasons, appLoading } = useApp();
     const { divisionId, mode, seasonId } = useParams();
     const location = useLocation();
     const { onError } = useApp();
@@ -52,7 +51,7 @@ export function DivisionUriContainer({
             return makeIdish({ id: idish! });
         }
 
-        if (!divisions || !any(divisions) || !idish) {
+        if (!divisions || appLoading || !idish) {
             return INVALID;
         }
 
@@ -78,7 +77,11 @@ export function DivisionUriContainer({
             return makeIdish({ id: idish! });
         }
 
-        if (!seasons || !any(seasons) || !idish) {
+        if (appLoading) {
+            return INVALID;
+        }
+
+        if (!idish) {
             return undefined;
         }
 

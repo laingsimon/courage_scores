@@ -958,10 +958,10 @@ describe('Division', () => {
                         divisions: [],
                     }),
                     '/teams',
-                    `/teams/?division=${division.name}`,
+                    `/teams/`,
                 );
 
-                expect(getContent().innerHTML).toContain('No division');
+                expect(getDivisionSelection()).toContain('No division');
             });
 
             it('renders error when data returns with a status code with errors', async () => {
