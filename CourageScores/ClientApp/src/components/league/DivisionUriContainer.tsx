@@ -78,7 +78,11 @@ export function DivisionUriContainer({
             return makeIdish({ id: idish! });
         }
 
-        if (!seasons || !any(seasons) || !idish) {
+        if (!any(seasons)) {
+            return INVALID; // wait for the seasons to load before returning undefined/invalid id for season
+        }
+
+        if (!idish) {
             return undefined;
         }
 
