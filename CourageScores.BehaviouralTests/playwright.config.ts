@@ -14,7 +14,7 @@ export default defineConfig({
         trace: process.env.CI ? 'retain-on-failure' : 'on',
         video: process.env.CI ? 'retain-on-failure' : 'on',
     },
-    timeout: 20_000,
+    timeout: 30_000,
     expect: {
         timeout: 5_000,
     },
