@@ -41,7 +41,7 @@ jobs:
         working-directory: ./CourageScores.BehaviouralTests/
 
       - name: Install Playwright Browsers
-        run: npx playwright install chromium --with-deps
+        run: npx playwright install chromium
         working-directory: ./CourageScores.BehaviouralTests/
 
       - name: Run Playwright tests
