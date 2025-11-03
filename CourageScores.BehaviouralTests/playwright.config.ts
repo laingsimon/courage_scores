@@ -55,7 +55,7 @@ export default defineConfig({
         ignoreHTTPSErrors: true,
         reuseExistingServer: true,
         timeout: 30_000,
-        // stdout: 'pipe',
+        stdout: 'pipe',
         stderr: 'pipe',
     },
 });
