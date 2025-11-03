@@ -1,5 +1,9 @@
-﻿export function formatDate(date: Date) {
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+﻿function pad2Digits(num: number) {
+    return `${num < 10 ? '0' : ''}${num}`;
+}
+
+export function formatDate(date: Date) {
+    return `${date.getFullYear()}-${pad2Digits(date.getMonth() + 1)}-${pad2Digits(date.getDate())}`;
 }
 
 export function now() {

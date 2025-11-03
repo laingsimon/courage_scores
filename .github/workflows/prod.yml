@@ -35,6 +35,11 @@ jobs:
       robots-tag-header: all
       frame-host-url: "http://thecourageleague.co.uk"
 
+  ui_tests:
+    needs:
+     - setup
+    uses: ./.github/workflows/ui-test.yml
+
   report_tests:
     runs-on: ubuntu-latest
     name: report / test results
@@ -42,6 +47,7 @@ jobs:
     needs:
      - publish
      - build
+     - ui_tests
     steps:
       - uses: actions/checkout@v4
         with:
