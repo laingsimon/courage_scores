@@ -125,6 +125,22 @@ public class QueryTokeniserTests
             Throws.TypeOf<TokeniserException>().With.Message.Contains(error));
     }
 
+    [Test]
+    public void Tokenise_GivenColumnWithTableAlias_ReturnsColumnNameWithAlias()
+    {
+        var tokens = _queryTokeniser.Tokenise(string.Join("\n",
+            "select t.name",
+            "from table t"));
+
+        Assert.That(tokens.Select(Format).ToArray(), Is.EqualTo([
+            "[Query:select]",
+            "[Query:t.name]",
+            "[Query:from]",
+            "[Query:table]",
+            "[Query:t]",
+        ]));
+    }
+
     private static string Format(Token token)
     {
         return $"[{token.Type}:{token.Content}]";
