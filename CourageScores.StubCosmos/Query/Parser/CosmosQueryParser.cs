@@ -49,10 +49,6 @@ internal class CosmosQueryParser
         private CosmosColumnReference GetColumnName(string columnName)
         {
             var match = Regex.Match(columnName, @"^((?<alias>.+?)\.)?(?<name>.+)$");
-            if (!match.Success)
-            {
-                return QueryParserException.SyntaxError<CosmosColumnReference>($"Unable to extract column name (and optional alias) from {columnName}");
-            }
 
             return new CosmosColumnReference
             {
@@ -237,15 +233,35 @@ internal class CosmosQueryParser
                     _phase = Phase.Select;
                     break;
                 case "from":
+                    if (_phase != Phase.Select)
+                    {
+                        QueryParserException.SyntaxError<object>("from is only valid after a select");
+                    }
+
                     _phase = Phase.From;
                     break;
                 case "where":
+                    if (_from == null)
+                    {
+                        QueryParserException.SyntaxError<object>("No table present in query");
+                    }
+
                     _phase = Phase.Where;
                     break;
                 case "group by":
+                    if (_phase != Phase.From && _phase != Phase.Where)
+                    {
+                        QueryParserException.SyntaxError<object>("group by is only valid after from or where");
+                    }
+
                     _phase = Phase.GroupBy;
                     break;
                 case "order by":
+                    if (_phase != Phase.From && _phase != Phase.Where && _phase != Phase.GroupBy)
+                    {
+                        QueryParserException.SyntaxError<object>("group by is only valid after from, where or group by");
+                    }
+
                     _phase = Phase.OrderBy;
                     break;
                 default:
@@ -346,6 +362,11 @@ internal class CosmosQueryParser
             if (_filterState != null)
             {
                 HandleCurrentFilter(_lastLogicalOperator ?? "and");
+            }
+
+            if (_from == null)
+            {
+                return QueryParserException.SyntaxError<CosmosQuery<T>>("No table present in query");
             }
 
             return new CosmosQuery<T>
