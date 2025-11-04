@@ -29,7 +29,7 @@ public class QueryTokeniserTests
     {
         var tokens = _queryTokeniser.Tokenise(@"
             select * from table
-            where a = 'a string with ''string'' content'");
+            where a = 'a string with ''string'' \""escaped\"" content'");
 
         Assert.That(tokens.Select(Format).ToArray(), Is.EqualTo([
             "[Query:select]",
@@ -39,7 +39,7 @@ public class QueryTokeniserTests
             "[Query:where]",
             "[Query:a]",
             "[Operator:=]",
-            "[Text:a string with 'string' content]",
+            "[Text:a string with 'string' \\\"escaped\\\" content]",
         ]));
     }
 
