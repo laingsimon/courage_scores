@@ -116,6 +116,15 @@ public class QueryTokeniserTests
         ]));
     }
 
+    [TestCase("/- invalid start to comment", "Syntax Error: /- is not a valid start to a comment")]
+    [TestCase("-* invalid start to comment", "Syntax Error: - is not a valid number")]
+    public void Tokenise_GivenInvalidComments_Throws(string query, string error)
+    {
+        Assert.That(
+            () => _queryTokeniser.Tokenise(query).ToArray(),
+            Throws.TypeOf<TokeniserException>().With.Message.Contains(error));
+    }
+
     private static string Format(Token token)
     {
         return $"[{token.Type}:{token.Content}]";

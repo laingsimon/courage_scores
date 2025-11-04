@@ -20,7 +20,7 @@ internal class NumberTokenBuilder : ITokenBuilder
             return this;
         }
 
-        if (chr == '.' && _content.Length > 0 && !_hasDecimal)
+        if (chr == '.' && _content.Length > 0 && !_hasDecimal && char.IsDigit(_content[^1]))
         {
             _hasDecimal = true;
             _content.Append(chr);
@@ -31,6 +31,12 @@ internal class NumberTokenBuilder : ITokenBuilder
         {
             // single line comment
             return new CommentTokenBuilder(multiLine: false);
+        }
+
+        var isDecimal = double.TryParse(_content.ToString(), out _);
+        if (!isDecimal)
+        {
+            return TokeniserException.SyntaxError<ITokenBuilder>(context, $"{_content} is not a valid number");
         }
 
         return null;
