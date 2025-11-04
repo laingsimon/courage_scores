@@ -1,8 +1,10 @@
-﻿using CourageScores.Common;
+﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Common;
 using Microsoft.Azure.Cosmos;
 
 namespace CourageScores.StubCosmos.Api;
 
+[ExcludeFromCodeCoverage]
 public static class CosmosApiExtensions
 {
     public static async IAsyncEnumerable<T> Enumerate<T>(this FeedIterator<T> feedIterator)
