@@ -21,6 +21,8 @@ public class CosmosQueryParserTests
     [TestCase("select * from table t where name != 'Simon' or name <> 'Simon'")]
     [TestCase("select * from table t where name is not null")]
     [TestCase("select t.name, t.age from table t")]
+    [TestCase("select * from table t where name is not null")]
+    [TestCase("select * from table t where name = ''")]
     public void ValidQueriesCanBeParsedWithoutError(string query)
     {
         Assert.That(
@@ -43,10 +45,14 @@ public class CosmosQueryParserTests
     [TestCase("select * from table where 'foo' = 'bar'", "State Error: No current filter")]
     [TestCase("select 1 = 'foo' from table", "State Error: Operators are not supported in a Select")]
     [TestCase("select (t.name) from table t", "Not Supported: Arrays are not supported in a Select")]
-    [TestCase("select name from (table t)", "Not Supported: Blocks are not supported in a From")]
-    [TestCase("select name from table t where t.name = 'Simon' or (t.age >= 10 and t.age < 18)", "Not Supported: Blocks are not supported in a Where")]
-    [TestCase("select t.name from table t where name in ('A', 'B',)", "Not Supported: Token type ArrayDelimiter is not supported")]
-    [TestCase("select t.name from table t where name in ('A', 'B',,)", "Syntax Error: Missing item between array delimiters")]
+    [TestCase("select * from (table t)", "Not Supported: Blocks are not supported in a From")]
+    [TestCase("select * from table t where t.name = 'Simon' or (t.age >= 10 and t.age < 18)", "Not Supported: Blocks are not supported in a Where")]
+    [TestCase("select * from table t where name in ('A', 'B',)", "Not Supported: Token type ArrayDelimiter is not supported")]
+    [TestCase("select * from table t where name in ('A', 'B',,)", "Syntax Error: Missing item between array delimiters")]
+    [TestCase("select * from table t where ('A', 'B')", "State Error: No current filter")]
+    [TestCase("select * from table t where name === 1", "Syntax Error: Unknown operator ===")]
+    [TestCase("select * from table t where and", "State Error: Cannot and a statement that doesn't exist")]
+    [TestCase("select * from table t where name = '''", "Text not terminated")]
     public void InvalidQueriesThrowAnErrorWhenParsing(string query, string error)
     {
         Assert.That(
