@@ -94,7 +94,7 @@ internal class CosmosQueryParser
 
             if (Operator == null)
             {
-                return QueryParserException.StateError<object>($"An operator has already been recorded for this filter\nTried to record {token.Content} ({token.Type})");
+                return QueryParserException.StateError<object>($"An operator has not been recorded for this filter\nTried to record `{token.Content}` ({token.Type})");
             }
 
             if (Value != null)
@@ -116,36 +116,57 @@ internal class CosmosQueryParser
         private readonly List<ColumnExpression> _columns = new();
         private CosmosTable? _from;
 
-        public void Accept(Token token)
+        // ReSharper disable once UnusedMethodReturnValue.Local
+        public object? Accept(Token token)
         {
             if (token.Type == TokenType.Comment)
             {
-                return;
+                return null;
             }
 
             if (_filterState != null && _filterState.Value == null)
             {
-                _filterState.Accept(token);
-                return;
+                return _filterState.Accept(token);
             }
 
             switch (token.Type)
             {
                 case TokenType.Query:
-                    AcceptQuery(token);
-                    break;
+                    return AcceptQuery(token);
+                case TokenType.Number:
+                    return AcceptQueryToken(token);
                 case TokenType.Block:
-                    AcceptBlock();
-                    break;
+                    return AcceptBlock();
                 case TokenType.Comment:
-                    break;
+                    return null;
                 case TokenType.Operator:
-                    AcceptOperator(token);
-                    break;
+                    return AcceptOperator(token);
                 case TokenType.Text:
-                    AcceptText(token);
-                    break;
+                    return AcceptText(token);
+                case TokenType.Array:
+                    return AcceptArray(token);
+                default:
+                    return QueryParserException.NotSupported<object?>($"Token type {token.Type} is not supported");
             }
+        }
+
+        private object? AcceptArray(Token token)
+        {
+            switch (_phase)
+            {
+                case Phase.Where:
+                    if (_filterState == null)
+                    {
+                        return QueryParserException.StateError<object>("No current filter");
+                    }
+
+                    _filterState.Value = token;
+                    break;
+                default:
+                    return QueryParserException.NotSupported<object>($"Arrays are not supported in a {_phase}");
+            }
+
+            return null;
         }
 
         private object? AcceptText(Token token)
@@ -285,6 +306,7 @@ internal class CosmosQueryParser
             }
         }
 
+        // ReSharper disable once UnusedMethodReturnValue.Local
         private object? HandleCurrentFilter(string logicalOperator)
         {
             if (_filterState == null)

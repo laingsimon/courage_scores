@@ -43,6 +43,7 @@ internal class BlockTokenBuilder : ITokenBuilder
             new OperatorTokenBuilder(),
             new BlockTokenBuilder(),
             new NumberTokenBuilder(),
+            new ArrayItemDelimiterTokenBuilder(),
         ];
 
         if (_tokenBuilder != null)
@@ -102,6 +103,28 @@ internal class BlockTokenBuilder : ITokenBuilder
     {
         try
         {
+            var hasSomeContent = false;
+            if (_tokenBuilder != null)
+            {
+                foreach (var token in _tokenBuilder.AsToken())
+                {
+                    hasSomeContent = true;
+                    _tokens.Add(token);
+                }
+            }
+
+            var isArray = IsArray(_tokens);
+            if (isArray)
+            {
+                yield return new ArrayToken
+                {
+                    Content = null!,
+                    Items = _tokens.ToArray(),
+                    Type = TokenType.Array,
+                };
+                yield break;
+            }
+
             if (_blockStart)
             {
                 yield return new Token
@@ -114,16 +137,6 @@ internal class BlockTokenBuilder : ITokenBuilder
             foreach (var token in _tokens)
             {
                 yield return token;
-            }
-
-            var hasSomeContent = false;
-            if (_tokenBuilder != null)
-            {
-                foreach (var token in _tokenBuilder.AsToken())
-                {
-                    hasSomeContent = true;
-                    yield return token;
-                }
             }
 
             if (_blockEnd && !_rootBlock && _blockStart && hasSomeContent)
@@ -142,5 +155,15 @@ internal class BlockTokenBuilder : ITokenBuilder
             _tokenBuilder = null;
             _tokens.Clear();
         }
+    }
+
+    private bool IsArray(IReadOnlyCollection<Token> tokens)
+    {
+        TokenType[] valueTypes = [ TokenType.Number, TokenType.Text, TokenType.Query ];
+        var delimiters = tokens.Count(t => t.Type == TokenType.ArrayDelimiter);
+        var values = tokens.Count(t => valueTypes.Contains(t.Type));
+        var otherTokens = tokens.Count(t => !valueTypes.Contains(t.Type) && t.Type != TokenType.ArrayDelimiter);
+
+        return _blockStart && _blockEnd && delimiters == values - 1 && otherTokens == 0;
     }
 }

@@ -8,4 +8,8 @@ internal enum TokenType
     Operator,
     Block,
     Number,
+    Array,
+
+    // for tokeniser use only
+    ArrayDelimiter,
 }
