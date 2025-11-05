@@ -23,8 +23,6 @@ internal class CosmosQueryParser
         Select,
         From,
         Where,
-        GroupBy,
-        OrderBy
     }
 
     private class FilterState<T>
@@ -117,8 +115,6 @@ internal class CosmosQueryParser
         private string? _lastLogicalOperator;
         private readonly List<ColumnExpression> _columns = new();
         private CosmosTable? _from;
-        // private List<object> _groupBy = new();
-        // private List<object> _orderBy = new();
 
         public void Accept(Token token)
         {
@@ -160,10 +156,6 @@ internal class CosmosQueryParser
                     return QueryParserException.NotSupported<object>("Cannot return text in a select");
                 case Phase.From:
                     return QueryParserException.NotSupported<object>("Cannot select from text");
-                case Phase.GroupBy:
-                    return QueryParserException.NotSupported<object>("Cannot group by text");
-                case Phase.OrderBy:
-                    return QueryParserException.NotSupported<object>("Cannot order by text");
                 case Phase.Where:
                     if (_filterState == null)
                     {
@@ -208,9 +200,7 @@ internal class CosmosQueryParser
         {
             switch (_phase)
             {
-                case Phase.OrderBy:
                 case Phase.From:
-                case Phase.GroupBy:
                     return QueryParserException.NotSupported<object>($"Blocks are not supported in a {_phase}");
                 default:
                     return QueryParserException.NotSupported<object>($"Blocks are not supported in a {_phase}");
@@ -239,22 +229,6 @@ internal class CosmosQueryParser
                     }
 
                     _phase = Phase.Where;
-                    break;
-                case "group by":
-                    if (_phase != Phase.From && _phase != Phase.Where)
-                    {
-                        return QueryParserException.SyntaxError<object>("group by is only valid after from or where");
-                    }
-
-                    _phase = Phase.GroupBy;
-                    break;
-                case "order by":
-                    if (_phase != Phase.From && _phase != Phase.Where && _phase != Phase.GroupBy)
-                    {
-                        return QueryParserException.SyntaxError<object>("group by is only valid after from, where or group by");
-                    }
-
-                    _phase = Phase.OrderBy;
                     break;
                 default:
                     AcceptQueryToken(token);
