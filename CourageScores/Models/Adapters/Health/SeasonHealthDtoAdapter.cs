@@ -1,7 +1,7 @@
+using CourageScores.Common;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Health;
 using CourageScores.Models.Dtos.Season;
-using CourageScores.Services;
 
 namespace CourageScores.Models.Adapters.Health;
 

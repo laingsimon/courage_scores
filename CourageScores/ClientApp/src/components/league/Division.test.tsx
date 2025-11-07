@@ -935,7 +935,9 @@ describe('Division', () => {
                     `/teams/?division=unknown`,
                 );
 
-                expect(getContent().textContent).toEqual('No data found');
+                expect(getContent().textContent).toEqual(
+                    'Requested division/season could not be found',
+                );
             });
 
             it('renders no data when season not found', async () => {
@@ -945,7 +947,9 @@ describe('Division', () => {
                     `/teams/UNKNOWN/?division=${division.id}`,
                 );
 
-                expect(getContent().textContent).toEqual('No data found');
+                expect(getContent().textContent).toEqual(
+                    'Requested division/season could not be found',
+                );
             });
 
             it('renders no data when no divisions', async () => {
@@ -954,10 +958,10 @@ describe('Division', () => {
                         divisions: [],
                     }),
                     '/teams',
-                    `/teams/?division=${division.name}`,
+                    `/teams/`,
                 );
 
-                expect(getContent().innerHTML).toContain('No data found');
+                expect(getDivisionSelection()).toContain('No division');
             });
 
             it('renders error when data returns with a status code with errors', async () => {

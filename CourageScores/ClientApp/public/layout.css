@@ -215,6 +215,10 @@ table td.middle-vertical-line {
     outline: solid 1px #000000;
 }
 
+.min-width-25 {
+    min-width: 25px;
+}
+
 .min-width-75 {
     min-width: 75px;
 }

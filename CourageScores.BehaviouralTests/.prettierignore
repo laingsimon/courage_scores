@@ -1,0 +1,6 @@
+﻿# prettier ignore statements
+
+tsconfig.json
+eslint.config.js
+package.json
+package-lock.json

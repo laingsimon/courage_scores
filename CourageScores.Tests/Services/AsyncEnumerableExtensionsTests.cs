@@ -1,4 +1,4 @@
-using CourageScores.Services;
+using CourageScores.Common;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Services;

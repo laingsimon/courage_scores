@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Common;
 using CourageScores.Filters;
 using CourageScores.Models.Dtos.Data;
 using Microsoft.Azure.Cosmos;

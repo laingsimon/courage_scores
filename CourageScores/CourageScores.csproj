@@ -18,12 +18,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Azure.Storage.Blobs" Version="12.25.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.9" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.9" />
-        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.9" />
-        <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.54.0" />
-        <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
+        <PackageReference Include="Azure.Storage.Blobs" Version="12.26.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.10" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.10" />
+        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.10" />
+        <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.54.1" />
+        <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
         <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="9.0.6" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
@@ -37,6 +37,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\CourageScores.Common\CourageScores.Common.csproj" />
       <ProjectReference Include="..\TypeScriptMapper\TypeScriptMapper.csproj" />
     </ItemGroup>
 

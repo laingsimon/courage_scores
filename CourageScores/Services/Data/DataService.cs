@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography;
+using CourageScores.Common;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Repository;

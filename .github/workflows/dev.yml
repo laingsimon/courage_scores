@@ -53,6 +53,11 @@ jobs:
       commit-sha: ${{ github.sha }}
       commit-date: ${{ needs.setup.outputs.commit-date }}
 
+  ui_tests:
+    needs:
+     - setup
+    uses: ./.github/workflows/ui-test.yml
+
   report_tests:
     runs-on: ubuntu-latest
     name: report / test results
@@ -61,6 +66,7 @@ jobs:
     needs:
      - publish
      - build
+     - ui_tests
     steps:
       - uses: actions/checkout@v4
         with:

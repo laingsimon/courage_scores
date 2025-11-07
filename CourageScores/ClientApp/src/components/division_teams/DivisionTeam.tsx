@@ -26,7 +26,7 @@ export function DivisionTeam({ team }: IDivisionTeamProps) {
         name: divisionName,
         favouritesEnabled,
     } = useDivisionData();
-    const { account, onError } = useApp();
+    const { account, onError, reloadTeams } = useApp();
     const [teamDetails, setTeamDetails] = useState<EditTeamDto>(
         Object.assign({ newDivisionId: divisionId }, team),
     );
@@ -43,6 +43,7 @@ export function DivisionTeam({ team }: IDivisionTeamProps) {
     const notAFavourite: boolean = any(favouriteTeamIds) && !teamIsFavourite;
 
     async function teamDetailSaved() {
+        await reloadTeams();
         await onReloadDivision();
 
         setEditTeam(false);

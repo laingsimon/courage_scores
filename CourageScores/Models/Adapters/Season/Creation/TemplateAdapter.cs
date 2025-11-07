@@ -1,6 +1,6 @@
-﻿using CourageScores.Models.Cosmos.Season.Creation;
+﻿using CourageScores.Common;
+using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Dtos.Season.Creation;
-using CourageScores.Services;
 
 namespace CourageScores.Models.Adapters.Season.Creation;
 

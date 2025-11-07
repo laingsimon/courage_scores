@@ -75,10 +75,12 @@ function Get-Logs($Url)
         $JestResults = Get-ChildItem -Path $ExtractPath -Filter "*publish*with-dotnet.txt" | Get-JestFailures
     }
 
-    return $DotNetResults,$PrettierFormattingFailures,$TypescriptBuildFailures,$JestResults
+    $BehaviouralJestResults = Get-ChildItem -Path $ExtractPath -Filter "*ui_tests*with-playwright.txt" | Get-PlaywrightMessages
+
+    return $DotNetResults,$PrettierFormattingFailures,$TypescriptBuildFailures,$JestResults,$BehaviouralJestResults
 }
 
-function Get-LinesBetween($Path, $Start, $End, [switch] $Inclusive)
+function Get-LinesBetween($Path, $Start, $End, [switch] $InclusiveStart, [switch] $InclusiveEnd)
 {
     $HasCollected = $false
     $Collect = $false
@@ -90,7 +92,7 @@ function Get-LinesBetween($Path, $Start, $End, [switch] $Inclusive)
         if ($Line -like $Start -and $HasCollected -eq $false)
         {
             $Collect = $true
-            if ($Inclusive)
+            if ($InclusiveStart)
             {
                 $Collecting = $true
             }
@@ -99,7 +101,7 @@ function Get-LinesBetween($Path, $Start, $End, [switch] $Inclusive)
         if ($Line -like $End -and $Collecting -eq $true)
         {
             $Collect = $false
-            if ($Inclusive -eq $false)
+            if ($InclusiveEnd -eq $false)
             {
                 $Collecting = $false
             }
@@ -121,7 +123,7 @@ function Remove-Timestamp([Parameter(ValueFromPipeline)] $Line)
 function Get-DotNetFailures([Parameter(ValueFromPipeline)] $Path)
 {
     process {
-        $RelevantLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Starting test execution*" -End "*Total: *" `
+        $RelevantLines = Get-LinesBetween -Path $Path -InclusiveStart -InclusiveEnd -Start "*Starting test execution*" -End "*Total: *" `
             | Remove-Timestamp `
             | Select-String -NotMatch -Pattern "Results File" `
             | Select-String -NotMatch -Pattern "at NUnit.Framework.Internal."
@@ -146,7 +148,7 @@ function Get-TypescriptBuildFailures([Parameter(ValueFromPipeline)] $Path)
 function Get-PrettierFormattingFailures([Parameter(ValueFromPipeline)] $Path)
 {
     process {
-        $BuildLines = Get-LinesBetween -Path $Path -Start "*Checking formatting..." -End "*Code style issues*" -Inclusive | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
+        $BuildLines = Get-LinesBetween -Path $Path -Start "*Checking formatting..." -End "*Code style issues*" -InclusiveStart -InclusiveEnd | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
         $IncorrectlyFormattedFiles = ($BuildLines | Where-Object { $_ -like "*[warn] *" }).Count
         $AllFilesFormattedCorrectly = ($BuildLines | Where-Object { $_ -like "*All matched files use Prettier code style!" }).Count -ge 1
 
@@ -165,10 +167,10 @@ function Get-PrettierFormattingFailures([Parameter(ValueFromPipeline)] $Path)
 function Get-JestFailures([Parameter(ValueFromPipeline)] $Path)
 {
     process {
-        $TestLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Summary of all failing tests*" -End "*Ran all test suites." | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
+        $TestLines = Get-LinesBetween -Path $Path -InclusiveStart -InclusiveEnd -Start "*Summary of all failing tests*" -End "*Ran all test suites." | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
         if ($TestLines.Count -eq 0)
         {
-            $TestLines = Get-LinesBetween -Path $Path -Inclusive -Start "*Test Suites:*" -End "*Ran all test suites." | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
+            $TestLines = Get-LinesBetween -Path $Path -InclusiveStart -InclusiveEnd -Start "*Test Suites:*" -End "*Ran all test suites." | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
         }
 
         if ($TestLines.Count -eq 0)
@@ -177,6 +179,20 @@ function Get-JestFailures([Parameter(ValueFromPipeline)] $Path)
         }
 
         Write-Output "#### React tests:`n$($CodeBlock)`n$($TestLines -join "`n")`n$($CodeBlock)"
+    }
+}
+
+function Get-PlaywrightMessages([Parameter(ValueFromPipeline)] $Path)
+{
+    process {
+        $Output = Get-LinesBetween -Path $Path -InclusiveStart -Start "*Running * tests using * worker" -End "*Run actions/upload-artifact*" | Remove-Timestamp | Where-Object { $_.Trim() -ne "" }
+
+        if ($Output.Count -eq 0)
+        {
+            return
+        }
+
+        Write-Output "#### Playwright tests:`n$($CodeBlock)`n$($Output -join "`n")`n$($CodeBlock)"
     }
 }
 
@@ -218,10 +234,13 @@ if ($AnalysisStatus -ne "TODO" -and $Force -ne $true)
 $CommentsToAdd = Get-Logs -Url $LogsUrl
 $DotNetJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "build / with-dotnet"
 $ReactJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "publish / with-dotnet"
+$PlaywrightJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "ui_tests / with-playwright"
 $AnalysisJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $env:GITHUB_RUN_ID -Attempt $env:GITHUB_RUN_ATTEMPT -Name "Analyse test results (PRs only)"
 $LogLinks = "[Dotnet Logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($DotNetJobId)?pr=$($PullRequestNumber))" + `
 " `| " + `
 "[React Logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($ReactJobId)?pr=$($PullRequestNumber))" + `
+" `| " + `
+"[Playwright logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($PlaywrightJobId)?pr=$($PullRequestNumber))" + `
 " `| " + `
 "[Analysis](https://github.com/$($Repo)/actions/runs/$($env:GITHUB_RUN_ID)/job/$($AnalysisJobId))"
 

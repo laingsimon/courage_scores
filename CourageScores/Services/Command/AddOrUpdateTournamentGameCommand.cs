@@ -1,3 +1,4 @@
+using CourageScores.Common;
 using CourageScores.Filters;
 using CourageScores.Models;
 using CourageScores.Models.Adapters;

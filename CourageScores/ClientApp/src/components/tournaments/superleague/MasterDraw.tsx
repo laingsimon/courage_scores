@@ -129,6 +129,11 @@ export function MasterDraw({
                     : newRound.matchOptions || [];
                 newData.round = newRound;
 
+                newData.sides = (newData.sides ?? []).concat([
+                    update.sideA!,
+                    update.sideB!,
+                ]);
+
                 await setTournamentData(newData, true);
                 set(getEmptyMatch());
             } else {

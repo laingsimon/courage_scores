@@ -18,7 +18,7 @@ export function DivisionTeams() {
         teams,
         onReloadDivision,
     } = useDivisionData();
-    const { account } = useApp();
+    const { account, reloadTeams } = useApp();
     const isAdmin = hasAccess(account, (access) => access.manageTeams);
     const [newTeam, setNewTeam] = useState<boolean>(false);
     const [teamDetails, setTeamDetails] = useState<EditTeamDto>({
@@ -35,6 +35,7 @@ export function DivisionTeams() {
     }
 
     async function onTeamCreated() {
+        await reloadTeams();
         await onReloadDivision();
 
         setNewTeam(false);
@@ -79,7 +80,7 @@ export function DivisionTeams() {
                         </tr>
                     </thead>
                     <tbody>
-                        {teams!.sort(sortBy('rank')).map((team) => (
+                        {teams?.sort(sortBy('rank')).map((team) => (
                             <DivisionTeam key={team.id} team={team} />
                         ))}
                     </tbody>

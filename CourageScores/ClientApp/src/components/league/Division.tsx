@@ -29,6 +29,7 @@ import { INVALID, useDivisionUri } from './DivisionUriContainer';
 import { IIdish } from './IDivisionUri';
 import { IError } from '../common/IError';
 import { NavLink } from '../common/NavLink';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
 
 export interface IRequestedDivisionDataDto
     extends DivisionDataDto,
@@ -38,7 +39,7 @@ export interface IRequestedDivisionDataDto
 
 export function Division() {
     const { divisionApi, featureApi } = useDependencies();
-    const { account, onError, error, seasons, controls } = useApp();
+    const { account, onError, error, seasons, controls, appLoading } = useApp();
     const { requestedDivisions, requestedSeason, requestedMode } =
         useDivisionUri();
     const [divisionData, setDivisionData] =
@@ -236,9 +237,6 @@ export function Division() {
             if (loading || error) {
                 return;
             }
-            if (!seasons.length) {
-                return;
-            }
 
             function beginReload() {
                 setDataRequested(true);
@@ -318,13 +316,35 @@ export function Division() {
         return '?' + ids?.map((id: IIdish) => `division=${id}`).join('&');
     }
 
-    if (loading || !dataRequested) {
+    if (loading || !dataRequested || appLoading) {
         return <Loading />;
     }
 
-    const divisionDataToUse = overrideDivisionData || divisionData;
-    if (!divisionDataToUse) {
-        return <div className="p-3 content-background">No data found</div>;
+    const emptySeason: SeasonDto = {
+        id: undefined!,
+        startDate: undefined!,
+        endDate: undefined!,
+        name: 'Select a season',
+    };
+    const emptyDivisionData: DivisionDataDto = {
+        season: emptySeason,
+        name: 'No division',
+        id: undefined!,
+        superleague: undefined,
+        updated: undefined,
+    };
+    const divisionDataToUse =
+        overrideDivisionData || divisionData || emptyDivisionData;
+
+    if (
+        any(requestedDivisions, (d) => d.id === INVALID.id) ||
+        requestedSeason?.id === INVALID.id
+    ) {
+        return (
+            <div className="p-3 content-background">
+                Requested division/season could not be found
+            </div>
+        );
     }
 
     try {
@@ -332,7 +352,7 @@ export function Division() {
             <div>
                 {controls || !divisionDataToUse.season ? (
                     <DivisionControls
-                        originalSeasonData={divisionDataToUse.season!}
+                        originalSeasonData={divisionDataToUse.season}
                         originalDivisionData={{
                             name: divisionDataToUse.name,
                             id: divisionDataToUse.id,
@@ -372,7 +392,7 @@ export function Division() {
                                 Fixtures
                             </NavLink>
                         </li>
-                        {divisionData!.superleague ? null : (
+                        {divisionDataToUse!.superleague ? null : (
                             <li className="nav-item">
                                 <NavLink
                                     className={
@@ -402,7 +422,7 @@ export function Division() {
                         account.access &&
                         account.access.runReports &&
                         requestedDivisions!.length === 1 &&
-                        !divisionData!.superleague ? (
+                        !divisionDataToUse!.superleague ? (
                             <li className="nav-item">
                                 <NavLink
                                     className={
@@ -419,7 +439,7 @@ export function Division() {
                         account.access &&
                         account.access.runHealthChecks &&
                         requestedDivisions!.length === 1 &&
-                        !divisionData!.superleague ? (
+                        !divisionDataToUse!.superleague ? (
                             <li className="nav-item">
                                 <NavLink
                                     className={
@@ -450,7 +470,10 @@ export function Division() {
                             Hide errors
                         </button>
                     </div>
-                ) : (
+                ) : null}
+                {(!dataErrors || !account) &&
+                any(requestedDivisions) &&
+                requestedSeason?.id !== INVALID.id ? (
                     <DivisionDataContainer
                         {...divisionDataToUse}
                         onReloadDivision={reloadDivisionData}
@@ -511,7 +534,7 @@ export function Division() {
                             />
                         ) : null}
                     </DivisionDataContainer>
-                )}
+                ) : null}
             </div>
         );
     } catch (e) {
