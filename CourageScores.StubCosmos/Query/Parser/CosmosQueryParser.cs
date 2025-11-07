@@ -132,8 +132,6 @@ internal class CosmosQueryParser
                     return AcceptQueryToken(token);
                 case TokenType.Block:
                     return AcceptBlock();
-                case TokenType.Comment:
-                    return null;
                 case TokenType.Operator:
                     return AcceptOperator(token);
                 case TokenType.Text:
@@ -156,22 +154,16 @@ internal class CosmosQueryParser
                     }
 
                     _filterState.Value = token;
-                    break;
+                    return null;
                 default:
                     return QueryParserException.NotSupported<object>($"Arrays are not supported in a {_phase}");
             }
-
-            return null;
         }
 
         private object? AcceptText(Token token)
         {
             switch (_phase)
             {
-                case Phase.Select:
-                    return QueryParserException.NotSupported<object>("Cannot return text in a select");
-                case Phase.From:
-                    return QueryParserException.NotSupported<object>("Cannot select from text");
                 case Phase.Where:
                     if (_filterState == null)
                     {
@@ -181,7 +173,7 @@ internal class CosmosQueryParser
                     _filterState.Value = token;
                     break;
                 default:
-                    return QueryParserException.StateError<object>($"Unexpected phase {_phase}");
+                    return QueryParserException.NotSupported<object>($"Text not supported in a {_phase}");
             }
 
             return null;
@@ -200,16 +192,14 @@ internal class CosmosQueryParser
                     if (_filterState.Operator == "is" && token.Content == "not")
                     {
                         _filterState.NotOperator = true;
-                        break;
+                        return null;
                     }
 
                     _filterState!.Operator = token.Content;
-                    break;
+                    return null;
                 default:
                     return QueryParserException.StateError<object>($"Operators are not supported in a {_phase}");
             }
-
-            return null;
         }
 
         private object AcceptBlock()
