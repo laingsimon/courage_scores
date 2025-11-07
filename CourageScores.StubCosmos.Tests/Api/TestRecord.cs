@@ -22,4 +22,9 @@ internal record TestRecord
     public string? AlwaysNull { get; set; }
 
     public object? NonParseableType { get; set; }
+
+    public override string ToString()
+    {
+        return $"{Id}: {Name}";
+    }
 }

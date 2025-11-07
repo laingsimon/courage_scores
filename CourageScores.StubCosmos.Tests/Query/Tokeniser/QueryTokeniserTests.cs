@@ -29,7 +29,7 @@ public class QueryTokeniserTests
     {
         var tokens = _queryTokeniser.Tokenise(@"
             select * from table
-            where a = 'a string with ''string'' content'");
+            where a = 'a string with ''string'' \""escaped\"" content'");
 
         Assert.That(tokens.Select(Format).ToArray(), Is.EqualTo([
             "[Query:select]",
@@ -39,7 +39,7 @@ public class QueryTokeniserTests
             "[Query:where]",
             "[Query:a]",
             "[Operator:=]",
-            "[Text:a string with 'string' content]",
+            "[Text:a string with 'string' \\\"escaped\\\" content]",
         ]));
     }
 
@@ -113,6 +113,31 @@ public class QueryTokeniserTests
             "[Query:from]",
             "[Comment: a single line comment]",
             "[Query:table]",
+        ]));
+    }
+
+    [TestCase("/- invalid start to comment", "Syntax Error: /- is not a valid start to a comment")]
+    [TestCase("-* invalid start to comment", "Syntax Error: - is not a valid number")]
+    public void Tokenise_GivenInvalidComments_Throws(string query, string error)
+    {
+        Assert.That(
+            () => _queryTokeniser.Tokenise(query).ToArray(),
+            Throws.TypeOf<TokeniserException>().With.Message.Contains(error));
+    }
+
+    [Test]
+    public void Tokenise_GivenColumnWithTableAlias_ReturnsColumnNameWithAlias()
+    {
+        var tokens = _queryTokeniser.Tokenise(string.Join("\n",
+            "select t.name",
+            "from table t"));
+
+        Assert.That(tokens.Select(Format).ToArray(), Is.EqualTo([
+            "[Query:select]",
+            "[Query:t.name]",
+            "[Query:from]",
+            "[Query:table]",
+            "[Query:t]",
         ]));
     }
 

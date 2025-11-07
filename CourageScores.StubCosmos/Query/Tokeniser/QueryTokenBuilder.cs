@@ -27,7 +27,7 @@ internal class QueryTokenBuilder : ITokenBuilder
         try
         {
             var content = _content.ToString();
-            if (content == "is" || content == "not")
+            if (content == "is" || content == "not" || content == "in")
             {
                 yield return new Token
                 {
