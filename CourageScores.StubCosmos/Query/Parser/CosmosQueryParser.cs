@@ -97,11 +97,6 @@ internal class CosmosQueryParser
                 return QueryParserException.StateError<object>($"An operator has not been recorded for this filter\nTried to record `{token.Content}` ({token.Type})");
             }
 
-            if (Value != null)
-            {
-                return QueryParserException.StateError<object>($"A value has already been recorded for this filter\nTried to record {token.Content} ({token.Type})");
-            }
-
             Value = token;
             return null;
         }
