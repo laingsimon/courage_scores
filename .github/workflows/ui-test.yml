@@ -45,7 +45,7 @@ jobs:
         working-directory: ./CourageScores.BehaviouralTests/
 
       - name: Run Playwright tests
-        run: npx playwright test --reporter=list
+        run: npx playwright test
         working-directory: ./CourageScores.BehaviouralTests/
 
       - uses: actions/upload-artifact@v4
