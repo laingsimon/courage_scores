@@ -227,4 +227,32 @@ or ID = '{expectedRecord2.Id}'");
 
         Assert.That(records, Is.EquivalentTo([expectedRecord1, expectedRecord2]));
     }
+
+    [Test]
+    public async Task SnapshotsFunctionAsExpected()
+    {
+        await _container.CreateSnapshot("snapshot");
+        Assert.That(
+            await StubContainerTestData.GetRows(_container.GetItemQueryIterator<TestRecord>("select * from test")).ToList(),
+            Is.EquivalentTo(_expectedRecords));
+
+        var replacementItem = _expectedRecords[0] with
+        {
+            Name = "modified after snapshot",
+        };
+        await _container.UpsertItemAsync(replacementItem);
+        Assert.That(
+            await StubContainerTestData.GetRows(_container.GetItemQueryIterator<TestRecord>("select * from test")).ToList(),
+            Has.One.Matches<TestRecord>(r => r.Id == replacementItem.Id && r.Name == replacementItem.Name));
+
+        await _container.ResetToSnapshot("snapshot");
+        Assert.That(
+            await StubContainerTestData.GetRows(_container.GetItemQueryIterator<TestRecord>("select * from test")).ToList(),
+            Is.EquivalentTo(_expectedRecords));
+
+        await _container.DeleteSnapshot("snapshot");
+        await Assert.ThatAsync(
+            () => _container.ResetToSnapshot("snapshot"),
+            Throws.TypeOf<ArgumentOutOfRangeException>());
+    }
 }

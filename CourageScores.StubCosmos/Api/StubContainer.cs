@@ -41,8 +41,11 @@ internal class StubContainer(string id, string configuredKeyPath) : Unimplemente
             }
 
             var values = _data.Values.OfType<T>();
-            return new StubFeedIterator<T>(values.Where(row => query?.Where?.All(f => f.Matches(row)) != false)
-                .Select(CloneRow).ToArray());
+            return new StubFeedIterator<T>(values
+                .Where(row => query?.Where?.All(f => f.Matches(row)) != false)
+                .Select(r => CloneRow(r))
+                .Cast<T>()
+                .ToArray());
         }
         catch (QueryParserException exc)
         {
@@ -135,8 +138,8 @@ internal class StubContainer(string id, string configuredKeyPath) : Unimplemente
     /// <summary>
     /// Clone the row so the data help in the container cannot be modified directly
     /// </summary>
-    private static T CloneRow<T>(T row)
+    private static object CloneRow(object row)
     {
-        return JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(row))!;
+        return JsonConvert.DeserializeObject(JsonConvert.SerializeObject(row), row.GetType())!;
     }
 }

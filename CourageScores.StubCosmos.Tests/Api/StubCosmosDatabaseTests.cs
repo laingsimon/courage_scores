@@ -1,4 +1,5 @@
-﻿using CourageScores.Common.Cosmos;
+﻿using CourageScores.Common;
+using CourageScores.Common.Cosmos;
 using CourageScores.StubCosmos.Api;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -45,5 +46,41 @@ public class StubCosmosDatabaseTests
         var containerDetail = containersContent.DocumentCollections[0];
         Assert.That(containerDetail.Id, Is.EqualTo("container"));
         Assert.That(containerDetail.PartitionKey.Paths, Is.EqualTo(["/id"]));
+    }
+
+    [Test]
+    public async Task SnapshotsFunctionAsExpected()
+    {
+        var database = new StubCosmosDatabase();
+        var container = (StubContainer)await database.CreateContainerIfNotExistsAsync("test", "/id");
+        var expectedRecords = StubContainerTestData.GetData().ToArray();
+        await StubContainerTestData.AddRows(container, expectedRecords);
+        Assert.That(
+            await StubContainerTestData.GetRows(container.GetItemQueryIterator<TestRecord>("select * from test")).ToList(),
+            Is.EquivalentTo(expectedRecords));
+
+        await database.CreateSnapshot("snapshot");
+        container = (StubContainer)await database.CreateContainerIfNotExistsAsync("test", "/id");
+
+        var replacementItem = expectedRecords[0] with
+        {
+            Name = "modified after snapshot",
+        };
+        await container.UpsertItemAsync(replacementItem);
+        Assert.That(
+            await StubContainerTestData.GetRows(container.GetItemQueryIterator<TestRecord>("select * from test")).ToList(),
+            Has.One.Matches<TestRecord>(r => r.Id == replacementItem.Id && r.Name == replacementItem.Name));
+
+        await database.ResetToSnapshot("snapshot");
+        container = (StubContainer)await database.CreateContainerIfNotExistsAsync("test", "/id");
+
+        Assert.That(
+            await StubContainerTestData.GetRows(container.GetItemQueryIterator<TestRecord>("select * from test")).ToList(),
+            Is.EquivalentTo(expectedRecords));
+
+        await database.DeleteSnapshot("snapshot");
+        await Assert.ThatAsync(
+            () => database.ResetToSnapshot("snapshot"),
+            Throws.TypeOf<ArgumentOutOfRangeException>());
     }
 }
