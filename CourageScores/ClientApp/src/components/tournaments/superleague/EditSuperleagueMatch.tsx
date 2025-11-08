@@ -184,14 +184,12 @@ export function EditSuperleagueMatch({
         optionB: IBootstrapDropdownItem,
     ) => number {
         function getSortableKey(option: IBootstrapDropdownItem): string {
-            const otherTournamentsThisPlayerIsPlayingIn: DivisionTournamentFixtureDetailsDto[] =
-                Object.keys(alreadyPlaying ?? {}).flatMap((playerCount) => {
-                    const players = alreadyPlaying![playerCount];
-                    return [players[option.value as string]].filter((p) => !!p);
-                });
+            const sameCountPlayersInOtherTournaments: IPlayerSizeTournamentPlayerMap =
+                alreadyPlaying?.[`${playerCount}`] ?? {};
+
             const playingInAnotherTournament:
                 | DivisionTournamentFixtureDetailsDto
-                | undefined = otherTournamentsThisPlayerIsPlayingIn[0];
+                | undefined = sameCountPlayersInOtherTournaments[option.value!];
             const isSelected = any(
                 alreadySelected,
                 (p) => p.id === option.value,
