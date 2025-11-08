@@ -21,7 +21,6 @@ public class CosmosQueryParserTests
     [TestCase("select * from table t where name != 'Simon' or name <> 'Simon'")]
     [TestCase("select * from table t where name is not null")]
     [TestCase("select t.name, t.age from table t")]
-    [TestCase("select * from table t where name is not null")]
     [TestCase("select * from table t where name = ''")]
     public void ValidQueriesCanBeParsedWithoutError(string query)
     {
