@@ -97,6 +97,19 @@ export function LiveSuperleagueTournamentDisplay({
     }, [pendingLiveSubscriptions, account]);
 
     useEffect(() => {
+        const newMatchSaygLookup = processUpdates(allUpdates);
+
+        const tournamentUpdate = allUpdates[id] as TournamentGameDto;
+        if (tournamentUpdate) {
+            subscribeToNewMatches(tournamentUpdate, newMatchSaygLookup);
+        }
+    }, [allUpdates]);
+
+    function opposite(player: SideType): SideType {
+        return player === 'home' ? 'away' : 'home';
+    }
+
+    function processUpdates(allUpdates: IUpdateLookup) {
         const newMatchSaygLookup: IMatchSaygLookup = Object.assign(
             {},
             matchSaygData,
@@ -131,30 +144,31 @@ export function LiveSuperleagueTournamentDisplay({
             setMatchSaygData(newMatchSaygLookup);
             setScoreChanged(scoreChanged);
         }
-        const tournamentUpdate = allUpdates[id] as TournamentGameDto;
-        if (tournamentUpdate) {
-            // find all matches and their saygIds
-            // if any are not in newMatchSaygLookup, add them and subscribe (via pending)
-            const allSaygIds: string[] =
-                tournamentUpdate.round?.matches
-                    ?.filter((m: TournamentMatchDto) => !!m.saygId)
-                    .map((m: TournamentMatchDto) => m.saygId!) || [];
-            const newSaygSubscriptions: ISubscriptionRequest[] = allSaygIds
-                .filter((id) => !newMatchSaygLookup[id])
-                .map((id) => {
-                    return {
-                        id: id,
-                        type: LiveDataType.sayg,
-                    };
-                });
-            setPendingLiveSubscriptions(
-                pendingLiveSubscriptions.concat(newSaygSubscriptions),
-            );
-        }
-    }, [allUpdates]);
 
-    function opposite(player: SideType): SideType {
-        return player === 'home' ? 'away' : 'home';
+        return newMatchSaygLookup;
+    }
+
+    function subscribeToNewMatches(
+        tournamentUpdate: TournamentGameDto,
+        newMatchSaygLookup: IMatchSaygLookup,
+    ) {
+        // find all matches and their saygIds
+        // if any are not in newMatchSaygLookup, add them and subscribe (via pending)
+        const allSaygIds: string[] =
+            tournamentUpdate.round?.matches
+                ?.filter((m: TournamentMatchDto) => !!m.saygId)
+                .map((m: TournamentMatchDto) => m.saygId!) || [];
+        const newSaygSubscriptions: ISubscriptionRequest[] = allSaygIds
+            .filter((id) => !newMatchSaygLookup[id])
+            .map((id) => {
+                return {
+                    id: id,
+                    type: LiveDataType.sayg,
+                };
+            });
+        setPendingLiveSubscriptions(
+            pendingLiveSubscriptions.concat(newSaygSubscriptions),
+        );
     }
 
     async function subscribeToNextSayg() {
