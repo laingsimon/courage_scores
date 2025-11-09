@@ -110,36 +110,40 @@ export function LiveSuperleagueTournamentDisplay({
     }
 
     function processUpdates(allUpdates: IUpdateLookup) {
-        const newMatchSaygLookup: IMatchSaygLookup = Object.assign(
-            {},
-            matchSaygData,
-        );
+        const newMatchSaygLookup: IMatchSaygLookup = {
+            ...matchSaygData,
+        };
         let updated = false;
         let scoreChanged: undefined | SideType = undefined;
 
         for (const matchId in newMatchSaygLookup) {
             const matchSaygId = newMatchSaygLookup[matchId].id;
             const update = allUpdates[matchSaygId] as RecordedScoreAsYouGoDto;
-            if (update) {
-                newMatchSaygLookup[matchId] = update;
-                updated = true;
+            if (!update) {
+                continue;
+            }
 
-                const updatedLegs: LegDto[] = Object.values(update.legs);
-                const updatedLeg: LegDto | undefined =
-                    updatedLegs[updatedLegs.length - 1];
-                if (updatedLeg) {
-                    const currentThrow = updatedLeg.currentThrow as SideType;
-                    const remaining: number = currentScore(
-                        updatedLeg,
-                        opposite(currentThrow),
-                    );
+            newMatchSaygLookup[matchId] = update;
+            updated = true;
 
-                    if (remaining !== updatedLeg.startingScore) {
-                        scoreChanged = opposite(currentThrow);
-                    }
-                }
+            const updatedLegs: LegDto[] = Object.values(update.legs);
+            const updatedLeg: LegDto | undefined =
+                updatedLegs[updatedLegs.length - 1];
+            if (!updatedLeg) {
+                continue;
+            }
+
+            const currentThrow = updatedLeg.currentThrow as SideType;
+            const remaining: number = currentScore(
+                updatedLeg,
+                opposite(currentThrow),
+            );
+
+            if (remaining !== updatedLeg.startingScore) {
+                scoreChanged = opposite(currentThrow);
             }
         }
+
         if (updated) {
             setMatchSaygData(newMatchSaygLookup);
             setScoreChanged(scoreChanged);
@@ -331,19 +335,17 @@ export function LiveSuperleagueTournamentDisplay({
 
     function lastIncompleteMatch(
         matches: TournamentMatchDto[],
-    ): TournamentMatchDto | null {
+    ): TournamentMatchDto | undefined {
         for (const match of reverse(matches)) {
             if (hasWinner(match)) {
                 // don't look past the last winning match
-                return null;
+                return;
             }
 
             if (hasSaygData(match)) {
                 return match;
             }
         }
-
-        return null;
     }
 
     function hasSaygData(match: TournamentMatchDto): boolean {
@@ -384,7 +386,7 @@ export function LiveSuperleagueTournamentDisplay({
     const matches = tournament.round?.matches || [];
     const lastMatch = lastIncompleteMatch(matches);
     const lastMatchSayg: RecordedScoreAsYouGoDto | undefined = lastMatch
-        ? matchSaygData[lastMatch!.id]
+        ? matchSaygData[lastMatch.id]
         : undefined;
     const lastMatchLegs = Object.values(lastMatchSayg?.legs || {});
     const lastLeg = lastMatchLegs[lastMatchLegs.length - 1];
