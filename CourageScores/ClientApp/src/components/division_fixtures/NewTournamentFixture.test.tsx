@@ -376,6 +376,7 @@ describe('NewTournamentFixture', () => {
                     seasonId: season.id,
                     sides: [],
                     singleRound: true,
+                    bestOf: 7,
                 },
             });
             expect(tournamentChanged).toEqual(true);

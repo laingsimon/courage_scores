@@ -63,7 +63,6 @@ export function SuperLeaguePrintout({
         );
     const showWinner: boolean = location.search.indexOf('winner') !== -1;
     const kioskMode: boolean = hasAccess(account, (access) => access.kioskMode);
-    const allowPairs: boolean = location.search.indexOf('pairs') !== -1;
 
     useEffect(
         () => {
@@ -214,7 +213,6 @@ export function SuperLeaguePrintout({
                         showWinner={showWinner}
                         noOfThrows={noOfThrows}
                         saygMatches={saygMatches}
-                        requiredPlayerCount={allowPairs ? undefined : 1}
                     />
                 )}
                 {kioskMode ? null : (
@@ -224,7 +222,6 @@ export function SuperLeaguePrintout({
                         saygMatches={saygMatches}
                         host={tournamentData.host!}
                         opponent={tournamentData.opponent!}
-                        requiredPlayerCount={allowPairs ? undefined : 1}
                     />
                 )}
                 {kioskMode ? null : (
@@ -237,7 +234,6 @@ export function SuperLeaguePrintout({
                         showWinner={showWinner}
                         noOfThrows={noOfThrows}
                         noOfLegs={noOfLegs}
-                        requiredPlayerCount={allowPairs ? undefined : 1}
                     />
                 )}
             </div>

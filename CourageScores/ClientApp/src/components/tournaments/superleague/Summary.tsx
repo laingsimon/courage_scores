@@ -5,7 +5,6 @@ import {
     countMatch100,
     countMatch140,
     countMatch180,
-    matchMappingPlayerFilter,
     matchTons,
     playerOverallAverage,
     sumOverThrows,
@@ -19,7 +18,6 @@ export interface ISummaryProps {
     noOfLegs: number;
     host: string;
     opponent: string;
-    requiredPlayerCount?: number;
 }
 
 export function Summary({
@@ -28,22 +26,17 @@ export function Summary({
     noOfLegs,
     host,
     opponent,
-    requiredPlayerCount,
 }: ISummaryProps) {
     const { onError } = useApp();
 
-    const relevantSaygMatches = saygMatches.filter(
-        matchMappingPlayerFilter(requiredPlayerCount),
-    );
-
     function renderDartsForWindowsAverage(side: string) {
         const sumOfScores = sum(
-            relevantSaygMatches,
+            saygMatches,
             (s: ISuperleagueSaygMatchMapping) =>
                 sumOverThrows(s.saygData, side, 'score') || 0,
         );
         const sumOfDarts = sum(
-            relevantSaygMatches,
+            saygMatches,
             (s: ISuperleagueSaygMatchMapping) =>
                 sumOverThrows(s.saygData, side, 'noOfDarts') || 0,
         );
@@ -57,7 +50,7 @@ export function Summary({
 
     function renderPlayerAverage(side: string) {
         const average = sum(
-            relevantSaygMatches,
+            saygMatches,
             (map: ISuperleagueSaygMatchMapping) =>
                 playerOverallAverage(map.saygData, side) || 0,
         );
@@ -69,7 +62,7 @@ export function Summary({
         );
     }
 
-    if (!any(relevantSaygMatches)) {
+    if (!any(saygMatches)) {
         return (
             <div className="page-break-after">
                 <h2>Summary</h2>
@@ -111,7 +104,7 @@ export function Summary({
                         </tr>
                     </thead>
                     <tbody>
-                        {relevantSaygMatches.map(
+                        {saygMatches.map(
                             (
                                 map: ISuperleagueSaygMatchMapping,
                                 index: number,
@@ -134,7 +127,7 @@ export function Summary({
                             <td>
                                 {ifNaN(
                                     sum(
-                                        relevantSaygMatches,
+                                        saygMatches,
                                         (map: ISuperleagueSaygMatchMapping) =>
                                             map.match.scoreA!,
                                     ),
@@ -144,7 +137,7 @@ export function Summary({
                             <td>
                                 {ifNaN(
                                     sum(
-                                        relevantSaygMatches,
+                                        saygMatches,
                                         (map: ISuperleagueSaygMatchMapping) =>
                                             matchTons(map.saygData, 'home'),
                                     ),
@@ -154,7 +147,7 @@ export function Summary({
                             <td>
                                 {ifNaN(
                                     sum(
-                                        relevantSaygMatches,
+                                        saygMatches,
                                         (map: ISuperleagueSaygMatchMapping) =>
                                             countMatch100(
                                                 map.saygData,
@@ -167,7 +160,7 @@ export function Summary({
                             <td>
                                 {ifNaN(
                                     sum(
-                                        relevantSaygMatches,
+                                        saygMatches,
                                         (map: ISuperleagueSaygMatchMapping) =>
                                             countMatch140(
                                                 map.saygData,
@@ -180,7 +173,7 @@ export function Summary({
                             <td>
                                 {ifNaN(
                                     sum(
-                                        relevantSaygMatches,
+                                        saygMatches,
                                         (map: ISuperleagueSaygMatchMapping) =>
                                             countMatch180(
                                                 map.saygData,
@@ -194,7 +187,7 @@ export function Summary({
                                 {ifNaN(
                                     round2dp(
                                         sum(
-                                            relevantSaygMatches,
+                                            saygMatches,
                                             (
                                                 map: ISuperleagueSaygMatchMapping,
                                             ) =>
@@ -211,7 +204,7 @@ export function Summary({
                             <td>
                                 {ifNaN(
                                     sum(
-                                        relevantSaygMatches,
+                                        saygMatches,
                                         (map: ISuperleagueSaygMatchMapping) =>
                                             map.match.scoreB!,
                                     ),
@@ -221,7 +214,7 @@ export function Summary({
                             <td>
                                 {ifNaN(
                                     sum(
-                                        relevantSaygMatches,
+                                        saygMatches,
                                         (map: ISuperleagueSaygMatchMapping) =>
                                             matchTons(map.saygData, 'away'),
                                     ),
@@ -231,7 +224,7 @@ export function Summary({
                             <td>
                                 {ifNaN(
                                     sum(
-                                        relevantSaygMatches,
+                                        saygMatches,
                                         (map: ISuperleagueSaygMatchMapping) =>
                                             countMatch100(
                                                 map.saygData,
@@ -244,7 +237,7 @@ export function Summary({
                             <td>
                                 {ifNaN(
                                     sum(
-                                        relevantSaygMatches,
+                                        saygMatches,
                                         (map: ISuperleagueSaygMatchMapping) =>
                                             countMatch140(
                                                 map.saygData,
@@ -257,7 +250,7 @@ export function Summary({
                             <td>
                                 {ifNaN(
                                     sum(
-                                        relevantSaygMatches,
+                                        saygMatches,
                                         (map: ISuperleagueSaygMatchMapping) =>
                                             countMatch180(
                                                 map.saygData,
@@ -271,7 +264,7 @@ export function Summary({
                                 {ifNaN(
                                     round2dp(
                                         sum(
-                                            relevantSaygMatches,
+                                            saygMatches,
                                             (
                                                 map: ISuperleagueSaygMatchMapping,
                                             ) =>

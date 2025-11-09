@@ -3,7 +3,6 @@ import { MatchLogTableHeading } from './MatchLogTableHeading';
 import { useApp } from '../../common/AppContainer';
 import {
     getNoOfLegs,
-    matchMappingPlayerFilter,
     playerOverallAverage,
 } from '../../../helpers/superleague';
 import { ISuperleagueSaygMatchMapping } from './ISuperleagueSaygMatchMapping';
@@ -14,7 +13,6 @@ export interface IMatchLogProps {
     host: string;
     opponent: string;
     saygMatches: ISuperleagueSaygMatchMapping[];
-    requiredPlayerCount?: number;
 }
 
 export function MatchLog({
@@ -23,7 +21,6 @@ export function MatchLog({
     host,
     opponent,
     saygMatches,
-    requiredPlayerCount,
 }: IMatchLogProps) {
     const { onError } = useApp();
     let homeTeamAverage = 0;
@@ -33,118 +30,105 @@ export function MatchLog({
         return (
             <div className="page-break-after" datatype="match-log">
                 <h2>Match log</h2>
-                {saygMatches
-                    .filter(matchMappingPlayerFilter(requiredPlayerCount))
-                    .map((matchDataMap, index) => {
-                        if (
-                            !matchDataMap.saygData ||
-                            !matchDataMap.saygData.legs
-                        ) {
-                            return (
-                                <p key={index} className="text-warning">
-                                    ⚠ No data available for the match between{' '}
-                                    {matchDataMap.match.sideA?.name} and{' '}
-                                    {matchDataMap.match.sideB?.name}
-                                </p>
-                            );
-                        }
-
-                        const homePlayerAverage =
-                            playerOverallAverage(
-                                matchDataMap.saygData,
-                                'home',
-                            ) || 0;
-                        const awayPlayerAverage =
-                            playerOverallAverage(
-                                matchDataMap.saygData,
-                                'away',
-                            ) || 0;
-                        homeTeamAverage += homePlayerAverage;
-                        awayTeamAverage += awayPlayerAverage;
-
+                {saygMatches.map((matchDataMap, index) => {
+                    if (!matchDataMap.saygData || !matchDataMap.saygData.legs) {
                         return (
-                            <div
-                                key={matchDataMap.match.id}
-                                className="page-break-after">
-                                <table className="table">
-                                    <tbody>
-                                        <MatchLogTableHeading
-                                            team={host}
-                                            noOfThrows={noOfThrows}
-                                        />
-                                        {Object.keys(
-                                            matchDataMap.saygData.legs,
-                                        ).map((legIndex: string) => (
-                                            <MatchLogRow
-                                                key={legIndex}
-                                                accumulatorName="home"
-                                                leg={
-                                                    matchDataMap.saygData!.legs[
-                                                        legIndex
-                                                    ]
-                                                }
-                                                noOfThrows={noOfThrows}
-                                                player={
-                                                    matchDataMap.match.sideA!
-                                                        .name!
-                                                }
-                                                playerOverallAverage={
-                                                    homePlayerAverage
-                                                }
-                                                noOfLegs={
-                                                    getNoOfLegs(
-                                                        matchDataMap.saygData,
-                                                    ) || 0
-                                                }
-                                                legNo={
-                                                    Number.parseInt(legIndex) +
-                                                    1
-                                                }
-                                                showWinner={showWinner}
-                                                teamAverage={homeTeamAverage}
-                                            />
-                                        ))}
-                                        <MatchLogTableHeading
-                                            team={opponent}
-                                            noOfThrows={noOfThrows}
-                                        />
-                                        {Object.keys(
-                                            matchDataMap.saygData.legs,
-                                        ).map((legIndex: string) => (
-                                            <MatchLogRow
-                                                key={legIndex}
-                                                accumulatorName="away"
-                                                leg={
-                                                    matchDataMap.saygData!.legs[
-                                                        legIndex
-                                                    ]
-                                                }
-                                                noOfThrows={noOfThrows}
-                                                player={
-                                                    matchDataMap.match.sideB!
-                                                        .name!
-                                                }
-                                                playerOverallAverage={
-                                                    awayPlayerAverage
-                                                }
-                                                noOfLegs={
-                                                    getNoOfLegs(
-                                                        matchDataMap.saygData,
-                                                    ) || 0
-                                                }
-                                                legNo={
-                                                    Number.parseInt(legIndex) +
-                                                    1
-                                                }
-                                                showWinner={showWinner}
-                                                teamAverage={awayTeamAverage}
-                                            />
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                            <p key={index} className="text-warning">
+                                ⚠ No data available for the match between{' '}
+                                {matchDataMap.match.sideA?.name} and{' '}
+                                {matchDataMap.match.sideB?.name}
+                            </p>
                         );
-                    })}
+                    }
+
+                    const homePlayerAverage =
+                        playerOverallAverage(matchDataMap.saygData, 'home') ||
+                        0;
+                    const awayPlayerAverage =
+                        playerOverallAverage(matchDataMap.saygData, 'away') ||
+                        0;
+                    homeTeamAverage += homePlayerAverage;
+                    awayTeamAverage += awayPlayerAverage;
+
+                    return (
+                        <div
+                            key={matchDataMap.match.id}
+                            className="page-break-after">
+                            <table className="table">
+                                <tbody>
+                                    <MatchLogTableHeading
+                                        team={host}
+                                        noOfThrows={noOfThrows}
+                                    />
+                                    {Object.keys(
+                                        matchDataMap.saygData.legs,
+                                    ).map((legIndex: string) => (
+                                        <MatchLogRow
+                                            key={legIndex}
+                                            accumulatorName="home"
+                                            leg={
+                                                matchDataMap.saygData!.legs[
+                                                    legIndex
+                                                ]
+                                            }
+                                            noOfThrows={noOfThrows}
+                                            player={
+                                                matchDataMap.match.sideA!.name!
+                                            }
+                                            playerOverallAverage={
+                                                homePlayerAverage
+                                            }
+                                            noOfLegs={
+                                                getNoOfLegs(
+                                                    matchDataMap.saygData,
+                                                ) || 0
+                                            }
+                                            legNo={
+                                                Number.parseInt(legIndex) + 1
+                                            }
+                                            showWinner={showWinner}
+                                            teamAverage={homeTeamAverage}
+                                        />
+                                    ))}
+                                    <MatchLogTableHeading
+                                        team={opponent}
+                                        noOfThrows={noOfThrows}
+                                    />
+                                    {Object.keys(
+                                        matchDataMap.saygData.legs,
+                                    ).map((legIndex: string) => (
+                                        <MatchLogRow
+                                            key={legIndex}
+                                            accumulatorName="away"
+                                            leg={
+                                                matchDataMap.saygData!.legs[
+                                                    legIndex
+                                                ]
+                                            }
+                                            noOfThrows={noOfThrows}
+                                            player={
+                                                matchDataMap.match.sideB!.name!
+                                            }
+                                            playerOverallAverage={
+                                                awayPlayerAverage
+                                            }
+                                            noOfLegs={
+                                                getNoOfLegs(
+                                                    matchDataMap.saygData,
+                                                ) || 0
+                                            }
+                                            legNo={
+                                                Number.parseInt(legIndex) + 1
+                                            }
+                                            showWinner={showWinner}
+                                            teamAverage={awayTeamAverage}
+                                        />
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    );
+                })}
             </div>
         );
     } catch (e) {
