@@ -65,6 +65,7 @@ export function LiveSuperleagueTournamentDisplay({
     const [scoreChanged, setScoreChanged] = useState<undefined | SideType>(
         undefined,
     );
+    const [watchLiveScores, setWatchLiveScores] = useState<boolean>(true);
 
     useEffect(() => {
         if (initialData === undefined) {
@@ -408,6 +409,11 @@ export function LiveSuperleagueTournamentDisplay({
                         {tournament.type}
                     </Link>
                 )}
+                <button
+                    className="ms-3 btn btn-sm btn-outline-secondary"
+                    onClick={() => setWatchLiveScores(!watchLiveScores)}>
+                    Scores: {watchLiveScores ? '▶️' : '⏸️'}
+                </button>
             </h3>
             <table className="table">
                 <thead>
@@ -476,6 +482,7 @@ export function LiveSuperleagueTournamentDisplay({
             {lastMatch &&
             lastLeg &&
             canUseWebSockets &&
+            watchLiveScores &&
             !hasWinner(lastMatch!) ? (
                 <div
                     className="d-flex flex-column border-3 bg-black p-0 rounded-3"
