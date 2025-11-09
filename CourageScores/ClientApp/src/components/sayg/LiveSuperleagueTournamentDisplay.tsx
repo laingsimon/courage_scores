@@ -34,6 +34,8 @@ interface IMatchSaygLookup {
     [matchId: string]: RecordedScoreAsYouGoDto;
 }
 
+type SideType = 'home' | 'away';
+
 export function LiveSuperleagueTournamentDisplay({
     id,
     data,
@@ -60,9 +62,9 @@ export function LiveSuperleagueTournamentDisplay({
         account,
         (access) => access.useWebSockets,
     );
-    const [scoreChanged, setScoreChanged] = useState<
-        undefined | 'home' | 'away'
-    >(undefined);
+    const [scoreChanged, setScoreChanged] = useState<undefined | SideType>(
+        undefined,
+    );
 
     useEffect(() => {
         if (initialData === undefined) {
@@ -100,7 +102,7 @@ export function LiveSuperleagueTournamentDisplay({
             matchSaygData,
         );
         let updated = false;
-        let scoreChanged: undefined | 'home' | 'away' = undefined;
+        let scoreChanged: undefined | SideType = undefined;
 
         for (const matchId in newMatchSaygLookup) {
             const matchSaygId = newMatchSaygLookup[matchId].id;
@@ -113,9 +115,7 @@ export function LiveSuperleagueTournamentDisplay({
                 const updatedLeg: LegDto | undefined =
                     updatedLegs[updatedLegs.length - 1];
                 if (updatedLeg) {
-                    const currentThrow = updatedLeg.currentThrow as
-                        | 'home'
-                        | 'away';
+                    const currentThrow = updatedLeg.currentThrow as SideType;
                     const remaining: number = currentScore(
                         updatedLeg,
                         opposite(currentThrow),
@@ -153,7 +153,7 @@ export function LiveSuperleagueTournamentDisplay({
         }
     }, [allUpdates]);
 
-    function opposite(player: 'home' | 'away'): 'away' | 'home' {
+    function opposite(player: SideType): SideType {
         return player === 'home' ? 'away' : 'home';
     }
 
@@ -221,7 +221,7 @@ export function LiveSuperleagueTournamentDisplay({
 
     function sumOf(
         match: TournamentMatchDto,
-        player: 'home' | 'away',
+        player: SideType,
         prop: string,
     ): number {
         const matchSayg: RecordedScoreAsYouGoDto = matchSaygData[match.id];
@@ -245,7 +245,7 @@ export function LiveSuperleagueTournamentDisplay({
 
     function getAverage(
         match: TournamentMatchDto,
-        player: 'home' | 'away',
+        player: SideType,
     ): string | number {
         const average =
             sumOf(match, player, 'score') /
@@ -256,18 +256,12 @@ export function LiveSuperleagueTournamentDisplay({
             : appropriateAverage.toFixed(2);
     }
 
-    function getScore(
-        match: TournamentMatchDto,
-        player: 'home' | 'away',
-    ): number {
+    function getScore(match: TournamentMatchDto, player: SideType): number {
         const side = player === 'home' ? 'scoreA' : 'scoreB';
         return match[side]!;
     }
 
-    function isWinner(
-        match: TournamentMatchDto,
-        player: 'home' | 'away',
-    ): boolean {
+    function isWinner(match: TournamentMatchDto, player: SideType): boolean {
         const score = getScore(match, player);
 
         const matchIndex = tournament?.round?.matches?.findIndex(
@@ -312,7 +306,7 @@ export function LiveSuperleagueTournamentDisplay({
         );
     }
 
-    function currentScore(leg: LegDto, side: 'home' | 'away') {
+    function currentScore(leg: LegDto, side: SideType) {
         const startingScore = leg.startingScore || 501;
         const accumulator: LegCompetitorScoreDto = leg[side];
         return (
