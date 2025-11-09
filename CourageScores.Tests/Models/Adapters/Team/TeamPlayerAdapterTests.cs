@@ -33,6 +33,7 @@ public class TeamPlayerAdapterTests
         {
             EmailAddress = "email@somewhere.com",
             Name = "name   ",
+            Gender = Gender.Female,
         };
         _user = _user.SetAccess(manageTeams: true);
 
@@ -42,6 +43,7 @@ public class TeamPlayerAdapterTests
         Assert.That(result.Name, Is.EqualTo("name"));
         Assert.That(result.Captain, Is.EqualTo(model.Captain));
         Assert.That(result.EmailAddress, Is.EqualTo(model.EmailAddress));
+        Assert.That(result.Gender, Is.EqualTo(GenderDto.Female));
     }
 
     [Test]
@@ -74,6 +76,21 @@ public class TeamPlayerAdapterTests
         Assert.That(result.EmailAddress, Is.Null);
     }
 
+    [Test]
+    public async Task Adapt_GivenModelWithoutGender_DoesNotMapGender()
+    {
+        var model = new TeamPlayer
+        {
+            EmailAddress = "email@somewhere.com",
+            Name = "name",
+        };
+        _user = _user.SetAccess(manageTeams: false);
+
+        var result = await _adapter.Adapt(model, _token);
+
+        Assert.That(result.Gender, Is.Null);
+    }
+
     [TestCase(false, false, "email@somewhere.com")]
     [TestCase(false, true, null)]
     [TestCase(true, false, null)]
@@ -103,6 +120,7 @@ public class TeamPlayerAdapterTests
             Name = "name",
             Captain = true,
             EmailAddress = "email@somewhere.com",
+            Gender = GenderDto.Female
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -111,6 +129,7 @@ public class TeamPlayerAdapterTests
         Assert.That(result.Name, Is.EqualTo(dto.Name));
         Assert.That(result.Captain, Is.EqualTo(dto.Captain));
         Assert.That(result.EmailAddress, Is.EqualTo(dto.EmailAddress));
+        Assert.That(result.Gender, Is.EqualTo(Gender.Female));
     }
 
     [Test]
@@ -126,5 +145,19 @@ public class TeamPlayerAdapterTests
 
         Assert.That(result.Name, Is.EqualTo("name"));
         Assert.That(result.EmailAddress, Is.EqualTo("email@somewhere.com"));
+    }
+
+    [Test]
+    public async Task Adapt_GivenDtoWithoutGender_DoesNotMapGender()
+    {
+        var dto = new TeamPlayerDto
+        {
+            Name = "name",
+            EmailAddress = "email@somewhere.com",
+        };
+
+        var result = await _adapter.Adapt(dto, _token);
+
+        Assert.That(result.Gender, Is.Null);
     }
 }

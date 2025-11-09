@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos.Team;
 
 namespace CourageScores.Models.Dtos.Game;
 
@@ -12,4 +13,6 @@ public class GamePlayerDto : AuditedDto
     /// The name of the player
     /// </summary>
     public string Name { get; set; } = null!;
+
+    public GenderDto? Gender { get; set; }
 }

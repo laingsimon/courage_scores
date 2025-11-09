@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using CourageScores.Common;
 using CourageScores.Models;
+using CourageScores.Models.Adapters.Team;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
@@ -197,6 +198,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         player.Name = _player.Name.TrimOrDefault();
         player.Captain = _player.Captain;
         player.EmailAddress = _player.EmailAddress.TrimOrDefault(player.EmailAddress ?? "");
+        player.Gender = _player.Gender.FromGenderDto();
         await _auditingHelper.SetUpdated(player, token);
         return new ActionResult<TeamPlayer>
         {

@@ -11,4 +11,5 @@ public class EditTeamPlayerDto : IIntegrityCheckDto
     public string? EmailAddress { get; set; }
     public Guid? NewTeamId { get; set; }
     public DateTime? LastUpdated { get; set; }
+    public GenderDto? Gender { get; set; }
 }
