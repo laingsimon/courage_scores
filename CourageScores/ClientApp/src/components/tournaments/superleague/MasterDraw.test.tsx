@@ -82,22 +82,12 @@ describe('MasterDraw', () => {
         saygId?: string;
     }[] = [];
     const player = playerBuilder('PLAYER').build();
+    const apiSuccess = { success: true };
 
     const tournamentApi = api<ITournamentGameApi>({
-        async update(): Promise<IClientActionResultDto<TournamentGameDto>> {
-            return {
-                success: true,
-            };
-        },
-        async addSayg(): Promise<IClientActionResultDto<TournamentGameDto>> {
-            return {
-                success: true,
-            };
-        },
-        async deleteSayg(
-            id: string,
-            matchId: string,
-        ): Promise<IClientActionResultDto<TournamentGameDto>> {
+        update: async () => apiSuccess,
+        addSayg: async () => apiSuccess,
+        async deleteSayg(id: string, matchId: string) {
             saygDeleted = { id, matchId };
             return {
                 success: true,
@@ -116,9 +106,7 @@ describe('MasterDraw', () => {
                 .startingScore(501)
                 .build();
         },
-        async upsert(
-            data: UpdateRecordedScoreAsYouGoDto,
-        ): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> {
+        async upsert(data: UpdateRecordedScoreAsYouGoDto) {
             return {
                 success: true,
                 result: Object.assign(
@@ -245,19 +233,15 @@ describe('MasterDraw', () => {
     }
 
     function getNewSinglesMatchRow() {
-        return context.container.querySelector(
-            'table[data-type="singles"] tbody tr:last-child',
-        )!;
+        return find('table[data-type="singles"] tbody tr:last-child')!;
     }
 
     function getNewPairsMatchRow() {
-        return context.container.querySelector(
-            'table[data-type="pairs"] tbody tr:last-child',
-        )!;
+        return find('table[data-type="pairs"] tbody tr:last-child')!;
     }
 
     function getDialog() {
-        return context.container.querySelector('.modal-dialog');
+        return find('.modal-dialog');
     }
 
     async function change(selector: string, text: string, container?: Element) {
@@ -356,8 +340,9 @@ describe('MasterDraw', () => {
                 }),
             );
 
-            const table = find('table.table')!;
-            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            const rows = Array.from(
+                context.container.querySelectorAll('table.table tbody tr'),
+            );
             expect(rows.length).toEqual(2);
             expect(
                 Array.from(rows[0].querySelectorAll('td')).map(
@@ -663,9 +648,8 @@ describe('MasterDraw', () => {
             tournament.build = () => tournament;
             await render(tournament, user({ managePlayers: true }));
 
-            const firstMatchRow = find('table tbody tr:first-child')!;
             await doClick(
-                editButton(firstMatchRow.querySelector('td:nth-child(2)')),
+                editButton(find('table tbody tr:first-child td:nth-child(2)')),
             );
 
             context.prompts.alertWasShown(
@@ -677,8 +661,9 @@ describe('MasterDraw', () => {
         it('can edit host player', async () => {
             await render(getSideAvBTournament(), user({ managePlayers: true }));
 
-            const match = find('table tbody tr:first-child')!;
-            await doClick(editButton(match.querySelector('td:nth-child(2)')));
+            await doClick(
+                editButton(find('table tbody tr:first-child td:nth-child(2)')),
+            );
             await change('input[name="name"]', 'UPDATED PLAYER', getDialog()!);
             await doClick(findButton(getDialog()!, 'Save player'));
 
@@ -687,6 +672,7 @@ describe('MasterDraw', () => {
                 teamId: teamA.id,
                 player: {
                     name: 'UPDATED PLAYER',
+                    gender: '',
                 },
                 playerId: player.id,
             });
@@ -702,8 +688,9 @@ describe('MasterDraw', () => {
         it('can edit opponent player', async () => {
             await render(getSideAvBTournament(), user({ managePlayers: true }));
 
-            const match = find('table tbody tr:first-child')!;
-            await doClick(editButton(match.querySelector('td:nth-child(4)')));
+            await doClick(
+                editButton(find('table tbody tr:first-child td:nth-child(4)')),
+            );
             await change('input[name="name"]', 'UPDATED PLAYER', getDialog()!);
             await doClick(findButton(getDialog()!, 'Save player'));
 
@@ -712,6 +699,7 @@ describe('MasterDraw', () => {
                 teamId: teamB.id,
                 player: {
                     name: 'UPDATED PLAYER',
+                    gender: '',
                 },
                 playerId: player.id,
             });
@@ -727,8 +715,9 @@ describe('MasterDraw', () => {
         it('can close edit player dialog', async () => {
             await render(getSideAvBTournament(), user({ managePlayers: true }));
 
-            const match = find('table tbody tr:first-child')!;
-            await doClick(editButton(match.querySelector('td:nth-child(2)')));
+            await doClick(
+                editButton(find('table tbody tr:first-child td:nth-child(2)')),
+            );
             await change('input[name="name"]', 'UPDATED PLAYER', getDialog()!);
             await doClick(findButton(getDialog()!, 'Cancel'));
 
