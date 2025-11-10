@@ -30,20 +30,18 @@ export function PlayerOverview({
         season,
         name: divisionName,
     } = useDivisionData();
-    const player: DivisionPlayerDto = players!.filter(
+    const player: DivisionPlayerDto = players?.filter(
         (p) => p.id === playerId,
     )[0] || {
-        id: null,
         name: 'Unknown',
         fixtures: {},
-        teamId: null,
         team: 'Unknown',
     };
-    const team: DivisionTeamDto = teams!.filter(
+    const team: DivisionTeamDto = teams?.filter(
         (t) => t.id === player.teamId,
-    )[0] || { id: null, name: 'Unknown', address: '' };
-    const fixtures = divisionDataFixtures!
-        .map((fixtureDate) => {
+    )[0] || { name: 'Unknown', address: '' };
+    const fixtures = divisionDataFixtures
+        ?.map((fixtureDate) => {
             const fixtureId: string = player.fixtures![fixtureDate.date];
             const tournamentFixtures: DivisionTournamentFixtureDetailsDto[] =
                 fixtureDate
@@ -232,7 +230,7 @@ export function PlayerOverview({
                             <th>Away</th>
                         </tr>
                     </thead>
-                    <tbody>{fixtures.map(renderFixtureAndDate)}</tbody>
+                    <tbody>{fixtures?.map(renderFixtureAndDate)}</tbody>
                 </table>
             </div>
 
