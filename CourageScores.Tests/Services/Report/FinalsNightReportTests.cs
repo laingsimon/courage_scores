@@ -6,6 +6,7 @@ using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Report;
 using CourageScores.Models.Dtos.Season;
+using CourageScores.Models.Dtos.Team;
 using CourageScores.Services;
 using CourageScores.Services.Division;
 using CourageScores.Services.Identity;
@@ -28,7 +29,7 @@ public class FinalsNightReportTests
     private static readonly DivisionPlayerDto Player3 = Helper.Player("PLAYER_3", "TEAM 3", oneEighties: 3, over100Checkouts: 102);
     private static readonly DivisionPlayerDto Player4 = Helper.Player("PLAYER_4", Player3.Team, Player3.TeamId, oneEighties: 3, over100Checkouts: 102);
 
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = CancellationToken.None;
     private Mock<IUserService> _userService = null!;
     private Mock<IReport> _manOfTheMatchReport = null!;
     private SeasonDto _season = null!;
@@ -54,7 +55,7 @@ public class FinalsNightReportTests
         _manOfTheMatchReport = new Mock<IReport>();
         _division1 = new DivisionDtoBuilder(name: "Division 1").Build();
         _division2 = new DivisionDtoBuilder(name: "Division 2").Build();
-        _divisions = new[] { _division1, _division2, };
+        _divisions = [_division1, _division2];
         _divisionData1 = new DivisionDataDto(null) { Id = _division1.Id, Name = _division1.Name, };
         _divisionData2 = new DivisionDataDto(null) { Id = _division2.Id, Name = _division2.Name, };
         _season = new SeasonDtoBuilder().WithDivisions(_division1, _division2).Build();
@@ -94,7 +95,7 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenNoDivisions_ReturnsNoDivisions()
     {
-        _divisions = Array.Empty<DivisionDto>();
+        _divisions = [];
 
         var report = await _report.GetReport(_playerLookup, _token);
 
@@ -319,15 +320,30 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenCalled_ReturnsTopPlayerForEachDivisions()
     {
-        _divisionData1.Players.AddRange(new[] { Player1, Player2 });
-        _divisionData2.Players.AddRange(new[] { Player3, Player4 });
+        _divisionData1.Players.AddRange([Player1, Player2]);
+        _divisionData2.Players.AddRange([Player3, Player4]);
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Helper.AssertReportRow(report, "Division 1: Top Player", "PLAYER_1", "");
-        Helper.AssertReportRow(report, "Division 2: Top Player", "PLAYER_3", "");
-        Helper.AssertPlayerLink(report, "Division 1: Top Player", 1, Player1, _division1);
-        Helper.AssertPlayerLink(report, "Division 2: Top Player", 1, Player3, _division2);
+        Helper.AssertReportRow(report, "Division 1: Top Player (Male)", "PLAYER_1", "");
+        Helper.AssertReportRow(report, "Division 2: Top Player (Male)", "PLAYER_3", "");
+        Helper.AssertPlayerLink(report, "Division 1: Top Player (Male)", 1, Player1, _division1);
+        Helper.AssertPlayerLink(report, "Division 2: Top Player (Male)", 1, Player3, _division2);
+    }
+
+    [Test]
+    public async Task GetReport_WhenCalled_ReturnsTopPlayerByGenderOnlyWhenPlayedSufficientMatches()
+    {
+        var femaleInsufficientMatches = Helper.Player("FEMALE PLAYER 1", "TEAM 1", gender: GenderDto.Female, singlesPlayed: 4);
+        var femaleSufficientMatches = Helper.Player("FEMALE PLAYER 2", "TEAM 1", gender: GenderDto.Female, singlesPlayed: 5);
+        var noGenderInsufficientMatches = Helper.Player("NO GENDER PLAYER 1", "TEAM 1", singlesPlayed: 4);
+        var maleSufficientMatches = Helper.Player("MALE PLAYER 1", "TEAM 1", gender: GenderDto.Male, singlesPlayed: 5);
+        _divisionData1.Players.AddRange([femaleInsufficientMatches, noGenderInsufficientMatches, femaleSufficientMatches, maleSufficientMatches]);
+
+        var report = await _report.GetReport(_playerLookup, _token);
+
+        Helper.AssertReportRow(report, "Division 1: Top Player (Female)", "FEMALE PLAYER 2", "");
+        Helper.AssertReportRow(report, "Division 1: Top Player (Male)", "MALE PLAYER 1", "");
     }
 
     [Test]
@@ -347,8 +363,8 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenMultiplePlayersWithMost180s_Returns180sForEachDivisions()
     {
-        _divisionData1.Players.AddRange(new[] { Player1, Player2 });
-        _divisionData2.Players.AddRange(new[] { Player3, Player4 });
+        _divisionData1.Players.AddRange([Player1, Player2]);
+        _divisionData2.Players.AddRange([Player3, Player4]);
 
         var report = await _report.GetReport(_playerLookup, _token);
 
@@ -359,8 +375,8 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenMultiplePlayersWithMost180sFromTheSameTeam_Returns180sForEachDivisions()
     {
-        _divisionData1.Players.AddRange(new[] { Player1, Player2 });
-        _divisionData2.Players.AddRange(new[] { Player3, Player4 });
+        _divisionData1.Players.AddRange([Player1, Player2]);
+        _divisionData2.Players.AddRange([Player3, Player4]);
 
         var report = await _report.GetReport(_playerLookup, _token);
 
@@ -408,8 +424,8 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenMultiplePlayersWithHighestCheck_ReturnsHiChecksForEachDivisions()
     {
-        _divisionData1.Players.AddRange(new[] { Player1, Player2 });
-        _divisionData2.Players.AddRange(new[] { Player3, Player4 });
+        _divisionData1.Players.AddRange([Player1, Player2]);
+        _divisionData2.Players.AddRange([Player3, Player4]);
 
         var report = await _report.GetReport(_playerLookup, _token);
 
@@ -420,8 +436,8 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenMultiplePlayersWithHighestCheckFromTheSameTeam_ReturnsHiChecksForEachDivisions()
     {
-        _divisionData1.Players.AddRange(new[] { Player1, Player2 });
-        _divisionData2.Players.AddRange(new[] { Player3, Player4 });
+        _divisionData1.Players.AddRange([Player1, Player2]);
+        _divisionData2.Players.AddRange([Player3, Player4]);
 
         var report = await _report.GetReport(_playerLookup, _token);
 
@@ -455,8 +471,8 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenMultipleTeamsRanked_ReturnsWinningAndRunnerUpTeams()
     {
-        _divisionData1.Teams.AddRange(new[] { Team1, Team2 });
-        _divisionData2.Teams.AddRange(new[] { Team3, Team4 });
+        _divisionData1.Teams.AddRange([Team1, Team2]);
+        _divisionData2.Teams.AddRange([Team3, Team4]);
 
         var report = await _report.GetReport(_playerLookup, _token);
 

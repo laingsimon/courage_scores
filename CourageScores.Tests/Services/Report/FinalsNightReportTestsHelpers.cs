@@ -2,6 +2,7 @@ using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Report;
+using CourageScores.Models.Dtos.Team;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Services.Report;
@@ -35,7 +36,7 @@ public static class FinalsNightReportTestsHelpers
         };
     }
 
-    public static DivisionPlayerDto Player(string name, string team, Guid? teamId = null, int oneEighties = 2, int over100Checkouts = 101)
+    public static DivisionPlayerDto Player(string name, string team, Guid? teamId = null, int oneEighties = 2, int over100Checkouts = 101, int singlesPlayed = 5, GenderDto? gender = null)
     {
         return new DivisionPlayerDto
         {
@@ -45,6 +46,11 @@ public static class FinalsNightReportTestsHelpers
             Id = Guid.NewGuid(),
             TeamId = teamId ?? Guid.NewGuid(),
             Team = team,
+            Singles = new PlayerPerformanceDto
+            {
+                MatchesPlayed = singlesPlayed,
+            },
+            Gender = gender,
         };
     }
 
