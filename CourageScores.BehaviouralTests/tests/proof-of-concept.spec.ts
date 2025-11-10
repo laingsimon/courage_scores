@@ -27,14 +27,18 @@ test.describe('proof of concept', () => {
 
         await selectSeason(page, 'Summer Season');
         await waitForLoadingToFinish(page);
-        await expect(page.locator('ul.nav-tabs')).toBeVisible();
-        const divisionTabs = page.locator('ul.nav-tabs li');
-        expect(await divisionTabs.allTextContents()).toEqual([
+        const expectedTabs = [
             'Teams',
             'Fixtures',
             'Players',
             'Reports',
             'Health',
-        ]);
+        ];
+        await expect(page.locator('ul.nav-tabs li')).toHaveCount(
+            expectedTabs.length,
+        );
+        expect(await page.locator('ul.nav-tabs li').allTextContents()).toEqual(
+            expectedTabs,
+        );
     });
 });
