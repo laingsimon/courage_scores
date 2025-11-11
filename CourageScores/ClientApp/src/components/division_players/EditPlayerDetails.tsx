@@ -16,6 +16,7 @@ import { IClientActionResultDto } from '../common/IClientActionResultDto';
 import { EditTeamPlayerDto } from '../../interfaces/models/dtos/Team/EditTeamPlayerDto';
 import { UntypedPromise } from '../../interfaces/UntypedPromise';
 import { getTeamSeasons } from '../../helpers/teams';
+import { GenderDto } from '../../interfaces/models/dtos/Team/GenderDto';
 
 export interface IEditPlayerDetailsProps {
     onSaved(team: TeamDto, newPlayers: TeamPlayerDto[] | null): UntypedPromise;
@@ -40,6 +41,7 @@ export interface IEditPlayerDetailsPlayer {
     id?: string;
     gameId?: string;
     updated?: string;
+    gender?: string | GenderDto;
 }
 
 interface ICreatedPlayerResponse extends IClientActionResultDto<TeamDto> {
@@ -93,6 +95,7 @@ export function EditPlayerDetails({
                 captain: player.captain,
                 emailAddress: player.emailAddress,
                 newTeamId: newTeamId,
+                gender: player.gender || '',
             };
 
             if (player.id) {
@@ -184,6 +187,7 @@ export function EditPlayerDetails({
                     emailAddress: multiple ? undefined : player.emailAddress,
                     captain: multiple ? false : player.captain,
                     newTeamId: newTeamId,
+                    gender: player.gender || undefined,
                 };
             });
 
@@ -211,6 +215,14 @@ export function EditPlayerDetails({
             trace: results.flatMap((r) => r.trace || []),
             playerDetails: results.map((r) => r.playerDetails!),
         };
+    }
+
+    function getGenderOptions(): IBootstrapDropdownItem[] {
+        return [
+            { text: 'Unspecified', value: '' },
+            { text: 'Male', value: GenderDto.male },
+            { text: 'Female', value: GenderDto.female },
+        ];
     }
 
     function getTeamOptions(): IBootstrapDropdownItem[] {
@@ -380,6 +392,21 @@ export function EditPlayerDetails({
                             Captain
                         </label>
                     </div>
+                </div>
+            )}
+            {multiple ? null : (
+                <div className="input-group mb-3">
+                    <div className="input-group-prepend">
+                        <label className="input-group-text">
+                            Gender (optional)
+                        </label>
+                    </div>
+                    <BootstrapDropdown
+                        datatype="gender-selection"
+                        onChange={(value: string) => onChange('gender', value)}
+                        value={player.gender || ''}
+                        options={getGenderOptions()}
+                    />
                 </div>
             )}
             <div className="modal-footer px-0 pb-0">

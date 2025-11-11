@@ -23,4 +23,9 @@ public class TeamPlayerDto : AuditedDto
     /// Only required if this player will perform any administration of data (e.g. uploading scores)
     /// </summary>
     public string? EmailAddress { get; set; }
+
+    /// <summary>
+    /// Optionally recorded gender for the player
+    /// </summary>
+    public GenderDto? Gender { get; set; }
 }

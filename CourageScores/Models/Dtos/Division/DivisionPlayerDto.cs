@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos.Team;
 
 namespace CourageScores.Models.Dtos.Division;
 
@@ -23,4 +24,5 @@ public class DivisionPlayerDto : IRankedDto
     public DateTime? Updated { get; set; }
     public int Rank { get; set; }
     public DivisionDto? Division { get; set; }
+    public GenderDto? Gender { get; set; }
 }

@@ -7,6 +7,7 @@ using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Report;
 using CourageScores.Models.Dtos.Season;
+using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Division;
 using CourageScores.Services.Identity;
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
@@ -21,6 +22,7 @@ public class FinalsNightReport : CompositeReport
     private readonly ICachingDivisionService _divisionService;
     private readonly IGenericDataService<TournamentGame, TournamentGameDto> _tournamentService;
     private readonly ITournamentTypeResolver _tournamentTypeResolver;
+    private readonly int _minSingles;
 
     public FinalsNightReport(
         IUserService userService,
@@ -29,7 +31,7 @@ public class FinalsNightReport : CompositeReport
         ICachingDivisionService divisionService,
         IGenericDataService<TournamentGame, TournamentGameDto> tournamentService,
         ITournamentTypeResolver tournamentTypeResolver)
-        :base(new[] { manOfTheMatchReport })
+        :base([manOfTheMatchReport])
     {
         _userService = userService;
         _manOfTheMatchReport = manOfTheMatchReport;
@@ -37,6 +39,7 @@ public class FinalsNightReport : CompositeReport
         _divisionService = divisionService;
         _tournamentService = tournamentService;
         _tournamentTypeResolver = tournamentTypeResolver;
+        _minSingles = 5;
     }
 
     public override async Task<ReportDto> GetReport(IPlayerLookup playerLookup, CancellationToken token)
@@ -115,19 +118,28 @@ public class FinalsNightReport : CompositeReport
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    private static async IAsyncEnumerable<ReportRowDto> TopPlayer(
+    private async IAsyncEnumerable<ReportRowDto> TopPlayer(
         DivisionDataDto division,
         [EnumeratorCancellation] CancellationToken token)
     {
-        var topPlayer = division.Players.FirstOrDefault();
+        var genders = new[] { GenderDto.Male, GenderDto.Female };
 
-        yield return Row(
-            Cell(text: $"{division.Name}: Top Player"),
-            Cell(
-                text: topPlayer?.Name,
-                player: topPlayer,
-                division: division),
-            Cell());
+        foreach (var gender in genders)
+        {
+            var topPlayer = division.Players.FirstOrDefault(
+                p => (p.Gender ?? GenderDto.Male) == gender && p.Singles.MatchesPlayed >= _minSingles
+            );
+
+            yield return Row(
+                Cell(text: $"{division.Name}: Top Player ({gender})"),
+                Cell(
+                    text: topPlayer?.Name ?? $"No player found who has played at least {_minSingles} singles matches",
+                    player: topPlayer,
+                    division: division),
+                Cell());
+        }
+
+
     }
 
     private static async IAsyncEnumerable<ReportRowDto> TeamRunnerUpThenWinner(

@@ -22,19 +22,21 @@ export function TeamOverview({ teamId }: ITeamOverviewProps) {
     } = useDivisionData();
     const { teams } = useApp();
     const team = teams.find((t) => t.id === teamId);
-    const fixtures = divisionDataFixtures!
-        .map((fixtureDate) => {
-            return {
-                date: fixtureDate.date,
-                fixtures: fixtureDate.fixtures!.filter(
-                    (f) =>
-                        f.awayTeam &&
-                        (f.awayTeam.id === teamId || f.homeTeam.id === teamId),
-                ),
-            };
-        })
-        .filter((fixtureDate) => any(fixtureDate.fixtures));
-    const players = divisionDataPlayers!.filter((p) => p.teamId === teamId);
+    const fixtures =
+        divisionDataFixtures
+            ?.map((fixtureDate) => {
+                return {
+                    date: fixtureDate.date,
+                    fixtures: fixtureDate.fixtures!.filter(
+                        (f) =>
+                            f.awayTeam &&
+                            (f.awayTeam.id === teamId ||
+                                f.homeTeam.id === teamId),
+                    ),
+                };
+            })
+            .filter((fixtureDate) => any(fixtureDate.fixtures)) ?? [];
+    const players = divisionDataPlayers?.filter((p) => p.teamId === teamId);
 
     function renderScore(score?: number, postponed?: boolean) {
         if (postponed) {

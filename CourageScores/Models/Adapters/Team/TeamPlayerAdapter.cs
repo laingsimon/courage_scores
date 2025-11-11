@@ -25,6 +25,7 @@ public class TeamPlayerAdapter : IAdapter<TeamPlayer, TeamPlayerDto>
             EmailAddress = canShowEmailAddress
                 ? model.EmailAddress?.Trim()
                 : null,
+            Gender = model.Gender.ToGenderDto(),
         }.AddAuditProperties(model);
     }
 
@@ -36,6 +37,7 @@ public class TeamPlayerAdapter : IAdapter<TeamPlayer, TeamPlayerDto>
             Id = dto.Id,
             Name = dto.Name.TrimOrDefault(),
             EmailAddress = dto.EmailAddress?.Trim(),
+            Gender = dto.Gender.FromGenderDto(),
         }.AddAuditProperties(dto));
     }
 
