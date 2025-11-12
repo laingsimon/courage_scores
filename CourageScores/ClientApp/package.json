@@ -5,7 +5,7 @@
   "type": "module",
   "dependencies": {
     "@types/websocket": "^1.0.10",
-    "@vitejs/plugin-react": "^5.1.0",
+    "@vitejs/plugin-react": "^5.1.1",
     "bootstrap": "^5.3.8",
     "jest-junit": "^16.0.0",
     "qrcode.react": "^4.2.0",
