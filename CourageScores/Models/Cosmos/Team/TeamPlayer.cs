@@ -23,4 +23,9 @@ public class TeamPlayer : AuditedEntity
     /// Only required if this player will perform any administration of data (e.g. uploading scores)
     /// </summary>
     public string? EmailAddress { get; set; }
+
+    /// <summary>
+    /// An optionally recorded gender for the player
+    /// </summary>
+    public Gender? Gender { get; set; }
 }

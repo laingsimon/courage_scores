@@ -209,6 +209,7 @@ export function NewTournamentFixture({
                     sides: copySidesFrom ? getSides(copySidesFrom) : [],
                     type: copySidesFrom ? getType(copySidesFrom) : undefined,
                     singleRound: division ? division.superleague : false,
+                    bestOf: division?.superleague ? 7 : undefined,
                 });
 
             if (response.success) {

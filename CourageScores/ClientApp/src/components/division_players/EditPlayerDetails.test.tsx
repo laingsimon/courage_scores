@@ -1,16 +1,16 @@
 import {
+    api,
+    appProps,
+    brandingProps,
     cleanUp,
+    doChange,
     doClick,
     doSelectOption,
-    findButton,
-    renderApp,
-    doChange,
-    TestContext,
-    iocProps,
-    brandingProps,
-    appProps,
     ErrorState,
-    api,
+    findButton,
+    iocProps,
+    renderApp,
+    TestContext,
 } from '../../helpers/tests';
 import { createTemporaryId } from '../../helpers/projection';
 import {
@@ -29,6 +29,7 @@ import { teamBuilder } from '../../helpers/builders/teams';
 import { playerBuilder } from '../../helpers/builders/players';
 import { IPlayerApi } from '../../interfaces/apis/IPlayerApi';
 import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto';
+import { GenderDto } from '../../interfaces/models/dtos/Team/GenderDto';
 
 describe('EditPlayerDetails', () => {
     let context: TestContext;
@@ -166,6 +167,12 @@ describe('EditPlayerDetails', () => {
         );
     }
 
+    function findGenderDropdown() {
+        return context.container.querySelector(
+            'div[datatype="gender-selection"] .dropdown-menu',
+        );
+    }
+
     describe('renders', () => {
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const season: SeasonDto = seasonBuilder('SEASON')
@@ -213,6 +220,7 @@ describe('EditPlayerDetails', () => {
                         .noId()
                         .captain()
                         .email('EMAIL')
+                        .gender(GenderDto.female)
                         .build(),
                     seasonId: season.id,
                     team: team,
@@ -236,6 +244,10 @@ describe('EditPlayerDetails', () => {
                 findNewTeamDropdown()!.querySelector('.dropdown-item.active')!
                     .textContent,
             ).toEqual('TEAM');
+            expect(
+                findGenderDropdown()!.querySelector('.dropdown-item.active')!
+                    .textContent,
+            ).toEqual('Female');
         });
 
         it('new player details with no division id', async () => {
@@ -456,6 +468,60 @@ describe('EditPlayerDetails', () => {
             expect(change).not.toBeNull();
             expect(change!.name).toEqual('newTeamId');
             expect(change!.value).toEqual(otherTeam.id);
+        });
+
+        it('can change gender for new player', async () => {
+            await renderComponent(
+                {
+                    player: playerBuilder('NAME')
+                        .noId()
+                        .captain()
+                        .email('EMAIL')
+                        .build(),
+                    seasonId: season.id,
+                    team: team,
+                    divisionId: division.id,
+                    onCancel,
+                    onSaved,
+                    onChange,
+                },
+                [team, otherTeam],
+                [division, otherDivision],
+            );
+            reportedError.verifyNoError();
+
+            await doSelectOption(findGenderDropdown(), 'Male');
+
+            expect(change).not.toBeNull();
+            expect(change!.name).toEqual('gender');
+            expect(change!.value).toEqual(GenderDto.male);
+        });
+
+        it('can change team for existing player', async () => {
+            await renderComponent(
+                {
+                    player: playerBuilder('NAME')
+                        .captain()
+                        .email('EMAIL')
+                        .gender(GenderDto.female)
+                        .build(),
+                    seasonId: season.id,
+                    team: team,
+                    divisionId: division.id,
+                    onCancel,
+                    onSaved,
+                    onChange,
+                },
+                [team, otherTeam],
+                [division, otherDivision],
+            );
+            reportedError.verifyNoError();
+
+            await doSelectOption(findGenderDropdown(), GenderDto.male);
+
+            expect(change).not.toBeNull();
+            expect(change!.name).toEqual('gender');
+            expect(change!.value).toEqual(GenderDto.male);
         });
 
         it('can change to multi-add for new player', async () => {

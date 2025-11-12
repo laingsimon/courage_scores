@@ -34,6 +34,8 @@ interface IMatchSaygLookup {
     [matchId: string]: RecordedScoreAsYouGoDto;
 }
 
+type SideType = 'home' | 'away';
+
 export function LiveSuperleagueTournamentDisplay({
     id,
     data,
@@ -60,9 +62,10 @@ export function LiveSuperleagueTournamentDisplay({
         account,
         (access) => access.useWebSockets,
     );
-    const [scoreChanged, setScoreChanged] = useState<
-        undefined | 'home' | 'away'
-    >(undefined);
+    const [scoreChanged, setScoreChanged] = useState<undefined | SideType>(
+        undefined,
+    );
+    const [watchLiveScores, setWatchLiveScores] = useState<boolean>(true);
 
     useEffect(() => {
         if (initialData === undefined) {
@@ -95,66 +98,82 @@ export function LiveSuperleagueTournamentDisplay({
     }, [pendingLiveSubscriptions, account]);
 
     useEffect(() => {
-        const newMatchSaygLookup: IMatchSaygLookup = Object.assign(
-            {},
-            matchSaygData,
-        );
+        const newMatchSaygLookup = processUpdates(allUpdates);
+
+        const tournamentUpdate = allUpdates[id] as TournamentGameDto;
+        if (tournamentUpdate) {
+            subscribeToNewMatches(tournamentUpdate, newMatchSaygLookup);
+        }
+    }, [allUpdates]);
+
+    function opposite(player: SideType): SideType {
+        return player === 'home' ? 'away' : 'home';
+    }
+
+    function processUpdates(allUpdates: IUpdateLookup) {
+        const newMatchSaygLookup: IMatchSaygLookup = {
+            ...matchSaygData,
+        };
         let updated = false;
-        let scoreChanged: undefined | 'home' | 'away' = undefined;
+        let scoreChanged: undefined | SideType = undefined;
 
         for (const matchId in newMatchSaygLookup) {
             const matchSaygId = newMatchSaygLookup[matchId].id;
             const update = allUpdates[matchSaygId] as RecordedScoreAsYouGoDto;
-            if (update) {
-                newMatchSaygLookup[matchId] = update;
-                updated = true;
+            if (!update) {
+                continue;
+            }
 
-                const updatedLegs: LegDto[] = Object.values(update.legs);
-                const updatedLeg: LegDto | undefined =
-                    updatedLegs[updatedLegs.length - 1];
-                if (updatedLeg) {
-                    const currentThrow = updatedLeg.currentThrow as
-                        | 'home'
-                        | 'away';
-                    const remaining: number = currentScore(
-                        updatedLeg,
-                        opposite(currentThrow),
-                    );
+            newMatchSaygLookup[matchId] = update;
+            updated = true;
 
-                    if (remaining !== updatedLeg.startingScore) {
-                        scoreChanged = opposite(currentThrow);
-                    }
-                }
+            const updatedLegs: LegDto[] = Object.values(update.legs);
+            const updatedLeg: LegDto | undefined =
+                updatedLegs[updatedLegs.length - 1];
+            if (!updatedLeg) {
+                continue;
+            }
+
+            const currentThrow = updatedLeg.currentThrow as SideType;
+            const remaining: number = currentScore(
+                updatedLeg,
+                opposite(currentThrow),
+            );
+
+            if (remaining !== updatedLeg.startingScore) {
+                scoreChanged = opposite(currentThrow);
             }
         }
+
         if (updated) {
             setMatchSaygData(newMatchSaygLookup);
             setScoreChanged(scoreChanged);
         }
-        const tournamentUpdate = allUpdates[id] as TournamentGameDto;
-        if (tournamentUpdate) {
-            // find all matches and their saygIds
-            // if any are not in newMatchSaygLookup, add them and subscribe (via pending)
-            const allSaygIds: string[] =
-                tournamentUpdate.round?.matches
-                    ?.filter((m: TournamentMatchDto) => !!m.saygId)
-                    .map((m: TournamentMatchDto) => m.saygId!) || [];
-            const newSaygSubscriptions: ISubscriptionRequest[] = allSaygIds
-                .filter((id) => !newMatchSaygLookup[id])
-                .map((id) => {
-                    return {
-                        id: id,
-                        type: LiveDataType.sayg,
-                    };
-                });
-            setPendingLiveSubscriptions(
-                pendingLiveSubscriptions.concat(newSaygSubscriptions),
-            );
-        }
-    }, [allUpdates]);
 
-    function opposite(player: 'home' | 'away'): 'away' | 'home' {
-        return player === 'home' ? 'away' : 'home';
+        return newMatchSaygLookup;
+    }
+
+    function subscribeToNewMatches(
+        tournamentUpdate: TournamentGameDto,
+        newMatchSaygLookup: IMatchSaygLookup,
+    ) {
+        // find all matches and their saygIds
+        // if any are not in newMatchSaygLookup, add them and subscribe (via pending)
+        const allSaygIds: string[] =
+            tournamentUpdate.round?.matches
+                ?.filter((m: TournamentMatchDto) => !!m.saygId)
+                .map((m: TournamentMatchDto) => m.saygId!) || [];
+        const newSaygSubscriptions: ISubscriptionRequest[] = allSaygIds
+            .filter((id) => !newMatchSaygLookup[id])
+            .map((id) => {
+                return {
+                    id: id,
+                    type: LiveDataType.sayg,
+                };
+            });
+        setPendingLiveSubscriptions(
+            pendingLiveSubscriptions.concat(newSaygSubscriptions),
+        );
     }
 
     async function subscribeToNextSayg() {
@@ -221,7 +240,7 @@ export function LiveSuperleagueTournamentDisplay({
 
     function sumOf(
         match: TournamentMatchDto,
-        player: 'home' | 'away',
+        player: SideType,
         prop: string,
     ): number {
         const matchSayg: RecordedScoreAsYouGoDto = matchSaygData[match.id];
@@ -245,7 +264,7 @@ export function LiveSuperleagueTournamentDisplay({
 
     function getAverage(
         match: TournamentMatchDto,
-        player: 'home' | 'away',
+        player: SideType,
     ): string | number {
         const average =
             sumOf(match, player, 'score') /
@@ -256,18 +275,12 @@ export function LiveSuperleagueTournamentDisplay({
             : appropriateAverage.toFixed(2);
     }
 
-    function getScore(
-        match: TournamentMatchDto,
-        player: 'home' | 'away',
-    ): number {
+    function getScore(match: TournamentMatchDto, player: SideType): number {
         const side = player === 'home' ? 'scoreA' : 'scoreB';
         return match[side]!;
     }
 
-    function isWinner(
-        match: TournamentMatchDto,
-        player: 'home' | 'away',
-    ): boolean {
+    function isWinner(match: TournamentMatchDto, player: SideType): boolean {
         const score = getScore(match, player);
 
         const matchIndex = tournament?.round?.matches?.findIndex(
@@ -312,7 +325,7 @@ export function LiveSuperleagueTournamentDisplay({
         );
     }
 
-    function currentScore(leg: LegDto, side: 'home' | 'away') {
+    function currentScore(leg: LegDto, side: SideType) {
         const startingScore = leg.startingScore || 501;
         const accumulator: LegCompetitorScoreDto = leg[side];
         return (
@@ -323,19 +336,17 @@ export function LiveSuperleagueTournamentDisplay({
 
     function lastIncompleteMatch(
         matches: TournamentMatchDto[],
-    ): TournamentMatchDto | null {
+    ): TournamentMatchDto | undefined {
         for (const match of reverse(matches)) {
             if (hasWinner(match)) {
                 // don't look past the last winning match
-                return null;
+                return;
             }
 
             if (hasSaygData(match)) {
                 return match;
             }
         }
-
-        return null;
     }
 
     function hasSaygData(match: TournamentMatchDto): boolean {
@@ -376,7 +387,7 @@ export function LiveSuperleagueTournamentDisplay({
     const matches = tournament.round?.matches || [];
     const lastMatch = lastIncompleteMatch(matches);
     const lastMatchSayg: RecordedScoreAsYouGoDto | undefined = lastMatch
-        ? matchSaygData[lastMatch!.id]
+        ? matchSaygData[lastMatch.id]
         : undefined;
     const lastMatchLegs = Object.values(lastMatchSayg?.legs || {});
     const lastLeg = lastMatchLegs[lastMatchLegs.length - 1];
@@ -398,6 +409,11 @@ export function LiveSuperleagueTournamentDisplay({
                         {tournament.type}
                     </Link>
                 )}
+                <button
+                    className="ms-3 btn btn-sm btn-outline-secondary"
+                    onClick={() => setWatchLiveScores(!watchLiveScores)}>
+                    Scores: {watchLiveScores ? '▶️' : '⏸️'}
+                </button>
             </h3>
             <table className="table">
                 <thead>
@@ -466,6 +482,7 @@ export function LiveSuperleagueTournamentDisplay({
             {lastMatch &&
             lastLeg &&
             canUseWebSockets &&
+            watchLiveScores &&
             !hasWinner(lastMatch!) ? (
                 <div
                     className="d-flex flex-column border-3 bg-black p-0 rounded-3"

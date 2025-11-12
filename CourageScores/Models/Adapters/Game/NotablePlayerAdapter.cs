@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Cosmos.Game;
+﻿using CourageScores.Models.Adapters.Team;
+using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
 
 namespace CourageScores.Models.Adapters.Game;
@@ -17,6 +18,7 @@ public class NotablePlayerAdapter : IAdapter<NotablePlayer, NotablePlayerDto>
             Notes = model.Notes,
 #pragma warning restore CS0618 // Type or member is obsolete
             Score = hasIntegerScore ? integerScore : null,
+            Gender = model.Gender.ToGenderDto(),
         }.AddAuditProperties(model));
     }
 
@@ -29,6 +31,7 @@ public class NotablePlayerAdapter : IAdapter<NotablePlayer, NotablePlayerDto>
 #pragma warning disable CS0618 // Type or member is obsolete
             Notes = dto.Score?.ToString() ?? dto.Notes?.Trim(),
 #pragma warning restore CS0618 // Type or member is obsolete
+            Gender = dto.Gender.FromGenderDto(),
         }.AddAuditProperties(dto));
     }
 }

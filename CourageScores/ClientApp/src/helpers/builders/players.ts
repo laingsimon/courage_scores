@@ -8,6 +8,7 @@ import { NotablePlayerDto } from '../../interfaces/models/dtos/Game/NotablePlaye
 import { ISelectablePlayer } from '../../components/common/PlayerSelection';
 import { createTemporaryId } from '../projection';
 import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
+import { GenderDto } from '../../interfaces/models/dtos/Team/GenderDto';
 
 export interface IPlayerBuilder
     extends IAddableBuilder<
@@ -17,6 +18,7 @@ export interface IPlayerBuilder
     score(score: number): IPlayerBuilder;
     noId(): IPlayerBuilder;
     email(email?: string): IPlayerBuilder;
+    gender(gender?: GenderDto): IPlayerBuilder;
     team(team: TeamDto): IPlayerBuilder;
     singles(b: BuilderParam<IPlayerPerformanceBuilder>): IPlayerBuilder;
 }
@@ -51,6 +53,10 @@ export function playerBuilder(name?: string, id?: string): IPlayerBuilder {
         },
         email: (email?: string) => {
             player.emailAddress = email;
+            return builder;
+        },
+        gender: (gender?: GenderDto) => {
+            player.gender = gender;
             return builder;
         },
         team: (team: TeamDto) => {

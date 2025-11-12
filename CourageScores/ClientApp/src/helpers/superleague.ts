@@ -6,7 +6,6 @@ import { LegCompetitorScoreDto } from '../interfaces/models/dtos/Game/Sayg/LegCo
 import { ISuperleagueSayg } from '../components/tournaments/superleague/ISuperleagueSayg';
 import { getScoreFromThrows } from './sayg';
 import { TournamentMatchDto } from '../interfaces/models/dtos/Game/TournamentMatchDto';
-import { ISuperleagueSaygMatchMapping } from '../components/tournaments/superleague/ISuperleagueSaygMatchMapping';
 
 export function playerOverallAverage(
     saygData: ScoreAsYouGoDto | null | undefined,
@@ -282,9 +281,4 @@ export function hasPlayerCount(
 
 export function matchPlayerFilter(players: number) {
     return (match: TournamentMatchDto) => hasPlayerCount(match, players);
-}
-
-export function matchMappingPlayerFilter(players?: number) {
-    return (match: ISuperleagueSaygMatchMapping) =>
-        players === undefined || hasPlayerCount(match.match, players);
 }

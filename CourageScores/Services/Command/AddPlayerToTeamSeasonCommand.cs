@@ -1,5 +1,6 @@
 using CourageScores.Filters;
 using CourageScores.Models;
+using CourageScores.Models.Adapters.Team;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Identity;
@@ -171,6 +172,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             await _auditingHelper.SetUpdated(existingPlayer, token); // will undelete the player
             existingPlayer.Captain = _player!.Captain;
             existingPlayer.EmailAddress = _player.EmailAddress ?? existingPlayer.EmailAddress;
+            existingPlayer.Gender = _player.Gender.FromGenderDto();
             _cacheFlags.EvictDivisionDataCacheForSeasonId = season.Id;
             _cacheFlags.EvictDivisionDataCacheForDivisionId = _divisionId;
             return new ActionResult<TeamPlayer>
@@ -190,6 +192,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             Captain = _player.Captain,
             EmailAddress = _player.EmailAddress,
             Id = Guid.NewGuid(),
+            Gender = _player.Gender.FromGenderDto(),
         };
         await _auditingHelper.SetUpdated(newPlayer, token);
         teamSeason.Players.Add(newPlayer);

@@ -34,6 +34,7 @@ public class DivisionPlayerAdapter : IDivisionPlayerAdapter
             Fixtures = fixtures,
             Updated = playerTuple.Player.Updated,
             Division = division,
+            Gender = playerTuple.Player.Gender,
         };
     }
 
@@ -57,6 +58,7 @@ public class DivisionPlayerAdapter : IDivisionPlayerAdapter
             Rank = -1,
             Updated = player.Updated,
             Division = division,
+            Gender = player.Gender,
         });
     }
 }
