@@ -1,18 +1,18 @@
 import { useLocation, useNavigate, useParams } from 'react-router';
 import { ILiveOptions } from '../../live/ILiveOptions';
 import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType';
-import { LiveContainer } from '../../live/LiveContainer';
 import { LiveSuperleagueTournamentDisplay } from './LiveSuperleagueTournamentDisplay';
 import { useEffect, useState } from 'react';
 import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
 import { useApp } from '../common/AppContainer';
 import { SaygLoadingContainer } from './SaygLoadingContainer';
-import { any } from '../../helpers/collections';
+import { any, count } from '../../helpers/collections';
 import { useDependencies } from '../common/IocContainer';
 import { renderDate } from '../../helpers/rendering';
 import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
 import { QRCodeSVG } from 'qrcode.react';
 import { stateChanged } from '../../helpers/events';
+import { LiveContainer } from '../../live/LiveContainer';
 
 interface IIdentifiedUpdate {
     id: string;
@@ -185,6 +185,57 @@ export function LiveSayg() {
         setRefreshIds(ids);
     }
 
+    function renderMatch() {
+        const firstMatch = ids[0];
+
+        return (
+            <div
+                className={`d-flex flex-grow-1 flex-row justify-content-evenly ${fullScreen.isFullScreen ? '' : 'overflow-auto'}`}>
+                <SaygLoadingContainer
+                    id={firstMatch}
+                    liveOptions={liveOptions}
+                    matchStatisticsOnly={true}
+                    onDataUpdate={dataUpdated}
+                />
+            </div>
+        );
+    }
+
+    function renderSuperleague() {
+        return (
+            <LiveContainer liveOptions={liveOptions} onDataUpdate={dataUpdated}>
+                <div
+                    className={`d-flex flex-grow-1 flex-row justify-content-evenly ${fullScreen.isFullScreen ? '' : 'overflow-auto'}`}>
+                    {ids.map((id, index) => {
+                        return (
+                            <LiveSuperleagueTournamentDisplay
+                                key={id}
+                                data={updates[id] as TournamentGameDto}
+                                id={id}
+                                onRemove={
+                                    fullScreen.isFullScreen
+                                        ? undefined
+                                        : async () => await removeId(id)
+                                }
+                                showLoading={index === 0}
+                                refreshRequired={any(
+                                    refreshIds,
+                                    (id) => id === id,
+                                )}
+                                refreshComplete={async () =>
+                                    setRefreshIds(
+                                        refreshIds.filter((id) => id !== id),
+                                    )
+                                }
+                                allUpdates={updates}
+                            />
+                        );
+                    })}
+                </div>
+            </LiveContainer>
+        );
+    }
+
     return (
         <div
             id="full-screen-container"
@@ -208,68 +259,14 @@ export function LiveSayg() {
                     Refresh
                 </button>
             ) : null}
-            {type && any(ids) ? (
-                <LiveContainer
-                    liveOptions={liveOptions}
-                    onDataUpdate={dataUpdated}>
-                    <div
-                        className={`d-flex flex-grow-1 flex-row justify-content-evenly ${fullScreen.isFullScreen ? '' : 'overflow-auto'}`}>
-                        {ids.map((id, index) => {
-                            if (type === 'match' && ids.length === 1) {
-                                return (
-                                    <SaygLoadingContainer
-                                        key={id}
-                                        id={id}
-                                        liveOptions={liveOptions}
-                                        matchStatisticsOnly={true}
-                                    />
-                                );
-                            }
-                            if (type === 'superleague') {
-                                return (
-                                    <LiveSuperleagueTournamentDisplay
-                                        key={id}
-                                        data={updates[id] as TournamentGameDto}
-                                        id={id}
-                                        onRemove={
-                                            fullScreen.isFullScreen
-                                                ? undefined
-                                                : async () => await removeId(id)
-                                        }
-                                        showLoading={index === 0}
-                                        refreshRequired={any(
-                                            refreshIds,
-                                            (id) => id === id,
-                                        )}
-                                        refreshComplete={async () =>
-                                            setRefreshIds(
-                                                refreshIds.filter(
-                                                    (id) => id !== id,
-                                                ),
-                                            )
-                                        }
-                                        allUpdates={updates}
-                                    />
-                                );
-                            }
-
-                            return (
-                                <span key={id}>
-                                    Unsupported type: {type}: {id}
-                                </span>
-                            );
-                        })}
-                    </div>
-                    {fullScreen.isFullScreen && !statusText ? (
-                        <div className="position-absolute top-0 right-0 m-2">
-                            <QRCodeSVG
-                                value={document.location.href}
-                                size={75}
-                            />
-                        </div>
-                    ) : null}
-                </LiveContainer>
-            ) : (
+            {type === 'match' && count(ids) === 1 ? renderMatch() : null}
+            {type === 'superleague' && any(ids) ? renderSuperleague() : null}
+            {type && any(ids) && fullScreen.isFullScreen && !statusText ? (
+                <div className="position-absolute top-0 right-0 m-2">
+                    <QRCodeSVG value={document.location.href} size={75} />
+                </div>
+            ) : null}
+            {!type || !any(ids) ? (
                 <div className="p-2">
                     <div className="d-inline-block">
                         <div className="input-group">
@@ -298,7 +295,7 @@ export function LiveSayg() {
                         </>
                     ) : null}
                 </div>
-            )}
+            ) : null}
             {statusText ? (
                 <div className="alert alert-warning">{statusText}</div>
             ) : null}
