@@ -109,8 +109,8 @@ describe('RefreshControl', () => {
                     id,
                     type: LiveDataType.sayg,
                 });
-                expect(socketFactory.socketWasCreated()).toEqual(true);
             });
+            expect(socketFactory.socketWasCreated()).toEqual(true);
 
             const selectedItem = context.container.querySelector(
                 '.dropdown-menu .dropdown-item.active',
