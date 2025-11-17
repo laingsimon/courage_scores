@@ -139,20 +139,28 @@ describe('LiveSayg', () => {
         };
     }
 
-    function getLiveScores() {
-        return context.container.querySelector('div[datatype="live-scores"]')!;
+    function getLiveScores(tournament: TournamentGameDto) {
+        return context.container.querySelector(
+            `div[datatype="live-scores"][data-tournamentid="${tournament.id}"]`,
+        )!;
     }
 
-    function expectHomeLiveScore(score: number) {
-        const liveScores = getLiveScores();
+    function expectHomeLiveScore(tournament: TournamentGameDto, score: number) {
+        const liveScores = getLiveScores(tournament);
         expect(liveScores).toBeTruthy();
-        expect(liveScores.innerHTML).toContain(score.toString());
+        const homeScore = liveScores.querySelector(
+            'div[datatype="scores"] span:nth-child(1)',
+        )!;
+        expect(homeScore.textContent).toContain(score.toString());
     }
 
-    function expectAwayLiveScore(score: number) {
-        const liveScores = getLiveScores();
+    function expectAwayLiveScore(tournament: TournamentGameDto, score: number) {
+        const liveScores = getLiveScores(tournament);
         expect(liveScores).toBeTruthy();
-        expect(liveScores.innerHTML).toContain(score.toString());
+        const awayScore = liveScores.querySelector(
+            'div[datatype="scores"] span:nth-child(2)',
+        )!;
+        expect(awayScore.textContent).toContain(score.toString());
     }
 
     function expectSubscriptions(...ids: string[]) {
@@ -646,6 +654,37 @@ describe('LiveSayg', () => {
                 .build();
         }
 
+        function makeSayg(
+            modifyLeg: (c: ILegBuilder) => ILegBuilder,
+            id?: string,
+        ) {
+            return saygBuilder(id)
+                .withLeg(0, (l) => modifyLeg(l.startingScore(501)))
+                .addTo(saygData)
+                .build();
+        }
+
+        function saygWithThrows(
+            home: number[],
+            away: number[],
+            s?: RecordedScoreAsYouGoDto,
+        ) {
+            return makeSayg(
+                (l) => l.home(throws(...home)).away(throws(...away)),
+                s?.id,
+            );
+        }
+
+        function makeRoundWithMatch(
+            a: string,
+            b: string,
+            s: RecordedScoreAsYouGoDto,
+        ) {
+            return roundBuilder()
+                .withMatch((m) => m.sideA(a).sideB(b).saygId(s.id))
+                .build();
+        }
+
         beforeEach(() => {
             tournament1 = buildTournament();
         });
@@ -685,8 +724,8 @@ describe('LiveSayg', () => {
                 .build();
 
             await render(tournament1);
-            expectHomeLiveScore(501 - (10 + 100));
-            expectAwayLiveScore(501 - (5 + 50));
+            expectHomeLiveScore(tournament1, 501 - (10 + 100));
+            expectAwayLiveScore(tournament1, 501 - (5 + 50));
 
             const updatedSayg = saygBuilder(sayg.id)
                 .withLeg(0, (l) =>
@@ -698,8 +737,8 @@ describe('LiveSayg', () => {
                 .addTo(saygData);
             await sendUpdate(updatedSayg.build());
 
-            expectHomeLiveScore(501 - (10 + 100 + 11));
-            expectAwayLiveScore(501 - (5 + 50 + 55));
+            expectHomeLiveScore(tournament1, 501 - (10 + 100 + 11));
+            expectAwayLiveScore(tournament1, 501 - (5 + 50 + 55));
         });
 
         it('hides live updates when match won', async () => {
@@ -721,7 +760,7 @@ describe('LiveSayg', () => {
                 .build();
 
             await render(tournament1);
-            expect(getLiveScores()).toBeTruthy();
+            expect(getLiveScores(tournament1)).toBeTruthy();
 
             const updatedTournament1 = tournamentBuilder(tournament1.id)
                 .host('HOST 1.1')
@@ -738,7 +777,7 @@ describe('LiveSayg', () => {
                 .build();
             await sendUpdate(updatedTournament1);
 
-            expect(getLiveScores()).toBeFalsy();
+            expect(getLiveScores(updatedTournament1)).toBeFalsy();
         });
 
         it('can apply alternating live updates', async () => {
@@ -821,6 +860,28 @@ describe('LiveSayg', () => {
 
             expect(rows().length).toEqual(1);
             expectSubscriptions(tournament1.id, sayg.id);
+        });
+
+        it('resets live scores for second board when sequential updates are received', async () => {
+            const sayg1 = saygWithThrows([10, 100], [5, 50]);
+            const sayg2 = saygWithThrows([16, 106], [6, 56]);
+            tournament1.round = makeRoundWithMatch('SIDE A', 'SIDE B', sayg1);
+            const tournament2 = buildTournament();
+            tournament2.round = makeRoundWithMatch('SIDE C', 'SIDE D', sayg2);
+
+            await render(tournament1, tournament2);
+            expectHomeLiveScore(tournament1, 501 - (10 + 100));
+            expectAwayLiveScore(tournament1, 501 - (5 + 50));
+            expectHomeLiveScore(tournament2, 501 - (16 + 106));
+            expectAwayLiveScore(tournament2, 501 - (6 + 56));
+
+            await sendUpdate(saygWithThrows([10, 100, 11], [5, 50, 55], sayg1));
+            await sendUpdate(saygWithThrows([16, 106, 17], [6, 56, 65], sayg2));
+
+            expectHomeLiveScore(tournament1, 501 - (10 + 100 + 11));
+            expectAwayLiveScore(tournament1, 501 - (5 + 50 + 55));
+            expectHomeLiveScore(tournament2, 501 - (16 + 106 + 17));
+            expectAwayLiveScore(tournament2, 501 - (6 + 56 + 65));
         });
     });
 });
