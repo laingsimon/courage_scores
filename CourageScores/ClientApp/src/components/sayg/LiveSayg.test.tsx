@@ -905,7 +905,7 @@ describe('LiveSayg', () => {
             expectSubscriptions(tournament1.id, sayg.id);
         });
 
-        it('resets live scores for second board when sequential updates are received', async () => {
+        it('alternating board updates are shown correctly', async () => {
             const sayg1 = withLeg([10, 100], [5, 50]);
             const sayg2 = withLeg([16, 106], [6, 56]);
             tournament1.round = roundWithMatch('SIDE A', 'SIDE B', sayg1);
