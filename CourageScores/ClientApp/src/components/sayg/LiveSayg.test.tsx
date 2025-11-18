@@ -42,6 +42,7 @@ import { renderDate } from '../../helpers/rendering';
 import { createTemporaryId } from '../../helpers/projection';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
 import { IFullScreen } from '../common/IFullScreen';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -192,9 +193,18 @@ describe('LiveSayg', () => {
         return makeSayg((l) => l.home(throws(...h)).away(throws(...a)), s?.id);
     }
 
-    function roundWithMatch(a: string, b: string, s: RecordedScoreAsYouGoDto) {
+    function players(...names: string[]): TeamPlayerDto[] {
+        return names.map((name) => ({ id: name, name }));
+    }
+
+    function roundWithMatch(a: string, b: string, s?: RecordedScoreAsYouGoDto) {
         return roundBuilder()
-            .withMatch((m) => m.sideA(a).sideB(b).saygId(s.id))
+            .withMatch((m) =>
+                m
+                    .sideA(a, undefined, ...players(a))
+                    .sideB(b, undefined, ...players(b))
+                    .saygId(s?.id),
+            )
             .build();
     }
 
@@ -260,6 +270,21 @@ describe('LiveSayg', () => {
             expect(context.container.innerHTML).toContain('HOST');
             expect(context.container.innerHTML).toContain('OPPONENT');
             expect(context.container.innerHTML).toContain('BOARD 1');
+        });
+
+        it('renders player initial and last names', async () => {
+            const tournament = tournamentBuilder()
+                .host('HOST')
+                .opponent('OPPONENT')
+                .type('BOARD 1')
+                .addTo(tournamentData)
+                .build();
+            tournament.round = roundWithMatch('A NOTHER PLAYER', 'BARNEY');
+
+            await render(tournament);
+
+            expect(context.container.innerHTML).toContain('A N PLAYER');
+            expect(context.container.innerHTML).toContain('BARNEY');
         });
 
         it('requests multiple superleague tournaments', async () => {
