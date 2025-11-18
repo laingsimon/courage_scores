@@ -181,8 +181,29 @@ describe('LiveSayg', () => {
         return (c) => throws.reduce((c, thr) => c.withThrow(thr), c);
     }
 
+    function makeSayg(modifyLeg: (c: ILegBuilder) => ILegBuilder, id?: string) {
+        return saygBuilder(id)
+            .withLeg(0, (l) => modifyLeg(l.startingScore(501)))
+            .addTo(saygData)
+            .build();
+    }
+
+    function withLeg(h: number[], a: number[], s?: RecordedScoreAsYouGoDto) {
+        return makeSayg((l) => l.home(throws(...h)).away(throws(...a)), s?.id);
+    }
+
+    function roundWithMatch(a: string, b: string, s: RecordedScoreAsYouGoDto) {
+        return roundBuilder()
+            .withMatch((m) => m.sideA(a).sideB(b).saygId(s.id))
+            .build();
+    }
+
     async function change(selector: string, text: string) {
         await doChange(context.container, selector, text, context.user);
+    }
+
+    function rows() {
+        return Array.from(context.container.querySelectorAll('table tbody tr'));
     }
 
     function appPropsWithFullScreen(c?: Partial<IAppContainerProps>) {
@@ -638,12 +659,6 @@ describe('LiveSayg', () => {
             );
         }
 
-        function rows() {
-            return Array.from(
-                context.container.querySelectorAll('table tbody tr'),
-            );
-        }
-
         function buildTournament() {
             return tournamentBuilder()
                 .host('HOST 1.0')
@@ -651,37 +666,6 @@ describe('LiveSayg', () => {
                 .type('BOARD 1.0')
                 .bestOf(3)
                 .addTo(tournamentData)
-                .build();
-        }
-
-        function makeSayg(
-            modifyLeg: (c: ILegBuilder) => ILegBuilder,
-            id?: string,
-        ) {
-            return saygBuilder(id)
-                .withLeg(0, (l) => modifyLeg(l.startingScore(501)))
-                .addTo(saygData)
-                .build();
-        }
-
-        function saygWithThrows(
-            home: number[],
-            away: number[],
-            s?: RecordedScoreAsYouGoDto,
-        ) {
-            return makeSayg(
-                (l) => l.home(throws(...home)).away(throws(...away)),
-                s?.id,
-            );
-        }
-
-        function makeRoundWithMatch(
-            a: string,
-            b: string,
-            s: RecordedScoreAsYouGoDto,
-        ) {
-            return roundBuilder()
-                .withMatch((m) => m.sideA(a).sideB(b).saygId(s.id))
                 .build();
         }
 
@@ -863,11 +847,11 @@ describe('LiveSayg', () => {
         });
 
         it('resets live scores for second board when sequential updates are received', async () => {
-            const sayg1 = saygWithThrows([10, 100], [5, 50]);
-            const sayg2 = saygWithThrows([16, 106], [6, 56]);
-            tournament1.round = makeRoundWithMatch('SIDE A', 'SIDE B', sayg1);
+            const sayg1 = withLeg([10, 100], [5, 50]);
+            const sayg2 = withLeg([16, 106], [6, 56]);
+            tournament1.round = roundWithMatch('SIDE A', 'SIDE B', sayg1);
             const tournament2 = buildTournament();
-            tournament2.round = makeRoundWithMatch('SIDE C', 'SIDE D', sayg2);
+            tournament2.round = roundWithMatch('SIDE C', 'SIDE D', sayg2);
 
             await render(tournament1, tournament2);
             expectHomeLiveScore(tournament1, 501 - (10 + 100));
@@ -875,8 +859,8 @@ describe('LiveSayg', () => {
             expectHomeLiveScore(tournament2, 501 - (16 + 106));
             expectAwayLiveScore(tournament2, 501 - (6 + 56));
 
-            await sendUpdate(saygWithThrows([10, 100, 11], [5, 50, 55], sayg1));
-            await sendUpdate(saygWithThrows([16, 106, 17], [6, 56, 65], sayg2));
+            await sendUpdate(withLeg([10, 100, 11], [5, 50, 55], sayg1));
+            await sendUpdate(withLeg([16, 106, 17], [6, 56, 65], sayg2));
 
             expectHomeLiveScore(tournament1, 501 - (10 + 100 + 11));
             expectAwayLiveScore(tournament1, 501 - (5 + 50 + 55));
