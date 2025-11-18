@@ -24,6 +24,7 @@ import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/
 import { ISaygApi } from '../../interfaces/apis/ISaygApi';
 import { IAppContainerProps } from '../common/AppContainer';
 import {
+    ITournamentMatchBuilder,
     roundBuilder,
     tournamentBuilder,
 } from '../../helpers/builders/tournaments';
@@ -285,6 +286,39 @@ describe('LiveSayg', () => {
 
             expect(context.container.innerHTML).toContain('A N PLAYER');
             expect(context.container.innerHTML).toContain('BARNEY');
+        });
+
+        it('renders singles before pairs', async () => {
+            function match(
+                a: string,
+                b: string,
+            ): (m: ITournamentMatchBuilder) => ITournamentMatchBuilder {
+                return (m) =>
+                    m
+                        .sideA(a, undefined, ...players(...a.split(' ')))
+                        .sideB(b, undefined, ...players(...b.split(' ')));
+            }
+
+            const tournament = tournamentBuilder()
+                .host('HOST')
+                .opponent('OPPONENT')
+                .type('BOARD 1')
+                .round((r) =>
+                    r
+                        .withMatch(match('A', 'B'))
+                        .withMatch(match('A A', 'B B'))
+                        .withMatch(match('C', 'D')),
+                )
+                .addTo(tournamentData)
+                .build();
+
+            await render(tournament);
+
+            const matches = rows().map(
+                (row) =>
+                    `${row.querySelector('td:nth-child(2)')!.textContent} v ${row.querySelector('td:nth-child(6)')!.textContent}`,
+            );
+            expect(matches).toEqual(['A v B', 'C v D', 'A & A v B & B']);
         });
 
         it('requests multiple superleague tournaments', async () => {
