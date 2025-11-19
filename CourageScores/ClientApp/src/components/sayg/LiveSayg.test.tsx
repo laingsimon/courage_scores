@@ -188,29 +188,59 @@ describe('LiveSayg', () => {
         return (c) => throws.reduce((c, thr) => c.withThrow(thr), c);
     }
 
-    function makeSayg(modifyLeg: (c: ILegBuilder) => ILegBuilder, id?: string) {
+    function buildTournament(bestOf?: number) {
+        return tournamentBuilder()
+            .host('HOST 1.0')
+            .opponent('OPPONENT 1.0')
+            .type('BOARD 1.0')
+            .bestOf(bestOf ?? 3)
+            .addTo(tournamentData)
+            .build();
+    }
+
+    function makeSayg(
+        modifyLeg: (c: ILegBuilder) => ILegBuilder,
+        id?: string,
+        bestOf?: number,
+    ) {
         return saygBuilder(id)
             .withLeg(0, (l) => modifyLeg(l.startingScore(501)))
+            .numberOfLegs(bestOf ?? 5)
             .addTo(saygData)
             .build();
     }
 
-    function withLeg(h: number[], a: number[], s?: RecordedScoreAsYouGoDto) {
-        return makeSayg((l) => l.home(throws(...h)).away(throws(...a)), s?.id);
+    function withLeg(
+        home: number[],
+        away: number[],
+        sayg?: RecordedScoreAsYouGoDto,
+        bestOf?: number,
+    ) {
+        return makeSayg(
+            (l) => l.home(throws(...home)).away(throws(...away)),
+            sayg?.id,
+            bestOf,
+        );
     }
 
     function players(...names: string[]): TeamPlayerDto[] {
         return names.map((name) => ({ id: name, name }));
     }
 
-    function roundWithMatch(a: string, b: string, s?: RecordedScoreAsYouGoDto) {
+    function roundWithMatch(
+        sideA: string,
+        sideB: string,
+        sayg?: RecordedScoreAsYouGoDto,
+        bestOf?: number,
+    ) {
         return roundBuilder()
             .withMatch((m) =>
                 m
-                    .sideA(a, undefined, ...players(a))
-                    .sideB(b, undefined, ...players(b))
-                    .saygId(s?.id),
+                    .sideA(sideA, undefined, ...players(sideA))
+                    .sideB(sideB, undefined, ...players(sideB))
+                    .saygId(sayg?.id),
             )
+            .withMatchOption((mo) => mo.numberOfLegs(bestOf ?? 5))
             .build();
     }
 
@@ -695,6 +725,7 @@ describe('LiveSayg', () => {
     describe('updates', () => {
         let tournament1: TournamentGameDto;
         const account: UserDto = user({ useWebSockets: true });
+        const bo = 3;
 
         async function sendUpdate(update: { id: string }) {
             expect(socketFactory.socket).not.toBeNull();
@@ -723,18 +754,8 @@ describe('LiveSayg', () => {
             );
         }
 
-        function buildTournament() {
-            return tournamentBuilder()
-                .host('HOST 1.0')
-                .opponent('OPPONENT 1.0')
-                .type('BOARD 1.0')
-                .bestOf(3)
-                .addTo(tournamentData)
-                .build();
-        }
-
         beforeEach(() => {
-            tournament1 = buildTournament();
+            tournament1 = buildTournament(bo);
         });
 
         it('can apply live update for one tournament', async () => {
@@ -913,18 +934,18 @@ describe('LiveSayg', () => {
         });
 
         it('alternating board updates are shown correctly', async () => {
-            const sayg1 = withLeg([10, 100], [5, 50]);
-            const sayg2 = withLeg([16, 106], [6, 56]);
-            tournament1.round = roundWithMatch('SIDE A', 'SIDE B', sayg1);
-            const tournament2 = buildTournament();
-            tournament2.round = roundWithMatch('SIDE C', 'SIDE D', sayg2);
+            const sayg1 = withLeg([10, 100], [5, 50], undefined, bo);
+            const sayg2 = withLeg([16, 106], [6, 56], undefined, bo);
+            tournament1.round = roundWithMatch('SIDE A', 'SIDE B', sayg1, bo);
+            const tournament2 = buildTournament(bo);
+            tournament2.round = roundWithMatch('SIDE C', 'SIDE D', sayg2, bo);
 
             await render(tournament1, tournament2);
             expectLiveScores(tournament1, 501 - 10 - 100, 501 - 5 - 50);
             expectLiveScores(tournament2, 501 - 16 - 106, 501 - 6 - 56);
 
-            await sendUpdate(withLeg([10, 100, 11], [5, 50, 55], sayg1));
-            await sendUpdate(withLeg([16, 106, 17], [6, 56, 65], sayg2));
+            await sendUpdate(withLeg([10, 100, 11], [5, 50, 55], sayg1, bo));
+            await sendUpdate(withLeg([16, 106, 17], [6, 56, 65], sayg2, bo));
 
             expectLiveScores(
                 tournament1,
@@ -939,30 +960,30 @@ describe('LiveSayg', () => {
         });
 
         it('alternating board updates are shown progressively', async () => {
-            const sayg1 = withLeg([], []);
-            const sayg2 = withLeg([], []);
-            tournament1.round = roundWithMatch('SIDE A', 'SIDE B', sayg1);
-            const tournament2 = buildTournament();
-            tournament2.round = roundWithMatch('SIDE C', 'SIDE D', sayg2);
+            const sayg1 = withLeg([], [], undefined, bo);
+            const sayg2 = withLeg([], [], undefined, bo);
+            tournament1.round = roundWithMatch('SIDE A', 'SIDE B', sayg1, bo);
+            const tournament2 = buildTournament(bo);
+            tournament2.round = roundWithMatch('SIDE C', 'SIDE D', sayg2, bo);
 
             await render(tournament1, tournament2);
             expectLiveScores(tournament1, 501, 501);
             expectLiveScores(tournament2, 501, 501);
 
-            await sendUpdate(withLeg([10], [5], sayg1));
-            await sendUpdate(withLeg([16], [6], sayg2));
+            await sendUpdate(withLeg([10], [5], sayg1, bo));
+            await sendUpdate(withLeg([16], [6], sayg2, bo));
 
             expectLiveScores(tournament1, 501 - 10, 501 - 5);
             expectLiveScores(tournament2, 501 - 16, 501 - 6);
 
-            await sendUpdate(withLeg([10, 100], [5, 50], sayg1));
-            await sendUpdate(withLeg([16, 106], [6, 56], sayg2));
+            await sendUpdate(withLeg([10, 100], [5, 50], sayg1, bo));
+            await sendUpdate(withLeg([16, 106], [6, 56], sayg2, bo));
 
             expectLiveScores(tournament1, 501 - 10 - 100, 501 - 5 - 50);
             expectLiveScores(tournament2, 501 - 16 - 106, 501 - 6 - 56);
 
-            await sendUpdate(withLeg([10, 100, 11], [5, 50, 55], sayg1));
-            await sendUpdate(withLeg([16, 106, 17], [6, 56, 65], sayg2));
+            await sendUpdate(withLeg([10, 100, 11], [5, 50, 55], sayg1, bo));
+            await sendUpdate(withLeg([16, 106, 17], [6, 56, 65], sayg2, bo));
 
             expectLiveScores(
                 tournament1,
