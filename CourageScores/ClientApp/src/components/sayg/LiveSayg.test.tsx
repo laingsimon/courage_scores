@@ -996,5 +996,61 @@ describe('LiveSayg', () => {
                 501 - 6 - 56 - 65,
             );
         });
+
+        it('when match bestOf is larger than sayg', async () => {
+            const sbo = 3;
+            const sayg1 = saygBuilder()
+                .numberOfLegs(sbo)
+                .withLeg(0, (l) =>
+                    l
+                        .home(throws(100, 100, 100, 100, 101))
+                        .away(throws(50, 50, 50, 50, 50)),
+                )
+                .withLeg(1, (l) =>
+                    l
+                        .home(throws(100, 100, 100, 100))
+                        .away(throws(50, 50, 50, 50)),
+                )
+                .addTo(saygData)
+                .build();
+            const sayg2 = saygBuilder()
+                .numberOfLegs(sbo)
+                .withLeg(0, (l) =>
+                    l
+                        .home(throws(10, 10, 10, 10, 11))
+                        .away(throws(5, 5, 5, 5, 5)),
+                )
+                .addTo(saygData)
+                .build();
+            tournament1.round = roundWithMatch('SIDE A', 'SIDE B', sayg1, 5);
+            const tournament2 = buildTournament(bo);
+            tournament2.round = roundWithMatch('SIDE C', 'SIDE D', sayg2, 5);
+
+            await render(tournament1, tournament2);
+
+            await sendUpdate(
+                withLeg(
+                    [100, 100, 100, 100, 101],
+                    [50, 50, 50, 50, 50],
+                    sayg1,
+                    sbo,
+                ),
+            );
+
+            expectLiveScores(tournament1, 0, 251);
+            expectLiveScores(tournament2, 450, 476);
+
+            await sendUpdate(
+                withLeg(
+                    [10, 10, 10, 10, 11, 100],
+                    [5, 5, 5, 5, 5, 50],
+                    sayg2,
+                    sbo,
+                ),
+            );
+
+            expectLiveScores(tournament1, 0, 251);
+            expectLiveScores(tournament2, 350, 426);
+        });
     });
 });
