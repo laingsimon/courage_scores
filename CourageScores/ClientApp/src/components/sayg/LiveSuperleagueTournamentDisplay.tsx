@@ -486,7 +486,8 @@ export function LiveSuperleagueTournamentDisplay({
             !hasWinner(lastMatch!) ? (
                 <div
                     className="d-flex flex-column border-3 bg-black p-0 rounded-3"
-                    datatype="live-scores">
+                    datatype="live-scores"
+                    data-tournamentid={tournament.id}>
                     <div className="d-flex flex-row justify-content-center bg-success text-black fs-4 rounded-top-3">
                         <span className="flex-grow-1 px-3 text-end flex-basis-0">
                             {firstInitialAndLastNames(lastMatch!.sideA)}
@@ -499,7 +500,9 @@ export function LiveSuperleagueTournamentDisplay({
                             {firstInitialAndLastNames(lastMatch!.sideB)}
                         </span>
                     </div>
-                    <div className="d-flex flex-row justify-content-center text-success">
+                    <div
+                        className="d-flex flex-row justify-content-center text-success"
+                        datatype="scores">
                         <span
                             className={`flex-grow-1 p-3 text-center fs-4 ${scoreChanged === 'home' ? ' fw-bold text-flash' : ''}`}>
                             {currentScore(lastLeg, 'home')}
