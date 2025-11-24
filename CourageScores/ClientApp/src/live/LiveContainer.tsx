@@ -20,6 +20,11 @@ export interface ILiveContainerProps {
     liveOptions: ILiveOptions;
 }
 
+interface PendingRequest {
+    enabled: boolean;
+    request: ISubscriptionRequest;
+}
+
 export function LiveContainer({
     children,
     onDataUpdate,
@@ -31,15 +36,19 @@ export function LiveContainer({
         account,
         (access) => access.useWebSockets,
     );
-    const [pendingSubscriptions, setPendingSubscriptions] = useState<
-        ISubscriptionRequest[]
-    >([]);
+    const [pending, setPending] = useState<PendingRequest[]>([]);
     const [subscribing, setSubscribing] = useState<boolean>(false);
+    let threadSafePending = pending;
 
     useEffect(
         () => {
             if (liveOptions && liveOptions.subscribeAtStartup) {
-                setPendingSubscriptions(liveOptions.subscribeAtStartup);
+                setPending(
+                    liveOptions.subscribeAtStartup.map((s) => ({
+                        enabled: true,
+                        request: s,
+                    })),
+                );
             }
         },
         // eslint-disable-next-line
@@ -47,44 +56,48 @@ export function LiveContainer({
     );
 
     useEffect(() => {
-        if (isEmpty(pendingSubscriptions) || subscribing) {
+        if (isEmpty(pending) || subscribing) {
             return;
         }
 
-        const nextPendingSubscription = pendingSubscriptions[0];
+        const nextPending = pending[0];
 
         // noinspection JSIgnoredPromiseFromCall
-        enableLiveUpdates(true, nextPendingSubscription).then(() => {
-            setPendingSubscriptions(
-                pendingSubscriptions.filter((_, index) => index > 0),
-            );
+        enableLiveUpdates(nextPending.enabled, nextPending.request).then(() => {
+            setPending(pending.filter((_, index) => index > 0));
+            setSubscribing(false);
         });
-    }, [account, pendingSubscriptions, subscribing]);
+    }, [account, pending, subscribing]);
 
     async function enableLiveUpdates(
         enabled: boolean,
         request: ISubscriptionRequest,
     ) {
-        try {
+        /* istanbul ignore next */
+        if (subscribing) {
             /* istanbul ignore next */
-            if (subscribing) {
-                /* istanbul ignore next */
-                return;
-            }
+            return;
+        }
 
-            setSubscribing(true);
-            if (enabled && !webSocket.subscriptions[request.id] && canConnect) {
-                await webSocket.subscribe(request, onDataUpdate, onError);
-            } else if (!enabled) {
-                await webSocket.unsubscribe(request.id);
-            }
-        } finally {
-            setSubscribing(false);
+        setSubscribing(true);
+        if (enabled && !webSocket.subscriptions[request.id] && canConnect) {
+            await webSocket.subscribe(request, onDataUpdate, onError);
+        } else if (!enabled) {
+            await webSocket.unsubscribe(request.id);
         }
     }
 
+    async function enqueueSubscription(
+        enabled: boolean,
+        request: ISubscriptionRequest,
+    ) {
+        const newPending = threadSafePending.concat([{ enabled, request }]);
+        setPending(newPending);
+        threadSafePending = newPending;
+    }
+
     const props: ILive = {
-        enableLiveUpdates,
+        enableLiveUpdates: enqueueSubscription,
         liveOptions,
         subscriptions: webSocket.subscriptions,
     };

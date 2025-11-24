@@ -15,11 +15,16 @@ import {
     user,
 } from '../../helpers/tests';
 import { LiveSayg } from './LiveSayg';
-import { saygBuilder } from '../../helpers/builders/sayg';
+import {
+    ILegBuilder,
+    ILegCompetitorScoreBuilder,
+    saygBuilder,
+} from '../../helpers/builders/sayg';
 import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
 import { ISaygApi } from '../../interfaces/apis/ISaygApi';
 import { IAppContainerProps } from '../common/AppContainer';
 import {
+    ITournamentMatchBuilder,
     roundBuilder,
     tournamentBuilder,
 } from '../../helpers/builders/tournaments';
@@ -38,6 +43,7 @@ import { renderDate } from '../../helpers/rendering';
 import { createTemporaryId } from '../../helpers/projection';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
 import { IFullScreen } from '../common/IFullScreen';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -55,6 +61,7 @@ describe('LiveSayg', () => {
     let reportedError: ErrorState;
     let socketFactory: MockSocketFactory;
     let divisionData: DivisionDataDto | null;
+    let isFullScreen = false;
     const saygApi = api<ISaygApi>({
         get: async (id: string): Promise<RecordedScoreAsYouGoDto | null> => {
             requestedSaygId.push(id);
@@ -85,6 +92,7 @@ describe('LiveSayg', () => {
         requestedTournamentId = [];
         socketFactory = new MockSocketFactory();
         divisionData = null;
+        isFullScreen = false;
 
         jest.resetAllMocks();
     });
@@ -107,6 +115,17 @@ describe('LiveSayg', () => {
             route || '/live/:type',
             currentPath,
         );
+
+        reportedError.verifyNoError();
+    }
+
+    async function render(...tournaments: TournamentGameDto[]) {
+        const query = tournaments.map((t) => `id=${t.id}`).join('&');
+
+        await renderComponent(
+            appPropsWithFullScreen(),
+            '/live/superleague/?' + query,
+        );
     }
 
     function fullScreenProps(
@@ -122,21 +141,142 @@ describe('LiveSayg', () => {
         };
     }
 
+    function getLiveScores(tournament: TournamentGameDto) {
+        return context.container.querySelector(
+            `div[datatype="live-scores"][data-tournamentid="${tournament.id}"]`,
+        )!;
+    }
+
+    function expectHomeLiveScore(tournament: TournamentGameDto, score: number) {
+        const liveScores = getLiveScores(tournament);
+        expect(liveScores).toBeTruthy();
+        const homeScore = liveScores.querySelector(
+            'div[datatype="scores"] span:nth-child(1)',
+        )!;
+        expect(homeScore.textContent).toContain(score.toString());
+    }
+
+    function expectAwayLiveScore(tournament: TournamentGameDto, score: number) {
+        const liveScores = getLiveScores(tournament);
+        expect(liveScores).toBeTruthy();
+        const awayScore = liveScores.querySelector(
+            'div[datatype="scores"] span:nth-child(2)',
+        )!;
+        expect(awayScore.textContent).toContain(score.toString());
+    }
+
+    function expectLiveScores(t: TournamentGameDto, h: number, a: number) {
+        expectHomeLiveScore(t, h);
+        expectAwayLiveScore(t, a);
+    }
+
+    function expectSubscriptions(...ids: string[]) {
+        expect(Object.keys(socketFactory.subscriptions)).toEqual(ids);
+    }
+
+    function expectNavigateTo(url: string) {
+        expect(mockedUsedNavigate).toHaveBeenCalledWith(url);
+    }
+
+    function expectNavigateWithReplace(url: string) {
+        expect(mockedUsedNavigate).toHaveBeenCalledWith(url, { replace: true });
+    }
+
+    function throws(
+        ...throws: number[]
+    ): (c: ILegCompetitorScoreBuilder) => ILegCompetitorScoreBuilder {
+        return (c) => throws.reduce((c, thr) => c.withThrow(thr), c);
+    }
+
+    function buildTournament(bestOf?: number) {
+        return tournamentBuilder()
+            .host('HOST 1.0')
+            .opponent('OPPONENT 1.0')
+            .type('BOARD 1.0')
+            .bestOf(bestOf ?? 3)
+            .addTo(tournamentData)
+            .build();
+    }
+
+    function makeSayg(
+        modifyLeg: (c: ILegBuilder) => ILegBuilder,
+        id?: string,
+        bestOf?: number,
+    ) {
+        return saygBuilder(id)
+            .withLeg(0, (l) => modifyLeg(l.startingScore(501)))
+            .numberOfLegs(bestOf ?? 5)
+            .addTo(saygData)
+            .build();
+    }
+
+    function withLeg(
+        home: number[],
+        away: number[],
+        sayg?: RecordedScoreAsYouGoDto,
+        bestOf?: number,
+    ) {
+        return makeSayg(
+            (l) => l.home(throws(...home)).away(throws(...away)),
+            sayg?.id,
+            bestOf,
+        );
+    }
+
+    function players(...names: string[]): TeamPlayerDto[] {
+        return names.map((name) => ({ id: name, name }));
+    }
+
+    function roundWithMatch(
+        sideA: string,
+        sideB: string,
+        sayg?: RecordedScoreAsYouGoDto,
+        bestOf?: number,
+    ) {
+        return roundBuilder()
+            .withMatch((m) =>
+                m
+                    .sideA(sideA, undefined, ...players(sideA))
+                    .sideB(sideB, undefined, ...players(sideB))
+                    .saygId(sayg?.id),
+            )
+            .withMatchOption((mo) => mo.numberOfLegs(bestOf ?? 5))
+            .build();
+    }
+
+    async function change(selector: string, text: string) {
+        await doChange(context.container, selector, text, context.user);
+    }
+
+    function rows() {
+        return Array.from(context.container.querySelectorAll('table tbody tr'));
+    }
+
+    function appPropsWithFullScreen(c?: Partial<IAppContainerProps>) {
+        return appProps(
+            {
+                fullScreen: fullScreenProps({
+                    enterFullScreen: async () => (isFullScreen = true),
+                    exitFullScreen: async () => (isFullScreen = false),
+                    toggleFullScreen: async () =>
+                        (isFullScreen = !isFullScreen),
+                    isFullScreen,
+                }),
+                ...c,
+            },
+            reportedError,
+        );
+    }
+
     describe('render', () => {
         it('requests match', async () => {
             const sayg = saygBuilder().addTo(saygData).build();
 
             await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps(),
-                    },
-                    reportedError,
-                ),
+                appPropsWithFullScreen(),
                 '/live/match/?id=' + sayg.id,
             );
 
-            reportedError.verifyNoError();
             expect(requestedSaygId).toEqual([sayg.id]);
         });
 
@@ -145,16 +285,10 @@ describe('LiveSayg', () => {
             const sayg2 = saygBuilder().addTo(saygData).build();
 
             await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps(),
-                    },
-                    reportedError,
-                ),
+                appPropsWithFullScreen(),
                 '/live/match/?id=' + sayg1.id + '&id=' + sayg2.id,
             );
 
-            reportedError.verifyNoError();
             expect(requestedSaygId).toEqual([]);
         });
 
@@ -166,21 +300,60 @@ describe('LiveSayg', () => {
                 .addTo(tournamentData)
                 .build();
 
-            await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps(),
-                    },
-                    reportedError,
-                ),
-                '/live/superleague/?id=' + tournament.id,
-            );
+            await render(tournament);
 
-            reportedError.verifyNoError();
             expect(requestedTournamentId).toEqual([tournament.id]);
             expect(context.container.innerHTML).toContain('HOST');
             expect(context.container.innerHTML).toContain('OPPONENT');
             expect(context.container.innerHTML).toContain('BOARD 1');
+        });
+
+        it('renders player initial and last names', async () => {
+            const tournament = tournamentBuilder()
+                .host('HOST')
+                .opponent('OPPONENT')
+                .type('BOARD 1')
+                .addTo(tournamentData)
+                .build();
+            tournament.round = roundWithMatch('A NOTHER PLAYER', 'BARNEY');
+
+            await render(tournament);
+
+            expect(context.container.innerHTML).toContain('A N PLAYER');
+            expect(context.container.innerHTML).toContain('BARNEY');
+        });
+
+        it('renders singles before pairs', async () => {
+            function match(
+                a: string,
+                b: string,
+            ): (m: ITournamentMatchBuilder) => ITournamentMatchBuilder {
+                return (m) =>
+                    m
+                        .sideA(a, undefined, ...players(...a.split(' ')))
+                        .sideB(b, undefined, ...players(...b.split(' ')));
+            }
+
+            const tournament = tournamentBuilder()
+                .host('HOST')
+                .opponent('OPPONENT')
+                .type('BOARD 1')
+                .round((r) =>
+                    r
+                        .withMatch(match('A', 'B'))
+                        .withMatch(match('A A', 'B B'))
+                        .withMatch(match('C', 'D')),
+                )
+                .addTo(tournamentData)
+                .build();
+
+            await render(tournament);
+
+            const matches = rows().map(
+                (row) =>
+                    `${row.querySelector('td:nth-child(2)')!.textContent} v ${row.querySelector('td:nth-child(6)')!.textContent}`,
+            );
+            expect(matches).toEqual(['A v B', 'C v D', 'A & A v B & B']);
         });
 
         it('requests multiple superleague tournaments', async () => {
@@ -197,20 +370,8 @@ describe('LiveSayg', () => {
                 .addTo(tournamentData)
                 .build();
 
-            await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps(),
-                    },
-                    reportedError,
-                ),
-                '/live/superleague/?id=' +
-                    tournament1.id +
-                    '&id=' +
-                    tournament2.id,
-            );
+            await render(tournament1, tournament2);
 
-            reportedError.verifyNoError();
             expect(requestedTournamentId).toEqual([
                 tournament1.id,
                 tournament2.id,
@@ -224,19 +385,12 @@ describe('LiveSayg', () => {
         it('renders match in full screen', async () => {
             const sayg = saygBuilder().addTo(saygData).build();
 
+            isFullScreen = true;
             await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps({
-                            isFullScreen: true,
-                        }),
-                    },
-                    reportedError,
-                ),
+                appPropsWithFullScreen(),
                 '/live/match/?id=' + sayg.id,
             );
 
-            reportedError.verifyNoError();
             expect(requestedSaygId).toEqual([sayg.id]);
         });
 
@@ -248,19 +402,9 @@ describe('LiveSayg', () => {
                 .addTo(tournamentData)
                 .build();
 
-            await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps({
-                            isFullScreen: true,
-                        }),
-                    },
-                    reportedError,
-                ),
-                '/live/superleague/?id=' + tournament.id,
-            );
+            isFullScreen = true;
+            await render(tournament);
 
-            reportedError.verifyNoError();
             expect(requestedTournamentId).toEqual([tournament.id]);
             expect(context.container.innerHTML).toContain('HOST');
             expect(context.container.innerHTML).toContain('OPPONENT');
@@ -271,11 +415,7 @@ describe('LiveSayg', () => {
             const sayg = saygBuilder()
                 .startingScore(501)
                 .numberOfLegs(1)
-                .withLeg(0, (l) =>
-                    l
-                        .home((c) => c.withThrow(100))
-                        .away((c) => c.withThrow(50)),
-                )
+                .withLeg(0, (l) => l.home(throws(100)).away(throws(50)))
                 .addTo(saygData)
                 .build();
             const tournament = tournamentBuilder()
@@ -291,19 +431,9 @@ describe('LiveSayg', () => {
                 .addTo(tournamentData)
                 .build();
 
-            await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps({
-                            isFullScreen: true,
-                        }),
-                    },
-                    reportedError,
-                ),
-                '/live/superleague/?id=' + tournament.id,
-            );
+            isFullScreen = true;
+            await render(tournament);
 
-            reportedError.verifyNoError();
             expect(requestedTournamentId).toEqual([tournament.id]);
             expect(requestedSaygId).toEqual([sayg.id]);
             const firstMatchRow =
@@ -329,11 +459,7 @@ describe('LiveSayg', () => {
             const sayg = saygBuilder()
                 .startingScore(501)
                 .numberOfLegs(1)
-                .withLeg(0, (l) =>
-                    l
-                        .home((c) => c.withThrow(75))
-                        .away((c) => c.withThrow(120)),
-                )
+                .withLeg(0, (l) => l.home(throws(75)).away(throws(120)))
                 .addTo(saygData)
                 .build();
             const tournament = tournamentBuilder()
@@ -349,19 +475,9 @@ describe('LiveSayg', () => {
                 .addTo(tournamentData)
                 .build();
 
-            await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps({
-                            isFullScreen: true,
-                        }),
-                    },
-                    reportedError,
-                ),
-                '/live/superleague/?id=' + tournament.id,
-            );
+            isFullScreen = true;
+            await render(tournament);
 
-            reportedError.verifyNoError();
             expect(requestedTournamentId).toEqual([tournament.id]);
             expect(requestedSaygId).toEqual([sayg.id]);
             const firstMatchRow =
@@ -384,18 +500,8 @@ describe('LiveSayg', () => {
         });
 
         it('prompt for type if none in the path', async () => {
-            await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps(),
-                    },
-                    reportedError,
-                ),
-                '/live',
-                '/live',
-            );
+            await renderComponent(appPropsWithFullScreen(), '/live', '/live');
 
-            reportedError.verifyNoError();
             const buttons = Array.from(
                 context.container.querySelectorAll('.btn'),
             );
@@ -403,107 +509,67 @@ describe('LiveSayg', () => {
         });
 
         it('prompt for ids if type in the path is unknown', async () => {
-            const division = divisionDataBuilder(
+            divisionData = divisionDataBuilder(
                 divisionBuilder('ANOTHER DIVISION').build(),
             ).build();
-            divisionData = division;
             await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps(),
-                        divisions: [division as DivisionDto],
-                    },
-                    reportedError,
-                ),
+                appPropsWithFullScreen({
+                    divisions: [divisionData as DivisionDto],
+                }),
                 '/live/unknown',
             );
 
-            reportedError.verifyNoError();
             expect(context.container.innerHTML).toContain(
                 'Specify the ids for the unknown',
             );
         });
 
         it('redirects to type', async () => {
-            await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps(),
-                    },
-                    reportedError,
-                ),
-                '/live',
-                '/live',
-            );
+            await renderComponent(appPropsWithFullScreen(), '/live', '/live');
 
             await doClick(findButton(context.container, 'Superleague'));
 
             reportedError.verifyNoError();
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                '/live/superleague/',
-            );
+            expectNavigateTo('/live/superleague/');
         });
 
         it('redirects to type when url ends with a slash', async () => {
-            await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps(),
-                    },
-                    reportedError,
-                ),
-                '/live/',
-                '/live',
-            );
+            await renderComponent(appPropsWithFullScreen(), '/live/', '/live');
 
             await doClick(findButton(context.container, 'Superleague'));
 
             reportedError.verifyNoError();
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                '/live/superleague/',
-            );
+            expectNavigateTo('/live/superleague/');
         });
 
         it('renders note if no superleague divisions', async () => {
-            const division = divisionDataBuilder(
+            divisionData = divisionDataBuilder(
                 divisionBuilder('ANOTHER DIVISION').build(),
             ).build();
-            divisionData = division;
             await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps(),
-                        divisions: [division as DivisionDto],
-                    },
-                    reportedError,
-                ),
+                appPropsWithFullScreen({
+                    divisions: [divisionData as DivisionDto],
+                }),
                 '/live/superleague/',
             );
 
-            reportedError.verifyNoError();
             expect(context.container.innerHTML).toContain(
                 'Could not find any superleague divisions',
             );
         });
 
         it('renders note if no superleague tournaments found today', async () => {
-            const division = divisionBuilder('SUPER LEAGUE')
+            divisionData = divisionBuilder('SUPER LEAGUE')
                 .superleague()
                 .build();
             const today = new Date();
-            divisionData = division;
             await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps(),
-                        divisions: [division],
-                    },
-                    reportedError,
-                ),
+                appPropsWithFullScreen({
+                    divisions: [divisionData as DivisionDto],
+                }),
                 '/live/superleague',
             );
 
-            reportedError.verifyNoError();
             expect(context.container.innerHTML).toContain(
                 `Could not find any superleague tournaments on ${renderDate(today.toString())}`,
             );
@@ -511,50 +577,34 @@ describe('LiveSayg', () => {
 
         it('redirects to superleague tournaments today', async () => {
             const tournamentId = createTemporaryId();
-            const division = divisionDataBuilder(
-                divisionBuilder('SUPER LEAGUE').build(),
-            )
+            const division = divisionBuilder('SUPER LEAGUE').build();
+            divisionData = divisionDataBuilder(division)
                 .superleague()
                 .withFixtureDate((d) =>
                     d.withTournament((t) => t, tournamentId),
                 )
                 .build();
-            divisionData = division;
             await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps(),
-                        divisions: [division as DivisionDto],
-                    },
-                    reportedError,
-                ),
+                appPropsWithFullScreen({
+                    divisions: [divisionData as DivisionDto],
+                }),
                 '/live/superleague/',
             );
 
-            reportedError.verifyNoError();
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                '/live/superleague/?id=' + tournamentId,
-                { replace: true },
-            );
+            expectNavigateWithReplace('/live/superleague/?id=' + tournamentId);
         });
 
         it('renders note if no superleague tournaments found on given date', async () => {
-            const division = divisionBuilder('SUPER LEAGUE')
+            divisionData = divisionBuilder('SUPER LEAGUE')
                 .superleague()
                 .build();
-            divisionData = division;
             await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps(),
-                        divisions: [division],
-                    },
-                    reportedError,
-                ),
+                appPropsWithFullScreen({
+                    divisions: [divisionData as DivisionDto],
+                }),
                 '/live/superleague/?date=2025-01-01',
             );
 
-            reportedError.verifyNoError();
             expect(context.container.innerHTML).toContain(
                 `Could not find any superleague tournaments on ${renderDate('2025-01-01')}`,
             );
@@ -562,31 +612,21 @@ describe('LiveSayg', () => {
 
         it('redirects to superleague tournaments on given date', async () => {
             const tournamentId = createTemporaryId();
-            const division = divisionDataBuilder(
-                divisionBuilder('SUPER LEAGUE').build(),
-            )
+            const division = divisionBuilder('SUPER LEAGUE').build();
+            divisionData = divisionDataBuilder(division)
                 .superleague()
                 .withFixtureDate((d) =>
                     d.withTournament((t) => t, tournamentId),
                 )
                 .build();
-            divisionData = division;
             await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps(),
-                        divisions: [division as DivisionDto],
-                    },
-                    reportedError,
-                ),
+                appPropsWithFullScreen({
+                    divisions: [divisionData as DivisionDto],
+                }),
                 '/live/superleague/?date=2025-01-01',
             );
 
-            reportedError.verifyNoError();
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                '/live/superleague/?id=' + tournamentId,
-                { replace: true },
-            );
+            expectNavigateWithReplace('/live/superleague/?id=' + tournamentId);
         });
     });
 
@@ -598,22 +638,8 @@ describe('LiveSayg', () => {
                 .type('BOARD 1')
                 .addTo(tournamentData)
                 .build();
-            let isFullScreen = false;
 
-            await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps({
-                            enterFullScreen: async () => (isFullScreen = true),
-                            exitFullScreen: async () => (isFullScreen = false),
-                            toggleFullScreen: async () =>
-                                (isFullScreen = !isFullScreen),
-                        }),
-                    },
-                    reportedError,
-                ),
-                '/live/superleague/?id=' + tournament.id,
-            );
+            await render(tournament);
 
             await doClick(findButton(context.container, 'Full screen'));
 
@@ -627,17 +653,8 @@ describe('LiveSayg', () => {
                 .type('BOARD 1')
                 .addTo(tournamentData)
                 .build();
-            await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps({
-                            isFullScreen: true,
-                        }),
-                    },
-                    reportedError,
-                ),
-                '/live/superleague/?id=' + tournament.id,
-            );
+            isFullScreen = true;
+            await render(tournament);
             tournament.type = 'BOARD UPDATED';
             expect(context.container.textContent).toContain('BOARD 1');
 
@@ -661,104 +678,54 @@ describe('LiveSayg', () => {
                 .addTo(tournamentData)
                 .build();
 
-            await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps(),
-                    },
-                    reportedError,
-                ),
-                '/live/superleague/?id=' +
-                    tournament1.id +
-                    '&id=' +
-                    tournament2.id,
-            );
+            await render(tournament1, tournament2);
 
             const secondTournamentRemoveButton = Array.from(
                 context.container.querySelectorAll('button.btn-secondary'),
             );
             await doClick(secondTournamentRemoveButton[1]);
 
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                '/live/superleague/?id=' + tournament1.id,
-            );
+            expectNavigateTo('/live/superleague/?id=' + tournament1.id);
         });
 
         it('can change date when no type specified', async () => {
-            await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps(),
-                    },
-                    reportedError,
-                ),
-                '/live',
-                '/live',
-            );
+            await renderComponent(appPropsWithFullScreen(), '/live', '/live');
 
-            await doChange(
-                context.container,
-                'input[name="liveDate"]',
-                '2025-01-01',
-                context.user,
-            );
+            await change('input[name="liveDate"]', '2025-01-01');
 
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                '/live?date=2025-01-01',
-            );
+            expectNavigateTo('/live?date=2025-01-01');
         });
 
         it('can change date when type specified', async () => {
             await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps(),
-                    },
-                    reportedError,
-                ),
+                appPropsWithFullScreen(),
                 '/live/superleague',
                 '/live/:type',
             );
 
-            await doChange(
-                context.container,
-                'input[name="liveDate"]',
-                '2025-01-01',
-                context.user,
-            );
+            await change('input[name="liveDate"]', '2025-01-01');
 
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                '/live/superleague/?date=2025-01-01',
-            );
+            expectNavigateTo('/live/superleague/?date=2025-01-01');
         });
 
         it('removes date from query when setting date to today', async () => {
             await renderComponent(
-                appProps(
-                    {
-                        fullScreen: fullScreenProps(),
-                    },
-                    reportedError,
-                ),
+                appPropsWithFullScreen(),
                 '/live/?date=2025-01-01',
                 '/live',
             );
             const today: string = new Date().toISOString().substring(0, 10);
 
-            await doChange(
-                context.container,
-                'input[name="liveDate"]',
-                today,
-                context.user,
-            );
+            await change('input[name="liveDate"]', today);
 
-            expect(mockedUsedNavigate).toHaveBeenCalledWith('/live');
+            expectNavigateTo('/live');
         });
     });
 
     describe('updates', () => {
         let tournament1: TournamentGameDto;
         const account: UserDto = user({ useWebSockets: true });
+        const bo = 3;
 
         async function sendUpdate(update: { id: string }) {
             expect(socketFactory.socket).not.toBeNull();
@@ -778,37 +745,31 @@ describe('LiveSayg', () => {
             });
         }
 
+        async function render(...tournaments: TournamentGameDto[]) {
+            const query = tournaments.map((t) => `id=${t.id}`).join('&');
+
+            await renderComponent(
+                appPropsWithFullScreen({ account }),
+                '/live/superleague/?' + query,
+            );
+        }
+
         beforeEach(() => {
-            tournament1 = tournamentBuilder()
-                .host('HOST 1.0')
-                .opponent('OPPONENT 1.0')
-                .type('BOARD 1.0')
-                .bestOf(3)
-                .addTo(tournamentData)
-                .build();
+            tournament1 = buildTournament(bo);
         });
 
         it('can apply live update for one tournament', async () => {
             const updatedTournament1 = tournamentBuilder(tournament1.id)
                 .host('HOST 1.1')
                 .opponent('OPPONENT 1.1')
-                .type('BOARD 1.1')
-                .build();
+                .type('BOARD 1.1');
 
-            await renderComponent(
-                appProps(
-                    {
-                        account,
-                    },
-                    reportedError,
-                ),
-                '/live/superleague/?id=' + tournament1.id,
-            );
+            await render(tournament1);
             expect(context.container.innerHTML).toContain('BOARD 1.0');
             expect(context.container.innerHTML).toContain('HOST 1.0');
             expect(context.container.innerHTML).toContain('OPPONENT 1.0');
 
-            await sendUpdate(updatedTournament1);
+            await sendUpdate(updatedTournament1.build());
 
             expect(context.container.innerHTML).toContain('BOARD 1.1');
             expect(context.container.innerHTML).toContain('HOST 1.1');
@@ -820,8 +781,8 @@ describe('LiveSayg', () => {
                 .withLeg(0, (l) =>
                     l
                         .startingScore(501)
-                        .home((c) => c.withThrow(10).withThrow(100))
-                        .away((c) => c.withThrow(5).withThrow(50)),
+                        .home(throws(10, 100))
+                        .away(throws(5, 50)),
                 )
                 .addTo(saygData)
                 .build();
@@ -831,48 +792,23 @@ describe('LiveSayg', () => {
                 )
                 .build();
 
-            await renderComponent(
-                appProps(
-                    {
-                        account,
-                    },
-                    reportedError,
-                ),
-                '/live/superleague/?id=' + tournament1.id,
-            );
-            let liveScores = context.container.querySelector(
-                'div[datatype="live-scores"]',
-            )!;
-            expect(liveScores).toBeTruthy();
-            expect(liveScores.innerHTML).toContain(
-                (501 - (10 + 100)).toString(),
-            );
-            expect(liveScores.innerHTML).toContain((501 - (5 + 50)).toString());
+            await render(tournament1);
+            expectLiveScores(tournament1, 501 - 10 - 100, 501 - 5 - 50);
 
             const updatedSayg = saygBuilder(sayg.id)
                 .withLeg(0, (l) =>
                     l
                         .startingScore(501)
-                        .home((c) =>
-                            c.withThrow(10).withThrow(100).withThrow(11),
-                        )
-                        .away((c) =>
-                            c.withThrow(5).withThrow(50).withThrow(55),
-                        ),
+                        .home(throws(10, 100, 11))
+                        .away(throws(5, 50, 55)),
                 )
-                .addTo(saygData)
-                .build();
-            await sendUpdate(updatedSayg);
+                .addTo(saygData);
+            await sendUpdate(updatedSayg.build());
 
-            liveScores = context.container.querySelector(
-                'div[datatype="live-scores"]',
-            )!;
-            expect(liveScores).toBeTruthy();
-            expect(liveScores.innerHTML).toContain(
-                (501 - (10 + 100 + 11)).toString(),
-            );
-            expect(liveScores.innerHTML).toContain(
-                (501 - (5 + 50 + 55)).toString(),
+            expectLiveScores(
+                tournament1,
+                501 - 10 - 100 - 11,
+                501 - 5 - 50 - 55,
             );
         });
 
@@ -881,8 +817,8 @@ describe('LiveSayg', () => {
                 .withLeg(0, (l) =>
                     l
                         .startingScore(501)
-                        .home((c) => c.withThrow(10).withThrow(100))
-                        .away((c) => c.withThrow(5).withThrow(50)),
+                        .home(throws(10, 100))
+                        .away(throws(5, 50)),
                 )
                 .addTo(saygData)
                 .build();
@@ -894,19 +830,8 @@ describe('LiveSayg', () => {
                 )
                 .build();
 
-            await renderComponent(
-                appProps(
-                    {
-                        account,
-                    },
-                    reportedError,
-                ),
-                '/live/superleague/?id=' + tournament1.id,
-            );
-            let liveScores = context.container.querySelector(
-                'div[datatype="live-scores"]',
-            )!;
-            expect(liveScores).toBeTruthy();
+            await render(tournament1);
+            expect(getLiveScores(tournament1)).toBeTruthy();
 
             const updatedTournament1 = tournamentBuilder(tournament1.id)
                 .host('HOST 1.1')
@@ -923,10 +848,7 @@ describe('LiveSayg', () => {
                 .build();
             await sendUpdate(updatedTournament1);
 
-            liveScores = context.container.querySelector(
-                'div[datatype="live-scores"]',
-            )!;
-            expect(liveScores).toBeFalsy();
+            expect(getLiveScores(updatedTournament1)).toBeFalsy();
         });
 
         it('can apply alternating live updates', async () => {
@@ -944,21 +866,9 @@ describe('LiveSayg', () => {
             const updatedTournament2 = tournamentBuilder(tournament2.id)
                 .host('HOST 2.1')
                 .opponent('OPPONENT 2.1')
-                .type('BOARD 2.1')
-                .build();
+                .type('BOARD 2.1');
 
-            await renderComponent(
-                appProps(
-                    {
-                        account,
-                    },
-                    reportedError,
-                ),
-                '/live/superleague/?id=' +
-                    tournament1.id +
-                    '&id=' +
-                    tournament2.id,
-            );
+            await render(tournament1, tournament2);
             expect(context.container.innerHTML).toContain('BOARD 1.0');
             expect(context.container.innerHTML).toContain('HOST 1.0');
             expect(context.container.innerHTML).toContain('OPPONENT 1.0');
@@ -975,7 +885,7 @@ describe('LiveSayg', () => {
             expect(context.container.innerHTML).toContain('HOST 2.0');
             expect(context.container.innerHTML).toContain('OPPONENT 2.0');
 
-            await sendUpdate(updatedTournament2);
+            await sendUpdate(updatedTournament2.build());
 
             expect(context.container.innerHTML).toContain('BOARD 1.1');
             expect(context.container.innerHTML).toContain('HOST 1.1');
@@ -1009,40 +919,138 @@ describe('LiveSayg', () => {
                 )
                 .build();
 
-            await renderComponent(
-                appProps(
-                    {
-                        account,
-                    },
-                    reportedError,
-                ),
-                '/live/superleague/?id=' + tournament1.id,
-            );
-            expect(
-                Array.from(context.container.querySelectorAll('table tbody tr'))
-                    .length,
-            ).toEqual(0);
+            await render(tournament1);
+            expect(rows().length).toEqual(0);
 
             await sendUpdate(matchAdded);
 
-            expect(
-                Array.from(context.container.querySelectorAll('table tbody tr'))
-                    .length,
-            ).toEqual(1);
-            expect(Object.keys(socketFactory.subscriptions)).toEqual([
-                tournament1.id,
-            ]);
+            expect(rows().length).toEqual(1);
+            expectSubscriptions(tournament1.id);
 
             await sendUpdate(matchSaygSet);
 
-            expect(
-                Array.from(context.container.querySelectorAll('table tbody tr'))
-                    .length,
-            ).toEqual(1);
-            expect(Object.keys(socketFactory.subscriptions)).toEqual([
-                tournament1.id,
-                sayg.id,
-            ]);
+            expect(rows().length).toEqual(1);
+            expectSubscriptions(tournament1.id, sayg.id);
+        });
+
+        it('alternating board updates are shown correctly', async () => {
+            const sayg1 = withLeg([10, 100], [5, 50], undefined, bo);
+            const sayg2 = withLeg([16, 106], [6, 56], undefined, bo);
+            tournament1.round = roundWithMatch('SIDE A', 'SIDE B', sayg1, bo);
+            const tournament2 = buildTournament(bo);
+            tournament2.round = roundWithMatch('SIDE C', 'SIDE D', sayg2, bo);
+
+            await render(tournament1, tournament2);
+            expectLiveScores(tournament1, 501 - 10 - 100, 501 - 5 - 50);
+            expectLiveScores(tournament2, 501 - 16 - 106, 501 - 6 - 56);
+
+            await sendUpdate(withLeg([10, 100, 11], [5, 50, 55], sayg1, bo));
+            await sendUpdate(withLeg([16, 106, 17], [6, 56, 65], sayg2, bo));
+
+            expectLiveScores(
+                tournament1,
+                501 - 10 - 100 - 11,
+                501 - 5 - 50 - 55,
+            );
+            expectLiveScores(
+                tournament2,
+                501 - 16 - 106 - 17,
+                501 - 6 - 56 - 65,
+            );
+        });
+
+        it('alternating board updates are shown progressively', async () => {
+            const sayg1 = withLeg([], [], undefined, bo);
+            const sayg2 = withLeg([], [], undefined, bo);
+            tournament1.round = roundWithMatch('SIDE A', 'SIDE B', sayg1, bo);
+            const tournament2 = buildTournament(bo);
+            tournament2.round = roundWithMatch('SIDE C', 'SIDE D', sayg2, bo);
+
+            await render(tournament1, tournament2);
+            expectLiveScores(tournament1, 501, 501);
+            expectLiveScores(tournament2, 501, 501);
+
+            await sendUpdate(withLeg([10], [5], sayg1, bo));
+            await sendUpdate(withLeg([16], [6], sayg2, bo));
+
+            expectLiveScores(tournament1, 501 - 10, 501 - 5);
+            expectLiveScores(tournament2, 501 - 16, 501 - 6);
+
+            await sendUpdate(withLeg([10, 100], [5, 50], sayg1, bo));
+            await sendUpdate(withLeg([16, 106], [6, 56], sayg2, bo));
+
+            expectLiveScores(tournament1, 501 - 10 - 100, 501 - 5 - 50);
+            expectLiveScores(tournament2, 501 - 16 - 106, 501 - 6 - 56);
+
+            await sendUpdate(withLeg([10, 100, 11], [5, 50, 55], sayg1, bo));
+            await sendUpdate(withLeg([16, 106, 17], [6, 56, 65], sayg2, bo));
+
+            expectLiveScores(
+                tournament1,
+                501 - 10 - 100 - 11,
+                501 - 5 - 50 - 55,
+            );
+            expectLiveScores(
+                tournament2,
+                501 - 16 - 106 - 17,
+                501 - 6 - 56 - 65,
+            );
+        });
+
+        it('when match bestOf is larger than sayg', async () => {
+            const sbo = 3;
+            const sayg1 = saygBuilder()
+                .numberOfLegs(sbo)
+                .withLeg(0, (l) =>
+                    l
+                        .home(throws(100, 100, 100, 100, 101))
+                        .away(throws(50, 50, 50, 50, 50)),
+                )
+                .withLeg(1, (l) =>
+                    l
+                        .home(throws(100, 100, 100, 100))
+                        .away(throws(50, 50, 50, 50)),
+                )
+                .addTo(saygData)
+                .build();
+            const sayg2 = saygBuilder()
+                .numberOfLegs(sbo)
+                .withLeg(0, (l) =>
+                    l
+                        .home(throws(10, 10, 10, 10, 11))
+                        .away(throws(5, 5, 5, 5, 5)),
+                )
+                .addTo(saygData)
+                .build();
+            tournament1.round = roundWithMatch('SIDE A', 'SIDE B', sayg1, 5);
+            const tournament2 = buildTournament(bo);
+            tournament2.round = roundWithMatch('SIDE C', 'SIDE D', sayg2, 5);
+
+            await render(tournament1, tournament2);
+
+            await sendUpdate(
+                withLeg(
+                    [100, 100, 100, 100, 101],
+                    [50, 50, 50, 50, 50],
+                    sayg1,
+                    sbo,
+                ),
+            );
+
+            expectLiveScores(tournament1, 0, 251);
+            expectLiveScores(tournament2, 450, 476);
+
+            await sendUpdate(
+                withLeg(
+                    [10, 10, 10, 10, 11, 100],
+                    [5, 5, 5, 5, 5, 50],
+                    sayg2,
+                    sbo,
+                ),
+            );
+
+            expectLiveScores(tournament1, 0, 251);
+            expectLiveScores(tournament2, 350, 426);
         });
     });
 });

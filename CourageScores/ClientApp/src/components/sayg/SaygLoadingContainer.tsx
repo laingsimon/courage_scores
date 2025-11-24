@@ -43,6 +43,7 @@ export interface ISaygLoadingContainerProps {
 
     // for testing only
     onScoreChange?(homeScore: number, awayScore: number): UntypedPromise;
+    onDataUpdate?(data: object): UntypedPromise;
 }
 
 export interface ILoadedScoreAsYouGoDto extends UpdateRecordedScoreAsYouGoDto {
@@ -67,6 +68,7 @@ export function SaygLoadingContainer({
     onFinished,
     initialOneDartAverage,
     showFullNames,
+    onDataUpdate,
 }: ISaygLoadingContainerProps) {
     const [sayg, setSayg] = useState<ILoadedScoreAsYouGoDto | undefined>(
         defaultData,
@@ -224,9 +226,12 @@ export function SaygLoadingContainer({
         return (
             <LiveContainer
                 liveOptions={liveOptions}
-                onDataUpdate={async (data: ILoadedScoreAsYouGoDto) =>
-                    setSayg(data)
-                }>
+                onDataUpdate={async (data: ILoadedScoreAsYouGoDto) => {
+                    setSayg(data);
+                    if (onDataUpdate) {
+                        await onDataUpdate(data);
+                    }
+                }}>
                 <EditableSaygContainer>
                     <SaygContext.Provider value={saygProps}>
                         {saveError ? (
