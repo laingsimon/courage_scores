@@ -62,10 +62,6 @@ export function DivisionFixtureDate({
         (access) => access.manageNotes,
     );
     const filterByDateUrl: string = getFilterByDateUrl(date.date);
-    const canUseWebSockets: boolean = hasAccess(
-        account,
-        (access) => access.useWebSockets,
-    );
 
     function getFilterByDateUrl(date: string): string {
         const filters = new URLSearchParams(location.search);
