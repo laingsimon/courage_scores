@@ -405,7 +405,7 @@ export function DivisionFixtures({ setNewFixtures }: IDivisionFixturesProps) {
                         {canAnalyseMatches && season && superleague ? (
                             <Link
                                 to={`/analyse/${season!.name}`}
-                                className="btn btn-sm btn-secondary">
+                                className="btn btn-secondary">
                                 📊 Analyse
                             </Link>
                         ) : null}
@@ -414,7 +414,7 @@ export function DivisionFixtures({ setNewFixtures }: IDivisionFixturesProps) {
                 {!isAdmin && canAnalyseMatches && season && superleague ? (
                     <Link
                         to={`/analyse/${season!.name}`}
-                        className="btn btn-sm btn-secondary float-end">
+                        className="btn btn-secondary float-end">
                         📊 Analyse
                     </Link>
                 ) : null}
