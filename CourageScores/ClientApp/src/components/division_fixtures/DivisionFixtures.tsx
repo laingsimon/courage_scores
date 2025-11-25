@@ -402,7 +402,7 @@ export function DivisionFixtures({ setNewFixtures }: IDivisionFixturesProps) {
                                 ⚠️ Delete all league fixtures
                             </button>
                         )}
-                        {canAnalyseMatches && season ? (
+                        {canAnalyseMatches && season && superleague ? (
                             <Link
                                 to={`/analyse/${season!.name}`}
                                 className="btn btn-sm btn-secondary">
