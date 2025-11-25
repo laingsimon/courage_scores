@@ -62,10 +62,6 @@ export function DivisionFixtureDate({
         (access) => access.manageNotes,
     );
     const filterByDateUrl: string = getFilterByDateUrl(date.date);
-    const canUseWebSockets: boolean = hasAccess(
-        account,
-        (access) => access.useWebSockets,
-    );
 
     function getFilterByDateUrl(date: string): string {
         const filters = new URLSearchParams(location.search);
@@ -288,7 +284,6 @@ export function DivisionFixtureDate({
                     </span>
                 ) : null}
                 {superleague &&
-                canUseWebSockets &&
                 any(date.tournamentFixtures, (t) => !!t.singleRound) ? (
                     <Link
                         to={`/live/superleague/?date=${date.date}`}
@@ -298,6 +293,7 @@ export function DivisionFixtureDate({
                 ) : null}
                 {canAnalyseMatches &&
                 season &&
+                superleague &&
                 any(date.tournamentFixtures, (t) => !t.proposed) ? (
                     <Link
                         to={`/analyse/${season!.name}/?${date
