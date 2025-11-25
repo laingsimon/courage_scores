@@ -411,7 +411,7 @@ export function DivisionFixtures({ setNewFixtures }: IDivisionFixturesProps) {
                         ) : null}
                     </div>
                 ) : null}
-                {!isAdmin && canAnalyseMatches && season ? (
+                {!isAdmin && canAnalyseMatches && season && superleague ? (
                     <Link
                         to={`/analyse/${season!.name}`}
                         className="btn btn-sm btn-secondary float-end">
