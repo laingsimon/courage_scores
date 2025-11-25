@@ -288,7 +288,6 @@ export function DivisionFixtureDate({
                     </span>
                 ) : null}
                 {superleague &&
-                canUseWebSockets &&
                 any(date.tournamentFixtures, (t) => !!t.singleRound) ? (
                     <Link
                         to={`/live/superleague/?date=${date.date}`}
@@ -298,6 +297,7 @@ export function DivisionFixtureDate({
                 ) : null}
                 {canAnalyseMatches &&
                 season &&
+                superleague &&
                 any(date.tournamentFixtures, (t) => !t.proposed) ? (
                     <Link
                         to={`/analyse/${season!.name}/?${date
