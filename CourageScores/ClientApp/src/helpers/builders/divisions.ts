@@ -21,8 +21,7 @@ import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/Divisio
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
 import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto';
 
-export interface IDivisionFixtureBuilder
-    extends IAddableBuilder<IDatedDivisionFixtureDto> {
+export interface IDivisionFixtureBuilder extends IAddableBuilder<IDatedDivisionFixtureDto> {
     withOtherFixtureUsingUsingAddress(
         name: string,
         id?: string,
@@ -116,8 +115,9 @@ export function divisionFixtureBuilder(
     return builder;
 }
 
-export interface IDivisionFixtureDateBuilder
-    extends IBuilder<DivisionFixtureDateDto & IEditableDivisionFixtureDateDto> {
+export interface IDivisionFixtureDateBuilder extends IBuilder<
+    DivisionFixtureDateDto & IEditableDivisionFixtureDateDto
+> {
     knockout(): IDivisionFixtureDateBuilder;
     withFixture(
         builder?: BuilderParam<IDivisionFixtureBuilder>,
@@ -257,8 +257,9 @@ export function divisionBuilder(name: string, id?: string): IDivisionBuilder {
     return builder;
 }
 
-export interface IDivisionDataBuilder
-    extends IAddableBuilder<DivisionDataDto & IDivisionDataContainerProps> {
+export interface IDivisionDataBuilder extends IAddableBuilder<
+    DivisionDataDto & IDivisionDataContainerProps
+> {
     withFixtureDate(
         builder?: BuilderParam<IDivisionFixtureDateBuilder>,
         date?: string,

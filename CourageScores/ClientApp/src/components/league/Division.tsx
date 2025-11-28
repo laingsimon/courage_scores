@@ -32,8 +32,7 @@ import { NavLink } from '../common/NavLink';
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
 
 export interface IRequestedDivisionDataDto
-    extends DivisionDataDto,
-        IFailedRequest {
+    extends DivisionDataDto, IFailedRequest {
     requested?: { divisionId: string[]; seasonId: string };
 }
 
