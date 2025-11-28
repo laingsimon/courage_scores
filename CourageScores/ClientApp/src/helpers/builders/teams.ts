@@ -8,8 +8,9 @@ import { createTemporaryId } from '../projection';
 import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto';
 import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto';
 
-export interface ITeamBuilder
-    extends IAddableBuilder<TeamDto & EditTeamDto & GameTeamDto> {
+export interface ITeamBuilder extends IAddableBuilder<
+    TeamDto & EditTeamDto & GameTeamDto
+> {
     forSeason(
         seasonOrId: any,
         divisionOrId?: any,
