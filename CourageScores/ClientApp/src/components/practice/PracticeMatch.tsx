@@ -21,6 +21,7 @@ export function PracticeMatch() {
     const navigate = useNavigate();
     const hasHash: boolean = (location.hash && location.hash !== '#') || false;
     const query: URLSearchParams = new URLSearchParams(location.search);
+    const isEmbed: boolean = query.has('embed');
 
     if (appLoading) {
         return <Loading />;
@@ -74,7 +75,7 @@ export function PracticeMatch() {
         };
 
         return (
-            <div className="p-3 content-background">
+            <div className={`${isEmbed ? '' : 'p-3 '}content-background`}>
                 <SaygLoadingContainer
                     id={hasHash ? location.hash.substring(1) : ''}
                     on180={noop}
@@ -89,7 +90,7 @@ export function PracticeMatch() {
                     liveOptions={liveOptions}
                     onLoadError={async (error: string) => setDataError(error)}>
                     {fullScreen.isFullScreen ? null : (
-                        <EditSaygPracticeOptions />
+                        <EditSaygPracticeOptions hideSaveButton={isEmbed} />
                     )}
                 </SaygLoadingContainer>
             </div>
