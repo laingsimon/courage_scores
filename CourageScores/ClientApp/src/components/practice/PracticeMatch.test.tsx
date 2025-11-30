@@ -254,6 +254,22 @@ describe('PracticeMatch', () => {
             expect(matchStatistics.textContent).toEqual('Match statistics');
         });
 
+        it('cannot save unfinished practice data when embedded', async () => {
+            const jsonData: RecordedScoreAsYouGoDto = saygBuilder()
+                .startingScore(123)
+                .numberOfLegs(2)
+                .withLeg(0, (l) => l.home().away())
+                .scores(1)
+                .yourName('Simon')
+                .addTo(saygData)
+                .build();
+            await renderComponent(account, '?embed=true#' + jsonData.id);
+            reportedError.verifyNoError();
+            assertNoDataError();
+
+            expect(findButton(context.container, 'Save ', true)).toBeNull();
+        });
+
         it('can save unfinished practice data', async () => {
             const jsonData: RecordedScoreAsYouGoDto = saygBuilder()
                 .startingScore(123)
@@ -303,6 +319,25 @@ describe('PracticeMatch', () => {
                 title: 'Practice',
                 url: `/practice/match#${jsonData.id}`,
             });
+        });
+
+        it('can save finished practice data when embedded', async () => {
+            const jsonData: RecordedScoreAsYouGoDto = {
+                startingScore: 123,
+                numberOfLegs: 1,
+                legs: {},
+                homeScore: 1,
+                awayScore: 2,
+                yourName: 'you',
+                opponentName: 'them',
+                id: createTemporaryId(),
+            };
+            saygData[jsonData.id] = jsonData;
+            await renderComponent(account, '?embed=true#' + jsonData.id);
+            reportedError.verifyNoError();
+            assertNoDataError();
+
+            expect(findButton(context.container, 'Save ', true)).toBeNull();
         });
 
         it('can change your name', async () => {

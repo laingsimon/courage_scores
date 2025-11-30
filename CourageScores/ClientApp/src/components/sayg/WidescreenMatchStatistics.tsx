@@ -6,8 +6,7 @@ import { WidescreenSaygMatchDetails } from './WidescreenSaygMatchDetails';
 import { IMatchStatisticsProps } from './MatchStatistics';
 
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-export interface IWidescreenMatchStatisticsProps
-    extends IMatchStatisticsProps {}
+export interface IWidescreenMatchStatisticsProps extends IMatchStatisticsProps {}
 
 export function WidescreenMatchStatistics({
     legs,

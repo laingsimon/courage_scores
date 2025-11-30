@@ -6,5 +6,4 @@ import { IFailedRequest } from './IFailedRequest';
 // TOOD: Find a way of removing the @ts-ignore below
 // @ts-ignore
 export interface IClientActionResultDto<TDto>
-    extends ActionResultDto<TDto>,
-        IFailedRequest {}
+    extends ActionResultDto<TDto>, IFailedRequest {}

@@ -34,11 +34,11 @@ test.describe('proof of concept', () => {
             'Reports',
             'Health',
         ];
-        await expect(page.locator('ul.nav-tabs li')).toHaveCount(
-            expectedTabs.length,
-        );
-        expect(await page.locator('ul.nav-tabs li').allTextContents()).toEqual(
-            expectedTabs,
-        );
+        const tabsLocator = page.locator('ul.nav-tabs li');
+        await expect(tabsLocator).toHaveCount(expectedTabs.length);
+        let index = 0;
+        for (const tab of expectedTabs) {
+            await expect(tabsLocator.nth(index++)).toHaveText(tab);
+        }
     });
 });

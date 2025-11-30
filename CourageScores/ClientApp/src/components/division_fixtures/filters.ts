@@ -292,8 +292,10 @@ export function getFixtureDateFilters(
     ]);
 }
 
-export interface IInitialisedFilters
-    extends Record<string, string | undefined> {
+export interface IInitialisedFilters extends Record<
+    string,
+    string | undefined
+> {
     date?: string;
     type?: string;
     team?: string;

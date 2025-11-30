@@ -7,10 +7,9 @@ import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto';
 import { LegCompetitorScoreDto } from '../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto';
 import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
 
-export interface IRecordedSaygBuilder
-    extends IAddableBuilder<
-        RecordedScoreAsYouGoDto & UpdateRecordedScoreAsYouGoDto
-    > {
+export interface IRecordedSaygBuilder extends IAddableBuilder<
+    RecordedScoreAsYouGoDto & UpdateRecordedScoreAsYouGoDto
+> {
     scores(home: number, away?: number): IRecordedSaygBuilder;
     withLeg(
         id: number,
@@ -134,8 +133,7 @@ export function legBuilder(): ILegBuilder {
     return builder;
 }
 
-export interface ILegCompetitorScoreBuilder
-    extends IBuilder<LegCompetitorScoreDto> {
+export interface ILegCompetitorScoreBuilder extends IBuilder<LegCompetitorScoreDto> {
     withThrow(score: number, noOfDarts?: number): ILegCompetitorScoreBuilder;
 }
 

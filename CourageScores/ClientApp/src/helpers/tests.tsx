@@ -412,6 +412,7 @@ export async function cleanUp(context: TestContext): UntypedPromise {
 export function findButton(
     container: Element | undefined | null,
     text: string,
+    returnNullIfNotFound?: boolean,
 ): IFoundButton {
     if (!container) {
         throw new Error('Container is null');
@@ -429,9 +430,16 @@ export function findButton(
             .map((b) => b.textContent)
             .join(', ');
 
+        if (returnNullIfNotFound) {
+            return null!;
+        }
         throw new Error(
             `Unable to find button with text = ${text} - buttons are ${buttons}`,
         );
+    }
+
+    if (returnNullIfNotFound) {
+        return null!;
     }
     throw new Error(
         `Multiple buttons (${matching.length}) exist with text = ${text}`,

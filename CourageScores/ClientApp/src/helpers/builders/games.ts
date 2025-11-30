@@ -13,8 +13,9 @@ import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
 import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto';
 import { teamBuilder } from './teams';
 
-export interface IFixtureBuilder
-    extends IAddableBuilder<IDatedDivisionFixtureDto & GameDto> {
+export interface IFixtureBuilder extends IAddableBuilder<
+    IDatedDivisionFixtureDto & GameDto
+> {
     playing(home: string, away: string): IFixtureBuilder;
     teams(home: GameTeamDto, away: GameTeamDto): IFixtureBuilder;
     bye(venue: string, id?: string): IFixtureBuilder;

@@ -10,10 +10,9 @@ import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/Tournament
 import { IMatchOptionsBuilder, matchOptionsBuilder } from './games';
 import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
 
-export interface ITournamentBuilder
-    extends IAddableBuilder<
-        TournamentGameDto & DivisionTournamentFixtureDetailsDto
-    > {
+export interface ITournamentBuilder extends IAddableBuilder<
+    TournamentGameDto & DivisionTournamentFixtureDetailsDto
+> {
     type(type: string): ITournamentBuilder;
     address(address: string): ITournamentBuilder;
     winner(name: string, id?: string, teamId?: string): ITournamentBuilder;

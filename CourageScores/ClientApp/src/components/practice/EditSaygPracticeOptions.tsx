@@ -6,7 +6,13 @@ import { useEditableSayg } from '../sayg/EditableSaygContainer';
 import { useLocation, useNavigate } from 'react-router';
 import { useApp } from '../common/AppContainer';
 
-export function EditSaygPracticeOptions() {
+export interface IEditSaygPracticeOptionsProps {
+    hideSaveButton?: boolean;
+}
+
+export function EditSaygPracticeOptions({
+    hideSaveButton,
+}: IEditSaygPracticeOptionsProps) {
     const { sayg, setSayg, saveDataAndGetId } = useSayg();
     const { setEditScore } = useEditableSayg();
     const location = useLocation();
@@ -95,12 +101,14 @@ export function EditSaygPracticeOptions() {
                     value={sayg.startingScore}
                     onChange={valueChanged(sayg, updateQueryParameters)}
                 />
-                <ShareButton
-                    text="Practice"
-                    getHash={saveDataAndGetId}
-                    title="Practice"
-                    buttonText="Save "
-                />
+                {hideSaveButton ? null : (
+                    <ShareButton
+                        text="Practice"
+                        getHash={saveDataAndGetId}
+                        title="Practice"
+                        buttonText="Save "
+                    />
+                )}
             </div>
             <div className="input-group my-3">
                 <div className="input-group-prepend">

@@ -10,10 +10,9 @@ import { createTemporaryId } from '../projection';
 import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
 import { GenderDto } from '../../interfaces/models/dtos/Team/GenderDto';
 
-export interface IPlayerBuilder
-    extends IAddableBuilder<
-        TeamPlayerDto & DivisionPlayerDto & NotablePlayerDto & ISelectablePlayer
-    > {
+export interface IPlayerBuilder extends IAddableBuilder<
+    TeamPlayerDto & DivisionPlayerDto & NotablePlayerDto & ISelectablePlayer
+> {
     captain(): IPlayerBuilder;
     score(score: number): IPlayerBuilder;
     noId(): IPlayerBuilder;
@@ -72,8 +71,7 @@ export function playerBuilder(name?: string, id?: string): IPlayerBuilder {
     return builder;
 }
 
-export interface IPlayerPerformanceBuilder
-    extends IBuilder<PlayerPerformanceDto> {
+export interface IPlayerPerformanceBuilder extends IBuilder<PlayerPerformanceDto> {
     matchesPlayed(count: number): IPlayerPerformanceBuilder;
 }
 
