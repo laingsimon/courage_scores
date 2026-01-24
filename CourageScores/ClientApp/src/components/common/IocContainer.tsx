@@ -26,6 +26,7 @@ import { PollingUpdateStrategy } from '../../live/PollingUpdateStrategy';
 import { WebSocketMode } from '../../live/WebSocketMode';
 import { FeatureApi } from '../../interfaces/apis/IFeatureApi';
 import { CookiesProvider } from 'react-cookie';
+import { RemoteControlApi } from '../../interfaces/apis/IRemoteControlApi';
 
 const DependenciesContext = createContext({});
 
@@ -72,6 +73,7 @@ export function IocContainer({
         saygApi: new SaygApi(http),
         templateApi: new SeasonTemplateApi(http),
         liveApi: liveApi,
+        remoteControlApi: new RemoteControlApi(http),
         parentHeight: overrideParentHeight || new ParentHeight(25),
         webSocket: new MultiModeLiveWebSocket({
             socketContext,

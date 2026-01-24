@@ -8,7 +8,7 @@ export interface IHeaders {
 export interface IHttp {
     get(relativeUrl: string, headers: IHeaders): UntypedPromise;
     /* eslint-disable @typescript-eslint/no-explicit-any */
-    post(relativeUrl: string, headers: IHeaders, content: any): UntypedPromise;
+    post(relativeUrl: string, headers: IHeaders, content?: any): UntypedPromise;
     /* eslint-disable @typescript-eslint/no-explicit-any */
     patch(relativeUrl: string, headers: IHeaders, content: any): UntypedPromise;
     /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -34,7 +34,7 @@ class Http implements IHttp {
     }
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
-    post(relativeUrl: string, headers: IHeaders, content: any) {
+    post(relativeUrl: string, headers: IHeaders, content?: any) {
         return this.send('POST', headers, relativeUrl, content);
     }
 
