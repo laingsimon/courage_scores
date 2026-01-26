@@ -178,6 +178,7 @@ export function RemoteControl({ pinGenerator }: IRemoteControlProps) {
                 {id && pin ? (
                     <>
                         <p>Enter the address for the device</p>
+                        <p className="text-center fs-3 font-monospace">{pin}</p>
                         <div className="input-group mb-3">
                             <div className="input-group-prepend">
                                 <span className="input-group-text">
