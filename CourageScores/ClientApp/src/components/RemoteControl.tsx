@@ -177,6 +177,7 @@ export function RemoteControl({ pinGenerator }: IRemoteControlProps) {
             <>
                 {id && pin ? (
                     <>
+                        <p className="text-center fs-3 font-monospace">{pin}</p>
                         <p>Enter the address for the device</p>
                         <div className="input-group mb-3">
                             <div className="input-group-prepend">
@@ -192,9 +193,7 @@ export function RemoteControl({ pinGenerator }: IRemoteControlProps) {
                                 onChange={stateChanged(setUrl)}
                             />
                         </div>
-                        <ul
-                            className="list-group mb-3"
-                            onClick={() => setUrl('/live')}>
+                        <ul className="list-group mb-3">
                             {renderUrlOption('/live', 'Live tournaments')}
                             {renderUrlOption(
                                 `/live/superleague/?date=${new Date().toISOString().substring(0, 10)}`,
