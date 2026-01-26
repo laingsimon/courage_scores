@@ -195,9 +195,7 @@ export function RemoteControl({ pinGenerator }: IRemoteControlProps) {
                                 onChange={stateChanged(setUrl)}
                             />
                         </div>
-                        <ul
-                            className="list-group mb-3"
-                            onClick={() => setUrl('/live')}>
+                        <ul className="list-group mb-3">
                             {renderUrlOption('/live', 'Live tournaments')}
                             {renderUrlOption(
                                 `/live/superleague/?date=${new Date().toISOString().substring(0, 10)}`,
