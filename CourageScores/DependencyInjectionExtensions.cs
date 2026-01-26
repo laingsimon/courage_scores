@@ -9,6 +9,7 @@ using CourageScores.Models.Adapters.Game.Sayg;
 using CourageScores.Models.Adapters.Health;
 using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Adapters.Live;
+using CourageScores.Models.Adapters.RemoteControl;
 using CourageScores.Models.Adapters.Season;
 using CourageScores.Models.Adapters.Season.Creation;
 using CourageScores.Models.Adapters.Team;
@@ -26,6 +27,7 @@ using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Models.Dtos.Health;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Live;
+using CourageScores.Models.Dtos.RemoteControl;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Season.Creation;
 using CourageScores.Models.Dtos.Team;
@@ -42,6 +44,7 @@ using CourageScores.Services.Game;
 using CourageScores.Services.Health;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Live;
+using CourageScores.Services.RemoteControl;
 using CourageScores.Services.Report;
 using CourageScores.Services.Season;
 using CourageScores.Services.Season.Creation;
@@ -176,6 +179,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IFeatureService, FeatureService>();
         services.AddScoped<IAnalysisService, AnalysisService>();
         services.AddScoped<ISaygVisitorFactory, SaygVisitorFactory>();
+        services.AddScoped<IRemoteControlService, RemoteControlService>();
     }
 
     private static void AddRepositories(IServiceCollection services)
@@ -260,6 +264,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ISimpleAdapter<PhotoReference, PhotoReferenceDto>, PhotoReferenceAdapter>();
         services.AddScoped<ISimpleOnewayAdapter<ReconfigureFeatureDto, ConfiguredFeature>, ReconfigureFeatureAdapter>();
         services.AddScoped<ISimpleOnewayAdapter<Guid, ConfiguredFeatureDto>, UnconfiguredFeatureAdapter>();
+        services.AddScoped<ISimpleOnewayAdapter<Models.Cosmos.RemoteControl.RemoteControl, RemoteControlDto>, RemoteControlAdapter>();
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)
