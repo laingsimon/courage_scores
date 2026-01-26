@@ -72,9 +72,6 @@ export function RemoteControl({ pinGenerator }: IRemoteControlProps) {
                 return;
             }
 
-            if (overrideUrl) {
-                setUrl(overrideUrl!);
-            }
             setUpdating(true);
 
             const update: RemoteControlUpdateDto = {
@@ -151,6 +148,7 @@ export function RemoteControl({ pinGenerator }: IRemoteControlProps) {
                 return;
             }
 
+            setUrl(linkUrl);
             await updateRemoteControlUrl(linkUrl);
         }
 
