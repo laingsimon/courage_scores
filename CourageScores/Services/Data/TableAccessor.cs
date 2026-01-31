@@ -49,13 +49,20 @@ public class TableAccessor : ITableAccessor
 
     private async Task ExportRow(JObject row, string id, ExportDataResultDto result, IZipBuilder builder, ExportDataRequestDto request)
     {
-        var deleted = row.Value<DateTime?>("Deleted");
-        if (deleted.HasValue && !request.IncludeDeletedEntries)
+        try
         {
-            return; // don't process deleted rows
-        }
+            var deleted = row.Value<DateTime?>("Deleted");
+            if (deleted.HasValue && !request.IncludeDeletedEntries)
+            {
+                return; // don't process deleted rows
+            }
 
-        result.Tables[TableName]++;
-        await builder.AddFile(TableName, id, row);
+            result.Tables[TableName]++;
+            await builder.AddFile(TableName, id, row);
+        }
+        catch (Exception exc)
+        {
+            throw new InvalidOperationException($"Unable to export row {id} from {_table.Name}: {exc.Message}");
+        }
     }
 }

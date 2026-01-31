@@ -276,7 +276,7 @@ public class DataService : IDataService
         }
         catch (Exception exc)
         {
-            actionResult.Errors.Add(exc.ToString());
+            actionResult.Errors.Add(exc.Message);
         }
 
         return actionResult;

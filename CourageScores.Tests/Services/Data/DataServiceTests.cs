@@ -111,7 +111,7 @@ public class DataServiceTests
         result.AssertError("Not permitted");
     }
 
-    [Test, Ignore("Temporarily ignored")]
+    [Test]
     public async Task ExportData_WhenAnExceptionOccurs_ReturnsUnsuccessful()
     {
         _zipBuilderFactory
