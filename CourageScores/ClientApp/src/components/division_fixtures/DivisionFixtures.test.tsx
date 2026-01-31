@@ -250,9 +250,15 @@ describe('DivisionFixtures', () => {
     describe('when logged out', () => {
         const account: UserDto | undefined = undefined;
         let divisionData: IDivisionDataContainerProps;
+        let pairsTournament: DivisionFixtureDateDto;
 
         beforeEach(() => {
             divisionData = getInSeasonDivisionData();
+            pairsTournament = fixtureDateBuilder('2022-10-13T00:00:00')
+                .withTournament((t) =>
+                    t.forSeason(divisionData.season).type('Pairs'),
+                )
+                .build();
         });
 
         it('renders notes', async () => {
@@ -446,14 +452,21 @@ describe('DivisionFixtures', () => {
             expect(fixtureDateElement.textContent).toContain('SIDE PLAYER');
         });
 
-        it('can change filters', async () => {
-            divisionData.fixtures!.push(
-                fixtureDateBuilder('2022-10-13T00:00:00')
-                    .withTournament((t) =>
-                        t.forSeason(divisionData.season).type('Pairs'),
-                    )
-                    .build(),
+        it('renders tournament players when there are no fixtures', async () => {
+            divisionData.fixtures = undefined;
+
+            await renderComponent(
+                divisionData,
+                account,
+                '/division',
+                '/division?notes=NOTE#show-who-is-playing',
             );
+
+            expect(context.container.textContent).toContain('No fixtures, yet');
+        });
+
+        it('can change filters', async () => {
+            divisionData.fixtures!.push(pairsTournament);
             await renderComponent(divisionData, account);
             const filterContainer = context.container.querySelector(
                 '.content-background > div[datatype="fixture-filters"]',
@@ -466,13 +479,7 @@ describe('DivisionFixtures', () => {
         });
 
         it('hides filters when no controls', async () => {
-            divisionData.fixtures!.push(
-                fixtureDateBuilder('2022-10-13T00:00:00')
-                    .withTournament((t) =>
-                        t.forSeason(divisionData.season).type('Pairs'),
-                    )
-                    .build(),
-            );
+            divisionData.fixtures!.push(pairsTournament);
             await renderComponent(
                 divisionData,
                 account,
@@ -488,13 +495,7 @@ describe('DivisionFixtures', () => {
         });
 
         it('filters fixtures dates', async () => {
-            divisionData.fixtures!.push(
-                fixtureDateBuilder('2022-10-13T00:00:00')
-                    .withTournament((t) =>
-                        t.forSeason(divisionData.season).type('Pairs'),
-                    )
-                    .build(),
-            );
+            divisionData.fixtures!.push(pairsTournament);
             await renderComponent(
                 divisionData,
                 account,
@@ -531,13 +532,7 @@ describe('DivisionFixtures', () => {
         });
 
         it('filters fixtures dates after fixtures', async () => {
-            divisionData.fixtures!.push(
-                fixtureDateBuilder('2022-10-13T00:00:00')
-                    .withTournament((t) =>
-                        t.forSeason(divisionData.season).type('Pairs'),
-                    )
-                    .build(),
-            );
+            divisionData.fixtures!.push(pairsTournament);
             await renderComponent(
                 divisionData,
                 account,

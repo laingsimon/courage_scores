@@ -331,6 +331,7 @@ export function Division() {
         id: undefined!,
         superleague: undefined,
         updated: undefined,
+        fixtures: [],
     };
     const divisionDataToUse =
         overrideDivisionData || divisionData || emptyDivisionData;
