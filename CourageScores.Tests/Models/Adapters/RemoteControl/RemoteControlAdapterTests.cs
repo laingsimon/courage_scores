@@ -17,7 +17,6 @@ public class RemoteControlAdapterTests
         {
             Id = Guid.NewGuid(),
             Created = DateTime.UtcNow,
-            Deleted = false,
             Pin = "pin",
             Url = "url",
             UrlUpdated = DateTime.UtcNow,
@@ -38,7 +37,6 @@ public class RemoteControlAdapterTests
         {
             Id = Guid.NewGuid(),
             Created = DateTime.UtcNow,
-            Deleted = false,
             Pin = "pin",
         };
 
