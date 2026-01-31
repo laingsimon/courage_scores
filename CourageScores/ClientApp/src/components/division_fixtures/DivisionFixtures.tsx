@@ -74,7 +74,7 @@ export function DivisionFixtures({ setNewFixtures }: IDivisionFixturesProps) {
         }
 
         const newShowPlayers = {};
-        for (const fixtureDate of fixtures!) {
+        for (const fixtureDate of fixtures ?? []) {
             if (any(fixtureDate.tournamentFixtures)) {
                 newShowPlayers[fixtureDate.date] = true;
             }
