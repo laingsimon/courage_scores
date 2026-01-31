@@ -29,7 +29,7 @@ public class RemoteControlService : IRemoteControlService
 
     public async Task<ActionResultDto<RemoteControlDto?>> Create(string pin, CancellationToken token)
     {
-        var existingEntries = await _repository.GetAll(token).WhereAsync(e => !e.Deleted).ToList();
+        var existingEntries = await _repository.GetAll(token).WhereAsync(e => e.Deleted == null).ToList();
 
         if (existingEntries.Count >= MaxEntries)
         {
@@ -74,7 +74,7 @@ public class RemoteControlService : IRemoteControlService
     public async Task<ActionResultDto<RemoteControlDto?>> Delete(Guid id, string pin, CancellationToken token)
     {
         var entry = await _repository.Get(id, token);
-        if (entry == null || entry.Deleted)
+        if (entry == null || entry.Deleted != null)
         {
             return await DeleteExpiredEntries(new ActionResultDto<RemoteControlDto?>
             {
@@ -103,7 +103,7 @@ public class RemoteControlService : IRemoteControlService
     public async Task<ActionResultDto<RemoteControlDto?>> Get(Guid id, string pin, CancellationToken token)
     {
         var entry = await _repository.Get(id, token);
-        if (entry?.Deleted == true)
+        if (entry?.Deleted != null)
         {
             // treat a deleted entry as not found
             entry = null;
@@ -139,7 +139,7 @@ public class RemoteControlService : IRemoteControlService
         }
 
         var entry = await _repository.Get(id, token);
-        if (entry == null || entry.Deleted)
+        if (entry == null || entry.Deleted != null)
         {
             return await DeleteExpiredEntries(new ActionResultDto<RemoteControlDto?>
             {
@@ -179,7 +179,7 @@ public class RemoteControlService : IRemoteControlService
     {
         var expiredEntries = await _repository
             .GetAll(token)
-            .WhereAsync(rc => !rc.Deleted && rc.Created.Add(MaxTimeToLive) < DateTime.UtcNow)
+            .WhereAsync(rc => rc.Deleted == null && rc.Created.Add(MaxTimeToLive) < DateTime.UtcNow)
             .ToList();
 
         foreach (var expiredEntry in expiredEntries)
@@ -197,7 +197,7 @@ public class RemoteControlService : IRemoteControlService
 
     private async Task DeleteEntry(CosmosRemoteControl entry, CancellationToken token)
     {
-        entry.Deleted = true;
+        entry.Deleted = DateTime.UtcNow;
         await _repository.Upsert(entry, token);
     }
 }
