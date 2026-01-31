@@ -40,13 +40,13 @@ public class RemoteControlServiceTests
         {
             Id = Guid.NewGuid(),
             Created = DateTime.UtcNow,
-            Deleted = true,
+            Deleted = DateTime.UtcNow,
         };
         _deletedExpiredEntry = new CosmosRemoteControl
         {
             Id = Guid.NewGuid(),
             Created = DateTime.UtcNow.AddDays(-2),
-            Deleted = true,
+            Deleted = DateTime.UtcNow,
         };
         _unexpiredEntry = new CosmosRemoteControl
         {
@@ -80,7 +80,7 @@ public class RemoteControlServiceTests
     public async Task Create_WhenTooManyActiveEntries_ReturnsTooManyEntries()
     {
         var entries = Enumerable.Range(0, 100)
-            .Select(i => new CosmosRemoteControl { Deleted = false, Pin = i.ToString() })
+            .Select(i => new CosmosRemoteControl { Pin = i.ToString() })
             .ToArray();
         _repository
             .Setup(r => r.GetAll(_token))
@@ -97,7 +97,7 @@ public class RemoteControlServiceTests
     public async Task Create_WhenTooManyDeletedEntries_CreatesEntry()
     {
         var entries = Enumerable.Range(0, 100)
-            .Select(i => new CosmosRemoteControl { Deleted = true, Pin = i.ToString() })
+            .Select(i => new CosmosRemoteControl { Deleted = DateTime.UtcNow, Pin = i.ToString() })
             .ToArray();
         _repository
             .Setup(r => r.GetAll(_token))
@@ -315,7 +315,7 @@ public class RemoteControlServiceTests
         VerifyDeletion(_expiredEntry);
         _repository
             .Verify(r => r.Upsert(
-                It.Is<CosmosRemoteControl>(rc => rc.Deleted == false && rc.Url == update.Url && rc.UrlUpdated != null),
+                It.Is<CosmosRemoteControl>(rc => rc.Deleted == null && rc.Url == update.Url && rc.UrlUpdated != null),
                 _token));
     }
 
@@ -345,7 +345,7 @@ public class RemoteControlServiceTests
             _repository
                 .Verify(r => r
                     .Upsert(
-                        It.Is<CosmosRemoteControl>(rc => rc.Id == remoteControl.Id && rc.Deleted),
+                        It.Is<CosmosRemoteControl>(rc => rc.Id == remoteControl.Id && rc.Deleted != null),
                         _token));
         }
     }
