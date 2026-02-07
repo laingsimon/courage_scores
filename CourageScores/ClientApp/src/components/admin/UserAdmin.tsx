@@ -280,6 +280,11 @@ export function UserAdmin() {
                         'Run reports',
                         'Run league/season reports',
                     )}
+                    {renderAccessOption(
+                        'runDataQueries',
+                        'Execute data queries',
+                        'Query the data model',
+                    )}
                 </div>
                 <div className="border-1 border-secondary border-solid m-1 p-2">
                     <h6>Live scoring (super league)</h6>

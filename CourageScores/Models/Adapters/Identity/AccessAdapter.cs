@@ -37,6 +37,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             ManageFeatures = model.ManageFeatures,
             KioskMode = model.KioskMode,
             AnalyseMatches = model.AnalyseMatches,
+            RunDataQueries = model.RunDataQueries,
         });
     }
 
@@ -72,6 +73,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             ManageFeatures = dto.ManageFeatures,
             KioskMode = dto.KioskMode,
             AnalyseMatches = dto.AnalyseMatches,
+            RunDataQueries = dto.RunDataQueries,
         });
     }
 }
