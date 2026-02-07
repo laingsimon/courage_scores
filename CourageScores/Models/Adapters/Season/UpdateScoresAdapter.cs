@@ -1,4 +1,5 @@
 ﻿using CourageScores.Common;
+using CourageScores.Models.Adapters.Team;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game;
@@ -27,6 +28,7 @@ public class UpdateScoresAdapter : IUpdateScoresAdapter
         {
             Id = player.Id,
             Name = player.Name,
+            Gender = player.Gender.FromGenderDto(),
         };
         await _auditingHelper.SetUpdated(gamePlayer, token);
         return gamePlayer;
@@ -39,6 +41,7 @@ public class UpdateScoresAdapter : IUpdateScoresAdapter
             Id = player.Id,
             Name = player.Name,
             Notes = player.Score?.ToString(),
+            Gender = player.Gender.FromGenderDto(),
         };
         await _auditingHelper.SetUpdated(gamePlayer, token);
         return gamePlayer;
