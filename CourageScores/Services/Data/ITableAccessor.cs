@@ -1,5 +1,6 @@
 ﻿using CourageScores.Models.Dtos.Data;
 using Microsoft.Azure.Cosmos;
+using Newtonsoft.Json.Linq;
 
 namespace CourageScores.Services.Data;
 
@@ -9,4 +10,6 @@ public interface ITableAccessor
 
     Task ExportData(Database database, ExportDataResultDto result, IZipBuilder builder,
         ExportDataRequestDto request, CancellationToken token);
+
+    IAsyncEnumerable<JToken> SelectRows(Database database, bool includeDeleted, CancellationToken token);
 }

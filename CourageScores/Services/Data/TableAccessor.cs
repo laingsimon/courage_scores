@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Dtos.Data;
+﻿using System.Runtime.CompilerServices;
+using CourageScores.Models.Dtos.Data;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json.Linq;
 
@@ -42,6 +43,35 @@ public class TableAccessor : ITableAccessor
                 if (!idsToReturn.Any() || idsToReturn.Contains(id))
                 {
                     await ExportRow(row, id, result, builder, request);
+                }
+            }
+        }
+    }
+
+    public async IAsyncEnumerable<JToken> SelectRows(
+        Database database,
+        bool includeDeleted,
+        [EnumeratorCancellation] CancellationToken token)
+    {
+        Container container = await database.CreateContainerIfNotExistsAsync(_table.Name, _table.PartitionKey, cancellationToken: token);
+
+        var records = container.GetItemQueryIterator<JObject>();
+
+        while (records.HasMoreResults && !token.IsCancellationRequested)
+        {
+            var record = await records.ReadNextAsync(token);
+
+            foreach (var row in record)
+            {
+                if (token.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                var isDeleted = row.ContainsKey("Deleted") && row["Deleted"]?.ToObject<object?>() != null;
+                if (!isDeleted || includeDeleted)
+                {
+                    yield return row;
                 }
             }
         }
