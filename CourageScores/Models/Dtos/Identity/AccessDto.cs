@@ -33,4 +33,5 @@ public class AccessDto
     public bool ManageFeatures { get; set; }
     public bool KioskMode { get; set; }
     public bool AnalyseMatches { get; set; }
+    public bool RunDataQueries { get; set; }
 }
