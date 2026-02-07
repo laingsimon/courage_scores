@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Models.Dtos.Team;
 
 namespace CourageScores.Models.Dtos.Game;
 
@@ -40,6 +41,7 @@ public class RecordScoresDto : IGameDto, IIntegrityCheckDto
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
+        public GenderDto? Gender { get; set; }
     }
 
     [ExcludeFromCodeCoverage]

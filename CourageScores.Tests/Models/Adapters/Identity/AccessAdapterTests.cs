@@ -44,6 +44,7 @@ public class AccessAdapterTests
             ManageFeatures = true,
             KioskMode = true,
             AnalyseMatches = true,
+            RunDataQueries = true,
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -76,6 +77,7 @@ public class AccessAdapterTests
         Assert.That(result.ManageFeatures, Is.EqualTo(model.ManageFeatures));
         Assert.That(result.KioskMode, Is.EqualTo(model.KioskMode));
         Assert.That(result.AnalyseMatches, Is.EqualTo(model.AnalyseMatches));
+        Assert.That(result.RunDataQueries, Is.EqualTo(model.RunDataQueries));
     }
 
     [Test]
@@ -111,6 +113,7 @@ public class AccessAdapterTests
             ManageFeatures = true,
             KioskMode = true,
             AnalyseMatches = true,
+            RunDataQueries = true,
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -142,5 +145,6 @@ public class AccessAdapterTests
         Assert.That(result.ManageFeatures, Is.EqualTo(dto.ManageFeatures));
         Assert.That(result.KioskMode, Is.EqualTo(dto.KioskMode));
         Assert.That(result.AnalyseMatches, Is.EqualTo(dto.AnalyseMatches));
+        Assert.That(result.RunDataQueries, Is.EqualTo(dto.RunDataQueries));
     }
 }
