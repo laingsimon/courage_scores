@@ -179,7 +179,7 @@ export function AdminHome() {
                             <li className="nav-item">
                                 <NavLink
                                     className={
-                                        effectiveTab === 'import'
+                                        effectiveTab === 'query'
                                             ? ' active'
                                             : ''
                                     }
