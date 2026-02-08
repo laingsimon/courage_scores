@@ -87,6 +87,13 @@ export function Query() {
             return <pre>{JSON.stringify(value, null, 2)}</pre>;
         }
 
+        const stringValue = value as string | undefined;
+        const isALink =
+            stringValue?.startsWith('//') || stringValue?.startsWith('http');
+        if (isALink) {
+            return <a href={value}>{value}</a>;
+        }
+
         return value;
     }
 
