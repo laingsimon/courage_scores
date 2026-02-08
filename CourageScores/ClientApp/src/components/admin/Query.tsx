@@ -89,7 +89,7 @@ export function Query() {
 
         const stringValue = value as string | undefined;
         const isALink =
-            stringValue?.startsWith('//') || stringValue?.startsWith('http');
+            stringValue?.startsWith('/') || stringValue?.startsWith('http');
         if (isALink) {
             return <a href={value}>{value}</a>;
         }
