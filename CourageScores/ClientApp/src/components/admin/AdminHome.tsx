@@ -17,6 +17,7 @@ import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
 import { FeatureAdmin } from './FeatureAdmin';
 import { useBranding } from '../common/BrandingContainer';
 import { NavLink } from '../common/NavLink';
+import { Query } from './Query';
 
 export function AdminHome() {
     const { mode } = useParams();
@@ -174,6 +175,19 @@ export function AdminHome() {
                                 </NavLink>
                             </li>
                         ) : null}
+                        {access.runDataQueries ? (
+                            <li className="nav-item">
+                                <NavLink
+                                    className={
+                                        effectiveTab === 'import'
+                                            ? ' active'
+                                            : ''
+                                    }
+                                    to={`/admin/query`}>
+                                    Query data
+                                </NavLink>
+                            </li>
+                        ) : null}
                     </ul>
                 ) : null}
                 {!appLoading && adminLoading ? (
@@ -227,6 +241,12 @@ export function AdminHome() {
                             ? renderIfPermitted(
                                   <FeatureAdmin />,
                                   access.manageFeatures,
+                              )
+                            : null}
+                        {!appLoading && effectiveTab === 'query'
+                            ? renderIfPermitted(
+                                  <Query />,
+                                  access.runDataQueries,
                               )
                             : null}
                     </AdminContainer>

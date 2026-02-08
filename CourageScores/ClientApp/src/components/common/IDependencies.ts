@@ -17,6 +17,7 @@ import { ITournamentGameApi } from '../../interfaces/apis/ITournamentGameApi';
 import { IDataApi } from '../../interfaces/apis/IDataApi';
 import { IFeatureApi } from '../../interfaces/apis/IFeatureApi';
 import { IRemoteControlApi } from '../../interfaces/apis/IRemoteControlApi';
+import { IQueryApi } from '../../interfaces/apis/IQueryApi';
 
 export interface IDependencies {
     divisionApi: IDivisionApi;
@@ -38,4 +39,5 @@ export interface IDependencies {
     webSocket: ILiveWebSocket;
     featureApi: IFeatureApi;
     remoteControlApi: IRemoteControlApi;
+    queryApi: IQueryApi;
 }
