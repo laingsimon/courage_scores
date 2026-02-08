@@ -55,7 +55,7 @@ export function Query() {
             alert('Select a container first');
             return;
         }
-        if (!query) {
+        if (!volatileQuery) {
             alert('Enter a query first');
             return;
         }
@@ -65,7 +65,7 @@ export function Query() {
         try {
             const request: QueryRequestDto = {
                 container: container,
-                query,
+                query: volatileQuery,
                 max: max ? Number.parseInt(max) : undefined,
             };
 
@@ -114,9 +114,6 @@ export function Query() {
         <div className="content-background p-3">
             <div className="input-group mb-3">
                 <div className="d-flex pe-3 align-self-center fs-5">Query</div>
-                <div className="input-group-prepend">
-                    <span className="input-group-text">Container</span>
-                </div>
                 <BootstrapDropdown
                     onChange={(container) =>
                         changeParams('container', container!)
@@ -124,8 +121,8 @@ export function Query() {
                     options={containerOptions}
                     value={container || ''}
                 />
-                <div className="input-group-prepend ms-3">
-                    <span className="input-group-text">Row limit</span>
+                <div className="input-group-prepend ms-1">
+                    <span className="input-group-text">Limit</span>
                 </div>
                 <input
                     type="number"
@@ -135,7 +132,7 @@ export function Query() {
                     min={1}
                     onChange={(e) => changeParams('max', e.target.value)}
                 />
-                <button className="btn btn-primary ms-3" onClick={onExecute}>
+                <button className="btn btn-primary ms-1" onClick={onExecute}>
                     {executing ? <LoadingSpinnerSmall /> : null}
                     Execute
                 </button>
