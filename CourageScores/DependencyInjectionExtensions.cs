@@ -44,6 +44,7 @@ using CourageScores.Services.Game;
 using CourageScores.Services.Health;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Live;
+using CourageScores.Services.Query;
 using CourageScores.Services.RemoteControl;
 using CourageScores.Services.Report;
 using CourageScores.Services.Season;
@@ -180,6 +181,8 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IAnalysisService, AnalysisService>();
         services.AddScoped<ISaygVisitorFactory, SaygVisitorFactory>();
         services.AddScoped<IRemoteControlService, RemoteControlService>();
+
+        services.AddScoped<IQueryService, QueryService>();
     }
 
     private static void AddRepositories(IServiceCollection services)

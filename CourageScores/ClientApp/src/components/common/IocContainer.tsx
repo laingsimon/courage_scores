@@ -27,6 +27,7 @@ import { WebSocketMode } from '../../live/WebSocketMode';
 import { FeatureApi } from '../../interfaces/apis/IFeatureApi';
 import { CookiesProvider } from 'react-cookie';
 import { RemoteControlApi } from '../../interfaces/apis/IRemoteControlApi';
+import { QueryApi } from '../../interfaces/apis/IQueryApi';
 
 const DependenciesContext = createContext({});
 
@@ -74,6 +75,7 @@ export function IocContainer({
         templateApi: new SeasonTemplateApi(http),
         liveApi: liveApi,
         remoteControlApi: new RemoteControlApi(http),
+        queryApi: new QueryApi(http),
         parentHeight: overrideParentHeight || new ParentHeight(25),
         webSocket: new MultiModeLiveWebSocket({
             socketContext,
