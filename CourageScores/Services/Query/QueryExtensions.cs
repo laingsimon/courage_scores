@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using CourageScores.Common;
 using Microsoft.Azure.Cosmos;
@@ -39,5 +40,13 @@ internal static class QueryExtensions
 
             return item;
         });
+    }
+
+    public static JObject GetError(this CosmosException exc)
+    {
+        var errorProperty = exc.GetType().GetProperty("Error", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var error = errorProperty.GetValue(exc);
+
+        return JObject.Parse(error!.ToString()!);
     }
 }
