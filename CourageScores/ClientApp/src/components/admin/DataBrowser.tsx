@@ -8,15 +8,22 @@ import { repeat } from '../../helpers/projection';
 import { SingleDataResultDto } from '../../interfaces/models/dtos/Data/SingleDataResultDto';
 import { IClientActionResultDto } from '../common/IClientActionResultDto';
 import { useApp } from '../common/AppContainer';
+import {
+    BootstrapDropdown,
+    IBootstrapDropdownItem,
+} from '../common/BootstrapDropdown';
+import { sortBy } from '../../helpers/collections';
+import { useAdmin } from './AdminContainer';
 
 export function DataBrowser() {
     const { onError } = useApp();
+    const { tables: containers } = useAdmin();
     const { dataApi } = useDependencies();
     const location = useLocation();
     const navigate = useNavigate();
     const search = new URLSearchParams(location.search);
-    const [table, setTable] = useState<string>(
-        search.has('table') ? search.get('table')! : '',
+    const [container, setContainer] = useState<string>(
+        search.has('container') ? search.get('container')! : '',
     );
     const [id, setId] = useState<string>(
         search.has('id') ? search.get('id')! : '',
@@ -36,6 +43,11 @@ export function DataBrowser() {
     const showAuditValues = getViewParameter('showAuditValues', false);
     const showVersion = getViewParameter('showVersion', false);
     const showIdsUptoDepth: number = getViewParameter('showIdsUptoDepth', 1);
+    const containerOptions: IBootstrapDropdownItem[] =
+        containers?.sort(sortBy('name')).map((t) => ({
+            label: t.name,
+            value: t.name,
+        })) ?? [];
 
     useEffect(
         () => {
@@ -67,7 +79,9 @@ export function DataBrowser() {
     }
 
     async function fetchData() {
-        const table: string = search.has('table') ? search.get('table')! : '';
+        const table: string = search.has('container')
+            ? search.get('container')!
+            : '';
         const id: string = search.has('id') ? search.get('id')! : '';
 
         const newRequest = { table, id: id ? id : null };
@@ -85,7 +99,7 @@ export function DataBrowser() {
         }
         setLastRequest(newRequest);
         setId(id);
-        setTable(table);
+        setContainer(table);
 
         /* istanbul ignore next */
         if (loading) {
@@ -121,13 +135,13 @@ export function DataBrowser() {
     }
 
     async function updateSearch(newId: string) {
-        if (!table) {
-            window.alert('Enter a table name (and optionally an id) first');
+        if (!container) {
+            window.alert('Select a container (and optionally an id) first');
             return;
         }
 
         const idQuery = newId ? `&id=${newId}` : '';
-        navigate(`/admin/browser/?table=${table}${idQuery}`);
+        navigate(`/admin/browser/?container=${container}${idQuery}`);
     }
 
     function renderValue(value: string | object | number, depth: number) {
@@ -295,7 +309,7 @@ export function DataBrowser() {
                             index >= minIndexInclusive &&
                             index < maxIndexExclusive ? (
                                 <Link
-                                    to={`/admin/browser?table=${table}&id=${item.id}`}
+                                    to={`/admin/browser?container=${container}&id=${item.id}`}
                                     key={item.id}
                                     className="list-group-item d-flex justify-content-between"
                                     onClick={() => updateSearch(id)}>
@@ -316,7 +330,7 @@ export function DataBrowser() {
                     {getPages().map((index) => (
                         <Link
                             key={index + ''}
-                            to={`/admin/browser?table=${table}&page=${index}`}
+                            to={`/admin/browser?container=${container}&page=${index}`}
                             className={`btn btn-sm ${index === pageIndex ? 'btn-primary' : 'btn-outline-primary'}`}>
                             {index + 1}
                         </Link>
@@ -334,14 +348,13 @@ export function DataBrowser() {
                     <div className="input-group-prepend">
                         <span className="input-group-text">Table</span>
                     </div>
-                    <input
+                    <BootstrapDropdown
+                        onChange={async (container) => setContainer(container!)}
+                        options={containerOptions}
+                        value={container || ''}
                         disabled={loading}
-                        className="form-control"
-                        name="table"
-                        value={table}
-                        onChange={stateChanged(setTable)}
                     />
-                    <div className="input-group-prepend">
+                    <div className="input-group-prepend ms-2">
                         <span className="input-group-text">Id</span>
                     </div>
                     <input

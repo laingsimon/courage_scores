@@ -11,6 +11,7 @@ import {
     api,
     appProps,
     ErrorState,
+    doSelectOption,
 } from '../../helpers/tests';
 import { DataBrowser } from './DataBrowser';
 import { createTemporaryId, repeat } from '../../helpers/projection';
@@ -22,6 +23,8 @@ import { IError } from '../common/IError';
 import { IFailedRequest } from '../common/IFailedRequest';
 import { IDataApi } from '../../interfaces/apis/IDataApi';
 import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
+import { AdminContainer } from './AdminContainer';
+import { TableDto } from '../../interfaces/models/dtos/Data/TableDto';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -37,6 +40,7 @@ describe('DataBrowser', () => {
     let singleApiResult: IClientActionResultDto<object> | null;
     let multiApiResult: IClientActionResultDto<SingleDataResultDto[]> | null;
     let apiException: IError | null;
+    let tables: TableDto[] = [];
     const dataApi = api<IDataApi>({
         view: async (
             table: string,
@@ -81,6 +85,7 @@ describe('DataBrowser', () => {
         singleApiResult = null;
         multiApiResult = null;
         reportedError = new ErrorState();
+        tables = [{ name: 'game', partitionKey: 'id' }];
     });
 
     async function renderComponent(
@@ -91,7 +96,9 @@ describe('DataBrowser', () => {
             iocProps({ dataApi }),
             brandingProps(),
             props,
-            <DataBrowser />,
+            <AdminContainer tables={tables} accounts={[]}>
+                <DataBrowser />
+            </AdminContainer>,
             '/admin/:mode',
             '/admin/browser' + queryString,
         );
@@ -106,11 +113,10 @@ describe('DataBrowser', () => {
     }
 
     function getSelectedTable(): string {
-        const input = context.container.querySelector(
-            'input[name="table"]',
-        ) as HTMLInputElement;
-        expect(input).toBeTruthy();
-        return input.value;
+        const tableDropdownToggle =
+            context.container.querySelector('.dropdown-toggle');
+        expect(tableDropdownToggle).toBeTruthy();
+        return tableDropdownToggle!.textContent.trim();
     }
 
     function getId(): string {
@@ -132,11 +138,9 @@ describe('DataBrowser', () => {
     }
 
     async function setSelectedTable(table: string) {
-        await doChange(
-            context.container,
-            'input[name="table"]',
+        await doSelectOption(
+            context.container.querySelector('.dropdown-menu'),
             table,
-            context.user,
         );
     }
 
@@ -167,7 +171,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game',
+                '?container=game',
             );
 
             expect(getSelectedTable()).toEqual('game');
@@ -211,7 +215,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game',
+                '?container=game',
             );
 
             const list = context.container.querySelector(
@@ -246,7 +250,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' + game.id,
+                '?container=game&id=' + game.id,
             );
 
             const rows = getResultRows();
@@ -276,7 +280,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' + createTemporaryId(),
+                '?container=game&id=' + createTemporaryId(),
             );
 
             const rows = getResultRows();
@@ -301,7 +305,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' +
+                '?container=game&id=' +
                     createTemporaryId() +
                     '&showEmptyValues=true',
             );
@@ -328,7 +332,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' +
+                '?container=game&id=' +
                     createTemporaryId() +
                     '&showEmptyValues=true',
             );
@@ -355,7 +359,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' +
+                '?container=game&id=' +
                     createTemporaryId() +
                     '&showEmptyValues=true',
             );
@@ -390,7 +394,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' + game.id + '&showAuditValues=true',
+                '?container=game&id=' + game.id + '&showAuditValues=true',
             );
 
             const rows = getResultRows();
@@ -439,7 +443,9 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' + createTemporaryId() + '&showIdsUptoDepth=2',
+                '?container=game&id=' +
+                    createTemporaryId() +
+                    '&showIdsUptoDepth=2',
             );
 
             const rows = Array.from(
@@ -476,7 +482,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game',
+                '?container=game',
             );
 
             expect(context.container.textContent).toContain('SOME ERROR');
@@ -499,7 +505,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=abcd',
+                '?container=game&id=abcd',
             );
 
             expect(context.container.textContent).toContain(
@@ -517,7 +523,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=abcd',
+                '?container=game&id=abcd',
             );
 
             expect(context.container.textContent).toContain('Some error');
@@ -537,7 +543,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&page=1',
+                '?container=game&page=1',
             );
 
             const list = context.container.querySelector(
@@ -589,11 +595,13 @@ describe('DataBrowser', () => {
             await doClick(findButton(context.container, 'Fetch'));
 
             context.prompts.alertWasShown(
-                'Enter a table name (and optionally an id) first',
+                'Select a container (and optionally an id) first',
             );
         });
 
         it('fetches when only table name supplied', async () => {
+            tables.push({ name: 'TABLE', partitionKey: 'id' });
+
             await renderComponent(
                 appProps(
                     {
@@ -607,11 +615,12 @@ describe('DataBrowser', () => {
             await doClick(findButton(context.container, 'Fetch'));
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                '/admin/browser/?table=TABLE',
+                '/admin/browser/?container=TABLE',
             );
         });
 
         it('fetches when table name and id supplied', async () => {
+            tables.push({ name: 'TABLE', partitionKey: 'id' });
             await renderComponent(
                 appProps(
                     {
@@ -627,7 +636,7 @@ describe('DataBrowser', () => {
             await doClick(findButton(context.container, 'Fetch'));
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                `/admin/browser/?table=TABLE&id=${id}`,
+                `/admin/browser/?container=TABLE&id=${id}`,
             );
         });
 
@@ -645,7 +654,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game',
+                '?container=game',
             );
             console.error = noop; //silence warnings about navigation in tests
 
@@ -666,7 +675,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=TABLE',
+                '?container=TABLE',
             );
 
             expect(requestedData).toEqual({
@@ -684,7 +693,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=TABLE&id=' + id,
+                '?container=TABLE&id=' + id,
             );
 
             expect(requestedData).toEqual({
@@ -694,6 +703,8 @@ describe('DataBrowser', () => {
         });
 
         it('does not re-fetch immediately if table name changes when initially set in query string', async () => {
+            tables.push({ name: 'TABLE', partitionKey: 'id' });
+            tables.push({ name: 'NEW NAME', partitionKey: 'id' });
             await renderComponent(
                 appProps(
                     {
@@ -701,7 +712,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=TABLE',
+                '?container=TABLE',
             );
 
             requestedData = null;
@@ -720,7 +731,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=TABLE&id=' + id1,
+                '?container=TABLE&id=' + id1,
             );
 
             requestedData = null;
@@ -746,7 +757,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' + game.id,
+                '?container=game&id=' + game.id,
             );
 
             await doClick(
@@ -755,7 +766,7 @@ describe('DataBrowser', () => {
             );
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                `/admin/browser/?table=game&id=${game.id}&showEmptyValues=true`,
+                `/admin/browser/?container=game&id=${game.id}&showEmptyValues=true`,
             );
         });
 
@@ -776,7 +787,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' + game.id + '&showEmptyValues=true',
+                '?container=game&id=' + game.id + '&showEmptyValues=true',
             );
 
             await doClick(
@@ -785,7 +796,7 @@ describe('DataBrowser', () => {
             );
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                `/admin/browser/?table=game&id=${game.id}`,
+                `/admin/browser/?container=game&id=${game.id}`,
             );
         });
 
@@ -806,7 +817,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' + game.id,
+                '?container=game&id=' + game.id,
             );
 
             await doClick(
@@ -815,7 +826,7 @@ describe('DataBrowser', () => {
             );
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                `/admin/browser/?table=game&id=${game.id}&showAuditValues=true`,
+                `/admin/browser/?container=game&id=${game.id}&showAuditValues=true`,
             );
         });
 
@@ -836,7 +847,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' + game.id + '&showAuditValues=true',
+                '?container=game&id=' + game.id + '&showAuditValues=true',
             );
 
             await doClick(
@@ -845,7 +856,7 @@ describe('DataBrowser', () => {
             );
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                `/admin/browser/?table=game&id=${game.id}`,
+                `/admin/browser/?container=game&id=${game.id}`,
             );
         });
 
@@ -866,7 +877,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' + game.id,
+                '?container=game&id=' + game.id,
             );
 
             await doClick(
@@ -875,7 +886,7 @@ describe('DataBrowser', () => {
             );
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                `/admin/browser/?table=game&id=${game.id}&showVersion=true`,
+                `/admin/browser/?container=game&id=${game.id}&showVersion=true`,
             );
         });
 
@@ -896,7 +907,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' + game.id + '&showVersion=true',
+                '?container=game&id=' + game.id + '&showVersion=true',
             );
 
             await doClick(
@@ -905,7 +916,7 @@ describe('DataBrowser', () => {
             );
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                `/admin/browser/?table=game&id=${game.id}`,
+                `/admin/browser/?container=game&id=${game.id}`,
             );
         });
 
@@ -926,7 +937,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=TABLE&id=' + game.id,
+                '?container=TABLE&id=' + game.id,
             );
             requestedData = null;
 
@@ -936,7 +947,7 @@ describe('DataBrowser', () => {
 
             reportedError.verifyNoError();
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                `/admin/browser/?table=TABLE`,
+                `/admin/browser/?container=TABLE`,
             );
         });
     });
