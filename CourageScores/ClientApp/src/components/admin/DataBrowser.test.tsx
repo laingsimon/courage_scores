@@ -105,6 +105,45 @@ describe('DataBrowser', () => {
         };
     }
 
+    function getSelectedTable(): string {
+        const input = context.container.querySelector(
+            'input[name="table"]',
+        ) as HTMLInputElement;
+        expect(input).toBeTruthy();
+        return input.value;
+    }
+
+    function getId(): string {
+        const input = context.container.querySelector(
+            'input[name="id"]',
+        ) as HTMLInputElement;
+        expect(input).toBeTruthy();
+        return input.value;
+    }
+
+    function getResultRows(): HTMLTableRowElement[] {
+        const table = context.container.querySelector(
+            'table',
+        ) as HTMLTableElement;
+        expect(table).toBeTruthy();
+        return Array.from(
+            table.querySelectorAll('tbody > tr'),
+        ) as HTMLTableRowElement[];
+    }
+
+    async function setSelectedTable(table: string) {
+        await doChange(
+            context.container,
+            'input[name="table"]',
+            table,
+            context.user,
+        );
+    }
+
+    async function setId(id: string) {
+        await doChange(context.container, 'input[name="id"]', id, context.user);
+    }
+
     describe('renders', () => {
         it('with no query string', async () => {
             await renderComponent(
@@ -116,14 +155,8 @@ describe('DataBrowser', () => {
                 ),
             );
 
-            const tableInput = context.container.querySelector(
-                'input[name="table"]',
-            ) as HTMLInputElement;
-            const idInput = context.container.querySelector(
-                'input[name="id"]',
-            ) as HTMLInputElement;
-            expect(tableInput.value).toEqual('');
-            expect(idInput.value).toEqual('');
+            expect(getSelectedTable()).toEqual('');
+            expect(getId()).toEqual('');
         });
 
         it('table name from query string', async () => {
@@ -137,11 +170,7 @@ describe('DataBrowser', () => {
                 '?table=game',
             );
 
-            const tableInput = context.container.querySelector(
-                'input[name="table"]',
-            ) as HTMLInputElement;
-            expect(tableInput).toBeTruthy();
-            expect(tableInput.value).toEqual('game');
+            expect(getSelectedTable()).toEqual('game');
         });
 
         it('id from query string', async () => {
@@ -156,11 +185,7 @@ describe('DataBrowser', () => {
                 '?id=' + id,
             );
 
-            const idInput = context.container.querySelector(
-                'input[name="id"]',
-            ) as HTMLInputElement;
-            expect(idInput).toBeTruthy();
-            expect(idInput.value).toEqual(id);
+            expect(getId()).toEqual(id);
         });
 
         it('list of records', async () => {
@@ -224,13 +249,7 @@ describe('DataBrowser', () => {
                 '?table=game&id=' + game.id,
             );
 
-            const table = context.container.querySelector(
-                'table',
-            ) as HTMLTableElement;
-            expect(table).toBeTruthy();
-            const rows = Array.from(
-                table.querySelectorAll('tbody > tr'),
-            ) as HTMLTableRowElement[];
+            const rows = getResultRows();
             expect(
                 rows.map(
                     (row) => row.querySelector('td:nth-child(1)')!.textContent,
@@ -260,13 +279,7 @@ describe('DataBrowser', () => {
                 '?table=game&id=' + createTemporaryId(),
             );
 
-            const table = context.container.querySelector(
-                'table',
-            ) as HTMLTableElement;
-            expect(table).toBeTruthy();
-            const rows = Array.from(
-                table.querySelectorAll('tbody > tr'),
-            ) as HTMLTableRowElement[];
+            const rows = getResultRows();
             expect(
                 rows.map(
                     (row) => row.querySelector('td:nth-child(1)')!.textContent,
@@ -293,13 +306,7 @@ describe('DataBrowser', () => {
                     '&showEmptyValues=true',
             );
 
-            const table = context.container.querySelector(
-                'table',
-            ) as HTMLTableElement;
-            expect(table).toBeTruthy();
-            const rows = Array.from(
-                table.querySelectorAll('tbody > tr'),
-            ) as HTMLTableRowElement[];
+            const rows = getResultRows();
             expect(
                 rows.map(
                     (row) => row.querySelector('td:nth-child(1)')!.textContent,
@@ -326,13 +333,7 @@ describe('DataBrowser', () => {
                     '&showEmptyValues=true',
             );
 
-            const table = context.container.querySelector(
-                'table',
-            ) as HTMLTableElement;
-            expect(table).toBeTruthy();
-            const rows = Array.from(
-                table.querySelectorAll('tbody > tr'),
-            ) as HTMLTableRowElement[];
+            const rows = getResultRows();
             expect(
                 rows.map(
                     (row) => row.querySelector('td:nth-child(1)')!.textContent,
@@ -359,13 +360,7 @@ describe('DataBrowser', () => {
                     '&showEmptyValues=true',
             );
 
-            const table = context.container.querySelector(
-                'table',
-            ) as HTMLTableElement;
-            expect(table).toBeTruthy();
-            const rows = Array.from(
-                table.querySelectorAll('tbody > tr'),
-            ) as HTMLTableRowElement[];
+            const rows = getResultRows();
             expect(
                 rows.map(
                     (row) => row.querySelector('td:nth-child(1)')!.textContent,
@@ -398,13 +393,7 @@ describe('DataBrowser', () => {
                 '?table=game&id=' + game.id + '&showAuditValues=true',
             );
 
-            const table = context.container.querySelector(
-                'table',
-            ) as HTMLTableElement;
-            expect(table).toBeTruthy();
-            const rows = Array.from(
-                table.querySelectorAll('tbody > tr'),
-            ) as HTMLTableRowElement[];
+            const rows = getResultRows();
             expect(
                 rows.map(
                     (row) => row.querySelector('td:nth-child(1)')!.textContent,
@@ -613,12 +602,7 @@ describe('DataBrowser', () => {
                     reportedError,
                 ),
             );
-            await doChange(
-                context.container,
-                'input[name="table"]',
-                'TABLE',
-                context.user,
-            );
+            await setSelectedTable('TABLE');
 
             await doClick(findButton(context.container, 'Fetch'));
 
@@ -637,18 +621,8 @@ describe('DataBrowser', () => {
                 ),
             );
             const id = createTemporaryId();
-            await doChange(
-                context.container,
-                'input[name="table"]',
-                'TABLE',
-                context.user,
-            );
-            await doChange(
-                context.container,
-                'input[name="id"]',
-                id,
-                context.user,
-            );
+            await setSelectedTable('TABLE');
+            await setId(id);
 
             await doClick(findButton(context.container, 'Fetch'));
 
@@ -731,12 +705,7 @@ describe('DataBrowser', () => {
             );
 
             requestedData = null;
-            await doChange(
-                context.container,
-                'input[name="table"]',
-                'NEW NAME',
-                context.user,
-            );
+            await setSelectedTable('NEW NAME');
 
             expect(requestedData).toBeNull();
         });
@@ -755,12 +724,7 @@ describe('DataBrowser', () => {
             );
 
             requestedData = null;
-            await doChange(
-                context.container,
-                'input[name="id"]',
-                id2,
-                context.user,
-            );
+            await setId(id2);
 
             expect(requestedData).toBeNull();
         });
@@ -966,12 +930,7 @@ describe('DataBrowser', () => {
             );
             requestedData = null;
 
-            await doChange(
-                context.container,
-                'input[name="id"]',
-                '',
-                context.user,
-            );
+            await setId('');
             reportedError.verifyNoError();
             await doClick(findButton(context.container, 'Fetch'));
 
