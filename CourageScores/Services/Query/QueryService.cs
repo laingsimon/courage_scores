@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using CourageScores.Common;
+﻿using CourageScores.Common;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Query;
 using CourageScores.Services.Data;
@@ -47,9 +46,11 @@ public class QueryService : IQueryService
         }
 
         var options = new QueryRequestOptions();
-        var rows = await EnumerateResults(_database
+        var rows = await _database
             .GetContainer(request.Container)
-            .GetItemQueryIterator<JObject>(request.Query, requestOptions: options), token)
+            .GetItemQueryIterator<JObject>(request.Query, requestOptions: options)
+            .EnumerateResults(token)
+            .ExcludeCosmosProperties()
             .ToList();
         request.Max ??= 10;
 
@@ -63,24 +64,6 @@ public class QueryService : IQueryService
             },
             Success = true,
         };
-    }
-
-    private async IAsyncEnumerable<JToken> EnumerateResults(FeedIterator<JObject> records, [EnumeratorCancellation] CancellationToken token)
-    {
-        while (records.HasMoreResults && !token.IsCancellationRequested)
-        {
-            var record = await records.ReadNextAsync(token);
-
-            foreach (var row in record)
-            {
-                if (token.IsCancellationRequested)
-                {
-                    break;
-                }
-
-                yield return row;
-            }
-        }
     }
 
     private static ActionResultDto<QueryResponseDto> Warning(string message)
