@@ -1,5 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using Microsoft.Azure.Cosmos;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace CourageScores.Repository;
 
@@ -29,7 +32,40 @@ public class CosmosDatabaseFactory : ICosmosDatabaseFactory
         var databaseName = _configuration["CosmosDb_DatabaseName"];
         var account = _configuration["CosmosDb_Endpoint"];
         var key = _configuration["CosmosDb_Key"];
-        var client = new CosmosClient(account, key);
+
+        var serialiserSettings = new JsonSerializerSettings
+        {
+            Converters =
+            {
+                new StringEnumConverter(),
+            }
+        };
+        var clientOptions = new CosmosClientOptions
+        {
+            Serializer = CreateSerialiser(serialiserSettings),
+        };
+        var client = new CosmosClient(account, key, clientOptions);
         return await client.CreateDatabaseIfNotExistsAsync(databaseName, throughput);
+    }
+
+    private static CosmosSerializer? CreateSerialiser(JsonSerializerSettings serializerSettings)
+    {
+        const string serialiserTypeName = "Microsoft.Azure.Cosmos.CosmosJsonDotNetSerializer";
+        var cosmosAssembly = Assembly.GetAssembly(typeof(CosmosSerializer))!;
+        var serialiserType = cosmosAssembly.GetTypes().SingleOrDefault(t => t.FullName == serialiserTypeName);
+        if (serialiserType == null)
+        {
+            return null;
+        }
+
+        var constructor = serialiserType.GetConstructor(
+            BindingFlags.Instance | BindingFlags.NonPublic,
+            [typeof(JsonSerializerSettings), typeof(bool)]);
+        if (constructor == null)
+        {
+            return null;
+        }
+
+        return (CosmosSerializer?)constructor.Invoke([serializerSettings, false]);
     }
 }
