@@ -167,7 +167,7 @@ export function Query() {
                 </div>
                 <div>
                     {results?.success === true && results.result ? (
-                        <div>
+                        <div className="overflow-x-auto">
                             <h5>
                                 {results.result.rows.length} of{' '}
                                 {results.result.rowCount} rows
