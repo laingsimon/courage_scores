@@ -11,6 +11,7 @@ import {
     api,
     appProps,
     ErrorState,
+    doSelectOption,
 } from '../../helpers/tests';
 import { DataBrowser } from './DataBrowser';
 import { createTemporaryId, repeat } from '../../helpers/projection';
@@ -22,6 +23,8 @@ import { IError } from '../common/IError';
 import { IFailedRequest } from '../common/IFailedRequest';
 import { IDataApi } from '../../interfaces/apis/IDataApi';
 import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
+import { AdminContainer } from './AdminContainer';
+import { TableDto } from '../../interfaces/models/dtos/Data/TableDto';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -37,6 +40,7 @@ describe('DataBrowser', () => {
     let singleApiResult: IClientActionResultDto<object> | null;
     let multiApiResult: IClientActionResultDto<SingleDataResultDto[]> | null;
     let apiException: IError | null;
+    let tables: TableDto[] = [];
     const dataApi = api<IDataApi>({
         view: async (
             table: string,
@@ -81,6 +85,7 @@ describe('DataBrowser', () => {
         singleApiResult = null;
         multiApiResult = null;
         reportedError = new ErrorState();
+        tables = [{ name: 'game', partitionKey: 'id' }];
     });
 
     async function renderComponent(
@@ -91,7 +96,9 @@ describe('DataBrowser', () => {
             iocProps({ dataApi }),
             brandingProps(),
             props,
-            <DataBrowser />,
+            <AdminContainer tables={tables} accounts={[]}>
+                <DataBrowser />
+            </AdminContainer>,
             '/admin/:mode',
             '/admin/browser' + queryString,
         );
@@ -105,6 +112,42 @@ describe('DataBrowser', () => {
         };
     }
 
+    function getSelectedTable(): string {
+        const tableDropdownToggle =
+            context.container.querySelector('.dropdown-toggle');
+        expect(tableDropdownToggle).toBeTruthy();
+        return tableDropdownToggle!.textContent.trim();
+    }
+
+    function getId(): string {
+        const input = context.container.querySelector(
+            'input[name="id"]',
+        ) as HTMLInputElement;
+        expect(input).toBeTruthy();
+        return input.value;
+    }
+
+    function getResultRows(): HTMLTableRowElement[] {
+        const table = context.container.querySelector(
+            'table',
+        ) as HTMLTableElement;
+        expect(table).toBeTruthy();
+        return Array.from(
+            table.querySelectorAll('tbody > tr'),
+        ) as HTMLTableRowElement[];
+    }
+
+    async function setSelectedTable(table: string) {
+        await doSelectOption(
+            context.container.querySelector('.dropdown-menu'),
+            table,
+        );
+    }
+
+    async function setId(id: string) {
+        await doChange(context.container, 'input[name="id"]', id, context.user);
+    }
+
     describe('renders', () => {
         it('with no query string', async () => {
             await renderComponent(
@@ -116,14 +159,8 @@ describe('DataBrowser', () => {
                 ),
             );
 
-            const tableInput = context.container.querySelector(
-                'input[name="table"]',
-            ) as HTMLInputElement;
-            const idInput = context.container.querySelector(
-                'input[name="id"]',
-            ) as HTMLInputElement;
-            expect(tableInput.value).toEqual('');
-            expect(idInput.value).toEqual('');
+            expect(getSelectedTable()).toEqual('');
+            expect(getId()).toEqual('');
         });
 
         it('table name from query string', async () => {
@@ -134,14 +171,10 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game',
+                '?container=game',
             );
 
-            const tableInput = context.container.querySelector(
-                'input[name="table"]',
-            ) as HTMLInputElement;
-            expect(tableInput).toBeTruthy();
-            expect(tableInput.value).toEqual('game');
+            expect(getSelectedTable()).toEqual('game');
         });
 
         it('id from query string', async () => {
@@ -156,11 +189,7 @@ describe('DataBrowser', () => {
                 '?id=' + id,
             );
 
-            const idInput = context.container.querySelector(
-                'input[name="id"]',
-            ) as HTMLInputElement;
-            expect(idInput).toBeTruthy();
-            expect(idInput.value).toEqual(id);
+            expect(getId()).toEqual(id);
         });
 
         it('list of records', async () => {
@@ -186,7 +215,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game',
+                '?container=game',
             );
 
             const list = context.container.querySelector(
@@ -221,16 +250,10 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' + game.id,
+                '?container=game&id=' + game.id,
             );
 
-            const table = context.container.querySelector(
-                'table',
-            ) as HTMLTableElement;
-            expect(table).toBeTruthy();
-            const rows = Array.from(
-                table.querySelectorAll('tbody > tr'),
-            ) as HTMLTableRowElement[];
+            const rows = getResultRows();
             expect(
                 rows.map(
                     (row) => row.querySelector('td:nth-child(1)')!.textContent,
@@ -257,16 +280,10 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' + createTemporaryId(),
+                '?container=game&id=' + createTemporaryId(),
             );
 
-            const table = context.container.querySelector(
-                'table',
-            ) as HTMLTableElement;
-            expect(table).toBeTruthy();
-            const rows = Array.from(
-                table.querySelectorAll('tbody > tr'),
-            ) as HTMLTableRowElement[];
+            const rows = getResultRows();
             expect(
                 rows.map(
                     (row) => row.querySelector('td:nth-child(1)')!.textContent,
@@ -288,18 +305,12 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' +
+                '?container=game&id=' +
                     createTemporaryId() +
                     '&showEmptyValues=true',
             );
 
-            const table = context.container.querySelector(
-                'table',
-            ) as HTMLTableElement;
-            expect(table).toBeTruthy();
-            const rows = Array.from(
-                table.querySelectorAll('tbody > tr'),
-            ) as HTMLTableRowElement[];
+            const rows = getResultRows();
             expect(
                 rows.map(
                     (row) => row.querySelector('td:nth-child(1)')!.textContent,
@@ -321,18 +332,12 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' +
+                '?container=game&id=' +
                     createTemporaryId() +
                     '&showEmptyValues=true',
             );
 
-            const table = context.container.querySelector(
-                'table',
-            ) as HTMLTableElement;
-            expect(table).toBeTruthy();
-            const rows = Array.from(
-                table.querySelectorAll('tbody > tr'),
-            ) as HTMLTableRowElement[];
+            const rows = getResultRows();
             expect(
                 rows.map(
                     (row) => row.querySelector('td:nth-child(1)')!.textContent,
@@ -354,18 +359,12 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' +
+                '?container=game&id=' +
                     createTemporaryId() +
                     '&showEmptyValues=true',
             );
 
-            const table = context.container.querySelector(
-                'table',
-            ) as HTMLTableElement;
-            expect(table).toBeTruthy();
-            const rows = Array.from(
-                table.querySelectorAll('tbody > tr'),
-            ) as HTMLTableRowElement[];
+            const rows = getResultRows();
             expect(
                 rows.map(
                     (row) => row.querySelector('td:nth-child(1)')!.textContent,
@@ -395,16 +394,10 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' + game.id + '&showAuditValues=true',
+                '?container=game&id=' + game.id + '&showAuditValues=true',
             );
 
-            const table = context.container.querySelector(
-                'table',
-            ) as HTMLTableElement;
-            expect(table).toBeTruthy();
-            const rows = Array.from(
-                table.querySelectorAll('tbody > tr'),
-            ) as HTMLTableRowElement[];
+            const rows = getResultRows();
             expect(
                 rows.map(
                     (row) => row.querySelector('td:nth-child(1)')!.textContent,
@@ -450,7 +443,9 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' + createTemporaryId() + '&showIdsUptoDepth=2',
+                '?container=game&id=' +
+                    createTemporaryId() +
+                    '&showIdsUptoDepth=2',
             );
 
             const rows = Array.from(
@@ -487,7 +482,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game',
+                '?container=game',
             );
 
             expect(context.container.textContent).toContain('SOME ERROR');
@@ -510,7 +505,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=abcd',
+                '?container=game&id=abcd',
             );
 
             expect(context.container.textContent).toContain(
@@ -528,7 +523,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=abcd',
+                '?container=game&id=abcd',
             );
 
             expect(context.container.textContent).toContain('Some error');
@@ -548,7 +543,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&page=1',
+                '?container=game&page=1',
             );
 
             const list = context.container.querySelector(
@@ -600,11 +595,13 @@ describe('DataBrowser', () => {
             await doClick(findButton(context.container, 'Fetch'));
 
             context.prompts.alertWasShown(
-                'Enter a table name (and optionally an id) first',
+                'Select a container (and optionally an id) first',
             );
         });
 
         it('fetches when only table name supplied', async () => {
+            tables.push({ name: 'TABLE', partitionKey: 'id' });
+
             await renderComponent(
                 appProps(
                     {
@@ -613,21 +610,17 @@ describe('DataBrowser', () => {
                     reportedError,
                 ),
             );
-            await doChange(
-                context.container,
-                'input[name="table"]',
-                'TABLE',
-                context.user,
-            );
+            await setSelectedTable('TABLE');
 
             await doClick(findButton(context.container, 'Fetch'));
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                '/admin/browser/?table=TABLE',
+                '/admin/browser/?container=TABLE',
             );
         });
 
         it('fetches when table name and id supplied', async () => {
+            tables.push({ name: 'TABLE', partitionKey: 'id' });
             await renderComponent(
                 appProps(
                     {
@@ -637,23 +630,13 @@ describe('DataBrowser', () => {
                 ),
             );
             const id = createTemporaryId();
-            await doChange(
-                context.container,
-                'input[name="table"]',
-                'TABLE',
-                context.user,
-            );
-            await doChange(
-                context.container,
-                'input[name="id"]',
-                id,
-                context.user,
-            );
+            await setSelectedTable('TABLE');
+            await setId(id);
 
             await doClick(findButton(context.container, 'Fetch'));
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                `/admin/browser/?table=TABLE&id=${id}`,
+                `/admin/browser/?container=TABLE&id=${id}`,
             );
         });
 
@@ -671,7 +654,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game',
+                '?container=game',
             );
             console.error = noop; //silence warnings about navigation in tests
 
@@ -692,7 +675,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=TABLE',
+                '?container=TABLE',
             );
 
             expect(requestedData).toEqual({
@@ -710,7 +693,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=TABLE&id=' + id,
+                '?container=TABLE&id=' + id,
             );
 
             expect(requestedData).toEqual({
@@ -720,6 +703,8 @@ describe('DataBrowser', () => {
         });
 
         it('does not re-fetch immediately if table name changes when initially set in query string', async () => {
+            tables.push({ name: 'TABLE', partitionKey: 'id' });
+            tables.push({ name: 'NEW NAME', partitionKey: 'id' });
             await renderComponent(
                 appProps(
                     {
@@ -727,16 +712,11 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=TABLE',
+                '?container=TABLE',
             );
 
             requestedData = null;
-            await doChange(
-                context.container,
-                'input[name="table"]',
-                'NEW NAME',
-                context.user,
-            );
+            await setSelectedTable('NEW NAME');
 
             expect(requestedData).toBeNull();
         });
@@ -751,16 +731,11 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=TABLE&id=' + id1,
+                '?container=TABLE&id=' + id1,
             );
 
             requestedData = null;
-            await doChange(
-                context.container,
-                'input[name="id"]',
-                id2,
-                context.user,
-            );
+            await setId(id2);
 
             expect(requestedData).toBeNull();
         });
@@ -782,7 +757,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' + game.id,
+                '?container=game&id=' + game.id,
             );
 
             await doClick(
@@ -791,7 +766,7 @@ describe('DataBrowser', () => {
             );
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                `/admin/browser/?table=game&id=${game.id}&showEmptyValues=true`,
+                `/admin/browser/?container=game&id=${game.id}&showEmptyValues=true`,
             );
         });
 
@@ -812,7 +787,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' + game.id + '&showEmptyValues=true',
+                '?container=game&id=' + game.id + '&showEmptyValues=true',
             );
 
             await doClick(
@@ -821,7 +796,7 @@ describe('DataBrowser', () => {
             );
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                `/admin/browser/?table=game&id=${game.id}`,
+                `/admin/browser/?container=game&id=${game.id}`,
             );
         });
 
@@ -842,7 +817,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' + game.id,
+                '?container=game&id=' + game.id,
             );
 
             await doClick(
@@ -851,7 +826,7 @@ describe('DataBrowser', () => {
             );
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                `/admin/browser/?table=game&id=${game.id}&showAuditValues=true`,
+                `/admin/browser/?container=game&id=${game.id}&showAuditValues=true`,
             );
         });
 
@@ -872,7 +847,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' + game.id + '&showAuditValues=true',
+                '?container=game&id=' + game.id + '&showAuditValues=true',
             );
 
             await doClick(
@@ -881,7 +856,7 @@ describe('DataBrowser', () => {
             );
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                `/admin/browser/?table=game&id=${game.id}`,
+                `/admin/browser/?container=game&id=${game.id}`,
             );
         });
 
@@ -902,7 +877,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' + game.id,
+                '?container=game&id=' + game.id,
             );
 
             await doClick(
@@ -911,7 +886,7 @@ describe('DataBrowser', () => {
             );
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                `/admin/browser/?table=game&id=${game.id}&showVersion=true`,
+                `/admin/browser/?container=game&id=${game.id}&showVersion=true`,
             );
         });
 
@@ -932,7 +907,7 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=game&id=' + game.id + '&showVersion=true',
+                '?container=game&id=' + game.id + '&showVersion=true',
             );
 
             await doClick(
@@ -941,7 +916,7 @@ describe('DataBrowser', () => {
             );
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                `/admin/browser/?table=game&id=${game.id}`,
+                `/admin/browser/?container=game&id=${game.id}`,
             );
         });
 
@@ -962,22 +937,17 @@ describe('DataBrowser', () => {
                     },
                     reportedError,
                 ),
-                '?table=TABLE&id=' + game.id,
+                '?container=TABLE&id=' + game.id,
             );
             requestedData = null;
 
-            await doChange(
-                context.container,
-                'input[name="id"]',
-                '',
-                context.user,
-            );
+            await setId('');
             reportedError.verifyNoError();
             await doClick(findButton(context.container, 'Fetch'));
 
             reportedError.verifyNoError();
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                `/admin/browser/?table=TABLE`,
+                `/admin/browser/?container=TABLE`,
             );
         });
     });
