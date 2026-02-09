@@ -1,3 +1,4 @@
+using CourageScores.Common;
 using CourageScores.Repository;
 using CourageScores.StubCosmos.Api;
 using Microsoft.Azure.Cosmos;
@@ -26,7 +27,7 @@ public class DataBrowserRepositoryTests
             .Setup(d => d.GetContainerQueryIterator<ContainerProperties>((string?)null, null, null))
             .Returns(iterator);
 
-        var result = await repository.TableExists(name, _token);
+        var result = await repository.TableExists("name", _token);
 
         Assert.That(result, Is.True);
     }
@@ -44,5 +45,35 @@ public class DataBrowserRepositoryTests
         var result = await repository.TableExists("name", _token);
 
         Assert.That(result, Is.False);
+    }
+
+    [Test]
+    public async Task GetAll_WhenContainerNotFound_Throws()
+    {
+        var database = new Mock<Database>();
+        var repository = new DataBrowserRepository<object>(database.Object);
+        var iterator = new StubFeedIterator<ContainerProperties>();
+        database
+            .Setup(d => d.GetContainerQueryIterator<ContainerProperties>((string?)null, null, null))
+            .Returns(iterator);
+
+        await Assert.ThatAsync(
+            () => repository.GetAll("name", _token).ToList(),
+            Throws.TypeOf<ArgumentOutOfRangeException>());
+    }
+
+    [Test]
+    public async Task GetItem_WhenContainerNotFound_Throws()
+    {
+        var database = new Mock<Database>();
+        var repository = new DataBrowserRepository<object>(database.Object);
+        var iterator = new StubFeedIterator<ContainerProperties>();
+        database
+            .Setup(d => d.GetContainerQueryIterator<ContainerProperties>((string?)null, null, null))
+            .Returns(iterator);
+
+        await Assert.ThatAsync(
+            () => repository.GetItem("name", Guid.NewGuid(), _token),
+            Throws.TypeOf<ArgumentOutOfRangeException>());
     }
 }

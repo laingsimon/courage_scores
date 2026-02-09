@@ -16,6 +16,13 @@ public class DataBrowserRepository<T> : IDataBrowserRepository<T>
 
     public async IAsyncEnumerable<T> GetAll(string tableName, [EnumeratorCancellation] CancellationToken token)
     {
+        tableName = tableName.Trim().ToLower();
+
+        if (!await TableExists(tableName, token))
+        {
+            throw new ArgumentOutOfRangeException(nameof(tableName), tableName, "Table not found");
+        }
+
         await foreach (var item in Query(tableName, "", token))
         {
             yield return item;
@@ -24,6 +31,13 @@ public class DataBrowserRepository<T> : IDataBrowserRepository<T>
 
     public async Task<T?> GetItem(string tableName, Guid id, CancellationToken token)
     {
+        tableName = tableName.Trim().ToLower();
+
+        if (!await TableExists(tableName, token))
+        {
+            throw new ArgumentOutOfRangeException(nameof(tableName), tableName, "Table not found");
+        }
+
         await foreach (var item in Query(tableName, $"where t.id = '{id}'", token))
         {
             return item;
@@ -52,8 +66,7 @@ public class DataBrowserRepository<T> : IDataBrowserRepository<T>
 
     private async IAsyncEnumerable<T> Query(string tableName, string? whereClause, [EnumeratorCancellation] CancellationToken token)
     {
-        Container container = await _database.CreateContainerIfNotExistsAsync(tableName, "/id", cancellationToken: token);
-
+        var container = _database.GetContainer(tableName);
         var iterator = container.GetItemQueryIterator<T>($"select * from {tableName} t {whereClause}");
         while (iterator.HasMoreResults && !token.IsCancellationRequested)
         {
