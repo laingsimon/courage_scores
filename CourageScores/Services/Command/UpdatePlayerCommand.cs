@@ -8,14 +8,16 @@ using CourageScores.Repository;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
 using CourageScores.Services.Team;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
+using CosmosTeam = CourageScores.Models.Cosmos.Team.Team;
 
 namespace CourageScores.Services.Command;
 
-public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamPlayer>
+public class UpdatePlayerCommand : IUpdateCommand<CosmosTeam, TeamPlayer>
 {
     private readonly IAuditingHelper _auditingHelper;
     private readonly ICommandFactory _commandFactory;
-    private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
+    private readonly IGenericRepository<CosmosGame> _gameRepository;
     private readonly ICachingSeasonService _seasonService;
     private readonly ITeamService _teamService;
     private readonly IUserService _userService;
@@ -27,7 +29,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         IUserService userService,
         ICachingSeasonService seasonService,
         IAuditingHelper auditingHelper,
-        IGenericRepository<Models.Cosmos.Game.Game> gameRepository,
+        IGenericRepository<CosmosGame> gameRepository,
         ITeamService teamService,
         ICommandFactory commandFactory)
     {
@@ -57,7 +59,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         return this;
     }
 
-    public async Task<ActionResult<TeamPlayer>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
+    public async Task<ActionResult<TeamPlayer>> ApplyUpdate(CosmosTeam model, CancellationToken token)
     {
         _playerId.ThrowIfNull($"PlayerId hasn't been set, ensure {nameof(ForPlayer)} is called");
         _player.ThrowIfNull($"Player hasn't been set, ensure {nameof(WithData)} is called");
@@ -155,7 +157,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             };
         }
 
-        var updatedGames = await UpdateGames(token).CountAsync();
+        var updatedGames = await UpdateGames(_player, token).CountAsync();
 
         if (_player.NewTeamId != null && _player.NewTeamId != model.Id)
         {
@@ -211,7 +213,9 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         };
     }
 
-    private async IAsyncEnumerable<Models.Cosmos.Game.Game> UpdateGames([EnumeratorCancellation] CancellationToken token)
+    private async IAsyncEnumerable<CosmosGame> UpdateGames(
+        EditTeamPlayerDto player,
+        [EnumeratorCancellation] CancellationToken token)
     {
         var games = _player!.GameId.HasValue
             ? _gameRepository.GetSome($"t.id = '{_player!.GameId!.Value}' and t.seasonId = '{_seasonId}'", token)
@@ -219,28 +223,31 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
 
         await foreach (var game in games.WithCancellation(token))
         {
-            if (await UpdatePlayerDetailsInGame(game, token))
+            if (await UpdatePlayerDetailsInGame(game, player, token))
             {
                 yield return game;
             }
         }
     }
 
-    private async Task<bool> UpdatePlayerDetailsInGame(Models.Cosmos.Game.Game game, CancellationToken token)
+    private async Task<bool> UpdatePlayerDetailsInGame(
+        CosmosGame game,
+        EditTeamPlayerDto player,
+        CancellationToken token)
     {
         var updated = false;
 
         foreach (var match in game.Matches)
         {
-            foreach (var p in match.AwayPlayers.Where(p => p.Id == _playerId))
-            {
-                p.Name = _player!.Name.TrimOrDefault();
-                updated = true;
-            }
+            var allPlayers = match.HomePlayers.Concat(match.AwayPlayers)
+                .Where(p => p.Id == _playerId)
+                .ToArray();
 
-            foreach (var p in match.HomePlayers.Where(p => p.Id == _playerId))
+            foreach (var p in allPlayers)
             {
-                p.Name = _player!.Name.TrimOrDefault();
+                p.Name = player.Name.TrimOrDefault();
+                p.Gender = player.Gender.FromGenderDto();
+                await _auditingHelper.SetUpdated(p, token);
                 updated = true;
             }
         }
