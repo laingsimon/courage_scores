@@ -35,7 +35,7 @@ export function Query() {
     const container = search.get('container');
     const query = search.get('query');
     const max = search.get('max');
-    const [volatileQuery, setVollatileQuery] = useState<string>(query || '');
+    const [tentativeQuery, setTentativeQuery] = useState<string>(query || '');
 
     async function changeParams(name: string, value: string) {
         const newQuery = new URLSearchParams(location.search);
@@ -45,7 +45,14 @@ export function Query() {
             newQuery.delete(name);
         }
 
-        navigate(`/admin/query/?${newQuery.toString()}`);
+        if (name === 'container' && value && !newQuery.get('query')) {
+            const alias = value.substring(0, 1);
+            const query = `select *\nfrom ${value} ${alias}`;
+            newQuery.set('query', query);
+            setTentativeQuery(query);
+        }
+
+        navigate(`/admin/query/?${newQuery}`);
     }
 
     async function onExecute() {
@@ -57,7 +64,7 @@ export function Query() {
             alert('Select a container first');
             return;
         }
-        if (!volatileQuery) {
+        if (!tentativeQuery) {
             alert('Enter a query first');
             return;
         }
@@ -67,7 +74,7 @@ export function Query() {
         try {
             const request: QueryRequestDto = {
                 container: container,
-                query: volatileQuery,
+                query: tentativeQuery,
                 max: max ? Number.parseInt(max) : undefined,
             };
 
@@ -186,15 +193,11 @@ export function Query() {
                     <textarea
                         className="width-100 font-monospace form-control"
                         name="query"
-                        value={volatileQuery}
+                        value={tentativeQuery}
                         rows={8}
-                        onChange={stateChanged(setVollatileQuery)}
-                        onBlur={() => changeParams('query', volatileQuery)}
+                        onChange={stateChanged(setTentativeQuery)}
+                        onBlur={() => changeParams('query', tentativeQuery)}
                     />
-
-                    {results ? null : (
-                        <pre>Examples: select game.id from game</pre>
-                    )}
                 </div>
                 <div>
                     {results?.success === true && results.result ? (
