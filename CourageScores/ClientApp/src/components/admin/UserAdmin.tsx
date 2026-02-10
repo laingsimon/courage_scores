@@ -193,7 +193,7 @@ export function UserAdmin() {
                 </div>
             </div>
             <ul>
-                <li>⚠ Man of the match data can be seen for any team</li>
+                <li>⚠️ Man of the match data can be seen for any team</li>
             </ul>
             <h6>Access</h6>
             <div className="d-flex flex-wrap">
@@ -207,7 +207,7 @@ export function UserAdmin() {
                     {renderAccessOption(
                         'manageScores',
                         'Manage scores',
-                        '⚠ Enter league-fixture results for any team',
+                        '⚠️ Enter league-fixture results for any team',
                     )}
                     {renderAccessOption(
                         'inputResults',
@@ -282,7 +282,7 @@ export function UserAdmin() {
                     )}
                     {renderAccessOption(
                         'runDataQueries',
-                        'Execute data queries',
+                        '⚠️ Execute data queries',
                         'Query the data model',
                     )}
                 </div>
@@ -313,7 +313,7 @@ export function UserAdmin() {
                     )}
                     {renderAccessOption(
                         'viewAnyPhoto',
-                        '⚠ View photos from anyone',
+                        '⚠️ View photos from anyone',
                         '(allows viewing of man-of-the-match submissions)',
                     )}
                     {renderAccessOption(

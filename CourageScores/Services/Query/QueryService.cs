@@ -1,11 +1,10 @@
-﻿using System.Runtime.CompilerServices;
-using CourageScores.Common;
+﻿using CourageScores.Common;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Query;
 using CourageScores.Services.Data;
 using CourageScores.Services.Identity;
 using Microsoft.Azure.Cosmos;
-
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace CourageScores.Services.Query;
@@ -47,39 +46,45 @@ public class QueryService : IQueryService
         }
 
         var options = new QueryRequestOptions();
-        var rows = await EnumerateResults(_database
-            .GetContainer(request.Container)
-            .GetItemQueryIterator<JObject>(request.Query, requestOptions: options), token)
-            .ToList();
-        request.Max ??= 10;
-
-        return new ActionResultDto<QueryResponseDto>
+        try
         {
-            Result = new QueryResponseDto
-            {
-                Request = request,
-                Rows = rows.Take(request.Max.Value).ToList(),
-                RowCount = rows.Count,
-            },
-            Success = true,
-        };
-    }
+            var rows = await _database
+                .GetContainer(request.Container)
+                .GetItemQueryIterator<JObject>(request.Query, requestOptions: options)
+                .EnumerateResults(token)
+                .ExcludeCosmosProperties()
+                .ToList();
+            request.Max ??= 10;
 
-    private async IAsyncEnumerable<JToken> EnumerateResults(FeedIterator<JObject> records, [EnumeratorCancellation] CancellationToken token)
-    {
-        while (records.HasMoreResults && !token.IsCancellationRequested)
-        {
-            var record = await records.ReadNextAsync(token);
-
-            foreach (var row in record)
+            return new ActionResultDto<QueryResponseDto>
             {
-                if (token.IsCancellationRequested)
+                Result = new QueryResponseDto
                 {
-                    break;
-                }
-
-                yield return row;
+                    Request = request,
+                    Rows = rows.Take(request.Max.Value).ToList(),
+                    RowCount = rows.Count,
+                },
+                Success = true,
+            };
+        }
+        catch (CosmosException exc)
+        {
+            var errorResponse = GetErrorResponse(exc);
+            if (errorResponse != null)
+            {
+                return new ActionResultDto<QueryResponseDto>
+                {
+                    Warnings = errorResponse.Errors.Select(e => e.Message).ToList(),
+                };
             }
+
+            return new ActionResultDto<QueryResponseDto>
+            {
+                Errors =
+                {
+                    exc.Message,
+                }
+            };
         }
     }
 
@@ -92,5 +97,44 @@ public class QueryService : IQueryService
                 message
             },
         };
+    }
+
+    private static ErrorResponse? GetErrorResponse(CosmosException exc)
+    {
+        try
+        {
+            if (exc.InnerException != null)
+            {
+                var jsonInnerMessage = exc.InnerException.Message;
+                return JsonConvert.DeserializeObject<ErrorResponse>(jsonInnerMessage);
+            }
+
+            var error = exc.GetError();
+            var outerMessage = JObject.Parse(error["message"]!.Value<string>()!);
+            var innerMessage = outerMessage["message"]!.Value<string>()!;
+            return JsonConvert.DeserializeObject<ErrorResponse>(innerMessage.Substring(0, innerMessage.LastIndexOf("}") + 1));
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    private class ErrorResponse
+    {
+        [JsonProperty("errors")]
+        public required ErrorDetail[] Errors { get; set; }
+    }
+
+    private class ErrorDetail
+    {
+        [JsonProperty("severity")]
+        public required string Severity { get; set; }
+        [JsonProperty("location")]
+        public required object Location { get; set; }
+        [JsonProperty("code")]
+        public required string Code { get; set; }
+        [JsonProperty("message")]
+        public required string Message { get; set; }
     }
 }
