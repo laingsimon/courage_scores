@@ -2,6 +2,7 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 
 namespace TypeScriptMapper.MetaData;
 
@@ -56,7 +57,7 @@ public class MetaDataHelper : IMetaDataHelper
             };
         }
 
-        if (type == typeof(RedirectResult))
+        if (type == typeof(RedirectResult) || type == typeof(JToken) || type == typeof(JObject))
         {
             return Any;
         }

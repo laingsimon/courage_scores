@@ -362,6 +362,7 @@ public class UpdatePlayerCommandTests
     public async Task ApplyUpdate_WhenUpdatingPlayerInAGame_UpdatesPlayerDetailsInGivenGame()
     {
         _update.GameId = _game.Id;
+        _update.Gender = GenderDto.Male;
         _gameRepository.Setup(r => r.GetSome($"t.id = '{_game.Id}' and t.seasonId = '{_season.Id}'", _token))
             .Returns(TestUtilities.AsyncEnumerable(_game));
 
@@ -373,6 +374,8 @@ public class UpdatePlayerCommandTests
         Assert.That(result.Messages, Is.EqualTo(new[] { "Player PLAYER (new) updated in the SEASON season, 1 game/s updated" }));
         Assert.That(_game.Matches[0].AwayPlayers[0].Name, Is.EqualTo("PLAYER (new)"));
         Assert.That(_game.Matches[0].HomePlayers[0].Name, Is.EqualTo("PLAYER (new)"));
+        Assert.That(_game.Matches[0].AwayPlayers[0].Gender, Is.EqualTo(Gender.Male));
+        Assert.That(_game.Matches[0].HomePlayers[0].Gender, Is.EqualTo(Gender.Male));
         _gameRepository.Verify(r => r.GetSome($"t.id = '{_game.Id}' and t.seasonId = '{_season.Id}'", _token));
         _gameRepository.Verify(r => r.Upsert(_game, _token));
     }
@@ -380,6 +383,7 @@ public class UpdatePlayerCommandTests
     [Test]
     public async Task ApplyUpdate_WhenUpdatingPlayerInAllGames_UpdatesPlayerDetailsInGivenGame()
     {
+        _update.Gender = GenderDto.Female;
         _gameRepository.Setup(r => r.GetSome($"t.seasonId = '{_season.Id}'", _token))
             .Returns(TestUtilities.AsyncEnumerable(_game));
 
@@ -391,6 +395,8 @@ public class UpdatePlayerCommandTests
         Assert.That(result.Messages, Is.EqualTo(new[] { "Player PLAYER (new) updated in the SEASON season, 1 game/s updated" }));
         Assert.That(_game.Matches[0].AwayPlayers[0].Name, Is.EqualTo("PLAYER (new)"));
         Assert.That(_game.Matches[0].HomePlayers[0].Name, Is.EqualTo("PLAYER (new)"));
+        Assert.That(_game.Matches[0].AwayPlayers[0].Gender, Is.EqualTo(Gender.Female));
+        Assert.That(_game.Matches[0].HomePlayers[0].Gender, Is.EqualTo(Gender.Female));
         _gameRepository.Verify(r => r.GetSome($"t.seasonId = '{_season.Id}'", _token));
         _gameRepository.Verify(r => r.Upsert(_game, _token));
     }
