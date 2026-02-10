@@ -103,6 +103,12 @@ public class QueryService : IQueryService
     {
         try
         {
+            if (exc.InnerException != null)
+            {
+                var jsonInnerMessage = exc.InnerException.Message;
+                return JsonConvert.DeserializeObject<ErrorResponse>(jsonInnerMessage);
+            }
+
             var error = exc.GetError();
             var outerMessage = JObject.Parse(error["message"]!.Value<string>()!);
             var innerMessage = outerMessage["message"]!.Value<string>()!;

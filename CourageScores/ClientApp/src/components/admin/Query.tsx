@@ -13,6 +13,8 @@ import { useApp } from '../common/AppContainer';
 import { QueryResponseDto } from '../../interfaces/models/dtos/Query/QueryResponseDto';
 import { IClientActionResultDto } from '../common/IClientActionResultDto';
 import { stateChanged } from '../../helpers/events';
+import { renderDate } from '../../helpers/rendering';
+import { isGuid } from '../../helpers/projection';
 
 export function Query() {
     const { onError } = useApp();
@@ -33,7 +35,7 @@ export function Query() {
     const container = search.get('container');
     const query = search.get('query');
     const max = search.get('max');
-    const [volatileQuery, setVollatileQuery] = useState<string>(query || '');
+    const [tentativeQuery, setTentativeQuery] = useState<string>(query || '');
 
     async function changeParams(name: string, value: string) {
         const newQuery = new URLSearchParams(location.search);
@@ -43,7 +45,14 @@ export function Query() {
             newQuery.delete(name);
         }
 
-        navigate(`/admin/query/?${newQuery.toString()}`);
+        if (name === 'container' && value && !newQuery.get('query')) {
+            const alias = value.substring(0, 1);
+            const query = `select *\nfrom ${value} ${alias}`;
+            newQuery.set('query', query);
+            setTentativeQuery(query);
+        }
+
+        navigate(`/admin/query/?${newQuery}`);
     }
 
     async function onExecute() {
@@ -55,7 +64,7 @@ export function Query() {
             alert('Select a container first');
             return;
         }
-        if (!volatileQuery) {
+        if (!tentativeQuery) {
             alert('Enter a query first');
             return;
         }
@@ -65,7 +74,7 @@ export function Query() {
         try {
             const request: QueryRequestDto = {
                 container: container,
-                query: volatileQuery,
+                query: tentativeQuery,
                 max: max ? Number.parseInt(max) : undefined,
             };
 
@@ -93,6 +102,35 @@ export function Query() {
             (stringValue.startsWith('/') || stringValue.startsWith('http'));
         if (isALink) {
             return <a href={value}>{value}</a>;
+        }
+
+        if (
+            stringValue?.match &&
+            stringValue.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+Z)?$/)
+        ) {
+            // date and optional time
+
+            const datePart = renderDate(stringValue?.substring(0, 10));
+            const timePart = stringValue.substring(11);
+            const isDateOnly = timePart.match(/^[0:.Z]+$/);
+
+            return (
+                <abbr title={stringValue}>
+                    {datePart}
+                    {isDateOnly ? '' : ' @ ' + timePart.substring(0, 5)}
+                </abbr>
+            );
+        }
+
+        if (stringValue?.match && isGuid(stringValue)) {
+            const firstPart = stringValue!.substring(0, 4);
+            const lastPart = stringValue!.substring(32);
+
+            return (
+                <abbr title={stringValue}>
+                    {firstPart}-{lastPart}
+                </abbr>
+            );
         }
 
         return value;
@@ -155,18 +193,16 @@ export function Query() {
                     <textarea
                         className="width-100 font-monospace form-control"
                         name="query"
-                        value={volatileQuery}
+                        value={tentativeQuery}
                         rows={8}
-                        onChange={stateChanged(setVollatileQuery)}
-                        onBlur={() => changeParams('query', volatileQuery)}
+                        onChange={stateChanged(setTentativeQuery)}
+                        onBlur={() => changeParams('query', tentativeQuery)}
                     />
-
-                    {results ? null : (
-                        <pre>Examples: select game.id from game</pre>
-                    )}
                 </div>
                 <div>
-                    {results?.success === true && results.result ? (
+                    {!executing &&
+                    results?.success === true &&
+                    results.result ? (
                         <div className="overflow-x-auto">
                             <h5>
                                 {results.result.rows.length} of{' '}
@@ -203,14 +239,14 @@ export function Query() {
                             </table>
                         </div>
                     ) : null}
-                    {any(results?.errors) ? (
+                    {!executing && any(results?.errors) ? (
                         <div className="alert alert-danger">
                             {results!.errors?.map((e, i) => (
                                 <li key={i}>{e}</li>
                             ))}
                         </div>
                     ) : null}
-                    {any(results?.warnings) ? (
+                    {!executing && any(results?.warnings) ? (
                         <div className="alert alert-warning">
                             {results!.warnings?.map((w, i) => (
                                 <li key={i}>{w}</li>
