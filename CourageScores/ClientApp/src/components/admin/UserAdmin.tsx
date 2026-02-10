@@ -282,7 +282,7 @@ export function UserAdmin() {
                     )}
                     {renderAccessOption(
                         'runDataQueries',
-                        'Execute data queries',
+                        '⚠ Execute data queries',
                         'Query the data model',
                     )}
                 </div>
