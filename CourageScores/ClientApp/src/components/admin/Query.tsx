@@ -200,7 +200,9 @@ export function Query() {
                     />
                 </div>
                 <div>
-                    {results?.success === true && results.result ? (
+                    {!executing &&
+                    results?.success === true &&
+                    results.result ? (
                         <div className="overflow-x-auto">
                             <h5>
                                 {results.result.rows.length} of{' '}
@@ -237,14 +239,14 @@ export function Query() {
                             </table>
                         </div>
                     ) : null}
-                    {any(results?.errors) ? (
+                    {!executing && any(results?.errors) ? (
                         <div className="alert alert-danger">
                             {results!.errors?.map((e, i) => (
                                 <li key={i}>{e}</li>
                             ))}
                         </div>
                     ) : null}
-                    {any(results?.warnings) ? (
+                    {!executing && any(results?.warnings) ? (
                         <div className="alert alert-warning">
                             {results!.warnings?.map((w, i) => (
                                 <li key={i}>{w}</li>
