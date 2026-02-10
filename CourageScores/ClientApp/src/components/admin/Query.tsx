@@ -1,5 +1,5 @@
 ﻿import { useAdmin } from './AdminContainer';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
@@ -36,6 +36,21 @@ export function Query() {
     const query = search.get('query');
     const max = search.get('max');
     const [tentativeQuery, setTentativeQuery] = useState<string>(query || '');
+    const [copiedToClipboard, setCopiedToClipboard] = useState<
+        { index: number; column: string } | undefined
+    >(undefined);
+
+    useEffect(() => {
+        if (!copiedToClipboard) {
+            return;
+        }
+
+        const handle = window.setTimeout(
+            () => setCopiedToClipboard(undefined),
+            3000,
+        );
+        return () => window.clearTimeout(handle);
+    }, [copiedToClipboard]);
 
     async function changeParams(name: string, value: string) {
         const newQuery = new URLSearchParams(location.search);
@@ -87,7 +102,11 @@ export function Query() {
         }
     }
 
-    function renderValue(value?: object) {
+    function renderValue(
+        value: object | undefined,
+        index: number,
+        column: string,
+    ) {
         if (value === null) {
             return `null`;
         }
@@ -115,10 +134,17 @@ export function Query() {
             const isDateOnly = timePart.match(/^[0:.Z]+$/);
 
             return (
-                <abbr title={stringValue}>
-                    {datePart}
-                    {isDateOnly ? '' : ' @ ' + timePart.substring(0, 5)}
-                </abbr>
+                <>
+                    <abbr
+                        title={stringValue}
+                        onClick={async () =>
+                            await copyToClipboard(stringValue, index, column)
+                        }>
+                        {datePart}
+                        {isDateOnly ? '' : ' @ ' + timePart.substring(0, 5)}
+                    </abbr>
+                    {renderValueCopied(index, column)}
+                </>
             );
         }
 
@@ -127,13 +153,36 @@ export function Query() {
             const lastPart = stringValue!.substring(32);
 
             return (
-                <abbr title={stringValue}>
-                    {firstPart}-{lastPart}
-                </abbr>
+                <>
+                    <abbr
+                        title={stringValue}
+                        onClick={async () =>
+                            await copyToClipboard(stringValue, index, column)
+                        }>
+                        {firstPart}-{lastPart}
+                    </abbr>
+                    {renderValueCopied(index, column)}
+                </>
             );
         }
 
         return value;
+    }
+
+    function renderValueCopied(index: number, column: string) {
+        return copiedToClipboard?.index === index &&
+            copiedToClipboard?.column === column ? (
+            <span>✅</span>
+        ) : null;
+    }
+
+    async function copyToClipboard(
+        text: string,
+        index: number,
+        column: string,
+    ) {
+        setCopiedToClipboard({ index, column });
+        await navigator.clipboard.writeText(text);
     }
 
     function getHeadingLookup(rows?: object[]): string[] {
@@ -228,6 +277,8 @@ export function Query() {
                                                         <td key={index}>
                                                             {renderValue(
                                                                 row[heading],
+                                                                index,
+                                                                heading,
                                                             )}
                                                         </td>
                                                     ),
