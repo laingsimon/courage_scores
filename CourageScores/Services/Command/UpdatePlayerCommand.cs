@@ -218,8 +218,8 @@ public class UpdatePlayerCommand : IUpdateCommand<CosmosTeam, TeamPlayer>
         [EnumeratorCancellation] CancellationToken token)
     {
         var games = _player!.GameId.HasValue
-            ? _gameRepository.GetSome($"t.id = '{_player!.GameId!.Value}' and t.seasonId = '{_seasonId}'", token)
-            : _gameRepository.GetSome($"t.seasonId = '{_seasonId}'", token);
+            ? _gameRepository.GetSome($"t.id = '{_player!.GameId!.Value}' and t.SeasonId = '{_seasonId}'", token)
+            : _gameRepository.GetSome($"t.SeasonId = '{_seasonId}'", token);
 
         await foreach (var game in games.WithCancellation(token))
         {
