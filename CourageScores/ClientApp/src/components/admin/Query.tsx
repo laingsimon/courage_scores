@@ -13,6 +13,8 @@ import { useApp } from '../common/AppContainer';
 import { QueryResponseDto } from '../../interfaces/models/dtos/Query/QueryResponseDto';
 import { IClientActionResultDto } from '../common/IClientActionResultDto';
 import { stateChanged } from '../../helpers/events';
+import { renderDate } from '../../helpers/rendering';
+import { isGuid } from '../../helpers/projection';
 
 export function Query() {
     const { onError } = useApp();
@@ -93,6 +95,35 @@ export function Query() {
             (stringValue.startsWith('/') || stringValue.startsWith('http'));
         if (isALink) {
             return <a href={value}>{value}</a>;
+        }
+
+        if (
+            stringValue?.match &&
+            stringValue.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+Z)?$/)
+        ) {
+            // date and optional time
+
+            const datePart = renderDate(stringValue?.substring(0, 10));
+            const timePart = stringValue.substring(11);
+            const isDateOnly = timePart.match(/^[0:.Z]+$/);
+
+            return (
+                <abbr title={stringValue}>
+                    {datePart}
+                    {isDateOnly ? '' : ' @ ' + timePart.substring(0, 5)}
+                </abbr>
+            );
+        }
+
+        if (stringValue?.match && isGuid(stringValue)) {
+            const firstPart = stringValue!.substring(0, 4);
+            const lastPart = stringValue!.substring(32);
+
+            return (
+                <abbr title={stringValue}>
+                    {firstPart}-{lastPart}
+                </abbr>
+            );
         }
 
         return value;
