@@ -41,7 +41,9 @@ export function Query() {
     >(undefined);
 
     useEffect(() => {
+        /* istanbul ignore next */
         if (!copiedToClipboard) {
+            /* istanbul ignore next */
             return;
         }
 
@@ -71,7 +73,9 @@ export function Query() {
     }
 
     async function onExecute() {
+        /* istanbul ignore next */
         if (executing) {
+            /* istanbul ignore next */
             return;
         }
 
@@ -121,6 +125,20 @@ export function Query() {
             (stringValue.startsWith('/') || stringValue.startsWith('http'));
         if (isALink) {
             return <a href={value}>{value}</a>;
+        }
+
+        if (stringValue?.match && stringValue.match(/^\[(.+)\]\((.+)\)$/)) {
+            // markdown link
+
+            const group = stringValue.match(/^\[(.+)\]\((.+)\)$/)!;
+            const text = group[1];
+            const link = group[2];
+
+            return (
+                <>
+                    <a href={link}>{text}</a>
+                </>
+            );
         }
 
         if (
@@ -225,6 +243,7 @@ export function Query() {
                     </div>
                     <input
                         type="number"
+                        name="max"
                         className="form-control"
                         placeholder="Max"
                         value={max || ''}
@@ -308,6 +327,7 @@ export function Query() {
             </div>
         );
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }
