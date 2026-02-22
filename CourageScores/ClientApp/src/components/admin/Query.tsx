@@ -1,10 +1,10 @@
 ﻿import { useAdmin } from './AdminContainer';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
 } from '../common/BootstrapDropdown';
-import { any, sortBy } from '../../helpers/collections';
+import { any, isEmpty, skip, sortBy } from '../../helpers/collections';
 import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
 import { useLocation, useNavigate } from 'react-router';
 import { useDependencies } from '../common/IocContainer';
@@ -39,6 +39,7 @@ export function Query() {
     const [copiedToClipboard, setCopiedToClipboard] = useState<
         { index: number; column: string } | undefined
     >(undefined);
+    const tableRef = useRef<HTMLTableElement>(null);
 
     useEffect(() => {
         /* istanbul ignore next */
@@ -222,6 +223,58 @@ export function Query() {
         return Object.keys(headings);
     }
 
+    function download() {
+        if (!tableRef.current) {
+            alert('No table found');
+            return;
+        }
+
+        const table = tableRef.current;
+        const headings = Array.from(table.querySelectorAll('thead tr th'));
+        const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+        if (isEmpty(rows)) {
+            alert('No rows to export');
+            return;
+        }
+
+        const skipRowNumberColumn = true;
+        const columnsToSkip = skipRowNumberColumn ? 1 : 0;
+        const csv =
+            skip(headings, columnsToSkip)
+                .map((th) => th.textContent)
+                .join('\t') +
+            '\n' +
+            rows
+                .map((tr) =>
+                    skip(Array.from(tr.querySelectorAll('td')), columnsToSkip)
+                        .map(getCsvContent)
+                        .join('\t'),
+                )
+                .join('\n');
+
+        navigate('data:text/tsv,' + csv);
+    }
+
+    function getCsvContent(td: HTMLTableCellElement): string {
+        const abbr = td.querySelector('abbr');
+        if (abbr) {
+            return abbr.title;
+        }
+
+        const link = td.querySelector('a');
+        if (link) {
+            return link.href;
+        }
+
+        const pre = td.querySelector('pre');
+        if (pre) {
+            return JSON.stringify(JSON.parse(pre.textContent));
+        }
+
+        return td.textContent;
+    }
+
     const headingLookup = getHeadingLookup(results?.result?.rows);
 
     try {
@@ -272,12 +325,21 @@ export function Query() {
                     results?.success === true &&
                     results.result ? (
                         <div className="overflow-x-auto">
-                            <h5>
-                                {results.result.rows.length} of{' '}
-                                {results.result.rowCount} rows
+                            <h5 className="d-flex flex-row justify-content-stretch py-1">
+                                <span className="d-inline-block flex-grow-1">
+                                    {results.result.rows.length} of{' '}
+                                    {results.result.rowCount} rows
+                                </span>
+                                <button
+                                    className="btn btn-sm btn-outline-primary flex-grow-0"
+                                    onClick={download}>
+                                    Download
+                                </button>
                             </h5>
 
-                            <table className="table table-sm table-striped">
+                            <table
+                                className="table table-sm table-striped"
+                                ref={tableRef}>
                                 <thead>
                                     <tr>
                                         <th>#</th>
