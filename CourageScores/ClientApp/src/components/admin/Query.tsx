@@ -228,7 +228,9 @@ export function Query() {
     }
 
     function download() {
+        /* istanbul ignore next */
         if (!tableRef.current) {
+            /* istanbul ignore next */
             alert('No table found');
             return;
         }

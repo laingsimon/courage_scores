@@ -461,6 +461,18 @@ describe('Query', () => {
             expect(mockedClipboardWrite).toHaveBeenCalledWith(id);
         });
 
+        it('alerts if there are no rows to export', async () => {
+            await renderComponent(
+                '?container=game&max=100&query=select+*+from+game',
+            );
+            apiResponse = getApiResponse();
+            await doClick(findButton(context.container, 'Execute'));
+
+            await doClick(findButton(context.container, 'Download'));
+
+            context.prompts.alertWasShown('No rows to export');
+        });
+
         it('produces tsv with results', async () => {
             const id = '3cb254cd-a60b-4a6e-9c11-89d5d98e56e3';
             const url = 'http://localhost/somewhere';
