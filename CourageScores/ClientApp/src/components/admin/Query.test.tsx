@@ -486,8 +486,9 @@ describe('Query', () => {
                 tsvRow('id', 'url', 'date', 'text', 'object', 'null'),
                 tsvRow(id, url, date, text, JSON.stringify(object), 'null'),
             );
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                'data:text/tsv,' + expectedTsv,
+            const downloadLink = findButton(context.container, 'query.tsv');
+            expect(downloadLink.href).toEqual(
+                'data:text/tsv,' + encodeURI(expectedTsv),
             );
         });
     });

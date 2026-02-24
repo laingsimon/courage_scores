@@ -40,6 +40,9 @@ export function Query() {
         { index: number; column: string } | undefined
     >(undefined);
     const tableRef = useRef<HTMLTableElement>(null);
+    const [downloadContent, setDownloadContent] = useState<string | undefined>(
+        undefined,
+    );
 
     useEffect(() => {
         /* istanbul ignore next */
@@ -90,6 +93,7 @@ export function Query() {
         }
 
         setExecuting(true);
+        setDownloadContent(undefined);
 
         try {
             const request: QueryRequestDto = {
@@ -240,7 +244,7 @@ export function Query() {
 
         const skipRowNumberColumn = true;
         const columnsToSkip = skipRowNumberColumn ? 1 : 0;
-        const csv =
+        const content =
             skip(headings, columnsToSkip)
                 .map((th) => th.textContent)
                 .join('\t') +
@@ -248,15 +252,15 @@ export function Query() {
             rows
                 .map((tr) =>
                     skip(Array.from(tr.querySelectorAll('td')), columnsToSkip)
-                        .map(getCsvContent)
+                        .map(getCellContent)
                         .join('\t'),
                 )
                 .join('\n');
 
-        navigate('data:text/tsv,' + csv);
+        setDownloadContent(encodeURI(content));
     }
 
-    function getCsvContent(td: HTMLTableCellElement): string {
+    function getCellContent(td: HTMLTableCellElement): string {
         const abbr = td.querySelector('abbr');
         if (abbr) {
             return abbr.title;
@@ -330,11 +334,20 @@ export function Query() {
                                     {results.result.rows.length} of{' '}
                                     {results.result.rowCount} rows
                                 </span>
-                                <button
-                                    className="btn btn-sm btn-outline-primary flex-grow-0"
-                                    onClick={download}>
-                                    Download
-                                </button>
+                                {downloadContent ? (
+                                    <a
+                                        className="btn btn-sm btn-primary flex-grow-0"
+                                        download="query.tsv"
+                                        href={`data:text/tsv,${downloadContent}`}>
+                                        query.tsv
+                                    </a>
+                                ) : (
+                                    <button
+                                        className="btn btn-sm btn-outline-primary flex-grow-0"
+                                        onClick={download}>
+                                        Download
+                                    </button>
+                                )}
                             </h5>
 
                             <table
