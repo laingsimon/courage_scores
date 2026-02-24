@@ -171,6 +171,14 @@ describe('Query', () => {
         };
     }
 
+    function tsvRow(...values: string[]): string {
+        return values.join('\t');
+    }
+
+    function tsv(...rows: string[]): string {
+        return rows.join('\n');
+    }
+
     describe('renders', () => {
         it('with no query string', async () => {
             await renderComponent();
@@ -451,6 +459,49 @@ describe('Query', () => {
             await doClick(abbr);
 
             expect(mockedClipboardWrite).toHaveBeenCalledWith(id);
+        });
+
+        it('alerts if there are no rows to export', async () => {
+            await renderComponent(
+                '?container=game&max=100&query=select+*+from+game',
+            );
+            apiResponse = getApiResponse();
+            await doClick(findButton(context.container, 'Execute'));
+
+            await doClick(findButton(context.container, 'Download'));
+
+            context.prompts.alertWasShown('No rows to export');
+        });
+
+        it('produces tsv with results', async () => {
+            const id = '3cb254cd-a60b-4a6e-9c11-89d5d98e56e3';
+            const url = 'http://localhost/somewhere';
+            const date = '2026-01-02T03:04:05.006Z';
+            const text = 'some text';
+            const object = { subProperty: 'value ' };
+            await renderComponent(
+                '?container=game&max=100&query=select+*+from+game',
+            );
+            apiResponse = getApiResponse({
+                id,
+                url: `[link text](${url})`,
+                date,
+                text,
+                object,
+                null: null,
+            });
+            await doClick(findButton(context.container, 'Execute'));
+
+            await doClick(findButton(context.container, 'Download'));
+
+            const expectedTsv = tsv(
+                tsvRow('id', 'url', 'date', 'text', 'object', 'null'),
+                tsvRow(id, url, date, text, JSON.stringify(object), 'null'),
+            );
+            const downloadLink = findButton(context.container, 'query.tsv');
+            expect(downloadLink.href).toEqual(
+                'data:text/tsv,' + encodeURI(expectedTsv),
+            );
         });
     });
 });
