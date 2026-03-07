@@ -112,7 +112,10 @@ public class QueryService : IQueryService
             var error = exc.GetError();
             var outerMessage = JObject.Parse(error["message"]!.Value<string>()!);
             var innerMessage = outerMessage["message"]!.Value<string>()!;
-            return JsonConvert.DeserializeObject<ErrorResponse>(innerMessage.Substring(0, innerMessage.LastIndexOf("}") + 1));
+            return JsonConvert.DeserializeObject<ErrorResponse>(
+                innerMessage.Substring(
+                    0,
+                    innerMessage.LastIndexOf("}", StringComparison.OrdinalIgnoreCase) + 1));
         }
         catch (Exception)
         {
