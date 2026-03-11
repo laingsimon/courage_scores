@@ -286,6 +286,13 @@ describe('MasterDraw', () => {
         };
     }
 
+    function withName(player: TournamentPlayerDto, name: string) {
+        return {
+            ...player,
+            name,
+        };
+    }
+
     function editButton(container: Element | null) {
         return findButton(container!, '✏️');
     }
@@ -679,7 +686,10 @@ describe('MasterDraw', () => {
             expect(updatedTournament!.save).toEqual(true);
             expect(updatedTournament!.updated.round?.matches).toEqual([
                 equatableMatch(
-                    equatableSide('UPDATED PLAYER', player),
+                    equatableSide(
+                        'UPDATED PLAYER',
+                        withName(player, 'UPDATED PLAYER'),
+                    ),
                     equatableSide('SIDE B', player),
                 ),
             ]);
@@ -707,7 +717,10 @@ describe('MasterDraw', () => {
             expect(updatedTournament!.updated.round?.matches).toEqual([
                 equatableMatch(
                     equatableSide('SIDE A', player),
-                    equatableSide('UPDATED PLAYER', player),
+                    equatableSide(
+                        'UPDATED PLAYER',
+                        withName(player, 'UPDATED PLAYER'),
+                    ),
                 ),
             ]);
         });
