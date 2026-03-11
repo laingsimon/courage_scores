@@ -50,10 +50,14 @@ import { PatchTournamentRoundDto } from '../../../interfaces/models/dtos/Game/Pa
 import { ENTER_SCORE_BUTTON } from '../../../helpers/constants';
 import { checkoutWith, enterScores, keyPad } from '../../../helpers/sayg';
 import { UpdateRecordedScoreAsYouGoDto } from '../../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
-import { TournamentPlayerDto } from '../../../interfaces/models/dtos/Game/TournamentPlayerDto';
-import { TournamentSideDto } from '../../../interfaces/models/dtos/Game/TournamentSideDto';
-import { TournamentMatchDto } from '../../../interfaces/models/dtos/Game/TournamentMatchDto';
 import { IBuilder } from '../../../helpers/builders/builders';
+import {
+    alreadyPlaying,
+    editButton,
+    equatableMatch,
+    equatableSide,
+    withName,
+} from './MasterDraw.test.helpers';
 
 describe('MasterDraw', () => {
     let context: TestContext;
@@ -264,49 +268,8 @@ describe('MasterDraw', () => {
         );
     }
 
-    function equatableSide(
-        name: string,
-        ...players: TournamentPlayerDto[]
-    ): TournamentSideDto {
-        return {
-            id: expect.any(String),
-            name: name,
-            players: players,
-        };
-    }
-
-    function equatableMatch(
-        sideA: TournamentSideDto,
-        sideB: TournamentSideDto,
-    ): TournamentMatchDto {
-        return {
-            id: expect.any(String),
-            sideA,
-            sideB,
-        };
-    }
-
-    function withName(player: TournamentPlayerDto, name: string) {
-        return {
-            ...player,
-            name,
-        };
-    }
-
-    function editButton(container: Element | null) {
-        return findButton(container!, '✏️');
-    }
-
     function find(selector: string) {
         return context.container.querySelector(selector);
-    }
-
-    function alreadyPlaying(type: string, player: TournamentPlayerDto) {
-        return {
-            '1': {
-                [player.id]: tournamentBuilder().type(type).build(),
-            },
-        };
     }
 
     function withSides(a: string, b: string, saygId?: string) {
