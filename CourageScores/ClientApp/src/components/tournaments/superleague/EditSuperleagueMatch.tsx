@@ -342,6 +342,18 @@ export function EditSuperleagueMatch({
             editingPlayerTeam!.name === tournamentData.host ? 'sideA' : 'sideB';
         const newSide = Object.assign({}, newMatch[sideDesignation]);
         newSide.name = editingPlayer!.name;
+        newSide.players = newSide.players?.map(
+            (p: TournamentPlayerDto): TournamentPlayerDto => {
+                if (p.id === editingPlayer!.id) {
+                    const updatedMatchPlayer = Object.assign({}, p);
+                    updatedMatchPlayer.name = editingPlayer!.name;
+                    return updatedMatchPlayer;
+                }
+
+                return p;
+            },
+        );
+
         newMatch[sideDesignation] = newSide;
         await setMatchData(newMatch);
 
