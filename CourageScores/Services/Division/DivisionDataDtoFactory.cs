@@ -108,10 +108,11 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     public Task<DivisionDataDto> SeasonNotFound(IReadOnlyCollection<DivisionDto?> divisions, IEnumerable<SeasonDto> allSeasons,
         CancellationToken token)
     {
+        var division = divisions.Count == 1 ? divisions.ElementAt(0) : null;
         return Task.FromResult(new DivisionDataDto(_configuration["ProductName"])
         {
-            Id = (divisions.Count == 1 ? divisions.ElementAt(0)?.Id : null) ?? Guid.Empty,
-            Name = (divisions.Count == 1 ? divisions.ElementAt(0)?.Name ?? "<unnamed division>" : null) ?? "<all divisions>",
+            Id = division?.Id ?? Guid.Empty,
+            Name = (divisions.Count == 1 ? division?.Name ?? "<unnamed division>" : null) ?? "<all divisions>",
             DataErrors =
             {
                 new DataErrorDto
@@ -119,6 +120,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                     Message = "Season not found",
                 },
             },
+            Superleague = division?.Superleague ?? false,
         });
     }
 
