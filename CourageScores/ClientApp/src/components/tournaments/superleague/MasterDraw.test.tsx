@@ -223,6 +223,7 @@ describe('MasterDraw', () => {
                     account,
                     teams: teams || [],
                     seasons: season ? [season] : undefined,
+                    divisions: [],
                 },
                 reportedError,
             ),
@@ -339,6 +340,33 @@ describe('MasterDraw', () => {
             expect(properties.textContent).toContain('Gender: GENDER');
             expect(properties.textContent).toContain(`Date: ${date}`);
             expect(properties.textContent).toContain('Notes: Board 1');
+        });
+
+        it('clickable date when logged in', async () => {
+            const division = divisionBuilder('DIVISION').build();
+            await renderComponent(
+                props({
+                    tournamentData: tournament
+                        .type('Board 1')
+                        .forSeason(season)
+                        .forDivision(division)
+                        .build(),
+                    readOnly: false,
+                }),
+                undefined,
+                undefined,
+                undefined,
+                season,
+            );
+
+            const date = find(
+                'div.d-flex > div:nth-child(2) > div a',
+            ) as HTMLAnchorElement;
+            expect(date.textContent).toEqual(renderDate('2023-05-06'));
+            // division.id instead of name because divisions aren't provided in the app props
+            expect(date.href).toEqual(
+                `http://localhost/fixtures/${season.name}/?division=${division.id}&date=2025-05-06`,
+            );
         });
 
         it('when no type', async () => {

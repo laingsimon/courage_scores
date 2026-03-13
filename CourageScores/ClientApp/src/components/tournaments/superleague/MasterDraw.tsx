@@ -25,6 +25,7 @@ import {
     matchPlayerFilter,
 } from '../../../helpers/superleague';
 import { GameMatchOptionDto } from '../../../interfaces/models/dtos/Game/GameMatchOptionDto';
+import { Link } from 'react-router';
 
 export interface IMasterDrawProps {
     patchData?(
@@ -48,7 +49,7 @@ export function MasterDraw({
     setTournamentData,
     kioskMode,
 }: IMasterDrawProps) {
-    const { onError, teams } = useApp();
+    const { onError, teams, seasons, divisions } = useApp();
     const { matchOptionDefaults: singlesMatchOptionDefaults } = useTournament();
     const [newSinglesMatch, setNewSinglesMatch] = useState(getEmptyMatch());
     const [newPairsMatch, setNewPairsMatch] = useState(getEmptyMatch());
@@ -197,6 +198,11 @@ export function MasterDraw({
     }
 
     try {
+        const season = seasons?.find((s) => s.id === tournamentData.seasonId);
+        const division = divisions?.find(
+            (d) => d.id === tournamentData.divisionId,
+        );
+
         return (
             <div className="page-break-after" datatype="master-draw">
                 <h2>Master draw</h2>
@@ -319,7 +325,14 @@ export function MasterDraw({
                             <div>
                                 Date:{' '}
                                 <span className="fw-bold">
-                                    {renderDate(tournamentData.date)}
+                                    {readOnly ? (
+                                        renderDate(tournamentData.date)
+                                    ) : (
+                                        <Link
+                                            to={`/fixtures/${season?.name ?? tournamentData.seasonId}/?division=${division?.name ?? tournamentData.divisionId}&date=${tournamentData.date.substring(0, 10)}`}>
+                                            {renderDate(tournamentData.date)}
+                                        </Link>
+                                    )}
                                 </span>
                             </div>
                             {tournamentData.type || !readOnly ? (

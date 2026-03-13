@@ -491,6 +491,19 @@ public class DivisionDataDtoFactoryTests
 
         Assert.That(result.Id, Is.EqualTo(Division1.Id));
         Assert.That(result.Name, Is.EqualTo("division1"));
+        Assert.That(result.Superleague, Is.False);
+    }
+
+    [Test]
+    public async Task SeasonNotFound_GivenSuperleagueDivision_ShouldReturnCorrectly()
+    {
+        var superleagueDivision = new DivisionDtoBuilder().WithName("superleague").Superleague().Build();
+
+        var result = await _factory.SeasonNotFound(new[] { superleagueDivision }, new[] { Season1, Season2 }, _token);
+
+        Assert.That(result.Id, Is.EqualTo(superleagueDivision.Id));
+        Assert.That(result.Name, Is.EqualTo(superleagueDivision.Name));
+        Assert.That(result.Superleague, Is.True);
     }
 
     [Test]

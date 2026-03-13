@@ -143,17 +143,19 @@ export function DivisionControls({
         return data;
     }
 
-    function firstValidDivisionNameForSeason(season: SeasonDto): string | null {
+    function firstValidDivisionForSeason(
+        season: SeasonDto,
+    ): DivisionDataDto | null {
         if (
             originalDivisionData &&
             (isEmpty(season.divisions) ||
                 any(season.divisions, (d) => d.id === originalDivisionData.id))
         ) {
-            return originalDivisionData.name;
+            return originalDivisionData;
         }
 
         if (any(season.divisions)) {
-            return season.divisions![0].name;
+            return season.divisions![0];
         }
 
         return null;
@@ -167,7 +169,7 @@ export function DivisionControls({
 
     function renderSeasonOption(season: SeasonDto) {
         const url: string = getDivisionUrl(
-            firstValidDivisionNameForSeason(season)!,
+            firstValidDivisionForSeason(season)!,
             season.name,
             mode,
         );
@@ -185,7 +187,7 @@ export function DivisionControls({
 
     function renderDivisionOption(division: DivisionDto) {
         const url: string = getDivisionUrl(
-            division.name,
+            division,
             originalSeasonData!.name,
             mode,
         );
@@ -201,11 +203,14 @@ export function DivisionControls({
     }
 
     function getDivisionUrl(
-        divisionName: string,
+        division: DivisionDataDto,
         seasonName: string,
         mode?: string,
     ): string {
-        const navigateToMode: string = overrideMode || mode || 'teams';
+        const navigateToMode: string =
+            overrideMode ||
+            mode ||
+            (division.superleague ? 'fixtures' : 'teams');
         const search: string = location.search;
 
         switch (navigateToMode) {
@@ -213,13 +218,13 @@ export function DivisionControls({
             case 'players':
             case 'fixtures': {
                 const params: URLSearchParams = new URLSearchParams(search);
-                params.set('division', divisionName);
+                params.set('division', division.name);
                 const newSearch: string = params.toString();
 
                 return `/${navigateToMode}/${seasonName}/${newSearch ? '?' + newSearch : ''}`;
             }
             default: {
-                return `/division/${divisionName}/${navigateToMode}/${seasonName}${search}`;
+                return `/division/${division.name}/${navigateToMode}/${seasonName}${search}`;
             }
         }
     }
