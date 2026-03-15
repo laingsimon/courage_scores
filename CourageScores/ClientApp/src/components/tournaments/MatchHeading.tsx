@@ -15,7 +15,6 @@ export function MatchHeading({ match }: ISuperleagueMatchHeadingProps) {
 
     return (
         <h5 className="modal-header justify-content-center">
-            {home} vs {away} - best of {sayg.numberOfLegs}
             <DebugOptions text="ℹ️">
                 <span className="dropdown-item">
                     Match scores: {match.scoreA} - {match.scoreB}
@@ -34,6 +33,7 @@ export function MatchHeading({ match }: ISuperleagueMatchHeadingProps) {
                     <small className="d-block">{sayg.id}</small>
                 </a>
             </DebugOptions>
+            {home} vs {away} - best of {sayg.numberOfLegs}
         </h5>
     );
 }

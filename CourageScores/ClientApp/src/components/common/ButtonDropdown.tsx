@@ -55,8 +55,7 @@ export function DropdownMenu({ children, className }: IDropdownMenuProps) {
             <div
                 tabIndex={-1}
                 role="menu"
-                className={`dropdown-menu${isOpen ? ' show' : ''} ${className || ''}`}
-                data-popper-placement="bottom-start">
+                className={`dropdown-menu${isOpen ? ' show' : ''} ${className || ''}`}>
                 {children}
             </div>
         </div>
