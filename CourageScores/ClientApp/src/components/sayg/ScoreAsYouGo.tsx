@@ -67,6 +67,7 @@ export function ScoreAsYouGo({
     const location: Location = useLocation();
     const [useWidescreenStatistics, setUseWidescreenStatistics] =
         useState<boolean>(shouldUseWidescreenStatistics(location, browser));
+    const legIndex: number = (homeScore || 0) + (awayScore || 0);
 
     function shouldUseWidescreenStatistics(
         location: Location,
@@ -214,9 +215,6 @@ export function ScoreAsYouGo({
         );
     }
 
-    const legIndex: number = (homeScore || 0) + (awayScore || 0);
-    const previousLeg: LegDto | undefined =
-        legIndex > 0 ? data.legs[legIndex - 1] : undefined;
     if (
         matchStatisticsOnly ||
         (singlePlayer && homeScore === numberOfLegs) ||
@@ -260,11 +258,9 @@ export function ScoreAsYouGo({
         );
     }
 
-    const leg: LegDto = getLeg(legIndex);
-
     return (
         <PlayLeg
-            leg={leg}
+            leg={getLeg(legIndex)}
             home={home}
             away={away || ''}
             onChange={(newLeg: LegDto) => legChanged(newLeg, legIndex)}
@@ -277,7 +273,7 @@ export function ScoreAsYouGo({
             homeScore={homeScore || 0}
             awayScore={awayScore}
             singlePlayer={singlePlayer}
-            previousLeg={previousLeg}
+            previousLeg={legIndex > 0 ? data.legs[legIndex - 1] : undefined}
             showFullNames={showFullNames}
         />
     );
