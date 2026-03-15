@@ -23,7 +23,6 @@ export function MatchHeading({ match }: ISuperleagueMatchHeadingProps) {
                     Best of: (Sayg={sayg.numberOfLegs})
                 </span>
                 <span className="dropdown-item">Match id: {match.id}</span>
-                <span className="dropdown-item">Match id: {match.id}</span>
                 <a
                     target="_blank"
                     rel="noreferrer"
