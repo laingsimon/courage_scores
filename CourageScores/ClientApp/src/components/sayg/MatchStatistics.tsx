@@ -118,17 +118,6 @@ export function MatchStatistics({
     return (
         <div>
             <h4 className="text-center">
-                Match statistics
-                {liveOptions.canSubscribe && !finished ? (
-                    <RefreshControl id={saygId} type={LiveDataType.sayg} />
-                ) : null}
-                {liveOptions.canSubscribe && !finished ? (
-                    <button
-                        className="btn btn-sm btn-outline-primary border-dark float-end"
-                        onClick={() => changeStatisticsView(true)}>
-                        🖥
-                    </button>
-                ) : null}
                 <DebugOptions text="ℹ️">
                     <span className="dropdown-item">
                         Finished: {finished ? 'Yes' : 'No'}
@@ -148,6 +137,17 @@ export function MatchStatistics({
                         <small className="d-block">{saygId}</small>
                     </a>
                 </DebugOptions>
+                Match statistics
+                {liveOptions.canSubscribe && !finished ? (
+                    <RefreshControl id={saygId} type={LiveDataType.sayg} />
+                ) : null}
+                {liveOptions.canSubscribe && !finished ? (
+                    <button
+                        className="btn btn-sm btn-outline-primary border-dark float-end"
+                        onClick={() => changeStatisticsView(true)}>
+                        🖥
+                    </button>
+                ) : null}
             </h4>
             <table className="table">
                 <thead>

@@ -250,45 +250,45 @@ export function MatchSayg({
                                     Full screen
                                 </button>
                             ) : null}
+                            <DebugOptions>
+                                <a
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    href={`${settings.apiHost}/api/Sayg/${saygId}`}
+                                    className="dropdown-item">
+                                    <strong>Sayg data</strong>
+                                    <small className="d-block">{saygId}</small>
+                                </a>
+                                <a
+                                    className="dropdown-item"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    href={`/live/match/${saygId}`}>
+                                    Live match statistics
+                                </a>
+                                <button
+                                    disabled={!saygId}
+                                    className="dropdown-item text-danger"
+                                    onClick={deleteSayg}>
+                                    Delete sayg
+                                </button>
+                                <a
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    href={`${settings.apiHost}/api/Tournament/${tournamentData.id}`}
+                                    className="dropdown-item">
+                                    <strong>Tournament data</strong>
+                                    <small className="d-block">
+                                        {tournamentData.id}
+                                    </small>
+                                </a>
+                                <span className="dropdown-item">
+                                    Best of: (matchOptions=
+                                    {matchOptions.numberOfLegs}), (tournament=
+                                    {tournamentData.bestOf})
+                                </span>
+                            </DebugOptions>
                         </div>
-                        <DebugOptions>
-                            <a
-                                target="_blank"
-                                rel="noreferrer"
-                                href={`${settings.apiHost}/api/Sayg/${saygId}`}
-                                className="dropdown-item">
-                                <strong>Sayg data</strong>
-                                <small className="d-block">{saygId}</small>
-                            </a>
-                            <a
-                                className="dropdown-item"
-                                target="_blank"
-                                rel="noreferrer"
-                                href={`/live/match/${saygId}`}>
-                                Live match statistics
-                            </a>
-                            <button
-                                disabled={!saygId}
-                                className="dropdown-item text-danger"
-                                onClick={deleteSayg}>
-                                Delete sayg
-                            </button>
-                            <a
-                                target="_blank"
-                                rel="noreferrer"
-                                href={`${settings.apiHost}/api/Tournament/${tournamentData.id}`}
-                                className="dropdown-item">
-                                <strong>Tournament data</strong>
-                                <small className="d-block">
-                                    {tournamentData.id}
-                                </small>
-                            </a>
-                            <span className="dropdown-item">
-                                Best of: (matchOptions=
-                                {matchOptions.numberOfLegs}), (tournament=
-                                {tournamentData.bestOf})
-                            </span>
-                        </DebugOptions>
                     </div>
                 ) : null}
             </Dialog>
