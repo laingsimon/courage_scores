@@ -382,6 +382,8 @@ export function MatchSayg({
                     to={`/live/match/?id=${saygId}${initialOneDartAverage ? '#average=1' : ''}`}>
                     📊 {scoreA || scoreB ? `${scoreA} - ${scoreB}` : null}
                 </Link>
+            ) : scoreA || scoreB ? (
+                `${scoreA} - ${scoreB}`
             ) : null}
             {canOpenSaygDialog() ? (
                 <button
