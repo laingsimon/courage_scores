@@ -283,13 +283,11 @@ export function MatchSayg({
                                     {tournamentData.id}
                                 </small>
                             </a>
-                            <a
-                                className="dropdown-item"
-                                target="_blank"
-                                rel="noreferrer"
-                                href={`/live/match/${saygId}`}>
-                                👁️ Live
-                            </a>
+                            <span className="dropdown-item">
+                                Best of: (matchOptions=
+                                {matchOptions.numberOfLegs}), (tournament=
+                                {tournamentData.bestOf})
+                            </span>
                         </DebugOptions>
                     </div>
                 ) : null}
