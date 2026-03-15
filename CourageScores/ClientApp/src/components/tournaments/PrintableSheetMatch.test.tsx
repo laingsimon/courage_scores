@@ -227,7 +227,7 @@ describe('PrintableSheetMatch', () => {
 
     function debugOptions(dialog: Element) {
         return dialog.querySelector(
-            '[datatype="debug-options"] .dropdown-menu',
+            '.modal-footer [datatype="debug-options"] .dropdown-menu',
         );
     }
 

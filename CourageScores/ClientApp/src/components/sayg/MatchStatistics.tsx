@@ -11,6 +11,8 @@ import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType';
 import { UntypedPromise } from '../../interfaces/UntypedPromise';
 import { asyncCallback } from '../../helpers/events';
 import { ifUndefined } from '../../helpers/rendering';
+import { DebugOptions } from '../common/DebugOptions';
+import { useDependencies } from '../common/IocContainer';
 
 export interface IMatchStatisticsProps {
     saygId: string;
@@ -48,6 +50,7 @@ export function MatchStatistics({
     const [oneDartAverage, setOneDartAverage] = useState<boolean>(
         initialOneDartAverage || false,
     );
+    const { settings } = useDependencies();
     const { subscriptions, liveOptions } = useLive();
     const [legDisplayOptionsState, setLegDisplayOptions] =
         useState<ILegDisplayOptionsLookup>(getLegDisplayOptions(legs));
@@ -126,6 +129,25 @@ export function MatchStatistics({
                         🖥
                     </button>
                 ) : null}
+                <DebugOptions text="ℹ️">
+                    <span className="dropdown-item">
+                        Finished: {finished ? 'Yes' : 'No'}
+                    </span>
+                    <span className="dropdown-item">
+                        Number of legs: {numberOfLegs}
+                    </span>
+                    <span className="dropdown-item">
+                        Single player: {singlePlayer ? 'Yes' : 'No'}
+                    </span>
+                    <a
+                        target="_blank"
+                        rel="noreferrer"
+                        href={`${settings.apiHost}/api/Sayg/${saygId}`}
+                        className="dropdown-item">
+                        <strong>Sayg data</strong>
+                        <small className="d-block">{saygId}</small>
+                    </a>
+                </DebugOptions>
             </h4>
             <table className="table">
                 <thead>
