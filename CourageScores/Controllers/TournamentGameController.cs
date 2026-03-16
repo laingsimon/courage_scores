@@ -60,10 +60,10 @@ public class TournamentGameController : Controller
         return await _tournamentService.Upsert(id, command, token);
     }
 
-    [HttpDelete("/api/Tournament/{id}/{matchId}")]
-    public async Task<ActionResultDto<TournamentGameDto>> DeleteSayg(Guid id, Guid matchId, CancellationToken token)
+    [HttpDelete("/api/Tournament/{id}/{matchId}/{clearScores}")]
+    public async Task<ActionResultDto<TournamentGameDto>> DeleteSayg(Guid id, Guid matchId, bool clearScores, CancellationToken token)
     {
-        var command = _commandFactory.GetCommand<DeleteTournamentMatchSaygCommand>().FromMatch(matchId);
+        var command = _commandFactory.GetCommand<DeleteTournamentMatchSaygCommand>().FromMatch(matchId).ClearingScores(clearScores);
         return await _tournamentService.Upsert(id, command, token);
     }
 

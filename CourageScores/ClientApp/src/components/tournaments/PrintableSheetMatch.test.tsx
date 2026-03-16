@@ -54,7 +54,11 @@ describe('PrintableSheetMatch', () => {
         nestInRound?: boolean;
     }[];
     let saygDataLookup: { [id: string]: RecordedScoreAsYouGoDto };
-    let deletedSayg: { id: string; matchId: string } | null;
+    let deletedSayg: {
+        id: string;
+        matchId: string;
+        clearScores: boolean;
+    } | null;
     let deletedSaygResponse: IClientActionResultDto<TournamentGameDto> | null;
 
     const saygApi = api<ISaygApi>({
@@ -74,8 +78,9 @@ describe('PrintableSheetMatch', () => {
         async deleteSayg(
             id: string,
             matchId: string,
+            clearScores: boolean,
         ): Promise<IClientActionResultDto<TournamentGameDto>> {
-            deletedSayg = { id, matchId };
+            deletedSayg = { id, matchId, clearScores };
             return (
                 deletedSaygResponse || {
                     success: true,
@@ -997,10 +1002,9 @@ describe('PrintableSheetMatch', () => {
             expect(deletedSayg).toEqual({
                 id: tournamentDataWithMatch.id,
                 matchId: tournamentDataWithMatch!.round!.matches![0].id,
+                clearScores: false,
             });
             expect(updatedTournament!.round!.matches![0].saygId).toBeFalsy();
-            expect(updatedTournament!.round!.matches![0].scoreA).toEqual(1);
-            expect(updatedTournament!.round!.matches![0].scoreB).toEqual(2);
         });
 
         it('can delete sayg from match and clear scores', async () => {
@@ -1042,10 +1046,9 @@ describe('PrintableSheetMatch', () => {
             expect(deletedSayg).toEqual({
                 id: tournamentDataWithMatch.id,
                 matchId: tournamentDataWithMatch!.round!.matches![0].id,
+                clearScores: true,
             });
             expect(updatedTournament!.round!.matches![0].saygId).toBeFalsy();
-            expect(updatedTournament!.round!.matches![0].scoreA).toEqual(0);
-            expect(updatedTournament!.round!.matches![0].scoreB).toEqual(0);
         });
 
         it('handles error deleting sayg from match', async () => {
@@ -1072,6 +1075,7 @@ describe('PrintableSheetMatch', () => {
                 ),
             );
             context.prompts.respondToConfirm(deleteSaygPrompt, true);
+            context.prompts.respondToConfirm(clearScorePrompt, true);
             deletedSaygResponse = {
                 success: false,
             };
@@ -1084,6 +1088,7 @@ describe('PrintableSheetMatch', () => {
             expect(deletedSayg).toEqual({
                 id: tournamentDataWithMatch.id,
                 matchId: tournamentDataWithMatch!.round!.matches![0].id,
+                clearScores: true,
             });
             expect(updatedTournament).toBeNull();
         });

@@ -23,6 +23,7 @@ import { isLegWinner } from '../../helpers/superleague';
 import { usePreferences } from '../common/PreferencesContainer';
 import { NumberKeyboard } from '../common/NumberKeyboard';
 import { LegPlayerSequenceDto } from '../../interfaces/models/dtos/Game/Sayg/LegPlayerSequenceDto';
+import { DebugOptions } from '../common/DebugOptions';
 
 export interface IPlayLegProps {
     leg?: LegDto;
@@ -38,6 +39,7 @@ export interface IPlayLegProps {
     singlePlayer?: boolean;
     previousLeg?: LegDto;
     showFullNames?: boolean;
+    numberOfLegs: number;
 }
 
 export function PlayLeg({
@@ -54,6 +56,7 @@ export function PlayLeg({
     previousLeg,
     onChangePrevious,
     showFullNames,
+    numberOfLegs,
 }: IPlayLegProps) {
     const [savingInput, setSavingInput] = useState<boolean>(false);
     const [showCheckout, setShowCheckout] = useState<'home' | 'away' | null>(
@@ -314,6 +317,15 @@ export function PlayLeg({
                     onChange={changeSaygStyle}
                     className={`${saygStyle}-selector`}
                 />
+                <DebugOptions text="ℹ️">
+                    <span className="dropdown-item">
+                        Sequence:
+                        {leg?.playerSequence?.map((p) => p.value).join(', ')}
+                    </span>
+                    <span className="dropdown-item">
+                        Best of: (Sayg={numberOfLegs})
+                    </span>
+                </DebugOptions>
             </div>
             {showWhoPlaysNextPrompt ? (
                 <div className="text-center" datatype="bull-up">

@@ -21,4 +21,6 @@ export interface ITournament {
     ): Promise<TournamentGameDto | undefined>;
     matchOptionDefaults?: GameMatchOptionDto;
     setEditTournament?(edit: boolean): UntypedPromise;
+    superleagueMasterDrawOnly?: boolean;
+    setSuperleagueMasterDrawOnly: (value: boolean) => UntypedPromise;
 }

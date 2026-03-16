@@ -29,6 +29,7 @@ export class tournamentContainerPropsBuilder {
                 tournamentData: tournamentBuilder().build(),
                 playerIdToTeamMap: {},
                 alreadyPlaying: {},
+                setSuperleagueMasterDrawOnly: noop,
             },
             initProps,
         );
