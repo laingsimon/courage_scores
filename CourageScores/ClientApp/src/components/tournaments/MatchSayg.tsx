@@ -339,28 +339,22 @@ export function MatchSayg({
         }
 
         try {
+            const clearScores = window.confirm(
+                'Clear match score (to allow scores to be re-recorded?)',
+            );
+
             const response: IClientActionResultDto<TournamentGameDto> =
-                await tournamentApi.deleteSayg(tournamentData.id, match.id);
+                await tournamentApi.deleteSayg(
+                    tournamentData.id,
+                    match.id,
+                    clearScores,
+                );
             if (!response.success) {
                 onError(response);
                 return;
             }
 
-            const clearScores = window.confirm(
-                'Clear match score (to allow scores to be re-recorded?)',
-            );
-            if (clearScores) {
-                const responseRound = response.result!.round!;
-                const responseMatch = responseRound.matches![matchIndex];
-
-                responseMatch.scoreA = 0;
-                responseMatch.scoreB = 0;
-            }
-
             await setTournamentData!(response.result!);
-            if (clearScores) {
-                await saveTournament!(true); // prevent a loading display; which will corrupt the state of this component instance
-            }
             await changeDialogState(false);
         } catch (e) {
             /* istanbul ignore next */

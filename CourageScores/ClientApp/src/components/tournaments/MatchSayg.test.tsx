@@ -1041,6 +1041,10 @@ describe('MatchSayg', () => {
                 'Are you sure you want to delete the sayg data for this match?',
                 true,
             );
+            context.prompts.respondToConfirm(
+                'Clear match score (to allow scores to be re-recorded?)',
+                false,
+            );
             apiResponse = {
                 success: false,
                 errors: ['SOME ERROR'],

@@ -28,6 +28,8 @@ public class DeleteTournamentMatchSaygCommandTests
         {
             Id = Guid.NewGuid(),
             SaygId = Guid.NewGuid(),
+            ScoreA = 1,
+            ScoreB = 2,
         };
         _tournament = new TournamentGame
         {
@@ -104,7 +106,7 @@ public class DeleteTournamentMatchSaygCommandTests
     }
 
     [Test]
-    public async Task ApplyUpdate_WhenAbleToDeleteSayg_UnsetsMatchSaygId()
+    public async Task ApplyUpdate_WhenAbleToDeleteSayg_UnsetsMatchSaygIdAndLeavesScores()
     {
         _saygService.Setup(s => s.Delete(_match.SaygId!.Value, _token))
             .ReturnsAsync(new ActionResultDto<RecordedScoreAsYouGoDto>
@@ -124,5 +126,32 @@ public class DeleteTournamentMatchSaygCommandTests
             "Sayg deleted and removed from match",
             "SAYG DELETED",
         }));
+        Assert.That(_match.ScoreA, Is.EqualTo(1));
+        Assert.That(_match.ScoreB, Is.EqualTo(2));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenAbleToDeleteSayg_UnsetsMatchSaygIdAndClearsScores()
+    {
+        _saygService.Setup(s => s.Delete(_match.SaygId!.Value, _token))
+            .ReturnsAsync(new ActionResultDto<RecordedScoreAsYouGoDto>
+            {
+                Success = true,
+                Messages =
+                {
+                    "SAYG DELETED",
+                },
+            });
+
+        var result = await _command.FromMatch(_match.Id).ClearingScores(true).ApplyUpdate(_tournament, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Messages, Is.EquivalentTo(new[]
+        {
+            "Sayg deleted and removed from match. Match scores reset",
+            "SAYG DELETED",
+        }));
+        Assert.That(_match.ScoreA, Is.EqualTo(0));
+        Assert.That(_match.ScoreA, Is.EqualTo(0));
     }
 }
