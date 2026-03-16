@@ -35,11 +35,6 @@ public class LegDto
     /// </summary>
     public string? CurrentThrow { get; set; }
 
-    /// <summary>
-    /// Is this the last leg of the match?
-    /// </summary>
-    public bool IsLastLeg { get; set; }
-
     public async Task<CompetitorType?> Accept(int legIndex, SaygMatchVisitorContext context, ISaygVisitor visitor, CancellationToken token)
     {
         await visitor.VisitLeg(legIndex, this, token);
