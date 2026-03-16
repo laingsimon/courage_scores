@@ -275,6 +275,7 @@ export function ScoreAsYouGo({
             singlePlayer={singlePlayer}
             previousLeg={legIndex > 0 ? data.legs[legIndex - 1] : undefined}
             showFullNames={showFullNames}
+            numberOfLegs={numberOfLegs}
         />
     );
 }
