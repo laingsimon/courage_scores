@@ -94,7 +94,6 @@ export function ScoreAsYouGo({
             home: { throws: [], score: 0, noOfDarts: 0 },
             away: { throws: [], score: 0, noOfDarts: 0 },
             startingScore: startingScore,
-            isLastLeg: legIndex === numberOfLegs - 1,
             currentThrow: playerSequence ? playerSequence[0]?.value : undefined,
         };
         return newData;
@@ -150,10 +149,15 @@ export function ScoreAsYouGo({
                 winnerName === 'away' ? (awayScore || 0) + 1 : awayScore || 0;
             const currentLegIndex: number = (homeScore || 0) + (awayScore || 0);
             const unbeatable: boolean =
-                newHomeScore > numberOfLegs / 2 ||
-                newAwayScore > numberOfLegs / 2;
+                newHomeScore > numberOfLegs / 2.0 ||
+                newAwayScore > numberOfLegs / 2.0;
+            const upForTheBull =
+                newHomeScore === newAwayScore &&
+                newHomeScore + newAwayScore === numberOfLegs - 1 &&
+                newHomeScore > 0 &&
+                !singlePlayer;
 
-            if (!currentLeg.isLastLeg && !unbeatable) {
+            if (!unbeatable) {
                 const newData: ScoreAsYouGoDto = addLeg(currentLegIndex + 1);
                 newData.legs[currentLegIndex] = currentLeg; // ensure any updated leg data isn't lost (data may not have been updated)
                 const newLeg: LegDto = newData.legs[currentLegIndex + 1];
@@ -166,11 +170,7 @@ export function ScoreAsYouGo({
                     newLeg.currentThrow = newLeg.playerSequence[0].value;
                 }
 
-                if (
-                    newLeg.isLastLeg &&
-                    newHomeScore === newAwayScore &&
-                    newHomeScore > 0
-                ) {
+                if (upForTheBull) {
                     if (finalLegPlayerSequence) {
                         newLeg.playerSequence = finalLegPlayerSequence.map(
                             (key) => {

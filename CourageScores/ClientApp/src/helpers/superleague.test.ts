@@ -52,13 +52,11 @@ describe('superleague', () => {
     function leg(
         homeThrows: LegCompetitorScoreDto,
         awayThrows?: LegCompetitorScoreDto,
-        isLastLeg?: boolean,
     ): LegDto {
         return {
             home: homeThrows,
             away: awayThrows || {},
             startingScore: 501,
-            isLastLeg,
         };
     }
 
@@ -419,8 +417,8 @@ describe('superleague', () => {
         it('should return number of won legs for side', () => {
             const saygData: ScoreAsYouGoDto = {
                 legs: {
-                    0: leg(score(thr(501)), {}, false),
-                    1: leg(score(thr(501)), {}, false),
+                    0: leg(score(thr(501)), {}),
+                    1: leg(score(thr(501)), {}),
                 },
             };
 
@@ -432,8 +430,8 @@ describe('superleague', () => {
         it('should return 0 if not won any legs', () => {
             const saygData: ScoreAsYouGoDto = {
                 legs: {
-                    0: leg(score(thr(0)), {}, false),
-                    1: leg(score(thr(0)), {}, false),
+                    0: leg(score(thr(0)), {}),
+                    1: leg(score(thr(0)), {}),
                 },
             };
 

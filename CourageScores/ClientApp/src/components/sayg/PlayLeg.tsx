@@ -82,6 +82,11 @@ export function PlayLeg({
             (singlePlayer || isEmpty(leg!.away.throws))) ||
         false;
     const showWhoPlaysNextPrompt = !leg!.playerSequence || !leg!.currentThrow;
+    const upForTheBull =
+        homeScore === awayScore &&
+        homeScore + awayScore === numberOfLegs - 1 &&
+        homeScore > 0 &&
+        !singlePlayer;
     const saygStyleOptions: IBootstrapDropdownItem[] = [
         {
             value: 'sayg-white',
@@ -329,9 +334,7 @@ export function PlayLeg({
             </div>
             {showWhoPlaysNextPrompt ? (
                 <div className="text-center" datatype="bull-up">
-                    {leg!.isLastLeg &&
-                    homeScore === awayScore &&
-                    homeScore > 0 ? (
+                    {upForTheBull ? (
                         <p>Who won the bull?</p>
                     ) : (
                         <p>Who plays first?</p>
