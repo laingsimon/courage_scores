@@ -58,8 +58,12 @@ export function MatchSayg({
     initialOneDartAverage,
     showFullNames,
 }: IMatchSaygProps) {
-    const { tournamentData, setTournamentData, saveTournament } =
-        useTournament();
+    const {
+        tournamentData,
+        setTournamentData,
+        saveTournament,
+        setSuperleagueMasterDrawOnly,
+    } = useTournament();
     const { account, onError, fullScreen } = useApp();
     const { tournamentApi, settings } = useDependencies();
     const [saygOpen, setSaygOpen] = useState<boolean>(false);
@@ -82,6 +86,7 @@ export function MatchSayg({
 
     async function changeDialogState(state: boolean) {
         setSaygOpen(state);
+        setSuperleagueMasterDrawOnly(state);
         const numberOfLegs: number = matchOptions.numberOfLegs!;
         const finished: boolean =
             scoreA > numberOfLegs / 2.0 || scoreB > numberOfLegs / 2.0;
@@ -226,7 +231,7 @@ export function MatchSayg({
                     {finished ? <MatchHeading match={match} /> : null}
                 </SaygLoadingContainer>
                 {finished || !fullScreen.isFullScreen ? (
-                    <div className="modal-footer px-0 pb-0 mt-3">
+                    <div className="modal-footer px-0 pb-0 mt-3 bg-white">
                         <div className="left-aligned mx-0">
                             <button
                                 className={`btn btn-secondary${kioskMode ? ' fs-4' : ''}`}

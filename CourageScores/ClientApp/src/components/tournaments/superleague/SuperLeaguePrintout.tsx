@@ -44,8 +44,12 @@ export function SuperLeaguePrintout({
     readOnly,
 }: ISuperLeaguePrintoutProps) {
     const { onError, account } = useApp();
-    const { tournamentData, setEditTournament, setTournamentData } =
-        useTournament();
+    const {
+        tournamentData,
+        setEditTournament,
+        setTournamentData,
+        superleagueMasterDrawOnly,
+    } = useTournament();
     const { saygApi, webSocket } = useDependencies();
     const location = useLocation();
     const { subscriptions } = useLive();
@@ -206,7 +210,7 @@ export function SuperLeaguePrintout({
                     }
                     kioskMode={kioskMode}
                 />
-                {kioskMode ? null : (
+                {kioskMode || superleagueMasterDrawOnly ? null : (
                     <MatchLog
                         host={tournamentData.host!}
                         opponent={tournamentData.opponent!}
@@ -215,7 +219,7 @@ export function SuperLeaguePrintout({
                         saygMatches={saygMatches}
                     />
                 )}
-                {kioskMode ? null : (
+                {kioskMode || superleagueMasterDrawOnly ? null : (
                     <Summary
                         showWinner={showWinner}
                         noOfLegs={noOfLegs}
@@ -224,7 +228,7 @@ export function SuperLeaguePrintout({
                         opponent={tournamentData.opponent!}
                     />
                 )}
-                {kioskMode ? null : (
+                {kioskMode || superleagueMasterDrawOnly ? null : (
                     <MatchReport
                         gender={tournamentData.gender!}
                         host={tournamentData.host!}
