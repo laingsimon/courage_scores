@@ -58,8 +58,12 @@ export function MatchSayg({
     initialOneDartAverage,
     showFullNames,
 }: IMatchSaygProps) {
-    const { tournamentData, setTournamentData, saveTournament } =
-        useTournament();
+    const {
+        tournamentData,
+        setTournamentData,
+        saveTournament,
+        setSuperleagueMasterDrawOnly,
+    } = useTournament();
     const { account, onError, fullScreen } = useApp();
     const { tournamentApi, settings } = useDependencies();
     const [saygOpen, setSaygOpen] = useState<boolean>(false);
@@ -82,6 +86,7 @@ export function MatchSayg({
 
     async function changeDialogState(state: boolean) {
         setSaygOpen(state);
+        setSuperleagueMasterDrawOnly(state);
         const numberOfLegs: number = matchOptions.numberOfLegs!;
         const finished: boolean =
             scoreA > numberOfLegs / 2.0 || scoreB > numberOfLegs / 2.0;
@@ -150,7 +155,7 @@ export function MatchSayg({
             account,
             (access) => access.recordScoresAsYouGo,
         );
-        const hasSaygData: boolean = !!saygId;
+        const hasSaygId: boolean = !!saygId;
         const hasSidesSelected: boolean =
             match.sideA !== null && match.sideB !== null;
 
@@ -158,19 +163,13 @@ export function MatchSayg({
             return false;
         }
 
-        if (hasSaygData && isPermitted) {
+        if (hasSaygId && isPermitted) {
             // there is some data, allow it to be viewed
             return true;
         }
 
         if (!isPermitted) {
             // no existing data, not permitted to create new data
-            return false;
-        }
-
-        if (scoreA || scoreB) {
-            // scores already recorded
-            // must be after hasSaygData to ensure existing data can be edited
             return false;
         }
 
@@ -232,7 +231,7 @@ export function MatchSayg({
                     {finished ? <MatchHeading match={match} /> : null}
                 </SaygLoadingContainer>
                 {finished || !fullScreen.isFullScreen ? (
-                    <div className="modal-footer px-0 pb-0 mt-3">
+                    <div className="modal-footer px-0 pb-0 mt-3 bg-white">
                         <div className="left-aligned mx-0">
                             <button
                                 className={`btn btn-secondary${kioskMode ? ' fs-4' : ''}`}
@@ -250,47 +249,45 @@ export function MatchSayg({
                                     Full screen
                                 </button>
                             ) : null}
+                            <DebugOptions>
+                                <a
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    href={`${settings.apiHost}/api/Sayg/${saygId}`}
+                                    className="dropdown-item">
+                                    <strong>Sayg data</strong>
+                                    <small className="d-block">{saygId}</small>
+                                </a>
+                                <a
+                                    className="dropdown-item"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    href={`/live/match/${saygId}`}>
+                                    Live match statistics
+                                </a>
+                                <button
+                                    disabled={!saygId}
+                                    className="dropdown-item text-danger"
+                                    onClick={deleteSayg}>
+                                    Delete sayg
+                                </button>
+                                <a
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    href={`${settings.apiHost}/api/Tournament/${tournamentData.id}`}
+                                    className="dropdown-item">
+                                    <strong>Tournament data</strong>
+                                    <small className="d-block">
+                                        {tournamentData.id}
+                                    </small>
+                                </a>
+                                <span className="dropdown-item">
+                                    Best of: (matchOptions=
+                                    {matchOptions.numberOfLegs}), (tournament=
+                                    {tournamentData.bestOf})
+                                </span>
+                            </DebugOptions>
                         </div>
-                        <DebugOptions>
-                            <a
-                                target="_blank"
-                                rel="noreferrer"
-                                href={`${settings.apiHost}/api/Sayg/${saygId}`}
-                                className="dropdown-item">
-                                <strong>Sayg data</strong>
-                                <small className="d-block">{saygId}</small>
-                            </a>
-                            <a
-                                className="dropdown-item"
-                                target="_blank"
-                                rel="noreferrer"
-                                href={`/live/match/${saygId}`}>
-                                Live match statistics
-                            </a>
-                            <button
-                                disabled={!saygId}
-                                className="dropdown-item text-danger"
-                                onClick={deleteSayg}>
-                                Delete sayg
-                            </button>
-                            <a
-                                target="_blank"
-                                rel="noreferrer"
-                                href={`${settings.apiHost}/api/Tournament/${tournamentData.id}`}
-                                className="dropdown-item">
-                                <strong>Tournament data</strong>
-                                <small className="d-block">
-                                    {tournamentData.id}
-                                </small>
-                            </a>
-                            <a
-                                className="dropdown-item"
-                                target="_blank"
-                                rel="noreferrer"
-                                href={`/live/match/${saygId}`}>
-                                👁️ Live
-                            </a>
-                        </DebugOptions>
                     </div>
                 ) : null}
             </Dialog>
@@ -347,28 +344,22 @@ export function MatchSayg({
         }
 
         try {
+            const clearScores = window.confirm(
+                'Clear match score (to allow scores to be re-recorded?)',
+            );
+
             const response: IClientActionResultDto<TournamentGameDto> =
-                await tournamentApi.deleteSayg(tournamentData.id, match.id);
+                await tournamentApi.deleteSayg(
+                    tournamentData.id,
+                    match.id,
+                    clearScores,
+                );
             if (!response.success) {
                 onError(response);
                 return;
             }
 
-            const clearScores = window.confirm(
-                'Clear match score (to allow scores to be re-recorded?)',
-            );
-            if (clearScores) {
-                const responseRound = response.result!.round!;
-                const responseMatch = responseRound.matches![matchIndex];
-
-                responseMatch.scoreA = 0;
-                responseMatch.scoreB = 0;
-            }
-
             await setTournamentData!(response.result!);
-            if (clearScores) {
-                await saveTournament!(true); // prevent a loading display; which will corrupt the state of this component instance
-            }
             await changeDialogState(false);
         } catch (e) {
             /* istanbul ignore next */

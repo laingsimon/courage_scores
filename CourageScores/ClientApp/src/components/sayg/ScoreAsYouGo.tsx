@@ -67,6 +67,7 @@ export function ScoreAsYouGo({
     const location: Location = useLocation();
     const [useWidescreenStatistics, setUseWidescreenStatistics] =
         useState<boolean>(shouldUseWidescreenStatistics(location, browser));
+    const legIndex: number = (homeScore || 0) + (awayScore || 0);
 
     function shouldUseWidescreenStatistics(
         location: Location,
@@ -93,7 +94,6 @@ export function ScoreAsYouGo({
             home: { throws: [], score: 0, noOfDarts: 0 },
             away: { throws: [], score: 0, noOfDarts: 0 },
             startingScore: startingScore,
-            isLastLeg: legIndex === numberOfLegs - 1,
             currentThrow: playerSequence ? playerSequence[0]?.value : undefined,
         };
         return newData;
@@ -149,10 +149,15 @@ export function ScoreAsYouGo({
                 winnerName === 'away' ? (awayScore || 0) + 1 : awayScore || 0;
             const currentLegIndex: number = (homeScore || 0) + (awayScore || 0);
             const unbeatable: boolean =
-                newHomeScore > numberOfLegs / 2 ||
-                newAwayScore > numberOfLegs / 2;
+                newHomeScore > numberOfLegs / 2.0 ||
+                newAwayScore > numberOfLegs / 2.0;
+            const upForTheBull =
+                newHomeScore === newAwayScore &&
+                newHomeScore + newAwayScore === numberOfLegs - 1 &&
+                newHomeScore > 0 &&
+                !singlePlayer;
 
-            if (!currentLeg.isLastLeg && !unbeatable) {
+            if (!unbeatable) {
                 const newData: ScoreAsYouGoDto = addLeg(currentLegIndex + 1);
                 newData.legs[currentLegIndex] = currentLeg; // ensure any updated leg data isn't lost (data may not have been updated)
                 const newLeg: LegDto = newData.legs[currentLegIndex + 1];
@@ -165,11 +170,7 @@ export function ScoreAsYouGo({
                     newLeg.currentThrow = newLeg.playerSequence[0].value;
                 }
 
-                if (
-                    newLeg.isLastLeg &&
-                    newHomeScore === newAwayScore &&
-                    newHomeScore > 0
-                ) {
+                if (upForTheBull) {
                     if (finalLegPlayerSequence) {
                         newLeg.playerSequence = finalLegPlayerSequence.map(
                             (key) => {
@@ -214,9 +215,6 @@ export function ScoreAsYouGo({
         );
     }
 
-    const legIndex: number = (homeScore || 0) + (awayScore || 0);
-    const previousLeg: LegDto | undefined =
-        legIndex > 0 ? data.legs[legIndex - 1] : undefined;
     if (
         matchStatisticsOnly ||
         (singlePlayer && homeScore === numberOfLegs) ||
@@ -260,11 +258,9 @@ export function ScoreAsYouGo({
         );
     }
 
-    const leg: LegDto = getLeg(legIndex);
-
     return (
         <PlayLeg
-            leg={leg}
+            leg={getLeg(legIndex)}
             home={home}
             away={away || ''}
             onChange={(newLeg: LegDto) => legChanged(newLeg, legIndex)}
@@ -277,8 +273,9 @@ export function ScoreAsYouGo({
             homeScore={homeScore || 0}
             awayScore={awayScore}
             singlePlayer={singlePlayer}
-            previousLeg={previousLeg}
+            previousLeg={legIndex > 0 ? data.legs[legIndex - 1] : undefined}
             showFullNames={showFullNames}
+            numberOfLegs={numberOfLegs}
         />
     );
 }

@@ -513,9 +513,9 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.homeScore).toEqual(1);
             expect(sayg.awayScore).toEqual(1);
 
-            expect(context.container.textContent).not.toContain(
-                'Who won the bull?',
-            );
+            expect(
+                context.container.querySelector('[datatype="bull-up"]'),
+            ).toBeFalsy();
             expect(sayg.legs[2].currentThrow).toEqual('away');
         });
 

@@ -83,7 +83,6 @@ export interface ILegBuilder extends IBuilder<LegDto> {
     startingScore(score: number): ILegBuilder;
     currentThrow(homeOrAway: string): ILegBuilder;
     playerSequence(homeOrAway: string, awayOrHome: string): ILegBuilder;
-    lastLeg(): ILegBuilder;
     home(builder?: BuilderParam<ILegCompetitorScoreBuilder>): ILegBuilder;
     away(builder?: BuilderParam<ILegCompetitorScoreBuilder>): ILegBuilder;
 }
@@ -92,7 +91,6 @@ export function legBuilder(): ILegBuilder {
     const leg: LegDto = {
         home: {},
         away: {},
-        isLastLeg: false,
     };
 
     const builder: ILegBuilder = {
@@ -110,10 +108,6 @@ export function legBuilder(): ILegBuilder {
                 { value: homeOrAway, text: homeOrAway.toUpperCase() },
                 { value: awayOrHome, text: awayOrHome.toUpperCase() },
             ];
-            return builder;
-        },
-        lastLeg: () => {
-            leg.isLastLeg = true;
             return builder;
         },
         home: (b?: BuilderParam<ILegCompetitorScoreBuilder>) => {

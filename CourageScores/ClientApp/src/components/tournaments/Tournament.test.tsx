@@ -718,7 +718,7 @@ describe('Tournament', () => {
             expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
         });
 
-        it('produces correct match option defaults when no bestOf (1)', async () => {
+        it('produces correct match option defaults when no bestOf (superleague)', async () => {
             superleague('HOST', 'OPPONENT');
             await renderComponent(tournamentData.id, {
                 account,
@@ -734,10 +734,10 @@ describe('Tournament', () => {
 
             context.prompts.noAlerts();
             const options = updatedTournamentData[0].round!.matchOptions;
-            expect(options).toEqual([{ numberOfLegs: 5, startingScore: 501 }]);
+            expect(options).toEqual([{ numberOfLegs: 7, startingScore: 501 }]);
         });
 
-        it('produces correct match option defaults (1)', async () => {
+        it('produces correct match option defaults (superleague)', async () => {
             superleague('HOST', 'OPPONENT', 7);
             await renderComponent(tournamentData.id, {
                 account,
@@ -927,44 +927,6 @@ describe('Tournament', () => {
             // verify that only the 2 remaining players can be selected after a side has been removed
             await doClick(hiChecks());
             expect(accoladePlayers()).toEqual(['PLAYER B', 'PLAYER C']);
-        });
-
-        it('produces correct match option defaults when no bestOf (2)', async () => {
-            superleague('HOST', 'OPPONENT');
-            await renderComponent(tournamentData.id, {
-                account,
-                seasons: [season],
-                teams: [
-                    makeTeam(tournamentData.host!, playerA),
-                    makeTeam(tournamentData.opponent!, playerB),
-                ],
-                divisions: [division],
-            });
-
-            await selectPlayer('PLAYER A', 'PLAYER B');
-
-            context.prompts.noAlerts();
-            const options = updatedTournamentData[0].round!.matchOptions;
-            expect(options).toEqual([{ numberOfLegs: 5, startingScore: 501 }]);
-        });
-
-        it('produces correct match option defaults (2)', async () => {
-            superleague('HOST', 'OPPONENT', 7);
-            await renderComponent(tournamentData.id, {
-                account,
-                seasons: [season],
-                teams: [
-                    makeTeam(tournamentData.host!, playerA),
-                    makeTeam(tournamentData.opponent!, playerB),
-                ],
-                divisions: [division],
-            });
-
-            await selectPlayer('PLAYER A', 'PLAYER B');
-
-            context.prompts.noAlerts();
-            const options = updatedTournamentData[0].round!.matchOptions;
-            expect(options).toEqual([{ numberOfLegs: 7, startingScore: 501 }]);
         });
 
         it('excludes no-show sides from 180 selection', async () => {

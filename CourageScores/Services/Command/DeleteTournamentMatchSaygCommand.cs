@@ -10,6 +10,7 @@ public class DeleteTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
     private readonly IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> _saygService;
 
     private Guid? _matchId;
+    private bool _clearScores;
 
     public DeleteTournamentMatchSaygCommand(IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> saygService)
     {
@@ -19,6 +20,12 @@ public class DeleteTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
     public DeleteTournamentMatchSaygCommand FromMatch(Guid matchId)
     {
         _matchId = matchId;
+        return this;
+    }
+
+    public DeleteTournamentMatchSaygCommand ClearingScores(bool clearScores)
+    {
+        _clearScores = clearScores;
         return this;
     }
 
@@ -57,16 +64,26 @@ public class DeleteTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
 
         if (result.Success)
         {
+            if (_clearScores)
+            {
+                match.ScoreA = 0;
+                match.ScoreB = 0;
+            }
+
             match.SaygId = null;
 
             return result.ToActionResult().As(model).Merge(new ActionResult<TournamentGame>
             {
                 Success = true,
-                Messages = { "Sayg deleted and removed from match" },
+                Messages =
+                {
+                    _clearScores
+                        ? "Sayg deleted and removed from match. Match scores reset"
+                        : "Sayg deleted and removed from match"
+                },
             });
         }
 
         return result.ToActionResult().As(model);
     }
-
 }

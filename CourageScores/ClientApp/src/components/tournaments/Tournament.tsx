@@ -82,6 +82,8 @@ export function Tournament() {
     const [loading, setLoading] = useState<string>('init');
     const [saving, setSaving] = useState<boolean>(false);
     const [patching, setPatching] = useState<boolean>(false);
+    const [superleagueMasterDrawOnly, setSuperleagueMasterDrawOnly] =
+        useState<boolean>(false);
     const [tournamentData, setTournamentData] =
         useState<TournamentGameDto | null>(null);
     const [saveError, setSaveError] =
@@ -221,7 +223,8 @@ export function Tournament() {
     ): GameMatchOptionDto {
         return {
             startingScore: 501,
-            numberOfLegs: tournamentData.bestOf || 5,
+            numberOfLegs:
+                tournamentData.bestOf || (tournamentData.singleRound ? 7 : 5),
         };
     }
 
@@ -511,6 +514,12 @@ export function Tournament() {
                             alreadyPlaying={alreadyPlaying!}
                             allPlayers={allPlayers}
                             saveTournament={saveTournament}
+                            superleagueMasterDrawOnly={
+                                superleagueMasterDrawOnly
+                            }
+                            setSuperleagueMasterDrawOnly={asyncCallback(
+                                setSuperleagueMasterDrawOnly,
+                            )}
                             matchOptionDefaults={getMatchOptionDefaults(
                                 tournamentData,
                             )}
