@@ -223,7 +223,8 @@ export function Tournament() {
     ): GameMatchOptionDto {
         return {
             startingScore: 501,
-            numberOfLegs: tournamentData.bestOf || 5,
+            numberOfLegs:
+                tournamentData.bestOf || (tournamentData.singleRound ? 7 : 5),
         };
     }
 
