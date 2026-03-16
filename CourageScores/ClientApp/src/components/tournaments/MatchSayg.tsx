@@ -150,7 +150,7 @@ export function MatchSayg({
             account,
             (access) => access.recordScoresAsYouGo,
         );
-        const hasSaygData: boolean = !!saygId;
+        const hasSaygId: boolean = !!saygId;
         const hasSidesSelected: boolean =
             match.sideA !== null && match.sideB !== null;
 
@@ -158,19 +158,13 @@ export function MatchSayg({
             return false;
         }
 
-        if (hasSaygData && isPermitted) {
+        if (hasSaygId && isPermitted) {
             // there is some data, allow it to be viewed
             return true;
         }
 
         if (!isPermitted) {
             // no existing data, not permitted to create new data
-            return false;
-        }
-
-        if (scoreA || scoreB) {
-            // scores already recorded
-            // must be after hasSaygData to ensure existing data can be edited
             return false;
         }
 
