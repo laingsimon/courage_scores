@@ -5,9 +5,14 @@ import { useApp } from './AppContainer';
 export interface IDebugOptionsProps {
     text?: string;
     children: React.ReactNode;
+    direction?: 'up' | 'down';
 }
 
-export function DebugOptions({ children, text }: IDebugOptionsProps) {
+export function DebugOptions({
+    children,
+    text,
+    direction,
+}: IDebugOptionsProps) {
     const [open, setOpen] = useState<boolean>(false);
     const { account } = useApp();
 
@@ -24,7 +29,8 @@ export function DebugOptions({ children, text }: IDebugOptionsProps) {
         <ButtonDropdown
             isOpen={open}
             toggle={() => setOpen(!open)}
-            datatype="debug-options">
+            datatype="debug-options"
+            direction={direction}>
             <DropdownToggle color="info">
                 {text ?? 'Debug options'}
             </DropdownToggle>
