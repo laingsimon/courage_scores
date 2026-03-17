@@ -35,6 +35,7 @@ export interface IScoreAsYouGoProps {
     onFinished?(): UntypedPromise;
     initialOneDartAverage?: boolean;
     showFullNames?: boolean;
+    changeNumberOfLegs?(): UntypedPromise;
 }
 
 export function ScoreAsYouGo({
@@ -58,6 +59,7 @@ export function ScoreAsYouGo({
     onFinished,
     initialOneDartAverage,
     showFullNames,
+    changeNumberOfLegs,
 }: IScoreAsYouGoProps) {
     const { onError, account, browser } = useApp();
     const canEditThrows: boolean = hasAccess(
@@ -215,15 +217,6 @@ export function ScoreAsYouGo({
         );
     }
 
-    async function changeNumberOfLegs(numberOfLegs: number) {
-        const newData: UpdateRecordedScoreAsYouGoDto = {
-            ...data,
-            numberOfLegs,
-        };
-
-        onChange!(newData, true);
-    }
-
     if (
         matchStatisticsOnly ||
         (singlePlayer && homeScore === numberOfLegs) ||
@@ -263,6 +256,7 @@ export function ScoreAsYouGo({
                 changeStatisticsView={asyncCallback(setUseWidescreenStatistics)}
                 lastLegDisplayOptions={lastLegDisplayOptions || {}}
                 initialOneDartAverage={initialOneDartAverage}
+                changeNumberOfLegs={changeNumberOfLegs}
             />
         );
     }
@@ -285,7 +279,7 @@ export function ScoreAsYouGo({
             previousLeg={legIndex > 0 ? data.legs[legIndex - 1] : undefined}
             showFullNames={showFullNames}
             numberOfLegs={numberOfLegs}
-            onChangeNumberOfLegs={onChange ? changeNumberOfLegs : undefined}
+            changeNumberOfLegs={changeNumberOfLegs}
         />
     );
 }

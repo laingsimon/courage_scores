@@ -220,10 +220,40 @@ export function SaygLoadingContainer({
         return <Loading />;
     }
 
+    async function changeNumberOfLegs() {
+        if (!sayg) {
+            return;
+        }
+
+        const numberOfLegs = sayg!.numberOfLegs;
+        const newNumberOfLegs = Number.parseInt(
+            prompt('Enter best-of', numberOfLegs?.toString()) ?? '',
+        );
+        if (
+            !Number.isFinite(newNumberOfLegs) ||
+            newNumberOfLegs === numberOfLegs
+        ) {
+            // invalid or number hasn't changed, abort
+            return;
+        }
+
+        const newData: UpdateRecordedScoreAsYouGoDto = {
+            ...sayg!,
+            numberOfLegs: newNumberOfLegs,
+        };
+
+        try {
+            await onChange(newData, true);
+        } catch (e) {
+            onError(e);
+        }
+    }
+
     const saygProps: ISayg = {
         sayg: sayg!,
         setSayg: updateSayg,
         saveDataAndGetId,
+        changeNumberOfLegs,
     };
 
     try {
@@ -260,6 +290,7 @@ export function SaygLoadingContainer({
                                     home={sayg.yourName || ''}
                                     data={sayg}
                                     singlePlayer={!sayg.opponentName}
+                                    changeNumberOfLegs={changeNumberOfLegs}
                                     onLegComplete={async (
                                         homeScore: number,
                                         awayScore: number,

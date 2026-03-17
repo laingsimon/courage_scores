@@ -27,6 +27,7 @@ export interface IMatchStatisticsProps {
     changeStatisticsView(widescreen: boolean): UntypedPromise;
     lastLegDisplayOptions: ILegDisplayOptions;
     initialOneDartAverage?: boolean;
+    changeNumberOfLegs?(): UntypedPromise;
 }
 
 interface ILegDisplayOptionsLookup {
@@ -46,6 +47,7 @@ export function MatchStatistics({
     saygId,
     lastLegDisplayOptions,
     initialOneDartAverage,
+    changeNumberOfLegs,
 }: IMatchStatisticsProps) {
     const [oneDartAverage, setOneDartAverage] = useState<boolean>(
         initialOneDartAverage || false,
@@ -122,8 +124,11 @@ export function MatchStatistics({
                     <span className="dropdown-item">
                         Finished: {finished ? 'Yes' : 'No'}
                     </span>
-                    <span className="dropdown-item">
-                        Number of legs: {numberOfLegs}
+                    <span
+                        className="dropdown-item"
+                        onClick={changeNumberOfLegs}>
+                        {changeNumberOfLegs ? '✏️ ' : ''}Number of legs:{' '}
+                        {numberOfLegs}
                     </span>
                     <span className="dropdown-item">
                         Single player: {singlePlayer ? 'Yes' : 'No'}
