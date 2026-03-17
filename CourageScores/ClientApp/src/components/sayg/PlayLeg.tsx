@@ -40,6 +40,7 @@ export interface IPlayLegProps {
     previousLeg?: LegDto;
     showFullNames?: boolean;
     numberOfLegs: number;
+    onChangeNumberOfLegs?(numberOfLegs: number): UntypedPromise;
 }
 
 export function PlayLeg({
@@ -57,6 +58,7 @@ export function PlayLeg({
     onChangePrevious,
     showFullNames,
     numberOfLegs,
+    onChangeNumberOfLegs,
 }: IPlayLegProps) {
     const [savingInput, setSavingInput] = useState<boolean>(false);
     const [showCheckout, setShowCheckout] = useState<'home' | 'away' | null>(
@@ -311,6 +313,25 @@ export function PlayLeg({
         );
     }
 
+    async function changeNumberOfLegs() {
+        if (!onChangeNumberOfLegs) {
+            return;
+        }
+
+        const newNumberOfLegs = Number.parseInt(
+            prompt('Enter best-of', numberOfLegs.toString()) ?? '',
+        );
+        if (
+            !Number.isFinite(newNumberOfLegs) ||
+            newNumberOfLegs === numberOfLegs
+        ) {
+            // invalid or number hasn't changed, exit
+            return;
+        }
+
+        await onChangeNumberOfLegs(newNumberOfLegs);
+    }
+
     return (
         <div
             className={`position-relative ${saygStyle} d-flex flex-fill flex-column`}>
@@ -324,11 +345,14 @@ export function PlayLeg({
                 />
                 <DebugOptions text="ℹ️" className="btn-sm ms-1">
                     <span className="dropdown-item">
-                        Sequence:
+                        Sequence:{' '}
                         {leg?.playerSequence?.map((p) => p.value).join(', ')}
                     </span>
-                    <span className="dropdown-item">
-                        Best of: (Sayg={numberOfLegs})
+                    <span
+                        className="dropdown-item"
+                        onClick={changeNumberOfLegs}>
+                        {onChangeNumberOfLegs ? '✏️ ' : ''}
+                        Best of: {numberOfLegs}
                     </span>
                 </DebugOptions>
             </div>

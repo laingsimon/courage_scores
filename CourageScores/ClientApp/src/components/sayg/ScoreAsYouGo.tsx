@@ -18,7 +18,7 @@ export interface IScoreAsYouGoProps {
     data: UpdateRecordedScoreAsYouGoDto;
     home: string;
     away?: string;
-    onChange?(data: ScoreAsYouGoDto): UntypedPromise;
+    onChange?(data: ScoreAsYouGoDto, forceSave?: boolean): UntypedPromise;
     onLegComplete?(homeScore: number, awayScore: number): UntypedPromise;
     startingScore: number;
     numberOfLegs: number;
@@ -215,6 +215,15 @@ export function ScoreAsYouGo({
         );
     }
 
+    async function changeNumberOfLegs(numberOfLegs: number) {
+        const newData: UpdateRecordedScoreAsYouGoDto = {
+            ...data,
+            numberOfLegs,
+        };
+
+        onChange!(newData, true);
+    }
+
     if (
         matchStatisticsOnly ||
         (singlePlayer && homeScore === numberOfLegs) ||
@@ -276,6 +285,7 @@ export function ScoreAsYouGo({
             previousLeg={legIndex > 0 ? data.legs[legIndex - 1] : undefined}
             showFullNames={showFullNames}
             numberOfLegs={numberOfLegs}
+            onChangeNumberOfLegs={onChange ? changeNumberOfLegs : undefined}
         />
     );
 }
