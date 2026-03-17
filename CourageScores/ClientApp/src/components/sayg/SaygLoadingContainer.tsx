@@ -151,10 +151,13 @@ export function SaygLoadingContainer({
         }, 'Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.');
     }
 
-    async function onChange(newData: ILoadedScoreAsYouGoDto) {
+    async function onChange(
+        newData: ILoadedScoreAsYouGoDto,
+        forceSave?: boolean,
+    ) {
         const newSayg: ILoadedScoreAsYouGoDto = await updateSayg(newData);
 
-        if (!autoSave) {
+        if (!autoSave && !forceSave) {
             return;
         }
 
@@ -182,7 +185,8 @@ export function SaygLoadingContainer({
             (newLastLeg &&
                 oldLastLeg &&
                 newLastLeg.currentThrow &&
-                !oldLastLeg.currentThrow)
+                !oldLastLeg.currentThrow) ||
+            forceSave
         ) {
             await saveDataAndGetId(newSayg);
         }
