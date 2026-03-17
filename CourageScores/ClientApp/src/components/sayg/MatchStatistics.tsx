@@ -118,7 +118,7 @@ export function MatchStatistics({
     return (
         <div>
             <h4 className="text-center">
-                <DebugOptions text="ℹ️">
+                <DebugOptions text="ℹ️" className="btn-sm me-1">
                     <span className="dropdown-item">
                         Finished: {finished ? 'Yes' : 'No'}
                     </span>

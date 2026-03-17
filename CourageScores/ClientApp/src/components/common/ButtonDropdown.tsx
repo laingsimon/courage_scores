@@ -3,6 +3,7 @@
 export interface IButtonDropdown {
     isOpen?: boolean;
     toggle?: () => void;
+    direction?: 'up' | 'down';
 }
 
 export interface IButtonDropdownProps extends IButtonDropdown {
@@ -46,16 +47,17 @@ export function ButtonDropdown(props: IButtonDropdownProps) {
 }
 
 export function DropdownMenu({ children, className }: IDropdownMenuProps) {
-    const { isOpen, toggle } = useButtonDropdown();
+    const { isOpen, toggle, direction } = useButtonDropdown();
 
     return (
         <div
-            className={`position-absolute bottom-0 ${isOpen ? '' : ' d-none'}`}
-            onClick={toggle}>
+            className={`position-absolute${direction === 'up' ? '' : ' bottom-0'}${isOpen ? '' : ' d-none'}`}
+            onClick={toggle}
+            data-direction={direction ?? 'unset'}>
             <div
                 tabIndex={-1}
                 role="menu"
-                className={`dropdown-menu${isOpen ? ' show' : ''} ${className || ''}`}>
+                className={`dropdown-menu${isOpen ? ' show' : ''}${direction === 'up' ? ' bottom-0' : ''} ${className || ''}`}>
                 {children}
             </div>
         </div>
@@ -72,7 +74,7 @@ export function DropdownToggle({
     return (
         <button
             type="button"
-            className={`dropdown-toggle btn btn-${color} ${className}`}
+            className={`dropdown-toggle btn btn-${color} ${className || ''}`}
             onClick={toggle}
             tabIndex={-1}>
             {children ? (

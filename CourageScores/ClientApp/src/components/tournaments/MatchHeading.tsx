@@ -15,7 +15,7 @@ export function MatchHeading({ match }: ISuperleagueMatchHeadingProps) {
 
     return (
         <h5 className="modal-header justify-content-center">
-            <DebugOptions text="ℹ️">
+            <DebugOptions text="ℹ️" className="btn-sm me-1">
                 <span className="dropdown-item">
                     Match scores: {match.scoreA} - {match.scoreB}
                 </span>

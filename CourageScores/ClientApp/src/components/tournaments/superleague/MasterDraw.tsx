@@ -305,7 +305,7 @@ export function MasterDraw({
                     </div>
                     {kioskMode ? null : (
                         <div className="px-5" datatype="details">
-                            <div datatype="gender">
+                            <div datatype="gender" className="no-wrap d-block">
                                 {!readOnly ? (
                                     <BootstrapDropdown
                                         value={tournamentData.gender}
@@ -322,21 +322,16 @@ export function MasterDraw({
                                     </span>
                                 )}
                             </div>
-                            <div>
+                            <div className="fw-bold no-wrap d-block">
                                 Date:{' '}
-                                <span className="fw-bold">
-                                    {readOnly ? (
-                                        renderDate(tournamentData.date)
-                                    ) : (
-                                        <Link
-                                            to={`/fixtures/${season?.name ?? tournamentData.seasonId}/?division=${division?.name ?? tournamentData.divisionId}&date=${tournamentData.date.substring(0, 10)}`}>
-                                            {renderDate(tournamentData.date)}
-                                        </Link>
-                                    )}
-                                </span>
+                                <Link
+                                    to={`/fixtures/${season?.name ?? tournamentData.seasonId}/?division=${division?.name ?? tournamentData.divisionId}&date=${tournamentData.date.substring(0, 10)}`}
+                                    className="text-decoration-none">
+                                    {renderDate(tournamentData.date)}
+                                </Link>
                             </div>
                             {tournamentData.type || !readOnly ? (
-                                <div datatype="type">
+                                <div datatype="type" className="no-wrap">
                                     {!readOnly ? (
                                         <input
                                             value={tournamentData.type || ''}
@@ -355,7 +350,7 @@ export function MasterDraw({
                                             }
                                         />
                                     ) : (
-                                        <span className="fw-bold">
+                                        <span className="fw-bold d-block">
                                             Notes: {tournamentData.type}
                                         </span>
                                     )}

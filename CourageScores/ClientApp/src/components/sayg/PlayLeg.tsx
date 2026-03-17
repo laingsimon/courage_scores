@@ -322,7 +322,7 @@ export function PlayLeg({
                     onChange={changeSaygStyle}
                     className={`${saygStyle}-selector`}
                 />
-                <DebugOptions text="ℹ️">
+                <DebugOptions text="ℹ️" className="btn-sm ms-1">
                     <span className="dropdown-item">
                         Sequence:
                         {leg?.playerSequence?.map((p) => p.value).join(', ')}
