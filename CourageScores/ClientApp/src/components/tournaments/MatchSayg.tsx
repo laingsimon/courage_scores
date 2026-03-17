@@ -48,7 +48,6 @@ export interface IMatchSaygProps {
 
 export function MatchSayg({
     match,
-    matchIndex,
     matchOptions,
     patchData,
     readOnly,

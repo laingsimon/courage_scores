@@ -40,7 +40,7 @@ export interface IPlayLegProps {
     previousLeg?: LegDto;
     showFullNames?: boolean;
     numberOfLegs: number;
-    onChangeNumberOfLegs?(numberOfLegs: number): UntypedPromise;
+    changeNumberOfLegs?(): UntypedPromise;
 }
 
 export function PlayLeg({
@@ -58,7 +58,7 @@ export function PlayLeg({
     onChangePrevious,
     showFullNames,
     numberOfLegs,
-    onChangeNumberOfLegs,
+    changeNumberOfLegs,
 }: IPlayLegProps) {
     const [savingInput, setSavingInput] = useState<boolean>(false);
     const [showCheckout, setShowCheckout] = useState<'home' | 'away' | null>(
@@ -313,25 +313,6 @@ export function PlayLeg({
         );
     }
 
-    async function changeNumberOfLegs() {
-        if (!onChangeNumberOfLegs) {
-            return;
-        }
-
-        const newNumberOfLegs = Number.parseInt(
-            prompt('Enter best-of', numberOfLegs.toString()) ?? '',
-        );
-        if (
-            !Number.isFinite(newNumberOfLegs) ||
-            newNumberOfLegs === numberOfLegs
-        ) {
-            // invalid or number hasn't changed, exit
-            return;
-        }
-
-        await onChangeNumberOfLegs(newNumberOfLegs);
-    }
-
     return (
         <div
             className={`position-relative ${saygStyle} d-flex flex-fill flex-column`}>
@@ -351,7 +332,7 @@ export function PlayLeg({
                     <span
                         className="dropdown-item"
                         onClick={changeNumberOfLegs}>
-                        {onChangeNumberOfLegs ? '✏️ ' : ''}
+                        {changeNumberOfLegs ? '✏️ ' : ''}
                         Best of: {numberOfLegs}
                     </span>
                 </DebugOptions>
