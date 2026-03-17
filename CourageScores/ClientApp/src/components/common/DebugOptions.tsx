@@ -6,12 +6,14 @@ export interface IDebugOptionsProps {
     text?: string;
     children: React.ReactNode;
     direction?: 'up' | 'down';
+    className?: string;
 }
 
 export function DebugOptions({
     children,
     text,
     direction,
+    className,
 }: IDebugOptionsProps) {
     const [open, setOpen] = useState<boolean>(false);
     const { account } = useApp();
@@ -31,7 +33,7 @@ export function DebugOptions({
             toggle={() => setOpen(!open)}
             datatype="debug-options"
             direction={direction}>
-            <DropdownToggle color="info">
+            <DropdownToggle color="info" className={className}>
                 {text ?? 'Debug options'}
             </DropdownToggle>
             <DropdownMenu>{children}</DropdownMenu>

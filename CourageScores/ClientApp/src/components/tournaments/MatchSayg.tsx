@@ -249,7 +249,7 @@ export function MatchSayg({
                                     Full screen
                                 </button>
                             ) : null}
-                            <DebugOptions direction="up">
+                            <DebugOptions direction="up" className="ms-1">
                                 <a
                                     target="_blank"
                                     rel="noreferrer"
