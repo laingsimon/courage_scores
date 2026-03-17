@@ -8,7 +8,7 @@ export interface ISuperleagueMatchHeadingProps {
 }
 
 export function MatchHeading({ match }: ISuperleagueMatchHeadingProps) {
-    const { sayg } = useSayg();
+    const { sayg, changeNumberOfLegs } = useSayg();
     const { settings } = useDependencies();
     const home: string | undefined = match.sideA?.name;
     const away: string | undefined = match.sideB?.name;
@@ -19,7 +19,8 @@ export function MatchHeading({ match }: ISuperleagueMatchHeadingProps) {
                 <span className="dropdown-item">
                     Match scores: {match.scoreA} - {match.scoreB}
                 </span>
-                <span className="dropdown-item">
+                <span className="dropdown-item" onClick={changeNumberOfLegs}>
+                    {changeNumberOfLegs ? '✏️ ' : ''}
                     Best of: (Sayg={sayg.numberOfLegs})
                 </span>
                 <span className="dropdown-item">Match id: {match.id}</span>
