@@ -305,7 +305,7 @@ export function MasterDraw({
                     </div>
                     {kioskMode ? null : (
                         <div className="px-5" datatype="details">
-                            <div datatype="gender" className="no-wrap">
+                            <div datatype="gender" className="no-wrap d-block">
                                 {!readOnly ? (
                                     <BootstrapDropdown
                                         value={tournamentData.gender}
@@ -322,7 +322,7 @@ export function MasterDraw({
                                     </span>
                                 )}
                             </div>
-                            <div className="fw-bold no-wrap">
+                            <div className="fw-bold no-wrap d-block">
                                 Date:{' '}
                                 <Link
                                     to={`/fixtures/${season?.name ?? tournamentData.seasonId}/?division=${division?.name ?? tournamentData.divisionId}&date=${tournamentData.date.substring(0, 10)}`}
@@ -350,7 +350,7 @@ export function MasterDraw({
                                             }
                                         />
                                     ) : (
-                                        <span className="fw-bold">
+                                        <span className="fw-bold d-block">
                                             Notes: {tournamentData.type}
                                         </span>
                                     )}
