@@ -1,6 +1,5 @@
 import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react';
-import viteTsconfigPaths from 'vite-tsconfig-paths';
 import circleDependency from 'vite-plugin-circular-dependency';
 import basicSsl from "@vitejs/plugin-basic-ssl";
 
@@ -10,7 +9,6 @@ export default defineConfig({
     base: '',
     plugins: [
         react(),
-        viteTsconfigPaths(),
         basicSsl({
             /*
             Creates a self-signed certificate, but this is NOT automatically trusted by the OS.
@@ -27,7 +25,7 @@ export default defineConfig({
         }),
         circleDependency({
             circleImportThrowErr: true,
-        })
+        }),
     ],
     server: {
         open: true,
@@ -37,5 +35,6 @@ export default defineConfig({
     build: {
         chunkSizeWarningLimit: 1000,
         assetsDir: 'static',
-    }
+    },
+    tsconfigPaths: true
 });
