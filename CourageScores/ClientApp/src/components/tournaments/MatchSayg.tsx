@@ -152,7 +152,7 @@ export function MatchSayg({
     function canOpenSaygDialog(): boolean {
         const isPermitted: boolean = hasAccess(
             account,
-            (access) => access.recordScoresAsYouGo,
+            (access) => access.recordScoresAsYouGo && access.manageTournaments,
         );
         const hasSaygId: boolean = !!saygId;
         const hasSidesSelected: boolean =
