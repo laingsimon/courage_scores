@@ -987,6 +987,7 @@ describe('MasterDraw', () => {
         const playerB = playerBuilder('PLAYER B').build();
         const account = user({
             recordScoresAsYouGo: true,
+            manageTounaments: true,
         });
         const masterDrawSelector = 'div[datatype="master-draw"]';
         let tournament: ITournamentBuilder;
