@@ -222,7 +222,7 @@ export function MatchSayg({
                     finalLegPlayerSequence={finalLegPlayerSequence}
                     onFinished={async () =>
                         kioskMode
-                            ? setSaygOpen(false)
+                            ? changeDialogState(false)
                             : await fullScreen.exitFullScreen()
                     }
                     initialOneDartAverage={initialOneDartAverage}
