@@ -186,7 +186,7 @@ describe('MatchSayg', () => {
             .withPlayer('PLAYER C 2')
             .build();
         const notPermitted: UserDto = user({ recordScoresAsYouGo: false });
-        const permitted: UserDto = user({ 
+        const permitted: UserDto = user({
             recordScoresAsYouGo: true,
             manageTournaments: true,
         });
