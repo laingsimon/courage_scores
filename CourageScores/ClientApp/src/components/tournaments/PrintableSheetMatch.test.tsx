@@ -842,7 +842,7 @@ describe('PrintableSheetMatch', () => {
                 containerProps.withTournament(tournamentData).build(),
                 patchable(props(matchData, true)),
                 appProps(
-                    { account: user({ recordScoresAsYouGo: true, manageTournaments: true }) },
+                    { account: debugAndSaygUser },
                     reportedError,
                 ),
             );
@@ -893,7 +893,7 @@ describe('PrintableSheetMatch', () => {
                 containerProps.withTournament(tournamentData).build(),
                 patchable(withRoundIndex(props(matchData, true), 1)),
                 appProps(
-                    { account: user({ recordScoresAsYouGo: true, manageTournaments: true }) },
+                    { account: debugAndSaygUser },
                     reportedError,
                 ),
             );
