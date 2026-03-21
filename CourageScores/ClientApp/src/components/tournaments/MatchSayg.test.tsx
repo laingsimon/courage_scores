@@ -186,7 +186,10 @@ describe('MatchSayg', () => {
             .withPlayer('PLAYER C 2')
             .build();
         const notPermitted: UserDto = user({ recordScoresAsYouGo: false });
-        const permitted: UserDto = user({ recordScoresAsYouGo: true });
+        const permitted: UserDto = user({
+            recordScoresAsYouGo: true,
+            manageTournaments: true,
+        });
         const containerProps = new tournamentContainerPropsBuilder({
             saveTournament,
             setTournamentData,
@@ -437,10 +440,14 @@ describe('MatchSayg', () => {
             .withPlayer('PLAYER B 1')
             .withPlayer('PLAYER B 2')
             .build();
-        const permitted: UserDto = user({ recordScoresAsYouGo: true });
+        const permitted: UserDto = user({
+            recordScoresAsYouGo: true,
+            manageTournaments: true,
+        });
         const permittedWithDebug: UserDto = user({
             recordScoresAsYouGo: true,
             showDebugOptions: true,
+            manageTournaments: true,
         });
         const containerProps = new tournamentContainerPropsBuilder({
             saveTournament,
