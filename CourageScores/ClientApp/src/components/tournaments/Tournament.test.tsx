@@ -761,6 +761,7 @@ describe('Tournament', () => {
                 manageTournaments: true,
             }),
             patchMatchUseCase({
+                manageTournaments: true,
                 enterTournamentResults: true,
             }),
         ])(
