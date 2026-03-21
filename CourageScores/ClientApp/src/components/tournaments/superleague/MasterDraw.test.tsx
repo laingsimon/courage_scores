@@ -429,6 +429,7 @@ describe('MasterDraw', () => {
         const canRecordSayg = user({
             recordScoresAsYouGo: true,
             showDebugOptions: true,
+            manageTournaments: true,
         });
         const removeMatchMsg = 'Are you sure you want to remove this match?';
         const deleteSaygMsg =
