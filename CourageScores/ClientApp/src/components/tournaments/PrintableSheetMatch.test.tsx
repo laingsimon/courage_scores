@@ -841,10 +841,7 @@ describe('PrintableSheetMatch', () => {
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
                 patchable(props(matchData, true)),
-                appProps(
-                    { account: debugAndSaygUser },
-                    reportedError,
-                ),
+                appProps({ account: debugAndSaygUser }, reportedError),
             );
 
             await doClick(findButton(context.container, START_SCORING));
@@ -892,10 +889,7 @@ describe('PrintableSheetMatch', () => {
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
                 patchable(withRoundIndex(props(matchData, true), 1)),
-                appProps(
-                    { account: debugAndSaygUser },
-                    reportedError,
-                ),
+                appProps({ account: debugAndSaygUser }, reportedError),
             );
 
             await doClick(findButton(context.container, START_SCORING));
