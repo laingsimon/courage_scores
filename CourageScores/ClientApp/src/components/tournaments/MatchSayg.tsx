@@ -222,11 +222,15 @@ export function MatchSayg({
                     }
                     firstLegPlayerSequence={firstLegPlayerSequence}
                     finalLegPlayerSequence={finalLegPlayerSequence}
-                    onFinished={async () =>
-                        kioskMode
-                            ? changeDialogState(false)
-                            : await fullScreen.exitFullScreen()
-                    }
+                    onFinished={async () => {
+                        await changeDialogState(false);
+
+                        if (!kioskMode && fullScreen.isFullScreen) {
+                            try {
+                                await fullScreen.exitFullScreen();
+                            } catch {}
+                        }
+                    }}
                     initialOneDartAverage={initialOneDartAverage}
                     showFullNames={showFullNames}>
                     {finished ? <MatchHeading match={match} /> : null}
