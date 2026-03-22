@@ -381,13 +381,10 @@ export function MatchSayg({
                 <button
                     className={`btn btn-sm btn-primary float-start d-print-none no-wrap${kioskMode ? ' fs-4' : ''}`}
                     onClick={openSaygDialog}>
-                    {creatingSayg ? (
-                        <LoadingSpinnerSmall />
-                    ) : scoreA || scoreB ? (
-                        `📊 ${scoreA} - ${scoreB}`
-                    ) : (
-                        START_SCORING
-                    )}
+                    {creatingSayg ? <LoadingSpinnerSmall /> : null}
+                    {!creatingSayg && (scoreA || scoreB)
+                        ? `📊 ${scoreA} - ${scoreB}`
+                        : START_SCORING}
                 </button>
             ) : null}
             {saveError ? (
