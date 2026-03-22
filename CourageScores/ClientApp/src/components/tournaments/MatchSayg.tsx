@@ -370,11 +370,14 @@ export function MatchSayg({
 
     return (
         <>
-            {canShowLiveSayg() && !canOpenSaygDialog() && showViewSayg ? (
+            {canShowLiveSayg() &&
+            !canOpenSaygDialog() &&
+            showViewSayg &&
+            (scoreA || scoreB) ? (
                 <Link
                     className={`btn btn-sm float-start p-0 no-wrap${kioskMode ? ' fs-4' : ''}`}
                     to={`/live/match/?id=${saygId}${initialOneDartAverage ? '#average=1' : ''}`}>
-                    📊 {scoreA || scoreB ? `${scoreA} - ${scoreB}` : null}
+                    📊 {scoreA} - {scoreB}
                 </Link>
             ) : null}
             {canOpenSaygDialog() ? (

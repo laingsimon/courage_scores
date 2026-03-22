@@ -937,22 +937,24 @@ describe('PrintableSheetMatch', () => {
         });
 
         it('can view scores for match with sayg', async () => {
+            const match = tournamentDataWithMatch!.round!.matches![0];
             const matchData = hideMnemonic(
                 sideABWithLinks({
                     scoreA: '1',
                     scoreB: '2',
                     mnemonic: 'M1',
-                    match: tournamentDataWithMatch!.round!.matches![0],
+                    match,
                 }),
             );
+            match.scoreA = 1;
+            match.scoreB = 2;
             await renderComponent(
                 containerProps.withTournament(tournamentDataWithMatch).build(),
                 patchable(props(matchData, true)),
                 appProps({}, reportedError),
             );
 
-            expect(context.container.innerHTML).toContain('📊');
-            const link = findButton(context.container, '📊 ');
+            const link = findButton(context.container, '📊 1 - 2');
             expect(link.href).toEqual(
                 `http://localhost/live/match/?id=${saygData.id}`,
             );

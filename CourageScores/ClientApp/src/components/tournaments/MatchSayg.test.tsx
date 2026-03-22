@@ -301,7 +301,6 @@ describe('MatchSayg', () => {
                 }),
             );
 
-            expect(context.container.innerHTML).toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
@@ -316,7 +315,6 @@ describe('MatchSayg', () => {
                 notPermitted,
             );
 
-            expect(context.container.innerHTML).toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
