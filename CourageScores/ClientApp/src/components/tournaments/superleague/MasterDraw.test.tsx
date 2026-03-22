@@ -59,6 +59,13 @@ import {
     withName,
 } from './MasterDraw.test.helpers';
 
+const mockedUsedNavigate = jest.fn();
+
+jest.mock('react-router', () => ({
+    ...jest.requireActual('react-router'),
+    useNavigate: () => mockedUsedNavigate,
+}));
+
 describe('MasterDraw', () => {
     let context: TestContext;
     let reportedError: ErrorState;
@@ -87,10 +94,16 @@ describe('MasterDraw', () => {
     }[] = [];
     const player = playerBuilder('PLAYER').build();
     const apiSuccess = { success: true };
+    let newSaygResponse: (() => TournamentGameDto) | undefined;
 
     const tournamentApi = api<ITournamentGameApi>({
         update: async () => apiSuccess,
-        addSayg: async () => apiSuccess,
+        addSayg: async () => {
+            return {
+                success: true,
+                result: newSaygResponse?.(),
+            };
+        },
         async deleteSayg(id: string, matchId: string) {
             saygDeleted = { id, matchId };
             return {
@@ -182,6 +195,7 @@ describe('MasterDraw', () => {
         createdPlayer = null;
         updatedPlayer = null;
         patchedData = [];
+        newSaygResponse = undefined;
     });
 
     async function setTournamentData(
@@ -214,6 +228,7 @@ describe('MasterDraw', () => {
         containerProps?: ITournamentContainerProps,
         teams?: TeamDto[],
         season?: SeasonDto,
+        path?: string,
     ) {
         context = await renderApp(
             iocProps({ tournamentApi, saygApi, playerApi }),
@@ -232,6 +247,8 @@ describe('MasterDraw', () => {
                     new tournamentContainerPropsBuilder().build())}>
                 <MasterDraw {...props} />
             </TournamentContainer>,
+            '/test',
+            path ?? '/test',
         );
 
         reportedError.verifyNoError();
@@ -909,7 +926,13 @@ describe('MasterDraw', () => {
         });
 
         it('can open sayg dialog when permitted', async () => {
+            const saygId = createTemporaryId();
             const tournamentData = getSideAvBTournament();
+            newSaygResponse = () => {
+                // NOTE: This mutates the object because the tests don't trigger a re-render
+                tournamentData.round!.matches![0].saygId = saygId;
+                return tournamentData;
+            };
             await renderComponent(
                 props({ tournamentData: tournamentData }),
                 canRecordSayg,
@@ -920,7 +943,7 @@ describe('MasterDraw', () => {
 
             await doClick(findButton(find(masterDrawSelector), START_SCORING));
 
-            expect(getDialog()).toBeTruthy();
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/test#${saygId}`);
         });
 
         it('can delete sayg from match', async () => {
@@ -935,6 +958,9 @@ describe('MasterDraw', () => {
                 props({ tournamentData: tournamentData }),
                 canRecordSayg,
                 containerProps.build(),
+                undefined,
+                undefined,
+                `/test#${saygId}`,
             );
             await doClick(findButton(find(masterDrawSelector), START_SCORING));
             context.prompts.respondToConfirm(deleteSaygMsg, true);
@@ -1007,19 +1033,25 @@ describe('MasterDraw', () => {
         });
 
         it('does not patch in 180s', async () => {
+            const saygId = createTemporaryId();
             const tournamentData = tournament
                 .round((r) =>
                     r.withMatch((m) =>
                         m
                             .sideA('SIDE A', undefined, playerA)
                             .sideB('SIDE B', undefined, playerB)
-                            .saygId(createTemporaryId()),
+                            .saygId(saygId),
                     ),
                 )
                 .build();
-            await renderComponent(props({ tournamentData }), account);
-            await doClick(findButton(find(masterDrawSelector), START_SCORING));
-            reportedError.verifyNoError();
+            await renderComponent(
+                props({ tournamentData }),
+                account,
+                undefined,
+                undefined,
+                undefined,
+                `/test/#${saygId}`,
+            );
 
             await keyPad(context, ['1', '8', '0', ENTER_SCORE_BUTTON]);
 
@@ -1044,9 +1076,11 @@ describe('MasterDraw', () => {
                     patchData,
                 }),
                 account,
+                undefined,
+                undefined,
+                undefined,
+                `/test#${saygId}`,
             );
-            await doClick(findButton(find(masterDrawSelector), START_SCORING));
-            reportedError.verifyNoError();
 
             await enterScores(
                 context,
@@ -1089,9 +1123,11 @@ describe('MasterDraw', () => {
                     patchData,
                 }),
                 account,
+                undefined,
+                undefined,
+                undefined,
+                `/test/#${saygId}`,
             );
-            await doClick(findButton(find(masterDrawSelector), START_SCORING));
-            reportedError.verifyNoError();
 
             await enterScores(
                 context,
