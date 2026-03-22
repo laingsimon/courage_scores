@@ -9,6 +9,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { TableDto } from '../../interfaces/models/dtos/Data/TableDto';
 import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
@@ -64,16 +65,10 @@ describe('AdminHome', () => {
     });
 
     async function assertTab(access: AccessDto, href: string, exists: boolean) {
-        const account: UserDto = {
-            access: access,
-            name: '',
-            givenName: '',
-            emailAddress: '',
-        };
         context = await renderApp(
             iocProps({ dataApi, accountApi, templateApi, liveApi, featureApi }),
             brandingProps(),
-            appProps({ account }, reportedError),
+            appProps({ account: user(access) }, reportedError),
             <AdminContainer tables={[]} accounts={[]}>
                 <AdminHome />
             </AdminContainer>,
@@ -98,19 +93,13 @@ describe('AdminHome', () => {
         address: string,
         expectContent: string,
     ) {
-        const account: UserDto = {
-            access: access,
-            name: '',
-            emailAddress: '',
-            givenName: '',
-        };
         context = await renderApp(
             iocProps({ dataApi, accountApi, templateApi, liveApi, featureApi }),
             brandingProps(),
             appProps(
                 {
                     appLoading: false,
-                    account: account,
+                    account: user(access),
                 },
                 reportedError,
             ),
