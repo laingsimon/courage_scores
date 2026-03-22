@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
 import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CreateTournamentSaygDto } from '../../interfaces/models/dtos/Game/CreateTournamentSaygDto';
 import { IClientActionResultDto } from '../common/IClientActionResultDto';
 import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
@@ -28,6 +28,7 @@ import { START_SCORING } from './tournaments';
 import { UntypedPromise } from '../../interfaces/UntypedPromise';
 import { asyncClear } from '../../helpers/events';
 import { hasAccess } from '../../helpers/conditions';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export interface IMatchSaygProps {
     match: TournamentMatchDto;
@@ -65,12 +66,13 @@ export function MatchSayg({
     } = useTournament();
     const { account, onError, fullScreen } = useApp();
     const { tournamentApi, settings } = useDependencies();
-    const [saygOpen, setSaygOpen] = useState<boolean>(false);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const fragmentSaygId = location.hash.replace('#', '');
     const [creatingSayg, setCreatingSayg] = useState<boolean>(false);
     const [saveError, setSaveError] = useState<
         IClientActionResultDto<TournamentGameDto> | undefined
     >(undefined);
-    const saygId: string = match.saygId!;
     const scoreA: number = match.scoreA!;
     const scoreB: number = match.scoreB!;
     const onHiCheck: (
@@ -82,24 +84,33 @@ export function MatchSayg({
         setTournamentData!,
     );
     const kioskMode: boolean = hasAccess(account, (access) => access.kioskMode);
+    const saygOpen = fragmentSaygId === match.saygId;
 
-    async function changeDialogState(state: boolean) {
-        setSaygOpen(state);
-        setSuperleagueMasterDrawOnly(state);
+    async function changeDialogState(changeToOpen: boolean) {
+        const path = location.pathname;
+        if (changeToOpen) {
+            navigate(`${path}#${match.saygId}`);
+        } else {
+            navigate(path);
+        }
+    }
+
+    useEffect(() => {
+        setSuperleagueMasterDrawOnly(saygOpen);
         const numberOfLegs: number = matchOptions.numberOfLegs!;
         const finished: boolean =
             scoreA > numberOfLegs / 2.0 || scoreB > numberOfLegs / 2.0;
 
-        if (!state && fullScreen.isFullScreen) {
-            await fullScreen.exitFullScreen();
-        } else if (state && !finished && kioskMode) {
+        if (!saygOpen && fullScreen.isFullScreen) {
+            fullScreen.exitFullScreen();
+        } else if (saygOpen && !finished && kioskMode) {
             // enter full screen
-            await fullScreen.enterFullScreen();
+            fullScreen.enterFullScreen();
         }
-    }
+    }, [fragmentSaygId]);
 
     async function openSaygDialog() {
-        if (saygId) {
+        if (match.saygId) {
             await changeDialogState(true);
             return;
         }
@@ -142,7 +153,7 @@ export function MatchSayg({
     }
 
     function canShowLiveSayg(): boolean {
-        const hasSaygData: boolean = !!saygId;
+        const hasSaygData: boolean = !!match.saygId;
         const hasSidesSelected: boolean =
             match.sideA !== null && match.sideB !== null;
 
@@ -156,7 +167,7 @@ export function MatchSayg({
                 access.recordScoresAsYouGo &&
                 (access.manageTournaments || access.enterTournamentResults),
         );
-        const hasSaygId: boolean = !!saygId;
+        const hasSaygId: boolean = !!match.saygId;
         const hasSidesSelected: boolean =
             match.sideA !== null && match.sideB !== null;
 
@@ -197,7 +208,7 @@ export function MatchSayg({
         return (
             <Dialog className="text-start" fullScreen={true}>
                 <SaygLoadingContainer
-                    id={saygId}
+                    id={match.saygId!}
                     onHiCheck={recordHiCheck}
                     on180={record180}
                     autoSave={true}
@@ -215,7 +226,7 @@ export function MatchSayg({
                                           },
                                       },
                                       true,
-                                      saygId,
+                                      match.saygId,
                                   );
                               }
                             : undefined
@@ -258,20 +269,22 @@ export function MatchSayg({
                                 <a
                                     target="_blank"
                                     rel="noreferrer"
-                                    href={`${settings.apiHost}/api/Sayg/${saygId}`}
+                                    href={`${settings.apiHost}/api/Sayg/${match.saygId}`}
                                     className="dropdown-item">
                                     <strong>Sayg data</strong>
-                                    <small className="d-block">{saygId}</small>
+                                    <small className="d-block">
+                                        {match.saygId}
+                                    </small>
                                 </a>
                                 <a
                                     className="dropdown-item"
                                     target="_blank"
                                     rel="noreferrer"
-                                    href={`/live/match/${saygId}`}>
+                                    href={`/live/match/${match.saygId}`}>
                                     Live match statistics
                                 </a>
                                 <button
-                                    disabled={!saygId}
+                                    disabled={!match.saygId}
                                     className="dropdown-item text-danger"
                                     onClick={deleteSayg}>
                                     Delete sayg
@@ -380,7 +393,7 @@ export function MatchSayg({
             (scoreA || scoreB) ? (
                 <Link
                     className={`btn btn-sm float-start p-0 no-wrap${kioskMode ? ' fs-4' : ''}`}
-                    to={`/live/match/?id=${saygId}${initialOneDartAverage ? '#average=1' : ''}`}>
+                    to={`/live/match/?id=${match.saygId}${initialOneDartAverage ? '#average=1' : ''}`}>
                     📊 {scoreA} - {scoreB}
                 </Link>
             ) : null}

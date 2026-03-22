@@ -223,21 +223,18 @@ describe('Tournament', () => {
         deletePhotoResponse = null;
     });
 
-    function patchMatchUseCase(access: AccessDto): { user: UserDto } {
+    function patchMatchUseCase(access: AccessDto): {
+        user: UserDto;
+        toString: () => string;
+    } {
         return {
-            user: {
-                emailAddress: '',
-                givenName: '',
-                name: '',
-                access: Object.assign(
-                    {
-                        managePlayers: true,
-                        recordScoresAsYouGo: true,
-                        uploadPhotos: true,
-                    },
-                    access,
-                ),
-            },
+            user: user({
+                managePlayers: true,
+                recordScoresAsYouGo: true,
+                uploadPhotos: true,
+                ...access,
+            }),
+            toString: () => JSON.stringify(access),
         };
     }
 
