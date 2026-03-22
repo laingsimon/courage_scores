@@ -179,7 +179,7 @@ export function UserAdmin() {
                     <input
                         className="form-check-input"
                         type="checkbox"
-                        id="showEmailAddress"
+                        name="showEmailAddress"
                         checked={showEmailAddress}
                         onChange={(event) =>
                             setShowEmailAddress(event.target.checked)

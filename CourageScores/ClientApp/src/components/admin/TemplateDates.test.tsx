@@ -3,9 +3,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -68,9 +66,8 @@ describe('TemplateDates', () => {
                 setHighlight,
             });
 
-            const prefix =
-                context.container.querySelector('ul li:first-child')!;
-            expect(prefix.textContent).toEqual(
+            const prefix = context.required('ul li:first-child');
+            expect(prefix.text()).toEqual(
                 'WeeksLeague fixtures (or byes) per-week',
             );
         });
@@ -92,9 +89,8 @@ describe('TemplateDates', () => {
                 setHighlight,
             });
 
-            const prefix =
-                context.container.querySelector('ul li:first-child')!;
-            expect(Array.from(prefix.querySelectorAll('button'))).toEqual([]);
+            const prefix = context.required('ul li:first-child');
+            expect(prefix.all('button')).toEqual([]);
         });
 
         it('no copy button when no dates', async () => {
@@ -110,9 +106,8 @@ describe('TemplateDates', () => {
                 setHighlight,
             });
 
-            const prefix =
-                context.container.querySelector('ul li:first-child')!;
-            expect(Array.from(prefix.querySelectorAll('button'))).toEqual([]);
+            const prefix = context.required('ul li:first-child');
+            expect(prefix.all('button')).toEqual([]);
         });
 
         it('copy buttons for other divisions', async () => {
@@ -132,10 +127,9 @@ describe('TemplateDates', () => {
                 setHighlight,
             });
 
-            const prefix =
-                context.container.querySelector('ul li:first-child')!;
-            const copyButtons = Array.from(prefix.querySelectorAll('button'));
-            expect(copyButtons.map((b) => b.textContent)).toEqual([
+            const prefix = context.required('ul li:first-child');
+            const copyButtons = prefix.all('button');
+            expect(copyButtons.map((b) => b.text())).toEqual([
                 'Copy to division 1',
                 'Copy to division 3',
             ]);
@@ -154,9 +148,7 @@ describe('TemplateDates', () => {
                 setHighlight,
             });
 
-            const dateElements = Array.from(
-                context.container.querySelectorAll('ul li'),
-            ) as HTMLElement[];
+            const dateElements = context.all('ul li');
             expect(dateElements.length).toEqual(1); // heading
         });
 
@@ -182,9 +174,8 @@ describe('TemplateDates', () => {
                 setHighlight,
             });
 
-            const dateElement =
-                context.container.querySelector('ul li:nth-child(2)')!;
-            expect(dateElement.textContent).toContain('A - B ×');
+            const dateElement = context.required('ul li:nth-child(2)');
+            expect(dateElement.text()).toContain('A - B ×');
         });
     });
 
@@ -202,7 +193,7 @@ describe('TemplateDates', () => {
                 setHighlight,
             });
 
-            await doClick(findButton(context.container, '➕ Add a week'));
+            await context.button('➕ Add a week').click();
 
             expect(update).toEqual([
                 {
@@ -233,7 +224,7 @@ describe('TemplateDates', () => {
                 setHighlight,
             });
 
-            await doClick(findButton(context.container, '🗑️'));
+            await context.button('🗑️').click();
 
             expect(update).toEqual([]);
         });
@@ -267,11 +258,11 @@ describe('TemplateDates', () => {
                 highlight: '',
                 setHighlight,
             });
-            const secondDate = context.container.querySelector(
+            const secondDate = context.required(
                 '.list-group-item:nth-child(3)',
             );
 
-            await doClick(findButton(secondDate, '⬆'));
+            await secondDate.button('⬆').click();
 
             expect(update).toEqual([
                 {
@@ -322,11 +313,9 @@ describe('TemplateDates', () => {
                 highlight: '',
                 setHighlight,
             });
-            const firstDate = context.container.querySelector(
-                '.list-group-item:nth-child(2)',
-            );
+            const firstDate = context.required('.list-group-item:nth-child(2)');
 
-            await doClick(findButton(firstDate, '⬇'));
+            await firstDate.button('⬇').click();
 
             expect(update).toEqual([
                 {
@@ -378,7 +367,7 @@ describe('TemplateDates', () => {
                 setHighlight,
             });
 
-            await doClick(findButton(context.container, 'A - B ×'));
+            await context.button('A - B ×').click();
 
             expect(update).toEqual([
                 {
@@ -425,7 +414,7 @@ describe('TemplateDates', () => {
                 setHighlight,
             });
 
-            await doClick(findButton(context.container, 'Copy to division 2'));
+            await context.button('Copy to division 2').click();
 
             expect(copyToDivisionIndex).toEqual(1);
         });
@@ -472,7 +461,7 @@ describe('TemplateDates', () => {
                 true,
             );
 
-            await doClick(findButton(context.container, 'A - C ×'));
+            await context.button('A - C ×').click();
 
             expect(update).toEqual([
                 {

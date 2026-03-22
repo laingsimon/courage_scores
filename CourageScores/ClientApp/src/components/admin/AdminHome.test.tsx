@@ -76,15 +76,13 @@ describe('AdminHome', () => {
             href,
         );
 
-        const tab = context.container.querySelector(
-            `.nav-tabs .nav-item a[href="${href}"]`,
-        );
+        const tab = context.optional(`.nav-tabs .nav-item a[href="${href}"]`);
 
         reportedError.verifyNoError();
         if (exists) {
-            expect(tab).not.toBeNull();
+            expect(tab).not.toBeUndefined();
         } else {
-            expect(tab).toBeNull();
+            expect(tab).toBeUndefined();
         }
     }
 
@@ -111,11 +109,8 @@ describe('AdminHome', () => {
         );
 
         reportedError.verifyNoError();
-        const content = context.container.querySelector(
-            `div.content-background`,
-        )!;
-        expect(content).not.toBeNull();
-        expect(content.innerHTML).toContain(expectContent);
+        const content = context.required(`div.content-background`);
+        expect(content.html()).toContain(expectContent);
     }
 
     describe('user admin', () => {
@@ -384,7 +379,7 @@ describe('AdminHome', () => {
             </AdminContainer>,
         );
 
-        const loading = context.container.querySelector('.loading-background');
+        const loading = context.optional('.loading-background');
         expect(loading).not.toBeNull();
     });
 
@@ -398,11 +393,9 @@ describe('AdminHome', () => {
             </AdminContainer>,
         );
 
-        const tabs = Array.from(
-            context.container.querySelectorAll('.nav-tabs .nav-item'),
-        );
+        const tabs = context.all('.nav-tabs .nav-item');
         expect(tabs.length).toEqual(0);
-        expect(context.container.outerHTML).toContain(
+        expect(context.html()).toContain(
             "You're not permitted to use this function",
         );
     });

@@ -3,8 +3,6 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -50,10 +48,10 @@ describe('SharedAddresses', () => {
                 setHighlight,
             });
 
-            const heading = context.container.querySelector(
+            const heading = context.required(
                 'ul li.list-group-item:first-child',
-            )!;
-            expect(heading.className).toEqual(
+            );
+            expect(heading.className()).toEqual(
                 'list-group-item bg-warning text-light',
             );
         });
@@ -67,9 +65,7 @@ describe('SharedAddresses', () => {
                 setHighlight,
             });
 
-            const items = Array.from(
-                context.container.querySelectorAll('ul li.list-group-item'),
-            ) as HTMLElement[];
+            const items = context.all('ul li.list-group-item');
             expect(items.length).toEqual(1); // heading only
         });
 
@@ -82,11 +78,9 @@ describe('SharedAddresses', () => {
                 setHighlight,
             });
 
-            const items = Array.from(
-                context.container.querySelectorAll('ul li.list-group-item'),
-            ) as HTMLElement[];
+            const items = context.all('ul li.list-group-item');
             items.shift(); // exclude the heading
-            expect(items[0].textContent).toContain('A ×');
+            expect(items[0].text()).toContain('A ×');
         });
     });
 
@@ -99,13 +93,9 @@ describe('SharedAddresses', () => {
                 highlight: '',
                 setHighlight,
             });
-            const addButton = findButton(
-                context.container,
-                '➕ Add shared address',
-            );
-            expect(addButton).toBeTruthy();
+            const addButton = context.button('➕ Add shared address');
 
-            await doClick(addButton);
+            await addButton.click();
 
             expect(updatedAddresses).toEqual([[]]);
         });
@@ -119,7 +109,7 @@ describe('SharedAddresses', () => {
                 setHighlight,
             });
 
-            await doClick(findButton(context.container, '🗑️ Remove'));
+            await context.button('🗑️ Remove').click();
 
             expect(updatedAddresses).toEqual([]);
         });
@@ -136,7 +126,7 @@ describe('SharedAddresses', () => {
                 setHighlight,
             });
 
-            await doClick(findButton(context.container, 'B ×'));
+            await context.button('B ×').click();
 
             expect(updatedAddresses).toEqual([['A'], ['C', 'D']]);
         });
@@ -151,11 +141,9 @@ describe('SharedAddresses', () => {
                 mnemonicsThatCanShareAddresses: [['C', 'D']],
             });
 
-            await doClick(
-                context.container.querySelector(
-                    'ul[datatype="shareable-addresses"] > li',
-                )!,
-            );
+            await context
+                .required('ul[datatype="shareable-addresses"] > li')
+                .click();
 
             expect(updatedAddresses).toEqual([
                 ['A', 'B'],

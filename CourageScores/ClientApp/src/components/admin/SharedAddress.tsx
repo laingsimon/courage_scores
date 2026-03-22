@@ -75,6 +75,7 @@ export function SharedAddress({
             ))}
             <span className={`margin-right badge ${className}`}>
                 <input
+                    name="sharedAddress"
                     className="width-20 outline-0 border-0"
                     value={newAddress}
                     onKeyUp={onKeyUp}

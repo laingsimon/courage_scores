@@ -3,14 +3,9 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
-    triggerMouseLeave,
-    triggerMouseMove,
 } from '../../helpers/tests';
 import { ISharedAddressProps, SharedAddress } from './SharedAddress';
 
@@ -64,13 +59,9 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            const addressBadges = Array.from(
-                context.container.querySelectorAll('button.badge'),
-            ) as HTMLButtonElement[];
+            const addressBadges = context.all('button.badge');
             expect(addressBadges).toEqual([]);
-            const newAddressBadge =
-                context.container.querySelector('span.badge');
-            expect(newAddressBadge).toBeTruthy();
+            context.required('span.badge');
         });
 
         it('single address item', async () => {
@@ -83,13 +74,9 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            const addressBadges = Array.from(
-                context.container.querySelectorAll('button.badge'),
-            ) as HTMLButtonElement[];
-            expect(addressBadges.map((b) => b.textContent)).toEqual(['A ×']);
-            const newAddressBadge =
-                context.container.querySelector('span.badge');
-            expect(newAddressBadge).toBeTruthy();
+            const addressBadges = context.all('button.badge');
+            expect(addressBadges.map((b) => b.text())).toEqual(['A ×']);
+            context.required('span.badge');
         });
 
         it('multiple address items', async () => {
@@ -102,13 +89,8 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            const addressBadges = Array.from(
-                context.container.querySelectorAll('button.badge'),
-            ) as HTMLButtonElement[];
-            expect(addressBadges.map((b) => b.textContent)).toEqual([
-                'A ×',
-                'B ×',
-            ]);
+            const addressBadges = context.all('button.badge');
+            expect(addressBadges.map((b) => b.text())).toEqual(['A ×', 'B ×']);
         });
 
         it('with correct className', async () => {
@@ -121,17 +103,14 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            const addressBadges = Array.from(
-                context.container.querySelectorAll('button.badge'),
-            ) as HTMLButtonElement[];
+            const addressBadges = context.all('button.badge');
             expect(
                 addressBadges.map(
-                    (b) => b.className.indexOf(' bg-warning') !== -1,
+                    (b) => b.className().indexOf(' bg-warning') !== -1,
                 ),
             ).toEqual([true]);
-            const newAddressBadge =
-                context.container.querySelector('span.badge')!;
-            expect(newAddressBadge.className).toContain(' bg-warning');
+            const newAddressBadge = context.required('span.badge');
+            expect(newAddressBadge.className()).toContain(' bg-warning');
         });
 
         it('with highlight', async () => {
@@ -144,9 +123,8 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            const newAddressBadge =
-                context.container.querySelector('button.badge')!;
-            expect(newAddressBadge.className).toContain(' bg-danger');
+            const newAddressBadge = context.required('button.badge');
+            expect(newAddressBadge.className()).toContain(' bg-danger');
         });
     });
 
@@ -161,8 +139,8 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            await doChange(context.container, 'input', 'B', context.user);
-            await doClick(findButton(context.container, '➕'));
+            await context.input('sharedAddress').change('B');
+            await context.button('➕').click();
 
             expect(updatedAddresses).toEqual(['A', 'B']);
         });
@@ -177,11 +155,8 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            await doChange(context.container, 'input', 'B', context.user);
-            await context.user!.type(
-                context.container.querySelector('input')!,
-                '{Enter}',
-            );
+            await context.input('sharedAddress').change('B');
+            await context.input('sharedAddress').type('{Enter}');
 
             expect(updatedAddresses).toEqual(['A', 'B']);
         });
@@ -196,10 +171,10 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            await doChange(context.container, 'input', 'B', context.user);
-            await doClick(findButton(context.container, '➕'));
+            await context.input('sharedAddress').change('B');
+            await context.button('➕').click();
 
-            expect(context.container.querySelector('input')!.value).toEqual('');
+            expect(context.input('sharedAddress').value()).toEqual('');
         });
 
         it('cannot add address with empty code (Button click)', async () => {
@@ -212,8 +187,8 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            await doChange(context.container, 'input', '', context.user);
-            await doClick(findButton(context.container, '➕'));
+            await context.input('sharedAddress').change('');
+            await context.button('➕').click();
 
             context.prompts.alertWasShown('Enter a code for the team');
         });
@@ -228,11 +203,8 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            await doChange(context.container, 'input', '', context.user);
-            await context.user!.type(
-                context.container.querySelector('input')!,
-                '{Enter}',
-            );
+            await context.input('sharedAddress').change('');
+            await context.input('sharedAddress').type('{Enter}');
 
             context.prompts.alertWasShown('Enter a code for the team');
         });
@@ -247,7 +219,7 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            await doClick(findButton(context.container, 'B ×'));
+            await context.button('B ×').click();
 
             expect(updatedAddresses).toEqual(['A']);
         });
@@ -262,7 +234,7 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            await doClick(findButton(context.container, 'A ×'));
+            await context.button('A ×').click();
 
             expect(updatedAddresses).toEqual([]);
         });
@@ -277,7 +249,7 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            await doClick(findButton(context.container, '🗑️ Remove'));
+            await context.button('🗑️ Remove').click();
 
             expect(deleted).toEqual(true);
         });
@@ -292,10 +264,7 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            await triggerMouseMove(
-                context.container.querySelector('button.badge')!,
-                true,
-            );
+            await context.required('button.badge').mouseMove(true);
 
             expect(highlightedMnemonic).toEqual('A');
         });
@@ -311,10 +280,7 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            await triggerMouseLeave(
-                context.container.querySelector('button.badge')!,
-                true,
-            );
+            await context.required('button.badge').mouseLeave(true);
 
             expect(highlightedMnemonic).toBeUndefined();
         });
@@ -330,10 +296,7 @@ describe('SharedAddress', () => {
                 setHighlight,
             });
 
-            await triggerMouseMove(
-                context.container.querySelector('button.badge')!,
-                false,
-            );
+            await context.required('button.badge').mouseMove();
 
             expect(highlightedMnemonic).toBeUndefined();
         });

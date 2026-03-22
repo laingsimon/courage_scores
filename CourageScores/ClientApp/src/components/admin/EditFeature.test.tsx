@@ -4,10 +4,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -81,11 +78,9 @@ describe('EditFeature', () => {
 
             await renderComponent({ feature, onChanged });
 
-            expect(context.container.textContent).toContain('FEATURE 1');
-            expect(context.container.textContent).toContain('FEATURE DESC');
-            expect(context.container.querySelector('input')!.value).toEqual(
-                'FOO',
-            );
+            expect(context.text()).toContain('FEATURE 1');
+            expect(context.text()).toContain('FEATURE DESC');
+            expect(context.input('configuredValue').value()).toEqual('FOO');
         });
 
         it('when unconfigured', async () => {
@@ -98,9 +93,9 @@ describe('EditFeature', () => {
 
             await renderComponent({ feature, onChanged });
 
-            expect(context.container.textContent).toContain('FEATURE 1');
-            expect(context.container.textContent).toContain('FEATURE DESC');
-            expect(context.container.querySelector('input')!.value).toEqual('');
+            expect(context.text()).toContain('FEATURE 1');
+            expect(context.text()).toContain('FEATURE DESC');
+            expect(context.input('configuredValue').value()).toEqual('');
         });
 
         it('boolean feature', async () => {
@@ -114,7 +109,7 @@ describe('EditFeature', () => {
 
             await renderComponent({ feature, onChanged });
 
-            const input = context.container.querySelector('input')!;
+            const input = context.required('input').element<HTMLInputElement>();
             expect(input.type).toEqual('checkbox');
             expect(input.checked).toEqual(true);
         });
@@ -130,7 +125,7 @@ describe('EditFeature', () => {
 
             await renderComponent({ feature, onChanged });
 
-            const input = context.container.querySelector('input')!;
+            const input = context.required('input').element<HTMLInputElement>();
             expect(input.type).toEqual('checkbox');
             expect(input.checked).toEqual(true);
         });
@@ -146,7 +141,7 @@ describe('EditFeature', () => {
 
             await renderComponent({ feature, onChanged });
 
-            const input = context.container.querySelector('input')!;
+            const input = context.required('input').element<HTMLInputElement>();
             expect(input.type).toEqual('number');
             expect(input.value).toEqual('5');
         });
@@ -162,7 +157,7 @@ describe('EditFeature', () => {
 
             await renderComponent({ feature, onChanged });
 
-            const input = context.container.querySelector('input')!;
+            const input = context.required('input').element<HTMLInputElement>();
             expect(input.type).toEqual('text');
             expect(input.value).toEqual('5.3');
             expect(input.placeholder).toEqual('A decimal number');
@@ -179,7 +174,7 @@ describe('EditFeature', () => {
 
             await renderComponent({ feature, onChanged });
 
-            const input = context.container.querySelector('input')!;
+            const input = context.required('input').element<HTMLInputElement>();
             expect(input.type).toEqual('text');
             expect(input.value).toEqual('FOO');
             expect(input.placeholder).toEqual('text');
@@ -196,10 +191,12 @@ describe('EditFeature', () => {
 
             await renderComponent({ feature, onChanged });
 
-            const day: HTMLInputElement =
-                context.container.querySelector('input[name="day"]')!;
-            const time: HTMLInputElement =
-                context.container.querySelector('input[name="time"]')!;
+            const day = context
+                .required('input[name="day"]')
+                .element<HTMLInputElement>();
+            const time = context
+                .required('input[name="time"]')
+                .element<HTMLInputElement>();
             expect(day.type).toEqual('number');
             expect(day.value).toEqual('0');
             expect(day.placeholder).toEqual('days');
@@ -218,10 +215,12 @@ describe('EditFeature', () => {
 
             await renderComponent({ feature, onChanged });
 
-            const day: HTMLInputElement =
-                context.container.querySelector('input[name="day"]')!;
-            const time: HTMLInputElement =
-                context.container.querySelector('input[name="time"]')!;
+            const day = context
+                .required('input[name="day"]')
+                .element<HTMLInputElement>();
+            const time = context
+                .required('input[name="time"]')
+                .element<HTMLInputElement>();
             expect(day.type).toEqual('number');
             expect(day.value).toEqual('1');
             expect(day.placeholder).toEqual('days');
@@ -240,7 +239,7 @@ describe('EditFeature', () => {
 
             await renderComponent({ feature, onChanged });
 
-            const input = context.container.querySelector('input')!;
+            const input = context.required('input').element<HTMLInputElement>();
             expect(input.type).toEqual('text');
             expect(input.value).toEqual('FOO');
             expect(input.placeholder).toEqual('A unknown');
@@ -257,8 +256,8 @@ describe('EditFeature', () => {
             };
             await renderComponent({ feature, onChanged });
 
-            await doChange(context.container, 'input', 'FOO', context.user);
-            await doClick(findButton(context.container, '💾'));
+            await context.required('input').change('FOO');
+            await context.button('💾').click();
 
             expect(updateRequest).toEqual({
                 id: feature.id,
@@ -276,8 +275,8 @@ describe('EditFeature', () => {
             };
             await renderComponent({ feature, onChanged });
 
-            await doChange(context.container, 'input', 'BAR', context.user);
-            await doClick(findButton(context.container, '💾'));
+            await context.required('input').change('BAR');
+            await context.button('💾').click();
 
             expect(updateRequest).toEqual({
                 id: feature.id,
@@ -295,8 +294,8 @@ describe('EditFeature', () => {
             };
             await renderComponent({ feature, onChanged });
 
-            await doChange(context.container, 'input', '', context.user);
-            await doClick(findButton(context.container, '💾'));
+            await context.required('input').change('');
+            await context.button('💾').click();
 
             expect(updateRequest).toEqual({
                 id: feature.id,
@@ -314,8 +313,8 @@ describe('EditFeature', () => {
             };
             await renderComponent({ feature, onChanged });
 
-            await doChange(context.container, 'input', 'BAR', context.user);
-            await doClick(findButton(context.container, '💾'));
+            await context.required('input').change('BAR');
+            await context.button('💾').click();
 
             expect(updateRequest).toEqual({
                 id: feature.id,
@@ -332,8 +331,8 @@ describe('EditFeature', () => {
             };
             await renderComponent({ feature, onChanged });
 
-            await doClick(context.container, 'input');
-            await doClick(findButton(context.container, '💾'));
+            await context.required('input').click();
+            await context.button('💾').click();
 
             expect(updateRequest).toEqual({
                 id: feature.id,
@@ -351,8 +350,8 @@ describe('EditFeature', () => {
             };
             await renderComponent({ feature, onChanged });
 
-            await doClick(context.container, 'input');
-            await doClick(findButton(context.container, '💾'));
+            await context.required('input').click();
+            await context.button('💾').click();
 
             expect(updateRequest).toEqual({
                 id: feature.id,
@@ -370,13 +369,8 @@ describe('EditFeature', () => {
             };
             await renderComponent({ feature, onChanged });
 
-            await doChange(
-                context.container,
-                'input[name="day"]',
-                '2',
-                context.user,
-            );
-            await doClick(findButton(context.container, '💾'));
+            await context.required('input[name="day"]').change('2');
+            await context.button('💾').click();
 
             expect(updateRequest).toEqual({
                 id: feature.id,
@@ -394,13 +388,8 @@ describe('EditFeature', () => {
             };
             await renderComponent({ feature, onChanged });
 
-            await doChange(
-                context.container,
-                'input[name="time"]',
-                '01:02:03',
-                context.user,
-            );
-            await doClick(findButton(context.container, '💾'));
+            await context.required('input[name="time"]').change('01:02:03');
+            await context.button('💾').click();
 
             expect(updateRequest).toEqual({
                 id: feature.id,
@@ -417,8 +406,8 @@ describe('EditFeature', () => {
             };
             await renderComponent({ feature, onChanged });
 
-            await doChange(context.container, 'input', 'FOO', context.user);
-            await doClick(findButton(context.container, '💾'));
+            await context.required('input').change('FOO');
+            await context.button('💾').click();
 
             expect(changed).toEqual(true);
         });
@@ -436,8 +425,8 @@ describe('EditFeature', () => {
                 warnings: ['SOME ERROR'],
             };
 
-            await doChange(context.container, 'input', 'FOO', context.user);
-            await doClick(findButton(context.container, '💾'));
+            await context.required('input').change('FOO');
+            await context.button('💾').click();
 
             reportedError.verifyErrorEquals(['SOME ERROR']);
             expect(changed).toEqual(false);

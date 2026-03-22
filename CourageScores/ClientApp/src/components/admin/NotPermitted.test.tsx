@@ -5,6 +5,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { NotPermitted } from './NotPermitted';
 import { IAppContainerProps } from '../common/AppContainer';
@@ -31,12 +32,9 @@ describe('NotPermitted', () => {
         it('renders login button', async () => {
             await renderComponent(appProps({}));
 
-            const loginLink = context.container.querySelector(
-                'a.btn',
-            ) as HTMLAnchorElement;
-            expect(loginLink).toBeTruthy();
-            expect(loginLink.textContent).toEqual('Login');
-            expect(loginLink.href).toEqual(
+            const loginLink = context.required('a.btn');
+            expect(loginLink.text()).toEqual('Login');
+            expect(loginLink.element<HTMLAnchorElement>().href).toEqual(
                 'https://localhost:7247/api/Account/Login/?redirectUrl=http://localhost/admin/not_permitted',
             );
         });
@@ -46,20 +44,15 @@ describe('NotPermitted', () => {
         it('renders home button', async () => {
             await renderComponent(
                 appProps({
-                    account: {
-                        name: '',
-                        emailAddress: '',
-                        givenName: '',
-                    },
+                    account: user({}),
                 }),
             );
 
-            const loginLink = context.container.querySelector(
-                'a.btn',
-            ) as HTMLAnchorElement;
-            expect(loginLink).toBeTruthy();
-            expect(loginLink.textContent).toEqual('Home');
-            expect(loginLink.href).toEqual('http://localhost/');
+            const loginLink = context.required('a.btn');
+            expect(loginLink.text()).toEqual('Home');
+            expect(loginLink.element<HTMLAnchorElement>().href).toEqual(
+                'http://localhost/',
+            );
         });
     });
 });

@@ -4,10 +4,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -74,54 +71,51 @@ describe('ExportData', () => {
         await renderComponent(props);
 
         reportedError.verifyNoError();
-        const tables = Array.from(context.container.querySelectorAll('ul li'));
-        expect(tables.map((t) => t.textContent)).toEqual([
-            'Table 1',
-            'Table 2',
-        ]);
+        const tables = context.all('ul li');
+        expect(tables.map((t) => t.text())).toEqual(['Table 1', 'Table 2']);
     });
 
     it('can select exportable table', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        const tables = Array.from(context.container.querySelectorAll('ul li'));
+        const tables = context.all('ul li');
         const table1 = tables.filter(
-            (t) => t.textContent!.indexOf('Table 1') !== -1,
+            (t) => t.text().indexOf('Table 1') !== -1,
         )[0];
         expect(table1).toBeTruthy();
-        expect(table1.className).toContain('active');
+        expect(table1.className()).toContain('active');
 
-        await doClick(table1);
+        await table1.click();
 
-        expect(table1.className).not.toContain('active');
+        expect(table1.className()).not.toContain('active');
     });
 
     it('cannot select non-exportable table', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        const tables = Array.from(context.container.querySelectorAll('ul li'));
+        const tables = context.all('ul li');
         const table2 = tables.filter(
-            (t) => t.textContent!.indexOf('Table 2') !== -1,
+            (t) => t.text().indexOf('Table 2') !== -1,
         )[0];
         expect(table2).toBeTruthy();
-        expect(table2.className).not.toContain('active');
+        expect(table2.className()).not.toContain('active');
 
-        await doClick(table2);
+        await table2.click();
 
-        expect(table2.className).not.toContain('active');
+        expect(table2.className()).not.toContain('active');
     });
 
     it('cannot export when no tables selected', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        const tables = Array.from(context.container.querySelectorAll('ul li'));
+        const tables = context.all('ul li');
         const table1 = tables.filter(
-            (t) => t.textContent!.indexOf('Table 1') !== -1,
+            (t) => t.text().indexOf('Table 1') !== -1,
         )[0];
-        expect(table1.className).toContain('active');
-        await doClick(table1); // deselect table 1
+        expect(table1.className()).toContain('active');
+        await table1.click(); // deselect table 1
 
-        await doClick(findButton(context.container, 'Export data'));
+        await context.button('Export data').click();
 
         reportedError.verifyNoError();
         expect(exportRequest).toBeNull();
@@ -131,14 +125,9 @@ describe('ExportData', () => {
     it('can export data with password', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        await doChange(
-            context.container,
-            'input[name="password"]',
-            'pass',
-            context.user,
-        );
+        await context.input('password').change('pass');
 
-        await doClick(findButton(context.container, 'Export data'));
+        await context.button('Export data').click();
 
         reportedError.verifyNoError();
         expect(exportRequest).toEqual({
@@ -152,7 +141,7 @@ describe('ExportData', () => {
         await renderComponent(props);
         reportedError.verifyNoError();
 
-        await doClick(findButton(context.container, 'Export data'));
+        await context.button('Export data').click();
 
         reportedError.verifyNoError();
         expect(exportRequest).toEqual({
@@ -165,9 +154,9 @@ describe('ExportData', () => {
     it('can export data without deleted entries', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        await doClick(context.container, 'input[name="includeDeletedEntries"]');
+        await context.input('includeDeletedEntries').click();
 
-        await doClick(findButton(context.container, 'Export data'));
+        await context.button('Export data').click();
 
         reportedError.verifyNoError();
         expect(exportRequest).toEqual({
@@ -186,13 +175,11 @@ describe('ExportData', () => {
                 zip: 'ZIP CONTENT',
             },
         };
-        await doClick(findButton(context.container, 'Export data'));
+        await context.button('Export data').click();
 
         reportedError.verifyNoError();
-        const downloadButton = context.container.querySelector(
-            'a[download="export.zip"]',
-        ) as HTMLAnchorElement;
-        expect(downloadButton.href).toEqual(
+        const downloadButton = context.required('a[download="export.zip"]');
+        expect(downloadButton.element<HTMLAnchorElement>().href).toEqual(
             'data:application/zip;base64,ZIP CONTENT',
         );
     });
@@ -202,28 +189,22 @@ describe('ExportData', () => {
         reportedError.verifyNoError();
         apiResponse = { success: false };
 
-        await doClick(findButton(context.container, 'Export data'));
+        await context.button('Export data').click();
 
         reportedError.verifyNoError();
         expect(exportRequest).not.toBeNull();
-        expect(context.container.textContent).toContain(
-            'Could not export data',
-        );
+        expect(context.text()).toContain('Could not export data');
     });
 
     it('can close error report from export', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
         apiResponse = { success: false };
-        await doClick(findButton(context.container, 'Export data'));
-        expect(context.container.textContent).toContain(
-            'Could not export data',
-        );
+        await context.button('Export data').click();
+        expect(context.text()).toContain('Could not export data');
 
-        await doClick(findButton(context.container, 'Close'));
+        await context.button('Close').click();
 
-        expect(context.container.textContent).not.toContain(
-            'Could not export data',
-        );
+        expect(context.text()).not.toContain('Could not export data');
     });
 });

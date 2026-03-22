@@ -3,9 +3,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -57,9 +55,8 @@ describe('TemplateDivisions', () => {
                 setHighlight,
             });
 
-            const prefix =
-                context.container.querySelector('ul li:first-child')!;
-            expect(prefix.textContent).toEqual('Divisions');
+            const prefix = context.required('ul li:first-child');
+            expect(prefix.text()).toEqual('Divisions');
         });
 
         it('when empty divisions', async () => {
@@ -71,9 +68,7 @@ describe('TemplateDivisions', () => {
                 setHighlight,
             });
 
-            const divisionElements = Array.from(
-                context.container.querySelectorAll('ul li'),
-            );
+            const divisionElements = context.all('ul li');
             expect(divisionElements.length).toEqual(1); // heading
         });
 
@@ -91,9 +86,8 @@ describe('TemplateDivisions', () => {
                 setHighlight,
             });
 
-            const divisionElement =
-                context.container.querySelector('ul li:nth-child(2)')!;
-            expect(divisionElement.textContent).toContain(
+            const divisionElement = context.required('ul li:nth-child(2)');
+            expect(divisionElement.text()).toContain(
                 'Division 1 (click to collapse)',
             );
         });
@@ -109,9 +103,7 @@ describe('TemplateDivisions', () => {
                 setHighlight,
             });
 
-            await doClick(
-                findButton(context.container, '➕ Add another division'),
-            );
+            await context.button('➕ Add another division').click();
 
             expect(update).toEqual([
                 {
@@ -135,7 +127,7 @@ describe('TemplateDivisions', () => {
                 setHighlight,
             });
 
-            await doClick(findButton(context.container, '🗑️ Remove division'));
+            await context.button('🗑️ Remove division').click();
 
             expect(update).toEqual([]);
         });
@@ -158,12 +150,10 @@ describe('TemplateDivisions', () => {
                 setHighlight,
             });
 
-            await doClick(
-                findButton(
-                    context.container.querySelector('ul>li:nth-child(2)'),
-                    '➕ Add a week',
-                ),
-            );
+            await context
+                .required('ul>li:nth-child(2)')
+                .button('➕ Add a week')
+                .click();
 
             expect(update).toEqual([
                 {
@@ -207,7 +197,7 @@ describe('TemplateDivisions', () => {
                 setHighlight,
             });
 
-            await doClick(findButton(context.container, 'Copy to division 2'));
+            await context.button('Copy to division 2').click();
 
             expect(update).toEqual([
                 {

@@ -5,10 +5,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
     ErrorState,
-    findButton,
     iocProps,
     noop,
     renderApp,
@@ -107,40 +104,28 @@ describe('Templates', () => {
             await renderComponent();
 
             reportedError.verifyNoError();
-            const templateItems = Array.from(
-                context.container.querySelectorAll(
-                    'ul[datatype="templates"] .list-group-item',
-                ),
+            const templateItems = context.all(
+                'ul[datatype="templates"] .list-group-item',
             );
             expect(
-                templateItems.map(
-                    (li) => li.querySelector('label')!.textContent,
-                ),
+                templateItems.map((li) => li.required('label').text()),
             ).toEqual(['TEMPLATE']);
             expect(
-                templateItems.map(
-                    (li) => li.querySelector('small')!.textContent,
-                ),
+                templateItems.map((li) => li.required('small').text()),
             ).toEqual(['DESCRIPTION']);
             expect(
                 templateItems.map((li) =>
-                    Array.from(li.querySelectorAll('span.bg-danger')).map(
-                        (s) => s.textContent,
-                    ),
+                    li.all('span.bg-danger').map((s) => s.text()),
                 ),
             ).toEqual([[]]);
             expect(
                 templateItems.map((li) =>
-                    Array.from(li.querySelectorAll('span.bg-warning')).map(
-                        (s) => s.textContent,
-                    ),
+                    li.all('span.bg-warning').map((s) => s.text()),
                 ),
             ).toEqual([[]]);
             expect(
                 templateItems.map((li) =>
-                    Array.from(li.querySelectorAll('span.bg-success')).map(
-                        (s) => s.textContent,
-                    ),
+                    li.all('span.bg-success').map((s) => s.text()),
                 ),
             ).toEqual([[]]);
         });
@@ -158,14 +143,12 @@ describe('Templates', () => {
             await renderComponent('?select=' + template.id);
 
             reportedError.verifyNoError();
-            const templateItems = Array.from(
-                context.container.querySelectorAll(
-                    'ul[datatype="templates"] .list-group-item',
-                ),
+            const templateItems = context.all(
+                'ul[datatype="templates"] .list-group-item',
             );
             expect(
                 templateItems.map(
-                    (li) => li.className.indexOf('active') !== -1,
+                    (li) => li.className().indexOf('active') !== -1,
                 ),
             ).toEqual([true]);
         });
@@ -183,14 +166,12 @@ describe('Templates', () => {
             await renderComponent('?select=' + template.name);
 
             reportedError.verifyNoError();
-            const templateItems = Array.from(
-                context.container.querySelectorAll(
-                    'ul[datatype="templates"] .list-group-item',
-                ),
+            const templateItems = context.all(
+                'ul[datatype="templates"] .list-group-item',
             );
             expect(
                 templateItems.map(
-                    (li) => li.className.indexOf('active') !== -1,
+                    (li) => li.className().indexOf('active') !== -1,
                 ),
             ).toEqual([true]);
         });
@@ -205,38 +186,26 @@ describe('Templates', () => {
             await renderComponent();
 
             reportedError.verifyNoError();
-            const templateItems = Array.from(
-                context.container.querySelectorAll(
-                    '.list-group .list-group-item',
-                ),
-            );
+            const templateItems = context.all('.list-group .list-group-item');
             expect(
-                templateItems.map(
-                    (li) => li.querySelector('label')!.textContent,
-                ),
+                templateItems.map((li) => li.required('label').text()),
             ).toEqual(['TEMPLATE']);
-            expect(
-                templateItems.map((li) => li.querySelector('small')),
-            ).toEqual([null]);
+            expect(templateItems.map((li) => li.optional('small'))).toEqual([
+                undefined,
+            ]);
             expect(
                 templateItems.map((li) =>
-                    Array.from(li.querySelectorAll('span.bg-danger')).map(
-                        (s) => s.textContent,
-                    ),
+                    li.all('span.bg-danger').map((s) => s.text()),
                 ),
             ).toEqual([[]]);
             expect(
                 templateItems.map((li) =>
-                    Array.from(li.querySelectorAll('span.bg-warning')).map(
-                        (s) => s.textContent,
-                    ),
+                    li.all('span.bg-warning').map((s) => s.text()),
                 ),
             ).toEqual([[]]);
             expect(
                 templateItems.map((li) =>
-                    Array.from(li.querySelectorAll('span.bg-success')).map(
-                        (s) => s.textContent,
-                    ),
+                    li.all('span.bg-success').map((s) => s.text()),
                 ),
             ).toEqual([[]]);
         });
@@ -255,35 +224,23 @@ describe('Templates', () => {
             await renderComponent();
 
             reportedError.verifyNoError();
-            const templateItems = Array.from(
-                context.container.querySelectorAll(
-                    '.list-group .list-group-item',
-                ),
-            );
+            const templateItems = context.all('.list-group .list-group-item');
             expect(
-                templateItems.map(
-                    (li) => li.querySelector('label')!.textContent,
-                ),
+                templateItems.map((li) => li.required('label').text()),
             ).toEqual(['TEMPLATE']);
             expect(
                 templateItems.map((li) =>
-                    Array.from(li.querySelectorAll('span.bg-danger')).map(
-                        (s) => s.textContent,
-                    ),
+                    li.all('span.bg-danger').map((s) => s.text()),
                 ),
             ).toEqual([['1']]);
             expect(
                 templateItems.map((li) =>
-                    Array.from(li.querySelectorAll('span.bg-warning')).map(
-                        (s) => s.textContent,
-                    ),
+                    li.all('span.bg-warning').map((s) => s.text()),
                 ),
             ).toEqual([[]]);
             expect(
                 templateItems.map((li) =>
-                    Array.from(li.querySelectorAll('span.bg-success')).map(
-                        (s) => s.textContent,
-                    ),
+                    li.all('span.bg-success').map((s) => s.text()),
                 ),
             ).toEqual([[]]);
         });
@@ -308,35 +265,23 @@ describe('Templates', () => {
             await renderComponent();
 
             reportedError.verifyNoError();
-            const templateItems = Array.from(
-                context.container.querySelectorAll(
-                    '.list-group .list-group-item',
-                ),
-            );
+            const templateItems = context.all('.list-group .list-group-item');
             expect(
-                templateItems.map(
-                    (li) => li.querySelector('label')!.textContent,
-                ),
+                templateItems.map((li) => li.required('label').text()),
             ).toEqual(['TEMPLATE']);
             expect(
                 templateItems.map((li) =>
-                    Array.from(li.querySelectorAll('span.bg-danger')).map(
-                        (s) => s.textContent,
-                    ),
+                    li.all('span.bg-danger').map((s) => s.text()),
                 ),
             ).toEqual([['1']]);
             expect(
                 templateItems.map((li) =>
-                    Array.from(li.querySelectorAll('span.bg-warning')).map(
-                        (s) => s.textContent,
-                    ),
+                    li.all('span.bg-warning').map((s) => s.text()),
                 ),
             ).toEqual([[]]);
             expect(
                 templateItems.map((li) =>
-                    Array.from(li.querySelectorAll('span.bg-success')).map(
-                        (s) => s.textContent,
-                    ),
+                    li.all('span.bg-success').map((s) => s.text()),
                 ),
             ).toEqual([[]]);
         });
@@ -361,35 +306,23 @@ describe('Templates', () => {
             await renderComponent();
 
             reportedError.verifyNoError();
-            const templateItems = Array.from(
-                context.container.querySelectorAll(
-                    '.list-group .list-group-item',
-                ),
-            );
+            const templateItems = context.all('.list-group .list-group-item');
             expect(
-                templateItems.map(
-                    (li) => li.querySelector('label')!.textContent,
-                ),
+                templateItems.map((li) => li.required('label').text()),
             ).toEqual(['TEMPLATE']);
             expect(
                 templateItems.map((li) =>
-                    Array.from(li.querySelectorAll('span.bg-danger')).map(
-                        (s) => s.textContent,
-                    ),
+                    li.all('span.bg-danger').map((s) => s.text()),
                 ),
             ).toEqual([[]]);
             expect(
                 templateItems.map((li) =>
-                    Array.from(li.querySelectorAll('span.bg-warning')).map(
-                        (s) => s.textContent,
-                    ),
+                    li.all('span.bg-warning').map((s) => s.text()),
                 ),
             ).toEqual([['1']]);
             expect(
                 templateItems.map((li) =>
-                    Array.from(li.querySelectorAll('span.bg-success')).map(
-                        (s) => s.textContent,
-                    ),
+                    li.all('span.bg-success').map((s) => s.text()),
                 ),
             ).toEqual([[]]);
         });
@@ -414,35 +347,23 @@ describe('Templates', () => {
             await renderComponent();
 
             reportedError.verifyNoError();
-            const templateItems = Array.from(
-                context.container.querySelectorAll(
-                    '.list-group .list-group-item',
-                ),
-            );
+            const templateItems = context.all('.list-group .list-group-item');
             expect(
-                templateItems.map(
-                    (li) => li.querySelector('label')!.textContent,
-                ),
+                templateItems.map((li) => li.required('label').text()),
             ).toEqual(['TEMPLATE']);
             expect(
                 templateItems.map((li) =>
-                    Array.from(li.querySelectorAll('span.bg-danger')).map(
-                        (s) => s.textContent,
-                    ),
+                    li.all('span.bg-danger').map((s) => s.text()),
                 ),
             ).toEqual([[]]);
             expect(
                 templateItems.map((li) =>
-                    Array.from(li.querySelectorAll('span.bg-warning')).map(
-                        (s) => s.textContent,
-                    ),
+                    li.all('span.bg-warning').map((s) => s.text()),
                 ),
             ).toEqual([[]]);
             expect(
                 templateItems.map((li) =>
-                    Array.from(li.querySelectorAll('span.bg-success')).map(
-                        (s) => s.textContent,
-                    ),
+                    li.all('span.bg-success').map((s) => s.text()),
                 ),
             ).toEqual([['1']]);
         });
@@ -460,19 +381,16 @@ describe('Templates', () => {
             await renderComponent();
             reportedError.verifyNoError();
 
-            await doClick(
-                context.container,
-                '.list-group .list-group-item:first-child',
-            );
-            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
+            await context
+                .required('.list-group .list-group-item:first-child')
+                .click();
+            await context.input('editorFormat').click(); // switch to text editor
 
             reportedError.verifyNoError();
-            const templateItems = Array.from(
-                context.container.querySelectorAll(
-                    'ul[datatype="templates"] .list-group-item',
-                ),
+            const templateItems = context.all(
+                'ul[datatype="templates"] .list-group-item',
             );
-            expect(templateItems.map((li) => li.className)).toEqual([
+            expect(templateItems.map((li) => li.className())).toEqual([
                 'list-group-item flex-column active',
             ]);
         });
@@ -488,25 +406,19 @@ describe('Templates', () => {
             await renderComponent();
             reportedError.verifyNoError();
 
-            await doClick(
-                context.container,
-                '.list-group .list-group-item:first-child',
-            );
-            await doClick(
-                context.container,
-                '.list-group .list-group-item:first-child',
-            );
+            await context
+                .required('.list-group .list-group-item:first-child')
+                .click();
+            await context
+                .required('.list-group .list-group-item:first-child')
+                .click();
 
             reportedError.verifyNoError();
-            const templateItems = Array.from(
-                context.container.querySelectorAll(
-                    '.list-group .list-group-item',
-                ),
-            );
-            expect(templateItems.map((li) => li.className)).toEqual([
+            const templateItems = context.all('.list-group .list-group-item');
+            expect(templateItems.map((li) => li.className())).toEqual([
                 'list-group-item flex-column',
             ]);
-            expect(context.container.querySelector('textarea')).toBeFalsy();
+            expect(context.optional('textarea')).toBeFalsy();
         });
 
         it('can save template', async () => {
@@ -519,12 +431,11 @@ describe('Templates', () => {
             };
             templates = [template];
             await renderComponent();
-            await doClick(
-                context.container,
-                '.list-group .list-group-item:first-child',
-            );
+            await context
+                .required('.list-group .list-group-item:first-child')
+                .click();
 
-            await doClick(findButton(context.container, 'Save'));
+            await context.button('Save').click();
 
             reportedError.verifyNoError();
             expect(updated).toEqual({
@@ -547,13 +458,12 @@ describe('Templates', () => {
             };
             templates = [template];
             await renderComponent();
-            await doClick(
-                context.container,
-                '.list-group .list-group-item:first-child',
-            );
-            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
+            await context
+                .required('.list-group .list-group-item:first-child')
+                .click();
+            await context.input('editorFormat').click(); // switch to text editor
 
-            await doChange(context.container, 'textarea', '{}', context.user);
+            await context.required('textarea').change('{}');
 
             reportedError.verifyNoError();
         });
@@ -568,11 +478,10 @@ describe('Templates', () => {
             };
             templates = [template];
             await renderComponent();
-            await doClick(
-                context.container,
-                '.list-group .list-group-item:first-child',
-            );
-            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
+            await context
+                .required('.list-group .list-group-item:first-child')
+                .click();
+            await context.input('editorFormat').click(); // switch to text editor
             const health: SeasonHealthCheckResultDto = {
                 checks: {},
                 errors: [],
@@ -584,13 +493,13 @@ describe('Templates', () => {
                 result: health,
             };
 
-            await doChange(context.container, 'textarea', '{}', context.user);
+            await context.required('textarea').change('{}');
 
             reportedError.verifyNoError();
-            const healthCheck = context.container.querySelector(
+            const healthCheck = context.required(
                 'div[datatype="view-health-check"]',
-            )!;
-            expect(healthCheck.textContent).toContain('UPDATED HEALTH');
+            );
+            expect(healthCheck.text()).toContain('UPDATED HEALTH');
         });
 
         it('prevents saving an invalid template', async () => {
@@ -604,23 +513,15 @@ describe('Templates', () => {
             };
             templates = [template];
             await renderComponent();
-            await doClick(
-                context.container,
-                '.list-group .list-group-item:first-child',
-            );
-            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
+            await context
+                .required('.list-group .list-group-item:first-child')
+                .click();
+            await context.input('editorFormat').click(); // switch to text editor
 
-            await doChange(
-                context.container,
-                'textarea',
-                'invalid json',
-                context.user,
-            );
+            await context.required('textarea').change('invalid json');
 
             reportedError.verifyNoError();
-            expect(findButton(context.container, 'Save').disabled).toEqual(
-                true,
-            );
+            expect(context.button('Save').enabled()).toEqual(false);
         });
 
         it('does not delete template', async () => {
@@ -632,16 +533,15 @@ describe('Templates', () => {
             };
             templates = [template];
             await renderComponent();
-            await doClick(
-                context.container,
-                '.list-group .list-group-item:first-child',
-            );
+            await context
+                .required('.list-group .list-group-item:first-child')
+                .click();
             context.prompts.respondToConfirm(
                 'Are you sure you want to delete this template?',
                 false,
             );
 
-            await doClick(findButton(context.container, 'Delete'));
+            await context.button('Delete').click();
 
             reportedError.verifyNoError();
         });
@@ -655,16 +555,15 @@ describe('Templates', () => {
             };
             templates = [template];
             await renderComponent();
-            await doClick(
-                context.container,
-                '.list-group .list-group-item:first-child',
-            );
+            await context
+                .required('.list-group .list-group-item:first-child')
+                .click();
             context.prompts.respondToConfirm(
                 'Are you sure you want to delete this template?',
                 true,
             );
 
-            await doClick(findButton(context.container, 'Delete'));
+            await context.button('Delete').click();
 
             reportedError.verifyNoError();
             context.prompts.confirmWasShown(
@@ -683,23 +582,22 @@ describe('Templates', () => {
             templates = [template];
             await renderComponent();
 
-            await doClick(findButton(context.container, 'Add'));
-            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
+            await context.button('Add').click();
+            await context.input('editorFormat').click(); // switch to text editor
 
             reportedError.verifyNoError();
-            expect(
-                JSON.parse(context.container.querySelector('textarea')!.value),
-            ).toEqual({ sharedAddresses: [], divisions: [] });
-            expect(
-                context.container.querySelector('button.bg-danger'),
-            ).toBeFalsy();
+            expect(JSON.parse(context.required('textarea').value())).toEqual({
+                sharedAddresses: [],
+                divisions: [],
+            });
+            expect(context.optional('button.bg-danger')).toBeFalsy();
         });
 
         it('can save new template', async () => {
             await renderComponent();
-            await doClick(findButton(context.container, 'Add'));
+            await context.button('Add').click();
 
-            await doClick(findButton(context.container, 'Save'));
+            await context.button('Save').click();
 
             reportedError.verifyNoError();
             expect(updated).toEqual({
@@ -719,27 +617,25 @@ describe('Templates', () => {
             };
             templates = [template];
             await renderComponent();
-            await doClick(findButton(context.container, 'Add'));
-            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
+            await context.button('Add').click();
+            await context.input('editorFormat').click(); // switch to text editor
 
-            await doChange(context.container, 'textarea', '', context.user);
+            await context.required('textarea').change('');
 
             reportedError.verifyNoError();
-            expect(findButton(context.container, 'Save')).toBeTruthy();
+            expect(context.button('Save')).toBeTruthy();
         });
 
         it('handles error during save', async () => {
             await renderComponent();
-            await doClick(findButton(context.container, 'Add'));
+            await context.button('Add').click();
             apiResponse = { success: false, errors: ['ERROR '] };
 
-            await doClick(findButton(context.container, 'Save'));
+            await context.button('Save').click();
 
             reportedError.verifyNoError();
-            expect(context.container.textContent).toContain(
-                'Could not save template',
-            );
-            expect(context.container.textContent).toContain('ERROR');
+            expect(context.text()).toContain('Could not save template');
+            expect(context.text()).toContain('ERROR');
         });
 
         it('handles error during delete', async () => {
@@ -751,40 +647,33 @@ describe('Templates', () => {
             };
             templates = [template];
             await renderComponent();
-            await doClick(
-                context.container,
-                '.list-group .list-group-item:first-child',
-            );
+            await context
+                .required('.list-group .list-group-item:first-child')
+                .click();
             context.prompts.respondToConfirm(
                 'Are you sure you want to delete this template?',
                 true,
             );
             apiResponse = { success: false, errors: ['ERROR '] };
 
-            await doClick(findButton(context.container, 'Delete'));
+            await context.button('Delete').click();
 
             expect(deleted).toEqual(template.id);
             reportedError.verifyNoError();
-            expect(context.container.textContent).toContain(
-                'Could not save template',
-            );
-            expect(context.container.textContent).toContain('ERROR');
+            expect(context.text()).toContain('Could not save template');
+            expect(context.text()).toContain('ERROR');
         });
 
         it('can close error dialog after save failure', async () => {
             await renderComponent();
-            await doClick(findButton(context.container, 'Add'));
+            await context.button('Add').click();
             apiResponse = { success: false, errors: ['ERROR '] };
-            await doClick(findButton(context.container, 'Save'));
-            expect(context.container.textContent).toContain(
-                'Could not save template',
-            );
+            await context.button('Save').click();
+            expect(context.text()).toContain('Could not save template');
 
-            await doClick(findButton(context.container, 'Close'));
+            await context.button('Close').click();
 
-            expect(context.container.textContent).not.toContain(
-                'Could not save template',
-            );
+            expect(context.text()).not.toContain('Could not save template');
         });
     });
 });

@@ -2,7 +2,6 @@
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
     ErrorState,
     iocProps,
     renderApp,
@@ -66,8 +65,8 @@ describe('TableSelection', () => {
             onTableChange,
         });
 
-        const items = Array.from(context.container.querySelectorAll('li'));
-        const itemText = items.map((i) => i.textContent);
+        const items = context.all('li');
+        const itemText = items.map((i) => i.text());
         expect(itemText).toEqual(['A', 'B']);
     });
 
@@ -80,8 +79,8 @@ describe('TableSelection', () => {
             onTableChange,
         });
 
-        const items = Array.from(context.container.querySelectorAll('li'));
-        expect(items[0].className).toContain('active');
+        const items = context.all('li');
+        expect(items[0].className()).toContain('active');
     });
 
     it('renders tables loading', async () => {
@@ -92,8 +91,8 @@ describe('TableSelection', () => {
             onTableChange,
         });
 
-        const items = Array.from(context.container.querySelectorAll('li'));
-        expect(items[0].textContent).toEqual('Loading tables...');
+        const items = context.all('li');
+        expect(items[0].text()).toEqual('Loading tables...');
     });
 
     it('can select table', async () => {
@@ -104,9 +103,9 @@ describe('TableSelection', () => {
             requireCanImport: false,
             onTableChange,
         });
-        const items = Array.from(context.container.querySelectorAll('li'));
+        const items = context.all('li');
 
-        await doClick(items[0]);
+        await items[0].click();
 
         expect(tableChanged).toEqual(['A']);
     });
@@ -119,9 +118,9 @@ describe('TableSelection', () => {
             requireCanImport: false,
             onTableChange,
         });
-        const items = Array.from(context.container.querySelectorAll('li'));
+        const items = context.all('li');
 
-        await doClick(items[0]);
+        await items[0].click();
 
         expect(tableChanged).toEqual(['B']);
     });
@@ -134,9 +133,9 @@ describe('TableSelection', () => {
             requireCanImport: true,
             onTableChange,
         });
-        const items = Array.from(context.container.querySelectorAll('li'));
+        const items = context.all('li');
 
-        await doClick(items[0]);
+        await items[0].click();
 
         expect(tableChanged).toBeNull();
     });
@@ -149,9 +148,9 @@ describe('TableSelection', () => {
             requireCanImport: false,
             onTableChange,
         });
-        const items = Array.from(context.container.querySelectorAll('li'));
+        const items = context.all('li');
 
-        await doClick(items[0]);
+        await items[0].click();
 
         expect(tableChanged).toBeNull();
     });

@@ -7,10 +7,8 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
     ErrorState,
-    findButton,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -63,26 +61,21 @@ describe('Errors', () => {
 
     async function clickRefresh(since: string, apiResults: ErrorDetailDto[]) {
         recentMap[since] = apiResults;
-        await doClick(findButton(context.container, 'Refresh'));
+        await context.button('Refresh').click();
     }
 
     async function setDate(since: string) {
         // since must be a date (otherwise event will fire with an empty string)
-        await doChange(
-            context.container,
-            '.content-background .input-group input.form-control',
-            since,
-            context.user,
-        );
+        await context.input('date').change(since);
     }
 
     async function clickErrorItem(index: number) {
-        const listItems = context.container.querySelectorAll(
-            `.content-background .list-group li.list-group-item`,
+        const listItems = context.all(
+            '.content-background .list-group li.list-group-item',
         );
         const clickEvent = new MouseEvent('click', { bubbles: true });
         await act(async () => {
-            listItems[index].dispatchEvent(clickEvent);
+            listItems[index].element().dispatchEvent(clickEvent);
         });
     }
 
@@ -106,57 +99,45 @@ describe('Errors', () => {
         assertStack(stack);
     }
 
-    function getDetailsContainer(): HTMLElement {
-        const detailsContainer = context.container.querySelector(
-            `.content-background div.overflow-auto`,
-        ) as HTMLElement;
-        expect(detailsContainer).toBeTruthy();
-        return detailsContainer;
+    function getDetailsContainer() {
+        return context.required('.content-background div.overflow-auto');
     }
 
     function assertTitle(time: string) {
-        const title = getDetailsContainer().querySelector(
-            `h6`,
-        ) as HTMLHeadingElement;
-        expect(title.innerHTML).toEqual(
+        const title = getDetailsContainer().required('h6');
+        expect(title.html()).toEqual(
             `Error details @ ${new Date(time).toLocaleString()}`,
         );
     }
 
     function assertUrl(url?: string) {
-        const ps = Array.from(
-            getDetailsContainer().querySelectorAll('p'),
-        ) as HTMLElement[];
-        const urlP = ps.filter((p) => p.innerHTML.indexOf('Url') !== -1)[0];
+        const ps = getDetailsContainer().all('p');
+        const urlP = ps.filter((p) => p.html().indexOf('Url') !== -1)[0];
         if (url) {
             expect(urlP).toBeTruthy();
-            expect(urlP.innerHTML).toContain(url);
+            expect(urlP.html()).toContain(url);
         } else {
             expect(urlP).toBeFalsy();
         }
     }
 
     function assertType(type?: string) {
-        const ps = Array.from(
-            getDetailsContainer().querySelectorAll('p'),
-        ) as HTMLElement[];
-        const typeP = ps.filter((p) => p.innerHTML.indexOf('Type') !== -1)[0];
+        const ps = getDetailsContainer().all('p');
+        const typeP = ps.filter((p) => p.html().indexOf('Type') !== -1)[0];
         if (type) {
             expect(typeP).toBeTruthy();
-            expect(typeP.innerHTML).toContain(type);
+            expect(typeP.html()).toContain(type);
         } else {
             expect(typeP).toBeFalsy();
         }
     }
 
     function assertStack(stack?: string[]) {
-        const stackList = getDetailsContainer().querySelector(
-            'ol',
-        ) as HTMLElement;
+        const stackList = getDetailsContainer().optional('ol');
         if (stack) {
             expect(stackList).toBeTruthy();
             all(stack, (item: string) => {
-                expect(stackList.innerHTML).toContain(item);
+                expect(stackList!.html()).toContain(item);
                 return true;
             });
         } else {
@@ -164,23 +145,20 @@ describe('Errors', () => {
         }
     }
 
-    function assertResults(count: number): HTMLElement[] {
-        const resultsContainer = context.container.querySelector(
-            `.content-background .list-group`,
-        ) as HTMLElement;
-        expect(resultsContainer).not.toBeNull();
-        const results = Array.from(
-            resultsContainer.querySelectorAll(`li`),
-        ) as HTMLElement[];
+    function assertResults(count: number): IComponent[] {
+        const resultsContainer = context.required(
+            '.content-background .list-group',
+        );
+        const results = resultsContainer.all('li');
         expect(results.length).toEqual(count);
         return results;
     }
 
-    function assertListItem(li: HTMLElement, { time, message, source }) {
-        expect(li.innerHTML).toContain(message);
-        expect(li.innerHTML).toContain(new Date(time).toLocaleTimeString());
-        expect(li.innerHTML).toContain(new Date(time).toLocaleDateString());
-        expect(li.querySelector('.badge')!.innerHTML).toEqual(source);
+    function assertListItem(li: IComponent, { time, message, source }) {
+        expect(li.html()).toContain(message);
+        expect(li.html()).toContain(new Date(time).toLocaleTimeString());
+        expect(li.html()).toContain(new Date(time).toLocaleDateString());
+        expect(li.required('.badge').html()).toEqual(source);
     }
 
     it('shows no results on load', async () => {
@@ -231,10 +209,10 @@ describe('Errors', () => {
 
         const results = assertResults(2);
         const apiItem = results.filter(
-            (li) => li.innerHTML.indexOf('message1') !== -1,
+            (li) => li.html().indexOf('message1') !== -1,
         )[0];
         const uiItem = results.filter(
-            (li) => li.innerHTML.indexOf('message2') !== -1,
+            (li) => li.html().indexOf('message2') !== -1,
         )[0];
         assertListItem(apiItem, apiError);
         assertListItem(uiItem, uiError);
