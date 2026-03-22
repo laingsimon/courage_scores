@@ -40,6 +40,13 @@ import { START_SCORING } from './tournaments';
 import { tournamentContainerPropsBuilder } from './tournamentContainerPropsBuilder';
 import { BuilderParam } from '../../helpers/builders/builders';
 
+const mockedUsedNavigate = jest.fn();
+
+jest.mock('react-router', () => ({
+    ...jest.requireActual('react-router'),
+    useNavigate: () => mockedUsedNavigate,
+}));
+
 describe('MatchSayg', () => {
     let context: TestContext;
     let reportedError: ErrorState;
@@ -51,7 +58,8 @@ describe('MatchSayg', () => {
     }[];
     let tournamentSaved: { preventLoading?: boolean } | null;
     let addedSayg: { id: string; saygRequest: CreateTournamentSaygDto } | null;
-    let apiResponse: IClientActionResultDto<TournamentGameDto> | null = null;
+    let apiResponse: (() => IClientActionResultDto<TournamentGameDto>) | null =
+        null;
     let saygApiResponse: IClientActionResultDto<RecordedScoreAsYouGoDto> | null =
         null;
     let saygDataLookup: { [id: string]: RecordedScoreAsYouGoDto };
@@ -64,7 +72,7 @@ describe('MatchSayg', () => {
         ): Promise<IClientActionResultDto<TournamentGameDto>> {
             addedSayg = { id, saygRequest };
             return (
-                apiResponse || {
+                apiResponse?.() || {
                     success: true,
                     result: {
                         id: id,
@@ -81,7 +89,7 @@ describe('MatchSayg', () => {
         ): Promise<IClientActionResultDto<TournamentGameDto>> {
             deletedSayg = { id, matchId };
             return (
-                apiResponse || {
+                apiResponse?.() || {
                     success: true,
                     result: {
                         id,
@@ -143,12 +151,14 @@ describe('MatchSayg', () => {
         apiResponse = null;
         saygDataLookup = {};
         deletedSayg = null;
+        jest.resetAllMocks();
     });
 
     async function renderComponent(
         containerProps: ITournamentContainerProps,
         props: IMatchSaygProps,
         account?: UserDto,
+        path?: string,
     ) {
         context = await renderApp(
             iocProps({ tournamentApi, saygApi }),
@@ -157,6 +167,8 @@ describe('MatchSayg', () => {
             <TournamentContainer {...containerProps}>
                 <MatchSayg {...props} />
             </TournamentContainer>,
+            '/test',
+            path || '/test',
         );
         reportedError.verifyNoError();
     }
@@ -301,7 +313,6 @@ describe('MatchSayg', () => {
                 }),
             );
 
-            expect(context.container.innerHTML).toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
@@ -316,7 +327,6 @@ describe('MatchSayg', () => {
                 notPermitted,
             );
 
-            expect(context.container.innerHTML).toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
@@ -495,6 +505,7 @@ describe('MatchSayg', () => {
                 containerProps.withTournament(tournamentData).build(),
                 matchSaygProps({ match, matchOptions, readOnly }),
                 permitted,
+                `/test/#${match.saygId}`,
             );
             await doClick(findButton(context.container, START_SCORING));
 
@@ -615,10 +626,10 @@ describe('MatchSayg', () => {
                 }),
                 permitted,
             );
-            apiResponse = {
+            apiResponse = () => ({
                 success: false,
                 errors: ['SOME ERROR'],
-            };
+            });
 
             await doClick(findButton(context.container, START_SCORING));
 
@@ -628,10 +639,22 @@ describe('MatchSayg', () => {
         });
 
         it('updates tournament data and shows dialog once data created', async () => {
+            const tournamentData = tournamentBuilder()
+                .round((b) => b.withMatch((m) => m.sideA(sideA).sideB(sideB)))
+                .build();
+            const saygId = createTemporaryId();
+            apiResponse = () => {
+                tournamentData.round!.matches![0].saygId = saygId;
+
+                return {
+                    success: true,
+                    result: tournamentData,
+                };
+            };
             await renderComponent(
-                containerProps.withTournament(sideASideBTournament).build(),
+                containerProps.withTournament(tournamentData).build(),
                 matchSaygProps({
-                    match: sideASideBTournament.round?.matches![0]!,
+                    match: tournamentData.round?.matches![0],
                     matchOptions,
                 }),
                 permitted,
@@ -640,13 +663,8 @@ describe('MatchSayg', () => {
             await doClick(findButton(context.container, START_SCORING));
 
             reportedError.verifyNoError();
-            expect(updatedTournament).toEqual({
-                id: sideASideBTournament.id,
-                type: 'SAYG ADDED',
-                address: '',
-                date: '',
-            });
-            expect(dialog()).toBeTruthy();
+            expect(updatedTournament).toEqual(tournamentData);
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/test#${saygId}`);
         });
 
         it('does not show live link in dialog if sideA won', async () => {
@@ -685,6 +703,7 @@ describe('MatchSayg', () => {
                     matchOptions,
                 }),
                 permitted,
+                `/test/#${sayg.id}`,
             );
             const createDataButton = context.container.querySelector('button')!;
             expect(createDataButton.textContent).toEqual('📊 3 - 0');
@@ -734,6 +753,7 @@ describe('MatchSayg', () => {
                     matchOptions,
                 }),
                 permitted,
+                `/test/#${sayg.id}`,
             );
             const createDataButton = context.container.querySelector('button')!;
             expect(createDataButton.textContent).toEqual('📊 0 - 3');
@@ -764,12 +784,12 @@ describe('MatchSayg', () => {
                     matchOptions,
                 }),
                 permitted,
+                `/test/#${saygId}`,
             );
-            await doClick(findButton(context.container, START_SCORING));
 
             await doClick(findButton(dialog(), 'Close'));
 
-            expect(dialog()).toBeFalsy();
+            expect(mockedUsedNavigate).toHaveBeenCalledWith('/test/');
         });
 
         it('can patch data with updated score', async () => {
@@ -955,6 +975,7 @@ describe('MatchSayg', () => {
                     matchOptions,
                 }),
                 permittedWithDebug,
+                `/test/#${saygData.id}`,
             );
             await doClick(findButton(context.container, START_SCORING));
             context.prompts.respondToConfirm(
@@ -993,8 +1014,8 @@ describe('MatchSayg', () => {
                     matchOptions,
                 }),
                 permittedWithDebug,
+                `/test/#${saygData.id}`,
             );
-            await doClick(findButton(context.container, START_SCORING));
             context.prompts.respondToConfirm(
                 'Are you sure you want to delete the sayg data for this match?',
                 true,
@@ -1003,10 +1024,10 @@ describe('MatchSayg', () => {
                 'Clear match score (to allow scores to be re-recorded?)',
                 true,
             );
-            apiResponse = {
+            apiResponse = () => ({
                 result: tournamentData,
                 success: true,
-            };
+            });
 
             await doClick(findButton(dialog(), 'Debug options'));
             const deleteButton = dialog()!.querySelector(
@@ -1021,7 +1042,7 @@ describe('MatchSayg', () => {
                 matchId: matchId,
             });
             expect(updatedTournament).toEqual(tournamentData);
-            expect(dialog()).toBeFalsy();
+            expect(mockedUsedNavigate).toHaveBeenCalledWith('/test/');
         });
 
         it('shows error if unable to delete sayg', async () => {
@@ -1042,6 +1063,7 @@ describe('MatchSayg', () => {
                     matchOptions,
                 }),
                 permittedWithDebug,
+                `/test/#${saygData.id}`,
             );
             await doClick(findButton(context.container, START_SCORING));
             context.prompts.respondToConfirm(
@@ -1052,10 +1074,10 @@ describe('MatchSayg', () => {
                 'Clear match score (to allow scores to be re-recorded?)',
                 false,
             );
-            apiResponse = {
+            apiResponse = () => ({
                 success: false,
                 errors: ['SOME ERROR'],
-            };
+            });
 
             await doClick(findButton(dialog(), 'Debug options'));
             const deleteButton = dialog()!.querySelector(
@@ -1064,7 +1086,7 @@ describe('MatchSayg', () => {
             expect(deleteButton.textContent).toEqual('Delete sayg');
             await doClick(deleteButton);
 
-            reportedError.verifyErrorEquals(apiResponse);
+            reportedError.verifyErrorEquals(apiResponse?.());
             expect(deletedSayg).toEqual({
                 id: tournamentData.id,
                 matchId: matchId,
