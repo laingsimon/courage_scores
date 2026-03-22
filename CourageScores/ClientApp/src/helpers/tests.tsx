@@ -62,7 +62,7 @@ export async function doChange(
     text: string,
     user?: UserEvent,
 ) {
-    const input = container.querySelector(selector);
+    const input = selector ? container.querySelector(selector) : container;
     if (!input) {
         throw new Error(
             `Could not find element with selector ${selector} in ${container.innerHTML}`,
@@ -126,7 +126,7 @@ export async function triggerMouseLeave(element: Element, ctrlDown: boolean) {
     });
 }
 
-export interface TestContext {
+export interface TestContext extends IComponent {
     container: HTMLElement;
     cleanUp(): UntypedPromise;
     user?: UserEvent;
@@ -380,6 +380,7 @@ export async function renderApp(
         user,
         cookies: cookies,
         prompts: new Prompts(),
+        ...wrapComponent(container, user),
     };
 }
 
@@ -573,4 +574,261 @@ export function user(access: AccessDto, teamId?: string): UserDto {
         access,
         teamId,
     };
+}
+
+function wrapComponent(element: Element, user: UserEvent): IComponent {
+    return {
+        all(selector: string): IComponent[] {
+            return Array.from(element.querySelectorAll(selector)).map((e) =>
+                wrapComponent(e, user),
+            );
+        },
+        required(selector: string): IComponent {
+            const found = this.optional(selector);
+            if (!found) {
+                throw new Error(
+                    `Unable to find element with selector ${selector} in\n${element.innerHTML}`,
+                );
+            }
+            return found;
+        },
+        optional(selector: string): IComponent | undefined {
+            const found = element.querySelector(selector);
+            return found ? wrapComponent(found, user) : undefined;
+        },
+        element: <T extends Element>() => element as T,
+        async click(doNothingIfDisabled?: boolean): Promise<IComponent> {
+            if (!this.enabled() && !doNothingIfDisabled) {
+                throw new Error('Element is disabled');
+            }
+
+            await doClick(element, undefined, doNothingIfDisabled);
+            return this;
+        },
+        async change(
+            text: string,
+            doNothingIfDisabled?: boolean,
+        ): Promise<IComponent> {
+            if (!this.enabled() && !doNothingIfDisabled) {
+                throw new Error('Element is disabled');
+            }
+
+            await doChange(element, '', text, user);
+            return this;
+        },
+        async type(
+            code: string,
+            doNothingIfDisabled?: boolean,
+        ): Promise<IComponent> {
+            if (!this.enabled() && !doNothingIfDisabled) {
+                throw new Error('Element is disabled');
+            }
+            await user.type(this.element(), code);
+            return this;
+        },
+        enabled(): boolean {
+            const anyItem = element as { disabled?: boolean };
+            return !anyItem.disabled;
+        },
+        async focus(doNothingIfDisabled?: boolean): Promise<IComponent> {
+            if (!this.enabled() && !doNothingIfDisabled) {
+                throw new Error('Element is disabled');
+            }
+
+            act(() => {
+                fireEvent.focus(element, {});
+            });
+
+            return this;
+        },
+        async blur(doNothingIfDisabled?: boolean): Promise<IComponent> {
+            if (!this.enabled() && !doNothingIfDisabled) {
+                throw new Error('Element is disabled');
+            }
+
+            act(() => {
+                fireEvent.blur(element, {});
+            });
+
+            return this;
+        },
+        html(): string {
+            return element.innerHTML;
+        },
+        text(): string {
+            return element.textContent;
+        },
+        className(): string {
+            return element.className;
+        },
+        async select(
+            text: string,
+            doNothingIfDisabled?: boolean,
+        ): Promise<IComponent> {
+            if (!this.enabled() && !doNothingIfDisabled) {
+                throw new Error('Element is disabled');
+            }
+
+            await doSelectOption(element, text);
+
+            return this;
+        },
+        async keyPress(
+            key: string,
+            doNothingIfDisabled?: boolean,
+        ): Promise<IComponent> {
+            if (!this.enabled() && !doNothingIfDisabled) {
+                throw new Error('Element is disabled');
+            }
+
+            await doKeyPress(element, key);
+            return this;
+        },
+        async mouseLeave(
+            ctrlDown?: boolean,
+            doNothingIfDisabled?: boolean,
+        ): Promise<IComponent> {
+            if (!this.enabled() && !doNothingIfDisabled) {
+                throw new Error('Element is disabled');
+            }
+
+            await triggerMouseLeave(element, ctrlDown ?? false);
+            return this;
+        },
+        async mouseMove(
+            ctrlDown?: boolean,
+            doNothingIfDisabled?: boolean,
+        ): Promise<IComponent> {
+            if (!this.enabled() && !doNothingIfDisabled) {
+                throw new Error('Element is disabled');
+            }
+
+            await triggerMouseMove(element, ctrlDown ?? false);
+            return this;
+        },
+
+        value(): string {
+            const input = element as { value?: string };
+            return input.value!;
+        },
+        button(text: string): IComponent {
+            const button = findButton(element, text);
+            return wrapComponent(button, user);
+        },
+        input(name: string): IComponent {
+            function notFound(): IComponent {
+                throw new Error(
+                    `Unable to find input/textarea with name ${name} in\n${element.innerHTML}`,
+                );
+            }
+
+            return (
+                this.optional(`input[name="${name}"]`) ??
+                this.optional(`textarea[name="${name}"]`) ??
+                notFound()
+            );
+        },
+    };
+}
+
+export interface IComponent {
+    /*
+     * the inner component that matches the selector
+     */
+    required(selector: string): IComponent;
+
+    /*
+     * the inner component that matches the selector, or undefined
+     */
+    optional(selector: string): IComponent | undefined;
+
+    /*
+     * all the components that match the selector
+     */
+    all(selector: string): IComponent[];
+
+    /*
+     * the inner html of this element
+     */
+    html(): string;
+
+    /*
+     * the text content of this element
+     */
+    text(): string;
+
+    /*
+     * is this element is enabled
+     */
+    enabled(): boolean;
+
+    /*
+     * the class name of this element
+     */
+    className(): string;
+
+    /*
+     * click this element
+     */
+    click(doNothingIfDisabled?: boolean): Promise<IComponent>;
+
+    /*
+     * change the text in this element
+     * Textarea or Input only
+     */
+    change(text: string, doNothingIfDisabled?: boolean): Promise<IComponent>;
+
+    /*
+     * type into this element
+     * Textarea or Input only
+     */
+    type(code: string, doNothingIfDisabled?: boolean): Promise<IComponent>;
+
+    /*
+     * select an option
+     * BootstrapDropdown only
+     */
+    select(text: string, doNothingIfDisabled?: boolean): Promise<IComponent>;
+
+    /*
+     * press a key
+     */
+    keyPress(key: string, doNothingIfDisabled?: boolean): Promise<IComponent>;
+
+    /*
+     * move the mouse, over this component
+     */
+    mouseMove(
+        ctrlDown?: boolean,
+        doNothingIfDisabled?: boolean,
+    ): Promise<IComponent>;
+
+    /*
+     * move the mouse, out of this component
+     */
+    mouseLeave(
+        ctrlDown?: boolean,
+        doNothingIfDisabled?: boolean,
+    ): Promise<IComponent>;
+
+    /*
+     * focus this component
+     */
+    focus(doNothingIfDisabled?: boolean): Promise<IComponent>;
+
+    /*
+     * unfocus this component
+     */
+    blur(doNothingIfDisabled?: boolean): Promise<IComponent>;
+
+    /*
+     * the dom element
+     */
+    element<T extends Element>(): T;
+
+    button(text: string): IComponent;
+
+    input(name: string): IComponent;
+
+    value(): string;
 }
