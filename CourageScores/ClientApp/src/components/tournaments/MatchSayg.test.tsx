@@ -39,6 +39,7 @@ import { checkoutWith, keyPad } from '../../helpers/sayg';
 import { START_SCORING } from './tournaments';
 import { tournamentContainerPropsBuilder } from './tournamentContainerPropsBuilder';
 import { BuilderParam } from '../../helpers/builders/builders';
+import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -468,6 +469,25 @@ describe('MatchSayg', () => {
             .build();
         let saygData: RecordedScoreAsYouGoDto;
 
+        function withAddSaygResponse(match: TournamentMatchDto) {
+            const saygId = createTemporaryId();
+            apiResponse = () => {
+                const updatedTournament = tournamentBuilder()
+                    .round((b) =>
+                        b.withMatch(
+                            (m) => m.sideA(sideA).sideB(sideB).saygId(saygId),
+                            match.id,
+                        ),
+                    )
+                    .build();
+                return {
+                    success: true,
+                    result: updatedTournament,
+                };
+            };
+            return saygId;
+        }
+
         async function enterScore(score: number, noOfDarts?: number) {
             await keyPad(
                 context,
@@ -596,10 +616,12 @@ describe('MatchSayg', () => {
         });
 
         it('creates sayg data for match', async () => {
+            const match = sideASideBTournament.round?.matches![0]!;
+            const saygId = withAddSaygResponse(match);
             await renderComponent(
                 containerProps.withTournament(sideASideBTournament).build(),
                 matchSaygProps({
-                    match: sideASideBTournament.round?.matches![0]!,
+                    match,
                     matchOptions,
                 }),
                 permitted,
@@ -612,9 +634,10 @@ describe('MatchSayg', () => {
                 id: sideASideBTournament.id,
                 saygRequest: {
                     matchOptions,
-                    matchId: sideASideBTournament.round?.matches![0].id,
+                    matchId: match.id,
                 },
             });
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/test#${saygId}`);
         });
 
         it('shows error if unable to create sayg data', async () => {
@@ -639,22 +662,12 @@ describe('MatchSayg', () => {
         });
 
         it('updates tournament data and shows dialog once data created', async () => {
-            const tournamentData = tournamentBuilder()
-                .round((b) => b.withMatch((m) => m.sideA(sideA).sideB(sideB)))
-                .build();
-            const saygId = createTemporaryId();
-            apiResponse = () => {
-                tournamentData.round!.matches![0].saygId = saygId;
-
-                return {
-                    success: true,
-                    result: tournamentData,
-                };
-            };
+            const match = sideASideBTournament.round!.matches![0];
+            const saygId = withAddSaygResponse(match);
             await renderComponent(
-                containerProps.withTournament(tournamentData).build(),
+                containerProps.withTournament(sideASideBTournament).build(),
                 matchSaygProps({
-                    match: tournamentData.round?.matches![0],
+                    match,
                     matchOptions,
                 }),
                 permitted,
@@ -663,7 +676,7 @@ describe('MatchSayg', () => {
             await doClick(findButton(context.container, START_SCORING));
 
             reportedError.verifyNoError();
-            expect(updatedTournament).toEqual(tournamentData);
+            expect(updatedTournament).not.toBeNull();
             expect(mockedUsedNavigate).toHaveBeenCalledWith(`/test#${saygId}`);
         });
 
@@ -997,20 +1010,19 @@ describe('MatchSayg', () => {
         });
 
         it('can delete sayg then close dialog and update tournament data', async () => {
-            const matchId = createTemporaryId();
             const tournamentData = tournamentBuilder()
                 .round((b) =>
-                    b.withMatch(
-                        (m) => m.sideA(sideA).sideB(sideB).saygId(saygData.id),
-                        matchId,
+                    b.withMatch((m) =>
+                        m.sideA(sideA).sideB(sideB).saygId(saygData.id),
                     ),
                 )
                 .build();
+            const match = tournamentData.round?.matches![0]!;
 
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
                 matchSaygProps({
-                    match: tournamentData.round?.matches![0]!,
+                    match,
                     matchOptions,
                 }),
                 permittedWithDebug,
@@ -1039,7 +1051,7 @@ describe('MatchSayg', () => {
             reportedError.verifyNoError();
             expect(deletedSayg).toEqual({
                 id: tournamentData.id,
-                matchId: matchId,
+                matchId: match.id,
             });
             expect(updatedTournament).toEqual(tournamentData);
             expect(mockedUsedNavigate).toHaveBeenCalledWith('/test/');

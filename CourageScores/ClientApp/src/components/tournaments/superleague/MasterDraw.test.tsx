@@ -910,11 +910,8 @@ describe('MasterDraw', () => {
         it('can open sayg dialog when permitted', async () => {
             const saygId = createTemporaryId();
             const tournamentData = getSideAvBTournament();
-            newSaygResponse = () => {
-                // NOTE: This mutates the object because the tests don't trigger a re-render
-                tournamentData.round!.matches![0].saygId = saygId;
-                return tournamentData;
-            };
+            const match = tournamentData.round!.matches![0];
+            newSaygResponse = () => getSideAvBTournament(saygId, match.id);
             await renderComponent(
                 props({ tournamentData: tournamentData }),
                 canRecordSayg,
