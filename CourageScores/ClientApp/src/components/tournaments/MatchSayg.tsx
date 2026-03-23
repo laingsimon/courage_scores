@@ -29,6 +29,7 @@ import { UntypedPromise } from '../../interfaces/UntypedPromise';
 import { asyncClear } from '../../helpers/events';
 import { hasAccess } from '../../helpers/conditions';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto';
 
 export interface IMatchSaygProps {
     match: TournamentMatchDto;
@@ -86,10 +87,10 @@ export function MatchSayg({
     const kioskMode: boolean = hasAccess(account, (access) => access.kioskMode);
     const saygOpen = fragmentSaygId === match.saygId;
 
-    async function changeDialogState(changeToOpen: boolean) {
+    async function changeDialogState(changeToOpen: boolean, saygId?: string) {
         const path = location.pathname;
-        if (changeToOpen) {
-            navigate(`${path}#${match.saygId}`);
+        if (changeToOpen && saygId) {
+            navigate(`${path}#${saygId}`);
         } else {
             navigate(path);
         }
@@ -111,7 +112,7 @@ export function MatchSayg({
 
     async function openSaygDialog() {
         if (match.saygId) {
-            await changeDialogState(true);
+            await changeDialogState(true, match.saygId);
             return;
         }
 
@@ -140,7 +141,11 @@ export function MatchSayg({
                 await tournamentApi.addSayg(tournamentData.id, request);
             if (response.success) {
                 await setTournamentData!(response.result!);
-                await changeDialogState(true);
+                const updatedMatch = findMatch(
+                    match.id,
+                    response.result!.round,
+                );
+                await changeDialogState(true, updatedMatch?.saygId);
             } else {
                 setSaveError(response);
             }
@@ -149,6 +154,21 @@ export function MatchSayg({
             onError(e);
         } finally {
             setCreatingSayg(false);
+        }
+    }
+
+    function findMatch(
+        matchId: string,
+        round?: TournamentRoundDto,
+    ): TournamentMatchDto | undefined {
+        for (const match of round?.matches || []) {
+            if (match.id === matchId) {
+                return match;
+            }
+        }
+
+        if (round?.nextRound) {
+            return findMatch(matchId, round.nextRound);
         }
     }
 
