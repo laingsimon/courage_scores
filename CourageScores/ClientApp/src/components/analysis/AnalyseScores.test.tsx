@@ -3,9 +3,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -112,12 +110,9 @@ describe('AnalyseScores', () => {
         it('renders tournaments on load', async () => {
             await renderComponent();
 
-            const tournamentList =
-                context.container.querySelector('div.list-group')!;
-            const tournaments = Array.from(
-                tournamentList.querySelectorAll('.list-group-item'),
-            );
-            expect(tournaments.map((t) => t.textContent)).toEqual([
+            const tournamentList = context.required('div.list-group')!;
+            const tournaments = tournamentList.all('.list-group-item');
+            expect(tournaments.map((t) => t.text())).toEqual([
                 `Superleague: ${renderDate('2001-02-03')} BOARD 1 vs OPPONENT`,
                 `Tournament: ${renderDate('2001-02-03')} Singles vs `,
             ]);
@@ -128,12 +123,9 @@ describe('AnalyseScores', () => {
                 divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
             await renderComponent(`?t=${firstTournament.id}`);
 
-            const tournamentList =
-                context.container.querySelector('div.list-group')!;
-            const tournaments = Array.from(
-                tournamentList.querySelectorAll('.active'),
-            );
-            expect(tournaments.map((t) => t.textContent)).toEqual([
+            const tournamentList = context.required('div.list-group')!;
+            const tournaments = tournamentList.all('.active');
+            expect(tournaments.map((t) => t.text())).toEqual([
                 `Superleague: ${renderDate('2001-02-03')} BOARD 1 vs OPPONENT`,
             ]);
         });
@@ -141,8 +133,8 @@ describe('AnalyseScores', () => {
         it('reports an error if season cannot be found by name or id', async () => {
             await renderComponent('', 'anotherSeason');
 
-            const error = context.container.querySelector('.alert')!;
-            expect(error.textContent).toEqual(
+            const error = context.required('.alert')!;
+            expect(error.text()).toEqual(
                 'Could not find season with name: anotherSeason',
             );
         });
@@ -155,17 +147,15 @@ describe('AnalyseScores', () => {
 
             await renderComponent();
 
-            const error = context.container.querySelector('.alert')!;
-            expect(error.textContent).toEqual('An error, Another error');
+            const error = context.required('.alert')!;
+            expect(error.text()).toEqual('An error, Another error');
         });
 
         it('shows option to remove team filter', async () => {
             await renderComponent(`?team=ATeamName`);
 
-            const filterRemovalButtons = Array.from(
-                context.container.querySelectorAll('.btn-outline-danger'),
-            );
-            expect(filterRemovalButtons.map((t) => t.textContent)).toEqual([
+            const filterRemovalButtons = context.all('.btn-outline-danger');
+            expect(filterRemovalButtons.map((t) => t.text())).toEqual([
                 `❌ ATeamName`,
             ]);
         });
@@ -173,10 +163,8 @@ describe('AnalyseScores', () => {
         it('shows option to remove analysis filter', async () => {
             await renderComponent(`?a=AnAnalysis`);
 
-            const filterRemovalButtons = Array.from(
-                context.container.querySelectorAll('.btn-outline-danger'),
-            );
-            expect(filterRemovalButtons.map((t) => t.textContent)).toEqual([
+            const filterRemovalButtons = context.all('.btn-outline-danger');
+            expect(filterRemovalButtons.map((t) => t.text())).toEqual([
                 `❌ AnAnalysis`,
             ]);
         });
@@ -203,53 +191,41 @@ describe('AnalyseScores', () => {
                 success: true,
                 result: analysis,
             };
-            await doClick(
-                findButton(context.container, 'Analyse 1 tournament/s'),
-            );
+            await context.button('Analyse 1 tournament/s').click();
 
-            const detail = context.container.querySelector(
-                `[datatype="${type}"]`,
-            )!;
-            const table = detail.querySelector('table')!;
-            const analysisHeading = context.container.querySelector(
+            const detail = context.required(`[datatype="${type}"]`);
+            const table = detail.required('table');
+            const analysisHeading = context.required(
                 '[datatype="analysis-heading"]',
-            )!;
-            const headings = Array.from(
-                table.querySelectorAll('thead tr th'),
-            ).map((th) => th.textContent);
+            );
+            const headings = table.all('thead tr th').map((th) => th.text());
             expect(headings).toEqual(['Score', 'Times']);
-            const rows = Array.from(table.querySelectorAll('tbody tr'));
-            expect(analysisHeading.textContent).toContain(heading);
-            expect(
-                Array.from(rows[0].querySelectorAll('td')).map(
-                    (td) => td.textContent,
-                ),
-            ).toEqual(['10', '10']);
-            expect(
-                Array.from(rows[0].querySelectorAll('td')).map(
-                    (td) => td.className,
-                ),
-            ).toEqual(['', '']);
-            expect(
-                Array.from(rows[1].querySelectorAll('td')).map(
-                    (td) => td.textContent,
-                ),
-            ).toEqual(['100', '9']);
-            expect(
-                Array.from(rows[1].querySelectorAll('td')).map(
-                    (td) => td.className,
-                ),
-            ).toEqual(['text-danger', '']);
-            expect(
-                Array.from(rows[2].querySelectorAll('td')).map(
-                    (td) => td.textContent,
-                ),
-            ).toEqual(['180', '8']);
-            expect(
-                Array.from(rows[2].querySelectorAll('td')).map(
-                    (td) => td.className,
-                ),
-            ).toEqual(['text-danger fw-bold', '']);
+            const rows = table.all('tbody tr');
+            expect(analysisHeading.text()).toContain(heading);
+            expect(rows[0].all('td').map((td) => td.text())).toEqual([
+                '10',
+                '10',
+            ]);
+            expect(rows[0].all('td').map((td) => td.className())).toEqual([
+                '',
+                '',
+            ]);
+            expect(rows[1].all('td').map((td) => td.text())).toEqual([
+                '100',
+                '9',
+            ]);
+            expect(rows[1].all('td').map((td) => td.className())).toEqual([
+                'text-danger',
+                '',
+            ]);
+            expect(rows[2].all('td').map((td) => td.text())).toEqual([
+                '180',
+                '8',
+            ]);
+            expect(rows[2].all('td').map((td) => td.className())).toEqual([
+                'text-danger fw-bold',
+                '',
+            ]);
         });
 
         it('empty score breakdowns', async () => {
@@ -267,14 +243,10 @@ describe('AnalyseScores', () => {
                 success: true,
                 result: analysis,
             };
-            await doClick(
-                findButton(context.container, 'Analyse 1 tournament/s'),
-            );
+            await context.button('Analyse 1 tournament/s').click();
 
-            const detail = context.container.querySelector(
-                '[datatype="MostFrequentThrows"]',
-            )!;
-            expect(detail.textContent).toContain('No data');
+            const detail = context.required('[datatype="MostFrequentThrows"]');
+            expect(detail.text()).toContain('No data');
         });
 
         it('named breakdowns', async () => {
@@ -296,34 +268,25 @@ describe('AnalyseScores', () => {
                 success: true,
                 result: analysis,
             };
-            await doClick(
-                findButton(context.container, 'Analyse 1 tournament/s'),
-            );
+            await context.button('Analyse 1 tournament/s').click();
 
-            const detail = context.container.querySelector(
-                '[datatype="MostFrequentPlayers"]',
-            )!;
-            const table = detail.querySelector('table')!;
-            const headings = Array.from(
-                table.querySelectorAll('thead tr th'),
-            ).map((th) => th.textContent);
+            const detail = context.required('[datatype="MostFrequentPlayers"]');
+            const table = detail.required('table')!;
+            const headings = table.all('thead tr th').map((th) => th.text());
             expect(headings).toEqual(['Name', 'Times']);
-            const rows = Array.from(table.querySelectorAll('tbody tr'));
-            expect(
-                Array.from(rows[0].querySelectorAll('td')).map(
-                    (td) => td.textContent,
-                ),
-            ).toEqual(['Tom', '10']);
-            expect(
-                Array.from(rows[1].querySelectorAll('td')).map(
-                    (td) => td.textContent,
-                ),
-            ).toEqual(['Richard', '9']);
-            expect(
-                Array.from(rows[2].querySelectorAll('td')).map(
-                    (td) => td.textContent,
-                ),
-            ).toEqual(['Harry', '8']);
+            const rows = table.all('tbody tr');
+            expect(rows[0].all('td').map((td) => td.text())).toEqual([
+                'Tom',
+                '10',
+            ]);
+            expect(rows[1].all('td').map((td) => td.text())).toEqual([
+                'Richard',
+                '9',
+            ]);
+            expect(rows[2].all('td').map((td) => td.text())).toEqual([
+                'Harry',
+                '8',
+            ]);
         });
 
         it('empty named breakdowns', async () => {
@@ -341,14 +304,10 @@ describe('AnalyseScores', () => {
                 success: true,
                 result: analysis,
             };
-            await doClick(
-                findButton(context.container, 'Analyse 1 tournament/s'),
-            );
+            await context.button('Analyse 1 tournament/s').click();
 
-            const detail = context.container.querySelector(
-                '[datatype="MostFrequentPlayers"]',
-            )!;
-            expect(detail.textContent).toContain('No data');
+            const detail = context.required('[datatype="MostFrequentPlayers"]');
+            expect(detail.text()).toContain('No data');
         });
     });
 
@@ -376,12 +335,10 @@ describe('AnalyseScores', () => {
         it('prompts for some tournament selections', async () => {
             await renderComponent();
 
-            await doClick(
-                findButton(context.container, 'Analyse 0 tournament/s'),
-            );
+            await context.button('Analyse 0 tournament/s').click();
 
-            const error = context.container.querySelector('.alert')!;
-            expect(error.textContent).toEqual('Select some tournaments first');
+            const error = context.required('.alert');
+            expect(error.text()).toEqual('Select some tournaments first');
         });
 
         it('analyses selected tournaments', async () => {
@@ -389,9 +346,7 @@ describe('AnalyseScores', () => {
                 divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
             await renderComponent(`?t=${firstTournament.id}`);
 
-            await doClick(
-                findButton(context.container, 'Analyse 1 tournament/s'),
-            );
+            await context.button('Analyse 1 tournament/s').click();
 
             expect(analysisRequest?.tournamentIds).toEqual([
                 firstTournament.id,
@@ -408,12 +363,10 @@ describe('AnalyseScores', () => {
                 warnings: ['A warning'],
             };
 
-            await doClick(
-                findButton(context.container, 'Analyse 1 tournament/s'),
-            );
+            await context.button('Analyse 1 tournament/s').click();
 
-            const error = context.container.querySelector('.alert')!;
-            expect(error.textContent).toEqual('An error, A warning');
+            const error = context.required('.alert');
+            expect(error.text()).toEqual('An error, A warning');
         });
 
         it('can select a tournament', async () => {
@@ -421,11 +374,7 @@ describe('AnalyseScores', () => {
                 divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
             await renderComponent();
 
-            await doClick(
-                context.container.querySelector(
-                    '.list-group .list-group-item',
-                )!,
-            );
+            await context.required('.list-group .list-group-item').click();
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
                 `/analyse/SEASON/?t=${firstTournament.id}`,
@@ -437,11 +386,7 @@ describe('AnalyseScores', () => {
                 divisionApiResponse!.fixtures![0]!.tournamentFixtures![0]!;
             await renderComponent(`?t=${firstTournament.id}`);
 
-            await doClick(
-                context.container.querySelector(
-                    '.list-group .list-group-item',
-                )!,
-            );
+            await context.required('.list-group .list-group-item').click();
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(`/analyse/SEASON/`);
         });
@@ -460,16 +405,12 @@ describe('AnalyseScores', () => {
                 success: true,
                 result: analysis,
             };
-            await doClick(
-                findButton(context.container, 'Analyse 1 tournament/s'),
-            );
-            const teamHeading = context.container.querySelector(
-                '[datatype="team-heading"]',
-            )!;
+            await context.button('Analyse 1 tournament/s').click();
+            const teamHeading = context.required('[datatype="team-heading"]');
 
-            await doClick(teamHeading);
+            await teamHeading.click();
 
-            const teamName = teamHeading.textContent!.replace('🔎 ', '');
+            const teamName = teamHeading.text().replace('🔎 ', '');
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
                 `/analyse/SEASON/?t=${firstTournament.id}&team=${teamName}`,
             );
@@ -489,14 +430,10 @@ describe('AnalyseScores', () => {
                 success: true,
                 result: analysis,
             };
-            await doClick(
-                findButton(context.container, 'Analyse 1 tournament/s'),
-            );
-            const teamHeading = context.container.querySelector(
-                '[datatype="team-heading"]',
-            )!;
+            await context.button('Analyse 1 tournament/s').click();
+            const teamHeading = context.required('[datatype="team-heading"]');
 
-            await doClick(teamHeading);
+            await teamHeading.click();
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
                 `/analyse/SEASON/?t=${firstTournament.id}`,
@@ -517,15 +454,13 @@ describe('AnalyseScores', () => {
                 success: true,
                 result: analysis,
             };
-            await doClick(
-                findButton(context.container, 'Analyse 1 tournament/s'),
-            );
-            expect(context.container.textContent).toContain('Common scores');
-            const teamHeading = context.container.querySelector(
+            await context.button('Analyse 1 tournament/s').click();
+            expect(context.text()).toContain('Common scores');
+            const teamHeading = context.required(
                 '[datatype="analysis-heading"]',
-            )!;
+            );
 
-            await doClick(teamHeading);
+            await teamHeading.click();
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
                 `/analyse/SEASON/?t=${firstTournament.id}&a=MostFrequentThrows`,
@@ -548,15 +483,13 @@ describe('AnalyseScores', () => {
                 success: true,
                 result: analysis,
             };
-            await doClick(
-                findButton(context.container, 'Analyse 1 tournament/s'),
-            );
-            expect(context.container.textContent).toContain('Common scores');
-            const teamHeading = context.container.querySelector(
+            await context.button('Analyse 1 tournament/s').click();
+            expect(context.text()).toContain('Common scores');
+            const teamHeading = context.required(
                 '[datatype="analysis-heading"]',
-            )!;
+            );
 
-            await doClick(teamHeading);
+            await teamHeading.click();
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
                 `/analyse/SEASON/?t=${firstTournament.id}`,
@@ -566,7 +499,7 @@ describe('AnalyseScores', () => {
         it('can select all tournaments', async () => {
             await renderComponent();
 
-            await doClick(findButton(context.container, 'All 2'));
+            await context.button('All 2').click();
 
             const tournaments =
                 divisionApiResponse!.fixtures![0]!.tournamentFixtures!;
@@ -582,7 +515,7 @@ describe('AnalyseScores', () => {
             const query = tournaments.map((t) => `t=${t.id}`).join('&');
             await renderComponent(`?${query}`);
 
-            await doClick(findButton(context.container, 'None'));
+            await context.button('None').click();
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(`/analyse/SEASON/`);
         });

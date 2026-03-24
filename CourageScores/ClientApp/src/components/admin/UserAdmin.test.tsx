@@ -3,10 +3,7 @@
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
-    doSelectOption,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -62,12 +59,8 @@ describe('UserAdmin', () => {
         );
     }
 
-    function getAccess(name: string): HTMLInputElement {
-        const item = context.container.querySelector(
-            `input[id="${name}"]`,
-        ) as HTMLInputElement;
-        expect(item).toBeTruthy();
-        return item;
+    function getAccess(name: string) {
+        return context.required(`input[id="${name}"]`);
     }
 
     it('renders when no user selected', async () => {
@@ -80,8 +73,10 @@ describe('UserAdmin', () => {
         await renderComponent([account], account);
 
         reportedError.verifyNoError();
-        expect(context.container.textContent).toContain('Manage access');
-        expect(getAccess('manageAccess').checked).toEqual(false);
+        expect(context.text()).toContain('Manage access');
+        expect(
+            getAccess('manageAccess').element<HTMLInputElement>().checked,
+        ).toEqual(false);
     });
 
     it('renders user email addresses', async () => {
@@ -92,10 +87,10 @@ describe('UserAdmin', () => {
         };
         await renderComponent([account], account);
 
-        await doClick(context.container, 'input[id="showEmailAddress"]');
+        await context.input('showEmailAddress').click();
 
         reportedError.verifyNoError();
-        expect(context.container.textContent).toContain('You a@b.com');
+        expect(context.text()).toContain('You a@b.com');
     });
 
     it('renders user with no access', async () => {
@@ -114,14 +109,13 @@ describe('UserAdmin', () => {
         };
         await renderComponent([account, otherAccount], account);
 
-        await doSelectOption(
-            context.container.querySelector('.dropdown-menu'),
-            'Test 1',
-        );
+        await context.required('.dropdown-menu').select('Test 1');
 
         reportedError.verifyNoError();
-        expect(context.container.textContent).toContain('Manage access');
-        expect(getAccess('manageAccess').checked).toEqual(false);
+        expect(context.text()).toContain('Manage access');
+        expect(
+            getAccess('manageAccess').element<HTMLInputElement>().checked,
+        ).toEqual(false);
     });
 
     it('renders user with access', async () => {
@@ -143,14 +137,13 @@ describe('UserAdmin', () => {
         };
         await renderComponent([account, otherAccount], account);
 
-        await doSelectOption(
-            context.container.querySelector('.dropdown-menu'),
-            'Other user',
-        );
+        await context.required('.dropdown-menu').select('Other user');
 
         reportedError.verifyNoError();
-        expect(context.container.textContent).toContain('Manage access');
-        expect(getAccess('manageAccess').checked).toEqual(true);
+        expect(context.text()).toContain('Manage access');
+        expect(
+            getAccess('manageAccess').element<HTMLInputElement>().checked,
+        ).toEqual(true);
     });
 
     it('can save change to access', async () => {
@@ -171,13 +164,10 @@ describe('UserAdmin', () => {
             },
         };
         await renderComponent([account, otherAccount], account);
-        await doSelectOption(
-            context.container.querySelector('.dropdown-menu'),
-            'Other user',
-        );
-        await doClick(getAccess('manageGames'));
+        await context.required('.dropdown-menu').select('Other user');
+        await getAccess('manageGames').click();
 
-        await doClick(findButton(context.container, 'Set access'));
+        await context.button('Set access').click();
 
         reportedError.verifyNoError();
         expect(updatedAccess).toEqual({
@@ -207,20 +197,15 @@ describe('UserAdmin', () => {
             },
         };
         await renderComponent([account, otherAccount], account);
-        await doSelectOption(
-            context.container.querySelector('.dropdown-menu'),
-            'Other user',
-        );
-        await doClick(getAccess('manageGames'));
+        await context.required('.dropdown-menu').select('Other user');
+        await getAccess('manageGames').click();
         apiResponse = { success: false, errors: ['SOME ERROR'] };
 
-        await doClick(findButton(context.container, 'Set access'));
+        await context.button('Set access').click();
 
         reportedError.verifyNoError();
-        expect(context.container.textContent).toContain('SOME ERROR');
-        expect(context.container.textContent).toContain(
-            'Could not save access',
-        );
+        expect(context.text()).toContain('SOME ERROR');
+        expect(context.text()).toContain('Could not save access');
     });
 
     it('can close error dialog after save failure', async () => {
@@ -241,22 +226,15 @@ describe('UserAdmin', () => {
             },
         };
         await renderComponent([account, otherAccount], account);
-        await doSelectOption(
-            context.container.querySelector('.dropdown-menu'),
-            'Other user',
-        );
-        await doClick(getAccess('manageGames'));
+        await context.required('.dropdown-menu').select('Other user');
+        await getAccess('manageGames').click();
         apiResponse = { success: false, errors: ['SOME ERROR'] };
-        await doClick(findButton(context.container, 'Set access'));
-        expect(context.container.textContent).toContain(
-            'Could not save access',
-        );
+        await context.button('Set access').click();
+        expect(context.text()).toContain('Could not save access');
 
-        await doClick(findButton(context.container, 'Close'));
+        await context.button('Close').click();
 
-        expect(context.container.textContent).not.toContain(
-            'Could not save access',
-        );
+        expect(context.text()).not.toContain('Could not save access');
     });
 
     it('can change access for self', async () => {
@@ -277,9 +255,9 @@ describe('UserAdmin', () => {
             },
         };
         await renderComponent([account, otherAccount], account);
-        await doClick(getAccess('manageGames'));
+        await getAccess('manageGames').click();
 
-        await doClick(findButton(context.container, 'Set access'));
+        await context.button('Set access').click();
 
         reportedError.verifyNoError();
         expect(updatedAccess).not.toBeNull();

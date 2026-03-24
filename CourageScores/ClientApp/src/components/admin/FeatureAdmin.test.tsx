@@ -8,6 +8,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto';
 import { IFeatureApi } from '../../interfaces/apis/IFeatureApi';
@@ -39,11 +40,7 @@ describe('FeatureAdmin', () => {
             brandingProps(),
             appProps(
                 {
-                    account: {
-                        name: '',
-                        emailAddress: '',
-                        givenName: '',
-                    },
+                    account: user({}),
                 },
                 reportedError,
             ),
@@ -66,7 +63,7 @@ describe('FeatureAdmin', () => {
 
             await renderComponent();
 
-            expect(context.container.textContent).toContain('FEATURE 1');
+            expect(context.text()).toContain('FEATURE 1');
         });
     });
 });

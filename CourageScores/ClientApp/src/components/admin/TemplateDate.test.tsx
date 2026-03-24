@@ -3,15 +3,10 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
-    triggerMouseLeave,
-    triggerMouseMove,
 } from '../../helpers/tests';
 import { ITemplateDateProps, TemplateDate } from './TemplateDate';
 import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto';
@@ -79,14 +74,8 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            const fixtures = Array.from(
-                context.container.querySelectorAll('div > button'),
-            );
-            expect(fixtures.map((f) => f.textContent)).toEqual([
-                '🗑️',
-                '⬆',
-                '⬇',
-            ]);
+            const fixtures = context.all('div > button');
+            expect(fixtures.map((f) => f.text())).toEqual(['🗑️', '⬆', '⬇']);
         });
 
         it('existing fixture', async () => {
@@ -107,10 +96,8 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            const fixtures = Array.from(
-                context.container.querySelectorAll('div > button'),
-            );
-            expect(fixtures.map((f) => f.textContent)).toEqual([
+            const fixtures = context.all('div > button');
+            expect(fixtures.map((f) => f.text())).toEqual([
                 'A - B ×',
                 '🗑️',
                 '⬆',
@@ -135,10 +122,8 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            const fixtures = Array.from(
-                context.container.querySelectorAll('div > button'),
-            );
-            expect(fixtures.map((f) => f.textContent)).toEqual([
+            const fixtures = context.all('div > button');
+            expect(fixtures.map((f) => f.text())).toEqual([
                 'A ×',
                 '🗑️',
                 '⬆',
@@ -163,12 +148,11 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            const fixtures = Array.from(
-                context.container.querySelectorAll('div > button'),
+            const fixtures = context.all('div > button');
+            const fixtureElement = fixtures[0].required('span:first-child');
+            expect(fixtureElement.className()).toContain(
+                'bg-warning text-light',
             );
-            const fixtureElement =
-                fixtures[0].querySelector('span:first-child')!;
-            expect(fixtureElement.className).toContain('bg-warning text-light');
         });
 
         it('fixture with home division shared address', async () => {
@@ -188,12 +172,9 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            const fixtures = Array.from(
-                context.container.querySelectorAll('div > button'),
-            );
-            const fixtureElement =
-                fixtures[0].querySelector('span:first-child')!;
-            expect(fixtureElement.className).toContain(
+            const fixtures = context.all('div > button');
+            const fixtureElement = fixtures[0].required('span:first-child');
+            expect(fixtureElement.className()).toContain(
                 'bg-secondary text-light',
             );
         });
@@ -215,12 +196,9 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            const fixtures = Array.from(
-                context.container.querySelectorAll('div > button'),
-            );
-            const fixtureElement =
-                fixtures[0].querySelector('span:first-child')!;
-            expect(fixtureElement.className).toContain(
+            const fixtures = context.all('div > button');
+            const fixtureElement = fixtures[0].required('span:first-child');
+            expect(fixtureElement.className()).toContain(
                 'bg-secondary text-light',
             );
         });
@@ -242,12 +220,9 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            const fixtures = Array.from(
-                context.container.querySelectorAll('div > button'),
-            );
-            const fixtureElement =
-                fixtures[0].querySelector('span:first-child')!;
-            expect(fixtureElement.className).toContain('bg-danger');
+            const fixtures = context.all('div > button');
+            const fixtureElement = fixtures[0].required('span:first-child');
+            expect(fixtureElement.className()).toContain('bg-danger');
         });
 
         it('highlights away mnemonic', async () => {
@@ -268,12 +243,9 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            const fixtures = Array.from(
-                context.container.querySelectorAll('div > button'),
-            );
-            const fixtureElement =
-                fixtures[0].querySelector('span:nth-child(3)')!;
-            expect(fixtureElement.className).toContain('bg-danger');
+            const fixtures = context.all('div > button');
+            const fixtureElement = fixtures[0].required('span:nth-child(3)');
+            expect(fixtureElement.className()).toContain('bg-danger');
         });
     });
 
@@ -292,19 +264,9 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            await doChange(
-                context.container,
-                'input[name="home"]',
-                'A',
-                context.user,
-            );
-            await doChange(
-                context.container,
-                'input[name="away"]',
-                'B',
-                context.user,
-            );
-            await doClick(findButton(context.container, '➕'));
+            await context.input('home').change('A');
+            await context.input('away').change('B');
+            await context.button('➕').click();
 
             expect(update).toEqual({
                 fixtures: [
@@ -330,22 +292,9 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            await doChange(
-                context.container,
-                'input[name="home"]',
-                'A',
-                context.user,
-            );
-            await doChange(
-                context.container,
-                'input[name="away"]',
-                'B',
-                context.user,
-            );
-            await context.user!.type(
-                context.container.querySelector('input[name="away"]')!,
-                '{Enter}',
-            );
+            await context.input('home').change('A');
+            await context.input('away').change('B');
+            await context.input('away').type('{Enter}');
 
             expect(update).toEqual({
                 fixtures: [
@@ -371,25 +320,10 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            await doChange(
-                context.container,
-                'input[name="home"]',
-                'A',
-                context.user,
-            );
-            await doChange(
-                context.container,
-                'input[name="home"]',
-                '',
-                context.user,
-            );
-            await doChange(
-                context.container,
-                'input[name="away"]',
-                'B',
-                context.user,
-            );
-            await doClick(findButton(context.container, '➕'));
+            await context.input('home').change('A');
+            await context.input('home').change('');
+            await context.input('away').change('B');
+            await context.button('➕').click();
 
             context.prompts.alertWasShown('Enter at least a home team');
             expect(update).toBeNull();
@@ -409,28 +343,10 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            await doChange(
-                context.container,
-                'input[name="home"]',
-                'A',
-                context.user,
-            );
-            await doChange(
-                context.container,
-                'input[name="home"]',
-                '',
-                context.user,
-            );
-            await doChange(
-                context.container,
-                'input[name="away"]',
-                'B',
-                context.user,
-            );
-            await context.user!.type(
-                context.container.querySelector('input[name="home"]')!,
-                '{Enter}',
-            );
+            await context.input('home').change('A');
+            await context.input('home').change('');
+            await context.input('away').change('B');
+            await context.input('home').type('{Enter}');
 
             context.prompts.alertWasShown('Enter at least a home team');
             expect(update).toBeNull();
@@ -450,13 +366,8 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            await doChange(
-                context.container,
-                'input[name="home"]',
-                'A',
-                context.user,
-            );
-            await doClick(findButton(context.container, '➕'));
+            await context.input('home').change('A');
+            await context.button('➕').click();
 
             expect(update).toEqual({
                 fixtures: [
@@ -486,7 +397,7 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            await doClick(findButton(context.container, 'A - B ×'));
+            await context.button('A - B ×').click();
 
             expect(update).toEqual({
                 fixtures: [],
@@ -511,7 +422,7 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            await doClick(findButton(context.container, 'A ×'));
+            await context.button('A ×').click();
 
             expect(update).toEqual({
                 fixtures: [],
@@ -537,7 +448,7 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            await doClick(findButton(context.container, '🗑️'));
+            await context.button('🗑️').click();
 
             expect(deleted).toEqual(true);
         });
@@ -561,12 +472,9 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            await triggerMouseMove(
-                context.container.querySelector(
-                    'button.badge > span:first-child',
-                )!,
-                true,
-            );
+            await context
+                .required('button.badge > span:first-child')
+                .mouseMove(true);
 
             expect(highlightedMnemonic).toEqual('A');
         });
@@ -590,12 +498,9 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            await triggerMouseMove(
-                context.container.querySelector(
-                    'button.badge > span:nth-child(3)',
-                )!,
-                true,
-            );
+            await context
+                .required('button.badge > span:nth-child(3)')
+                .mouseMove(true);
 
             expect(highlightedMnemonic).toEqual('B');
         });
@@ -620,12 +525,9 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            await triggerMouseLeave(
-                context.container.querySelector(
-                    'button.badge > span:first-child',
-                )!,
-                true,
-            );
+            await context
+                .required('button.badge > span:first-child')
+                .mouseLeave(true);
 
             expect(highlightedMnemonic).toBeUndefined();
         });
@@ -650,12 +552,9 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            await triggerMouseMove(
-                context.container.querySelector(
-                    'button.badge > span:first-child',
-                )!,
-                false,
-            );
+            await context
+                .required('button.badge > span:first-child')
+                .mouseMove(false);
 
             expect(highlightedMnemonic).toBeUndefined();
         });
@@ -684,7 +583,7 @@ describe('TemplateDate', () => {
                 true,
             );
 
-            await doClick(findButton(context.container, 'A - B ×'));
+            await context.button('A - B ×').click();
 
             expect(update).toBeNull();
             expect(deleteDatesContaining).toEqual('A');
@@ -715,7 +614,7 @@ describe('TemplateDate', () => {
                 true,
             );
 
-            await doClick(findButton(context.container, 'A - B ×'));
+            await context.button('A - B ×').click();
 
             expect(update).toBeNull();
             expect(deleteDatesContaining).toEqual('B');

@@ -1,9 +1,6 @@
 import {
     cleanUp,
     renderApp,
-    doClick,
-    findButton,
-    doChange,
     noop,
     TestContext,
     iocProps,
@@ -11,7 +8,7 @@ import {
     api,
     appProps,
     ErrorState,
-    doSelectOption,
+    IComponent,
 } from '../../helpers/tests';
 import { DataBrowser } from './DataBrowser';
 import { createTemporaryId, repeat } from '../../helpers/projection';
@@ -113,39 +110,25 @@ describe('DataBrowser', () => {
     }
 
     function getSelectedTable(): string {
-        const tableDropdownToggle =
-            context.container.querySelector('.dropdown-toggle');
-        expect(tableDropdownToggle).toBeTruthy();
-        return tableDropdownToggle!.textContent.trim();
+        const tableDropdownToggle = context.required('.dropdown-toggle');
+        return tableDropdownToggle!.text().trim();
     }
 
     function getId(): string {
-        const input = context.container.querySelector(
-            'input[name="id"]',
-        ) as HTMLInputElement;
-        expect(input).toBeTruthy();
-        return input.value;
+        return context.input('id').value();
     }
 
-    function getResultRows(): HTMLTableRowElement[] {
-        const table = context.container.querySelector(
-            'table',
-        ) as HTMLTableElement;
-        expect(table).toBeTruthy();
-        return Array.from(
-            table.querySelectorAll('tbody > tr'),
-        ) as HTMLTableRowElement[];
+    function getResultRows(): IComponent[] {
+        const table = context.required('table');
+        return table.all('tbody > tr');
     }
 
     async function setSelectedTable(table: string) {
-        await doSelectOption(
-            context.container.querySelector('.dropdown-menu'),
-            table,
-        );
+        await context.required('.dropdown-menu').select(table);
     }
 
     async function setId(id: string) {
-        await doChange(context.container, 'input[name="id"]', id, context.user);
+        await context.input('id').change(id);
     }
 
     describe('renders', () => {
@@ -218,15 +201,10 @@ describe('DataBrowser', () => {
                 '?container=game',
             );
 
-            const list = context.container.querySelector(
-                '.list-group',
-            ) as HTMLElement;
-            expect(list).toBeTruthy();
-            const items = Array.from(
-                list.querySelectorAll('.list-group-item'),
-            ) as HTMLElement[];
+            const list = context.required('.list-group');
+            const items = list.all('.list-group-item');
             expect(items.length).toEqual(2);
-            expect(items.map((item) => item.textContent)).toEqual([
+            expect(items.map((item) => item.text())).toEqual([
                 game1.id + game1.name + renderDate(game1.date),
                 game2.id + game2.name + renderDate(game2.date),
             ]);
@@ -255,14 +233,10 @@ describe('DataBrowser', () => {
 
             const rows = getResultRows();
             expect(
-                rows.map(
-                    (row) => row.querySelector('td:nth-child(1)')!.textContent,
-                ),
+                rows.map((row) => row.required('td:nth-child(1)').text()),
             ).toEqual(['id', 'date', 'name']);
             expect(
-                rows.map(
-                    (row) => row.querySelector('td:nth-child(2)')!.textContent,
-                ),
+                rows.map((row) => row.required('td:nth-child(2)').text()),
             ).toEqual([game.id, renderDate(game.date), game.name]);
         });
 
@@ -285,9 +259,7 @@ describe('DataBrowser', () => {
 
             const rows = getResultRows();
             expect(
-                rows.map(
-                    (row) => row.querySelector('td:nth-child(1)')!.textContent,
-                ),
+                rows.map((row) => row.required('td:nth-child(1)').text()),
             ).toEqual(['id']);
         });
 
@@ -312,9 +284,7 @@ describe('DataBrowser', () => {
 
             const rows = getResultRows();
             expect(
-                rows.map(
-                    (row) => row.querySelector('td:nth-child(1)')!.textContent,
-                ),
+                rows.map((row) => row.required('td:nth-child(1)').text()),
             ).toEqual(['empty', 'id']);
         });
 
@@ -339,9 +309,7 @@ describe('DataBrowser', () => {
 
             const rows = getResultRows();
             expect(
-                rows.map(
-                    (row) => row.querySelector('td:nth-child(1)')!.textContent,
-                ),
+                rows.map((row) => row.required('td:nth-child(1)').text()),
             ).toEqual(['nullValue', 'id']);
         });
 
@@ -366,9 +334,7 @@ describe('DataBrowser', () => {
 
             const rows = getResultRows();
             expect(
-                rows.map(
-                    (row) => row.querySelector('td:nth-child(1)')!.textContent,
-                ),
+                rows.map((row) => row.required('td:nth-child(1)').text()),
             ).toEqual(['undefinedValue', 'id']);
         });
 
@@ -399,9 +365,7 @@ describe('DataBrowser', () => {
 
             const rows = getResultRows();
             expect(
-                rows.map(
-                    (row) => row.querySelector('td:nth-child(1)')!.textContent,
-                ),
+                rows.map((row) => row.required('td:nth-child(1)').text()),
             ).toEqual([
                 'Remover',
                 'Deleted',
@@ -412,9 +376,7 @@ describe('DataBrowser', () => {
                 'id',
             ]);
             expect(
-                rows.map(
-                    (row) => row.querySelector('td:nth-child(2)')!.textContent,
-                ),
+                rows.map((row) => row.required('td:nth-child(2)').text()),
             ).toEqual([
                 'REMOVER',
                 'DELETED',
@@ -448,25 +410,15 @@ describe('DataBrowser', () => {
                     '&showIdsUptoDepth=2',
             );
 
-            const rows = Array.from(
-                context.container.querySelectorAll('div > table > tbody > tr'),
-            ) as HTMLTableRowElement[];
+            const rows = context.all('div > table > tbody > tr');
             expect(
-                rows.map(
-                    (row) => row.querySelector('td:nth-child(1)')!.textContent,
-                ),
+                rows.map((row) => row.required('td:nth-child(1)').text()),
             ).toEqual(['id', 'child']);
-            const childRows = Array.from(
-                rows[1].querySelectorAll('table > tbody > tr'),
-            ) as HTMLTableRowElement[];
+            const childRows = rows[1].all('table > tbody > tr');
             expect(
-                childRows.map(
-                    (row) => row.querySelector('td:nth-child(1)')!.textContent,
-                ),
+                childRows.map((row) => row.required('td:nth-child(1)').text()),
             ).toEqual(['id', 'grandChild']);
-            expect(context.container.textContent).not.toContain(
-                'GRANDCHILD_ID',
-            );
+            expect(context.text()).not.toContain('GRANDCHILD_ID');
         });
 
         it('error when fetching', async () => {
@@ -485,7 +437,7 @@ describe('DataBrowser', () => {
                 '?container=game',
             );
 
-            expect(context.container.textContent).toContain('SOME ERROR');
+            expect(context.text()).toContain('SOME ERROR');
         });
 
         it('bad request when fetching', async () => {
@@ -508,7 +460,7 @@ describe('DataBrowser', () => {
                 '?container=game&id=abcd',
             );
 
-            expect(context.container.textContent).toContain(
+            expect(context.text()).toContain(
                 "id: The value 'abcd' is not valid.",
             );
         });
@@ -526,7 +478,7 @@ describe('DataBrowser', () => {
                 '?container=game&id=abcd',
             );
 
-            expect(context.container.textContent).toContain('Some error');
+            expect(context.text()).toContain('Some error');
         });
 
         it('results from a given page', async () => {
@@ -546,14 +498,9 @@ describe('DataBrowser', () => {
                 '?container=game&page=1',
             );
 
-            const list = context.container.querySelector(
-                '.list-group',
-            ) as HTMLElement;
-            expect(list).toBeTruthy();
-            const items = Array.from(
-                list.querySelectorAll('.list-group-item'),
-            ) as HTMLElement[];
-            expect(items.map((item) => item.textContent)).toEqual([
+            const list = context.required('.list-group');
+            const items = list.all('.list-group-item');
+            expect(items.map((item) => item.text())).toEqual([
                 'id 10',
                 'id 11',
                 'id 12',
@@ -592,7 +539,7 @@ describe('DataBrowser', () => {
                 ),
             );
 
-            await doClick(findButton(context.container, 'Fetch'));
+            await context.button('Fetch')?.click();
 
             context.prompts.alertWasShown(
                 'Select a container (and optionally an id) first',
@@ -612,7 +559,7 @@ describe('DataBrowser', () => {
             );
             await setSelectedTable('TABLE');
 
-            await doClick(findButton(context.container, 'Fetch'));
+            await context.button('Fetch').click();
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
                 '/admin/browser/?container=TABLE',
@@ -633,7 +580,7 @@ describe('DataBrowser', () => {
             await setSelectedTable('TABLE');
             await setId(id);
 
-            await doClick(findButton(context.container, 'Fetch'));
+            await context.button('Fetch').click();
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
                 `/admin/browser/?container=TABLE&id=${id}`,
@@ -659,10 +606,9 @@ describe('DataBrowser', () => {
             console.error = noop; //silence warnings about navigation in tests
 
             requestedData = null;
-            const page2 = context.container.querySelector(
-                'div[datatype="pages"] a.btn:nth-child(2)',
-            ) as HTMLAnchorElement;
-            await doClick(page2);
+            await context
+                .required('div[datatype="pages"] a.btn:nth-child(2)')
+                .click();
 
             expect(requestedData).toBeNull();
         });
@@ -760,10 +706,9 @@ describe('DataBrowser', () => {
                 '?container=game&id=' + game.id,
             );
 
-            await doClick(
-                context.container,
-                'input[type="checkbox"][id="showEmptyValues"]',
-            );
+            await context
+                .required('input[type="checkbox"][id="showEmptyValues"]')
+                .click();
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
                 `/admin/browser/?container=game&id=${game.id}&showEmptyValues=true`,
@@ -790,10 +735,9 @@ describe('DataBrowser', () => {
                 '?container=game&id=' + game.id + '&showEmptyValues=true',
             );
 
-            await doClick(
-                context.container,
-                'input[type="checkbox"][id="showEmptyValues"]',
-            );
+            await context
+                .required('input[type="checkbox"][id="showEmptyValues"]')
+                .click();
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
                 `/admin/browser/?container=game&id=${game.id}`,
@@ -820,10 +764,9 @@ describe('DataBrowser', () => {
                 '?container=game&id=' + game.id,
             );
 
-            await doClick(
-                context.container,
-                'input[type="checkbox"][id="showAuditValues"]',
-            );
+            await context
+                .required('input[type="checkbox"][id="showAuditValues"]')
+                .click();
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
                 `/admin/browser/?container=game&id=${game.id}&showAuditValues=true`,
@@ -850,10 +793,9 @@ describe('DataBrowser', () => {
                 '?container=game&id=' + game.id + '&showAuditValues=true',
             );
 
-            await doClick(
-                context.container,
-                'input[type="checkbox"][id="showAuditValues"]',
-            );
+            await context
+                .required('input[type="checkbox"][id="showAuditValues"]')
+                .click();
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
                 `/admin/browser/?container=game&id=${game.id}`,
@@ -880,10 +822,9 @@ describe('DataBrowser', () => {
                 '?container=game&id=' + game.id,
             );
 
-            await doClick(
-                context.container,
-                'input[type="checkbox"][id="showVersion"]',
-            );
+            await context
+                .required('input[type="checkbox"][id="showVersion"]')
+                .click();
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
                 `/admin/browser/?container=game&id=${game.id}&showVersion=true`,
@@ -910,10 +851,9 @@ describe('DataBrowser', () => {
                 '?container=game&id=' + game.id + '&showVersion=true',
             );
 
-            await doClick(
-                context.container,
-                'input[type="checkbox"][id="showVersion"]',
-            );
+            await context
+                .required('input[type="checkbox"][id="showVersion"]')
+                .click();
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
                 `/admin/browser/?container=game&id=${game.id}`,
@@ -943,7 +883,7 @@ describe('DataBrowser', () => {
 
             await setId('');
             reportedError.verifyNoError();
-            await doClick(findButton(context.container, 'Fetch'));
+            await context.button('Fetch').click();
 
             reportedError.verifyNoError();
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
