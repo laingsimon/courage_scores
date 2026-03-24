@@ -7,6 +7,7 @@ import {
     noop,
     Prompts,
     TestContext,
+    wrapComponent,
 } from './helpers/tests';
 import { App } from './App';
 import { act } from '@testing-library/react';
@@ -34,6 +35,7 @@ import { ITeamApi } from './interfaces/apis/ITeamApi';
 import React from 'react';
 import { CookiesProvider } from 'react-cookie';
 import { ISettings } from './api/settings';
+import userEvent from '@testing-library/user-event';
 
 describe('App', () => {
     let context: TestContext;
@@ -163,6 +165,7 @@ describe('App', () => {
                 }
             },
             prompts: new Prompts(),
+            ...wrapComponent(container, userEvent.setup()),
         };
     }
 

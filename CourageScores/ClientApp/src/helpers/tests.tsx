@@ -576,7 +576,7 @@ export function user(access: AccessDto, teamId?: string): UserDto {
     };
 }
 
-function wrapComponent(element: Element, user: UserEvent): IComponent {
+export function wrapComponent(element: Element, user: UserEvent): IComponent {
     return {
         all(selector: string): IComponent[] {
             return Array.from(element.querySelectorAll(selector)).map((e) =>
