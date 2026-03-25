@@ -2,8 +2,8 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doSelectOption,
     ErrorState,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -56,32 +56,30 @@ describe('ManOfTheMatchInput', () => {
     }
 
     function assertPlayers(
-        container: Element,
+        container: IComponent,
         names: string[],
         displayed: string,
         selected?: string,
     ) {
         names.unshift(' ');
 
-        const players = Array.from(
-            container.querySelectorAll(
-                'div.btn-group div[role="menu"] button[role="menuitem"]',
-            ),
-        ) as HTMLButtonElement[];
-        const displayedPlayer = container.querySelector(
+        const players = container.all(
+            'div.btn-group div[role="menu"] button[role="menuitem"]',
+        );
+        const displayedPlayer = container.required(
             'div.btn-group > button > span',
-        )!;
-        const selectedPlayer = container.querySelector(
+        );
+        const selectedPlayer = container.optional(
             'div.btn-group div[role="menu"] button[role="menuitem"].active',
-        )!;
-        expect(players.map((span) => span.textContent)).toEqual(names);
-        expect(displayedPlayer.textContent).toEqual(displayed);
+        );
+        expect(players.map((span) => span.text())).toEqual(names);
+        expect(displayedPlayer.text()).toEqual(displayed);
         if (selected) {
             expect(selectedPlayer).toBeTruthy();
-            expect(selectedPlayer.textContent).toEqual(selected);
+            expect(selectedPlayer!.text()).toEqual(selected);
         } else {
             if (selectedPlayer) {
-                expect(selectedPlayer.textContent).toEqual(' ');
+                expect(selectedPlayer.text()).toEqual(' ');
             }
         }
     }
@@ -204,7 +202,7 @@ describe('ManOfTheMatchInput', () => {
                 });
 
                 reportedError.verifyNoError();
-                const cells = context.container.querySelectorAll('td');
+                const cells = context.all('td');
                 expect(cells.length).toEqual(3);
                 assertPlayers(cells[0], [], ' ', undefined);
                 assertPlayers(cells[2], [], ' ', undefined);
@@ -230,14 +228,14 @@ describe('ManOfTheMatchInput', () => {
                 });
 
                 reportedError.verifyNoError();
-                const cells = context.container.querySelectorAll('td');
+                const cells = context.all('td');
                 expect(cells.length).toEqual(3);
-                expect(
-                    cells[0].querySelector('.dropdown-toggle')!.textContent,
-                ).toEqual('AWAY player');
-                expect(
-                    cells[2].querySelector('.dropdown-toggle')!.textContent,
-                ).toEqual('HOME player');
+                expect(cells[0].required('.dropdown-toggle').text()).toEqual(
+                    'AWAY player',
+                );
+                expect(cells[2].required('.dropdown-toggle').text()).toEqual(
+                    'HOME player',
+                );
             });
 
             it('when no selected players', async () => {
@@ -254,7 +252,7 @@ describe('ManOfTheMatchInput', () => {
                 });
 
                 reportedError.verifyNoError();
-                const cells = context.container.querySelectorAll('td');
+                const cells = context.all('td');
                 expect(cells.length).toEqual(3);
                 assertPlayers(cells[0], [], ' ', undefined);
                 assertPlayers(cells[2], [], ' ', undefined);
@@ -278,7 +276,7 @@ describe('ManOfTheMatchInput', () => {
                 });
 
                 reportedError.verifyNoError();
-                const cells = context.container.querySelectorAll('td');
+                const cells = context.all('td');
                 expect(cells.length).toEqual(3);
                 assertPlayers(cells[0], ['AWAY player'], ' ', undefined);
                 assertPlayers(cells[2], ['HOME player'], ' ', undefined);
@@ -303,7 +301,7 @@ describe('ManOfTheMatchInput', () => {
                 });
 
                 reportedError.verifyNoError();
-                const cells = context.container.querySelectorAll('td');
+                const cells = context.all('td');
                 expect(cells.length).toEqual(3);
                 assertPlayers(
                     cells[0],
@@ -332,7 +330,7 @@ describe('ManOfTheMatchInput', () => {
                 });
 
                 reportedError.verifyNoError();
-                const cells = context.container.querySelectorAll('td');
+                const cells = context.all('td');
                 expect(cells.length).toEqual(3);
                 assertPlayers(
                     cells[2],
@@ -360,12 +358,9 @@ describe('ManOfTheMatchInput', () => {
                     access: 'admin',
                     setFixtureData,
                 });
-                const homeMOM = context.container.querySelectorAll('td')[0];
+                const homeMOM = context.all('td')[0];
 
-                await doSelectOption(
-                    homeMOM.querySelector('.dropdown-menu'),
-                    'AWAY player',
-                );
+                await homeMOM.required('.dropdown-menu').select('AWAY player');
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData!.home.manOfTheMatch).toEqual(
@@ -391,12 +386,9 @@ describe('ManOfTheMatchInput', () => {
                     access: 'admin',
                     setFixtureData,
                 });
-                const homeMOM = context.container.querySelectorAll('td')[0];
+                const homeMOM = context.all('td')[0];
 
-                await doSelectOption(
-                    homeMOM.querySelector('.dropdown-menu'),
-                    ' ',
-                );
+                await homeMOM.required('.dropdown-menu').select(' ');
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData!.home.manOfTheMatch).toBeUndefined();
@@ -419,12 +411,9 @@ describe('ManOfTheMatchInput', () => {
                     access: 'admin',
                     setFixtureData,
                 });
-                const awayMOM = context.container.querySelectorAll('td')[2];
+                const awayMOM = context.all('td')[2];
 
-                await doSelectOption(
-                    awayMOM.querySelector('.dropdown-menu'),
-                    'HOME player',
-                );
+                await awayMOM.required('.dropdown-menu').select('HOME player');
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData!.away.manOfTheMatch).toEqual(
@@ -450,12 +439,9 @@ describe('ManOfTheMatchInput', () => {
                     access: 'admin',
                     setFixtureData,
                 });
-                const awayMOM = context.container.querySelectorAll('td')[2];
+                const awayMOM = context.all('td')[2];
 
-                await doSelectOption(
-                    awayMOM.querySelector('.dropdown-menu'),
-                    ' ',
-                );
+                await awayMOM.required('.dropdown-menu').select(' ');
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData!.away.manOfTheMatch).toBeUndefined();

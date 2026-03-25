@@ -2,10 +2,6 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
-    doSelectOption,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -62,10 +58,10 @@ describe('HiCheckAnd180s', () => {
                 setFixtureData,
             });
 
-            const cells = context.container.querySelectorAll('td');
+            const cells = context.all('td');
             expect(cells.length).toEqual(1);
-            expect(cells[0].colSpan).toEqual(5);
-            expect(cells[0].textContent).toEqual(
+            expect(cells[0].element<HTMLTableCellElement>().colSpan).toEqual(5);
+            expect(cells[0].text()).toEqual(
                 'Select some player/s to add 180s and hi-checks',
             );
         });
@@ -84,10 +80,10 @@ describe('HiCheckAnd180s', () => {
                 setFixtureData,
             });
 
-            const cells = context.container.querySelectorAll('td');
+            const cells = context.all('td');
             expect(cells.length).toEqual(1);
-            expect(cells[0].colSpan).toEqual(5);
-            expect(cells[0].textContent).toEqual(
+            expect(cells[0].element<HTMLTableCellElement>().colSpan).toEqual(5);
+            expect(cells[0].text()).toEqual(
                 'Select some player/s to add 180s and hi-checks',
             );
         });
@@ -106,10 +102,10 @@ describe('HiCheckAnd180s', () => {
                 setFixtureData,
             });
 
-            const cells = context.container.querySelectorAll('td');
+            const cells = context.all('td');
             expect(cells.length).toEqual(1);
-            expect(cells[0].colSpan).toEqual(5);
-            expect(cells[0].textContent).toEqual(
+            expect(cells[0].element<HTMLTableCellElement>().colSpan).toEqual(5);
+            expect(cells[0].text()).toEqual(
                 'Select some player/s to add 180s and hi-checks',
             );
         });
@@ -130,11 +126,11 @@ describe('HiCheckAnd180s', () => {
                 setFixtureData,
             });
 
-            const cells = context.container.querySelectorAll('td');
+            const cells = context.all('td');
             expect(cells.length).toEqual(3);
-            expect(cells[0].textContent).toEqual('180s');
-            expect(cells[1].textContent).toEqual('');
-            expect(cells[2].textContent).toEqual('100+ c/o');
+            expect(cells[0].text()).toEqual('180s');
+            expect(cells[1].text()).toEqual('');
+            expect(cells[2].text()).toEqual('100+ c/o');
         });
 
         it('when some 180s', async () => {
@@ -154,13 +150,13 @@ describe('HiCheckAnd180s', () => {
                 setFixtureData,
             });
 
-            const cells = context.container.querySelectorAll('td');
+            const cells = context.all('td');
             expect(cells.length).toEqual(3);
             const cell = cells[0];
-            expect(cell.textContent).toContain('180s');
-            expect(cell.textContent).toContain('HOME player');
-            expect(cell.textContent).not.toContain('🗑');
-            expect(cell.textContent).not.toContain('➕');
+            expect(cell.text()).toContain('180s');
+            expect(cell.text()).toContain('HOME player');
+            expect(cell.text()).not.toContain('🗑');
+            expect(cell.text()).not.toContain('➕');
         });
 
         it('when some hi-checks', async () => {
@@ -180,13 +176,13 @@ describe('HiCheckAnd180s', () => {
                 setFixtureData,
             });
 
-            const cells = context.container.querySelectorAll('td');
+            const cells = context.all('td');
             expect(cells.length).toEqual(3);
             const cell = cells[2];
-            expect(cell.textContent).toContain('100+ c/o');
-            expect(cell.textContent).toContain('HOME player (100)');
-            expect(cell.textContent).not.toContain('🗑');
-            expect(cell.textContent).not.toContain('➕');
+            expect(cell.text()).toContain('100+ c/o');
+            expect(cell.text()).toContain('HOME player (100)');
+            expect(cell.text()).not.toContain('🗑');
+            expect(cell.text()).not.toContain('➕');
         });
     });
 
@@ -208,10 +204,12 @@ describe('HiCheckAnd180s', () => {
                     setFixtureData,
                 });
 
-                const cells = context.container.querySelectorAll('td');
+                const cells = context.all('td');
                 expect(cells.length).toEqual(1);
-                expect(cells[0].colSpan).toEqual(5);
-                expect(cells[0].textContent).toEqual(
+                expect(
+                    cells[0].element<HTMLTableCellElement>().colSpan,
+                ).toEqual(5);
+                expect(cells[0].text()).toEqual(
                     'Select some player/s to add 180s and hi-checks',
                 );
             });
@@ -230,10 +228,12 @@ describe('HiCheckAnd180s', () => {
                     setFixtureData,
                 });
 
-                const cells = context.container.querySelectorAll('td');
+                const cells = context.all('td');
                 expect(cells.length).toEqual(1);
-                expect(cells[0].colSpan).toEqual(5);
-                expect(cells[0].textContent).toEqual(
+                expect(
+                    cells[0].element<HTMLTableCellElement>().colSpan,
+                ).toEqual(5);
+                expect(cells[0].text()).toEqual(
                     'Select some player/s to add 180s and hi-checks',
                 );
             });
@@ -256,17 +256,17 @@ describe('HiCheckAnd180s', () => {
                     setFixtureData,
                 });
 
-                const cells = context.container.querySelectorAll('td');
+                const cells = context.all('td');
                 expect(cells.length).toEqual(3);
-                expect(cells[0].textContent).toContain('180s');
-                expect(cells[0].textContent).toContain('HOME player');
-                expect(cells[0].textContent).toContain('AWAY player');
-                expect(cells[0].textContent).toContain('➕');
-                expect(cells[1].textContent).toEqual('');
-                expect(cells[2].textContent).toContain('100+ c/o');
-                expect(cells[2].textContent).toContain('HOME player');
-                expect(cells[2].textContent).toContain('AWAY player');
-                expect(cells[2].textContent).toContain('➕');
+                expect(cells[0].text()).toContain('180s');
+                expect(cells[0].text()).toContain('HOME player');
+                expect(cells[0].text()).toContain('AWAY player');
+                expect(cells[0].text()).toContain('➕');
+                expect(cells[1].text()).toEqual('');
+                expect(cells[2].text()).toContain('100+ c/o');
+                expect(cells[2].text()).toContain('HOME player');
+                expect(cells[2].text()).toContain('AWAY player');
+                expect(cells[2].text()).toContain('➕');
             });
 
             it('when some 180s', async () => {
@@ -288,12 +288,12 @@ describe('HiCheckAnd180s', () => {
                     setFixtureData,
                 });
 
-                const cells = context.container.querySelectorAll('td');
+                const cells = context.all('td');
                 expect(cells.length).toEqual(3);
                 const cell = cells[0];
-                expect(cell.textContent).toContain('180s');
-                expect(cell.textContent).toContain('HOME player 🗑');
-                expect(cell.textContent).toContain('➕');
+                expect(cell.text()).toContain('180s');
+                expect(cell.text()).toContain('HOME player 🗑');
+                expect(cell.text()).toContain('➕');
             });
 
             it('when some hi-checks', async () => {
@@ -315,12 +315,12 @@ describe('HiCheckAnd180s', () => {
                     setFixtureData,
                 });
 
-                const cells = context.container.querySelectorAll('td');
+                const cells = context.all('td');
                 expect(cells.length).toEqual(3);
                 const cell = cells[2];
-                expect(cell.textContent).toContain('100+ c/o');
-                expect(cell.textContent).toContain('HOME player (100) 🗑');
-                expect(cell.textContent).toContain('➕');
+                expect(cell.text()).toContain('100+ c/o');
+                expect(cell.text()).toContain('HOME player (100) 🗑');
+                expect(cell.text()).toContain('➕');
             });
         });
 
@@ -343,14 +343,12 @@ describe('HiCheckAnd180s', () => {
                     fixtureData,
                     setFixtureData,
                 });
-                const td180s = context.container.querySelectorAll('td')[0];
-                const addPlayerContainer =
-                    td180s.querySelector('ol li:last-child')!;
-                await doSelectOption(
-                    addPlayerContainer.querySelector('.dropdown-menu')!,
-                    'AWAY player',
-                );
-                await doClick(findButton(addPlayerContainer, '➕'));
+                const td180s = context.all('td')[0];
+                const addPlayerContainer = td180s.required('ol li:last-child');
+                await addPlayerContainer
+                    .required('.dropdown-menu')
+                    .select('AWAY player');
+                await addPlayerContainer.button('➕').click();
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData!.oneEighties).toEqual([
@@ -377,9 +375,9 @@ describe('HiCheckAnd180s', () => {
                     fixtureData,
                     setFixtureData,
                 });
-                const td180s = context.container.querySelectorAll('td')[0];
+                const td180s = context.all('td')[0];
                 expect(td180s).toBeTruthy();
-                await doClick(findButton(td180s, 'HOME player 🗑'));
+                await td180s.button('HOME player 🗑').click();
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData!.oneEighties).toEqual([]);
@@ -403,20 +401,14 @@ describe('HiCheckAnd180s', () => {
                     fixtureData,
                     setFixtureData,
                 });
-                const tdHiChecks = context.container.querySelectorAll('td')[2];
+                const tdHiChecks = context.all('td')[2];
                 const addPlayerContainer =
-                    tdHiChecks.querySelector('ol li:last-child')!;
-                await doChange(
-                    addPlayerContainer,
-                    'input',
-                    '140',
-                    context.user,
-                );
-                await doSelectOption(
-                    addPlayerContainer.querySelector('.dropdown-menu')!,
-                    'AWAY player',
-                );
-                await doClick(findButton(addPlayerContainer, '➕'));
+                    tdHiChecks.required('ol li:last-child');
+                await addPlayerContainer.required('input').change('140');
+                await addPlayerContainer
+                    .required('.dropdown-menu')
+                    .select('AWAY player');
+                await addPlayerContainer.button('➕').click();
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData!.over100Checkouts).toEqual([
@@ -443,9 +435,9 @@ describe('HiCheckAnd180s', () => {
                     fixtureData,
                     setFixtureData,
                 });
-                const tdHiChecks = context.container.querySelectorAll('td')[2];
+                const tdHiChecks = context.all('td')[2];
                 expect(tdHiChecks).toBeTruthy();
-                await doClick(findButton(tdHiChecks, 'HOME player (100) 🗑'));
+                await tdHiChecks.button('HOME player (100) 🗑').click();
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData!.over100Checkouts).toEqual([]);

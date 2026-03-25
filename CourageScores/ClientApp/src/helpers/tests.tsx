@@ -597,6 +597,16 @@ export function wrapComponent(element: Element, user: UserEvent): IComponent {
             return found ? wrapComponent(found, user) : undefined;
         },
         element: <T extends Element>() => element as T,
+        parent(): IComponent | undefined {
+            const parent = element.parentElement;
+            return parent ? wrapComponent(parent, user) : undefined;
+        },
+        nextSibling(): IComponent | undefined {
+            const nextSibling = element.nextSibling;
+            return nextSibling && nextSibling instanceof Element
+                ? wrapComponent(nextSibling, user)
+                : undefined;
+        },
         async click(doNothingIfDisabled?: boolean): Promise<IComponent> {
             if (!this.enabled() && !doNothingIfDisabled) {
                 throw new Error('Element is disabled');
@@ -825,6 +835,10 @@ export interface IComponent {
      * the dom element
      */
     element<T extends Element>(): T;
+
+    parent(): IComponent | undefined;
+
+    nextSibling(): IComponent | undefined;
 
     button(text: string): IComponent;
 

@@ -1,10 +1,8 @@
-﻿import {
+import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -92,10 +90,10 @@ describe('MergeMatch', () => {
             });
 
             reportedError.verifyNoError();
-            const td = context.container.querySelector('td')!;
-            expect(td.colSpan).toEqual(5);
-            expect(td.querySelector('button')).toBeTruthy();
-            expect(td.querySelector('span > div')!.textContent).toEqual(
+            const td = context.required('td');
+            expect(td.element<HTMLTableCellElement>().colSpan).toEqual(5);
+            expect(td.optional('button')).toBeTruthy();
+            expect(td.required('span > div').text()).toEqual(
                 'HOME: 1 - AWAY: 2',
             );
         });
@@ -125,13 +123,15 @@ describe('MergeMatch', () => {
             });
 
             reportedError.verifyNoError();
-            const td = context.container.querySelector('td')!;
-            expect(td.colSpan).toEqual(5);
-            expect(td.querySelector('button')).toBeTruthy();
-            expect(td.querySelector('span > div')!.textContent).toEqual(
+            const td = context.required('td');
+            expect(td.element<HTMLTableCellElement>().colSpan).toEqual(5);
+            expect(td.optional('button')).toBeTruthy();
+            expect(td.required('span > div').text()).toEqual(
                 'HOME: 1 - AWAY: 2',
             );
-            expect(td.querySelector('button')!.disabled).toEqual(true);
+            expect(
+                td.required('button').element<HTMLButtonElement>().disabled,
+            ).toEqual(true);
         });
 
         it('when home but no away submission match', async () => {
@@ -155,11 +155,9 @@ describe('MergeMatch', () => {
             });
 
             reportedError.verifyNoError();
-            const td = context.container.querySelector(
-                'td:nth-child(3)',
-            ) as HTMLTableCellElement;
-            expect(td.colSpan).toEqual(2);
-            expect(td.querySelector('span')!.textContent).toEqual('No match');
+            const td = context.required('td:nth-child(3)');
+            expect(td.element<HTMLTableCellElement>().colSpan).toEqual(2);
+            expect(td.required('span').text()).toEqual('No match');
         });
 
         it('when nothing to merge for either home or away', async () => {
@@ -218,13 +216,13 @@ describe('MergeMatch', () => {
             });
 
             reportedError.verifyNoError();
-            const homeSubmission = context.container.querySelector(
-                'td:nth-child(1)',
-            ) as HTMLTableCellElement;
-            expect(homeSubmission.colSpan).toEqual(2);
-            expect(homeSubmission.textContent).toContain('from HOME CAPTAIN');
-            expect(homeSubmission.textContent).toContain('HOME: 1 - AWAY: 2');
-            expect(homeSubmission.textContent).toContain(
+            const homeSubmission = context.required('td:nth-child(1)');
+            expect(
+                homeSubmission.element<HTMLTableCellElement>().colSpan,
+            ).toEqual(2);
+            expect(homeSubmission.text()).toContain('from HOME CAPTAIN');
+            expect(homeSubmission.text()).toContain('HOME: 1 - AWAY: 2');
+            expect(homeSubmission.text()).toContain(
                 'HOME PLAYER vs AWAY PLAYER',
             );
         });
@@ -262,13 +260,14 @@ describe('MergeMatch', () => {
             });
 
             reportedError.verifyNoError();
-            const homeSubmission = context.container.querySelector(
-                'td:nth-child(1)',
-            ) as HTMLTableCellElement;
-            expect(homeSubmission.colSpan).toEqual(2);
-            expect(homeSubmission.querySelector('button')!.disabled).toEqual(
-                true,
-            );
+            const homeSubmission = context.required('td:nth-child(1)');
+            expect(
+                homeSubmission.element<HTMLTableCellElement>().colSpan,
+            ).toEqual(2);
+            expect(
+                homeSubmission.required('button').element<HTMLButtonElement>()
+                    .disabled,
+            ).toEqual(true);
         });
 
         it('when away unmerged', async () => {
@@ -304,13 +303,13 @@ describe('MergeMatch', () => {
             });
 
             reportedError.verifyNoError();
-            const awaySubmission = context.container.querySelector(
-                'td:nth-child(3)',
-            ) as HTMLTableCellElement;
-            expect(awaySubmission.colSpan).toEqual(2);
-            expect(awaySubmission.textContent).toContain('from AWAY CAPTAIN');
-            expect(awaySubmission.textContent).toContain('HOME: 1 - AWAY: 2');
-            expect(awaySubmission.textContent).toContain(
+            const awaySubmission = context.required('td:nth-child(3)');
+            expect(
+                awaySubmission.element<HTMLTableCellElement>().colSpan,
+            ).toEqual(2);
+            expect(awaySubmission.text()).toContain('from AWAY CAPTAIN');
+            expect(awaySubmission.text()).toContain('HOME: 1 - AWAY: 2');
+            expect(awaySubmission.text()).toContain(
                 'HOME PLAYER vs AWAY PLAYER',
             );
         });
@@ -348,13 +347,14 @@ describe('MergeMatch', () => {
             });
 
             reportedError.verifyNoError();
-            const awaySubmission = context.container.querySelector(
-                'td:nth-child(3)',
-            ) as HTMLTableCellElement;
-            expect(awaySubmission.colSpan).toEqual(2);
-            expect(awaySubmission.querySelector('button')!.disabled).toEqual(
-                true,
-            );
+            const awaySubmission = context.required('td:nth-child(3)');
+            expect(
+                awaySubmission.element<HTMLTableCellElement>().colSpan,
+            ).toEqual(2);
+            expect(
+                awaySubmission.required('button').element<HTMLButtonElement>()
+                    .disabled,
+            ).toEqual(true);
         });
     });
 
@@ -394,10 +394,8 @@ describe('MergeMatch', () => {
                     .build(),
                 setFixtureData,
             });
-            const homeSubmission =
-                context.container.querySelector('td:nth-child(1)');
 
-            await doClick(findButton(homeSubmission, 'Accept'));
+            await context.required('td:nth-child(1)').button('Accept').click();
 
             reportedError.verifyNoError();
             expect(updatedData!.matches![0]).toEqual({
@@ -443,10 +441,8 @@ describe('MergeMatch', () => {
                     .build(),
                 setFixtureData,
             });
-            const awaySubmission =
-                context.container.querySelector('td:nth-child(3)');
 
-            await doClick(findButton(awaySubmission, 'Accept'));
+            await context.required('td:nth-child(3)').button('Accept').click();
 
             reportedError.verifyNoError();
             expect(updatedData!.matches![0]).toEqual({
@@ -497,10 +493,8 @@ describe('MergeMatch', () => {
                     .build(),
                 setFixtureData,
             });
-            const homeSubmission =
-                context.container.querySelector('td:nth-child(1)');
 
-            await doClick(findButton(homeSubmission, 'Accept'));
+            await context.required('td:nth-child(1)').button('Accept').click();
 
             reportedError.verifyNoError();
             expect(updatedData!.matches![0]).toEqual({
