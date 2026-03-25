@@ -3,10 +3,8 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
     ErrorState,
-    findButton,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -117,11 +115,9 @@ describe('DivisionTeams', () => {
 
     async function setDivisionData() {}
 
-    function assertTeam(tr: HTMLTableRowElement, values: string[]) {
-        const tds = Array.from(
-            tr.querySelectorAll('td'),
-        ) as HTMLTableCellElement[];
-        expect(tds.map((td) => td.textContent)).toEqual(values);
+    function assertTeam(tr: IComponent, values: string[]) {
+        const tds = tr.all('td');
+        expect(tds.map((td) => td.text())).toEqual(values);
     }
 
     describe('when logged out', () => {
@@ -140,11 +136,9 @@ describe('DivisionTeams', () => {
             });
 
             reportedError.verifyNoError();
-            const teamsRows = Array.from(
-                context.container.querySelectorAll(
-                    '.content-background table.table tbody tr',
-                ),
-            ) as HTMLTableRowElement[];
+            const teamsRows = context.all(
+                '.content-background table.table tbody tr',
+            );
             expect(teamsRows.length).toEqual(2);
             assertTeam(teamsRows[0], [
                 'A team 1',
@@ -177,10 +171,11 @@ describe('DivisionTeams', () => {
             });
 
             reportedError.verifyNoError();
-            const addTeamButton = context.container.querySelector(
-                '.content-background > div > div .btn-primary',
-            );
-            expect(addTeamButton).toBeFalsy();
+            expect(
+                context.optional(
+                    '.content-background > div > div .btn-primary',
+                ),
+            ).toBeFalsy();
         });
     });
 
@@ -207,11 +202,9 @@ describe('DivisionTeams', () => {
             });
 
             reportedError.verifyNoError();
-            const teamsRows = Array.from(
-                context.container.querySelectorAll(
-                    '.content-background table.table tbody tr',
-                ),
-            ) as HTMLTableRowElement[];
+            const teamsRows = context.all(
+                '.content-background table.table tbody tr',
+            );
             expect(teamsRows.length).toEqual(2);
             assertTeam(teamsRows[0], [
                 '✏️➕A team 1',
@@ -244,10 +237,11 @@ describe('DivisionTeams', () => {
             });
 
             reportedError.verifyNoError();
-            const addTeamButton = context.container.querySelector(
-                '.content-background > div > div .btn-primary',
-            );
-            expect(addTeamButton).toBeTruthy();
+            expect(
+                context.required(
+                    '.content-background > div > div .btn-primary',
+                ),
+            ).toBeTruthy();
         });
 
         it('renders add team dialog', async () => {
@@ -259,12 +253,12 @@ describe('DivisionTeams', () => {
                 setDivisionData,
             });
 
-            await doClick(findButton(context.container, 'Add team'));
+            await context.button('Add team').click();
 
             reportedError.verifyNoError();
-            const dialog = context.container.querySelector('.modal-dialog')!;
+            const dialog = context.required('.modal-dialog');
             expect(dialog).toBeTruthy();
-            expect(dialog.textContent).toContain('Create a new team...');
+            expect(dialog.text()).toContain('Create a new team...');
         });
 
         it('can close add team dialog', async () => {
@@ -275,21 +269,12 @@ describe('DivisionTeams', () => {
                 onReloadDivision,
                 setDivisionData,
             });
-            await doClick(findButton(context.container, 'Add team'));
-            expect(
-                context.container.querySelector('.modal-dialog'),
-            ).toBeTruthy();
+            await context.button('Add team').click();
+            expect(context.optional('.modal-dialog')).toBeTruthy();
 
-            await doClick(
-                findButton(
-                    context.container.querySelector('.modal-dialog'),
-                    'Cancel',
-                ),
-            );
+            await context.required('.modal-dialog').button('Cancel').click();
 
-            expect(
-                context.container.querySelector('.modal-dialog'),
-            ).toBeFalsy();
+            expect(context.optional('.modal-dialog')).toBeFalsy();
         });
 
         it('can create new team', async () => {
@@ -300,23 +285,16 @@ describe('DivisionTeams', () => {
                 onReloadDivision,
                 setDivisionData,
             });
-            await doClick(findButton(context.container, 'Add team'));
-            const dialog = context.container.querySelector('.modal-dialog')!;
-            expect(dialog.textContent).toContain('Create a new team...');
+            await context.button('Add team').click();
+            const dialog = context.required('.modal-dialog');
+            expect(dialog.text()).toContain('Create a new team...');
 
-            await doChange(
-                dialog,
-                'input[name="name"]',
-                'NEW TEAM',
-                context.user,
-            );
-            await doClick(findButton(dialog, 'Add team'));
+            await dialog.input('name').change('NEW TEAM');
+            await dialog.button('Add team').click();
 
             reportedError.verifyNoError();
             expect(divisionReloaded).toEqual(true);
-            expect(
-                context.container.querySelector('.modal-dialog'),
-            ).toBeFalsy(); // dialog closed
+            expect(context.optional('.modal-dialog')).toBeFalsy(); // dialog closed
         });
     });
 });
