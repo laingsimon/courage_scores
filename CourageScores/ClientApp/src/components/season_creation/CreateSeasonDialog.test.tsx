@@ -3,10 +3,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
-    doSelectOption,
     ErrorState,
-    findButton,
     iocProps,
     noop,
     renderApp,
@@ -303,10 +300,7 @@ describe('CreateSeasonDialog', () => {
                         onClose,
                     },
                 );
-                await doSelectOption(
-                    context.container.querySelector('.dropdown-menu'),
-                    'TEMPLATE',
-                );
+                await context.required('.dropdown-menu').select('TEMPLATE');
                 reportedError.verifyNoError();
                 setApiResponse(true, {
                     divisions: [
@@ -375,25 +369,19 @@ describe('CreateSeasonDialog', () => {
                     placeholderMappings: {},
                     template: getEmptyTemplate(templateId, 2),
                 });
-                await doClick(findButton(context.container, 'Next')); // (1) pick -> (2) assign placeholders
-                await doClick(findButton(context.container, 'Next')); // (2) assign placeholders -> (3) review
-                await doClick(findButton(context.container, 'Next')); // (3) review -> (4) review-proposals
+                await context.button('Next').click(); // (1) pick -> (2) assign placeholders
+                await context.button('Next').click(); // (2) assign placeholders -> (3) review
+                await context.button('Next').click(); // (3) review -> (4) review-proposals
                 reportedError.verifyNoError();
 
-                await doClick(
-                    findButton(
-                        context.container.querySelector('div'),
-                        'Save all fixtures',
-                    ),
-                ); // (4) review-proposals -> (5) confirm-save
+                await context
+                    .required('div')
+                    .button('Save all fixtures')
+                    .click(); // (4) review-proposals -> (5) confirm-save
 
-                expect(
-                    context.container.querySelector('div.modal'),
-                ).toBeTruthy();
-                expect(
-                    context.container.querySelector('div.position-fixed'),
-                ).toBeFalsy();
-                expect(context.container.textContent).toContain(
+                expect(context.optional('div.modal')).toBeTruthy();
+                expect(context.optional('div.position-fixed')).toBeFalsy();
+                expect(context.text()).toContain(
                     'Press Next to save all 3 fixtures across 2 divisions',
                 );
             });
@@ -429,13 +417,10 @@ describe('CreateSeasonDialog', () => {
                         onClose,
                     },
                 );
-                await doSelectOption(
-                    context.container.querySelector('.dropdown-menu'),
-                    '🚫 TEMPLATE',
-                );
+                await context.required('.dropdown-menu').select('🚫 TEMPLATE');
                 reportedError.verifyNoError();
 
-                await doClick(findButton(context.container, 'Next'));
+                await context.button('Next').click();
 
                 reportedError.verifyNoError();
                 context.prompts.alertWasShown(
@@ -464,8 +449,7 @@ describe('CreateSeasonDialog', () => {
                     },
                 );
 
-                const back = findButton(context.container, 'Back');
-                expect(back.disabled).toEqual(true);
+                expect(context.button('Back').enabled()).toEqual(false);
             });
 
             it('moves to (2) assign-placeholders', async () => {
@@ -487,20 +471,14 @@ describe('CreateSeasonDialog', () => {
                         onClose,
                     },
                 );
-                await doSelectOption(
-                    context.container.querySelector('.dropdown-menu'),
-                    'TEMPLATE',
-                );
+                await context.required('.dropdown-menu').select('TEMPLATE');
                 reportedError.verifyNoError();
                 setApiResponse(true);
 
-                await doClick(findButton(context.container, 'Next'));
+                await context.button('Next').click();
 
                 reportedError.verifyNoError();
-                const placeholderLists = Array.from(
-                    context.container.querySelectorAll('h6 + ul'),
-                );
-                expect(placeholderLists.length).toEqual(1);
+                expect(context.all('h6 + ul').length).toEqual(1);
             });
         });
 
@@ -571,16 +549,13 @@ describe('CreateSeasonDialog', () => {
                     },
                 );
 
-                await doSelectOption(
-                    context.container.querySelector('.dropdown-menu'),
-                    'TEMPLATE',
-                );
+                await context.required('.dropdown-menu').select('TEMPLATE');
 
-                await doClick(findButton(context.container, 'Next'));
+                await context.button('Next').click();
             });
 
             it('can navigate forwards to (3) review', async () => {
-                await doClick(findButton(context.container, 'Next'));
+                await context.button('Next').click();
 
                 expect(proposalRequest).toEqual({
                     seasonId: seasonId,
@@ -590,15 +565,13 @@ describe('CreateSeasonDialog', () => {
             });
 
             it('can navigate backwards to (1) pick', async () => {
-                await doClick(findButton(context.container, 'Back'));
+                await context.button('Back').click();
 
-                const templateSelection =
-                    context.container.querySelector('.dropdown-menu')!;
-                expect(templateSelection).toBeTruthy();
+                const templateSelection = context.required('.dropdown-menu');
                 expect(
-                    Array.from(
-                        templateSelection.querySelectorAll('.dropdown-item'),
-                    ).map((li) => li.textContent),
+                    templateSelection
+                        .all('.dropdown-item')
+                        .map((li) => li.text()),
                 ).toEqual(['TEMPLATE']);
             });
         });
@@ -642,10 +615,7 @@ describe('CreateSeasonDialog', () => {
                         onClose,
                     },
                 );
-                await doSelectOption(
-                    context.container.querySelector('.dropdown-menu'),
-                    'TEMPLATE',
-                );
+                await context.required('.dropdown-menu').select('TEMPLATE');
                 reportedError.verifyNoError();
 
                 setApiResponse(true, {
@@ -660,18 +630,18 @@ describe('CreateSeasonDialog', () => {
                     template: getEmptyTemplate(templateId, 1),
                 });
 
-                await doClick(findButton(context.container, 'Next'));
-                await doClick(findButton(context.container, 'Next'));
+                await context.button('Next').click();
+                await context.button('Next').click();
             });
 
             it('can navigate back to (2) assign placeholders', async () => {
-                await doClick(findButton(context.container, 'Back'));
+                await context.button('Back').click();
 
                 reportedError.verifyNoError();
             });
 
             it('can navigate to (4) review-proposals', async () => {
-                await doClick(findButton(context.container, 'Next'));
+                await context.button('Next').click();
 
                 reportedError.verifyNoError();
                 expect(divisionDataSetTo).toEqual({
@@ -679,9 +649,9 @@ describe('CreateSeasonDialog', () => {
                     name: 'PROPOSED DIVISION',
                     sharedAddresses: [],
                 });
-                expect(
-                    context.container.querySelector('div')!.className,
-                ).toContain('position-fixed');
+                expect(context.required('div').className()).toContain(
+                    'position-fixed',
+                );
             });
         });
 
@@ -726,10 +696,7 @@ describe('CreateSeasonDialog', () => {
                     },
                 );
 
-                await doSelectOption(
-                    context.container.querySelector('.dropdown-menu'),
-                    'TEMPLATE',
-                );
+                await context.required('.dropdown-menu').select('TEMPLATE');
                 reportedError.verifyNoError();
                 setApiResponse(true, {
                     divisions: [
@@ -793,40 +760,28 @@ describe('CreateSeasonDialog', () => {
                     template: getEmptyTemplate(templateId, 2),
                 });
 
-                await doClick(findButton(context.container, 'Next'));
-                await doClick(findButton(context.container, 'Next'));
-                await doClick(findButton(context.container, 'Next'));
+                await context.button('Next').click();
+                await context.button('Next').click();
+                await context.button('Next').click();
                 reportedError.verifyNoError();
             });
 
             it('can navigate back to (3) review', async () => {
-                await doClick(findButton(context.container, 'Back'));
+                await context.button('Back').click();
 
-                expect(
-                    context.container.querySelector('div.modal'),
-                ).toBeTruthy();
-                expect(
-                    context.container.querySelector('div.position-fixed'),
-                ).toBeFalsy();
-                expect(context.container.textContent).toContain(
+                expect(context.optional('div.modal')).toBeTruthy();
+                expect(context.optional('div.position-fixed')).toBeFalsy();
+                expect(context.text()).toContain(
                     'Press Next to review the fixtures in the divisions before saving',
                 );
             });
 
             it('can navigate forward to (5) confirm-save', async () => {
-                await doClick(
-                    findButton(context.container, 'Save all fixtures'),
-                );
+                await context.button('Save all fixtures').click();
 
-                expect(
-                    context.container.querySelector('div.modal'),
-                ).toBeTruthy();
-                expect(
-                    context.container.querySelector('div.position-fixed'),
-                ).toBeFalsy();
-                expect(context.container.textContent).toContain(
-                    'Press Next to save all',
-                );
+                expect(context.optional('div.modal')).toBeTruthy();
+                expect(context.optional('div.position-fixed')).toBeFalsy();
+                expect(context.text()).toContain('Press Next to save all');
             });
         });
 
@@ -876,10 +831,7 @@ describe('CreateSeasonDialog', () => {
                     },
                 );
 
-                await doSelectOption(
-                    context.container.querySelector('.dropdown-menu'),
-                    'TEMPLATE',
-                );
+                await context.required('.dropdown-menu').select('TEMPLATE');
                 reportedError.verifyNoError();
                 setApiResponse(true, {
                     divisions: [
@@ -943,31 +895,25 @@ describe('CreateSeasonDialog', () => {
                     template: getEmptyTemplate(templateId, 2),
                 });
 
-                await doClick(findButton(context.container, 'Next'));
-                await doClick(findButton(context.container, 'Next'));
-                await doClick(findButton(context.container, 'Next'));
+                await context.button('Next').click();
+                await context.button('Next').click();
+                await context.button('Next').click();
                 reportedError.verifyNoError();
-                await doClick(
-                    findButton(
-                        context.container.querySelector('div'),
-                        'Save all fixtures',
-                    ),
-                );
+                await context
+                    .required('div')
+                    .button('Save all fixtures')
+                    .click();
             });
 
             it('can navigate back to review-proposals', async () => {
-                await doClick(findButton(context.container, 'Back'));
+                await context.button('Back').click();
 
-                expect(
-                    context.container.querySelector('div.modal'),
-                ).toBeFalsy();
-                expect(
-                    context.container.querySelector('div.position-fixed'),
-                ).toBeTruthy();
+                expect(context.optional('div.modal')).toBeFalsy();
+                expect(context.optional('div.position-fixed')).toBeTruthy();
             });
 
             it('reloads division after all fixtures saved and closes dialog', async () => {
-                await doClick(findButton(context.container, 'Next'));
+                await context.button('Next').click();
 
                 reportedError.verifyNoError();
                 expect(updatedFixtures.length).toEqual(3);
@@ -987,7 +933,7 @@ describe('CreateSeasonDialog', () => {
                     };
                 };
 
-                await doClick(findButton(context.container, 'Next'));
+                await context.button('Next').click();
 
                 reportedError.verifyNoError();
                 expect(updatedFixtures.length).toEqual(3);
@@ -995,7 +941,7 @@ describe('CreateSeasonDialog', () => {
                 expect(divisionDataSetTo).toBeUndefined();
                 expect(allDataReloaded).toEqual(true);
                 expect(closed).toEqual(false);
-                expect(context.container.textContent).toContain(
+                expect(context.text()).toContain(
                     'Some (3) fixtures could not be saved',
                 );
             });
@@ -1005,7 +951,7 @@ describe('CreateSeasonDialog', () => {
                     throw new Error('SOME EXCEPTION');
                 };
 
-                await doClick(findButton(context.container, 'Next'));
+                await context.button('Next').click();
 
                 reportedError.verifyNoError();
                 expect(updatedFixtures.length).toEqual(3);
@@ -1013,7 +959,7 @@ describe('CreateSeasonDialog', () => {
                 expect(divisionDataSetTo).toBeUndefined();
                 expect(allDataReloaded).toEqual(true);
                 expect(closed).toEqual(false);
-                expect(context.container.textContent).toContain(
+                expect(context.text()).toContain(
                     'Some (3) fixtures could not be saved',
                 );
             });
@@ -1046,7 +992,7 @@ describe('CreateSeasonDialog', () => {
                 );
                 reportedError.verifyNoError();
 
-                await doClick(findButton(context.container, 'Close'));
+                await context.button('Close').click();
 
                 reportedError.verifyNoError();
                 expect(divisionDataResetTo).toBeUndefined();
