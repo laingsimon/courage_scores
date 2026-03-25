@@ -2,11 +2,8 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
-    doSelectOption,
     ErrorState,
-    findButton,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -61,8 +58,8 @@ describe('MultiPlayerSelection', () => {
         );
     }
 
-    function getSelectedPlayers() {
-        return Array.from(context.container.querySelectorAll('ol li'));
+    function getSelectedPlayers(): IComponent[] {
+        return context.all('ol li');
     }
 
     describe('renders', () => {
@@ -80,14 +77,8 @@ describe('MultiPlayerSelection', () => {
             });
 
             reportedError.verifyNoError();
-            const inputs = Array.from(
-                context.container.querySelectorAll('input'),
-            );
-            const buttons = Array.from(
-                context.container.querySelectorAll('button'),
-            );
-            expect(inputs.length).toEqual(0);
-            expect(buttons.length).toEqual(1);
+            expect(context.all('input').length).toEqual(0);
+            expect(context.all('button').length).toEqual(1);
         });
 
         it('disabled component', async () => {
@@ -100,14 +91,8 @@ describe('MultiPlayerSelection', () => {
             });
 
             reportedError.verifyNoError();
-            const inputs = Array.from(
-                context.container.querySelectorAll('input'),
-            );
-            const buttons = Array.from(
-                context.container.querySelectorAll('button'),
-            );
-            expect(inputs.length).toEqual(0);
-            expect(buttons.length).toEqual(0);
+            expect(context.all('input').length).toEqual(0);
+            expect(context.all('button').length).toEqual(0);
         });
 
         it('disabled and readonly component', async () => {
@@ -121,14 +106,8 @@ describe('MultiPlayerSelection', () => {
             });
 
             reportedError.verifyNoError();
-            const inputs = Array.from(
-                context.container.querySelectorAll('input'),
-            );
-            const buttons = Array.from(
-                context.container.querySelectorAll('button'),
-            );
-            expect(inputs.length).toEqual(0);
-            expect(buttons.length).toEqual(0);
+            expect(context.all('input').length).toEqual(0);
+            expect(context.all('button').length).toEqual(0);
         });
 
         it('editable component without notes', async () => {
@@ -143,18 +122,13 @@ describe('MultiPlayerSelection', () => {
             const selectedPlayers = getSelectedPlayers();
             expect(selectedPlayers.length).toEqual(1 + 1);
             const selectedPlayer = selectedPlayers[0];
-            const removePlayerButton = selectedPlayer.querySelector('button')!;
-            expect(removePlayerButton).toBeTruthy();
-            expect(removePlayerButton.textContent).toEqual('PLAYER 🗑');
-            const addPlayerButton = context.container.querySelector(
+            const removePlayerButton = selectedPlayer.required('button');
+            expect(removePlayerButton.text()).toEqual('PLAYER 🗑');
+            const addPlayerButton = context.required(
                 'ol > li:last-child > button',
-            )!;
-            expect(addPlayerButton).toBeTruthy();
-            expect(addPlayerButton.textContent).toEqual('➕');
-            const notesInput = context.container.querySelector(
-                'ol > li:last-child > input',
             );
-            expect(notesInput).toBeFalsy();
+            expect(addPlayerButton.text()).toEqual('➕');
+            expect(context.optional('ol > li:last-child > input')).toBeFalsy();
         });
 
         it('editable component with notes', async () => {
@@ -170,18 +144,13 @@ describe('MultiPlayerSelection', () => {
             const selectedPlayers = getSelectedPlayers();
             expect(selectedPlayers.length).toEqual(1 + 1);
             const selectedPlayer = selectedPlayers[0];
-            const removePlayerButton = selectedPlayer.querySelector('button')!;
-            expect(removePlayerButton).toBeTruthy();
-            expect(removePlayerButton.textContent).toEqual('PLAYER (123) 🗑');
-            const addPlayerButton = context.container.querySelector(
+            const removePlayerButton = selectedPlayer.required('button');
+            expect(removePlayerButton.text()).toEqual('PLAYER (123) 🗑');
+            const addPlayerButton = context.required(
                 'ol > li:last-child > button',
-            )!;
-            expect(addPlayerButton).toBeTruthy();
-            expect(addPlayerButton.textContent).toEqual('➕');
-            const notesInput = context.container.querySelector(
-                'ol > li:last-child > input',
             );
-            expect(notesInput).toBeTruthy();
+            expect(addPlayerButton.text()).toEqual('➕');
+            expect(context.optional('ol > li:last-child > input')).toBeTruthy();
         });
 
         it('placeholder in dropdown', async () => {
@@ -194,11 +163,8 @@ describe('MultiPlayerSelection', () => {
             });
 
             reportedError.verifyNoError();
-            const dropdownToggle = context.container.querySelector(
-                'button.dropdown-toggle',
-            )!;
-            expect(dropdownToggle).toBeTruthy();
-            expect(dropdownToggle.textContent).toEqual('PLACEHOLDER');
+            const dropdownToggle = context.required('button.dropdown-toggle');
+            expect(dropdownToggle.text()).toEqual('PLACEHOLDER');
         });
 
         it('readonly selected players', async () => {
@@ -215,11 +181,9 @@ describe('MultiPlayerSelection', () => {
             reportedError.verifyNoError();
             const selectedPlayer = getSelectedPlayers()[0];
             expect(selectedPlayer).toBeTruthy();
-            const selectedPlayerButton =
-                selectedPlayer.querySelector('button')!;
-            expect(selectedPlayerButton).toBeTruthy();
-            expect(selectedPlayerButton.textContent).toEqual('PLAYER 🗑');
-            expect(selectedPlayerButton.disabled).toBeTruthy();
+            const selectedPlayerButton = selectedPlayer.required('button');
+            expect(selectedPlayerButton.text()).toEqual('PLAYER 🗑');
+            expect(selectedPlayerButton.enabled()).toEqual(false);
         });
 
         it('readonly selected placers with notes', async () => {
@@ -237,11 +201,9 @@ describe('MultiPlayerSelection', () => {
             reportedError.verifyNoError();
             const selectedPlayer = getSelectedPlayers()[0];
             expect(selectedPlayer).toBeTruthy();
-            const selectedPlayerButton =
-                selectedPlayer.querySelector('button')!;
-            expect(selectedPlayerButton).toBeTruthy();
-            expect(selectedPlayerButton.textContent).toEqual('PLAYER (123) 🗑');
-            expect(selectedPlayerButton.disabled).toBeTruthy();
+            const selectedPlayerButton = selectedPlayer.required('button');
+            expect(selectedPlayerButton.text()).toEqual('PLAYER (123) 🗑');
+            expect(selectedPlayerButton.enabled()).toEqual(false);
         });
 
         it('disabled selected players', async () => {
@@ -265,12 +227,11 @@ describe('MultiPlayerSelection', () => {
             reportedError.verifyNoError();
             const selectedPlayer = getSelectedPlayers()[0];
             expect(selectedPlayer).toBeTruthy();
-            const linkToPlayer = selectedPlayer.querySelector('a')!;
-            expect(linkToPlayer).toBeTruthy();
-            expect(linkToPlayer.href).toContain(
+            const linkToPlayer = selectedPlayer.required('a');
+            expect(linkToPlayer.element<HTMLAnchorElement>().href).toContain(
                 `/division/${division.name}/player:${player.name}@TEAM_NAME/${season.name}`,
             );
-            expect(linkToPlayer.textContent).toEqual('PLAYER');
+            expect(linkToPlayer.text()).toEqual('PLAYER');
         });
 
         it('disabled selected players link via id when team has deleted season', async () => {
@@ -293,12 +254,11 @@ describe('MultiPlayerSelection', () => {
             reportedError.verifyNoError();
             const selectedPlayer = getSelectedPlayers()[0];
             expect(selectedPlayer).toBeTruthy();
-            const linkToPlayer = selectedPlayer.querySelector('a')!;
-            expect(linkToPlayer).toBeTruthy();
-            expect(linkToPlayer.href).toContain(
+            const linkToPlayer = selectedPlayer.required('a');
+            expect(linkToPlayer.element<HTMLAnchorElement>().href).toContain(
                 `/division/${division.name}/player:${player.id}/${season.name}`,
             );
-            expect(linkToPlayer.textContent).toEqual('PLAYER');
+            expect(linkToPlayer.text()).toEqual('PLAYER');
         });
 
         it('disabled selected players link via id when team has no matching season', async () => {
@@ -321,12 +281,11 @@ describe('MultiPlayerSelection', () => {
             reportedError.verifyNoError();
             const selectedPlayer = getSelectedPlayers()[0];
             expect(selectedPlayer).toBeTruthy();
-            const linkToPlayer = selectedPlayer.querySelector('a')!;
-            expect(linkToPlayer).toBeTruthy();
-            expect(linkToPlayer.href).toContain(
+            const linkToPlayer = selectedPlayer.required('a');
+            expect(linkToPlayer.element<HTMLAnchorElement>().href).toContain(
                 `/division/${division.name}/player:${player.id}/${season.name}`,
             );
-            expect(linkToPlayer.textContent).toEqual('PLAYER');
+            expect(linkToPlayer.text()).toEqual('PLAYER');
         });
 
         it('disabled selected players link via id when player not found for team season', async () => {
@@ -346,12 +305,11 @@ describe('MultiPlayerSelection', () => {
             reportedError.verifyNoError();
             const selectedPlayer = getSelectedPlayers()[0];
             expect(selectedPlayer).toBeTruthy();
-            const linkToPlayer = selectedPlayer.querySelector('a')!;
-            expect(linkToPlayer).toBeTruthy();
-            expect(linkToPlayer.href).toContain(
+            const linkToPlayer = selectedPlayer.required('a');
+            expect(linkToPlayer.element<HTMLAnchorElement>().href).toContain(
                 `/division/${division.name}/player:${player.id}/${season.name}`,
             );
-            expect(linkToPlayer.textContent).toEqual('PLAYER');
+            expect(linkToPlayer.text()).toEqual('PLAYER');
         });
 
         it('disabled selected placers with notes', async () => {
@@ -372,12 +330,11 @@ describe('MultiPlayerSelection', () => {
             reportedError.verifyNoError();
             const selectedPlayer = getSelectedPlayers()[0];
             expect(selectedPlayer).toBeTruthy();
-            const linkToPlayer = selectedPlayer.querySelector('a')!;
-            expect(linkToPlayer).toBeTruthy();
-            expect(linkToPlayer.href).toContain(
+            const linkToPlayer = selectedPlayer.required('a');
+            expect(linkToPlayer.element<HTMLAnchorElement>().href).toContain(
                 `/division/${division.name}/player:${player.id}/${season.name}`,
             );
-            expect(linkToPlayer.textContent).toEqual('PLAYER (123)');
+            expect(linkToPlayer.text()).toEqual('PLAYER (123)');
         });
 
         it('dropdown with dropdownClassName', async () => {
@@ -390,11 +347,10 @@ describe('MultiPlayerSelection', () => {
             });
 
             reportedError.verifyNoError();
-            const dropdown = context.container.querySelector(
+            const dropdown = context.required(
                 'ol > li:last-child div.btn-group',
-            )!;
-            expect(dropdown).toBeTruthy();
-            expect(dropdown.className).toContain('DROPDOWN-CLASS-NAME');
+            );
+            expect(dropdown.className()).toContain('DROPDOWN-CLASS-NAME');
         });
 
         it('component with notesClassName', async () => {
@@ -408,11 +364,8 @@ describe('MultiPlayerSelection', () => {
             });
 
             reportedError.verifyNoError();
-            const notesInput = context.container.querySelector(
-                'ol > li:last-child > input',
-            )!;
-            expect(notesInput).toBeTruthy();
-            expect(notesInput.className).toContain('NOTES-CLASS-NAME');
+            const notesInput = context.required('ol > li:last-child > input');
+            expect(notesInput.className()).toContain('NOTES-CLASS-NAME');
         });
     });
 
@@ -433,9 +386,7 @@ describe('MultiPlayerSelection', () => {
             const selectedPlayer = getSelectedPlayers()[0];
             expect(selectedPlayer).toBeTruthy();
 
-            const button = findButton(selectedPlayer, 'PLAYER 🗑');
-
-            expect(button.disabled).toEqual(true);
+            expect(selectedPlayer.button('PLAYER 🗑').enabled()).toEqual(false);
         });
 
         it('allows players to be added', async () => {
@@ -447,11 +398,8 @@ describe('MultiPlayerSelection', () => {
             });
             reportedError.verifyNoError();
 
-            await doSelectOption(
-                context.container.querySelector('.dropdown-menu'),
-                'PLAYER',
-            );
-            await doClick(findButton(context.container, '➕'));
+            await context.required('.dropdown-menu').select('PLAYER');
+            await context.button('➕').click();
 
             expect(addedPlayer).not.toBeNull();
             expect(addedPlayer?.player).toEqual(player);
@@ -468,7 +416,7 @@ describe('MultiPlayerSelection', () => {
             reportedError.verifyNoError();
 
             // no player selected
-            await doClick(findButton(context.container, '➕'));
+            await context.button('➕').click();
 
             expect(addedPlayer).toBeNull();
             context.prompts.alertWasShown('Ensure a player is selected first');
@@ -484,17 +432,11 @@ describe('MultiPlayerSelection', () => {
             });
             reportedError.verifyNoError();
 
-            await doSelectOption(
-                context.container.querySelector('.dropdown-menu'),
-                'PLAYER',
-            );
-            await doChange(
-                context.container,
-                'ol > li:last-child > input[type="number"]',
-                '100',
-                context.user,
-            );
-            await doClick(findButton(context.container, '➕'));
+            await context.required('.dropdown-menu').select('PLAYER');
+            await context
+                .required('ol > li:last-child > input[type="number"]')
+                .change('100');
+            await context.button('➕').click();
 
             expect(addedPlayer).not.toBeNull();
             expect(addedPlayer?.player).toEqual(player);
@@ -511,12 +453,9 @@ describe('MultiPlayerSelection', () => {
             });
             reportedError.verifyNoError();
 
-            await doSelectOption(
-                context.container.querySelector('.dropdown-menu'),
-                'PLAYER',
-            );
+            await context.required('.dropdown-menu').select('PLAYER');
             // notes not updated
-            await doClick(findButton(context.container, '➕'));
+            await context.button('➕').click();
 
             expect(addedPlayer).toBeNull();
             context.prompts.alertWasShown('Enter the score first');
@@ -532,17 +471,11 @@ describe('MultiPlayerSelection', () => {
             });
             reportedError.verifyNoError();
 
-            await doSelectOption(
-                context.container.querySelector('.dropdown-menu'),
-                'PLAYER',
-            );
-            await doChange(
-                context.container,
-                'ol > li:last-child > input[type="number"]',
-                '.',
-                context.user,
-            );
-            await doClick(findButton(context.container, '➕'));
+            await context.required('.dropdown-menu').select('PLAYER');
+            await context
+                .required('ol > li:last-child > input[type="number"]')
+                .change('.');
+            await context.button('➕').click();
 
             expect(addedPlayer).toBeNull();
             context.prompts.alertWasShown('Enter the score first');
@@ -559,7 +492,7 @@ describe('MultiPlayerSelection', () => {
             reportedError.verifyNoError();
             const selectedPlayer = getSelectedPlayers()[0];
 
-            await doClick(findButton(selectedPlayer, 'PLAYER 🗑'));
+            await selectedPlayer.button('PLAYER 🗑').click();
 
             expect(removedPlayer).not.toBeNull();
             expect(removedPlayer?.id).toEqual(player.id);

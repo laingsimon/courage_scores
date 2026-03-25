@@ -2,7 +2,6 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doSelectOption,
     iocProps,
     MockSocketFactory,
     noop,
@@ -68,8 +67,7 @@ describe('RefreshControl', () => {
 
             await renderComponent({ id, type: LiveDataType.sayg });
 
-            const menu = context.container.querySelector('.dropdown-menu');
-            expect(menu).toBeFalsy();
+            expect(context.optional('.dropdown-menu')).toBeFalsy();
         });
 
         it('nothing when not permitted', async () => {
@@ -80,8 +78,7 @@ describe('RefreshControl', () => {
                 { givenName: '', name: '', emailAddress: '', access: {} },
             );
 
-            const menu = context.container.querySelector('.dropdown-menu');
-            expect(menu).toBeFalsy();
+            expect(context.optional('.dropdown-menu')).toBeFalsy();
         });
 
         it('options', async () => {
@@ -89,12 +86,8 @@ describe('RefreshControl', () => {
 
             await renderComponent({ id, type: LiveDataType.sayg }, account);
 
-            const items = Array.from(
-                context.container.querySelectorAll(
-                    '.dropdown-menu .dropdown-item',
-                ),
-            );
-            expect(items.map((li) => li.textContent)).toEqual([
+            const items = context.all('.dropdown-menu .dropdown-item');
+            expect(items.map((li) => li.text())).toEqual([
                 '⏸️ Paused',
                 '▶️ Live',
             ]);
@@ -112,10 +105,10 @@ describe('RefreshControl', () => {
             });
             expect(socketFactory.socketWasCreated()).toEqual(true);
 
-            const selectedItem = context.container.querySelector(
+            const selectedItem = context.required(
                 '.dropdown-menu .dropdown-item.active',
-            )!;
-            expect(selectedItem.textContent).toEqual('▶️ Live');
+            );
+            expect(selectedItem.text()).toEqual('▶️ Live');
         });
 
         it('paused when disconnected', async () => {
@@ -123,10 +116,10 @@ describe('RefreshControl', () => {
 
             await renderComponent({ id, type: LiveDataType.sayg }, account);
 
-            const selectedItem = context.container.querySelector(
+            const selectedItem = context.required(
                 '.dropdown-menu .dropdown-item.active',
-            )!;
-            expect(selectedItem.textContent).toEqual('⏸️ Paused');
+            );
+            expect(selectedItem.text()).toEqual('⏸️ Paused');
         });
     });
 
@@ -145,10 +138,7 @@ describe('RefreshControl', () => {
 
             await renderComponent({ id, type: LiveDataType.sayg }, account);
 
-            await doSelectOption(
-                context.container.querySelector('.dropdown-menu'),
-                '▶️ Live',
-            );
+            await context.required('.dropdown-menu').select('▶️ Live');
 
             expect(Object.keys(socketFactory.subscriptions)).toEqual([id]);
         });
@@ -164,10 +154,7 @@ describe('RefreshControl', () => {
                 });
             });
 
-            await doSelectOption(
-                context.container.querySelector('.dropdown-menu'),
-                '⏸️ Paused',
-            );
+            await context.required('.dropdown-menu').select('⏸️ Paused');
 
             expect(socketFactory.subscriptions).toEqual({});
         });

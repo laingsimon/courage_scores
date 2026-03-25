@@ -2,8 +2,6 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
-    findButton,
     iocProps,
     noop,
     renderApp,
@@ -57,9 +55,9 @@ describe('ToggleFavouriteTeam', () => {
                 favouriteTeamIds: [teamId],
             });
 
-            expect(
-                context.container.querySelector('button')!.className,
-            ).not.toContain('opacity-25');
+            expect(context.required('button').className()).not.toContain(
+                'opacity-25',
+            );
         });
 
         it('when team is not a favourite', async () => {
@@ -67,9 +65,9 @@ describe('ToggleFavouriteTeam', () => {
 
             await renderComponent({ teamId }, true, { favouriteTeamIds: [] });
 
-            expect(
-                context.container.querySelector('button')!.className,
-            ).toContain('opacity-25');
+            expect(context.required('button').className()).toContain(
+                'opacity-25',
+            );
         });
 
         it('nothing when favourites not enabled', async () => {
@@ -77,7 +75,7 @@ describe('ToggleFavouriteTeam', () => {
 
             await renderComponent({ teamId }, false);
 
-            expect(context.container.querySelector('button')).toBeNull();
+            expect(context.optional('button')).toBeFalsy();
         });
     });
 
@@ -89,7 +87,7 @@ describe('ToggleFavouriteTeam', () => {
                 favouriteTeamIds: [otherTeamId],
             });
 
-            await doClick(findButton(context.container, '⭐'));
+            await context.button('⭐').click();
 
             expect(context.cookies!.get('preferences')).toEqual({
                 favouriteTeamIds: [otherTeamId, teamId],
@@ -103,7 +101,7 @@ describe('ToggleFavouriteTeam', () => {
                 favouriteTeamIds: [otherTeamId, teamId],
             });
 
-            await doClick(findButton(context.container, '⭐'));
+            await context.button('⭐').click();
 
             expect(context.cookies!.get('preferences')).toEqual({
                 favouriteTeamIds: [otherTeamId],

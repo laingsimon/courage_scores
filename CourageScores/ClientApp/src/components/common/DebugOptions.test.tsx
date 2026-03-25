@@ -2,7 +2,6 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
     iocProps,
     renderApp,
     TestContext,
@@ -33,8 +32,7 @@ describe('DebugOptions', () => {
     it('does not render when logged out', async () => {
         await renderComponent(undefined, <span>item</span>);
 
-        const button = context.container.querySelector('.dropdown-menu');
-        expect(button).toBeFalsy();
+        expect(context.optional('.dropdown-menu')).toBeFalsy();
     });
 
     it('does not render when no access', async () => {
@@ -47,8 +45,7 @@ describe('DebugOptions', () => {
 
         await renderComponent(account, <span>item</span>);
 
-        const button = context.container.querySelector('.dropdown-menu');
-        expect(button).toBeFalsy();
+        expect(context.optional('.dropdown-menu')).toBeFalsy();
     });
 
     it('does not render when not permitted', async () => {
@@ -63,8 +60,7 @@ describe('DebugOptions', () => {
 
         await renderComponent(account, <span>item</span>);
 
-        const button = context.container.querySelector('.dropdown-menu');
-        expect(button).toBeFalsy();
+        expect(context.optional('.dropdown-menu')).toBeFalsy();
     });
 
     it('does not render when permitted', async () => {
@@ -79,8 +75,7 @@ describe('DebugOptions', () => {
 
         await renderComponent(account, <span>item</span>);
 
-        const button = context.container.querySelector('.dropdown-menu');
-        expect(button).toBeTruthy();
+        expect(context.optional('.dropdown-menu')).toBeTruthy();
     });
 
     it('can expand dropdown', async () => {
@@ -94,11 +89,9 @@ describe('DebugOptions', () => {
         };
         await renderComponent(account, <span>item</span>);
 
-        await doClick(context.container, '.dropdown-toggle');
+        await context.required('.dropdown-toggle').click();
 
-        expect(
-            context.container.querySelector('.dropdown-menu.show'),
-        ).toBeTruthy();
+        expect(context.optional('.dropdown-menu.show')).toBeTruthy();
     });
 
     it('can collapse dropdown', async () => {
@@ -111,12 +104,10 @@ describe('DebugOptions', () => {
             },
         };
         await renderComponent(account, <span>item</span>);
-        await doClick(context.container, '.dropdown-menu');
+        await context.required('.dropdown-menu').click();
 
-        await doClick(context.container, '.dropdown-menu');
+        await context.required('.dropdown-menu').click();
 
-        expect(
-            context.container.querySelector('.dropdown-menu.show'),
-        ).toBeFalsy();
+        expect(context.optional('.dropdown-menu.show')).toBeFalsy();
     });
 });

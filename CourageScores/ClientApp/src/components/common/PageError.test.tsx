@@ -2,9 +2,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -65,20 +63,20 @@ describe('PageError', () => {
         it('shows error details', async () => {
             await renderComponent(error);
 
-            const message = context.container.querySelector(
+            const message = context.required(
                 'div.content-background > p > span:first-child',
-            )!;
-            expect(message).toBeTruthy();
-            expect(message.textContent).toEqual(error.message);
+            );
+            expect(message.text()).toEqual(error.message);
         });
 
         it('shows stack toggle', async () => {
             await renderComponent(error);
 
-            const toggle = context.container.querySelector(
-                'div.content-background > p > span.form-switch',
-            )!;
-            expect(toggle).toBeTruthy();
+            expect(
+                context.optional(
+                    'div.content-background > p > span.form-switch',
+                ),
+            ).toBeTruthy();
         });
 
         it('does not show stack toggle', async () => {
@@ -86,51 +84,51 @@ describe('PageError', () => {
 
             await renderComponent(error);
 
-            const toggle = context.container.querySelector(
-                'div.content-background > p > span.form-switch',
-            );
-            expect(toggle).toBeFalsy();
+            expect(
+                context.optional(
+                    'div.content-background > p > span.form-switch',
+                ),
+            ).toBeFalsy();
         });
 
         it('shows stack', async () => {
             await renderComponent(error);
 
-            await doClick(
-                context.container,
-                'div.content-background > p > span.form-switch > input',
-            );
+            await context
+                .required(
+                    'div.content-background > p > span.form-switch > input',
+                )
+                .click();
 
-            const stack = context.container.querySelector(
-                'div.content-background > pre',
-            )!;
-            expect(stack).toBeTruthy();
-            expect(stack.textContent).toEqual(error.stack);
+            const stack = context.required('div.content-background > pre');
+            expect(stack.text()).toEqual(error.stack);
         });
 
         it('hides stack', async () => {
             await renderComponent(error);
-            await doClick(
-                context.container,
-                'div.content-background > p > span.form-switch > input',
-            );
+            await context
+                .required(
+                    'div.content-background > p > span.form-switch > input',
+                )
+                .click();
             // toggle on
 
-            await doClick(
-                context.container,
-                'div.content-background > p > span.form-switch > input',
-            );
+            await context
+                .required(
+                    'div.content-background > p > span.form-switch > input',
+                )
+                .click();
             // toggle off
 
-            const stack = context.container.querySelector(
-                'div.content-background > pre',
-            );
-            expect(stack).toBeFalsy();
+            expect(
+                context.optional('div.content-background > pre'),
+            ).toBeFalsy();
         });
 
         it('clears app error', async () => {
             await renderComponent(error);
 
-            await doClick(findButton(context.container, 'Clear error'));
+            await context.button('Clear error').click();
 
             expect(appError).toBeNull();
         });
@@ -144,7 +142,7 @@ describe('PageError', () => {
         it('reports client-side exception once', async () => {
             await renderComponent(error);
 
-            await doClick(findButton(context.container, 'Clear error'));
+            await context.button('Clear error').click();
 
             expect(reportedClientSideException.length).toEqual(1);
         });
@@ -156,26 +154,26 @@ describe('PageError', () => {
         it('shows error details', async () => {
             await renderComponent(error as IError);
 
-            const message = context.container.querySelector(
+            const message = context.required(
                 'div.content-background > p > span:first-child',
-            )!;
-            expect(message).toBeTruthy();
-            expect(message.textContent).toEqual('MESSAGE');
+            );
+            expect(message.text()).toEqual('MESSAGE');
         });
 
         it('does not show stack toggle', async () => {
             await renderComponent(error as IError);
 
-            const toggle = context.container.querySelector(
-                'div.content-background > p > span.form-switch',
-            );
-            expect(toggle).toBeFalsy();
+            expect(
+                context.optional(
+                    'div.content-background > p > span.form-switch',
+                ),
+            ).toBeFalsy();
         });
 
         it('clears app error', async () => {
             await renderComponent(error as IError);
 
-            await doClick(findButton(context.container, 'Clear error'));
+            await context.button('Clear error').click();
 
             expect(appError).toBeNull();
         });

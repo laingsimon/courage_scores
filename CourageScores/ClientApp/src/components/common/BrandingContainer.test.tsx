@@ -2,7 +2,6 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
     iocProps,
     renderApp,
     TestContext,
@@ -34,12 +33,7 @@ describe('BrandingContainer', () => {
         };
         await renderComponent(branding);
 
-        await doChange(
-            context.container,
-            'input[name="title"]',
-            'TITLE',
-            context.user,
-        );
+        await context.input('title').change('TITLE');
 
         expect(document.title).toEqual('TITLE - BRAND NAME');
     });
@@ -50,12 +44,7 @@ describe('BrandingContainer', () => {
         };
         await renderComponent(branding);
 
-        await doChange(
-            context.container,
-            'input[name="title"]',
-            '',
-            context.user,
-        );
+        await context.input('title').change('');
 
         expect(document.title).toEqual('BRAND NAME');
     });
