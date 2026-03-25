@@ -1,7 +1,7 @@
-﻿import { TournamentPlayerDto } from '../../../interfaces/models/dtos/Game/TournamentPlayerDto';
+import { TournamentPlayerDto } from '../../../interfaces/models/dtos/Game/TournamentPlayerDto';
 import { TournamentSideDto } from '../../../interfaces/models/dtos/Game/TournamentSideDto';
 import { TournamentMatchDto } from '../../../interfaces/models/dtos/Game/TournamentMatchDto';
-import { findButton } from '../../../helpers/tests';
+import { IComponent } from '../../../helpers/tests';
 import { tournamentBuilder } from '../../../helpers/builders/tournaments';
 
 export function equatableSide(
@@ -33,8 +33,8 @@ export function withName(player: TournamentPlayerDto, name: string) {
     };
 }
 
-export function editButton(container: Element | null) {
-    return findButton(container!, '✏️');
+export function editButton(container: IComponent): IComponent {
+    return container.button('✏️');
 }
 
 export function alreadyPlaying(type: string, player: TournamentPlayerDto) {

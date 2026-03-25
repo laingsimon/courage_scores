@@ -2,11 +2,8 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
-    doSelectOption,
     ErrorState,
-    findButton,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -107,17 +104,17 @@ describe('PrintableSheet', () => {
 
     function getAccolades<T>(
         name: string,
-        selector?: (e: Element) => T,
-        container?: Element,
+        selector?: (e: IComponent) => T,
+        container?: IComponent,
     ): T[] {
-        container = container ?? context.container;
-        return Array.from(
-            container.querySelectorAll(`div[data-accolades="${name}"] div`),
-        ).map(selector ?? ((e) => e.textContent! as T));
+        const scope = container ? container : context;
+        return scope
+            .all(`div[data-accolades="${name}"] div`)
+            .map((c) => (selector ? selector(c) : (c.text() as T)));
     }
 
-    function getPlayers(round: Element, name: string) {
-        const parent = round.querySelector(`div[data-accolades="${name}"]`);
+    function getPlayers(round: IComponent, name: string) {
+        const parent = round.optional(`div[data-accolades="${name}"]`);
         if (!parent) {
             return null;
         }
@@ -128,22 +125,20 @@ describe('PrintableSheet', () => {
     }
 
     function getRounds() {
-        const round = 'div[datatype^="round-"]';
-        return Array.from(context.container.querySelectorAll(round)).map(
-            (r) => {
-                return {
-                    oneEighties: getPlayers(r, '180s'),
-                    hiChecks: getPlayers(r, 'hi-checks'),
-                    heading: find('round-name', r)!.textContent,
-                    matches: Array.from(
-                        r.querySelectorAll('div[datatype="match"]'),
-                    ).map((match: Element): ISideInfo => {
+        return context.all('div[datatype^="round-"]').map((r) => {
+            return {
+                oneEighties: getPlayers(r, '180s'),
+                hiChecks: getPlayers(r, 'hi-checks'),
+                heading: r.required('[datatype="round-name"]').text(),
+                matches: r
+                    .all('div[datatype="match"]')
+                    .map((match): ISideInfo => {
                         function setInfo(
                             selector: string,
                             name: string,
-                            getter: (element: Element) => any,
+                            getter: (element: IComponent) => any,
                         ) {
-                            const element = match.querySelector(selector);
+                            const element = match.optional(selector);
                             if (element) {
                                 const value = getter(element);
                                 if (value) {
@@ -153,101 +148,110 @@ describe('PrintableSheet', () => {
                         }
 
                         const info: ISideInfo = {
-                            saygLink: match.querySelector('a')?.href,
+                            saygLink: match
+                                .optional('a')
+                                ?.element<HTMLAnchorElement>().href,
                         };
 
                         setInfo(
                             'div[datatype="sideA"]',
                             'sideAwinner',
-                            (e: Element) =>
-                                e.className.indexOf('bg-winner') !== -1,
+                            (e: IComponent) =>
+                                e.className().indexOf('bg-winner') !== -1,
                         );
                         setInfo(
                             'div[datatype="sideB"]',
                             'sideBwinner',
-                            (e: Element) =>
-                                e.className.indexOf('bg-winner') !== -1,
+                            (e: IComponent) =>
+                                e.className().indexOf('bg-winner') !== -1,
                         );
                         setInfo(
                             'span[datatype="sideAname"]',
                             'sideAname',
-                            (e: Element) => e.textContent!.trim(),
+                            (e: IComponent) => e.text().trim(),
                         );
                         setInfo(
                             'span[datatype="sideBname"]',
                             'sideBname',
-                            (e: Element) => e.textContent!.trim(),
+                            (e: IComponent) => e.text().trim(),
                         );
                         setInfo(
                             'span[datatype="sideAmnemonic"]',
                             'sideAmnemonic',
-                            (e: Element) => e.textContent!.trim(),
+                            (e: IComponent) => e.text().trim(),
                         );
                         setInfo(
                             'span[datatype="sideBmnemonic"]',
                             'sideBmnemonic',
-                            (e: Element) => e.textContent!.trim(),
+                            (e: IComponent) => e.text().trim(),
                         );
                         setInfo(
                             'div[datatype="scoreA"]',
                             'scoreA',
-                            (e: Element) => e.textContent!.trim(),
+                            (e: IComponent) => e.text().trim(),
                         );
                         setInfo(
                             'div[datatype="scoreB"]',
                             'scoreB',
-                            (e: Element) => e.textContent!.trim(),
+                            (e: IComponent) => e.text().trim(),
                         );
 
                         return info;
                     }),
-                };
-            },
+            };
+        });
+    }
+
+    function getWhoIsPlaying<T>(selector?: (e: IComponent) => T): T[] {
+        return context.all('div[datatype="playing"] li').map((li) => {
+            return selector ? selector(li) : (whoIsPlayingText(li) as T);
+        });
+    }
+
+    function whoIsPlayingText(li: IComponent): string {
+        return li.className().indexOf('text-decoration-line-through') !== -1
+            ? '-' + li.text() + '-'
+            : li.text();
+    }
+
+    function linkHref(container: IComponent): string | null {
+        return (
+            container.optional('a')?.element<HTMLAnchorElement>().href ?? null
         );
-    }
-
-    function getWhoIsPlaying<T>(selector?: (e: Element) => T): T[] {
-        const s = 'div[datatype="playing"] li';
-        return Array.from(context.container.querySelectorAll(s)).map(
-            selector ?? ((li) => whoIsPlayingText(li) as T),
-        );
-    }
-
-    function whoIsPlayingText(li: Element): string {
-        return li.className.indexOf('text-decoration-line-through') !== -1
-            ? '-' + li.textContent + '-'
-            : li.textContent!;
-    }
-
-    function linkHref(container: Element): string | null {
-        return container.querySelector('a')?.href ?? null;
     }
 
     function getWinner(): { name: string; link?: string } {
-        const winnerElement = find('winner')!;
+        const winnerElement = context.required('[datatype="winner"]');
 
         return {
-            name: winnerElement.querySelector('span')!.textContent!,
-            link: winnerElement.querySelector('a')?.href,
+            name: winnerElement.required('span').text()!,
+            link: winnerElement.optional('a')?.element<HTMLAnchorElement>()
+                .href,
         };
     }
 
-    function find(dataType: string, container?: Element) {
-        return (context.container ?? container).querySelector(
-            `[datatype="${dataType}"]`,
-        );
+    function find(
+        dataType: string,
+        container?: IComponent,
+    ): IComponent | undefined {
+        if (container) {
+            return container.optional(`[datatype="${dataType}"]`);
+        }
+        return context.optional(`[datatype="${dataType}"]`);
     }
 
-    function getDialog() {
-        return context.container.querySelector('div.modal-dialog');
+    function modalDialog(): IComponent | undefined {
+        return context.optional('div.modal-dialog');
     }
 
     async function setPlayerAndScore(side: string, score: string) {
-        const dialog = getDialog()!;
-        const sideSelector = 'div.btn-group:nth-child(2) .dropdown-menu';
-        const scoreSelector = 'div.btn-group:nth-child(4) .dropdown-menu';
-        await doSelectOption(dialog.querySelector(sideSelector), side);
-        await doSelectOption(dialog.querySelector(scoreSelector), score);
+        const dialog = modalDialog()!;
+        await dialog
+            .required('div.btn-group:nth-child(2) .dropdown-menu')
+            .select(side);
+        await dialog
+            .required('div.btn-group:nth-child(4) .dropdown-menu')
+            .select(score);
     }
 
     function match(
@@ -666,7 +670,7 @@ describe('PrintableSheet', () => {
 
             await render(props.withTournament(tournamentData));
 
-            expect(find('heading')!.textContent).toEqual(
+            expect(find('heading')!.text()).toEqual(
                 `TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES🔗🖨️`,
             );
         });
@@ -760,18 +764,18 @@ describe('PrintableSheet', () => {
         it('cannot set match side a when not permitted', async () => {
             await render(props.withTournament(twoRounds4Sides));
 
-            await doClick(find('sideA')!);
+            await find('sideA')!.click();
 
-            expect(getDialog()).toBeFalsy();
+            expect(modalDialog()).toBeFalsy();
         });
 
         it('can edit match side a', async () => {
             twoRounds4Sides.sides!.push(sideE(sideBuilder()).build());
             await renderEditable(props.withTournament(twoRounds4Sides));
 
-            await doClick(find('sideA')!);
+            await find('sideA')!.click();
             await setPlayerAndScore('e', '2');
-            await doClick(findButton(getDialog(), 'Save'));
+            await modalDialog()!.button('Save').click();
 
             const matches = updatedTournament!.round!.matches!;
             expect(matches[0].sideA!.name).toEqual('e');
@@ -780,9 +784,9 @@ describe('PrintableSheet', () => {
 
         it('can remove match side a', async () => {
             await renderEditable(props.withTournament(twoRounds4Sides));
-            await doClick(find('sideA')!);
+            await find('sideA')!.click();
 
-            await doClick(findButton(context.container, 'Remove'));
+            await context.button('Remove').click();
 
             expect(updatedTournament!.round!.matches![0].sideA!.id).toBeFalsy();
             expect(updatedTournament!.round!.matches![0].scoreA).toBeNull();
@@ -792,9 +796,9 @@ describe('PrintableSheet', () => {
             twoRounds4Sides.sides!.push(sideE(sideBuilder()).build());
             await renderEditable(props.withTournament(twoRounds4Sides));
 
-            await doClick(find('sideB')!);
+            await find('sideB')!.click();
             await setPlayerAndScore('e', '2');
-            await doClick(findButton(getDialog(), 'Save'));
+            await modalDialog()!.button('Save').click();
 
             const matches = updatedTournament!.round!.matches!;
             expect(matches[0].sideB!.name).toEqual('e');
@@ -803,9 +807,9 @@ describe('PrintableSheet', () => {
 
         it('can remove match side b', async () => {
             await renderEditable(props.withTournament(twoRounds4Sides));
-            await doClick(find('sideB')!);
+            await find('sideB')!.click();
 
-            await doClick(findButton(context.container, 'Remove'));
+            await context.button('Remove').click();
 
             expect(updatedTournament!.round!.matches![0].sideB!.id).toBeFalsy();
             expect(updatedTournament!.round!.matches![0].scoreB).toBeNull();
@@ -817,12 +821,11 @@ describe('PrintableSheet', () => {
             );
 
             const s180s = 'div[data-accolades="180s"]';
-            await doClick(context.container.querySelector(s180s)!);
-            await doSelectOption(
-                getDialog()!.querySelector('.dropdown-menu'),
-                player1.name,
-            );
-            await doClick(findButton(getDialog(), '➕'));
+            await context.required(s180s).click();
+            await modalDialog()!
+                .required('.dropdown-menu')
+                .select(player1.name);
+            await modalDialog()!.button('➕').click();
 
             expect(updatedTournament!.oneEighties).toEqual([
                 { id: player1.id, name: player1.name },
@@ -835,13 +838,12 @@ describe('PrintableSheet', () => {
             );
 
             const hiChecks = 'div[data-accolades="hi-checks"]';
-            await doClick(context.container.querySelector(hiChecks)!);
-            await doSelectOption(
-                getDialog()!.querySelector('.dropdown-menu'),
-                player1.name,
-            );
-            await doChange(getDialog()!, 'input', '123', context.user);
-            await doClick(findButton(getDialog(), '➕'));
+            await context.required(hiChecks).click();
+            await modalDialog()!
+                .required('.dropdown-menu')
+                .select(player1.name);
+            await modalDialog()!.required('input').change('123');
+            await modalDialog()!.button('➕').click();
 
             expect(updatedTournament!.over100Checkouts).toEqual([
                 { id: player1.id, name: player1.name, score: 123 },
@@ -854,14 +856,9 @@ describe('PrintableSheet', () => {
                 { account },
             );
 
-            await doClick(find('playing')!.querySelector('li')!);
-            await doChange(
-                getDialog()!,
-                'input[name="name"]',
-                'NEW SIDE A',
-                context.user,
-            );
-            await doClick(findButton(getDialog(), 'Update'));
+            await find('playing')!.required('li').click();
+            await modalDialog()!.input('name').change('NEW SIDE A');
+            await modalDialog()!.button('Update').click();
 
             const names = updatedTournament!.sides!.map((s) => s.name);
             expect(names).toEqual(['b', 'c', 'd', 'NEW SIDE A']);
@@ -873,11 +870,11 @@ describe('PrintableSheet', () => {
                 { account },
             );
 
-            await doClick(find('playing')!.querySelector('li')!);
-            await doClick(findButton(getDialog(), 'Close'));
+            await find('playing')!.required('li').click();
+            await modalDialog()!.button('Close').click();
 
             expect(updatedTournament).toBeNull();
-            expect(getDialog()).toBeFalsy();
+            expect(modalDialog()).toBeFalsy();
         });
 
         it('can add a side', async () => {
@@ -902,17 +899,12 @@ describe('PrintableSheet', () => {
                     .withAllPlayers([player1, player2, player3]),
                 { account, teams: [player1Team, player2Team, player3Team] },
             );
-            await doClick(find('add-side')!);
+            await find('add-side')!.click();
 
-            await doChange(
-                getDialog()!,
-                'input[name="name"]',
-                'NEW SIDE',
-                context.user,
-            );
+            await modalDialog()!.input('name').change('NEW SIDE');
             const selector = '.list-group li.list-group-item:not(.disabled)';
-            await doClick(getDialog()!.querySelector(selector)!); // select a player
-            await doClick(findButton(getDialog(), 'Add'));
+            await modalDialog()!.required(selector).click();
+            await modalDialog()!.button('Add').click();
 
             const names = updatedTournament!.sides!.map((s) => s.name);
             expect(names).toEqual(['A', 'B', 'NEW SIDE']);
@@ -927,10 +919,8 @@ describe('PrintableSheet', () => {
                 true,
             );
 
-            await doClick(
-                find('playing')!.querySelector('li.list-group-item')!,
-            );
-            await doClick(findButton(getDialog(), 'Delete side'));
+            await find('playing')!.required('li.list-group-item').click();
+            await modalDialog()!.button('Delete side').click();
 
             expect(updatedTournament!.sides!.map((s) => s.name)).toEqual(['B']);
         });
@@ -1008,7 +998,7 @@ describe('PrintableSheet', () => {
 
             await render(props.withTournament(tournamentData));
 
-            expect(find('heading')!.textContent).toEqual(
+            expect(find('heading')!.text()).toEqual(
                 `TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES🔗🖨️`,
             );
         });
@@ -1016,9 +1006,9 @@ describe('PrintableSheet', () => {
         it('can set match side a', async () => {
             await renderEditable(props.withTournament(sideAandB));
 
-            await doClick(find('sideA')!);
+            await find('sideA')!.click();
             await setPlayerAndScore('A', '2');
-            await doClick(findButton(getDialog(), 'Save'));
+            await modalDialog()!.button('Save').click();
 
             const matches = updatedTournament!.round!.matches!;
             expect(matches[0].sideA!.name).toEqual('A');
@@ -1028,9 +1018,9 @@ describe('PrintableSheet', () => {
         it('can set match side b', async () => {
             await renderEditable(props.withTournament(sideAandB));
 
-            await doClick(find('sideB')!);
+            await find('sideB')!.click();
             await setPlayerAndScore('A', '2');
-            await doClick(findButton(getDialog(), 'Save'));
+            await modalDialog()!.button('Save').click();
 
             const matches = updatedTournament!.round!.matches!;
             expect(matches[0].sideB!.name).toEqual('A');
@@ -1045,12 +1035,12 @@ describe('PrintableSheet', () => {
                 .build();
             await renderEditable(props.withTournament(tournamentData));
 
-            await doClick(find('sideB')!);
+            await find('sideB')!.click();
 
             const selector =
                 'div.btn-group:nth-child(2) .dropdown-menu .dropdown-item';
-            const sides = Array.from(getDialog()!.querySelectorAll(selector));
-            expect(sides.map((s) => s.textContent)).toEqual(['A', 'B']);
+            const sides = modalDialog()!.all(selector);
+            expect(sides.map((s) => s.text())).toEqual(['A', 'B']);
         });
 
         it('can add a side', async () => {
@@ -1059,16 +1049,11 @@ describe('PrintableSheet', () => {
                 { teams: [player1Team], account },
             );
 
-            await doClick(find('add-side')!);
-            await doChange(
-                getDialog()!,
-                'input[name="name"]',
-                'NEW SIDE',
-                context.user,
-            );
+            await find('add-side')!.click();
+            await modalDialog()!.input('name').change('NEW SIDE');
             const player = '.list-group li.list-group-item';
-            await doClick(getDialog()!.querySelector(player)!); // select a player
-            await doClick(findButton(getDialog(), 'Add'));
+            await modalDialog()!.required(player).click();
+            await modalDialog()!.button('Add').click();
 
             const names = updatedTournament!.sides!.map((s) => s.name);
             expect(names).toEqual(['NEW SIDE']);
@@ -1081,9 +1066,9 @@ describe('PrintableSheet', () => {
             );
 
             const selector = 'div[datatype="add-sides-hint"] > span';
-            await doClick(context.container.querySelector(selector)!);
+            await context.required(selector).click();
 
-            expect(getDialog()).toBeTruthy();
+            expect(modalDialog()).toBeTruthy();
         });
 
         it('does not show add sides hint when some sides', async () => {
@@ -1101,11 +1086,11 @@ describe('PrintableSheet', () => {
                 { teams: [player1Team], account },
             );
 
-            await doClick(find('add-side')!);
-            await doClick(findButton(getDialog(), 'Close'));
+            await find('add-side')!.click();
+            await modalDialog()!.button('Close').click();
 
             expect(updatedTournament).toBeNull();
-            expect(getDialog()).toBeFalsy();
+            expect(modalDialog()).toBeFalsy();
         });
 
         it('can remove a side', async () => {
@@ -1117,10 +1102,8 @@ describe('PrintableSheet', () => {
                 true,
             );
 
-            await doClick(
-                find('playing')!.querySelector('li.list-group-item')!,
-            );
-            await doClick(findButton(getDialog(), 'Delete side'));
+            await find('playing')!.required('li.list-group-item').click();
+            await modalDialog()!.button('Delete side').click();
 
             expect(updatedTournament!.sides!.map((s) => s.name)).toEqual(['B']);
         });
@@ -1142,7 +1125,7 @@ describe('PrintableSheet', () => {
         it('can edit tournament when permitted', async () => {
             await renderEditable(containerProps.withTournament(tournamentData));
 
-            await doClick(find('heading')!);
+            await find('heading')!.click();
 
             expect(editTournament).toEqual(true);
         });
@@ -1158,7 +1141,7 @@ describe('PrintableSheet', () => {
                 appProps({}, reportedError),
             );
 
-            await doClick(find('heading')!);
+            await find('heading')!.click();
 
             expect(editTournament).toEqual(null);
         });

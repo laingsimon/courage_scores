@@ -1,14 +1,10 @@
-﻿import { act, fireEvent } from '@testing-library/react';
 import {
     api,
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
-    doSelectOption,
     ErrorState,
-    findButton,
+    IComponent,
     iocProps,
     noop,
     renderApp,
@@ -254,32 +250,25 @@ describe('MasterDraw', () => {
     }
 
     function getNewSinglesMatchRow() {
-        return find('table[data-type="singles"] tbody tr:last-child')!;
-    }
-
-    function getNewPairsMatchRow() {
-        return find('table[data-type="pairs"] tbody tr:last-child')!;
-    }
-
-    function getDialog() {
-        return find('.modal-dialog');
-    }
-
-    async function change(selector: string, text: string, container?: Element) {
-        await doChange(
-            container ?? context.container,
-            selector,
-            text,
-            context.user,
+        return context.required(
+            'table[data-type="singles"] tbody tr:last-child',
         );
     }
 
-    async function select(s: string, v: string, c?: Element) {
-        await doSelectOption((c ?? context.container).querySelector(s), v);
+    function getNewPairsMatchRow() {
+        return context.required('table[data-type="pairs"] tbody tr:last-child');
     }
 
-    function find(selector: string) {
-        return context.container.querySelector(selector);
+    function getDialog() {
+        return context.optional('.modal-dialog');
+    }
+
+    async function change(s: string, t: string, c?: IComponent) {
+        await (c ?? context).required(s).change(t);
+    }
+
+    async function select(s: string, v: string, c?: IComponent) {
+        await (c ?? context).required(s).select(v);
     }
 
     function withSides(a: string, b: string, saygId?: string) {
@@ -343,11 +332,13 @@ describe('MasterDraw', () => {
                 }),
             );
 
-            const properties = find('div.d-flex > div:nth-child(2)')!;
+            const properties = context.required(
+                'div.d-flex > div:nth-child(2)',
+            );
             const date = renderDate('2023-05-06');
-            expect(properties.textContent).toContain('Gender: GENDER');
-            expect(properties.textContent).toContain(`Date: ${date}`);
-            expect(properties.textContent).toContain('Notes: Board 1');
+            expect(properties.text()).toContain('Gender: GENDER');
+            expect(properties.text()).toContain(`Date: ${date}`);
+            expect(properties.text()).toContain('Notes: Board 1');
         });
 
         it('clickable date when logged in', async () => {
@@ -366,12 +357,12 @@ describe('MasterDraw', () => {
                 season,
             );
 
-            const date = find(
+            const date = context.required(
                 'div.d-flex > div:nth-child(2) > div a',
-            ) as HTMLAnchorElement;
-            expect(date.textContent).toEqual(renderDate('2023-05-06'));
+            );
+            expect(date.text()).toEqual(renderDate('2023-05-06'));
             // division.id instead of name because divisions aren't provided in the app props
-            expect(date.href).toEqual(
+            expect(date.element<HTMLAnchorElement>().href).toEqual(
                 `http://localhost/fixtures/${season.name}/?division=${division.id}&date=2025-05-06`,
             );
         });
@@ -384,9 +375,11 @@ describe('MasterDraw', () => {
                 }),
             );
 
-            const properties = find('div.d-flex > div:nth-child(2)')!;
-            expect(properties.textContent).toContain('Gender: GENDER');
-            expect(properties.textContent).not.toContain('Notes:');
+            const properties = context.required(
+                'div.d-flex > div:nth-child(2)',
+            );
+            expect(properties.text()).toContain('Gender: GENDER');
+            expect(properties.text()).not.toContain('Notes:');
         });
 
         it('already playing player in collapsed drop-down with their name only', async () => {
@@ -409,12 +402,14 @@ describe('MasterDraw', () => {
                 [team],
             );
 
-            const masterDraw = find('div.d-flex > div:nth-child(1)')!;
-            const homeSide = masterDraw.querySelector(
+            const masterDraw = context.required(
+                'div.d-flex > div:nth-child(1)',
+            );
+            const homeSide = masterDraw.required(
                 'table tbody tr:first-child td:nth-child(2)',
-            )!;
-            const toggle = homeSide.querySelector('.dropdown-toggle')!;
-            expect(toggle.textContent).toContain('PLAYER');
+            );
+            const toggle = homeSide.required('.dropdown-toggle');
+            expect(toggle.text()).toContain('PLAYER');
         });
     });
 
@@ -512,9 +507,7 @@ describe('MasterDraw', () => {
             );
 
             await change('input[name="type"]', 'NEW TYPE');
-            act(() => {
-                fireEvent.blur(find('input[name="type"]')!, {});
-            });
+            await context.required('input[name="type"]').blur();
 
             expect(updatedTournament!.save).toEqual(true);
             expect(updatedTournament!.updated.type).toEqual('NEW TYPE');
@@ -550,11 +543,9 @@ describe('MasterDraw', () => {
         it('does not save tournament when only host player set', async () => {
             await render(tournament);
 
-            await select(
-                'td:nth-child(2) .dropdown-menu',
-                'PLAYER A',
-                getNewSinglesMatchRow(),
-            );
+            await getNewSinglesMatchRow()
+                .required('td:nth-child(2) .dropdown-menu')
+                .select('PLAYER A');
 
             expect(updatedTournament).toBeNull();
         });
@@ -562,11 +553,9 @@ describe('MasterDraw', () => {
         it('does not save tournament when only opponent player set', async () => {
             await render(tournament);
 
-            await select(
-                'td:nth-child(4) .dropdown-menu',
-                'PLAYER B',
-                getNewSinglesMatchRow(),
-            );
+            await getNewSinglesMatchRow()
+                .required('td:nth-child(4) .dropdown-menu')
+                .select('PLAYER B');
 
             expect(updatedTournament).toBeNull();
         });
@@ -575,18 +564,14 @@ describe('MasterDraw', () => {
             await render(tournament, user({ managePlayers: true }));
             setPlayerCreatedCallbackForTeam(teamA);
 
-            await select(
-                'td:nth-child(2) .dropdown-menu',
-                '➕ New Player/s',
-                getNewSinglesMatchRow(),
-            );
-            await change('textarea', 'NEW PLAYER', getDialog()!);
-            await doClick(findButton(getDialog()!, 'Add players'));
-            await select(
-                'td:nth-child(2) .dropdown-menu',
-                'NEW PLAYER',
-                getNewSinglesMatchRow(),
-            );
+            await getNewSinglesMatchRow()
+                .required('td:nth-child(2) .dropdown-menu')
+                .select('➕ New Player/s');
+            await getDialog()!.required('textarea').change('NEW PLAYER');
+            await getDialog()!.button('Add players').click();
+            await getNewSinglesMatchRow()
+                .required('td:nth-child(2) .dropdown-menu')
+                .select('NEW PLAYER');
 
             expect(createdPlayer).toEqual({
                 seasonId: season.id,
@@ -603,18 +588,14 @@ describe('MasterDraw', () => {
             await render(tournament, user({ managePlayers: true }));
             setPlayerCreatedCallbackForTeam(teamB);
 
-            await select(
-                'td:nth-child(4) .dropdown-menu',
-                '➕ New Player/s',
-                getNewSinglesMatchRow(),
-            );
-            await change('textarea', 'NEW PLAYER', getDialog()!);
-            await doClick(findButton(getDialog()!, 'Add players'));
-            await select(
-                'td:nth-child(4) .dropdown-menu',
-                'NEW PLAYER',
-                getNewSinglesMatchRow(),
-            );
+            await getNewSinglesMatchRow()
+                .required('td:nth-child(4) .dropdown-menu')
+                .select('➕ New Player/s');
+            await getDialog()!.required('textarea').change('NEW PLAYER');
+            await getDialog()!.button('Add players').click();
+            await getNewSinglesMatchRow()
+                .required('td:nth-child(4) .dropdown-menu')
+                .select('NEW PLAYER');
 
             expect(createdPlayer).toEqual({
                 seasonId: season.id,
@@ -629,13 +610,11 @@ describe('MasterDraw', () => {
 
         it('can close add player dialog', async () => {
             await render(tournament, user({ managePlayers: true }));
-            await select(
-                'td:nth-child(2) .dropdown-menu',
-                '➕ New Player/s',
-                getNewSinglesMatchRow(),
-            );
+            await getNewSinglesMatchRow()
+                .required('td:nth-child(2) .dropdown-menu')
+                .select('➕ New Player/s');
 
-            await doClick(findButton(getDialog()!, 'Cancel'));
+            await getDialog()!.button('Cancel').click();
 
             expect(getDialog()).toBeFalsy();
         });
@@ -646,9 +625,9 @@ describe('MasterDraw', () => {
             tournament.build = () => tournament;
             await render(tournament, user({ managePlayers: true }));
 
-            await doClick(
-                editButton(find('table tbody tr:first-child td:nth-child(2)')),
-            );
+            await editButton(
+                context.required('table tbody tr:first-child td:nth-child(2)'),
+            ).click();
 
             context.prompts.alertWasShown(
                 `Unable to find player PLAYER D (id: ${playerD.id}) in team HOST`,
@@ -659,11 +638,11 @@ describe('MasterDraw', () => {
         it('can edit host player', async () => {
             await render(getSideAvBTournament(), user({ managePlayers: true }));
 
-            await doClick(
-                editButton(find('table tbody tr:first-child td:nth-child(2)')),
-            );
-            await change('input[name="name"]', 'UPDATED PLAYER', getDialog()!);
-            await doClick(findButton(getDialog()!, 'Save player'));
+            await editButton(
+                context.required('table tbody tr:first-child td:nth-child(2)'),
+            ).click();
+            await getDialog()!.input('name').change('UPDATED PLAYER');
+            await getDialog()!.button('Save player').click();
 
             expect(updatedPlayer).toEqual({
                 seasonId: season.id,
@@ -689,11 +668,11 @@ describe('MasterDraw', () => {
         it('can edit opponent player', async () => {
             await render(getSideAvBTournament(), user({ managePlayers: true }));
 
-            await doClick(
-                editButton(find('table tbody tr:first-child td:nth-child(4)')),
-            );
-            await change('input[name="name"]', 'UPDATED PLAYER', getDialog()!);
-            await doClick(findButton(getDialog()!, 'Save player'));
+            await editButton(
+                context.required('table tbody tr:first-child td:nth-child(4)'),
+            ).click();
+            await getDialog()!.input('name').change('UPDATED PLAYER');
+            await getDialog()!.button('Save player').click();
 
             expect(updatedPlayer).toEqual({
                 seasonId: season.id,
@@ -719,11 +698,11 @@ describe('MasterDraw', () => {
         it('can close edit player dialog', async () => {
             await render(getSideAvBTournament(), user({ managePlayers: true }));
 
-            await doClick(
-                editButton(find('table tbody tr:first-child td:nth-child(2)')),
-            );
-            await change('input[name="name"]', 'UPDATED PLAYER', getDialog()!);
-            await doClick(findButton(getDialog()!, 'Cancel'));
+            await editButton(
+                context.required('table tbody tr:first-child td:nth-child(2)'),
+            ).click();
+            await getDialog()!.input('name').change('UPDATED PLAYER');
+            await getDialog()!.button('Cancel').click();
 
             expect(getDialog()).toBeFalsy();
         });
@@ -733,11 +712,9 @@ describe('MasterDraw', () => {
                 tournament.host('TEAM A '),
                 user({ managePlayers: true }),
             );
-            await select(
-                'td:nth-child(2) .dropdown-menu',
-                '➕ New Player/s',
-                getNewSinglesMatchRow(),
-            );
+            await getNewSinglesMatchRow()
+                .required('td:nth-child(2) .dropdown-menu')
+                .select('➕ New Player/s');
 
             expect(getDialog()).toBeFalsy();
             reportedError.verifyErrorEquals(
@@ -760,16 +737,12 @@ describe('MasterDraw', () => {
                 season,
             );
 
-            await select(
-                'td:nth-child(2) .dropdown-menu',
-                'PLAYER A',
-                getNewSinglesMatchRow(),
-            );
-            await select(
-                'td:nth-child(4) .dropdown-menu',
-                'PLAYER B',
-                getNewSinglesMatchRow(),
-            );
+            await getNewSinglesMatchRow()
+                .required('td:nth-child(2) .dropdown-menu')
+                .select('PLAYER A');
+            await getNewSinglesMatchRow()
+                .required('td:nth-child(4) .dropdown-menu')
+                .select('PLAYER B');
 
             expect(updatedTournament!.save).toEqual(true);
             expect(updatedTournament!.updated.round?.matches).toEqual([
@@ -786,11 +759,10 @@ describe('MasterDraw', () => {
         it('saves tournament when sideA changed for existing match', async () => {
             await render(getSideAvBTournament());
 
-            await select(
-                'td:nth-child(2) .dropdown-menu',
-                'PLAYER C',
-                find('table tbody tr:first-child')!,
-            );
+            await context
+                .required('table tbody tr:first-child')
+                .required('td:nth-child(2) .dropdown-menu')
+                .select('PLAYER C');
 
             expect(updatedTournament!.save).toEqual(true);
             expect(updatedTournament!.updated.round?.matches).toEqual([
@@ -804,11 +776,11 @@ describe('MasterDraw', () => {
         it('saves tournament when sideB changed for existing match', async () => {
             await render(getSideAvBTournament());
 
-            await select(
-                'td:nth-child(4) .dropdown-menu',
-                'PLAYER D',
-                find('table tbody tr:first-child')!,
-            );
+            await context
+                .required(
+                    'table tbody tr:first-child td:nth-child(4) .dropdown-menu',
+                )
+                .select('PLAYER D');
 
             expect(updatedTournament!.save).toEqual(true);
             expect(updatedTournament!.updated.round?.matches).toEqual([
@@ -834,26 +806,26 @@ describe('MasterDraw', () => {
                 season,
             );
 
-            await select(
-                'td:nth-child(2) [datatype="player-index-0"] .dropdown-menu',
-                'PLAYER A',
-                getNewPairsMatchRow(),
-            );
-            await select(
-                'td:nth-child(2) [datatype="player-index-1"] .dropdown-menu',
-                'PLAYER C',
-                getNewPairsMatchRow(),
-            );
-            await select(
-                'td:nth-child(4) [datatype="player-index-0"] .dropdown-menu',
-                'PLAYER B',
-                getNewPairsMatchRow(),
-            );
-            await select(
-                'td:nth-child(4) [datatype="player-index-1"] .dropdown-menu',
-                'PLAYER D',
-                getNewPairsMatchRow(),
-            );
+            await getNewPairsMatchRow()
+                .required(
+                    'td:nth-child(2) [datatype="player-index-0"] .dropdown-menu',
+                )
+                .select('PLAYER A');
+            await getNewPairsMatchRow()
+                .required(
+                    'td:nth-child(2) [datatype="player-index-1"] .dropdown-menu',
+                )
+                .select('PLAYER C');
+            await getNewPairsMatchRow()
+                .required(
+                    'td:nth-child(4) [datatype="player-index-0"] .dropdown-menu',
+                )
+                .select('PLAYER B');
+            await getNewPairsMatchRow()
+                .required(
+                    'td:nth-child(4) [datatype="player-index-1"] .dropdown-menu',
+                )
+                .select('PLAYER D');
 
             expect(updatedTournament!.save).toEqual(true);
             expect(updatedTournament!.updated.round?.matches).toEqual([
@@ -871,8 +843,12 @@ describe('MasterDraw', () => {
             const tournamentData = getSideAvBTournament();
             await renderComponent(props({ tournamentData }), user({}));
 
-            expect(find('[datatype="host"] .dropdown-menu')).toBeNull();
-            expect(find('[datatype="opponent"] .dropdown-menu')).toBeNull();
+            expect(
+                context.optional('[datatype="host"] .dropdown-menu'),
+            ).toBeFalsy();
+            expect(
+                context.optional('[datatype="opponent"] .dropdown-menu'),
+            ).toBeFalsy();
         });
 
         it('can delete match when permitted', async () => {
@@ -880,7 +856,7 @@ describe('MasterDraw', () => {
             await renderComponent(props({ tournamentData }), canRecordSayg);
             context.prompts.respondToConfirm(removeMatchMsg, true);
 
-            await doClick(findButton(find(masterDrawSelector), '🗑️ 1'));
+            await context.required(masterDrawSelector).button('🗑️ 1').click();
 
             expect(updatedTournament?.save).toEqual(true);
             expect(updatedTournament?.updated.round?.matches).toEqual([]);
@@ -892,7 +868,7 @@ describe('MasterDraw', () => {
             await renderComponent(props({ tournamentData }), canRecordSayg);
             context.prompts.respondToConfirm(removeMatchMsg, false);
 
-            await doClick(findButton(find(masterDrawSelector), '🗑️ 1'));
+            await context.required(masterDrawSelector).button('🗑️ 1').click();
 
             expect(updatedTournament).toEqual(null);
         });
@@ -920,7 +896,10 @@ describe('MasterDraw', () => {
                 }).build(),
             );
 
-            await doClick(findButton(find(masterDrawSelector), START_SCORING));
+            await context
+                .required(masterDrawSelector)
+                .button(START_SCORING)
+                .click();
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(`/test#${saygId}`);
         });
@@ -941,11 +920,14 @@ describe('MasterDraw', () => {
                 undefined,
                 `/test#${saygId}`,
             );
-            await doClick(findButton(find(masterDrawSelector), START_SCORING));
+            await context
+                .required(masterDrawSelector)
+                .button(START_SCORING)
+                .click();
             context.prompts.respondToConfirm(deleteSaygMsg, true);
             context.prompts.respondToConfirm(clearScoreMsg, true);
 
-            await doClick(findButton(getDialog(), 'Delete sayg'));
+            await getDialog()!.button('Delete sayg').click();
 
             expect(saygDeleted).toEqual({
                 id: tournamentData.id,
@@ -974,14 +956,16 @@ describe('MasterDraw', () => {
                 [teamA],
             );
 
-            const masterDraw = find('div.d-flex > div:nth-child(1)')!;
-            const home = masterDraw.querySelector(
+            const masterDraw = context.required(
+                'div.d-flex > div:nth-child(1)',
+            );
+            const home = masterDraw.required(
                 'table tbody tr:first-child td:nth-child(2)',
-            )!;
-            await doClick(home.querySelector('.dropdown-toggle')!);
+            );
+            await home.required('.dropdown-toggle').click();
 
-            const options = Array.from(home.querySelectorAll('.dropdown-item'));
-            const optionText = options.map((o) => o.textContent);
+            const options = home.all('.dropdown-item');
+            const optionText = options.map((o) => o.text());
             expect(optionText).toContain('🚫 PLAYER A (playing on BOARD 2)');
         });
     });

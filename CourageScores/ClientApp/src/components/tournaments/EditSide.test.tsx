@@ -3,11 +3,8 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
-    doSelectOption,
     ErrorState,
-    findButton,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -196,53 +193,44 @@ describe('EditSide', () => {
     }
 
     function nameInput() {
-        return context.container.querySelector(
-            'input[name="name"]',
-        ) as HTMLInputElement;
+        return context.input('name').element<HTMLInputElement>();
     }
 
-    function teamDropdown() {
-        return context.container.querySelector('.dropdown-menu');
+    function teamDropdown(): IComponent | undefined {
+        return context.optional('.dropdown-menu');
     }
 
-    function teamOptions(activeOnly?: boolean) {
-        return Array.from(
-            context.container.querySelectorAll(
-                `.dropdown-menu .dropdown-item${activeOnly ? '.active' : ''}`,
-            ),
+    function teamOptions(activeOnly?: boolean): IComponent[] {
+        return context.all(
+            `.dropdown-menu .dropdown-item${activeOnly ? '.active' : ''}`,
         );
     }
 
-    function findDialog(heading: string) {
-        const headings = context.container.querySelectorAll('h5');
-        const headingForDialog = Array.from(headings).filter(
-            (h5) => h5.textContent === heading,
-        )[0];
-        return headingForDialog?.closest('.modal-dialog')!;
+    function findDialog(heading: string): IComponent | undefined {
+        for (const h of context.all('h5')) {
+            if (h.text() === heading) {
+                return h.closest('.modal-dialog');
+            }
+        }
+        return undefined;
     }
 
-    function playerItems(activeOnly?: boolean) {
-        return Array.from(
-            context.container.querySelectorAll(
-                `.list-group .list-group-item${activeOnly ? '.active' : ''}`,
-            ),
+    function playerItems(activeOnly?: boolean): IComponent[] {
+        return context.all(
+            `.list-group .list-group-item${activeOnly ? '.active' : ''}`,
         );
     }
 
     function playerNames(activeOnly?: boolean) {
-        return playerItems(activeOnly).map((pi) => pi.textContent);
+        return playerItems(activeOnly).map((pi) => pi.text());
     }
 
     function noShowCheckbox() {
-        return context.container.querySelector(
-            'input[name="noShow"]',
-        ) as HTMLInputElement;
+        return context.input('noShow').element<HTMLInputElement>();
     }
 
     function findButtons() {
-        return Array.from(context.container.querySelectorAll('.btn')).map(
-            (b) => b.textContent,
-        );
+        return context.all('.btn').map((b) => b.text());
     }
 
     function newPlayer(name: string, divisionId?: string) {
@@ -299,7 +287,7 @@ describe('EditSide', () => {
             );
 
             expect(nameInput().value).toEqual('SIDE NAME');
-            expect(teamDropdown()).toBeNull();
+            expect(teamDropdown()).toBeFalsy();
             expect(playerNames(true)).toEqual(['PLAYER']);
         });
 
@@ -321,7 +309,7 @@ describe('EditSide', () => {
             );
 
             expect(nameInput().value).toEqual('SIDE NAME');
-            expect(teamDropdown()).toBeNull();
+            expect(teamDropdown()).toBeFalsy();
             expect(playerNames()).not.toContain('DELETED PLAYER');
         });
 
@@ -332,12 +320,7 @@ describe('EditSide', () => {
                 [team, anotherTeam],
             );
 
-            await doChange(
-                context.container,
-                'input[name="playerFilter"]',
-                'ANOTHER player',
-                context.user,
-            );
+            await context.input('playerFilter').change('ANOTHER player');
 
             expect(playerNames()).toEqual([
                 'ANOTHER PLAYER (🚫 Selected in "ANOTHER SIDE")',
@@ -351,12 +334,7 @@ describe('EditSide', () => {
                 [team, anotherTeam],
             );
 
-            await doChange(
-                context.container,
-                'input[name="playerFilter"]',
-                'ANOTHER team',
-                context.user,
-            );
+            await context.input('playerFilter').change('ANOTHER team');
 
             expect(playerNames()).toEqual([
                 'ANOTHER PLAYER (🚫 Selected in "ANOTHER SIDE")',
@@ -398,9 +376,7 @@ describe('EditSide', () => {
             );
 
             expect(nameInput().value).toEqual('SIDE NAME');
-            expect(teamOptions(true).map((t) => t.textContent)).toEqual([
-                'TEAM',
-            ]);
+            expect(teamOptions(true).map((t) => t.text())).toEqual(['TEAM']);
         });
 
         it('side which did not show', async () => {
@@ -441,7 +417,7 @@ describe('EditSide', () => {
             ]);
 
             expect(playerNames()).not.toContain('NOT IN SEASON PLAYER');
-            expect(teamOptions().map((i) => i.textContent)).not.toContain(
+            expect(teamOptions().map((i) => i.text())).not.toContain(
                 'NOT IN SEASON TEAM',
             );
         });
@@ -464,7 +440,7 @@ describe('EditSide', () => {
             ]);
 
             expect(playerNames()).not.toContain('DELETED PLAYER');
-            expect(teamOptions().map((i) => i.textContent)).not.toContain(
+            expect(teamOptions().map((i) => i.text())).not.toContain(
                 'DELETED TEAM',
             );
         });
@@ -637,12 +613,7 @@ describe('EditSide', () => {
                 [team],
             );
 
-            await doChange(
-                context.container,
-                'input[name="name"]',
-                'NEW NAME',
-                context.user,
-            );
+            await context.input('name').change('NEW NAME');
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual(equatableUpdate('NEW NAME'));
@@ -655,7 +626,7 @@ describe('EditSide', () => {
                 [team],
             );
 
-            await doClick(context.container, 'input[name="noShow"]');
+            await context.input('noShow').click();
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual(
@@ -680,7 +651,7 @@ describe('EditSide', () => {
                 [team, anotherTeam],
             );
 
-            await doSelectOption(teamDropdown(), 'TEAM');
+            await teamDropdown()!.select('TEAM');
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual(
@@ -702,7 +673,7 @@ describe('EditSide', () => {
                 [team, anotherTeam],
             );
 
-            await doSelectOption(teamDropdown(), 'Select team');
+            await teamDropdown()!.select('Select team');
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual(equatableUpdate('SIDE NAME', []));
@@ -713,7 +684,7 @@ describe('EditSide', () => {
             await renderComponent(containerProps.build(), props(side), [team]);
             const players = playerItems();
 
-            await doClick(players.filter((p) => p.textContent === 'PLAYER')[0]);
+            await players.filter((p) => p.text() === 'PLAYER')[0].click();
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual(
@@ -726,7 +697,7 @@ describe('EditSide', () => {
             await renderComponent(containerProps.build(), props(side), [team]);
             const players = playerItems();
 
-            await doClick(players.filter((p) => p.textContent === 'PLAYER')[0]);
+            await players.filter((p) => p.text() === 'PLAYER')[0].click();
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual(
@@ -739,7 +710,7 @@ describe('EditSide', () => {
             await renderComponent(containerProps.build(), props(side), [team]);
             const players = playerItems();
 
-            await doClick(players.filter((p) => p.textContent === 'PLAYER')[0]);
+            await players.filter((p) => p.text() === 'PLAYER')[0].click();
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual(
@@ -758,9 +729,9 @@ describe('EditSide', () => {
             );
             const players = playerItems();
 
-            await doClick(
-                players.filter((p) => p.textContent === 'ANOTHER PLAYER')[0],
-            );
+            await players
+                .filter((p) => p.text() === 'ANOTHER PLAYER')[0]
+                .click();
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual(
@@ -779,9 +750,9 @@ describe('EditSide', () => {
             );
             const players = playerItems();
 
-            await doClick(
-                players.filter((p) => p.textContent === 'ANOTHER PLAYER')[0],
-            );
+            await players
+                .filter((p) => p.text() === 'ANOTHER PLAYER')[0]
+                .click();
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual(
@@ -804,9 +775,9 @@ describe('EditSide', () => {
             );
             const players = playerItems();
 
-            await doClick(
-                players.filter((p) => p.textContent === 'ANOTHER PLAYER')[0],
-            );
+            await players
+                .filter((p) => p.text() === 'ANOTHER PLAYER')[0]
+                .click();
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual(equatableUpdate('PLAYER', [player]));
@@ -823,7 +794,7 @@ describe('EditSide', () => {
                 true,
             );
 
-            await doClick(findButton(context.container, 'Delete side'));
+            await context.button('Delete side').click();
 
             reportedError.verifyNoError();
             context.prompts.confirmWasShown(
@@ -843,7 +814,7 @@ describe('EditSide', () => {
                 false,
             );
 
-            await doClick(findButton(context.container, 'Delete side'));
+            await context.button('Delete side').click();
 
             reportedError.verifyNoError();
             context.prompts.confirmWasShown(
@@ -856,7 +827,7 @@ describe('EditSide', () => {
             const side = sideBuilder('').teamId(team.id).build();
             await renderComponent(containerProps.build(), props(side), [team]);
 
-            await doClick(findButton(context.container, 'Update'));
+            await context.button('Update').click();
 
             reportedError.verifyNoError();
             context.prompts.alertWasShown('Please enter a name for this side');
@@ -867,7 +838,7 @@ describe('EditSide', () => {
             const side: TournamentSideDto = sideBuilder('NAME').build();
             await renderComponent(containerProps.build(), props(side), [team]);
 
-            await doClick(findButton(context.container, 'Update'));
+            await context.button('Update').click();
 
             reportedError.verifyNoError();
             expect(applied).toEqual(true);
@@ -880,7 +851,7 @@ describe('EditSide', () => {
                 [team],
             );
 
-            await doClick(findButton(context.container, 'Update'));
+            await context.button('Update').click();
 
             reportedError.verifyNoError();
             expect(applied).toEqual(true);
@@ -896,7 +867,7 @@ describe('EditSide', () => {
                 [team],
             );
 
-            await doClick(findButton(context.container, 'Close'));
+            await context.button('Close').click();
 
             reportedError.verifyNoError();
             expect(closed).toEqual(true);
@@ -914,12 +885,11 @@ describe('EditSide', () => {
             );
             const playerItem = playerItems().filter(
                 (li) =>
-                    li.textContent ===
-                    'PLAYER (⚠ Playing in ANOTHER TOURNAMENT)',
+                    li.text() === 'PLAYER (⚠ Playing in ANOTHER TOURNAMENT)',
             )[0];
-            expect(playerItem.className).not.toContain('disabled');
+            expect(playerItem.className()).not.toContain('disabled');
 
-            await doClick(playerItem);
+            await playerItem.click();
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual(
@@ -932,12 +902,12 @@ describe('EditSide', () => {
             await renderComponent(containerProps.build(), props(side), [team]);
             const playerItem = playerItems().filter(
                 (li) =>
-                    li.textContent ===
+                    li.text() ===
                     'ANOTHER PLAYER (🚫 Selected in "ANOTHER SIDE")',
             )[0];
-            expect(playerItem.className).toContain('disabled');
+            expect(playerItem.className()).toContain('disabled');
 
-            await doClick(playerItem);
+            await playerItem.click();
 
             reportedError.verifyNoError();
             expect(updatedData).toBeNull();
@@ -951,7 +921,7 @@ describe('EditSide', () => {
                 user({ managePlayers: true }),
             );
 
-            await doClick(findButton(context.container, 'New player/s'));
+            await context.button('New player/s').click();
 
             expect(findDialog('Add a player...')).toBeTruthy();
         });
@@ -963,9 +933,9 @@ describe('EditSide', () => {
                 [team],
                 user({ managePlayers: true }),
             );
-            await doClick(findButton(context.container, 'New player/s'));
+            await context.button('New player/s').click();
 
-            await doClick(findButton(findDialog('Add a player...'), 'Cancel'));
+            await findDialog('Add a player...')!.button('Cancel').click();
 
             expect(findDialog('Add a player...')).toBeFalsy();
         });
@@ -977,12 +947,12 @@ describe('EditSide', () => {
                 [team],
                 user({ managePlayers: true }),
             );
-            await doClick(findButton(context.container, 'New player/s'));
-            const dialog = findDialog('Add a player...');
+            await context.button('New player/s').click();
+            const dialog = findDialog('Add a player...')!;
 
-            await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
-            await doSelectOption(teamDropdown(), team.name);
-            await doClick(findButton(dialog, 'Add player'));
+            await dialog.input('name').change('NAME');
+            await teamDropdown()!.select(team.name);
+            await dialog.button('Add player').click();
 
             expect(createdPlayer).not.toBeNull();
             expect(updatedData!.players).toEqual([
@@ -1005,12 +975,12 @@ describe('EditSide', () => {
                 [team],
                 user({ managePlayers: true }),
             );
-            await doClick(findButton(context.container, 'New player/s'));
-            const dialog = findDialog('Add a player...');
+            await context.button('New player/s').click();
+            const dialog = findDialog('Add a player...')!;
 
-            await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
-            await doSelectOption(teamDropdown(), team.name);
-            await doClick(findButton(dialog, 'Add player'));
+            await dialog.input('name').change('NAME');
+            await teamDropdown()!.select(team.name);
+            await dialog.button('Add player').click();
 
             expect(createdPlayer).not.toBeNull();
             expect(updatedData!.players).toEqual([
@@ -1026,12 +996,12 @@ describe('EditSide', () => {
                 [team],
                 user({ managePlayers: true }),
             );
-            await doClick(findButton(context.container, 'New player/s'));
-            const dialog = findDialog('Add a player...');
+            await context.button('New player/s').click();
+            const dialog = findDialog('Add a player...')!;
 
-            await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
-            await doSelectOption(teamDropdown(), team.name);
-            await doClick(findButton(dialog, 'Add player'));
+            await dialog.input('name').change('NAME');
+            await teamDropdown()!.select(team.name);
+            await dialog.button('Add player').click();
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual(
@@ -1050,12 +1020,12 @@ describe('EditSide', () => {
                 [team],
                 user({ managePlayers: true }),
             );
-            await doClick(findButton(context.container, 'New player/s'));
-            const dialog = findDialog('Add a player...');
+            await context.button('New player/s').click();
+            const dialog = findDialog('Add a player...')!;
 
-            await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
-            await doSelectOption(teamDropdown(), team.name);
-            await doClick(findButton(dialog, 'Add player'));
+            await dialog.input('name').change('NAME');
+            await teamDropdown()!.select(team.name);
+            await dialog.button('Add player').click();
 
             expect(teamsReloaded).toEqual(true);
         });
@@ -1067,12 +1037,12 @@ describe('EditSide', () => {
                 [team],
                 user({ managePlayers: true }),
             );
-            await doClick(findButton(context.container, 'New player/s'));
-            const dialog = findDialog('Add a player...');
+            await context.button('New player/s').click();
+            const dialog = findDialog('Add a player...')!;
 
-            await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
-            await doSelectOption(teamDropdown(), team.name);
-            await doClick(findButton(dialog, 'Add player'));
+            await dialog.input('name').change('NAME');
+            await teamDropdown()!.select(team.name);
+            await dialog.button('Add player').click();
 
             expect(findDialog('Add a player...')).toBeFalsy();
         });
@@ -1100,7 +1070,7 @@ describe('EditSide', () => {
                 [team],
             );
 
-            expect(context.container.querySelector('.list-group')).toBeTruthy();
+            expect(context.optional('.list-group')).toBeTruthy();
         });
 
         it('can select team when other sides are teams', async () => {
@@ -1126,7 +1096,7 @@ describe('EditSide', () => {
                 [team],
             );
 
-            expect(context.container.querySelector('.list-group')).toBeTruthy();
+            expect(context.optional('.list-group')).toBeTruthy();
         });
 
         it('cannot select team when other sides are players', async () => {
@@ -1152,7 +1122,7 @@ describe('EditSide', () => {
                 [team],
             );
 
-            expect(context.container.querySelector('.list-group')).toBeFalsy();
+            expect(context.optional('.list-group')).toBeFalsy();
         });
     });
 });

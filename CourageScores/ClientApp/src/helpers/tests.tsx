@@ -607,6 +607,10 @@ export function wrapComponent(element: Element, user: UserEvent): IComponent {
                 ? wrapComponent(nextSibling, user)
                 : undefined;
         },
+        closest(selector: string): IComponent | undefined {
+            const closest = element.closest(selector);
+            return closest ? wrapComponent(closest, user) : undefined;
+        },
         async click(doNothingIfDisabled?: boolean): Promise<IComponent> {
             if (!this.enabled() && !doNothingIfDisabled) {
                 throw new Error('Element is disabled');
@@ -839,6 +843,8 @@ export interface IComponent {
     parent(): IComponent | undefined;
 
     nextSibling(): IComponent | undefined;
+
+    closest(selector: string): IComponent | undefined;
 
     button(text: string): IComponent;
 
