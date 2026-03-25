@@ -3,8 +3,6 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -142,12 +140,8 @@ describe('Tv', () => {
 
             await renderComponent(appProps({ account }));
 
-            const items = Array.from(
-                context.container.querySelectorAll('.list-group-item'),
-            ) as HTMLAnchorElement[];
-            expect(items.map((i) => i.textContent)).toEqual([
-                '🏆 TYPE at VENUE',
-            ]);
+            const items = context.all('.list-group-item');
+            expect(items.map((i) => i.text())).toEqual(['🏆 TYPE at VENUE']);
         });
 
         it('renders connections with sayg and tournament event details', async () => {
@@ -168,10 +162,8 @@ describe('Tv', () => {
 
             await renderComponent(appProps({ account }));
 
-            const items = Array.from(
-                context.container.querySelectorAll('.list-group-item'),
-            ) as HTMLAnchorElement[];
-            expect(items.map((i) => i.textContent)).toEqual([
+            const items = context.all('.list-group-item');
+            expect(items.map((i) => i.text())).toEqual([
                 '🎯 CHALLENGER vs OPPONENT at VENUE',
             ]);
         });
@@ -192,10 +184,8 @@ describe('Tv', () => {
 
             await renderComponent(appProps({ account }));
 
-            const items = Array.from(
-                context.container.querySelectorAll('.list-group-item'),
-            ) as HTMLAnchorElement[];
-            expect(items.map((i) => i.textContent)).toEqual([
+            const items = context.all('.list-group-item');
+            expect(items.map((i) => i.text())).toEqual([
                 '🎯 CHALLENGER vs OPPONENT',
             ]);
         });
@@ -213,12 +203,10 @@ describe('Tv', () => {
 
             await renderComponent(appProps({ account }));
 
-            const items = Array.from(
-                context.container.querySelectorAll('.list-group-item'),
-            ) as HTMLAnchorElement[];
-            expect(items.map((i) => i.href)).toEqual([
-                'http://somewhere/match/ID',
-            ]);
+            const items = context.all('.list-group-item');
+            expect(
+                items.map((i) => i.element<HTMLAnchorElement>().href),
+            ).toEqual(['http://somewhere/match/ID']);
         });
 
         it('renders connections with only relative urls', async () => {
@@ -233,12 +221,10 @@ describe('Tv', () => {
 
             await renderComponent(appProps({ account }));
 
-            const items = Array.from(
-                context.container.querySelectorAll('.list-group-item'),
-            ) as HTMLAnchorElement[];
-            expect(items.map((i) => i.href)).toEqual([
-                'http://localhost/match/ID',
-            ]);
+            const items = context.all('.list-group-item');
+            expect(
+                items.map((i) => i.element<HTMLAnchorElement>().href),
+            ).toEqual(['http://localhost/match/ID']);
         });
 
         it('renders websocket connections', async () => {
@@ -254,13 +240,10 @@ describe('Tv', () => {
 
             await renderComponent(appProps({ account }));
 
-            const item = context.container.querySelector(
-                '.list-group-item',
-            ) as HTMLAnchorElement;
-            expect(item.querySelector('.badge')!.className).toEqual(
-                'badge rounded-pill bg-primary',
-            );
-            expect(item.querySelector('.badge')!.textContent).toEqual(
+            const item = context.required('.list-group-item');
+            const badge = item.required('.badge');
+            expect(badge.className()).toEqual('badge rounded-pill bg-primary');
+            expect(badge.text()).toEqual(
                 ' @ ' +
                     new Date('2024-02-26T11:27:07+00:00').toLocaleTimeString(),
             );
@@ -279,13 +262,12 @@ describe('Tv', () => {
 
             await renderComponent(appProps({ account }));
 
-            const item = context.container.querySelector(
-                '.list-group-item',
-            ) as HTMLAnchorElement;
-            expect(item.querySelector('.badge')!.className).toEqual(
+            const item = context.required('.list-group-item');
+            const badge = item.required('.badge');
+            expect(badge.className()).toEqual(
                 'badge rounded-pill bg-secondary',
             );
-            expect(item.querySelector('.badge')!.textContent).toEqual(
+            expect(badge.text()).toEqual(
                 ' @ ' +
                     new Date('2024-02-26T11:27:07+00:00').toLocaleTimeString(),
             );
@@ -303,10 +285,8 @@ describe('Tv', () => {
 
             await renderComponent(appProps({ account }));
 
-            const item = context.container.querySelector(
-                '.list-group-item',
-            ) as HTMLAnchorElement;
-            expect(item.textContent).toContain('Live match');
+            const item = context.required('.list-group-item');
+            expect(item.text()).toContain('Live match');
         });
 
         it('renders tournament connections', async () => {
@@ -321,10 +301,8 @@ describe('Tv', () => {
 
             await renderComponent(appProps({ account }));
 
-            const item = context.container.querySelector(
-                '.list-group-item',
-            ) as HTMLAnchorElement;
-            expect(item.textContent).toContain('Tournament');
+            const item = context.required('.list-group-item');
+            expect(item.text()).toContain('Tournament');
         });
 
         it('renders connections without last update', async () => {
@@ -339,10 +317,8 @@ describe('Tv', () => {
 
             await renderComponent(appProps({ account }));
 
-            const item = context.container.querySelector(
-                '.list-group-item',
-            ) as HTMLAnchorElement;
-            expect(item.textContent).toContain('Live match');
+            const item = context.required('.list-group-item');
+            expect(item.text()).toContain('Live match');
         });
 
         it('renders connections with unknown data type', async () => {
@@ -357,10 +333,8 @@ describe('Tv', () => {
 
             await renderComponent(appProps({ account }));
 
-            const item = context.container.querySelector(
-                '.list-group-item',
-            ) as HTMLAnchorElement;
-            expect(item.textContent).toContain('foo');
+            const item = context.required('.list-group-item');
+            expect(item.text()).toContain('foo');
         });
 
         it('can reload connections', async () => {
@@ -375,17 +349,15 @@ describe('Tv', () => {
                     lastUpdate: '',
                 },
             ];
-            await doClick(findButton(context.container, 'Refresh'));
+            await context.button('Refresh').click();
 
             expect(request).toEqual({
                 type: '',
             });
-            const items = Array.from(
-                context.container.querySelectorAll('.list-group-item'),
-            ) as HTMLAnchorElement[];
-            expect(items.map((i) => i.href)).toEqual([
-                'http://localhost/match/ID',
-            ]);
+            const items = context.all('.list-group-item');
+            expect(
+                items.map((i) => i.element<HTMLAnchorElement>().href),
+            ).toEqual(['http://localhost/match/ID']);
         });
     });
 });
