@@ -2,8 +2,6 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -56,22 +54,15 @@ describe('FilterFixtures', () => {
         );
     }
 
-    function getFilterOptionLink(
-        filterType: string,
-        text: string,
-    ): HTMLAnchorElement {
-        const filterDropDown = context.container.querySelector(
+    function getFilterOptionLink(filterType: string, text: string): string {
+        const filterDropDown = context.required(
             `[datatype="${filterType}"] .dropdown-menu`,
-        )!;
-        const items: HTMLElement[] = Array.from(
-            filterDropDown.querySelectorAll('.dropdown-item'),
-        ) as HTMLElement[];
-        const item: HTMLElement = items.filter(
-            (i: HTMLElement) => i.textContent === text,
-        )[0];
-        const link: HTMLAnchorElement = item.childNodes[0] as HTMLAnchorElement;
+        );
+        const items = filterDropDown.all('.dropdown-item');
+        const item = items.find((i) => i.text() === text)!;
+        const link = item.element().childNodes[0] as HTMLAnchorElement;
         expect(link).toBeTruthy();
-        return link;
+        return link.href;
     }
 
     describe('type', () => {
@@ -86,16 +77,11 @@ describe('FilterFixtures', () => {
                 },
             );
 
-            const dropDown = context.container.querySelector(
-                '.btn-group:nth-child(1)',
-            )!;
-            expect(dropDown).toBeTruthy();
-            expect(
-                dropDown.querySelector('.dropdown-item.active'),
-            ).toBeTruthy();
-            expect(
-                dropDown.querySelector('.dropdown-item.active')!.textContent,
-            ).toEqual('League fixtures');
+            const dropDown = context.required('.btn-group:nth-child(1)');
+            expect(dropDown.optional('.dropdown-item.active')).toBeTruthy();
+            expect(dropDown.optional('.dropdown-item.active')!.text()).toEqual(
+                'League fixtures',
+            );
         });
 
         it('when unrecognised', async () => {
@@ -109,11 +95,8 @@ describe('FilterFixtures', () => {
                 },
             );
 
-            const dropDown = context.container.querySelector(
-                '.btn-group:nth-child(1)',
-            )!;
-            expect(dropDown).toBeTruthy();
-            expect(dropDown.querySelector('.dropdown-item.active')).toBeFalsy();
+            const dropDown = context.required('.btn-group:nth-child(1)');
+            expect(dropDown.optional('.dropdown-item.active')).toBeFalsy();
         });
 
         it('when unselected', async () => {
@@ -127,16 +110,11 @@ describe('FilterFixtures', () => {
                 },
             );
 
-            const dropDown = context.container.querySelector(
-                `[datatype="type-filter"]`,
-            )!;
-            expect(dropDown).toBeTruthy();
-            expect(
-                dropDown.querySelector('.dropdown-item.active'),
-            ).toBeTruthy();
-            expect(
-                dropDown.querySelector('.dropdown-item.active')!.textContent,
-            ).toEqual('All fixtures');
+            const dropDown = context.required(`[datatype="type-filter"]`);
+            expect(dropDown.optional('.dropdown-item.active')).toBeTruthy();
+            expect(dropDown.optional('.dropdown-item.active')!.text()).toEqual(
+                'All fixtures',
+            );
         });
 
         it('changes url to include filter', async () => {
@@ -153,7 +131,7 @@ describe('FilterFixtures', () => {
             );
 
             expect(
-                getFilterOptionLink('type-filter', 'League fixtures').href,
+                getFilterOptionLink('type-filter', 'League fixtures'),
             ).toEqual(
                 'http://localhost/fixtures?division=DIVISION&type=league',
             );
@@ -172,9 +150,9 @@ describe('FilterFixtures', () => {
                 {},
             );
 
-            expect(
-                getFilterOptionLink('type-filter', 'All fixtures').href,
-            ).toEqual('http://localhost/fixtures?division=DIVISION');
+            expect(getFilterOptionLink('type-filter', 'All fixtures')).toEqual(
+                'http://localhost/fixtures?division=DIVISION',
+            );
         });
     });
 
@@ -190,16 +168,11 @@ describe('FilterFixtures', () => {
                 },
             );
 
-            const dropDown = context.container.querySelector(
-                '.btn-group:nth-child(2)',
-            )!;
-            expect(dropDown).toBeTruthy();
-            expect(
-                dropDown.querySelector('.dropdown-item.active'),
-            ).toBeTruthy();
-            expect(
-                dropDown.querySelector('.dropdown-item.active')!.textContent,
-            ).toEqual('Past dates');
+            const dropDown = context.required('.btn-group:nth-child(2)');
+            expect(dropDown.optional('.dropdown-item.active')).toBeTruthy();
+            expect(dropDown.optional('.dropdown-item.active')!.text()).toEqual(
+                'Past dates',
+            );
         });
 
         it('when specific 3-part date', async () => {
@@ -215,16 +188,11 @@ describe('FilterFixtures', () => {
                 },
             );
 
-            const dropDown = context.container.querySelector(
-                '.btn-group:nth-child(2)',
-            )!;
-            expect(dropDown).toBeTruthy();
-            expect(
-                dropDown.querySelector('.dropdown-item.active'),
-            ).toBeTruthy();
-            expect(
-                dropDown.querySelector('.dropdown-item.active')!.textContent,
-            ).toEqual(expectedDate);
+            const dropDown = context.required('.btn-group:nth-child(2)');
+            expect(dropDown.optional('.dropdown-item.active')).toBeTruthy();
+            expect(dropDown.optional('.dropdown-item.active')!.text()).toEqual(
+                expectedDate,
+            );
         });
 
         it('when unrecognised', async () => {
@@ -238,16 +206,11 @@ describe('FilterFixtures', () => {
                 },
             );
 
-            const dropDown = context.container.querySelector(
-                '.btn-group:nth-child(2)',
-            )!;
-            expect(dropDown).toBeTruthy();
-            expect(
-                dropDown.querySelector('.dropdown-item.active'),
-            ).toBeTruthy();
-            expect(
-                dropDown.querySelector('.dropdown-item.active')!.textContent,
-            ).toEqual('foo');
+            const dropDown = context.required('.btn-group:nth-child(2)');
+            expect(dropDown.optional('.dropdown-item.active')).toBeTruthy();
+            expect(dropDown.optional('.dropdown-item.active')!.text()).toEqual(
+                'foo',
+            );
         });
 
         it('when unselected', async () => {
@@ -261,16 +224,11 @@ describe('FilterFixtures', () => {
                 },
             );
 
-            const dropDown = context.container.querySelector(
-                `[datatype="date-filter"]`,
-            )!;
-            expect(dropDown).toBeTruthy();
-            expect(
-                dropDown.querySelector('.dropdown-item.active'),
-            ).toBeTruthy();
-            expect(
-                dropDown.querySelector('.dropdown-item.active')!.textContent,
-            ).toEqual('All dates');
+            const dropDown = context.required(`[datatype="date-filter"]`);
+            expect(dropDown.optional('.dropdown-item.active')).toBeTruthy();
+            expect(dropDown.optional('.dropdown-item.active')!.text()).toEqual(
+                'All dates',
+            );
         });
 
         it('changes url to include filter', async () => {
@@ -286,9 +244,7 @@ describe('FilterFixtures', () => {
                 {},
             );
 
-            expect(
-                getFilterOptionLink('date-filter', 'Future dates').href,
-            ).toEqual(
+            expect(getFilterOptionLink('date-filter', 'Future dates')).toEqual(
                 'http://localhost/fixtures?division=DIVISION&date=future',
             );
         });
@@ -306,9 +262,9 @@ describe('FilterFixtures', () => {
                 {},
             );
 
-            expect(
-                getFilterOptionLink('date-filter', 'All dates').href,
-            ).toEqual('http://localhost/fixtures?division=DIVISION');
+            expect(getFilterOptionLink('date-filter', 'All dates')).toEqual(
+                'http://localhost/fixtures?division=DIVISION',
+            );
         });
     });
 
@@ -325,16 +281,11 @@ describe('FilterFixtures', () => {
                 },
             );
 
-            const dropDown = context.container.querySelector(
-                '.btn-group:nth-child(3)',
-            )!;
-            expect(dropDown).toBeTruthy();
-            expect(
-                dropDown.querySelector('.dropdown-item.active'),
-            ).toBeTruthy();
-            expect(
-                dropDown.querySelector('.dropdown-item.active')!.textContent,
-            ).toEqual('TEAM');
+            const dropDown = context.required('.btn-group:nth-child(3)');
+            expect(dropDown.optional('.dropdown-item.active')).toBeTruthy();
+            expect(dropDown.optional('.dropdown-item.active')!.text()).toEqual(
+                'TEAM',
+            );
         });
 
         it('when unrecognised', async () => {
@@ -349,11 +300,8 @@ describe('FilterFixtures', () => {
                 },
             );
 
-            const dropDown = context.container.querySelector(
-                '.btn-group:nth-child(3)',
-            )!;
-            expect(dropDown).toBeTruthy();
-            expect(dropDown.querySelector('.dropdown-item.active')).toBeFalsy();
+            const dropDown = context.required('.btn-group:nth-child(3)');
+            expect(dropDown.optional('.dropdown-item.active')).toBeFalsy();
         });
 
         it('when unselected', async () => {
@@ -367,16 +315,11 @@ describe('FilterFixtures', () => {
                 },
             );
 
-            const dropDown = context.container.querySelector(
-                `[datatype="team-filter"]`,
-            )!;
-            expect(dropDown).toBeTruthy();
-            expect(
-                dropDown.querySelector('.dropdown-item.active'),
-            ).toBeTruthy();
-            expect(
-                dropDown.querySelector('.dropdown-item.active')!.textContent,
-            ).toEqual('All teams');
+            const dropDown = context.required(`[datatype="team-filter"]`);
+            expect(dropDown.optional('.dropdown-item.active')).toBeTruthy();
+            expect(dropDown.optional('.dropdown-item.active')!.text()).toEqual(
+                'All teams',
+            );
         });
 
         it('changes url to include filter', async () => {
@@ -393,7 +336,7 @@ describe('FilterFixtures', () => {
                 {},
             );
 
-            expect(getFilterOptionLink('team-filter', 'TEAM').href).toEqual(
+            expect(getFilterOptionLink('team-filter', 'TEAM')).toEqual(
                 'http://localhost/fixtures?division=DIVISION&team=team',
             );
         });
@@ -411,9 +354,9 @@ describe('FilterFixtures', () => {
                 {},
             );
 
-            expect(
-                getFilterOptionLink('team-filter', 'All teams').href,
-            ).toEqual('http://localhost/fixtures?division=DIVISION');
+            expect(getFilterOptionLink('team-filter', 'All teams')).toEqual(
+                'http://localhost/fixtures?division=DIVISION',
+            );
         });
     });
 
@@ -430,9 +373,9 @@ describe('FilterFixtures', () => {
                 },
                 {},
             );
-            const button: HTMLAnchorElement = context.container.querySelector(
-                'a[title="Clear all filters"]',
-            ) as HTMLAnchorElement;
+            const button = context
+                .required('a[title="Clear all filters"]')
+                .element<HTMLAnchorElement>();
 
             expect(button.href).toEqual(
                 'http://localhost/fixtures?division=DIVISION',
@@ -452,7 +395,7 @@ describe('FilterFixtures', () => {
                 {},
             );
 
-            expect(context.container.innerHTML).not.toContain('➖');
+            expect(context.html()).not.toContain('➖');
         });
     });
 
@@ -472,11 +415,9 @@ describe('FilterFixtures', () => {
                 },
             );
 
-            const buttons: HTMLButtonElement[] = Array.from(
-                context.container.querySelectorAll('button.btn-outline-danger'),
-            ) as HTMLButtonElement[];
+            const buttons = context.all('button.btn-outline-danger');
             expect(buttons.length).toEqual(1);
-            expect(buttons[0].textContent).toEqual('🌟');
+            expect(buttons[0].text()).toEqual('🌟');
         });
 
         it('does not show button when favourites are not enabled', async () => {
@@ -494,9 +435,7 @@ describe('FilterFixtures', () => {
                 },
             );
 
-            const buttons: HTMLButtonElement[] = Array.from(
-                context.container.querySelectorAll('button.btn-outline-danger'),
-            ) as HTMLButtonElement[];
+            const buttons = context.all('button.btn-outline-danger');
             expect(buttons.length).toEqual(0);
         });
 
@@ -515,9 +454,7 @@ describe('FilterFixtures', () => {
                 },
             );
 
-            const buttons: HTMLButtonElement[] = Array.from(
-                context.container.querySelectorAll('button.btn-outline-danger'),
-            ) as HTMLButtonElement[];
+            const buttons = context.all('button.btn-outline-danger');
             expect(buttons.length).toEqual(0);
         });
 
@@ -541,7 +478,7 @@ describe('FilterFixtures', () => {
                 false,
             );
 
-            await doClick(findButton(context.container, '🌟'));
+            await context.button('🌟').click();
 
             context.prompts.confirmWasShown(
                 'Are you sure you want to clear your favourites?',
@@ -572,7 +509,7 @@ describe('FilterFixtures', () => {
                 true,
             );
 
-            await doClick(findButton(context.container, '🌟'));
+            await context.button('🌟').click();
 
             expect(context.cookies!.get('preferences')).toEqual({
                 someOtherPreference: 'FOO',

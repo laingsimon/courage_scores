@@ -3,14 +3,10 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
-    doSelectOption,
     ErrorState,
-    findButton,
+    IComponent,
     iocProps,
     renderApp,
-    setFile,
     TestContext,
     user,
 } from '../../helpers/tests';
@@ -287,47 +283,42 @@ describe('Tournament', () => {
         );
     }
 
-    function dialog() {
-        return context.container.querySelector('.modal-dialog');
+    function modalDialog(): IComponent | undefined {
+        return context.optional('.modal-dialog');
     }
 
     function addSideOption() {
-        return context.container.querySelector('li[datatype="add-side"]')!;
+        return context.required('li[datatype="add-side"]');
     }
 
     function oneEighties() {
-        return context.container.querySelector('div[data-accolades="180s"]')!;
+        return context.required('div[data-accolades="180s"]');
     }
 
     function hiChecks() {
-        return context.container.querySelector(
-            'div[data-accolades="hi-checks"]',
-        )!;
+        return context.required('div[data-accolades="hi-checks"]');
     }
 
     function accoladePlayers() {
-        const items = context.container
-            .querySelector('.modal-dialog')!
-            .querySelectorAll('.dropdown-menu .dropdown-item');
-        return Array.from(items)
-            .map((i) => i.textContent)
-            .filter((i) => i !== NBSP);
+        const items = modalDialog()!.all('.dropdown-menu .dropdown-item');
+        return items.map((i) => i.text()).filter((i) => i !== NBSP);
     }
 
     function heading() {
-        return context.container.querySelector('div[datatype="heading"]')!;
+        return context.required('div[datatype="heading"]');
     }
 
     function playing() {
-        return context.container.querySelector('div[datatype="playing"]')!;
+        return context.required('div[datatype="playing"]');
     }
 
     async function selectPlayer(home: string, away: string) {
-        const homeSelector = `table tbody tr td:nth-child(2) .dropdown-menu`;
-        const awaySelector = `table tbody tr td:nth-child(4) .dropdown-menu`;
-        const container = context.container;
-        await doSelectOption(container.querySelector(homeSelector), home);
-        await doSelectOption(container.querySelector(awaySelector), away);
+        await context
+            .required('table tbody tr td:nth-child(2) .dropdown-menu')
+            .select(home);
+        await context
+            .required('table tbody tr td:nth-child(4) .dropdown-menu')
+            .select(away);
     }
 
     function equatablePatch(tournamentData: TournamentGameDto, data: object) {
@@ -338,12 +329,7 @@ describe('Tournament', () => {
     }
 
     async function startScoring(selector: string) {
-        await doClick(
-            findButton(
-                context.container.querySelector(`${selector}`),
-                START_SCORING,
-            ),
-        );
+        await context.required(selector).button(START_SCORING).click();
     }
 
     function makeApiResponse<T>(result: T, success?: boolean) {
@@ -434,10 +420,9 @@ describe('Tournament', () => {
             it('loading', async () => {
                 await render(tournamentData, season, undefined, true);
 
-                const container = context.container.querySelector(
-                    '.content-background',
-                )!;
-                expect(container.className).toContain('loading-background');
+                expect(
+                    context.required('.content-background').className(),
+                ).toContain('loading-background');
                 reportedError.verifyNoError();
             });
 
@@ -468,7 +453,7 @@ describe('Tournament', () => {
             it('tournament without any sides', async () => {
                 await render(tournamentData, season, team);
 
-                expect(heading().textContent).toContain(
+                expect(heading().text()).toContain(
                     'TYPE at ADDRESS on 2 Jan - NOTES🔗🖨️',
                 );
                 reportedError.verifyNoError();
@@ -481,7 +466,7 @@ describe('Tournament', () => {
 
                 await render(tournamentData, season, team);
 
-                expect(heading().textContent).toContain(
+                expect(heading().text()).toContain(
                     'TYPE at ADDRESS on 2 Jan - NOTES🔗🖨️',
                 );
                 reportedError.verifyNoError();
@@ -498,9 +483,9 @@ describe('Tournament', () => {
 
                 await render(tournamentData, season, team);
 
-                const selector = 'div[datatype="printable-sheet"]';
-                const printable = context.container.querySelector(selector);
-                expect(printable).toBeTruthy();
+                expect(
+                    context.optional('div[datatype="printable-sheet"]'),
+                ).toBeTruthy();
                 reportedError.verifyNoError();
             });
         });
@@ -515,10 +500,9 @@ describe('Tournament', () => {
             it('loading', async () => {
                 await render(tournamentData, season, undefined, true);
 
-                const container = context.container.querySelector(
-                    '.content-background',
-                )!;
-                expect(container.className).toContain('loading-background');
+                expect(
+                    context.required('.content-background').className(),
+                ).toContain('loading-background');
             });
         });
     });
@@ -603,26 +587,20 @@ describe('Tournament', () => {
         it('can open add player dialog', async () => {
             await render();
 
-            await doClick(findButton(context.container, 'Add player'));
+            await context.button('Add player').click();
 
-            expect(dialog()!.textContent).toContain('Add player');
+            expect(modalDialog()!.text()).toContain('Add player');
         });
 
         it('can add players', async () => {
             const divisionData = divisionDataBuilder(division).build();
             expectDivisionDataRequest(division.id, season.id, divisionData);
             await render(teamNoPlayers);
-            await doClick(findButton(context.container, 'Add player'));
+            await context.button('Add player').click();
 
-            await doChange(
-                dialog()!,
-                'input[name="name"]',
-                'NEW PLAYER',
-                context.user,
-            );
-            const teams = dialog()!.querySelector('.dropdown-menu');
-            await doSelectOption(teams, 'TEAM');
-            await doClick(findButton(dialog()!, 'Add player'));
+            await modalDialog()!.input('name').change('NEW PLAYER');
+            await modalDialog()!.required('.dropdown-menu').select('TEAM');
+            await modalDialog()!.button('Add player').click();
 
             expect(createdPlayer!.teamId).toEqual(teamNoPlayers.id);
             expect(createdPlayer!.seasonId).toEqual(tournamentData.seasonId);
@@ -632,18 +610,18 @@ describe('Tournament', () => {
 
         it('can cancel add player dialog', async () => {
             await render();
-            await doClick(findButton(context.container, 'Add player'));
+            await context.button('Add player').click();
 
-            await doClick(findButton(dialog()!, 'Cancel'));
+            await modalDialog()!.button('Cancel').click();
 
-            expect(dialog()).toBeFalsy();
+            expect(modalDialog()).toBeFalsy();
         });
 
         it('does not save when no details changed', async () => {
             await render();
 
-            await doClick(heading());
-            await doClick(findButton(dialog(), 'Close'));
+            await heading().click();
+            await modalDialog()!.button('Close').click();
 
             expect(updatedTournamentData.length).toEqual(0);
         });
@@ -651,14 +629,9 @@ describe('Tournament', () => {
         it('can update details', async () => {
             await render();
 
-            await doClick(heading());
-            await doChange(
-                dialog()!,
-                'input[name="type"]',
-                'NEW TYPE',
-                context.user,
-            );
-            await doClick(findButton(dialog()!, 'Save'));
+            await heading().click();
+            await modalDialog()!.input('type').change('NEW TYPE');
+            await modalDialog()!.button('Save').click();
 
             const types = updatedTournamentData.map((d) => d.type);
             expect(types).toEqual(['NEW TYPE']);
@@ -667,7 +640,7 @@ describe('Tournament', () => {
         it('can save changes', async () => {
             await render();
 
-            await doClick(findButton(context.container, 'Save'));
+            await context.button('Save').click();
 
             expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
         });
@@ -676,7 +649,7 @@ describe('Tournament', () => {
             await render();
             apiResponse = makeApiFailure('SOME ERROR');
 
-            await doClick(findButton(context.container, 'Save'));
+            await context.button('Save').click();
 
             const textContent = context.container.textContent;
             expect(textContent).toContain('Could not save tournament details');
@@ -686,12 +659,12 @@ describe('Tournament', () => {
         it('can close error dialog after save failure', async () => {
             await render();
             apiResponse = makeApiFailure('SOME ERROR');
-            await doClick(findButton(context.container, 'Save'));
+            await context.button('Save').click();
             let textContent = context.container.textContent;
             const errorDetails = 'Could not save tournament details';
             expect(textContent).toContain(errorDetails);
 
-            await doClick(findButton(context.container, 'Close'));
+            await context.button('Close').click();
 
             textContent = context.container.textContent;
             expect(textContent).not.toContain(errorDetails);
@@ -844,12 +817,10 @@ describe('Tournament', () => {
                 .withMatchOption((o) => o.numberOfLegs(3))
                 .build();
             await render();
-            await doClick(
-                findButton(
-                    context.container.querySelector('div[datatype="match"]'),
-                    START_SCORING,
-                ),
-            ); // first match
+            await context
+                .required('div[datatype="match"]')
+                .button(START_SCORING)
+                .click();
             apiResponse = makeApiFailure('SOME ERROR');
 
             await keyPad(context, ['1', '8', '0', ENTER_SCORE_BUTTON]);
@@ -864,12 +835,13 @@ describe('Tournament', () => {
             tournamentData.sides!.push(sideA);
             await render(makeTeam('TEAM', playerA, playerB));
 
-            await doClick(addSideOption());
-            const selector = '.list-group-item:nth-child(2)';
-            await doClick(dialog()!.querySelector(selector)!); // click on a player
-            await doClick(findButton(dialog()!, 'Add')); // close the dialog
+            await addSideOption().click();
+            await modalDialog()!
+                .required('.list-group-item:nth-child(2)')
+                .click();
+            await modalDialog()!.button('Add').click();
 
-            await doClick(oneEighties());
+            await oneEighties().click();
             expect(accoladePlayers()).toContain('PLAYER A');
         });
 
@@ -877,12 +849,13 @@ describe('Tournament', () => {
             tournamentData.sides!.push(sideA);
             await render(makeTeam('TEAM', playerA, playerB));
 
-            await doClick(addSideOption());
-            const selector = '.list-group-item:nth-child(2)';
-            await doClick(dialog()!.querySelector(selector)!); // click on a player
-            await doClick(findButton(dialog()!, 'Add')); // close the dialog
+            await addSideOption().click();
+            await modalDialog()!
+                .required('.list-group-item:nth-child(2)')
+                .click();
+            await modalDialog()!.button('Add').click();
 
-            await doClick(hiChecks());
+            await hiChecks().click();
             expect(accoladePlayers()).toContain('PLAYER A');
         });
 
@@ -893,16 +866,14 @@ describe('Tournament', () => {
                 'Are you sure you want to remove A?',
                 true,
             );
-            // verify that all 3 players CAN be selected before the side is removed
-            await doClick(oneEighties());
+            await oneEighties().click();
             expect(accoladePlayers()).toEqual(allPlayers);
-            await doClick(findButton(dialog()!, 'Close')); // close the dialog
+            await modalDialog()!.button('Close').click();
 
-            await doClick(playing().querySelector('li:nth-child(1)')!); // open edit side dialog
-            await doClick(findButton(dialog(), 'Delete side')); // delete side A
+            await playing().required('li:nth-child(1)').click();
+            await modalDialog()!.button('Delete side').click();
 
-            // verify that only the 2 remaining players can be selected after a side has been removed
-            await doClick(oneEighties());
+            await oneEighties().click();
             expect(accoladePlayers()).toEqual(['PLAYER B', 'PLAYER C']);
         });
 
@@ -913,75 +884,69 @@ describe('Tournament', () => {
                 'Are you sure you want to remove A?',
                 true,
             );
-            // verify that all 3 players CAN be selected before the side is removed
-            await doClick(hiChecks());
+            await hiChecks().click();
             expect(accoladePlayers()).toEqual(allPlayers);
-            await doClick(findButton(dialog()!, 'Close')); // close the dialog
+            await modalDialog()!.button('Close').click();
 
-            await doClick(playing().querySelector('li:nth-child(1)')!); // open edit side dialog
-            await doClick(findButton(dialog(), 'Delete side')); // delete side A
+            await playing().required('li:nth-child(1)').click();
+            await modalDialog()!.button('Delete side').click();
 
-            // verify that only the 2 remaining players can be selected after a side has been removed
-            await doClick(hiChecks());
+            await hiChecks().click();
             expect(accoladePlayers()).toEqual(['PLAYER B', 'PLAYER C']);
         });
 
         it('excludes no-show sides from 180 selection', async () => {
             tournamentData.sides!.push(sideA, sideB, sideC);
             await render(teamWithPlayersABC);
-            // verify that all 3 players CAN be selected before the side is removed
-            await doClick(oneEighties());
+            await oneEighties().click();
             expect(accoladePlayers()).toEqual(allPlayers);
-            await doClick(findButton(dialog()!, 'Close')); // close the dialog
+            await modalDialog()!.button('Close').click();
 
-            await doClick(playing().querySelector('li:nth-child(1)')!); // open edit side dialog
-            await doClick(dialog()!.querySelector('input[name="noShow"]')!);
-            await doClick(findButton(dialog()!, 'Update'));
+            await playing().required('li:nth-child(1)').click();
+            await modalDialog()!.input('noShow').click();
+            await modalDialog()!.button('Update').click();
 
-            // verify that only the 2 remaining players can be selected after a side has been removed
-            await doClick(oneEighties());
+            await oneEighties().click();
             expect(accoladePlayers()).toEqual(['PLAYER B', 'PLAYER C']);
         });
 
         it('excludes no-show sides from hi-check selection', async () => {
             tournamentData.sides!.push(sideA, sideB, sideC);
             await render(teamWithPlayersABC);
-            // verify that all 3 players CAN be selected before the side is removed
-            await doClick(hiChecks());
+            await hiChecks().click();
             expect(accoladePlayers()).toEqual(allPlayers);
-            await doClick(findButton(dialog()!, 'Close')); // close the dialog
+            await modalDialog()!.button('Close').click();
 
-            await doClick(playing().querySelector('li:nth-child(1)')!); // open edit side dialog
-            await doClick(dialog()!.querySelector('input[name="noShow"]')!);
-            await doClick(findButton(dialog(), 'Update'));
+            await playing().required('li:nth-child(1)').click();
+            await modalDialog()!.input('noShow').click();
+            await modalDialog()!.button('Update').click();
 
-            // verify that only the 2 remaining players can be selected after a side has been removed
-            await doClick(hiChecks());
+            await hiChecks().click();
             expect(accoladePlayers()).toEqual(['PLAYER B', 'PLAYER C']);
         });
 
         it('cannot edit tournament details via printable sheet when logged out', async () => {
             await render(teamNoPlayers, user({}));
 
-            await doClick(heading());
+            await heading().click();
 
-            expect(dialog()).toBeFalsy();
+            expect(modalDialog()).toBeFalsy();
         });
 
         it('cannot edit tournament details via printable sheet when not permitted', async () => {
             await render(teamNoPlayers, notPermittedAccount);
 
-            await doClick(heading());
+            await heading().click();
 
-            expect(dialog()).toBeFalsy();
+            expect(modalDialog()).toBeFalsy();
         });
 
         it('can edit tournament details via printable sheet when permitted', async () => {
             await render(teamNoPlayers);
 
-            await doClick(heading());
+            await heading().click();
 
-            expect(dialog()).toBeTruthy();
+            expect(modalDialog()).toBeTruthy();
         });
 
         it('updating number of legs updates all match options in all matches', async () => {
@@ -991,14 +956,9 @@ describe('Tournament', () => {
                 .build();
             await render(teamNoPlayers);
 
-            await doClick(heading());
-            await doChange(
-                dialog()!,
-                'input[name="bestOf"]',
-                '9',
-                context.user,
-            );
-            await doClick(findButton(dialog()!, 'Save'));
+            await heading().click();
+            await modalDialog()!.input('bestOf').change('9');
+            await modalDialog()!.button('Save').click();
 
             expect(updatedTournamentData.length).toEqual(1);
             const firstUpdate = updatedTournamentData[0];
@@ -1016,26 +976,21 @@ describe('Tournament', () => {
             tournamentData.sides!.push(sideA, sideBuilder('SIDE B').build());
             await render(deletedTeam);
 
-            await doClick(oneEighties());
+            await oneEighties().click();
 
             expect(accoladePlayers()).not.toContain('DELETED PLAYER A');
         });
 
         it('does not include null players from a mix of team and player sides', async () => {
-            // NOTE: This is now a regression test for when there is invalid data, the scenario should otherwise not be possible
-            // The UI will prevent a mix of team vs player sides for a tournament.
             const team = makeTeam('TEAM', playerA);
             const sideC = sideBuilder('SIDE C').teamId(team.id).build();
             tournamentData.sides!.push(sideA, sideC);
             await render(team);
-            await doClick(addSideOption());
-            await doSelectOption(
-                dialog()!.querySelector('.dropdown-menu'),
-                'TEAM',
-            );
-            await doClick(findButton(dialog(), 'Add'));
+            await addSideOption().click();
+            await modalDialog()!.required('.dropdown-menu').select('TEAM');
+            await modalDialog()!.button('Add').click();
 
-            await doClick(oneEighties());
+            await oneEighties().click();
 
             expect(accoladePlayers()).toEqual(['PLAYER A']);
         });
@@ -1049,28 +1004,29 @@ describe('Tournament', () => {
         it('can open photo manager to view photos', async () => {
             await render(undefined, permitted);
 
-            await doClick(findButton(context.container, '📷 Photos'));
+            await context.button('📷 Photos').click();
 
-            const selector = 'div[datatype="upload-control"]';
-            expect(dialog()!.querySelector(selector)).toBeTruthy();
+            expect(
+                modalDialog()!.optional('div[datatype="upload-control"]'),
+            ).toBeTruthy();
         });
 
         it('can close photo manager', async () => {
             await render(undefined, permitted);
-            await doClick(findButton(context.container, '📷 Photos'));
+            await context.button('📷 Photos').click();
 
-            await doClick(findButton(dialog(), 'Close'));
+            await modalDialog()!.button('Close').click();
 
-            expect(dialog()).toBeFalsy();
+            expect(modalDialog()).toBeFalsy();
         });
 
         it('can upload photo', async () => {
             await render(undefined, permitted);
-            await doClick(findButton(context.container, '📷 Photos'));
+            await context.button('📷 Photos').click();
             uploadPhotoResponse = makeApiResponse(tournamentData, true);
 
             const file = 'a photo';
-            await setFile(dialog()!, 'input[type="file"]', file, context.user);
+            await modalDialog()!.required('input[type="file"]').file(file);
 
             expect(uploadedPhoto!.file).toEqual(file);
             expect(uploadedPhoto!.request.id).toEqual(tournamentData.id);
@@ -1078,10 +1034,10 @@ describe('Tournament', () => {
 
         it('handles error when uploading photo', async () => {
             await render(undefined, permitted);
-            await doClick(findButton(context.container, '📷 Photos'));
+            await context.button('📷 Photos').click();
             uploadPhotoResponse = makeApiFailure('SOME ERROR');
 
-            await setFile(dialog()!, 'input[type="file"]', 'any', context.user);
+            await modalDialog()!.required('input[type="file"]').file('any');
 
             expect(uploadedPhoto).not.toBeNull();
             expect(context.container.textContent).toContain('SOME ERROR');
@@ -1091,11 +1047,11 @@ describe('Tournament', () => {
             const photo = buildPhoto(permitted.name);
             tournamentData.photos = [photo];
             await render(undefined, permitted);
-            await doClick(findButton(context.container, '📷 Photos'));
+            await context.button('📷 Photos').click();
             deletePhotoResponse = makeApiResponse(tournamentData, true);
             context.prompts.respondToConfirm(deletePhotoPrompt, true);
 
-            await doClick(findButton(dialog(), '🗑'));
+            await modalDialog()!.button('🗑').click();
 
             expect(deletedPhoto!.id).toEqual(tournamentData.id);
             expect(deletedPhoto!.photoId).toEqual(photo.id);
@@ -1104,11 +1060,11 @@ describe('Tournament', () => {
         it('handles error when deleting photo', async () => {
             tournamentData.photos = [buildPhoto(permitted.name)];
             await render(undefined, permitted);
-            await doClick(findButton(context.container, '📷 Photos'));
+            await context.button('📷 Photos').click();
             deletePhotoResponse = makeApiFailure('SOME ERROR');
             context.prompts.respondToConfirm(deletePhotoPrompt, true);
 
-            await doClick(findButton(dialog(), '🗑'));
+            await modalDialog()!.button('🗑').click();
 
             expect(deletedPhoto).not.toBeNull();
             expect(context.container.textContent).toContain('SOME ERROR');

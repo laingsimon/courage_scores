@@ -3,9 +3,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
     ErrorState,
-    findButton,
     iocProps,
     MockSocketFactory,
     noop,
@@ -365,10 +363,8 @@ describe('SaygLoadingContainer', () => {
             expect(saved).toBeNull();
             expect(result).toBeUndefined();
             expect(containerProps!.sayg.id).toBeUndefined();
-            expect(context.container.textContent).toContain(
-                'Could not save data',
-            );
-            expect(context.container.textContent).toContain('SOME ERROR');
+            expect(context.text()).toContain('Could not save data');
+            expect(context.text()).toContain('SOME ERROR');
         });
 
         it('should be able to close error details after upsert failure', async () => {
@@ -398,15 +394,11 @@ describe('SaygLoadingContainer', () => {
             await act(async () => {
                 await containerProps.saveDataAndGetId();
             });
-            expect(context.container.textContent).toContain(
-                'Could not save data',
-            );
+            expect(context.text()).toContain('Could not save data');
 
-            await doClick(findButton(context.container, 'Close'));
+            await context.button('Close').click();
 
-            expect(context.container.textContent).not.toContain(
-                'Could not save data',
-            );
+            expect(context.text()).not.toContain('Could not save data');
         });
 
         it('should handle exception during upsert', async () => {

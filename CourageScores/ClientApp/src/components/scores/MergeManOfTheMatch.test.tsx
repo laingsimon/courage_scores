@@ -2,9 +2,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -62,8 +60,8 @@ describe('MergeManOfTheMatch', () => {
 
             await renderComponent({ data, allPlayers, setData });
 
-            const homeMOM = context.container.querySelector('td:nth-child(1)')!;
-            expect(homeMOM.textContent).toEqual('Merged');
+            const homeMOM = context.required('td:nth-child(1)');
+            expect(homeMOM.text()).toEqual('Merged');
         });
 
         it('when away merged', async () => {
@@ -76,8 +74,8 @@ describe('MergeManOfTheMatch', () => {
 
             await renderComponent({ data, allPlayers, setData });
 
-            const awayMOM = context.container.querySelector('td:nth-child(3)')!;
-            expect(awayMOM.textContent).toEqual('Merged');
+            const awayMOM = context.required('td:nth-child(3)');
+            expect(awayMOM.text()).toEqual('Merged');
         });
 
         it('when nothing to merge for home', async () => {
@@ -89,8 +87,8 @@ describe('MergeManOfTheMatch', () => {
 
             await renderComponent({ data, allPlayers, setData });
 
-            const homeMOM = context.container.querySelector('td:nth-child(1)')!;
-            expect(homeMOM.textContent).toEqual('Nothing to merge');
+            const homeMOM = context.required('td:nth-child(1)');
+            expect(homeMOM.text()).toEqual('Nothing to merge');
         });
 
         it('when nothing to merge for away', async () => {
@@ -102,8 +100,8 @@ describe('MergeManOfTheMatch', () => {
 
             await renderComponent({ data, allPlayers, setData });
 
-            const awayMOM = context.container.querySelector('td:nth-child(3)')!;
-            expect(awayMOM.textContent).toEqual('Nothing to merge');
+            const awayMOM = context.required('td:nth-child(3)');
+            expect(awayMOM.text()).toEqual('Nothing to merge');
         });
 
         it('when home unmerged', async () => {
@@ -117,8 +115,8 @@ describe('MergeManOfTheMatch', () => {
 
             await renderComponent({ data, allPlayers, setData });
 
-            const homeMOM = context.container.querySelector('td:nth-child(1)')!;
-            expect(homeMOM.textContent).toEqual('Use MOM');
+            const homeMOM = context.required('td:nth-child(1)');
+            expect(homeMOM.text()).toEqual('Use MOM');
         });
 
         it('when away unmerged', async () => {
@@ -132,8 +130,8 @@ describe('MergeManOfTheMatch', () => {
 
             await renderComponent({ data, allPlayers, setData });
 
-            const awayMOM = context.container.querySelector('td:nth-child(3)')!;
-            expect(awayMOM.textContent).toEqual('Use MOM');
+            const awayMOM = context.required('td:nth-child(3)');
+            expect(awayMOM.text()).toEqual('Use MOM');
         });
     });
 
@@ -151,12 +149,7 @@ describe('MergeManOfTheMatch', () => {
                 .build();
             await renderComponent({ data, allPlayers, setData });
 
-            await doClick(
-                findButton(
-                    context.container.querySelector('td:nth-child(1)'),
-                    'Use MOM',
-                ),
-            );
+            await context.required('td:nth-child(1)').button('Use MOM').click();
 
             reportedError.verifyNoError();
             expect(updatedData).not.toBeNull();
@@ -173,12 +166,7 @@ describe('MergeManOfTheMatch', () => {
                 .build();
             await renderComponent({ data, allPlayers, setData });
 
-            await doClick(
-                findButton(
-                    context.container.querySelector('td:nth-child(3)'),
-                    'Use MOM',
-                ),
-            );
+            await context.required('td:nth-child(3)').button('Use MOM').click();
 
             reportedError.verifyNoError();
             expect(updatedData).not.toBeNull();

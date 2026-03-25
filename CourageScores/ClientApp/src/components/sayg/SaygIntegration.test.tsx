@@ -7,10 +7,8 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
     ErrorState,
-    findButton,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -31,10 +29,18 @@ import {
     ENTER_SCORE_BUTTON,
 } from '../../helpers/constants';
 import {
+    assertWaitingForScoreFor,
+    awayRemainingFromRow,
+    awayScoreFromRow,
     checkoutWith,
     enterScores,
+    homeRemainingFromRow,
+    homeScoreFromRow,
     keyPad,
+    noOfDartsFromRow,
     playsFirst,
+    previousScoreRows,
+    scoreCardDivTexts,
 } from '../../helpers/sayg';
 import { UntypedPromise } from '../../interfaces/UntypedPromise';
 import { isLegWinner } from '../../helpers/superleague';
@@ -98,41 +104,6 @@ describe('SaygIntegrationTest', () => {
         );
     }
 
-    function assertWaitingForScoreFor(side: string) {
-        const element = context.container.querySelector(
-            'div[datatype="current-player"]',
-        )!;
-        expect(element.textContent).toContain(side);
-    }
-
-    function homeScore(ps: Element) {
-        return ps.querySelector('div:nth-child(1)')!.textContent;
-    }
-
-    function homeRemaining(ps: Element) {
-        return ps.querySelector('div:nth-child(2)')!.textContent;
-    }
-
-    function noOfDarts(ps: Element) {
-        return ps.querySelector('div:nth-child(3)')!.textContent;
-    }
-
-    function awayScore(ps: Element) {
-        return ps.querySelector('div:nth-child(4)')!.textContent;
-    }
-
-    function awayRemaining(ps: Element) {
-        return ps.querySelector('div:nth-child(5)')!.textContent;
-    }
-
-    function getPreviousScores() {
-        return Array.from(
-            context.container.querySelectorAll(
-                'div[datatype="previous-scores"] > div',
-            ),
-        );
-    }
-
     function props(
         sayg: UpdateRecordedScoreAsYouGoDto,
         customisations?: Partial<ISaygLoadingContainerProps>,
@@ -171,8 +142,8 @@ describe('SaygIntegrationTest', () => {
         it('can load two player details', async () => {
             await renderComponent(props(sayg));
 
-            expect(context.container.textContent).toContain('CONTENDER');
-            expect(context.container.textContent).toContain('OPPONENT');
+            expect(context.text()).toContain('CONTENDER');
+            expect(context.text()).toContain('OPPONENT');
         });
 
         it('can load single player details', async () => {
@@ -180,19 +151,17 @@ describe('SaygIntegrationTest', () => {
 
             await renderComponent(props(sayg));
 
-            expect(context.container.textContent).toContain('CONTENDER');
+            expect(context.text()).toContain('CONTENDER');
         });
 
         it('asks who should start', async () => {
             await renderComponent(props(sayg, { autoSave: true }));
 
-            expect(context.container.textContent).toContain('Who plays first?');
-            const buttons = Array.from(
-                context.container.querySelectorAll(
-                    'div[datatype="bull-up"] button.btn-primary',
-                ),
+            expect(context.text()).toContain('Who plays first?');
+            const buttons = context.all(
+                'div[datatype="bull-up"] button.btn-primary',
             );
-            expect(buttons.map((b) => b.textContent)).toEqual([
+            expect(buttons.map((b) => b.text())).toEqual([
                 '🎯CONTENDER',
                 '🎯OPPONENT',
             ]);
@@ -208,9 +177,7 @@ describe('SaygIntegrationTest', () => {
 
             await renderComponent(props(sayg));
 
-            expect(context.container.textContent).not.toContain(
-                'Who plays first?',
-            );
+            expect(context.text()).not.toContain('Who plays first?');
         });
 
         it('shows first home score in the player score card as entered', async () => {
@@ -219,15 +186,15 @@ describe('SaygIntegrationTest', () => {
             await playsFirst(context, 'CONTENDER');
             await keyPad(context, ['1', '2', '0']);
 
-            const previousScores = getPreviousScores();
+            const previousScores = previousScoreRows(context);
             expect(previousScores.length).toEqual(1);
-            expect(
-                Array.from(
-                    Array.from(previousScores[0].querySelectorAll('div')).map(
-                        (d) => d.textContent,
-                    ),
-                ),
-            ).toEqual(['120', '381', '3', '', '']);
+            expect(scoreCardDivTexts(previousScores[0])).toEqual([
+                '120',
+                '381',
+                '3',
+                '',
+                '',
+            ]);
         });
 
         it('shows first away score in the player score card as entered', async () => {
@@ -237,15 +204,15 @@ describe('SaygIntegrationTest', () => {
             await keyPad(context, ['1', '2', '0', ENTER_SCORE_BUTTON]); // home
             await keyPad(context, ['2', '6', ENTER_SCORE_BUTTON]); // away
 
-            const previousScores = getPreviousScores();
+            const previousScores = previousScoreRows(context);
             expect(previousScores.length).toEqual(1);
-            expect(
-                Array.from(
-                    Array.from(previousScores[0].querySelectorAll('div')).map(
-                        (d) => d.textContent,
-                    ),
-                ),
-            ).toEqual(['120', '381', '3', '26', '475']);
+            expect(scoreCardDivTexts(previousScores[0])).toEqual([
+                '120',
+                '381',
+                '3',
+                '26',
+                '475',
+            ]);
         });
 
         it('does not show remaining score in score card when no score entered', async () => {
@@ -254,15 +221,15 @@ describe('SaygIntegrationTest', () => {
             await playsFirst(context, 'CONTENDER');
             await keyPad(context, ['1', '2', '0', ENTER_SCORE_BUTTON]); // home
 
-            const previousScores = getPreviousScores();
+            const previousScores = previousScoreRows(context);
             expect(previousScores.length).toEqual(1);
-            expect(
-                Array.from(
-                    Array.from(previousScores[0].querySelectorAll('div')).map(
-                        (d) => d.textContent,
-                    ),
-                ),
-            ).toEqual(['120', '381', '3', '', '']);
+            expect(scoreCardDivTexts(previousScores[0])).toEqual([
+                '120',
+                '381',
+                '3',
+                '',
+                '',
+            ]);
         });
 
         it('shows remaining score in score card when score entered', async () => {
@@ -272,15 +239,15 @@ describe('SaygIntegrationTest', () => {
             await keyPad(context, ['1', '2', '0', ENTER_SCORE_BUTTON]); // home
             await keyPad(context, ['6', '2']); // away
 
-            const previousScores = getPreviousScores();
+            const previousScores = previousScoreRows(context);
             expect(previousScores.length).toEqual(1);
-            expect(
-                Array.from(
-                    Array.from(previousScores[0].querySelectorAll('div')).map(
-                        (d) => d.textContent,
-                    ),
-                ),
-            ).toEqual(['120', '381', '3', '62', '439']);
+            expect(scoreCardDivTexts(previousScores[0])).toEqual([
+                '120',
+                '381',
+                '3',
+                '62',
+                '439',
+            ]);
         });
 
         it('allows first score to be recorded via key pad', async () => {
@@ -382,7 +349,7 @@ describe('SaygIntegrationTest', () => {
         it('can load details', async () => {
             await renderComponent(props(sayg));
 
-            assertWaitingForScoreFor('OPPONENT');
+            assertWaitingForScoreFor(context, 'OPPONENT');
         });
 
         it('records a checkout with 1 dart', async () => {
@@ -434,7 +401,7 @@ describe('SaygIntegrationTest', () => {
 
             // opponent first
             await enterScores(context, checkoutScores, nonCheckoutScores);
-            await doClick(findButton(context.container, 'Close'));
+            await context.button('Close').click();
 
             expect(sayg.legs[0].currentThrow).toEqual('away');
             expect(sum(sayg.legs[0].away!.throws, (thr) => thr.score!)).toEqual(
@@ -449,7 +416,7 @@ describe('SaygIntegrationTest', () => {
 
             // opponent first
             await enterScores(context, checkoutScores, nonCheckoutScores);
-            await doClick(findButton(context.container, 'Close'));
+            await context.button('Close').click();
             await keyPad(context, ['2', '0', ENTER_SCORE_BUTTON]);
             await checkoutWith(context, CHECKOUT_2_DART);
 
@@ -473,23 +440,17 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.homeScore).toEqual(1);
             expect(sayg.awayScore).toEqual(1);
 
-            expect(context.container.textContent).toContain(
-                'Who won the bull?',
+            expect(context.text()).toContain('Who won the bull?');
+            const buttons = context.all(
+                'div[datatype="bull-up"] button.btn-primary',
             );
-            const buttons = Array.from(
-                context.container.querySelectorAll(
-                    'div[datatype="bull-up"] button.btn-primary',
-                ),
-            );
-            expect(buttons.map((b) => b.textContent)).toEqual([
+            expect(buttons.map((b) => b.text())).toEqual([
                 '🎯CONTENDER',
                 '🎯OPPONENT',
             ]);
             expect(
-                context.container.querySelector(
-                    'div[datatype="change-checkout"]',
-                ),
-            ).toBeNull();
+                context.optional('div[datatype="change-checkout"]'),
+            ).toBeFalsy();
         });
 
         it('does not ask who should start final leg', async () => {
@@ -513,9 +474,7 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.homeScore).toEqual(1);
             expect(sayg.awayScore).toEqual(1);
 
-            expect(
-                context.container.querySelector('[datatype="bull-up"]'),
-            ).toBeFalsy();
+            expect(context.optional('[datatype="bull-up"]')).toBeFalsy();
             expect(sayg.legs[2].currentThrow).toEqual('away');
         });
 
@@ -594,29 +553,25 @@ describe('SaygIntegrationTest', () => {
         it('presents statistics for two player', async () => {
             await renderComponent(props(sayg));
 
-            expect(context.container.textContent).toContain('Match statistics');
-            const headerCells = Array.from(
-                context.container.querySelectorAll('.table thead tr th'),
-            );
-            expect(headerCells.map((th) => th.textContent)).toEqual([
+            expect(context.text()).toContain('Match statistics');
+            const headerCells = context.all('.table thead tr th');
+            expect(headerCells.map((th) => th.text())).toEqual([
                 '',
                 'CONTENDER',
                 'OPPONENT',
             ]);
-            const rows = Array.from(
-                context.container.querySelectorAll('.table tbody tr'),
-            );
-            expect(
-                Array.from(rows[0].querySelectorAll('td')).map(
-                    (td) => td.textContent,
-                ),
-            ).toEqual(['Score', '1', '3']);
-            expect(rows[1].textContent).toContain('Leg: 1Winner: CONTENDER');
-            expect(rows[1].textContent).toContain('Checkout: 101');
-            expect(rows[1].textContent).toContain('Remaining: 461');
-            expect(rows[2].textContent).toContain('Leg: 2Winner: OPPONENT');
-            expect(rows[2].textContent).toContain('Checkout: 101');
-            expect(rows[2].textContent).toContain('Remaining: 486');
+            const rows = context.all('.table tbody tr');
+            expect(rows[0].all('td').map((td) => td.text())).toEqual([
+                'Score',
+                '1',
+                '3',
+            ]);
+            expect(rows[1].text()).toContain('Leg: 1Winner: CONTENDER');
+            expect(rows[1].text()).toContain('Checkout: 101');
+            expect(rows[1].text()).toContain('Remaining: 461');
+            expect(rows[2].text()).toContain('Leg: 2Winner: OPPONENT');
+            expect(rows[2].text()).toContain('Checkout: 101');
+            expect(rows[2].text()).toContain('Remaining: 486');
         });
 
         it('presents statistics for single player', async () => {
@@ -632,48 +587,32 @@ describe('SaygIntegrationTest', () => {
                 .build();
             await renderComponent(props(sayg));
 
-            expect(context.container.textContent).toContain('Match statistics');
-            const headerRows = Array.from(
-                context.container.querySelectorAll('.table thead tr'),
-            );
+            expect(context.text()).toContain('Match statistics');
+            const headerRows = context.all('.table thead tr');
             expect(headerRows.length).toEqual(0);
-            const rows = Array.from(
-                context.container.querySelectorAll('.table tbody tr'),
-            );
-            expect(
-                Array.from(rows[0].querySelectorAll('td')).map(
-                    (td) => td.textContent,
-                ),
-            ).toEqual(['Score', '3']);
-            expect(rows[1].textContent).toContain('Leg: 1');
-            expect(rows[1].textContent).toContain('Checkout: 101');
-            expect(rows[2].textContent).toContain('Leg: 2');
-            expect(rows[2].textContent).toContain('Checkout: 101');
+            const rows = context.all('.table tbody tr');
+            expect(rows[0].all('td').map((td) => td.text())).toEqual([
+                'Score',
+                '3',
+            ]);
+            expect(rows[1].text()).toContain('Leg: 1');
+            expect(rows[1].text()).toContain('Checkout: 101');
+            expect(rows[2].text()).toContain('Leg: 2');
+            expect(rows[2].text()).toContain('Checkout: 101');
         });
 
         describe('when permitted', () => {
             const account = user({ recordScoresAsYouGo: true });
-            let dialog: HTMLDivElement;
 
             beforeEach(async () => {
                 await renderComponent(props(sayg), account);
-                const rows = Array.from(
-                    context.container.querySelectorAll('.table tbody tr'),
-                );
+                const rows = context.all('.table tbody tr');
                 const firstLegRow = rows[1];
-                await doClick(
-                    firstLegRow.querySelector('input[name="showThrows"]')!,
-                );
-                const throws = Array.from(
-                    firstLegRow.querySelectorAll('table.table-sm tbody tr'),
-                );
-                const firstThrowCells = Array.from(
-                    throws[0].querySelectorAll('td'),
-                );
-                await doClick(firstThrowCells[0]);
-                dialog = context.container.querySelector('.modal-dialog')!;
-                expect(dialog).not.toBeNull();
-                expect(dialog.textContent).toContain(
+                await firstLegRow.required('input[name="showThrows"]').click();
+                const throws = firstLegRow.all('table.table-sm tbody tr');
+                const firstThrowCells = throws[0].all('td');
+                await firstThrowCells[0].click();
+                expect(context.required('.modal-dialog').text()).toContain(
                     'Edit throw 1 for CONTENDER',
                 );
             });
@@ -681,13 +620,8 @@ describe('SaygIntegrationTest', () => {
             it('can change number of darts', async () => {
                 expect(sayg.legs[0].home.throws![0].noOfDarts).toEqual(3);
 
-                await doChange(
-                    dialog,
-                    'input[name="noOfDarts"]',
-                    '2',
-                    context.user,
-                );
-                await doClick(findButton(dialog, 'Save changes'));
+                await context.input('noOfDarts').change('2');
+                await context.button('Save changes').click();
 
                 expect(sayg.legs[0].home.throws![0].noOfDarts).toEqual(2);
             });
@@ -695,13 +629,8 @@ describe('SaygIntegrationTest', () => {
             it('can change score', async () => {
                 expect(sayg.legs[0].home.throws![0].score).toEqual(100);
 
-                await doChange(
-                    dialog,
-                    'input[name="score"]',
-                    '99',
-                    context.user,
-                );
-                await doClick(findButton(dialog, 'Save changes'));
+                await context.input('score').change('99');
+                await context.button('Save changes').click();
 
                 expect(sayg.legs[0].home.throws![0].score).toEqual(99);
             });
@@ -709,27 +638,20 @@ describe('SaygIntegrationTest', () => {
 
         describe('when not permitted', () => {
             const account = user({ recordScoresAsYouGo: false });
-            let firstThrowCells: HTMLTableCellElement[];
+            let firstThrowCells: IComponent[];
 
             beforeEach(async () => {
                 await renderComponent(props(sayg), account);
-                const rows = Array.from(
-                    context.container.querySelectorAll('.table tbody tr'),
-                );
+                const rows = context.all('.table tbody tr');
                 const firstLegRow = rows[1];
-                await doClick(
-                    firstLegRow.querySelector('input[name="showThrows"]')!,
-                );
-                const throws = Array.from(
-                    firstLegRow.querySelectorAll('table.table-sm tbody tr'),
-                );
-                firstThrowCells = Array.from(throws[0].querySelectorAll('td'));
+                await firstLegRow.required('input[name="showThrows"]').click();
+                const throws = firstLegRow.all('table.table-sm tbody tr');
+                firstThrowCells = throws[0].all('td');
             });
 
             it('cannot change throws', async () => {
-                await doClick(firstThrowCells[0]);
-                const dialog = context.container.querySelector('.modal-dialog');
-                expect(dialog).toBeNull();
+                await firstThrowCells[0].click();
+                expect(context.optional('.modal-dialog')).toBeFalsy();
             });
         });
     });
@@ -772,43 +694,54 @@ describe('SaygIntegrationTest', () => {
             await enterScores(context, [100, 101], [50, 51]);
             expect(sayg.legs[0].home.throws![1].score).toEqual(101);
             expect(sayg.legs[0].home.score).toEqual(201);
-            const previousScores = getPreviousScores();
-            expect(previousScores.map(homeScore)).toEqual(['100', '101']); // home scores
-            expect(previousScores.map(homeRemaining)).toEqual(['401', '300']); // home remaining
+            const previousScores = previousScoreRows(context);
+            expect(previousScores.map(homeScoreFromRow)).toEqual([
+                '100',
+                '101',
+            ]); // home scores
+            expect(previousScores.map(homeRemainingFromRow)).toEqual([
+                '401',
+                '300',
+            ]); // home remaining
 
-            const secondHomeScore =
-                previousScores[1].querySelector('div:first-child')!; // home score
-            await doClick(secondHomeScore);
+            await previousScores[1].required('div:first-child').click();
             await keyPad(context, ['1', '2', '0']);
 
-            expect(previousScores.map(homeScore)).toEqual(['100', '120']); // home scores
-            expect(previousScores.map(homeRemaining)).toEqual(['401', '281']); // home remaining
-            expect(previousScores.map(noOfDarts)).toEqual(['3', '6']); // no-of-darts
-            expect(previousScores.map(awayScore)).toEqual(['50', '51']); // away scores
-            expect(previousScores.map(awayRemaining)).toEqual(['451', '400']); // away remaining
+            expect(previousScores.map(homeScoreFromRow)).toEqual([
+                '100',
+                '120',
+            ]); // home scores
+            expect(previousScores.map(homeRemainingFromRow)).toEqual([
+                '401',
+                '281',
+            ]); // home remaining
+            expect(previousScores.map(noOfDartsFromRow)).toEqual(['3', '6']); // no-of-darts
+            expect(previousScores.map(awayScoreFromRow)).toEqual(['50', '51']); // away scores
+            expect(previousScores.map(awayRemainingFromRow)).toEqual([
+                '451',
+                '400',
+            ]); // away remaining
         });
 
         it('shows edited home score in the score card home column only when no away score', async () => {
             await renderComponent(props(sayg, { autoSave: true }));
             // contender first
             await enterScores(context, [100], []);
-            const previousScores = getPreviousScores();
-            expect(previousScores.map(homeScore)).toEqual(['100']); // home scores
-            expect(previousScores.map(homeRemaining)).toEqual(['401']); // home remaining
-            expect(previousScores.map(noOfDarts)).toEqual(['3']); // no-of-darts
-            expect(previousScores.map(awayScore)).toEqual(['']); // away scores
-            expect(previousScores.map(awayRemaining)).toEqual(['']); // away remaining
+            const previousScores = previousScoreRows(context);
+            expect(previousScores.map(homeScoreFromRow)).toEqual(['100']); // home scores
+            expect(previousScores.map(homeRemainingFromRow)).toEqual(['401']); // home remaining
+            expect(previousScores.map(noOfDartsFromRow)).toEqual(['3']); // no-of-darts
+            expect(previousScores.map(awayScoreFromRow)).toEqual(['']); // away scores
+            expect(previousScores.map(awayRemainingFromRow)).toEqual(['']); // away remaining
 
-            const firstHomeScore =
-                previousScores[0].querySelector('div:first-child')!; // home score
-            await doClick(firstHomeScore);
+            await previousScores[0].required('div:first-child').click();
             await keyPad(context, ['1', '2', '0']);
 
-            expect(previousScores.map(homeScore)).toEqual(['120']); // home scores
-            expect(previousScores.map(homeRemaining)).toEqual(['381']); // home remaining
-            expect(previousScores.map(noOfDarts)).toEqual(['3']); // no-of-darts
-            expect(previousScores.map(awayScore)).toEqual(['']); // away scores
-            expect(previousScores.map(awayRemaining)).toEqual(['']); // away remaining
+            expect(previousScores.map(homeScoreFromRow)).toEqual(['120']); // home scores
+            expect(previousScores.map(homeRemainingFromRow)).toEqual(['381']); // home remaining
+            expect(previousScores.map(noOfDartsFromRow)).toEqual(['3']); // no-of-darts
+            expect(previousScores.map(awayScoreFromRow)).toEqual(['']); // away scores
+            expect(previousScores.map(awayRemainingFromRow)).toEqual(['']); // away remaining
         });
 
         it('updates following score results as throw is edited', async () => {
@@ -817,17 +750,24 @@ describe('SaygIntegrationTest', () => {
             await enterScores(context, [100, 101], [50, 51]);
             expect(sayg.legs[0].home.throws![1].score).toEqual(101);
             expect(sayg.legs[0].home.score).toEqual(201);
-            const previousScores = getPreviousScores();
-            expect(previousScores.map(homeScore)).toEqual(['100', '101']); // home scores
-            expect(previousScores.map(homeRemaining)).toEqual(['401', '300']); // home remaining
+            const previousScores = previousScoreRows(context);
+            expect(previousScores.map(homeScoreFromRow)).toEqual([
+                '100',
+                '101',
+            ]); // home scores
+            expect(previousScores.map(homeRemainingFromRow)).toEqual([
+                '401',
+                '300',
+            ]); // home remaining
 
-            const secondHomeScore =
-                previousScores[0].querySelector('div:first-child')!; // home score
-            await doClick(secondHomeScore);
+            await previousScores[0].required('div:first-child').click();
             await keyPad(context, ['8', '0']);
 
-            expect(previousScores.map(homeScore)).toEqual(['80', '101']); // home scores
-            expect(previousScores.map(homeRemaining)).toEqual(['421', '320']); // home remaining
+            expect(previousScores.map(homeScoreFromRow)).toEqual(['80', '101']); // home scores
+            expect(previousScores.map(homeRemainingFromRow)).toEqual([
+                '421',
+                '320',
+            ]); // home remaining
         });
 
         it('can change a previous home score', async () => {
@@ -837,10 +777,8 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.legs[0].home.throws![1].score).toEqual(101);
             expect(sayg.legs[0].home.score).toEqual(201);
 
-            const previousScores = getPreviousScores();
-            const secondHomeScore =
-                previousScores[1].querySelector('div:first-child')!; // home score
-            await doClick(secondHomeScore);
+            const previousScores = previousScoreRows(context);
+            await previousScores[1].required('div:first-child').click();
             await keyPad(context, ['1', '2', '0', ENTER_SCORE_BUTTON]);
 
             expect(sayg.legs[0].home.throws![1].score).toEqual(120);
@@ -854,10 +792,8 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.legs[0].away.throws![1].score).toEqual(51);
             expect(sayg.legs[0].away.score).toEqual(101);
 
-            const previousScores = getPreviousScores();
-            const secondAwayScore =
-                previousScores[1].querySelector('div:last-child')!; // away score
-            await doClick(secondAwayScore);
+            const previousScores = previousScoreRows(context);
+            await previousScores[1].required('div:last-child').click();
             await keyPad(context, ['6', '2', ENTER_SCORE_BUTTON]);
 
             expect(sayg.legs[0].away.throws![1].score).toEqual(62);
@@ -871,11 +807,9 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.legs[0].home.throws![1].score).toEqual(101);
             expect(sayg.legs[0].home.score).toEqual(201);
 
-            const previousScores = getPreviousScores();
-            const secondHomeScore =
-                previousScores[1].querySelector('div:first-child')!; // home score
-            await doClick(secondHomeScore);
-            await doClick(secondHomeScore);
+            const previousScores = previousScoreRows(context);
+            await previousScores[1].required('div:first-child').click();
+            await previousScores[1].required('div:first-child').click();
 
             expect(sayg.legs[0].home.throws![1].score).toEqual(101);
             expect(sayg.legs[0].home.score).toEqual(201);
@@ -888,11 +822,9 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.legs[0].away.throws![1].score).toEqual(51);
             expect(sayg.legs[0].away.score).toEqual(101);
 
-            const previousScores = getPreviousScores();
-            const secondAwayScore =
-                previousScores[1].querySelector('div:last-child')!; // away score
-            await doClick(secondAwayScore);
-            await doClick(secondAwayScore);
+            const previousScores = previousScoreRows(context);
+            await previousScores[1].required('div:last-child').click();
+            await previousScores[1].required('div:last-child').click();
 
             expect(sayg.legs[0].away.throws![1].score).toEqual(51);
             expect(sayg.legs[0].away.score).toEqual(101);
@@ -910,10 +842,8 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.legs[0].home.throws![3].score).toEqual(30);
             expect(sayg.legs[0].home.score).toEqual(390);
 
-            const previousScores = getPreviousScores();
-            const lastHomeScore =
-                previousScores[3].querySelector('div:first-child')!; // home score
-            await doClick(lastHomeScore);
+            const previousScores = previousScoreRows(context);
+            await previousScores[3].required('div:first-child').click();
             await keyPad(context, ['6', '2', ENTER_SCORE_BUTTON]);
 
             expect(sayg.legs[0].home.throws![3].score).toEqual(62);
@@ -934,10 +864,8 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.legs[0].home.throws![4].score).toEqual(120);
             expect(sayg.legs[0].home.score).toEqual(400);
 
-            const previousScores = getPreviousScores();
-            const lastHomeScore =
-                previousScores[4].querySelector('div:first-child')!; // home score
-            await doClick(lastHomeScore);
+            const previousScores = previousScoreRows(context);
+            await previousScores[4].required('div:first-child').click();
             await keyPad(context, ['7', '0', ENTER_SCORE_BUTTON]);
 
             expect(sayg.legs[0].home.throws![4].score).toEqual(70);
@@ -951,13 +879,9 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.legs[0].away.throws![1].score).toEqual(51);
             expect(sayg.legs[0].away.score).toEqual(101);
 
-            const previousScores = getPreviousScores();
-            const secondHomeScore =
-                previousScores[1].querySelector('div:first-child')!; // home score
-            const secondAwayScore =
-                previousScores[1].querySelector('div:last-child')!; // away score
-            await doClick(secondHomeScore);
-            await doClick(secondAwayScore);
+            const previousScores = previousScoreRows(context);
+            await previousScores[1].required('div:first-child').click();
+            await previousScores[1].required('div:last-child').click();
             await keyPad(context, ['6', '2', ENTER_SCORE_BUTTON]);
 
             expect(sayg.legs[0].away.throws![1].score).toEqual(62);
@@ -972,16 +896,12 @@ describe('SaygIntegrationTest', () => {
                 [100, 101 /*=201*/, 100 /*=301*/, 100 /*=401*/, 10 /*=411*/], // 411
                 [51, 52, 53, 54],
             );
-            const previousScores = getPreviousScores();
-            const secondHomeScore =
-                previousScores[4].querySelector('div:first-child')!; // home score
-            await doClick(secondHomeScore);
+            const previousScores = previousScoreRows(context);
+            await previousScores[4].required('div:first-child').click();
             await keyPad(context, ['1', '0', '0', ENTER_SCORE_BUTTON]);
             expect(sayg.legs[0].home.throws![4].score).toEqual(100);
             expect(sayg.legs[0].home.score).toEqual(501);
-            expect(context.container.innerHTML).toContain(
-                'How many darts to checkout?',
-            );
+            expect(context.html()).toContain('How many darts to checkout?');
 
             await checkoutWith(context, CHECKOUT_2_DART);
 
@@ -999,10 +919,10 @@ describe('SaygIntegrationTest', () => {
             await checkoutWith(context, CHECKOUT_3_DART);
             expect(sayg.legs[0].home.throws![4].noOfDarts).toEqual(3);
 
-            const changePrompt = context.container.querySelector(
-                'div[datatype="change-checkout"]',
-            );
-            await doClick(findButton(changePrompt, 'Change'));
+            await context
+                .required('div[datatype="change-checkout"]')
+                .button('Change')
+                .click();
             await checkoutWith(context, CHECKOUT_2_DART);
 
             expect(sayg.legs[0].home.throws![4].noOfDarts).toEqual(2);
@@ -1021,10 +941,9 @@ describe('SaygIntegrationTest', () => {
 
             await keyPad(context, ['1']);
 
-            const changePrompt = context.container.querySelector(
-                'div[datatype="change-checkout"]',
-            );
-            expect(changePrompt).toEqual(null);
+            expect(
+                context.optional('div[datatype="change-checkout"]'),
+            ).toBeFalsy();
         });
 
         it('can change checkout for previous leg after score entered and then removed', async () => {
@@ -1041,10 +960,9 @@ describe('SaygIntegrationTest', () => {
             await keyPad(context, ['1']);
             await keyPad(context, [DELETE_SCORE_BUTTON]);
 
-            const changePrompt = context.container.querySelector(
-                'div[datatype="change-checkout"]',
-            );
-            expect(changePrompt).toBeTruthy();
+            expect(
+                context.optional('div[datatype="change-checkout"]'),
+            ).toBeTruthy();
         });
     });
 

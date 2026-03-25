@@ -3,11 +3,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
-    doSelectOption,
     ErrorState,
-    findButton,
     iocProps,
     noop,
     renderApp,
@@ -133,12 +129,12 @@ describe('NewTournamentFixture', () => {
                 [division1, division2],
             );
 
-            const divisionDropDown: Element = context.container.querySelector(
+            const divisionDropDown = context.required(
                 '.division-dropdown .dropdown-menu',
-            )!;
-            const options = Array.from(
-                divisionDropDown.querySelectorAll('.dropdown-item'),
-            ).map((o) => o.textContent);
+            );
+            const options = divisionDropDown
+                .all('.dropdown-item')
+                .map((o) => o.text());
             expect(options).toEqual([
                 'Cross-divisional',
                 'DIVISION 1',
@@ -153,12 +149,12 @@ describe('NewTournamentFixture', () => {
                 [division1, division2],
             );
 
-            const divisionDropDown: Element = context.container.querySelector(
+            const addressMenu = context.required(
                 '.address-dropdown .dropdown-menu',
-            )!;
-            const options = Array.from(
-                divisionDropDown.querySelectorAll('.dropdown-item'),
-            ).map((o) => o.textContent);
+            );
+            const options = addressMenu
+                .all('.dropdown-item')
+                .map((o) => o.text());
             expect(options).toEqual([
                 '➕ Enter address',
                 'ADDRESS 1',
@@ -176,13 +172,12 @@ describe('NewTournamentFixture', () => {
                 [division1, division2],
             );
 
-            const copySidesFromDropDown: Element =
-                context.container.querySelector(
-                    '.copy-sides-from-dropdown .dropdown-menu',
-                )!;
-            const options = Array.from(
-                copySidesFromDropDown.querySelectorAll('.dropdown-item'),
-            ).map((o) => o.textContent);
+            const copySidesFromDropDown = context.required(
+                '.copy-sides-from-dropdown .dropdown-menu',
+            );
+            const options = copySidesFromDropDown
+                .all('.dropdown-item')
+                .map((o) => o.text());
             expect(options).toEqual([
                 '-',
                 `SINGLES - ${renderDate('2024-08-29')}`,
@@ -201,13 +196,12 @@ describe('NewTournamentFixture', () => {
                 [division1, division2],
             );
 
-            const copySidesFromDropDown: Element =
-                context.container.querySelector(
-                    '.copy-sides-from-dropdown .dropdown-menu',
-                )!;
-            const options = Array.from(
-                copySidesFromDropDown.querySelectorAll('.dropdown-item'),
-            ).map((o) => o.textContent);
+            const copySidesFromDropDown = context.required(
+                '.copy-sides-from-dropdown .dropdown-menu',
+            );
+            const options = copySidesFromDropDown
+                .all('.dropdown-item')
+                .map((o) => o.text());
             expect(options).toEqual([
                 '-',
                 `SINGLES - ${renderDate('2024-08-29')}`,
@@ -225,13 +219,12 @@ describe('NewTournamentFixture', () => {
                 [division1, division2],
             );
 
-            const copySidesFromDropDown: Element =
-                context.container.querySelector(
-                    '.copy-sides-from-dropdown .dropdown-menu',
-                )!;
-            const options = Array.from(
-                copySidesFromDropDown.querySelectorAll('.dropdown-item'),
-            ).map((o) => o.textContent);
+            const copySidesFromDropDown = context.required(
+                '.copy-sides-from-dropdown .dropdown-menu',
+            );
+            const options = copySidesFromDropDown
+                .all('.dropdown-item')
+                .map((o) => o.text());
             expect(options).toEqual(['-', renderDate('2024-08-29')]);
         });
 
@@ -245,12 +238,12 @@ describe('NewTournamentFixture', () => {
                 [division1, division2],
             );
 
-            const addressDropDown: Element = context.container.querySelector(
+            const addressMenu = context.required(
                 '.address-dropdown .dropdown-menu',
-            )!;
-            const options = Array.from(
-                addressDropDown.querySelectorAll('.dropdown-item'),
-            ).map((o) => o.textContent);
+            );
+            const options = addressMenu
+                .all('.dropdown-item')
+                .map((o) => o.text());
             expect(options).toEqual([
                 '➕ Enter address',
                 'ADDRESS 1',
@@ -277,9 +270,9 @@ describe('NewTournamentFixture', () => {
                 divisionData(division1, season),
                 [division1, division2],
             );
-            const saveButton = findButton(context.container, '➕');
+            const saveButton = context.button('➕');
 
-            expect(saveButton.disabled).toEqual(true);
+            expect(saveButton.enabled()).toEqual(false);
         });
 
         it('creates a cross-divisional tournament', async () => {
@@ -288,17 +281,17 @@ describe('NewTournamentFixture', () => {
                 divisionData(division1, season),
                 [division1, division2],
             );
-            const saveButton = findButton(context.container, '➕');
-            const divisionDropDown: Element = context.container.querySelector(
+            const saveButton = context.button('➕');
+            const divisionDropDown = context.required(
                 '.division-dropdown .dropdown-menu',
-            )!;
-            const addressDropDown: Element = context.container.querySelector(
+            );
+            const addressDropDown = context.required(
                 '.address-dropdown .dropdown-menu',
-            )!;
+            );
 
-            await doSelectOption(divisionDropDown, 'Cross-divisional');
-            await doSelectOption(addressDropDown, 'ADDRESS 1');
-            await doClick(saveButton);
+            await divisionDropDown.select('Cross-divisional');
+            await addressDropDown.select('ADDRESS 1');
+            await saveButton.click();
 
             expect(savedTournament).toEqual({
                 data: {
@@ -319,17 +312,17 @@ describe('NewTournamentFixture', () => {
                 divisionData(division1, season),
                 [division1, division2],
             );
-            const saveButton = findButton(context.container, '➕');
-            const divisionDropDown: Element = context.container.querySelector(
+            const saveButton = context.button('➕');
+            const divisionDropDown = context.required(
                 '.division-dropdown .dropdown-menu',
-            )!;
-            const addressDropDown: Element = context.container.querySelector(
+            );
+            const addressDropDown = context.required(
                 '.address-dropdown .dropdown-menu',
-            )!;
+            );
 
-            await doSelectOption(divisionDropDown, 'DIVISION 1');
-            await doSelectOption(addressDropDown, 'ADDRESS 1');
-            await doClick(saveButton);
+            await divisionDropDown.select('DIVISION 1');
+            await addressDropDown.select('ADDRESS 1');
+            await saveButton.click();
 
             expect(savedTournament).toEqual({
                 data: {
@@ -355,17 +348,17 @@ describe('NewTournamentFixture', () => {
                 divisionData(superleagueDivision, season),
                 [superleagueDivision, division2],
             );
-            const saveButton = findButton(context.container, '➕');
-            const divisionDropDown: Element = context.container.querySelector(
+            const saveButton = context.button('➕');
+            const divisionDropDown = context.required(
                 '.division-dropdown .dropdown-menu',
-            )!;
-            const addressDropDown: Element = context.container.querySelector(
+            );
+            const addressDropDown = context.required(
                 '.address-dropdown .dropdown-menu',
-            )!;
+            );
 
-            await doSelectOption(divisionDropDown, 'SUPERLEAGUE DIVISION');
-            await doSelectOption(addressDropDown, 'ADDRESS 1');
-            await doClick(saveButton);
+            await divisionDropDown.select('SUPERLEAGUE DIVISION');
+            await addressDropDown.select('ADDRESS 1');
+            await saveButton.click();
 
             expect(savedTournament).toEqual({
                 data: {
@@ -389,20 +382,17 @@ describe('NewTournamentFixture', () => {
                 divisionData(division1, season),
                 [division1, division2],
             );
-            const saveButton = findButton(context.container, '➕');
-            const divisionDropDown: Element = context.container.querySelector(
+            const saveButton = context.button('➕');
+            const divisionDropDown = context.required(
                 '.division-dropdown .dropdown-menu',
-            )!;
-            const addressDropDown: Element = context.container.querySelector(
-                '.address-dropdown .dropdown-menu',
-            )!;
-
-            await doSelectOption(divisionDropDown, 'DIVISION 1');
-            await doSelectOption(
-                addressDropDown,
-                '⚠ ADDRESS 1 (Already in use)',
             );
-            await doClick(saveButton);
+            const addressDropDown = context.required(
+                '.address-dropdown .dropdown-menu',
+            );
+
+            await divisionDropDown.select('DIVISION 1');
+            await addressDropDown.select('⚠ ADDRESS 1 (Already in use)');
+            await saveButton.click();
 
             expect(savedTournament).toEqual({
                 data: {
@@ -427,25 +417,23 @@ describe('NewTournamentFixture', () => {
                 divisionData(division1, season, otherDate),
                 [division1, division2],
             );
-            const saveButton = findButton(context.container, '➕');
-            const divisionDropDown: Element = context.container.querySelector(
+            const saveButton = context.button('➕');
+            const divisionDropDown = context.required(
                 '.division-dropdown .dropdown-menu',
-            )!;
-            const addressDropDown: Element = context.container.querySelector(
+            );
+            const addressDropDown = context.required(
                 '.address-dropdown .dropdown-menu',
-            )!;
-            const copySidesFromDropDown: Element =
-                context.container.querySelector(
-                    '.copy-sides-from-dropdown .dropdown-menu',
-                )!;
+            );
+            const copySidesFromDropDown = context.required(
+                '.copy-sides-from-dropdown .dropdown-menu',
+            );
 
-            await doSelectOption(divisionDropDown, 'DIVISION 1');
-            await doSelectOption(addressDropDown, 'ADDRESS 1');
-            await doSelectOption(
-                copySidesFromDropDown,
+            await divisionDropDown.select('DIVISION 1');
+            await addressDropDown.select('ADDRESS 1');
+            await copySidesFromDropDown.select(
                 `SINGLES - ${renderDate('2024-08-29')}`,
             );
-            await doClick(saveButton);
+            await saveButton.click();
 
             expect(savedTournament).toEqual({
                 data: {
@@ -473,20 +461,20 @@ describe('NewTournamentFixture', () => {
                 divisionData(division1, season),
                 [division1, division2],
             );
-            const saveButton = findButton(context.container, '➕');
-            const divisionDropDown: Element = context.container.querySelector(
+            const saveButton = context.button('➕');
+            const divisionDropDown = context.required(
                 '.division-dropdown .dropdown-menu',
-            )!;
-            const addressDropDown: Element = context.container.querySelector(
+            );
+            const addressDropDown = context.required(
                 '.address-dropdown .dropdown-menu',
-            )!;
+            );
             apiResponse = { success: false, errors: ['SOME ERROR'] };
 
-            await doSelectOption(divisionDropDown, 'DIVISION 1');
-            await doSelectOption(addressDropDown, 'ADDRESS 1');
-            await doClick(saveButton);
+            await divisionDropDown.select('DIVISION 1');
+            await addressDropDown.select('ADDRESS 1');
+            await saveButton.click();
 
-            expect(context.container.innerHTML).toContain('SOME ERROR');
+            expect(context.html()).toContain('SOME ERROR');
         });
 
         it('prompts if date is before season starts', async () => {
@@ -495,22 +483,22 @@ describe('NewTournamentFixture', () => {
                 divisionData(division1, season),
                 [division1, division2],
             );
-            const saveButton = findButton(context.container, '➕');
-            const divisionDropDown: Element = context.container.querySelector(
+            const saveButton = context.button('➕');
+            const divisionDropDown = context.required(
                 '.division-dropdown .dropdown-menu',
-            )!;
-            const addressDropDown: Element = context.container.querySelector(
+            );
+            const addressDropDown = context.required(
                 '.address-dropdown .dropdown-menu',
-            )!;
+            );
             apiResponse = { success: false, errors: ['SOME ERROR'] };
             context.prompts.respondToConfirm(
                 'Tournament is outside of the dates for the season.\nYou will need to change the start/end date for the season to be able to see the fixture in the list.\n\nContinue?',
                 true,
             );
 
-            await doSelectOption(divisionDropDown, 'DIVISION 1');
-            await doSelectOption(addressDropDown, 'ADDRESS 1');
-            await doClick(saveButton);
+            await divisionDropDown.select('DIVISION 1');
+            await addressDropDown.select('ADDRESS 1');
+            await saveButton.click();
 
             context.prompts.confirmWasShown(
                 'Tournament is outside of the dates for the season.\nYou will need to change the start/end date for the season to be able to see the fixture in the list.\n\nContinue?',
@@ -523,22 +511,22 @@ describe('NewTournamentFixture', () => {
                 divisionData(division1, season),
                 [division1, division2],
             );
-            const saveButton = findButton(context.container, '➕');
-            const divisionDropDown: Element = context.container.querySelector(
+            const saveButton = context.button('➕');
+            const divisionDropDown = context.required(
                 '.division-dropdown .dropdown-menu',
-            )!;
-            const addressDropDown: Element = context.container.querySelector(
+            );
+            const addressDropDown = context.required(
                 '.address-dropdown .dropdown-menu',
-            )!;
+            );
             apiResponse = { success: false, errors: ['SOME ERROR'] };
             context.prompts.respondToConfirm(
                 'Tournament is outside of the dates for the season.\nYou will need to change the start/end date for the season to be able to see the fixture in the list.\n\nContinue?',
                 true,
             );
 
-            await doSelectOption(divisionDropDown, 'DIVISION 1');
-            await doSelectOption(addressDropDown, 'ADDRESS 1');
-            await doClick(saveButton);
+            await divisionDropDown.select('DIVISION 1');
+            await addressDropDown.select('ADDRESS 1');
+            await saveButton.click();
 
             context.prompts.confirmWasShown(
                 'Tournament is outside of the dates for the season.\nYou will need to change the start/end date for the season to be able to see the fixture in the list.\n\nContinue?',
@@ -551,21 +539,21 @@ describe('NewTournamentFixture', () => {
                 divisionData(division1, season),
                 [division1, division2],
             );
-            const saveButton = findButton(context.container, '➕');
-            const divisionDropDown: Element = context.container.querySelector(
+            const saveButton = context.button('➕');
+            const divisionDropDown = context.required(
                 '.division-dropdown .dropdown-menu',
-            )!;
-            const addressDropDown: Element = context.container.querySelector(
+            );
+            const addressDropDown = context.required(
                 '.address-dropdown .dropdown-menu',
-            )!;
+            );
             context.prompts.respondToConfirm(
                 'Tournament is outside of the dates for the season.\nYou will need to change the start/end date for the season to be able to see the fixture in the list.\n\nContinue?',
                 false,
             );
 
-            await doSelectOption(divisionDropDown, 'DIVISION 1');
-            await doSelectOption(addressDropDown, 'ADDRESS 1');
-            await doClick(saveButton);
+            await divisionDropDown.select('DIVISION 1');
+            await addressDropDown.select('ADDRESS 1');
+            await saveButton.click();
 
             context.prompts.confirmWasShown(
                 'Tournament is outside of the dates for the season.\nYou will need to change the start/end date for the season to be able to see the fixture in the list.\n\nContinue?',
@@ -579,20 +567,20 @@ describe('NewTournamentFixture', () => {
                 divisionData(division1, season),
                 [division1, division2],
             );
-            const divisionDropDown: Element = context.container.querySelector(
+            const divisionDropDown = context.required(
                 '.division-dropdown .dropdown-menu',
-            )!;
-            const addressDropDown: Element = context.container.querySelector(
+            );
+            const addressDropDown = context.required(
                 '.address-dropdown .dropdown-menu',
-            )!;
+            );
             apiResponse = { success: false, errors: ['SOME ERROR'] };
-            await doSelectOption(divisionDropDown, 'DIVISION 1');
-            await doSelectOption(addressDropDown, 'ADDRESS 1');
-            await doClick(findButton(context.container, '➕'));
+            await divisionDropDown.select('DIVISION 1');
+            await addressDropDown.select('ADDRESS 1');
+            await context.button('➕').click();
 
-            await doClick(findButton(context.container, 'Close'));
+            await context.button('Close').click();
 
-            expect(context.container.innerHTML).not.toContain('SOME ERROR');
+            expect(context.html()).not.toContain('SOME ERROR');
         });
 
         it('clears the selected address after successful creation', async () => {
@@ -601,22 +589,19 @@ describe('NewTournamentFixture', () => {
                 divisionData(division1, season),
                 [division1, division2],
             );
-            const saveButton = findButton(context.container, '➕');
-            const divisionDropDown: Element = context.container.querySelector(
+            const saveButton = context.button('➕');
+            const divisionDropDown = context.required(
                 '.division-dropdown .dropdown-menu',
-            )!;
-            const addressDropDown: Element = context.container.querySelector(
-                '.address-dropdown .dropdown-menu',
-            )!;
-
-            await doSelectOption(divisionDropDown, 'DIVISION 1');
-            await doSelectOption(addressDropDown, 'ADDRESS 1');
-            await doClick(saveButton);
-
-            const selectedAddresses = Array.from(
-                addressDropDown.querySelectorAll('.active'),
             );
-            expect(selectedAddresses).toEqual([]);
+            const addressDropDown = context.required(
+                '.address-dropdown .dropdown-menu',
+            );
+
+            await divisionDropDown.select('DIVISION 1');
+            await addressDropDown.select('ADDRESS 1');
+            await saveButton.click();
+
+            expect(addressDropDown.all('.active')).toEqual([]);
         });
 
         it('can enter a custom address', async () => {
@@ -625,24 +610,18 @@ describe('NewTournamentFixture', () => {
                 divisionData(division1, season),
                 [division1, division2],
             );
-            const addressDropDown: Element = context.container.querySelector(
+            const addressDropDown = context.required(
                 '.address-dropdown .dropdown-menu',
-            )!;
-
-            await doSelectOption(addressDropDown, '➕ Enter address');
-            await doChange(
-                context.container,
-                'input[name="address"]',
-                'CUSTOM',
-                context.user,
             );
-            await doClick(findButton(context.container, 'Use address'));
 
-            const addresses = Array.from(
-                context.container.querySelectorAll(
-                    '.address-dropdown .dropdown-menu .dropdown-item',
-                ),
-            ).map((i) => i.textContent);
+            await addressDropDown.select('➕ Enter address');
+            await context.input('address').change('CUSTOM');
+            await context.button('Use address').click();
+
+            const addresses = context
+                .required('.address-dropdown .dropdown-menu')
+                .all('.dropdown-item')
+                .map((i) => i.text());
             expect(addresses).toEqual(['➕ CUSTOM', 'ADDRESS 1']);
         });
 
@@ -652,24 +631,18 @@ describe('NewTournamentFixture', () => {
                 divisionData(division1, season),
                 [division1, division2],
             );
-            const addressDropDown: Element = context.container.querySelector(
+            const addressDropDown = context.required(
                 '.address-dropdown .dropdown-menu',
-            )!;
-
-            await doSelectOption(addressDropDown, '➕ Enter address');
-            await doChange(
-                context.container,
-                'input[name="address"]',
-                'CUSTOM',
-                context.user,
             );
-            await doClick(findButton(context.container, 'Close'));
 
-            const addresses = Array.from(
-                context.container.querySelectorAll(
-                    '.address-dropdown .dropdown-menu .dropdown-item',
-                ),
-            ).map((i) => i.textContent);
+            await addressDropDown.select('➕ Enter address');
+            await context.input('address').change('CUSTOM');
+            await context.button('Close').click();
+
+            const addresses = context
+                .required('.address-dropdown .dropdown-menu')
+                .all('.dropdown-item')
+                .map((i) => i.text());
             expect(addresses).toEqual(['➕ Enter address', 'ADDRESS 1']);
         });
 
@@ -679,39 +652,22 @@ describe('NewTournamentFixture', () => {
                 divisionData(division1, season),
                 [division1, division2],
             );
-            await doSelectOption(
-                context.container.querySelector(
-                    '.address-dropdown .dropdown-menu',
-                ),
-                '➕ Enter address',
-            );
-            await doChange(
-                context.container,
-                'input[name="address"]',
-                'CUSTOM',
-                context.user,
-            );
-            await doClick(findButton(context.container, 'Use address'));
+            await context
+                .required('.address-dropdown .dropdown-menu')
+                .select('➕ Enter address');
+            await context.input('address').change('CUSTOM');
+            await context.button('Use address').click();
 
-            await doSelectOption(
-                context.container.querySelector(
-                    '.address-dropdown .dropdown-menu',
-                ),
-                '➕ CUSTOM',
-            );
-            await doChange(
-                context.container,
-                'input[name="address"]',
-                'NEW CUSTOM',
-                context.user,
-            );
-            await doClick(findButton(context.container, 'Use address'));
+            await context
+                .required('.address-dropdown .dropdown-menu')
+                .select('➕ CUSTOM');
+            await context.input('address').change('NEW CUSTOM');
+            await context.button('Use address').click();
 
-            const addresses = Array.from(
-                context.container.querySelectorAll(
-                    '.address-dropdown .dropdown-menu .dropdown-item',
-                ),
-            ).map((i) => i.textContent);
+            const addresses = context
+                .required('.address-dropdown .dropdown-menu')
+                .all('.dropdown-item')
+                .map((i) => i.text());
             expect(addresses).toEqual(['➕ NEW CUSTOM', 'ADDRESS 1']);
         });
 
@@ -721,24 +677,19 @@ describe('NewTournamentFixture', () => {
                 divisionData(division1, season),
                 [division1, division2],
             );
-            const addressDropDown: Element = context.container.querySelector(
+            const addressDropDown = context.required(
                 '.address-dropdown .dropdown-menu',
-            )!;
-            const divisionDropDown: Element = context.container.querySelector(
-                '.division-dropdown .dropdown-menu',
-            )!;
-            const saveButton = findButton(context.container, '➕');
-
-            await doSelectOption(divisionDropDown, 'DIVISION 1');
-            await doSelectOption(addressDropDown, '➕ Enter address');
-            await doChange(
-                context.container,
-                'input[name="address"]',
-                'CUSTOM',
-                context.user,
             );
-            await doClick(findButton(context.container, 'Use address'));
-            await doClick(saveButton);
+            const divisionDropDown = context.required(
+                '.division-dropdown .dropdown-menu',
+            );
+            const saveButton = context.button('➕');
+
+            await divisionDropDown.select('DIVISION 1');
+            await addressDropDown.select('➕ Enter address');
+            await context.input('address').change('CUSTOM');
+            await context.button('Use address').click();
+            await saveButton.click();
 
             expect(savedTournament).toEqual({
                 data: {

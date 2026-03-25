@@ -3,11 +3,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
-    doSelectOption,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -153,22 +149,14 @@ describe('EditPlayerDetails', () => {
         );
     }
 
-    function findInput(name: string): HTMLInputElement {
-        const input = context.container.querySelector(
-            `input[name="${name}"]`,
-        ) as HTMLInputElement;
-        expect(input).toBeTruthy();
-        return input;
-    }
-
-    function findNewTeamDropdown() {
-        return context.container.querySelector(
+    function teamDropdown() {
+        return context.required(
             'div[datatype="team-selection-team"] .dropdown-menu',
         );
     }
 
-    function findGenderDropdown() {
-        return context.container.querySelector(
+    function genderDropdown() {
+        return context.required(
             'div[datatype="gender-selection"] .dropdown-menu',
         );
     }
@@ -201,15 +189,13 @@ describe('EditPlayerDetails', () => {
             );
 
             reportedError.verifyNoError();
-            expect(findInput('name').value).toEqual('NAME');
-            expect(findInput('emailAddress').value).toEqual('EMAIL');
-            expect(findInput('captain').checked).toEqual(true);
+            expect(context.input('name').value()).toEqual('NAME');
+            expect(context.input('emailAddress').value()).toEqual('EMAIL');
             expect(
-                findNewTeamDropdown()!.querySelector('.dropdown-item.active'),
-            ).toBeTruthy();
+                context.input('captain').element<HTMLInputElement>().checked,
+            ).toEqual(true);
             expect(
-                findNewTeamDropdown()!.querySelector('.dropdown-item.active')!
-                    .textContent,
+                teamDropdown().required('.dropdown-item.active').text(),
             ).toEqual('TEAM');
         });
 
@@ -234,19 +220,16 @@ describe('EditPlayerDetails', () => {
             );
 
             reportedError.verifyNoError();
-            expect(findInput('name').value).toEqual('NAME');
-            expect(findInput('emailAddress').value).toEqual('EMAIL');
-            expect(findInput('captain').checked).toEqual(true);
+            expect(context.input('name').value()).toEqual('NAME');
+            expect(context.input('emailAddress').value()).toEqual('EMAIL');
             expect(
-                findNewTeamDropdown()!.querySelector('.dropdown-item.active'),
-            ).toBeTruthy();
+                context.input('captain').element<HTMLInputElement>().checked,
+            ).toEqual(true);
             expect(
-                findNewTeamDropdown()!.querySelector('.dropdown-item.active')!
-                    .textContent,
+                teamDropdown().required('.dropdown-item.active').text(),
             ).toEqual('TEAM');
             expect(
-                findGenderDropdown()!.querySelector('.dropdown-item.active')!
-                    .textContent,
+                genderDropdown().required('.dropdown-item.active').text(),
             ).toEqual('Female');
         });
 
@@ -269,15 +252,13 @@ describe('EditPlayerDetails', () => {
             );
 
             reportedError.verifyNoError();
-            expect(findInput('name').value).toEqual('NAME');
-            expect(findInput('emailAddress').value).toEqual('EMAIL');
-            expect(findInput('captain').checked).toEqual(true);
+            expect(context.input('name').value()).toEqual('NAME');
+            expect(context.input('emailAddress').value()).toEqual('EMAIL');
             expect(
-                findNewTeamDropdown()!.querySelector('.dropdown-item.active'),
-            ).toBeTruthy();
+                context.input('captain').element<HTMLInputElement>().checked,
+            ).toEqual(true);
             expect(
-                findNewTeamDropdown()!.querySelector('.dropdown-item.active')!
-                    .textContent,
+                teamDropdown().required('.dropdown-item.active').text(),
             ).toEqual('TEAM');
         });
 
@@ -304,13 +285,8 @@ describe('EditPlayerDetails', () => {
                 [division],
             );
 
-            const items = Array.from(
-                findNewTeamDropdown()!.querySelectorAll('.dropdown-item'),
-            );
-            expect(items.map((i) => i.textContent)).toEqual([
-                'Select team',
-                'TEAM',
-            ]);
+            const items = teamDropdown().all('.dropdown-item');
+            expect(items.map((i) => i.text())).toEqual(['Select team', 'TEAM']);
         });
 
         it('excludes teams where not deleted for current season', async () => {
@@ -336,13 +312,8 @@ describe('EditPlayerDetails', () => {
                 [division],
             );
 
-            const items = Array.from(
-                findNewTeamDropdown()!.querySelectorAll('.dropdown-item'),
-            );
-            expect(items.map((i) => i.textContent)).toEqual([
-                'Select team',
-                'TEAM',
-            ]);
+            const items = teamDropdown().all('.dropdown-item');
+            expect(items.map((i) => i.text())).toEqual(['Select team', 'TEAM']);
         });
 
         it('multi-add for new player', async () => {
@@ -365,10 +336,7 @@ describe('EditPlayerDetails', () => {
             );
             reportedError.verifyNoError();
 
-            const multiAdd = context.container.querySelector(
-                'input[name="multiple"]',
-            );
-            expect(multiAdd).toBeTruthy();
+            expect(context.optional('input[name="multiple"]')).toBeTruthy();
         });
 
         it('without multi-add for existing player', async () => {
@@ -390,10 +358,7 @@ describe('EditPlayerDetails', () => {
             );
             reportedError.verifyNoError();
 
-            const multiAdd = context.container.querySelector(
-                'input[name="multiple"]',
-            );
-            expect(multiAdd).toBeFalsy();
+            expect(context.optional('input[name="multiple"]')).toBeFalsy();
         });
     });
 
@@ -431,10 +396,10 @@ describe('EditPlayerDetails', () => {
             );
             reportedError.verifyNoError();
             expect(
-                findNewTeamDropdown()!.querySelector('.dropdown-item.active'),
+                teamDropdown().optional('.dropdown-item.active'),
             ).toBeTruthy();
 
-            await doSelectOption(findNewTeamDropdown(), 'OTHER TEAM');
+            await teamDropdown().select('OTHER TEAM');
 
             expect(change).not.toBeNull();
             expect(change!.name).toEqual('teamId');
@@ -460,10 +425,10 @@ describe('EditPlayerDetails', () => {
             );
             reportedError.verifyNoError();
             expect(
-                findNewTeamDropdown()!.querySelector('.dropdown-item.active'),
+                teamDropdown().optional('.dropdown-item.active'),
             ).toBeTruthy();
 
-            await doSelectOption(findNewTeamDropdown(), 'OTHER TEAM');
+            await teamDropdown().select('OTHER TEAM');
 
             expect(change).not.toBeNull();
             expect(change!.name).toEqual('newTeamId');
@@ -490,7 +455,7 @@ describe('EditPlayerDetails', () => {
             );
             reportedError.verifyNoError();
 
-            await doSelectOption(findGenderDropdown(), 'Male');
+            await genderDropdown().select('Male');
 
             expect(change).not.toBeNull();
             expect(change!.name).toEqual('gender');
@@ -517,7 +482,7 @@ describe('EditPlayerDetails', () => {
             );
             reportedError.verifyNoError();
 
-            await doSelectOption(findGenderDropdown(), GenderDto.male);
+            await genderDropdown().select(GenderDto.male);
 
             expect(change).not.toBeNull();
             expect(change!.name).toEqual('gender');
@@ -544,16 +509,11 @@ describe('EditPlayerDetails', () => {
             );
             reportedError.verifyNoError();
 
-            await doClick(context.container, 'input[name="multiple"]');
+            await context.required('input[name="multiple"]').click();
 
-            const name = context.container.querySelector('textarea')!;
-            expect(name.value).toEqual('NAME');
-            expect(
-                context.container.querySelector('input[name="captain"]'),
-            ).toBeFalsy();
-            expect(
-                context.container.querySelector('input[name="emailAddress"]'),
-            ).toBeFalsy();
+            expect(context.required('textarea').value()).toEqual('NAME');
+            expect(context.optional('input[name="captain"]')).toBeFalsy();
+            expect(context.optional('input[name="emailAddress"]')).toBeFalsy();
         });
 
         it('can change back to single-add for new player', async () => {
@@ -575,24 +535,15 @@ describe('EditPlayerDetails', () => {
                 [division, otherDivision],
             );
             reportedError.verifyNoError();
-            await doClick(context.container, 'input[name="multiple"]');
-            await doChange(
-                context.container,
-                'textarea',
-                'NAME 1\nNAME 2',
-                context.user,
-            );
+            await context.required('input[name="multiple"]').click();
+            await context.required('textarea').change('NAME 1\nNAME 2');
 
-            await doClick(context.container, 'input[name="multiple"]');
+            await context.required('input[name="multiple"]').click();
 
             expect(change!.name).toEqual('name');
             expect(change!.value).toEqual('');
-            expect(
-                context.container.querySelector('input[name="captain"]'),
-            ).toBeTruthy();
-            expect(
-                context.container.querySelector('input[name="emailAddress"]'),
-            ).toBeTruthy();
+            expect(context.optional('input[name="captain"]')).toBeTruthy();
+            expect(context.optional('input[name="emailAddress"]')).toBeTruthy();
         });
 
         it('can change captaincy', async () => {
@@ -614,7 +565,7 @@ describe('EditPlayerDetails', () => {
             );
             reportedError.verifyNoError();
 
-            await doClick(findInput('captain'));
+            await context.input('captain').click();
 
             expect(change).not.toBeNull();
             expect(change!.name).toEqual('captain');
@@ -640,7 +591,7 @@ describe('EditPlayerDetails', () => {
             );
             reportedError.verifyNoError();
 
-            await doClick(findButton(context.container, 'Add player'));
+            await context.button('Add player').click();
 
             context.prompts.alertWasShown('Please select a team');
         });
@@ -665,7 +616,7 @@ describe('EditPlayerDetails', () => {
             );
             reportedError.verifyNoError();
 
-            await doClick(findButton(context.container, 'Add player'));
+            await context.button('Add player').click();
 
             context.prompts.alertWasShown('Please enter a name');
         });
@@ -690,7 +641,7 @@ describe('EditPlayerDetails', () => {
             );
             reportedError.verifyNoError();
 
-            await doClick(findButton(context.container, 'Add player'));
+            await context.button('Add player').click();
 
             expect(createdPlayers.length).toEqual(1);
             const createdPlayer = createdPlayers[0];
@@ -722,7 +673,7 @@ describe('EditPlayerDetails', () => {
             );
             reportedError.verifyNoError();
 
-            await doClick(findButton(context.container, 'Add player'));
+            await context.button('Add player').click();
 
             reportedError.verifyNoError();
             expect(saved).not.toBeNull();
@@ -789,7 +740,7 @@ describe('EditPlayerDetails', () => {
                 };
             };
 
-            await doClick(findButton(context.container, 'Add player'));
+            await context.button('Add player').click();
 
             reportedError.verifyNoError();
             expect(saved).not.toBeNull();
@@ -819,9 +770,9 @@ describe('EditPlayerDetails', () => {
                 [division, otherDivision],
             );
             reportedError.verifyNoError();
-            await doClick(context.container, 'input[name="multiple"]');
+            await context.required('input[name="multiple"]').click();
 
-            await doClick(findButton(context.container, 'Add players'));
+            await context.button('Add players').click();
 
             expect(createdPlayers.length).toEqual(2);
             const createdPlayer1 = createdPlayers[0];
@@ -853,9 +804,9 @@ describe('EditPlayerDetails', () => {
                 [division, otherDivision],
             );
             reportedError.verifyNoError();
-            await doClick(context.container, 'input[name="multiple"]');
+            await context.required('input[name="multiple"]').click();
 
-            await doClick(findButton(context.container, 'Add players'));
+            await context.button('Add players').click();
 
             reportedError.verifyNoError();
             expect(saved).not.toBeNull();
@@ -894,7 +845,7 @@ describe('EditPlayerDetails', () => {
             );
             reportedError.verifyNoError();
 
-            await doClick(findButton(context.container, 'Save player'));
+            await context.button('Save player').click();
 
             reportedError.verifyNoError();
             expect(updatedPlayer).not.toBeNull();
@@ -935,7 +886,7 @@ describe('EditPlayerDetails', () => {
             );
             reportedError.verifyNoError();
 
-            await doClick(findButton(context.container, 'Save player'));
+            await context.button('Save player').click();
 
             reportedError.verifyNoError();
             expect(updatedPlayer).not.toBeNull();
@@ -976,12 +927,10 @@ describe('EditPlayerDetails', () => {
                 return { success: false };
             };
 
-            await doClick(findButton(context.container, 'Save player'));
+            await context.button('Save player').click();
 
             expect(saved).toBeNull();
-            expect(context.container.textContent).toContain(
-                'Could not save player details',
-            );
+            expect(context.text()).toContain('Could not save player details');
         });
 
         it('can close error dialog after save failure', async () => {
@@ -1006,14 +955,12 @@ describe('EditPlayerDetails', () => {
             apiResponse = () => {
                 return { success: false };
             };
-            await doClick(findButton(context.container, 'Save player'));
-            expect(context.container.textContent).toContain(
-                'Could not save player details',
-            );
+            await context.button('Save player').click();
+            expect(context.text()).toContain('Could not save player details');
 
-            await doClick(findButton(context.container, 'Close'));
+            await context.button('Close').click();
 
-            expect(context.container.textContent).not.toContain(
+            expect(context.text()).not.toContain(
                 'Could not save player details',
             );
         });
@@ -1041,7 +988,7 @@ describe('EditPlayerDetails', () => {
                 return { success: false };
             };
 
-            await doClick(findButton(context.container, 'Cancel'));
+            await context.button('Cancel').click();
 
             expect(canceled).toEqual(true);
         });

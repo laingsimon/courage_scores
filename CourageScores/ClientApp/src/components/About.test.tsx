@@ -1,6 +1,7 @@
 import {
     appProps,
     cleanUp,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -38,17 +39,12 @@ describe('About', () => {
         );
     }
 
-    function getRow(title: string): HTMLTableRowElement {
-        const rows: HTMLTableRowElement[] = Array.from(
-            context.container.querySelectorAll('table.table tbody tr'),
-        );
-        const row = rows.filter((row) => {
-            const heading = row.querySelector('th') as HTMLTableCellElement;
-            return heading.textContent === title;
-        })[0];
+    function getRow(title: string): IComponent {
+        const rows = context.all('table.table tbody tr');
+        const row = rows.find((r) => r.optional('th')?.text() === title);
 
         expect(row).toBeTruthy();
-        return row;
+        return row!;
     }
 
     describe('with build information', () => {
@@ -64,8 +60,8 @@ describe('About', () => {
             );
 
             const branchRow = getRow('Branch');
-            const cell = branchRow.querySelector('td') as HTMLTableCellElement;
-            expect(cell.textContent).toEqual('BRANCH');
+            const cell = branchRow.required('td');
+            expect(cell.text()).toEqual('BRANCH');
         });
 
         it('shows version', async () => {
@@ -80,8 +76,8 @@ describe('About', () => {
             );
 
             const branchRow = getRow('Version');
-            const cell = branchRow.querySelector('td') as HTMLTableCellElement;
-            const link = cell.querySelector('a') as HTMLAnchorElement;
+            const cell = branchRow.required('td');
+            const link = cell.required('a').element<HTMLAnchorElement>();
             expect(link.href).toEqual(
                 `https://github.com/laingsimon/courage_scores/commit/0123456789abcdef`,
             );
@@ -101,8 +97,8 @@ describe('About', () => {
             );
 
             const branchRow = getRow('Version');
-            const cell = branchRow.querySelector('td') as HTMLTableCellElement;
-            const link = cell.querySelector('a') as HTMLAnchorElement;
+            const cell = branchRow.required('td');
+            const link = cell.required('a').element<HTMLAnchorElement>();
             expect(link.href).toEqual(
                 `https://github.com/laingsimon/courage_scores/pulls/1234`,
             );
@@ -119,8 +115,8 @@ describe('About', () => {
             );
 
             const branchRow = getRow('Version');
-            const cell = branchRow.querySelector('td') as HTMLTableCellElement;
-            expect(cell.textContent).toEqual('Unknown');
+            const cell = branchRow.required('td');
+            expect(cell.text()).toEqual('Unknown');
         });
 
         it('shows date', async () => {
@@ -135,12 +131,12 @@ describe('About', () => {
             );
 
             const branchRow = getRow('Date');
-            const cell = branchRow.querySelector('td') as HTMLTableCellElement;
+            const cell = branchRow.required('td');
             const expectedDate =
                 renderDate(buildDate) +
                 ' ' +
                 new Date(buildDate).toLocaleTimeString();
-            expect(cell.textContent).toEqual(expectedDate);
+            expect(cell.text()).toEqual(expectedDate);
         });
     });
 
@@ -156,12 +152,13 @@ describe('About', () => {
                 facebook: '',
             });
 
-            const links = Array.from(context.container.querySelectorAll('a'));
-            const websiteLink = links.filter(
-                (link) => link.textContent === 'COURAGE SCORES',
-            )[0];
+            const websiteLink = context
+                .all('a')
+                .find((link) => link.text() === 'COURAGE SCORES');
             expect(websiteLink).toBeTruthy();
-            expect(websiteLink.href).toEqual('https://couragescores/');
+            expect(websiteLink!.element<HTMLAnchorElement>().href).toEqual(
+                'https://couragescores/',
+            );
         });
 
         it('renders custodians', async () => {
@@ -175,12 +172,12 @@ describe('About', () => {
                 facebook: '',
             });
 
-            const custodians = Array.from(
-                context.container.querySelectorAll('p'),
-            ).filter((p) => p.textContent!.indexOf('Custodians') !== -1)[0];
+            const custodians = context
+                .all('p')
+                .find((p) => (p.text() ?? '').indexOf('Custodians') !== -1);
             expect(custodians).toBeTruthy();
-            expect(custodians.textContent).toContain('Simon');
-            expect(custodians.textContent).toContain('Laing');
+            expect(custodians!.text()).toContain('Simon');
+            expect(custodians!.text()).toContain('Laing');
         });
     });
 });

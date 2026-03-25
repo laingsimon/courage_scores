@@ -48,11 +48,9 @@ describe('ViewHealthCheck', () => {
         });
 
         reportedError.verifyNoError();
-        const checkItems = Array.from(
-            context.container.querySelectorAll('ol li'),
-        );
+        const checkItems = context.all('ol li');
         expect(checkItems.length).toEqual(1);
-        expect(checkItems[0].textContent).toContain('✔ some description');
+        expect(checkItems[0].text()).toContain('✔ some description');
     });
 
     it('should render unsuccessful check', async () => {
@@ -72,11 +70,9 @@ describe('ViewHealthCheck', () => {
         });
 
         reportedError.verifyNoError();
-        const checkItems = Array.from(
-            context.container.querySelectorAll('ol li'),
-        );
+        const checkItems = context.all('ol li');
         expect(checkItems.length).toEqual(1);
-        expect(checkItems[0].textContent).toContain('❌ some description');
+        expect(checkItems[0].text()).toContain('❌ some description');
     });
 
     it('should render check errors', async () => {
@@ -96,11 +92,9 @@ describe('ViewHealthCheck', () => {
         });
 
         reportedError.verifyNoError();
-        const checkItems = Array.from(
-            context.container.querySelectorAll('ol li'),
-        );
+        const checkItems = context.all('ol li');
         expect(checkItems.length).toEqual(1);
-        expect(checkItems[0].textContent).toContain('some error');
+        expect(checkItems[0].text()).toContain('some error');
     });
 
     it('should render check warnings', async () => {
@@ -120,14 +114,12 @@ describe('ViewHealthCheck', () => {
         });
 
         reportedError.verifyNoError();
-        const checkItems = Array.from(
-            context.container.querySelectorAll('ol li'),
-        );
+        const checkItems = context.all('ol li');
         expect(checkItems.length).toEqual(1);
-        expect(checkItems[0].textContent).toContain('some warning');
+        expect(checkItems[0].text()).toContain('some warning');
     });
 
-    it('should render check warnings', async () => {
+    it('should render check messages', async () => {
         await renderComponent({
             success: false,
             errors: [],
@@ -144,10 +136,8 @@ describe('ViewHealthCheck', () => {
         });
 
         reportedError.verifyNoError();
-        const checkItems = Array.from(
-            context.container.querySelectorAll('ol li'),
-        );
+        const checkItems = context.all('ol li');
         expect(checkItems.length).toEqual(1);
-        expect(checkItems[0].textContent).toContain('some message');
+        expect(checkItems[0].text()).toContain('some message');
     });
 });

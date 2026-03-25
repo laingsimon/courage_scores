@@ -52,7 +52,7 @@ describe('PrintDivisionHeading', () => {
                 ).build(),
             );
 
-            expect(context.container.textContent).toEqual('');
+            expect(context.text()).toEqual('');
         });
 
         it('renders nothing when no division and division included', async () => {
@@ -63,7 +63,7 @@ describe('PrintDivisionHeading', () => {
                 divisionDataBuilder().season().build(),
             );
 
-            expect(context.container.textContent).toEqual('');
+            expect(context.text()).toEqual('');
         });
 
         it('renders nothing when no division and division excluded', async () => {
@@ -76,7 +76,7 @@ describe('PrintDivisionHeading', () => {
                     .build(),
             );
 
-            expect(context.container.textContent).toEqual('SEASON');
+            expect(context.text()).toEqual('SEASON');
         });
     });
 
@@ -94,7 +94,7 @@ describe('PrintDivisionHeading', () => {
                 divisionData,
             );
 
-            expect(context.container.textContent).toEqual('DIVISION, SEASON');
+            expect(context.text()).toEqual('DIVISION, SEASON');
         });
 
         it('excludes division name', async () => {
@@ -105,7 +105,7 @@ describe('PrintDivisionHeading', () => {
                 divisionData,
             );
 
-            expect(context.container.textContent).toEqual('SEASON');
+            expect(context.text()).toEqual('SEASON');
         });
     });
 });

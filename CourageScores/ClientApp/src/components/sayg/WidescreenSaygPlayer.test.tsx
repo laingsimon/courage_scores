@@ -3,9 +3,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -123,9 +121,7 @@ describe('WidescreenSaygPlayer', () => {
             );
 
             reportedError.verifyNoError();
-            const recentThrows = Array.from(
-                context.container.querySelectorAll('div.flex-column > div'),
-            ); // WidescreenSaygRecentThrow instances
+            const recentThrows = context.all('div.flex-column > div');
             expect(recentThrows.length).toEqual(0);
         });
 
@@ -144,11 +140,8 @@ describe('WidescreenSaygPlayer', () => {
             );
 
             reportedError.verifyNoError();
-            const scoreElement =
-                context.container.querySelector('div:nth-child(1)')!;
-            expect(scoreElement.querySelector('h1')!.textContent).toEqual(
-                '401',
-            );
+            const scoreElement = context.required('div:nth-child(1)');
+            expect(scoreElement.required('h1').text()).toEqual('401');
         });
 
         it('score second', async () => {
@@ -166,11 +159,8 @@ describe('WidescreenSaygPlayer', () => {
             );
 
             reportedError.verifyNoError();
-            const scoreElement =
-                context.container.querySelector('div:nth-child(2)')!;
-            expect(scoreElement.querySelector('h1')!.textContent).toEqual(
-                '401',
-            );
+            const scoreElement = context.required('div:nth-child(2)');
+            expect(scoreElement.required('h1').text()).toEqual('401');
         });
 
         it('no options', async () => {
@@ -188,9 +178,7 @@ describe('WidescreenSaygPlayer', () => {
             );
 
             reportedError.verifyNoError();
-            const optionsContainer =
-                context.container.querySelector('div:nth-child(3)');
-            expect(optionsContainer).toBeFalsy();
+            expect(context.optional('div:nth-child(3)')).toBeFalsy();
         });
 
         it('refresh control', async () => {
@@ -215,10 +203,8 @@ describe('WidescreenSaygPlayer', () => {
             );
 
             reportedError.verifyNoError();
-            const optionsContainer =
-                context.container.querySelector('div:nth-child(3)')!;
-            expect(optionsContainer).toBeTruthy();
-            expect(optionsContainer.textContent).toContain('⏸️ Paused');
+            const optionsContainer = context.required('div:nth-child(3)');
+            expect(optionsContainer.text()).toContain('⏸️ Paused');
         });
 
         it('no refresh control when not permitted', async () => {
@@ -243,10 +229,8 @@ describe('WidescreenSaygPlayer', () => {
             );
 
             reportedError.verifyNoError();
-            const optionsContainer =
-                context.container.querySelector('div:nth-child(3)')!;
-            expect(optionsContainer).toBeTruthy();
-            expect(optionsContainer.textContent).not.toContain('⏸️ Paused');
+            const optionsContainer = context.required('div:nth-child(3)');
+            expect(optionsContainer.text()).not.toContain('⏸️ Paused');
         });
 
         it('no refresh control when finished', async () => {
@@ -271,10 +255,8 @@ describe('WidescreenSaygPlayer', () => {
             );
 
             reportedError.verifyNoError();
-            const optionsContainer =
-                context.container.querySelector('div:nth-child(3)')!;
-            expect(optionsContainer).toBeTruthy();
-            expect(optionsContainer.textContent).not.toContain('⏸️ Paused');
+            const optionsContainer = context.required('div:nth-child(3)');
+            expect(optionsContainer.text()).not.toContain('⏸️ Paused');
         });
 
         it('change of view', async () => {
@@ -292,10 +274,8 @@ describe('WidescreenSaygPlayer', () => {
             );
 
             reportedError.verifyNoError();
-            const optionsContainer =
-                context.container.querySelector('div:nth-child(3)')!;
-            const changeButton = optionsContainer.querySelector('button')!;
-            expect(changeButton.textContent).toEqual('📊');
+            const optionsContainer = context.required('div:nth-child(3)');
+            expect(optionsContainer.required('button').text()).toEqual('📊');
         });
 
         it('no change of view', async () => {
@@ -312,10 +292,9 @@ describe('WidescreenSaygPlayer', () => {
             );
 
             reportedError.verifyNoError();
-            const optionsContainer =
-                context.container.querySelector('div:nth-child(3)')!;
-            const changeButton = optionsContainer.querySelector('button')!;
-            expect(changeButton).toBeFalsy();
+            expect(
+                context.required('div:nth-child(3)').optional('button'),
+            ).toBeFalsy();
         });
 
         it('winner when finished', async () => {
@@ -334,8 +313,7 @@ describe('WidescreenSaygPlayer', () => {
             );
 
             reportedError.verifyNoError();
-            const scoreElement = context.container.querySelector('h1')!;
-            expect(scoreElement.textContent).toEqual('🎉');
+            expect(context.required('h1').text()).toEqual('🎉');
         });
 
         it('no winner when unfinished', async () => {
@@ -354,8 +332,7 @@ describe('WidescreenSaygPlayer', () => {
             );
 
             reportedError.verifyNoError();
-            const scoreElement = context.container.querySelector('h1')!;
-            expect(scoreElement.textContent).toEqual('0');
+            expect(context.required('h1').text()).toEqual('0');
         });
 
         it('5 recent throws from first leg', async () => {
@@ -394,11 +371,11 @@ describe('WidescreenSaygPlayer', () => {
             );
 
             reportedError.verifyNoError();
-            const throwsElement = context.container.querySelector(
+            const throwsElement = context.required(
                 'div[datatype="WidescreenSaygPlayer"] > div:nth-child(1)',
-            )!;
-            const throws = Array.from(throwsElement.querySelectorAll('div'));
-            expect(throws.map((thr) => thr.textContent)).toEqual([
+            );
+            const throws = throwsElement.all('div');
+            expect(throws.map((thr) => thr.text())).toEqual([
                 '12',
                 '10',
                 '8',
@@ -456,11 +433,11 @@ describe('WidescreenSaygPlayer', () => {
             );
 
             reportedError.verifyNoError();
-            const throwsElement = context.container.querySelector(
+            const throwsElement = context.required(
                 'div[datatype="WidescreenSaygPlayer"] > div:nth-child(1)',
-            )!;
-            const throws = Array.from(throwsElement.querySelectorAll('div'));
-            expect(throws.map((thr) => thr.textContent)).toEqual([
+            );
+            const throws = throwsElement.all('div');
+            expect(throws.map((thr) => thr.text())).toEqual([
                 '112',
                 '110',
                 '18',
@@ -498,15 +475,11 @@ describe('WidescreenSaygPlayer', () => {
             );
 
             reportedError.verifyNoError();
-            const throwsElement = context.container.querySelector(
+            const throwsElement = context.required(
                 'div[datatype="WidescreenSaygPlayer"] > div:nth-child(1)',
-            )!;
-            const throws = Array.from(throwsElement.querySelectorAll('div'));
-            expect(throws.map((thr) => thr.textContent)).toEqual([
-                '6',
-                '4',
-                '2',
-            ]);
+            );
+            const throws = throwsElement.all('div');
+            expect(throws.map((thr) => thr.text())).toEqual(['6', '4', '2']);
         });
     });
 
@@ -542,7 +515,7 @@ describe('WidescreenSaygPlayer', () => {
                 },
             );
 
-            await doClick(findButton(context.container, '📊'));
+            await context.button('📊').click();
 
             reportedError.verifyNoError();
             expect(newStatisticsView).toEqual(false);

@@ -1,9 +1,7 @@
 import {
     cleanUp,
-    doSelectOption,
     renderApp,
-    doClick,
-    findButton,
+    IComponent,
     iocProps,
     brandingProps,
     appProps,
@@ -107,15 +105,10 @@ describe('ReviewProposalsFloatingDialog', () => {
                 },
             );
 
-            const divisionDropdown =
-                context.container.querySelector('.dropdown-menu')!;
-            const divisionItems = Array.from(
-                divisionDropdown.querySelectorAll('.dropdown-item'),
-            );
-            expect(divisionItems.map((li) => li.textContent)).toEqual([
-                'DIVISION 1',
-                'DIVISION 2',
-            ]);
+            const divisionDropdown = context.required('.dropdown-menu');
+            expect(
+                divisionDropdown.all('.dropdown-item').map((li) => li.text()),
+            ).toEqual(['DIVISION 1', 'DIVISION 2']);
         });
 
         it('placeholder mappings', async () => {
@@ -154,26 +147,26 @@ describe('ReviewProposalsFloatingDialog', () => {
             );
 
             const placeholderItems = toDictionary(
-                Array.from(context.container.querySelectorAll('ul li')),
-                (li) => li.querySelector('span')!.textContent!,
+                context.all('ul li'),
+                (li: IComponent) => li.required('span').text(),
             );
             expect(Object.keys(placeholderItems)).toEqual(['A', 'B', 'C', 'D']);
-            expect(placeholderItems['A'].textContent).toEqual('A → TEAM A');
-            expect(placeholderItems['B'].textContent).toEqual('B → TEAM B');
-            expect(placeholderItems['C'].textContent).toEqual('C → TEAM C');
-            expect(placeholderItems['D'].textContent).toEqual('D → TEAM D');
+            expect(placeholderItems['A'].text()).toEqual('A → TEAM A');
+            expect(placeholderItems['B'].text()).toEqual('B → TEAM B');
+            expect(placeholderItems['C'].text()).toEqual('C → TEAM C');
+            expect(placeholderItems['D'].text()).toEqual('D → TEAM D');
 
             expect(
-                placeholderItems['A'].querySelector('span').className,
+                placeholderItems['A'].required('span').className(),
             ).toContain('bg-warning');
             expect(
-                placeholderItems['B'].querySelector('span').className,
+                placeholderItems['B'].required('span').className(),
             ).toContain('bg-warning bg-secondary text-light');
             expect(
-                placeholderItems['C'].querySelector('span').className,
+                placeholderItems['C'].required('span').className(),
             ).toContain('bg-secondary text-light');
             expect(
-                placeholderItems['D'].querySelector('span').className,
+                placeholderItems['D'].required('span').className(),
             ).not.toContain('bg-');
         });
 
@@ -214,26 +207,26 @@ describe('ReviewProposalsFloatingDialog', () => {
             );
 
             const placeholderItems = toDictionary(
-                Array.from(context.container.querySelectorAll('ul li')),
-                (li) => li.querySelector('span')!.textContent!,
+                context.all('ul li'),
+                (li: IComponent) => li.required('span').text(),
             );
             expect(Object.keys(placeholderItems)).toEqual(['A', 'B', 'C', 'D']);
-            expect(placeholderItems['A'].textContent).toEqual('A → TEAM A');
-            expect(placeholderItems['B'].textContent).toEqual('B → TEAM B');
-            expect(placeholderItems['C'].textContent).toEqual('C → TEAM C');
-            expect(placeholderItems['D'].textContent).toEqual('D → TEAM D');
+            expect(placeholderItems['A'].text()).toEqual('A → TEAM A');
+            expect(placeholderItems['B'].text()).toEqual('B → TEAM B');
+            expect(placeholderItems['C'].text()).toEqual('C → TEAM C');
+            expect(placeholderItems['D'].text()).toEqual('D → TEAM D');
 
             expect(
-                placeholderItems['A'].querySelector('span').className,
+                placeholderItems['A'].required('span').className(),
             ).toContain('bg-warning');
             expect(
-                placeholderItems['B'].querySelector('span').className,
+                placeholderItems['B'].required('span').className(),
             ).toContain('bg-warning bg-secondary text-light');
             expect(
-                placeholderItems['C'].querySelector('span').className,
+                placeholderItems['C'].required('span').className(),
             ).toContain('bg-secondary text-light');
             expect(
-                placeholderItems['D'].querySelector('span').className,
+                placeholderItems['D'].required('span').className(),
             ).not.toContain('bg-');
         });
 
@@ -254,11 +247,9 @@ describe('ReviewProposalsFloatingDialog', () => {
                 },
             );
 
-            const linkToTemplate = context.container.querySelector(
-                'p a',
-            ) as HTMLAnchorElement;
-            expect(linkToTemplate.textContent).toEqual('TEMPLATE');
-            expect(linkToTemplate.href).toEqual(
+            const linkToTemplate = context.required('p a');
+            expect(linkToTemplate.text()).toEqual('TEMPLATE');
+            expect(linkToTemplate.element<HTMLAnchorElement>().href).toEqual(
                 'http://localhost/admin/templates/?select=' + templateId,
             );
         });
@@ -282,10 +273,7 @@ describe('ReviewProposalsFloatingDialog', () => {
                 },
             );
 
-            await doSelectOption(
-                context.container.querySelector('.dropdown-menu'),
-                'DIVISION 2',
-            );
+            await context.required('.dropdown-menu').select('DIVISION 2');
 
             expect(visibleDivision).toEqual(division2.id);
         });
@@ -304,7 +292,7 @@ describe('ReviewProposalsFloatingDialog', () => {
                 },
             );
 
-            await doClick(findButton(context.container, 'Back'));
+            await context.button('Back').click();
 
             expect(previous).toEqual(true);
         });
@@ -323,7 +311,7 @@ describe('ReviewProposalsFloatingDialog', () => {
                 },
             );
 
-            await doClick(findButton(context.container, 'Save all fixtures'));
+            await context.button('Save all fixtures').click();
 
             expect(next).toEqual(true);
         });

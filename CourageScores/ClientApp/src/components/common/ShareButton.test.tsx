@@ -2,8 +2,6 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
-    findButton,
     IBrowserNavigator,
     iocProps,
     renderApp,
@@ -51,7 +49,7 @@ describe('ShareButton', () => {
                 'Courage Scores',
             );
 
-            await doClick(findButton(context.container, '🔗'));
+            await context.button('🔗').click();
 
             expect(shareData).toBeTruthy();
             expect(shareData?.text).toEqual('TEXT');
@@ -68,7 +66,7 @@ describe('ShareButton', () => {
                 'Courage Scores',
             );
 
-            await doClick(findButton(context.container, '🔗'));
+            await context.button('🔗').click();
 
             expect(shareData).toBeTruthy();
             expect(shareData?.text).toEqual('Courage Scores');
@@ -85,7 +83,7 @@ describe('ShareButton', () => {
                 'Courage Scores',
             );
 
-            await doClick(findButton(context.container, '🔗'));
+            await context.button('🔗').click();
 
             expect(shareData).toBeTruthy();
             expect(shareData?.text).toEqual('Courage Scores');
@@ -98,7 +96,7 @@ describe('ShareButton', () => {
                 getHash: async () => undefined,
             });
 
-            await doClick(findButton(context.container, '🔗'));
+            await context.button('🔗').click();
 
             expect(shareData).toBeNull();
         });
@@ -115,7 +113,7 @@ describe('ShareButton', () => {
                 '/test/#HASH',
             );
 
-            await doClick(findButton(context.container, '🔗'));
+            await context.button('🔗').click();
 
             expect(shareData).toBeTruthy();
             expect(shareData?.text).toEqual('TEXT');
@@ -127,7 +125,7 @@ describe('ShareButton', () => {
         it('shares page with default title and text', async () => {
             await renderComponent({}, 'Courage Scores', '/test/#HASH');
 
-            await doClick(findButton(context.container, '🔗'));
+            await context.button('🔗').click();
 
             expect(shareData).toBeTruthy();
             expect(shareData?.text).toEqual('Courage Scores');
@@ -144,7 +142,7 @@ describe('ShareButton', () => {
                 'Courage Scores',
             );
 
-            await doClick(findButton(context.container, '🔗'));
+            await context.button('🔗').click();
 
             expect(shareData).toBeTruthy();
             expect(shareData?.text).toEqual('Courage Scores');

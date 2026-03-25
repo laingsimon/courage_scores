@@ -3,10 +3,8 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
-    doSelectOption,
     ErrorState,
-    findButton,
+    IComponent,
     iocProps,
     MockSocketFactory,
     noop,
@@ -83,19 +81,17 @@ describe('MatchStatistics', () => {
         homeWinner?: boolean,
         awayWinner?: boolean,
     ) {
-        const table = context.container.querySelector('table')!;
-        const row = table.querySelector('thead tr')!;
+        const table = context.required('table');
+        const row = table.optional('thead tr');
         if (expected.length === 0) {
             expect(row).toBeFalsy();
             return;
         }
 
-        const headerText: string[] = Array.from(row.querySelectorAll('th')).map(
-            (th) => th.textContent!,
-        );
+        const headerText: string[] = row!.all('th').map((th) => th.text());
         expect(headerText).toEqual(expected);
         assertColumnClassNames(
-            row,
+            row!,
             'th',
             'text-primary',
             homeWinner,
@@ -108,11 +104,9 @@ describe('MatchStatistics', () => {
         homeWinner?: boolean,
         awayWinner?: boolean,
     ) {
-        const table = context.container.querySelector('table')!;
-        const row = table.querySelector('tfoot tr:nth-child(1)')!;
-        const rowText: string[] = Array.from(row.querySelectorAll('td')).map(
-            (th) => th.textContent!,
-        );
+        const table = context.required('table');
+        const row = table.required('tfoot tr:nth-child(1)');
+        const rowText: string[] = row.all('td').map((th) => th.text());
         expect(rowText).toEqual(expected);
         assertColumnClassNames(row, 'td', 'bg-winner', homeWinner, awayWinner);
     }
@@ -122,11 +116,9 @@ describe('MatchStatistics', () => {
         homeWinner?: boolean,
         awayWinner?: boolean,
     ) {
-        const table = context.container.querySelector('table')!;
-        const row = table.querySelector('tfoot tr:nth-child(2)')!;
-        const rowText: string[] = Array.from(row.querySelectorAll('td')).map(
-            (th) => th.textContent!,
-        );
+        const table = context.required('table');
+        const row = table.required('tfoot tr:nth-child(2)');
+        const rowText: string[] = row.all('td').map((th) => th.text());
         expect(rowText).toEqual(expected);
         assertColumnClassNames(row, 'td', 'bg-winner', homeWinner, awayWinner);
     }
@@ -136,11 +128,9 @@ describe('MatchStatistics', () => {
         homeWinner?: boolean,
         awayWinner?: boolean,
     ) {
-        const table = context.container.querySelector('table')!;
-        const row = table.querySelector('tbody tr:nth-child(1)')!;
-        const rowText: string[] = Array.from(row.querySelectorAll('td')).map(
-            (th) => th.textContent!,
-        );
+        const table = context.required('table');
+        const row = table.required('tbody tr:nth-child(1)');
+        const rowText: string[] = row.all('td').map((th) => th.text());
         expect(rowText).toEqual(expected);
         assertColumnClassNames(
             row,
@@ -152,27 +142,27 @@ describe('MatchStatistics', () => {
     }
 
     function assertColumnClassNames(
-        row: Element,
+        row: IComponent,
         nodeName: string,
         className: string,
         home?: boolean,
         away?: boolean,
     ) {
-        const homeCell = row.querySelector(nodeName + ':nth-child(2)')!;
+        const homeCell = row.required(nodeName + ':nth-child(2)');
         expect(homeCell).toBeTruthy();
         if (home) {
-            expect(homeCell.className).toContain(className);
+            expect(homeCell.className()).toContain(className);
         } else {
-            expect(homeCell.className).not.toContain(className);
+            expect(homeCell.className()).not.toContain(className);
         }
 
         if (away !== null && away !== undefined) {
-            const awayCell = row.querySelector(nodeName + ':nth-child(3)')!;
+            const awayCell = row.required(nodeName + ':nth-child(3)');
             expect(awayCell).toBeTruthy();
             if (away) {
-                expect(awayCell.className).toContain(className);
+                expect(awayCell.className()).toContain(className);
             } else {
-                expect(awayCell.className).not.toContain(className);
+                expect(awayCell.className()).not.toContain(className);
             }
         }
     }
@@ -183,12 +173,10 @@ describe('MatchStatistics', () => {
         homeWinner?: boolean,
         awayWinner?: boolean,
     ) {
-        const table = context.container.querySelector('table')!;
+        const table = context.required('table');
         const rowOrdinal: number = legIndex + 2;
-        const row = table.querySelector(`tbody tr:nth-child(${rowOrdinal})`)!;
-        const rowText: string[] = Array.from(row.querySelectorAll('td')).map(
-            (th) => th.textContent!,
-        );
+        const row = table.required(`tbody tr:nth-child(${rowOrdinal})`);
+        const rowText: string[] = row.all('td').map((th) => th.text());
         expect(rowText).toEqual(expected);
         assertColumnClassNames(
             row,
@@ -292,9 +280,7 @@ describe('MatchStatistics', () => {
             saygData,
         );
 
-        await doClick(
-            context.container.querySelector('input[name="showThrows"]')!,
-        );
+        await context.required('input[name="showThrows"]').click();
 
         assertLegRow(0, [
             'Leg: 1DetailsClick to show running average',
@@ -334,12 +320,8 @@ describe('MatchStatistics', () => {
             saygData,
         );
 
-        await doClick(
-            context.container.querySelector('input[name="showThrows"]')!,
-        );
-        await doClick(
-            findButton(context.container, 'Click to show running average'),
-        );
+        await context.required('input[name="showThrows"]').click();
+        await context.button('Click to show running average').click();
 
         assertLegRow(0, [
             'Leg: 1DetailsClick to show No. of darts',
@@ -389,19 +371,15 @@ describe('MatchStatistics', () => {
                 account,
             }),
         );
-        await doClick(
-            context.container.querySelector('input[name="showThrows"]')!,
-        );
-        const legRow = context.container.querySelector(
-            'table tbody tr:nth-child(2)',
-        )!;
+        await context.required('input[name="showThrows"]').click();
+        const legRow = context.required('table tbody tr:nth-child(2)');
 
-        await doClick(legRow, 'table tbody tr:nth-child(2)');
-        expect(context.container.querySelector('.modal-dialog')).toBeTruthy();
-        expect(
-            context.container.querySelector('.modal-dialog')!.textContent,
-        ).toContain('Edit throw');
-        await doClick(findButton(legRow, 'Save changes'));
+        await legRow.required('table tbody tr:nth-child(2)').click();
+        expect(context.optional('.modal-dialog')).toBeTruthy();
+        expect(context.required('.modal-dialog').text()).toContain(
+            'Edit throw',
+        );
+        await legRow.button('Save changes').click();
 
         reportedError.verifyNoError();
         expect(updatedSayg).not.toBeNull();
@@ -428,16 +406,12 @@ describe('MatchStatistics', () => {
             },
             saygData,
         );
-        await doClick(
-            context.container.querySelector('input[name="showThrows"]')!,
-        );
-        const legRow = context.container.querySelector(
-            'table tbody tr:nth-child(2)',
-        )!;
+        await context.required('input[name="showThrows"]').click();
+        const legRow = context.required('table tbody tr:nth-child(2)');
 
-        await doClick(legRow, 'table tbody tr:nth-child(2)');
+        await legRow.required('table tbody tr:nth-child(2)').click();
 
-        expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+        expect(context.optional('.modal-dialog')).toBeFalsy();
     });
 
     it('does not render refresh options when not allowed', async () => {
@@ -463,12 +437,8 @@ describe('MatchStatistics', () => {
             saygData,
         );
 
-        expect(
-            context.container.querySelector('h4 .dropdown-menu'),
-        ).toBeFalsy();
-        expect(
-            context.container.querySelector('h4')!.textContent,
-        ).not.toContain('⏸️');
+        expect(context.optional('h4 .dropdown-menu')).toBeFalsy();
+        expect(context.required('h4').text()).not.toContain('⏸️');
     });
 
     it('does not render refresh options when home has won', async () => {
@@ -502,12 +472,8 @@ describe('MatchStatistics', () => {
             saygData,
         );
 
-        expect(
-            context.container.querySelector('h4 .dropdown-menu'),
-        ).toBeFalsy();
-        expect(
-            context.container.querySelector('h4')!.textContent,
-        ).not.toContain('⏸️');
+        expect(context.optional('h4 .dropdown-menu')).toBeFalsy();
+        expect(context.required('h4').text()).not.toContain('⏸️');
     });
 
     it('does not render refresh options when away has won', async () => {
@@ -541,12 +507,8 @@ describe('MatchStatistics', () => {
             saygData,
         );
 
-        expect(
-            context.container.querySelector('h4 .dropdown-menu'),
-        ).toBeFalsy();
-        expect(
-            context.container.querySelector('h4')!.textContent,
-        ).not.toContain('⏸️');
+        expect(context.optional('h4 .dropdown-menu')).toBeFalsy();
+        expect(context.required('h4').text()).not.toContain('⏸️');
     });
 
     it('enables live updates by default', async () => {
@@ -621,11 +583,9 @@ describe('MatchStatistics', () => {
             }),
         );
 
-        const selectedOption = context.container.querySelector(
-            'h4 .dropdown-menu .active',
-        )!;
+        const selectedOption = context.required('h4 .dropdown-menu .active');
         expect(selectedOption).toBeTruthy();
-        expect(selectedOption!.textContent).toEqual('⏸️ Paused');
+        expect(selectedOption.text()).toEqual('⏸️ Paused');
         expect(socketFactory.socketWasCreated()).toEqual(false);
     });
 
@@ -722,10 +682,7 @@ describe('MatchStatistics', () => {
         expect(Object.keys(socketFactory.subscriptions)).toEqual([saygId]);
         reportedError.verifyNoError();
 
-        await doSelectOption(
-            context.container.querySelector('h4 .dropdown-menu'),
-            '⏸️ Paused',
-        );
+        await context.required('h4 .dropdown-menu').select('⏸️ Paused');
 
         reportedError.verifyNoError();
         expect(socketFactory.subscriptions).toBeTruthy();
@@ -773,12 +730,10 @@ describe('MatchStatistics', () => {
         expect(Object.keys(socketFactory.subscriptions)).toEqual([saygId]);
         reportedError.verifyNoError();
 
-        await doClick(findButton(context.container.querySelector('h4'), '🖥'));
+        await context.required('h4').button('🖥').click();
 
         reportedError.verifyNoError();
-        expect(context.container.innerHTML).toContain(
-            'WidescreenMatchStatistics',
-        );
+        expect(context.html()).toContain('WidescreenMatchStatistics');
     });
 
     it('collapses all legs when final leg played', async () => {
@@ -848,11 +803,9 @@ describe('MatchStatistics', () => {
         });
 
         reportedError.verifyNoError();
-        const firstRow = context.container.querySelector(
-            'table tbody tr:first-child',
-        )!;
-        const finishedHeadings = Array.from(firstRow.querySelectorAll('td'));
-        expect(finishedHeadings.map((th) => th.textContent)).toEqual([
+        const firstRow = context.required('table tbody tr:first-child');
+        const finishedHeadings = firstRow.all('td');
+        expect(finishedHeadings.map((th) => th.text())).toEqual([
             'Score',
             '2',
             '0',

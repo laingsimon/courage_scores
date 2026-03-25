@@ -2,10 +2,8 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
-    doKeyPress,
     ErrorState,
-    findButton,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -51,12 +49,10 @@ describe('NumberKeyboard', () => {
     }
 
     function assertEnabledButtons(buttonText: string[]) {
-        const buttons: HTMLButtonElement[] = Array.from(
-            context.container.querySelectorAll('button'),
-        );
+        const buttons = context.all('button');
         const buttonLookup: StringMapObject = toDictionary(
             buttons,
-            (b: HTMLButtonElement) => b.textContent!,
+            (b: IComponent) => b.text(),
         );
 
         for (const text of buttonText) {
@@ -65,17 +61,15 @@ describe('NumberKeyboard', () => {
                 throw new Error(`Button not found: ${text}`);
             }
 
-            expect(button.disabled).toEqual(false);
+            expect(button.enabled()).toEqual(true);
         }
     }
 
     function assertDisabledButtons(buttonText: string[]) {
-        const buttons: HTMLButtonElement[] = Array.from(
-            context.container.querySelectorAll('button'),
-        );
+        const buttons = context.all('button');
         const buttonLookup: StringMapObject = toDictionary(
             buttons,
-            (b: HTMLButtonElement) => b.textContent!,
+            (b: IComponent) => b.text(),
         );
 
         for (const text of buttonText) {
@@ -84,7 +78,7 @@ describe('NumberKeyboard', () => {
                 throw new Error(`Button not found: ${text}`);
             }
 
-            expect(button.disabled).toEqual(true);
+            expect(button.enabled()).toEqual(false);
         }
     }
 
@@ -194,7 +188,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            await doClick(findButton(context.container, DELETE_SCORE_BUTTON));
+            await context.button(DELETE_SCORE_BUTTON).click();
 
             expect(newValue).toEqual('1');
         });
@@ -206,7 +200,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            await doClick(findButton(context.container, '5'));
+            await context.button('5').click();
 
             expect(newValue).toEqual('105');
         });
@@ -218,11 +212,9 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            const zeroButton = findButton(
-                context.container,
-                DELETE_SCORE_BUTTON,
+            expect(context.button(DELETE_SCORE_BUTTON).enabled()).toEqual(
+                false,
             );
-            expect(zeroButton.disabled).toEqual(true);
         });
 
         it('can add 0 when value is empty', async () => {
@@ -232,7 +224,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            await doClick(findButton(context.container, '0'));
+            await context.button('0').click();
 
             expect(newValue).toEqual('0');
         });
@@ -244,8 +236,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            const zeroButton = findButton(context.container, '0');
-            expect(zeroButton.disabled).toEqual(true);
+            expect(context.button('0').enabled()).toEqual(false);
         });
 
         it('can add 0 when preceded by other digits', async () => {
@@ -255,7 +246,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            await doClick(findButton(context.container, '0'));
+            await context.button('0').click();
 
             expect(newValue).toEqual('50');
         });
@@ -267,7 +258,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
+            await context.button(ENTER_SCORE_BUTTON).click();
 
             expect(enteredValue).toEqual('10');
         });
@@ -279,7 +270,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            await doClick(findButton(context.container, '140'));
+            await context.button('140').click();
 
             expect(enteredValue).toEqual('140');
             expect(newValue).toEqual(null);
@@ -293,8 +284,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            const oneFourtyQuickButton = findButton(context.container, '140');
-            expect(oneFourtyQuickButton.disabled).toEqual(true);
+            expect(context.button('140').enabled()).toEqual(false);
         });
     });
 
@@ -306,7 +296,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            await doKeyPress(context.container, 'Backspace');
+            await context.keyPress('Backspace');
 
             expect(newValue).toEqual('1');
         });
@@ -318,7 +308,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            await doKeyPress(context.container, '5');
+            await context.keyPress('5');
 
             expect(newValue).toEqual('105');
         });
@@ -330,7 +320,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            await doKeyPress(context.container, 'Backspace');
+            await context.keyPress('Backspace');
 
             expect(newValue).toEqual('');
         });
@@ -342,7 +332,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            await doKeyPress(context.container, '0');
+            await context.keyPress('0');
 
             expect(newValue).toEqual('0');
         });
@@ -354,7 +344,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            await doKeyPress(context.container, '0');
+            await context.keyPress('0');
 
             expect(newValue).toEqual('0');
         });
@@ -366,7 +356,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            await doKeyPress(context.container, '0');
+            await context.keyPress('0');
 
             expect(newValue).toEqual('50');
         });
@@ -378,7 +368,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            await doKeyPress(context.container, 'Enter');
+            await context.keyPress('Enter');
 
             expect(enteredValue).toEqual('10');
         });
@@ -391,7 +381,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            await doKeyPress(context.container, 'F');
+            await context.keyPress('F');
 
             expect(newValue).toEqual(null);
         });
@@ -404,7 +394,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            await doKeyPress(context.container, '9');
+            await context.keyPress('9');
 
             expect(newValue).toEqual(null);
         });

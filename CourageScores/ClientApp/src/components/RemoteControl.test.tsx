@@ -1,10 +1,8 @@
-﻿import {
+import {
     api,
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -136,8 +134,8 @@ describe('RemoteControl', () => {
 
                 expect(created).toEqual([]);
                 expect(retrieved).toEqual([{ id: 'id', pin: 'pin' }]);
-                expect(context.container.querySelector('.alert')).toBeFalsy();
-                expect(context.container.querySelector('svg')).toBeTruthy();
+                expect(context.optional('.alert')).toBeFalsy();
+                expect(context.optional('svg')).toBeTruthy();
             });
 
             it('renders login prompt', async () => {
@@ -153,13 +151,11 @@ describe('RemoteControl', () => {
 
                 expect(created).toEqual([]);
                 expect(retrieved).toEqual([{ id: 'id', pin: 'pin' }]);
-                expect(context.container.querySelector('.alert')).toBeFalsy();
-                expect(context.container.querySelector('svg')).toBeFalsy();
-                const loginPrompt = context.container.querySelector('a.btn');
+                expect(context.optional('.alert')).toBeFalsy();
+                expect(context.optional('svg')).toBeFalsy();
+                const loginPrompt = context.optional('a.btn');
                 expect(loginPrompt).toBeTruthy();
-                expect(loginPrompt?.textContent).toEqual(
-                    'Login to control device',
-                );
+                expect(loginPrompt!.text()).toEqual('Login to control device');
             });
 
             it('creates a new id if existing id cannot be retrieved', async () => {
@@ -188,11 +184,10 @@ describe('RemoteControl', () => {
                 await renderComponent();
 
                 expect(created.length).toEqual(1);
-                expect(context.container.querySelector('svg')).toBeFalsy();
-                const alert = context.container.querySelector('.alert')!;
-                expect(alert).toBeTruthy();
-                expect(alert.textContent).toContain('some error');
-                expect(alert.textContent).toContain('some warning');
+                expect(context.optional('svg')).toBeFalsy();
+                const alert = context.required('.alert');
+                expect(alert.text()).toContain('some error');
+                expect(alert.text()).toContain('some warning');
             });
         });
 
@@ -212,8 +207,8 @@ describe('RemoteControl', () => {
 
                 expect(created).toEqual([]);
                 expect(retrieved).toEqual([{ id: 'id', pin: 'pin' }]);
-                expect(context.container.querySelector('.alert')).toBeFalsy();
-                expect(context.container.querySelector('svg')).toBeTruthy();
+                expect(context.optional('.alert')).toBeFalsy();
+                expect(context.optional('svg')).toBeTruthy();
             });
 
             it('shows option to enter url', async () => {
@@ -227,9 +222,7 @@ describe('RemoteControl', () => {
 
                 await renderComponent(account, '/rc/id/pin');
 
-                expect(
-                    context.container.querySelector('input[name="url"]'),
-                ).toBeTruthy();
+                expect(context.optional('input[name="url"]')).toBeTruthy();
             });
 
             it('shows expected curated urls', async () => {
@@ -243,19 +236,17 @@ describe('RemoteControl', () => {
 
                 await renderComponent(account, '/rc/id/pin');
 
-                const curatedUrls = Array.from(
-                    context.container.querySelectorAll(
-                        '.list-group .list-group-item',
-                    ),
-                );
+                const curatedUrls = context.all('.list-group .list-group-item');
                 const today = new Date().toISOString().substring(0, 10);
-                expect(curatedUrls.map((url) => url.textContent)).toEqual([
+                expect(curatedUrls.map((url) => url.text())).toEqual([
                     'Live tournaments',
                     "Today's Superleague boards",
                     "Today's fixtures",
                 ]);
                 expect(
-                    curatedUrls.map((url) => url.getAttribute('title')),
+                    curatedUrls.map((url) =>
+                        url.element().getAttribute('title'),
+                    ),
                 ).toEqual([
                     '/live',
                     '/live/superleague/?date=' + today,
@@ -310,13 +301,13 @@ describe('RemoteControl', () => {
                 await renderComponent(account, '/rc/id/pin');
 
                 // NOTE: Using `fireEvent` here because `doChange` (moreover userEvent) doesn't play nicely with fake timers
-                const input = context.container.querySelector(
-                    'input[name="url"]',
-                ) as HTMLInputElement;
-                fireEvent.change(input, {
+                const urlInput = context
+                    .input('url')
+                    .element<HTMLInputElement>();
+                fireEvent.change(urlInput, {
                     target: { value: '/redirect/to/url' },
                 });
-                await doClick(findButton(context.container, 'Go'));
+                await context.button('Go').click();
 
                 expect(updates).toEqual([
                     {
@@ -327,10 +318,8 @@ describe('RemoteControl', () => {
                         },
                     },
                 ]);
-                expect(input.disabled).toBeTruthy();
-                expect(
-                    findButton(context.container, 'Go').disabled,
-                ).toBeTruthy();
+                expect(urlInput.disabled).toBeTruthy();
+                expect(context.button('Go').enabled()).toBeFalsy();
             });
 
             it('sends api of curated link to api and prevents subsequent sent', async () => {
@@ -342,28 +331,25 @@ describe('RemoteControl', () => {
                     },
                 });
                 await renderComponent(account, '/rc/id/pin');
-                const firstCuratedLink = context.container.querySelector(
+                const firstCuratedLink = context.all(
                     '.list-group .list-group-item',
-                )!;
+                )[0];
 
-                await doClick(firstCuratedLink);
+                await firstCuratedLink.click();
 
                 expect(updates).toEqual([
                     {
                         id: 'id',
                         update: {
                             pin: 'pin',
-                            url: firstCuratedLink.getAttribute('title'),
+                            url: firstCuratedLink
+                                .element()
+                                .getAttribute('title'),
                         },
                     },
                 ]);
-                const input = context.container.querySelector(
-                    'input[name="url"]',
-                ) as HTMLInputElement;
-                expect(input.disabled).toBeTruthy();
-                expect(
-                    findButton(context.container, 'Go').disabled,
-                ).toBeTruthy();
+                expect(context.input('url').enabled()).toBeFalsy();
+                expect(context.button('Go').enabled()).toBeFalsy();
             });
 
             it('shows error if unable to update entry', async () => {
@@ -380,24 +366,18 @@ describe('RemoteControl', () => {
                     warnings: ['some warning'],
                 });
                 await renderComponent(account, '/rc/id/pin');
-                const firstCuratedLink = context.container.querySelector(
+                const firstCuratedLink = context.all(
                     '.list-group .list-group-item',
-                )!;
+                )[0];
 
-                await doClick(firstCuratedLink);
+                await firstCuratedLink.click();
 
                 expect(updates.length).toEqual(1);
-                const input = context.container.querySelector(
-                    'input[name="url"]',
-                ) as HTMLInputElement;
-                expect(input.disabled).toBeFalsy();
-                expect(
-                    findButton(context.container, 'Go').disabled,
-                ).toBeFalsy();
-                const alert = context.container.querySelector('.alert')!;
-                expect(alert).toBeTruthy();
-                expect(alert.textContent).toContain('some error');
-                expect(alert.textContent).toContain('some warning');
+                expect(context.input('url').enabled()).toBeTruthy();
+                expect(context.button('Go').enabled()).toBeTruthy();
+                const alert = context.required('.alert');
+                expect(alert.text()).toContain('some error');
+                expect(alert.text()).toContain('some warning');
             });
         });
     });

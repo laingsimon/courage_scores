@@ -3,10 +3,6 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
-    doSelectOption,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -56,6 +52,7 @@ describe('EditTeamDetails', () => {
 
     beforeEach(() => {
         updatedTeam = null;
+        apiResponse = null;
         saved = false;
         change = null;
         canceled = false;
@@ -88,14 +85,12 @@ describe('EditTeamDetails', () => {
                 [division],
             );
 
-            const nameGroup = context.container.querySelector(
-                'div.input-group:nth-child(2)',
-            )!;
+            const nameGroup = context.required('div.input-group:nth-child(2)');
             expect(nameGroup).toBeTruthy();
-            expect(nameGroup.textContent).toContain('Name');
-            const input = nameGroup.querySelector('input')!;
+            expect(nameGroup.text()).toContain('Name');
+            const input = nameGroup.required('input');
             expect(input).toBeTruthy();
-            expect(input.value).toEqual('TEAM');
+            expect(input.value()).toEqual('TEAM');
         });
 
         it('address', async () => {
@@ -112,14 +107,14 @@ describe('EditTeamDetails', () => {
                 [division],
             );
 
-            const addressGroup = context.container.querySelector(
+            const addressGroup = context.required(
                 'div.input-group:nth-child(3)',
-            )!;
+            );
             expect(addressGroup).toBeTruthy();
-            expect(addressGroup.textContent).toContain('Address');
-            const input = addressGroup.querySelector('input')!;
+            expect(addressGroup.text()).toContain('Address');
+            const input = addressGroup.required('input');
             expect(input).toBeTruthy();
-            expect(input.value).toEqual('ADDRESS');
+            expect(input.value()).toEqual('ADDRESS');
         });
 
         it('division', async () => {
@@ -139,16 +134,16 @@ describe('EditTeamDetails', () => {
                 [division],
             );
 
-            const divisionGroup = context.container.querySelector(
+            const divisionGroup = context.required(
                 'div.input-group:nth-child(4)',
-            )!;
+            );
             expect(divisionGroup).toBeTruthy();
-            expect(divisionGroup.textContent).toContain('Division');
-            const selectedDivision = divisionGroup.querySelector(
+            expect(divisionGroup.text()).toContain('Division');
+            const selectedDivision = divisionGroup.required(
                 '.dropdown-menu .active',
-            )!;
+            );
             expect(selectedDivision).toBeTruthy();
-            expect(selectedDivision.textContent).toEqual('DIVISION');
+            expect(selectedDivision.text()).toEqual('DIVISION');
         });
 
         it('new division', async () => {
@@ -169,16 +164,16 @@ describe('EditTeamDetails', () => {
                 [division, otherDivision],
             );
 
-            const divisionGroup = context.container.querySelector(
+            const divisionGroup = context.required(
                 'div.input-group:nth-child(4)',
-            )!;
+            );
             expect(divisionGroup).toBeTruthy();
-            expect(divisionGroup.textContent).toContain('Division');
-            const selectedDivision = divisionGroup.querySelector(
+            expect(divisionGroup.text()).toContain('Division');
+            const selectedDivision = divisionGroup.required(
                 '.btn-group .dropdown-item.active',
-            )!;
+            );
             expect(selectedDivision).toBeTruthy();
-            expect(selectedDivision.textContent).toEqual('OTHER DIVISION');
+            expect(selectedDivision.text()).toEqual('OTHER DIVISION');
         });
     });
 
@@ -199,11 +194,10 @@ describe('EditTeamDetails', () => {
                 },
                 [division],
             );
-            const nameGroup = context.container.querySelector(
-                'div.input-group:nth-child(2)',
-            )!;
 
-            await doChange(nameGroup, 'input', 'NEW', context.user);
+            await context
+                .required('div.input-group:nth-child(2) input')
+                .change('NEW');
 
             expect(change).toBeTruthy();
             expect(change!.name).toEqual('name');
@@ -226,11 +220,10 @@ describe('EditTeamDetails', () => {
                 },
                 [division],
             );
-            const addressGroup = context.container.querySelector(
-                'div.input-group:nth-child(3)',
-            )!;
 
-            await doChange(addressGroup, 'input', 'NEW', context.user);
+            await context
+                .required('div.input-group:nth-child(3) input')
+                .change('NEW');
 
             expect(change).toBeTruthy();
             expect(change!.name).toEqual('address');
@@ -254,14 +247,13 @@ describe('EditTeamDetails', () => {
                 },
                 [division, otherDivision],
             );
-            const divisionGroup = context.container.querySelector(
+            const divisionGroup = context.required(
                 'div.input-group:nth-child(4)',
-            )!;
-
-            await doSelectOption(
-                divisionGroup.querySelector('.dropdown-menu'),
-                'OTHER DIVISION',
             );
+
+            await divisionGroup
+                .required('.dropdown-menu')
+                .select('OTHER DIVISION');
 
             expect(change).toBeTruthy();
             expect(change!.name).toEqual('newDivisionId');
@@ -288,15 +280,13 @@ describe('EditTeamDetails', () => {
                 [division, otherDivision],
             );
 
-            const divisionGroup = context.container.querySelector(
+            const divisionGroup = context.required(
                 'div.input-group:nth-child(4)',
-            )!;
-            const dropdown = divisionGroup.querySelector(
-                'button.dropdown-toggle',
-            ) as HTMLButtonElement;
+            );
+            const dropdown = divisionGroup.required('button.dropdown-toggle');
             expect(dropdown).toBeTruthy();
-            expect(dropdown.disabled).toEqual(true);
-            expect(dropdown.textContent).toEqual('DIVISION');
+            expect(dropdown.enabled()).toEqual(false);
+            expect(dropdown.text()).toEqual('DIVISION');
         });
 
         it('prevents save when no name', async () => {
@@ -323,7 +313,7 @@ describe('EditTeamDetails', () => {
                 [division],
             );
 
-            await doClick(findButton(context.container, 'Save team'));
+            await context.button('Save team').click();
 
             expect(saved).toEqual(false);
             context.prompts.alertWasShown('You must enter a team name');
@@ -354,7 +344,7 @@ describe('EditTeamDetails', () => {
                 [division, otherDivision],
             );
 
-            await doClick(findButton(context.container, 'Save team'));
+            await context.button('Save team').click();
 
             expect(saved).toEqual(true);
             expect(updatedTeam!.lastUpdated).toEqual(updated);
@@ -393,7 +383,7 @@ describe('EditTeamDetails', () => {
                 [division, otherDivision],
             );
 
-            await doClick(findButton(context.container, 'Add team'));
+            await context.button('Add team').click();
 
             expect(saved).toEqual(true);
             expect(updatedTeam!.lastUpdated).toBeFalsy();
@@ -431,14 +421,12 @@ describe('EditTeamDetails', () => {
             );
             apiResponse = { success: false };
 
-            await doClick(findButton(context.container, 'Add team'));
+            await context.button('Add team').click();
 
             expect(saved).toEqual(false);
             expect(updatedTeam).not.toBeNull();
             expect(change).toEqual(null);
-            expect(context.container.textContent).toContain(
-                'Could not save team details',
-            );
+            expect(context.text()).toContain('Could not save team details');
         });
 
         it('can close error dialog after save failure', async () => {
@@ -465,16 +453,12 @@ describe('EditTeamDetails', () => {
                 [division, otherDivision],
             );
             apiResponse = { success: false };
-            await doClick(findButton(context.container, 'Add team'));
-            expect(context.container.textContent).toContain(
-                'Could not save team details',
-            );
+            await context.button('Add team').click();
+            expect(context.text()).toContain('Could not save team details');
 
-            await doClick(findButton(context.container, 'Close'));
+            await context.button('Close').click();
 
-            expect(context.container.textContent).not.toContain(
-                'Could not save team details',
-            );
+            expect(context.text()).not.toContain('Could not save team details');
         });
 
         it('can cancel', async () => {
@@ -500,7 +484,7 @@ describe('EditTeamDetails', () => {
                 [division],
             );
 
-            await doClick(findButton(context.container, 'Cancel'));
+            await context.button('Cancel').click();
 
             expect(canceled).toEqual(true);
         });

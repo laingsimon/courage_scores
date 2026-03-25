@@ -3,10 +3,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
-    doSelectOption,
     ErrorState,
-    findButton,
     iocProps,
     MockSocketFactory,
     noop,
@@ -192,10 +189,7 @@ describe('SuperLeaguePrintout', () => {
             );
 
             reportedError.verifyNoError();
-            const headings = Array.from(
-                context.container.querySelectorAll('h2'),
-            );
-            expect(headings.map((h) => h.textContent)).toEqual([
+            expect(context.all('h2').map((h) => h.text())).toEqual([
                 'Master draw',
                 'Match log',
                 'Summary',
@@ -248,10 +242,7 @@ describe('SuperLeaguePrintout', () => {
                     access,
                 );
 
-                await doSelectOption(
-                    context.container.querySelector('.dropdown-menu'),
-                    '▶️ Live',
-                );
+                await context.required('.dropdown-menu').select('▶️ Live');
 
                 expect(Object.keys(socketFactory.subscriptions).sort()).toEqual(
                     [saygData1.id, saygData2.id, tournamentData.id].sort(),
@@ -294,19 +285,20 @@ describe('SuperLeaguePrintout', () => {
                     { division },
                     access,
                 );
-                await doSelectOption(
-                    context.container.querySelector('.dropdown-menu'),
-                    '▶️ Live',
-                );
+                await context.required('.dropdown-menu').select('▶️ Live');
                 expect(
-                    context.container.querySelector(
-                        'div[datatype="match-report"] > div > div:nth-child(1)',
-                    )!.textContent,
+                    context
+                        .required(
+                            'div[datatype="match-report"] > div > div:nth-child(1)',
+                        )
+                        .text(),
                 ).toEqual('Legs won: 2');
                 expect(
-                    context.container.querySelector(
-                        'div[datatype="match-report"] > div > div:nth-child(2)',
-                    )!.textContent,
+                    context
+                        .required(
+                            'div[datatype="match-report"] > div > div:nth-child(2)',
+                        )
+                        .text(),
                 ).toEqual('Legs won: 2');
 
                 //send through some data
@@ -327,14 +319,18 @@ describe('SuperLeaguePrintout', () => {
                 });
 
                 expect(
-                    context.container.querySelector(
-                        'div[datatype="match-report"] > div > div:nth-child(1)',
-                    )!.textContent,
+                    context
+                        .required(
+                            'div[datatype="match-report"] > div > div:nth-child(1)',
+                        )
+                        .text(),
                 ).toEqual('Legs won: 2');
                 expect(
-                    context.container.querySelector(
-                        'div[datatype="match-report"] > div > div:nth-child(2)',
-                    )!.textContent,
+                    context
+                        .required(
+                            'div[datatype="match-report"] > div > div:nth-child(2)',
+                        )
+                        .text(),
                 ).toEqual('Legs won: 3');
             });
 
@@ -374,15 +370,9 @@ describe('SuperLeaguePrintout', () => {
                     { division },
                     access,
                 );
-                await doSelectOption(
-                    context.container.querySelector('.dropdown-menu'),
-                    '▶️ Live',
-                );
+                await context.required('.dropdown-menu').select('▶️ Live');
 
-                await doSelectOption(
-                    context.container.querySelector('.dropdown-menu'),
-                    '⏸️ Paused',
-                );
+                await context.required('.dropdown-menu').select('⏸️ Paused');
 
                 expect(Object.keys(socketFactory.subscriptions)).toEqual([]);
             });
@@ -423,20 +413,11 @@ describe('SuperLeaguePrintout', () => {
                     { division },
                     access,
                 );
-                await doSelectOption(
-                    context.container.querySelector('.dropdown-menu'),
-                    '▶️ Live',
-                );
-                await doSelectOption(
-                    context.container.querySelector('.dropdown-menu'),
-                    '⏸️ Paused',
-                );
+                await context.required('.dropdown-menu').select('▶️ Live');
+                await context.required('.dropdown-menu').select('⏸️ Paused');
                 expect(Object.keys(socketFactory.subscriptions)).toEqual([]);
 
-                await doSelectOption(
-                    context.container.querySelector('.dropdown-menu'),
-                    '▶️ Live',
-                );
+                await context.required('.dropdown-menu').select('▶️ Live');
 
                 expect(Object.keys(socketFactory.subscriptions).sort()).toEqual(
                     [tournamentData.id, saygData1.id, saygData2.id].sort(),
@@ -479,9 +460,8 @@ describe('SuperLeaguePrintout', () => {
                     { division },
                     access,
                 );
-                await doClick(findButton(context.container, START_SCORING));
-                const dialog =
-                    context.container.querySelector('div.modal-dialog')!;
+                await context.button(START_SCORING).click();
+                const dialog = context.required('div.modal-dialog');
                 expect(saygDataRequests[saygData1.id]).toEqual(2); // data is loaded as the dialog opens
                 patchSuccess = false;
 
@@ -491,13 +471,11 @@ describe('SuperLeaguePrintout', () => {
                     [10, 10, 10, 10, 10], // PLAYER B
                 );
                 await checkoutWith(context, CHECKOUT_2_DART);
-                expect(dialog.textContent).toContain('Match statistics');
-                await doClick(findButton(dialog, 'Close')); // close the match statistics dialog
+                expect(dialog.text()).toContain('Match statistics');
+                await dialog.button('Close').click();
 
-                const summary = context.container.querySelector(
-                    'div[datatype="summary"]',
-                )!;
-                expect(summary.textContent).toContain('PLAYER A'); // player should be shown in the table
+                const summary = context.required('div[datatype="summary"]');
+                expect(summary.text()).toContain('PLAYER A'); // player should be shown in the table
                 expect(saygDataRequests[saygData1.id]).toEqual(2); // data isn't reloaded if the patch fails
             });
 
@@ -529,9 +507,8 @@ describe('SuperLeaguePrintout', () => {
                     { division, patchData },
                     access,
                 );
-                await doClick(findButton(context.container, START_SCORING));
-                const dialog =
-                    context.container.querySelector('div.modal-dialog')!;
+                await context.button(START_SCORING).click();
+                const dialog = context.required('div.modal-dialog');
                 expect(saygDataRequests[saygData1.id]).toEqual(2); // data is loaded as the dialog opens
                 patchSuccess = false;
 
@@ -541,13 +518,11 @@ describe('SuperLeaguePrintout', () => {
                     [10, 10, 10, 10, 10], // PLAYER B
                 );
                 await checkoutWith(context, CHECKOUT_2_DART);
-                expect(dialog.textContent).toContain('Match statistics');
-                await doClick(findButton(dialog, 'Close')); // close the match statistics dialog
+                expect(dialog.text()).toContain('Match statistics');
+                await dialog.button('Close').click();
 
-                const summary = context.container.querySelector(
-                    'div[datatype="summary"]',
-                )!;
-                expect(summary.textContent).toContain('PLAYER A'); // player should be shown in the table
+                const summary = context.required('div[datatype="summary"]');
+                expect(summary.text()).toContain('PLAYER A'); // player should be shown in the table
                 expect(saygDataRequests[saygData1.id]).toEqual(2); // data isn't reloaded if the patch fails
             });
         });

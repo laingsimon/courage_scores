@@ -2,7 +2,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doSelectOption,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -112,10 +112,7 @@ describe('AssignPlaceholders', () => {
                 },
             );
 
-            const divisions = Array.from(
-                context.container.querySelectorAll('h6'),
-            );
-            expect(divisions.map((d) => d.textContent)).toEqual([
+            expect(context.all('h6').map((d) => d.text())).toEqual([
                 'DIVISION 1',
                 'DIVISION 2',
             ]);
@@ -136,24 +133,16 @@ describe('AssignPlaceholders', () => {
                 },
             );
 
-            const div1 = context.container.querySelector(
-                'div > div > div:nth-child(1)',
-            )!;
-            const div2 = context.container.querySelector(
-                'div > div > div:nth-child(2)',
-            )!;
-            const div1Placeholders = Array.from(
-                div1.querySelectorAll('ul > li > span'),
-            );
-            const div2Placeholders = Array.from(
-                div2.querySelectorAll('ul > li > span'),
-            );
-            expect(div1Placeholders.map((li) => li.textContent)).toEqual([
+            const div1 = context.required('div > div > div:nth-child(1)');
+            const div2 = context.required('div > div > div:nth-child(2)');
+            expect(div1.all('ul > li > span').map((li) => li.text())).toEqual([
                 'A',
                 'B',
                 'C',
             ]);
-            expect(div2Placeholders.map((li) => li.textContent)).toEqual(['D']);
+            expect(div2.all('ul > li > span').map((li) => li.text())).toEqual([
+                'D',
+            ]);
         });
 
         it('template shared address placeholders', async () => {
@@ -197,19 +186,15 @@ describe('AssignPlaceholders', () => {
                 },
             );
 
-            const div1 = context.container.querySelector(
-                'div > div > div:nth-child(1)',
-            )!;
-            const div1Placeholders = Array.from(
-                div1.querySelectorAll('ul > li'),
-            );
+            const div1 = context.required('div > div > div:nth-child(1)');
+            const div1Placeholders = div1.all('ul > li');
             const placeholderA = div1Placeholders.filter(
-                (p) => p.querySelector('span')!.textContent === 'A',
+                (p: IComponent) => p.required('span').text() === 'A',
             )[0];
-            expect(placeholderA.textContent).toContain(
+            expect(placeholderA.text()).toContain(
                 'Reserved for use by team with shared address across divisions',
             );
-            expect(placeholderA.querySelector('span')!.className).toContain(
+            expect(placeholderA.required('span').className()).toContain(
                 'bg-warning',
             );
         });
@@ -255,22 +240,17 @@ describe('AssignPlaceholders', () => {
                 },
             );
 
-            const div1 = context.container.querySelector(
-                'div > div > div:nth-child(1)',
-            )!;
-            const div1Placeholders = Array.from(
-                div1.querySelectorAll('ul > li'),
-            );
+            const div1 = context.required('div > div > div:nth-child(1)');
+            const div1Placeholders = div1.all('ul > li');
             const placeholderB = div1Placeholders.filter(
-                (p) => p.querySelector('span')!.textContent === 'B',
+                (p: IComponent) => p.required('span').text() === 'B',
             )[0];
-            expect(placeholderB.querySelector('span')!.className).toContain(
+            expect(placeholderB.required('span').className()).toContain(
                 'bg-secondary text-light',
             );
-            const items = Array.from(
-                placeholderB.querySelectorAll('.dropdown-item'),
-            );
-            expect(items.map((i) => i.textContent)).toEqual([
+            expect(
+                placeholderB.all('.dropdown-item').map((i) => i.text()),
+            ).toEqual([
                 '⚙ Automatically assign',
                 'TEAM A',
                 'TEAM AA',
@@ -293,23 +273,16 @@ describe('AssignPlaceholders', () => {
                 },
             );
 
-            const div1 = context.container.querySelector(
-                'div > div > div:nth-child(1)',
-            )!;
-            const div1Placeholders = Array.from(
-                div1.querySelectorAll('ul > li'),
-            );
+            const div1 = context.required('div > div > div:nth-child(1)');
+            const div1Placeholders = div1.all('ul > li');
             const placeholderA = div1Placeholders.filter(
-                (p) => p.querySelector('span')!.textContent === 'A',
+                (p: IComponent) => p.required('span').text() === 'A',
             )[0];
-            const dropdownItems = Array.from(
-                placeholderA.querySelectorAll('.dropdown-menu .dropdown-item'),
-            );
-            expect(dropdownItems.map((li) => li.textContent)).toEqual([
-                '🎲 Randomly assign',
-                'TEAM A',
-                'TEAM C',
-            ]);
+            expect(
+                placeholderA
+                    .all('.dropdown-menu .dropdown-item')
+                    .map((li) => li.text()),
+            ).toEqual(['🎲 Randomly assign', 'TEAM A', 'TEAM C']);
         });
 
         it('teams with shared addresses in dropdown', async () => {
@@ -327,19 +300,16 @@ describe('AssignPlaceholders', () => {
                 },
             );
 
-            const div1 = context.container.querySelector(
-                'div > div > div:nth-child(1)',
-            )!;
-            const div1Placeholders = Array.from(
-                div1.querySelectorAll('ul > li'),
-            );
+            const div1 = context.required('div > div > div:nth-child(1)');
+            const div1Placeholders = div1.all('ul > li');
             const placeholderA = div1Placeholders.filter(
-                (p) => p.querySelector('span')!.textContent === 'A',
+                (p: IComponent) => p.required('span').text() === 'A',
             )[0];
-            const dropdownItems = Array.from(
-                placeholderA.querySelectorAll('.dropdown-menu .dropdown-item'),
-            );
-            expect(dropdownItems.map((li) => li.textContent)).toEqual([
+            expect(
+                placeholderA
+                    .all('.dropdown-menu .dropdown-item')
+                    .map((li) => li.text()),
+            ).toEqual([
                 '🎲 Randomly assign',
                 '🚫 TEAM A (has shared address)',
                 '🚫 TEAM AA (has shared address)',
@@ -365,21 +335,16 @@ describe('AssignPlaceholders', () => {
                 },
             );
 
-            const div1 = context.container.querySelector(
-                'div > div > div:nth-child(1)',
-            )!;
-            const div1Placeholders = Array.from(
-                div1.querySelectorAll('ul > li'),
-            );
+            const div1 = context.required('div > div > div:nth-child(1)');
+            const div1Placeholders = div1.all('ul > li');
             const placeholderA = div1Placeholders.filter(
-                (p) => p.querySelector('span')!.textContent === 'A',
+                (p: IComponent) => p.required('span').text() === 'A',
             )[0];
-            const dropdownItems = Array.from(
-                placeholderA.querySelectorAll('.dropdown-menu .dropdown-item'),
-            );
-            expect(dropdownItems.map((li) => li.textContent)).not.toContain(
-                'TEAM D',
-            );
+            expect(
+                placeholderA
+                    .all('.dropdown-menu .dropdown-item')
+                    .map((li) => li.text()),
+            ).not.toContain('TEAM D');
         });
     });
 
@@ -441,20 +406,13 @@ describe('AssignPlaceholders', () => {
                 },
             );
 
-            const div1 = context.container.querySelector(
-                'div > div > div:nth-child(1)',
-            )!;
-            const div1Placeholders = Array.from(
-                div1.querySelectorAll('ul > li'),
-            );
+            const div1 = context.required('div > div > div:nth-child(1)');
+            const div1Placeholders = div1.all('ul > li');
             const placeholderA = div1Placeholders.filter(
-                (p) => p.querySelector('span')!.textContent === 'A',
+                (p: IComponent) => p.required('span').text() === 'A',
             )[0];
 
-            await doSelectOption(
-                placeholderA.querySelector('.dropdown-menu'),
-                'TEAM A',
-            );
+            await placeholderA.required('.dropdown-menu').select('TEAM A');
 
             expect(placeholderMappings).toEqual({
                 A: teamA.id,
@@ -478,20 +436,15 @@ describe('AssignPlaceholders', () => {
                 },
             );
 
-            const div1 = context.container.querySelector(
-                'div > div > div:nth-child(1)',
-            )!;
-            const div1Placeholders = Array.from(
-                div1.querySelectorAll('ul > li'),
-            );
+            const div1 = context.required('div > div > div:nth-child(1)');
+            const div1Placeholders = div1.all('ul > li');
             const placeholderA = div1Placeholders.filter(
-                (p) => p.querySelector('span')!.textContent === 'A',
+                (p: IComponent) => p.required('span').text() === 'A',
             )[0];
 
-            await doSelectOption(
-                placeholderA.querySelector('.dropdown-menu'),
-                '🎲 Randomly assign',
-            );
+            await placeholderA
+                .required('.dropdown-menu')
+                .select('🎲 Randomly assign');
 
             expect(placeholderMappings).toEqual({});
         });
@@ -536,20 +489,13 @@ describe('AssignPlaceholders', () => {
                     setPlaceholderMappings,
                 },
             );
-            const div1 = context.container.querySelector(
-                'div > div > div:nth-child(1)',
-            )!;
-            const div1Placeholders = Array.from(
-                div1.querySelectorAll('ul > li'),
-            );
+            const div1 = context.required('div > div > div:nth-child(1)');
+            const div1Placeholders = div1.all('ul > li');
             const placeholderB = div1Placeholders.filter(
-                (p) => p.querySelector('span')!.textContent === 'B',
+                (p: IComponent) => p.required('span').text() === 'B',
             )[0];
 
-            await doSelectOption(
-                placeholderB.querySelector('.dropdown-menu'),
-                'TEAM AA',
-            );
+            await placeholderB.required('.dropdown-menu').select('TEAM AA');
 
             expect(placeholderMappings).toEqual({
                 B: teamAA.id,
@@ -600,20 +546,15 @@ describe('AssignPlaceholders', () => {
                     setPlaceholderMappings,
                 },
             );
-            const div1 = context.container.querySelector(
-                'div > div > div:nth-child(1)',
-            )!;
-            const div1Placeholders = Array.from(
-                div1.querySelectorAll('ul > li'),
-            );
+            const div1 = context.required('div > div > div:nth-child(1)');
+            const div1Placeholders = div1.all('ul > li');
             const placeholderB = div1Placeholders.filter(
-                (p) => p.querySelector('span')!.textContent === 'B',
+                (p: IComponent) => p.required('span').text() === 'B',
             )[0];
 
-            await doSelectOption(
-                placeholderB.querySelector('.dropdown-menu'),
-                '⚙ Automatically assign',
-            );
+            await placeholderB
+                .required('.dropdown-menu')
+                .select('⚙ Automatically assign');
 
             expect(placeholderMappings).toEqual({});
         });

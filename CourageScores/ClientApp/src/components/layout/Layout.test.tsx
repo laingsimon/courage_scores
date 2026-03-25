@@ -36,22 +36,18 @@ describe('Layout', () => {
                 false,
             );
 
-            expect(context.container.querySelector('.heading')).toBeTruthy();
-            expect(context.container.querySelector('header')).toBeTruthy();
-            const content = context.container.querySelector(
-                'div.content-background',
-            )!;
-            expect(content).toBeTruthy();
-            expect(content.textContent).toContain('some error');
+            expect(context.optional('.heading')).toBeTruthy();
+            expect(context.optional('header')).toBeTruthy();
+            const content = context.required('div.content-background');
+            expect(content.text()).toContain('some error');
         });
 
         it('when no error present', async () => {
             await renderComponent(undefined, false);
 
-            expect(context.container.querySelector('.heading')).toBeTruthy();
-            expect(context.container.querySelector('header')).toBeTruthy();
-            const content = context.container.querySelector('div.container')!;
-            expect(content).toBeTruthy();
+            expect(context.optional('.heading')).toBeTruthy();
+            expect(context.optional('header')).toBeTruthy();
+            expect(context.optional('div.container')).toBeTruthy();
         });
     });
 
@@ -62,22 +58,18 @@ describe('Layout', () => {
                 true,
             );
 
-            expect(context.container.querySelector('.heading')).toBeFalsy();
-            expect(context.container.querySelector('header')).toBeFalsy();
-            const content = context.container.querySelector(
-                'div.content-background',
-            )!;
-            expect(content).toBeTruthy();
-            expect(content.textContent).toContain('some error');
+            expect(context.optional('.heading')).toBeFalsy();
+            expect(context.optional('header')).toBeFalsy();
+            const content = context.required('div.content-background');
+            expect(content.text()).toContain('some error');
         });
 
         it('when no error present', async () => {
             await renderComponent(undefined, true);
 
-            expect(context.container.querySelector('.heading')).toBeFalsy();
-            expect(context.container.querySelector('header')).toBeFalsy();
-            const content = context.container.querySelector('div.container')!;
-            expect(content).toBeTruthy();
+            expect(context.optional('.heading')).toBeFalsy();
+            expect(context.optional('header')).toBeFalsy();
+            expect(context.optional('div.container')).toBeTruthy();
         });
     });
 });

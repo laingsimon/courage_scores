@@ -2,8 +2,6 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -60,7 +58,7 @@ describe('ErrorDisplay', () => {
                 onClose,
             });
 
-            await doClick(findButton(context.container, 'Close'));
+            await context.button('Close').click();
 
             expect(closed).toEqual(true);
         });
@@ -73,10 +71,9 @@ describe('ErrorDisplay', () => {
                 onClose,
             });
 
-            const dialog = context.container.querySelector('div.modal-dialog')!;
-            expect(dialog).toBeTruthy();
-            expect(dialog.textContent).toContain('message1');
-            expect(dialog.textContent).toContain('warning1');
+            const dialog = context.required('div.modal-dialog');
+            expect(dialog.text()).toContain('message1');
+            expect(dialog.text()).toContain('warning1');
         });
 
         it('renders when null warnings', async () => {
@@ -87,10 +84,9 @@ describe('ErrorDisplay', () => {
                 onClose,
             });
 
-            const dialog = context.container.querySelector('div.modal-dialog')!;
-            expect(dialog).toBeTruthy();
-            expect(dialog.textContent).toContain('message1');
-            expect(dialog.textContent).toContain('error1');
+            const dialog = context.required('div.modal-dialog');
+            expect(dialog.text()).toContain('message1');
+            expect(dialog.text()).toContain('error1');
         });
 
         it('renders when null messages', async () => {
@@ -101,10 +97,9 @@ describe('ErrorDisplay', () => {
                 onClose,
             });
 
-            const dialog = context.container.querySelector('div.modal-dialog')!;
-            expect(dialog).toBeTruthy();
-            expect(dialog.textContent).toContain('error1');
-            expect(dialog.textContent).toContain('warning1');
+            const dialog = context.required('div.modal-dialog');
+            expect(dialog.text()).toContain('error1');
+            expect(dialog.text()).toContain('warning1');
         });
     });
 
@@ -144,11 +139,11 @@ describe('ErrorDisplay', () => {
                 onClose,
             });
 
-            const dialog = context.container.querySelector('div.modal-dialog')!;
-            expect(dialog.textContent).toContain('Server side error');
-            expect(dialog.textContent).toContain('dotnet type');
-            expect(dialog.textContent).toContain('dotnet message');
-            expect(dialog.textContent).toContain('dotnet\nstack\ntrace');
+            const dialog = context.required('div.modal-dialog');
+            expect(dialog.text()).toContain('Server side error');
+            expect(dialog.text()).toContain('dotnet type');
+            expect(dialog.text()).toContain('dotnet message');
+            expect(dialog.text()).toContain('dotnet\nstack\ntrace');
         });
 
         it('renders correctly with no stack trace', async () => {
@@ -166,10 +161,10 @@ describe('ErrorDisplay', () => {
                 onClose,
             });
 
-            const dialog = context.container.querySelector('div.modal-dialog')!;
-            expect(dialog.textContent).toContain('Server side error');
-            expect(dialog.textContent).toContain('dotnet type');
-            expect(dialog.textContent).toContain('dotnet message');
+            const dialog = context.required('div.modal-dialog');
+            expect(dialog.text()).toContain('Server side error');
+            expect(dialog.text()).toContain('dotnet type');
+            expect(dialog.text()).toContain('dotnet message');
         });
     });
 
@@ -187,11 +182,8 @@ describe('ErrorDisplay', () => {
                 onClose,
             });
 
-            const dialog = context.container.querySelector('div.modal-dialog')!;
-            expect(dialog).toBeTruthy();
-            expect(dialog.textContent).toContain(
-                'The property field is required',
-            );
+            const dialog = context.required('div.modal-dialog');
+            expect(dialog.text()).toContain('The property field is required');
         });
 
         it('renders server-side errors', async () => {
@@ -210,11 +202,8 @@ describe('ErrorDisplay', () => {
                 onClose,
             });
 
-            const dialog = context.container.querySelector('div.modal-dialog')!;
-            expect(dialog).toBeTruthy();
-            expect(dialog.textContent).toContain(
-                'System.NullReferenceException',
-            );
+            const dialog = context.required('div.modal-dialog');
+            expect(dialog.text()).toContain('System.NullReferenceException');
         });
 
         it('ignore null errors', async () => {
@@ -226,9 +215,8 @@ describe('ErrorDisplay', () => {
                 onClose,
             });
 
-            const dialog = context.container.querySelector('div.modal-dialog')!;
-            expect(dialog).toBeTruthy();
-            expect(dialog.textContent).toContain('There was an error');
+            const dialog = context.required('div.modal-dialog');
+            expect(dialog.text()).toContain('There was an error');
         });
     });
 });

@@ -3,11 +3,8 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
-    doSelectOption,
     ErrorState,
-    findButton,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -118,34 +115,27 @@ describe('DivisionControls', () => {
         );
     }
 
-    function getOptions(group: Element) {
-        const items = Array.from(
-            group.querySelectorAll('div.dropdown-menu .dropdown-item'),
-        ) as HTMLElement[];
-        return items.map((i) => i.textContent);
+    function getOptions(group: IComponent) {
+        return group
+            .all('div.dropdown-menu .dropdown-item')
+            .map((i) => i.text());
     }
 
-    function getOption(group: Element, containingText: string) {
-        const items = Array.from(
-            group.querySelectorAll('div.dropdown-menu .dropdown-item'),
-        ) as HTMLAnchorElement[];
+    function getOption(group: IComponent, containingText: string) {
+        const items = group.all('div.dropdown-menu .dropdown-item');
         const item = items.filter(
-            (i) => i.textContent!.indexOf(containingText) !== -1,
+            (i) => (i.text() || '').indexOf(containingText) !== -1,
         )[0];
         expect(item).toBeTruthy();
         return item;
     }
 
-    function getSeasonButtonGroup() {
-        return context.container.querySelector(
-            'div.btn-group > div.btn-group:nth-child(1)',
-        )!;
+    function getSeasonButtonGroup(): IComponent {
+        return context.required('div.btn-group > div.btn-group:nth-child(1)');
     }
 
-    function getDivisionButtonGroup() {
-        return context.container.querySelector(
-            'div.btn-group > div.btn-group:nth-child(2)',
-        )!;
+    function getDivisionButtonGroup(): IComponent {
+        return context.required('div.btn-group > div.btn-group:nth-child(2)');
     }
 
     function getDate(monthOffset: number) {
@@ -158,25 +148,22 @@ describe('DivisionControls', () => {
         return `(${renderDate(season.startDate)} - ${renderDate(season.endDate)})`;
     }
 
-    function getShownData(group: Element) {
-        const buttons = Array.from(
-            group.querySelectorAll('button'),
-        ) as HTMLButtonElement[];
+    function getShownData(group: IComponent): IComponent {
+        const buttons = group.all('button');
         expect(buttons.length).toBeGreaterThanOrEqual(1);
         return buttons[0];
     }
 
-    async function toggleDropdown(group: Element) {
-        await doClick(group.querySelector('.dropdown-toggle')!);
+    async function toggleDropdown(group: IComponent) {
+        await group.required('.dropdown-toggle').click();
     }
 
-    function assertDropdownOpen(group: Element, expectOpen: boolean) {
-        const menu = group.querySelector('.dropdown-menu')!;
-        expect(menu).toBeTruthy();
+    function assertDropdownOpen(group: IComponent, expectOpen: boolean) {
+        const menu = group.required('.dropdown-menu');
         if (expectOpen) {
-            expect(menu.className).toContain('show');
+            expect(menu.className()).toContain('show');
         } else {
-            expect(menu.className).not.toContain('show');
+            expect(menu.className()).not.toContain('show');
         }
     }
 
@@ -212,10 +199,8 @@ describe('DivisionControls', () => {
 
                 reportedError.verifyNoError();
                 const seasonButton = getShownData(getSeasonButtonGroup());
-                expect(seasonButton.textContent).toContain('Season 1');
-                expect(seasonButton.textContent).toContain(
-                    seasonDates(season1),
-                );
+                expect(seasonButton.text()).toContain('Season 1');
+                expect(seasonButton.text()).toContain(seasonDates(season1));
             });
 
             it('shows other seasons', async () => {
@@ -249,7 +234,7 @@ describe('DivisionControls', () => {
 
                 reportedError.verifyNoError();
                 const divisionButton = getShownData(getDivisionButtonGroup());
-                expect(divisionButton.textContent).toEqual('Division 1');
+                expect(divisionButton.text()).toEqual('Division 1');
             });
 
             it('shows other divisions', async () => {
@@ -284,7 +269,7 @@ describe('DivisionControls', () => {
 
                 reportedError.verifyNoError();
                 const seasonButton = getShownData(getSeasonButtonGroup());
-                expect(seasonButton.textContent).toEqual('Select a season');
+                expect(seasonButton.text()).toEqual('Select a season');
                 assertDropdownOpen(getSeasonButtonGroup(), true);
             });
 
@@ -317,7 +302,7 @@ describe('DivisionControls', () => {
 
                 reportedError.verifyNoError();
                 const divisionButton = getShownData(getDivisionButtonGroup());
-                expect(divisionButton.textContent).toEqual('All divisions');
+                expect(divisionButton.text()).toEqual('All divisions');
             });
 
             it('shows no divisions', async () => {
@@ -376,11 +361,9 @@ describe('DivisionControls', () => {
 
                 reportedError.verifyNoError();
                 const seasonButton = getShownData(getSeasonButtonGroup());
-                expect(seasonButton.textContent).toContain('Season 3');
-                expect(seasonButton.textContent).toContain(
-                    seasonDates(season3),
-                );
-                expect(seasonButton.textContent).toContain('✏');
+                expect(seasonButton.text()).toContain('Season 3');
+                expect(seasonButton.text()).toContain(seasonDates(season3));
+                expect(seasonButton.text()).toContain('✏');
             });
 
             it('shows other seasons', async () => {
@@ -415,7 +398,7 @@ describe('DivisionControls', () => {
 
                 reportedError.verifyNoError();
                 const divisionButton = getShownData(getDivisionButtonGroup());
-                expect(divisionButton.textContent).toEqual('Division 3✏');
+                expect(divisionButton.text()).toEqual('Division 3✏');
             });
 
             it('shows other divisions', async () => {
@@ -451,7 +434,7 @@ describe('DivisionControls', () => {
 
                 reportedError.verifyNoError();
                 const seasonButton = getShownData(getSeasonButtonGroup());
-                expect(seasonButton.textContent).toEqual('Select a season');
+                expect(seasonButton.text()).toEqual('Select a season');
                 assertDropdownOpen(getSeasonButtonGroup(), true);
             });
 
@@ -485,7 +468,7 @@ describe('DivisionControls', () => {
 
                 reportedError.verifyNoError();
                 const divisionButton = getShownData(getDivisionButtonGroup());
-                expect(divisionButton.textContent).toEqual('All divisions');
+                expect(divisionButton.text()).toEqual('All divisions');
             });
 
             it('shows no divisions', async () => {
@@ -603,16 +586,14 @@ describe('DivisionControls', () => {
                 const group = getSeasonButtonGroup();
                 reportedError.verifyNoError();
                 const option = getOption(group, 'Season 6');
-                expect(option.href).toContain(
+                expect(option.element<HTMLAnchorElement>().href).toContain(
                     `/division/${encodeURI(division5.name)}/OVERRIDE/${encodeURI(season6.name)}`,
                 );
-                await doClick(group.querySelector('.dropdown-toggle')!); // open the dropdown to be able to click on an item
+                await group.required('.dropdown-toggle').click();
 
-                await doClick(
-                    findButton(group, `Season 5 ${seasonDates(season5)}`),
-                );
+                await group.button(`Season 5 ${seasonDates(season5)}`).click();
 
-                expect(group.querySelector('.show')).toBeFalsy();
+                expect(group.optional('.show')).toBeFalsy();
             });
 
             it('navigates correctly when on team overview page', async () => {
@@ -635,16 +616,14 @@ describe('DivisionControls', () => {
                 const group = getSeasonButtonGroup();
                 reportedError.verifyNoError();
                 const option = getOption(group, 'Season 6');
-                expect(option.href).toContain(
+                expect(option.element<HTMLAnchorElement>().href).toContain(
                     `/division/${encodeURI(division5.name)}/team:TEAM_ID/${encodeURI(season6.name)}`,
                 );
-                await doClick(group.querySelector('.dropdown-toggle')!); // open the dropdown to be able to click on an item
+                await group.required('.dropdown-toggle').click();
 
-                await doClick(
-                    findButton(group, `Season 5 ${seasonDates(season5)}`),
-                );
+                await group.button(`Season 5 ${seasonDates(season5)}`).click();
 
-                expect(group.querySelector('.show')).toBeFalsy();
+                expect(group.optional('.show')).toBeFalsy();
             });
 
             it('navigates correctly when on player overview page', async () => {
@@ -667,16 +646,14 @@ describe('DivisionControls', () => {
                 const group = getSeasonButtonGroup();
                 reportedError.verifyNoError();
                 const option = getOption(group, 'Season 6');
-                expect(option.href).toContain(
+                expect(option.element<HTMLAnchorElement>().href).toContain(
                     `/division/${encodeURI(division5.name)}/player:PLAYER_ID/${encodeURI(season6.name)}`,
                 );
-                await doClick(group.querySelector('.dropdown-toggle')!); // open the dropdown to be able to click on an item
+                await group.required('.dropdown-toggle').click();
 
-                await doClick(
-                    findButton(group, 'Season 5 ' + seasonDates(season5)),
-                );
+                await group.button('Season 5 ' + seasonDates(season5)).click();
 
-                expect(group.querySelector('.show')).toBeFalsy();
+                expect(group.optional('.show')).toBeFalsy();
             });
 
             it('navigates to first division in other season when current division not in other season', async () => {
@@ -699,7 +676,7 @@ describe('DivisionControls', () => {
                 const group = getSeasonButtonGroup();
                 reportedError.verifyNoError();
                 const option = getOption(group, 'Season 6');
-                expect(option.href).toEqual(
+                expect(option.element<HTMLAnchorElement>().href).toEqual(
                     `http://localhost/division/${encodeURI(division5.name)}/player:PLAYER_ID/${encodeURI(season6.name)}`,
                 );
             });
@@ -724,7 +701,7 @@ describe('DivisionControls', () => {
                 const group = getSeasonButtonGroup();
                 reportedError.verifyNoError();
                 const option = getOption(group, 'Season 6');
-                expect(option.href).toEqual(
+                expect(option.element<HTMLAnchorElement>().href).toEqual(
                     `http://localhost/fixtures/${encodeURI(season6.name)}/?division=Division+5`,
                 );
             });
@@ -750,7 +727,7 @@ describe('DivisionControls', () => {
                 const group = getSeasonButtonGroup();
                 reportedError.verifyNoError();
                 const option = getOption(group, 'Season 6');
-                expect(option.href).toEqual(
+                expect(option.element<HTMLAnchorElement>().href).toEqual(
                     `http://localhost/fixtures/${encodeURI(season6.name)}/?division=Division+5&notes=Knockout`,
                 );
             });
@@ -779,18 +756,12 @@ describe('DivisionControls', () => {
                 );
                 reportedError.verifyNoError();
 
-                await doClick(
-                    findButton(
-                        getSeasonButtonGroup(),
-                        `Season 5 ${seasonDates(season5)}✏`,
-                    ),
-                );
+                await getSeasonButtonGroup()
+                    .button(`Season 5 ${seasonDates(season5)}✏`)
+                    .click();
 
-                const dialog = context.container.querySelector(
-                    '.btn-group .modal-dialog',
-                )!;
-                expect(dialog).toBeTruthy();
-                expect(dialog.textContent).toContain('Edit a season');
+                const dialog = context.required('.btn-group .modal-dialog');
+                expect(dialog.text()).toContain('Edit a season');
             });
 
             it('can show add season dialog', async () => {
@@ -805,16 +776,12 @@ describe('DivisionControls', () => {
                 );
                 reportedError.verifyNoError();
 
-                await doSelectOption(
-                    getSeasonButtonGroup().querySelector('.dropdown-menu'),
-                    '➕ New season',
-                );
+                await getSeasonButtonGroup()
+                    .required('.dropdown-menu')
+                    .select('➕ New season');
 
-                const dialog = context.container.querySelector(
-                    '.btn-group .modal-dialog',
-                )!;
-                expect(dialog).toBeTruthy();
-                expect(dialog.textContent).toContain('Create a season');
+                const dialog = context.required('.btn-group .modal-dialog');
+                expect(dialog.text()).toContain('Create a season');
             });
 
             it('can change season details', async () => {
@@ -828,23 +795,15 @@ describe('DivisionControls', () => {
                     divisions,
                 );
                 reportedError.verifyNoError();
-                await doClick(
-                    findButton(
-                        getSeasonButtonGroup(),
-                        `Season 5 ${seasonDates(season5)}✏`,
-                    ),
-                );
-                const dialog = context.container.querySelector(
-                    '.btn-group .modal-dialog',
-                )!;
+                await getSeasonButtonGroup()
+                    .button(`Season 5 ${seasonDates(season5)}✏`)
+                    .click();
 
-                await doChange(
-                    dialog,
-                    'input[name="name"]',
-                    'NEW SEASON',
-                    context.user,
-                );
-                await doClick(findButton(context.container, 'Update season'));
+                await context
+                    .required('.btn-group .modal-dialog')
+                    .input('name')
+                    .change('NEW SEASON');
+                await context.button('Update season').click();
 
                 reportedError.verifyNoError();
                 expect(updatedSeason!.name).toEqual('NEW SEASON');
@@ -861,20 +820,16 @@ describe('DivisionControls', () => {
                     divisions,
                 );
                 reportedError.verifyNoError();
-                await doClick(
-                    findButton(
-                        getSeasonButtonGroup(),
-                        `Season 5 ${seasonDates(season5)}✏`,
-                    ),
-                );
+                await getSeasonButtonGroup()
+                    .button(`Season 5 ${seasonDates(season5)}✏`)
+                    .click();
 
-                await doClick(findButton(context.container, 'Update season'));
+                await context.button('Update season').click();
 
                 reportedError.verifyNoError();
-                const dialog = context.container.querySelector(
-                    '.btn-group .modal-dialog',
-                );
-                expect(dialog).toBeFalsy();
+                expect(
+                    context.optional('.btn-group .modal-dialog'),
+                ).toBeFalsy();
                 expect(changedDivisionOrSeason).toEqual(false);
                 expect(reloadSeasonsCalled).toEqual(true);
                 expect(updatedSeason).not.toBeNull();
@@ -891,24 +846,19 @@ describe('DivisionControls', () => {
                     divisions,
                 );
                 reportedError.verifyNoError();
-                await doClick(
-                    findButton(
-                        getSeasonButtonGroup(),
-                        `Season 5 ${seasonDates(season5)}✏`,
-                    ),
-                );
+                await getSeasonButtonGroup()
+                    .button(`Season 5 ${seasonDates(season5)}✏`)
+                    .click();
                 seasonApiResult = {
                     success: false,
                     errors: ['SOME ERROR'],
                 };
 
-                await doClick(findButton(context.container, 'Update season'));
+                await context.button('Update season').click();
 
                 reportedError.verifyNoError();
-                expect(context.container.textContent).toContain(
-                    'Could not save details',
-                );
-                expect(context.container.textContent).toContain('SOME ERROR');
+                expect(context.text()).toContain('Could not save details');
+                expect(context.text()).toContain('SOME ERROR');
                 expect(updatedSeason).not.toBeNull();
             });
 
@@ -923,19 +873,15 @@ describe('DivisionControls', () => {
                     divisions,
                 );
                 reportedError.verifyNoError();
-                await doClick(
-                    findButton(
-                        getSeasonButtonGroup(),
-                        `Season 5 ${seasonDates(season5)}✏`,
-                    ),
-                );
+                await getSeasonButtonGroup()
+                    .button(`Season 5 ${seasonDates(season5)}✏`)
+                    .click();
 
-                await doClick(findButton(context.container, 'Close'));
+                await context.button('Close').click();
 
-                const dialog = context.container.querySelector(
-                    '.btn-group .modal-dialog',
-                );
-                expect(dialog).toBeFalsy();
+                expect(
+                    context.optional('.btn-group .modal-dialog'),
+                ).toBeFalsy();
             });
 
             it('can show edit division dialog', async () => {
@@ -950,15 +896,10 @@ describe('DivisionControls', () => {
                 );
                 reportedError.verifyNoError();
 
-                await doClick(
-                    findButton(getDivisionButtonGroup(), 'Division 5✏'),
-                );
+                await getDivisionButtonGroup().button('Division 5✏').click();
 
-                const dialog = context.container.querySelector(
-                    '.btn-group .modal-dialog',
-                )!;
-                expect(dialog).toBeTruthy();
-                expect(dialog.textContent).toContain('Edit a division');
+                const dialog = context.required('.btn-group .modal-dialog');
+                expect(dialog.text()).toContain('Edit a division');
             });
 
             it('can show add division dialog', async () => {
@@ -973,16 +914,12 @@ describe('DivisionControls', () => {
                 );
                 reportedError.verifyNoError();
 
-                await doSelectOption(
-                    getDivisionButtonGroup().querySelector('.dropdown-menu'),
-                    '➕ New division',
-                );
+                await getDivisionButtonGroup()
+                    .required('.dropdown-menu')
+                    .select('➕ New division');
 
-                const dialog = context.container.querySelector(
-                    '.btn-group .modal-dialog',
-                )!;
-                expect(dialog).toBeTruthy();
-                expect(dialog.textContent).toContain('Create a division');
+                const dialog = context.required('.btn-group .modal-dialog');
+                expect(dialog.text()).toContain('Create a division');
             });
 
             it('can change division details', async () => {
@@ -996,20 +933,13 @@ describe('DivisionControls', () => {
                     divisions,
                 );
                 reportedError.verifyNoError();
-                await doClick(
-                    findButton(getDivisionButtonGroup(), 'Division 5✏'),
-                );
-                const dialog = context.container.querySelector(
-                    '.btn-group .modal-dialog',
-                )!;
+                await getDivisionButtonGroup().button('Division 5✏').click();
 
-                await doChange(
-                    dialog,
-                    'input[name="name"]',
-                    'NEW DIVISION',
-                    context.user,
-                );
-                await doClick(findButton(context.container, 'Update division'));
+                await context
+                    .required('.btn-group .modal-dialog')
+                    .input('name')
+                    .change('NEW DIVISION');
+                await context.button('Update division').click();
 
                 reportedError.verifyNoError();
                 expect(updatedDivision!.name).toEqual('NEW DIVISION');
@@ -1026,17 +956,14 @@ describe('DivisionControls', () => {
                     divisions,
                 );
                 reportedError.verifyNoError();
-                await doClick(
-                    findButton(getDivisionButtonGroup(), 'Division 5✏'),
-                );
+                await getDivisionButtonGroup().button('Division 5✏').click();
 
-                await doClick(findButton(context.container, 'Update division'));
+                await context.button('Update division').click();
 
                 reportedError.verifyNoError();
-                const dialog = context.container.querySelector(
-                    '.btn-group .modal-dialog',
-                );
-                expect(dialog).toBeFalsy();
+                expect(
+                    context.optional('.btn-group .modal-dialog'),
+                ).toBeFalsy();
                 expect(changedDivisionOrSeason).toEqual(false);
                 expect(reloadDivisionsCalled).toEqual(true);
                 expect(updatedDivision).not.toBeNull();
@@ -1053,21 +980,17 @@ describe('DivisionControls', () => {
                     divisions,
                 );
                 reportedError.verifyNoError();
-                await doClick(
-                    findButton(getDivisionButtonGroup(), 'Division 5✏'),
-                );
+                await getDivisionButtonGroup().button('Division 5✏').click();
                 divisionApiResult = {
                     success: false,
                     errors: ['SOME ERROR'],
                 };
 
-                await doClick(findButton(context.container, 'Update division'));
+                await context.button('Update division').click();
 
                 reportedError.verifyNoError();
-                expect(context.container.textContent).toContain(
-                    'Could not save details',
-                );
-                expect(context.container.textContent).toContain('SOME ERROR');
+                expect(context.text()).toContain('Could not save details');
+                expect(context.text()).toContain('SOME ERROR');
                 expect(updatedDivision).not.toBeNull();
             });
 
@@ -1082,16 +1005,13 @@ describe('DivisionControls', () => {
                     divisions,
                 );
                 reportedError.verifyNoError();
-                await doClick(
-                    findButton(getDivisionButtonGroup(), 'Division 5✏'),
-                );
+                await getDivisionButtonGroup().button('Division 5✏').click();
 
-                await doClick(findButton(context.container, 'Close'));
+                await context.button('Close').click();
 
-                const dialog = context.container.querySelector(
-                    '.btn-group .modal-dialog',
-                );
-                expect(dialog).toBeFalsy();
+                expect(
+                    context.optional('.btn-group .modal-dialog'),
+                ).toBeFalsy();
             });
         });
     });

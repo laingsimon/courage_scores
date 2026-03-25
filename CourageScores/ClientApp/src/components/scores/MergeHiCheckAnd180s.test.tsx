@@ -2,9 +2,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -61,13 +59,12 @@ describe('MergeHiCheckAnd180s', () => {
                 await renderComponent({ data, fixtureData, setFixtureData });
 
                 reportedError.verifyNoError();
-                const homeSubmission = context.container.querySelector(
+                const homeSubmission = context.required(
                     'div[datatype="home-180s"]',
-                )!;
-                expect(homeSubmission).not.toBeNull();
-                const oneEighties = Array.from(
-                    homeSubmission.querySelectorAll('ol > li'),
-                ).map((li) => li.textContent);
+                );
+                const oneEighties = homeSubmission
+                    .all('ol > li')
+                    .map((li) => li.text());
                 expect(oneEighties).toEqual(['NAME']);
             });
 
@@ -83,13 +80,12 @@ describe('MergeHiCheckAnd180s', () => {
                 await renderComponent({ data, fixtureData, setFixtureData });
 
                 reportedError.verifyNoError();
-                const awaySubmission = context.container.querySelector(
+                const awaySubmission = context.required(
                     'div[datatype="away-180s"]',
-                )!;
-                expect(awaySubmission).not.toBeNull();
-                const oneEighties = Array.from(
-                    awaySubmission.querySelectorAll('ol > li'),
-                ).map((li) => li.textContent);
+                );
+                const oneEighties = awaySubmission
+                    .all('ol > li')
+                    .map((li) => li.text());
                 expect(oneEighties).toEqual(['NAME']);
             });
 
@@ -103,14 +99,12 @@ describe('MergeHiCheckAnd180s', () => {
                 await renderComponent({ data, fixtureData, setFixtureData });
 
                 reportedError.verifyNoError();
-                const homeSubmission = context.container.querySelector(
-                    'div[datatype="home-180s"]',
-                );
-                const awaySubmission = context.container.querySelector(
-                    'div[datatype="away-180s"]',
-                );
-                expect(homeSubmission).toBeNull();
-                expect(awaySubmission).toBeNull();
+                expect(
+                    context.optional('div[datatype="home-180s"]'),
+                ).toBeFalsy();
+                expect(
+                    context.optional('div[datatype="away-180s"]'),
+                ).toBeFalsy();
             });
 
             it('when submissions merged', async () => {
@@ -133,14 +127,12 @@ describe('MergeHiCheckAnd180s', () => {
                 await renderComponent({ data, fixtureData, setFixtureData });
 
                 reportedError.verifyNoError();
-                const homeSubmission = context.container.querySelector(
-                    'div[datatype="home-180s"]',
-                );
-                const awaySubmission = context.container.querySelector(
-                    'div[datatype="away-180s"]',
-                );
-                expect(homeSubmission).toBeNull();
-                expect(awaySubmission).toBeNull();
+                expect(
+                    context.optional('div[datatype="home-180s"]'),
+                ).toBeFalsy();
+                expect(
+                    context.optional('div[datatype="away-180s"]'),
+                ).toBeFalsy();
             });
 
             it('when no home submission', async () => {
@@ -153,14 +145,12 @@ describe('MergeHiCheckAnd180s', () => {
 
                 await renderComponent({ data, fixtureData, setFixtureData });
 
-                const homeSubmission = context.container.querySelector(
-                    'div[datatype="home-180s"]',
-                );
-                const awaySubmission = context.container.querySelector(
-                    'div[datatype="away-180s"]',
-                );
-                expect(homeSubmission).toBeNull();
-                expect(awaySubmission).not.toBeNull();
+                expect(
+                    context.optional('div[datatype="home-180s"]'),
+                ).toBeFalsy();
+                expect(
+                    context.optional('div[datatype="away-180s"]'),
+                ).toBeTruthy();
             });
 
             it('when no away submission', async () => {
@@ -173,14 +163,12 @@ describe('MergeHiCheckAnd180s', () => {
 
                 await renderComponent({ data, fixtureData, setFixtureData });
 
-                const homeSubmission = context.container.querySelector(
-                    'div[datatype="home-180s"]',
-                );
-                const awaySubmission = context.container.querySelector(
-                    'div[datatype="away-180s"]',
-                );
-                expect(homeSubmission).not.toBeNull();
-                expect(awaySubmission).toBeNull();
+                expect(
+                    context.optional('div[datatype="home-180s"]'),
+                ).toBeTruthy();
+                expect(
+                    context.optional('div[datatype="away-180s"]'),
+                ).toBeFalsy();
             });
 
             it('when no submissions', async () => {
@@ -189,14 +177,12 @@ describe('MergeHiCheckAnd180s', () => {
 
                 await renderComponent({ data, fixtureData, setFixtureData });
 
-                const homeSubmission = context.container.querySelector(
-                    'div[datatype="home-180s"]',
-                );
-                const awaySubmission = context.container.querySelector(
-                    'div[datatype="away-180s"]',
-                );
-                expect(homeSubmission).toBeNull();
-                expect(awaySubmission).toBeNull();
+                expect(
+                    context.optional('div[datatype="home-180s"]'),
+                ).toBeFalsy();
+                expect(
+                    context.optional('div[datatype="away-180s"]'),
+                ).toBeFalsy();
             });
         });
 
@@ -209,11 +195,11 @@ describe('MergeHiCheckAnd180s', () => {
                     .build();
                 const fixtureData = fixtureBuilder('2023-05-06').build();
                 await renderComponent({ data, fixtureData, setFixtureData });
-                const homeSubmission = context.container.querySelector(
-                    'div[datatype="home-180s"]',
-                );
 
-                await doClick(findButton(homeSubmission, 'Merge'));
+                await context
+                    .required('div[datatype="home-180s"]')
+                    .button('Merge')
+                    .click();
 
                 reportedError.verifyNoError();
                 expect(updatedData).not.toBeNull();
@@ -228,11 +214,11 @@ describe('MergeHiCheckAnd180s', () => {
                     .build();
                 const fixtureData = fixtureBuilder('2023-05-06').build();
                 await renderComponent({ data, fixtureData, setFixtureData });
-                const awaySubmission = context.container.querySelector(
-                    'div[datatype="away-180s"]',
-                );
 
-                await doClick(findButton(awaySubmission, 'Merge'));
+                await context
+                    .required('div[datatype="away-180s"]')
+                    .button('Merge')
+                    .click();
 
                 reportedError.verifyNoError();
                 expect(updatedData).not.toBeNull();
@@ -257,13 +243,12 @@ describe('MergeHiCheckAnd180s', () => {
                 await renderComponent({ data, fixtureData, setFixtureData });
 
                 reportedError.verifyNoError();
-                const homeSubmission = context.container.querySelector(
+                const homeSubmission = context.required(
                     'div[datatype="home-hichecks"]',
-                )!;
-                expect(homeSubmission).not.toBeNull();
-                const hiChecks = Array.from(
-                    homeSubmission.querySelectorAll('ol > li'),
-                ).map((li) => li.textContent);
+                );
+                const hiChecks = homeSubmission
+                    .all('ol > li')
+                    .map((li) => li.text());
                 expect(hiChecks).toEqual(['NAME (120)']);
             });
 
@@ -281,13 +266,12 @@ describe('MergeHiCheckAnd180s', () => {
                 await renderComponent({ data, fixtureData, setFixtureData });
 
                 reportedError.verifyNoError();
-                const awaySubmission = context.container.querySelector(
+                const awaySubmission = context.required(
                     'div[datatype="away-hichecks"]',
-                )!;
-                expect(awaySubmission).not.toBeNull();
-                const hiChecks = Array.from(
-                    awaySubmission.querySelectorAll('ol > li'),
-                ).map((li) => li.textContent);
+                );
+                const hiChecks = awaySubmission
+                    .all('ol > li')
+                    .map((li) => li.text());
                 expect(hiChecks).toEqual(['NAME (120)']);
             });
 
@@ -301,14 +285,12 @@ describe('MergeHiCheckAnd180s', () => {
                 await renderComponent({ data, fixtureData, setFixtureData });
 
                 reportedError.verifyNoError();
-                const homeSubmission = context.container.querySelector(
-                    'div[datatype="home-hichecks"]',
-                );
-                const awaySubmission = context.container.querySelector(
-                    'div[datatype="away-hichecks"]',
-                );
-                expect(homeSubmission).toBeNull();
-                expect(awaySubmission).toBeNull();
+                expect(
+                    context.optional('div[datatype="home-hichecks"]'),
+                ).toBeFalsy();
+                expect(
+                    context.optional('div[datatype="away-hichecks"]'),
+                ).toBeFalsy();
             });
 
             it('when submissions merged', async () => {
@@ -337,14 +319,12 @@ describe('MergeHiCheckAnd180s', () => {
                 await renderComponent({ data, fixtureData, setFixtureData });
 
                 reportedError.verifyNoError();
-                const homeSubmission = context.container.querySelector(
-                    'div[datatype="home-hichecks"]',
-                );
-                const awaySubmission = context.container.querySelector(
-                    'div[datatype="away-hichecks"]',
-                );
-                expect(homeSubmission).toBeNull();
-                expect(awaySubmission).toBeNull();
+                expect(
+                    context.optional('div[datatype="home-hichecks"]'),
+                ).toBeFalsy();
+                expect(
+                    context.optional('div[datatype="away-hichecks"]'),
+                ).toBeFalsy();
             });
 
             it('when no home submission', async () => {
@@ -359,14 +339,12 @@ describe('MergeHiCheckAnd180s', () => {
 
                 await renderComponent({ data, fixtureData, setFixtureData });
 
-                const homeSubmission = context.container.querySelector(
-                    'div[datatype="home-hichecks"]',
-                );
-                const awaySubmission = context.container.querySelector(
-                    'div[datatype="away-hichecks"]',
-                );
-                expect(homeSubmission).toBeNull();
-                expect(awaySubmission).not.toBeNull();
+                expect(
+                    context.optional('div[datatype="home-hichecks"]'),
+                ).toBeFalsy();
+                expect(
+                    context.optional('div[datatype="away-hichecks"]'),
+                ).toBeTruthy();
             });
 
             it('when no away submission', async () => {
@@ -381,14 +359,12 @@ describe('MergeHiCheckAnd180s', () => {
 
                 await renderComponent({ data, fixtureData, setFixtureData });
 
-                const homeSubmission = context.container.querySelector(
-                    'div[datatype="home-hichecks"]',
-                );
-                const awaySubmission = context.container.querySelector(
-                    'div[datatype="away-hichecks"]',
-                );
-                expect(homeSubmission).not.toBeNull();
-                expect(awaySubmission).toBeNull();
+                expect(
+                    context.optional('div[datatype="home-hichecks"]'),
+                ).toBeTruthy();
+                expect(
+                    context.optional('div[datatype="away-hichecks"]'),
+                ).toBeFalsy();
             });
 
             it('when no submissions', async () => {
@@ -397,14 +373,12 @@ describe('MergeHiCheckAnd180s', () => {
 
                 await renderComponent({ data, fixtureData, setFixtureData });
 
-                const homeSubmission = context.container.querySelector(
-                    'div[datatype="home-hichecks"]',
-                );
-                const awaySubmission = context.container.querySelector(
-                    'div[datatype="away-hichecks"]',
-                );
-                expect(homeSubmission).toBeNull();
-                expect(awaySubmission).toBeNull();
+                expect(
+                    context.optional('div[datatype="home-hichecks"]'),
+                ).toBeFalsy();
+                expect(
+                    context.optional('div[datatype="away-hichecks"]'),
+                ).toBeFalsy();
             });
         });
 
@@ -419,11 +393,11 @@ describe('MergeHiCheckAnd180s', () => {
                     .build();
                 const fixtureData = fixtureBuilder('2023-05-06').build();
                 await renderComponent({ data, fixtureData, setFixtureData });
-                const homeSubmission = context.container.querySelector(
-                    'div[datatype="home-hichecks"]',
-                );
 
-                await doClick(findButton(homeSubmission, 'Merge'));
+                await context
+                    .required('div[datatype="home-hichecks"]')
+                    .button('Merge')
+                    .click();
 
                 reportedError.verifyNoError();
                 expect(updatedData).not.toBeNull();
@@ -440,11 +414,11 @@ describe('MergeHiCheckAnd180s', () => {
                     .build();
                 const fixtureData = fixtureBuilder('2023-05-06').build();
                 await renderComponent({ data, fixtureData, setFixtureData });
-                const awaySubmission = context.container.querySelector(
-                    'div[datatype="away-hichecks"]',
-                )!;
 
-                await doClick(findButton(awaySubmission, 'Merge'));
+                await context
+                    .required('div[datatype="away-hichecks"]')
+                    .button('Merge')
+                    .click();
 
                 reportedError.verifyNoError();
                 expect(updatedData).not.toBeNull();

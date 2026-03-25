@@ -46,16 +46,12 @@ describe('ReviewProposalHealth', () => {
                 },
             });
 
-            const heading = context.container.querySelector('h4')!;
-            const alert = context.container.querySelector('.alert')!;
-            expect(heading.textContent).toEqual(
-                '✔ Fixtures have been proposed',
-            );
-            expect(alert.className).toContain('alert-success');
+            const heading = context.required('h4');
+            const alert = context.required('.alert');
+            expect(heading.text()).toEqual('✔ Fixtures have been proposed');
+            expect(alert.className()).toContain('alert-success');
             expect(
-                context.container.querySelector(
-                    'div[datatype="view-health-check"]',
-                ),
+                context.optional('div[datatype="view-health-check"]'),
             ).toBeTruthy();
         });
 
@@ -77,16 +73,14 @@ describe('ReviewProposalHealth', () => {
                 },
             });
 
-            const heading = context.container.querySelector('h4')!;
-            const alert = context.container.querySelector('.alert')!;
-            expect(heading.textContent).toEqual(
+            const heading = context.required('h4');
+            const alert = context.required('.alert');
+            expect(heading.text()).toEqual(
                 '⚠ There was an issue proposing fixtures',
             );
-            expect(alert.className).toContain('alert-warning');
+            expect(alert.className()).toContain('alert-warning');
             expect(
-                context.container.querySelector(
-                    'div[datatype="view-health-check"]',
-                ),
+                context.optional('div[datatype="view-health-check"]'),
             ).toBeFalsy();
         });
 
@@ -108,11 +102,9 @@ describe('ReviewProposalHealth', () => {
                 },
             });
 
-            const alert = context.container.querySelector('.alert')!;
-            const errors = Array.from(
-                alert.querySelectorAll('ol:nth-child(1) li'),
-            );
-            expect(errors.map((li) => li.textContent)).toEqual(['ERROR']);
+            const alert = context.required('.alert');
+            const errors = alert.all('ol:nth-child(1) li');
+            expect(errors.map((li) => li.text())).toEqual(['ERROR']);
         });
 
         it('warnings only', async () => {
@@ -133,11 +125,9 @@ describe('ReviewProposalHealth', () => {
                 },
             });
 
-            const alert = context.container.querySelector('.alert')!;
-            const warnings = Array.from(
-                alert.querySelectorAll('ol:nth-child(1) li'),
-            );
-            expect(warnings.map((li) => li.textContent)).toEqual(['WARNING']);
+            const alert = context.required('.alert');
+            const warnings = alert.all('ol:nth-child(1) li');
+            expect(warnings.map((li) => li.text())).toEqual(['WARNING']);
         });
 
         it('messages only', async () => {
@@ -158,11 +148,9 @@ describe('ReviewProposalHealth', () => {
                 },
             });
 
-            const alert = context.container.querySelector('.alert')!;
-            const messages = Array.from(
-                alert.querySelectorAll('ol:nth-child(1) li'),
-            );
-            expect(messages.map((li) => li.textContent)).toEqual(['MESSAGE']);
+            const alert = context.required('.alert');
+            const messages = alert.all('ol:nth-child(1) li');
+            expect(messages.map((li) => li.text())).toEqual(['MESSAGE']);
         });
 
         it('without errors, warnings, messages', async () => {
@@ -183,10 +171,7 @@ describe('ReviewProposalHealth', () => {
                 },
             });
 
-            const messageLists = Array.from(
-                context.container.querySelectorAll('.alert > ol'),
-            );
-            expect(messageLists.length).toEqual(0);
+            expect(context.all('.alert > ol').length).toEqual(0);
         });
     });
 });

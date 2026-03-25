@@ -2,11 +2,8 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
-    doSelectOption,
     ErrorState,
-    findButton,
+    IComponent,
     iocProps,
     noop,
     renderApp,
@@ -138,40 +135,28 @@ describe('MatchPlayerSelection', () => {
         reportedError.verifyNoError();
     }
 
-    function assertSelectedPlayer(
-        cell: HTMLTableCellElement,
-        expected?: string,
-    ) {
-        const player = cell.querySelector('.btn-group .dropdown-toggle')!;
+    function assertSelectedPlayer(cell: IComponent, expected?: string) {
+        const player = cell.required('.btn-group .dropdown-toggle');
 
         if (expected) {
-            expect(player.textContent).toEqual(expected);
+            expect(player.text()).toEqual(expected);
         } else {
-            expect(player.textContent!.trim()).toEqual('');
+            expect(player.text()!.trim()).toEqual('');
         }
     }
 
-    function assertSelectablePlayers(
-        cell: HTMLTableCellElement,
-        expected: string[],
-    ) {
-        const menuItems = Array.from(
-            cell.querySelectorAll('.btn-group .dropdown-item'),
-        );
-        const menuItemText = menuItems.map((item) => item.textContent!.trim());
+    function assertSelectablePlayers(cell: IComponent, expected: string[]) {
+        const menuItems = cell.all('.btn-group .dropdown-item');
+        const menuItemText = menuItems.map((item) => item.text()!.trim());
         expect(menuItemText).toEqual([''].concat(expected));
     }
 
-    function assertScore(cell: HTMLTableCellElement, expected: string) {
-        const input = cell.querySelector('input')!;
-        expect(input.value).toEqual(expected);
+    function assertScore(cell: IComponent, expected: string) {
+        expect(cell.required('input').value()).toEqual(expected);
     }
 
-    async function selectPlayer(
-        cell: HTMLTableCellElement,
-        playerName: string,
-    ) {
-        await doSelectOption(cell.querySelector('.dropdown-menu'), playerName);
+    async function selectPlayer(cell: IComponent, playerName: string) {
+        await cell.required('.dropdown-menu').select(playerName);
     }
 
     function props(match: IMatchBuilder): IMatchPlayerSelectionProps {
@@ -289,7 +274,7 @@ describe('MatchPlayerSelection', () => {
         it('when no players selected', async () => {
             await render(props(matchBuilder().withHome().withAway()));
 
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
             assertSelectedPlayer(cells[0], undefined);
             assertScore(cells[1], '');
             assertScore(cells[3], '');
@@ -301,13 +286,13 @@ describe('MatchPlayerSelection', () => {
                 props(matchBuilder().withHome(homePlayer).withAway(awayPlayer)),
             );
 
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
             assertScore(cells[1], '');
             assertScore(cells[3], '');
-            expect(cells[0].className).not.toContain('bg-winner');
-            expect(cells[1].className).not.toContain('bg-winner');
-            expect(cells[3].className).not.toContain('bg-winner');
-            expect(cells[4].className).not.toContain('bg-winner');
+            expect(cells[0].className()).not.toContain('bg-winner');
+            expect(cells[1].className()).not.toContain('bg-winner');
+            expect(cells[3].className()).not.toContain('bg-winner');
+            expect(cells[4].className()).not.toContain('bg-winner');
         });
 
         it('when home winner', async () => {
@@ -320,15 +305,15 @@ describe('MatchPlayerSelection', () => {
                 ),
             );
 
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
             assertSelectedPlayer(cells[0], 'HOME');
             assertScore(cells[1], '3');
             assertScore(cells[3], '1');
             assertSelectedPlayer(cells[4], 'AWAY');
-            expect(cells[0].className).toContain('bg-winner');
-            expect(cells[1].className).toContain('bg-winner');
-            expect(cells[3].className).not.toContain('bg-winner');
-            expect(cells[4].className).not.toContain('bg-winner');
+            expect(cells[0].className()).toContain('bg-winner');
+            expect(cells[1].className()).toContain('bg-winner');
+            expect(cells[3].className()).not.toContain('bg-winner');
+            expect(cells[4].className()).not.toContain('bg-winner');
         });
 
         it('when home player has not won but has more legs', async () => {
@@ -341,15 +326,15 @@ describe('MatchPlayerSelection', () => {
                 ),
             );
 
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
             assertSelectedPlayer(cells[0], 'HOME');
             assertScore(cells[1], '2');
             assertScore(cells[3], '1');
             assertSelectedPlayer(cells[4], 'AWAY');
-            expect(cells[0].className).not.toContain('bg-winner');
-            expect(cells[1].className).not.toContain('bg-winner');
-            expect(cells[3].className).not.toContain('bg-winner');
-            expect(cells[4].className).not.toContain('bg-winner');
+            expect(cells[0].className()).not.toContain('bg-winner');
+            expect(cells[1].className()).not.toContain('bg-winner');
+            expect(cells[3].className()).not.toContain('bg-winner');
+            expect(cells[4].className()).not.toContain('bg-winner');
         });
 
         it('when away winner', async () => {
@@ -362,15 +347,15 @@ describe('MatchPlayerSelection', () => {
                 ),
             );
 
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
             assertSelectedPlayer(cells[0], 'HOME');
             assertScore(cells[1], '1');
             assertScore(cells[3], '3');
             assertSelectedPlayer(cells[4], 'AWAY');
-            expect(cells[0].className).not.toContain('bg-winner');
-            expect(cells[1].className).not.toContain('bg-winner');
-            expect(cells[3].className).toContain('bg-winner');
-            expect(cells[4].className).toContain('bg-winner');
+            expect(cells[0].className()).not.toContain('bg-winner');
+            expect(cells[1].className()).not.toContain('bg-winner');
+            expect(cells[3].className()).toContain('bg-winner');
+            expect(cells[4].className()).toContain('bg-winner');
         });
 
         it('when away player has not won but has more legs', async () => {
@@ -383,15 +368,15 @@ describe('MatchPlayerSelection', () => {
                 ),
             );
 
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
             assertSelectedPlayer(cells[0], 'HOME');
             assertScore(cells[1], '1');
             assertScore(cells[3], '2');
             assertSelectedPlayer(cells[4], 'AWAY');
-            expect(cells[0].className).not.toContain('bg-winner');
-            expect(cells[1].className).not.toContain('bg-winner');
-            expect(cells[3].className).not.toContain('bg-winner');
-            expect(cells[4].className).not.toContain('bg-winner');
+            expect(cells[0].className()).not.toContain('bg-winner');
+            expect(cells[1].className()).not.toContain('bg-winner');
+            expect(cells[3].className()).not.toContain('bg-winner');
+            expect(cells[4].className()).not.toContain('bg-winner');
         });
 
         it('when a draw', async () => {
@@ -404,15 +389,15 @@ describe('MatchPlayerSelection', () => {
                 ),
             );
 
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
             assertSelectedPlayer(cells[0], 'HOME');
             assertScore(cells[1], '1');
             assertScore(cells[3], '1');
             assertSelectedPlayer(cells[4], 'AWAY');
-            expect(cells[0].className).not.toContain('bg-winner');
-            expect(cells[1].className).not.toContain('bg-winner');
-            expect(cells[3].className).not.toContain('bg-winner');
-            expect(cells[4].className).not.toContain('bg-winner');
+            expect(cells[0].className()).not.toContain('bg-winner');
+            expect(cells[1].className()).not.toContain('bg-winner');
+            expect(cells[3].className()).not.toContain('bg-winner');
+            expect(cells[4].className()).not.toContain('bg-winner');
         });
 
         it('possible home players', async () => {
@@ -434,7 +419,7 @@ describe('MatchPlayerSelection', () => {
                 containerProps,
             );
 
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
             assertSelectablePlayers(cells[0], ['HOME', 'ANOTHER HOME']);
             assertSelectablePlayers(cells[4], ['AWAY']);
         });
@@ -458,7 +443,7 @@ describe('MatchPlayerSelection', () => {
                 containerProps,
             );
 
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
             assertSelectablePlayers(cells[0], ['HOME']);
             assertSelectablePlayers(cells[4], ['AWAY', 'ANOTHER AWAY']);
         });
@@ -494,7 +479,7 @@ describe('MatchPlayerSelection', () => {
                 matchTypeProps,
             );
 
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
             assertSelectablePlayers(cells[0], ['HOME']);
             assertSelectablePlayers(cells[4], ['AWAY']);
         });
@@ -530,7 +515,7 @@ describe('MatchPlayerSelection', () => {
                 matchTypeProps,
             );
 
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
             assertSelectablePlayers(cells[0], ['HOME']);
             assertSelectablePlayers(cells[4], ['AWAY']);
         });
@@ -546,8 +531,8 @@ describe('MatchPlayerSelection', () => {
                 ),
             );
 
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            expect(cells[0].textContent).toContain('📊');
+            const cells = context.all('td');
+            expect(cells[0].text()).toContain('📊');
         });
 
         it('when not permitted to record scores as you go', async () => {
@@ -561,8 +546,8 @@ describe('MatchPlayerSelection', () => {
                 ),
             );
 
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            expect(cells[0].textContent).not.toContain('📊');
+            const cells = context.all('td');
+            expect(cells[0].text()).not.toContain('📊');
         });
     });
 
@@ -614,7 +599,7 @@ describe('MatchPlayerSelection', () => {
 
         it('can set home player', async () => {
             await render(props(matchBuilder().withHome().withAway()));
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
 
             await selectPlayer(cells[0], 'HOME');
 
@@ -628,7 +613,7 @@ describe('MatchPlayerSelection', () => {
 
         it('can add a home player', async () => {
             await render(props(matchBuilder().withHome().withAway()));
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
 
             await selectPlayer(cells[0], 'Add a player...');
 
@@ -642,7 +627,7 @@ describe('MatchPlayerSelection', () => {
 
         it('can remove/unset a home player', async () => {
             await render(props(matchBuilder().withHome(homePlayer).withAway()));
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
 
             await selectPlayer(cells[0], ' ');
 
@@ -656,7 +641,7 @@ describe('MatchPlayerSelection', () => {
 
         it('can set away player', async () => {
             await render(props(matchBuilder().withHome().withAway()));
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
 
             await selectPlayer(cells[4], 'AWAY');
 
@@ -670,7 +655,7 @@ describe('MatchPlayerSelection', () => {
 
         it('can add an away player', async () => {
             await render(props(matchBuilder().withHome().withAway()));
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
 
             await selectPlayer(cells[4], 'Add a player...');
 
@@ -684,7 +669,7 @@ describe('MatchPlayerSelection', () => {
 
         it('can remove/unset an away player', async () => {
             await render(props(matchBuilder().withHome().withAway(awayPlayer)));
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
 
             await selectPlayer(cells[4], ' ');
 
@@ -698,9 +683,9 @@ describe('MatchPlayerSelection', () => {
 
         it('can update home score', async () => {
             await render(props(matchBuilder().withHome().withAway()));
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
 
-            await doChange(cells[1], 'input', '3', context.user);
+            await cells[1].required('input').change('3');
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
@@ -712,9 +697,9 @@ describe('MatchPlayerSelection', () => {
 
         it('can update away score', async () => {
             await render(props(matchBuilder().withHome().withAway()));
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
 
-            await doChange(cells[3], 'input', '3', context.user);
+            await cells[3].required('input').change('3');
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
@@ -726,9 +711,9 @@ describe('MatchPlayerSelection', () => {
 
         it('sets homeScore to numberOfLegs if greater than numberOfLegs', async () => {
             await render(props(matchBuilder().withHome().withAway()));
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
 
-            await doChange(cells[1], 'input', '6', context.user);
+            await cells[1].required('input').change('6');
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
@@ -740,9 +725,9 @@ describe('MatchPlayerSelection', () => {
 
         it('sets awayScore to numberOfLegs if greater than numberOfLegs', async () => {
             await render(props(matchBuilder().withHome().withAway()));
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
 
-            await doChange(cells[3], 'input', '6', context.user);
+            await cells[3].required('input').change('6');
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
@@ -758,9 +743,9 @@ describe('MatchPlayerSelection', () => {
                     matchBuilder().scores(undefined, 3).withHome().withAway(),
                 ),
             );
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
 
-            await doChange(cells[1], 'input', '3', context.user);
+            await cells[1].required('input').change('3');
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
@@ -776,9 +761,9 @@ describe('MatchPlayerSelection', () => {
                     matchBuilder().scores(3, undefined).withHome().withAway(),
                 ),
             );
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
 
-            await doChange(cells[3], 'input', '3', context.user);
+            await cells[3].required('input').change('3');
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
@@ -790,16 +775,11 @@ describe('MatchPlayerSelection', () => {
 
         it('can update match options [playerCount]', async () => {
             await render(props(drawingMatch(homePlayer, awayPlayer)));
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            await doClick(findButton(cells[4], '🛠'));
-            const dialog = cells[4].querySelector('div.modal-dialog')!;
+            const cells = context.all('td');
+            await cells[4].button('🛠').click();
+            const dialog = cells[4].required('div.modal-dialog');
 
-            await doChange(
-                dialog,
-                'input[name="playerCount"]',
-                '3',
-                context.user,
-            );
+            await dialog.input('playerCount').change('3');
 
             expect(updatedMatchOptions).toEqual({
                 playerCount: 3,
@@ -810,16 +790,11 @@ describe('MatchPlayerSelection', () => {
 
         it('can update match options [numberOfLegs]', async () => {
             await render(props(drawingMatch(homePlayer, awayPlayer)));
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            await doClick(findButton(cells[4], '🛠'));
-            const dialog = cells[4].querySelector('div.modal-dialog')!;
+            const cells = context.all('td');
+            await cells[4].button('🛠').click();
+            const dialog = cells[4].required('div.modal-dialog');
 
-            await doChange(
-                dialog,
-                'input[name="numberOfLegs"]',
-                '3',
-                context.user,
-            );
+            await dialog.input('numberOfLegs').change('3');
 
             expect(updatedMatchOptions).toEqual({
                 playerCount: 1,
@@ -830,16 +805,11 @@ describe('MatchPlayerSelection', () => {
 
         it('can update match options [startingScore]', async () => {
             await render(props(drawingMatch(homePlayer, awayPlayer)));
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            await doClick(findButton(cells[4], '🛠'));
-            const dialog = cells[4].querySelector('div.modal-dialog')!;
+            const cells = context.all('td');
+            await cells[4].button('🛠').click();
+            const dialog = cells[4].required('div.modal-dialog');
 
-            await doChange(
-                dialog,
-                'input[name="startingScore"]',
-                '601',
-                context.user,
-            );
+            await dialog.input('startingScore').change('601');
 
             expect(updatedMatchOptions).toEqual({
                 playerCount: 1,
@@ -850,14 +820,14 @@ describe('MatchPlayerSelection', () => {
 
         it('can close match options dialog', async () => {
             await render(props(drawingMatch(homePlayer, awayPlayer)));
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            await doClick(findButton(cells[4], '🛠'));
-            const dialog = cells[4].querySelector('div.modal-dialog');
+            const cells = context.all('td');
+            await cells[4].button('🛠').click();
+            const dialog = cells[4].required('div.modal-dialog');
 
-            await doClick(findButton(dialog, 'Close'));
+            await dialog.button('Close').click();
 
             reportedError.verifyNoError();
-            expect(cells[4].querySelector('div.modal-dialog')).toBeFalsy();
+            expect(cells[4].optional('div.modal-dialog')).toBeFalsy();
         });
 
         it('cannot modify players when readonly', async () => {
@@ -872,7 +842,7 @@ describe('MatchPlayerSelection', () => {
                 props(matchBuilder().withHome().withAway()),
                 containerProps,
             );
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
 
             await selectPlayer(cells[0], 'HOME');
             reportedError.verifyNoError();
@@ -897,14 +867,14 @@ describe('MatchPlayerSelection', () => {
                 props(matchBuilder().withHome().withAway()),
                 containerProps,
             );
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
 
-            await doChange(cells[1], 'input', '3', context.user);
+            await cells[1].required('input').change('3');
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).toBeNull();
 
-            await doChange(cells[3], 'input', '3', context.user);
+            await cells[3].required('input').change('3');
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).toBeNull();
@@ -926,13 +896,9 @@ describe('MatchPlayerSelection', () => {
                 containerProps,
             );
 
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            expect(
-                Array.from(cells[0].querySelectorAll('.dropdown-item')),
-            ).toEqual([]);
-            expect(
-                Array.from(cells[4].querySelectorAll('.dropdown-item')),
-            ).toEqual([]);
+            const cells = context.all('td');
+            expect(cells[0].all('.dropdown-item').length).toEqual(0);
+            expect(cells[4].all('.dropdown-item').length).toEqual(0);
         });
 
         it('cannot modify scores when disabled', async () => {
@@ -950,9 +916,9 @@ describe('MatchPlayerSelection', () => {
                 props(matchBuilder().withHome().withAway()),
                 containerProps,
             );
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            expect(cells[1].querySelector('input')).toBeFalsy();
-            expect(cells[3].querySelector('input')).toBeFalsy();
+            const cells = context.all('td');
+            expect(cells[1].optional('input')).toBeFalsy();
+            expect(cells[3].optional('input')).toBeFalsy();
         });
 
         it('can open sayg dialog in fullscreen', async () => {
@@ -960,11 +926,11 @@ describe('MatchPlayerSelection', () => {
                 user({ recordScoresAsYouGo: true }),
                 props(drawingMatch(homePlayer, awayPlayer)),
             );
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
 
-            await doClick(findButton(cells[0], '📊'));
+            await cells[0].button('📊').click();
 
-            expect(cells[0].querySelector('div.modal-dialog')).toBeTruthy();
+            expect(cells[0].optional('div.modal-dialog')).toBeTruthy();
             expect(isFullScreen).toEqual(true);
         });
 
@@ -978,11 +944,11 @@ describe('MatchPlayerSelection', () => {
                         .withAway(awayPlayer),
                 ),
             );
-            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cells = context.all('td');
 
-            await doClick(findButton(cells[0], '📊'));
+            await cells[0].button('📊').click();
 
-            expect(cells[0].querySelector('div.modal-dialog')).toBeTruthy();
+            expect(cells[0].optional('div.modal-dialog')).toBeTruthy();
             expect(isFullScreen).toEqual(false);
         });
 
@@ -991,13 +957,13 @@ describe('MatchPlayerSelection', () => {
                 s.withLeg(0, noScores('home')),
             );
             await renderAs(user({ recordScoresAsYouGo: true }), props(match));
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            await doClick(findButton(cells[0], '📊'));
+            const cells = context.all('td');
+            await cells[0].button('📊').click();
 
             await keyPad(
                 context,
                 ['1', '8', '0', ENTER_SCORE_BUTTON],
-                cells[0].querySelector('div.modal-dialog')!,
+                cells[0].required('div.modal-dialog'),
             );
 
             expect(additional180).toEqual({
@@ -1011,13 +977,13 @@ describe('MatchPlayerSelection', () => {
                 s.withLeg(0, noScores('away')),
             );
             await renderAs(user({ recordScoresAsYouGo: true }), props(match));
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            await doClick(findButton(cells[0], '📊'));
+            const cells = context.all('td');
+            await cells[0].button('📊').click();
 
             await keyPad(
                 context,
                 ['1', '8', '0', ENTER_SCORE_BUTTON],
-                cells[0].querySelector('div.modal-dialog')!,
+                cells[0].required('div.modal-dialog'),
             );
 
             expect(additional180).toEqual({
@@ -1031,9 +997,9 @@ describe('MatchPlayerSelection', () => {
                 s.withLeg(0, homeThenAway(400, 0, 'home')),
             );
             await renderAs(user({ recordScoresAsYouGo: true }), props(match));
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            await doClick(findButton(cells[0], '📊'));
-            const saygDialog = cells[0].querySelector('div.modal-dialog')!;
+            const cells = context.all('td');
+            await cells[0].button('📊').click();
+            const saygDialog = cells[0].required('div.modal-dialog');
 
             await keyPad(
                 context,
@@ -1058,9 +1024,9 @@ describe('MatchPlayerSelection', () => {
                 s.withLeg(0, homeThenAway(0, 400)),
             );
             await renderAs(user({ recordScoresAsYouGo: true }), props(match));
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            await doClick(findButton(cells[0], '📊'));
-            const saygDialog = cells[0].querySelector('div.modal-dialog')!;
+            const cells = context.all('td');
+            await cells[0].button('📊').click();
+            const saygDialog = cells[0].required('div.modal-dialog');
 
             await keyPad(
                 context,
@@ -1094,8 +1060,8 @@ describe('MatchPlayerSelection', () => {
                         .scores(0, 3),
                 );
             await renderAs(user({ recordScoresAsYouGo: true }), props(match));
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            await doClick(findButton(cells[0], '📊'));
+            const cells = context.all('td');
+            await cells[0].button('📊').click();
 
             reportedError.verifyNoError();
             expect(context.container.textContent).toContain('Match statistics');
@@ -1106,14 +1072,14 @@ describe('MatchPlayerSelection', () => {
                 user({ recordScoresAsYouGo: true }),
                 props(drawingMatch(homePlayer, awayPlayer)),
             );
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            await doClick(findButton(cells[0], '📊'));
-            const saygDialog = cells[0].querySelector('div.modal-dialog');
+            const cells = context.all('td');
+            await cells[0].button('📊').click();
+            const saygDialog = cells[0].required('div.modal-dialog');
 
-            await doClick(findButton(saygDialog, 'Close'));
+            await saygDialog.button('Close').click();
 
             reportedError.verifyNoError();
-            expect(cells[0].querySelector('div.modal-dialog')).toBeFalsy();
+            expect(cells[0].optional('div.modal-dialog')).toBeFalsy();
         });
     });
 });

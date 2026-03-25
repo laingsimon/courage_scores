@@ -1,7 +1,6 @@
 import {
     appProps,
     cleanUp,
-    doClick,
     iocProps,
     renderApp,
     TestContext,
@@ -43,11 +42,11 @@ describe('Heading', () => {
                 name: 'name',
             });
 
-            const emailLink = context.container.querySelector(
-                'a[href^=mailto]',
-            ) as HTMLAnchorElement;
-            expect(emailLink.href).toEqual('mailto:someone@somewhere.com');
-            expect(emailLink.textContent).toContain('someone@somewhere.com');
+            const emailLink = context.required('a[href^=mailto]');
+            expect(emailLink.element<HTMLAnchorElement>().href).toEqual(
+                'mailto:someone@somewhere.com',
+            );
+            expect(emailLink.text()).toContain('someone@somewhere.com');
         });
 
         it('branded facebook', async () => {
@@ -56,10 +55,10 @@ describe('Heading', () => {
                 name: 'name',
             });
 
-            const facebookLink = context.container.querySelector(
+            const facebookLink = context.required(
                 'a[href^="https://www.facebook.com"]',
-            ) as HTMLAnchorElement;
-            expect(facebookLink.href).toEqual(
+            );
+            expect(facebookLink.element<HTMLAnchorElement>().href).toEqual(
                 'https://www.facebook.com/CourageScores',
             );
         });
@@ -70,10 +69,10 @@ describe('Heading', () => {
                 name: 'name',
             });
 
-            const twitterLink = context.container.querySelector(
+            const twitterLink = context.required(
                 'a[href^="https://twitter.com"]',
-            ) as HTMLAnchorElement;
-            expect(twitterLink.href).toEqual(
+            );
+            expect(twitterLink.element<HTMLAnchorElement>().href).toEqual(
                 'https://twitter.com/CourageScores',
             );
         });
@@ -83,10 +82,8 @@ describe('Heading', () => {
                 name: 'Courage Scores',
             });
 
-            const heading = context.container.querySelector(
-                'h1.heading',
-            ) as HTMLHeadingElement;
-            expect(heading.textContent).toEqual('Courage Scores');
+            const heading = context.required('h1.heading');
+            expect(heading.text()).toEqual('Courage Scores');
         });
 
         it('when on release branch', async () => {
@@ -99,10 +96,7 @@ describe('Heading', () => {
                 { name: '' },
             );
 
-            const version = context.container.querySelector(
-                'span.bg-warning',
-            ) as HTMLElement;
-            expect(version).toBeFalsy();
+            expect(context.optional('span.bg-warning')).toBeFalsy();
         });
 
         it('when on other branch', async () => {
@@ -116,13 +110,8 @@ describe('Heading', () => {
                 { name: '' },
             );
 
-            const version = context.container.querySelector(
-                'span.bg-warning',
-            ) as HTMLElement;
-            expect(version).toBeTruthy();
-            expect(version.textContent).toEqual(
-                `${renderDate('2023-04-05')}@07:07`,
-            );
+            const version = context.required('span.bg-warning');
+            expect(version.text()).toEqual(`${renderDate('2023-04-05')}@07:07`);
         });
 
         it('when clicked', async () => {
@@ -136,7 +125,7 @@ describe('Heading', () => {
                 { name: '' },
             );
 
-            await doClick(context.container.querySelector('span.bg-warning')!);
+            await context.required('span.bg-warning').click();
 
             context.prompts.alertWasShown(
                 'Branch: main\nSHA: 01234567\nPR: my PR title',
@@ -146,10 +135,7 @@ describe('Heading', () => {
         it('when undefined', async () => {
             await renderComponent(undefined!, undefined!);
 
-            const version = context.container.querySelector(
-                'span.bg-warning',
-            ) as HTMLElement;
-            expect(version).toBeFalsy();
+            expect(context.optional('span.bg-warning')).toBeFalsy();
         });
 
         it('when no version', async () => {
@@ -161,10 +147,7 @@ describe('Heading', () => {
                 { name: '' },
             );
 
-            const version = context.container.querySelector(
-                'span.bg-warning',
-            ) as HTMLElement;
-            expect(version).toBeFalsy();
+            expect(context.optional('span.bg-warning')).toBeFalsy();
         });
 
         it('when no branch', async () => {
@@ -176,10 +159,7 @@ describe('Heading', () => {
                 { name: '' },
             );
 
-            const version = context.container.querySelector(
-                'span.bg-warning',
-            ) as HTMLElement;
-            expect(version).toBeFalsy();
+            expect(context.optional('span.bg-warning')).toBeFalsy();
         });
     });
 });

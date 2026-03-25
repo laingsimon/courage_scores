@@ -42,10 +42,10 @@ describe('MatchDartCount', () => {
             awayCount: 12,
         });
 
-        const homeCount = context.container.querySelector('td:nth-child(2)')!;
-        const awayCount = context.container.querySelector('td:nth-child(3)')!;
-        expect(homeCount.textContent).toEqual('10');
-        expect(awayCount.textContent).toEqual('12');
+        const homeCount = context.required('td:nth-child(2)');
+        const awayCount = context.required('td:nth-child(3)');
+        expect(homeCount.text()).toEqual('10');
+        expect(awayCount.text()).toEqual('12');
     });
 
     it('renders single player dart count', async () => {
@@ -55,9 +55,9 @@ describe('MatchDartCount', () => {
             singlePlayer: true,
         });
 
-        const homeCount = context.container.querySelector('td:nth-child(2)')!;
-        const awayCount = context.container.querySelector('td:nth-child(3)')!;
-        expect(homeCount.textContent).toEqual('15');
+        const homeCount = context.required('td:nth-child(2)');
+        const awayCount = context.optional('td:nth-child(3)');
+        expect(homeCount.text()).toEqual('15');
         expect(awayCount).toBeFalsy();
     });
 
@@ -67,10 +67,10 @@ describe('MatchDartCount', () => {
             awayCount: 15,
         });
 
-        const homeCount = context.container.querySelector('td:nth-child(2)')!;
-        const awayCount = context.container.querySelector('td:nth-child(3)')!;
-        expect(homeCount.className).toContain('bg-winner');
-        expect(awayCount.className).not.toContain('bg-winner');
+        const homeCount = context.required('td:nth-child(2)');
+        const awayCount = context.required('td:nth-child(3)');
+        expect(homeCount.className()).toContain('bg-winner');
+        expect(awayCount.className()).not.toContain('bg-winner');
     });
 
     it('renders away dart count as winner', async () => {
@@ -79,9 +79,9 @@ describe('MatchDartCount', () => {
             awayCount: 10,
         });
 
-        const homeCount = context.container.querySelector('td:nth-child(2)')!;
-        const awayCount = context.container.querySelector('td:nth-child(3)')!;
-        expect(homeCount.className).not.toContain('bg-winner');
-        expect(awayCount.className).toContain('bg-winner');
+        const homeCount = context.required('td:nth-child(2)');
+        const awayCount = context.required('td:nth-child(3)');
+        expect(homeCount.className()).not.toContain('bg-winner');
+        expect(awayCount.className()).toContain('bg-winner');
     });
 });

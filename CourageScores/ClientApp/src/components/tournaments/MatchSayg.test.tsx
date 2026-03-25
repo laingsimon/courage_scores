@@ -3,9 +3,8 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
     ErrorState,
-    findButton,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -186,8 +185,8 @@ describe('MatchSayg', () => {
         };
     }
 
-    function dialog() {
-        return context.container.querySelector('.modal-dialog');
+    function modalDialog(): IComponent | undefined {
+        return context.optional('.modal-dialog');
     }
 
     describe('renders', () => {
@@ -527,10 +526,10 @@ describe('MatchSayg', () => {
                 permitted,
                 `/test/#${match.saygId}`,
             );
-            await doClick(findButton(context.container, START_SCORING));
+            await context.button(START_SCORING).click();
 
             reportedError.verifyNoError();
-            await doClick(findButton(dialog(), `🎯${match.sideA!.name}`)); // pick sideA goes first
+            await modalDialog()!.button(`🎯${match.sideA!.name}`).click();
             patchedData = [];
             await enterFirstPlayerScores(sideAScores);
 
@@ -567,9 +566,9 @@ describe('MatchSayg', () => {
                 }),
             );
 
-            const viewLink = context.container.querySelector('a')!;
-            expect(viewLink.textContent).toEqual('📊 1 - 2');
-            expect(viewLink.href).toEqual(
+            const viewLink = context.required('a');
+            expect(viewLink.text()).toEqual('📊 1 - 2');
+            expect(viewLink.element<HTMLAnchorElement>().href).toEqual(
                 `http://localhost/live/match/?id=${saygId}`,
             );
         });
@@ -589,7 +588,7 @@ describe('MatchSayg', () => {
                 permitted,
             );
 
-            await doClick(findButton(context.container, START_SCORING));
+            await context.button(START_SCORING).click();
 
             context.prompts.alertWasShown('Save the tournament first');
             expect(tournamentSaved).toBeNull();
@@ -606,7 +605,7 @@ describe('MatchSayg', () => {
                 permitted,
             );
 
-            await doClick(findButton(context.container, START_SCORING));
+            await context.button(START_SCORING).click();
 
             reportedError.verifyNoError();
             context.prompts.alertWasNotShown('');
@@ -627,7 +626,7 @@ describe('MatchSayg', () => {
                 permitted,
             );
 
-            await doClick(findButton(context.container, START_SCORING));
+            await context.button(START_SCORING).click();
 
             reportedError.verifyNoError();
             expect(addedSayg).toEqual({
@@ -654,7 +653,7 @@ describe('MatchSayg', () => {
                 errors: ['SOME ERROR'],
             });
 
-            await doClick(findButton(context.container, START_SCORING));
+            await context.button(START_SCORING).click();
 
             reportedError.verifyNoError();
             expect(updatedTournament).toBeNull();
@@ -673,7 +672,7 @@ describe('MatchSayg', () => {
                 permitted,
             );
 
-            await doClick(findButton(context.container, START_SCORING));
+            await context.button(START_SCORING).click();
 
             reportedError.verifyNoError();
             expect(updatedTournament).not.toBeNull();
@@ -718,16 +717,16 @@ describe('MatchSayg', () => {
                 permitted,
                 `/test/#${sayg.id}`,
             );
-            const createDataButton = context.container.querySelector('button')!;
-            expect(createDataButton.textContent).toEqual('📊 3 - 0');
+            const createDataButton = context.required('button');
+            expect(createDataButton.text()).toEqual('📊 3 - 0');
 
-            await doClick(createDataButton);
+            await createDataButton.click();
 
-            expect(dialog()).toBeTruthy();
-            expect(
-                dialog()!.querySelector('.modal-header')!.textContent,
-            ).toContain('SIDE A vs SIDE B - best of 1');
-            expect(dialog()!.innerHTML).toContain('Match statistics');
+            expect(modalDialog()).toBeTruthy();
+            expect(modalDialog()!.required('.modal-header').text()).toContain(
+                'SIDE A vs SIDE B - best of 1',
+            );
+            expect(modalDialog()!.html()).toContain('Match statistics');
         });
 
         it('does not show live link in dialog if sideB won', async () => {
@@ -768,16 +767,16 @@ describe('MatchSayg', () => {
                 permitted,
                 `/test/#${sayg.id}`,
             );
-            const createDataButton = context.container.querySelector('button')!;
-            expect(createDataButton.textContent).toEqual('📊 0 - 3');
+            const createDataButton = context.required('button');
+            expect(createDataButton.text()).toEqual('📊 0 - 3');
 
-            await doClick(createDataButton);
+            await createDataButton.click();
 
-            expect(dialog()).toBeTruthy();
-            expect(
-                dialog()!.querySelector('.modal-header')!.textContent,
-            ).toContain('SIDE A vs SIDE B - best of 1');
-            expect(dialog()!.innerHTML).toContain('Match statistics');
+            expect(modalDialog()).toBeTruthy();
+            expect(modalDialog()!.required('.modal-header').text()).toContain(
+                'SIDE A vs SIDE B - best of 1',
+            );
+            expect(modalDialog()!.html()).toContain('Match statistics');
         });
 
         it('can close dialog', async () => {
@@ -800,7 +799,7 @@ describe('MatchSayg', () => {
                 `/test/#${saygId}`,
             );
 
-            await doClick(findButton(dialog(), 'Close'));
+            await modalDialog()!.button('Close').click();
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith('/test/');
         });
@@ -990,18 +989,18 @@ describe('MatchSayg', () => {
                 permittedWithDebug,
                 `/test/#${saygData.id}`,
             );
-            await doClick(findButton(context.container, START_SCORING));
+            await context.button(START_SCORING).click();
             context.prompts.respondToConfirm(
                 'Are you sure you want to delete the sayg data for this match?',
                 false,
             );
 
-            await doClick(findButton(dialog(), 'Debug options'));
-            const deleteButton = dialog()!.querySelector(
+            await modalDialog()!.button('Debug options').click();
+            const deleteButton = modalDialog()!.required(
                 '.dropdown-item.text-danger',
-            )!;
-            expect(deleteButton.textContent).toEqual('Delete sayg');
-            await doClick(deleteButton);
+            );
+            expect(deleteButton.text()).toEqual('Delete sayg');
+            await deleteButton.click();
 
             reportedError.verifyNoError();
             context.prompts.confirmWasShown(
@@ -1028,6 +1027,7 @@ describe('MatchSayg', () => {
                 permittedWithDebug,
                 `/test/#${saygData.id}`,
             );
+            await context.button(START_SCORING).click();
             context.prompts.respondToConfirm(
                 'Are you sure you want to delete the sayg data for this match?',
                 true,
@@ -1041,12 +1041,12 @@ describe('MatchSayg', () => {
                 success: true,
             });
 
-            await doClick(findButton(dialog(), 'Debug options'));
-            const deleteButton = dialog()!.querySelector(
+            await modalDialog()!.button('Debug options').click();
+            const deleteButton = modalDialog()!.required(
                 '.dropdown-item.text-danger',
-            )!;
-            expect(deleteButton.textContent).toEqual('Delete sayg');
-            await doClick(deleteButton);
+            );
+            expect(deleteButton.text()).toEqual('Delete sayg');
+            await deleteButton.click();
 
             reportedError.verifyNoError();
             expect(deletedSayg).toEqual({
@@ -1077,7 +1077,7 @@ describe('MatchSayg', () => {
                 permittedWithDebug,
                 `/test/#${saygData.id}`,
             );
-            await doClick(findButton(context.container, START_SCORING));
+            await context.button(START_SCORING).click();
             context.prompts.respondToConfirm(
                 'Are you sure you want to delete the sayg data for this match?',
                 true,
@@ -1091,12 +1091,12 @@ describe('MatchSayg', () => {
                 errors: ['SOME ERROR'],
             });
 
-            await doClick(findButton(dialog(), 'Debug options'));
-            const deleteButton = dialog()!.querySelector(
+            await modalDialog()!.button('Debug options').click();
+            const deleteButtonErr = modalDialog()!.required(
                 '.dropdown-item.text-danger',
-            )!;
-            expect(deleteButton.textContent).toEqual('Delete sayg');
-            await doClick(deleteButton);
+            );
+            expect(deleteButtonErr.text()).toEqual('Delete sayg');
+            await deleteButtonErr.click();
 
             reportedError.verifyErrorEquals(apiResponse?.());
             expect(deletedSayg).toEqual({
@@ -1104,7 +1104,7 @@ describe('MatchSayg', () => {
                 matchId: matchId,
             });
             expect(updatedTournament).toBeNull();
-            expect(dialog()).toBeTruthy();
+            expect(modalDialog()).toBeTruthy();
         });
     });
 });

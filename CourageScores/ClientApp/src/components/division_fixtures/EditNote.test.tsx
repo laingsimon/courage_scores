@@ -3,9 +3,6 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
-    findButton,
     iocProps,
     noop,
     renderApp,
@@ -115,9 +112,8 @@ describe('EditNote', () => {
                 season,
             );
 
-            const header = context.container.querySelector('.modal-header')!;
-            expect(header).toBeTruthy();
-            expect(header.textContent).toContain('Edit note');
+            const header = context.required('.modal-header');
+            expect(header.text()).toContain('Edit note');
         });
 
         it('when creating', async () => {
@@ -131,9 +127,8 @@ describe('EditNote', () => {
                 season,
             );
 
-            const header = context.container.querySelector('.modal-header')!;
-            expect(header).toBeTruthy();
-            expect(header.textContent).toContain('Create note');
+            const header = context.required('.modal-header');
+            expect(header.text()).toContain('Create note');
         });
 
         it('date', async () => {
@@ -146,14 +141,12 @@ describe('EditNote', () => {
                 season,
             );
 
-            const dateGroup = context.container.querySelector(
+            const dateGroup = context.required(
                 '.modal-body > div > div:nth-child(1)',
-            )!;
-            expect(dateGroup).toBeTruthy();
-            expect(dateGroup.textContent).toContain('Date');
-            const dateInput = dateGroup.querySelector('input')!;
-            expect(dateInput).toBeTruthy();
-            expect(dateInput.value).toEqual('2023-05-01');
+            );
+            expect(dateGroup.text()).toContain('Date');
+            const dateInput = dateGroup.required('input');
+            expect(dateInput.value()).toEqual('2023-05-01');
         });
 
         it('note', async () => {
@@ -166,14 +159,12 @@ describe('EditNote', () => {
                 season,
             );
 
-            const noteGroup = context.container.querySelector(
+            const noteGroup = context.required(
                 '.modal-body > div > div:nth-child(2)',
-            )!;
-            expect(noteGroup).toBeTruthy();
-            expect(noteGroup.textContent).toContain('Note');
-            const noteInput = noteGroup.querySelector('textarea')!;
-            expect(noteInput).toBeTruthy();
-            expect(noteInput.value).toEqual('Some note');
+            );
+            expect(noteGroup.text()).toContain('Note');
+            const noteInput = noteGroup.required('textarea');
+            expect(noteInput.value()).toEqual('Some note');
         });
 
         it('preview', async () => {
@@ -186,14 +177,13 @@ describe('EditNote', () => {
                 season,
             );
 
-            const previewGroup = context.container.querySelector(
+            const previewGroup = context.required(
                 '.modal-body > div > div:nth-child(3)',
-            )!;
-            expect(previewGroup).toBeTruthy();
-            expect(previewGroup.textContent).toContain('Preview');
-            expect(
-                previewGroup.querySelector('div > div.alert > p')!.innerHTML,
-            ).toEqual('**Some** note');
+            );
+            expect(previewGroup.text()).toContain('Preview');
+            expect(previewGroup.required('div > div.alert > p').html()).toEqual(
+                '**Some** note',
+            );
         });
 
         it('season', async () => {
@@ -206,14 +196,12 @@ describe('EditNote', () => {
                 season,
             );
 
-            const seasonGroup = context.container.querySelector(
+            const seasonGroup = context.required(
                 '.modal-body > div > div:nth-child(4)',
-            )!;
-            expect(seasonGroup).toBeTruthy();
-            expect(seasonGroup.textContent).toContain('Season');
-            const seasonInput = seasonGroup.querySelector('select')!;
-            expect(seasonInput).toBeTruthy();
-            expect(seasonInput.value).toEqual(season.id);
+            );
+            expect(seasonGroup.text()).toContain('Season');
+            const seasonInput = seasonGroup.required('select');
+            expect(seasonInput.value()).toEqual(season.id);
         });
 
         it('division', async () => {
@@ -227,14 +215,12 @@ describe('EditNote', () => {
                 season,
             );
 
-            const divisionGroup = context.container.querySelector(
+            const divisionGroup = context.required(
                 '.modal-body > div > div:nth-child(5)',
-            )!;
-            expect(divisionGroup).toBeTruthy();
-            expect(divisionGroup.textContent).toContain('Division');
-            const divisionInput = divisionGroup.querySelector('select')!;
-            expect(divisionInput).toBeTruthy();
-            expect(divisionInput.value).toEqual(division.id);
+            );
+            expect(divisionGroup.text()).toContain('Division');
+            const divisionInput = divisionGroup.required('select');
+            expect(divisionInput.value()).toEqual(division.id);
         });
 
         it('all divisions', async () => {
@@ -247,14 +233,12 @@ describe('EditNote', () => {
                 season,
             );
 
-            const divisionGroup = context.container.querySelector(
+            const divisionGroup = context.required(
                 '.modal-body > div > div:nth-child(5)',
-            )!;
-            expect(divisionGroup).toBeTruthy();
-            expect(divisionGroup.textContent).toContain('Division');
-            const divisionInput = divisionGroup.querySelector('select')!;
-            expect(divisionInput).toBeTruthy();
-            expect(divisionInput.value).toEqual('NULL');
+            );
+            expect(divisionGroup.text()).toContain('Division');
+            const divisionInput = divisionGroup.required('select');
+            expect(divisionInput.value()).toEqual('NULL');
         });
     });
 
@@ -272,11 +256,11 @@ describe('EditNote', () => {
                 divisions,
                 season,
             );
-            const dateGroup = context.container.querySelector(
+            const dateGroup = context.required(
                 '.modal-body > div > div:nth-child(1)',
-            )!;
+            );
 
-            await doChange(dateGroup, 'input', '2023-06-06', context.user);
+            await dateGroup.required('input').change('2023-06-06');
 
             expect(changedNote).toBeTruthy();
             expect(changedNote!.date).toEqual('2023-06-06');
@@ -291,11 +275,11 @@ describe('EditNote', () => {
                 divisions,
                 season,
             );
-            const noteGroup = context.container.querySelector(
+            const noteGroup = context.required(
                 '.modal-body > div > div:nth-child(2)',
-            )!;
+            );
 
-            await doChange(noteGroup, 'textarea', 'Another note', context.user);
+            await noteGroup.required('textarea').change('Another note');
 
             expect(changedNote).toBeTruthy();
             expect(changedNote!.note).toEqual('Another note');
@@ -312,16 +296,11 @@ describe('EditNote', () => {
                 season,
                 anotherSeason,
             );
-            const seasonGroup = context.container.querySelector(
+            const seasonGroup = context.required(
                 '.modal-body > div > div:nth-child(4)',
-            )!;
-
-            await doChange(
-                seasonGroup,
-                'select',
-                anotherSeason.id,
-                context.user,
             );
+
+            await seasonGroup.required('select').change(anotherSeason.id);
 
             expect(changedNote).toBeTruthy();
             expect(changedNote!.seasonId).toEqual(anotherSeason.id);
@@ -337,16 +316,11 @@ describe('EditNote', () => {
                 [division, anotherDivision],
                 season,
             );
-            const divisionGroup = context.container.querySelector(
+            const divisionGroup = context.required(
                 '.modal-body > div > div:nth-child(5)',
-            )!;
-
-            await doChange(
-                divisionGroup,
-                'select',
-                anotherDivision.id,
-                context.user,
             );
+
+            await divisionGroup.required('select').change(anotherDivision.id);
 
             expect(changedNote).toBeTruthy();
             expect(changedNote!.divisionId).toEqual(anotherDivision.id);
@@ -361,11 +335,11 @@ describe('EditNote', () => {
                 divisions,
                 season,
             );
-            const divisionGroup = context.container.querySelector(
+            const divisionGroup = context.required(
                 '.modal-body > div > div:nth-child(5)',
-            )!;
+            );
 
-            await doChange(divisionGroup, 'select', 'NULL', context.user);
+            await divisionGroup.required('select').change('NULL');
 
             expect(changedNote).toBeTruthy();
             expect(changedNote!.divisionId).toEqual(null);
@@ -381,7 +355,7 @@ describe('EditNote', () => {
                 season,
             );
 
-            await doClick(findButton(context.container, 'Save'));
+            await context.button('Save').click();
 
             context.prompts.alertWasShown('You must enter a note');
             expect(savedNote).toBeNull();
@@ -394,7 +368,7 @@ describe('EditNote', () => {
                 season,
             );
 
-            await doClick(findButton(context.container, 'Save'));
+            await context.button('Save').click();
 
             context.prompts.alertWasShown('You must enter a date');
             expect(savedNote).toBeNull();
@@ -412,7 +386,7 @@ describe('EditNote', () => {
                 season,
             );
 
-            await doClick(findButton(context.container, 'Save'));
+            await context.button('Save').click();
 
             context.prompts.noAlerts();
             expect(createdNote).not.toBeNull();
@@ -430,7 +404,7 @@ describe('EditNote', () => {
                 season,
             );
 
-            await doClick(findButton(context.container, 'Save'));
+            await context.button('Save').click();
 
             context.prompts.noAlerts();
             expect(savedNote).not.toBeNull();
@@ -451,14 +425,12 @@ describe('EditNote', () => {
                 success: false,
             };
 
-            await doClick(findButton(context.container, 'Save'));
+            await context.button('Save').click();
 
             context.prompts.noAlerts();
             expect(savedNote).not.toBeNull();
             expect(saved).toEqual(false);
-            expect(context.container.textContent).toContain(
-                'Could not save note',
-            );
+            expect(context.text()).toContain('Could not save note');
         });
 
         it('can hide error after problem saving', async () => {
@@ -473,21 +445,15 @@ describe('EditNote', () => {
             saveResult = {
                 success: false,
             };
-            await doClick(findButton(context.container, 'Save'));
+            await context.button('Save').click();
 
-            await doClick(
-                findButton(
-                    context.container.querySelector(
-                        '.modal-dialog .modal-dialog',
-                    ),
-                    'Close',
-                ),
-            );
+            await context
+                .required('.modal-dialog .modal-dialog')
+                .button('Close')
+                .click();
 
             expect(closed).toEqual(false);
-            expect(context.container.textContent).not.toContain(
-                'Could not save note',
-            );
+            expect(context.text()).not.toContain('Could not save note');
         });
 
         it('can close dialog', async () => {
@@ -500,7 +466,7 @@ describe('EditNote', () => {
                 season,
             );
 
-            await doClick(findButton(context.container, 'Close'));
+            await context.button('Close').click();
 
             expect(closed).toEqual(true);
         });

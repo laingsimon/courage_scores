@@ -2,7 +2,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -46,10 +46,10 @@ describe('BootstrapDropdown', () => {
                 disabled: true,
             });
 
-            const button = context.container.querySelector('button')!;
-            expect(button.disabled).toEqual(true);
-            expect(button.className).toContain('dropdown-toggle');
-            expect(button.textContent).toEqual('');
+            const button = context.required('button');
+            expect(button.enabled()).toEqual(false);
+            expect(button.className()).toContain('dropdown-toggle');
+            expect(button.text()).toEqual('');
         });
 
         it('when disabled and something selected', async () => {
@@ -59,10 +59,10 @@ describe('BootstrapDropdown', () => {
                 disabled: true,
             });
 
-            const button = context.container.querySelector('button')!;
-            expect(button.disabled).toEqual(true);
-            expect(button.className).toContain('dropdown-toggle');
-            expect(button.textContent).toEqual(option2.text);
+            const button = context.required('button');
+            expect(button.enabled()).toEqual(false);
+            expect(button.className()).toContain('dropdown-toggle');
+            expect(button.text()).toEqual(option2.text);
         });
 
         it('when disabled and something selected with collapsed text', async () => {
@@ -77,21 +77,19 @@ describe('BootstrapDropdown', () => {
                 disabled: true,
             });
 
-            const button = context.container.querySelector('button')!;
-            expect(button.disabled).toEqual(true);
-            expect(button.className).toContain('dropdown-toggle');
-            expect(button.textContent).toEqual(
-                option3_collapsedText.collapsedText,
-            );
+            const button = context.required('button');
+            expect(button.enabled()).toEqual(false);
+            expect(button.className()).toContain('dropdown-toggle');
+            expect(button.text()).toEqual(option3_collapsedText.collapsedText);
         });
 
         it('when options is null', async () => {
             await renderComponent({});
 
-            const button = context.container.querySelector('button')!;
-            expect(button.disabled).toEqual(true);
-            expect(button.className).toContain('dropdown-toggle');
-            expect(button.innerHTML).toEqual('&nbsp;');
+            const button = context.required('button');
+            expect(button.enabled()).toEqual(false);
+            expect(button.className()).toContain('dropdown-toggle');
+            expect(button.html()).toEqual('&nbsp;');
         });
 
         it('when options is empty', async () => {
@@ -99,10 +97,10 @@ describe('BootstrapDropdown', () => {
                 options: [],
             });
 
-            const button = context.container.querySelector('button')!;
-            expect(button.disabled).toEqual(true);
-            expect(button.className).toContain('dropdown-toggle');
-            expect(button.innerHTML).toEqual('&nbsp;');
+            const button = context.required('button');
+            expect(button.enabled()).toEqual(false);
+            expect(button.className()).toContain('dropdown-toggle');
+            expect(button.html()).toEqual('&nbsp;');
         });
 
         it('with given className', async () => {
@@ -112,8 +110,8 @@ describe('BootstrapDropdown', () => {
                 className: 'some-class-name',
             });
 
-            const buttonGroup = context.container.querySelector('div')!;
-            expect(buttonGroup.className).toContain('some-class-name');
+            const buttonGroup = context.required('div');
+            expect(buttonGroup.className()).toContain('some-class-name');
         });
 
         it('when no className provided', async () => {
@@ -122,8 +120,8 @@ describe('BootstrapDropdown', () => {
                 options: [option1, option2],
             });
 
-            const buttonGroup = context.container.querySelector('div')!;
-            expect(buttonGroup.className).toEqual('btn-group');
+            const buttonGroup = context.required('div');
+            expect(buttonGroup.className()).toEqual('btn-group');
         });
 
         it('when given a color', async () => {
@@ -133,8 +131,8 @@ describe('BootstrapDropdown', () => {
                 color: 'warning',
             });
 
-            const toggle = context.container.querySelector('.dropdown-toggle')!;
-            expect(toggle.className).toContain('btn-warning');
+            const toggle = context.required('.dropdown-toggle');
+            expect(toggle.className()).toContain('btn-warning');
         });
 
         it('when no color provided', async () => {
@@ -143,8 +141,8 @@ describe('BootstrapDropdown', () => {
                 options: [option1, option2],
             });
 
-            const toggle = context.container.querySelector('.dropdown-toggle')!;
-            expect(toggle.className).toContain('btn-outline-light');
+            const toggle = context.required('.dropdown-toggle');
+            expect(toggle.className()).toContain('btn-outline-light');
         });
 
         it('when item selected', async () => {
@@ -153,15 +151,13 @@ describe('BootstrapDropdown', () => {
                 options: [option1, option2],
             });
 
-            const toggle = context.container.querySelector('.dropdown-toggle')!;
-            const items = Array.from(
-                context.container.querySelectorAll('.dropdown-item'),
-            );
-            expect(toggle.textContent).toEqual(option2.text);
+            const toggle = context.required('.dropdown-toggle');
+            const items = context.all('.dropdown-item');
+            expect(toggle.text()).toEqual(option2.text);
             const itemClassNameLookup = toDictionary(
                 items,
-                (item) => item.textContent!,
-                (item) => item.className,
+                (item: IComponent) => item.text(),
+                (item: IComponent) => item.className(),
             );
             expect(Object.keys(itemClassNameLookup)).toEqual([
                 option1.text,
@@ -184,15 +180,13 @@ describe('BootstrapDropdown', () => {
                 options: [option1, option2, option3_noText],
             });
 
-            const toggle = context.container.querySelector('.dropdown-toggle')!;
-            const items = Array.from(
-                context.container.querySelectorAll('.dropdown-item'),
-            );
-            expect(toggle.textContent).toEqual(option3_noText.value);
+            const toggle = context.required('.dropdown-toggle');
+            const items = context.all('.dropdown-item');
+            expect(toggle.text()).toEqual(option3_noText.value);
             const itemClassNameLookup = toDictionary(
                 items,
-                (item) => item.textContent!,
-                (item) => item.className,
+                (item: IComponent) => item.text(),
+                (item: IComponent) => item.className(),
             );
             expect(itemClassNameLookup[option1.text as string]).not.toContain(
                 'active',
@@ -210,15 +204,13 @@ describe('BootstrapDropdown', () => {
                 options: [option1, option2],
             });
 
-            const toggle = context.container.querySelector('.dropdown-toggle')!;
-            const items = Array.from(
-                context.container.querySelectorAll('.dropdown-item'),
-            );
-            expect(toggle.textContent).toEqual('');
+            const toggle = context.required('.dropdown-toggle');
+            const items = context.all('.dropdown-item');
+            expect(toggle.text()).toEqual('');
             const itemClassNameLookup = toDictionary(
                 items,
-                (item) => item.textContent!,
-                (item) => item.className,
+                (item: IComponent) => item.text(),
+                (item: IComponent) => item.className(),
             );
             expect(itemClassNameLookup[option1.text as string]).not.toContain(
                 'active',
@@ -234,10 +226,8 @@ describe('BootstrapDropdown', () => {
                 slim: true,
             });
 
-            const toggle = context.container.querySelector(
-                '.dropdown-toggle > span',
-            )!;
-            expect(toggle.className).not.toContain('dropdown-text-min-width');
+            const toggle = context.required('.dropdown-toggle > span');
+            expect(toggle.className()).not.toContain('dropdown-text-min-width');
         });
 
         it('not-slim dropdown', async () => {
@@ -245,10 +235,8 @@ describe('BootstrapDropdown', () => {
                 options: [option1, option2],
             });
 
-            const toggle = context.container.querySelector(
-                '.dropdown-toggle > span',
-            )!;
-            expect(toggle.className).toContain('dropdown-text-min-width');
+            const toggle = context.required('.dropdown-toggle > span');
+            expect(toggle.className()).toContain('dropdown-text-min-width');
         });
 
         it('with collapsed text', async () => {
@@ -262,17 +250,13 @@ describe('BootstrapDropdown', () => {
                 options: [option1, option2, option3_collapsedText],
             });
 
-            const toggle = context.container.querySelector('.dropdown-toggle')!;
-            const items = Array.from(
-                context.container.querySelectorAll('.dropdown-item'),
-            );
-            expect(toggle.textContent).toEqual(
-                option3_collapsedText.collapsedText,
-            );
+            const toggle = context.required('.dropdown-toggle');
+            const items = context.all('.dropdown-item');
+            expect(toggle.text()).toEqual(option3_collapsedText.collapsedText);
             const itemTextLookup = toDictionary(
                 items,
-                (item) => item.textContent!,
-                (item) => item.textContent,
+                (item: IComponent) => item.text(),
+                (item: IComponent) => item.text(),
             );
             expect(itemTextLookup[option1.text as string]).toEqual('TEXT 1');
             expect(itemTextLookup[option2.text as string]).toEqual('TEXT 2');
@@ -298,11 +282,10 @@ describe('BootstrapDropdown', () => {
                 readOnly: true,
             });
 
-            await doClick(context.container, '.dropdown-toggle');
+            await context.required('.dropdown-toggle').click();
 
-            const buttonGroup =
-                context.container.querySelector('div.btn-group')!;
-            expect(buttonGroup.className).not.toContain('show');
+            const buttonGroup = context.required('div.btn-group');
+            expect(buttonGroup.className()).not.toContain('show');
         });
 
         it('can open drop down', async () => {
@@ -310,11 +293,10 @@ describe('BootstrapDropdown', () => {
                 options: [option1, option2],
             });
 
-            await doClick(context.container, '.dropdown-toggle');
+            await context.required('.dropdown-toggle').click();
 
-            const buttonGroup =
-                context.container.querySelector('div.btn-group')!;
-            expect(buttonGroup.className).toContain('show');
+            const buttonGroup = context.required('div.btn-group');
+            expect(buttonGroup.className()).toContain('show');
         });
 
         it('can close drop down', async () => {
@@ -322,12 +304,11 @@ describe('BootstrapDropdown', () => {
                 options: [option1, option2],
             });
 
-            await doClick(context.container, '.dropdown-toggle');
-            await doClick(context.container, '.dropdown-toggle');
+            await context.required('.dropdown-toggle').click();
+            await context.required('.dropdown-toggle').click();
 
-            const buttonGroup =
-                context.container.querySelector('div.btn-group')!;
-            expect(buttonGroup.className).not.toContain('show');
+            const buttonGroup = context.required('div.btn-group');
+            expect(buttonGroup.className()).not.toContain('show');
         });
 
         it('can select an item', async () => {
@@ -337,12 +318,11 @@ describe('BootstrapDropdown', () => {
                 onChange: async (value: string) => (selected = value),
             });
 
-            await doClick(context.container, '.dropdown-toggle');
-            await doClick(context.container, '.dropdown-item:first-child');
+            await context.required('.dropdown-toggle').click();
+            await context.all('.dropdown-item')[0].click();
 
-            const buttonGroup =
-                context.container.querySelector('div.btn-group')!;
-            expect(buttonGroup.className).not.toContain('show'); // closes the dropdown
+            const buttonGroup = context.required('div.btn-group');
+            expect(buttonGroup.className()).not.toContain('show'); // closes the dropdown
             expect(selected).toEqual(option1.value);
         });
 
@@ -354,12 +334,11 @@ describe('BootstrapDropdown', () => {
                 onChange: async (value: string) => (selected = value),
             });
 
-            await doClick(context.container, '.dropdown-toggle');
-            await doClick(context.container, '.dropdown-item:first-child');
+            await context.required('.dropdown-toggle').click();
+            await context.all('.dropdown-item')[0].click();
 
-            const buttonGroup =
-                context.container.querySelector('div.btn-group')!;
-            expect(buttonGroup.className).not.toContain('show'); // closes the dropdown
+            const buttonGroup = context.required('div.btn-group');
+            expect(buttonGroup.className()).not.toContain('show'); // closes the dropdown
             expect(selected).toEqual(option1.value);
         });
 
@@ -369,12 +348,11 @@ describe('BootstrapDropdown', () => {
                 options: [option1, option2],
             });
 
-            await doClick(context.container, '.dropdown-toggle');
-            await doClick(context.container, '.dropdown-item:first-child');
+            await context.required('.dropdown-toggle').click();
+            await context.all('.dropdown-item')[0].click();
 
-            const buttonGroup =
-                context.container.querySelector('div.btn-group')!;
-            expect(buttonGroup.className).not.toContain('show'); // closes the dropdown
+            const buttonGroup = context.required('div.btn-group');
+            expect(buttonGroup.className()).not.toContain('show'); // closes the dropdown
         });
 
         it('triggers onOpen callback when dropdown opened', async () => {
@@ -385,7 +363,7 @@ describe('BootstrapDropdown', () => {
                     callbacks.push(willBeOpen),
             });
 
-            await doClick(context.container, '.dropdown-toggle');
+            await context.required('.dropdown-toggle').click();
 
             expect(callbacks).toEqual([true]);
         });
@@ -397,10 +375,10 @@ describe('BootstrapDropdown', () => {
                 onOpen: async (willBeOpen: boolean) =>
                     callbacks.push(willBeOpen),
             });
-            await doClick(context.container, '.dropdown-toggle');
+            await context.required('.dropdown-toggle').click();
             expect(callbacks).toEqual([true]);
 
-            await doClick(context.container, '.dropdown-toggle');
+            await context.required('.dropdown-toggle').click();
 
             expect(callbacks).toEqual([true, false]);
         });

@@ -53,8 +53,8 @@ describe('DataError', () => {
                 { message: 'SOME MESSAGE' },
             );
 
-            expect(context.container.textContent).toContain('SOME MESSAGE');
-            expect(context.container.querySelectorAll('a').length).toEqual(0);
+            expect(context.text()).toContain('SOME MESSAGE');
+            expect(context.all('a').length).toEqual(0);
         });
 
         it('with gameId', async () => {
@@ -73,13 +73,13 @@ describe('DataError', () => {
                 },
             );
 
-            expect(context.container.textContent).toContain('SOME MESSAGE');
-            expect(context.container.querySelectorAll('a').length).toEqual(1);
-            const link = context.container.querySelector(
-                'a',
-            ) as HTMLAnchorElement;
-            expect(link.textContent).toEqual('View fixture');
-            expect(link.href).toEqual(`http://localhost/score/${gameId}`);
+            expect(context.text()).toContain('SOME MESSAGE');
+            expect(context.all('a').length).toEqual(1);
+            const link = context.required('a');
+            expect(link.text()).toEqual('View fixture');
+            expect(link.element<HTMLAnchorElement>().href).toEqual(
+                `http://localhost/score/${gameId}`,
+            );
         });
 
         it('with tournamentId', async () => {
@@ -98,13 +98,11 @@ describe('DataError', () => {
                 },
             );
 
-            expect(context.container.textContent).toContain('SOME MESSAGE');
-            expect(context.container.querySelectorAll('a').length).toEqual(1);
-            const link = context.container.querySelector(
-                'a',
-            ) as HTMLAnchorElement;
-            expect(link.textContent).toEqual('View tournament');
-            expect(link.href).toEqual(
+            expect(context.text()).toContain('SOME MESSAGE');
+            expect(context.all('a').length).toEqual(1);
+            const link = context.required('a');
+            expect(link.text()).toEqual('View tournament');
+            expect(link.element<HTMLAnchorElement>().href).toEqual(
                 `http://localhost/tournament/${tournamentId}`,
             );
         });
@@ -125,13 +123,11 @@ describe('DataError', () => {
                 },
             );
 
-            expect(context.container.textContent).toContain('SOME MESSAGE');
-            expect(context.container.querySelectorAll('a').length).toEqual(1);
-            const link = context.container.querySelector(
-                'a',
-            ) as HTMLAnchorElement;
-            expect(link.textContent).toEqual('View team');
-            expect(link.href).toEqual(
+            expect(context.text()).toContain('SOME MESSAGE');
+            expect(context.all('a').length).toEqual(1);
+            const link = context.required('a');
+            expect(link.text()).toEqual('View team');
+            expect(link.element<HTMLAnchorElement>().href).toEqual(
                 `http://localhost/division/${divisionId}/team:${teamId}`,
             );
         });
@@ -152,8 +148,8 @@ describe('DataError', () => {
                 },
             );
 
-            expect(context.container.textContent).toContain('SOME MESSAGE');
-            expect(context.container.querySelectorAll('a').length).toEqual(0);
+            expect(context.text()).toContain('SOME MESSAGE');
+            expect(context.all('a').length).toEqual(0);
         });
 
         it('with teamId and playerId', async () => {
@@ -174,13 +170,11 @@ describe('DataError', () => {
                 },
             );
 
-            expect(context.container.textContent).toContain('SOME MESSAGE');
-            expect(context.container.querySelectorAll('a').length).toEqual(1);
-            const link = context.container.querySelector(
-                'a',
-            ) as HTMLAnchorElement;
-            expect(link.textContent).toEqual('View player');
-            expect(link.href).toEqual(
+            expect(context.text()).toContain('SOME MESSAGE');
+            expect(context.all('a').length).toEqual(1);
+            const link = context.required('a');
+            expect(link.text()).toEqual('View player');
+            expect(link.element<HTMLAnchorElement>().href).toEqual(
                 `http://localhost/division/${divisionId}/player:${playerId}@${teamId}`,
             );
         });

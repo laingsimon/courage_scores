@@ -3,10 +3,8 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
-    doSelectOption,
     ErrorState,
-    findButton,
+    IComponent,
     iocProps,
     noop,
     renderApp,
@@ -144,48 +142,35 @@ describe('Division', () => {
         );
     }
 
-    function getSeasonSelection() {
-        return context.container.querySelector(
-            '.btn-group .btn-group:nth-child(1)',
-        ) as HTMLElement;
+    function getSeasonSelection(): IComponent {
+        return context.required('.btn-group .btn-group:nth-child(1)');
     }
 
     function getDivisionSelection() {
-        return context.container.querySelector(
-            '.btn-group .btn-group:nth-child(2)',
-        )?.textContent;
+        return context.optional('.btn-group .btn-group:nth-child(2)')?.text();
     }
 
     function tableHeadings() {
-        const table = context.container.querySelector(
-            '.content-background table.table',
-        )!;
-
-        return Array.from(table.querySelectorAll('thead tr th')).map(
-            (th) => th.textContent,
-        );
+        return context
+            .required('.content-background table.table')
+            .all('thead tr th')
+            .map((th) => th.text());
     }
 
     function heading() {
-        return context.container.querySelector('.content-background h3')
-            ?.textContent;
+        return context.optional('.content-background h3')?.text();
     }
 
     function subHeading() {
-        return context.container.querySelector('.content-background h5')
-            ?.textContent;
+        return context.optional('.content-background h5')?.text();
     }
 
     function tabs() {
-        return Array.from(context.container.querySelectorAll('a.nav-link')).map(
-            (a) => a.textContent,
-        );
+        return context.all('a.nav-link').map((a) => a.text());
     }
 
-    function getContent() {
-        return context.container.querySelector(
-            '.content-background',
-        ) as HTMLElement;
+    function getContent(): IComponent {
+        return context.required('.content-background');
     }
 
     function defaultContainerProps(
@@ -226,8 +211,8 @@ describe('Division', () => {
             );
 
             const seasonSelection = getSeasonSelection();
-            expect(seasonSelection.textContent).toContain('Select a season');
-            expect(seasonSelection.className).toContain('show');
+            expect(seasonSelection.text()).toContain('Select a season');
+            expect(seasonSelection.className()).toContain('show');
             expect(getDivisionSelection()).toContain('All divisions');
         });
 
@@ -240,8 +225,8 @@ describe('Division', () => {
             );
 
             const seasonSelection = getSeasonSelection();
-            expect(seasonSelection.textContent).toContain('Select a season');
-            expect(seasonSelection.className).toContain('show');
+            expect(seasonSelection.text()).toContain('Select a season');
+            expect(seasonSelection.className()).toContain('show');
             expect(getDivisionSelection()).toContain('All divisions');
         });
     });
@@ -414,7 +399,7 @@ describe('Division', () => {
                     defaultContainerProps({ urlStyle: UrlStyle.Single }),
                 );
 
-                expect(getContent().textContent).toContain(
+                expect(getContent().text()).toContain(
                     '⚠ Team could not be found',
                 );
             });
@@ -427,7 +412,7 @@ describe('Division', () => {
                     defaultContainerProps({ urlStyle: UrlStyle.Single }),
                 );
 
-                expect(getContent().textContent).toContain(
+                expect(getContent().text()).toContain(
                     '⚠ Team could not be found',
                 );
             });
@@ -442,7 +427,7 @@ describe('Division', () => {
                     defaultContainerProps({ mode: 'fixtures' }),
                 );
 
-                expect(getContent().textContent).toContain('No fixtures, yet');
+                expect(getContent().text()).toContain('No fixtures, yet');
             });
 
             it('renders fixtures list via division name', async () => {
@@ -453,7 +438,7 @@ describe('Division', () => {
                     defaultContainerProps({ mode: 'fixtures' }),
                 );
 
-                expect(getContent().textContent).toContain('No fixtures, yet');
+                expect(getContent().text()).toContain('No fixtures, yet');
             });
 
             it('renders fixtures list via division and season name', async () => {
@@ -464,7 +449,7 @@ describe('Division', () => {
                     defaultContainerProps({ urlStyle: UrlStyle.Single }),
                 );
 
-                expect(getContent().textContent).toContain('No fixtures, yet');
+                expect(getContent().text()).toContain('No fixtures, yet');
             });
 
             it('renders fixtures list via division and season id', async () => {
@@ -475,7 +460,7 @@ describe('Division', () => {
                     defaultContainerProps({ urlStyle: UrlStyle.Single }),
                 );
 
-                expect(getContent().textContent).toContain('No fixtures, yet');
+                expect(getContent().text()).toContain('No fixtures, yet');
             });
 
             it('renders multi-division fixtures list via division and season name', async () => {
@@ -486,7 +471,7 @@ describe('Division', () => {
                     defaultContainerProps({ mode: 'fixtures' }),
                 );
 
-                expect(getContent().textContent).toContain('No fixtures, yet');
+                expect(getContent().text()).toContain('No fixtures, yet');
             });
 
             it('renders multi-division fixtures list via division and season id', async () => {
@@ -497,7 +482,7 @@ describe('Division', () => {
                     defaultContainerProps({ mode: 'fixtures' }),
                 );
 
-                expect(getContent().textContent).toContain('No fixtures, yet');
+                expect(getContent().text()).toContain('No fixtures, yet');
             });
 
             it('renders fixtures with favourite teams feature enabled', async () => {
@@ -516,7 +501,7 @@ describe('Division', () => {
                     defaultContainerProps({ mode: 'fixtures' }),
                 );
 
-                expect(getContent().textContent).toContain('No fixtures, yet');
+                expect(getContent().text()).toContain('No fixtures, yet');
             });
 
             it('renders fixtures tab for superleague', async () => {
@@ -727,9 +712,7 @@ describe('Division', () => {
                     defaultContainerProps({ urlStyle: UrlStyle.Single }),
                 );
 
-                const button =
-                    context.container.querySelector('.btn.btn-primary');
-                expect(button).toBeFalsy();
+                expect(context.optional('.btn.btn-primary')).toBeFalsy();
             });
 
             it('renders reports content when permitted', async () => {
@@ -740,9 +723,9 @@ describe('Division', () => {
                     defaultContainerProps({ urlStyle: UrlStyle.Single }),
                 );
 
-                const button =
-                    context.container.querySelector('.btn.btn-primary')!;
-                expect(button.textContent).toEqual('📊 Get reports...');
+                expect(context.required('.btn.btn-primary').text()).toEqual(
+                    '📊 Get reports...',
+                );
             });
 
             it('does not render reports tab for superleague', async () => {
@@ -803,9 +786,7 @@ describe('Division', () => {
                     defaultContainerProps({ urlStyle: UrlStyle.Single }),
                 );
 
-                const button =
-                    context.container.querySelector('.btn.btn-primary');
-                expect(button).toBeFalsy();
+                expect(context.optional('.btn.btn-primary')).toBeFalsy();
             });
 
             it('renders health content when permitted', async () => {
@@ -818,10 +799,7 @@ describe('Division', () => {
                     defaultContainerProps({ urlStyle: UrlStyle.Single }),
                 );
 
-                const component = context.container.querySelector(
-                    'div[datatype="health"]',
-                )!;
-                expect(component).toBeTruthy();
+                expect(context.optional('div[datatype="health"]')).toBeTruthy();
             });
 
             it('does not render health tab for superleague', async () => {
@@ -870,7 +848,7 @@ describe('Division', () => {
                 );
                 expect(heading()).toEqual('⚠ Errors in division data');
 
-                await doClick(findButton(context.container, 'Hide errors'));
+                await context.button('Hide errors').click();
 
                 expect(heading()).toBeFalsy();
             });
@@ -895,11 +873,11 @@ describe('Division', () => {
                 .forSeason(season, division)
                 .build();
 
-            function getFixtureContainer(date: string) {
-                const element = context.container.querySelector(
+            function getFixtureContainer(date: string): IComponent {
+                const dateEl = context.required(
                     `div[data-fixture-date="${date}"]`,
-                )!;
-                return element.parentElement!;
+                );
+                return dateEl.parent()!;
             }
 
             it('when a different season id is returned to requested', async () => {
@@ -935,7 +913,7 @@ describe('Division', () => {
                     `/teams/?division=unknown`,
                 );
 
-                expect(getContent().textContent).toEqual(
+                expect(getContent().text()).toEqual(
                     'Requested division/season could not be found',
                 );
             });
@@ -947,7 +925,7 @@ describe('Division', () => {
                     `/teams/UNKNOWN/?division=${division.id}`,
                 );
 
-                expect(getContent().textContent).toEqual(
+                expect(getContent().text()).toEqual(
                     'Requested division/season could not be found',
                 );
             });
@@ -1029,11 +1007,10 @@ describe('Division', () => {
                 expect(dataRequested).toEqual([{ divisionId: division.id }]); // data loaded once
                 const fixtureContainer = getFixtureContainer('2023-07-01');
 
-                await doSelectOption(
-                    fixtureContainer.querySelector('.dropdown-menu'),
-                    'AWAY',
-                );
-                await doClick(findButton(fixtureContainer, '💾'));
+                await fixtureContainer
+                    .required('.dropdown-menu')
+                    .select('AWAY');
+                await fixtureContainer.button('💾').click();
 
                 expect(dataRequested).toEqual([
                     { divisionId: division.id },
@@ -1073,7 +1050,7 @@ describe('Division', () => {
                     true,
                 );
 
-                await doClick(findButton(fixtureContainer, '🗑'));
+                await fixtureContainer.button('🗑').click();
 
                 expect(dataRequested).toEqual([
                     { divisionId: division.id },
@@ -1118,11 +1095,11 @@ describe('Division', () => {
                 `/teams/?division=${division.id}`,
             );
 
-            expect(context.container.querySelector('.btn-group')).toBeTruthy();
-            expect(context.container.innerHTML).toContain(
+            expect(context.optional('.btn-group')).toBeTruthy();
+            expect(context.html()).toContain(
                 `${season.name} (${renderDate(season.startDate)} - ${renderDate(season.endDate)})`,
             );
-            expect(context.container.innerHTML).toContain(division.name);
+            expect(context.html()).toContain(division.name);
         });
 
         it('does show tabs when not denied', async () => {
@@ -1132,10 +1109,10 @@ describe('Division', () => {
                 `/teams/?division=${division.id}`,
             );
 
-            expect(context.container.querySelector('.nav-tabs')).toBeTruthy();
-            expect(context.container.innerHTML).toContain('Teams');
-            expect(context.container.innerHTML).toContain('Fixtures');
-            expect(context.container.innerHTML).toContain('Players');
+            expect(context.optional('.nav-tabs')).toBeTruthy();
+            expect(context.html()).toContain('Teams');
+            expect(context.html()).toContain('Fixtures');
+            expect(context.html()).toContain('Players');
         });
 
         it('does not show division controls when instructed', async () => {
@@ -1145,7 +1122,7 @@ describe('Division', () => {
                 `/teams/?division=${division.id}`,
             );
 
-            expect(context.container.querySelector('.btn-group')).toBeFalsy();
+            expect(context.optional('.btn-group')).toBeFalsy();
         });
 
         it('does not show tabs when instructed', async () => {
@@ -1155,7 +1132,7 @@ describe('Division', () => {
                 `/teams/?division=${division.id}`,
             );
 
-            expect(context.container.querySelector('.nav-tabs')).toBeFalsy();
+            expect(context.optional('.nav-tabs')).toBeFalsy();
         });
     });
 });
