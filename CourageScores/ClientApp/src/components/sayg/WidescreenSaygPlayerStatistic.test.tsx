@@ -1,7 +1,6 @@
 import {
     cleanUp,
     renderApp,
-    doClick,
     iocProps,
     brandingProps,
     appProps,
@@ -78,7 +77,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
                 setOneDartAverage,
             });
 
-            expect(context.container.textContent).toContain('Darts5');
+            expect(context.text()).toContain('Darts5');
         });
 
         it('NaN leg average', async () => {
@@ -91,7 +90,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
                 setOneDartAverage,
             });
 
-            expect(context.container.textContent).toContain('Leg Avg-');
+            expect(context.text()).toContain('Leg Avg-');
         });
 
         it('3-dart leg average', async () => {
@@ -102,10 +101,8 @@ describe('WidescreenSaygPlayerStatistic', () => {
                 setOneDartAverage,
             });
 
-            expect(context.container.textContent).toContain('Leg Avg61.2');
-            expect(context.container.querySelector('sup')!.textContent).toEqual(
-                '3',
-            );
+            expect(context.text()).toContain('Leg Avg61.2');
+            expect(context.required('sup').text()).toEqual('3');
         });
 
         it('1-dart leg average', async () => {
@@ -116,10 +113,8 @@ describe('WidescreenSaygPlayerStatistic', () => {
                 setOneDartAverage,
             });
 
-            expect(context.container.textContent).toContain('Leg Avg20.4');
-            expect(context.container.querySelector('sup')!.textContent).toEqual(
-                '1',
-            );
+            expect(context.text()).toContain('Leg Avg20.4');
+            expect(context.required('sup').text()).toEqual('1');
         });
 
         it('NaN match average', async () => {
@@ -132,7 +127,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
                 setOneDartAverage,
             });
 
-            expect(context.container.textContent).toContain('Match Avg-');
+            expect(context.text()).toContain('Match Avg-');
         });
 
         it('3-dart match average', async () => {
@@ -143,10 +138,8 @@ describe('WidescreenSaygPlayerStatistic', () => {
                 setOneDartAverage,
             });
 
-            expect(context.container.textContent).toContain('Match Avg75.75');
-            expect(context.container.querySelector('sup')!.textContent).toEqual(
-                '3',
-            );
+            expect(context.text()).toContain('Match Avg75.75');
+            expect(context.required('sup').text()).toEqual('3');
         });
 
         it('1-dart match average', async () => {
@@ -157,10 +150,8 @@ describe('WidescreenSaygPlayerStatistic', () => {
                 setOneDartAverage,
             });
 
-            expect(context.container.textContent).toContain('Match Avg25.25');
-            expect(context.container.querySelector('sup')!.textContent).toEqual(
-                '1',
-            );
+            expect(context.text()).toContain('Match Avg25.25');
+            expect(context.required('sup').text()).toEqual('1');
         });
     });
 
@@ -185,11 +176,9 @@ describe('WidescreenSaygPlayerStatistic', () => {
                 oneDartAverage: false,
                 setOneDartAverage,
             });
-            expect(context.container.querySelector('sup')!.textContent).toEqual(
-                '3',
-            );
+            expect(context.required('sup').text()).toEqual('3');
 
-            await doClick(context.container.querySelector('div:nth-child(2)')!);
+            await context.required('div:nth-child(2)').click();
 
             expect(newOneDartAverage).toEqual(true);
         });
@@ -201,11 +190,9 @@ describe('WidescreenSaygPlayerStatistic', () => {
                 oneDartAverage: true,
                 setOneDartAverage,
             });
-            expect(context.container.querySelector('sup')!.textContent).toEqual(
-                '1',
-            );
+            expect(context.required('sup').text()).toEqual('1');
 
-            await doClick(context.container.querySelector('div:nth-child(3)')!);
+            await context.required('div:nth-child(3)').click();
 
             expect(newOneDartAverage).toEqual(false);
         });

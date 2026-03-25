@@ -2,12 +2,9 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
-    setFile,
     TestContext,
 } from '../../helpers/tests';
 import { IPhotoManagerProps, PhotoManager } from './PhotoManager';
@@ -55,12 +52,7 @@ describe('PhotoManager', () => {
 
     async function setPhoto() {
         const file = 'a photo';
-        await setFile(
-            context.container,
-            'input[type="file"]',
-            file,
-            context.user,
-        );
+        await context.required('input[type="file"]').file(file);
     }
 
     async function renderComponent(
@@ -119,12 +111,8 @@ describe('PhotoManager', () => {
                 },
             );
 
-            const photos = Array.from(
-                context.container.querySelectorAll(
-                    '.list-group .list-group-item',
-                ),
-            ) as HTMLAnchorElement[];
-            expect(photos.map((p) => p.textContent)).toEqual([
+            const photos = context.all('.list-group .list-group-item');
+            expect(photos.map((p) => p.text())).toEqual([
                 `${myPhoto.author} on ${renderDate(myPhoto.created!)}1kb`,
                 `${anotherPhoto.author} on ${renderDate(anotherPhoto.created!)}1kb`,
             ]);
@@ -147,12 +135,8 @@ describe('PhotoManager', () => {
                 },
             );
 
-            const photos = Array.from(
-                context.container.querySelectorAll(
-                    '.list-group .list-group-item',
-                ),
-            ) as HTMLAnchorElement[];
-            expect(photos.map((p) => p.textContent)).toEqual([
+            const photos = context.all('.list-group .list-group-item');
+            expect(photos.map((p) => p.text())).toEqual([
                 `${myPhoto.author} on ${renderDate(myPhoto.created!)}1kb`,
             ]);
         });
@@ -174,12 +158,8 @@ describe('PhotoManager', () => {
                 },
             );
 
-            const photos = Array.from(
-                context.container.querySelectorAll(
-                    '.list-group .list-group-item',
-                ),
-            ) as HTMLAnchorElement[];
-            expect(photos.map((p) => p.textContent)).toEqual([]);
+            const photos = context.all('.list-group .list-group-item');
+            expect(photos.map((p) => p.text())).toEqual([]);
         });
 
         it('when permitted, the ability to upload', async () => {
@@ -200,13 +180,10 @@ describe('PhotoManager', () => {
                 },
             );
 
-            const fileUploadControl =
-                context.container.querySelector('input[type="file"]');
-            expect(fileUploadControl).toBeTruthy();
-            const visibleUploadContainer = context.container.querySelector(
-                'div[datatype="upload-control"]',
-            );
-            expect(visibleUploadContainer).toBeTruthy();
+            expect(context.optional('input[type="file"]')).toBeTruthy();
+            expect(
+                context.optional('div[datatype="upload-control"]'),
+            ).toBeTruthy();
         });
 
         it('when not permitted, no ability to upload', async () => {
@@ -227,16 +204,11 @@ describe('PhotoManager', () => {
                 },
             );
 
-            const uploadButton =
-                context.container.querySelector('.btn-primary');
-            expect(uploadButton).toBeFalsy();
-            const fileUploadControl =
-                context.container.querySelector('input[type="file"]');
-            expect(fileUploadControl).toBeFalsy();
-            const visibleUploadContainer = context.container.querySelector(
-                'div[datatype="upload-control"]',
-            );
-            expect(visibleUploadContainer).toBeFalsy();
+            expect(context.optional('.btn-primary')).toBeFalsy();
+            expect(context.optional('input[type="file"]')).toBeFalsy();
+            expect(
+                context.optional('div[datatype="upload-control"]'),
+            ).toBeFalsy();
         });
 
         it('when not permitted, no delete button', async () => {
@@ -257,10 +229,7 @@ describe('PhotoManager', () => {
                 },
             );
 
-            const deleteButtons = Array.from(
-                context.container.querySelectorAll('.btn-danger'),
-            );
-            expect(deleteButtons).toEqual([]);
+            expect(context.all('.btn-danger').length).toEqual(0);
         });
 
         it('when not permitted, delete button for own photo only', async () => {
@@ -282,10 +251,7 @@ describe('PhotoManager', () => {
                 },
             );
 
-            const deleteButtons = Array.from(
-                context.container.querySelectorAll('.btn-danger'),
-            );
-            expect(deleteButtons.length).toEqual(1);
+            expect(context.all('.btn-danger').length).toEqual(1);
         });
 
         it('when permitted, delete buttons for all photos', async () => {
@@ -307,10 +273,7 @@ describe('PhotoManager', () => {
                 },
             );
 
-            const deleteButtons = Array.from(
-                context.container.querySelectorAll('.btn-danger'),
-            );
-            expect(deleteButtons.length).toEqual(2);
+            expect(context.all('.btn-danger').length).toEqual(2);
         });
     });
 
@@ -345,12 +308,8 @@ describe('PhotoManager', () => {
                 },
             );
 
-            const photos = Array.from(
-                context.container.querySelectorAll(
-                    '.list-group .list-group-item',
-                ),
-            ) as HTMLAnchorElement[];
-            expect(photos[0].href).toEqual(
+            const photos = context.all('.list-group .list-group-item');
+            expect(photos[0].element<HTMLAnchorElement>().href).toEqual(
                 `https://localhost:7247/api/Photo/${myPhoto.id}/`,
             );
         });
@@ -394,11 +353,10 @@ describe('PhotoManager', () => {
                 },
             );
 
-            const visibleUploadContainer = context.container.querySelector(
+            const visibleUploadContainer = context.required(
                 'div[datatype="upload-control"]',
-            )!;
-            expect(visibleUploadContainer).toBeTruthy();
-            await doClick(visibleUploadContainer);
+            );
+            await visibleUploadContainer.click();
 
             // TODO: set the file via the browse-for-file dialog, which may not be possible in tests
             reportedError.verifyNoError();
@@ -471,7 +429,7 @@ describe('PhotoManager', () => {
                 },
             );
 
-            await doClick(findButton(context.container, 'Close'));
+            await context.button('Close').click();
 
             expect(closed).toEqual(true);
         });
@@ -500,7 +458,7 @@ describe('PhotoManager', () => {
                 false,
             );
 
-            await doClick(findButton(context.container, '🗑'));
+            await context.button('🗑').click();
 
             context.prompts.confirmWasShown(
                 'Are you sure you want to delete this photo?',
@@ -532,7 +490,7 @@ describe('PhotoManager', () => {
                 true,
             );
 
-            await doClick(findButton(context.container, '🗑'));
+            await context.button('🗑').click();
 
             expect(deleteId).toEqual(myPhoto.id);
         });

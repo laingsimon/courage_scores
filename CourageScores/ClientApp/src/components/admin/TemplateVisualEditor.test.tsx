@@ -3,9 +3,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -58,14 +56,10 @@ describe('TemplateVisualEditor', () => {
                 onUpdate,
             });
 
-            const sharedAddresses = context.container.querySelector(
-                'div > ul:nth-child(1)',
-            )!;
-            expect(sharedAddresses.querySelectorAll('li').length).toEqual(1); // heading, no addresses
-            const divisions = context.container.querySelector(
-                'div > ul:nth-child(2)',
-            )!;
-            expect(divisions.querySelectorAll('li').length).toEqual(1); //heading, no divisions
+            const sharedAddresses = context.required('div > ul:nth-child(1)');
+            expect(sharedAddresses.all('li').length).toEqual(1); // heading, no addresses
+            const divisions = context.required('div > ul:nth-child(2)');
+            expect(divisions.all('li').length).toEqual(1); //heading, no divisions
         });
 
         it('template shared addresses', async () => {
@@ -79,10 +73,8 @@ describe('TemplateVisualEditor', () => {
                 onUpdate,
             });
 
-            const sharedAddresses = context.container.querySelector(
-                'div > ul:nth-child(1)',
-            )!;
-            expect(sharedAddresses.textContent).toContain('A ×');
+            const sharedAddresses = context.required('div > ul:nth-child(1)');
+            expect(sharedAddresses.text()).toContain('A ×');
         });
 
         it('template divisions', async () => {
@@ -101,10 +93,8 @@ describe('TemplateVisualEditor', () => {
                 onUpdate,
             });
 
-            const divisions = context.container.querySelector(
-                'div > ul:nth-child(2)',
-            )!;
-            expect(divisions.textContent).toContain('B ×');
+            const divisions = context.required('div > ul:nth-child(2)');
+            expect(divisions.text()).toContain('B ×');
         });
     });
 
@@ -119,11 +109,9 @@ describe('TemplateVisualEditor', () => {
                 },
                 onUpdate,
             });
-            const sharedAddresses = context.container.querySelector(
-                'div > ul:nth-child(1)',
-            );
+            const sharedAddresses = context.required('div > ul:nth-child(1)');
 
-            await doClick(findButton(sharedAddresses, '➕ Add shared address'));
+            await sharedAddresses.button('➕ Add shared address').click();
 
             expect(update).toEqual({
                 id: expect.any(String),
@@ -143,11 +131,9 @@ describe('TemplateVisualEditor', () => {
                 },
                 onUpdate,
             });
-            const divisions = context.container.querySelector(
-                'div > ul:nth-child(2)',
-            );
+            const divisions = context.required('div > ul:nth-child(2)');
 
-            await doClick(findButton(divisions, '➕ Add another division'));
+            await divisions.button('➕ Add another division').click();
 
             expect(update).toEqual({
                 id: expect.any(String),

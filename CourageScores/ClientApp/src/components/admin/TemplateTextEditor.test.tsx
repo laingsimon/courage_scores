@@ -2,7 +2,6 @@
 import {
     cleanUp,
     renderApp,
-    doChange,
     iocProps,
     brandingProps,
     appProps,
@@ -63,10 +62,8 @@ describe('TemplateTextEditor', () => {
                 setValid,
             });
 
-            const textarea = context.container.querySelector(
-                'textarea',
-            ) as HTMLTextAreaElement;
-            expect(textarea.value).toEqual('{}');
+            const textarea = context.required('textarea');
+            expect(textarea.value()).toEqual('{}');
         });
 
         it('marks template as invalid when invalid json', async () => {
@@ -80,7 +77,7 @@ describe('TemplateTextEditor', () => {
             });
             console.error = noop;
 
-            await doChange(context.container, 'textarea', 'foo', context.user);
+            await context.required('textarea').change('foo');
 
             expect(valid).toEqual(false);
             expect(update).toBeNull();
@@ -96,8 +93,8 @@ describe('TemplateTextEditor', () => {
                 setValid,
             });
 
-            await doChange(context.container, 'textarea', 'foo', context.user);
-            await doChange(context.container, 'textarea', '{}', context.user);
+            await context.required('textarea').change('foo');
+            await context.required('textarea').change('{}');
 
             expect(valid).toEqual(true);
         });
@@ -112,13 +109,8 @@ describe('TemplateTextEditor', () => {
                 setValid,
             });
 
-            await doChange(context.container, 'textarea', 'foo', context.user);
-            await doChange(
-                context.container,
-                'textarea',
-                '{"a": "b"}',
-                context.user,
-            );
+            await context.required('textarea').change('foo');
+            await context.required('textarea').change('{"a": "b"}');
 
             expect(valid).toEqual(true);
             expect(update).toEqual({
@@ -158,10 +150,8 @@ describe('TemplateTextEditor', () => {
                 sharedAddresses: [],
                 divisions: [],
             };
-            const textarea = context.container.querySelector(
-                'textarea',
-            ) as HTMLTextAreaElement;
-            expect(textarea.value).toEqual(
+            const textarea = context.required('textarea');
+            expect(textarea.value()).toEqual(
                 JSON.stringify(editableTemplate, null, '  '),
             );
         });
@@ -180,17 +170,14 @@ describe('TemplateTextEditor', () => {
             });
             const input = '   ';
 
-            await doChange(
-                context.container,
-                'textarea[placeholder="Copy from excel"]',
-                input,
-                context.user,
-            );
+            await context
+                .required('textarea[placeholder="Copy from excel"]')
+                .change(input);
 
-            const textareaOutput = context.container.querySelector(
+            const textareaOutput = context.required(
                 'textarea[placeholder="Copy into template"]',
-            ) as HTMLTextAreaElement;
-            expect(textareaOutput.value).toEqual('');
+            );
+            expect(textareaOutput.value()).toEqual('');
         });
 
         it('transforms single line excel fixture input correctly', async () => {
@@ -207,17 +194,14 @@ describe('TemplateTextEditor', () => {
             });
             const input = 'A\tB\t\tC\t\D';
 
-            await doChange(
-                context.container,
-                'textarea[placeholder="Copy from excel"]',
-                input,
-                context.user,
-            );
+            await context
+                .required('textarea[placeholder="Copy from excel"]')
+                .change(input);
 
-            const textareaOutput = context.container.querySelector(
+            const textareaOutput = context.required(
                 'textarea[placeholder="Copy into template"]',
-            ) as HTMLTextAreaElement;
-            expect(JSON.parse(textareaOutput.value)).toEqual({
+            );
+            expect(JSON.parse(textareaOutput.value())).toEqual({
                 fixtures: [
                     { home: 'A', away: 'B' },
                     { home: 'C', away: 'D' },
@@ -239,17 +223,14 @@ describe('TemplateTextEditor', () => {
             });
             const input = 'A\tB\t\tC\t\D\n' + 'E\tF\t\tG\tH\n\n';
 
-            await doChange(
-                context.container,
-                'textarea[placeholder="Copy from excel"]',
-                input,
-                context.user,
-            );
+            await context
+                .required('textarea[placeholder="Copy from excel"]')
+                .change(input);
 
-            const textareaOutput = context.container.querySelector(
+            const textareaOutput = context.required(
                 'textarea[placeholder="Copy into template"]',
-            ) as HTMLTextAreaElement;
-            expect(JSON.parse('[' + textareaOutput.value + ']')).toEqual([
+            );
+            expect(JSON.parse('[' + textareaOutput.value() + ']')).toEqual([
                 {
                     fixtures: [
                         { home: 'A', away: 'B' },
@@ -279,17 +260,14 @@ describe('TemplateTextEditor', () => {
             });
             const input = 'A\t-\t\tC\t\D';
 
-            await doChange(
-                context.container,
-                'textarea[placeholder="Copy from excel"]',
-                input,
-                context.user,
-            );
+            await context
+                .required('textarea[placeholder="Copy from excel"]')
+                .change(input);
 
-            const textareaOutput = context.container.querySelector(
+            const textareaOutput = context.required(
                 'textarea[placeholder="Copy into template"]',
-            ) as HTMLTextAreaElement;
-            expect(JSON.parse(textareaOutput.value)).toEqual({
+            );
+            expect(JSON.parse(textareaOutput.value())).toEqual({
                 fixtures: [{ home: 'A' }, { home: 'C', away: 'D' }],
             });
         });
@@ -308,23 +286,17 @@ describe('TemplateTextEditor', () => {
             });
             const input = 'A\t-\t\tC\t\D';
 
-            await doChange(
-                context.container,
-                'textarea[placeholder="Copy from excel"]',
-                input,
-                context.user,
-            );
-            await doChange(
-                context.container,
-                'textarea[placeholder="Copy from excel"]',
-                '',
-                context.user,
-            );
+            await context
+                .required('textarea[placeholder="Copy from excel"]')
+                .change(input);
+            await context
+                .required('textarea[placeholder="Copy from excel"]')
+                .change('');
 
-            const textareaOutput = context.container.querySelector(
+            const textareaOutput = context.required(
                 'textarea[placeholder="Copy into template"]',
-            ) as HTMLTextAreaElement;
-            expect(textareaOutput.value).toEqual('');
+            );
+            expect(textareaOutput.value()).toEqual('');
         });
     });
 });

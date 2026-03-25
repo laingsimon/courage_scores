@@ -50,10 +50,9 @@ describe('WidescreenSaygMatchDetails', () => {
                 numberOfLegs: sayg.numberOfLegs,
             });
 
-            expect(
-                context.container.querySelector('span:nth-child(1)')!
-                    .textContent,
-            ).toEqual('Best of 3');
+            expect(context.required('span:nth-child(1)').text()).toEqual(
+                'Best of 3',
+            );
         });
 
         it('starting score', async () => {
@@ -62,10 +61,9 @@ describe('WidescreenSaygMatchDetails', () => {
                 numberOfLegs: sayg.numberOfLegs,
             });
 
-            expect(
-                context.container.querySelector('span:nth-child(2)')!
-                    .textContent,
-            ).toEqual('from 501');
+            expect(context.required('span:nth-child(2)').text()).toEqual(
+                'from 501',
+            );
         });
 
         it('leg number', async () => {
@@ -74,10 +72,9 @@ describe('WidescreenSaygMatchDetails', () => {
                 numberOfLegs: sayg.numberOfLegs,
             });
 
-            expect(
-                context.container.querySelector('span:nth-child(3)')!
-                    .textContent,
-            ).toEqual('Leg 2');
+            expect(context.required('span:nth-child(3)').text()).toEqual(
+                'Leg 2',
+            );
         });
     });
 });

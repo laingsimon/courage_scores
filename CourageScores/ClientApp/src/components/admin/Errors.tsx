@@ -47,6 +47,7 @@ export function Errors() {
                     <span className="input-group-text">Since</span>
                 </div>
                 <input
+                    name="date"
                     type="date"
                     disabled={loading}
                     className="form-control"

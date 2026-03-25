@@ -1,10 +1,8 @@
-﻿import {
+import {
     api,
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -79,9 +77,8 @@ describe('FixtureDateNote', () => {
                 setEditNote,
             });
 
-            const markdown = context.container.querySelector('p')!;
-            expect(markdown).toBeTruthy();
-            expect(markdown.textContent).toContain('some markdown');
+            const markdown = context.required('p');
+            expect(markdown.text()).toContain('some markdown');
         });
 
         it('when logged in, without ability to delete', async () => {
@@ -102,11 +99,9 @@ describe('FixtureDateNote', () => {
                 account,
             );
 
-            const buttons = Array.from(
-                context.container.querySelectorAll('button'),
-            );
+            const buttons = context.all('button');
             expect(buttons.length).toEqual(1);
-            expect(buttons[0].textContent).toEqual('Edit');
+            expect(buttons[0].text()).toEqual('Edit');
         });
 
         it('when logged in, with ability to delete', async () => {
@@ -126,12 +121,10 @@ describe('FixtureDateNote', () => {
                 account,
             );
 
-            const buttons = Array.from(
-                context.container.querySelectorAll('button'),
-            );
+            const buttons = context.all('button');
             expect(buttons.length).toEqual(2);
-            expect(buttons[0].textContent).toEqual('');
-            expect(buttons[0].className).toEqual('btn-close');
+            expect(buttons[0].text()).toEqual('');
+            expect(buttons[0].className()).toEqual('btn-close');
         });
 
         it('when logged in, without ability to edit', async () => {
@@ -151,9 +144,7 @@ describe('FixtureDateNote', () => {
                 account,
             );
 
-            const buttons = Array.from(
-                context.container.querySelectorAll('button'),
-            );
+            const buttons = context.all('button');
             expect(buttons.length).toEqual(0);
         });
     });
@@ -175,7 +166,7 @@ describe('FixtureDateNote', () => {
                 true,
             );
 
-            await doClick(context.container.querySelector('button.btn-close')!);
+            await context.required('button.btn-close').click();
 
             context.prompts.confirmWasShown(
                 'Are you sure you want to delete this note?',
@@ -199,7 +190,7 @@ describe('FixtureDateNote', () => {
                 false,
             );
 
-            await doClick(context.container.querySelector('button.btn-close')!);
+            await context.required('button.btn-close').click();
 
             context.prompts.confirmWasShown(
                 'Are you sure you want to delete this note?',
@@ -224,7 +215,7 @@ describe('FixtureDateNote', () => {
                 true,
             );
 
-            await doClick(context.container.querySelector('button.btn-close')!);
+            await context.required('button.btn-close').click();
 
             context.prompts.alertWasShown('Could not delete note');
         });
@@ -241,7 +232,7 @@ describe('FixtureDateNote', () => {
             const note = noteBuilder().note('**some markdown**').build();
             await renderComponent({ note, setEditNote }, account);
 
-            await doClick(findButton(context.container, 'Edit'));
+            await context.button('Edit').click();
 
             expect(editNote).toEqual(note);
         });

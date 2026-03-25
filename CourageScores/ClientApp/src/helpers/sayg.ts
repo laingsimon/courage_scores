@@ -1,18 +1,29 @@
-import { doClick, findButton, TestContext } from './tests';
+import { IComponent, TestContext } from './tests';
 import { ENTER_SCORE_BUTTON } from './constants';
 import { LegThrowDto } from '../interfaces/models/dtos/Game/Sayg/LegThrowDto';
 
+function scopeFromOptionalRoot(
+    context: TestContext,
+    root?: IComponent,
+): IComponent {
+    if (root === undefined) {
+        return context;
+    }
+    return root;
+}
+
 export async function playsFirst(context: TestContext, name: string) {
-    await doClick(findButton(context.container, '🎯' + name));
+    await context.button('🎯' + name).click();
 }
 
 export async function keyPad(
     context: TestContext,
     keys: string[],
-    dialog?: Element,
+    root?: IComponent,
 ) {
+    const scope = scopeFromOptionalRoot(context, root);
     for (const key of keys) {
-        await doClick(findButton(dialog || context.container, key));
+        await scope.button(key).click();
     }
 }
 
@@ -44,12 +55,13 @@ export async function enterScores(
 export async function checkoutWith(
     context: TestContext,
     noOfDarts: string,
-    dialog?: Element,
+    root?: IComponent,
 ) {
-    const buttonContainer = (dialog || context.container).querySelector(
-        'div[datatype="gameshot-buttons-score"]',
-    );
-    await doClick(findButton(buttonContainer, noOfDarts));
+    const scope = scopeFromOptionalRoot(context, root);
+    await scope
+        .required('div[datatype="gameshot-buttons-score"]')
+        .button(noOfDarts)
+        .click();
 }
 
 export function getScoreFromThrows(
@@ -63,4 +75,38 @@ export function getScoreFromThrows(
                 : total + (thr.score || 0),
         0,
     );
+}
+
+export function assertWaitingForScoreFor(context: TestContext, side: string) {
+    expect(context.required('div[datatype="current-player"]').text()).toContain(
+        side,
+    );
+}
+
+export function previousScoreRows(context: TestContext): IComponent[] {
+    return context.all('div[datatype="previous-scores"] > div');
+}
+
+export function scoreCardDivTexts(ps: IComponent): string[] {
+    return ps.all('div').map((d) => d.text());
+}
+
+export function homeScoreFromRow(ps: IComponent): string {
+    return ps.required('div:nth-child(1)').text();
+}
+
+export function homeRemainingFromRow(ps: IComponent): string {
+    return ps.required('div:nth-child(2)').text();
+}
+
+export function noOfDartsFromRow(ps: IComponent): string {
+    return ps.required('div:nth-child(3)').text();
+}
+
+export function awayScoreFromRow(ps: IComponent): string {
+    return ps.required('div:nth-child(4)').text();
+}
+
+export function awayRemainingFromRow(ps: IComponent): string {
+    return ps.required('div:nth-child(5)').text();
 }

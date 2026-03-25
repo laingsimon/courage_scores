@@ -1,12 +1,11 @@
 import {
     api,
     cleanUp,
-    doClick,
-    findButton,
     iocProps,
     noop,
     Prompts,
     TestContext,
+    wrapComponent,
 } from './helpers/tests';
 import { App } from './App';
 import { act } from '@testing-library/react';
@@ -34,6 +33,7 @@ import { ITeamApi } from './interfaces/apis/ITeamApi';
 import React from 'react';
 import { CookiesProvider } from 'react-cookie';
 import { ISettings } from './api/settings';
+import userEvent from '@testing-library/user-event';
 
 describe('App', () => {
     let context: TestContext;
@@ -163,6 +163,7 @@ describe('App', () => {
                 }
             },
             prompts: new Prompts(),
+            ...wrapComponent(container, userEvent.setup()),
         };
     }
 
@@ -386,7 +387,7 @@ describe('App', () => {
             );
             console.error = noop;
 
-            await doClick(findButton(context.container, 'onError'));
+            await context.button('onError').click();
 
             expect(reportedError).not.toEqual({
                 message: 'ERROR',
@@ -404,9 +405,7 @@ describe('App', () => {
                 <Route path="/test" element={<TestElement />} />,
             );
 
-            await doClick(
-                findButton(context.container, 'reportClientSideException'),
-            );
+            await context.button('reportClientSideException').click();
 
             expect(reportedError).not.toEqual({
                 message: 'ERROR',
@@ -424,9 +423,7 @@ describe('App', () => {
                 <Route path="/test" element={<TestElement />} />,
             );
 
-            await doClick(
-                findButton(context.container, 'invalidateCacheAndTryAgain'),
-            );
+            await context.button('invalidateCacheAndTryAgain').click();
 
             expect(settings.invalidateCacheOnNextRequest).toEqual(true);
             expect(context.container.textContent).not.toContain(
@@ -440,9 +437,9 @@ describe('App', () => {
                 false,
                 <Route path="/test" element={<TestElement />} />,
             );
-            await doClick(findButton(context.container, 'onError'));
+            await context.button('onError').click();
 
-            await doClick(findButton(context.container, 'Clear error'));
+            await context.button('Clear error').click();
 
             expect(context.container.textContent).not.toContain(
                 'An error occurred',
@@ -464,7 +461,7 @@ describe('App', () => {
                 )! as HTMLInputElement;
                 expect(canGoFullScreen.checked).toEqual(true);
 
-                await doClick(findButton(context.container, 'enterFullScreen'));
+                await context.button('enterFullScreen').click();
 
                 expect(fullScreenRequested).toEqual(true);
             });
@@ -480,7 +477,7 @@ describe('App', () => {
                 )! as HTMLInputElement;
                 expect(canGoFullScreen.checked).toEqual(false);
 
-                await doClick(findButton(context.container, 'enterFullScreen'));
+                await context.button('enterFullScreen').click();
 
                 expect(fullScreenRequested).toEqual(false);
             });
@@ -501,7 +498,7 @@ describe('App', () => {
                 )! as HTMLInputElement;
                 expect(wasFullScreen.checked).toEqual(true);
 
-                await doClick(findButton(context.container, 'exitFullScreen'));
+                await context.button('exitFullScreen').click();
 
                 expect(fullScreenExited).toEqual(true);
             });
@@ -520,7 +517,7 @@ describe('App', () => {
                 )! as HTMLInputElement;
                 expect(wasFullScreen.checked).toEqual(false);
 
-                await doClick(findButton(context.container, 'exitFullScreen'));
+                await context.button('exitFullScreen').click();
 
                 expect(fullScreenExited).toEqual(false);
             });
@@ -545,9 +542,7 @@ describe('App', () => {
                 )! as HTMLInputElement;
                 expect(wasFullScreen.checked).toEqual(false);
 
-                await doClick(
-                    findButton(context.container, 'toggleFullScreen'),
-                );
+                await context.button('toggleFullScreen').click();
 
                 expect(fullScreenRequested).toEqual(true);
                 expect(fullScreenExited).toEqual(false);
@@ -574,9 +569,7 @@ describe('App', () => {
                 )! as HTMLInputElement;
                 expect(wasFullScreen.checked).toEqual(true);
 
-                await doClick(
-                    findButton(context.container, 'toggleFullScreen'),
-                );
+                await context.button('toggleFullScreen').click();
 
                 expect(fullScreenRequested).toEqual(false);
                 expect(fullScreenExited).toEqual(true);

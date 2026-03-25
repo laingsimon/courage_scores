@@ -2,8 +2,6 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
     ErrorState,
     iocProps,
     renderApp,
@@ -62,8 +60,7 @@ describe('GameDetails', () => {
                 season,
             });
 
-            const component = context.container;
-            expect(component.textContent).toContain('at: ADDRESS');
+            expect(context.text()).toContain('at: ADDRESS');
         });
 
         it('when postponed=true and isKnockout=false', async () => {
@@ -81,10 +78,7 @@ describe('GameDetails', () => {
                 season,
             });
 
-            const component = context.container;
-            expect(component.textContent).toContain(
-                'Playing at: ADDRESSPostponed',
-            );
+            expect(context.text()).toContain('Playing at: ADDRESSPostponed');
         });
 
         it('when postponed=true and isKnockout=true', async () => {
@@ -103,8 +97,7 @@ describe('GameDetails', () => {
                 season,
             });
 
-            const component = context.container;
-            expect(component.textContent).toContain('at: ADDRESSPostponed');
+            expect(context.text()).toContain('at: ADDRESSPostponed');
         });
 
         it('when away is unset', async () => {
@@ -123,8 +116,7 @@ describe('GameDetails', () => {
                 season,
             });
 
-            const shareButton = context.container.querySelectorAll('button')[0];
-            expect(shareButton).toBeFalsy();
+            expect(context.optional('button')).toBeFalsy();
         });
 
         it('when home and away are set', async () => {
@@ -144,9 +136,7 @@ describe('GameDetails', () => {
             });
 
             reportedError.verifyNoError();
-            const shareButton = context.container.querySelectorAll('button')[0];
-            expect(shareButton).toBeTruthy();
-            expect(shareButton.textContent).toEqual('🔗');
+            expect(context.button('🔗').text()).toEqual('🔗');
         });
     });
 
@@ -173,11 +163,7 @@ describe('GameDetails', () => {
                     season,
                 });
 
-                const input = context.container.querySelector(
-                    'input[name="date"]',
-                ) as HTMLInputElement;
-                expect(input).toBeTruthy();
-                expect(input.value).toEqual('2023-04-01');
+                expect(context.input('date').value()).toEqual('2023-04-01');
             });
 
             it('address', async () => {
@@ -196,11 +182,7 @@ describe('GameDetails', () => {
                     season,
                 });
 
-                const input = context.container.querySelector(
-                    'input[name="address"]',
-                ) as HTMLInputElement;
-                expect(input).toBeTruthy();
-                expect(input.value).toEqual('ADDRESS');
+                expect(context.input('address').value()).toEqual('ADDRESS');
             });
 
             it('postponed', async () => {
@@ -220,11 +202,10 @@ describe('GameDetails', () => {
                     season,
                 });
 
-                const input = context.container.querySelector(
-                    'input[name="postponed"]',
-                ) as HTMLInputElement;
-                expect(input).toBeTruthy();
-                expect(input.checked).toEqual(true);
+                expect(
+                    context.input('postponed').element<HTMLInputElement>()
+                        .checked,
+                ).toEqual(true);
             });
 
             it('isKnockout', async () => {
@@ -244,11 +225,10 @@ describe('GameDetails', () => {
                     season,
                 });
 
-                const input = context.container.querySelector(
-                    'input[name="isKnockout"]',
-                ) as HTMLInputElement;
-                expect(input).toBeTruthy();
-                expect(input.checked).toEqual(true);
+                expect(
+                    context.input('isKnockout').element<HTMLInputElement>()
+                        .checked,
+                ).toEqual(true);
             });
 
             it('accoladesCount', async () => {
@@ -269,11 +249,10 @@ describe('GameDetails', () => {
                     season,
                 });
 
-                const input = context.container.querySelector(
-                    'input[name="accoladesCount"]',
-                ) as HTMLInputElement;
-                expect(input).toBeTruthy();
-                expect(input.checked).toEqual(true);
+                expect(
+                    context.input('accoladesCount').element<HTMLInputElement>()
+                        .checked,
+                ).toEqual(true);
             });
         });
 
@@ -293,12 +272,7 @@ describe('GameDetails', () => {
                     setFixtureData,
                     season,
                 });
-                await doChange(
-                    context.container,
-                    'input[name="date"]',
-                    '2023-05-01',
-                    context.user,
-                );
+                await context.input('date').change('2023-05-01');
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData!.date).toEqual('2023-05-01');
@@ -319,12 +293,7 @@ describe('GameDetails', () => {
                     setFixtureData,
                     season,
                 });
-                await doChange(
-                    context.container,
-                    'input[name="address"]',
-                    'NEW ADDRESS',
-                    context.user,
-                );
+                await context.input('address').change('NEW ADDRESS');
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData!.address).toEqual('NEW ADDRESS');
@@ -346,7 +315,7 @@ describe('GameDetails', () => {
                     setFixtureData,
                     season,
                 });
-                await doClick(context.container, 'input[name="postponed"]');
+                await context.input('postponed').click();
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData!.postponed).toEqual(false);
@@ -368,7 +337,7 @@ describe('GameDetails', () => {
                     setFixtureData,
                     season,
                 });
-                await doClick(context.container, 'input[name="isKnockout"]');
+                await context.input('isKnockout').click();
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData!.isKnockout).toEqual(false);
@@ -390,10 +359,7 @@ describe('GameDetails', () => {
                     setFixtureData,
                     season,
                 });
-                await doClick(
-                    context.container,
-                    'input[name="accoladesCount"]',
-                );
+                await context.input('accoladesCount').click();
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData!.accoladesCount).toEqual(false);

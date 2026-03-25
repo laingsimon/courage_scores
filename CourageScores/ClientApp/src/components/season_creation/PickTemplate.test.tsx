@@ -2,7 +2,6 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doSelectOption,
     ErrorState,
     iocProps,
     renderApp,
@@ -86,7 +85,7 @@ describe('PickTemplate', () => {
             });
 
             reportedError.verifyNoError();
-            expect(context.container.innerHTML).toContain(
+            expect(context.html()).toContain(
                 'spinner-border spinner-border-sm',
             );
         });
@@ -102,9 +101,8 @@ describe('PickTemplate', () => {
             });
 
             reportedError.verifyNoError();
-            const dropdown = context.container.querySelector('.dropdown-menu')!;
-            expect(dropdown).toBeTruthy();
-            expect(dropdown.querySelector('.active')).toBeFalsy();
+            const dropdown = context.required('.dropdown-menu');
+            expect(dropdown.optional('.active')).toBeFalsy();
         });
 
         it('when template selected', async () => {
@@ -118,9 +116,8 @@ describe('PickTemplate', () => {
             });
 
             reportedError.verifyNoError();
-            const dropdown = context.container.querySelector('.dropdown-menu')!;
-            expect(dropdown).toBeTruthy();
-            expect(dropdown.querySelector('.active')!.textContent).toEqual(
+            const dropdown = context.required('.dropdown-menu');
+            expect(dropdown.required('.active').text()).toEqual(
                 'COMPATIBLECOMPATIBLE DESCRIPTION',
             );
         });
@@ -136,29 +133,22 @@ describe('PickTemplate', () => {
             });
 
             reportedError.verifyNoError();
-            const alert = context.container.querySelector('.alert')!;
-            expect(alert).toBeTruthy();
-            expect(alert.className).toContain('alert-success');
-            expect(alert.querySelector('h4')!.textContent).toEqual(
+            const alert = context.required('.alert');
+            expect(alert.className()).toContain('alert-success');
+            expect(alert.required('h4').text()).toEqual(
                 '✔ Compatible with this season',
             );
             expect(
-                Array.from(alert.querySelectorAll('ol:nth-child(2) li')).map(
-                    (li) => li.textContent,
-                ),
+                alert.all('ol:nth-child(2) li').map((li) => li.text()),
             ).toEqual(['ERROR']);
             expect(
-                Array.from(alert.querySelectorAll('ol:nth-child(3) li')).map(
-                    (li) => li.textContent,
-                ),
+                alert.all('ol:nth-child(3) li').map((li) => li.text()),
             ).toEqual(['WARNING']);
             expect(
-                Array.from(alert.querySelectorAll('ol:nth-child(4) li')).map(
-                    (li) => li.textContent,
-                ),
+                alert.all('ol:nth-child(4) li').map((li) => li.text()),
             ).toEqual(['MESSAGE']);
             expect(
-                alert.querySelector('div[datatype="view-health-check"]'),
+                alert.optional('div[datatype="view-health-check"]'),
             ).toBeTruthy();
         });
 
@@ -173,29 +163,22 @@ describe('PickTemplate', () => {
             });
 
             reportedError.verifyNoError();
-            const alert = context.container.querySelector('.alert')!;
-            expect(alert).toBeTruthy();
-            expect(alert.className).toContain('alert-warning');
-            expect(alert.querySelector('h4')!.textContent).toEqual(
+            const alert = context.required('.alert');
+            expect(alert.className()).toContain('alert-warning');
+            expect(alert.required('h4').text()).toEqual(
                 '🚫 Incompatible with this season',
             );
             expect(
-                Array.from(alert.querySelectorAll('ol:nth-child(2) li')).map(
-                    (li) => li.textContent,
-                ),
+                alert.all('ol:nth-child(2) li').map((li) => li.text()),
             ).toEqual(['ERROR']);
             expect(
-                Array.from(alert.querySelectorAll('ol:nth-child(3) li')).map(
-                    (li) => li.textContent,
-                ),
+                alert.all('ol:nth-child(3) li').map((li) => li.text()),
             ).toEqual(['WARNING']);
             expect(
-                Array.from(alert.querySelectorAll('ol:nth-child(4) li')).map(
-                    (li) => li.textContent,
-                ),
+                alert.all('ol:nth-child(4) li').map((li) => li.text()),
             ).toEqual(['MESSAGE']);
             expect(
-                alert.querySelector('div[datatype="view-health-check"]'),
+                alert.optional('div[datatype="view-health-check"]'),
             ).toBeFalsy();
         });
 
@@ -228,12 +211,9 @@ describe('PickTemplate', () => {
             });
 
             reportedError.verifyNoError();
-            const alert = context.container.querySelector('.alert')!;
-            expect(alert).toBeTruthy();
-            expect(alert.className).toContain('alert-success');
-            expect(
-                context.container.querySelectorAll('.alert > ol').length,
-            ).toEqual(0);
+            const alert = context.required('.alert');
+            expect(alert.className()).toContain('alert-success');
+            expect(context.all('.alert > ol').length).toEqual(0);
         });
     });
 
@@ -284,8 +264,7 @@ describe('PickTemplate', () => {
             });
 
             reportedError.verifyNoError();
-            const dropdown = context.container.querySelector('.dropdown-menu');
-            await doSelectOption(dropdown, '🚫 INCOMPATIBLE');
+            await context.required('.dropdown-menu').select('🚫 INCOMPATIBLE');
 
             reportedError.verifyNoError();
             expect(selectedTemplate).toEqual(incompatibleTemplate);

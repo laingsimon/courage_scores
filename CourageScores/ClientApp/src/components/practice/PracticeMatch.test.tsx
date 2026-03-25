@@ -3,10 +3,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
     ErrorState,
-    findButton,
     IBrowserNavigator,
     iocProps,
     noop,
@@ -124,26 +121,22 @@ describe('PracticeMatch', () => {
     }
 
     function assertNoDataError() {
-        const dataError = context.container.querySelector(
-            'div[data-name="data-error"]',
-        ) as HTMLElement;
-        expect(dataError).toBeFalsy();
+        expect(context.optional('div[data-name="data-error"]')).toBeFalsy();
     }
 
     function assertDataError(error: string) {
-        const dataError = context.container.querySelector(
-            'div[data-name="data-error"]',
-        ) as HTMLElement;
-        expect(dataError).toBeTruthy();
-        expect(dataError.textContent).toContain(error);
+        const dataError = context.required('div[data-name="data-error"]');
+        expect(dataError.text()).toContain(error);
     }
 
     function assertInputValue(name: string, value: string) {
-        const input = context.container.querySelector(
-            `input[name="${name}"]`,
-        ) as HTMLInputElement;
-        expect(input).toBeTruthy();
-        expect(input.value).toEqual(value);
+        expect(context.input(name).value()).toEqual(value);
+    }
+
+    function expectNoSaveButton() {
+        expect(
+            context.all('.btn, button').some((b) => b.text() === 'Save '),
+        ).toEqual(false);
     }
 
     describe('logged out', () => {
@@ -154,9 +147,7 @@ describe('PracticeMatch', () => {
 
             reportedError.verifyNoError();
             assertNoDataError();
-            expect(
-                context.container.querySelector('.loading-background'),
-            ).not.toBeNull();
+            expect(context.optional('.loading-background')).not.toBeNull();
         });
 
         it('renders given no saved data', async () => {
@@ -196,14 +187,10 @@ describe('PracticeMatch', () => {
             reportedError.verifyNoError();
             assertDataError('Data not found');
 
-            await doClick(
-                findButton(
-                    context.container.querySelector(
-                        'div[data-name="data-error"]',
-                    ),
-                    'Clear',
-                ),
-            );
+            await context
+                .required('div[data-name="data-error"]')
+                .button('Clear')
+                .click();
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(`/practice/match`);
         });
@@ -249,9 +236,7 @@ describe('PracticeMatch', () => {
             assertInputValue('startingScore', '123');
             assertInputValue('numberOfLegs', '1');
             assertInputValue('opponentName', 'them');
-            const matchStatistics = context.container.querySelector('h4')!;
-            expect(matchStatistics).toBeTruthy();
-            expect(matchStatistics.textContent).toEqual('Match statistics');
+            expect(context.required('h4').text()).toEqual('Match statistics');
         });
 
         it('cannot save unfinished practice data when embedded', async () => {
@@ -267,7 +252,7 @@ describe('PracticeMatch', () => {
             reportedError.verifyNoError();
             assertNoDataError();
 
-            expect(findButton(context.container, 'Save ', true)).toBeNull();
+            expectNoSaveButton();
         });
 
         it('can save unfinished practice data', async () => {
@@ -284,7 +269,7 @@ describe('PracticeMatch', () => {
             assertNoDataError();
 
             delete saygData[jsonData.id];
-            await doClick(findButton(context.container, 'Save '));
+            await context.button('Save ').click();
 
             expect(Object.keys(saygData)).toContain(jsonData.id);
             expect(shareData).toEqual({
@@ -311,7 +296,7 @@ describe('PracticeMatch', () => {
             assertNoDataError();
 
             delete saygData[jsonData.id];
-            await doClick(findButton(context.container, 'Save '));
+            await context.button('Save ').click();
 
             expect(Object.keys(saygData)).toContain(jsonData.id);
             expect(shareData).toEqual({
@@ -337,7 +322,7 @@ describe('PracticeMatch', () => {
             reportedError.verifyNoError();
             assertNoDataError();
 
-            expect(findButton(context.container, 'Save ', true)).toBeNull();
+            expectNoSaveButton();
         });
 
         it('can change your name', async () => {
@@ -345,14 +330,9 @@ describe('PracticeMatch', () => {
             reportedError.verifyNoError();
             assertNoDataError();
 
-            await doChange(
-                context.container,
-                'input[name="yourName"]',
-                'YOU',
-                context.user,
-            );
+            await context.input('yourName').change('YOU');
 
-            await doClick(findButton(context.container, 'Save '));
+            await context.button('Save ').click();
             const id = Object.keys(saygData)[0];
             expect(saygData[id].yourName).toEqual('YOU');
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
@@ -365,12 +345,7 @@ describe('PracticeMatch', () => {
             reportedError.verifyNoError();
             assertNoDataError();
 
-            await doChange(
-                context.container,
-                'input[name="numberOfLegs"]',
-                '7',
-                context.user,
-            );
+            await context.input('numberOfLegs').change('7');
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
                 `/practice/match?numberOfLegs=7&yourName=you&startingScore=501`,
@@ -381,24 +356,14 @@ describe('PracticeMatch', () => {
             await renderComponent(account, '');
             reportedError.verifyNoError();
             assertNoDataError();
-            await doChange(
-                context.container,
-                'input[name="opponentName"]',
-                'THEM',
-                context.user,
-            );
-            await doClick(findButton(context.container, 'Save '));
+            await context.input('opponentName').change('THEM');
+            await context.button('Save ').click();
             const id = Object.keys(saygData)[0];
             expect(saygData[id].opponentName).toEqual('THEM');
 
-            await doChange(
-                context.container,
-                'input[name="opponentName"]',
-                '',
-                context.user,
-            );
+            await context.input('opponentName').change('');
 
-            await doClick(findButton(context.container, 'Save '));
+            await context.button('Save ').click();
             expect(saygData[id].opponentName).toEqual('');
         });
 
@@ -415,7 +380,7 @@ describe('PracticeMatch', () => {
                 false,
             );
 
-            await doClick(findButton(context.container, 'Save '));
+            await context.button('Save ').click();
 
             context.prompts.confirmWasShown(
                 'Unable to upload results for leg, check your internet connection and try again.\n\nPressing cancel may mean the data for this leg is lost.',
@@ -438,9 +403,9 @@ describe('PracticeMatch', () => {
             reportedError.verifyNoError();
             assertNoDataError();
 
-            await doClick(findButton(context.container, 'Restart...'));
+            await context.button('Restart...').click();
 
-            await doClick(findButton(context.container, 'Save '));
+            await context.button('Save ').click();
             expect(saygData[jsonData.id].startingScore).toEqual(
                 jsonData.startingScore,
             );
@@ -463,7 +428,7 @@ describe('PracticeMatch', () => {
 
             await keyPad(context, ['1', '8', '0', ENTER_SCORE_BUTTON]);
 
-            await doClick(findButton(context.container, 'Save '));
+            await context.button('Save ').click();
             const id = Object.keys(saygData)[0];
             expect(saygData[id].legs[0].home).toEqual({
                 noOfDarts: 3,
@@ -481,18 +446,13 @@ describe('PracticeMatch', () => {
             await renderComponent(account, '');
             reportedError.verifyNoError();
             assertNoDataError();
-            await doChange(
-                context.container,
-                'input[name="startingScore"]',
-                '501',
-                context.user,
-            );
+            await context.input('startingScore').change('501');
             await keyPad(context, ['1', '8', '0', ENTER_SCORE_BUTTON]);
             await keyPad(context, ['1', '8', '0', ENTER_SCORE_BUTTON]);
             await keyPad(context, ['1', '4', '1', ENTER_SCORE_BUTTON]);
             await checkoutWith(context, CHECKOUT_3_DART);
 
-            await doClick(findButton(context.container, 'Save '));
+            await context.button('Save ').click();
             const id = Object.keys(saygData)[0];
             expect(saygData[id].homeScore).toEqual(1);
             expect(saygData[id].awayScore).toEqual(0);
@@ -557,9 +517,7 @@ describe('PracticeMatch', () => {
             assertInputValue('startingScore', '123');
             assertInputValue('numberOfLegs', '1');
             assertInputValue('opponentName', 'them');
-            const matchStatistics = context.container.querySelector('h4')!;
-            expect(matchStatistics).toBeTruthy();
-            expect(matchStatistics.textContent).toEqual('Match statistics');
+            expect(context.required('h4').text()).toEqual('Match statistics');
         });
 
         it('can restart practice', async () => {
@@ -578,9 +536,9 @@ describe('PracticeMatch', () => {
             reportedError.verifyNoError();
             assertNoDataError();
 
-            await doClick(findButton(context.container, 'Restart...'));
+            await context.button('Restart...').click();
 
-            await doClick(findButton(context.container, 'Save '));
+            await context.button('Save ').click();
             expect(saygData[jsonData.id].startingScore).toEqual(
                 jsonData.startingScore,
             );
@@ -613,7 +571,7 @@ describe('PracticeMatch', () => {
             reportedError.verifyNoError();
             assertNoDataError();
 
-            await doClick(findButton(context.container, 'Restart...'));
+            await context.button('Restart...').click();
 
             expect(fullScreenState.isFullScreen).toEqual(false);
         });
@@ -635,7 +593,7 @@ describe('PracticeMatch', () => {
             reportedError.verifyNoError();
             assertNoDataError();
 
-            await doClick(findButton(context.container, 'Restart...'));
+            await context.button('Restart...').click();
 
             expect(fullScreenState.isFullScreen).toEqual(true);
         });

@@ -1,16 +1,12 @@
 import {
     cleanUp,
-    doClick,
-    findButton,
     renderApp,
-    doChange,
     iocProps,
     brandingProps,
     appProps,
     TestContext,
 } from '../../helpers/tests';
 import { EditThrow, IEditThrowProps } from './EditThrow';
-import { toDictionary } from '../../helpers/collections';
 import { valueChanged } from '../../helpers/events';
 import { LegThrowDto } from '../../interfaces/models/dtos/Game/Sayg/LegThrowDto';
 import React from 'react';
@@ -65,9 +61,7 @@ describe('EditThrow', () => {
                 onClose,
             });
 
-            expect(context.container.textContent).toContain(
-                'Edit throw 4 for HOME',
-            );
+            expect(context.text()).toContain('Edit throw 4 for HOME');
         });
 
         it('away competitor name in title', async () => {
@@ -83,9 +77,7 @@ describe('EditThrow', () => {
                 onClose,
             });
 
-            expect(context.container.textContent).toContain(
-                'Edit throw 4 for AWAY',
-            );
+            expect(context.text()).toContain('Edit throw 4 for AWAY');
         });
 
         it('throw details', async () => {
@@ -101,15 +93,8 @@ describe('EditThrow', () => {
                 onClose,
             });
 
-            const inputs = Array.from(
-                context.container.querySelectorAll('input'),
-            );
-            const inputMap = toDictionary(
-                inputs,
-                (i) => i.getAttribute('name')!,
-            );
-            expect(inputMap['score'].value).toEqual('1');
-            expect(inputMap['noOfDarts'].value).toEqual('2');
+            expect(context.input('score').value()).toEqual('1');
+            expect(context.input('noOfDarts').value()).toEqual('2');
         });
 
         it('null score and noOfDarts', async () => {
@@ -123,15 +108,8 @@ describe('EditThrow', () => {
                 onClose,
             });
 
-            const inputs = Array.from(
-                context.container.querySelectorAll('input'),
-            );
-            const inputMap = toDictionary(
-                inputs,
-                (i) => i.getAttribute('name')!,
-            );
-            expect(inputMap['score'].value).toEqual('');
-            expect(inputMap['noOfDarts'].value).toEqual('');
+            expect(context.input('score').value()).toEqual('');
+            expect(context.input('noOfDarts').value()).toEqual('');
         });
     });
 
@@ -149,7 +127,7 @@ describe('EditThrow', () => {
                 onClose,
             });
 
-            await doClick(findButton(context.container, 'Close'));
+            await context.button('Close').click();
 
             expect(closed).toEqual(true);
         });
@@ -167,7 +145,7 @@ describe('EditThrow', () => {
                 onClose,
             });
 
-            await doClick(findButton(context.container, 'Save changes'));
+            await context.button('Save changes').click();
 
             expect(saved).toEqual(true);
         });
@@ -185,12 +163,7 @@ describe('EditThrow', () => {
                 onClose,
             });
 
-            await doChange(
-                context.container,
-                'input[name="score"]',
-                '100',
-                context.user,
-            );
+            await context.input('score').change('100');
 
             expect(changed).toEqual({
                 score: 100,
@@ -210,12 +183,7 @@ describe('EditThrow', () => {
                 onClose,
             });
 
-            await doChange(
-                context.container,
-                'input[name="noOfDarts"]',
-                '3',
-                context.user,
-            );
+            await context.input('noOfDarts').change('3');
 
             expect(changed).toEqual({
                 noOfDarts: 3,

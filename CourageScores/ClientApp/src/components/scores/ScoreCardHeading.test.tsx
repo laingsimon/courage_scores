@@ -2,7 +2,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -68,46 +68,38 @@ describe('ScoreCardHeading', () => {
         );
     }
 
+    function headingCell(home?: boolean): IComponent {
+        return context.required(`thead > tr > td:nth-child(${home ? 1 : 3})`);
+    }
+
     function assertToggleNotShown(home?: boolean) {
-        const heading = context.container.querySelector(
-            `thead > tr > td:nth-child(${home ? 1 : 3})`,
-        )!;
-        expect(heading).toBeTruthy();
-        const headingLink = heading.querySelector('a')!;
-        expect(headingLink.textContent).toContain(home ? 'HOME' : 'AWAY');
-        expect(heading.querySelectorAll('span').length).toEqual(0);
+        const heading = headingCell(home);
+        const headingLink = heading.required('a');
+        expect(headingLink.text()).toContain(home ? 'HOME' : 'AWAY');
+        expect(heading.all('span').length).toEqual(0);
     }
 
     function assertToggleShown(home: boolean, text: string) {
-        const heading = context.container.querySelector(
-            `thead > tr > td:nth-child(${home ? 1 : 3})`,
-        )!;
-        expect(heading).toBeTruthy();
-        const toggleButton = heading.querySelector('.btn')!;
-        expect(toggleButton.textContent).toContain(home ? 'HOME' : 'AWAY');
-        expect(toggleButton.textContent).toContain('📬');
-        expect(toggleButton.textContent).toContain(text);
+        const heading = headingCell(home);
+        const toggleButton = heading.required('.btn');
+        expect(toggleButton.text()).toContain(home ? 'HOME' : 'AWAY');
+        expect(toggleButton.text()).toContain('📬');
+        expect(toggleButton.text()).toContain(text);
     }
 
     async function assertRevertToFixtureData(home: boolean, data: GameDto) {
-        const heading = context.container.querySelector(
-            `thead > tr > td:nth-child(${home ? 1 : 3})`,
-        )!;
-        expect(heading).toBeTruthy();
+        const heading = headingCell(home);
 
-        await doClick(heading.querySelector('span')!);
+        await heading.required('span').click();
 
         expect(updatedSubmission).toBeUndefined();
         expect(updatedFixtureData).toEqual(data);
     }
 
     async function assertDisplayOfSubmissionData(home: boolean, data: GameDto) {
-        const heading = context.container.querySelector(
-            `thead > tr > td:nth-child(${home ? 1 : 3})`,
-        )!;
-        expect(heading).toBeTruthy();
+        const heading = headingCell(home);
 
-        await doClick(heading.querySelector('span')!);
+        await heading.required('span').click();
 
         expect(updatedSubmission).toEqual(home ? 'home' : 'away');
         expect(updatedFixtureData).toEqual(
@@ -116,23 +108,19 @@ describe('ScoreCardHeading', () => {
     }
 
     function assertWinner(winner: 'home' | 'away' | '') {
-        const homeHeading = context.container.querySelector(
-            `thead > tr > td:nth-child(1)`,
-        )!;
-        const awayHeading = context.container.querySelector(
-            `thead > tr > td:nth-child(3)`,
-        )!;
+        const homeHeading = context.required('thead > tr > td:nth-child(1)');
+        const awayHeading = context.required('thead > tr > td:nth-child(3)');
 
         if (winner === 'home') {
-            expect(homeHeading.className).toContain('bg-winner');
+            expect(homeHeading.className()).toContain('bg-winner');
         } else {
-            expect(homeHeading.className).not.toContain('bg-winner');
+            expect(homeHeading.className()).not.toContain('bg-winner');
         }
 
         if (winner === 'away') {
-            expect(awayHeading.className).toContain('bg-winner');
+            expect(awayHeading.className()).toContain('bg-winner');
         } else {
-            expect(awayHeading.className).not.toContain('bg-winner');
+            expect(awayHeading.className()).not.toContain('bg-winner');
         }
     }
 
@@ -142,25 +130,16 @@ describe('ScoreCardHeading', () => {
         fixtureData: ILeagueFixtureContainerProps,
     ) {
         const team: GameTeamDto = home ? data.home : data.away;
-        const heading = context.container.querySelector(
-            `thead > tr > td:nth-child(${home ? 1 : 3})`,
-        )!;
-        expect(heading).toBeTruthy();
-        const linkToTeam = heading.querySelector('a')!;
-        expect(linkToTeam).toBeTruthy();
+        const heading = headingCell(home);
+        const linkToTeam = heading.required('a').element<HTMLAnchorElement>();
         expect(linkToTeam.href).toContain(
             `/division/${fixtureData.division.name}/team:${team.name}/${fixtureData.season.name}`,
         );
     }
 
     function assertLinkText(home: boolean, text: string) {
-        const heading = context.container.querySelector(
-            `thead > tr > td:nth-child(${home ? 1 : 3})`,
-        )!;
-        expect(heading).toBeTruthy();
-        const linkToTeam = heading.querySelector('a')!;
-        expect(linkToTeam).toBeTruthy();
-        expect(linkToTeam.textContent).toEqual(text);
+        const heading = headingCell(home);
+        expect(heading.required('a').text()).toEqual(text);
     }
 
     function props(
@@ -447,9 +426,8 @@ describe('ScoreCardHeading', () => {
                     [team],
                 );
 
-                const alert = context.container.querySelector('.alert')!;
-                expect(alert).toBeTruthy();
-                expect(alert.textContent).toContain(
+                const alert = context.required('.alert');
+                expect(alert.text()).toContain(
                     'You are viewing the submission from HOME, created by EDITOR as of ' +
                         renderDate(updated),
                 );
@@ -635,11 +613,11 @@ describe('ScoreCardHeading', () => {
                         teams,
                     );
 
-                    const alert = context.container.querySelector('.alert')!;
-                    expect(alert.textContent).toContain(
+                    const alert = context.required('.alert');
+                    expect(alert.text()).toContain(
                         '⚠ You are editing the submission from TEAM, they are not visible on the website.',
                     );
-                    expect(alert.textContent).toContain(
+                    expect(alert.text()).toContain(
                         'The results will be published by an administrator, or automatically if someone from HOME submits matching results.',
                     );
                 });
@@ -651,11 +629,11 @@ describe('ScoreCardHeading', () => {
                         account,
                     );
 
-                    const alert = context.container.querySelector('.alert')!;
-                    expect(alert.textContent).toContain(
+                    const alert = context.required('.alert');
+                    expect(alert.text()).toContain(
                         '⚠ You are editing your submission, they are not visible on the website.',
                     );
-                    expect(alert.textContent).toContain(
+                    expect(alert.text()).toContain(
                         'The results will be published by an administrator, or automatically if someone from HOME submits matching results.',
                     );
                 });

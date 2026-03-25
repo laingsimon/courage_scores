@@ -2,7 +2,6 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
     iocProps,
     renderApp,
     TestContext,
@@ -54,10 +53,10 @@ describe('MatchAverage', () => {
             setOneDartAverage,
         });
 
-        const homeAverage = context.container.querySelector('td:nth-child(2)')!;
-        const awayAverage = context.container.querySelector('td:nth-child(3)')!;
-        expect(homeAverage.textContent).toEqual('30.33');
-        expect(awayAverage.textContent).toEqual('20.56');
+        const homeAverage = context.required('td:nth-child(2)');
+        const awayAverage = context.required('td:nth-child(3)');
+        expect(homeAverage.text()).toEqual('30.33');
+        expect(awayAverage.text()).toEqual('20.56');
     });
 
     it('renders 1 dart average', async () => {
@@ -68,10 +67,10 @@ describe('MatchAverage', () => {
             setOneDartAverage,
         });
 
-        const homeAverage = context.container.querySelector('td:nth-child(2)')!;
-        const awayAverage = context.container.querySelector('td:nth-child(3)')!;
-        expect(homeAverage.textContent).toEqual('10.11');
-        expect(awayAverage.textContent).toEqual('6.85');
+        const homeAverage = context.required('td:nth-child(2)');
+        const awayAverage = context.required('td:nth-child(3)');
+        expect(homeAverage.text()).toEqual('10.11');
+        expect(awayAverage.text()).toEqual('6.85');
     });
 
     it('renders single player average', async () => {
@@ -82,9 +81,9 @@ describe('MatchAverage', () => {
             setOneDartAverage,
         });
 
-        const homeAverage = context.container.querySelector('td:nth-child(2)')!;
-        const awayAverage = context.container.querySelector('td:nth-child(3)')!;
-        expect(homeAverage.textContent).toEqual('30.33');
+        const homeAverage = context.required('td:nth-child(2)');
+        const awayAverage = context.optional('td:nth-child(3)');
+        expect(homeAverage.text()).toEqual('30.33');
         expect(awayAverage).toBeFalsy();
     });
 
@@ -97,8 +96,8 @@ describe('MatchAverage', () => {
             setOneDartAverage,
         });
 
-        const awayAverage = context.container.querySelector('td:nth-child(3)')!;
-        expect(awayAverage.textContent).toEqual('-');
+        const awayAverage = context.required('td:nth-child(3)');
+        expect(awayAverage.text()).toEqual('-');
     });
 
     it('renders home average as winner', async () => {
@@ -109,10 +108,10 @@ describe('MatchAverage', () => {
             setOneDartAverage,
         });
 
-        const homeAverage = context.container.querySelector('td:nth-child(2)')!;
-        const awayAverage = context.container.querySelector('td:nth-child(3)')!;
-        expect(homeAverage.className).toContain('bg-winner');
-        expect(awayAverage.className).not.toContain('bg-winner');
+        const homeAverage = context.required('td:nth-child(2)');
+        const awayAverage = context.required('td:nth-child(3)');
+        expect(homeAverage.className()).toContain('bg-winner');
+        expect(awayAverage.className()).not.toContain('bg-winner');
     });
 
     it('renders away average as winner', async () => {
@@ -123,10 +122,10 @@ describe('MatchAverage', () => {
             setOneDartAverage,
         });
 
-        const homeAverage = context.container.querySelector('td:nth-child(2)')!;
-        const awayAverage = context.container.querySelector('td:nth-child(3)')!;
-        expect(homeAverage.className).not.toContain('bg-winner');
-        expect(awayAverage.className).toContain('bg-winner');
+        const homeAverage = context.required('td:nth-child(2)');
+        const awayAverage = context.required('td:nth-child(3)');
+        expect(homeAverage.className()).not.toContain('bg-winner');
+        expect(awayAverage.className()).toContain('bg-winner');
     });
 
     it('can change one dart average option', async () => {
@@ -136,12 +135,10 @@ describe('MatchAverage', () => {
             oneDartAverage: true,
             setOneDartAverage,
         });
-        const toggle = context.container.querySelector(
-            'input[id="oneDartAverage"]',
-        ) as HTMLInputElement;
-        expect(toggle.checked).toEqual(true);
+        const toggle = context.required('input#oneDartAverage');
+        expect((toggle.element() as HTMLInputElement).checked).toEqual(true);
 
-        await doClick(toggle);
+        await toggle.click();
 
         expect(oneDartAverage).toEqual(false);
     });

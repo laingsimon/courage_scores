@@ -3,10 +3,8 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
     ErrorState,
-    findButton,
+    IComponent,
     iocProps,
     MockSocketFactory,
     noop,
@@ -141,28 +139,30 @@ describe('LiveSayg', () => {
         };
     }
 
-    function getLiveScores(tournament: TournamentGameDto) {
-        return context.container.querySelector(
+    function getLiveScores(
+        tournament: TournamentGameDto,
+    ): IComponent | undefined {
+        return context.optional(
             `div[datatype="live-scores"][data-tournamentid="${tournament.id}"]`,
-        )!;
+        );
     }
 
     function expectHomeLiveScore(tournament: TournamentGameDto, score: number) {
         const liveScores = getLiveScores(tournament);
         expect(liveScores).toBeTruthy();
-        const homeScore = liveScores.querySelector(
+        const homeScore = liveScores!.required(
             'div[datatype="scores"] span:nth-child(1)',
-        )!;
-        expect(homeScore.textContent).toContain(score.toString());
+        );
+        expect(homeScore.text()).toContain(score.toString());
     }
 
     function expectAwayLiveScore(tournament: TournamentGameDto, score: number) {
         const liveScores = getLiveScores(tournament);
         expect(liveScores).toBeTruthy();
-        const awayScore = liveScores.querySelector(
+        const awayScore = liveScores!.required(
             'div[datatype="scores"] span:nth-child(2)',
-        )!;
-        expect(awayScore.textContent).toContain(score.toString());
+        );
+        expect(awayScore.text()).toContain(score.toString());
     }
 
     function expectLiveScores(t: TournamentGameDto, h: number, a: number) {
@@ -244,12 +244,12 @@ describe('LiveSayg', () => {
             .build();
     }
 
-    async function change(selector: string, text: string) {
-        await doChange(context.container, selector, text, context.user);
+    async function changeLiveDate(text: string) {
+        await context.input('liveDate').change(text);
     }
 
-    function rows() {
-        return Array.from(context.container.querySelectorAll('table tbody tr'));
+    function matchTableRows(): IComponent[] {
+        return context.all('table tbody tr');
     }
 
     function appPropsWithFullScreen(c?: Partial<IAppContainerProps>) {
@@ -349,9 +349,9 @@ describe('LiveSayg', () => {
 
             await render(tournament);
 
-            const matches = rows().map(
+            const matches = matchTableRows().map(
                 (row) =>
-                    `${row.querySelector('td:nth-child(2)')!.textContent} v ${row.querySelector('td:nth-child(6)')!.textContent}`,
+                    `${row.required('td:nth-child(2)').text()} v ${row.required('td:nth-child(6)').text()}`,
             );
             expect(matches).toEqual(['A v B', 'C v D', 'A & A v B & B']);
         });
@@ -436,13 +436,10 @@ describe('LiveSayg', () => {
 
             expect(requestedTournamentId).toEqual([tournament.id]);
             expect(requestedSaygId).toEqual([sayg.id]);
-            const firstMatchRow =
-                context.container.querySelector('table tbody tr');
-            const cells = Array.from(firstMatchRow!.querySelectorAll('td'));
+            const firstMatchRow = context.required('table tbody tr');
+            const cells = firstMatchRow.all('td');
             const cellValues = cells.map((c) =>
-                c.className.includes('fw-bold')
-                    ? `*${c.textContent}*`
-                    : c.textContent!,
+                c.className().includes('fw-bold') ? `*${c.text()}*` : c.text(),
             );
             expect(cellValues).toEqual([
                 '*33.33*', // average
@@ -480,13 +477,10 @@ describe('LiveSayg', () => {
 
             expect(requestedTournamentId).toEqual([tournament.id]);
             expect(requestedSaygId).toEqual([sayg.id]);
-            const firstMatchRow =
-                context.container.querySelector('table tbody tr');
-            const cells = Array.from(firstMatchRow!.querySelectorAll('td'));
+            const firstMatchRow = context.required('table tbody tr');
+            const cells = firstMatchRow.all('td');
             const cellValues = cells.map((c) =>
-                c.className.includes('fw-bold')
-                    ? `*${c.textContent}*`
-                    : c.textContent!,
+                c.className().includes('fw-bold') ? `*${c.text()}*` : c.text(),
             );
             expect(cellValues).toEqual([
                 '25.00', // average
@@ -502,10 +496,8 @@ describe('LiveSayg', () => {
         it('prompt for type if none in the path', async () => {
             await renderComponent(appPropsWithFullScreen(), '/live', '/live');
 
-            const buttons = Array.from(
-                context.container.querySelectorAll('.btn'),
-            );
-            expect(buttons.map((b) => b.textContent)).toContain('Superleague');
+            const buttons = context.all('.btn');
+            expect(buttons.map((b) => b.text())).toContain('Superleague');
         });
 
         it('prompt for ids if type in the path is unknown', async () => {
@@ -527,7 +519,7 @@ describe('LiveSayg', () => {
         it('redirects to type', async () => {
             await renderComponent(appPropsWithFullScreen(), '/live', '/live');
 
-            await doClick(findButton(context.container, 'Superleague'));
+            await context.button('Superleague').click();
 
             reportedError.verifyNoError();
             expectNavigateTo('/live/superleague/');
@@ -536,7 +528,7 @@ describe('LiveSayg', () => {
         it('redirects to type when url ends with a slash', async () => {
             await renderComponent(appPropsWithFullScreen(), '/live/', '/live');
 
-            await doClick(findButton(context.container, 'Superleague'));
+            await context.button('Superleague').click();
 
             reportedError.verifyNoError();
             expectNavigateTo('/live/superleague/');
@@ -641,7 +633,7 @@ describe('LiveSayg', () => {
 
             await render(tournament);
 
-            await doClick(findButton(context.container, 'Full screen'));
+            await context.button('Full screen').click();
 
             expect(isFullScreen).toEqual(true);
         });
@@ -658,7 +650,7 @@ describe('LiveSayg', () => {
             tournament.type = 'BOARD UPDATED';
             expect(context.container.textContent).toContain('BOARD 1');
 
-            await doClick(findButton(context.container, 'Refresh'));
+            await context.button('Refresh').click();
 
             expect(context.container.textContent).not.toContain('BOARD 1');
             expect(context.container.textContent).toContain('BOARD UPDATED');
@@ -680,10 +672,10 @@ describe('LiveSayg', () => {
 
             await render(tournament1, tournament2);
 
-            const secondTournamentRemoveButton = Array.from(
-                context.container.querySelectorAll('button.btn-secondary'),
+            const secondTournamentRemoveButton = context.all(
+                'button.btn-secondary',
             );
-            await doClick(secondTournamentRemoveButton[1]);
+            await secondTournamentRemoveButton[1].click();
 
             expectNavigateTo('/live/superleague/?id=' + tournament1.id);
         });
@@ -691,7 +683,7 @@ describe('LiveSayg', () => {
         it('can change date when no type specified', async () => {
             await renderComponent(appPropsWithFullScreen(), '/live', '/live');
 
-            await change('input[name="liveDate"]', '2025-01-01');
+            await changeLiveDate('2025-01-01');
 
             expectNavigateTo('/live?date=2025-01-01');
         });
@@ -703,7 +695,7 @@ describe('LiveSayg', () => {
                 '/live/:type',
             );
 
-            await change('input[name="liveDate"]', '2025-01-01');
+            await changeLiveDate('2025-01-01');
 
             expectNavigateTo('/live/superleague/?date=2025-01-01');
         });
@@ -716,7 +708,7 @@ describe('LiveSayg', () => {
             );
             const today: string = new Date().toISOString().substring(0, 10);
 
-            await change('input[name="liveDate"]', today);
+            await changeLiveDate(today);
 
             expectNavigateTo('/live');
         });
@@ -920,16 +912,16 @@ describe('LiveSayg', () => {
                 .build();
 
             await render(tournament1);
-            expect(rows().length).toEqual(0);
+            expect(matchTableRows().length).toEqual(0);
 
             await sendUpdate(matchAdded);
 
-            expect(rows().length).toEqual(1);
+            expect(matchTableRows().length).toEqual(1);
             expectSubscriptions(tournament1.id);
 
             await sendUpdate(matchSaygSet);
 
-            expect(rows().length).toEqual(1);
+            expect(matchTableRows().length).toEqual(1);
             expectSubscriptions(tournament1.id, sayg.id);
         });
 

@@ -4,14 +4,10 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
     ErrorState,
-    findButton,
     iocProps,
     noop,
     renderApp,
-    setFile,
     TestContext,
 } from '../../helpers/tests';
 import { ImportData } from './ImportData';
@@ -74,12 +70,7 @@ describe('ImportData', () => {
 
     async function setFileToImport() {
         const file = 'some content';
-        await setFile(
-            context.container,
-            'input[type="file"]',
-            file,
-            context.user,
-        );
+        await context.required('input[type="file"]').file(file);
     }
 
     const props: IAdminContainerProps = {
@@ -94,48 +85,45 @@ describe('ImportData', () => {
         await renderComponent(props);
 
         reportedError.verifyNoError();
-        const tables = Array.from(context.container.querySelectorAll('ul li'));
-        expect(tables.map((t) => t.textContent)).toEqual([
-            'Table 1',
-            'Table 2',
-        ]);
+        const tables = context.all('ul li');
+        expect(tables.map((t) => t.text())).toEqual(['Table 1', 'Table 2']);
     });
 
     it('can select importable table', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        const tables = Array.from(context.container.querySelectorAll('ul li'));
+        const tables = context.all('ul li');
         const table1 = tables.filter(
-            (t) => t.textContent!.indexOf('Table 1') !== -1,
+            (t) => t.text().indexOf('Table 1') !== -1,
         )[0];
         expect(table1).toBeTruthy();
-        expect(table1.className).toContain('active');
+        expect(table1.className()).toContain('active');
 
-        await doClick(table1);
+        await table1.click();
 
-        expect(table1.className).not.toContain('active');
+        expect(table1.className()).not.toContain('active');
     });
 
     it('cannot select non-importable table', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        const tables = Array.from(context.container.querySelectorAll('ul li'));
+        const tables = context.all('ul li');
         const table2 = tables.filter(
-            (t) => t.textContent!.indexOf('Table 2') !== -1,
+            (t) => t.text().indexOf('Table 2') !== -1,
         )[0];
         expect(table2).toBeTruthy();
-        expect(table2.className).not.toContain('active');
+        expect(table2.className()).not.toContain('active');
 
-        await doClick(table2);
+        await table2.click();
 
-        expect(table2.className).not.toContain('active');
+        expect(table2.className()).not.toContain('active');
     });
 
     it('cannot import when no file selected', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
 
-        await doClick(findButton(context.container, 'Import data'));
+        await context.button('Import data').click();
 
         reportedError.verifyNoError();
         expect(importRequest).toBeNull();
@@ -145,16 +133,16 @@ describe('ImportData', () => {
     it('cannot import when no tables selected', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        const tables = Array.from(context.container.querySelectorAll('ul li'));
+        const tables = context.all('ul li');
         const table1 = tables.filter(
-            (t) => t.textContent!.indexOf('Table 1') !== -1,
+            (t) => t.text().indexOf('Table 1') !== -1,
         )[0];
-        if (table1.className.indexOf('active') !== -1) {
-            await doClick(table1);
+        if (table1.className().indexOf('active') !== -1) {
+            await table1.click();
         }
         await setFileToImport();
 
-        await doClick(findButton(context.container, 'Import data'));
+        await context.button('Import data').click();
 
         reportedError.verifyNoError();
         expect(importRequest).toBeNull();
@@ -164,22 +152,17 @@ describe('ImportData', () => {
     it('can import data with password', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        const tables = Array.from(context.container.querySelectorAll('ul li'));
+        const tables = context.all('ul li');
         const table1 = tables.filter(
-            (t) => t.textContent!.indexOf('Table 1') !== -1,
+            (t) => t.text().indexOf('Table 1') !== -1,
         )[0];
-        if (table1.className.indexOf('active') === -1) {
-            await doClick(table1);
+        if (table1.className().indexOf('active') === -1) {
+            await table1.click();
         }
-        await doChange(
-            context.container,
-            'input[name="password"]',
-            'pass',
-            context.user,
-        );
+        await context.input('password').change('pass');
         await setFileToImport();
 
-        await doClick(findButton(context.container, 'Import data'));
+        await context.button('Import data').click();
 
         reportedError.verifyNoError();
         expect(importRequest).toEqual({
@@ -193,16 +176,16 @@ describe('ImportData', () => {
     it('can import data without password', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        const tables = Array.from(context.container.querySelectorAll('ul li'));
+        const tables = context.all('ul li');
         const table1 = tables.filter(
-            (t) => t.textContent!.indexOf('Table 1') !== -1,
+            (t) => t.text().indexOf('Table 1') !== -1,
         )[0];
-        if (table1.className.indexOf('active') === -1) {
-            await doClick(table1);
+        if (table1.className().indexOf('active') === -1) {
+            await table1.click();
         }
         await setFileToImport();
 
-        await doClick(findButton(context.container, 'Import data'));
+        await context.button('Import data').click();
 
         reportedError.verifyNoError();
         expect(importRequest).toEqual({
@@ -216,18 +199,18 @@ describe('ImportData', () => {
     it('can import data with purge and commit', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        const tables = Array.from(context.container.querySelectorAll('ul li'));
+        const tables = context.all('ul li');
         const table1 = tables.filter(
-            (t) => t.textContent!.indexOf('Table 1') !== -1,
+            (t) => t.text().indexOf('Table 1') !== -1,
         )[0];
-        if (table1.className.indexOf('active') === -1) {
-            await doClick(table1);
+        if (table1.className().indexOf('active') === -1) {
+            await table1.click();
         }
-        await doClick(context.container, 'input[name="purgeData"]');
-        await doClick(context.container, 'input[name="dryRun"]');
+        await context.input('purgeData').click();
+        await context.input('dryRun').click();
         await setFileToImport();
 
-        await doClick(findButton(context.container, 'Import data'));
+        await context.button('Import data').click();
 
         reportedError.verifyNoError();
         expect(importRequest).toEqual({
@@ -241,12 +224,12 @@ describe('ImportData', () => {
     it('renders import results', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        const tables = Array.from(context.container.querySelectorAll('ul li'));
+        const tables = context.all('ul li');
         const table1 = tables.filter(
-            (t) => t.textContent!.indexOf('Table 1') !== -1,
+            (t) => t.text().indexOf('Table 1') !== -1,
         )[0];
-        if (table1.className.indexOf('active') === -1) {
-            await doClick(table1);
+        if (table1.className().indexOf('active') === -1) {
+            await table1.click();
         }
         await setFileToImport();
         apiResponse = {
@@ -261,48 +244,44 @@ describe('ImportData', () => {
             messages: ['some_message'],
         };
 
-        await doClick(findButton(context.container, 'Import data'));
+        await context.button('Import data').click();
 
         reportedError.verifyNoError();
-        expect(context.container.textContent).toContain(
-            'Table 1: 5 row/s imported',
-        );
-        expect(context.container.textContent).toContain('some_error');
-        expect(context.container.textContent).toContain('some_warning');
-        expect(context.container.textContent).toContain('some_message');
+        expect(context.text()).toContain('Table 1: 5 row/s imported');
+        expect(context.text()).toContain('some_error');
+        expect(context.text()).toContain('some_warning');
+        expect(context.text()).toContain('some_message');
     });
 
     it('can handle error during import', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        const tables = Array.from(context.container.querySelectorAll('ul li'));
+        const tables = context.all('ul li');
         const table1 = tables.filter(
-            (t) => t.textContent!.indexOf('Table 1') !== -1,
+            (t) => t.text().indexOf('Table 1') !== -1,
         )[0];
-        if (table1.className.indexOf('active') === -1) {
-            await doClick(table1);
+        if (table1.className().indexOf('active') === -1) {
+            await table1.click();
         }
         await setFileToImport();
         apiResponse = { success: false };
 
-        await doClick(findButton(context.container, 'Import data'));
+        await context.button('Import data').click();
 
         reportedError.verifyNoError();
         expect(importRequest).not.toBeNull();
-        expect(context.container.textContent).toContain(
-            'Could not import data',
-        );
+        expect(context.text()).toContain('Could not import data');
     });
 
     it('can handle http 500 error during import', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        const tables = Array.from(context.container.querySelectorAll('ul li'));
+        const tables = context.all('ul li');
         const table1 = tables.filter(
-            (t) => t.textContent!.indexOf('Table 1') !== -1,
+            (t) => t.text().indexOf('Table 1') !== -1,
         )[0];
-        if (table1.className.indexOf('active') === -1) {
-            await doClick(table1);
+        if (table1.className().indexOf('active') === -1) {
+            await table1.click();
         }
         await setFileToImport();
         apiResponse = {
@@ -311,24 +290,22 @@ describe('ImportData', () => {
             text: async () => 'some text error',
         };
 
-        await doClick(findButton(context.container, 'Import data'));
+        await context.button('Import data').click();
 
         reportedError.verifyNoError();
         expect(importRequest).not.toBeNull();
-        expect(context.container.textContent).toContain(
-            'Could not import data',
-        );
+        expect(context.text()).toContain('Could not import data');
     });
 
     it('can handle http 400 error during import', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        const tables = Array.from(context.container.querySelectorAll('ul li'));
+        const tables = context.all('ul li');
         const table1 = tables.filter(
-            (t) => t.textContent!.indexOf('Table 1') !== -1,
+            (t) => t.text().indexOf('Table 1') !== -1,
         )[0];
-        if (table1.className.indexOf('active') === -1) {
-            await doClick(table1);
+        if (table1.className().indexOf('active') === -1) {
+            await table1.click();
         }
         await setFileToImport();
         apiResponse = {
@@ -339,24 +316,22 @@ describe('ImportData', () => {
             },
         };
 
-        await doClick(findButton(context.container, 'Import data'));
+        await context.button('Import data').click();
 
         reportedError.verifyNoError();
         expect(importRequest).not.toBeNull();
-        expect(context.container.textContent).toContain(
-            'Could not import data',
-        );
+        expect(context.text()).toContain('Could not import data');
     });
 
     it('can handle unexpected error during import', async () => {
         await renderComponent(props);
         reportedError.verifyNoError();
-        const tables = Array.from(context.container.querySelectorAll('ul li'));
+        const tables = context.all('ul li');
         const table1 = tables.filter(
-            (t) => t.textContent!.indexOf('Table 1') !== -1,
+            (t) => t.text().indexOf('Table 1') !== -1,
         )[0];
-        if (table1.className.indexOf('active') === -1) {
-            await doClick(table1);
+        if (table1.className().indexOf('active') === -1) {
+            await table1.click();
         }
         await setFileToImport();
         apiResponse = {
@@ -368,12 +343,10 @@ describe('ImportData', () => {
         };
         console.error = noop;
 
-        await doClick(findButton(context.container, 'Import data'));
+        await context.button('Import data').click();
 
         reportedError.verifyNoError();
         expect(importRequest).not.toBeNull();
-        expect(context.container.textContent).toContain(
-            'Could not import data',
-        );
+        expect(context.text()).toContain('Could not import data');
     });
 });

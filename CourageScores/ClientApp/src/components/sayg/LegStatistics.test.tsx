@@ -1,13 +1,11 @@
 import {
     cleanUp,
-    doClick,
-    findButton,
     renderApp,
-    doChange,
     iocProps,
     brandingProps,
     appProps,
     TestContext,
+    IComponent,
 } from '../../helpers/tests';
 import { ILegStatisticsProps, LegStatistics } from './LegStatistics';
 import { legBuilder } from '../../helpers/builders/sayg';
@@ -42,14 +40,14 @@ describe('LegStatistics', () => {
         );
     }
 
-    function getCellContent(tr: Element) {
-        return Array.from(tr.querySelectorAll('td')).map((td) => {
-            let content = td.textContent;
+    function getCellContent(tr: IComponent) {
+        return tr.all('td').map((td) => {
+            let content = td.text();
 
-            if (td.className.indexOf('fw-bold') !== -1) {
+            if (td.className().indexOf('fw-bold') !== -1) {
                 content = '**' + content + '**';
             }
-            if (td.className.indexOf('text-danger') !== -1) {
+            if (td.className().indexOf('text-danger') !== -1) {
                 content = '_' + content + '_';
             }
 
@@ -93,10 +91,8 @@ describe('LegStatistics', () => {
                 updateLegDisplayOptions,
             });
 
-            const cells = Array.from(
-                context.container.querySelectorAll('tr td'),
-            );
-            const cellText = cells.map((td) => td.textContent);
+            const cells = context.all('tr td');
+            const cellText = cells.map((td) => td.text());
             expect(cellText).toEqual([
                 'Leg: 1Details',
                 'Average: 100 (3 darts)Remaining: 401',
@@ -123,10 +119,8 @@ describe('LegStatistics', () => {
                 updateLegDisplayOptions,
             });
 
-            const cells = Array.from(
-                context.container.querySelectorAll('tr td'),
-            );
-            const cellText = cells.map((td) => td.textContent);
+            const cells = context.all('tr td');
+            const cellText = cells.map((td) => td.text());
             expect(cellText).toEqual([
                 'Leg: 1Winner: HOMEDetails',
                 'Average: 250.5 (6 darts)Checkout: 100',
@@ -153,10 +147,8 @@ describe('LegStatistics', () => {
                 updateLegDisplayOptions,
             });
 
-            const cells = Array.from(
-                context.container.querySelectorAll('tr td'),
-            );
-            const cellText = cells.map((td) => td.textContent);
+            const cells = context.all('tr td');
+            const cellText = cells.map((td) => td.text());
             expect(cellText).toEqual([
                 'Leg: 1Winner: AWAYDetails',
                 'Average: 50 (3 darts)Remaining: 451',
@@ -183,10 +175,8 @@ describe('LegStatistics', () => {
                 updateLegDisplayOptions,
             });
 
-            const cells = Array.from(
-                context.container.querySelectorAll('tr td'),
-            );
-            const cellText = cells.map((td) => td.textContent);
+            const cells = context.all('tr td');
+            const cellText = cells.map((td) => td.text());
             expect(cellText).toEqual([
                 'Leg: 1Details',
                 'Average: 250.5 (6 darts)Checkout: 100',
@@ -212,10 +202,8 @@ describe('LegStatistics', () => {
                 updateLegDisplayOptions,
             });
 
-            const cells = Array.from(
-                context.container.querySelectorAll('tr td'),
-            );
-            const cellText = cells.map((td) => td.textContent);
+            const cells = context.all('tr td');
+            const cellText = cells.map((td) => td.text());
             expect(cellText).toEqual([
                 'Leg: 1Details',
                 'Average: 100 (3 darts)Remaining: 401',
@@ -241,19 +229,11 @@ describe('LegStatistics', () => {
                 updateLegDisplayOptions,
             });
 
-            const homeThrows = Array.from(
-                context.container.querySelectorAll(
-                    'tr td:nth-child(2) tbody tr',
-                ),
-            );
+            const homeThrows = context.all('tr td:nth-child(2) tbody tr');
             expect(homeThrows.map(getCellContent)).toEqual([
                 ['_100_', '0', '3'],
             ]);
-            const awayThrows = Array.from(
-                context.container.querySelectorAll(
-                    'tr td:nth-child(3) tbody tr',
-                ),
-            );
+            const awayThrows = context.all('tr td:nth-child(3) tbody tr');
             expect(awayThrows.map(getCellContent)).toEqual([['50', '50', '3']]);
         });
 
@@ -276,19 +256,11 @@ describe('LegStatistics', () => {
                 updateLegDisplayOptions,
             });
 
-            const homeThrows = Array.from(
-                context.container.querySelectorAll(
-                    'tr td:nth-child(2) tbody tr',
-                ),
-            );
+            const homeThrows = context.all('tr td:nth-child(2) tbody tr');
             expect(homeThrows.map(getCellContent)).toEqual([
                 ['_**180**_', '20', '3'],
             ]);
-            const awayThrows = Array.from(
-                context.container.querySelectorAll(
-                    'tr td:nth-child(3) tbody tr',
-                ),
-            );
+            const awayThrows = context.all('tr td:nth-child(3) tbody tr');
             expect(awayThrows.map(getCellContent)).toEqual([
                 ['50', '150', '3'],
             ]);
@@ -313,11 +285,7 @@ describe('LegStatistics', () => {
                 updateLegDisplayOptions,
             });
 
-            const homeThrows = Array.from(
-                context.container.querySelectorAll(
-                    'tr td:nth-child(2) tbody tr',
-                ),
-            );
+            const homeThrows = context.all('tr td:nth-child(2) tbody tr');
             expect(homeThrows.map(getCellContent)).toEqual([
                 ['_100_', '401', '3'],
             ]);
@@ -342,19 +310,11 @@ describe('LegStatistics', () => {
                 updateLegDisplayOptions,
             });
 
-            const homeThrows = Array.from(
-                context.container.querySelectorAll(
-                    'tr td:nth-child(2) tbody tr',
-                ),
-            );
+            const homeThrows = context.all('tr td:nth-child(2) tbody tr');
             expect(homeThrows.map(getCellContent)).toEqual([
                 ['_100_', '401', '100'],
             ]);
-            const awayThrows = Array.from(
-                context.container.querySelectorAll(
-                    'tr td:nth-child(3) tbody tr',
-                ),
-            );
+            const awayThrows = context.all('tr td:nth-child(3) tbody tr');
             expect(awayThrows.map(getCellContent)).toEqual([
                 ['50', '451', '50'],
             ]);
@@ -379,10 +339,8 @@ describe('LegStatistics', () => {
                 updateLegDisplayOptions,
             });
 
-            const cells = Array.from(
-                context.container.querySelectorAll('tr td > span'),
-            );
-            const cellText = cells.map((td) => td.textContent);
+            const cells = context.all('tr td > span');
+            const cellText = cells.map((td) => td.text());
             expect(cellText).toEqual([
                 'Average: 100 (3 darts)Remaining: 401',
                 'Average: - (0 darts)Remaining: 501',
@@ -408,10 +366,8 @@ describe('LegStatistics', () => {
                 updateLegDisplayOptions,
             });
 
-            const cells = Array.from(
-                context.container.querySelectorAll('tr td > span'),
-            );
-            const cellText = cells.map((td) => td.textContent);
+            const cells = context.all('tr td > span');
+            const cellText = cells.map((td) => td.text());
             expect(cellText).toEqual([
                 'Average: - (0 darts)Remaining: 501',
                 'Average: 100 (3 darts)Remaining: 401',
@@ -437,19 +393,11 @@ describe('LegStatistics', () => {
                 updateLegDisplayOptions,
             });
 
-            const homeThrows = Array.from(
-                context.container.querySelectorAll(
-                    'tr td:nth-child(2) tbody tr',
-                ),
-            );
+            const homeThrows = context.all('tr td:nth-child(2) tbody tr');
             expect(homeThrows.map(getCellContent)).toEqual([
                 ['_100_', '401', '3'],
             ]);
-            const awayThrows = Array.from(
-                context.container.querySelectorAll(
-                    'tr td:nth-child(3) tbody tr',
-                ),
-            );
+            const awayThrows = context.all('tr td:nth-child(3) tbody tr');
             expect(awayThrows.map(getCellContent)).toEqual([
                 ['50', '451', '3'],
             ]);
@@ -474,19 +422,11 @@ describe('LegStatistics', () => {
                 updateLegDisplayOptions,
             });
 
-            const homeThrows = Array.from(
-                context.container.querySelectorAll(
-                    'tr td:nth-child(2) tbody tr',
-                ),
-            );
+            const homeThrows = context.all('tr td:nth-child(2) tbody tr');
             expect(homeThrows.map(getCellContent)).toEqual([
                 ['_100_', '401', '33.33'],
             ]);
-            const awayThrows = Array.from(
-                context.container.querySelectorAll(
-                    'tr td:nth-child(3) tbody tr',
-                ),
-            );
+            const awayThrows = context.all('tr td:nth-child(3) tbody tr');
             expect(awayThrows.map(getCellContent)).toEqual([
                 ['50', '451', '16.67'],
             ]);
@@ -512,10 +452,9 @@ describe('LegStatistics', () => {
                 },
                 updateLegDisplayOptions,
             });
-            const firstCell =
-                context.container.querySelector('tr td:first-child')!;
+            const firstCell = context.required('tr td:first-child');
 
-            await doClick(firstCell.querySelector('input[name="showThrows"]')!);
+            await firstCell.required('input[name="showThrows"]').click();
 
             expect(newLegDisplayOptions).toEqual({
                 showThrows: true,
@@ -541,12 +480,9 @@ describe('LegStatistics', () => {
                 },
                 updateLegDisplayOptions,
             });
-            const firstCell =
-                context.container.querySelector('tr td:first-child');
+            const firstCell = context.required('tr td:first-child');
 
-            await doClick(
-                findButton(firstCell, 'Click to show running average'),
-            );
+            await firstCell.button('Click to show running average').click();
 
             expect(newLegDisplayOptions).toEqual({
                 showThrows: true,
@@ -574,14 +510,10 @@ describe('LegStatistics', () => {
                 updateLegDisplayOptions,
             });
 
-            const homeThrows = Array.from(
-                context.container.querySelectorAll(
-                    'tr td:nth-child(2) tbody tr',
-                ),
-            );
-            await doClick(homeThrows[0]);
+            const homeThrows = context.all('tr td:nth-child(2) tbody tr');
+            await homeThrows[0].click();
 
-            expect(context.container.textContent).toContain('Edit throw');
+            expect(context.text()).toContain('Edit throw');
         });
 
         it('can close change throw dialog', async () => {
@@ -603,17 +535,13 @@ describe('LegStatistics', () => {
                 },
                 updateLegDisplayOptions,
             });
-            const homeThrows = Array.from(
-                context.container.querySelectorAll(
-                    'tr td:nth-child(2) tbody tr',
-                ),
-            );
-            await doClick(homeThrows[0]);
-            expect(context.container.textContent).toContain('Edit throw');
+            const homeThrows = context.all('tr td:nth-child(2) tbody tr');
+            await homeThrows[0].click();
+            expect(context.text()).toContain('Edit throw');
 
-            await doClick(findButton(context.container, 'Close'));
+            await context.button('Close').click();
 
-            expect(context.container.textContent).not.toContain('Edit throw');
+            expect(context.text()).not.toContain('Edit throw');
         });
 
         it('can change throw', async () => {
@@ -636,26 +564,12 @@ describe('LegStatistics', () => {
                 },
                 updateLegDisplayOptions,
             });
-            const homeThrows = Array.from(
-                context.container.querySelectorAll(
-                    'tr td:nth-child(2) tbody tr',
-                ),
-            );
-            await doClick(homeThrows[0]);
+            const homeThrows = context.all('tr td:nth-child(2) tbody tr');
+            await homeThrows[0].click();
 
-            await doChange(
-                context.container,
-                'input[name="score"]',
-                '105',
-                context.user,
-            );
-            await doChange(
-                context.container,
-                'input[name="noOfDarts"]',
-                '2',
-                context.user,
-            );
-            await doClick(findButton(context.container, 'Save changes'));
+            await context.input('score').change('105');
+            await context.input('noOfDarts').change('2');
+            await context.button('Save changes').click();
 
             expect(newLeg!.home).toEqual({
                 noOfDarts: 2,
@@ -684,20 +598,11 @@ describe('LegStatistics', () => {
                 },
                 updateLegDisplayOptions,
             });
-            const homeThrows = Array.from(
-                context.container.querySelectorAll(
-                    'tr td:nth-child(2) tbody tr',
-                ),
-            );
-            await doClick(homeThrows[0]);
+            const homeThrows = context.all('tr td:nth-child(2) tbody tr');
+            await homeThrows[0].click();
 
-            await doChange(
-                context.container,
-                'input[name="noOfDarts"]',
-                '0',
-                context.user,
-            );
-            await doClick(findButton(context.container, 'Save changes'));
+            await context.input('noOfDarts').change('0');
+            await context.button('Save changes').click();
 
             expect(newLeg!.home).toEqual({
                 noOfDarts: 0,
@@ -725,14 +630,10 @@ describe('LegStatistics', () => {
                 updateLegDisplayOptions,
             });
 
-            const homeThrows = Array.from(
-                context.container.querySelectorAll(
-                    'tr td:nth-child(2) tbody tr',
-                ),
-            );
-            await doClick(homeThrows[0]);
+            const homeThrows = context.all('tr td:nth-child(2) tbody tr');
+            await homeThrows[0].click();
 
-            expect(context.container.textContent).not.toContain('Edit throw');
+            expect(context.text()).not.toContain('Edit throw');
         });
     });
 });

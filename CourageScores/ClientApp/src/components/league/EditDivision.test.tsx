@@ -3,10 +3,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -62,9 +59,7 @@ describe('EditDivision', () => {
         };
     });
 
-    async function onClose() {
-        closed = true;
-    }
+    async function onClose() {}
 
     async function onSave() {
         saved = true;
@@ -98,12 +93,7 @@ describe('EditDivision', () => {
         });
         reportedError.verifyNoError();
 
-        await doChange(
-            context.container,
-            'input[name="name"]',
-            'NEW DIVISION NAME',
-            context.user,
-        );
+        await context.input('name').change('NEW DIVISION NAME');
 
         reportedError.verifyNoError();
         expect(updatedData!.id).toEqual(division.id);
@@ -120,7 +110,7 @@ describe('EditDivision', () => {
             setSaveError,
         });
 
-        await doClick(findButton(context.container, 'Update division'));
+        await context.button('Update division').click();
 
         context.prompts.alertWasShown('Enter a division name');
         expect(saved).toEqual(false);
@@ -137,7 +127,7 @@ describe('EditDivision', () => {
         });
         reportedError.verifyNoError();
 
-        await doClick(context.container, 'input[name="superleague"]');
+        await context.required('input[name="superleague"]').click();
 
         reportedError.verifyNoError();
         expect(updatedData!.superleague).toEqual(true);
@@ -156,7 +146,7 @@ describe('EditDivision', () => {
         });
         reportedError.verifyNoError();
 
-        await doClick(findButton(context.container, 'Update division'));
+        await context.button('Update division').click();
 
         reportedError.verifyNoError();
         context.prompts.noAlerts();
@@ -179,7 +169,7 @@ describe('EditDivision', () => {
             success: false,
         };
 
-        await doClick(findButton(context.container, 'Update division'));
+        await context.button('Update division').click();
 
         reportedError.verifyNoError();
         expect(saveError).toEqual(apiResponse);
@@ -200,7 +190,7 @@ describe('EditDivision', () => {
             true,
         );
 
-        await doClick(findButton(context.container, 'Delete division'));
+        await context.button('Delete division').click();
 
         context.prompts.confirmWasShown(
             'Are you sure you want to delete the DIVISION division?',
@@ -223,7 +213,7 @@ describe('EditDivision', () => {
             true,
         );
 
-        await doClick(findButton(context.container, 'Delete division'));
+        await context.button('Delete division').click();
 
         reportedError.verifyNoError();
         expect(deletedId).toEqual(division.id);
@@ -247,7 +237,7 @@ describe('EditDivision', () => {
             success: false,
         };
 
-        await doClick(findButton(context.container, 'Delete division'));
+        await context.button('Delete division').click();
 
         reportedError.verifyNoError();
         expect(deletedId).toEqual(division.id);
@@ -269,7 +259,7 @@ describe('EditDivision', () => {
             true,
         );
 
-        await doClick(findButton(context.container, 'Delete division'));
+        await context.button('Delete division').click();
 
         expect(mockedUsedNavigate).toHaveBeenCalledWith('https://localhost');
     });

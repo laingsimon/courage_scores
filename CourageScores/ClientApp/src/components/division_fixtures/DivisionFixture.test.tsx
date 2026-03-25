@@ -3,10 +3,8 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
-    doSelectOption,
     ErrorState,
-    findButton,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -149,8 +147,8 @@ describe('DivisionFixture', () => {
         };
     }
 
-    function getAwayCell() {
-        return context.container.querySelector('td:nth-child(5)')!;
+    function getAwayCell(): IComponent {
+        return context.required('td:nth-child(5)');
     }
 
     function assertFixtureRow(
@@ -172,9 +170,9 @@ describe('DivisionFixture', () => {
         awayScore: string = '',
         deleteButton?: boolean,
     ) {
-        const td = Array.from(context.container.querySelectorAll('td'));
+        const td = context.all('td');
         const expected = [home, homeScore, 'vs', awayScore, away];
-        const cells = td.map((td) => td.textContent);
+        const cells = td.map((c) => c.text());
 
         if (deleteButton === true) {
             expected.push('🗑');
@@ -185,11 +183,13 @@ describe('DivisionFixture', () => {
     }
 
     function assertFixtureLinks(home: string, away?: string) {
-        const cells = Array.from(context.container.querySelectorAll('td'));
-        const linkToHome = cells[0].querySelector('a')!;
+        const cells = context.all('td');
+        const linkToHome = cells[0].required('a').element<HTMLAnchorElement>();
         expect(linkToHome.href).toEqual(home);
         if (away) {
-            const linkToAway = cells[4].querySelector('a')!;
+            const linkToAway = cells[4]
+                .required('a')
+                .element<HTMLAnchorElement>();
             expect(linkToAway.href).toEqual(away);
         }
     }
@@ -288,8 +288,8 @@ describe('DivisionFixture', () => {
                 {},
             );
 
-            const row = context.container.querySelector('tr')!;
-            expect(row.className).not.toContain('opacity-25');
+            const row = context.required('tr');
+            expect(row.className()).not.toContain('opacity-25');
         });
 
         it('shades non-favourite teams', async () => {
@@ -304,8 +304,8 @@ describe('DivisionFixture', () => {
                 },
             );
 
-            const row = context.container.querySelector('tr')!;
-            expect(row.className).toContain('opacity-25');
+            const row = context.required('tr');
+            expect(row.className()).toContain('opacity-25');
         });
 
         it('does not shade bye for favourite-team', async () => {
@@ -328,8 +328,8 @@ describe('DivisionFixture', () => {
                 },
             );
 
-            const row = context.container.querySelector('tr')!;
-            expect(row.className).not.toContain('opacity-25');
+            const row = context.required('tr');
+            expect(row.className()).not.toContain('opacity-25');
         });
 
         it('does not shade home-team favourite', async () => {
@@ -346,8 +346,8 @@ describe('DivisionFixture', () => {
                 },
             );
 
-            const row = context.container.querySelector('tr')!;
-            expect(row.className).not.toContain('opacity-25');
+            const row = context.required('tr');
+            expect(row.className()).not.toContain('opacity-25');
         });
 
         it('does not shade away-team favourite', async () => {
@@ -364,8 +364,8 @@ describe('DivisionFixture', () => {
                 },
             );
 
-            const row = context.container.querySelector('tr')!;
-            expect(row.className).not.toContain('opacity-25');
+            const row = context.required('tr');
+            expect(row.className()).not.toContain('opacity-25');
         });
 
         it('can set a favourite team', async () => {
@@ -379,12 +379,12 @@ describe('DivisionFixture', () => {
                 [team],
                 { favouriteTeamIds: [] },
             );
-            const row = context.container.querySelector('tr')!;
-            const favouriteToggles = Array.from(
-                row.querySelectorAll('button[datatype="toggle-favourite"]'),
+            const row = context.required('tr');
+            const favouriteToggles = row.all(
+                'button[datatype="toggle-favourite"]',
             );
 
-            await doClick(favouriteToggles[0]);
+            await favouriteToggles[0].click();
 
             const favouriteTeamIds =
                 context.cookies!.get('preferences').favouriteTeamIds;
@@ -402,12 +402,12 @@ describe('DivisionFixture', () => {
                 [team],
                 { favouriteTeamIds: [fixture.homeTeam.id!] },
             );
-            const row = context.container.querySelector('tr')!;
-            const favouriteToggles = Array.from(
-                row.querySelectorAll('button[datatype="toggle-favourite"]'),
+            const row = context.required('tr');
+            const favouriteToggles = row.all(
+                'button[datatype="toggle-favourite"]',
             );
 
-            await doClick(favouriteToggles[0]);
+            await favouriteToggles[0].click();
 
             const favouriteTeamIds =
                 context.cookies!.get('preferences').favouriteTeamIds;
@@ -459,8 +459,8 @@ describe('DivisionFixture', () => {
                 .withTeam(awayTeam);
         }
 
-        function getSaveCell() {
-            return context.container.querySelector('td:nth-child(6)')!;
+        function getSaveCell(): IComponent {
+            return context.required('td:nth-child(6)');
         }
 
         it('renders unplayed fixture', async () => {
@@ -551,8 +551,8 @@ describe('DivisionFixture', () => {
             );
 
             const awayCell = getAwayCell();
-            expect(awayCell.textContent).toContain('ANOTHER TEAM');
-            expect(awayCell.textContent).not.toContain('🚫');
+            expect(awayCell.text()).toContain('ANOTHER TEAM');
+            expect(awayCell.text()).not.toContain('🚫');
         });
 
         it('renders unselectable away team playing elsewhere (league fixture)', async () => {
@@ -577,7 +577,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam],
             );
 
-            expect(getAwayCell().textContent).toContain(
+            expect(getAwayCell().text()).toContain(
                 '🚫 AWAY (Already playing against HOME)',
             );
         });
@@ -604,7 +604,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam],
             );
 
-            expect(getAwayCell().textContent).toContain(
+            expect(getAwayCell().text()).toContain(
                 `🚫 AWAY (Already playing same leg on ${renderDate(anotherFixture.date)})`,
             );
         });
@@ -630,7 +630,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam],
             );
 
-            expect(getAwayCell().textContent).toEqual(`AWAY`);
+            expect(getAwayCell().text()).toEqual(`AWAY`);
         });
 
         it('renders selectable away team with same address (qualifier)', async () => {
@@ -652,7 +652,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam, anotherTeamAtHomeAddress],
             );
 
-            expect(getAwayCell().textContent).toEqual(`AWAYANOTHER TEAM`);
+            expect(getAwayCell().text()).toEqual(`AWAYANOTHER TEAM`);
         });
 
         it('does not render team with deleted team season', async () => {
@@ -667,7 +667,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, deletedAwayTeam],
             );
 
-            expect(getAwayCell().textContent).not.toContain(`DELETED AWAY`);
+            expect(getAwayCell().text()).not.toContain(`DELETED AWAY`);
         });
 
         it('renders unselectable away team playing elsewhere (qualifier)', async () => {
@@ -692,7 +692,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam],
             );
 
-            expect(getAwayCell().textContent).toContain(
+            expect(getAwayCell().text()).toContain(
                 '🚫 AWAY (Already playing against HOME)',
             );
         });
@@ -710,7 +710,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam],
             );
 
-            expect(getAwayCell().textContent).not.toContain('🚫');
+            expect(getAwayCell().text()).not.toContain('🚫');
         });
 
         it('renders no away selection when home address is in use', async () => {
@@ -733,11 +733,13 @@ describe('DivisionFixture', () => {
             );
 
             const awayCell = getAwayCell();
-            expect(awayCell.querySelector('.dropdown-menu')).toBeFalsy();
-            expect(awayCell.textContent).toContain(
+            expect(awayCell.optional('.dropdown-menu')).toBeFalsy();
+            expect(awayCell.text()).toContain(
                 '🚫HOME - SAME ADDRESS vs AWAY using this venue',
             );
-            const linkToOtherFixture = awayCell.querySelector('a')!;
+            const linkToOtherFixture = awayCell
+                .required('a')
+                .element<HTMLAnchorElement>();
             expect(linkToOtherFixture.href).toEqual(
                 `http://localhost/score/${otherFixtureId}`,
             );
@@ -767,7 +769,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam],
             );
 
-            expect(getAwayCell().textContent).toEqual('AWAY');
+            expect(getAwayCell().text()).toEqual('AWAY');
         });
 
         it('can change away team', async () => {
@@ -779,10 +781,9 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam, anotherTeam],
             );
 
-            await doSelectOption(
-                getAwayCell().querySelector('.dropdown-menu'),
-                'ANOTHER TEAM',
-            );
+            await getAwayCell()
+                .required('.dropdown-menu')
+                .select('ANOTHER TEAM');
 
             expect(updatedFixtures).not.toBeNull();
             expect(updatedFixtures!([{ date, fixtures: [bye] }])).toEqual([
@@ -816,10 +817,9 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam, anotherTeam],
             );
 
-            await doSelectOption(
-                getAwayCell().querySelector('.dropdown-menu'),
-                'ANOTHER TEAM',
-            );
+            await getAwayCell()
+                .required('.dropdown-menu')
+                .select('ANOTHER TEAM');
 
             expect(updatedFixtures).not.toBeNull();
             expect(
@@ -859,7 +859,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam, anotherTeam],
             );
 
-            await doClick(findButton(getSaveCell(), '💾'));
+            await getSaveCell().button('💾').click();
 
             expect(savedFixture).not.toBeNull();
             expect(beforeReloadDivisionCalled).toEqual(true);
@@ -882,7 +882,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam, anotherTeam],
             );
 
-            await doClick(findButton(getSaveCell(), '💾'));
+            await getSaveCell().button('💾').click();
 
             expect(savedFixture).not.toBeNull();
             expect(beforeReloadDivisionCalled).toEqual(true);
@@ -902,15 +902,13 @@ describe('DivisionFixture', () => {
             );
             apiResponse = { success: false, errors: ['SOME ERROR'] };
 
-            await doClick(findButton(getSaveCell(), '💾'));
+            await getSaveCell().button('💾').click();
 
             expect(savedFixture).not.toBeNull();
             expect(beforeReloadDivisionCalled).toEqual(false);
             expect(divisionReloaded).toEqual(false);
-            expect(context.container.textContent).toContain(
-                'Could not save fixture details',
-            );
-            expect(context.container.textContent).toContain('SOME ERROR');
+            expect(context.text()).toContain('Could not save fixture details');
+            expect(context.text()).toContain('SOME ERROR');
         });
 
         it('can delete league fixture', async () => {
@@ -925,7 +923,7 @@ describe('DivisionFixture', () => {
                 true,
             );
 
-            await doClick(findButton(getSaveCell(), '🗑'));
+            await getSaveCell().button('🗑').click();
 
             context.prompts.confirmWasShown(
                 'Are you sure you want to delete this fixture?\n\nHOME vs AWAY',
@@ -943,9 +941,7 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam, anotherTeam],
             );
 
-            const button = findButton(getSaveCell(), '🗑');
-
-            expect(button.disabled).toEqual(true);
+            expect(getSaveCell().button('🗑').enabled()).toEqual(false);
         });
 
         it('does not delete league fixture', async () => {
@@ -960,7 +956,7 @@ describe('DivisionFixture', () => {
                 false,
             );
 
-            await doClick(findButton(getSaveCell(), '🗑'));
+            await getSaveCell().button('🗑').click();
 
             expect(deletedFixture).toBeNull();
             expect(beforeReloadDivisionCalled).toEqual(false);
@@ -980,15 +976,13 @@ describe('DivisionFixture', () => {
             );
             apiResponse = { success: false, errors: ['SOME ERROR'] };
 
-            await doClick(findButton(getSaveCell(), '🗑'));
+            await getSaveCell().button('🗑').click();
 
             expect(deletedFixture).toEqual(fixture.id);
             expect(beforeReloadDivisionCalled).toEqual(false);
             expect(divisionReloaded).toEqual(false);
-            expect(context.container.textContent).toContain(
-                'Could not save fixture details',
-            );
-            expect(context.container.textContent).toContain('SOME ERROR');
+            expect(context.text()).toContain('Could not save fixture details');
+            expect(context.text()).toContain('SOME ERROR');
         });
 
         it('can close error dialog from deletion failure', async () => {
@@ -1003,14 +997,12 @@ describe('DivisionFixture', () => {
                 true,
             );
             apiResponse = { success: false, errors: ['SOME ERROR'] };
-            await doClick(findButton(getSaveCell(), '🗑'));
-            expect(context.container.textContent).toContain(
-                'Could not save fixture details',
-            );
+            await getSaveCell().button('🗑').click();
+            expect(context.text()).toContain('Could not save fixture details');
 
-            await doClick(findButton(context.container, 'Close'));
+            await context.button('Close').click();
 
-            expect(context.container.textContent).not.toContain(
+            expect(context.text()).not.toContain(
                 'Could not save fixture details',
             );
         });
@@ -1032,7 +1024,7 @@ describe('DivisionFixture', () => {
                 true,
             );
 
-            await doClick(findButton(getSaveCell(), '🗑'));
+            await getSaveCell().button('🗑').click();
 
             context.prompts.confirmWasShown(
                 'Are you sure you want to delete this fixture?\n\nHOME vs AWAY',
@@ -1056,9 +1048,9 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam, anotherTeam],
             );
 
-            const saveCell = context.container.querySelector('td:nth-child(6)');
-            const deleteButton = findButton(saveCell, '💾');
-            expect(deleteButton.disabled).toEqual(true);
+            expect(
+                context.required('td:nth-child(6)').button('💾').enabled(),
+            ).toEqual(false);
         });
 
         it('cannot delete when readonly', async () => {
@@ -1069,9 +1061,9 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam, anotherTeam],
             );
 
-            const saveCell = context.container.querySelector('td:nth-child(6)');
-            const deleteButton = findButton(saveCell, '🗑');
-            expect(deleteButton.disabled).toEqual(true);
+            expect(
+                context.required('td:nth-child(6)').button('🗑').enabled(),
+            ).toEqual(false);
         });
 
         it('cannot change away team when readonly', async () => {
@@ -1083,10 +1075,9 @@ describe('DivisionFixture', () => {
                 [homeTeam, awayTeam, anotherTeam],
             );
 
-            await doSelectOption(
-                getAwayCell().querySelector('.dropdown-menu'),
-                'ANOTHER TEAM',
-            );
+            await getAwayCell()
+                .required('.dropdown-menu')
+                .select('ANOTHER TEAM');
 
             expect(updatedFixtures).toBeNull();
         });
@@ -1103,8 +1094,8 @@ describe('DivisionFixture', () => {
                 },
             );
 
-            const row = context.container.querySelector('tr')!;
-            expect(row.className).not.toContain('opacity-25');
+            const row = context.required('tr');
+            expect(row.className()).not.toContain('opacity-25');
         });
     });
 });

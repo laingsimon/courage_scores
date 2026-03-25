@@ -9,6 +9,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { TableDto } from '../../interfaces/models/dtos/Data/TableDto';
 import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
@@ -64,16 +65,10 @@ describe('AdminHome', () => {
     });
 
     async function assertTab(access: AccessDto, href: string, exists: boolean) {
-        const account: UserDto = {
-            access: access,
-            name: '',
-            givenName: '',
-            emailAddress: '',
-        };
         context = await renderApp(
             iocProps({ dataApi, accountApi, templateApi, liveApi, featureApi }),
             brandingProps(),
-            appProps({ account }, reportedError),
+            appProps({ account: user(access) }, reportedError),
             <AdminContainer tables={[]} accounts={[]}>
                 <AdminHome />
             </AdminContainer>,
@@ -81,15 +76,13 @@ describe('AdminHome', () => {
             href,
         );
 
-        const tab = context.container.querySelector(
-            `.nav-tabs .nav-item a[href="${href}"]`,
-        );
+        const tab = context.optional(`.nav-tabs .nav-item a[href="${href}"]`);
 
         reportedError.verifyNoError();
         if (exists) {
-            expect(tab).not.toBeNull();
+            expect(tab).not.toBeUndefined();
         } else {
-            expect(tab).toBeNull();
+            expect(tab).toBeUndefined();
         }
     }
 
@@ -98,19 +91,13 @@ describe('AdminHome', () => {
         address: string,
         expectContent: string,
     ) {
-        const account: UserDto = {
-            access: access,
-            name: '',
-            emailAddress: '',
-            givenName: '',
-        };
         context = await renderApp(
             iocProps({ dataApi, accountApi, templateApi, liveApi, featureApi }),
             brandingProps(),
             appProps(
                 {
                     appLoading: false,
-                    account: account,
+                    account: user(access),
                 },
                 reportedError,
             ),
@@ -122,11 +109,8 @@ describe('AdminHome', () => {
         );
 
         reportedError.verifyNoError();
-        const content = context.container.querySelector(
-            `div.content-background`,
-        )!;
-        expect(content).not.toBeNull();
-        expect(content.innerHTML).toContain(expectContent);
+        const content = context.required(`div.content-background`);
+        expect(content.html()).toContain(expectContent);
     }
 
     describe('user admin', () => {
@@ -395,7 +379,7 @@ describe('AdminHome', () => {
             </AdminContainer>,
         );
 
-        const loading = context.container.querySelector('.loading-background');
+        const loading = context.optional('.loading-background');
         expect(loading).not.toBeNull();
     });
 
@@ -409,11 +393,9 @@ describe('AdminHome', () => {
             </AdminContainer>,
         );
 
-        const tabs = Array.from(
-            context.container.querySelectorAll('.nav-tabs .nav-item'),
-        );
+        const tabs = context.all('.nav-tabs .nav-item');
         expect(tabs.length).toEqual(0);
-        expect(context.container.outerHTML).toContain(
+        expect(context.html()).toContain(
             "You're not permitted to use this function",
         );
     });

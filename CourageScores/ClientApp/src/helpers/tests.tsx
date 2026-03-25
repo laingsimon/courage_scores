@@ -35,98 +35,7 @@ import { UserDto } from '../interfaces/models/dtos/Identity/UserDto';
 
 /* istanbul ignore file */
 
-export async function doClick(
-    container: Element,
-    selector?: string,
-    ignoreDisabledCheck?: boolean,
-) {
-    const item = selector ? container.querySelector(selector) : container;
-    if (!item) {
-        throw new Error(
-            `Element to click was not found: ${selector || (container ? container.innerHTML : '<no container>')}`,
-        );
-    }
-    if (!ignoreDisabledCheck) {
-        const anyItem = item as { disabled?: boolean };
-        expect(anyItem!.disabled || false).toEqual(false);
-    }
-    const clickEvent = new MouseEvent('click', { bubbles: true });
-    await act(async () => {
-        item!.dispatchEvent(clickEvent);
-    });
-}
-
-export async function doChange(
-    container: Element,
-    selector: string,
-    text: string,
-    user?: UserEvent,
-) {
-    const input = container.querySelector(selector);
-    if (!input) {
-        throw new Error(
-            `Could not find element with selector ${selector} in ${container.innerHTML}`,
-        );
-    }
-
-    fireEvent.change(input, { target: { value: text } });
-    if (!user) {
-        throw new Error('user not available');
-    }
-    await user.type(input, '{Shift}'); //trigger the event handler again, but in an async manner
-}
-
-export async function doKeyPress(container: Element, key: string) {
-    const keyboardEvent = new KeyboardEvent('keyup', {
-        bubbles: true,
-        key: key,
-    });
-    await act(async () => {
-        container!.dispatchEvent(keyboardEvent);
-    });
-}
-
-export async function setFile(
-    container: Element,
-    selector: string,
-    file: string,
-    user?: UserEvent,
-) {
-    const input = container.querySelector(selector);
-    if (!input) {
-        throw new Error(
-            `Could not find element with selector ${selector} in ${container.innerHTML}`,
-        );
-    }
-
-    fireEvent.change(input, { target: { files: [file] } });
-    if (!user) {
-        throw new Error('user not available');
-    }
-    await user.type(input, '{Shift}'); //trigger the event handler again, but in an async manner
-}
-
-export async function triggerMouseMove(element: Element, ctrlDown: boolean) {
-    const mouseEvent = new MouseEvent('mousemove', {
-        bubbles: true,
-        ctrlKey: ctrlDown,
-    });
-    await act(async () => {
-        element!.dispatchEvent(mouseEvent);
-    });
-}
-
-export async function triggerMouseLeave(element: Element, ctrlDown: boolean) {
-    const mouseEvent = new MouseEvent('mouseout', {
-        bubbles: true,
-        ctrlKey: ctrlDown,
-    });
-    await act(async () => {
-        element!.dispatchEvent(mouseEvent);
-    });
-}
-
-export interface TestContext {
+export interface TestContext extends IComponent {
     container: HTMLElement;
     cleanUp(): UntypedPromise;
     user?: UserEvent;
@@ -380,6 +289,7 @@ export async function renderApp(
         user,
         cookies: cookies,
         prompts: new Prompts(),
+        ...wrapComponent(container, user),
     };
 }
 
@@ -409,7 +319,7 @@ export async function cleanUp(context: TestContext): UntypedPromise {
     }
 }
 
-export function findButton(
+function findButton(
     container: Element | undefined | null,
     text: string,
     returnNullIfNotFound?: boolean,
@@ -446,42 +356,9 @@ export function findButton(
     );
 }
 
-export interface IFoundButton extends Element {
+interface IFoundButton extends Element {
     disabled?: boolean;
     href?: string;
-}
-
-export async function doSelectOption(
-    container: Element | undefined | null,
-    text: string,
-) {
-    if (!container) {
-        throw new Error('Container not supplied');
-    }
-
-    if (
-        !container.className ||
-        container.className.indexOf('dropdown-menu') === -1
-    ) {
-        throw new Error('Container must be a dropdown menu');
-    }
-
-    const items = Array.from(
-        container.querySelectorAll('.dropdown-item'),
-    ) as HTMLElement[];
-    const matchingItems = items.filter((i) => i.textContent === text);
-    if (matchingItems.length === 0) {
-        throw new Error(
-            `Could not find item with text: ${text}, possible options: ${items.map((i) => `"${i.textContent}"`).join(', ')}`,
-        );
-    }
-    if (matchingItems.length > 1) {
-        throw new Error(
-            `${matchingItems.length} items match given text: ${text}`,
-        );
-    }
-
-    await doClick(matchingItems[0]);
 }
 
 export async function noop(): UntypedPromise {
@@ -573,4 +450,344 @@ export function user(access: AccessDto, teamId?: string): UserDto {
         access,
         teamId,
     };
+}
+
+export function wrapComponent(element: Element, user: UserEvent): IComponent {
+    return {
+        all(selector: string): IComponent[] {
+            return Array.from(element.querySelectorAll(selector)).map((e) =>
+                wrapComponent(e, user),
+            );
+        },
+        required(selector: string): IComponent {
+            const found = this.optional(selector);
+            if (!found) {
+                throw new Error(
+                    `Unable to find element with selector ${selector} in\n${element.innerHTML}`,
+                );
+            }
+            return found;
+        },
+        optional(selector: string): IComponent | undefined {
+            const found = element.querySelector(selector);
+            return found ? wrapComponent(found, user) : undefined;
+        },
+        element: <T extends Element>() => element as T,
+        parent(): IComponent | undefined {
+            const parent = element.parentElement;
+            return parent ? wrapComponent(parent, user) : undefined;
+        },
+        nextSibling(): IComponent | undefined {
+            const nextSibling = element.nextSibling;
+            return nextSibling && nextSibling instanceof Element
+                ? wrapComponent(nextSibling, user)
+                : undefined;
+        },
+        closest(selector: string): IComponent | undefined {
+            const closest = element.closest(selector);
+            return closest ? wrapComponent(closest, user) : undefined;
+        },
+        async click(doNothingIfDisabled?: boolean): Promise<IComponent> {
+            if (!this.enabled() && !doNothingIfDisabled) {
+                throw new Error('Element is disabled');
+            }
+
+            const clickEvent = new MouseEvent('click', { bubbles: true });
+            await act(async () => {
+                element!.dispatchEvent(clickEvent);
+            });
+            return this;
+        },
+        async change(
+            text: string,
+            doNothingIfDisabled?: boolean,
+        ): Promise<IComponent> {
+            if (!this.enabled() && !doNothingIfDisabled) {
+                throw new Error('Element is disabled');
+            }
+
+            fireEvent.change(element, { target: { value: text } });
+            if (!user) {
+                throw new Error('user not available');
+            }
+            await user.type(element, '{Shift}'); //trigger the event handler again, but in an async manner
+            return this;
+        },
+        async type(
+            code: string,
+            doNothingIfDisabled?: boolean,
+        ): Promise<IComponent> {
+            if (!this.enabled() && !doNothingIfDisabled) {
+                throw new Error('Element is disabled');
+            }
+            await user.type(this.element(), code);
+            return this;
+        },
+        enabled(): boolean {
+            const anyItem = element as { disabled?: boolean };
+            return !anyItem.disabled;
+        },
+        async focus(doNothingIfDisabled?: boolean): Promise<IComponent> {
+            if (!this.enabled() && !doNothingIfDisabled) {
+                throw new Error('Element is disabled');
+            }
+
+            act(() => {
+                fireEvent.focus(element, {});
+            });
+
+            return this;
+        },
+        async blur(doNothingIfDisabled?: boolean): Promise<IComponent> {
+            if (!this.enabled() && !doNothingIfDisabled) {
+                throw new Error('Element is disabled');
+            }
+
+            act(() => {
+                fireEvent.blur(element, {});
+            });
+
+            return this;
+        },
+        html(): string {
+            return element.innerHTML;
+        },
+        text(): string {
+            return element.textContent;
+        },
+        className(): string {
+            return element.className;
+        },
+        async select(
+            text: string,
+            doNothingIfDisabled?: boolean,
+        ): Promise<IComponent> {
+            if (!this.enabled() && !doNothingIfDisabled) {
+                throw new Error('Element is disabled');
+            }
+
+            if (
+                !element.className ||
+                element.className.indexOf('dropdown-menu') === -1
+            ) {
+                throw new Error('Container must be a dropdown menu');
+            }
+
+            const items = Array.from(
+                element.querySelectorAll('.dropdown-item'),
+            ) as HTMLElement[];
+            const matchingItems = items.filter((i) => i.textContent === text);
+            if (matchingItems.length === 0) {
+                throw new Error(
+                    `Could not find item with text: ${text}, possible options: ${items.map((i) => `"${i.textContent}"`).join(', ')}`,
+                );
+            }
+            if (matchingItems.length > 1) {
+                throw new Error(
+                    `${matchingItems.length} items match given text: ${text}`,
+                );
+            }
+
+            const clickEvent = new MouseEvent('click', { bubbles: true });
+            await act(async () => {
+                matchingItems[0]!.dispatchEvent(clickEvent);
+            });
+
+            return this;
+        },
+        async file(file: string): Promise<IComponent> {
+            fireEvent.change(element, { target: { files: [file] } });
+            if (!user) {
+                throw new Error('user not available');
+            }
+            await user.type(element, '{Shift}'); //trigger the event handler again, but in an async manner
+            return this;
+        },
+        async keyPress(
+            key: string,
+            doNothingIfDisabled?: boolean,
+        ): Promise<IComponent> {
+            if (!this.enabled() && !doNothingIfDisabled) {
+                throw new Error('Element is disabled');
+            }
+
+            const keyboardEvent = new KeyboardEvent('keyup', {
+                bubbles: true,
+                key: key,
+            });
+            await act(async () => {
+                element.dispatchEvent(keyboardEvent);
+            });
+            return this;
+        },
+        async mouseLeave(
+            ctrlDown?: boolean,
+            doNothingIfDisabled?: boolean,
+        ): Promise<IComponent> {
+            if (!this.enabled() && !doNothingIfDisabled) {
+                throw new Error('Element is disabled');
+            }
+
+            const mouseEvent = new MouseEvent('mouseout', {
+                bubbles: true,
+                ctrlKey: ctrlDown,
+            });
+            await act(async () => {
+                element!.dispatchEvent(mouseEvent);
+            });
+            return this;
+        },
+        async mouseMove(
+            ctrlDown?: boolean,
+            doNothingIfDisabled?: boolean,
+        ): Promise<IComponent> {
+            if (!this.enabled() && !doNothingIfDisabled) {
+                throw new Error('Element is disabled');
+            }
+
+            const mouseEvent = new MouseEvent('mousemove', {
+                bubbles: true,
+                ctrlKey: ctrlDown,
+            });
+            await act(async () => {
+                element!.dispatchEvent(mouseEvent);
+            });
+            return this;
+        },
+
+        value(): string {
+            const input = element as { value?: string };
+            return input.value!;
+        },
+        button(text: string): IComponent {
+            const button = findButton(element, text);
+            return wrapComponent(button, user);
+        },
+        input(name: string): IComponent {
+            function notFound(): IComponent {
+                throw new Error(
+                    `Unable to find input/textarea with name ${name} in\n${element.innerHTML}`,
+                );
+            }
+
+            return (
+                this.optional(`input[name="${name}"]`) ??
+                this.optional(`textarea[name="${name}"]`) ??
+                notFound()
+            );
+        },
+    };
+}
+
+export interface IComponent {
+    /*
+     * the inner component that matches the selector
+     */
+    required(selector: string): IComponent;
+
+    /*
+     * the inner component that matches the selector, or undefined
+     */
+    optional(selector: string): IComponent | undefined;
+
+    /*
+     * all the components that match the selector
+     */
+    all(selector: string): IComponent[];
+
+    /*
+     * the inner html of this element
+     */
+    html(): string;
+
+    /*
+     * the text content of this element
+     */
+    text(): string;
+
+    /*
+     * is this element is enabled
+     */
+    enabled(): boolean;
+
+    /*
+     * the class name of this element
+     */
+    className(): string;
+
+    /*
+     * click this element
+     */
+    click(doNothingIfDisabled?: boolean): Promise<IComponent>;
+
+    /*
+     * change the text in this element
+     * Textarea or Input only
+     */
+    change(text: string, doNothingIfDisabled?: boolean): Promise<IComponent>;
+
+    /*
+     * type into this element
+     * Textarea or Input only
+     */
+    type(code: string, doNothingIfDisabled?: boolean): Promise<IComponent>;
+
+    /*
+     * select an option
+     * BootstrapDropdown only
+     */
+    select(text: string, doNothingIfDisabled?: boolean): Promise<IComponent>;
+
+    /*
+     * Set a file into the input
+     */
+    file(file: string): Promise<IComponent>;
+
+    /*
+     * press a key
+     */
+    keyPress(key: string, doNothingIfDisabled?: boolean): Promise<IComponent>;
+
+    /*
+     * move the mouse, over this component
+     */
+    mouseMove(
+        ctrlDown?: boolean,
+        doNothingIfDisabled?: boolean,
+    ): Promise<IComponent>;
+
+    /*
+     * move the mouse, out of this component
+     */
+    mouseLeave(
+        ctrlDown?: boolean,
+        doNothingIfDisabled?: boolean,
+    ): Promise<IComponent>;
+
+    /*
+     * focus this component
+     */
+    focus(doNothingIfDisabled?: boolean): Promise<IComponent>;
+
+    /*
+     * unfocus this component
+     */
+    blur(doNothingIfDisabled?: boolean): Promise<IComponent>;
+
+    /*
+     * the dom element
+     */
+    element<T extends Element>(): T;
+
+    parent(): IComponent | undefined;
+
+    nextSibling(): IComponent | undefined;
+
+    closest(selector: string): IComponent | undefined;
+
+    button(text: string): IComponent;
+
+    input(name: string): IComponent;
+
+    value(): string;
 }

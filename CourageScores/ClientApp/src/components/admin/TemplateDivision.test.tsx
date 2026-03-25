@@ -3,9 +3,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -75,10 +73,8 @@ describe('TemplateDivision', () => {
                 setHighlight,
             });
 
-            const heading = context.container.querySelector('h6')!;
-            expect(heading.textContent).toEqual(
-                '⬆️ Division 1 (click to collapse)',
-            );
+            const heading = context.required('h6');
+            expect(heading.text()).toEqual('⬆️ Division 1 (click to collapse)');
         });
 
         it('division shared addresses', async () => {
@@ -97,10 +93,10 @@ describe('TemplateDivision', () => {
                 setHighlight,
             });
 
-            const divisionSharedAddresses = context.container.querySelector(
+            const divisionSharedAddresses = context.required(
                 'div > ul:nth-child(2)',
-            )!;
-            expect(divisionSharedAddresses.textContent).toContain('A ×');
+            );
+            expect(divisionSharedAddresses.text()).toContain('A ×');
         });
 
         it('dates', async () => {
@@ -128,10 +124,8 @@ describe('TemplateDivision', () => {
                 setHighlight,
             });
 
-            const dates = context.container.querySelector(
-                'div > ul:nth-child(3)',
-            )!;
-            expect(dates.textContent).toContain('A - B ×');
+            const dates = context.required('div > ul:nth-child(3)');
+            expect(dates.text()).toContain('A - B ×');
         });
 
         it('sharable addresses', async () => {
@@ -170,12 +164,10 @@ describe('TemplateDivision', () => {
                 setHighlight,
             });
 
-            const sharableAddresses: Element[] = Array.from(
-                context.container.querySelectorAll(
-                    'ul[datatype="shareable-addresses"] > li',
-                ),
+            const sharableAddresses = context.all(
+                'ul[datatype="shareable-addresses"] > li',
             );
-            expect(sharableAddresses.map((d) => d.textContent)).toEqual([
+            expect(sharableAddresses.map((d) => d.text())).toEqual([
                 '1,5',
                 '2,6',
                 '3,7',
@@ -200,13 +192,11 @@ describe('TemplateDivision', () => {
                 highlight: '',
                 setHighlight,
             });
-            const heading = context.container.querySelector('h6')!;
+            const heading = context.required('h6');
 
-            await doClick(heading);
+            await heading.click();
 
-            expect(heading.textContent).toEqual(
-                '⬇️ Division 1 (click to expand)',
-            );
+            expect(heading.text()).toEqual('⬇️ Division 1 (click to expand)');
         });
 
         it('can collapse division', async () => {
@@ -224,14 +214,12 @@ describe('TemplateDivision', () => {
                 highlight: '',
                 setHighlight,
             });
-            const heading = context.container.querySelector('h6')!;
+            const heading = context.required('h6');
 
-            await doClick(heading);
-            await doClick(heading);
+            await heading.click();
+            await heading.click();
 
-            expect(heading.textContent).toEqual(
-                '⬆️ Division 1 (click to collapse)',
-            );
+            expect(heading.text()).toEqual('⬆️ Division 1 (click to collapse)');
         });
 
         it('can update shared addresses', async () => {
@@ -250,9 +238,7 @@ describe('TemplateDivision', () => {
                 setHighlight,
             });
 
-            await doClick(
-                findButton(context.container, '➕ Add shared address'),
-            );
+            await context.button('➕ Add shared address').click();
 
             expect(update).toEqual({
                 sharedAddresses: [[]],
@@ -276,7 +262,7 @@ describe('TemplateDivision', () => {
                 setHighlight,
             });
 
-            await doClick(findButton(context.container, '➕ Add a week'));
+            await context.button('➕ Add a week').click();
 
             expect(update).toEqual({
                 sharedAddresses: [],
@@ -304,7 +290,7 @@ describe('TemplateDivision', () => {
                 setHighlight,
             });
 
-            await doClick(findButton(context.container, '🗑️ Remove division'));
+            await context.button('🗑️ Remove division').click();
 
             expect(deleted).toEqual(true);
         });
@@ -334,7 +320,7 @@ describe('TemplateDivision', () => {
                 setHighlight,
             });
 
-            await doClick(findButton(context.container, 'Copy to division 2'));
+            await context.button('Copy to division 2').click();
 
             expect(copyToDivisionIndex).toEqual(1);
         });

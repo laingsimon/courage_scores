@@ -1,13 +1,10 @@
-﻿import {
+import {
     api,
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
-    doSelectOption,
     ErrorState,
-    findButton,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -167,8 +164,8 @@ describe('PrintableSheetMatch', () => {
         return props;
     }
 
-    function getDialog() {
-        return context.container.querySelector('.modal-dialog');
+    function modalDialog(): IComponent | undefined {
+        return context.optional('.modal-dialog');
     }
 
     function layoutDataForMatch(
@@ -202,42 +199,36 @@ describe('PrintableSheetMatch', () => {
         };
     }
 
-    function scoreDropdownItems(dialog: Element) {
-        return Array.from(
-            dialog.querySelectorAll(
-                '.form-group :nth-child(4) div.dropdown-menu .dropdown-item',
-            ),
-        ).map((i) => i.textContent);
+    function scoreDropdownItems(dialog: IComponent) {
+        return dialog
+            .all('.form-group :nth-child(4) div.dropdown-menu .dropdown-item')
+            .map((i) => i.text());
     }
 
-    async function selectSide(dialog: Element, name: string) {
-        const dropdown = dialog.querySelector(
-            '.form-group :nth-child(2) div.dropdown-menu',
-        );
-        await doSelectOption(dropdown, name);
+    async function selectSide(dialog: IComponent, name: string) {
+        await dialog
+            .required('.form-group :nth-child(2) div.dropdown-menu')
+            .select(name);
     }
 
-    async function selectScore(dialog: Element, score: string) {
-        const dropdown = dialog.querySelector(
-            '.form-group :nth-child(4) div.dropdown-menu',
-        );
-        await doSelectOption(dropdown, score);
+    async function selectScore(dialog: IComponent, score: string) {
+        await dialog
+            .required('.form-group :nth-child(4) div.dropdown-menu')
+            .select(score);
     }
 
     async function editSide(side: 'sideA' | 'sideB') {
-        await doClick(
-            context.container.querySelector(`div[datatype="${side}"]`)!,
-        );
+        await context.required(`div[datatype="${side}"]`).click();
     }
 
-    function debugOptions(dialog: Element) {
-        return dialog.querySelector(
+    function debugOptions(dialog: IComponent) {
+        return dialog.required(
             '.modal-footer [datatype="debug-options"] .dropdown-menu',
         );
     }
 
-    function bestOf(dialog: Element) {
-        return dialog.querySelector('input[name="bestOf"]') as HTMLInputElement;
+    function bestOf(dialog: IComponent) {
+        return dialog.input('bestOf').element<HTMLInputElement>();
     }
 
     function equatableSide(side: TournamentSideDto) {
@@ -272,10 +263,9 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
 
-            const matchMnemonic = context.container.querySelector(
-                'span[datatype="match-mnemonic"]',
-            )!;
-            expect(matchMnemonic.textContent).toEqual('M1');
+            expect(
+                context.required('span[datatype="match-mnemonic"]').text(),
+            ).toEqual('M1');
         });
 
         it('when no match mnemonic', async () => {
@@ -291,10 +281,9 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
 
-            const matchMnemonic = context.container.querySelector(
-                'span[datatype="match-mnemonic"]',
-            );
-            expect(matchMnemonic).toBeFalsy();
+            expect(
+                context.optional('span[datatype="match-mnemonic"]'),
+            ).toBeFalsy();
         });
 
         it('sideA', async () => {
@@ -311,16 +300,13 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
 
-            const sideA = context.container.querySelector(
-                'div[datatype="sideA"]',
-            )!;
-            expect(sideA).toBeTruthy();
-            expect(
-                sideA.querySelector('span[datatype="sideAname"]')!.textContent,
-            ).toEqual('SIDE A');
-            expect(
-                sideA.querySelector('div[datatype="scoreA"]')!.textContent,
-            ).toEqual('5');
+            const sideA = context.required('div[datatype="sideA"]');
+            expect(sideA.required('span[datatype="sideAname"]').text()).toEqual(
+                'SIDE A',
+            );
+            expect(sideA.required('div[datatype="scoreA"]').text()).toEqual(
+                '5',
+            );
         });
 
         it('sideB', async () => {
@@ -338,16 +324,13 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
 
-            const sideB = context.container.querySelector(
-                'div[datatype="sideB"]',
-            )!;
-            expect(sideB).toBeTruthy();
-            expect(
-                sideB.querySelector('span[datatype="sideBname"]')!.textContent,
-            ).toEqual('SIDE B');
-            expect(
-                sideB.querySelector('div[datatype="scoreB"]')!.textContent,
-            ).toEqual('7');
+            const sideB = context.required('div[datatype="sideB"]');
+            expect(sideB.required('span[datatype="sideBname"]').text()).toEqual(
+                'SIDE B',
+            );
+            expect(sideB.required('div[datatype="scoreB"]').text()).toEqual(
+                '7',
+            );
         });
     });
 
@@ -379,6 +362,7 @@ describe('PrintableSheetMatch', () => {
         const debugAndSaygUser = user({
             recordScoresAsYouGo: true,
             showDebugOptions: true,
+            manageTournaments: true,
         });
 
         function sideABWithLinks(
@@ -452,10 +436,10 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
             await editSide('sideA');
-            const dialog = getDialog()!;
+            const dialog = modalDialog()!;
             await selectSide(dialog, 'SIDE C');
             await selectScore(dialog, '1');
-            await doClick(findButton(dialog, 'Save'));
+            await dialog.button('Save').click();
 
             expect(updatedTournament!.round).toEqual({
                 id: expect.any(String),
@@ -478,10 +462,10 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
             await editSide('sideB');
-            const dialog = getDialog()!;
+            const dialog = modalDialog()!;
             await selectSide(dialog, 'SIDE C');
             await selectScore(dialog, '1');
-            await doClick(findButton(dialog, 'Save'));
+            await dialog.button('Save').click();
 
             expect(updatedTournament!.round).toEqual({
                 id: expect.any(String),
@@ -504,9 +488,9 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
             await editSide('sideB');
-            const dialog = getDialog()!;
-            await doChange(dialog, 'input[name="bestOf"]', '11', context.user);
-            await doClick(findButton(dialog, 'Save'));
+            const dialog = modalDialog()!;
+            await dialog.input('bestOf').change('11');
+            await dialog.button('Save').click();
 
             expect(updatedTournament!.round).toEqual({
                 matchOptions: [
@@ -533,10 +517,10 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
             await editSide('sideB');
-            const dialog = getDialog()!;
+            const dialog = modalDialog()!;
 
-            await doChange(dialog, 'input[name="bestOf"]', '', context.user);
-            await doClick(findButton(dialog, 'Save'));
+            await dialog.input('bestOf').change('');
+            await dialog.button('Save').click();
 
             context.prompts.alertWasShown('Best of is invalid');
             expect(updatedTournament).toBeNull();
@@ -592,9 +576,9 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
             await editSide('sideB');
-            const dialog = getDialog()!;
+            const dialog = modalDialog()!;
             await selectScore(dialog, '3');
-            await doClick(findButton(dialog, 'Save'));
+            await dialog.button('Save').click();
 
             expect(updatedTournament!.round!.nextRound).toEqual({
                 matchOptions: expect.any(Array),
@@ -618,9 +602,9 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
             await editSide('sideA');
-            const dialog = getDialog()!;
+            const dialog = modalDialog()!;
             await selectScore(dialog, '1');
-            await doClick(findButton(dialog, 'Save'));
+            await dialog.button('Save').click();
 
             expect(updatedTournament!.round).toEqual({
                 id: expect.any(String),
@@ -643,9 +627,9 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
             await editSide('sideA');
-            const dialog = getDialog()!;
+            const dialog = modalDialog()!;
             await selectScore(dialog, '1');
-            await doClick(findButton(dialog, 'Save'));
+            await dialog.button('Save').click();
 
             context.prompts.alertWasShown('Select a side first');
             expect(updatedTournament).toEqual(null);
@@ -660,7 +644,7 @@ describe('PrintableSheetMatch', () => {
 
             await editSide('sideA');
 
-            expect(getDialog()).toBeFalsy();
+            expect(modalDialog()).toBeFalsy();
         });
 
         it('opens edit dialog for sideA', async () => {
@@ -672,7 +656,7 @@ describe('PrintableSheetMatch', () => {
 
             await editSide('sideA');
 
-            expect(getDialog()).toBeTruthy();
+            expect(modalDialog()).toBeTruthy();
         });
 
         it('does not open edit dialog for sideB when not editable', async () => {
@@ -684,7 +668,7 @@ describe('PrintableSheetMatch', () => {
 
             await editSide('sideB');
 
-            expect(getDialog()).toBeFalsy();
+            expect(modalDialog()).toBeFalsy();
         });
 
         it('opens edit dialog for sideB', async () => {
@@ -696,7 +680,7 @@ describe('PrintableSheetMatch', () => {
 
             await editSide('sideB');
 
-            expect(getDialog()).toBeTruthy();
+            expect(modalDialog()).toBeTruthy();
         });
 
         it('can unset side A', async () => {
@@ -707,7 +691,7 @@ describe('PrintableSheetMatch', () => {
             );
             await editSide('sideA');
 
-            await doClick(findButton(getDialog()!, 'Remove'));
+            await modalDialog()!.button('Remove').click();
 
             expect(updatedTournament!.round).toEqual({
                 matchOptions: expect.any(Array),
@@ -738,7 +722,7 @@ describe('PrintableSheetMatch', () => {
             );
             await editSide('sideB');
 
-            await doClick(findButton(getDialog()!, 'Remove'));
+            await modalDialog()!.button('Remove').click();
 
             expect(updatedTournament!.round).toEqual({
                 matchOptions: expect.any(Array),
@@ -767,7 +751,7 @@ describe('PrintableSheetMatch', () => {
             );
             await editSide('sideB');
 
-            await doClick(findButton(getDialog()!, 'Remove'));
+            await modalDialog()!.button('Remove').click();
 
             expect(updatedTournament!.round).toEqual({
                 matchOptions: expect.any(Array),
@@ -786,7 +770,7 @@ describe('PrintableSheetMatch', () => {
             );
             await editSide('sideB');
 
-            const dialog = getDialog()!;
+            const dialog = modalDialog()!;
             expect(bestOf(dialog).value).toContain('9');
             expect(scoreDropdownItems(dialog)).toEqual([
                 '0',
@@ -806,7 +790,7 @@ describe('PrintableSheetMatch', () => {
             );
             await editSide('sideB');
 
-            const dialog = getDialog()!;
+            const dialog = modalDialog()!;
             expect(bestOf(dialog).value).toContain('7');
             expect(scoreDropdownItems(dialog)).toEqual([
                 '0',
@@ -840,16 +824,12 @@ describe('PrintableSheetMatch', () => {
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
                 patchable(props(matchData, true)),
-                appProps(
-                    { account: user({ recordScoresAsYouGo: true }) },
-                    reportedError,
-                ),
+                appProps({ account: debugAndSaygUser }, reportedError),
             );
 
-            await doClick(findButton(context.container, START_SCORING));
+            await context.button(START_SCORING).click();
             reportedError.verifyNoError();
-            // set sideA to play first
-            await doClick(findButton(getDialog(), '🎯SIDE A'));
+            await modalDialog()!.button('🎯SIDE A').click();
 
             //verify patch data
             reportedError.verifyNoError();
@@ -891,16 +871,12 @@ describe('PrintableSheetMatch', () => {
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
                 patchable(withRoundIndex(props(matchData, true), 1)),
-                appProps(
-                    { account: user({ recordScoresAsYouGo: true }) },
-                    reportedError,
-                ),
+                appProps({ account: debugAndSaygUser }, reportedError),
             );
 
-            await doClick(findButton(context.container, START_SCORING));
+            await context.button(START_SCORING).click();
             reportedError.verifyNoError();
-            // set sideA to play first
-            await doClick(findButton(getDialog(), '🎯SIDE A'));
+            await modalDialog()!.button('🎯SIDE A').click();
 
             //verify patch data
             reportedError.verifyNoError();
@@ -942,22 +918,26 @@ describe('PrintableSheetMatch', () => {
         });
 
         it('can view scores for match with sayg', async () => {
+            const match = tournamentDataWithMatch!.round!.matches![0];
             const matchData = hideMnemonic(
                 sideABWithLinks({
                     scoreA: '1',
                     scoreB: '2',
                     mnemonic: 'M1',
-                    match: tournamentDataWithMatch!.round!.matches![0],
+                    match,
                 }),
             );
+            match.scoreA = 1;
+            match.scoreB = 2;
             await renderComponent(
                 containerProps.withTournament(tournamentDataWithMatch).build(),
                 patchable(props(matchData, true)),
                 appProps({}, reportedError),
             );
 
-            expect(context.container.innerHTML).toContain('📊');
-            const link = findButton(context.container, '📊 ');
+            const link = context
+                .button('📊 1 - 2')
+                .element<HTMLAnchorElement>();
             expect(link.href).toEqual(
                 `http://localhost/live/match/?id=${saygData.id}`,
             );
@@ -993,10 +973,10 @@ describe('PrintableSheetMatch', () => {
                 result: tournamentDataWithoutSayg,
             };
 
-            await doClick(findButton(context.container, START_SCORING));
-            const dialog = getDialog()!;
-            await doClick(findButton(dialog, 'Debug options'));
-            await doSelectOption(debugOptions(dialog), 'Delete sayg');
+            await context.button(START_SCORING).click();
+            const dialog = modalDialog()!;
+            await dialog.button('Debug options').click();
+            await debugOptions(dialog).select('Delete sayg');
 
             reportedError.verifyNoError();
             expect(deletedSayg).toEqual({
@@ -1037,10 +1017,10 @@ describe('PrintableSheetMatch', () => {
                 result: tournamentDataWithoutSayg,
             };
 
-            await doClick(findButton(context.container, START_SCORING));
-            const dialog = getDialog()!;
-            await doClick(findButton(dialog, 'Debug options'));
-            await doSelectOption(debugOptions(dialog), 'Delete sayg');
+            await context.button(START_SCORING).click();
+            const dialog = modalDialog()!;
+            await dialog.button('Debug options').click();
+            await debugOptions(dialog).select('Delete sayg');
 
             reportedError.verifyNoError();
             expect(deletedSayg).toEqual({
@@ -1080,10 +1060,10 @@ describe('PrintableSheetMatch', () => {
                 success: false,
             };
 
-            await doClick(findButton(context.container, START_SCORING));
-            const dialog = getDialog()!;
-            await doClick(findButton(dialog, 'Debug options'));
-            await doSelectOption(debugOptions(dialog), 'Delete sayg');
+            await context.button(START_SCORING).click();
+            const dialog = modalDialog()!;
+            await dialog.button('Debug options').click();
+            await debugOptions(dialog).select('Delete sayg');
 
             expect(deletedSayg).toEqual({
                 id: tournamentDataWithMatch.id,

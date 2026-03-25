@@ -3,7 +3,6 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
     IBrowserWindow,
     iocProps,
     renderApp,
@@ -54,7 +53,7 @@ describe('ExportDataButton', () => {
         it('renders nothing', async () => {
             await renderComponent({}, account);
 
-            expect(context.container.innerHTML).toEqual('');
+            expect(context.html()).toEqual('');
         });
     });
 
@@ -71,7 +70,7 @@ describe('ExportDataButton', () => {
         it('renders nothing', async () => {
             await renderComponent({}, account);
 
-            expect(context.container.innerHTML).toEqual('');
+            expect(context.html()).toEqual('');
         });
     });
 
@@ -88,7 +87,7 @@ describe('ExportDataButton', () => {
         it('when nothing to export, does not render button', async () => {
             await renderComponent({}, account);
 
-            expect(context.container.innerHTML).toEqual('');
+            expect(context.html()).toEqual('');
         });
 
         it('when something to export, renders button', async () => {
@@ -102,9 +101,8 @@ describe('ExportDataButton', () => {
                 account,
             );
 
-            const button = context.container.querySelector('button')!;
-            expect(button).toBeTruthy();
-            expect(button.textContent).toEqual('🛒');
+            const button = context.required('button');
+            expect(button.text()).toEqual('🛒');
         });
 
         it('when clicked, tries to export data', async () => {
@@ -117,9 +115,7 @@ describe('ExportDataButton', () => {
                 },
                 account,
             );
-            const button = context.container.querySelector('button')!;
-
-            await doClick(button);
+            await context.button('🛒').click();
 
             expect(exportRequest).toEqual({
                 password: '',
@@ -141,9 +137,7 @@ describe('ExportDataButton', () => {
                 },
                 account,
             );
-            const button = context.container.querySelector('button')!;
-
-            await doClick(button);
+            await context.button('🛒').click();
 
             expect(exportRequest).not.toBeNull();
             context.prompts.alertWasShown('Unable to export data');
@@ -159,7 +153,6 @@ describe('ExportDataButton', () => {
                 },
                 account,
             );
-            const button = context.container.querySelector('button')!;
             apiResult = {
                 success: true,
                 result: {
@@ -171,7 +164,7 @@ describe('ExportDataButton', () => {
                 openedWindow = url;
             };
 
-            await doClick(button);
+            await context.button('🛒').click();
 
             expect(exportRequest).not.toBeNull();
             expect(openedWindow).toEqual(

@@ -3,11 +3,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
-    doSelectOption,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -51,9 +47,7 @@ describe('EditSeason', () => {
         },
     });
 
-    async function onClose() {
-        closed = true;
-    }
+    async function onClose() {}
 
     async function onSave() {
         saved = true;
@@ -127,12 +121,7 @@ describe('EditSeason', () => {
         );
         reportedError.verifyNoError();
 
-        await doChange(
-            context.container,
-            'input[name="name"]',
-            'NEW SEASON NAME',
-            context.user,
-        );
+        await context.input('name').change('NEW SEASON NAME');
 
         reportedError.verifyNoError();
         expect(updatedData!.id).toEqual(season.id);
@@ -156,22 +145,12 @@ describe('EditSeason', () => {
         );
         reportedError.verifyNoError();
 
-        await doChange(
-            context.container,
-            'input[name="startDate"]',
-            '2023-06-01',
-            context.user,
-        );
+        await context.input('startDate').change('2023-06-01');
         reportedError.verifyNoError();
         expect(updatedData!.id).toEqual(season.id);
         expect(updatedData!.startDate).toEqual('2023-06-01');
 
-        await doChange(
-            context.container,
-            'input[name="endDate"]',
-            '2023-09-01',
-            context.user,
-        );
+        await context.input('endDate').change('2023-09-01');
         reportedError.verifyNoError();
         expect(updatedData!.id).toEqual(season.id);
         expect(updatedData!.endDate).toEqual('2023-09-01');
@@ -194,22 +173,12 @@ describe('EditSeason', () => {
         );
         reportedError.verifyNoError();
 
-        await doChange(
-            context.container,
-            'input[name="fixtureStartTime"]',
-            '20:30',
-            context.user,
-        );
+        await context.input('fixtureStartTime').change('20:30');
         reportedError.verifyNoError();
         expect(updatedData!.id).toEqual(season.id);
         expect(updatedData!.fixtureStartTime).toEqual('20:30');
 
-        await doChange(
-            context.container,
-            'input[name="fixtureDuration"]',
-            '5',
-            context.user,
-        );
+        await context.input('fixtureDuration').change('5');
         reportedError.verifyNoError();
         expect(updatedData!.id).toEqual(season.id);
         expect(updatedData!.fixtureDuration).toEqual(5);
@@ -232,14 +201,12 @@ describe('EditSeason', () => {
         );
         reportedError.verifyNoError();
 
-        const divisionOptions = Array.from(
-            context.container.querySelectorAll('.list-group-item'),
-        );
+        const divisionOptions = context.all('.list-group-item');
         const unselectedDivision = divisionOptions.filter(
-            (d) => d.className.indexOf('active') === -1,
+            (d) => d.className().indexOf('active') === -1,
         )[0];
-        expect(unselectedDivision.textContent).toEqual(division2.name);
-        await doClick(unselectedDivision);
+        expect(unselectedDivision.text()).toEqual(division2.name);
+        await unselectedDivision.click();
 
         reportedError.verifyNoError();
         expect(updatedData!.id).toEqual(season.id);
@@ -263,14 +230,12 @@ describe('EditSeason', () => {
         );
         reportedError.verifyNoError();
 
-        const divisionOptions = Array.from(
-            context.container.querySelectorAll('.list-group-item'),
-        );
+        const divisionOptions = context.all('.list-group-item');
         const selectedDivision = divisionOptions.filter(
-            (d) => d.className.indexOf('active') !== -1,
+            (d) => d.className().indexOf('active') !== -1,
         )[0];
-        expect(selectedDivision.textContent).toEqual(division1.name);
-        await doClick(selectedDivision);
+        expect(selectedDivision.text()).toEqual(division1.name);
+        await selectedDivision.click();
 
         reportedError.verifyNoError();
         expect(updatedData!.id).toEqual(season.id);
@@ -297,10 +262,7 @@ describe('EditSeason', () => {
         );
         reportedError.verifyNoError();
 
-        await doSelectOption(
-            context.container.querySelector('.dropdown-menu'),
-            'OTHER SEASON',
-        );
+        await context.required('.dropdown-menu').select('OTHER SEASON');
 
         reportedError.verifyNoError();
         expect(updatedData!.copyTeamsFromSeasonId).toEqual(otherSeason.id);
@@ -321,7 +283,7 @@ describe('EditSeason', () => {
             divisions,
         );
 
-        await doClick(findButton(context.container, 'Update season'));
+        await context.button('Update season').click();
 
         context.prompts.alertWasShown('Enter a season name');
         expect(saved).toEqual(false);
@@ -341,7 +303,7 @@ describe('EditSeason', () => {
         );
         reportedError.verifyNoError();
 
-        await doClick(findButton(context.container, 'Update season'));
+        await context.button('Update season').click();
 
         reportedError.verifyNoError();
         context.prompts.noAlerts();
@@ -367,7 +329,7 @@ describe('EditSeason', () => {
             success: false,
         };
 
-        await doClick(findButton(context.container, 'Update season'));
+        await context.button('Update season').click();
 
         reportedError.verifyNoError();
         expect(saveError).toEqual(apiResponse);
@@ -391,7 +353,7 @@ describe('EditSeason', () => {
             true,
         );
 
-        await doClick(findButton(context.container, 'Delete season'));
+        await context.button('Delete season').click();
 
         context.prompts.confirmWasShown(
             'Are you sure you want to delete the SEASON season?',
@@ -417,7 +379,7 @@ describe('EditSeason', () => {
             true,
         );
 
-        await doClick(findButton(context.container, 'Delete season'));
+        await context.button('Delete season').click();
 
         reportedError.verifyNoError();
         expect(deletedId).toEqual(season.id);
@@ -444,7 +406,7 @@ describe('EditSeason', () => {
             success: false,
         };
 
-        await doClick(findButton(context.container, 'Delete season'));
+        await context.button('Delete season').click();
 
         reportedError.verifyNoError();
         expect(deletedId).toEqual(season.id);
@@ -469,7 +431,7 @@ describe('EditSeason', () => {
             true,
         );
 
-        await doClick(findButton(context.container, 'Delete season'));
+        await context.button('Delete season').click();
 
         expect(mockedUsedNavigate).toHaveBeenCalledWith('https://localhost');
     });

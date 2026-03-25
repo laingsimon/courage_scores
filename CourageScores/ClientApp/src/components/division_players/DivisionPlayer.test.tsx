@@ -3,10 +3,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -159,11 +156,9 @@ describe('DivisionPlayer', () => {
                 );
 
                 reportedError.verifyNoError();
-                const cells = Array.from(
-                    context.container.querySelectorAll('td'),
-                );
+                const cells = context.all('td');
                 expect(cells.length).toEqual(10);
-                expect(cells.map((c) => c.textContent)).toEqual([
+                expect(cells.map((c) => c.text())).toEqual([
                     '1',
                     'NAME',
                     'TEAM',
@@ -196,12 +191,10 @@ describe('DivisionPlayer', () => {
                 );
 
                 reportedError.verifyNoError();
-                const cells = Array.from(
-                    context.container.querySelectorAll('td'),
-                );
+                const cells = context.all('td');
                 expect(cells.length).toEqual(10);
                 const nameCell = cells[1];
-                expect(nameCell.textContent).toEqual('🤴 NAME');
+                expect(nameCell.text()).toEqual('🤴 NAME');
             });
 
             it('without venue', async () => {
@@ -221,11 +214,9 @@ describe('DivisionPlayer', () => {
                 );
 
                 reportedError.verifyNoError();
-                const cells = Array.from(
-                    context.container.querySelectorAll('td'),
-                );
+                const cells = context.all('td');
                 expect(cells.length).toEqual(9);
-                expect(cells.map((c) => c.textContent)).toEqual([
+                expect(cells.map((c) => c.text())).toEqual([
                     '1',
                     'NAME',
                     '2',
@@ -255,11 +246,9 @@ describe('DivisionPlayer', () => {
                 );
 
                 reportedError.verifyNoError();
-                const cells = Array.from(
-                    context.container.querySelectorAll('td'),
-                );
+                const cells = context.all('td');
                 const playerLinkCell = cells[1];
-                expect(playerLinkCell.querySelector('button')).toBeFalsy();
+                expect(playerLinkCell.optional('button')).toBeFalsy();
             });
 
             it('link to player details', async () => {
@@ -279,12 +268,11 @@ describe('DivisionPlayer', () => {
                 );
 
                 reportedError.verifyNoError();
-                const cells = Array.from(
-                    context.container.querySelectorAll('td'),
-                );
+                const cells = context.all('td');
                 const playerLinkCell = cells[1];
-                const link = playerLinkCell.querySelector('a')!;
-                expect(link).toBeTruthy();
+                const link = playerLinkCell
+                    .required('a')
+                    .element<HTMLAnchorElement>();
                 expect(link.href).toEqual(
                     `http://localhost/division/${division.name}/player:${player.name}@${player.team}/${season.name}`,
                 );
@@ -307,12 +295,11 @@ describe('DivisionPlayer', () => {
                 );
 
                 reportedError.verifyNoError();
-                const cells = Array.from(
-                    context.container.querySelectorAll('td'),
-                );
+                const cells = context.all('td');
                 const teamLinkCell = cells[2];
-                const link = teamLinkCell.querySelector('a')!;
-                expect(link).toBeTruthy();
+                const link = teamLinkCell
+                    .required('a')
+                    .element<HTMLAnchorElement>();
                 expect(link.href).toEqual(
                     `http://localhost/division/${division.name}/team:${player.team}/${season.name}`,
                 );
@@ -337,13 +324,10 @@ describe('DivisionPlayer', () => {
                 );
 
                 reportedError.verifyNoError();
-                const cells = Array.from(
-                    context.container.querySelectorAll('td'),
-                );
+                const cells = context.all('td');
                 const teamLinkCell = cells[2];
-                const link = teamLinkCell.querySelector('a');
-                expect(link).toBeFalsy();
-                expect(teamLinkCell.textContent).toEqual(noTeamPlayer.team);
+                expect(teamLinkCell.optional('a')).toBeFalsy();
+                expect(teamLinkCell.text()).toEqual(noTeamPlayer.team);
             });
 
             it('when team is a favourite', async () => {
@@ -367,8 +351,9 @@ describe('DivisionPlayer', () => {
                 );
 
                 reportedError.verifyNoError();
-                const row = context.container.querySelector('tr')!;
-                expect(row.className).not.toContain('opacity-25');
+                expect(context.required('tr').className()).not.toContain(
+                    'opacity-25',
+                );
             });
 
             it('when team is not a favourite', async () => {
@@ -392,8 +377,9 @@ describe('DivisionPlayer', () => {
                 );
 
                 reportedError.verifyNoError();
-                const row = context.container.querySelector('tr')!;
-                expect(row.className).toContain('opacity-25');
+                expect(context.required('tr').className()).toContain(
+                    'opacity-25',
+                );
             });
 
             it('when no favourites are defined', async () => {
@@ -417,8 +403,9 @@ describe('DivisionPlayer', () => {
                 );
 
                 reportedError.verifyNoError();
-                const row = context.container.querySelector('tr')!;
-                expect(row.className).not.toContain('opacity-25');
+                expect(context.required('tr').className()).not.toContain(
+                    'opacity-25',
+                );
             });
         });
     });
@@ -469,15 +456,13 @@ describe('DivisionPlayer', () => {
                     },
                     account,
                 );
-                const nameCell =
-                    context.container.querySelector('td:nth-child(2)')!;
-                expect(nameCell.textContent).toContain('NAME');
+                const nameCell = context.required('td:nth-child(2)');
+                expect(nameCell.text()).toContain('NAME');
 
-                await doClick(findButton(nameCell, '✏️'));
+                await nameCell.button('✏️').click();
 
-                const dialog = nameCell.querySelector('.modal-dialog')!;
-                expect(dialog).toBeTruthy();
-                expect(dialog.textContent).toContain('Edit player: NAME');
+                const dialog = nameCell.required('.modal-dialog');
+                expect(dialog.text()).toContain('Edit player: NAME');
             });
 
             it('can close edit player dialog', async () => {
@@ -495,19 +480,16 @@ describe('DivisionPlayer', () => {
                     },
                     account,
                 );
-                const nameCell =
-                    context.container.querySelector('td:nth-child(2)')!;
-                await doClick(findButton(nameCell, '✏️'));
-                expect(nameCell.querySelector('.modal-dialog')).toBeTruthy();
+                const nameCell = context.required('td:nth-child(2)');
+                await nameCell.button('✏️').click();
+                expect(nameCell.optional('.modal-dialog')).toBeTruthy();
 
-                await doClick(
-                    findButton(
-                        nameCell.querySelector('.modal-dialog')!,
-                        'Cancel',
-                    ),
-                );
+                await nameCell
+                    .required('.modal-dialog')
+                    .button('Cancel')
+                    .click();
 
-                expect(nameCell.querySelector('.modal-dialog')).toBeFalsy();
+                expect(nameCell.optional('.modal-dialog')).toBeFalsy();
             });
 
             it('prevents delete of player', async () => {
@@ -525,14 +507,13 @@ describe('DivisionPlayer', () => {
                     },
                     account,
                 );
-                const nameCell =
-                    context.container.querySelector('td:nth-child(2)');
+                const nameCell = context.required('td:nth-child(2)');
                 context.prompts.respondToConfirm(
                     'Are you sure you want to delete NAME?',
                     false,
                 );
 
-                await doClick(findButton(nameCell, '🗑️'));
+                await nameCell.button('🗑️').click();
 
                 context.prompts.confirmWasShown(
                     'Are you sure you want to delete NAME?',
@@ -557,14 +538,13 @@ describe('DivisionPlayer', () => {
                     },
                     account,
                 );
-                const nameCell =
-                    context.container.querySelector('td:nth-child(2)');
+                const nameCell = context.required('td:nth-child(2)');
                 context.prompts.respondToConfirm(
                     'Are you sure you want to delete NAME?',
                     true,
                 );
 
-                await doClick(findButton(nameCell, '🗑️'));
+                await nameCell.button('🗑️').click();
 
                 context.prompts.confirmWasShown(
                     'Are you sure you want to delete NAME?',
@@ -589,23 +569,20 @@ describe('DivisionPlayer', () => {
                     },
                     account,
                 );
-                const nameCell =
-                    context.container.querySelector('td:nth-child(2)');
+                const nameCell = context.required('td:nth-child(2)');
                 context.prompts.respondToConfirm(
                     'Are you sure you want to delete NAME?',
                     true,
                 );
                 apiResponse = { success: false, errors: ['SOME ERROR'] };
 
-                await doClick(findButton(nameCell, '🗑️'));
+                await nameCell.button('🗑️').click();
 
                 expect(deletedPlayer).not.toBeNull();
                 expect(divisionReloaded).toEqual(false);
                 expect(teamsReloaded).toEqual(false);
-                expect(context.container.textContent).toContain(
-                    'Could not delete player',
-                );
-                expect(context.container.textContent).toContain('SOME ERROR');
+                expect(context.text()).toContain('Could not delete player');
+                expect(context.text()).toContain('SOME ERROR');
             });
 
             it('can close error dialog after delete failure', async () => {
@@ -623,23 +600,18 @@ describe('DivisionPlayer', () => {
                     },
                     account,
                 );
-                const nameCell =
-                    context.container.querySelector('td:nth-child(2)');
+                const nameCell = context.required('td:nth-child(2)');
                 context.prompts.respondToConfirm(
                     'Are you sure you want to delete NAME?',
                     true,
                 );
                 apiResponse = { success: false, errors: ['SOME ERROR'] };
-                await doClick(findButton(nameCell, '🗑️'));
-                expect(context.container.textContent).toContain(
-                    'Could not delete player',
-                );
+                await nameCell.button('🗑️').click();
+                expect(context.text()).toContain('Could not delete player');
 
-                await doClick(findButton(context.container, 'Close'));
+                await context.button('Close').click();
 
-                expect(context.container.textContent).not.toContain(
-                    'Could not delete player',
-                );
+                expect(context.text()).not.toContain('Could not delete player');
             });
 
             it('can save player details', async () => {
@@ -657,18 +629,12 @@ describe('DivisionPlayer', () => {
                     },
                     account,
                 );
-                const nameCell =
-                    context.container.querySelector('td:nth-child(2)')!;
-                await doClick(findButton(nameCell, '✏️'));
-                const dialog = nameCell.querySelector('.modal-dialog')!;
-                await doChange(
-                    dialog,
-                    'input[name="name"]',
-                    'NEW NAME',
-                    context.user,
-                );
+                const nameCell = context.required('td:nth-child(2)');
+                await nameCell.button('✏️').click();
+                const dialog = nameCell.required('.modal-dialog');
+                await dialog.input('name').change('NEW NAME');
 
-                await doClick(findButton(dialog, 'Save player'));
+                await dialog.button('Save player').click();
 
                 reportedError.verifyNoError();
                 expect(updatedPlayer).not.toBeNull();
@@ -692,23 +658,17 @@ describe('DivisionPlayer', () => {
                     },
                     account,
                 );
-                const nameCell =
-                    context.container.querySelector('td:nth-child(2)')!;
-                await doClick(findButton(nameCell, '✏️'));
-                const dialog = nameCell.querySelector('.modal-dialog')!;
-                await doChange(
-                    dialog,
-                    'input[name="name"]',
-                    'NEW NAME',
-                    context.user,
-                );
+                const nameCell = context.required('td:nth-child(2)');
+                await nameCell.button('✏️').click();
+                const dialog = nameCell.required('.modal-dialog');
+                await dialog.input('name').change('NEW NAME');
                 apiResponse = { success: false };
 
-                await doClick(findButton(dialog, 'Save player'));
+                await dialog.button('Save player').click();
 
                 reportedError.verifyNoError();
                 expect(updatedPlayer).not.toBeNull();
-                expect(nameCell.textContent).toContain(
+                expect(nameCell.text()).toContain(
                     'Could not save player details',
                 );
                 expect(divisionReloaded).toEqual(false);
@@ -738,8 +698,9 @@ describe('DivisionPlayer', () => {
                 );
 
                 reportedError.verifyNoError();
-                const row = context.container.querySelector('tr')!;
-                expect(row.className).not.toContain('opacity-25');
+                expect(context.required('tr').className()).not.toContain(
+                    'opacity-25',
+                );
             });
         });
     });

@@ -1,11 +1,8 @@
-﻿import {
+import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
-    doSelectOption,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -143,15 +140,13 @@ describe('DivisionFixtureDate', () => {
             );
 
             reportedError.verifyNoError();
-            const heading = context.container.querySelector('h4')!;
-            expect(heading).toBeTruthy();
-            expect(heading.textContent).toContain(renderDate(fixtureDate.date));
-            const table = context.container.querySelector('table')!;
-            expect(table).toBeTruthy();
-            expect(table.querySelectorAll('tr').length).toEqual(1);
-            const row = table.querySelector('tr')!;
-            expect(row.innerHTML).toContain('HOME');
-            expect(row.innerHTML).toContain('Bye');
+            const heading = context.required('h4');
+            expect(heading.text()).toContain(renderDate(fixtureDate.date));
+            const table = context.required('table');
+            expect(table.all('tr').length).toEqual(1);
+            const row = table.required('tr');
+            expect(row.html()).toContain('HOME');
+            expect(row.html()).toContain('Bye');
         });
 
         it('renders league qualifier/knockout fixtures', async () => {
@@ -179,15 +174,13 @@ describe('DivisionFixtureDate', () => {
             );
 
             reportedError.verifyNoError();
-            const heading = context.container.querySelector('h4')!;
-            expect(heading).toBeTruthy();
-            expect(heading.textContent).toContain(renderDate(fixtureDate.date));
-            const table = context.container.querySelector('table')!;
-            expect(table).toBeTruthy();
-            expect(table.querySelectorAll('tr').length).toEqual(1);
-            const row = table.querySelector('tr')!;
-            expect(row.innerHTML).toContain('HOME');
-            expect(row.innerHTML).toContain('AWAY');
+            const heading = context.required('h4');
+            expect(heading.text()).toContain(renderDate(fixtureDate.date));
+            const table = context.required('table');
+            expect(table.all('tr').length).toEqual(1);
+            const row = table.required('tr');
+            expect(row.html()).toContain('HOME');
+            expect(row.html()).toContain('AWAY');
         });
 
         it('does not render league qualifier/knockout byes', async () => {
@@ -244,12 +237,11 @@ describe('DivisionFixtureDate', () => {
             );
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table')!;
-            expect(table).toBeTruthy();
-            expect(table.querySelectorAll('tr').length).toEqual(1);
-            const row = table.querySelector('tr')!;
-            expect(row.innerHTML).toContain('ANOTHER HOME');
-            expect(row.innerHTML).toContain('ANOTHER AWAY');
+            const table = context.required('table');
+            expect(table.all('tr').length).toEqual(1);
+            const row = table.required('tr');
+            expect(row.html()).toContain('ANOTHER HOME');
+            expect(row.html()).toContain('ANOTHER AWAY');
         });
 
         it('renders tournament fixtures', async () => {
@@ -273,14 +265,12 @@ describe('DivisionFixtureDate', () => {
             );
 
             reportedError.verifyNoError();
-            const heading = context.container.querySelector('h4')!;
-            expect(heading).toBeTruthy();
-            expect(heading.textContent).toContain(renderDate(fixtureDate.date));
-            const table = context.container.querySelector('table')!;
-            expect(table).toBeTruthy();
-            expect(table.querySelectorAll('tr').length).toEqual(1);
-            const row = table.querySelector('tr')!;
-            expect(row.textContent).toContain('TYPE at ADDRESS');
+            const heading = context.required('h4');
+            expect(heading.text()).toContain(renderDate(fixtureDate.date));
+            const table = context.required('table');
+            expect(table.all('tr').length).toEqual(1);
+            const row = table.required('tr');
+            expect(row.text()).toContain('TYPE at ADDRESS');
         });
 
         it('renders tournament fixtures with winner', async () => {
@@ -309,15 +299,13 @@ describe('DivisionFixtureDate', () => {
             );
 
             reportedError.verifyNoError();
-            const heading = context.container.querySelector('h4')!;
-            expect(heading).toBeTruthy();
-            expect(heading.textContent).toContain(renderDate(fixtureDate.date));
-            const table = context.container.querySelector('table')!;
-            expect(table).toBeTruthy();
-            expect(table.querySelectorAll('tr').length).toEqual(1);
-            const row = table.querySelector('tr')!;
-            expect(row.textContent).toContain('TYPE at ADDRESS');
-            expect(row.textContent).toContain('Winner: WINNER');
+            const heading = context.required('h4');
+            expect(heading.text()).toContain(renderDate(fixtureDate.date));
+            const table = context.required('table');
+            expect(table.all('tr').length).toEqual(1);
+            const row = table.required('tr');
+            expect(row.text()).toContain('TYPE at ADDRESS');
+            expect(row.text()).toContain('Winner: WINNER');
         });
 
         it('renders notes', async () => {
@@ -338,15 +326,12 @@ describe('DivisionFixtureDate', () => {
             );
 
             reportedError.verifyNoError();
-            const heading = context.container.querySelector('h4')!;
-            expect(heading).toBeTruthy();
-            expect(heading.textContent).toContain(renderDate(fixtureDate.date));
-            const table = context.container.querySelector('table')!;
-            expect(table).toBeTruthy();
-            expect(table.querySelectorAll('tr').length).toEqual(0);
-            const alert = context.container.querySelector('div.alert')!;
-            expect(alert).toBeTruthy();
-            expect(alert.textContent).toContain('NOTE');
+            const heading = context.required('h4');
+            expect(heading.text()).toContain(renderDate(fixtureDate.date));
+            const table = context.required('table');
+            expect(table.all('tr').length).toEqual(0);
+            const alert = context.required('div.alert');
+            expect(alert.text()).toContain('NOTE');
         });
 
         it('renders past dates', async () => {
@@ -367,10 +352,9 @@ describe('DivisionFixtureDate', () => {
             );
 
             reportedError.verifyNoError();
-            const component = context.container.querySelector('div')!;
-            expect(component).toBeTruthy();
-            expect(component.className).not.toContain('text-secondary-50');
-            expect(component.className).not.toContain('text-primary');
+            const component = context.required('div');
+            expect(component.className()).not.toContain('text-secondary-50');
+            expect(component.className()).not.toContain('text-primary');
         });
 
         it('renders today', async () => {
@@ -391,10 +375,9 @@ describe('DivisionFixtureDate', () => {
             );
 
             reportedError.verifyNoError();
-            const component = context.container.querySelector('div')!;
-            expect(component).toBeTruthy();
-            expect(component.className).not.toContain('text-secondary-50');
-            expect(component.className).toContain('text-primary');
+            const component = context.required('div');
+            expect(component.className()).not.toContain('text-secondary-50');
+            expect(component.className()).toContain('text-primary');
         });
 
         it('renders future dates', async () => {
@@ -415,10 +398,9 @@ describe('DivisionFixtureDate', () => {
             );
 
             reportedError.verifyNoError();
-            const component = context.container.querySelector('div')!;
-            expect(component).toBeTruthy();
-            expect(component.className).toContain('text-secondary-50');
-            expect(component.className).not.toContain('text-primary');
+            const component = context.required('div');
+            expect(component.className()).toContain('text-secondary-50');
+            expect(component.className()).not.toContain('text-primary');
         });
 
         it('renders who is playing', async () => {
@@ -454,12 +436,11 @@ describe('DivisionFixtureDate', () => {
             );
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table')!;
-            expect(table).toBeTruthy();
-            expect(table.querySelectorAll('tr').length).toEqual(1);
-            const row = table.querySelector('tr')!;
-            expect(row.textContent).not.toContain('SIDE');
-            expect(row.textContent).toContain('PLAYER');
+            const table = context.required('table');
+            expect(table.all('tr').length).toEqual(1);
+            const row = table.required('tr');
+            expect(row.text()).not.toContain('SIDE');
+            expect(row.text()).toContain('PLAYER');
         });
 
         it('can show who is playing', async () => {
@@ -492,11 +473,9 @@ describe('DivisionFixtureDate', () => {
                 account,
             );
 
-            await doClick(
-                context.container.querySelector(
-                    'input[type="checkbox"][id^="showPlayers_"]',
-                )!,
-            );
+            await context
+                .required('input[type="checkbox"][id^="showPlayers_"]')
+                .click();
 
             expect(showPlayers).toEqual({
                 '2023-05-06T00:00:00': true,
@@ -537,11 +516,9 @@ describe('DivisionFixtureDate', () => {
                 account,
             );
 
-            await doClick(
-                context.container.querySelector(
-                    'input[type="checkbox"][id^="showPlayers_"]',
-                )!,
-            );
+            await context
+                .required('input[type="checkbox"][id^="showPlayers_"]')
+                .click();
 
             expect(showPlayers).toEqual({});
         });
@@ -578,9 +555,7 @@ describe('DivisionFixtureDate', () => {
             );
 
             expect(
-                context.container.querySelector(
-                    'input[type="checkbox"][id^="showPlayers_"]',
-                ),
+                context.optional('input[type="checkbox"][id^="showPlayers_"]'),
             ).toBeFalsy();
         });
     });
@@ -630,19 +605,16 @@ describe('DivisionFixtureDate', () => {
             );
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table')!;
-            expect(table).toBeTruthy();
+            const table = context.required('table');
             expect(
-                table.querySelectorAll(
-                    'tr:not([datatype="new-tournament-fixture"])',
-                ).length,
+                table.all('tr:not([datatype="new-tournament-fixture"])').length,
             ).toEqual(1);
-            const row = table.querySelector(
+            const row = table.required(
                 'tr:not([datatype="new-tournament-fixture"])',
-            )!;
-            expect(row.textContent).not.toContain('Bye');
-            expect(row.textContent).not.toContain('TEAM');
-            expect(row.textContent).toContain('TYPE at ADDRESS');
+            );
+            expect(row.text()).not.toContain('Bye');
+            expect(row.text()).not.toContain('TEAM');
+            expect(row.text()).toContain('TYPE at ADDRESS');
         });
 
         it('renders existing league fixtures but no potential league fixtures when any tournaments exist', async () => {
@@ -678,21 +650,18 @@ describe('DivisionFixtureDate', () => {
             );
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table')!;
-            expect(table).toBeTruthy();
-            expect(table.querySelectorAll('tr').length).toEqual(2);
-            const rows = Array.from(table.querySelectorAll('tr'));
+            const table = context.required('table');
+            expect(table.all('tr').length).toEqual(2);
+            const rows = table.all('tr');
             expect(
-                rows.map(
-                    (row) => row.querySelector('td:nth-child(1)')!.textContent,
-                ),
+                rows.map((row) => row.required('td:nth-child(1)').text()),
             ).toEqual(['HOME', 'TYPE at ADDRESS']);
             expect(
                 rows.map((row) => {
-                    const activeItem = row.querySelector(
+                    const activeItem = row.optional(
                         'td:nth-child(5) .dropdown-item.active',
                     );
-                    return activeItem ? activeItem.textContent : null;
+                    return activeItem ? activeItem.text() : null;
                 }),
             ).toEqual(['AWAY', null]); // null because tournaments don't have a dropdown to select away team
         });
@@ -721,12 +690,11 @@ describe('DivisionFixtureDate', () => {
             );
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table')!;
-            expect(table).toBeTruthy();
-            expect(table.querySelectorAll('tr').length).toEqual(1);
-            const homeTeams = Array.from(
-                table.querySelectorAll('tr td:first-child'),
-            ).map((td) => td.textContent);
+            const table = context.required('table');
+            expect(table.all('tr').length).toEqual(1);
+            const homeTeams = table
+                .all('tr td:first-child')
+                .map((td) => td.text());
             expect(homeTeams).not.toContain('TEAM');
         });
 
@@ -747,7 +715,7 @@ describe('DivisionFixtureDate', () => {
                     .build(),
                 account,
             );
-            const table = context.container.querySelector('table')!;
+            const table = context.required('table');
             const expected = Object.assign({}, fixtureDate);
             const expectedAwayTeam = {
                 id: anotherTeam.id,
@@ -758,10 +726,7 @@ describe('DivisionFixtureDate', () => {
                 originalAwayTeamId: 'unset',
             });
 
-            await doSelectOption(
-                table.querySelector('.dropdown-menu')!,
-                'ANOTHER TEAM',
-            );
+            await table.required('.dropdown-menu').select('ANOTHER TEAM');
 
             reportedError.verifyNoError();
             expect(newFixtures).toEqual([expected]);
@@ -786,10 +751,9 @@ describe('DivisionFixtureDate', () => {
                 account,
             );
 
-            const toggle = context.container.querySelector(
-                'input[type="checkbox"][id^="isKnockout_"]',
-            );
-            expect(toggle).toBeFalsy();
+            expect(
+                context.optional('input[type="checkbox"][id^="isKnockout_"]'),
+            ).toBeFalsy();
         });
 
         it('can change isKnockout when no fixtures exist', async () => {
@@ -806,11 +770,9 @@ describe('DivisionFixtureDate', () => {
                 account,
             );
 
-            await doClick(
-                context.container.querySelector(
-                    'input[type="checkbox"][id^="isKnockout_"]',
-                )!,
-            );
+            await context
+                .required('input[type="checkbox"][id^="isKnockout_"]')
+                .click();
 
             expect(newFixtures).toEqual([
                 {
@@ -862,9 +824,7 @@ describe('DivisionFixtureDate', () => {
 
             reportedError.verifyNoError();
             expect(
-                context.container.querySelector(
-                    'input[type="checkbox"][id^="isKnockout_"]',
-                ),
+                context.optional('input[type="checkbox"][id^="isKnockout_"]'),
             ).toBeTruthy();
         });
 
@@ -885,7 +845,7 @@ describe('DivisionFixtureDate', () => {
                 account,
             );
 
-            await doClick(findButton(context.container, '📌 Add note'));
+            await context.button('📌 Add note').click();
 
             expect(startingToAddNote).toEqual(fixtureDate.date);
         });
@@ -921,17 +881,14 @@ describe('DivisionFixtureDate', () => {
             );
 
             reportedError.verifyNoError();
-            const heading = context.container.querySelector('h4')!;
-            expect(heading).toBeTruthy();
-            expect(heading.textContent).toContain(renderDate(fixtureDate.date));
-            const table = context.container.querySelector('table')!;
-            expect(table).toBeTruthy();
-            expect(table.querySelectorAll('tr').length).toEqual(1);
-            const row = table.querySelector('tr')!;
-            expect(row.innerHTML).toContain('TEAM');
+            const heading = context.required('h4');
+            expect(heading.text()).toContain(renderDate(fixtureDate.date));
+            const table = context.required('table');
+            expect(table.all('tr').length).toEqual(1);
+            const row = table.required('tr');
+            expect(row.html()).toContain('TEAM');
             expect(
-                row.querySelector('td:nth-child(5) .dropdown-toggle')!
-                    .textContent,
+                row.required('td:nth-child(5) .dropdown-toggle').text(),
             ).toEqual('AWAY');
         });
 
@@ -964,12 +921,10 @@ describe('DivisionFixtureDate', () => {
             );
 
             reportedError.verifyNoError();
-            const heading = context.container.querySelector('h4')!;
-            expect(heading).toBeTruthy();
-            expect(heading.textContent).toContain(renderDate(fixtureDate.date));
-            const table = context.container.querySelector('table')!;
-            expect(table).toBeTruthy();
-            expect(table.querySelectorAll('tr').length).toEqual(0);
+            const heading = context.required('h4');
+            expect(heading.text()).toContain(renderDate(fixtureDate.date));
+            const table = context.required('table');
+            expect(table.all('tr').length).toEqual(0);
         });
 
         it('renders league qualifier/knockout byes', async () => {
@@ -995,17 +950,14 @@ describe('DivisionFixtureDate', () => {
             );
 
             reportedError.verifyNoError();
-            const heading = context.container.querySelector('h4')!;
-            expect(heading).toBeTruthy();
-            expect(heading.textContent).toContain(renderDate(fixtureDate.date));
-            const table = context.container.querySelector('table')!;
-            expect(table).toBeTruthy();
-            expect(table.querySelectorAll('tr').length).toEqual(1);
-            const row = table.querySelector('tr')!;
-            expect(row.innerHTML).toContain('TEAM');
+            const heading = context.required('h4');
+            expect(heading.text()).toContain(renderDate(fixtureDate.date));
+            const table = context.required('table');
+            expect(table.all('tr').length).toEqual(1);
+            const row = table.required('tr');
+            expect(row.html()).toContain('TEAM');
             expect(
-                row.querySelector('td:nth-child(5) .dropdown-toggle')!
-                    .textContent,
+                row.required('td:nth-child(5) .dropdown-toggle').text(),
             ).toEqual('');
         });
     });

@@ -35,9 +35,7 @@ describe('WidescreenSaygPlayerHeading', () => {
                 scoreFirst: true,
             });
 
-            const firstElement =
-                context.container.querySelector('h1:nth-child(1)')!;
-            expect(firstElement.textContent).toEqual('123');
+            expect(context.required('h1:nth-child(1)').text()).toEqual('123');
         });
 
         it('renders name element second', async () => {
@@ -47,9 +45,7 @@ describe('WidescreenSaygPlayerHeading', () => {
                 scoreFirst: true,
             });
 
-            const firstElement =
-                context.container.querySelector('h1:nth-child(2)')!;
-            expect(firstElement.textContent).toEqual('NAME');
+            expect(context.required('h1:nth-child(2)').text()).toEqual('NAME');
         });
 
         it('renders nothing else', async () => {
@@ -73,9 +69,7 @@ describe('WidescreenSaygPlayerHeading', () => {
                 scoreFirst: false,
             });
 
-            const firstElement =
-                context.container.querySelector('h1:nth-child(1)')!;
-            expect(firstElement.textContent).toEqual('NAME');
+            expect(context.required('h1:nth-child(1)').text()).toEqual('NAME');
         });
 
         it('renders score element second', async () => {
@@ -85,9 +79,7 @@ describe('WidescreenSaygPlayerHeading', () => {
                 scoreFirst: false,
             });
 
-            const firstElement =
-                context.container.querySelector('h1:nth-child(2)')!;
-            expect(firstElement.textContent).toEqual('123');
+            expect(context.required('h1:nth-child(2)').text()).toEqual('123');
         });
 
         it('renders nothing else', async () => {

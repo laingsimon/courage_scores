@@ -1,15 +1,11 @@
 ﻿import {
     cleanUp,
     renderApp,
-    doClick,
-    findButton,
-    doChange,
     TestContext,
     iocProps,
     brandingProps,
     appProps,
     ErrorState,
-    doSelectOption,
     api,
 } from '../../helpers/tests';
 import { createTemporaryId } from '../../helpers/projection';
@@ -21,7 +17,6 @@ import { QueryApi } from '../../interfaces/apis/IQueryApi';
 import { QueryRequestDto } from '../../interfaces/models/dtos/Query/QueryRequestDto';
 import { IClientActionResultDto } from '../common/IClientActionResultDto';
 import { QueryResponseDto } from '../../interfaces/models/dtos/Query/QueryResponseDto';
-import { act, fireEvent } from '@testing-library/react';
 import { renderDate } from '../../helpers/rendering';
 
 const mockedUsedNavigate = jest.fn();
@@ -105,57 +100,35 @@ describe('Query', () => {
     }
 
     function getSelectedTable(): string {
-        const tableDropdownToggle =
-            context.container.querySelector('.dropdown-toggle');
-        expect(tableDropdownToggle).toBeTruthy();
-        return tableDropdownToggle!.textContent.trim();
+        const tableDropdownToggle = context.required('.dropdown-toggle');
+        return tableDropdownToggle.text().trim();
     }
 
     async function setSelectedTable(table: string) {
-        await doSelectOption(
-            context.container.querySelector('.dropdown-menu'),
-            table,
-        );
+        await context.required('.dropdown-menu').select(table);
     }
 
     function getQuery() {
-        const query = context.container.querySelector(
-            'textarea[name="query"]',
-        ) as HTMLTextAreaElement;
-        return query.value;
+        return context.input('query').value();
     }
 
     async function setQuery(query: string) {
-        await doChange(
-            context.container,
-            'textarea[name="query"]',
-            query,
-            context.user,
-        );
+        await context.input('query').change(query);
     }
 
     async function setMax(max: string) {
-        await doChange(
-            context.container,
-            'input[name="max"]',
-            max,
-            context.user,
-        );
+        await context.input('max').change(max);
     }
 
     function getCells() {
-        const rows = Array.from(
-            context.container.querySelectorAll('table tbody tr'),
-        );
-        return rows.map((row) => Array.from(row.querySelectorAll('td')));
+        const rows = context.all('table tbody tr');
+        return rows.map((row) => row.all('td'));
     }
 
     function getRenderedValues(element?: string) {
         return getCells().map((row) => {
             return row.map((cell) =>
-                element
-                    ? cell.querySelector(element)?.textContent
-                    : cell.textContent,
+                element ? cell.optional(element)?.text() : cell.text(),
             );
         });
     }
@@ -213,11 +186,11 @@ describe('Query', () => {
                 },
             );
 
-            await doClick(findButton(context.container, 'Execute'));
+            await context.button('Execute').click();
 
-            const heading = context.container.querySelector('table thead tr')!;
-            const headers = Array.from(heading.querySelectorAll('th')).map(
-                (th) => th.textContent,
+            const heading = context.required('table thead tr');
+            const headers = Array.from(heading.all('th')).map((th) =>
+                th.text(),
             );
             expect(headers).toEqual(['#', 'col1', 'col2', 'col3']);
             expect(getRenderedValues()).toEqual([
@@ -235,7 +208,7 @@ describe('Query', () => {
                 time,
             });
 
-            await doClick(findButton(context.container, 'Execute'));
+            await context.button('Execute').click();
 
             expect(getRenderedValues('abbr')).toEqual([
                 [undefined, renderDate(date), renderDate(time) + ' @ 10:20'],
@@ -253,7 +226,7 @@ describe('Query', () => {
                 absoluteHttps,
             });
 
-            await doClick(findButton(context.container, 'Execute'));
+            await context.button('Execute').click();
 
             expect(getRenderedValues('a')).toEqual([
                 [undefined, relative, absoluteHttp, absoluteHttps],
@@ -271,16 +244,18 @@ describe('Query', () => {
                 absoluteHttps,
             });
 
-            await doClick(findButton(context.container, 'Execute'));
+            await context.button('Execute').click();
 
-            const links = getCells()[0].map((cell) => cell.querySelector('a')!);
-            expect(links.map((a) => a?.textContent)).toEqual([
+            const links = getCells()[0].map((cell) => cell.optional('a'));
+            expect(links.map((a) => a?.text())).toEqual([
                 undefined,
                 'relative',
                 'absoluteHttp',
                 'absoluteHttps',
             ]);
-            expect(links.map((a) => a?.href)).toEqual([
+            expect(
+                links.map((a) => a?.element<HTMLAnchorElement>().href),
+            ).toEqual([
                 undefined,
                 'http://localhost/somewhere-relative',
                 'http://somewhere-absolute/',
@@ -295,7 +270,7 @@ describe('Query', () => {
                 id,
             });
 
-            await doClick(findButton(context.container, 'Execute'));
+            await context.button('Execute').click();
 
             expect(getRenderedValues('abbr')).toEqual([
                 [undefined, '3cb2-56e3'],
@@ -308,7 +283,7 @@ describe('Query', () => {
                 id: null,
             });
 
-            await doClick(findButton(context.container, 'Execute'));
+            await context.button('Execute').click();
 
             expect(getRenderedValues()).toEqual([['1', 'null']]);
         });
@@ -322,7 +297,7 @@ describe('Query', () => {
                 obj,
             });
 
-            await doClick(findButton(context.container, 'Execute'));
+            await context.button('Execute').click();
 
             expect(getRenderedValues('pre')).toEqual([
                 [undefined, JSON.stringify(obj, null, '  ')],
@@ -333,7 +308,7 @@ describe('Query', () => {
             apiException = 'SOME ERROR';
             await renderComponent('?container=game&query=select * from game');
 
-            await doClick(findButton(context.container, 'Execute'));
+            await context.button('Execute').click();
 
             reportedError.verifyErrorEquals('SOME ERROR');
         });
@@ -346,10 +321,10 @@ describe('Query', () => {
             };
             await renderComponent('?container=game&query=select * from game');
 
-            await doClick(findButton(context.container, 'Execute'));
+            await context.button('Execute').click();
 
-            expect(context.container.textContent).toContain('SOME ERROR');
-            expect(context.container.textContent).toContain('SOME WARNING');
+            expect(context.text()).toContain('SOME ERROR');
+            expect(context.text()).toContain('SOME WARNING');
         });
     });
 
@@ -357,7 +332,7 @@ describe('Query', () => {
         it('does not fetch if no container selected', async () => {
             await renderComponent('?query=select * from game');
 
-            await doClick(findButton(context.container, 'Execute'));
+            await context.button('Execute').click();
 
             expect(requestedData).toBeNull();
             context.prompts.alertWasShown('Select a container first');
@@ -366,7 +341,7 @@ describe('Query', () => {
         it('does not fetch if no query', async () => {
             await renderComponent('?container=game');
 
-            await doClick(findButton(context.container, 'Execute'));
+            await context.button('Execute').click();
 
             expect(requestedData).toBeNull();
             context.prompts.alertWasShown('Enter a query first');
@@ -376,7 +351,7 @@ describe('Query', () => {
             await renderComponent('?container=game&max=100');
 
             await setQuery('select * from game');
-            await doClick(findButton(context.container, 'Execute'));
+            await context.button('Execute').click();
 
             expect(requestedData).toEqual({
                 container: 'game',
@@ -389,12 +364,7 @@ describe('Query', () => {
             await renderComponent('?container=game&max=100');
 
             await setQuery('select * from game');
-            act(() => {
-                fireEvent.blur(
-                    context.container.querySelector('textarea')!,
-                    {},
-                );
-            });
+            await context.required('textarea').blur();
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
                 '/admin/query/?container=game&max=100&query=select+*+from+game',
@@ -405,12 +375,7 @@ describe('Query', () => {
             await renderComponent('?container=game&max=100');
 
             await setQuery('');
-            act(() => {
-                fireEvent.blur(
-                    context.container.querySelector('textarea')!,
-                    {},
-                );
-            });
+            await context.required('textarea').blur();
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
                 '/admin/query/?container=game&max=100',
@@ -451,12 +416,12 @@ describe('Query', () => {
             apiResponse = getApiResponse({
                 id,
             });
-            await doClick(findButton(context.container, 'Execute'));
-            const abbr = context.container.querySelector('abbr')!;
-            expect(abbr.title).toEqual(id);
+            await context.button('Execute').click();
+            const abbr = context.required('abbr');
+            expect(abbr.element<HTMLElement>().title).toEqual(id);
             navigator.clipboard.writeText = mockedClipboardWrite;
 
-            await doClick(abbr);
+            await abbr.click();
 
             expect(mockedClipboardWrite).toHaveBeenCalledWith(id);
         });
@@ -466,9 +431,9 @@ describe('Query', () => {
                 '?container=game&max=100&query=select+*+from+game',
             );
             apiResponse = getApiResponse();
-            await doClick(findButton(context.container, 'Execute'));
+            await context.button('Execute').click();
 
-            await doClick(findButton(context.container, 'Download'));
+            await context.button('Download').click();
 
             context.prompts.alertWasShown('No rows to export');
         });
@@ -490,16 +455,16 @@ describe('Query', () => {
                 object,
                 null: null,
             });
-            await doClick(findButton(context.container, 'Execute'));
+            await context.button('Execute').click();
 
-            await doClick(findButton(context.container, 'Download'));
+            await context.button('Download').click();
 
             const expectedTsv = tsv(
                 tsvRow('id', 'url', 'date', 'text', 'object', 'null'),
                 tsvRow(id, url, date, text, JSON.stringify(object), 'null'),
             );
-            const downloadLink = findButton(context.container, 'query.tsv');
-            expect(downloadLink.href).toEqual(
+            const downloadLink = context.button('query.tsv');
+            expect(downloadLink.element<HTMLAnchorElement>().href).toEqual(
                 'data:text/tsv,' + encodeURI(expectedTsv),
             );
         });

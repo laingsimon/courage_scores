@@ -3,10 +3,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -112,8 +109,8 @@ describe('DivisionTeam', () => {
             });
             reportedError.verifyNoError();
 
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            const cellText = cells.map((c) => c.textContent);
+            const cells = context.all('td');
+            const cellText = cells.map((c) => c.text());
             expect(cellText).toEqual(['TEAM', '1', '2', '3', '4', '5', '6']);
         });
 
@@ -138,10 +135,9 @@ describe('DivisionTeam', () => {
             });
             reportedError.verifyNoError();
 
-            const firstCell =
-                context.container.querySelector('td:first-child')!;
-            expect(firstCell.textContent).toEqual('TEAM');
-            expect(firstCell.querySelector('button')).toBeFalsy();
+            const firstCell = context.required('td:first-child');
+            expect(firstCell.text()).toEqual('TEAM');
+            expect(firstCell.optional('button')).toBeFalsy();
         });
 
         it('renders when team is a favourite', async () => {
@@ -174,8 +170,8 @@ describe('DivisionTeam', () => {
             );
             reportedError.verifyNoError();
 
-            const row = context.container.querySelector('tr')!;
-            expect(row.className).not.toContain('opacity-25');
+            const row = context.required('tr');
+            expect(row.className()).not.toContain('opacity-25');
         });
 
         it('renders when team is not a favourite', async () => {
@@ -208,8 +204,8 @@ describe('DivisionTeam', () => {
             );
             reportedError.verifyNoError();
 
-            const row = context.container.querySelector('tr')!;
-            expect(row.className).toContain('opacity-25');
+            const row = context.required('tr');
+            expect(row.className()).toContain('opacity-25');
         });
 
         it('renders when no team is a favourite', async () => {
@@ -242,8 +238,8 @@ describe('DivisionTeam', () => {
             );
             reportedError.verifyNoError();
 
-            const row = context.container.querySelector('tr')!;
-            expect(row.className).not.toContain('opacity-25');
+            const row = context.required('tr');
+            expect(row.className()).not.toContain('opacity-25');
         });
     });
 
@@ -278,14 +274,14 @@ describe('DivisionTeam', () => {
                 name: '',
             });
             reportedError.verifyNoError();
-            const firstCell = context.container.querySelector('td:first-child');
+            const firstCell = context.required('td:first-child');
 
-            await doClick(findButton(firstCell, '✏️'));
+            await firstCell.button('✏️').click();
 
             reportedError.verifyNoError();
-            const dialog = context.container.querySelector('.modal-dialog')!;
+            const dialog = context.required('.modal-dialog');
             expect(dialog).toBeTruthy();
-            expect(dialog.textContent).toContain('Edit team: TEAM');
+            expect(dialog.text()).toContain('Edit team: TEAM');
         });
 
         it('can change team details', async () => {
@@ -308,18 +304,12 @@ describe('DivisionTeam', () => {
                 name: '',
             });
             reportedError.verifyNoError();
-            const firstCell =
-                context.container.querySelector('td:first-child')!;
-            await doClick(findButton(firstCell, '✏️'));
-            const dialog = context.container.querySelector('.modal-dialog')!;
+            const firstCell = context.required('td:first-child');
+            await firstCell.button('✏️').click();
+            const dialog = context.required('.modal-dialog');
 
-            await doChange(
-                dialog,
-                'input[name="name"]',
-                'NEW TEAM',
-                context.user,
-            );
-            await doClick(findButton(dialog, 'Save team'));
+            await dialog.input('name').change('NEW TEAM');
+            await dialog.button('Save team').click();
 
             reportedError.verifyNoError();
             expect(updatedTeam).not.toBeNull();
@@ -346,20 +336,13 @@ describe('DivisionTeam', () => {
                 name: '',
             });
             reportedError.verifyNoError();
-            const firstCell = context.container.querySelector('td:first-child');
-            await doClick(findButton(firstCell, '✏️'));
+            const firstCell = context.required('td:first-child');
+            await firstCell.button('✏️').click();
 
-            await doClick(
-                findButton(
-                    context.container.querySelector('.modal-dialog'),
-                    'Cancel',
-                ),
-            );
+            await context.required('.modal-dialog').button('Cancel').click();
 
             reportedError.verifyNoError();
-            expect(
-                context.container.querySelector('.modal-dialog'),
-            ).toBeFalsy();
+            expect(context.optional('.modal-dialog')).toBeFalsy();
         });
 
         it('can show add to season dialog', async () => {
@@ -382,15 +365,14 @@ describe('DivisionTeam', () => {
                 [team],
             );
             reportedError.verifyNoError();
-            const firstCell =
-                context.container.querySelector('td:first-child')!;
+            const firstCell = context.required('td:first-child');
 
-            await doClick(findButton(firstCell, '➕'));
+            await firstCell.button('➕').click();
 
             reportedError.verifyNoError();
-            const dialog = context.container.querySelector('.modal-dialog')!;
+            const dialog = context.required('.modal-dialog');
             expect(dialog).toBeTruthy();
-            expect(dialog.textContent).toContain('Assign seasons');
+            expect(dialog.text()).toContain('Assign seasons');
         });
 
         it('can close add to season dialog', async () => {
@@ -413,15 +395,12 @@ describe('DivisionTeam', () => {
                 [team],
             );
             reportedError.verifyNoError();
-            const firstCell = context.container.querySelector('td:first-child');
-            await doClick(findButton(firstCell, '➕'));
-            const dialog = context.container.querySelector('.modal-dialog');
+            const firstCell = context.required('td:first-child');
+            await firstCell.button('➕').click();
 
-            await doClick(findButton(dialog, 'Close'));
+            await context.required('.modal-dialog').button('Close').click();
 
-            expect(
-                context.container.querySelector('.modal-dialog'),
-            ).toBeFalsy();
+            expect(context.optional('.modal-dialog')).toBeFalsy();
         });
 
         it('renders when team is not a favourite and an admin', async () => {
@@ -454,8 +433,8 @@ describe('DivisionTeam', () => {
             );
             reportedError.verifyNoError();
 
-            const row = context.container.querySelector('tr')!;
-            expect(row.className).not.toContain('opacity-25');
+            const row = context.required('tr');
+            expect(row.className()).not.toContain('opacity-25');
         });
     });
 });

@@ -3,10 +3,6 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
-    doSelectOption,
-    findButton,
     IBrowserWindow,
     iocProps,
     noop,
@@ -118,46 +114,31 @@ describe('TournamentDetails', () => {
                 }),
             );
 
-            // address
-            const address = context.container.querySelector(
-                'div[datatype="address"]',
-            );
-            expect(address).toBeTruthy();
-            expect(address!.textContent).toContain('Address');
-            expect(address!.querySelector('input')!.value).toEqual('ADDRESS');
-            // type
-            const type = context.container.querySelector(
-                'div[datatype="type"]',
-            );
-            expect(type).toBeTruthy();
-            expect(type!.textContent).toContain('Type');
-            expect(type!.querySelector('input')!.value).toEqual('TYPE');
-            // notes
-            const notes = context.container.querySelector(
-                'div[datatype="notes"]',
-            );
-            expect(notes).toBeTruthy();
-            expect(notes!.textContent).toContain('Notes');
-            expect(notes!.querySelector('textarea')!.value).toEqual('NOTES');
-            // accolades qualify
-            const accoladesCount = context.container.querySelector(
+            const address = context.required('div[datatype="address"]');
+            expect(address.text()).toContain('Address');
+            expect(address.required('input').value()).toEqual('ADDRESS');
+            const type = context.required('div[datatype="type"]');
+            expect(type.text()).toContain('Type');
+            expect(type.required('input').value()).toEqual('TYPE');
+            const notes = context.required('div[datatype="notes"]');
+            expect(notes.text()).toContain('Notes');
+            expect(notes.required('textarea').value()).toEqual('NOTES');
+            const accoladesCount = context.required(
                 'div[datatype="accolades-count"]',
             );
-            expect(accoladesCount).toBeTruthy();
-            expect(accoladesCount!.textContent).toContain(
+            expect(accoladesCount.text()).toContain(
                 'Include 180s and Hi-checks in players table?',
             );
-            expect(accoladesCount!.querySelector('input')!.checked).toEqual(
-                true,
-            );
-            // division
-            const divisionAndBestOf = context.container.querySelector(
+            expect(
+                accoladesCount.required('input').element<HTMLInputElement>()
+                    .checked,
+            ).toEqual(true);
+            const divisionAndBestOf = context.required(
                 'div[datatype="tournament-division"]',
             );
-            expect(divisionAndBestOf!.textContent).toContain('Division');
+            expect(divisionAndBestOf.text()).toContain('Division');
             expect(
-                divisionAndBestOf!.querySelector('.dropdown-item.active')!
-                    .textContent,
+                divisionAndBestOf.required('.dropdown-item.active').text(),
             ).toEqual('DIVISION');
         });
     });
@@ -206,7 +187,7 @@ describe('TournamentDetails', () => {
                 }),
             );
 
-            await doClick(context.container, 'input[name="accoladesCount"]');
+            await context.input('accoladesCount').click();
 
             expect(updatedTournamentData!.accoladesCount).toEqual(false);
         });
@@ -233,12 +214,9 @@ describe('TournamentDetails', () => {
                 }),
             );
 
-            await doSelectOption(
-                context.container.querySelector(
-                    'div[datatype="tournament-division"] .dropdown-menu',
-                ),
-                'All divisions',
-            );
+            await context
+                .required('div[datatype="tournament-division"] .dropdown-menu')
+                .select('All divisions');
 
             expect(updatedTournamentData!.divisionId).toEqual(undefined);
         });
@@ -264,10 +242,10 @@ describe('TournamentDetails', () => {
                 }),
             );
 
-            const notes = context.container.querySelector(
-                'div[datatype="notes"]',
-            );
-            await doChange(notes!, 'textarea', 'NEW NOTES', context.user);
+            await context
+                .required('div[datatype="notes"]')
+                .required('textarea')
+                .change('NEW NOTES');
 
             expect(updatedTournamentData!.notes).toEqual('NEW NOTES');
         });
@@ -294,10 +272,10 @@ describe('TournamentDetails', () => {
                 }),
             );
 
-            const type = context.container.querySelector(
-                'div[datatype="type"]',
-            );
-            await doChange(type!, 'input', 'NEW TYPE', context.user);
+            await context
+                .required('div[datatype="type"]')
+                .required('input')
+                .change('NEW TYPE');
 
             expect(updatedTournamentData!.type).toEqual('NEW TYPE');
         });
@@ -324,10 +302,10 @@ describe('TournamentDetails', () => {
                 }),
             );
 
-            const address = context.container.querySelector(
-                'div[datatype="address"]',
-            );
-            await doChange(address!, 'input', 'NEW ADDRESS', context.user);
+            await context
+                .required('div[datatype="address"]')
+                .required('input')
+                .change('NEW ADDRESS');
 
             expect(updatedTournamentData!.address).toEqual('NEW ADDRESS');
         });
@@ -353,7 +331,7 @@ describe('TournamentDetails', () => {
             );
             (window as IBrowserWindow).open = noop;
 
-            await doClick(findButton(context.container, '🛒'));
+            await context.button('🛒').click();
 
             expect(exportRequest).toEqual({
                 password: '',
@@ -396,7 +374,7 @@ describe('TournamentDetails', () => {
             );
             (window as IBrowserWindow).open = noop;
 
-            await doClick(findButton(context.container, '🛒'));
+            await context.button('🛒').click();
 
             expect(exportRequest).toEqual({
                 password: '',
@@ -447,7 +425,7 @@ describe('TournamentDetails', () => {
             );
             (window as IBrowserWindow).open = noop;
 
-            await doClick(findButton(context.container, '🛒'));
+            await context.button('🛒').click();
 
             expect(exportRequest).toEqual({
                 password: '',
@@ -481,7 +459,7 @@ describe('TournamentDetails', () => {
             );
             (window as IBrowserWindow).open = noop;
 
-            await doClick(findButton(context.container, '🛒'));
+            await context.button('🛒').click();
 
             expect(exportRequest).toEqual({
                 password: '',
@@ -515,7 +493,7 @@ describe('TournamentDetails', () => {
             );
             (window as IBrowserWindow).open = noop;
 
-            await doClick(findButton(context.container, '🛒'));
+            await context.button('🛒').click();
 
             expect(exportRequest).toEqual({
                 password: '',
@@ -555,7 +533,7 @@ describe('TournamentDetails', () => {
             );
             (window as IBrowserWindow).open = noop;
 
-            await doClick(findButton(context.container, '🛒'));
+            await context.button('🛒').click();
 
             expect(exportRequest).toEqual({
                 password: '',
@@ -598,7 +576,7 @@ describe('TournamentDetails', () => {
             );
             (window as IBrowserWindow).open = noop;
 
-            await doClick(findButton(context.container, '🛒'));
+            await context.button('🛒').click();
 
             expect(exportRequest).toEqual({
                 password: '',
@@ -635,7 +613,7 @@ describe('TournamentDetails', () => {
             );
             (window as IBrowserWindow).open = noop;
 
-            await doClick(findButton(context.container, '🛒'));
+            await context.button('🛒').click();
 
             // no teamId's could be identified, player's team could not be found, so it should be excluded from the request
             expect(exportRequest).toEqual({

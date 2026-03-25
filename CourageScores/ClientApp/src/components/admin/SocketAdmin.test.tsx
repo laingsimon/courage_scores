@@ -4,9 +4,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
     ErrorState,
-    findButton,
     iocProps,
     renderApp,
     TestContext,
@@ -77,7 +75,7 @@ describe('SocketAdmin', () => {
         it('when there are no open sockets', async () => {
             await renderComponent();
 
-            expect(context.container.textContent).toContain('No open sockets');
+            expect(context.text()).toContain('No open sockets');
         });
 
         it('when sockets cannot be retrieved', async () => {
@@ -103,13 +101,13 @@ describe('SocketAdmin', () => {
 
             await renderComponent();
 
-            const socketItem = context.container.querySelector(
+            const socketItem = context.required(
                 'li[title="' + socket.id + '"]',
-            )!;
-            expect(socketItem.textContent).toContain('Logged out user');
-            expect(socketItem.textContent).toContain('▶ 10:06:21');
-            expect(socketItem.textContent).toContain('⬆ 1');
-            expect(socketItem.textContent).toContain('⬇ 2');
+            );
+            expect(socketItem.text()).toContain('Logged out user');
+            expect(socketItem.text()).toContain('▶ 10:06:21');
+            expect(socketItem.text()).toContain('⬆ 1');
+            expect(socketItem.text()).toContain('⬇ 2');
         });
 
         it('when socket has no connected value', async () => {
@@ -124,10 +122,10 @@ describe('SocketAdmin', () => {
 
             await renderComponent();
 
-            const socketItem = context.container.querySelector(
+            const socketItem = context.required(
                 'li[title="' + socket.id + '"]',
-            )!;
-            expect(socketItem.textContent).toContain('▶ -');
+            );
+            expect(socketItem.text()).toContain('▶ -');
         });
 
         it('open socket for logged in user', async () => {
@@ -143,10 +141,10 @@ describe('SocketAdmin', () => {
 
             await renderComponent();
 
-            const socketItem = context.container.querySelector(
+            const socketItem = context.required(
                 'li[title="' + socket.id + '"]',
-            )!;
-            expect(socketItem.textContent).toContain('USER');
+            );
+            expect(socketItem.text()).toContain('USER');
         });
 
         it('open socket with sent data', async () => {
@@ -162,10 +160,10 @@ describe('SocketAdmin', () => {
 
             await renderComponent();
 
-            const socketItem = context.container.querySelector(
+            const socketItem = context.required(
                 'li[title="' + socket.id + '"]',
-            )!;
-            expect(socketItem.textContent).toContain('⬇ 2');
+            );
+            expect(socketItem.text()).toContain('⬇ 2');
         });
 
         it('open sockets in connected descending order', async () => {
@@ -187,10 +185,10 @@ describe('SocketAdmin', () => {
 
             await renderComponent();
 
-            const socketItems = Array.from(
-                context.container.querySelectorAll('li'),
+            const socketItems = context.all('li');
+            const ids = socketItems.map((li) =>
+                li.element().getAttribute('title'),
             );
-            const ids = socketItems.map((li) => li.getAttribute('title'));
             expect(ids).toEqual([socket2.id, socket1.id]);
         });
     });
@@ -212,7 +210,7 @@ describe('SocketAdmin', () => {
                 true,
             );
 
-            await doClick(findButton(context.container, '🗑'));
+            await context.button('🗑').click();
 
             expect(closedSocket).toEqual(socket.id);
         });
@@ -233,7 +231,7 @@ describe('SocketAdmin', () => {
                 false,
             );
 
-            await doClick(findButton(context.container, '🗑'));
+            await context.button('🗑').click();
 
             expect(closedSocket).toEqual(null);
         });
@@ -263,12 +261,12 @@ describe('SocketAdmin', () => {
                 'Are you sure you want to close this socket',
                 true,
             );
-            expect(context.container.textContent).toContain('TO DELETE');
+            expect(context.text()).toContain('TO DELETE');
 
             allSockets = [newSocket];
-            await doClick(findButton(context.container, '🗑'));
+            await context.button('🗑').click();
 
-            expect(context.container.textContent).toContain('NEW');
+            expect(context.text()).toContain('NEW');
         });
 
         it('reports an error if socket cannot be closed', async () => {
@@ -291,7 +289,7 @@ describe('SocketAdmin', () => {
                 true,
             );
 
-            await doClick(findButton(context.container, '🗑'));
+            await context.button('🗑').click();
 
             expect(closedSocket).toEqual(socket.id);
             expect(reportedError.error).toEqual('ERROR');

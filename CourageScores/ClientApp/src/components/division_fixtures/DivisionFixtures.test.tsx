@@ -3,11 +3,8 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
-    doClick,
-    doSelectOption,
     ErrorState,
-    findButton,
+    IComponent,
     iocProps,
     noop,
     renderApp,
@@ -148,61 +145,60 @@ describe('DivisionFixtures', () => {
     }
 
     function assertFixture(
-        tr: Element,
+        tr: IComponent,
         home: string,
         homeScore: string,
         awayScore: string,
         away: string,
         account?: UserDto,
     ) {
-        const columns = tr.querySelectorAll('td');
+        const columns = tr.all('td');
         expect(columns.length).toEqual(5 + (account ? 1 : 0));
-        expect(columns[0].textContent).toEqual(home);
-        expect(columns[1].textContent).toEqual(homeScore);
-        expect(columns[2].textContent).toEqual('vs');
-        expect(columns[3].textContent).toEqual(awayScore);
+        expect(columns[0].text()).toEqual(home);
+        expect(columns[1].text()).toEqual(homeScore);
+        expect(columns[2].text()).toEqual('vs');
+        expect(columns[3].text()).toEqual(awayScore);
 
-        const selectedAwayTeam = columns[4].querySelector(
-            'div.btn-group > button',
-        );
+        const selectedAwayTeam = columns[4].optional('div.btn-group > button');
         if (account && selectedAwayTeam) {
-            expect(selectedAwayTeam.textContent).toEqual(away);
+            expect(selectedAwayTeam.text()).toEqual(away);
         } else {
-            expect(columns[4].textContent).toEqual(away);
+            expect(columns[4].text()).toEqual(away);
         }
     }
 
     function assertTournament(
-        tr: Element,
+        tr: IComponent,
         text: string,
         winner?: string,
         account?: UserDto,
     ) {
-        const columns = tr.querySelectorAll('td');
+        const columns = tr.all('td');
         expect(columns.length).toEqual((winner ? 2 : 1) + (account ? 1 : 0));
-        expect(columns[0].textContent).toEqual(text);
+        expect(columns[0].text()).toEqual(text);
         if (winner) {
-            expect(columns[1].textContent).toEqual('Winner: ' + winner);
+            expect(columns[1].text()).toEqual('Winner: ' + winner);
         }
     }
 
-    function getFixtureDateElement(index: number, account?: UserDto): Element {
-        const fixtureElements = Array.from(
-            context.container.querySelectorAll('div.content-background > div'),
-        ) as HTMLElement[];
+    function getFixtureDateElement(
+        index: number,
+        account?: UserDto,
+    ): IComponent {
+        const fixtureElements = context.all('div.content-background > div');
         expect(fixtureElements.length).toEqual(2 + (account ? 2 : 0));
         const fixtureDatesContainer = fixtureElements[account ? 2 : 1];
-        const fixtureDates = fixtureDatesContainer.children;
-        expect(fixtureElements.length).toBeGreaterThan(index);
+        const fixtureDates = fixtureDatesContainer.all(':scope > *');
+        expect(fixtureDates.length).toBeGreaterThan(index);
         return fixtureDates[index];
     }
 
     function assertFixtureDate(
-        fixtureDateElement: Element,
+        fixtureDateElement: IComponent,
         expectedDate: string,
     ) {
-        const fixtureDateHeading = fixtureDateElement.querySelector('h4')!;
-        expect(fixtureDateHeading.textContent).toEqual('📅 ' + expectedDate);
+        const fixtureDateHeading = fixtureDateElement.required('h4');
+        expect(fixtureDateHeading.text()).toEqual('📅 ' + expectedDate);
     }
 
     function team(name: string): TeamDto {
@@ -210,41 +206,39 @@ describe('DivisionFixtures', () => {
     }
 
     function getFixturesForDate(
-        fixtureDateElement: Element,
+        fixtureDateElement: IComponent,
         expectedCount?: number,
     ) {
-        const fixtures = fixtureDateElement.querySelectorAll('table tbody tr');
+        const fixtures = fixtureDateElement.all('table tbody tr');
         expect(fixtures.length).toEqual(expectedCount ?? fixtures.length);
-        return Array.from(fixtures);
+        return fixtures;
     }
 
-    function getDialog() {
-        return context.container.querySelector('.modal-dialog');
+    function getDialog(): IComponent | undefined {
+        return context.optional('.modal-dialog');
     }
 
-    function getNote(fixtureDateElement: Element) {
-        return fixtureDateElement.querySelector('.alert');
+    function getNote(fixtureDateElement: IComponent): IComponent | undefined {
+        return fixtureDateElement.optional('.alert');
     }
 
-    function getAdminSection() {
-        return context.container.querySelector(
-            'div[datatype="fixture-management-1"]',
-        );
+    function getAdminSection(): IComponent {
+        return context.required('div[datatype="fixture-management-1"]');
     }
 
     function getTournamentProposals(
-        fixtureDateElement: Element,
+        fixtureDateElement: IComponent,
         count?: number,
     ) {
-        const tournaments = fixtureDateElement.querySelectorAll(
+        const tournaments = fixtureDateElement.all(
             'table tbody tr:not([datatype="new-tournament-fixture"])',
         );
         expect(tournaments.length).toEqual(count ?? tournaments.length);
-        return Array.from(tournaments);
+        return tournaments;
     }
 
-    function getDeleteAllButton() {
-        return findButton(context.container, '⚠️ Delete all league fixtures');
+    function getDeleteAllButton(): IComponent {
+        return context.button('⚠️ Delete all league fixtures');
     }
 
     describe('when logged out', () => {
@@ -272,7 +266,7 @@ describe('DivisionFixtures', () => {
 
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct');
-            expect(getNote(fixtureDateElement)!.textContent).toEqual(
+            expect(getNote(fixtureDateElement)!.text()).toEqual(
                 '📌Finals night!',
             );
         });
@@ -449,7 +443,7 @@ describe('DivisionFixtures', () => {
             );
 
             const fixtureDateElement = getFixtureDateElement(0, account);
-            expect(fixtureDateElement.textContent).toContain('SIDE PLAYER');
+            expect(fixtureDateElement.text()).toContain('SIDE PLAYER');
         });
 
         it('renders tournament players when there are no fixtures', async () => {
@@ -462,20 +456,19 @@ describe('DivisionFixtures', () => {
                 '/division?notes=NOTE#show-who-is-playing',
             );
 
-            expect(context.container.textContent).toContain('No fixtures, yet');
+            expect(context.text()).toContain('No fixtures, yet');
         });
 
         it('can change filters', async () => {
             divisionData.fixtures!.push(pairsTournament);
             await renderComponent(divisionData, account);
-            const filterContainer = context.container.querySelector(
+            const filterContainer = context.required(
                 '.content-background > div[datatype="fixture-filters"]',
-            )!;
-
-            await doSelectOption(
-                filterContainer.querySelector('.dropdown-menu'),
-                'League fixtures',
             );
+
+            await filterContainer
+                .required('.dropdown-menu')
+                .select('League fixtures');
         });
 
         it('hides filters when no controls', async () => {
@@ -488,7 +481,7 @@ describe('DivisionFixtures', () => {
                 true,
             );
 
-            const filterContainer = context.container.querySelector(
+            const filterContainer = context.optional(
                 '.content-background > div[datatype="fixture-filters"]',
             );
             expect(filterContainer).toBeFalsy();
@@ -503,9 +496,7 @@ describe('DivisionFixtures', () => {
                 '/divisions?date=2020-01-01',
             );
 
-            expect(context.container.textContent).not.toContain(
-                'Pairs at another address',
-            );
+            expect(context.text()).not.toContain('Pairs at another address');
         });
 
         it('filters fixtures', async () => {
@@ -526,9 +517,7 @@ describe('DivisionFixtures', () => {
                 '/divisions?date=2022-10-13&type=tournaments',
             );
 
-            expect(context.container.textContent).toContain(
-                'Pairs at another address',
-            );
+            expect(context.text()).toContain('Pairs at another address');
         });
 
         it('filters fixtures dates after fixtures', async () => {
@@ -540,7 +529,7 @@ describe('DivisionFixtures', () => {
                 '/divisions?date=2022-10-13&type=league',
             );
 
-            expect(context.container.textContent).not.toContain('📅');
+            expect(context.text()).not.toContain('📅');
         });
     });
 
@@ -568,7 +557,7 @@ describe('DivisionFixtures', () => {
 
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '3 Feb📌 Add noteQualifier');
-            expect(getNote(fixtureDateElement)!.textContent).toEqual(
+            expect(getNote(fixtureDateElement)!.text()).toEqual(
                 '📌Finals night!Edit',
             );
         });
@@ -742,11 +731,11 @@ describe('DivisionFixtures', () => {
             );
 
             const fixtureDateElement = getFixtureDateElement(0, account);
-            const addressDropdown = fixtureDateElement.querySelector(
+            const addressDropdown = fixtureDateElement.required(
                 '.address-dropdown .dropdown-menu',
             );
-            await doSelectOption(addressDropdown, 'another address');
-            await doClick(findButton(fixtureDateElement, '➕'));
+            await addressDropdown.select('another address');
+            await fixtureDateElement.button('➕').click();
 
             expect(divisionReloaded).toEqual(true);
             expect(newFixtures).not.toBeNull();
@@ -761,9 +750,9 @@ describe('DivisionFixtures', () => {
             await renderComponent(divisionData, account);
             const fixtureDateElement = getFixtureDateElement(0, account);
 
-            await doClick(findButton(fixtureDateElement, '📌 Add note'));
+            await fixtureDateElement.button('📌 Add note').click();
 
-            expect(getDialog()!.textContent).toContain('Create note');
+            expect(getDialog()!.text()).toContain('Create note');
         });
 
         it('can edit a note', async () => {
@@ -775,9 +764,9 @@ describe('DivisionFixtures', () => {
             await renderComponent(divisionData, account);
             const fixtureDateElement = getFixtureDateElement(0, account);
 
-            await doClick(findButton(getNote(fixtureDateElement), 'Edit'));
+            await getNote(fixtureDateElement)!.button('Edit').click();
 
-            expect(getDialog()!.textContent).toContain('Edit note');
+            expect(getDialog()!.text()).toContain('Edit note');
         });
 
         it('can save changes to notes', async () => {
@@ -793,16 +782,11 @@ describe('DivisionFixtures', () => {
             );
             await renderComponent(divisionData, account);
             const fixtureDateElement = getFixtureDateElement(0, account);
-            await doClick(findButton(getNote(fixtureDateElement), 'Edit'));
+            await getNote(fixtureDateElement)!.button('Edit').click();
 
             const dialog = getDialog()!;
-            await doChange(
-                dialog,
-                'textarea[name="note"]',
-                'New note',
-                context.user!,
-            );
-            await doClick(findButton(dialog, 'Save'));
+            await dialog.input('note').change('New note');
+            await dialog.button('Save').click();
 
             expect(getDialog()).toBeFalsy();
             expect(divisionReloaded).toEqual(true);
@@ -817,9 +801,9 @@ describe('DivisionFixtures', () => {
             );
             await renderComponent(divisionData, account);
             const fixtureDateElement = getFixtureDateElement(0, account);
-            await doClick(findButton(getNote(fixtureDateElement), 'Edit'));
+            await getNote(fixtureDateElement)!.button('Edit').click();
 
-            await doClick(findButton(getDialog()!, 'Close'));
+            await getDialog()!.button('Close').click();
 
             expect(getDialog()).toBeFalsy();
         });
@@ -827,25 +811,25 @@ describe('DivisionFixtures', () => {
         it('can open add date dialog', async () => {
             await renderComponent(divisionData, account);
 
-            await doClick(findButton(getAdminSection(), '➕ Add date'));
+            await getAdminSection().button('➕ Add date').click();
 
-            expect(getDialog()!.textContent).toContain('Add date');
+            expect(getDialog()!.text()).toContain('Add date');
         });
 
         it('can close add date dialog', async () => {
             await renderComponent(divisionData, account);
 
-            await doClick(findButton(getAdminSection(), '➕ Add date'));
-            await doClick(findButton(getDialog()!, 'Close'));
+            await getAdminSection().button('➕ Add date').click();
+            await getDialog()!.button('Close').click();
 
             expect(getDialog()).toBeFalsy();
         });
 
         it('prevents adding a date when no date selected', async () => {
             await renderComponent(divisionData, account);
-            await doClick(findButton(getAdminSection(), '➕ Add date'));
+            await getAdminSection().button('➕ Add date').click();
 
-            await doClick(findButton(getDialog(), 'Add date'));
+            await getDialog()!.button('Add date').click();
 
             expect(newFixtures).toBeNull();
             context.prompts.alertWasShown('Select a date first');
@@ -861,16 +845,11 @@ describe('DivisionFixtures', () => {
                     .build(),
             );
             await renderComponent(divisionData, account);
-            await doClick(findButton(getAdminSection(), '➕ Add date'));
+            await getAdminSection().button('➕ Add date').click();
             const dialog = getDialog()!;
 
-            await doChange(
-                dialog,
-                'input[type="date"]',
-                '2022-10-13',
-                context.user!,
-            );
-            await doClick(findButton(dialog, 'Add date'));
+            await dialog.required('input[type="date"]').change('2022-10-13');
+            await dialog.button('Add date').click();
 
             expect(newFixtures).toBeNull();
         });
@@ -889,17 +868,12 @@ describe('DivisionFixtures', () => {
                 undefined,
                 [team, outOfSeasonTeam],
             );
-            await doClick(findButton(getAdminSection(), '➕ Add date'));
+            await getAdminSection().button('➕ Add date').click();
             const dialog = getDialog()!;
 
-            await doChange(
-                dialog,
-                'input[type="date"]',
-                '2023-05-06',
-                context.user!,
-            );
-            await doClick(dialog, 'input[name="isKnockout"]');
-            await doClick(findButton(dialog, 'Add date'));
+            await dialog.required('input[type="date"]').change('2023-05-06');
+            await dialog.required('input[name="isKnockout"]').click();
+            await dialog.button('Add date').click();
 
             expect(newFixtures).not.toBeNull();
             expect(newFixtures!.length).toEqual(1);
@@ -940,17 +914,12 @@ describe('DivisionFixtures', () => {
                 undefined,
                 [team, deletedTeam],
             );
-            await doClick(findButton(getAdminSection(), '➕ Add date'));
+            await getAdminSection().button('➕ Add date').click();
             const dialog = getDialog()!;
 
-            await doChange(
-                dialog,
-                'input[type="date"]',
-                '2023-05-06',
-                context.user!,
-            );
-            await doClick(dialog, 'input[name="isKnockout"]');
-            await doClick(findButton(dialog, 'Add date'));
+            await dialog.required('input[type="date"]').change('2023-05-06');
+            await dialog.required('input[name="isKnockout"]').click();
+            await dialog.button('Add date').click();
 
             expect(newFixtures).not.toBeNull();
             expect(newFixtures!.length).toEqual(1);
@@ -988,18 +957,16 @@ describe('DivisionFixtures', () => {
         it('can open create new fixtures dialog', async () => {
             await renderComponent(divisionData, account);
 
-            await doClick(findButton(getAdminSection(), '🗓️ Create fixtures'));
+            await getAdminSection().button('🗓️ Create fixtures').click();
 
-            expect(getDialog()!.textContent).toContain(
-                'Create season fixtures...',
-            );
+            expect(getDialog()!.text()).toContain('Create season fixtures...');
         });
 
         it('can close create new fixtures dialog', async () => {
             await renderComponent(divisionData, account);
-            await doClick(findButton(getAdminSection(), '🗓️ Create fixtures'));
+            await getAdminSection().button('🗓️ Create fixtures').click();
 
-            await doClick(findButton(getDialog()!, 'Close'));
+            await getDialog()!.button('Close').click();
 
             expect(getDialog()).toBeFalsy();
         });
@@ -1018,7 +985,7 @@ a message`;
                 await renderComponent(divisionData, account);
                 context.prompts.respondToConfirm(dryRunPrompt, false);
 
-                await doClick(getDeleteAllButton());
+                await getDeleteAllButton().click();
 
                 expect(bulkDeleteRequest).toBeNull();
             });
@@ -1031,7 +998,7 @@ a message`;
                     success: false,
                 };
 
-                await doClick(getDeleteAllButton());
+                await getDeleteAllButton().click();
 
                 expect(bulkDeleteRequest).toEqual({
                     seasonId: divisionData.season!.id,
@@ -1051,7 +1018,7 @@ a message`;
                     result: [],
                 };
 
-                await doClick(getDeleteAllButton());
+                await getDeleteAllButton().click();
 
                 expect(bulkDeleteRequest).toEqual({
                     seasonId: divisionData.season!.id,
@@ -1071,7 +1038,7 @@ a message`;
                 };
                 context.prompts.respondToConfirm(executePrompt, false);
 
-                await doClick(getDeleteAllButton());
+                await getDeleteAllButton().click();
 
                 expect(bulkDeleteRequest).toEqual({
                     seasonId: divisionData.season!.id,
@@ -1094,7 +1061,7 @@ a message`;
                 };
                 context.prompts.respondToConfirm(executePrompt, true);
 
-                await doClick(getDeleteAllButton());
+                await getDeleteAllButton().click();
 
                 expect(bulkDeleteRequest).toEqual({
                     seasonId: divisionData.season!.id,
@@ -1118,7 +1085,7 @@ a message`;
                     () => (bulkDeleteResponse!.success = false),
                 );
 
-                await doClick(getDeleteAllButton());
+                await getDeleteAllButton().click();
 
                 expect(bulkDeleteRequest).toEqual({
                     seasonId: divisionData.season!.id,
