@@ -65,9 +65,9 @@ describe('DivisionHealth', () => {
     }
 
     function assertHeading(text: string, className: string) {
-        const heading = context.container.querySelector('h3')!;
-        expect(heading.textContent).toEqual(text);
-        expect(heading.className).toContain(className);
+        const heading = context.required('h3');
+        expect(heading.text()).toEqual(text);
+        expect(heading.className()).toContain(className);
     }
 
     it('handles error during load', async () => {
@@ -109,10 +109,8 @@ describe('DivisionHealth', () => {
 
         reportedError.verifyNoError();
         expect(
-            context.container.querySelector(
-                'div[datatype="view-health-check"]',
-            ),
-        ).toBeTruthy();
+            context.optional('div[datatype="view-health-check"]'),
+        ).toBeDefined();
     });
 
     it('when success and no errors or warnings should show healthy', async () => {
