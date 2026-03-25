@@ -3,10 +3,8 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
-    doSelectOption,
     ErrorState,
-    findButton,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -81,10 +79,8 @@ describe('DivisionReports', () => {
         };
     }
 
-    function assertReportRow(tr: HTMLTableRowElement, values: string[]) {
-        expect(
-            Array.from(tr.querySelectorAll('td')).map((td) => td.textContent),
-        ).toEqual(values);
+    function assertReportRow(row: IComponent, values: string[]) {
+        expect(row.all('td').map((t) => t.text())).toEqual(values);
     }
 
     describe('when logged in', () => {
@@ -104,10 +100,9 @@ describe('DivisionReports', () => {
             await renderComponent(account, divisionData);
 
             reportedError.verifyNoError();
-            const input = context.container.querySelectorAll(
-                '.content-background input',
-            );
-            expect(input).toBeTruthy();
+            expect(
+                context.all('.content-background input').length,
+            ).toBeGreaterThan(0);
         });
 
         it('can fetch reports', async () => {
@@ -127,7 +122,7 @@ describe('DivisionReports', () => {
                 created: '',
             };
 
-            await doClick(findButton(context.container, '📊 Get reports...'));
+            await context.button('📊 Get reports...').click();
 
             reportedError.verifyNoError();
         });
@@ -144,7 +139,7 @@ describe('DivisionReports', () => {
                 created: '',
             } as ReportCollectionDto;
 
-            await doClick(findButton(context.container, '📊 Get reports...'));
+            await context.button('📊 Get reports...').click();
 
             expect(reportedError.error).toEqual('Some server side error');
         });
@@ -170,18 +165,15 @@ describe('DivisionReports', () => {
                 messages: [],
                 created: '',
             };
-            await doClick(findButton(context.container, '📊 Get reports...'));
+            await context.button('📊 Get reports...').click();
 
-            await doSelectOption(
-                context.container.querySelector('.dropdown-menu'),
-                'Report 2',
-            );
-            await doClick(findButton(context.container, '📊 Get reports...'));
+            await context.required('.dropdown-menu').select('Report 2');
+            await context.button('📊 Get reports...').click();
 
-            const activeItem = context.container.querySelector(
+            const activeItem = context.required(
                 '.dropdown-menu .dropdown-item.active',
-            )!;
-            expect(activeItem.textContent).toEqual('Report 2');
+            );
+            expect(activeItem.text()).toEqual('Report 2');
         });
 
         it('selects first report if selected report not available on subsequent fetch', async () => {
@@ -205,23 +197,20 @@ describe('DivisionReports', () => {
                 messages: [],
                 created: '',
             };
-            await doClick(findButton(context.container, '📊 Get reports...'));
-            await doSelectOption(
-                context.container.querySelector('.dropdown-menu'),
-                'Report 2',
-            );
+            await context.button('📊 Get reports...').click();
+            await context.required('.dropdown-menu').select('Report 2');
 
             returnReport = {
                 reports: [report1],
                 messages: [],
                 created: '',
             };
-            await doClick(findButton(context.container, '📊 Get reports...'));
+            await context.button('📊 Get reports...').click();
 
-            const activeItem = context.container.querySelector(
+            const activeItem = context.required(
                 '.dropdown-menu .dropdown-item.active',
-            )!;
-            expect(activeItem.textContent).toEqual('Report 1');
+            );
+            expect(activeItem.text()).toEqual('Report 1');
         });
 
         it('selects no report if no reports returned on subsequent fetch', async () => {
@@ -245,23 +234,19 @@ describe('DivisionReports', () => {
                 messages: [],
                 created: '',
             };
-            await doClick(findButton(context.container, '📊 Get reports...'));
-            await doSelectOption(
-                context.container.querySelector('.dropdown-menu'),
-                'Report 2',
-            );
+            await context.button('📊 Get reports...').click();
+            await context.required('.dropdown-menu').select('Report 2');
 
             returnReport = {
                 reports: [],
                 messages: [],
                 created: '',
             };
-            await doClick(findButton(context.container, '📊 Get reports...'));
+            await context.button('📊 Get reports...').click();
 
-            const activeItem = context.container.querySelector(
-                '.dropdown-menu .dropdown-item.active',
-            );
-            expect(activeItem).toBeNull();
+            expect(
+                context.optional('.dropdown-menu .dropdown-item.active'),
+            ).toBeUndefined();
         });
 
         it('renders messages', async () => {
@@ -281,15 +266,11 @@ describe('DivisionReports', () => {
                 created: '',
             };
 
-            await doClick(findButton(context.container, '📊 Get reports...'));
+            await context.button('📊 Get reports...').click();
 
             reportedError.verifyNoError();
-            const messages = Array.from(
-                context.container.querySelectorAll(
-                    '.content-background ul > li',
-                ),
-            ) as HTMLElement[];
-            expect(messages.map((li) => li.textContent)).toEqual(['A message']);
+            const messages = context.all('.content-background ul > li');
+            expect(messages.map((li) => li.text())).toEqual(['A message']);
         });
 
         it('renders report options', async () => {
@@ -315,15 +296,13 @@ describe('DivisionReports', () => {
                 created: '',
             };
 
-            await doClick(findButton(context.container, '📊 Get reports...'));
+            await context.button('📊 Get reports...').click();
 
             reportedError.verifyNoError();
-            const reportOptions = Array.from(
-                context.container.querySelectorAll(
-                    '.content-background div.btn-group div[role="menu"] > button',
-                ),
-            ) as HTMLButtonElement[];
-            expect(reportOptions.map((li) => li.textContent)).toEqual([
+            const reportOptions = context.all(
+                '.content-background div.btn-group div[role="menu"] > button',
+            );
+            expect(reportOptions.map((b) => b.text())).toEqual([
                 'A report description',
                 'Another report description',
             ]);
@@ -377,27 +356,18 @@ describe('DivisionReports', () => {
                 created: '',
             };
 
-            await doClick(findButton(context.container, '📊 Get reports...'));
+            await context.button('📊 Get reports...').click();
 
             reportedError.verifyNoError();
-            const reportTable = context.container.querySelector(
-                '.content-background table',
-            )!;
-            expect(reportTable).toBeTruthy();
-            const reportHeadings = Array.from(
-                reportTable.querySelectorAll('thead tr th'),
-            ) as HTMLTableCellElement[];
-            expect(
-                Array.from(reportHeadings).map((li) => li.textContent),
-            ).toEqual([
+            const reportTable = context.required('.content-background table');
+            const reportHeadings = reportTable.all('thead tr th');
+            expect(reportHeadings.map((th) => th.text())).toEqual([
                 '',
                 'A team heading',
                 'A player heading',
                 'A value heading',
             ]);
-            const reportRows = Array.from(
-                reportTable.querySelectorAll('tbody tr'),
-            ) as HTMLTableRowElement[];
+            const reportRows = reportTable.all('tbody tr');
             expect(reportRows.length).toEqual(2);
             assertReportRow(reportRows[0], ['1', 'A team', 'A player', '1']);
             assertReportRow(reportRows[1], [
@@ -457,14 +427,13 @@ describe('DivisionReports', () => {
                 created: '',
             };
 
-            await doClick(findButton(context.container, '📊 Get reports...'));
+            await context.button('📊 Get reports...').click();
 
             reportedError.verifyNoError();
-            const heading = context.container.querySelector(
+            const heading = context.required(
                 'div[datatype="print-division-heading"]',
-            )!;
-            expect(heading).toBeTruthy();
-            expect(heading.textContent).toEqual('DIVISION, A season');
+            );
+            expect(heading.text()).toEqual('DIVISION, A season');
         });
 
         it('renders cross-division print heading', async () => {
@@ -516,14 +485,13 @@ describe('DivisionReports', () => {
                 created: '',
             };
 
-            await doClick(findButton(context.container, '📊 Get reports...'));
+            await context.button('📊 Get reports...').click();
 
             reportedError.verifyNoError();
-            const heading = context.container.querySelector(
+            const heading = context.required(
                 'div[datatype="print-division-heading"]',
-            )!;
-            expect(heading).toBeTruthy();
-            expect(heading.textContent).toEqual('A season');
+            );
+            expect(heading.text()).toEqual('A season');
         });
 
         it('renders link to tournament', async () => {
@@ -553,18 +521,15 @@ describe('DivisionReports', () => {
                 created: '',
             };
 
-            await doClick(findButton(context.container, '📊 Get reports...'));
+            await context.button('📊 Get reports...').click();
 
             reportedError.verifyNoError();
-            const reportTable = context.container.querySelector(
-                '.content-background table',
-            )!;
-            expect(reportTable).toBeTruthy();
-            const reportRows = Array.from(
-                reportTable.querySelectorAll('tbody tr'),
-            ) as HTMLTableRowElement[];
+            const reportTable = context.required('.content-background table');
+            const reportRows = reportTable.all('tbody tr');
             expect(reportRows.length).toEqual(1);
-            const link: HTMLAnchorElement = reportRows[0].querySelector('a')!;
+            const link = reportRows[0]
+                .required('a')
+                .element<HTMLAnchorElement>();
             expect(link.href).toEqual(
                 `http://localhost/tournament/${tournamentId}`,
             );
@@ -599,18 +564,15 @@ describe('DivisionReports', () => {
                 created: '',
             };
 
-            await doClick(findButton(context.container, '📊 Get reports...'));
+            await context.button('📊 Get reports...').click();
 
             reportedError.verifyNoError();
-            const reportTable = context.container.querySelector(
-                '.content-background table',
-            )!;
-            expect(reportTable).toBeTruthy();
-            const reportRows = Array.from(
-                reportTable.querySelectorAll('tbody tr'),
-            ) as HTMLTableRowElement[];
+            const reportTable = context.required('.content-background table');
+            const reportRows = reportTable.all('tbody tr');
             expect(reportRows.length).toEqual(1);
-            const link: HTMLAnchorElement = reportRows[0].querySelector('a')!;
+            const link = reportRows[0]
+                .required('a')
+                .element<HTMLAnchorElement>();
             expect(link.href).toEqual(
                 `http://localhost/division/DIVISION/player:PLAYER@TEAM/A%20season`,
             );
@@ -644,18 +606,15 @@ describe('DivisionReports', () => {
                 created: '',
             };
 
-            await doClick(findButton(context.container, '📊 Get reports...'));
+            await context.button('📊 Get reports...').click();
 
             reportedError.verifyNoError();
-            const reportTable = context.container.querySelector(
-                '.content-background table',
-            )!;
-            expect(reportTable).toBeTruthy();
-            const reportRows = Array.from(
-                reportTable.querySelectorAll('tbody tr'),
-            ) as HTMLTableRowElement[];
+            const reportTable = context.required('.content-background table');
+            const reportRows = reportTable.all('tbody tr');
             expect(reportRows.length).toEqual(1);
-            const link: HTMLAnchorElement = reportRows[0].querySelector('a')!;
+            const link = reportRows[0]
+                .required('a')
+                .element<HTMLAnchorElement>();
             expect(link.href).toEqual(
                 `http://localhost/division/DIVISION/team:TEAM/A%20season`,
             );
@@ -690,18 +649,15 @@ describe('DivisionReports', () => {
                 created: '',
             };
 
-            await doClick(findButton(context.container, '📊 Get reports...'));
+            await context.button('📊 Get reports...').click();
 
             reportedError.verifyNoError();
-            const reportTable = context.container.querySelector(
-                '.content-background table',
-            )!;
-            expect(reportTable).toBeTruthy();
-            const reportRows = Array.from(
-                reportTable.querySelectorAll('tbody tr'),
-            ) as HTMLTableRowElement[];
+            const reportTable = context.required('.content-background table');
+            const reportRows = reportTable.all('tbody tr');
             expect(reportRows.length).toEqual(1);
-            const link: HTMLAnchorElement = reportRows[0].querySelector('a')!;
+            const link = reportRows[0]
+                .required('a')
+                .element<HTMLAnchorElement>();
             expect(link.href).toEqual(
                 `http://localhost/division/DIVISION_ID/player:PLAYER_ID@TEAM_ID/A%20season`,
             );
@@ -735,18 +691,15 @@ describe('DivisionReports', () => {
                 created: '',
             };
 
-            await doClick(findButton(context.container, '📊 Get reports...'));
+            await context.button('📊 Get reports...').click();
 
             reportedError.verifyNoError();
-            const reportTable = context.container.querySelector(
-                '.content-background table',
-            )!;
-            expect(reportTable).toBeTruthy();
-            const reportRows = Array.from(
-                reportTable.querySelectorAll('tbody tr'),
-            ) as HTMLTableRowElement[];
+            const reportTable = context.required('.content-background table');
+            const reportRows = reportTable.all('tbody tr');
             expect(reportRows.length).toEqual(1);
-            const link: HTMLAnchorElement = reportRows[0].querySelector('a')!;
+            const link = reportRows[0]
+                .required('a')
+                .element<HTMLAnchorElement>();
             expect(link.href).toEqual(
                 `http://localhost/division/DIVISION_ID/team:TEAM_ID/A%20season`,
             );
@@ -778,21 +731,13 @@ describe('DivisionReports', () => {
                 created: '',
             };
 
-            await doClick(findButton(context.container, '📊 Get reports...'));
+            await context.button('📊 Get reports...').click();
 
             reportedError.verifyNoError();
-            const reportTable = context.container.querySelector(
-                '.content-background table',
-            )!;
-            expect(reportTable).toBeTruthy();
-            const reportRows = Array.from(
-                reportTable.querySelectorAll('tbody tr'),
-            ) as HTMLTableRowElement[];
+            const reportTable = context.required('.content-background table');
+            const reportRows = reportTable.all('tbody tr');
             expect(reportRows.length).toEqual(1);
-            const cells = Array.from(
-                reportRows[0].querySelectorAll('td'),
-            ) as HTMLTableCellElement[];
-            expect(cells.length).toEqual(1 + 2);
+            expect(reportRows[0].all('td').length).toEqual(1 + 2);
         });
     });
 });
