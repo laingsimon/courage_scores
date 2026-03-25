@@ -30,8 +30,7 @@ describe('WidescreenSaygRecentThrow', () => {
     async function getClassName(props: IWidescreenSaygRecentThrowProps) {
         await renderComponent(props);
 
-        const element = context.container.querySelector('div')!;
-        return element.className;
+        return context.required('div').className();
     }
 
     describe('renders', () => {
