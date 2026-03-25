@@ -3,9 +3,8 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick,
     ErrorState,
-    findButton,
+    IComponent,
     iocProps,
     noop,
     renderApp,
@@ -106,29 +105,27 @@ describe('TournamentFixture', () => {
         const account: UserDto | undefined = undefined;
 
         function assertPlayerDisplayWithPlayerLinks(
-            playersCell: Element,
+            playersCell: IComponent,
             ordinal: number,
             players: TournamentPlayerDto[],
         ) {
-            const side = playersCell.querySelector(
+            const side = playersCell.required(
                 `div.px-3 > div:nth-child(${ordinal})`,
-            )!;
-            expect(side).toBeTruthy();
+            );
 
             assertPlayersAndLinks(side, players);
         }
 
         function assertPlayerDisplayWithSideNameAndTeamLink(
-            playersCell: Element,
+            playersCell: IComponent,
             ordinal: number,
             sideName: string,
             teamId: string,
             players: TournamentPlayerDto[],
         ) {
-            const side = playersCell.querySelector(
+            const side = playersCell.required(
                 `div.px-3 > div:nth-child(${ordinal})`,
-            )!;
-            expect(side).toBeTruthy();
+            );
 
             assertSideNameAndLink(
                 side,
@@ -139,40 +136,36 @@ describe('TournamentFixture', () => {
         }
 
         function assertSinglePlayerDisplay(
-            playersCell: Element,
+            playersCell: IComponent,
             ordinal: number,
             _: string,
             player: TournamentPlayerDto,
         ) {
-            const side = playersCell.querySelector(
+            const side = playersCell.required(
                 `div.px-3 > div:nth-child(${ordinal})`,
-            )!;
-            expect(side).toBeTruthy();
+            );
 
             assertPlayersAndLinks(side, [player]);
         }
 
         function assertSideNameAndLink(
-            side: Element,
+            side: IComponent,
             sideName: string,
             href: string,
         ) {
-            const link = side.querySelector('a')!;
-            expect(link).toBeTruthy();
+            const link = side.required('a').element<HTMLAnchorElement>();
             expect(link.textContent).toEqual(sideName);
             expect(link.href).toEqual(href);
         }
 
         function assertPlayersAndLinks(
-            side: Element,
+            side: IComponent,
             players: TournamentPlayerDto[],
         ) {
-            const links = Array.from(
-                side.querySelectorAll('label a'),
-            ) as HTMLAnchorElement[];
+            const links = side.all('label a');
             expect(links.length).toEqual(players.length);
             players.forEach((player: { name: string }, index: number) => {
-                const link = links[index];
+                const link = links[index].element<HTMLAnchorElement>();
                 expect(link.textContent).toEqual(player.name);
                 expect(link.href).toEqual(
                     `http://localhost/division/${division.name}/player:${encodeURI(player.name)}/${season.name}`,
@@ -200,8 +193,8 @@ describe('TournamentFixture', () => {
             );
 
             reportedError.verifyNoError();
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            const cellText = cells.map((td) => td.textContent);
+            const cells = context.all('td');
+            const cellText = cells.map((td) => td.text());
             expect(cellText).toEqual(['TYPE at ADDRESS']);
         });
 
@@ -227,8 +220,8 @@ describe('TournamentFixture', () => {
             );
 
             reportedError.verifyNoError();
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            const cellText = cells.map((td) => td.textContent);
+            const cells = context.all('td');
+            const cellText = cells.map((td) => td.text());
             expect(cellText).toEqual(['TYPE atADDRESSvsOPPONENT']);
         });
 
@@ -255,8 +248,8 @@ describe('TournamentFixture', () => {
             );
 
             reportedError.verifyNoError();
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            const cellText = cells.map((td) => td.textContent);
+            const cells = context.all('td');
+            const cellText = cells.map((td) => td.text());
             expect(cellText).toEqual(['TYPE at ADDRESS', 'Winner: WINNER']);
         });
 
@@ -285,11 +278,12 @@ describe('TournamentFixture', () => {
             );
 
             reportedError.verifyNoError();
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            const cellText = cells.map((td) => td.textContent);
+            const cells = context.all('td');
+            const cellText = cells.map((td) => td.text());
             expect(cellText).toEqual(['TYPE at ADDRESS', 'Winner: WINNER']);
-            const linkToTeam = cells[1].querySelector('a')!;
-            expect(linkToTeam).toBeTruthy();
+            const linkToTeam = cells[1]
+                .required('a')
+                .element<HTMLAnchorElement>();
             expect(linkToTeam.textContent).toEqual('WINNER');
             expect(linkToTeam.href).toEqual(
                 `http://localhost/division/${division.name}/team:${encodeURI(team.name)}/${season.name}`,
@@ -321,11 +315,10 @@ describe('TournamentFixture', () => {
             );
 
             reportedError.verifyNoError();
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            const cellText = cells.map((td) => td.textContent);
+            const cells = context.all('td');
+            const cellText = cells.map((td) => td.text());
             expect(cellText).toEqual(['TYPE at ADDRESS', 'Winner: WINNER']);
-            const linkToTeam = cells[1].querySelector('a');
-            expect(linkToTeam).toBeFalsy();
+            expect(cells[1].optional('a')).toBeFalsy();
         });
 
         it('renders who is playing', async () => {
@@ -369,8 +362,7 @@ describe('TournamentFixture', () => {
             );
 
             reportedError.verifyNoError();
-            const playersCell =
-                context.container.querySelector('td:first-child')!;
+            const playersCell = context.required('td:first-child');
             assertPlayerDisplayWithPlayerLinks(
                 playersCell,
                 1,
@@ -432,28 +424,30 @@ describe('TournamentFixture', () => {
             );
 
             reportedError.verifyNoError();
-            const playersCell =
-                context.container.querySelector('td:first-child')!;
-            const superleaguePlayers = playersCell.querySelector(
+            const playersCell = context.required('td:first-child');
+            const superleaguePlayers = playersCell.required(
                 'div[datatype="superleague-players"]',
-            )!;
-            expect(superleaguePlayers.querySelector('a')!.href).toEqual(
-                `http://localhost/tournament/${tournament.id}`,
             );
-            const matches = Array.from(
-                superleaguePlayers.querySelectorAll('a > div'),
-            );
+            expect(
+                superleaguePlayers.required('a').element<HTMLAnchorElement>()
+                    .href,
+            ).toEqual(`http://localhost/tournament/${tournament.id}`);
+            const matches = superleaguePlayers.all('a > div');
             expect(matches.length).toEqual(2);
-            expect(
-                Array.from(matches[0].querySelectorAll('div')).map(
-                    (d) => d.textContent,
-                ),
-            ).toEqual(['PLAYER 1', '2', '-', '4', 'PLAYER 2']);
-            expect(
-                Array.from(matches[1].querySelectorAll('div')).map(
-                    (d) => d.textContent,
-                ),
-            ).toEqual(['PLAYER 3', '4', '-', '2', 'PLAYER 4']);
+            expect(matches[0].all('div').map((d) => d.text())).toEqual([
+                'PLAYER 1',
+                '2',
+                '-',
+                '4',
+                'PLAYER 2',
+            ]);
+            expect(matches[1].all('div').map((d) => d.text())).toEqual([
+                'PLAYER 3',
+                '4',
+                '-',
+                '2',
+                'PLAYER 4',
+            ]);
         });
 
         it('shades team tournament if favourites defined and tournament does not have favourite team playing', async () => {
@@ -482,8 +476,8 @@ describe('TournamentFixture', () => {
             );
 
             reportedError.verifyNoError();
-            const tr = context.container.querySelector('tr')!;
-            expect(tr.className).toContain('opacity-25');
+            const tr = context.required('tr');
+            expect(tr.className()).toContain('opacity-25');
         });
 
         it('does not shade non-team tournament if favourites defined and tournament does not have favourite team playing', async () => {
@@ -511,8 +505,8 @@ describe('TournamentFixture', () => {
             );
 
             reportedError.verifyNoError();
-            const tr = context.container.querySelector('tr')!;
-            expect(tr.className).not.toContain('opacity-25');
+            const tr = context.required('tr');
+            expect(tr.className()).not.toContain('opacity-25');
         });
 
         it('does not shade team tournament if favourites defined and tournament has favourite team playing', async () => {
@@ -541,8 +535,8 @@ describe('TournamentFixture', () => {
             );
 
             reportedError.verifyNoError();
-            const tr = context.container.querySelector('tr')!;
-            expect(tr.className).not.toContain('opacity-25');
+            const tr = context.required('tr');
+            expect(tr.className()).not.toContain('opacity-25');
         });
 
         it('does not shade team tournament if no favourites defined', async () => {
@@ -571,8 +565,8 @@ describe('TournamentFixture', () => {
             );
 
             reportedError.verifyNoError();
-            const tr = context.container.querySelector('tr')!;
-            expect(tr.className).not.toContain('opacity-25');
+            const tr = context.required('tr');
+            expect(tr.className()).not.toContain('opacity-25');
         });
     });
 
@@ -607,14 +601,13 @@ describe('TournamentFixture', () => {
                 },
                 account,
             );
-            const adminCell =
-                context.container.querySelector('td:nth-child(2)')!;
+            const adminCell = context.required('td:nth-child(2)');
             context.prompts.respondToConfirm(
                 'Are you sure you want to delete this tournament fixture?',
                 true,
             );
 
-            await doClick(findButton(adminCell, '🗑'));
+            await adminCell.button('🗑').click();
 
             context.prompts.confirmWasShown(
                 'Are you sure you want to delete this tournament fixture?',
@@ -642,14 +635,13 @@ describe('TournamentFixture', () => {
                 },
                 account,
             );
-            const adminCell =
-                context.container.querySelector('td:nth-child(2)')!;
+            const adminCell = context.required('td:nth-child(2)');
             context.prompts.respondToConfirm(
                 'Are you sure you want to delete this tournament fixture?',
                 false,
             );
 
-            await doClick(findButton(adminCell, '🗑'));
+            await adminCell.button('🗑').click();
 
             context.prompts.confirmWasShown(
                 'Are you sure you want to delete this tournament fixture?',
@@ -677,22 +669,19 @@ describe('TournamentFixture', () => {
                 },
                 account,
             );
-            const adminCell =
-                context.container.querySelector('td:nth-child(2)');
+            const adminCell = context.required('td:nth-child(2)');
             context.prompts.respondToConfirm(
                 'Are you sure you want to delete this tournament fixture?',
                 true,
             );
             apiResponse = { success: false, errors: ['SOME ERROR'] };
 
-            await doClick(findButton(adminCell, '🗑'));
+            await adminCell.button('🗑').click();
 
             reportedError.verifyNoError();
             expect(tournamentChanged).toEqual(false);
-            expect(context.container.textContent).toContain('SOME ERROR');
-            expect(context.container.textContent).toContain(
-                'Could not delete tournament',
-            );
+            expect(context.text()).toContain('SOME ERROR');
+            expect(context.text()).toContain('Could not delete tournament');
         });
 
         it('can close error dialog after delete failure', async () => {
@@ -713,23 +702,18 @@ describe('TournamentFixture', () => {
                 },
                 account,
             );
-            const adminCell =
-                context.container.querySelector('td:nth-child(2)');
+            const adminCell = context.required('td:nth-child(2)');
             context.prompts.respondToConfirm(
                 'Are you sure you want to delete this tournament fixture?',
                 true,
             );
             apiResponse = { success: false, errors: ['SOME ERROR'] };
-            await doClick(findButton(adminCell, '🗑'));
-            expect(context.container.textContent).toContain(
-                'Could not delete tournament',
-            );
+            await adminCell.button('🗑').click();
+            expect(context.text()).toContain('Could not delete tournament');
 
-            await doClick(findButton(adminCell, 'Close'));
+            await adminCell.button('Close').click();
 
-            expect(context.container.textContent).not.toContain(
-                'Could not delete tournament',
-            );
+            expect(context.text()).not.toContain('Could not delete tournament');
         });
 
         it('does not shade team tournament if favourites defined and tournament does not have favourite team playing when an admin', async () => {
@@ -758,8 +742,8 @@ describe('TournamentFixture', () => {
             );
 
             reportedError.verifyNoError();
-            const tr = context.container.querySelector('tr')!;
-            expect(tr.className).not.toContain('opacity-25');
+            const tr = context.required('tr');
+            expect(tr.className()).not.toContain('opacity-25');
         });
     });
 });
