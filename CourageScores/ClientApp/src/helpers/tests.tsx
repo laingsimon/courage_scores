@@ -687,6 +687,14 @@ export function wrapComponent(element: Element, user: UserEvent): IComponent {
 
             return this;
         },
+        async file(file: string): Promise<IComponent> {
+            fireEvent.change(element, { target: { files: [file] } });
+            if (!user) {
+                throw new Error('user not available');
+            }
+            await user.type(element, '{Shift}'); //trigger the event handler again, but in an async manner
+            return this;
+        },
         async keyPress(
             key: string,
             doNothingIfDisabled?: boolean,
@@ -803,6 +811,11 @@ export interface IComponent {
      * BootstrapDropdown only
      */
     select(text: string, doNothingIfDisabled?: boolean): Promise<IComponent>;
+
+    /*
+     * Set a file into the input
+     */
+    file(file: string): Promise<IComponent>;
 
     /*
      * press a key

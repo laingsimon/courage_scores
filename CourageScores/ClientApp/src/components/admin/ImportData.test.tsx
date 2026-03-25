@@ -8,7 +8,6 @@ import {
     iocProps,
     noop,
     renderApp,
-    setFile,
     TestContext,
 } from '../../helpers/tests';
 import { ImportData } from './ImportData';
@@ -71,12 +70,7 @@ describe('ImportData', () => {
 
     async function setFileToImport() {
         const file = 'some content';
-        await setFile(
-            context.container,
-            'input[type="file"]',
-            file,
-            context.user,
-        );
+        await context.required('input[type="file"]').file(file);
     }
 
     const props: IAdminContainerProps = {

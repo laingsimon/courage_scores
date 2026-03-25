@@ -8,7 +8,6 @@ import {
     iocProps,
     noop,
     renderApp,
-    setFile,
     TestContext,
     user,
 } from '../../helpers/tests';
@@ -958,12 +957,7 @@ describe('Score', () => {
             };
 
             const file = 'a photo';
-            await setFile(
-                dialog()!.element(),
-                'input[type="file"]',
-                file,
-                context.user,
-            );
+            await dialog()!.required('input[type="file"]').file(file);
 
             expect(uploadedPhoto?.request.id).toEqual(fixtureData.id);
             expect(uploadedPhoto?.file).toEqual(file);
@@ -981,12 +975,7 @@ describe('Score', () => {
                 errors: ['SOME ERROR'],
             };
 
-            await setFile(
-                dialog()!.element(),
-                'input[type="file"]',
-                'any',
-                context.user,
-            );
+            await dialog()!.required('input[type="file"]').file('any');
 
             expect(uploadedPhoto).not.toBeNull();
             expect(context.container.textContent).toContain('SOME ERROR');

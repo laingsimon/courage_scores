@@ -7,7 +7,6 @@ import {
     IComponent,
     iocProps,
     renderApp,
-    setFile,
     TestContext,
     user,
 } from '../../helpers/tests';
@@ -1027,12 +1026,7 @@ describe('Tournament', () => {
             uploadPhotoResponse = makeApiResponse(tournamentData, true);
 
             const file = 'a photo';
-            await setFile(
-                modalDialog()!.element(),
-                'input[type="file"]',
-                file,
-                context.user,
-            );
+            await modalDialog()!.required('input[type="file"]').file(file);
 
             expect(uploadedPhoto!.file).toEqual(file);
             expect(uploadedPhoto!.request.id).toEqual(tournamentData.id);
@@ -1043,12 +1037,7 @@ describe('Tournament', () => {
             await context.button('📷 Photos').click();
             uploadPhotoResponse = makeApiFailure('SOME ERROR');
 
-            await setFile(
-                modalDialog()!.element(),
-                'input[type="file"]',
-                'any',
-                context.user,
-            );
+            await modalDialog()!.required('input[type="file"]').file('any');
 
             expect(uploadedPhoto).not.toBeNull();
             expect(context.container.textContent).toContain('SOME ERROR');

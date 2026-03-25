@@ -5,7 +5,6 @@ import {
     ErrorState,
     iocProps,
     renderApp,
-    setFile,
     TestContext,
 } from '../../helpers/tests';
 import { IPhotoManagerProps, PhotoManager } from './PhotoManager';
@@ -53,12 +52,7 @@ describe('PhotoManager', () => {
 
     async function setPhoto() {
         const file = 'a photo';
-        await setFile(
-            context.element(),
-            'input[type="file"]',
-            file,
-            context.user,
-        );
+        await context.required('input[type="file"]').file(file);
     }
 
     async function renderComponent(
