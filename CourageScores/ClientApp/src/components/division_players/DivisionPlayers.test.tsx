@@ -4,6 +4,7 @@ import {
     brandingProps,
     cleanUp,
     ErrorState,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -107,10 +108,8 @@ describe('DivisionPlayers', () => {
 
     async function setDivisionData() {}
 
-    function assertPlayer(tr: HTMLTableRowElement, values: string[]) {
-        expect(
-            Array.from(tr.querySelectorAll('td')).map((td) => td.textContent),
-        ).toEqual(values);
+    function assertPlayer(row: IComponent, values: string[]) {
+        expect(row.all('td').map((td) => td.text())).toEqual(values);
     }
 
     describe('when logged out', () => {
@@ -128,11 +127,9 @@ describe('DivisionPlayers', () => {
             );
 
             reportedError.verifyNoError();
-            const playersRows = Array.from(
-                context.container.querySelectorAll(
-                    '.content-background table.table tbody tr',
-                ),
-            ) as HTMLTableRowElement[];
+            const playersRows = context.all(
+                '.content-background table.table tbody tr',
+            );
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], [
                 '1',
@@ -158,11 +155,8 @@ describe('DivisionPlayers', () => {
                 '14',
                 '15',
             ]);
-            const heading = context.container.querySelector(
-                '.content-background > div > p',
-            )!;
-            expect(heading).toBeTruthy();
-            expect(heading.textContent).toEqual(
+            const heading = context.required('.content-background > div > p');
+            expect(heading.text()).toEqual(
                 'Only players that have played a singles match will appear here',
             );
         });
@@ -185,11 +179,9 @@ describe('DivisionPlayers', () => {
             );
 
             reportedError.verifyNoError();
-            const playersRows = Array.from(
-                context.container.querySelectorAll(
-                    '.content-background table.table tbody tr',
-                ),
-            ) as HTMLTableRowElement[];
+            const playersRows = context.all(
+                '.content-background table.table tbody tr',
+            );
             expect(playersRows.length).toEqual(1);
             assertPlayer(playersRows[0], [
                 '11',
@@ -223,11 +215,9 @@ describe('DivisionPlayers', () => {
             );
 
             reportedError.verifyNoError();
-            const playersRows = Array.from(
-                context.container.querySelectorAll(
-                    '.content-background table.table tbody tr',
-                ),
-            ) as HTMLTableRowElement[];
+            const playersRows = context.all(
+                '.content-background table.table tbody tr',
+            );
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], [
                 '1',
@@ -273,11 +263,9 @@ describe('DivisionPlayers', () => {
             );
 
             reportedError.verifyNoError();
-            const playersRows = Array.from(
-                context.container.querySelectorAll(
-                    '.content-background table.table tbody tr',
-                ),
-            ) as HTMLTableRowElement[];
+            const playersRows = context.all(
+                '.content-background table.table tbody tr',
+            );
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], [
                 '1',
@@ -315,16 +303,13 @@ describe('DivisionPlayers', () => {
             );
 
             reportedError.verifyNoError();
-            const playersRows = Array.from(
-                context.container.querySelectorAll(
-                    '.content-background table.table tbody tr',
-                ),
-            ) as HTMLTableRowElement[];
-            expect(playersRows.length).toEqual(2);
-            const heading = context.container.querySelector(
-                '.content-background > div > p',
+            const playersRows = context.all(
+                '.content-background table.table tbody tr',
             );
-            expect(heading).toBeFalsy();
+            expect(playersRows.length).toEqual(2);
+            expect(
+                context.optional('.content-background > div > p'),
+            ).toBeFalsy();
         });
 
         it('without venue', async () => {
@@ -337,11 +322,9 @@ describe('DivisionPlayers', () => {
             );
 
             reportedError.verifyNoError();
-            const playersRows = Array.from(
-                context.container.querySelectorAll(
-                    '.content-background table.table tbody tr',
-                ),
-            ) as HTMLTableRowElement[];
+            const playersRows = context.all(
+                '.content-background table.table tbody tr',
+            );
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], [
                 '1',
@@ -365,10 +348,9 @@ describe('DivisionPlayers', () => {
                 '14',
                 '15',
             ]);
-            const heading = context.container.querySelector(
-                '.content-background > div > p',
-            );
-            expect(heading).toBeTruthy();
+            expect(
+                context.optional('.content-background > div > p'),
+            ).toBeTruthy();
         });
     });
 
@@ -394,11 +376,9 @@ describe('DivisionPlayers', () => {
             );
 
             reportedError.verifyNoError();
-            const playersRows = Array.from(
-                context.container.querySelectorAll(
-                    '.content-background table.table tbody tr',
-                ),
-            ) as HTMLTableRowElement[];
+            const playersRows = context.all(
+                '.content-background table.table tbody tr',
+            );
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], [
                 '1',
@@ -424,11 +404,8 @@ describe('DivisionPlayers', () => {
                 '14',
                 '15',
             ]);
-            const heading = context.container.querySelector(
-                '.content-background > div > p',
-            )!;
-            expect(heading).toBeTruthy();
-            expect(heading.textContent).toEqual(
+            const heading = context.required('.content-background > div > p');
+            expect(heading.text()).toEqual(
                 'Only players that have played a singles match will appear here',
             );
         });
@@ -449,11 +426,9 @@ describe('DivisionPlayers', () => {
             );
 
             reportedError.verifyNoError();
-            const playersRows = Array.from(
-                context.container.querySelectorAll(
-                    '.content-background table.table tbody tr',
-                ),
-            ) as HTMLTableRowElement[];
+            const playersRows = context.all(
+                '.content-background table.table tbody tr',
+            );
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], [
                 '1',
@@ -491,16 +466,13 @@ describe('DivisionPlayers', () => {
             );
 
             reportedError.verifyNoError();
-            const playersRows = Array.from(
-                context.container.querySelectorAll(
-                    '.content-background table.table tbody tr',
-                ),
-            ) as HTMLTableRowElement[];
-            expect(playersRows.length).toEqual(2);
-            const heading = context.container.querySelector(
-                '.content-background > div > p',
+            const playersRows = context.all(
+                '.content-background table.table tbody tr',
             );
-            expect(heading).toBeFalsy();
+            expect(playersRows.length).toEqual(2);
+            expect(
+                context.optional('.content-background > div > p'),
+            ).toBeFalsy();
         });
 
         it('without venue', async () => {
@@ -513,11 +485,9 @@ describe('DivisionPlayers', () => {
             );
 
             reportedError.verifyNoError();
-            const playersRows = Array.from(
-                context.container.querySelectorAll(
-                    '.content-background table.table tbody tr',
-                ),
-            ) as HTMLTableRowElement[];
+            const playersRows = context.all(
+                '.content-background table.table tbody tr',
+            );
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], [
                 '1',
@@ -541,10 +511,9 @@ describe('DivisionPlayers', () => {
                 '14',
                 '15',
             ]);
-            const heading = context.container.querySelector(
-                '.content-background > div > p',
-            );
-            expect(heading).toBeTruthy();
+            expect(
+                context.optional('.content-background > div > p'),
+            ).toBeTruthy();
         });
     });
 });

@@ -93,13 +93,12 @@ describe('PlayerOverview', () => {
             );
 
             reportedError.verifyNoError();
-            const heading = context.container.querySelector('h3')!;
-            expect(heading).toBeTruthy();
-            expect(heading.textContent).toContain(player.name);
-            expect(heading.textContent).toContain(team.name);
-            const linkToTeam = heading.querySelector('a')!;
-            expect(linkToTeam).toBeTruthy();
-            expect(linkToTeam.href).toEqual(
+            const heading = context.required('h3');
+            expect(heading.text()).toContain(player.name);
+            expect(heading.text()).toContain(team.name);
+            expect(
+                heading.required('a').element<HTMLAnchorElement>().href,
+            ).toEqual(
                 `http://localhost/division/${division.name}/team:${team.name}/${season.name}`,
             );
         });
@@ -115,9 +114,7 @@ describe('PlayerOverview', () => {
             );
 
             reportedError.verifyNoError();
-            expect(context.container.textContent).toContain(
-                '⚠ Player could not be found',
-            );
+            expect(context.text()).toContain('⚠ Player could not be found');
         });
 
         it('when player not found and no team', async () => {
@@ -131,9 +128,7 @@ describe('PlayerOverview', () => {
             );
 
             reportedError.verifyNoError();
-            expect(context.container.textContent).toContain(
-                '⚠ PLAYER could not be found',
-            );
+            expect(context.text()).toContain('⚠ PLAYER could not be found');
         });
 
         it('when player not found and team identified', async () => {
@@ -151,10 +146,8 @@ describe('PlayerOverview', () => {
             );
 
             reportedError.verifyNoError();
-            expect(context.container.textContent).toContain(
-                '⚠ PLAYER could not be found',
-            );
-            expect(context.container.textContent).toContain('View TEAM team');
+            expect(context.text()).toContain('⚠ PLAYER could not be found');
+            expect(context.text()).toContain('View TEAM team');
         });
 
         it('table headings', async () => {
@@ -168,11 +161,8 @@ describe('PlayerOverview', () => {
             );
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table.table')!;
-            expect(table).toBeTruthy();
-            const headings = Array.from(
-                table.querySelectorAll('thead tr th'),
-            ).map((th) => th.textContent);
+            const table = context.required('table.table');
+            const headings = table.all('thead tr th').map((th) => th.text());
             expect(headings).toEqual(['Date', 'Home', '', 'vs', '', 'Away']);
         });
 
@@ -219,12 +209,11 @@ describe('PlayerOverview', () => {
             );
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table.table')!;
-            expect(table).toBeTruthy();
-            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            const table = context.required('table.table');
+            const rows = table.all('tbody tr');
             expect(rows.length).toEqual(1);
-            const cells = Array.from(rows[0].querySelectorAll('td'));
-            expect(cells.map((td) => td.textContent)).toEqual([
+            const cells = rows[0].all('td');
+            expect(cells.map((td) => td.text())).toEqual([
                 renderDate(fixtureDate.date),
                 'HOME',
                 '3',
@@ -232,18 +221,15 @@ describe('PlayerOverview', () => {
                 '1',
                 'TEAM',
             ]);
-            const linkToFixture = cells[0].querySelector('a')!;
-            expect(linkToFixture).toBeTruthy();
-            expect(linkToFixture.href).toEqual(
-                `http://localhost/score/${fixtureId}`,
-            );
-            const linkToHomeTeam = cells[1].querySelector('a')!;
-            expect(linkToHomeTeam).toBeTruthy();
-            expect(linkToHomeTeam.href).toEqual(
+            expect(
+                cells[0].required('a').element<HTMLAnchorElement>().href,
+            ).toEqual(`http://localhost/score/${fixtureId}`);
+            expect(
+                cells[1].required('a').element<HTMLAnchorElement>().href,
+            ).toEqual(
                 `http://localhost/division/${division.name}/team:HOME/${season.name}`,
             );
-            const linkToAwayTeam = cells[5].querySelector('a')!;
-            expect(linkToAwayTeam).toBeFalsy();
+            expect(cells[5].optional('a')).toBeFalsy();
         });
 
         it('league fixture with no scores', async () => {
@@ -289,12 +275,11 @@ describe('PlayerOverview', () => {
             );
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table.table')!;
-            expect(table).toBeTruthy();
-            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            const table = context.required('table.table');
+            const rows = table.all('tbody tr');
             expect(rows.length).toEqual(1);
-            const cells = Array.from(rows[0].querySelectorAll('td'));
-            expect(cells.map((td) => td.textContent)).toEqual([
+            const cells = rows[0].all('td');
+            expect(cells.map((td) => td.text())).toEqual([
                 renderDate(fixtureDate.date),
                 'HOME',
                 '-',
@@ -302,18 +287,15 @@ describe('PlayerOverview', () => {
                 '-',
                 'TEAM',
             ]);
-            const linkToFixture = cells[0].querySelector('a')!;
-            expect(linkToFixture).toBeTruthy();
-            expect(linkToFixture.href).toEqual(
-                `http://localhost/score/${fixtureId}`,
-            );
-            const linkToHomeTeam = cells[1].querySelector('a')!;
-            expect(linkToHomeTeam).toBeTruthy();
-            expect(linkToHomeTeam.href).toEqual(
+            expect(
+                cells[0].required('a').element<HTMLAnchorElement>().href,
+            ).toEqual(`http://localhost/score/${fixtureId}`);
+            expect(
+                cells[1].required('a').element<HTMLAnchorElement>().href,
+            ).toEqual(
                 `http://localhost/division/${division.name}/team:HOME/${season.name}`,
             );
-            const linkToAwayTeam = cells[5].querySelector('a')!;
-            expect(linkToAwayTeam).toBeFalsy();
+            expect(cells[5].optional('a')).toBeFalsy();
         });
 
         it('league knockout fixture', async () => {
@@ -361,12 +343,11 @@ describe('PlayerOverview', () => {
             );
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table.table')!;
-            expect(table).toBeTruthy();
-            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            const table = context.required('table.table');
+            const rows = table.all('tbody tr');
             expect(rows.length).toEqual(1);
-            const cells = Array.from(rows[0].querySelectorAll('td'));
-            expect(cells.map((td) => td.textContent)).toEqual([
+            const cells = rows[0].all('td');
+            expect(cells.map((td) => td.text())).toEqual([
                 renderDate(fixtureDate.date),
                 'TEAM',
                 '3',
@@ -374,16 +355,13 @@ describe('PlayerOverview', () => {
                 '1',
                 'AWAY',
             ]);
-            const linkToFixture = cells[0].querySelector('a')!;
-            expect(linkToFixture).toBeTruthy();
-            expect(linkToFixture.href).toEqual(
-                `http://localhost/score/${fixtureId}`,
-            );
-            const linkToHomeTeam = cells[1].querySelector('a')!;
-            expect(linkToHomeTeam).toBeFalsy();
-            const linkToAwayTeam = cells[5].querySelector('a')!;
-            expect(linkToAwayTeam).toBeTruthy();
-            expect(linkToAwayTeam.href).toEqual(
+            expect(
+                cells[0].required('a').element<HTMLAnchorElement>().href,
+            ).toEqual(`http://localhost/score/${fixtureId}`);
+            expect(cells[1].optional('a')).toBeFalsy();
+            expect(
+                cells[5].required('a').element<HTMLAnchorElement>().href,
+            ).toEqual(
                 `http://localhost/division/${division.name}/team:AWAY/${season.name}`,
             );
         });
@@ -433,12 +411,11 @@ describe('PlayerOverview', () => {
             );
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table.table')!;
-            expect(table).toBeTruthy();
-            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            const table = context.required('table.table');
+            const rows = table.all('tbody tr');
             expect(rows.length).toEqual(1);
-            const cells = Array.from(rows[0].querySelectorAll('td'));
-            expect(cells.map((td) => td.textContent)).toEqual([
+            const cells = rows[0].all('td');
+            expect(cells.map((td) => td.text())).toEqual([
                 renderDate(fixtureDate.date),
                 'TEAM',
                 'P',
@@ -446,16 +423,13 @@ describe('PlayerOverview', () => {
                 'P',
                 'AWAY',
             ]);
-            const linkToFixture = cells[0].querySelector('a')!;
-            expect(linkToFixture).toBeTruthy();
-            expect(linkToFixture.href).toEqual(
-                `http://localhost/score/${fixtureId}`,
-            );
-            const linkToHomeTeam = cells[1].querySelector('a')!;
-            expect(linkToHomeTeam).toBeFalsy();
-            const linkToAwayTeam = cells[5].querySelector('a')!;
-            expect(linkToAwayTeam).toBeTruthy();
-            expect(linkToAwayTeam.href).toEqual(
+            expect(
+                cells[0].required('a').element<HTMLAnchorElement>().href,
+            ).toEqual(`http://localhost/score/${fixtureId}`);
+            expect(cells[1].optional('a')).toBeFalsy();
+            expect(
+                cells[5].required('a').element<HTMLAnchorElement>().href,
+            ).toEqual(
                 `http://localhost/division/${division.name}/team:AWAY/${season.name}`,
             );
         });
@@ -492,21 +466,18 @@ describe('PlayerOverview', () => {
             );
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table.table')!;
-            expect(table).toBeTruthy();
-            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            const table = context.required('table.table');
+            const rows = table.all('tbody tr');
             expect(rows.length).toEqual(1);
-            const cells = Array.from(rows[0].querySelectorAll('td'));
-            expect(cells.map((td) => td.textContent)).toEqual([
+            const cells = rows[0].all('td');
+            expect(cells.map((td) => td.text())).toEqual([
                 renderDate(fixtureDate.date),
                 'TYPE at ADDRESS',
                 '',
             ]);
-            const linkToFixture = cells[0].querySelector('a')!;
-            expect(linkToFixture).toBeTruthy();
-            expect(linkToFixture.href).toEqual(
-                `http://localhost/tournament/${tournamentId}`,
-            );
+            expect(
+                cells[0].required('a').element<HTMLAnchorElement>().href,
+            ).toEqual(`http://localhost/tournament/${tournamentId}`);
         });
 
         it('tournament fixture with winner', async () => {
@@ -547,21 +518,18 @@ describe('PlayerOverview', () => {
             );
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table.table')!;
-            expect(table).toBeTruthy();
-            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            const table = context.required('table.table');
+            const rows = table.all('tbody tr');
             expect(rows.length).toEqual(1);
-            const cells = Array.from(rows[0].querySelectorAll('td'));
-            expect(cells.map((td) => td.textContent)).toEqual([
+            const cells = rows[0].all('td');
+            expect(cells.map((td) => td.text())).toEqual([
                 renderDate(fixtureDate.date),
                 'TYPE at ADDRESS',
                 'Winner: WINNER',
             ]);
-            const linkToFixture = cells[0].querySelector('a')!;
-            expect(linkToFixture).toBeTruthy();
-            expect(linkToFixture.href).toEqual(
-                `http://localhost/tournament/${tournamentId}`,
-            );
+            expect(
+                cells[0].required('a').element<HTMLAnchorElement>().href,
+            ).toEqual(`http://localhost/tournament/${tournamentId}`);
         });
 
         it('excludes proposed tournament fixtures', async () => {
@@ -585,9 +553,8 @@ describe('PlayerOverview', () => {
             );
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table.table')!;
-            expect(table).toBeTruthy();
-            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            const table = context.required('table.table');
+            const rows = table.all('tbody tr');
             expect(rows.length).toEqual(0);
         });
     });
