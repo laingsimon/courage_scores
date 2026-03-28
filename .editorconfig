@@ -1,0 +1,6 @@
+﻿[*.{cs,vb}]
+
+# see other rules in https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/
+
+# IDE0005: Remove unnecessary imports
+dotnet_diagnostic.IDE0005.severity = warning
