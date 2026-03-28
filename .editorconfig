@@ -31,3 +31,9 @@ dotnet_diagnostic.IDE0052.severity = warning
 
 # IDE0060: Remove unused parameter
 dotnet_diagnostic.IDE0060.severity = warning
+
+# IDE0065: Using statement placement
+dotnet_diagnostic.IDE0065.severity = warning
+
+# IDE0079: Remove unnecessary suppression
+dotnet_diagnostic.IDE0079.severity = warning
