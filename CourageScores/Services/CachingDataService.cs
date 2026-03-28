@@ -108,7 +108,9 @@ public class CachingDataService<TModel, TDto> : IGenericDataService<TModel, TDto
         private readonly string _model;
         private readonly string? _where;
         // ReSharper disable once UnusedMember.Local
+#pragma warning disable IDE0052
         private readonly DateTime _created = DateTime.UtcNow;
+#pragma warning restore IDE0052
 
         public CacheKey(Guid? id, string? where)
         {

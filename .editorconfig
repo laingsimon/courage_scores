@@ -2,5 +2,32 @@
 
 # see other rules in https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/
 
+# IDE0004: Remove unnecessary cast
+dotnet_diagnostic.IDE0004.severity = warning
+
 # IDE0005: Remove unnecessary imports
 dotnet_diagnostic.IDE0005.severity = warning
+
+# IDE0007: Use var instead of explicit type
+dotnet_diagnostic.IDE0007.severity = warning
+
+# IDE0011: Prefer braces
+dotnet_diagnostic.IDE0011.severity = warning
+
+# IDE0044: Add readonly modifier
+dotnet_diagnostic.IDE0044.severity = warning
+
+# IDE0047: Remove unnecessary parenthesis
+dotnet_diagnostic.IDE0047.severity = warning
+
+# IDE0049: Use language keywords rather than bcl type names
+dotnet_diagnostic.IDE0049.severity = warning
+
+# IDE0051: Remove unused private member
+dotnet_diagnostic.IDE0051.severity = warning
+
+# IDE0052: Remove unread private member
+dotnet_diagnostic.IDE0052.severity = warning
+
+# IDE0060: Remove unused parameter
+dotnet_diagnostic.IDE0060.severity = warning

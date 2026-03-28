@@ -60,7 +60,7 @@ public class UploadPhotoCommand<T> : IUpdateCommand<T, T>
 
         var existingPhotosForUser = model.Photos.Where(p => p.Author == user.Name).ToArray();
 
-        if ((model.Photos.Count - existingPhotosForUser.Length) + 1 > _settings.MaxPhotoCountPerEntity)
+        if (model.Photos.Count - existingPhotosForUser.Length + 1 > _settings.MaxPhotoCountPerEntity)
         {
             return new ActionResult<T>
             {
