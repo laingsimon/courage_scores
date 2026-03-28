@@ -47,7 +47,7 @@ public class GameAdapterTests
     private Mock<IUserService> _userService = null!;
     private GameAdapter _adapter = null!;
     private UserDto? _user;
-    private MockAdapter<GameMatch,GameMatchDto> _matchAdapter = null!;
+    private MockAdapter<GameMatch, GameMatchDto> _matchAdapter = null!;
     private DateTimeOffset _now;
     private Mock<TimeProvider> _clock = null!;
     private Mock<Random> _random = null!;

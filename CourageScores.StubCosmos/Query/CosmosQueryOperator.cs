@@ -52,6 +52,6 @@ internal class CosmosQueryOperator : IQueryFilterOperator
             throw new InvalidOperationException($"Unsupported type (could not find a static Parse method): {typeof(T).Name} - '{token.Content}'");
         }
 
-        return parseMethod.Invoke(null, [ token.Content ]);
+        return parseMethod.Invoke(null, [token.Content]);
     }
 }

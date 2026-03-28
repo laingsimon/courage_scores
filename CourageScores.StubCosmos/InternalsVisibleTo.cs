@@ -1,3 +1,3 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly:InternalsVisibleTo("CourageScores.StubCosmos.Tests")]
+[assembly: InternalsVisibleTo("CourageScores.StubCosmos.Tests")]

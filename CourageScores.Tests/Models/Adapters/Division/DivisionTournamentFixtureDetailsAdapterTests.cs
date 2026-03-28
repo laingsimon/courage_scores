@@ -23,7 +23,7 @@ public class DivisionTournamentFixtureDetailsAdapterTests
     private DivisionTournamentFixtureDetailsAdapter _adapter = null!;
     private Mock<ISimpleAdapter<TournamentSide, TournamentSideDto>> _tournamentSideAdapter = null!;
     private Mock<ITournamentTypeResolver> _tournamentTypeResolver = null!;
-    private Mock<IAdapter<TournamentMatch,TournamentMatchDto>> _tournamentMatchAdapter = null!;
+    private Mock<IAdapter<TournamentMatch, TournamentMatchDto>> _tournamentMatchAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()

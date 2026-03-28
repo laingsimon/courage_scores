@@ -50,7 +50,7 @@ public static class GameAdapterTestHelpers
         };
     }
 
-    internal static GameMatch CreateMatch(this MockAdapter<GameMatch,GameMatchDto> matchAdapter, int matchNo)
+    internal static GameMatch CreateMatch(this MockAdapter<GameMatch, GameMatchDto> matchAdapter, int matchNo)
     {
         var playerCount = 1;
         if (matchNo == 8)
@@ -63,7 +63,7 @@ public static class GameAdapterTestHelpers
         }
 
         var players = Enumerable.Range(1, playerCount)
-            .Select(playerNo => new GamePlayer { Name = $"Player {playerNo} of {playerCount}"})
+            .Select(playerNo => new GamePlayer { Name = $"Player {playerNo} of {playerCount}" })
             .ToArray();
 
         var match = new GameMatchBuilder()

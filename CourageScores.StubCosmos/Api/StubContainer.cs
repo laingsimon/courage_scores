@@ -17,7 +17,7 @@ internal class StubContainer(string id, string configuredKeyPath) : Unimplemente
     private readonly ConcurrentDictionary<string, object> _data = new(StringComparer.OrdinalIgnoreCase);
 
     private StubContainer(string id, string configuredKeyPath, ConcurrentDictionary<string, object> data, ConcurrentDictionary<string, Dictionary<string, object>> snapshots)
-        :this(id, configuredKeyPath)
+        : this(id, configuredKeyPath)
     {
         _data = data;
         _snapshots = snapshots;

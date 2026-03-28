@@ -7,7 +7,7 @@ public class HighestScoresVisitor : AllThrowsSaygVisitor
     private readonly int _maxCount;
 
     public HighestScoresVisitor(int maxCount = 10)
-        :base("HighestScores")
+        : base("HighestScores")
     {
         _maxCount = maxCount;
     }
