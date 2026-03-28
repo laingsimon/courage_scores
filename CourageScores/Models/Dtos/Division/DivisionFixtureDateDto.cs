@@ -76,7 +76,7 @@ public class DivisionFixtureDateDto
                 Title = $"🎯 {firstFixture.Host}{(string.IsNullOrEmpty(hostLegsWon) ? "" : $" {hostLegsWon}")} - {(string.IsNullOrEmpty(opponentLegsWon) ? "" : $"{opponentLegsWon} ")}{firstFixture.Opponent}",
                 Id = firstFixture.Id,
                 Url = new Uri($"/live/superleague/?date={Date:yyyy-MM-dd}", UriKind.Relative),
-                Categories = {"Superleague"},
+                Categories = { "Superleague" },
                 Description = description,
                 Confirmed = hostVsOpponent.All(f => !f.Proposed),
                 Location = firstFixture.Address,

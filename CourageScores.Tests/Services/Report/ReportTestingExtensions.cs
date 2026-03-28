@@ -34,7 +34,7 @@ public static class ReportTestingExtensions
         public string? PlayerName { get; }
 
         public PlayerLink(PlayerDetails player, Guid playerId, string? divisionName = null)
-            :base(player, divisionName)
+            : base(player, divisionName)
         {
             PlayerId = playerId;
             PlayerName = player.PlayerName;

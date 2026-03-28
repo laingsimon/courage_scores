@@ -5,7 +5,7 @@ using CourageScores.Services.Identity;
 namespace CourageScores.Services.Command;
 
 public class UploadPhotoCommand<T> : IUpdateCommand<T, T>
-    where T: IPhotoEntity
+    where T : IPhotoEntity
 {
     private readonly IUserService _userService;
     private readonly IPhotoService _photoService;
@@ -88,7 +88,7 @@ public class UploadPhotoCommand<T> : IUpdateCommand<T, T>
             return result.As<T>();
         }
 
-        model.Photos = model.Photos.Except(existingPhotosForUser).Concat(new[] {result.Result!}).ToList();
+        model.Photos = model.Photos.Except(existingPhotosForUser).Concat([result.Result!]).ToList();
 
         return new ActionResult<T>
         {

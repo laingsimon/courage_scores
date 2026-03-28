@@ -31,10 +31,10 @@ public class FeatureServiceTests
     private FeatureService _service = null!;
     private Mock<IUserService> _userService = null!;
     private Mock<IGenericRepository<ConfiguredFeature>> _repository = null!;
-    private MockAdapter<ConfiguredFeature,ConfiguredFeatureDto> _adapter = null!;
+    private MockAdapter<ConfiguredFeature, ConfiguredFeatureDto> _adapter = null!;
     private Mock<IFeatureLookup> _featureLookup = null!;
-    private Mock<ISimpleOnewayAdapter<ReconfigureFeatureDto,ConfiguredFeature>> _reconfigureAdapter = null!;
-    private Mock<ISimpleOnewayAdapter<Guid,ConfiguredFeatureDto>> _unconfiguredAdapter = null!;
+    private Mock<ISimpleOnewayAdapter<ReconfigureFeatureDto, ConfiguredFeature>> _reconfigureAdapter = null!;
+    private Mock<ISimpleOnewayAdapter<Guid, ConfiguredFeatureDto>> _unconfiguredAdapter = null!;
     private Mock<TimeProvider> _clock = null!;
     private UserDto? _user;
     private ConfiguredFeature _untypedFeature = new ConfiguredFeature

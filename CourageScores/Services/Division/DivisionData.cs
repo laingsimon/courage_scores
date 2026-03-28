@@ -52,7 +52,7 @@ public class DivisionData
         public double PlayerWinPercentage => GetScores(1).MatchesPlayed == 0
             ? 0
             // ReSharper disable once ArrangeRedundantParentheses
-            : Math.Round((double)GetScores(1).MatchesWon/GetScores(1).MatchesPlayed * 100, 2);
+            : Math.Round((double)GetScores(1).MatchesWon / GetScores(1).MatchesPlayed * 100, 2);
 
         public Dictionary<int, PlayerPlayScore> PlayerPlayCount { get; } = new();
 
@@ -89,7 +89,7 @@ public class DivisionData
         public int CalculatePoints()
         {
             // ReSharper disable ArrangeRedundantParentheses
-            return (FixturesWon*2) + (FixturesDrawn*1);
+            return (FixturesWon * 2) + (FixturesDrawn * 1);
             // ReSharper restore ArrangeRedundantParentheses
         }
     }

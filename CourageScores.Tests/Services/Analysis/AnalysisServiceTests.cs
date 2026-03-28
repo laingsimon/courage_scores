@@ -17,8 +17,8 @@ public class AnalysisServiceTests
 {
     private readonly CancellationToken _token = CancellationToken.None;
     private AnalysisService _service = null!;
-    private Mock<IGenericDataService<TournamentGame,TournamentGameDto>> _tournamentService = null!;
-    private Mock<IGenericDataService<RecordedScoreAsYouGo,RecordedScoreAsYouGoDto>> _saygService = null!;
+    private Mock<IGenericDataService<TournamentGame, TournamentGameDto>> _tournamentService = null!;
+    private Mock<IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>> _saygService = null!;
     private Mock<ISaygVisitorFactory> _visitorFactory = null!;
     private Mock<ISaygVisitor> _visitor = null!;
     private Mock<IUserService> _userService = null!;
@@ -86,7 +86,7 @@ public class AnalysisServiceTests
         var tournamentId = Guid.NewGuid();
         var request = new AnalysisRequestDto
         {
-            TournamentIds = [ tournamentId ],
+            TournamentIds = [tournamentId],
         };
         _tournamentService.Setup(s => s.Get(tournamentId, _token)).ReturnsAsync(() => null);
 
@@ -109,7 +109,7 @@ public class AnalysisServiceTests
         };
         var request = new AnalysisRequestDto
         {
-            TournamentIds = [ tournament1.Id, tournament2.Id ],
+            TournamentIds = [tournament1.Id, tournament2.Id],
         };
         _tournamentService.Setup(s => s.Get(tournament1.Id, source.Token)).Callback(() => source.Cancel()).ReturnsAsync(tournament1);
         _tournamentService.Setup(s => s.Get(tournament2.Id, source.Token)).ReturnsAsync(tournament2);
@@ -132,7 +132,7 @@ public class AnalysisServiceTests
         };
         var request = new AnalysisRequestDto
         {
-            TournamentIds = [ missingTournamentId, tournament.Id ],
+            TournamentIds = [missingTournamentId, tournament.Id],
         };
         _tournamentService.Setup(s => s.Get(missingTournamentId, _token)).ReturnsAsync(() => null);
         _tournamentService.Setup(s => s.Get(tournament.Id, _token)).ReturnsAsync(tournament);
@@ -149,7 +149,7 @@ public class AnalysisServiceTests
         var missingTournamentId = Guid.NewGuid();
         var request = new AnalysisRequestDto
         {
-            TournamentIds = [ missingTournamentId ],
+            TournamentIds = [missingTournamentId],
         };
         _tournamentService.Setup(s => s.Get(missingTournamentId, _token)).ReturnsAsync(() => null);
 
@@ -181,7 +181,7 @@ public class AnalysisServiceTests
         };
         var request = new AnalysisRequestDto
         {
-            TournamentIds = [ tournament.Id, secondTournament.Id ],
+            TournamentIds = [tournament.Id, secondTournament.Id],
         };
         _tournamentService.Setup(s => s.Get(tournament.Id, _token)).ReturnsAsync(tournament);
         _tournamentService.Setup(s => s.Get(secondTournament.Id, _token)).ReturnsAsync(secondTournament);
@@ -203,7 +203,7 @@ public class AnalysisServiceTests
         };
         var request = new AnalysisRequestDto
         {
-            TournamentIds = [ missingTournamentId, tournament.Id ],
+            TournamentIds = [missingTournamentId, tournament.Id],
         };
         _tournamentService.Setup(s => s.Get(missingTournamentId, _token)).ReturnsAsync(() => null);
         _tournamentService.Setup(s => s.Get(tournament.Id, _token)).ReturnsAsync(tournament);
@@ -233,7 +233,7 @@ public class AnalysisServiceTests
         };
         var request = new AnalysisRequestDto
         {
-            TournamentIds = [ tournament.Id ],
+            TournamentIds = [tournament.Id],
         };
         _tournamentService.Setup(s => s.Get(tournament.Id, _token)).ReturnsAsync(tournament);
         _saygService.Setup(s => s.Get(It.IsAny<Guid>(), _token)).Throws(new InvalidOperationException("Any old exception"));
@@ -252,7 +252,7 @@ public class AnalysisServiceTests
         };
         var request = new AnalysisRequestDto
         {
-            TournamentIds = [ tournament.Id ],
+            TournamentIds = [tournament.Id],
         };
         _tournamentService.Setup(s => s.Get(tournament.Id, _token)).ReturnsAsync(tournament);
 

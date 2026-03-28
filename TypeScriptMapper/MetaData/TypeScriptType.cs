@@ -13,7 +13,7 @@ public class TypeScriptType : ITypeScriptType, IImportableType
     /// <summary>
     /// The typescript name for the type, in camel case
     /// </summary>
-    public string Name { get; set;} = null!;
+    public string Name { get; set; } = null!;
 
     /// <summary>
     /// Whether this type requires any import

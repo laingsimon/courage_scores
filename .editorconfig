@@ -29,6 +29,17 @@ dotnet_diagnostic.IDE0051.severity = warning
 # IDE0052: Remove unread private member
 dotnet_diagnostic.IDE0052.severity = warning
 
+# IDE0055: Code style rules
+dotnet_sort_system_directives_first = true
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_new_line_before_members_in_object_initializers = true
+csharp_new_line_before_members_in_anonymous_types = true
+csharp_new_line_between_query_expression_clauses = true
+dotnet_diagnostic.IDE0055.severity = warning
+
 # IDE0060: Remove unused parameter
 dotnet_diagnostic.IDE0060.severity = warning
 

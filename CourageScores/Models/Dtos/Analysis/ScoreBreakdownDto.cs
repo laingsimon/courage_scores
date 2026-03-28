@@ -41,7 +41,7 @@ public class ScoreBreakdownDto : IEquatable<ScoreBreakdownDto>
             return true;
         }
 
-        return obj.GetType() == GetType() && Equals((ScoreBreakdownDto) obj);
+        return obj.GetType() == GetType() && Equals((ScoreBreakdownDto)obj);
     }
 
     public override int GetHashCode()

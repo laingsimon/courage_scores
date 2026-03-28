@@ -41,7 +41,7 @@ public class NamedBreakdownDto : IEquatable<NamedBreakdownDto>
             return true;
         }
 
-        return obj.GetType() == GetType() && Equals((NamedBreakdownDto) obj);
+        return obj.GetType() == GetType() && Equals((NamedBreakdownDto)obj);
     }
 
     public override int GetHashCode()
