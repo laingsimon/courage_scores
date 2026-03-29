@@ -511,9 +511,7 @@ describe('LiveSayg', () => {
                 '/live/unknown',
             );
 
-            expect(context.html()).toContain(
-                'Specify the ids for the unknown',
-            );
+            expect(context.html()).toContain('Specify the ids for the unknown');
         });
 
         it('redirects to type', async () => {
