@@ -303,9 +303,9 @@ describe('LiveSayg', () => {
             await render(tournament);
 
             expect(requestedTournamentId).toEqual([tournament.id]);
-            expect(context.container.innerHTML).toContain('HOST');
-            expect(context.container.innerHTML).toContain('OPPONENT');
-            expect(context.container.innerHTML).toContain('BOARD 1');
+            expect(context.html()).toContain('HOST');
+            expect(context.html()).toContain('OPPONENT');
+            expect(context.html()).toContain('BOARD 1');
         });
 
         it('renders player initial and last names', async () => {
@@ -319,8 +319,8 @@ describe('LiveSayg', () => {
 
             await render(tournament);
 
-            expect(context.container.innerHTML).toContain('A N PLAYER');
-            expect(context.container.innerHTML).toContain('BARNEY');
+            expect(context.html()).toContain('A N PLAYER');
+            expect(context.html()).toContain('BARNEY');
         });
 
         it('renders singles before pairs', async () => {
@@ -376,10 +376,10 @@ describe('LiveSayg', () => {
                 tournament1.id,
                 tournament2.id,
             ]);
-            expect(context.container.innerHTML).toContain('HOST');
-            expect(context.container.innerHTML).toContain('OPPONENT');
-            expect(context.container.innerHTML).toContain('BOARD 1');
-            expect(context.container.innerHTML).toContain('BOARD 2');
+            expect(context.html()).toContain('HOST');
+            expect(context.html()).toContain('OPPONENT');
+            expect(context.html()).toContain('BOARD 1');
+            expect(context.html()).toContain('BOARD 2');
         });
 
         it('renders match in full screen', async () => {
@@ -406,9 +406,9 @@ describe('LiveSayg', () => {
             await render(tournament);
 
             expect(requestedTournamentId).toEqual([tournament.id]);
-            expect(context.container.innerHTML).toContain('HOST');
-            expect(context.container.innerHTML).toContain('OPPONENT');
-            expect(context.container.innerHTML).toContain('BOARD 1');
+            expect(context.html()).toContain('HOST');
+            expect(context.html()).toContain('OPPONENT');
+            expect(context.html()).toContain('BOARD 1');
         });
 
         it('averages and scores for superleague tournaments (home winner)', async () => {
@@ -511,7 +511,7 @@ describe('LiveSayg', () => {
                 '/live/unknown',
             );
 
-            expect(context.container.innerHTML).toContain(
+            expect(context.html()).toContain(
                 'Specify the ids for the unknown',
             );
         });
@@ -545,7 +545,7 @@ describe('LiveSayg', () => {
                 '/live/superleague/',
             );
 
-            expect(context.container.innerHTML).toContain(
+            expect(context.html()).toContain(
                 'Could not find any superleague divisions',
             );
         });
@@ -562,7 +562,7 @@ describe('LiveSayg', () => {
                 '/live/superleague',
             );
 
-            expect(context.container.innerHTML).toContain(
+            expect(context.html()).toContain(
                 `Could not find any superleague tournaments on ${renderDate(today.toString())}`,
             );
         });
@@ -597,7 +597,7 @@ describe('LiveSayg', () => {
                 '/live/superleague/?date=2025-01-01',
             );
 
-            expect(context.container.innerHTML).toContain(
+            expect(context.html()).toContain(
                 `Could not find any superleague tournaments on ${renderDate('2025-01-01')}`,
             );
         });
@@ -652,8 +652,8 @@ describe('LiveSayg', () => {
 
             await context.button('Refresh').click();
 
-            expect(context.container.textContent).not.toContain('BOARD 1');
-            expect(context.container.textContent).toContain('BOARD UPDATED');
+            expect(context.text()).not.toContain('BOARD 1');
+            expect(context.text()).toContain('BOARD UPDATED');
         });
 
         it('can remove superleague tournaments', async () => {
@@ -757,15 +757,15 @@ describe('LiveSayg', () => {
                 .type('BOARD 1.1');
 
             await render(tournament1);
-            expect(context.container.innerHTML).toContain('BOARD 1.0');
-            expect(context.container.innerHTML).toContain('HOST 1.0');
-            expect(context.container.innerHTML).toContain('OPPONENT 1.0');
+            expect(context.html()).toContain('BOARD 1.0');
+            expect(context.html()).toContain('HOST 1.0');
+            expect(context.html()).toContain('OPPONENT 1.0');
 
             await sendUpdate(updatedTournament1.build());
 
-            expect(context.container.innerHTML).toContain('BOARD 1.1');
-            expect(context.container.innerHTML).toContain('HOST 1.1');
-            expect(context.container.innerHTML).toContain('OPPONENT 1.1');
+            expect(context.html()).toContain('BOARD 1.1');
+            expect(context.html()).toContain('HOST 1.1');
+            expect(context.html()).toContain('OPPONENT 1.1');
         });
 
         it('can apply live update for one match', async () => {
@@ -861,30 +861,30 @@ describe('LiveSayg', () => {
                 .type('BOARD 2.1');
 
             await render(tournament1, tournament2);
-            expect(context.container.innerHTML).toContain('BOARD 1.0');
-            expect(context.container.innerHTML).toContain('HOST 1.0');
-            expect(context.container.innerHTML).toContain('OPPONENT 1.0');
-            expect(context.container.innerHTML).toContain('BOARD 2.0');
-            expect(context.container.innerHTML).toContain('HOST 2.0');
-            expect(context.container.innerHTML).toContain('OPPONENT 2.0');
+            expect(context.html()).toContain('BOARD 1.0');
+            expect(context.html()).toContain('HOST 1.0');
+            expect(context.html()).toContain('OPPONENT 1.0');
+            expect(context.html()).toContain('BOARD 2.0');
+            expect(context.html()).toContain('HOST 2.0');
+            expect(context.html()).toContain('OPPONENT 2.0');
 
             await sendUpdate(updatedTournament1);
 
-            expect(context.container.innerHTML).toContain('BOARD 1.1');
-            expect(context.container.innerHTML).toContain('HOST 1.1');
-            expect(context.container.innerHTML).toContain('OPPONENT 1.1');
-            expect(context.container.innerHTML).toContain('BOARD 2.0');
-            expect(context.container.innerHTML).toContain('HOST 2.0');
-            expect(context.container.innerHTML).toContain('OPPONENT 2.0');
+            expect(context.html()).toContain('BOARD 1.1');
+            expect(context.html()).toContain('HOST 1.1');
+            expect(context.html()).toContain('OPPONENT 1.1');
+            expect(context.html()).toContain('BOARD 2.0');
+            expect(context.html()).toContain('HOST 2.0');
+            expect(context.html()).toContain('OPPONENT 2.0');
 
             await sendUpdate(updatedTournament2.build());
 
-            expect(context.container.innerHTML).toContain('BOARD 1.1');
-            expect(context.container.innerHTML).toContain('HOST 1.1');
-            expect(context.container.innerHTML).toContain('OPPONENT 1.1');
-            expect(context.container.innerHTML).toContain('BOARD 2.1');
-            expect(context.container.innerHTML).toContain('HOST 2.1');
-            expect(context.container.innerHTML).toContain('OPPONENT 2.1');
+            expect(context.html()).toContain('BOARD 1.1');
+            expect(context.html()).toContain('HOST 1.1');
+            expect(context.html()).toContain('OPPONENT 1.1');
+            expect(context.html()).toContain('BOARD 2.1');
+            expect(context.html()).toContain('HOST 2.1');
+            expect(context.html()).toContain('OPPONENT 2.1');
         });
 
         it('subscribes to sayg when it is added to a match', async () => {
