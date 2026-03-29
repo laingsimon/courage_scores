@@ -123,12 +123,12 @@ function Remove-Timestamp([Parameter(ValueFromPipeline)] $Line)
 function Get-DotNetFailures([Parameter(ValueFromPipeline)] $Path)
 {
     process {
-        $RelevantLines = Get-LinesBetween -Path $Path -InclusiveStart -InclusiveEnd -Start "*Starting test execution*" -End "*Total: *" `
+        $RelevantLines = Get-LinesBetween -Path $Path -InclusiveStart -InclusiveEnd -Start "*Test run for*" -End "*coverlet*" `
             | Remove-Timestamp `
             | Select-String -NotMatch -Pattern "Results File" `
             | Select-String -NotMatch -Pattern "at NUnit.Framework.Internal."
 
-        Write-Output "#### DotNet tests:`n$($CodeBlock)`n$($RelevantLines -join "`n")`n$($CodeBlock)"
+        Write-Output "#### Dotnet tests:`n$($CodeBlock)`n$($RelevantLines -join "`n")`n$($CodeBlock)"
     }
 }
 
