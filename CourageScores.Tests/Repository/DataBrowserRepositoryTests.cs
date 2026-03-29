@@ -19,7 +19,7 @@ public class DataBrowserRepositoryTests
         var database = new Mock<Database>();
         var container = new ContainerProperties
         {
-            Id = "name",
+            Id = name,
         };
         var repository = new DataBrowserRepository<object>(database.Object);
         var containerIterator = new StubFeedIterator<ContainerProperties>(container);

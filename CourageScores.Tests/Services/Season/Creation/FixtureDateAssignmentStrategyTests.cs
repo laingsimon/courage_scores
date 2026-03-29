@@ -263,7 +263,7 @@ public class FixtureDateAssignmentStrategyTests
         Assert.That(context.Result.Result!.Divisions!.Count, Is.EqualTo(1));
         Assert.That(
             context.Result.Errors,
-            Is.EquivalentTo([ "Some fixtures will be created after the season ends. You need to update the season end-date to see them. The last fixture was created on 08 Jan 2001" ]));
+            Is.EquivalentTo(["Some fixtures will be created after the season ends. You need to update the season end-date to see them. The last fixture was created on 08 Jan 2001"]));
     }
 
     private ProposalContext ProposalContext(IReadOnlyCollection<DivisionDataDto> divisions, TemplateDto template,

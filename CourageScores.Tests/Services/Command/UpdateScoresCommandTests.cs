@@ -192,9 +192,9 @@ public class UpdateScoresCommandTests
         _cacheFlags.AssertCacheEviction(divisionId: null, seasonId: null);
     }
 
-    [TestCase(false, false)]
-    [TestCase(true, true)]
-    public async Task ApplyUpdate_WhenPermittedToManageScores_UpdatesResultsAndReturnsSuccessful(bool permittedToRecordScoresAsYouGo, bool saygSet)
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task ApplyUpdate_WhenPermittedToManageScores_UpdatesResultsAndReturnsSuccessful(bool permittedToRecordScoresAsYouGo)
     {
         _user.SetAccess(recordScoresAsYouGo: permittedToRecordScoresAsYouGo);
         _scores.AddAccolades(HomePlayer, AwayPlayer, AwayWinnerMatch);

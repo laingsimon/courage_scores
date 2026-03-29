@@ -8,7 +8,7 @@ public class MockSimpleAdapter<TModel, TDto> : ISimpleAdapter<TModel, TDto>
     private readonly TDto[] _dto;
 
     public MockSimpleAdapter(TModel model, TDto dto)
-        :this([model], [dto])
+        : this([model], [dto])
     { }
 
     public MockSimpleAdapter(TModel[] model, TDto[] dto)

@@ -279,7 +279,7 @@ public class WebSocketContractTests
 
         await _contract.Accept(_token);
 
-       _processor.Verify(p => p.PublishUpdate(_contract, data.Id, LiveDataType.Sayg, It.IsAny<JObject>(), _token));
+        _processor.Verify(p => p.PublishUpdate(_contract, data.Id, LiveDataType.Sayg, It.IsAny<JObject>(), _token));
     }
 
     [Test]
