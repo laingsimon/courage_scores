@@ -3,6 +3,7 @@
     brandingProps,
     cleanUp,
     ErrorState,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -36,10 +37,8 @@ describe('MatchLogTableHeading', () => {
         );
     }
 
-    function getRowContent(row: HTMLTableRowElement): string[] {
-        return Array.from(row.querySelectorAll('th')).map(
-            (th) => th.textContent!,
-        );
+    function getRowContent(row: IComponent): string[] {
+        return row.all('th').map((th) => th.text());
     }
 
     describe('renders', () => {
@@ -50,9 +49,7 @@ describe('MatchLogTableHeading', () => {
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(
-                context.container.querySelectorAll('tr'),
-            ) as HTMLTableRowElement[];
+            const rows = context.all('tr');
             expect(rows.length).toEqual(2);
             expect(getRowContent(rows[0])).toEqual([
                 'TEAM',
@@ -87,11 +84,11 @@ describe('MatchLogTableHeading', () => {
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(
-                context.container.querySelectorAll('tr'),
-            ) as HTMLTableRowElement[];
+            const rows = context.all('tr');
             expect(rows.length).toEqual(2);
-            const cells = Array.from(rows[0].querySelectorAll('th'));
+            const cells = rows[0]
+                .all('th')
+                .map((c) => c.element<HTMLTableCellElement>());
             expect(cells.length).toEqual(4);
             expect(cells[0].colSpan).toEqual(9);
             expect(cells[1].colSpan).toEqual(2);

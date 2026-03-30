@@ -3,6 +3,7 @@
     brandingProps,
     cleanUp,
     ErrorState,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -35,7 +36,7 @@ describe('MatchLogRow', () => {
         );
     }
 
-    function explainRow(cells: HTMLTableCellElement[], leg: number) {
+    function explainRow(cells: IComponent[], leg: number) {
         // see MatchLogTableHeading
         const headings =
             leg === 1
@@ -61,7 +62,7 @@ describe('MatchLogRow', () => {
                 index >= headings.length
                     ? `T${index - headings.length + 1}`
                     : headings[index];
-            detail[name] = cell.textContent;
+            detail[name] = cell.text();
         });
 
         return detail;
@@ -94,7 +95,7 @@ describe('MatchLogRow', () => {
             });
 
             reportedError.verifyNoError();
-            expect(context.container.querySelector('tr')).toBeFalsy();
+            expect(context.optional('tr')).toBeFalsy();
         });
 
         it('when a winner - first leg', async () => {
@@ -111,8 +112,7 @@ describe('MatchLogRow', () => {
             });
 
             reportedError.verifyNoError();
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            expect(explainRow(cells, 1)).toEqual({
+            expect(explainRow(context.all('td'), 1)).toEqual({
                 Player: 'PLAYER',
                 Leg: '1',
                 AD: '14',
@@ -132,9 +132,7 @@ describe('MatchLogRow', () => {
                 T5: '101',
                 T6: '',
             });
-            expect(context.container.querySelector('tr')!.className).toEqual(
-                'bg-winner',
-            );
+            expect(context.required('tr').className()).toEqual('bg-winner');
         });
 
         it('when a winner - second leg', async () => {
@@ -150,8 +148,7 @@ describe('MatchLogRow', () => {
             });
 
             reportedError.verifyNoError();
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            expect(explainRow(cells, 2)).toEqual({
+            expect(explainRow(context.all('td'), 2)).toEqual({
                 Leg: '2',
                 AD: '14',
                 GS: '101',
@@ -168,9 +165,7 @@ describe('MatchLogRow', () => {
                 T5: '101',
                 T6: '',
             });
-            expect(context.container.querySelector('tr')!.className).toEqual(
-                '',
-            );
+            expect(context.required('tr').className()).toEqual('');
         });
 
         it('when not a winner - first leg', async () => {
@@ -187,8 +182,7 @@ describe('MatchLogRow', () => {
             });
 
             reportedError.verifyNoError();
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            expect(explainRow(cells, 1)).toEqual({
+            expect(explainRow(context.all('td'), 1)).toEqual({
                 Player: 'PLAYER',
                 Leg: '1',
                 AD: '3',
@@ -208,9 +202,7 @@ describe('MatchLogRow', () => {
                 T5: '',
                 T6: '',
             });
-            expect(context.container.querySelector('tr')!.className).toEqual(
-                '',
-            );
+            expect(context.required('tr').className()).toEqual('');
         });
 
         it('when not a winner - second leg', async () => {
@@ -226,8 +218,7 @@ describe('MatchLogRow', () => {
             });
 
             reportedError.verifyNoError();
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            expect(explainRow(cells, 2)).toEqual({
+            expect(explainRow(context.all('td'), 2)).toEqual({
                 Leg: '2',
                 AD: '3',
                 GS: '',
@@ -244,9 +235,7 @@ describe('MatchLogRow', () => {
                 T5: '',
                 T6: '',
             });
-            expect(context.container.querySelector('tr')!.className).toEqual(
-                '',
-            );
+            expect(context.required('tr').className()).toEqual('');
         });
     });
 });

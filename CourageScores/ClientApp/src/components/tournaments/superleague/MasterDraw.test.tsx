@@ -308,20 +308,22 @@ describe('MasterDraw', () => {
                 }),
             );
 
-            const rows = Array.from(
-                context.container.querySelectorAll('table.table tbody tr'),
-            );
+            const rows = context.all('table.table tbody tr');
             expect(rows.length).toEqual(2);
-            expect(
-                Array.from(rows[0].querySelectorAll('td')).map(
-                    (td) => td.textContent,
-                ),
-            ).toEqual(['1', 'A', 'v', 'B', '']);
-            expect(
-                Array.from(rows[1].querySelectorAll('td')).map(
-                    (td) => td.textContent,
-                ),
-            ).toEqual(['2', 'C', 'v', 'D', '']);
+            expect(rows[0].all('td').map((td) => td.text())).toEqual([
+                '1',
+                'A',
+                'v',
+                'B',
+                '',
+            ]);
+            expect(rows[1].all('td').map((td) => td.text())).toEqual([
+                '2',
+                'C',
+                'v',
+                'D',
+                '',
+            ]);
         });
 
         it('tournament properties', async () => {
@@ -880,7 +882,7 @@ describe('MasterDraw', () => {
                 canRecordSayg,
             );
 
-            expect(context.container.innerHTML).not.toContain('🗑️');
+            expect(context.html()).not.toContain('🗑️');
         });
 
         it('can open sayg dialog when permitted', async () => {

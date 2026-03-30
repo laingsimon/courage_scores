@@ -77,11 +77,11 @@ describe('About', () => {
 
             const branchRow = getRow('Version');
             const cell = branchRow.required('td');
-            const link = cell.required('a').element<HTMLAnchorElement>();
-            expect(link.href).toEqual(
+            const link = cell.required('a');
+            expect(link.element<HTMLAnchorElement>().href).toEqual(
                 `https://github.com/laingsimon/courage_scores/commit/0123456789abcdef`,
             );
-            expect(link.textContent).toEqual('my PR title (01234567)');
+            expect(link.text()).toEqual('my PR title (01234567)');
         });
 
         it('shows version with PR link', async () => {
@@ -98,11 +98,11 @@ describe('About', () => {
 
             const branchRow = getRow('Version');
             const cell = branchRow.required('td');
-            const link = cell.required('a').element<HTMLAnchorElement>();
-            expect(link.href).toEqual(
+            const link = cell.required('a');
+            expect(link.element<HTMLAnchorElement>().href).toEqual(
                 `https://github.com/laingsimon/courage_scores/pulls/1234`,
             );
-            expect(link.textContent).toEqual('my PR title (01234567)');
+            expect(link.text()).toEqual('my PR title (01234567)');
         });
 
         it('shows empty when no version', async () => {
