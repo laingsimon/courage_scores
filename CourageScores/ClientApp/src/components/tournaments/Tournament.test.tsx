@@ -434,9 +434,7 @@ describe('Tournament', () => {
                 reportedError.verifyErrorEquals(
                     'Tournament could not be found',
                 );
-                expect(context.container.textContent).toContain(
-                    'Tournament not found',
-                );
+                expect(context.text()).toContain('Tournament not found');
             });
 
             it('when tournament season not found', async () => {
@@ -651,23 +649,22 @@ describe('Tournament', () => {
 
             await context.button('Save').click();
 
-            const textContent = context.container.textContent;
-            expect(textContent).toContain('Could not save tournament details');
-            expect(textContent).toContain('SOME ERROR');
+            expect(context.text()).toContain(
+                'Could not save tournament details',
+            );
+            expect(context.text()).toContain('SOME ERROR');
         });
 
         it('can close error dialog after save failure', async () => {
             await render();
             apiResponse = makeApiFailure('SOME ERROR');
             await context.button('Save').click();
-            let textContent = context.container.textContent;
             const errorDetails = 'Could not save tournament details';
-            expect(textContent).toContain(errorDetails);
+            expect(context.text()).toContain(errorDetails);
 
             await context.button('Close').click();
 
-            textContent = context.container.textContent;
-            expect(textContent).not.toContain(errorDetails);
+            expect(context.text()).not.toContain(errorDetails);
         });
 
         it('can save changes after match added', async () => {
@@ -826,9 +823,10 @@ describe('Tournament', () => {
             await keyPad(context, ['1', '8', '0', ENTER_SCORE_BUTTON]);
 
             expect(patchedTournamentData).not.toBeNull();
-            const textContent = context.container.textContent;
-            expect(textContent).toContain('Could not save tournament details');
-            expect(textContent).toContain('SOME ERROR');
+            expect(context.text()).toContain(
+                'Could not save tournament details',
+            );
+            expect(context.text()).toContain('SOME ERROR');
         });
 
         it('can add 180 for player in newly added side', async () => {
@@ -998,7 +996,7 @@ describe('Tournament', () => {
         it('does not render photos button when not permitted', async () => {
             await render();
 
-            expect(context.container.textContent).not.toContain('Photos');
+            expect(context.text()).not.toContain('Photos');
         });
 
         it('can open photo manager to view photos', async () => {
@@ -1040,7 +1038,7 @@ describe('Tournament', () => {
             await modalDialog()!.required('input[type="file"]').file('any');
 
             expect(uploadedPhoto).not.toBeNull();
-            expect(context.container.textContent).toContain('SOME ERROR');
+            expect(context.text()).toContain('SOME ERROR');
         });
 
         it('can delete photo', async () => {
@@ -1067,7 +1065,7 @@ describe('Tournament', () => {
             await modalDialog()!.button('🗑').click();
 
             expect(deletedPhoto).not.toBeNull();
-            expect(context.container.textContent).toContain('SOME ERROR');
+            expect(context.text()).toContain('SOME ERROR');
         });
     });
 });

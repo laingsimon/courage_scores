@@ -914,7 +914,7 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
 
-            expect(context.container.innerHTML).not.toContain('📊');
+            expect(context.html()).not.toContain('📊');
         });
 
         it('can view scores for match with sayg', async () => {

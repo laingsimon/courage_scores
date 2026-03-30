@@ -491,7 +491,7 @@ describe('Score', () => {
 
         function getScores(
             tagName: string,
-            selector: (e: Element) => string,
+            selector: (e: IComponent) => string,
         ): string[] {
             const matches = context.all('table tbody tr');
             return matches.flatMap((match) => {
@@ -501,9 +501,7 @@ describe('Score', () => {
                         (td) =>
                             td.element<HTMLTableCellElement>().colSpan !== 2,
                     );
-                return tds.flatMap((td) =>
-                    td.all(tagName).map((el) => selector(el.element())),
-                );
+                return tds.flatMap((td) => td.all(tagName).map(selector));
             });
         }
 
@@ -760,8 +758,7 @@ describe('Score', () => {
 
             await context.button('Save').click();
 
-            const textContent = context.container.textContent;
-            expect(textContent).toContain('Could not save score');
+            expect(context.text()).toContain('Could not save score');
         });
 
         it('can change player', async () => {
@@ -806,10 +803,7 @@ describe('Score', () => {
             context.prompts.alertWasShown(
                 'Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved',
             );
-            const scores = getScores(
-                'input',
-                (i) => (i as HTMLInputElement).value,
-            );
+            const scores = getScores('input', (i) => i.value());
             expect(scores).toEqual(repeat(16, (_) => '')); // 16 = 8 matches * 2 sides
             const manOfTheMatchHeadingCell = context
                 .all('td')
@@ -849,7 +843,7 @@ describe('Score', () => {
             context.prompts.alertWasShown(
                 'Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved',
             );
-            const allScores = getScores('strong', (s) => s.textContent!);
+            const allScores = getScores('strong', (s) => s.text());
             expect(allScores).toEqual(repeat(16, (_) => '1')); // 16 = 8 matches * 2 sides
         });
 
@@ -871,7 +865,7 @@ describe('Score', () => {
             context.prompts.alertWasShown(
                 'Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved',
             );
-            const allScores = getScores('strong', (s) => s.textContent!);
+            const allScores = getScores('strong', (s) => s.text());
             expect(allScores).toEqual(repeat(16, (_) => '2')); // 16 = 8 matches * 2 sides
         });
 
@@ -914,7 +908,7 @@ describe('Score', () => {
             fixtureData.resultsPublished = false;
             await renderComponent(fixtureData.id, appData);
 
-            expect(context.container.textContent).not.toContain('Photos');
+            expect(context.text()).not.toContain('Photos');
         });
 
         it('can open photo manager to view photos', async () => {
@@ -978,7 +972,7 @@ describe('Score', () => {
             await dialog()!.required('input[type="file"]').file('any');
 
             expect(uploadedPhoto).not.toBeNull();
-            expect(context.container.textContent).toContain('SOME ERROR');
+            expect(context.text()).toContain('SOME ERROR');
         });
 
         it('can delete photo', async () => {
@@ -1040,7 +1034,7 @@ describe('Score', () => {
             await dialog()!.button('🗑').click();
 
             expect(deletedPhoto).not.toBeNull();
-            expect(context.container.textContent).toContain('SOME ERROR');
+            expect(context.text()).toContain('SOME ERROR');
         });
 
         it('can change to qualifier', async () => {

@@ -153,9 +153,9 @@ describe('TournamentFixture', () => {
             sideName: string,
             href: string,
         ) {
-            const link = side.required('a').element<HTMLAnchorElement>();
-            expect(link.textContent).toEqual(sideName);
-            expect(link.href).toEqual(href);
+            const link = side.required('a');
+            expect(link.text()).toEqual(sideName);
+            expect(link.element<HTMLAnchorElement>().href).toEqual(href);
         }
 
         function assertPlayersAndLinks(
@@ -165,9 +165,9 @@ describe('TournamentFixture', () => {
             const links = side.all('label a');
             expect(links.length).toEqual(players.length);
             players.forEach((player: { name: string }, index: number) => {
-                const link = links[index].element<HTMLAnchorElement>();
-                expect(link.textContent).toEqual(player.name);
-                expect(link.href).toEqual(
+                const link = links[index];
+                expect(link.text()).toEqual(player.name);
+                expect(link.element<HTMLAnchorElement>().href).toEqual(
                     `http://localhost/division/${division.name}/player:${encodeURI(player.name)}/${season.name}`,
                 );
             });
@@ -281,11 +281,9 @@ describe('TournamentFixture', () => {
             const cells = context.all('td');
             const cellText = cells.map((td) => td.text());
             expect(cellText).toEqual(['TYPE at ADDRESS', 'Winner: WINNER']);
-            const linkToTeam = cells[1]
-                .required('a')
-                .element<HTMLAnchorElement>();
-            expect(linkToTeam.textContent).toEqual('WINNER');
-            expect(linkToTeam.href).toEqual(
+            const linkToTeam = cells[1].required('a');
+            expect(linkToTeam.text()).toEqual('WINNER');
+            expect(linkToTeam.element<HTMLAnchorElement>().href).toEqual(
                 `http://localhost/division/${division.name}/team:${encodeURI(team.name)}/${season.name}`,
             );
         });

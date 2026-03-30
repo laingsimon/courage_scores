@@ -646,7 +646,7 @@ describe('LiveSayg', () => {
             isFullScreen = true;
             await render(tournament);
             tournament.type = 'BOARD UPDATED';
-            expect(context.container.textContent).toContain('BOARD 1');
+            expect(context.text()).toContain('BOARD 1');
 
             await context.button('Refresh').click();
 
