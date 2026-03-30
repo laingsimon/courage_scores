@@ -154,7 +154,6 @@ describe('App', () => {
         });
 
         return {
-            container: container,
             cleanUp: async () => {
                 await act(async () => {
                     root.unmount();

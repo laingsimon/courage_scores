@@ -141,8 +141,8 @@ describe('SummaryDataRow', () => {
 
             reportedError.verifyNoError();
             const cells = context.required('tr').all('td');
-            expect(cells[1].className).toEqual('bg-winner');
-            expect(cells[8].className).toEqual('');
+            expect(cells[1].className()).toEqual('bg-winner');
+            expect(cells[8].className()).toEqual('');
         });
 
         it('opponent winner', async () => {
@@ -163,8 +163,8 @@ describe('SummaryDataRow', () => {
 
             reportedError.verifyNoError();
             const cells = context.required('tr').all('td');
-            expect(cells[1].className).toEqual('');
-            expect(cells[8].className).toEqual('bg-winner');
+            expect(cells[1].className()).toEqual('');
+            expect(cells[8].className()).toEqual('bg-winner');
         });
     });
 });
