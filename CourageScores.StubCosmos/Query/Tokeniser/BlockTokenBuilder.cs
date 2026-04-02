@@ -159,7 +159,7 @@ internal class BlockTokenBuilder : ITokenBuilder
 
     private bool IsArray(IReadOnlyCollection<Token> tokens)
     {
-        TokenType[] valueTypes = [ TokenType.Number, TokenType.Text, TokenType.Query ];
+        TokenType[] valueTypes = [TokenType.Number, TokenType.Text, TokenType.Query];
         var delimiters = tokens.Count(t => t.Type == TokenType.ArrayDelimiter);
         var values = tokens.Count(t => valueTypes.Contains(t.Type));
         var otherTokens = tokens.Count(t => !valueTypes.Contains(t.Type) && t.Type != TokenType.ArrayDelimiter);

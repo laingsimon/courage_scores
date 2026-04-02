@@ -23,7 +23,7 @@ public class UpdateScoresAdapterTests
     private readonly CancellationToken _token = new CancellationToken();
     private Mock<IAuditingHelper> _auditingHelper = null!;
     private Mock<IUserService> _userService = null!;
-    private MockSimpleAdapter<ScoreAsYouGo,ScoreAsYouGoDto> _scoreAsYouGoAdapter = null!;
+    private MockSimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto> _scoreAsYouGoAdapter = null!;
     private UserDto? _user;
 
     private UpdateScoresAdapter _adapter = null!;

@@ -7,7 +7,7 @@ public class MostFrequentThrowsVisitor : AllThrowsSaygVisitor
     private readonly int _maxCount;
 
     public MostFrequentThrowsVisitor(int maxCount = 10)
-        :base("MostFrequentThrows")
+        : base("MostFrequentThrows")
     {
         _maxCount = maxCount;
     }

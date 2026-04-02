@@ -1,0 +1,50 @@
+﻿[*.{cs,vb}]
+
+# see other rules in https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/
+
+# IDE0004: Remove unnecessary cast
+dotnet_diagnostic.IDE0004.severity = warning
+
+# IDE0005: Remove unnecessary imports
+dotnet_diagnostic.IDE0005.severity = warning
+
+# IDE0007: Use var instead of explicit type
+dotnet_diagnostic.IDE0007.severity = warning
+
+# IDE0011: Prefer braces
+dotnet_diagnostic.IDE0011.severity = warning
+
+# IDE0044: Add readonly modifier
+dotnet_diagnostic.IDE0044.severity = warning
+
+# IDE0047: Remove unnecessary parenthesis
+dotnet_diagnostic.IDE0047.severity = warning
+
+# IDE0049: Use language keywords rather than bcl type names
+dotnet_diagnostic.IDE0049.severity = warning
+
+# IDE0051: Remove unused private member
+dotnet_diagnostic.IDE0051.severity = warning
+
+# IDE0052: Remove unread private member
+dotnet_diagnostic.IDE0052.severity = warning
+
+# IDE0055: Code style rules
+dotnet_sort_system_directives_first = true
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_new_line_before_members_in_object_initializers = true
+csharp_new_line_before_members_in_anonymous_types = true
+csharp_new_line_between_query_expression_clauses = true
+dotnet_diagnostic.IDE0055.severity = warning
+
+# IDE0060: Remove unused parameter
+dotnet_diagnostic.IDE0060.severity = warning
+
+# IDE0065: Using statement placement
+dotnet_diagnostic.IDE0065.severity = warning
+
+# IDE0079: Remove unnecessary suppression
+dotnet_diagnostic.IDE0079.severity = warning

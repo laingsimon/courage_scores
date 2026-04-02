@@ -54,7 +54,7 @@ public class SeasonTemplateServiceTests
     private TeamDto[] _teamsInSeason = null!;
     private MockAdapter<Template, TemplateDto> _templateAdapter = null!;
     private Mock<IHealthCheckService> _healthCheckService = null!;
-    private Mock<ISimpleOnewayAdapter<Template,SeasonHealthDto>> _healthCheckAdapter = null!;
+    private Mock<ISimpleOnewayAdapter<Template, SeasonHealthDto>> _healthCheckAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()

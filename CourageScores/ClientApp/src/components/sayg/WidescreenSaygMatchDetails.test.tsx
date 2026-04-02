@@ -41,7 +41,7 @@ describe('WidescreenSaygMatchDetails', () => {
                 numberOfLegs: sayg.numberOfLegs,
             });
 
-            expect(context.container.innerHTML).toEqual('');
+            expect(context.html()).toEqual('');
         });
 
         it('best of', async () => {

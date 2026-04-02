@@ -10,6 +10,7 @@ import {
     IWidescreenSaygPlayerHeadingProps,
     WidescreenSaygPlayerHeading,
 } from './WidescreenSaygPlayerHeading';
+import { skip } from '../../helpers/collections';
 
 describe('WidescreenSaygPlayerHeading', () => {
     let context: TestContext;
@@ -55,9 +56,10 @@ describe('WidescreenSaygPlayerHeading', () => {
                 scoreFirst: true,
             });
 
-            expect(context.container.childNodes[0].childNodes.length).toEqual(
-                2,
-            );
+            expect(skip(context.all('*'), 1).map((c) => c.text())).toEqual([
+                '123',
+                'NAME',
+            ]);
         });
     });
 
@@ -89,9 +91,10 @@ describe('WidescreenSaygPlayerHeading', () => {
                 scoreFirst: false,
             });
 
-            expect(context.container.childNodes[0].childNodes.length).toEqual(
-                2,
-            );
+            expect(skip(context.all('*'), 1).map((c) => c.text())).toEqual([
+                'NAME',
+                '123',
+            ]);
         });
     });
 });

@@ -1064,7 +1064,7 @@ describe('MatchPlayerSelection', () => {
             await cells[0].button('📊').click();
 
             reportedError.verifyNoError();
-            expect(context.container.textContent).toContain('Match statistics');
+            expect(context.text()).toContain('Match statistics');
         });
 
         it('can close sayg dialog', async () => {

@@ -5,7 +5,7 @@ using CourageScores.Services.Identity;
 namespace CourageScores.Services.Command;
 
 public class UploadPhotoCommand<T> : IUpdateCommand<T, T>
-    where T: IPhotoEntity
+    where T : IPhotoEntity
 {
     private readonly IUserService _userService;
     private readonly IPhotoService _photoService;
@@ -60,7 +60,7 @@ public class UploadPhotoCommand<T> : IUpdateCommand<T, T>
 
         var existingPhotosForUser = model.Photos.Where(p => p.Author == user.Name).ToArray();
 
-        if ((model.Photos.Count - existingPhotosForUser.Length) + 1 > _settings.MaxPhotoCountPerEntity)
+        if (model.Photos.Count - existingPhotosForUser.Length + 1 > _settings.MaxPhotoCountPerEntity)
         {
             return new ActionResult<T>
             {
@@ -88,7 +88,7 @@ public class UploadPhotoCommand<T> : IUpdateCommand<T, T>
             return result.As<T>();
         }
 
-        model.Photos = model.Photos.Except(existingPhotosForUser).Concat(new[] {result.Result!}).ToList();
+        model.Photos = model.Photos.Except(existingPhotosForUser).Concat([result.Result!]).ToList();
 
         return new ActionResult<T>
         {

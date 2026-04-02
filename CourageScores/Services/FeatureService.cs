@@ -179,7 +179,7 @@ public class FeatureService : IFeatureService
         var allFeatures = await _repository.GetAll(token).ToList();
 
         _loadedFeatures.Lookup = new Dictionary<Guid, ConfiguredFeatureDto>(
-            await allFeatures.SelectAsync(async f => new KeyValuePair<Guid,ConfiguredFeatureDto>(
+            await allFeatures.SelectAsync(async f => new KeyValuePair<Guid, ConfiguredFeatureDto>(
                 f.Id,
                 await _featureAdapter.Adapt(f, token))).ToList());
     }

@@ -230,8 +230,8 @@ describe('MatchSayg', () => {
                 permitted,
             );
 
-            expect(context.container.innerHTML).not.toContain('📊');
-            expect(context.container.innerHTML).not.toContain(START_SCORING);
+            expect(context.html()).not.toContain('📊');
+            expect(context.html()).not.toContain(START_SCORING);
         });
 
         it('shows no sayg links when no data and not logged in', async () => {
@@ -243,8 +243,8 @@ describe('MatchSayg', () => {
                 }),
             );
 
-            expect(context.container.innerHTML).not.toContain('📊');
-            expect(context.container.innerHTML).not.toContain(START_SCORING);
+            expect(context.html()).not.toContain('📊');
+            expect(context.html()).not.toContain(START_SCORING);
         });
 
         it('shows no sayg links when no data and not permitted', async () => {
@@ -257,8 +257,8 @@ describe('MatchSayg', () => {
                 notPermitted,
             );
 
-            expect(context.container.innerHTML).not.toContain('📊');
-            expect(context.container.innerHTML).not.toContain(START_SCORING);
+            expect(context.html()).not.toContain('📊');
+            expect(context.html()).not.toContain(START_SCORING);
         });
 
         it('shows no sayg links when no data and sideA not selected', async () => {
@@ -278,8 +278,8 @@ describe('MatchSayg', () => {
                 }),
             );
 
-            expect(context.container.innerHTML).not.toContain('📊');
-            expect(context.container.innerHTML).not.toContain(START_SCORING);
+            expect(context.html()).not.toContain('📊');
+            expect(context.html()).not.toContain(START_SCORING);
         });
 
         it('shows no sayg links when no data and sideB not selected', async () => {
@@ -299,8 +299,8 @@ describe('MatchSayg', () => {
                 }),
             );
 
-            expect(context.container.innerHTML).not.toContain('📊');
-            expect(context.container.innerHTML).not.toContain(START_SCORING);
+            expect(context.html()).not.toContain('📊');
+            expect(context.html()).not.toContain(START_SCORING);
         });
 
         it('shows view sayg link when data and not logged in', async () => {
@@ -313,7 +313,7 @@ describe('MatchSayg', () => {
                 }),
             );
 
-            expect(context.container.innerHTML).not.toContain(START_SCORING);
+            expect(context.html()).not.toContain(START_SCORING);
         });
 
         it('shows view sayg link when data and not permitted', async () => {
@@ -327,7 +327,7 @@ describe('MatchSayg', () => {
                 notPermitted,
             );
 
-            expect(context.container.innerHTML).not.toContain(START_SCORING);
+            expect(context.html()).not.toContain(START_SCORING);
         });
 
         it('does not show view sayg link when data and not permitted and not requested', async () => {
@@ -340,7 +340,7 @@ describe('MatchSayg', () => {
                 notPermitted,
             );
 
-            expect(context.container.innerHTML).not.toContain(START_SCORING);
+            expect(context.html()).not.toContain(START_SCORING);
         });
 
         it('shows edit sayg link when data and permitted', async () => {
@@ -353,7 +353,7 @@ describe('MatchSayg', () => {
                 permitted,
             );
 
-            expect(context.container.innerHTML).toContain(START_SCORING);
+            expect(context.html()).toContain(START_SCORING);
         });
 
         it('shows edit sayg link when no data but single round (superleague)', async () => {
@@ -375,7 +375,7 @@ describe('MatchSayg', () => {
                 permitted,
             );
 
-            expect(context.container.innerHTML).toContain(START_SCORING);
+            expect(context.html()).toContain(START_SCORING);
         });
 
         it('shows edit sayg link when no data and both sides have single players', async () => {
@@ -388,7 +388,7 @@ describe('MatchSayg', () => {
                 permitted,
             );
 
-            expect(context.container.innerHTML).toContain(START_SCORING);
+            expect(context.html()).toContain(START_SCORING);
         });
 
         it('shows no edit sayg link when no data and sideA does not have a single player', async () => {
@@ -409,8 +409,8 @@ describe('MatchSayg', () => {
                 permitted,
             );
 
-            expect(context.container.innerHTML).not.toContain('📊');
-            expect(context.container.innerHTML).not.toContain(START_SCORING);
+            expect(context.html()).not.toContain('📊');
+            expect(context.html()).not.toContain(START_SCORING);
         });
 
         it('shows no edit sayg link when no data and sideB does not have a single player', async () => {
@@ -431,8 +431,8 @@ describe('MatchSayg', () => {
                 permitted,
             );
 
-            expect(context.container.innerHTML).not.toContain('📊');
-            expect(context.container.innerHTML).not.toContain(START_SCORING);
+            expect(context.html()).not.toContain('📊');
+            expect(context.html()).not.toContain(START_SCORING);
         });
     });
 
@@ -657,7 +657,7 @@ describe('MatchSayg', () => {
 
             reportedError.verifyNoError();
             expect(updatedTournament).toBeNull();
-            expect(context.container.textContent).toContain('SOME ERROR');
+            expect(context.text()).toContain('SOME ERROR');
         });
 
         it('updates tournament data and shows dialog once data created', async () => {
