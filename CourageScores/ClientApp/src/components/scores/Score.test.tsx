@@ -28,7 +28,7 @@ import { playerBuilder } from '../../helpers/builders/players';
 import { divisionBuilder } from '../../helpers/builders/divisions';
 import { seasonBuilder } from '../../helpers/builders/seasons';
 import { teamBuilder } from '../../helpers/builders/teams';
-import { fixtureBuilder } from '../../helpers/builders/games';
+import { fixtureBuilder, IMatchBuilder } from '../../helpers/builders/games';
 import { IFailedRequest } from '../common/IFailedRequest';
 import { IGameApi } from '../../interfaces/apis/IGameApi';
 import { IPlayerApi } from '../../interfaces/apis/IPlayerApi';
@@ -68,14 +68,14 @@ describe('Score', () => {
     let deletedPhoto: { id: string; photoId: string } | null;
     let deletePhotoResponse: IClientActionResultDto<GameDto> | null;
     const gameApi = api<IGameApi>({
-        get: async (id: string) => {
+        async get(id: string) {
             if (any(Object.keys(fixtureDataMap), (key: string) => key === id)) {
                 return fixtureDataMap[id];
             }
 
             throw new Error('Unexpected request for fixture data');
         },
-        updateScores: async (id: string, data: RecordScoresDto) => {
+        async updateScores(id: string, data: RecordScoresDto) {
             updatedFixtures[id] = data;
             return (
                 saveGameApiResult || {
@@ -95,7 +95,7 @@ describe('Score', () => {
         },
     });
     const playerApi = api<IPlayerApi>({
-        create: async (d: string, s: string, t: string, p: EditPlayer) => {
+        async create(d: string, s: string, t: string, p: EditPlayer) {
             createdPlayer = {
                 divisionId: d,
                 seasonId: s,
@@ -146,39 +146,59 @@ describe('Score', () => {
         teamsReloaded = true;
     }
 
-    function assertEmptyScoreCard() {
-        const tableBody = contentBackground()!.required('table tbody');
-        const rows = tableBody.all('tr');
-        expect(rows.length).toEqual(12);
+    function assertSingles(
+        rows: IComponent[],
+        h: string,
+        a: string,
+        hs: string = '',
+        as: string = '',
+    ) {
         assertRow(rows[0], 'Singles');
-        assertRow(rows[1], '', '', '', '', '');
-        assertRow(rows[2], '', '', '', '', '');
-        assertRow(rows[3], '', '', '', '', '');
-        assertRow(rows[4], '', '', '', '', '');
-        assertRow(rows[5], '', '', '', '', '');
+        assertRow(rows[1], h, hs, '', as, a);
+        assertRow(rows[2], h, hs, '', as, a);
+        assertRow(rows[3], h, hs, '', as, a);
+        assertRow(rows[4], h, hs, '', as, a);
+        assertRow(rows[5], h, hs, '', as, a);
+    }
+
+    function assertPairs(
+        rows: IComponent[],
+        h: string,
+        a: string,
+        hs: string = '',
+        as: string = '',
+    ) {
         assertRow(rows[6], 'Pairs');
-        assertRow(rows[7], '', '', '', '', '');
-        assertRow(rows[8], '', '', '', '', '');
+        assertRow(rows[7], h, hs, '', as, a);
+        assertRow(rows[8], h, hs, '', as, a);
+    }
+
+    function assertTriples(
+        rows: IComponent[],
+        h: string,
+        a: string,
+        hs: string = '',
+        as: string = '',
+    ) {
         assertRow(rows[9], 'Triples');
-        assertRow(rows[10], '', '', '', '', '');
+        assertRow(rows[10], h, hs, '', as, a);
+    }
+
+    function assertEmptyScoreCard() {
+        const rows = contentBackground('table tbody').all('tr');
+        expect(rows.length).toEqual(12);
+        assertSingles(rows, '', '');
+        assertPairs(rows, '', '');
+        assertTriples(rows, '', '');
         assertRow(rows[11], '');
     }
 
     function assertScoreCardForClerk() {
-        const tableBody = contentBackground()!.required('table tbody');
-        const rows = tableBody.all('tr');
+        const rows = contentBackground('table tbody').all('tr');
         expect(rows.length).toEqual(14);
-        assertRow(rows[0], 'Singles');
-        assertRow(rows[1], homePlayer, '', '', '', awayPlayer);
-        assertRow(rows[2], homePlayer, '', '', '', awayPlayer);
-        assertRow(rows[3], homePlayer, '', '', '', awayPlayer);
-        assertRow(rows[4], homePlayer, '', '', '', awayPlayer);
-        assertRow(rows[5], homePlayer, '', '', '', awayPlayer);
-        assertRow(rows[6], 'Pairs');
-        assertRow(rows[7], addHomePairs, '', '', '', addAwayPairs);
-        assertRow(rows[8], addHomePairs, '', '', '', addAwayPairs);
-        assertRow(rows[9], 'Triples');
-        assertRow(rows[10], addHomeTriples, '', '', '', addAwayTriples);
+        assertSingles(rows, homePlayer, awayPlayer);
+        assertPairs(rows, addHomePairs, addAwayPairs);
+        assertTriples(rows, addHomeTriples, addAwayTriples);
         assertRow(rows[11], 'Man of the match');
         assertRow(rows[12], '', '', '');
         assertRow(rows[13], selectPlayers);
@@ -280,7 +300,7 @@ describe('Score', () => {
         }
 
         function createMatch(home: number, away: number) {
-            return (b) =>
+            return (b: IMatchBuilder) =>
                 b
                     .withHome(findPlayer(homeTeam, 'Home player'))
                     .withAway(findPlayer(awayTeam, 'Away player'))
@@ -328,19 +348,20 @@ describe('Score', () => {
         }
     }
 
-    function contentBackground(): IComponent | undefined {
-        return context.optional('.content-background');
+    function contentBackground(child?: string) {
+        const background = context.required('.content-background');
+        return child ? background.required(child) : background;
     }
 
-    function matchRow(matchNo: number = 1): IComponent | undefined {
-        return context.optional(
+    function matchRow(matchNo: number = 1): IComponent {
+        return context.required(
             `.content-background table tbody tr:nth-child(${matchNo + 1})`,
         );
     }
 
     async function selectPlayer(name: string, m: number, s: 'home' | 'away') {
         const col = s === 'home' ? 1 : 5;
-        const players = matchRow(m)!.required(`td:nth-child(${col})`);
+        const players = matchRow(m).required(`td:nth-child(${col})`);
         await players.required('.dropdown-menu').select(name);
     }
 
@@ -349,13 +370,12 @@ describe('Score', () => {
     }
 
     describe('when logged out', () => {
-        const account: UserDto | undefined = undefined;
         let fixture: GameDto;
         let appData: IAppContainerProps;
 
         beforeEach(() => {
             fixture = fixtureBuilder().build();
-            appData = getDefaultAppData(account);
+            appData = getDefaultAppData();
         });
 
         it('renders when fixture not found', async () => {
@@ -393,8 +413,7 @@ describe('Score', () => {
 
             await renderComponent(fixture.id, appData);
 
-            const singleRow =
-                contentBackground()!.required('table tbody tr td');
+            const singleRow = contentBackground('table tbody tr td');
             expect(singleRow.text()).toEqual('No scores, yet');
         });
 
@@ -403,20 +422,11 @@ describe('Score', () => {
 
             await renderComponent(fixture.id, appData);
 
-            const tableBody = contentBackground()!.required('table tbody');
-            const rows = tableBody.all('tr');
+            const rows = contentBackground('table tbody').all('tr');
             expect(rows.length).toEqual(12);
-            assertRow(rows[0], 'Singles');
-            assertRow(rows[1], 'Home player', '3', '', '2', 'Away player');
-            assertRow(rows[2], 'Home player', '3', '', '2', 'Away player');
-            assertRow(rows[3], 'Home player', '3', '', '2', 'Away player');
-            assertRow(rows[4], 'Home player', '3', '', '2', 'Away player');
-            assertRow(rows[5], 'Home player', '3', '', '2', 'Away player');
-            assertRow(rows[6], 'Pairs');
-            assertRow(rows[7], 'Home player', '3', '', '0', 'Away player');
-            assertRow(rows[8], 'Home player', '3', '', '0', 'Away player');
-            assertRow(rows[9], 'Triples');
-            assertRow(rows[10], 'Home player', '3', '', '0', 'Away player');
+            assertSingles(rows, 'Home player', 'Away player', '3', '2');
+            assertPairs(rows, 'Home player', 'Away player', '3', '0');
+            assertTriples(rows, 'Home player', 'Away player', '3', '0');
             assertRow(
                 rows[11],
                 '180sHome player',
@@ -489,10 +499,7 @@ describe('Score', () => {
             };
         }
 
-        function getScores(
-            tagName: string,
-            selector: (e: IComponent) => string,
-        ): string[] {
+        function getScores(tag: string, s: (e: IComponent) => string) {
             const matches = context.all('table tbody tr');
             return matches.flatMap((match) => {
                 const tds = match
@@ -501,7 +508,7 @@ describe('Score', () => {
                         (td) =>
                             td.element<HTMLTableCellElement>().colSpan !== 2,
                     );
-                return tds.flatMap((td) => td.all(tagName).map(selector));
+                return tds.flatMap((td) => td.all(tag).map(s));
             });
         }
 
@@ -521,39 +528,17 @@ describe('Score', () => {
         it('renders score card with results', async () => {
             await renderComponent(fixture.id, appData);
 
-            const tableBody = contentBackground()!.required('table tbody');
-            const rows = tableBody.all('tr');
+            const rows = contentBackground('table tbody').all('tr');
             expect(rows.length).toEqual(14);
-            assertRow(rows[0], 'Singles');
-            assertRow(rows[1], homePlayer, '', '', '', awayPlayer);
-            assertRow(rows[2], homePlayer, '', '', '', awayPlayer);
-            assertRow(rows[3], homePlayer, '', '', '', awayPlayer);
-            assertRow(rows[4], homePlayer, '', '', '', awayPlayer);
-            assertRow(rows[5], homePlayer, '', '', '', awayPlayer);
-            assertRow(rows[6], 'Pairs');
-            assertRow(
-                rows[7],
+            assertSingles(rows, homePlayer, awayPlayer);
+            assertPairs(
+                rows,
                 join(homePlayer, homePlayerAdd, nbsbAddAPlayer),
-                '',
-                '',
-                '',
                 join(awayPlayer, awayPlayerAdd, nbsbAddAPlayer),
             );
-            assertRow(
-                rows[8],
-                join(homePlayer, homePlayerAdd, nbsbAddAPlayer),
-                '',
-                '',
-                '',
-                join(awayPlayer, awayPlayerAdd, nbsbAddAPlayer),
-            );
-            assertRow(rows[9], 'Triples');
-            assertRow(
-                rows[10],
+            assertTriples(
+                rows,
                 join(homePlayer, homePlayerAdd, nbsbAddAPlayer, nbsbAddAPlayer),
-                '',
-                '',
-                '',
                 join(awayPlayer, awayPlayerAdd, nbsbAddAPlayer, nbsbAddAPlayer),
             );
             assertRow(rows[11], 'Man of the match');
@@ -636,7 +621,7 @@ describe('Score', () => {
 
             await renderComponent(fixture.id, appData);
 
-            const players = matchRow(1)!.required('td:nth-child(1)');
+            const players = matchRow(1).required('td:nth-child(1)');
             expect(players.required('.dropdown-toggle').text()).toEqual(
                 'New name (nee Old name)',
             );
@@ -779,7 +764,7 @@ describe('Score', () => {
 
         it('can change match options', async () => {
             await renderComponent(fixture.id, appData);
-            const players = matchRow(1)!.required('td:nth-child(5)');
+            const players = matchRow(1).required('td:nth-child(5)');
 
             await players.button('🛠').click();
             await dialog()!.input('numberOfLegs').change('30');
@@ -920,9 +905,8 @@ describe('Score', () => {
 
             await context.button('📷 Photos').click();
 
-            expect(
-                dialog()!.optional('div[datatype="upload-control"]'),
-            ).toBeTruthy();
+            const upload = dialog()!.optional('div[datatype="upload-control"]');
+            expect(upload).toBeTruthy();
         });
 
         it('can close photo manager', async () => {
