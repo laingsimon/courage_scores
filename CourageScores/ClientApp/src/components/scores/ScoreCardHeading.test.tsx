@@ -142,43 +142,34 @@ describe('ScoreCardHeading', () => {
         expect(heading.required('a').text()).toEqual(text);
     }
 
-    function props(
-        access: string,
-        submissionData: GameDto,
-        submission?: string,
-    ): IScoreCardHeadingProps {
+    function props(a: string, sd: GameDto, s?: string): IScoreCardHeadingProps {
         return {
-            access,
-            submission,
+            access: a,
+            submission: s,
             setSubmission,
             setFixtureData,
-            data: submissionData,
+            data: sd,
         };
     }
 
     function leagueFixtureContainerProps(
-        submissionData: GameDto,
-        customisations?: Partial<ILeagueFixtureContainerProps>,
-    ): ILeagueFixtureContainerProps {
+        sd: GameDto,
+        c?: Partial<ILeagueFixtureContainerProps>,
+    ) {
         return {
-            division: divisionBuilder(
-                'DIVISION',
-                submissionData.divisionId,
-            ).build(),
-            season: seasonBuilder('SEASON', submissionData.seasonId).build(),
+            division: divisionBuilder('DIVISION', sd.divisionId).build(),
+            season: seasonBuilder('SEASON', sd.seasonId).build(),
             home: null!,
             away: null!,
             disabled: false,
             readOnly: false,
             awayPlayers: [],
             homePlayers: [],
-            ...customisations,
+            ...c,
         };
     }
 
     describe('when logged out', () => {
-        const access = '';
-        const account: UserDto | undefined = undefined;
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const season: SeasonDto = seasonBuilder('SEASON').build();
         const homePlayer = playerBuilder('HOME PLAYER').build();
@@ -192,32 +183,23 @@ describe('ScoreCardHeading', () => {
                 .homeSubmission()
                 .awaySubmission()
                 .build();
-            const winner = '';
             const fixtureData = leagueFixtureContainerProps(submissionData);
 
             it('renders home team details', async () => {
-                await renderComponent(
-                    fixtureData,
-                    props(access, submissionData),
-                    account,
-                );
+                await renderComponent(fixtureData, props('', submissionData));
 
                 assertLinkAddress(true, submissionData, fixtureData);
                 assertLinkText(true, 'HOME - 0');
-                assertWinner(winner);
+                assertWinner('');
                 assertToggleNotShown(true);
             });
 
             it('renders away team details', async () => {
-                await renderComponent(
-                    fixtureData,
-                    props(access, submissionData),
-                    account,
-                );
+                await renderComponent(fixtureData, props('', submissionData));
 
                 assertLinkAddress(false, submissionData, fixtureData);
                 assertLinkText(false, '0 - AWAY');
-                assertWinner(winner);
+                assertWinner('');
                 assertToggleNotShown(false);
             });
         });
@@ -242,32 +224,23 @@ describe('ScoreCardHeading', () => {
                 .withMatchOption((o) => o.numberOfLegs(5))
                 .withMatchOption((o) => o.numberOfLegs(7))
                 .build();
-            const winner = 'home';
             const fixtureData = leagueFixtureContainerProps(submissionData);
 
             it('renders home team details', async () => {
-                await renderComponent(
-                    fixtureData,
-                    props(access, submissionData),
-                    account,
-                );
+                await renderComponent(fixtureData, props('', submissionData));
 
                 assertLinkAddress(true, submissionData, fixtureData);
                 assertLinkText(true, 'HOME - 3');
-                assertWinner(winner);
+                assertWinner('home');
                 assertToggleNotShown(true);
             });
 
             it('renders away team details', async () => {
-                await renderComponent(
-                    fixtureData,
-                    props(access, submissionData),
-                    account,
-                );
+                await renderComponent(fixtureData, props('', submissionData));
 
                 assertLinkAddress(false, submissionData, fixtureData);
                 assertLinkText(false, '0 - AWAY');
-                assertWinner(winner);
+                assertWinner('home');
                 assertToggleNotShown(false);
             });
         });
@@ -292,39 +265,29 @@ describe('ScoreCardHeading', () => {
                 .withMatchOption((o) => o.numberOfLegs(5))
                 .withMatchOption((o) => o.numberOfLegs(7))
                 .build();
-            const winner = 'away';
             const fixtureData = leagueFixtureContainerProps(submissionData);
 
             it('renders home team details', async () => {
-                await renderComponent(
-                    fixtureData,
-                    props(access, submissionData),
-                    account,
-                );
+                await renderComponent(fixtureData, props('', submissionData));
 
                 assertLinkAddress(true, submissionData, fixtureData);
                 assertLinkText(true, 'HOME - 0');
-                assertWinner(winner);
+                assertWinner('away');
                 assertToggleNotShown(true);
             });
 
             it('renders away team details', async () => {
-                await renderComponent(
-                    fixtureData,
-                    props(access, submissionData),
-                    account,
-                );
+                await renderComponent(fixtureData, props('', submissionData));
 
                 assertLinkAddress(false, submissionData, fixtureData);
                 assertLinkText(false, '3 - AWAY');
-                assertWinner(winner);
+                assertWinner('away');
                 assertToggleNotShown(false);
             });
         });
     });
 
     describe('when an admin', () => {
-        const access = 'admin';
         const team: TeamDto = teamBuilder('TEAM').build();
         const account: UserDto = user({}, team.id);
         const division: DivisionDto = divisionBuilder('DIVISION').build();
@@ -343,7 +306,7 @@ describe('ScoreCardHeading', () => {
             it('does not show home submission toggle', async () => {
                 await renderComponent(
                     fixtureData,
-                    props(access, submissionData),
+                    props('admin', submissionData),
                     account,
                 );
 
@@ -353,7 +316,7 @@ describe('ScoreCardHeading', () => {
             it('does not show away submission toggle', async () => {
                 await renderComponent(
                     fixtureData,
-                    props(access, submissionData),
+                    props('admin', submissionData),
                     account,
                 );
 
@@ -421,7 +384,7 @@ describe('ScoreCardHeading', () => {
 
                 await renderComponent(
                     fixtureData,
-                    props(access, submissionData, 'home'),
+                    props('admin', submissionData, 'home'),
                     account,
                     [team],
                 );
@@ -436,7 +399,7 @@ describe('ScoreCardHeading', () => {
             it('shows home submission toggle', async () => {
                 await renderComponent(
                     fixtureData,
-                    props(access, submissionData),
+                    props('admin', submissionData),
                     account,
                 );
 
@@ -446,7 +409,7 @@ describe('ScoreCardHeading', () => {
             it('clicking toggle switches to submission and data', async () => {
                 await renderComponent(
                     fixtureData,
-                    props(access, submissionData),
+                    props('admin', submissionData),
                     account,
                 );
 
@@ -456,7 +419,7 @@ describe('ScoreCardHeading', () => {
             it('clicking toggle reverts fixture data', async () => {
                 await renderComponent(
                     fixtureData,
-                    props(access, submissionData, 'home'),
+                    props('admin', submissionData, 'home'),
                     account,
                 );
 
@@ -521,7 +484,7 @@ describe('ScoreCardHeading', () => {
             it('shows away submission toggle', async () => {
                 await renderComponent(
                     fixtureData,
-                    props(access, submissionData),
+                    props('admin', submissionData),
                     account,
                 );
 
@@ -531,7 +494,7 @@ describe('ScoreCardHeading', () => {
             it('clicking toggle switches to submission and data', async () => {
                 await renderComponent(
                     fixtureData,
-                    props(access, submissionData),
+                    props('admin', submissionData),
                     account,
                 );
 
@@ -541,7 +504,7 @@ describe('ScoreCardHeading', () => {
             it('clicking toggle reverts fixture data', async () => {
                 await renderComponent(
                     fixtureData,
-                    props(access, submissionData, 'away'),
+                    props('admin', submissionData, 'away'),
                     account,
                 );
 
@@ -551,14 +514,8 @@ describe('ScoreCardHeading', () => {
     });
 
     describe('when a clerk', () => {
-        const access = 'clerk';
         const team: TeamDto = teamBuilder('TEAM').build();
-        const account: UserDto = {
-            name: '',
-            givenName: '',
-            emailAddress: '',
-            teamId: team.id,
-        };
+        const account: UserDto = user({}, team.id);
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const season: SeasonDto = seasonBuilder('SEASON').build();
         const homePlayer = playerBuilder('HOME PLAYER').build();
@@ -577,7 +534,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                     );
 
@@ -587,7 +544,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show away submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                     );
 
@@ -608,7 +565,7 @@ describe('ScoreCardHeading', () => {
                     const teams = [team];
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                         teams,
                     );
@@ -625,7 +582,7 @@ describe('ScoreCardHeading', () => {
                 it('shows unpublished alert when no submission team', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                     );
 
@@ -641,7 +598,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                     );
 
@@ -651,7 +608,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show away submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                     );
 
@@ -672,7 +629,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                     );
 
@@ -682,7 +639,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show away submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                     );
 
@@ -705,7 +662,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                     );
 
@@ -715,7 +672,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show away submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                     );
 
@@ -793,7 +750,7 @@ describe('ScoreCardHeading', () => {
                 it('shows home submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                     );
 
@@ -803,7 +760,7 @@ describe('ScoreCardHeading', () => {
                 it('clicking toggle switches to submission and data', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                     );
 
@@ -813,7 +770,7 @@ describe('ScoreCardHeading', () => {
                 it('clicking toggle reverts fixture data', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData, 'home'),
+                        props('clerk', submissionData, 'home'),
                         account,
                     );
 
@@ -823,7 +780,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show away submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                     );
 
@@ -844,7 +801,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                     );
 
@@ -854,7 +811,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show away submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                     );
 
@@ -877,7 +834,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                     );
 
@@ -887,7 +844,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show away submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                     );
 
@@ -908,7 +865,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                     );
 
@@ -918,7 +875,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show away submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                     );
 
@@ -997,7 +954,7 @@ describe('ScoreCardHeading', () => {
                 it('shows away submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                     );
 
@@ -1007,7 +964,7 @@ describe('ScoreCardHeading', () => {
                 it('clicking toggle switches to submission and data', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                     );
 
@@ -1017,7 +974,7 @@ describe('ScoreCardHeading', () => {
                 it('clicking toggle reverts fixture data', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData, 'away'),
+                        props('clerk', submissionData, 'away'),
                         account,
                     );
 
@@ -1027,7 +984,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        props(access, submissionData),
+                        props('clerk', submissionData),
                         account,
                     );
 
