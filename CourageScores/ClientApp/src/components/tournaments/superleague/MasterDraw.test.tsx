@@ -95,8 +95,10 @@ describe('MasterDraw', () => {
     const division = divisionBuilder('DIVISION').build();
 
     const tournamentApi = api<ITournamentGameApi>({
-        update: async () => apiSuccess,
-        addSayg: async () => {
+        async update() {
+            return apiSuccess;
+        },
+        async addSayg() {
             return {
                 success: true,
                 result: newSaygResponse?.(),
@@ -137,7 +139,7 @@ describe('MasterDraw', () => {
             seasonId: string,
             teamId: string,
             player: EditTeamPlayerDto,
-        ): Promise<IClientActionResultDto<TeamDto>> {
+        ) {
             createdPlayer = { divisionId, seasonId, teamId, player };
             if (playerCreatedCallback !== null) {
                 playerCreatedCallback();
@@ -155,14 +157,14 @@ describe('MasterDraw', () => {
                         },
                     ],
                 },
-            };
+            } as IClientActionResultDto<TeamDto>;
         },
         async update(
             seasonId: string,
             teamId: string,
             playerId: string,
             player: EditTeamPlayerDto,
-        ): Promise<IClientActionResultDto<TeamDto>> {
+        ) {
             updatedPlayer = { seasonId, teamId, playerId, player };
             return {
                 success: true,
@@ -177,7 +179,7 @@ describe('MasterDraw', () => {
                         },
                     ],
                 },
-            };
+            } as IClientActionResultDto<TeamDto>;
         },
     });
 
@@ -250,9 +252,8 @@ describe('MasterDraw', () => {
     }
 
     function getNewSinglesMatchRow() {
-        return context.required(
-            'table[data-type="singles"] tbody tr:last-child',
-        );
+        const selector = 'table[data-type="singles"] tbody tr:last-child';
+        return context.required(selector);
     }
 
     function getNewPairsMatchRow() {
@@ -260,7 +261,7 @@ describe('MasterDraw', () => {
     }
 
     function getDialog() {
-        return context.optional('.modal-dialog');
+        return context.required('.modal-dialog');
     }
 
     async function change(s: string, t: string, c?: IComponent) {
@@ -310,20 +311,10 @@ describe('MasterDraw', () => {
 
             const rows = context.all('table.table tbody tr');
             expect(rows.length).toEqual(2);
-            expect(rows[0].all('td').map((td) => td.text())).toEqual([
-                '1',
-                'A',
-                'v',
-                'B',
-                '',
-            ]);
-            expect(rows[1].all('td').map((td) => td.text())).toEqual([
-                '2',
-                'C',
-                'v',
-                'D',
-                '',
-            ]);
+            const row1 = ['1', 'A', 'v', 'B', ''];
+            const row2 = ['2', 'C', 'v', 'D', ''];
+            expect(rows[0].all('td').map((td) => td.text())).toEqual(row1);
+            expect(rows[1].all('td').map((td) => td.text())).toEqual(row2);
         });
 
         it('tournament properties', async () => {
@@ -334,13 +325,10 @@ describe('MasterDraw', () => {
                 }),
             );
 
-            const properties = context.required(
-                'div.d-flex > div:nth-child(2)',
-            );
-            const date = renderDate('2023-05-06');
-            expect(properties.text()).toContain('Gender: GENDER');
-            expect(properties.text()).toContain(`Date: ${date}`);
-            expect(properties.text()).toContain('Notes: Board 1');
+            const p = context.required('div.d-flex > div:nth-child(2)');
+            expect(p.text()).toContain('Gender: GENDER');
+            expect(p.text()).toContain(`Date: ${renderDate('2023-05-06')}`);
+            expect(p.text()).toContain('Notes: Board 1');
         });
 
         it('clickable date when logged in', async () => {
@@ -359,12 +347,10 @@ describe('MasterDraw', () => {
                 season,
             );
 
-            const date = context.required(
-                'div.d-flex > div:nth-child(2) > div a',
-            );
-            expect(date.text()).toEqual(renderDate('2023-05-06'));
+            const d = context.required('div.d-flex > div:nth-child(2) > div a');
+            expect(d.text()).toEqual(renderDate('2023-05-06'));
             // division.id instead of name because divisions aren't provided in the app props
-            expect(date.element<HTMLAnchorElement>().href).toEqual(
+            expect(d.element<HTMLAnchorElement>().href).toEqual(
                 `http://localhost/fixtures/${season.name}/?division=${division.id}&date=2025-05-06`,
             );
         });
@@ -372,22 +358,18 @@ describe('MasterDraw', () => {
         it('when no type', async () => {
             await renderComponent(
                 props({
-                    tournamentData: tournament.type(undefined!).build(),
+                    tournamentData: tournament.type('').build(),
                     readOnly: true,
                 }),
             );
 
-            const properties = context.required(
-                'div.d-flex > div:nth-child(2)',
-            );
-            expect(properties.text()).toContain('Gender: GENDER');
-            expect(properties.text()).not.toContain('Notes:');
+            const p = context.required('div.d-flex > div:nth-child(2)');
+            expect(p.text()).toContain('Gender: GENDER');
+            expect(p.text()).not.toContain('Notes:');
         });
 
         it('already playing player in collapsed drop-down with their name only', async () => {
-            const team = teamBuilder('HOST')
-                .forSeason(season, null, [player])
-                .build();
+            const team = teamBuilder('HOST').forSeason(season, null, [player]);
             const containerProps = new tournamentContainerPropsBuilder()
                 .withAlreadyPlaying(alreadyPlaying('BOARD 2', player))
                 .build();
@@ -401,16 +383,13 @@ describe('MasterDraw', () => {
                 }),
                 user({}),
                 containerProps,
-                [team],
+                [team.build()],
             );
 
-            const masterDraw = context.required(
-                'div.d-flex > div:nth-child(1)',
-            );
-            const homeSide = masterDraw.required(
-                'table tbody tr:first-child td:nth-child(2)',
-            );
-            const toggle = homeSide.required('.dropdown-toggle');
+            const toggle = context
+                .required('div.d-flex > div:nth-child(1)')
+                .required('table tbody tr:first-child td:nth-child(2)')
+                .required('.dropdown-toggle');
             expect(toggle.text()).toContain('PLAYER');
         });
     });
@@ -441,10 +420,9 @@ describe('MasterDraw', () => {
         const masterDrawSelector = 'div[datatype="master-draw"]';
 
         function getSideAvBTournament(saygId?: string, matchId?: string) {
+            const sides = withSides('SIDE A', 'SIDE B', saygId);
             const x = tournament
-                .round((r) =>
-                    r.withMatch(withSides('SIDE A', 'SIDE B', saygId), matchId),
-                )
+                .round((r) => r.withMatch(sides, matchId))
                 .build();
 
             return { ...x, build: () => x };
@@ -452,10 +430,8 @@ describe('MasterDraw', () => {
 
         function setPlayerCreatedCallbackForTeam(team: TeamDto) {
             playerCreatedCallback = () => {
-                const teamSeason = team.seasons!.find(
-                    (ts) => ts.seasonId === season.id,
-                )!;
-                teamSeason.players!.push({
+                const ts = team.seasons!.find((t) => t.seasonId === season.id)!;
+                ts.players!.push({
                     id: createTemporaryId(),
                     name: 'NEW PLAYER',
                 });
@@ -495,17 +471,13 @@ describe('MasterDraw', () => {
         });
 
         it('saves type when caret leaves input', async () => {
-            const updatableTournamentData = tournament.build();
+            const updated = tournament.build();
             async function update(u: TournamentGameDto, s?: boolean) {
-                Object.assign(updatableTournamentData, u);
-                await setTournamentData(u, s);
+                await setTournamentData(Object.assign(updated, u), s);
             }
 
             await renderComponent(
-                props({
-                    tournamentData: updatableTournamentData,
-                    setTournamentData: update,
-                }),
+                props({ tournamentData: updated, setTournamentData: update }),
             );
 
             await change('input[name="type"]', 'NEW TYPE');
@@ -566,14 +538,12 @@ describe('MasterDraw', () => {
             await render(tournament, user({ managePlayers: true }));
             setPlayerCreatedCallbackForTeam(teamA);
 
-            await getNewSinglesMatchRow()
-                .required('td:nth-child(2) .dropdown-menu')
-                .select('➕ New Player/s');
-            await getDialog()!.required('textarea').change('NEW PLAYER');
-            await getDialog()!.button('Add players').click();
-            await getNewSinglesMatchRow()
-                .required('td:nth-child(2) .dropdown-menu')
-                .select('NEW PLAYER');
+            const dropDownSelector = 'td:nth-child(2) .dropdown-menu';
+            const dropDown = getNewSinglesMatchRow().required(dropDownSelector);
+            await dropDown.select('➕ New Player/s');
+            await getDialog().required('textarea').change('NEW PLAYER');
+            await getDialog().button('Add players').click();
+            await dropDown.select('NEW PLAYER');
 
             expect(createdPlayer).toEqual({
                 seasonId: season.id,
@@ -590,14 +560,12 @@ describe('MasterDraw', () => {
             await render(tournament, user({ managePlayers: true }));
             setPlayerCreatedCallbackForTeam(teamB);
 
-            await getNewSinglesMatchRow()
-                .required('td:nth-child(4) .dropdown-menu')
-                .select('➕ New Player/s');
-            await getDialog()!.required('textarea').change('NEW PLAYER');
-            await getDialog()!.button('Add players').click();
-            await getNewSinglesMatchRow()
-                .required('td:nth-child(4) .dropdown-menu')
-                .select('NEW PLAYER');
+            const dropDownSelector = 'td:nth-child(4) .dropdown-menu';
+            const dropDown = getNewSinglesMatchRow().required(dropDownSelector);
+            await dropDown.select('➕ New Player/s');
+            await getDialog().required('textarea').change('NEW PLAYER');
+            await getDialog().button('Add players').click();
+            await dropDown.select('NEW PLAYER');
 
             expect(createdPlayer).toEqual({
                 seasonId: season.id,
@@ -616,9 +584,9 @@ describe('MasterDraw', () => {
                 .required('td:nth-child(2) .dropdown-menu')
                 .select('➕ New Player/s');
 
-            await getDialog()!.button('Cancel').click();
+            await getDialog().button('Cancel').click();
 
-            expect(getDialog()).toBeFalsy();
+            expect(context.optional('.modal-dialog')).toBeFalsy();
         });
 
         it('shows message when player cannot be found', async () => {
@@ -627,24 +595,21 @@ describe('MasterDraw', () => {
             tournament.build = () => tournament;
             await render(tournament, user({ managePlayers: true }));
 
-            await editButton(
-                context.required('table tbody tr:first-child td:nth-child(2)'),
-            ).click();
+            const selector = 'table tbody tr:first-child td:nth-child(2)';
+            await editButton(context.required(selector)).click();
 
-            context.prompts.alertWasShown(
-                `Unable to find player PLAYER D (id: ${playerD.id}) in team HOST`,
-            );
+            const prompt = `Unable to find player PLAYER D (id: ${playerD.id}) in team HOST`;
+            context.prompts.alertWasShown(prompt);
             expect(updatedTournament).toBeNull();
         });
 
         it('can edit host player', async () => {
             await render(getSideAvBTournament(), user({ managePlayers: true }));
 
-            await editButton(
-                context.required('table tbody tr:first-child td:nth-child(2)'),
-            ).click();
-            await getDialog()!.input('name').change('UPDATED PLAYER');
-            await getDialog()!.button('Save player').click();
+            const selector = 'table tbody tr:first-child td:nth-child(2)';
+            await editButton(context.required(selector)).click();
+            await getDialog().input('name').change('UPDATED PLAYER');
+            await getDialog().button('Save player').click();
 
             expect(updatedPlayer).toEqual({
                 seasonId: season.id,
@@ -670,11 +635,10 @@ describe('MasterDraw', () => {
         it('can edit opponent player', async () => {
             await render(getSideAvBTournament(), user({ managePlayers: true }));
 
-            await editButton(
-                context.required('table tbody tr:first-child td:nth-child(4)'),
-            ).click();
-            await getDialog()!.input('name').change('UPDATED PLAYER');
-            await getDialog()!.button('Save player').click();
+            const selector = 'table tbody tr:first-child td:nth-child(4)';
+            await editButton(context.required(selector)).click();
+            await getDialog().input('name').change('UPDATED PLAYER');
+            await getDialog().button('Save player').click();
 
             expect(updatedPlayer).toEqual({
                 seasonId: season.id,
@@ -700,13 +664,12 @@ describe('MasterDraw', () => {
         it('can close edit player dialog', async () => {
             await render(getSideAvBTournament(), user({ managePlayers: true }));
 
-            await editButton(
-                context.required('table tbody tr:first-child td:nth-child(2)'),
-            ).click();
-            await getDialog()!.input('name').change('UPDATED PLAYER');
-            await getDialog()!.button('Cancel').click();
+            const selector = 'table tbody tr:first-child td:nth-child(2)';
+            await editButton(context.required(selector)).click();
+            await getDialog().input('name').change('UPDATED PLAYER');
+            await getDialog().button('Cancel').click();
 
-            expect(getDialog()).toBeFalsy();
+            expect(context.optional('.modal-dialog')).toBeFalsy();
         });
 
         it('reports error if team cannot be found', async () => {
@@ -718,18 +681,15 @@ describe('MasterDraw', () => {
                 .required('td:nth-child(2) .dropdown-menu')
                 .select('➕ New Player/s');
 
-            expect(getDialog()).toBeFalsy();
-            reportedError.verifyErrorEquals(
-                "Unable to find team with name 'TEAM A '",
-            );
+            expect(context.optional('.modal-dialog')).toBeFalsy();
+            const error = "Unable to find team with name 'TEAM A '";
+            reportedError.verifyErrorEquals(error);
         });
 
         it('saves tournament when both players are set', async () => {
-            const matchOptionDefaults = matchOptionsBuilder()
-                .numberOfLegs(7)
-                .build();
+            const mo = matchOptionsBuilder().numberOfLegs(7).build();
             const tournamentProps = new tournamentContainerPropsBuilder()
-                .withMatchOptionDefaults(matchOptionDefaults)
+                .withMatchOptionDefaults(mo)
                 .build();
             await renderComponent(
                 props({ tournamentData: tournament.build() }),
@@ -747,15 +707,14 @@ describe('MasterDraw', () => {
                 .select('PLAYER B');
 
             expect(updatedTournament!.save).toEqual(true);
-            expect(updatedTournament!.updated.round?.matches).toEqual([
+            const round = updatedTournament!.updated.round!;
+            expect(round.matches).toEqual([
                 equatableMatch(
                     equatableSide('PLAYER A', playerA),
                     equatableSide('PLAYER B', playerB),
                 ),
             ]);
-            expect(
-                updatedTournament!.updated.round!.matchOptions![0].numberOfLegs,
-            ).toEqual(7);
+            expect(round.matchOptions![0].numberOfLegs).toEqual(7);
         });
 
         it('saves tournament when sideA changed for existing match', async () => {
@@ -778,11 +737,9 @@ describe('MasterDraw', () => {
         it('saves tournament when sideB changed for existing match', async () => {
             await render(getSideAvBTournament());
 
-            await context
-                .required(
-                    'table tbody tr:first-child td:nth-child(4) .dropdown-menu',
-                )
-                .select('PLAYER D');
+            const selector =
+                'table tbody tr:first-child td:nth-child(4) .dropdown-menu';
+            await context.required(selector).select('PLAYER D');
 
             expect(updatedTournament!.save).toEqual(true);
             expect(updatedTournament!.updated.round?.matches).toEqual([
@@ -794,11 +751,9 @@ describe('MasterDraw', () => {
         });
 
         it('saves tournament when all pairs players are set', async () => {
-            const matchOptionDefaults = matchOptionsBuilder()
-                .numberOfLegs(7)
-                .build();
+            const mo = matchOptionsBuilder().numberOfLegs(7).build();
             const tournamentProps = new tournamentContainerPropsBuilder()
-                .withMatchOptionDefaults(matchOptionDefaults)
+                .withMatchOptionDefaults(mo)
                 .build();
             await renderComponent(
                 props({ tournamentData: tournament.build() }),
@@ -809,48 +764,41 @@ describe('MasterDraw', () => {
             );
 
             await getNewPairsMatchRow()
-                .required(
-                    'td:nth-child(2) [datatype="player-index-0"] .dropdown-menu',
-                )
+                .required('td:nth-child(2) [datatype="player-index-0"]')
+                .required('.dropdown-menu')
                 .select('PLAYER A');
             await getNewPairsMatchRow()
-                .required(
-                    'td:nth-child(2) [datatype="player-index-1"] .dropdown-menu',
-                )
+                .required('td:nth-child(2) [datatype="player-index-1"]')
+                .required('.dropdown-menu')
                 .select('PLAYER C');
             await getNewPairsMatchRow()
-                .required(
-                    'td:nth-child(4) [datatype="player-index-0"] .dropdown-menu',
-                )
+                .required('td:nth-child(4) [datatype="player-index-0"]')
+                .required('.dropdown-menu')
                 .select('PLAYER B');
             await getNewPairsMatchRow()
-                .required(
-                    'td:nth-child(4) [datatype="player-index-1"] .dropdown-menu',
-                )
+                .required('td:nth-child(4) [datatype="player-index-1"]')
+                .required('.dropdown-menu')
                 .select('PLAYER D');
 
             expect(updatedTournament!.save).toEqual(true);
-            expect(updatedTournament!.updated.round?.matches).toEqual([
+            const round = updatedTournament!.updated.round!;
+            expect(round.matches).toEqual([
                 equatableMatch(
                     equatableSide('PLAYER & PLAYER', playerA, playerC),
                     equatableSide('PLAYER & PLAYER', playerB, playerD),
                 ),
             ]);
-            expect(
-                updatedTournament!.updated.round!.matchOptions![0].numberOfLegs,
-            ).toEqual(5);
+            expect(round.matchOptions![0].numberOfLegs).toEqual(5);
         });
 
         it('cannot change host when match exists', async () => {
             const tournamentData = getSideAvBTournament();
             await renderComponent(props({ tournamentData }), user({}));
 
-            expect(
-                context.optional('[datatype="host"] .dropdown-menu'),
-            ).toBeFalsy();
-            expect(
-                context.optional('[datatype="opponent"] .dropdown-menu'),
-            ).toBeFalsy();
+            const hostSelector = '[datatype="host"] .dropdown-menu';
+            const opponentSelector = '[datatype="opponent"] .dropdown-menu';
+            expect(context.optional(hostSelector)).toBeFalsy();
+            expect(context.optional(opponentSelector)).toBeFalsy();
         });
 
         it('can delete match when permitted', async () => {
@@ -929,7 +877,7 @@ describe('MasterDraw', () => {
             context.prompts.respondToConfirm(deleteSaygMsg, true);
             context.prompts.respondToConfirm(clearScoreMsg, true);
 
-            await getDialog()!.button('Delete sayg').click();
+            await getDialog().button('Delete sayg').click();
 
             expect(saygDeleted).toEqual({
                 id: tournamentData.id,
@@ -958,12 +906,9 @@ describe('MasterDraw', () => {
                 [teamA],
             );
 
-            const masterDraw = context.required(
-                'div.d-flex > div:nth-child(1)',
-            );
-            const home = masterDraw.required(
-                'table tbody tr:first-child td:nth-child(2)',
-            );
+            const home = context
+                .required('div.d-flex > div:nth-child(1)')
+                .required('table tbody tr:first-child td:nth-child(2)');
             await home.required('.dropdown-toggle').click();
 
             const options = home.all('.dropdown-item');
@@ -980,6 +925,17 @@ describe('MasterDraw', () => {
             manageTournaments: true,
         });
         let tournament: ITournamentBuilder;
+        const sideBWin = {
+            nestInRound: true,
+            patch: {
+                match: {
+                    scoreA: 0,
+                    scoreB: 1,
+                    sideA: expect.any(String),
+                    sideB: expect.any(String),
+                },
+            },
+        };
 
         beforeEach(() => {
             tournament = tournamentBuilder()
@@ -994,29 +950,33 @@ describe('MasterDraw', () => {
                 .round();
         });
 
-        function matchWithSayg(
-            saygId: string,
-        ): (m: ITournamentMatchBuilder) => ITournamentMatchBuilder {
-            return (m) =>
+        function matchWithSayg(saygId: string) {
+            return (m: ITournamentMatchBuilder) =>
                 m
                     .sideA('SIDE A', undefined, playerA)
                     .sideB('SIDE B', undefined, playerB)
                     .saygId(saygId);
         }
 
-        it('does not patch in 180s', async () => {
-            const saygId = createTemporaryId();
-            const tournamentData = tournament
-                .round((r) => r.withMatch(matchWithSayg(saygId)))
-                .build();
+        async function render(saygId: string, c?: Partial<IMasterDrawProps>) {
             await renderComponent(
-                props({ tournamentData }),
+                props({
+                    ...c,
+                    tournamentData: tournament
+                        .round((r) => r.withMatch(matchWithSayg(saygId)))
+                        .build(),
+                }),
                 account,
                 undefined,
                 undefined,
                 undefined,
                 `/test/#${saygId}`,
             );
+        }
+
+        it('does not patch in 180s', async () => {
+            const saygId = createTemporaryId();
+            await render(saygId);
 
             await keyPad(context, ['1', '8', '0', ENTER_SCORE_BUTTON]);
 
@@ -1025,20 +985,7 @@ describe('MasterDraw', () => {
 
         it('does not patch in hi-checks', async () => {
             const saygId = createTemporaryId();
-            const tournamentData = tournament
-                .round((r) => r.withMatch(matchWithSayg(saygId)))
-                .build();
-            await renderComponent(
-                props({
-                    tournamentData: tournamentData,
-                    patchData,
-                }),
-                account,
-                undefined,
-                undefined,
-                undefined,
-                `/test#${saygId}`,
-            );
+            await render(saygId, { patchData });
 
             await enterScores(
                 context,
@@ -1049,15 +996,7 @@ describe('MasterDraw', () => {
 
             expect(patchedData).toEqual([
                 {
-                    nestInRound: true,
-                    patch: {
-                        match: {
-                            scoreA: 0,
-                            scoreB: 1,
-                            sideA: expect.any(String),
-                            sideB: expect.any(String),
-                        },
-                    },
+                    ...sideBWin,
                     saygId: saygId,
                 },
             ]);
@@ -1065,20 +1004,7 @@ describe('MasterDraw', () => {
 
         it('records regular checkout with a patch', async () => {
             const saygId = createTemporaryId();
-            const tournamentData = tournament
-                .round((r) => r.withMatch(matchWithSayg(saygId)))
-                .build();
-            await renderComponent(
-                props({
-                    tournamentData: tournamentData,
-                    patchData,
-                }),
-                account,
-                undefined,
-                undefined,
-                undefined,
-                `/test/#${saygId}`,
-            );
+            await render(saygId, { patchData });
 
             await enterScores(
                 context,
@@ -1089,15 +1015,7 @@ describe('MasterDraw', () => {
 
             expect(patchedData).toEqual([
                 {
-                    nestInRound: true,
-                    patch: {
-                        match: {
-                            scoreA: 0,
-                            scoreB: 1,
-                            sideA: expect.any(String),
-                            sideB: expect.any(String),
-                        },
-                    },
+                    ...sideBWin,
                     saygId: saygId,
                 },
             ]);
