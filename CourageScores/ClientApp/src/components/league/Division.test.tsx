@@ -29,7 +29,6 @@ import {
 } from '../../helpers/builders/divisions';
 import { teamBuilder } from '../../helpers/builders/teams';
 import { playerBuilder } from '../../helpers/builders/players';
-import { IFailedRequest } from '../common/IFailedRequest';
 import { IDivisionApi } from '../../interfaces/apis/IDivisionApi';
 import { DivisionDataFilter } from '../../interfaces/models/dtos/Division/DivisionDataFilter';
 import { IGameApi } from '../../interfaces/apis/IGameApi';
@@ -73,7 +72,7 @@ describe('Division', () => {
     let features: ConfiguredFeatureDto[];
 
     const divisionApi = api<IDivisionApi>({
-        data: async (filter: DivisionDataFilter): Promise<DivisionDataDto> => {
+        async data(filter: DivisionDataFilter): Promise<DivisionDataDto> {
             const seasonId: string = filter.seasonId!;
             const divisionId: string = filter.divisionId!.join(',');
             const key: string = `${divisionId}${seasonId ? ':' + seasonId : ''}`;
@@ -87,7 +86,7 @@ describe('Division', () => {
         },
     });
     const seasonApi = api<ISeasonApi>({
-        getHealth: async (): Promise<SeasonHealthCheckResultDto> => {
+        async getHealth(): Promise<SeasonHealthCheckResultDto> {
             return {
                 success: true,
                 checks: {},
@@ -98,10 +97,10 @@ describe('Division', () => {
         },
     });
     const gameApi = api<IGameApi>({
-        update: async (): Promise<IClientActionResultDto<GameDto>> => {
+        async update(): Promise<IClientActionResultDto<GameDto>> {
             return { success: true };
         },
-        delete: async (): Promise<IClientActionResultDto<GameDto>> => {
+        async delete(): Promise<IClientActionResultDto<GameDto>> {
             return { success: true };
         },
     });
@@ -173,14 +172,12 @@ describe('Division', () => {
         return context.required('.content-background');
     }
 
-    function defaultContainerProps(
-        customisations?: Partial<IDivisionUriContainerProps>,
-    ): IDivisionUriContainerProps {
+    function defaultContainerProps(c?: Partial<IDivisionUriContainerProps>) {
         return {
             urlStyle: UrlStyle.Multiple,
             children: <Division />,
-            ...customisations,
-        };
+            ...c,
+        } as IDivisionUriContainerProps;
     }
 
     describe('when out of season', () => {
@@ -202,13 +199,17 @@ describe('Division', () => {
             );
         }
 
-        it('renders prompt for season', async () => {
+        async function render(x?: Partial<IApp>) {
             await renderComponent(
-                defaultAppProps({ controls: true }),
+                defaultAppProps(x),
                 '/division/:divisionId',
                 `/division/${divisionId}`,
                 defaultContainerProps({ urlStyle: UrlStyle.Single }),
             );
+        }
+
+        it('renders prompt for season', async () => {
+            await render({ controls: true });
 
             const seasonSelection = getSeasonSelection();
             expect(seasonSelection.text()).toContain('Select a season');
@@ -217,12 +218,7 @@ describe('Division', () => {
         });
 
         it('renders prompt for season when no controls', async () => {
-            await renderComponent(
-                defaultAppProps(),
-                '/division/:divisionId',
-                `/division/${divisionId}`,
-                defaultContainerProps({ urlStyle: UrlStyle.Single }),
-            );
+            await render();
 
             const seasonSelection = getSeasonSelection();
             expect(seasonSelection.text()).toContain('Select a season');
@@ -294,33 +290,28 @@ describe('Division', () => {
         });
 
         describe('teams', () => {
-            async function renderTeams(
-                address: string,
-                route?: string,
-                containerProps?: IDivisionUriContainerProps,
+            async function render(
+                a: string,
+                r?: string,
+                cp?: IDivisionUriContainerProps,
             ) {
-                await renderComponent(
-                    defaultAppProps(),
-                    route ?? '/teams',
-                    address,
-                    containerProps,
-                );
+                await renderComponent(defaultAppProps(), r ?? '/teams', a, cp);
             }
 
             it('renders teams table via division id', async () => {
-                await renderTeams(`/teams/?division=${division.id}`);
+                await render(`/teams/?division=${division.id}`);
 
                 expect(tableHeadings()).toEqual(TEAM_TABLE_HEADINGS);
             });
 
             it('renders teams table via division name', async () => {
-                await renderTeams(`/teams/?division=${division.name}`);
+                await render(`/teams/?division=${division.name}`);
 
                 expect(tableHeadings()).toEqual(TEAM_TABLE_HEADINGS);
             });
 
             it('renders teams table via division and season name', async () => {
-                await renderTeams(
+                await render(
                     `/teams/${season.name}/?division=${division.name}`,
                     '/teams/:seasonId',
                 );
@@ -329,7 +320,7 @@ describe('Division', () => {
             });
 
             it('renders teams table via season id', async () => {
-                await renderTeams(
+                await render(
                     `/teams/${season.name}/?division=${division.name}`,
                     '/teams/:seasonId',
                 );
@@ -338,7 +329,7 @@ describe('Division', () => {
             });
 
             it('renders multi-division teams table via division and season name', async () => {
-                await renderTeams(
+                await render(
                     `/teams/${season.name}?division=${division.name}`,
                     '/teams/:seasonId',
                     defaultContainerProps({ mode: 'teams' }),
@@ -348,7 +339,7 @@ describe('Division', () => {
             });
 
             it('renders multi-division teams table via division and season id', async () => {
-                await renderTeams(
+                await render(
                     `/teams/${season.id}?division=${division.id}`,
                     '/teams/:seasonId',
                     defaultContainerProps({ mode: 'teams' }),
@@ -369,74 +360,60 @@ describe('Division', () => {
         });
 
         describe('team', () => {
-            it('renders team details when provided with team id', async () => {
+            async function render(t: string) {
                 await renderComponent(
                     defaultAppProps({ teams: [team] }),
                     '/division/:divisionId/:mode/:seasonId',
-                    `/division/${division.id}/team:${team.id}/${season.id}`,
+                    `/division/${division.id}/team:${t}/${season.id}`,
                     defaultContainerProps({ urlStyle: UrlStyle.Single }),
                 );
+            }
+
+            it('renders team details when provided with team id', async () => {
+                await render(team.id);
 
                 expect(heading()).toEqual('TEAM_NAME 🔗');
             });
 
             it('renders team details when provided with team name', async () => {
-                await renderComponent(
-                    defaultAppProps({ teams: [team] }),
-                    '/division/:divisionId/:mode/:seasonId',
-                    `/division/${division.name}/team:${team.name}/${season.name}`,
-                    defaultContainerProps({ urlStyle: UrlStyle.Single }),
-                );
+                await render(team.name);
 
                 expect(heading()).toEqual('TEAM_NAME 🔗');
             });
 
             it('renders team not found when provided no team name', async () => {
-                await renderComponent(
-                    defaultAppProps({ teams: [team] }),
-                    '/division/:divisionId/:mode/:seasonId',
-                    `/division/${division.name}/team:/${season.name}`,
-                    defaultContainerProps({ urlStyle: UrlStyle.Single }),
-                );
+                await render('');
 
-                expect(getContent().text()).toContain(
-                    '⚠ Team could not be found',
-                );
+                const text = getContent().text();
+                expect(text).toContain('⚠ Team could not be found');
             });
 
             it('renders team not found when provided with missing team', async () => {
-                await renderComponent(
-                    defaultAppProps({ teams: [team] }),
-                    '/division/:divisionId/:mode/:seasonId',
-                    `/division/${division.name}/team:UNKNOWN_TEAM/${season.name}`,
-                    defaultContainerProps({ urlStyle: UrlStyle.Single }),
-                );
+                await render('UNKNOWN_TEAM');
 
-                expect(getContent().text()).toContain(
-                    '⚠ Team could not be found',
-                );
+                const text = getContent().text();
+                expect(text).toContain('⚠ Team could not be found');
             });
         });
 
         describe('fixtures', () => {
-            it('renders fixtures list via division id', async () => {
+            async function render(d: string) {
                 await renderComponent(
                     defaultAppProps(),
                     '/fixtures',
-                    `/fixtures/?division=${division.id}`,
+                    `/fixtures/?division=${d}`,
                     defaultContainerProps({ mode: 'fixtures' }),
                 );
+            }
+
+            it('renders fixtures list via division id', async () => {
+                await render(division.id);
 
                 expect(getContent().text()).toContain('No fixtures, yet');
             });
 
             it('renders fixtures list via division name', async () => {
-                await renderComponent(
-                    defaultAppProps(),
-                    '/fixtures',
-                    `/fixtures/?division=${division.name}`,
-                    defaultContainerProps({ mode: 'fixtures' }),
-                );
+                await render(division.name);
 
                 expect(getContent().text()).toContain('No fixtures, yet');
             });
@@ -596,143 +573,102 @@ describe('Division', () => {
         });
 
         describe('player', () => {
-            it('renders player details when provided with player id', async () => {
+            async function render(spec: string) {
                 await renderComponent(
                     defaultAppProps(),
                     '/division/:divisionId/:mode',
-                    `/division/${division.id}/player:${player.id}`,
+                    `/division/${division.id}/player:${spec}`,
                     defaultContainerProps({ urlStyle: UrlStyle.Single }),
                 );
+            }
+
+            it('renders player details when provided with player id', async () => {
+                await render(player.id!);
 
                 expect(heading()).toContain('PLAYER_NAME');
             });
 
             it('renders player details when provided with player and team name', async () => {
-                await renderComponent(
-                    defaultAppProps(),
-                    '/division/:divisionId/:mode',
-                    `/division/${division.name}/player:${player.name}@${team.name}`,
-                    defaultContainerProps({ urlStyle: UrlStyle.Single }),
-                );
+                await render(`${player.name}@${team.name}`);
 
                 expect(heading()).toContain('PLAYER_NAME');
             });
 
             it('renders player not found when provided with missing team', async () => {
-                await renderComponent(
-                    defaultAppProps(),
-                    '/division/:divisionId/:mode',
-                    `/division/${division.name}/player:${player.name}@UNKNOWN_TEAM`,
-                    defaultContainerProps({ urlStyle: UrlStyle.Single }),
-                );
+                await render(`${player.name}@UNKNOWN_TEAM`);
 
-                expect(subHeading()).toContain(
-                    '⚠ PLAYER_NAME could not be found',
-                );
+                const notFound = '⚠ PLAYER_NAME could not be found';
+                expect(subHeading()).toContain(notFound);
             });
 
             it('renders player not found when provided with missing player', async () => {
-                await renderComponent(
-                    defaultAppProps(),
-                    '/division/:divisionId/:mode',
-                    `/division/${division.name}/player:UNKNOWN_PLAYER@${team.name}`,
-                    defaultContainerProps({ urlStyle: UrlStyle.Single }),
-                );
+                await render(`UNKNOWN_PLAYER@${team.name}`);
 
-                expect(subHeading()).toContain(
-                    '⚠ UNKNOWN_PLAYER could not be found',
-                );
+                const notFound = '⚠ UNKNOWN_PLAYER could not be found';
+                expect(subHeading()).toContain(notFound);
             });
 
             it('renders player not found when provided no player name', async () => {
-                await renderComponent(
-                    defaultAppProps(),
-                    '/division/:divisionId/:mode',
-                    `/division/${division.name}/player:`,
-                    defaultContainerProps({ urlStyle: UrlStyle.Single }),
-                );
+                await render('');
 
                 expect(subHeading()).toContain('⚠ Player could not be found');
             });
 
             it('renders player not found when provided with malformed names', async () => {
-                await renderComponent(
-                    defaultAppProps(),
-                    '/division/:divisionId/:mode',
-                    `/division/${division.name}/player:foo`,
-                    defaultContainerProps({ urlStyle: UrlStyle.Single }),
-                );
+                await render('foo');
 
                 expect(subHeading()).toContain('⚠ Player could not be found');
             });
         });
 
         describe('reports', () => {
-            it('does not render tab when logged out', async () => {
+            async function render(props?: Partial<IApp>, d?: DivisionDto) {
                 await renderComponent(
-                    defaultAppProps(),
-                    '/division/:divisionId',
-                    `/division/${division.id}`,
+                    defaultAppProps(props),
+                    '/division/:divisionId/:mode',
+                    `/division/${(d ?? division).id}/reports`,
                     defaultContainerProps({ urlStyle: UrlStyle.Single }),
                 );
+            }
+
+            it('does not render tab when logged out', async () => {
+                await render();
 
                 expect(tabs()).not.toContain('Reports');
             });
 
             it('does not render tab when not permitted', async () => {
-                await renderComponent(
-                    defaultAppProps({ account: user({}) }),
-                    '/division/:divisionId',
-                    `/division/${division.id}`,
-                    defaultContainerProps({ urlStyle: UrlStyle.Single }),
-                );
+                await render({ account: user({}) });
 
                 expect(tabs()).not.toContain('Reports');
             });
 
             it('renders tab when permitted', async () => {
-                await renderComponent(
-                    defaultAppProps({
-                        account: user({ runReports: true }),
-                        controls: true,
-                    }),
-                    '/division/:divisionId/:mode',
-                    `/division/${division.id}/reports`,
-                    defaultContainerProps({ urlStyle: UrlStyle.Single }),
-                );
+                await render({
+                    account: user({ runReports: true }),
+                    controls: true,
+                });
 
                 expect(tabs()).toContain('Reports');
             });
 
             it('does not render reports content when not permitted', async () => {
-                await renderComponent(
-                    defaultAppProps({ account: user({}) }),
-                    '/division/:divisionId/:mode',
-                    `/division/${division.id}/reports`,
-                    defaultContainerProps({ urlStyle: UrlStyle.Single }),
-                );
+                await render({ account: user({}) });
 
                 expect(context.optional('.btn.btn-primary')).toBeFalsy();
             });
 
             it('renders reports content when permitted', async () => {
-                await renderComponent(
-                    defaultAppProps({ account: user({ runReports: true }) }),
-                    '/division/:divisionId/:mode',
-                    `/division/${division.id}/reports`,
-                    defaultContainerProps({ urlStyle: UrlStyle.Single }),
-                );
+                await render({ account: user({ runReports: true }) });
 
-                expect(context.required('.btn.btn-primary').text()).toEqual(
-                    '📊 Get reports...',
-                );
+                const button = context.required('.btn.btn-primary');
+                expect(button.text()).toEqual('📊 Get reports...');
             });
 
             it('does not render reports tab for superleague', async () => {
-                await renderComponent(
-                    defaultAppProps({ divisions: [superleagueDivision] }),
-                    '/division/:divisionId/:mode',
-                    `/division/${superleagueDivision.id}/reports`,
+                await render(
+                    { divisions: [superleagueDivision] },
+                    superleagueDivision,
                 );
 
                 expect(tabs()).not.toContain('Reports');
@@ -740,73 +676,61 @@ describe('Division', () => {
         });
 
         describe('health', () => {
-            it('does not health tab when logged out', async () => {
+            async function render(x?: Partial<IApp>, d?: DivisionDto) {
                 await renderComponent(
-                    defaultAppProps(),
-                    '/division/:divisionId',
-                    `/division/${division.id}`,
+                    defaultAppProps(x),
+                    '/division/:divisionId/:mode',
+                    `/division/${(d ?? division).id}/health`,
                     defaultContainerProps({ urlStyle: UrlStyle.Single }),
                 );
+            }
+
+            it('does not health tab when logged out', async () => {
+                await render();
 
                 expect(tabs()).not.toContain('Health');
             });
 
             it('does not render tab when not permitted', async () => {
-                await renderComponent(
-                    defaultAppProps({
-                        account: user({}),
-                    }),
-                    '/division/:divisionId',
-                    `/division/${division.id}`,
-                    defaultContainerProps({ urlStyle: UrlStyle.Single }),
-                );
+                await render({
+                    account: user({}),
+                });
 
                 expect(tabs()).not.toContain('Health');
             });
 
             it('renders tab when permitted', async () => {
-                await renderComponent(
-                    defaultAppProps({
-                        account: user({ runHealthChecks: true }),
-                        controls: true,
-                    }),
-                    '/division/:divisionId/:mode',
-                    `/division/${division.id}/health`,
-                    defaultContainerProps({ urlStyle: UrlStyle.Single }),
-                );
+                await render({
+                    account: user({ runHealthChecks: true }),
+                    controls: true,
+                });
 
                 expect(tabs()).toContain('Health');
             });
 
             it('does not render health content when not permitted', async () => {
-                await renderComponent(
-                    defaultAppProps({ account: user({}) }),
-                    '/division/:divisionId/:mode',
-                    `/division/${division.id}/health`,
-                    defaultContainerProps({ urlStyle: UrlStyle.Single }),
-                );
+                await render({
+                    account: user({}),
+                });
 
                 expect(context.optional('.btn.btn-primary')).toBeFalsy();
             });
 
             it('renders health content when permitted', async () => {
-                await renderComponent(
-                    defaultAppProps({
-                        account: user({ runHealthChecks: true }),
-                    }),
-                    '/division/:divisionId/:mode',
-                    `/division/${division.id}/health`,
-                    defaultContainerProps({ urlStyle: UrlStyle.Single }),
-                );
+                await render({
+                    account: user({ runHealthChecks: true }),
+                });
 
                 expect(context.optional('div[datatype="health"]')).toBeTruthy();
             });
 
             it('does not render health tab for superleague', async () => {
-                await renderComponent(
-                    defaultAppProps({ divisions: [superleagueDivision] }),
-                    '/division/:divisionId/:mode',
-                    `/division/${superleagueDivision.id}/health`,
+                await render(
+                    {
+                        account: user({ runHealthChecks: true }),
+                        divisions: [superleagueDivision],
+                    },
+                    superleagueDivision,
                 );
 
                 expect(tabs()).not.toContain('Health');
@@ -828,24 +752,23 @@ describe('Division', () => {
                 };
             });
 
-            it('renders data errors when permitted', async () => {
+            async function render(x?: Partial<IApp>) {
                 await renderComponent(
-                    defaultAppProps({ account: user({}) }),
+                    defaultAppProps(x),
                     '/division/:divisionId',
                     `/division/${division.id}`,
                     defaultContainerProps({ urlStyle: UrlStyle.Single }),
                 );
+            }
+
+            it('renders data errors when permitted', async () => {
+                await render({ account: user({}) });
 
                 expect(heading()).toEqual('⚠ Errors in division data');
             });
 
             it('can hide data errors', async () => {
-                await renderComponent(
-                    defaultAppProps({ account: user({}) }),
-                    '/division/:divisionId',
-                    `/division/${division.id}`,
-                    defaultContainerProps({ urlStyle: UrlStyle.Single }),
-                );
+                await render({ account: user({}) });
                 expect(heading()).toEqual('⚠ Errors in division data');
 
                 await context.button('Hide errors').click();
@@ -854,12 +777,7 @@ describe('Division', () => {
             });
 
             it('does not render data errors when not permitted', async () => {
-                await renderComponent(
-                    defaultAppProps(),
-                    '/division/:divisionId',
-                    `/division/${division.id}`,
-                    defaultContainerProps({ urlStyle: UrlStyle.Single }),
-                );
+                await render();
 
                 expect(heading()).toBeFalsy();
             });
@@ -943,15 +861,14 @@ describe('Division', () => {
             });
 
             it('renders error when data returns with a status code with errors', async () => {
-                const error: IFailedRequest = {
+                divisionDataMap[division.id] = {
                     status: 500,
                     errors: {
                         key1: ['some error1'],
                         key2: ['some error2'],
                     },
-                };
-                divisionDataMap[division.id] =
-                    error as IRequestedDivisionDataDto;
+                    name: '',
+                } as IRequestedDivisionDataDto;
 
                 await renderComponent(
                     defaultAppProps(),

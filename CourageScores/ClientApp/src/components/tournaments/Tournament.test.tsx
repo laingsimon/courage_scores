@@ -99,43 +99,37 @@ describe('Tournament', () => {
         },
     });
     const tournamentApi = api<ITournamentGameApi>({
-        get: async (id: string) => {
+        async get(id: string) {
             if (any(Object.keys(tournamentDataLookup), (k) => k === id)) {
                 return tournamentDataLookup[id];
             }
 
             throw new Error('Unexpected request for tournament data: ' + id);
         },
-        update: async (data: EditTournamentGameDto) => {
+        async update(data: EditTournamentGameDto) {
             updatedTournamentData.push(data);
             return apiResponse || { success: true, result: data };
         },
-        patch: async (id: string, data: PatchTournamentDto) => {
+        async patch(id: string, data: PatchTournamentDto) {
             patchedTournamentData.push({ id, data });
             return apiResponse || { success: true, result: data };
         },
-        async uploadPhoto(
-            request: UploadPhotoDto,
-            file: File,
-        ): Promise<IClientActionResultDto<TournamentGameDto>> {
+        async uploadPhoto(request: UploadPhotoDto, file: File) {
             uploadedPhoto = { request, file };
             return uploadPhotoResponse!;
         },
-        async deletePhoto(
-            id: string,
-            photoId: string,
-        ): Promise<IClientActionResultDto<TournamentGameDto>> {
+        async deletePhoto(id: string, photoId: string) {
             deletedPhoto = { id, photoId };
             return deletePhotoResponse!;
         },
     });
     const playerApi = api<IPlayerApi>({
-        create: async (
+        async create(
             divisionId: string,
             seasonId: string,
             teamId: string,
             playerDetails: EditTeamPlayerDto,
-        ) => {
+        ) {
             createdPlayer = { divisionId, seasonId, teamId, playerDetails };
             return (
                 apiResponse || {
@@ -153,16 +147,14 @@ describe('Tournament', () => {
         },
     });
     const saygApi = api<ISaygApi>({
-        get: async (id: string): Promise<RecordedScoreAsYouGoDto | null> => {
+        async get(id: string) {
             if (any(Object.keys(saygDataLookup), (k) => k === id)) {
                 return saygDataLookup[id];
             }
 
             throw new Error('Unexpected request for sayg data: ' + id);
         },
-        upsert: async (
-            data: UpdateRecordedScoreAsYouGoDto,
-        ): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> => {
+        async upsert(data: UpdateRecordedScoreAsYouGoDto) {
             return {
                 success: true,
                 result: data as RecordedScoreAsYouGoDto,
@@ -170,7 +162,7 @@ describe('Tournament', () => {
         },
     });
     const featureApi = api<IFeatureApi>({
-        async getFeatures(): Promise<ConfiguredFeatureDto[]> {
+        async getFeatures() {
             const feature: ConfiguredFeatureDto = {
                 name: 'PhotosEnabled',
                 configuredValue: 'true',
@@ -186,8 +178,7 @@ describe('Tournament', () => {
         seasonId: string,
         data: DivisionDataDto,
     ) {
-        const key: string = `${divisionId}_${seasonId}`;
-        divisionDataLookup[key] = data;
+        divisionDataLookup[`${divisionId}_${seasonId}`] = data;
     }
 
     function buildPhoto(name: string): PhotoReferenceDto {
@@ -219,10 +210,7 @@ describe('Tournament', () => {
         deletePhotoResponse = null;
     });
 
-    function patchMatchUseCase(access: AccessDto): {
-        user: UserDto;
-        toString: () => string;
-    } {
+    function patchMatchUseCase(access: AccessDto) {
         return {
             user: user({
                 managePlayers: true,
@@ -270,9 +258,7 @@ describe('Tournament', () => {
                     account: scenario.account,
                     seasons: scenario.seasons,
                     teams: scenario.teams,
-                    reloadTeams: async () => {
-                        return scenario.teams;
-                    },
+                    reloadTeams: async () => scenario.teams,
                     divisions: scenario.divisions,
                 },
                 reportedError,
@@ -283,8 +269,10 @@ describe('Tournament', () => {
         );
     }
 
-    function modalDialog(): IComponent | undefined {
-        return context.optional('.modal-dialog');
+    function modalDialog(child?: string): IComponent | undefined {
+        return child
+            ? context.required('.modal-dialog').required(child)
+            : context.optional('.modal-dialog');
     }
 
     function addSideOption() {
@@ -420,9 +408,8 @@ describe('Tournament', () => {
             it('loading', async () => {
                 await render(tournamentData, season, undefined, true);
 
-                expect(
-                    context.required('.content-background').className(),
-                ).toContain('loading-background');
+                const content = context.required('.content-background');
+                expect(content.className()).toContain('loading-background');
                 reportedError.verifyNoError();
             });
 
@@ -498,9 +485,8 @@ describe('Tournament', () => {
             it('loading', async () => {
                 await render(tournamentData, season, undefined, true);
 
-                expect(
-                    context.required('.content-background').className(),
-                ).toContain('loading-background');
+                const content = context.required('.content-background');
+                expect(content.className()).toContain('loading-background');
             });
         });
     });
@@ -597,7 +583,7 @@ describe('Tournament', () => {
             await context.button('Add player').click();
 
             await modalDialog()!.input('name').change('NEW PLAYER');
-            await modalDialog()!.required('.dropdown-menu').select('TEAM');
+            await modalDialog('.dropdown-menu')!.select('TEAM');
             await modalDialog()!.button('Add player').click();
 
             expect(createdPlayer!.teamId).toEqual(teamNoPlayers.id);
@@ -985,7 +971,7 @@ describe('Tournament', () => {
             tournamentData.sides!.push(sideA, sideC);
             await render(team);
             await addSideOption().click();
-            await modalDialog()!.required('.dropdown-menu').select('TEAM');
+            await modalDialog('.dropdown-menu')!.select('TEAM');
             await modalDialog()!.button('Add').click();
 
             await oneEighties().click();
@@ -1004,9 +990,7 @@ describe('Tournament', () => {
 
             await context.button('📷 Photos').click();
 
-            expect(
-                modalDialog()!.optional('div[datatype="upload-control"]'),
-            ).toBeTruthy();
+            expect(modalDialog('div[datatype="upload-control"]')).toBeTruthy();
         });
 
         it('can close photo manager', async () => {
@@ -1024,7 +1008,7 @@ describe('Tournament', () => {
             uploadPhotoResponse = makeApiResponse(tournamentData, true);
 
             const file = 'a photo';
-            await modalDialog()!.required('input[type="file"]').file(file);
+            await modalDialog('input[type="file"]')!.file(file);
 
             expect(uploadedPhoto!.file).toEqual(file);
             expect(uploadedPhoto!.request.id).toEqual(tournamentData.id);
@@ -1035,7 +1019,7 @@ describe('Tournament', () => {
             await context.button('📷 Photos').click();
             uploadPhotoResponse = makeApiFailure('SOME ERROR');
 
-            await modalDialog()!.required('input[type="file"]').file('any');
+            await modalDialog('input[type="file"]')!.file('any');
 
             expect(uploadedPhoto).not.toBeNull();
             expect(context.text()).toContain('SOME ERROR');
