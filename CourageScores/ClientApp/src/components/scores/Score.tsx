@@ -33,7 +33,6 @@ import {
     getMatchOptionDefaults,
     getMatchOptionsLookup,
     IMatchOptionsLookup,
-    IMultiMatchOptions,
 } from '../../helpers/matchOptions';
 import { PageError } from '../common/PageError';
 import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
@@ -44,7 +43,6 @@ import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
 import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
 import { IFailedRequest } from '../common/IFailedRequest';
 import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto';
-import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto';
 import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
 import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
 import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto';
@@ -53,7 +51,6 @@ import { ISelectablePlayer } from '../common/PlayerSelection';
 import { RecordScoresDto } from '../../interfaces/models/dtos/Game/RecordScoresDto';
 import { PhotoManager } from '../common/PhotoManager';
 import { UploadPhotoDto } from '../../interfaces/models/dtos/UploadPhotoDto';
-import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto';
 import { useBranding } from '../common/BrandingContainer';
 import { NavLink } from '../common/NavLink';
 import { hasAccess } from '../../helpers/conditions';
@@ -69,14 +66,15 @@ interface IRenamedPlayer {
     renamed?: boolean;
 }
 
-interface ICaptainMatchPlayer extends GamePlayerDto {
-    captain?: boolean;
-}
-
 interface IEditableMatchPlayer {
     name: string;
     captain?: boolean;
 }
+
+type LoadingState = 'init' | 'loading' | 'ready';
+type SelectedTeam = TeamPlayerDto & ISelectablePlayer & IRenamedPlayer;
+type SelectablePlayer = TeamPlayerDto & ISelectablePlayer & IRenamedPlayer;
+const photoFeatureId = 'af2ef520-8153-42b0-9ef4-d8419daebc23';
 
 export function Score() {
     const { fixtureId } = useParams();
@@ -90,17 +88,11 @@ export function Score() {
         teams,
         reloadTeams,
     } = useApp();
-    const [loading, setLoading] = useState<'init' | 'loading' | 'ready'>(
-        'init',
-    );
+    const [loading, setLoading] = useState<LoadingState>('init');
     const [data, setData] = useState<GameDto | null>(null);
     const [fixtureData, setFixtureData] = useState<GameDto | null>(null);
-    const [homeTeam, setHomeTeam] = useState<
-        (TeamPlayerDto & ISelectablePlayer & IRenamedPlayer)[]
-    >([]);
-    const [awayTeam, setAwayTeam] = useState<
-        (TeamPlayerDto & ISelectablePlayer & IRenamedPlayer)[]
-    >([]);
+    const [homeTeam, setHomeTeam] = useState<SelectedTeam[]>([]);
+    const [awayTeam, setAwayTeam] = useState<SelectedTeam[]>([]);
     const [allPlayers, setAllPlayers] = useState<ISelectablePlayer[]>([]);
     const [saving, setSaving] = useState<boolean>(false);
     const [saveError, setSaveError] = useState<
@@ -212,14 +204,9 @@ export function Score() {
     useEffect(
         () => {
             featureApi.getFeatures().then((features) => {
-                const feature: ConfiguredFeatureDto = features.filter(
-                    (f) => f.id === 'af2ef520-8153-42b0-9ef4-d8419daebc23',
-                )[0];
-                const featureEnabled =
-                    feature &&
-                    (feature.configuredValue || feature.defaultValue) ===
-                        'true';
-                setPhotosEnabled(featureEnabled);
+                const photos = features.find((f) => f.id === photoFeatureId);
+                const config = photos?.configuredValue || photos?.defaultValue;
+                setPhotosEnabled(config === 'true');
             });
         },
         // eslint-disable-next-line
@@ -231,48 +218,28 @@ export function Score() {
             /* istanbul ignore next */
             if (loading !== 'init') {
                 /* istanbul ignore next */
-                console.log(`loading=${loading}`);
-                /* istanbul ignore next */
                 return;
             }
 
             if (appLoading) {
-                /* istanbul ignore next */
-                console.log(
-                    `appLoading=${appLoading}, seasons.length=${seasons ? seasons.length : '<null>'}, teams.length=${teams ? teams.length : '<null>'}, divisions=${divisions ? divisions.length : '<null>'}`,
-                );
                 return;
             }
 
             if (!seasons || !seasons.length) {
-                /* istanbul ignore next */
-                console.log(
-                    `appLoading=${appLoading}, seasons.length=${seasons ? seasons.length : '<null>'}, teams.length=${teams ? teams.length : '<null>'}, divisions=${divisions ? divisions.length : '<null>'}`,
-                );
                 onError('App has finished loading, no seasons are available');
                 return;
             }
 
             if (!teams || !teams.length) {
-                /* istanbul ignore next */
-                console.log(
-                    `appLoading=${appLoading}, seasons.length=${seasons ? seasons.length : '<null>'}, teams.length=${teams ? teams.length : '<null>'}, divisions=${divisions ? divisions.length : '<null>'}`,
-                );
                 onError('App has finished loading, no teams are available');
                 return;
             }
 
             if (!divisions || !divisions.length) {
-                /* istanbul ignore next */
-                console.log(
-                    `appLoading=${appLoading}, seasons.length=${seasons ? seasons.length : '<null>'}, teams.length=${teams ? teams.length : '<null>'}, divisions=${divisions ? divisions.length : '<null>'}`,
-                );
                 onError('App has finished loading, no divisions are available');
                 return;
             }
 
-            /* istanbul ignore next */
-            console.log(`Loading fixture data (loading=${loading})...`);
             setLoading('loading');
             // noinspection JSIgnoredPromiseFromCall
             loadFixtureData();
@@ -286,7 +253,7 @@ export function Score() {
         seasonId: string,
         teamType: string,
         matches: GameMatchDto[],
-    ): (TeamPlayerDto & ISelectablePlayer)[] | undefined {
+    ): SelectablePlayer[] | undefined {
         const teamData = teams.find((t: TeamDto) => t.id === teamId);
 
         if (!teamData) {
@@ -307,21 +274,14 @@ export function Score() {
             return;
         }
 
-        const players: (ISelectablePlayer & IRenamedPlayer)[] =
-            teamSeason.players!.map(
-                (p: TeamPlayerDto) => p as ISelectablePlayer & IRenamedPlayer,
-            ); // copy the players list
+        const players: SelectablePlayer[] = [...teamSeason.players!]; // copy the players list
 
         for (const match of matches) {
-            const matchPlayers: ICaptainMatchPlayer[] =
-                match[teamType + 'Players'];
+            const matchPlayers = match[teamType + 'Players'];
             for (const matchPlayer of matchPlayers) {
-                const correspondingPlayer: TeamPlayerDto &
-                    ISelectablePlayer &
-                    IRenamedPlayer = players.filter(
-                    (p: TeamPlayerDto & ISelectablePlayer & IRenamedPlayer) =>
-                        p.id === matchPlayer.id,
-                )[0];
+                const correspondingPlayer = players.find(
+                    (p: SelectablePlayer) => p.id === matchPlayer.id,
+                );
                 if (
                     correspondingPlayer &&
                     correspondingPlayer.name !== matchPlayer.name &&
@@ -355,14 +315,14 @@ export function Score() {
     );
 
     function loadPlayerData(gameData: GameDto) {
-        const homeTeamPlayers: (TeamPlayerDto & ISelectablePlayer)[] =
+        const homeTeamPlayers: SelectablePlayer[] =
             loadTeamPlayers(
                 gameData.home.id,
                 gameData.seasonId!,
                 'home',
                 gameData.matches!,
             ) || [];
-        const awayTeamPlayers: (TeamPlayerDto & ISelectablePlayer)[] =
+        const awayTeamPlayers: SelectablePlayer[] =
             loadTeamPlayers(
                 gameData.away.id,
                 gameData.seasonId!,
@@ -373,7 +333,7 @@ export function Score() {
         setHomeTeam(homeTeamPlayers);
         setAwayTeam(awayTeamPlayers);
 
-        const allPlayers: ISelectablePlayer[] = homeTeamPlayers
+        const allPlayers = homeTeamPlayers
             .concat(awayTeamPlayers)
             .filter((p: TeamPlayerDto) => p.id !== NEW_PLAYER);
         allPlayers.sort(sortBy('name'));
@@ -389,7 +349,7 @@ export function Score() {
                 return;
             }
 
-            const failedRequest: IFailedRequest = gameData as IFailedRequest;
+            const failedRequest = gameData as IFailedRequest;
             if (failedRequest.status) {
                 /* istanbul ignore next */
                 console.log(gameData);
@@ -434,16 +394,9 @@ export function Score() {
                 gameData.matchOptions!,
                 gameData.isKnockout,
             );
-            gameData.matchOptions = [
-                getMatchOptionDefaults(0, matchOptions),
-                getMatchOptionDefaults(1, matchOptions),
-                getMatchOptionDefaults(2, matchOptions),
-                getMatchOptionDefaults(3, matchOptions),
-                getMatchOptionDefaults(4, matchOptions),
-                getMatchOptionDefaults(5, matchOptions),
-                getMatchOptionDefaults(6, matchOptions),
-                getMatchOptionDefaults(7, matchOptions),
-            ];
+            gameData.matchOptions = repeat(8, (m) =>
+                getMatchOptionDefaults(m, matchOptions),
+            );
         }
 
         if (!gameData.matches || isEmpty(gameData.matches)) {
@@ -462,10 +415,9 @@ export function Score() {
 
         try {
             setSaving(true);
-            const update: RecordScoresDto = fixtureData as RecordScoresDto;
+            const update = fixtureData as RecordScoresDto;
             update.lastUpdated = fixtureData!.updated;
-            const response: IClientActionResultDto<GameDto> =
-                await gameApi.updateScores(fixtureId!, update);
+            const response = await gameApi.updateScores(fixtureId!, update);
 
             if (!response.success) {
                 setSaveError(response);
@@ -492,7 +444,7 @@ export function Score() {
             setSaving(true);
 
             const newData: GameDto = Object.assign({}, data);
-            newData.matches = [{}, {}, {}, {}, {}, {}, {}, {}];
+            newData.matches = repeat(8, () => ({}));
             newData.home.manOfTheMatch = undefined;
             newData.away.manOfTheMatch = undefined;
             newData.oneEighties = [];
@@ -521,9 +473,9 @@ export function Score() {
         _: number,
         playerCount: number,
     ) {
-        const matchesExceptIndex: GameMatchDto[] = fixtureData!.matches!.filter(
+        const matchesExceptIndex = fixtureData!.matches!.filter(
             (_: GameMatchDto, matchIndex: number) => {
-                const matchOptions: GameMatchOptionDto = getMatchOptionDefaults(
+                const matchOptions = getMatchOptionDefaults(
                     matchIndex,
                     getMatchOptionsLookup(
                         fixtureData!.matchOptions!,
@@ -545,11 +497,9 @@ export function Score() {
             setFixtureData(newFixtureData);
         }
 
-        async function onMatchOptionsChanged(
-            newMatchOptions: GameMatchOptionDto,
-        ) {
+        async function onMatchOptionsChanged(matchOptions: GameMatchOptionDto) {
             const newFixtureData: GameDto = Object.assign({}, fixtureData);
-            newFixtureData.matchOptions![index] = newMatchOptions;
+            newFixtureData.matchOptions![index] = matchOptions;
 
             setFixtureData(newFixtureData);
         }
@@ -615,8 +565,6 @@ export function Score() {
                 />
             );
         }
-
-        return null;
     }
 
     function renderManOfTheMatchInput() {
@@ -634,8 +582,6 @@ export function Score() {
                 />
             );
         }
-
-        return null;
     }
 
     function renderMergeManOfTheMatch() {
@@ -672,8 +618,6 @@ export function Score() {
                 />
             );
         }
-
-        return null;
     }
 
     function render180sAndHiCheckInput() {
@@ -701,21 +645,16 @@ export function Score() {
                 />
             );
         }
-
-        return null;
     }
 
     async function uploadPhotos(file: File): Promise<boolean> {
         const request: UploadPhotoDto = {
             id: fixtureId,
         };
-        const result: IClientActionResultDto<GameDto> =
-            await gameApi.uploadPhoto(request, file);
+        const result = await gameApi.uploadPhoto(request, file);
 
         if (result.success) {
-            const patchedGameData: GameDto = addMatchesAndMatchOptions(
-                result.result!,
-            );
+            const patchedGameData = addMatchesAndMatchOptions(result.result!);
             setFixtureData(patchedGameData);
             setData(patchedGameData);
             return true;
@@ -726,13 +665,10 @@ export function Score() {
     }
 
     async function deletePhotos(id: string): Promise<boolean> {
-        const result: IClientActionResultDto<GameDto> =
-            await gameApi.deletePhoto(fixtureId!, id);
+        const result = await gameApi.deletePhoto(fixtureId!, id);
 
         if (result.success) {
-            const patchedGameData: GameDto = addMatchesAndMatchOptions(
-                result.result!,
-            );
+            const patchedGameData = addMatchesAndMatchOptions(result.result!);
             setFixtureData(patchedGameData);
             setData(patchedGameData);
             return true;
@@ -746,17 +682,17 @@ export function Score() {
         const wasKnockout = fixtureData!.isKnockout;
 
         if (details.isKnockout !== wasKnockout) {
-            const matchOptionsLookup: IMatchOptionsLookup =
-                getMatchOptionsLookup([], details.isKnockout);
+            const matchOptionsLookup = getMatchOptionsLookup(
+                [],
+                details.isKnockout,
+            );
 
             // set the match options - number of legs
-            const numberOfLegsPerMatch: IMultiMatchOptions =
-                matchOptionsLookup.numberOfLegs;
+            const numberOfLegsPerMatch = matchOptionsLookup.numberOfLegs;
 
             for (const index in numberOfLegsPerMatch) {
                 const numberOfLegs: number = numberOfLegsPerMatch[index];
-                const matchOptions: GameMatchOptionDto =
-                    details.matchOptions![index];
+                const matchOptions = details.matchOptions![index];
                 matchOptions.numberOfLegs = numberOfLegs;
             }
         }
@@ -791,9 +727,7 @@ export function Score() {
             (!saving &&
                 ((access === 'admin' && !submission) ||
                     (!fixtureData.resultsPublished &&
-                        account &&
-                        account.access &&
-                        account.access.inputResults === true))) ||
+                        account?.access?.inputResults === true))) ||
             false;
         const leagueFixtureData: ILeagueFixtureContainerProps = {
             season: season,
@@ -962,10 +896,8 @@ export function Score() {
                                 Unpublish
                             </button>
                         ) : null}
-                        {account &&
-                        account.access &&
-                        (account.access.uploadPhotos ||
-                            account.access.viewAnyPhoto) &&
+                        {(account?.access?.uploadPhotos ||
+                            account?.access?.viewAnyPhoto) &&
                         photosEnabled ? (
                             <button
                                 className="btn btn-primary margin-right"
@@ -979,15 +911,12 @@ export function Score() {
                             </span>
                             {account ? (
                                 <span className="dropdown-item">
-                                    Team:{' '}
-                                    {accountTeam
-                                        ? accountTeam.name
-                                        : account.teamId}
+                                    Team: {accountTeam?.name || account.teamId}
                                 </span>
                             ) : null}
                             <span className="dropdown-item">
                                 Data:{' '}
-                                {fixtureData && fixtureData.resultsPublished
+                                {fixtureData?.resultsPublished
                                     ? 'published'
                                     : 'draft'}
                             </span>
@@ -998,11 +927,7 @@ export function Score() {
                                 {leagueFixtureData.disabled ? 'Yes' : 'No'}
                                 <span> | </span>
                                 InputResults:{' '}
-                                {account &&
-                                account.access &&
-                                account.access.inputResults
-                                    ? 'Yes'
-                                    : 'No'}
+                                {account?.access?.inputResults ? 'Yes' : 'No'}
                             </span>
                         </DebugOptions>
                     </div>
@@ -1016,14 +941,12 @@ export function Score() {
                         doDelete={deletePhotos}
                         canUploadPhotos={hasAccess(
                             account,
-                            (access) => access.uploadPhotos,
+                            (a) => a.uploadPhotos,
                         )}
                         canDeletePhotos={
                             hasAccess(
                                 account,
-                                (access) =>
-                                    access.uploadPhotos ||
-                                    access.deleteAnyPhoto,
+                                (a) => a.uploadPhotos || a.deleteAnyPhoto,
                             ) || access === 'admin'
                         }
                         canViewAllPhotos={
