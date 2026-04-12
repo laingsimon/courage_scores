@@ -8,7 +8,7 @@ using TypeScriptMapper.MetaData;
 namespace TypeScriptMapper.Controllers;
 
 [ExcludeFromCodeCoverage]
-public class ControllerStrategy: IStrategy
+public class ControllerStrategy : IStrategy
 {
     private readonly Assembly _assembly;
     private readonly TypeScriptInterfaceFactory _metaDataFactory;

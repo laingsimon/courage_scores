@@ -396,7 +396,7 @@ public class DivisionFixtureAdapterTests
         var result = await _adapter.Adapt(game, _season, _homeTeam, _awayTeam, null, null, _token);
 
         Assert.That(result.FromTime, Is.EqualTo(new DateTime(2001, 02, 03, 21, 0, 0)));
-        Assert.That(result.ToTime, Is.EqualTo(new DateTime(2001, 02, 03, 21+2, 0, 0)));
+        Assert.That(result.ToTime, Is.EqualTo(new DateTime(2001, 02, 03, 21 + 2, 0, 0)));
     }
 
     [TestCase(true, true)]

@@ -67,6 +67,6 @@ public class PhotoHelper : IPhotoHelper
     private static Size RescaleSize(Size currentSize, double maxHeight)
     {
         var rescale = maxHeight / currentSize.Height;
-        return new Size((int)Math.Floor(currentSize.Width * rescale), (int)Math.Floor(currentSize.Height*rescale));
+        return new Size((int)Math.Floor(currentSize.Width * rescale), (int)Math.Floor(currentSize.Height * rescale));
     }
 }

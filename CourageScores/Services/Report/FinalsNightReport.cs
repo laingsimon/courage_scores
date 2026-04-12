@@ -31,7 +31,7 @@ public class FinalsNightReport : CompositeReport
         ICachingDivisionService divisionService,
         IGenericDataService<TournamentGame, TournamentGameDto> tournamentService,
         ITournamentTypeResolver tournamentTypeResolver)
-        :base([manOfTheMatchReport])
+        : base([manOfTheMatchReport])
     {
         _userService = userService;
         _manOfTheMatchReport = manOfTheMatchReport;

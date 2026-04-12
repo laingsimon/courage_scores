@@ -1,6 +1,7 @@
 import {
     api,
     cleanUp,
+    IComponent,
     iocProps,
     noop,
     Prompts,
@@ -153,7 +154,6 @@ describe('App', () => {
         });
 
         return {
-            container: container,
             cleanUp: async () => {
                 await act(async () => {
                     root.unmount();
@@ -181,20 +181,18 @@ describe('App', () => {
         document.head.appendChild(meta);
     }
 
-    function isForDomain(a: HTMLAnchorElement, domain: string) {
-        const href = a.getAttribute('href')!;
-        const url = new URL(href);
+    function isForDomain(a: IComponent, domain: string) {
+        const url = new URL(a.element<HTMLAnchorElement>().href);
 
         return url.host === domain;
     }
 
     function assertSocialLinks() {
-        const socialLinks = Array.from(
-            context.container.querySelectorAll('div.social-header a[href]'),
-        ) as HTMLAnchorElement[];
+        const socialLinks = context.all('div.social-header a[href]');
         expect(socialLinks.length).toEqual(3);
         const email = socialLinks.filter(
-            (a) => a.getAttribute('href')!.indexOf('mailto:') !== -1,
+            (a) =>
+                a.element<HTMLAnchorElement>().href.indexOf('mailto:') !== -1,
         )[0];
         const facebook = socialLinks.filter((a) =>
             isForDomain(a, 'www.facebook.com'),
@@ -208,16 +206,14 @@ describe('App', () => {
     }
 
     function assertHeading() {
-        const heading = context.container.querySelector('h1.heading')!;
-        expect(heading).toBeTruthy();
-        expect(heading.textContent).toEqual('COURAGE LEAGUE');
+        const heading = context.required('h1.heading');
+        expect(heading.text()).toEqual('COURAGE LEAGUE');
     }
 
     async function assertMenu(loading?: boolean) {
-        const header = context.container.querySelector('header')!;
-        expect(header).toBeTruthy();
-        const menuItems = Array.from(header.querySelectorAll('li.nav-item'));
-        const menuItemText = menuItems.map((li) => li.textContent);
+        const header = context.required('header')!;
+        const menuItems = header.all('li.nav-item');
+        const menuItemText = menuItems.map((li) => li.text());
         const divisionMenuItems = loading
             ? []
             : (await allDivisions).map((d: DivisionDto) => d.name);
@@ -330,13 +326,11 @@ describe('App', () => {
         it('embedded', async () => {
             await renderComponent(undefined, true);
 
-            const socialLinks = Array.from(
-                context.container.querySelectorAll('div.social-header a[href]'),
-            );
+            const socialLinks = context.all('div.social-header a[href]');
             expect(socialLinks.length).toEqual(0);
-            const heading = context.container.querySelector('h1.heading');
+            const heading = context.optional('h1.heading');
             expect(heading).toBeFalsy();
-            const header = context.container.querySelector('header');
+            const header = context.optional('header');
             expect(header).toBeFalsy();
         });
 
@@ -393,9 +387,7 @@ describe('App', () => {
                 message: 'ERROR',
                 source: 'UI',
             });
-            expect(context.container.textContent).toContain(
-                'An error occurred',
-            );
+            expect(context.text()).toContain('An error occurred');
         });
 
         it('can report client side exception directly', async () => {
@@ -411,9 +403,7 @@ describe('App', () => {
                 message: 'ERROR',
                 source: 'UI',
             });
-            expect(context.container.textContent).not.toContain(
-                'An error occurred',
-            );
+            expect(context.text()).not.toContain('An error occurred');
         });
 
         it('can invalidate caches', async () => {
@@ -426,9 +416,7 @@ describe('App', () => {
             await context.button('invalidateCacheAndTryAgain').click();
 
             expect(settings.invalidateCacheOnNextRequest).toEqual(true);
-            expect(context.container.textContent).not.toContain(
-                'An error occurred',
-            );
+            expect(context.text()).not.toContain('An error occurred');
         });
 
         it('can clear error', async () => {
@@ -441,9 +429,7 @@ describe('App', () => {
 
             await context.button('Clear error').click();
 
-            expect(context.container.textContent).not.toContain(
-                'An error occurred',
-            );
+            expect(context.text()).not.toContain('An error occurred');
         });
 
         describe('enterFullscreen', () => {
@@ -456,9 +442,9 @@ describe('App', () => {
                     false,
                     <Route path="/test" element={<FullScreenElement />} />,
                 );
-                const canGoFullScreen = context.container.querySelector(
-                    'input[name="canGoFullScreen"]',
-                )! as HTMLInputElement;
+                const canGoFullScreen = context
+                    .required('input[name="canGoFullScreen"]')
+                    .element<HTMLInputElement>();
                 expect(canGoFullScreen.checked).toEqual(true);
 
                 await context.button('enterFullScreen').click();
@@ -472,9 +458,9 @@ describe('App', () => {
                     false,
                     <Route path="/test" element={<FullScreenElement />} />,
                 );
-                const canGoFullScreen = context.container.querySelector(
-                    'input[name="canGoFullScreen"]',
-                )! as HTMLInputElement;
+                const canGoFullScreen = context
+                    .required('input[name="canGoFullScreen"]')
+                    .element<HTMLInputElement>();
                 expect(canGoFullScreen.checked).toEqual(false);
 
                 await context.button('enterFullScreen').click();
@@ -493,9 +479,9 @@ describe('App', () => {
                     false,
                     <Route path="/test" element={<FullScreenElement />} />,
                 );
-                const wasFullScreen = context.container.querySelector(
-                    'input[name="isFullScreen"]',
-                )! as HTMLInputElement;
+                const wasFullScreen = context
+                    .required('input[name="isFullScreen"]')
+                    .element<HTMLInputElement>();
                 expect(wasFullScreen.checked).toEqual(true);
 
                 await context.button('exitFullScreen').click();
@@ -512,9 +498,9 @@ describe('App', () => {
                 // @ts-ignore
                 // noinspection JSConstantReassignment
                 document.fullscreenEnabled = true;
-                const wasFullScreen = context.container.querySelector(
-                    'input[name="isFullScreen"]',
-                )! as HTMLInputElement;
+                const wasFullScreen = context
+                    .required('input[name="isFullScreen"]')
+                    .element<HTMLInputElement>();
                 expect(wasFullScreen.checked).toEqual(false);
 
                 await context.button('exitFullScreen').click();
@@ -533,13 +519,13 @@ describe('App', () => {
                     false,
                     <Route path="/test" element={<FullScreenElement />} />,
                 );
-                const canGoFullScreen = context.container.querySelector(
-                    'input[name="canGoFullScreen"]',
-                )! as HTMLInputElement;
+                const canGoFullScreen = context
+                    .required('input[name="canGoFullScreen"]')
+                    .element<HTMLInputElement>();
                 expect(canGoFullScreen.checked).toEqual(true);
-                const wasFullScreen = context.container.querySelector(
-                    'input[name="isFullScreen"]',
-                )! as HTMLInputElement;
+                const wasFullScreen = context
+                    .required('input[name="isFullScreen"]')
+                    .element<HTMLInputElement>();
                 expect(wasFullScreen.checked).toEqual(false);
 
                 await context.button('toggleFullScreen').click();
@@ -560,13 +546,13 @@ describe('App', () => {
                     false,
                     <Route path="/test" element={<FullScreenElement />} />,
                 );
-                const canGoFullScreen = context.container.querySelector(
-                    'input[name="canGoFullScreen"]',
-                )! as HTMLInputElement;
+                const canGoFullScreen = context
+                    .required('input[name="canGoFullScreen"]')
+                    .element<HTMLInputElement>();
                 expect(canGoFullScreen.checked).toEqual(true);
-                const wasFullScreen = context.container.querySelector(
-                    'input[name="isFullScreen"]',
-                )! as HTMLInputElement;
+                const wasFullScreen = context
+                    .required('input[name="isFullScreen"]')
+                    .element<HTMLInputElement>();
                 expect(wasFullScreen.checked).toEqual(true);
 
                 await context.button('toggleFullScreen').click();

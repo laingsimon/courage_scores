@@ -5,7 +5,6 @@
     getNotesFilter,
     getTeamFilter,
     getTypeFilter,
-    IFixtureMapping,
     getFilter,
     IRenderContext,
     isLastFixtureBeforeToday,
@@ -25,7 +24,6 @@ import { Filter, NullFilter } from './Filter';
 import { fixtureBuilder } from '../../helpers/builders/games';
 import { DivisionFixtureDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDto';
 import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto';
-import { IEditableDivisionFixtureDateDto } from './IEditableDivisionFixtureDateDto';
 
 describe('filters', () => {
     const today = date(0);
@@ -45,18 +43,14 @@ describe('filters', () => {
         return date.toISOString();
     }
 
-    function notableDate(note?: string) {
+    function notableDate(...notes: string[]) {
         return {
             date: '',
-            notes: note ? [noteBuilder().note(note).build()] : [],
+            notes: notes.map((n) => noteBuilder().note(n).build()),
         };
     }
 
-    function fixtureMapping(fixture?: DivisionFixtureDto): IFixtureMapping {
-        return {
-            fixture,
-        };
-    }
+    const fixtureMapping = (f?: DivisionFixtureDto) => ({ fixture: f });
 
     function tournamentMap(t: DivisionTournamentFixtureDetailsDto) {
         return {
@@ -104,16 +98,16 @@ describe('filters', () => {
     });
 
     describe('isNextFixtureAfterToday', () => {
-        it('is today then returns false', () => {
-            const result = isNextFixtureAfterToday({}, today);
+        const futureCtx = {
+            futureDateShown: future,
+        };
 
-            expect(result).toEqual(false);
+        it('is today then returns false', () => {
+            expect(isNextFixtureAfterToday({}, today)).toEqual(false);
         });
 
         it('is in past then returns false', () => {
-            const result = isNextFixtureAfterToday({}, past);
-
-            expect(result).toEqual(false);
+            expect(isNextFixtureAfterToday({}, past)).toEqual(false);
         });
 
         it('is in future and future date not shown then returns true', () => {
@@ -125,23 +119,11 @@ describe('filters', () => {
         });
 
         it('is in future and future date is same as date then returns true', () => {
-            const context = {
-                futureDateShown: future,
-            };
-
-            const result = isNextFixtureAfterToday(context, future);
-
-            expect(result).toEqual(true);
+            expect(isNextFixtureAfterToday(futureCtx, future)).toEqual(true);
         });
 
         it('is in future and future date is not same as date then returns false', () => {
-            const context = {
-                futureDateShown: future,
-            };
-
-            const result = isNextFixtureAfterToday(context, date(2));
-
-            expect(result).toEqual(false);
+            expect(isNextFixtureAfterToday(futureCtx, date(2))).toEqual(false);
         });
     });
 
@@ -160,22 +142,20 @@ describe('filters', () => {
             fixtures: DivisionFixtureDateDto[];
         } | null;
         let stubFilter: IFilter<string> | null;
+        const fixtures: DivisionFixtureDateDto[] = [{ date: '2' }];
+        const context: IRenderContext = { futureDateShown: '1' };
 
         beforeEach(() => {
             call = null;
             stubFilter = new NullFilter<string>();
         });
 
-        it('returns filter if empty', () => {
-            const context = { futureDateShown: '1' };
-            const fixtures = [{ date: '2' }];
+        function invert(input: string, context: any) {
+            return optionallyInvertFilter(getFilter, input, context, fixtures);
+        }
 
-            const result = optionallyInvertFilter(
-                getFilter,
-                '',
-                context,
-                fixtures,
-            );
+        it('returns filter if empty', () => {
+            const result = invert('', context);
 
             expect(call!.filter).toEqual('');
             expect(call!.context).toEqual(context);
@@ -184,15 +164,7 @@ describe('filters', () => {
         });
 
         it('returns filter if it does not start with not(', () => {
-            const context: IRenderContext = { futureDateShown: '1' };
-            const fixtures: DivisionFixtureDateDto[] = [{ date: '2' }];
-
-            const result = optionallyInvertFilter(
-                getFilter,
-                'a=b',
-                context,
-                fixtures,
-            );
+            const result = invert('a=b', context);
 
             expect(call!.filter).toEqual('a=b');
             expect(call!.context).toEqual(context);
@@ -201,16 +173,9 @@ describe('filters', () => {
         });
 
         it('returns null filter if no filter created and filter start with not(', () => {
-            const context: IRenderContext = { futureDateShown: '1' };
-            const fixtures: DivisionFixtureDateDto[] = [{ date: '2' }];
             stubFilter = null;
 
-            const result = optionallyInvertFilter(
-                getFilter,
-                'not(a=b)',
-                context,
-                fixtures,
-            );
+            const result = invert('not(a=b)', context);
 
             expect(call!.filter).toEqual('a=b');
             expect(call!.context).toEqual(context);
@@ -219,16 +184,9 @@ describe('filters', () => {
         });
 
         it('returns inverted filter if filter created and filter start with not(', () => {
-            const context: IRenderContext = { futureDateShown: '1' };
-            const fixtures: DivisionFixtureDateDto[] = [{ date: '2' }];
             stubFilter = new Filter<string>((_) => true);
 
-            const result = optionallyInvertFilter(
-                getFilter,
-                'not(a=b)',
-                context,
-                fixtures,
-            );
+            const result = invert('not(a=b)', context);
 
             expect(call!.filter).toEqual('a=b');
             expect(call!.context).toEqual(context);
@@ -366,10 +324,7 @@ describe('filters', () => {
         it('otherwise returns null filter', () => {
             const f = getDateFilter('foo', {}, []);
 
-            const emptyDate = {
-                date: '',
-            };
-            expect(f.apply(emptyDate)).toEqual(true);
+            expect(f.apply({ date: '' })).toEqual(true);
         });
     });
 
@@ -400,22 +355,18 @@ describe('filters', () => {
         });
 
         it('otherwise', () => {
-            const f = getTypeFilter('foo');
-
-            expect(f).not.toBeNull();
+            expect(getTypeFilter('foo')).not.toBeNull();
         });
     });
 
     describe('getTeamFilter', () => {
-        const abcdTeam = teamBuilder('name', 'abcd').build();
+        const abcd = teamBuilder('name', 'abcd').build();
         const tournamentAbcdPlaying = tournamentBuilder()
             .withSide((s) => s.name('name').teamId('abcd'))
             .build();
-        const byeAbcd = divisionFixtureBuilder().bye(abcdTeam).build();
-        const homeTeam = teamBuilder('HOME').build();
-        const homeAbcd = divisionFixtureBuilder()
-            .playing(homeTeam, abcdTeam)
-            .build();
+        const bye = divisionFixtureBuilder().bye(abcd).build();
+        const home = teamBuilder('HOME').build();
+        const homeAbcd = divisionFixtureBuilder().playing(home, abcd).build();
 
         it('when empty', () => {
             expect(getTeamFilter('').apply({})).toEqual(true);
@@ -423,12 +374,12 @@ describe('filters', () => {
 
         it('when id provided', () => {
             const awayAbcd = divisionFixtureBuilder()
-                .playing(homeTeam, abcdTeam)
+                .playing(home, abcd)
                 .build();
 
             const f = getTeamFilter('abcd');
 
-            expect(f.apply(fixtureMapping(byeAbcd))).toEqual(true);
+            expect(f.apply(fixtureMapping(bye))).toEqual(true);
             expect(f.apply(fixtureMapping(awayAbcd))).toEqual(true);
             expect(f.apply(tournamentMap(tournamentAbcdPlaying))).toEqual(true);
         });
@@ -436,7 +387,7 @@ describe('filters', () => {
         it('when name provided', () => {
             const f = getTeamFilter('name');
 
-            expect(f.apply(fixtureMapping(byeAbcd))).toEqual(true);
+            expect(f.apply(fixtureMapping(bye))).toEqual(true);
             expect(f.apply(fixtureMapping(homeAbcd))).toEqual(true);
             expect(f.apply(tournamentMap(tournamentAbcdPlaying))).toEqual(true);
         });
@@ -444,7 +395,7 @@ describe('filters', () => {
         it('when name provided ignores case', () => {
             const f = getTeamFilter('NAME');
 
-            expect(f.apply(fixtureMapping(byeAbcd))).toEqual(true);
+            expect(f.apply(fixtureMapping(bye))).toEqual(true);
             expect(f.apply(fixtureMapping(homeAbcd))).toEqual(true);
             expect(f.apply(tournamentMap(tournamentAbcdPlaying))).toEqual(true);
         });
@@ -472,15 +423,7 @@ describe('filters', () => {
         it('keeps dates with any note matching any filter criteria', () => {
             const f = getNotesFilter('abc;efg');
 
-            expect(
-                f.apply({
-                    date: '',
-                    notes: [
-                        noteBuilder().note('another note').build(),
-                        noteBuilder().note('efgh').build(),
-                    ],
-                }),
-            ).toEqual(true);
+            expect(f.apply(notableDate('another note', 'efgh'))).toEqual(true);
         });
 
         it('keeps dates with any note matching filter ignoring case', () => {
@@ -550,10 +493,7 @@ describe('filters', () => {
         });
 
         it('returns positive when no notes, fixtures or tournaments and new', () => {
-            const newFixtureDate: IEditableDivisionFixtureDateDto = {
-                date: '',
-                isNew: true,
-            };
+            const newFixtureDate = { date: '', isNew: true };
 
             const f = getFixtureDateFilters({}, {});
 
@@ -567,7 +507,7 @@ describe('filters', () => {
         });
 
         it('returns positive when no notes but has fixtures and tournaments', () => {
-            const fixtureDate: IEditableDivisionFixtureDateDto = {
+            const fixtureDate = {
                 date: '',
                 fixtures: [fixture],
                 tournamentFixtures: [tournament],
@@ -590,11 +530,7 @@ describe('filters', () => {
     });
 
     describe('initFilter', () => {
-        function get(search: string) {
-            return getFilter({
-                search,
-            });
-        }
+        const get = (search: string) => getFilter({ search });
 
         it('inits date filter', () => {
             expect(get('?date=past')).toEqual({ date: 'past' });

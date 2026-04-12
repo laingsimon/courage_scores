@@ -227,8 +227,10 @@ public class StatusServiceTests
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
     private class CacheEntryKey
     {
+#pragma warning disable IDE0052
         private readonly string _name;
         private readonly string? _nullStringField;
+#pragma warning restore IDE0052
 
         public CacheEntryKey(string name, string? nullStringField = null)
         {

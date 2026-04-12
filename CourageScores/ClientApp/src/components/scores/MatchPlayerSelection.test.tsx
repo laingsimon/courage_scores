@@ -138,11 +138,7 @@ describe('MatchPlayerSelection', () => {
     function assertSelectedPlayer(cell: IComponent, expected?: string) {
         const player = cell.required('.btn-group .dropdown-toggle');
 
-        if (expected) {
-            expect(player.text()).toEqual(expected);
-        } else {
-            expect(player.text()!.trim()).toEqual('');
-        }
+        expect(player.text()?.trim()).toEqual(expected ?? '');
     }
 
     function assertSelectablePlayers(cell: IComponent, expected: string[]) {
@@ -159,9 +155,9 @@ describe('MatchPlayerSelection', () => {
         await cell.required('.dropdown-menu').select(playerName);
     }
 
-    function props(match: IMatchBuilder): IMatchPlayerSelectionProps {
+    function props(match?: IMatchBuilder): IMatchPlayerSelectionProps {
         return {
-            match: match.build(),
+            match: (match ?? matchBuilder().withHome().withAway()).build(),
             on180,
             onHiCheck,
             onMatchChanged,
@@ -185,9 +181,7 @@ describe('MatchPlayerSelection', () => {
         };
     }
 
-    function matchTypeContainerProps(
-        customisations?: Partial<IMatchTypeContainerProps>,
-    ): IMatchTypeContainerProps {
+    function matchTypeContainerProps(c?: Partial<IMatchTypeContainerProps>) {
         return {
             otherMatches: [],
             matchOptions: matchOptionsBuilder()
@@ -197,8 +191,8 @@ describe('MatchPlayerSelection', () => {
             homePlayers: [],
             awayPlayers: [],
             setCreatePlayerFor,
-            ...customisations,
-        };
+            ...c,
+        } as IMatchTypeContainerProps;
     }
 
     function homeThenAway(
@@ -227,14 +221,8 @@ describe('MatchPlayerSelection', () => {
                 .startingScore(501);
     }
 
-    function drawingMatch(
-        homePlayer: TeamPlayerDto,
-        awayPlayer: TeamPlayerDto,
-    ): IMatchBuilder {
-        return matchBuilder()
-            .scores(0, 0)
-            .withHome(homePlayer)
-            .withAway(awayPlayer);
+    function drawingMatch(home: TeamPlayerDto, away: TeamPlayerDto) {
+        return matchBuilder().scores(0, 0).withHome(home).withAway(away);
     }
 
     describe('renders', () => {
@@ -272,7 +260,7 @@ describe('MatchPlayerSelection', () => {
         }
 
         it('when no players selected', async () => {
-            await render(props(matchBuilder().withHome().withAway()));
+            await render(props());
 
             const cells = context.all('td');
             assertSelectedPlayer(cells[0], undefined);
@@ -558,6 +546,7 @@ describe('MatchPlayerSelection', () => {
             recordScoresAsYouGo: false,
             managePlayers: true,
         });
+        const saygOnlyAccount = user({ recordScoresAsYouGo: true });
         const homePlayer = playerBuilder('HOME').build();
         const awayPlayer = playerBuilder('AWAY').build();
         const newPlayer = playerBuilder('Add a player...', NEW_PLAYER).build();
@@ -598,10 +587,9 @@ describe('MatchPlayerSelection', () => {
         }
 
         it('can set home player', async () => {
-            await render(props(matchBuilder().withHome().withAway()));
-            const cells = context.all('td');
+            await render(props());
 
-            await selectPlayer(cells[0], 'HOME');
+            await selectPlayer(context.all('td')[0], 'HOME');
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
@@ -612,10 +600,9 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('can add a home player', async () => {
-            await render(props(matchBuilder().withHome().withAway()));
-            const cells = context.all('td');
+            await render(props());
 
-            await selectPlayer(cells[0], 'Add a player...');
+            await selectPlayer(context.all('td')[0], 'Add a player...');
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toEqual({
@@ -627,9 +614,8 @@ describe('MatchPlayerSelection', () => {
 
         it('can remove/unset a home player', async () => {
             await render(props(matchBuilder().withHome(homePlayer).withAway()));
-            const cells = context.all('td');
 
-            await selectPlayer(cells[0], ' ');
+            await selectPlayer(context.all('td')[0], ' ');
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
@@ -640,10 +626,9 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('can set away player', async () => {
-            await render(props(matchBuilder().withHome().withAway()));
-            const cells = context.all('td');
+            await render(props());
 
-            await selectPlayer(cells[4], 'AWAY');
+            await selectPlayer(context.all('td')[4], 'AWAY');
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
@@ -654,10 +639,9 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('can add an away player', async () => {
-            await render(props(matchBuilder().withHome().withAway()));
-            const cells = context.all('td');
+            await render(props());
 
-            await selectPlayer(cells[4], 'Add a player...');
+            await selectPlayer(context.all('td')[4], 'Add a player...');
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toEqual({
@@ -669,9 +653,8 @@ describe('MatchPlayerSelection', () => {
 
         it('can remove/unset an away player', async () => {
             await render(props(matchBuilder().withHome().withAway(awayPlayer)));
-            const cells = context.all('td');
 
-            await selectPlayer(cells[4], ' ');
+            await selectPlayer(context.all('td')[4], ' ');
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
@@ -682,10 +665,9 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('can update home score', async () => {
-            await render(props(matchBuilder().withHome().withAway()));
-            const cells = context.all('td');
+            await render(props());
 
-            await cells[1].required('input').change('3');
+            await context.all('td')[1].required('input').change('3');
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
@@ -696,10 +678,9 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('can update away score', async () => {
-            await render(props(matchBuilder().withHome().withAway()));
-            const cells = context.all('td');
+            await render(props());
 
-            await cells[3].required('input').change('3');
+            await context.all('td')[3].required('input').change('3');
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
@@ -710,10 +691,9 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('sets homeScore to numberOfLegs if greater than numberOfLegs', async () => {
-            await render(props(matchBuilder().withHome().withAway()));
-            const cells = context.all('td');
+            await render(props());
 
-            await cells[1].required('input').change('6');
+            await context.all('td')[1].required('input').change('6');
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
@@ -724,10 +704,9 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('sets awayScore to numberOfLegs if greater than numberOfLegs', async () => {
-            await render(props(matchBuilder().withHome().withAway()));
-            const cells = context.all('td');
+            await render(props());
 
-            await cells[3].required('input').change('6');
+            await context.all('td')[3].required('input').change('6');
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
@@ -738,14 +717,13 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('changes away score down if entered home score + existing away score > numberOfLegs', async () => {
-            await render(
-                props(
-                    matchBuilder().scores(undefined, 3).withHome().withAway(),
-                ),
-            );
-            const cells = context.all('td');
+            const match = matchBuilder()
+                .scores(undefined, 3)
+                .withHome()
+                .withAway();
+            await render(props(match));
 
-            await cells[1].required('input').change('3');
+            await context.all('td')[1].required('input').change('3');
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
@@ -756,14 +734,13 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('changes home score down if entered away score + existing home score > numberOfLegs', async () => {
-            await render(
-                props(
-                    matchBuilder().scores(3, undefined).withHome().withAway(),
-                ),
-            );
-            const cells = context.all('td');
+            const match = matchBuilder()
+                .scores(3, undefined)
+                .withHome()
+                .withAway();
+            await render(props(match));
 
-            await cells[3].required('input').change('3');
+            await context.all('td')[3].required('input').change('3');
 
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
@@ -777,9 +754,11 @@ describe('MatchPlayerSelection', () => {
             await render(props(drawingMatch(homePlayer, awayPlayer)));
             const cells = context.all('td');
             await cells[4].button('🛠').click();
-            const dialog = cells[4].required('div.modal-dialog');
 
-            await dialog.input('playerCount').change('3');
+            await cells[4]
+                .required('div.modal-dialog')
+                .input('playerCount')
+                .change('3');
 
             expect(updatedMatchOptions).toEqual({
                 playerCount: 3,
@@ -792,9 +771,11 @@ describe('MatchPlayerSelection', () => {
             await render(props(drawingMatch(homePlayer, awayPlayer)));
             const cells = context.all('td');
             await cells[4].button('🛠').click();
-            const dialog = cells[4].required('div.modal-dialog');
 
-            await dialog.input('numberOfLegs').change('3');
+            await cells[4]
+                .required('div.modal-dialog')
+                .input('numberOfLegs')
+                .change('3');
 
             expect(updatedMatchOptions).toEqual({
                 playerCount: 1,
@@ -807,9 +788,11 @@ describe('MatchPlayerSelection', () => {
             await render(props(drawingMatch(homePlayer, awayPlayer)));
             const cells = context.all('td');
             await cells[4].button('🛠').click();
-            const dialog = cells[4].required('div.modal-dialog');
 
-            await dialog.input('startingScore').change('601');
+            await cells[4]
+                .required('div.modal-dialog')
+                .input('startingScore')
+                .change('601');
 
             expect(updatedMatchOptions).toEqual({
                 playerCount: 1,
@@ -822,9 +805,8 @@ describe('MatchPlayerSelection', () => {
             await render(props(drawingMatch(homePlayer, awayPlayer)));
             const cells = context.all('td');
             await cells[4].button('🛠').click();
-            const dialog = cells[4].required('div.modal-dialog');
 
-            await dialog.button('Close').click();
+            await cells[4].required('div.modal-dialog').button('Close').click();
 
             reportedError.verifyNoError();
             expect(cells[4].optional('div.modal-dialog')).toBeFalsy();
@@ -838,18 +820,14 @@ describe('MatchPlayerSelection', () => {
                 homePlayers: [homePlayer, newPlayer],
                 awayPlayers: [awayPlayer, newPlayer],
             });
-            await render(
-                props(matchBuilder().withHome().withAway()),
-                containerProps,
-            );
-            const cells = context.all('td');
+            await render(props(), containerProps);
 
-            await selectPlayer(cells[0], 'HOME');
+            await selectPlayer(context.all('td')[0], 'HOME');
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).toBeNull();
 
-            await selectPlayer(cells[4], 'AWAY');
+            await selectPlayer(context.all('td')[4], 'AWAY');
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).toBeNull();
@@ -863,18 +841,14 @@ describe('MatchPlayerSelection', () => {
                 homePlayers: [homePlayer, newPlayer],
                 awayPlayers: [awayPlayer, newPlayer],
             });
-            await render(
-                props(matchBuilder().withHome().withAway()),
-                containerProps,
-            );
-            const cells = context.all('td');
+            await render(props(), containerProps);
 
-            await cells[1].required('input').change('3');
+            await context.all('td')[1].required('input').change('3');
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).toBeNull();
 
-            await cells[3].required('input').change('3');
+            await context.all('td')[3].required('input').change('3');
             reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).toBeNull();
@@ -891,10 +865,7 @@ describe('MatchPlayerSelection', () => {
                 away: teamBuilder('AWAY_TEAM').build(),
             });
 
-            await render(
-                props(matchBuilder().withHome().withAway()),
-                containerProps,
-            );
+            await render(props(), containerProps);
 
             const cells = context.all('td');
             expect(cells[0].all('.dropdown-item').length).toEqual(0);
@@ -912,20 +883,14 @@ describe('MatchPlayerSelection', () => {
                 away: teamBuilder('AWAY_TEAM').build(),
             });
 
-            await render(
-                props(matchBuilder().withHome().withAway()),
-                containerProps,
-            );
-            const cells = context.all('td');
-            expect(cells[1].optional('input')).toBeFalsy();
-            expect(cells[3].optional('input')).toBeFalsy();
+            await render(props(), containerProps);
+            expect(context.all('td')[1].optional('input')).toBeFalsy();
+            expect(context.all('td')[3].optional('input')).toBeFalsy();
         });
 
         it('can open sayg dialog in fullscreen', async () => {
-            await renderAs(
-                user({ recordScoresAsYouGo: true }),
-                props(drawingMatch(homePlayer, awayPlayer)),
-            );
+            const componentProps = props(drawingMatch(homePlayer, awayPlayer));
+            await renderAs(saygOnlyAccount, componentProps);
             const cells = context.all('td');
 
             await cells[0].button('📊').click();
@@ -935,15 +900,13 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('opens sayg dialog without opening in fullscreen', async () => {
-            await renderAs(
-                user({ recordScoresAsYouGo: true }),
-                props(
-                    matchBuilder()
-                        .scores(3, 1)
-                        .withHome(homePlayer)
-                        .withAway(awayPlayer),
-                ),
+            const componentProps = props(
+                matchBuilder()
+                    .scores(3, 1)
+                    .withHome(homePlayer)
+                    .withAway(awayPlayer),
             );
+            await renderAs(saygOnlyAccount, componentProps);
             const cells = context.all('td');
 
             await cells[0].button('📊').click();
@@ -956,15 +919,12 @@ describe('MatchPlayerSelection', () => {
             const match = drawingMatch(homePlayer, awayPlayer).sayg((s) =>
                 s.withLeg(0, noScores('home')),
             );
-            await renderAs(user({ recordScoresAsYouGo: true }), props(match));
+            await renderAs(saygOnlyAccount, props(match));
             const cells = context.all('td');
             await cells[0].button('📊').click();
+            const dialog = cells[0].required('div.modal-dialog');
 
-            await keyPad(
-                context,
-                ['1', '8', '0', ENTER_SCORE_BUTTON],
-                cells[0].required('div.modal-dialog'),
-            );
+            await keyPad(context, ['1', '8', '0', ENTER_SCORE_BUTTON], dialog);
 
             expect(additional180).toEqual({
                 name: 'HOME',
@@ -976,15 +936,12 @@ describe('MatchPlayerSelection', () => {
             const match = drawingMatch(homePlayer, awayPlayer).sayg((s) =>
                 s.withLeg(0, noScores('away')),
             );
-            await renderAs(user({ recordScoresAsYouGo: true }), props(match));
+            await renderAs(saygOnlyAccount, props(match));
             const cells = context.all('td');
             await cells[0].button('📊').click();
+            const dialog = cells[0].required('div.modal-dialog');
 
-            await keyPad(
-                context,
-                ['1', '8', '0', ENTER_SCORE_BUTTON],
-                cells[0].required('div.modal-dialog'),
-            );
+            await keyPad(context, ['1', '8', '0', ENTER_SCORE_BUTTON], dialog);
 
             expect(additional180).toEqual({
                 name: 'AWAY',
@@ -996,17 +953,13 @@ describe('MatchPlayerSelection', () => {
             const match = drawingMatch(homePlayer, awayPlayer).sayg((s) =>
                 s.withLeg(0, homeThenAway(400, 0, 'home')),
             );
-            await renderAs(user({ recordScoresAsYouGo: true }), props(match));
+            await renderAs(saygOnlyAccount, props(match));
             const cells = context.all('td');
             await cells[0].button('📊').click();
-            const saygDialog = cells[0].required('div.modal-dialog');
+            const dialog = cells[0].required('div.modal-dialog');
 
-            await keyPad(
-                context,
-                ['1', '0', '1', ENTER_SCORE_BUTTON],
-                saygDialog,
-            );
-            await checkoutWith(context, CHECKOUT_3_DART, saygDialog);
+            await keyPad(context, ['1', '0', '1', ENTER_SCORE_BUTTON], dialog);
+            await checkoutWith(context, CHECKOUT_3_DART, dialog);
 
             expect(additionalHiCheck).toEqual({
                 notablePlayer: {
@@ -1023,17 +976,13 @@ describe('MatchPlayerSelection', () => {
             const match = drawingMatch(homePlayer, awayPlayer).sayg((s) =>
                 s.withLeg(0, homeThenAway(0, 400)),
             );
-            await renderAs(user({ recordScoresAsYouGo: true }), props(match));
+            await renderAs(saygOnlyAccount, props(match));
             const cells = context.all('td');
             await cells[0].button('📊').click();
-            const saygDialog = cells[0].required('div.modal-dialog');
+            const dialog = cells[0].required('div.modal-dialog');
 
-            await keyPad(
-                context,
-                ['1', '0', '1', ENTER_SCORE_BUTTON],
-                saygDialog,
-            );
-            await checkoutWith(context, CHECKOUT_3_DART, saygDialog);
+            await keyPad(context, ['1', '0', '1', ENTER_SCORE_BUTTON], dialog);
+            await checkoutWith(context, CHECKOUT_3_DART, dialog);
 
             expect(additionalHiCheck).toEqual({
                 notablePlayer: {
@@ -1059,24 +1008,21 @@ describe('MatchPlayerSelection', () => {
                         .numberOfLegs(5)
                         .scores(0, 3),
                 );
-            await renderAs(user({ recordScoresAsYouGo: true }), props(match));
-            const cells = context.all('td');
-            await cells[0].button('📊').click();
+            await renderAs(saygOnlyAccount, props(match));
+            await context.all('td')[0].button('📊').click();
 
             reportedError.verifyNoError();
-            expect(context.container.textContent).toContain('Match statistics');
+            expect(context.text()).toContain('Match statistics');
         });
 
         it('can close sayg dialog', async () => {
-            await renderAs(
-                user({ recordScoresAsYouGo: true }),
-                props(drawingMatch(homePlayer, awayPlayer)),
-            );
+            const componentProps = props(drawingMatch(homePlayer, awayPlayer));
+            await renderAs(saygOnlyAccount, componentProps);
             const cells = context.all('td');
             await cells[0].button('📊').click();
-            const saygDialog = cells[0].required('div.modal-dialog');
+            const dialog = cells[0].required('div.modal-dialog');
 
-            await saygDialog.button('Close').click();
+            await dialog.button('Close').click();
 
             reportedError.verifyNoError();
             expect(cells[0].optional('div.modal-dialog')).toBeFalsy();

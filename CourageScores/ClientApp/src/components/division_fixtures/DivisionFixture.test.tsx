@@ -13,10 +13,7 @@ import {
 import { renderDate } from '../../helpers/rendering';
 import { createTemporaryId } from '../../helpers/projection';
 import { DivisionFixture, IDivisionFixtureProps } from './DivisionFixture';
-import {
-    DivisionDataContainer,
-    IDivisionDataContainerProps,
-} from '../league/DivisionDataContainer';
+import { DivisionDataContainer } from '../league/DivisionDataContainer';
 import { IClientActionResultDto } from '../common/IClientActionResultDto';
 import { EditGameDto } from '../../interfaces/models/dtos/Game/EditGameDto';
 import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
@@ -30,6 +27,7 @@ import {
     divisionBuilder,
     divisionDataBuilder,
     divisionFixtureBuilder,
+    IDivisionDataBuilder,
     IDivisionFixtureBuilder,
 } from '../../helpers/builders/divisions';
 import { teamBuilder } from '../../helpers/builders/teams';
@@ -56,11 +54,11 @@ describe('DivisionFixture', () => {
     let apiResponse: IClientActionResultDto<GameDto> | null;
 
     const gameApi = api<IGameApi>({
-        update: async (fixture: EditGameDto) => {
+        async update(fixture: EditGameDto) {
             savedFixture = fixture;
             return apiResponse || { success: true };
         },
-        delete: async (id: string) => {
+        async delete(id: string) {
             deletedFixture = id;
             return apiResponse || { success: true };
         },
@@ -86,7 +84,7 @@ describe('DivisionFixture', () => {
         data: (
             x: IEditableDivisionFixtureDateDto[],
         ) => DivisionFixtureDateDto[],
-    ): Promise<DivisionFixtureDateDto[]> {
+    ) {
         updatedFixtures = data;
         return [];
     }
@@ -107,7 +105,7 @@ describe('DivisionFixture', () => {
 
     async function renderComponent(
         props: IDivisionFixtureProps,
-        divisionData: IDivisionDataContainerProps,
+        divisionData: IDivisionDataBuilder,
         account: UserDto | undefined,
         teams: TeamDto[],
         preferenceData?: IPreferenceData,
@@ -123,7 +121,7 @@ describe('DivisionFixture', () => {
                 reportedError,
             ),
             <DivisionDataContainer
-                {...divisionData}
+                {...divisionData.build()}
                 onReloadDivision={onReloadDivision}>
                 <DivisionFixture {...props} />
             </DivisionDataContainer>,
@@ -137,14 +135,14 @@ describe('DivisionFixture', () => {
     function props(
         fixture: IDatedDivisionFixtureDto,
         customisations?: Partial<IDivisionFixtureProps>,
-    ): IDivisionFixtureProps {
+    ) {
         return {
             date: fixture.date,
             fixture,
             beforeReloadDivision,
             onUpdateFixtures,
             ...customisations,
-        };
+        } as IDivisionFixtureProps;
     }
 
     function getAwayCell(): IComponent {
@@ -187,10 +185,8 @@ describe('DivisionFixture', () => {
         const linkToHome = cells[0].required('a').element<HTMLAnchorElement>();
         expect(linkToHome.href).toEqual(home);
         if (away) {
-            const linkToAway = cells[4]
-                .required('a')
-                .element<HTMLAnchorElement>();
-            expect(linkToAway.href).toEqual(away);
+            const linkToAway = cells[4].required('a');
+            expect(linkToAway.element<HTMLAnchorElement>().href).toEqual(away);
         }
     }
 
@@ -200,6 +196,10 @@ describe('DivisionFixture', () => {
         const team: TeamDto = teamBuilder('TEAM').build();
         const account: UserDto | undefined = undefined;
         const date: string = '2023-05-06T00:00:00';
+        const fixture = divisionFixtureBuilder(date)
+            .playing(home, away)
+            .build();
+        const bye = divisionFixtureBuilder(date).bye(home).build();
 
         function homeAwayFixture(fm?: BuilderParam<IDivisionFixtureBuilder>) {
             fm = fm ?? ((fb) => fb);
@@ -214,15 +214,9 @@ describe('DivisionFixture', () => {
         }
 
         it('renders unplayed fixture', async () => {
-            const fixture = divisionFixtureBuilder(date)
-                .playing(home, away)
-                .build();
-            await renderComponent(
-                props(fixture),
-                homeAwayFixture().build(),
-                account,
-                [team],
-            );
+            await renderComponent(props(fixture), homeAwayFixture(), account, [
+                team,
+            ]);
 
             assertFixtureRow(fixture.id!, 'HOME', 'AWAY');
         });
@@ -234,7 +228,7 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 props(fixture),
-                homeAwayFixture((f) => f.postponed()).build(),
+                homeAwayFixture((f) => f.postponed()),
                 account,
                 [team],
             );
@@ -243,12 +237,9 @@ describe('DivisionFixture', () => {
         });
 
         it('renders qualifier fixture', async () => {
-            const fixture = divisionFixtureBuilder(date)
-                .playing(home, away)
-                .build();
             await renderComponent(
                 props(fixture),
-                homeAwayFixture((fb) => fb.knockout()).build(),
+                homeAwayFixture((fb) => fb.knockout()),
                 account,
                 [team],
             );
@@ -257,7 +248,6 @@ describe('DivisionFixture', () => {
         });
 
         it('renders bye', async () => {
-            const bye = divisionFixtureBuilder(date).bye(home).build();
             await renderComponent(
                 props(bye),
                 divisionDataBuilder(division)
@@ -266,23 +256,20 @@ describe('DivisionFixture', () => {
                         date,
                     )
                     .season((s) => s, season.id, season.name)
-                    .withTeam(team)
-                    .build(),
+                    .withTeam(team),
                 account,
                 [team],
             );
 
+            const link = `http://localhost/division/${division.name}/team:${bye.homeTeam.name}/${season.name}`;
             assertCellText('HOME', 'Bye');
-            assertFixtureLinks(
-                `http://localhost/division/${division.name}/team:${bye.homeTeam.name}/${season.name}`,
-            );
+            assertFixtureLinks(link);
         });
 
         it('does not shade when no favourites', async () => {
-            const bye = divisionFixtureBuilder(date).bye(home).build();
             await renderComponent(
                 props(bye),
-                homeAwayFixture().favouritesEnabled(true).build(),
+                homeAwayFixture().favouritesEnabled(true),
                 account,
                 [team],
                 {},
@@ -296,7 +283,7 @@ describe('DivisionFixture', () => {
             const fixture = divisionFixtureBuilder(date).build();
             await renderComponent(
                 props(fixture),
-                homeAwayFixture().favouritesEnabled(true).build(),
+                homeAwayFixture().favouritesEnabled(true),
                 account,
                 [team],
                 {
@@ -309,7 +296,6 @@ describe('DivisionFixture', () => {
         });
 
         it('does not shade bye for favourite-team', async () => {
-            const bye = divisionFixtureBuilder(date).bye(home).build();
             await renderComponent(
                 props(bye),
                 divisionDataBuilder(division)
@@ -319,8 +305,7 @@ describe('DivisionFixture', () => {
                     )
                     .season()
                     .withTeam(team)
-                    .favouritesEnabled(true)
-                    .build(),
+                    .favouritesEnabled(true),
                 account,
                 [team],
                 {
@@ -333,12 +318,9 @@ describe('DivisionFixture', () => {
         });
 
         it('does not shade home-team favourite', async () => {
-            const fixture = divisionFixtureBuilder(date)
-                .playing(home, away)
-                .build();
             await renderComponent(
                 props(fixture),
-                homeAwayFixture().favouritesEnabled(true).build(),
+                homeAwayFixture().favouritesEnabled(true),
                 account,
                 [team],
                 {
@@ -351,12 +333,9 @@ describe('DivisionFixture', () => {
         });
 
         it('does not shade away-team favourite', async () => {
-            const fixture = divisionFixtureBuilder(date)
-                .playing(home, away)
-                .build();
             await renderComponent(
                 props(fixture),
-                homeAwayFixture().favouritesEnabled(true).build(),
+                homeAwayFixture().favouritesEnabled(true),
                 account,
                 [team],
                 {
@@ -369,20 +348,16 @@ describe('DivisionFixture', () => {
         });
 
         it('can set a favourite team', async () => {
-            const fixture = divisionFixtureBuilder(date)
-                .playing(home, away)
-                .build();
             await renderComponent(
                 props(fixture),
-                homeAwayFixture().favouritesEnabled(true).build(),
+                homeAwayFixture().favouritesEnabled(true),
                 account,
                 [team],
                 { favouriteTeamIds: [] },
             );
             const row = context.required('tr');
-            const favouriteToggles = row.all(
-                'button[datatype="toggle-favourite"]',
-            );
+            const selector = 'button[datatype="toggle-favourite"]';
+            const favouriteToggles = row.all(selector);
 
             await favouriteToggles[0].click();
 
@@ -392,20 +367,16 @@ describe('DivisionFixture', () => {
         });
 
         it('can unset a favourite team', async () => {
-            const fixture = divisionFixtureBuilder(date)
-                .playing(home, away)
-                .build();
             await renderComponent(
                 props(fixture),
-                homeAwayFixture().favouritesEnabled(true).build(),
+                homeAwayFixture().favouritesEnabled(true),
                 account,
                 [team],
                 { favouriteTeamIds: [fixture.homeTeam.id!] },
             );
             const row = context.required('tr');
-            const favouriteToggles = row.all(
-                'button[datatype="toggle-favourite"]',
-            );
+            const selector = 'button[datatype="toggle-favourite"]';
+            const favouriteToggles = row.all(selector);
 
             await favouriteToggles[0].click();
 
@@ -418,11 +389,11 @@ describe('DivisionFixture', () => {
     describe('when logged in', () => {
         const season: SeasonDto = seasonBuilder('SEASON').build();
         const division: DivisionDto = divisionBuilder('DIVISION').build();
-        const homeTeam = teamBuilder('HOME')
+        const home = teamBuilder('HOME')
             .address('HOME ADDRESS')
             .forSeason(season, division)
             .build();
-        const awayTeam = teamBuilder('AWAY')
+        const away = teamBuilder('AWAY')
             .address('AWAY ADDRESS')
             .forSeason(season, division)
             .build();
@@ -435,8 +406,15 @@ describe('DivisionFixture', () => {
             .address('ANOTHER ADDRESS')
             .build();
         const fixture = divisionFixtureBuilder(date)
-            .playing(homeTeam, awayTeam)
+            .playing(home, away)
             .build();
+        const bye = divisionFixtureBuilder(date).bye(home).build();
+        const dd = divisionDataBuilder(division)
+            .season()
+            .withTeam(home)
+            .withTeam(away);
+        const deletePrompt =
+            'Are you sure you want to delete this fixture?\n\nHOME vs AWAY';
 
         function homeAwayFixture(
             fixture: IDatedDivisionFixtureDto,
@@ -455,8 +433,8 @@ describe('DivisionFixture', () => {
                     date,
                 )
                 .season(seasonBuilder)
-                .withTeam(homeTeam)
-                .withTeam(awayTeam);
+                .withTeam(home)
+                .withTeam(away);
         }
 
         function getSaveCell(): IComponent {
@@ -464,14 +442,11 @@ describe('DivisionFixture', () => {
         }
 
         it('renders unplayed fixture', async () => {
-            const fixture = divisionFixtureBuilder(date)
-                .playing(homeTeam, awayTeam)
-                .build();
             await renderComponent(
                 props(fixture),
-                homeAwayFixture(fixture).build(),
+                homeAwayFixture(fixture),
                 account,
-                [homeTeam, awayTeam],
+                [home, away],
             );
 
             assertCellText('HOME', 'AWAYAWAY', '', '', true);
@@ -480,14 +455,14 @@ describe('DivisionFixture', () => {
 
         it('renders postponed fixture', async () => {
             const fixture = divisionFixtureBuilder(date)
-                .playing(homeTeam, awayTeam)
+                .playing(home, away)
                 .postponed()
                 .build();
             await renderComponent(
                 props(fixture),
-                homeAwayFixture(fixture, (f) => f.postponed()).build(),
+                homeAwayFixture(fixture, (f) => f.postponed()),
                 account,
-                [homeTeam, awayTeam],
+                [home, away],
             );
 
             assertCellText('HOME', 'AWAYAWAY', 'P', 'P', true);
@@ -495,18 +470,15 @@ describe('DivisionFixture', () => {
         });
 
         it('renders qualifier fixture', async () => {
-            const fixture = divisionFixtureBuilder(date)
-                .playing(homeTeam, awayTeam)
-                .build();
             await renderComponent(
                 props(fixture),
                 homeAwayFixture(
                     fixture,
                     (f) => f.knockout(),
                     (s) => s.id(season.id).name(season.name),
-                ).build(),
+                ),
                 account,
-                [homeTeam, awayTeam],
+                [home, away],
             );
 
             assertCellText('HOME', 'AWAYAWAY', '', '', true);
@@ -514,26 +486,23 @@ describe('DivisionFixture', () => {
         });
 
         it('renders bye', async () => {
-            const bye = divisionFixtureBuilder(date).bye(homeTeam).build();
             await renderComponent(
                 props(bye),
                 divisionDataBuilder(division)
                     .withFixtureDate(
-                        (d) => d.withFixture((f) => f.bye(homeTeam)),
+                        (d) => d.withFixture((f) => f.bye(home)),
                         date,
                     )
                     .season((s) => s, season.id, season.name)
-                    .withTeam(homeTeam)
-                    .withTeam(awayTeam)
-                    .build(),
+                    .withTeam(home)
+                    .withTeam(away),
                 account,
-                [homeTeam, awayTeam],
+                [home, away],
             );
 
             assertCellText('HOME', 'AWAY', '', '');
-            assertFixtureLinks(
-                `http://localhost/division/${division.name}/team:${bye.homeTeam.name}/${season.name}`,
-            );
+            const link = `http://localhost/division/${division.name}/team:${bye.homeTeam.name}/${season.name}`;
+            assertFixtureLinks(link);
         });
 
         it('renders selectable away team with same address (league fixture)', async () => {
@@ -543,16 +512,13 @@ describe('DivisionFixture', () => {
             const fixture = divisionFixtureBuilder(date).build();
             await renderComponent(
                 props(fixture),
-                homeAwayFixture(fixture)
-                    .withTeam(anotherTeamAtHomeAddress)
-                    .build(),
+                homeAwayFixture(fixture).withTeam(anotherTeamAtHomeAddress),
                 account,
-                [homeTeam, awayTeam, anotherTeamAtHomeAddress],
+                [home, away, anotherTeamAtHomeAddress],
             );
 
-            const awayCell = getAwayCell();
-            expect(awayCell.text()).toContain('ANOTHER TEAM');
-            expect(awayCell.text()).not.toContain('🚫');
+            expect(getAwayCell().text()).toContain('ANOTHER TEAM');
+            expect(getAwayCell().text()).not.toContain('🚫');
         });
 
         it('renders unselectable away team playing elsewhere (league fixture)', async () => {
@@ -564,44 +530,37 @@ describe('DivisionFixture', () => {
                         (d) =>
                             d
                                 .withFixture((f) => f)
-                                .withFixture((f) =>
-                                    f.playing(homeTeam, awayTeam),
-                                ),
+                                .withFixture((f) => f.playing(home, away)),
                         date,
                     )
                     .season()
-                    .withTeam(homeTeam)
-                    .withTeam(awayTeam)
-                    .build(),
+                    .withTeam(home)
+                    .withTeam(away),
                 account,
-                [homeTeam, awayTeam],
+                [home, away],
             );
 
-            expect(getAwayCell().text()).toContain(
-                '🚫 AWAY (Already playing against HOME)',
-            );
+            const text = '🚫 AWAY (Already playing against HOME)';
+            expect(getAwayCell().text()).toContain(text);
         });
 
         it('renders unselectable away team played fixture previously (league fixture)', async () => {
-            const bye = divisionFixtureBuilder(date).bye(homeTeam).build();
             const anotherFixture = divisionFixtureBuilder(nextDate)
-                .playing(homeTeam, awayTeam)
+                .playing(home, away)
                 .build();
             await renderComponent(
                 props(bye),
                 divisionDataBuilder(division)
                     .withFixtureDate((d) => d.withFixture((f) => f), date)
                     .withFixtureDate(
-                        (d) =>
-                            d.withFixture((f) => f.playing(homeTeam, awayTeam)),
+                        (d) => d.withFixture((f) => f.playing(home, away)),
                         nextDate,
                     )
                     .season()
-                    .withTeam(homeTeam)
-                    .withTeam(awayTeam)
-                    .build(),
+                    .withTeam(home)
+                    .withTeam(away),
                 account,
-                [homeTeam, awayTeam],
+                [home, away],
             );
 
             expect(getAwayCell().text()).toContain(
@@ -610,7 +569,6 @@ describe('DivisionFixture', () => {
         });
 
         it('renders selectable away team when away team is playing a qualifier on another date', async () => {
-            const bye = divisionFixtureBuilder(date).bye(homeTeam).build();
             await renderComponent(
                 props(bye),
                 divisionDataBuilder(division)
@@ -618,23 +576,21 @@ describe('DivisionFixture', () => {
                     .withFixtureDate(
                         (d) =>
                             d.withFixture((f) =>
-                                f.playing(homeTeam, awayTeam).knockout(),
+                                f.playing(home, away).knockout(),
                             ),
                         nextDate,
                     )
                     .season()
-                    .withTeam(homeTeam)
-                    .withTeam(awayTeam)
-                    .build(),
+                    .withTeam(home)
+                    .withTeam(away),
                 account,
-                [homeTeam, awayTeam],
+                [home, away],
             );
 
             expect(getAwayCell().text()).toEqual(`AWAY`);
         });
 
         it('renders selectable away team with same address (qualifier)', async () => {
-            const bye = divisionFixtureBuilder(date).bye(homeTeam).build();
             const anotherTeamAtHomeAddress = teamBuilder('ANOTHER TEAM')
                 .address('HOME ADDRESS')
                 .forSeason(season, division)
@@ -645,11 +601,9 @@ describe('DivisionFixture', () => {
                     bye,
                     (f) => f.knockout(),
                     (s) => s.id(season.id),
-                )
-                    .withTeam(anotherTeamAtHomeAddress)
-                    .build(),
+                ).withTeam(anotherTeamAtHomeAddress),
                 account,
-                [homeTeam, awayTeam, anotherTeamAtHomeAddress],
+                [home, away, anotherTeamAtHomeAddress],
             );
 
             expect(getAwayCell().text()).toEqual(`AWAYANOTHER TEAM`);
@@ -662,9 +616,9 @@ describe('DivisionFixture', () => {
             const fixture = divisionFixtureBuilder(date).knockout().build();
             await renderComponent(
                 props(fixture),
-                homeAwayFixture(fixture).withTeam(deletedAwayTeam).build(),
+                homeAwayFixture(fixture).withTeam(deletedAwayTeam),
                 account,
-                [homeTeam, deletedAwayTeam],
+                [home, deletedAwayTeam],
             );
 
             expect(getAwayCell().text()).not.toContain(`DELETED AWAY`);
@@ -680,35 +634,24 @@ describe('DivisionFixture', () => {
                             d
                                 .withFixture((f) => f.knockout())
                                 .withFixture((f) =>
-                                    f.playing(homeTeam, awayTeam).knockout(),
+                                    f.playing(home, away).knockout(),
                                 ),
                         date,
                     )
                     .season((s) => s, season.id)
-                    .withTeam(homeTeam)
-                    .withTeam(awayTeam)
-                    .build(),
+                    .withTeam(home)
+                    .withTeam(away),
                 account,
-                [homeTeam, awayTeam],
+                [home, away],
             );
 
-            expect(getAwayCell().text()).toContain(
-                '🚫 AWAY (Already playing against HOME)',
-            );
+            const text = '🚫 AWAY (Already playing against HOME)';
+            expect(getAwayCell().text()).toContain(text);
         });
 
         it('renders selectable home team when no other fixtures for date', async () => {
             const fixture = divisionFixtureBuilder(date).build();
-            await renderComponent(
-                props(fixture),
-                divisionDataBuilder(division)
-                    .season()
-                    .withTeam(homeTeam)
-                    .withTeam(awayTeam)
-                    .build(),
-                account,
-                [homeTeam, awayTeam],
-            );
+            await renderComponent(props(fixture), dd, account, [home, away]);
 
             expect(getAwayCell().text()).not.toContain('🚫');
         });
@@ -721,32 +664,19 @@ describe('DivisionFixture', () => {
                     otherFixtureId,
                 )
                 .build();
-            await renderComponent(
-                props(fixture),
-                divisionDataBuilder(division)
-                    .season()
-                    .withTeam(homeTeam)
-                    .withTeam(awayTeam)
-                    .build(),
-                account,
-                [homeTeam, awayTeam],
-            );
+            await renderComponent(props(fixture), dd, account, [home, away]);
 
-            const awayCell = getAwayCell();
-            expect(awayCell.optional('.dropdown-menu')).toBeFalsy();
-            expect(awayCell.text()).toContain(
-                '🚫HOME - SAME ADDRESS vs AWAY using this venue',
-            );
-            const linkToOtherFixture = awayCell
+            const text = '🚫HOME - SAME ADDRESS vs AWAY using this venue';
+            expect(getAwayCell().optional('.dropdown-menu')).toBeFalsy();
+            expect(getAwayCell().text()).toContain(text);
+            const link = `http://localhost/score/${otherFixtureId}`;
+            const linkToOtherFixture = getAwayCell()
                 .required('a')
                 .element<HTMLAnchorElement>();
-            expect(linkToOtherFixture.href).toEqual(
-                `http://localhost/score/${otherFixtureId}`,
-            );
+            expect(linkToOtherFixture.href).toEqual(link);
         });
 
         it('renders unselectable away team played fixture previously (qualifier)', async () => {
-            const bye = divisionFixtureBuilder(date).bye(homeTeam).build();
             await renderComponent(
                 props(bye),
                 divisionDataBuilder(division)
@@ -757,28 +687,26 @@ describe('DivisionFixture', () => {
                     .withFixtureDate(
                         (d) =>
                             d.withFixture((f) =>
-                                f.playing(homeTeam, awayTeam).knockout(),
+                                f.playing(home, away).knockout(),
                             ),
                         nextDate,
                     )
                     .season((s) => s, season.id)
-                    .withTeam(homeTeam)
-                    .withTeam(awayTeam)
-                    .build(),
+                    .withTeam(home)
+                    .withTeam(away),
                 account,
-                [homeTeam, awayTeam],
+                [home, away],
             );
 
             expect(getAwayCell().text()).toEqual('AWAY');
         });
 
         it('can change away team', async () => {
-            const bye = divisionFixtureBuilder(date).bye(homeTeam).build();
             await renderComponent(
                 props(bye),
-                homeAwayFixture(bye).withTeam(anotherTeam).build(),
+                homeAwayFixture(bye).withTeam(anotherTeam),
                 account,
-                [homeTeam, awayTeam, anotherTeam],
+                [home, away, anotherTeam],
             );
 
             await getAwayCell()
@@ -793,7 +721,7 @@ describe('DivisionFixture', () => {
                         {
                             id: bye.id,
                             date,
-                            homeTeam,
+                            homeTeam: home,
                             awayTeam: {
                                 id: anotherTeam.id,
                                 name: anotherTeam.name,
@@ -807,14 +735,11 @@ describe('DivisionFixture', () => {
         });
 
         it('can change away team for qualifiers', async () => {
-            const bye = divisionFixtureBuilder(date).bye(homeTeam).build();
             await renderComponent(
                 props(bye),
-                homeAwayFixture(bye, (f) => f.knockout())
-                    .withTeam(anotherTeam)
-                    .build(),
+                homeAwayFixture(bye, (f) => f.knockout()).withTeam(anotherTeam),
                 account,
-                [homeTeam, awayTeam, anotherTeam],
+                [home, away, anotherTeam],
             );
 
             await getAwayCell()
@@ -830,7 +755,7 @@ describe('DivisionFixture', () => {
                     fixtures: [
                         {
                             date,
-                            homeTeam,
+                            homeTeam: home,
                             awayTeam: {
                                 id: anotherTeam.id,
                                 name: anotherTeam.name,
@@ -847,16 +772,16 @@ describe('DivisionFixture', () => {
 
         it('can save league fixture change', async () => {
             const fixture = divisionFixtureBuilder(date)
-                .playing(homeTeam, awayTeam)
+                .playing(home, away)
                 .originalAwayTeamId('unset')
                 .build();
             await renderComponent(
                 props(fixture),
-                homeAwayFixture(fixture, (f) => f.originalAwayTeamId('unset'))
-                    .withTeam(anotherTeam)
-                    .build(),
+                homeAwayFixture(fixture, (f) =>
+                    f.originalAwayTeamId('unset'),
+                ).withTeam(anotherTeam),
                 account,
-                [homeTeam, awayTeam, anotherTeam],
+                [home, away, anotherTeam],
             );
 
             await getSaveCell().button('💾').click();
@@ -868,18 +793,16 @@ describe('DivisionFixture', () => {
 
         it('can save qualifier change', async () => {
             const fixture = divisionFixtureBuilder(date)
-                .playing(homeTeam, awayTeam)
+                .playing(home, away)
                 .originalAwayTeamId('unset')
                 .build();
             await renderComponent(
                 props(fixture),
                 homeAwayFixture(fixture, (f) =>
                     f.originalAwayTeamId('unset').knockout(),
-                )
-                    .withTeam(anotherTeam)
-                    .build(),
+                ).withTeam(anotherTeam),
                 account,
-                [homeTeam, awayTeam, anotherTeam],
+                [home, away, anotherTeam],
             );
 
             await getSaveCell().button('💾').click();
@@ -891,14 +814,14 @@ describe('DivisionFixture', () => {
 
         it('handles error during save', async () => {
             const fixture = divisionFixtureBuilder(date)
-                .playing(homeTeam, awayTeam)
+                .playing(home, away)
                 .originalAwayTeamId('unset')
                 .build();
             await renderComponent(
                 props(fixture),
-                homeAwayFixture(fixture).withTeam(anotherTeam).build(),
+                homeAwayFixture(fixture).withTeam(anotherTeam),
                 account,
-                [homeTeam, awayTeam, anotherTeam],
+                [home, away, anotherTeam],
             );
             apiResponse = { success: false, errors: ['SOME ERROR'] };
 
@@ -914,20 +837,15 @@ describe('DivisionFixture', () => {
         it('can delete league fixture', async () => {
             await renderComponent(
                 props(fixture),
-                homeAwayFixture(fixture).withTeam(anotherTeam).build(),
+                homeAwayFixture(fixture).withTeam(anotherTeam),
                 account,
-                [homeTeam, awayTeam, anotherTeam],
+                [home, away, anotherTeam],
             );
-            context.prompts.respondToConfirm(
-                'Are you sure you want to delete this fixture?\n\nHOME vs AWAY',
-                true,
-            );
+            context.prompts.respondToConfirm(deletePrompt, true);
 
             await getSaveCell().button('🗑').click();
 
-            context.prompts.confirmWasShown(
-                'Are you sure you want to delete this fixture?\n\nHOME vs AWAY',
-            );
+            context.prompts.confirmWasShown(deletePrompt);
             expect(deletedFixture).toEqual(fixture.id);
             expect(beforeReloadDivisionCalled).toEqual(true);
             expect(divisionReloaded).toEqual(true);
@@ -936,9 +854,9 @@ describe('DivisionFixture', () => {
         it('cannot delete fixture if readonly', async () => {
             await renderComponent(
                 props(fixture, { readOnly: true }),
-                homeAwayFixture(fixture).withTeam(anotherTeam).build(),
+                homeAwayFixture(fixture).withTeam(anotherTeam),
                 account,
-                [homeTeam, awayTeam, anotherTeam],
+                [home, away, anotherTeam],
             );
 
             expect(getSaveCell().button('🗑').enabled()).toEqual(false);
@@ -947,14 +865,11 @@ describe('DivisionFixture', () => {
         it('does not delete league fixture', async () => {
             await renderComponent(
                 props(fixture),
-                homeAwayFixture(fixture).withTeam(anotherTeam).build(),
+                homeAwayFixture(fixture).withTeam(anotherTeam),
                 account,
-                [homeTeam, awayTeam, anotherTeam],
+                [home, away, anotherTeam],
             );
-            context.prompts.respondToConfirm(
-                'Are you sure you want to delete this fixture?\n\nHOME vs AWAY',
-                false,
-            );
+            context.prompts.respondToConfirm(deletePrompt, false);
 
             await getSaveCell().button('🗑').click();
 
@@ -966,14 +881,11 @@ describe('DivisionFixture', () => {
         it('handles error during delete', async () => {
             await renderComponent(
                 props(fixture),
-                homeAwayFixture(fixture).withTeam(anotherTeam).build(),
+                homeAwayFixture(fixture).withTeam(anotherTeam),
                 account,
-                [homeTeam, awayTeam, anotherTeam],
+                [home, away, anotherTeam],
             );
-            context.prompts.respondToConfirm(
-                'Are you sure you want to delete this fixture?\n\nHOME vs AWAY',
-                true,
-            );
+            context.prompts.respondToConfirm(deletePrompt, true);
             apiResponse = { success: false, errors: ['SOME ERROR'] };
 
             await getSaveCell().button('🗑').click();
@@ -988,47 +900,35 @@ describe('DivisionFixture', () => {
         it('can close error dialog from deletion failure', async () => {
             await renderComponent(
                 props(fixture),
-                homeAwayFixture(fixture).withTeam(anotherTeam).build(),
+                homeAwayFixture(fixture).withTeam(anotherTeam),
                 account,
-                [homeTeam, awayTeam, anotherTeam],
+                [home, away, anotherTeam],
             );
-            context.prompts.respondToConfirm(
-                'Are you sure you want to delete this fixture?\n\nHOME vs AWAY',
-                true,
-            );
+            context.prompts.respondToConfirm(deletePrompt, true);
             apiResponse = { success: false, errors: ['SOME ERROR'] };
             await getSaveCell().button('🗑').click();
             expect(context.text()).toContain('Could not save fixture details');
 
             await context.button('Close').click();
 
-            expect(context.text()).not.toContain(
-                'Could not save fixture details',
-            );
+            const text = 'Could not save fixture details';
+            expect(context.text()).not.toContain(text);
         });
 
         it('can delete qualifier', async () => {
-            const fixture = divisionFixtureBuilder(date)
-                .playing(homeTeam, awayTeam)
-                .build();
             await renderComponent(
                 props(fixture),
-                homeAwayFixture(fixture, (f) => f.knockout())
-                    .withTeam(anotherTeam)
-                    .build(),
+                homeAwayFixture(fixture, (f) => f.knockout()).withTeam(
+                    anotherTeam,
+                ),
                 account,
-                [homeTeam, awayTeam, anotherTeam],
+                [home, away, anotherTeam],
             );
-            context.prompts.respondToConfirm(
-                'Are you sure you want to delete this fixture?\n\nHOME vs AWAY',
-                true,
-            );
+            context.prompts.respondToConfirm(deletePrompt, true);
 
             await getSaveCell().button('🗑').click();
 
-            context.prompts.confirmWasShown(
-                'Are you sure you want to delete this fixture?\n\nHOME vs AWAY',
-            );
+            context.prompts.confirmWasShown(deletePrompt);
             expect(deletedFixture).toEqual(fixture.id);
             expect(beforeReloadDivisionCalled).toEqual(true);
             expect(divisionReloaded).toEqual(true);
@@ -1036,43 +936,41 @@ describe('DivisionFixture', () => {
 
         it('cannot save when readonly', async () => {
             const fixture = divisionFixtureBuilder(date)
-                .playing(homeTeam, awayTeam)
+                .playing(home, away)
                 .originalAwayTeamId('unset')
                 .build();
             await renderComponent(
                 props(fixture, { readOnly: true }),
-                homeAwayFixture(fixture, (f) => f.originalAwayTeamId('unset'))
-                    .withTeam(anotherTeam)
-                    .build(),
+                homeAwayFixture(fixture, (f) =>
+                    f.originalAwayTeamId('unset'),
+                ).withTeam(anotherTeam),
                 account,
-                [homeTeam, awayTeam, anotherTeam],
+                [home, away, anotherTeam],
             );
 
-            expect(
-                context.required('td:nth-child(6)').button('💾').enabled(),
-            ).toEqual(false);
+            const row = context.required('td:nth-child(6)');
+            expect(row.button('💾').enabled()).toEqual(false);
         });
 
         it('cannot delete when readonly', async () => {
             await renderComponent(
                 props(fixture, { readOnly: true }),
-                homeAwayFixture(fixture).withTeam(anotherTeam).build(),
+                homeAwayFixture(fixture).withTeam(anotherTeam),
                 account,
-                [homeTeam, awayTeam, anotherTeam],
+                [home, away, anotherTeam],
             );
 
-            expect(
-                context.required('td:nth-child(6)').button('🗑').enabled(),
-            ).toEqual(false);
+            const row = context.required('td:nth-child(6)');
+            expect(row.button('🗑').enabled()).toEqual(false);
         });
 
         it('cannot change away team when readonly', async () => {
             const fixture = divisionFixtureBuilder(date).build();
             await renderComponent(
                 props(fixture, { readOnly: true }),
-                homeAwayFixture(fixture).withTeam(anotherTeam).build(),
+                homeAwayFixture(fixture).withTeam(anotherTeam),
                 account,
-                [homeTeam, awayTeam, anotherTeam],
+                [home, away, anotherTeam],
             );
 
             await getAwayCell()
@@ -1086,9 +984,9 @@ describe('DivisionFixture', () => {
             const fixture = divisionFixtureBuilder(date).build();
             await renderComponent(
                 props(fixture),
-                homeAwayFixture(fixture).favouritesEnabled(true).build(),
+                homeAwayFixture(fixture).favouritesEnabled(true),
                 account,
-                [homeTeam],
+                [home],
                 {
                     favouriteTeamIds: ['1234'],
                 },

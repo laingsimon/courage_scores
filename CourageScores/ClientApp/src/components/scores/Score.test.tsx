@@ -28,7 +28,7 @@ import { playerBuilder } from '../../helpers/builders/players';
 import { divisionBuilder } from '../../helpers/builders/divisions';
 import { seasonBuilder } from '../../helpers/builders/seasons';
 import { teamBuilder } from '../../helpers/builders/teams';
-import { fixtureBuilder } from '../../helpers/builders/games';
+import { fixtureBuilder, IMatchBuilder } from '../../helpers/builders/games';
 import { IFailedRequest } from '../common/IFailedRequest';
 import { IGameApi } from '../../interfaces/apis/IGameApi';
 import { IPlayerApi } from '../../interfaces/apis/IPlayerApi';
@@ -68,14 +68,14 @@ describe('Score', () => {
     let deletedPhoto: { id: string; photoId: string } | null;
     let deletePhotoResponse: IClientActionResultDto<GameDto> | null;
     const gameApi = api<IGameApi>({
-        get: async (id: string) => {
+        async get(id: string) {
             if (any(Object.keys(fixtureDataMap), (key: string) => key === id)) {
                 return fixtureDataMap[id];
             }
 
             throw new Error('Unexpected request for fixture data');
         },
-        updateScores: async (id: string, data: RecordScoresDto) => {
+        async updateScores(id: string, data: RecordScoresDto) {
             updatedFixtures[id] = data;
             return (
                 saveGameApiResult || {
@@ -95,7 +95,7 @@ describe('Score', () => {
         },
     });
     const playerApi = api<IPlayerApi>({
-        create: async (d: string, s: string, t: string, p: EditPlayer) => {
+        async create(d: string, s: string, t: string, p: EditPlayer) {
             createdPlayer = {
                 divisionId: d,
                 seasonId: s,
@@ -146,42 +146,89 @@ describe('Score', () => {
         teamsReloaded = true;
     }
 
-    function assertEmptyScoreCard() {
-        const tableBody = contentBackground()!.required('table tbody');
-        const rows = tableBody.all('tr');
-        expect(rows.length).toEqual(12);
+    async function createANewPlayer(
+        name: string,
+        side: 'home' | 'away' = 'home',
+        multiple?: boolean,
+    ) {
+        await selectPlayer(addAPlayer, 1, side);
+        expect(dialog()!.text()).toContain(`Create ${side} player...`);
+        if (multiple) {
+            await dialog()!.input('multiple').click();
+        }
+        await dialog()!.input('name').change(name);
+        const buttonText = multiple ? 'Add players' : 'Add player';
+        await dialog()!.button(buttonText).click();
+    }
+
+    function assertSingles(
+        rows: IComponent[],
+        h: string,
+        a: string,
+        hs: string = '',
+        as: string = '',
+    ) {
         assertRow(rows[0], 'Singles');
-        assertRow(rows[1], '', '', '', '', '');
-        assertRow(rows[2], '', '', '', '', '');
-        assertRow(rows[3], '', '', '', '', '');
-        assertRow(rows[4], '', '', '', '', '');
-        assertRow(rows[5], '', '', '', '', '');
+        assertRow(rows[1], h, hs, '', as, a);
+        assertRow(rows[2], h, hs, '', as, a);
+        assertRow(rows[3], h, hs, '', as, a);
+        assertRow(rows[4], h, hs, '', as, a);
+        assertRow(rows[5], h, hs, '', as, a);
+    }
+
+    function assertPairs(
+        rows: IComponent[],
+        h: string,
+        a: string,
+        hs: string = '',
+        as: string = '',
+    ) {
         assertRow(rows[6], 'Pairs');
-        assertRow(rows[7], '', '', '', '', '');
-        assertRow(rows[8], '', '', '', '', '');
+        assertRow(rows[7], h, hs, '', as, a);
+        assertRow(rows[8], h, hs, '', as, a);
+    }
+
+    function assertTriples(
+        rows: IComponent[],
+        h: string,
+        a: string,
+        hs: string = '',
+        as: string = '',
+    ) {
         assertRow(rows[9], 'Triples');
-        assertRow(rows[10], '', '', '', '', '');
+        assertRow(rows[10], h, hs, '', as, a);
+    }
+
+    function assertEmptyScoreCard() {
+        const rows = contentBackground('table tbody').all('tr');
+        expect(rows.length).toEqual(12);
+        assertSingles(rows, '', '');
+        assertPairs(rows, '', '');
+        assertTriples(rows, '', '');
         assertRow(rows[11], '');
     }
 
     function assertScoreCardForClerk() {
-        const tableBody = contentBackground()!.required('table tbody');
-        const rows = tableBody.all('tr');
+        const rows = contentBackground('table tbody').all('tr');
         expect(rows.length).toEqual(14);
-        assertRow(rows[0], 'Singles');
-        assertRow(rows[1], homePlayer, '', '', '', awayPlayer);
-        assertRow(rows[2], homePlayer, '', '', '', awayPlayer);
-        assertRow(rows[3], homePlayer, '', '', '', awayPlayer);
-        assertRow(rows[4], homePlayer, '', '', '', awayPlayer);
-        assertRow(rows[5], homePlayer, '', '', '', awayPlayer);
-        assertRow(rows[6], 'Pairs');
-        assertRow(rows[7], addHomePairs, '', '', '', addAwayPairs);
-        assertRow(rows[8], addHomePairs, '', '', '', addAwayPairs);
-        assertRow(rows[9], 'Triples');
-        assertRow(rows[10], addHomeTriples, '', '', '', addAwayTriples);
+        assertSingles(rows, homePlayer, awayPlayer);
+        assertPairs(rows, addHomePairs, addAwayPairs);
+        assertTriples(rows, addHomeTriples, addAwayTriples);
         assertRow(rows[11], 'Man of the match');
         assertRow(rows[12], '', '', '');
         assertRow(rows[13], selectPlayers);
+    }
+
+    function getScores(tag: string, s: (e: IComponent) => string) {
+        return context.all('table tbody tr').flatMap((match) => {
+            const tds = match
+                .all('td')
+                .filter(
+                    (td) => td.element<HTMLTableCellElement>().colSpan !== 2,
+                );
+
+            return tds.flatMap((td) => td.all(tag).map(s));
+        });
     }
 
     beforeEach(() => {
@@ -280,7 +327,7 @@ describe('Score', () => {
         }
 
         function createMatch(home: number, away: number) {
-            return (b) =>
+            return (b: IMatchBuilder) =>
                 b
                     .withHome(findPlayer(homeTeam, 'Home player'))
                     .withAway(findPlayer(awayTeam, 'Away player'))
@@ -318,29 +365,29 @@ describe('Score', () => {
             .build();
     }
 
-    function assertRow(tr: IComponent, ...expectedCellText: string[]) {
+    function assertRow(tr: IComponent, ...expected: string[]) {
         const cellText = tr.all('td').map((td) => td.text()!.trim());
 
-        expect(cellText.length).toEqual(expectedCellText.length);
+        expect(cellText.length).toEqual(expected.length);
 
         for (let index = 0; index < cellText.length; index++) {
-            expect(cellText[index]).toContain(expectedCellText[index]);
+            expect(cellText[index]).toContain(expected[index]);
         }
     }
 
-    function contentBackground(): IComponent | undefined {
-        return context.optional('.content-background');
+    function contentBackground(child?: string) {
+        const background = context.required('.content-background');
+        return child ? background.required(child) : background;
     }
 
-    function matchRow(matchNo: number = 1): IComponent | undefined {
-        return context.optional(
-            `.content-background table tbody tr:nth-child(${matchNo + 1})`,
-        );
+    function matchRow(matchNo: number = 1): IComponent {
+        const selector = `.content-background table tbody tr:nth-child(${matchNo + 1})`;
+        return context.required(selector);
     }
 
     async function selectPlayer(name: string, m: number, s: 'home' | 'away') {
         const col = s === 'home' ? 1 : 5;
-        const players = matchRow(m)!.required(`td:nth-child(${col})`);
+        const players = matchRow(m).required(`td:nth-child(${col})`);
         await players.required('.dropdown-menu').select(name);
     }
 
@@ -349,13 +396,12 @@ describe('Score', () => {
     }
 
     describe('when logged out', () => {
-        const account: UserDto | undefined = undefined;
         let fixture: GameDto;
         let appData: IAppContainerProps;
 
         beforeEach(() => {
             fixture = fixtureBuilder().build();
-            appData = getDefaultAppData(account);
+            appData = getDefaultAppData();
         });
 
         it('renders when fixture not found', async () => {
@@ -375,9 +421,9 @@ describe('Score', () => {
 
             await renderComponent(fixture.id, appData);
 
-            assertError(
-                'Error accessing fixture: Code: 400 -- key: Some error',
-            );
+            const error =
+                'Error accessing fixture: Code: 400 -- key: Some error';
+            assertError(error);
         });
 
         it('renders when home or away are not defined', async () => {
@@ -393,8 +439,7 @@ describe('Score', () => {
 
             await renderComponent(fixture.id, appData);
 
-            const singleRow =
-                contentBackground()!.required('table tbody tr td');
+            const singleRow = contentBackground('table tbody tr td');
             expect(singleRow.text()).toEqual('No scores, yet');
         });
 
@@ -403,20 +448,11 @@ describe('Score', () => {
 
             await renderComponent(fixture.id, appData);
 
-            const tableBody = contentBackground()!.required('table tbody');
-            const rows = tableBody.all('tr');
+            const rows = contentBackground('table tbody').all('tr');
             expect(rows.length).toEqual(12);
-            assertRow(rows[0], 'Singles');
-            assertRow(rows[1], 'Home player', '3', '', '2', 'Away player');
-            assertRow(rows[2], 'Home player', '3', '', '2', 'Away player');
-            assertRow(rows[3], 'Home player', '3', '', '2', 'Away player');
-            assertRow(rows[4], 'Home player', '3', '', '2', 'Away player');
-            assertRow(rows[5], 'Home player', '3', '', '2', 'Away player');
-            assertRow(rows[6], 'Pairs');
-            assertRow(rows[7], 'Home player', '3', '', '0', 'Away player');
-            assertRow(rows[8], 'Home player', '3', '', '0', 'Away player');
-            assertRow(rows[9], 'Triples');
-            assertRow(rows[10], 'Home player', '3', '', '0', 'Away player');
+            assertSingles(rows, 'Home player', 'Away player', '3', '2');
+            assertPairs(rows, 'Home player', 'Away player', '3', '0');
+            assertTriples(rows, 'Home player', 'Away player', '3', '0');
             assertRow(
                 rows[11],
                 '180sHome player',
@@ -457,6 +493,19 @@ describe('Score', () => {
         const account = user({ manageScores: true });
         let appData: IAppContainerProps;
         let fixture: GameDto;
+        const unpublishedMessage =
+            'Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved';
+        const canUploadPhotos = user({
+            manageScores: true,
+            uploadPhotos: true,
+        });
+        const validPhoto: PhotoReferenceDto = {
+            id: createTemporaryId(),
+            author: canUploadPhotos.name,
+            contentType: 'image/png',
+            fileSize: 123,
+            created: '',
+        };
 
         function addPlayerToSeason(ts: TeamSeasonDto, player: ICreatedPlayer) {
             if (ts.seasonId === player.seasonId) {
@@ -475,10 +524,7 @@ describe('Score', () => {
                 const newTeam: TeamDto = {
                     ...team,
                     seasons: team
-                        .seasons!.map((ts) => {
-                            const newTs = { ...ts };
-                            return modify(newTs, player);
-                        })
+                        .seasons!.map((ts) => modify({ ...ts }, player))
                         .filter(() => truncate !== true),
                 };
 
@@ -487,24 +533,6 @@ describe('Score', () => {
                     result: newTeam,
                 };
             };
-        }
-
-        function getScores(
-            tagName: string,
-            selector: (e: Element) => string,
-        ): string[] {
-            const matches = context.all('table tbody tr');
-            return matches.flatMap((match) => {
-                const tds = match
-                    .all('td')
-                    .filter(
-                        (td) =>
-                            td.element<HTMLTableCellElement>().colSpan !== 2,
-                    );
-                return tds.flatMap((td) =>
-                    td.all(tagName).map((el) => selector(el.element())),
-                );
-            });
         }
 
         beforeEach(() => {
@@ -523,39 +551,17 @@ describe('Score', () => {
         it('renders score card with results', async () => {
             await renderComponent(fixture.id, appData);
 
-            const tableBody = contentBackground()!.required('table tbody');
-            const rows = tableBody.all('tr');
+            const rows = contentBackground('table tbody').all('tr');
             expect(rows.length).toEqual(14);
-            assertRow(rows[0], 'Singles');
-            assertRow(rows[1], homePlayer, '', '', '', awayPlayer);
-            assertRow(rows[2], homePlayer, '', '', '', awayPlayer);
-            assertRow(rows[3], homePlayer, '', '', '', awayPlayer);
-            assertRow(rows[4], homePlayer, '', '', '', awayPlayer);
-            assertRow(rows[5], homePlayer, '', '', '', awayPlayer);
-            assertRow(rows[6], 'Pairs');
-            assertRow(
-                rows[7],
+            assertSingles(rows, homePlayer, awayPlayer);
+            assertPairs(
+                rows,
                 join(homePlayer, homePlayerAdd, nbsbAddAPlayer),
-                '',
-                '',
-                '',
                 join(awayPlayer, awayPlayerAdd, nbsbAddAPlayer),
             );
-            assertRow(
-                rows[8],
-                join(homePlayer, homePlayerAdd, nbsbAddAPlayer),
-                '',
-                '',
-                '',
-                join(awayPlayer, awayPlayerAdd, nbsbAddAPlayer),
-            );
-            assertRow(rows[9], 'Triples');
-            assertRow(
-                rows[10],
+            assertTriples(
+                rows,
                 join(homePlayer, homePlayerAdd, nbsbAddAPlayer, nbsbAddAPlayer),
-                '',
-                '',
-                '',
                 join(awayPlayer, awayPlayerAdd, nbsbAddAPlayer, nbsbAddAPlayer),
             );
             assertRow(rows[11], 'Man of the match');
@@ -632,29 +638,25 @@ describe('Score', () => {
             const newPlayer = playerBuilder('New name').captain().build();
             homeTeam.seasons![0].players!.push(newPlayer);
             const firstSinglesMatch = fixtureDataMap[fixture.id]!.matches![0];
-            firstSinglesMatch.homePlayers![0] = Object.assign({}, newPlayer, {
+            firstSinglesMatch.homePlayers![0] = {
+                ...newPlayer,
                 name: 'Old name',
-            });
+            };
 
             await renderComponent(fixture.id, appData);
 
-            const players = matchRow(1)!.required('td:nth-child(1)');
-            expect(players.required('.dropdown-toggle').text()).toEqual(
-                'New name (nee Old name)',
-            );
-            expect(players.required('.dropdown-menu .active').text()).toEqual(
-                'New name (nee Old name)',
-            );
+            const players = matchRow(1).required('td:nth-child(1)');
+            const name = 'New name (nee Old name)';
+            expect(players.required('.dropdown-toggle').text()).toEqual(name);
+            const selectedPlayer = players.required('.dropdown-menu .active');
+            expect(selectedPlayer.text()).toEqual(name);
         });
 
         it('can add a player to home team', async () => {
             await renderComponent(fixture.id, appData);
             newPlayerApiResult = modifySeasonOnAdd(addPlayerToSeason);
 
-            await selectPlayer(addAPlayer, 1, 'home');
-            expect(dialog()!.text()).toContain('Create home player...');
-            await dialog()!.input('name').change('NEW PLAYER');
-            await dialog()!.button('Add player').click();
+            await createANewPlayer('NEW PLAYER');
 
             expect(teamsReloaded).toEqual(true);
             expect(createdPlayer).not.toBeNull();
@@ -665,11 +667,7 @@ describe('Score', () => {
             await renderComponent(fixture.id, appData);
             newPlayerApiResult = modifySeasonOnAdd(addPlayerToSeason);
 
-            await selectPlayer(addAPlayer, 1, 'home');
-            expect(dialog()!.text()).toContain('Create home player...');
-            await dialog()!.input('multiple').click();
-            await dialog()!.input('name').change('NEW PLAYER 1\nNEW PLAYER 2');
-            await dialog()!.button('Add players').click();
+            await createANewPlayer('NEW PLAYER 1\nNEW PLAYER 2', 'home', true);
 
             expect(teamsReloaded).toEqual(true);
             expect(createdPlayer).not.toBeNull();
@@ -680,10 +678,7 @@ describe('Score', () => {
             await renderComponent(fixture.id, appData);
             newPlayerApiResult = modifySeasonOnAdd((t) => t, true);
 
-            await selectPlayer(addAPlayer, 1, 'home');
-            expect(dialog()!.text()).toContain('Create home player...');
-            await dialog()!.input('name').change('NEW PLAYER');
-            await dialog()!.button('Add player').click();
+            await createANewPlayer('NEW PLAYER');
 
             assertError('Could not find updated teamSeason');
             expect(teamsReloaded).toEqual(true);
@@ -698,10 +693,7 @@ describe('Score', () => {
                 return ts;
             });
 
-            await selectPlayer(addAPlayer, 1, 'home');
-            expect(dialog()!.text()).toContain('Create home player...');
-            await dialog()!.input('name').change('NEW PLAYER');
-            await dialog()!.button('Add player').click();
+            await createANewPlayer('NEW PLAYER');
 
             assertError('Could not find updated teamSeason');
             expect(teamsReloaded).toEqual(true);
@@ -713,14 +705,11 @@ describe('Score', () => {
             await renderComponent(fixture.id, appData);
             newPlayerApiResult = modifySeasonOnAdd((ts) => ts);
 
-            await selectPlayer(addAPlayer, 1, 'home');
-            expect(dialog()!.text()).toContain('Create home player...');
-            await dialog()!.input('name').change('NEW PLAYER');
-            await dialog()!.button('Add player').click();
+            await createANewPlayer('NEW PLAYER');
 
-            assertError(
-                'Could not find new player in updated season, looking for player with name: "NEW PLAYER"',
-            );
+            const error =
+                'Could not find new player in updated season, looking for player with name: "NEW PLAYER"';
+            assertError(error);
             expect(teamsReloaded).toEqual(true);
             expect(createdPlayer).not.toBeNull();
             expect(dialog()).toBeFalsy();
@@ -760,8 +749,7 @@ describe('Score', () => {
 
             await context.button('Save').click();
 
-            const textContent = context.container.textContent;
-            expect(textContent).toContain('Could not save score');
+            expect(context.text()).toContain('Could not save score');
         });
 
         it('can change player', async () => {
@@ -782,7 +770,7 @@ describe('Score', () => {
 
         it('can change match options', async () => {
             await renderComponent(fixture.id, appData);
-            const players = matchRow(1)!.required('td:nth-child(5)');
+            const players = matchRow(1).required('td:nth-child(5)');
 
             await players.button('🛠').click();
             await dialog()!.input('numberOfLegs').change('30');
@@ -803,30 +791,22 @@ describe('Score', () => {
 
             await context.button('Unpublish').click();
 
-            context.prompts.alertWasShown(
-                'Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved',
-            );
-            const scores = getScores(
-                'input',
-                (i) => (i as HTMLInputElement).value,
-            );
+            context.prompts.alertWasShown(unpublishedMessage);
+            const scores = getScores('input', (i) => i.value());
             expect(scores).toEqual(repeat(16, (_) => '')); // 16 = 8 matches * 2 sides
             const manOfTheMatchHeadingCell = context
                 .all('td')
                 .find((td) => td.text() === 'Man of the match')!;
             const motm = manOfTheMatchHeadingCell.parent()!.nextSibling()!;
-            expect(
-                motm.required('td:nth-child(1) .dropdown-toggle').text(),
-            ).toEqual(nbsp);
-            expect(
-                motm.required('td:nth-child(3) .dropdown-toggle').text(),
-            ).toEqual(nbsp);
-            const oneEightiesRow = context.required(
-                'tr[datatype="merge-180s"] td:nth-child(1)',
-            );
-            const hiChecksRow = context.required(
-                'tr[datatype="merge-hichecks"] td:nth-child(3)',
-            );
+            const homeMotm = motm.required('td:nth-child(1) .dropdown-toggle');
+            expect(homeMotm.text()).toEqual(nbsp);
+            const awayMotm = motm.required('td:nth-child(3) .dropdown-toggle');
+            expect(awayMotm.text()).toEqual(nbsp);
+            const selector180 = 'tr[datatype="merge-180s"] td:nth-child(1)';
+            const oneEightiesRow = context.required(selector180);
+            const selectorHiCheck =
+                'tr[datatype="merge-hichecks"] td:nth-child(3)';
+            const hiChecksRow = context.required(selectorHiCheck);
             expect(oneEightiesRow.all('button').length).toEqual(1); // merge button
             expect(hiChecksRow.all('button').length).toEqual(1); // merge button
         });
@@ -846,10 +826,8 @@ describe('Score', () => {
 
             await context.button('Unpublish').click();
 
-            context.prompts.alertWasShown(
-                'Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved',
-            );
-            const allScores = getScores('strong', (s) => s.textContent!);
+            context.prompts.alertWasShown(unpublishedMessage);
+            const allScores = getScores('strong', (s) => s.text());
             expect(allScores).toEqual(repeat(16, (_) => '1')); // 16 = 8 matches * 2 sides
         });
 
@@ -871,7 +849,7 @@ describe('Score', () => {
             context.prompts.alertWasShown(
                 'Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved',
             );
-            const allScores = getScores('strong', (s) => s.textContent!);
+            const allScores = getScores('strong', (s) => s.text());
             expect(allScores).toEqual(repeat(16, (_) => '2')); // 16 = 8 matches * 2 sides
         });
 
@@ -914,26 +892,23 @@ describe('Score', () => {
             fixtureData.resultsPublished = false;
             await renderComponent(fixtureData.id, appData);
 
-            expect(context.container.textContent).not.toContain('Photos');
+            expect(context.text()).not.toContain('Photos');
         });
 
         it('can open photo manager to view photos', async () => {
-            const permitted = user({ manageScores: true, uploadPhotos: true });
-            const appData = getDefaultAppData(permitted);
+            const appData = getDefaultAppData(canUploadPhotos);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
             await renderComponent(fixtureData.id, appData);
 
             await context.button('📷 Photos').click();
 
-            expect(
-                dialog()!.optional('div[datatype="upload-control"]'),
-            ).toBeTruthy();
+            const upload = dialog()!.optional('div[datatype="upload-control"]');
+            expect(upload).toBeTruthy();
         });
 
         it('can close photo manager', async () => {
-            const permitted = user({ manageScores: true, uploadPhotos: true });
-            const appData = getDefaultAppData(permitted);
+            const appData = getDefaultAppData(canUploadPhotos);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
             await renderComponent(fixtureData.id, appData);
@@ -945,8 +920,7 @@ describe('Score', () => {
         });
 
         it('can upload photo', async () => {
-            const permitted = user({ manageScores: true, uploadPhotos: true });
-            const appData = getDefaultAppData(permitted);
+            const appData = getDefaultAppData(canUploadPhotos);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
             await renderComponent(fixtureData.id, appData);
@@ -964,8 +938,7 @@ describe('Score', () => {
         });
 
         it('handles error when uploading photo', async () => {
-            const permitted = user({ manageScores: true, uploadPhotos: true });
-            const appData = getDefaultAppData(permitted);
+            const appData = getDefaultAppData(canUploadPhotos);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
             await renderComponent(fixtureData.id, appData);
@@ -978,69 +951,49 @@ describe('Score', () => {
             await dialog()!.required('input[type="file"]').file('any');
 
             expect(uploadedPhoto).not.toBeNull();
-            expect(context.container.textContent).toContain('SOME ERROR');
+            expect(context.text()).toContain('SOME ERROR');
         });
 
         it('can delete photo', async () => {
-            const permitted = user({ manageScores: true, uploadPhotos: true });
-            const appData = getDefaultAppData(permitted);
+            const appData = getDefaultAppData(canUploadPhotos);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
-            const photo: PhotoReferenceDto = {
-                id: createTemporaryId(),
-                author: permitted.name,
-                contentType: 'image/png',
-                fileSize: 123,
-                created: '',
-            };
-            fixtureData.photos = [photo];
+            fixtureData.photos = [validPhoto];
             await renderComponent(fixtureData.id, appData);
             await context.button('📷 Photos').click();
             deletePhotoResponse = {
                 success: true,
                 result: fixtureData,
             };
-            context.prompts.respondToConfirm(
-                'Are you sure you want to delete this photo?',
-                true,
-            );
+            const prompt = 'Are you sure you want to delete this photo?';
+            context.prompts.respondToConfirm(prompt, true);
 
             await dialog()!.button('🗑').click();
 
             expect(deletedPhoto).toEqual({
                 id: fixtureData.id,
-                photoId: photo.id,
+                photoId: validPhoto.id,
             });
         });
 
         it('handles error when deleting photo', async () => {
-            const permitted = user({ manageScores: true, uploadPhotos: true });
-            const appData = getDefaultAppData(permitted);
+            const appData = getDefaultAppData(canUploadPhotos);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
-            const photo: PhotoReferenceDto = {
-                id: createTemporaryId(),
-                author: permitted.name,
-                contentType: 'image/png',
-                fileSize: 123,
-                created: '',
-            };
-            fixtureData.photos = [photo];
+            fixtureData.photos = [validPhoto];
             await renderComponent(fixtureData.id, appData);
             await context.button('📷 Photos').click();
             deletePhotoResponse = {
                 success: false,
                 errors: ['SOME ERROR'],
             };
-            context.prompts.respondToConfirm(
-                'Are you sure you want to delete this photo?',
-                true,
-            );
+            const prompt = 'Are you sure you want to delete this photo?';
+            context.prompts.respondToConfirm(prompt, true);
 
             await dialog()!.button('🗑').click();
 
             expect(deletedPhoto).not.toBeNull();
-            expect(context.container.textContent).toContain('SOME ERROR');
+            expect(context.text()).toContain('SOME ERROR');
         });
 
         it('can change to qualifier', async () => {

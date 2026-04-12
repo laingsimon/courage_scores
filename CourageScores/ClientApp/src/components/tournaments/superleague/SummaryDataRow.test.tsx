@@ -3,6 +3,7 @@ import {
     brandingProps,
     cleanUp,
     ErrorState,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -41,13 +42,8 @@ describe('SummaryDataRow', () => {
         );
     }
 
-    function getRowContent(
-        row: HTMLTableRowElement,
-        tagName: string,
-    ): string[] {
-        return Array.from(row.querySelectorAll(tagName)).map(
-            (th) => th.textContent!,
-        );
+    function getRowContent(row: IComponent, tagName: string): string[] {
+        return row.all(tagName).map((th) => th.text());
     }
 
     function createLeg(
@@ -108,8 +104,7 @@ describe('SummaryDataRow', () => {
             });
 
             reportedError.verifyNoError();
-            const row = context.container.querySelector('tr')!;
-            expect(getRowContent(row, 'td')).toEqual([
+            expect(getRowContent(context.required('tr'), 'td')).toEqual([
                 '1',
                 'HOST',
                 '2',
@@ -145,10 +140,9 @@ describe('SummaryDataRow', () => {
             });
 
             reportedError.verifyNoError();
-            const row = context.container.querySelector('tr')!;
-            const cells = Array.from(row.querySelectorAll('td'));
-            expect(cells[1].className).toEqual('bg-winner');
-            expect(cells[8].className).toEqual('');
+            const cells = context.required('tr').all('td');
+            expect(cells[1].className()).toEqual('bg-winner');
+            expect(cells[8].className()).toEqual('');
         });
 
         it('opponent winner', async () => {
@@ -168,10 +162,9 @@ describe('SummaryDataRow', () => {
             });
 
             reportedError.verifyNoError();
-            const row = context.container.querySelector('tr')!;
-            const cells = Array.from(row.querySelectorAll('td'));
-            expect(cells[1].className).toEqual('');
-            expect(cells[8].className).toEqual('bg-winner');
+            const cells = context.required('tr').all('td');
+            expect(cells[1].className()).toEqual('');
+            expect(cells[8].className()).toEqual('bg-winner');
         });
     });
 });

@@ -42,7 +42,7 @@ describe('MatchAverage', () => {
             setOneDartAverage,
         });
 
-        expect(context.container.innerHTML).toEqual('');
+        expect(context.html()).toEqual('');
     });
 
     it('renders 3 dart average', async () => {

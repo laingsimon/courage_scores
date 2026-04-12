@@ -19,7 +19,7 @@ public class ContiguousByes : ISeasonHealthCheck
 
     public async Task<HealthCheckResultDto> RunCheck(IReadOnlyCollection<DivisionHealthDto> divisions, HealthCheckContext context, CancellationToken token)
     {
-        return (await divisions.SelectAsync(division => RunDivisionCheck(division, token)).ToList())
+        return (await divisions.SelectAsync(RunDivisionCheck).ToList())
             .Aggregate(
                 new HealthCheckResultDto
                 {
@@ -28,9 +28,9 @@ public class ContiguousByes : ISeasonHealthCheck
                 (prev, current) => prev.MergeWith(current));
     }
 
-    private async Task<HealthCheckResultDto> RunDivisionCheck(DivisionHealthDto division, CancellationToken token)
+    private async Task<HealthCheckResultDto> RunDivisionCheck(DivisionHealthDto division)
     {
-        return (await division.Teams.SelectAsync(team => RunTeamCheck(division, team, token)).ToList())
+        return (await division.Teams.SelectAsync(team => RunTeamCheck(division, team)).ToList())
             .Aggregate(
                 new HealthCheckResultDto
                 {
@@ -39,8 +39,7 @@ public class ContiguousByes : ISeasonHealthCheck
                 (prev, current) => prev.MergeWith(current));
     }
 
-    // ReSharper disable once UnusedParameter.Local
-    private Task<HealthCheckResultDto> RunTeamCheck(DivisionHealthDto division, DivisionTeamDto team, CancellationToken token)
+    private Task<HealthCheckResultDto> RunTeamCheck(DivisionHealthDto division, DivisionTeamDto team)
     {
         var result = new HealthCheckResultDto
         {

@@ -34,7 +34,7 @@ public class GenericDataServiceTests
     {
         Name = nameof(EditPermitted),
     };
-    private readonly CancellationToken _token =  CancellationToken.None;
+    private readonly CancellationToken _token = CancellationToken.None;
 
     private Mock<IGenericRepository<Model>> _repository = null!;
     private Mock<IAdapter<Model, Dto>> _adapter = null!;
