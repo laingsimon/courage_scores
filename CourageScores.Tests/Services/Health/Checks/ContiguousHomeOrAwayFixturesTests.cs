@@ -340,7 +340,7 @@ public class ContiguousHomeOrAwayFixturesTests
 
     private static DivisionDateHealthDto FixtureDate(int offsetWeeks, params Func<DateTime, LeagueFixtureHealthDto>[] fixtures)
     {
-        var date = new DateTime(2001, 02, 03).AddDays(offsetWeeks*7);
+        var date = new DateTime(2001, 02, 03).AddDays(offsetWeeks * 7);
 
         return new DivisionDateHealthDto
         {

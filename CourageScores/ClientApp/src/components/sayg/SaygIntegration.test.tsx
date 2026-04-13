@@ -55,21 +55,17 @@ describe('SaygIntegrationTest', () => {
     ) => IClientActionResultDto<RecordedScoreAsYouGoDto>;
 
     const saygApi = api<ISaygApi>({
-        get: async (id: string): Promise<RecordedScoreAsYouGoDto | null> => {
+        async get(id: string) {
             return saygData[id];
         },
-        upsert: async (
-            data: UpdateRecordedScoreAsYouGoDto,
-        ): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> => {
+        async upsert(data: UpdateRecordedScoreAsYouGoDto) {
             if (!data.id) {
                 data.id = createTemporaryId();
             }
             saygData[data.id] = data as RecordedScoreAsYouGoDto;
             return apiResultFunc(data);
         },
-        delete: async (
-            id: string,
-        ): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> => {
+        async delete(id: string) {
             delete saygData[id];
             return {
                 success: true,
@@ -84,12 +80,11 @@ describe('SaygIntegrationTest', () => {
     beforeEach(() => {
         reportedError = new ErrorState();
         saygData = {};
-        apiResultFunc = (data: UpdateRecordedScoreAsYouGoDto) => {
-            return {
+        apiResultFunc = (data: UpdateRecordedScoreAsYouGoDto) =>
+            ({
                 result: data,
                 success: true,
-            } as IClientActionResultDto<RecordedScoreAsYouGoDto>;
-        };
+            }) as IClientActionResultDto<RecordedScoreAsYouGoDto>;
     });
 
     async function renderComponent(
@@ -128,9 +123,7 @@ describe('SaygIntegrationTest', () => {
                 .addTo(saygData)
                 .build();
 
-            apiResultFunc = (
-                data: UpdateRecordedScoreAsYouGoDto,
-            ): IClientActionResultDto<RecordedScoreAsYouGoDto> => {
+            apiResultFunc = (data: UpdateRecordedScoreAsYouGoDto) => {
                 sayg = data;
                 return {
                     result: data,
@@ -188,13 +181,8 @@ describe('SaygIntegrationTest', () => {
 
             const previousScores = previousScoreRows(context);
             expect(previousScores.length).toEqual(1);
-            expect(scoreCardDivTexts(previousScores[0])).toEqual([
-                '120',
-                '381',
-                '3',
-                '',
-                '',
-            ]);
+            const scores = scoreCardDivTexts(previousScores[0]);
+            expect(scores).toEqual(['120', '381', '3', '', '']);
         });
 
         it('shows first away score in the player score card as entered', async () => {
@@ -206,13 +194,8 @@ describe('SaygIntegrationTest', () => {
 
             const previousScores = previousScoreRows(context);
             expect(previousScores.length).toEqual(1);
-            expect(scoreCardDivTexts(previousScores[0])).toEqual([
-                '120',
-                '381',
-                '3',
-                '26',
-                '475',
-            ]);
+            const scores = scoreCardDivTexts(previousScores[0]);
+            expect(scores).toEqual(['120', '381', '3', '26', '475']);
         });
 
         it('does not show remaining score in score card when no score entered', async () => {
@@ -223,13 +206,8 @@ describe('SaygIntegrationTest', () => {
 
             const previousScores = previousScoreRows(context);
             expect(previousScores.length).toEqual(1);
-            expect(scoreCardDivTexts(previousScores[0])).toEqual([
-                '120',
-                '381',
-                '3',
-                '',
-                '',
-            ]);
+            const scores = scoreCardDivTexts(previousScores[0]);
+            expect(scores).toEqual(['120', '381', '3', '', '']);
         });
 
         it('shows remaining score in score card when score entered', async () => {
@@ -241,13 +219,8 @@ describe('SaygIntegrationTest', () => {
 
             const previousScores = previousScoreRows(context);
             expect(previousScores.length).toEqual(1);
-            expect(scoreCardDivTexts(previousScores[0])).toEqual([
-                '120',
-                '381',
-                '3',
-                '62',
-                '439',
-            ]);
+            const scores = scoreCardDivTexts(previousScores[0]);
+            expect(scores).toEqual(['120', '381', '3', '62', '439']);
         });
 
         it('allows first score to be recorded via key pad', async () => {
@@ -335,9 +308,7 @@ describe('SaygIntegrationTest', () => {
                 .addTo(saygData)
                 .build();
 
-            apiResultFunc = (
-                data: UpdateRecordedScoreAsYouGoDto,
-            ): IClientActionResultDto<RecordedScoreAsYouGoDto> => {
+            apiResultFunc = (data: UpdateRecordedScoreAsYouGoDto) => {
                 sayg = data;
                 return {
                     result: data,
@@ -539,9 +510,7 @@ describe('SaygIntegrationTest', () => {
                 .addTo(saygData)
                 .build();
 
-            apiResultFunc = (
-                data: UpdateRecordedScoreAsYouGoDto,
-            ): IClientActionResultDto<RecordedScoreAsYouGoDto> => {
+            apiResultFunc = (data: UpdateRecordedScoreAsYouGoDto) => {
                 sayg = data;
                 return {
                     result: data,
@@ -677,9 +646,7 @@ describe('SaygIntegrationTest', () => {
                 .addTo(saygData)
                 .build();
 
-            apiResultFunc = (
-                data: UpdateRecordedScoreAsYouGoDto,
-            ): IClientActionResultDto<RecordedScoreAsYouGoDto> => {
+            apiResultFunc = (data: UpdateRecordedScoreAsYouGoDto) => {
                 sayg = data;
                 return {
                     result: data,
@@ -996,9 +963,7 @@ describe('SaygIntegrationTest', () => {
                 .addTo(saygData)
                 .build();
 
-            apiResultFunc = (
-                data: UpdateRecordedScoreAsYouGoDto,
-            ): IClientActionResultDto<RecordedScoreAsYouGoDto> => {
+            apiResultFunc = (data: UpdateRecordedScoreAsYouGoDto) => {
                 sayg = data;
                 return {
                     result: data,

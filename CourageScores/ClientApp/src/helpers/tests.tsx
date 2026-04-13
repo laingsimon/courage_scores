@@ -36,7 +36,6 @@ import { UserDto } from '../interfaces/models/dtos/Identity/UserDto';
 /* istanbul ignore file */
 
 export interface TestContext extends IComponent {
-    container: HTMLElement;
     cleanUp(): UntypedPromise;
     user?: UserEvent;
     cookies?: Cookies;
@@ -277,7 +276,6 @@ export async function renderApp(
     });
 
     return {
-        container: container,
         cleanUp: async () => {
             await act(async () => {
                 root.unmount();

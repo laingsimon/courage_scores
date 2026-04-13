@@ -56,7 +56,7 @@ public class DivisionTournamentFixtureDetailsDto : ICalendarEventProvider
     private string CalendarDescription()
     {
         var sideNames = string.Join(", ", Sides.Select(s => s.Name));
-        return string.Join("\n", [ Type, sideNames, Notes ]).Trim();
+        return string.Join("\n", Type, sideNames, Notes).Trim();
     }
 
     private string CalendarEventTitle()

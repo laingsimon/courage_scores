@@ -26,7 +26,6 @@ import {
 } from '../../helpers/builders/tournaments';
 import { createTemporaryId } from '../../helpers/projection';
 import { matchOptionsBuilder } from '../../helpers/builders/games';
-import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
 import { PatchTournamentDto } from '../../interfaces/models/dtos/Game/PatchTournamentDto';
 import { PatchTournamentRoundDto } from '../../interfaces/models/dtos/Game/PatchTournamentRoundDto';
 import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
@@ -62,27 +61,19 @@ describe('PrintableSheetMatch', () => {
         async get(id: string): Promise<RecordedScoreAsYouGoDto | null> {
             return saygDataLookup[id];
         },
-        async upsert(
-            data: UpdateRecordedScoreAsYouGoDto,
-        ): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> {
+        async upsert(data: UpdateRecordedScoreAsYouGoDto) {
             return {
                 success: true,
                 result: data as RecordedScoreAsYouGoDto,
-            };
+            } as IClientActionResultDto<RecordedScoreAsYouGoDto>;
         },
     });
     const tournamentApi = api<ITournamentGameApi>({
-        async deleteSayg(
-            id: string,
-            matchId: string,
-            clearScores: boolean,
-        ): Promise<IClientActionResultDto<TournamentGameDto>> {
+        async deleteSayg(id: string, matchId: string, clearScores: boolean) {
             deletedSayg = { id, matchId, clearScores };
-            return (
-                deletedSaygResponse || {
-                    success: true,
-                }
-            );
+            return (deletedSaygResponse || {
+                success: true,
+            }) as IClientActionResultDto<TournamentGameDto>;
         },
     });
 
@@ -98,13 +89,6 @@ describe('PrintableSheetMatch', () => {
         deletedSayg = null;
         deletedSaygResponse = null;
     });
-
-    async function patchData(
-        patch: PatchTournamentDto | PatchTournamentRoundDto,
-        nestInRound?: boolean,
-    ) {
-        patchedData.push({ patch, nestInRound });
-    }
 
     async function setTournamentData(update: TournamentGameDto) {
         updatedTournament = update;
@@ -141,62 +125,49 @@ describe('PrintableSheetMatch', () => {
         };
     }
 
-    function withRound(
-        props: IPrintableSheetMatchProps,
-        round: TournamentRoundDto,
-    ): IPrintableSheetMatchProps {
-        props.round = round;
-        return props;
+    function withRound(p: IPrintableSheetMatchProps, r: TournamentRoundDto) {
+        p.round = r;
+        return p;
     }
 
-    function patchable(
-        props: IPrintableSheetMatchProps,
-    ): IPrintableSheetMatchProps {
-        props.patchData = patchData;
-        return props;
+    function patchable(p: IPrintableSheetMatchProps) {
+        p.patchData = async (p, n) =>
+            patchedData.push({ patch: p, nestInRound: n });
+        return p;
     }
 
-    function withRoundIndex(
-        props: IPrintableSheetMatchProps,
-        index: number,
-    ): IPrintableSheetMatchProps {
-        props.roundIndex = index;
-        return props;
+    function withRoundIndex(p: IPrintableSheetMatchProps, index: number) {
+        p.roundIndex = index;
+        return p;
     }
 
-    function modalDialog(): IComponent | undefined {
-        return context.optional('.modal-dialog');
+    function dialog(): IComponent {
+        return context.required('.modal-dialog');
     }
 
-    function layoutDataForMatch(
-        customisations?: Partial<ILayoutDataForMatch>,
-    ): ILayoutDataForMatch {
+    function layoutDataForMatch(customisations?: Partial<ILayoutDataForMatch>) {
         return {
             scoreA: '',
             scoreB: '',
             sideA: side(),
             sideB: side(),
             ...customisations,
-        };
+        } as ILayoutDataForMatch;
     }
 
-    function hideMnemonic(
-        customisations?: Partial<ILayoutDataForMatch>,
-    ): ILayoutDataForMatch {
+    function hideMnemonic(customisations?: Partial<ILayoutDataForMatch>) {
         return layoutDataForMatch({
             hideMnemonic: true,
             ...customisations,
         });
     }
 
-    function side(
-        customisations?: Partial<ILayoutDataForSide>,
-    ): ILayoutDataForSide {
+    function side(customisations?: Partial<ILayoutDataForSide>) {
         return {
             id: createTemporaryId(),
             name: '',
             ...customisations,
-        };
+        } as ILayoutDataForSide;
     }
 
     function scoreDropdownItems(dialog: IComponent) {
@@ -228,7 +199,7 @@ describe('PrintableSheetMatch', () => {
     }
 
     function bestOf(dialog: IComponent) {
-        return dialog.input('bestOf').element<HTMLInputElement>();
+        return dialog.input('bestOf');
     }
 
     function equatableSide(side: TournamentSideDto) {
@@ -240,12 +211,11 @@ describe('PrintableSheetMatch', () => {
     }
 
     describe('renders', () => {
-        const matchOptionDefaults: GameMatchOptionDto =
-            matchOptionsBuilder().build();
-        const tournamentData: TournamentGameDto = tournamentBuilder().build();
+        const matchOptionDefaults = matchOptionsBuilder().build();
+        const tournamentData = tournamentBuilder().build();
         const containerProps = new tournamentContainerPropsBuilder({
             matchOptionDefaults,
-            async saveTournament(): Promise<TournamentGameDto> {
+            async saveTournament() {
                 return tournamentData;
             },
             setTournamentData,
@@ -263,9 +233,8 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
 
-            expect(
-                context.required('span[datatype="match-mnemonic"]').text(),
-            ).toEqual('M1');
+            const m = context.required('span[datatype="match-mnemonic"]');
+            expect(m.text()).toEqual('M1');
         });
 
         it('when no match mnemonic', async () => {
@@ -281,9 +250,8 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
 
-            expect(
-                context.optional('span[datatype="match-mnemonic"]'),
-            ).toBeFalsy();
+            const m = context.optional('span[datatype="match-mnemonic"]');
+            expect(m).toBeFalsy();
         });
 
         it('sideA', async () => {
@@ -301,12 +269,10 @@ describe('PrintableSheetMatch', () => {
             );
 
             const sideA = context.required('div[datatype="sideA"]');
-            expect(sideA.required('span[datatype="sideAname"]').text()).toEqual(
-                'SIDE A',
-            );
-            expect(sideA.required('div[datatype="scoreA"]').text()).toEqual(
-                '5',
-            );
+            const name = sideA.required('span[datatype="sideAname"]');
+            const score = sideA.required('div[datatype="scoreA"]');
+            expect(name.text()).toEqual('SIDE A');
+            expect(score.text()).toEqual('5');
         });
 
         it('sideB', async () => {
@@ -325,34 +291,33 @@ describe('PrintableSheetMatch', () => {
             );
 
             const sideB = context.required('div[datatype="sideB"]');
-            expect(sideB.required('span[datatype="sideBname"]').text()).toEqual(
-                'SIDE B',
-            );
-            expect(sideB.required('div[datatype="scoreB"]').text()).toEqual(
-                '7',
-            );
+            const name = sideB.required('span[datatype="sideBname"]');
+            const score = sideB.required('div[datatype="scoreB"]');
+            expect(name.text()).toEqual('SIDE B');
+            expect(score.text()).toEqual('7');
         });
     });
 
     describe('interactivity', () => {
-        const matchOptionDefaults: GameMatchOptionDto = matchOptionsBuilder()
+        const matchOptionDefaults = matchOptionsBuilder()
             .numberOfLegs(7)
             .build();
         const sideA = sideBuilder('SIDE A').build();
         const sideB = sideBuilder('SIDE B').build();
         const sideC = sideBuilder('SIDE C').build();
-        const tournamentData: TournamentGameDto = tournamentBuilder().build();
+        const tournamentData = tournamentBuilder().build();
         let saygData: RecordedScoreAsYouGoDto & UpdateRecordedScoreAsYouGoDto;
         let matchData: ILayoutDataForMatch;
+        let matchData1: ILayoutDataForMatch;
         let tournamentDataWithMatch: TournamentGameDto;
         const containerProps = new tournamentContainerPropsBuilder({
             matchOptionDefaults,
-            async saveTournament(): Promise<TournamentGameDto> {
+            async saveTournament() {
                 return tournamentData;
             },
             setTournamentData,
         });
-        const tournamentDataWithoutSayg: TournamentGameDto = tournamentBuilder()
+        const tournamentDataWithoutSayg = tournamentBuilder()
             .round((r) => r.withMatch((m) => m.sideA(sideA, 1).sideB(sideB, 2)))
             .build();
         const deleteSaygPrompt =
@@ -365,9 +330,7 @@ describe('PrintableSheetMatch', () => {
             manageTournaments: true,
         });
 
-        function sideABWithLinks(
-            customisations?: Partial<ILayoutDataForMatch>,
-        ): ILayoutDataForMatch {
+        function sideABWithLinks(c?: Partial<ILayoutDataForMatch>) {
             return layoutDataForMatch({
                 sideA: side({
                     id: sideA.id,
@@ -379,7 +342,7 @@ describe('PrintableSheetMatch', () => {
                     link: <span>SIDE B</span>,
                     mnemonic: 'B',
                 }),
-                ...customisations,
+                ...c,
             });
         }
         const matchData57M1 = hideMnemonic({
@@ -397,7 +360,7 @@ describe('PrintableSheetMatch', () => {
             scoreB: '7',
             mnemonic: 'M1',
         });
-        const tournamentDataAB57: TournamentGameDto = tournamentBuilder()
+        const tournamentDataAB57 = tournamentBuilder()
             .round((r) => r.withMatch((m) => m.sideA(sideA, 5).sideB(sideB, 7)))
             .build();
 
@@ -427,6 +390,16 @@ describe('PrintableSheetMatch', () => {
                     ),
                 )
                 .build();
+
+            matchData1 = hideMnemonic(
+                sideABWithLinks({
+                    scoreA: '1',
+                    scoreB: '2',
+                    mnemonic: 'M1',
+                    match: tournamentDataWithMatch!.round!.matches![0],
+                    saygId: saygData.id,
+                }),
+            );
         });
 
         it('can change side and score for sideA', async () => {
@@ -436,10 +409,9 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
             await editSide('sideA');
-            const dialog = modalDialog()!;
-            await selectSide(dialog, 'SIDE C');
-            await selectScore(dialog, '1');
-            await dialog.button('Save').click();
+            await selectSide(dialog(), 'SIDE C');
+            await selectScore(dialog(), '1');
+            await dialog().button('Save').click();
 
             expect(updatedTournament!.round).toEqual({
                 id: expect.any(String),
@@ -462,10 +434,9 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
             await editSide('sideB');
-            const dialog = modalDialog()!;
-            await selectSide(dialog, 'SIDE C');
-            await selectScore(dialog, '1');
-            await dialog.button('Save').click();
+            await selectSide(dialog(), 'SIDE C');
+            await selectScore(dialog(), '1');
+            await dialog().button('Save').click();
 
             expect(updatedTournament!.round).toEqual({
                 id: expect.any(String),
@@ -488,25 +459,22 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
             await editSide('sideB');
-            const dialog = modalDialog()!;
-            await dialog.input('bestOf').change('11');
-            await dialog.button('Save').click();
+            await dialog().input('bestOf').change('11');
+            await dialog().button('Save').click();
 
+            const mo = {
+                numberOfLegs: 11,
+            };
+            const match = {
+                id: expect.any(String),
+                scoreA: 5,
+                scoreB: 7,
+                sideA: sideA,
+                sideB: sideB,
+            };
             expect(updatedTournament!.round).toEqual({
-                matchOptions: [
-                    {
-                        numberOfLegs: 11,
-                    },
-                ],
-                matches: [
-                    {
-                        id: expect.any(String),
-                        scoreA: 5,
-                        scoreB: 7,
-                        sideA: sideA,
-                        sideB: sideB,
-                    },
-                ],
+                matchOptions: [mo],
+                matches: [match],
             });
         });
 
@@ -517,17 +485,16 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
             await editSide('sideB');
-            const dialog = modalDialog()!;
 
-            await dialog.input('bestOf').change('');
-            await dialog.button('Save').click();
+            await dialog().input('bestOf').change('');
+            await dialog().button('Save').click();
 
             context.prompts.alertWasShown('Best of is invalid');
             expect(updatedTournament).toBeNull();
         });
 
         it('does not open dialog match in subsequent round when first round is not complete', async () => {
-            const tournamentData: TournamentGameDto = tournamentBuilder()
+            const tournamentData = tournamentBuilder()
                 .round((r) =>
                     r.round((r) =>
                         r.withMatch((m) => m.sideA(sideA, 5).sideB(sideB, 7)),
@@ -541,13 +508,12 @@ describe('PrintableSheetMatch', () => {
             );
             await editSide('sideB');
 
-            context.prompts.alertWasShown(
-                'Finish entering data for the previous rounds first',
-            );
+            const prompt = 'Finish entering data for the previous rounds first';
+            context.prompts.alertWasShown(prompt);
         });
 
         it('can change side properties for match in subsequent round', async () => {
-            const tournamentData: TournamentGameDto = tournamentBuilder()
+            const tournamentData = tournamentBuilder()
                 .round((r) =>
                     r
                         .withMatch((m) => m.sideA(sideA, 5).sideB(sideC, 1))
@@ -576,21 +542,19 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
             await editSide('sideB');
-            const dialog = modalDialog()!;
-            await selectScore(dialog, '3');
-            await dialog.button('Save').click();
+            await selectScore(dialog(), '3');
+            await dialog().button('Save').click();
 
+            const match = {
+                id: expect.any(String),
+                scoreA: 5,
+                scoreB: 3,
+                sideA: equatableSide(sideA),
+                sideB: equatableSide(sideB),
+            };
             expect(updatedTournament!.round!.nextRound).toEqual({
                 matchOptions: expect.any(Array),
-                matches: [
-                    {
-                        id: expect.any(String),
-                        scoreA: 5,
-                        scoreB: 3,
-                        sideA: equatableSide(sideA),
-                        sideB: equatableSide(sideB),
-                    },
-                ],
+                matches: [match],
             });
         });
 
@@ -602,21 +566,19 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
             await editSide('sideA');
-            const dialog = modalDialog()!;
-            await selectScore(dialog, '1');
-            await dialog.button('Save').click();
+            await selectScore(dialog(), '1');
+            await dialog().button('Save').click();
 
+            const match = {
+                id: expect.any(String),
+                scoreA: 1,
+                sideA: equatableSide(sideC),
+                sideB: {},
+            };
             expect(updatedTournament!.round).toEqual({
                 id: expect.any(String),
                 matchOptions: expect.any(Array),
-                matches: [
-                    {
-                        id: expect.any(String),
-                        scoreA: 1,
-                        sideA: equatableSide(sideC),
-                        sideB: {},
-                    },
-                ],
+                matches: [match],
             });
         });
 
@@ -627,9 +589,8 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
             await editSide('sideA');
-            const dialog = modalDialog()!;
-            await selectScore(dialog, '1');
-            await dialog.button('Save').click();
+            await selectScore(dialog(), '1');
+            await dialog().button('Save').click();
 
             context.prompts.alertWasShown('Select a side first');
             expect(updatedTournament).toEqual(null);
@@ -644,7 +605,7 @@ describe('PrintableSheetMatch', () => {
 
             await editSide('sideA');
 
-            expect(modalDialog()).toBeFalsy();
+            expect(context.optional('.modal-dialog')).toBeFalsy();
         });
 
         it('opens edit dialog for sideA', async () => {
@@ -656,7 +617,7 @@ describe('PrintableSheetMatch', () => {
 
             await editSide('sideA');
 
-            expect(modalDialog()).toBeTruthy();
+            expect(dialog()).toBeTruthy();
         });
 
         it('does not open edit dialog for sideB when not editable', async () => {
@@ -668,7 +629,7 @@ describe('PrintableSheetMatch', () => {
 
             await editSide('sideB');
 
-            expect(modalDialog()).toBeFalsy();
+            expect(context.optional('.modal-dialog')).toBeFalsy();
         });
 
         it('opens edit dialog for sideB', async () => {
@@ -680,7 +641,7 @@ describe('PrintableSheetMatch', () => {
 
             await editSide('sideB');
 
-            expect(modalDialog()).toBeTruthy();
+            expect(dialog()).toBeTruthy();
         });
 
         it('can unset side A', async () => {
@@ -691,26 +652,25 @@ describe('PrintableSheetMatch', () => {
             );
             await editSide('sideA');
 
-            await modalDialog()!.button('Remove').click();
+            await dialog().button('Remove').click();
 
+            const match = {
+                id: expect.any(String),
+                scoreA: null,
+                scoreB: 7,
+                sideA: {
+                    players: [],
+                },
+                sideB: equatableSide(sideB),
+            };
             expect(updatedTournament!.round).toEqual({
                 matchOptions: expect.any(Array),
-                matches: [
-                    {
-                        id: expect.any(String),
-                        scoreA: null,
-                        scoreB: 7,
-                        sideA: {
-                            players: [],
-                        },
-                        sideB: equatableSide(sideB),
-                    },
-                ],
+                matches: [match],
             });
         });
 
         it('can unset side B', async () => {
-            const tournamentData: TournamentGameDto = tournamentBuilder()
+            const tournamentData = tournamentBuilder()
                 .round((r) =>
                     r.withMatch((m) => m.sideA(sideA, 5).sideB(sideB, 7)),
                 )
@@ -722,26 +682,25 @@ describe('PrintableSheetMatch', () => {
             );
             await editSide('sideB');
 
-            await modalDialog()!.button('Remove').click();
+            await dialog().button('Remove').click();
 
+            const match = {
+                id: expect.any(String),
+                scoreA: 5,
+                scoreB: null,
+                sideA: equatableSide(sideA),
+                sideB: {
+                    players: [],
+                },
+            };
             expect(updatedTournament!.round).toEqual({
                 matchOptions: expect.any(Array),
-                matches: [
-                    {
-                        id: expect.any(String),
-                        scoreA: 5,
-                        scoreB: null,
-                        sideA: equatableSide(sideA),
-                        sideB: {
-                            players: [],
-                        },
-                    },
-                ],
+                matches: [match],
             });
         });
 
         it('removes match when sideA and sideB unset', async () => {
-            const tournamentData: TournamentGameDto = tournamentBuilder()
+            const tournamentData = tournamentBuilder()
                 .round((r) => r.withMatch((m) => m.sideB(sideB, 7)))
                 .build();
             await renderComponent(
@@ -751,7 +710,7 @@ describe('PrintableSheetMatch', () => {
             );
             await editSide('sideB');
 
-            await modalDialog()!.button('Remove').click();
+            await dialog().button('Remove').click();
 
             expect(updatedTournament!.round).toEqual({
                 matchOptions: expect.any(Array),
@@ -770,16 +729,9 @@ describe('PrintableSheetMatch', () => {
             );
             await editSide('sideB');
 
-            const dialog = modalDialog()!;
-            expect(bestOf(dialog).value).toContain('9');
-            expect(scoreDropdownItems(dialog)).toEqual([
-                '0',
-                '1',
-                '2',
-                '3',
-                '4',
-                '5',
-            ]); // best of 9
+            const scoreOptions = ['0', '1', '2', '3', '4', '5'];
+            expect(bestOf(dialog()).value()).toContain('9');
+            expect(scoreDropdownItems(dialog())).toEqual(scoreOptions); // best of 9
         });
 
         it('shows default match options number of legs when match options not present', async () => {
@@ -790,15 +742,9 @@ describe('PrintableSheetMatch', () => {
             );
             await editSide('sideB');
 
-            const dialog = modalDialog()!;
-            expect(bestOf(dialog).value).toContain('7');
-            expect(scoreDropdownItems(dialog)).toEqual([
-                '0',
-                '1',
-                '2',
-                '3',
-                '4',
-            ]); // best of 7
+            const scoreOptions = ['0', '1', '2', '3', '4'];
+            expect(bestOf(dialog()).value()).toContain('7');
+            expect(scoreDropdownItems(dialog())).toEqual(scoreOptions); // best of 7
         });
 
         it('patches data in first round', async () => {
@@ -810,7 +756,7 @@ describe('PrintableSheetMatch', () => {
                 .startingScore(501)
                 .addTo(saygDataLookup)
                 .build();
-            const tournamentData: TournamentGameDto = tournamentBuilder()
+            const tournamentData = tournamentBuilder()
                 .round((r) =>
                     r.withMatch((m) =>
                         m.sideA(sideA).sideB(sideB).saygId(saygData.id),
@@ -829,7 +775,7 @@ describe('PrintableSheetMatch', () => {
 
             await context.button(START_SCORING).click();
             reportedError.verifyNoError();
-            await modalDialog()!.button('🎯SIDE A').click();
+            await dialog().button('🎯SIDE A').click();
 
             //verify patch data
             reportedError.verifyNoError();
@@ -857,7 +803,7 @@ describe('PrintableSheetMatch', () => {
                 .startingScore(501)
                 .addTo(saygDataLookup)
                 .build();
-            const tournamentData: TournamentGameDto = tournamentBuilder()
+            const tournamentData = tournamentBuilder()
                 .round((r) =>
                     r.withMatch((m) =>
                         m.sideA(sideA).sideB(sideB).saygId(saygData.id),
@@ -876,7 +822,7 @@ describe('PrintableSheetMatch', () => {
 
             await context.button(START_SCORING).click();
             reportedError.verifyNoError();
-            await modalDialog()!.button('🎯SIDE A').click();
+            await dialog().button('🎯SIDE A').click();
 
             //verify patch data
             reportedError.verifyNoError();
@@ -914,7 +860,7 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
 
-            expect(context.container.innerHTML).not.toContain('📊');
+            expect(context.html()).not.toContain('📊');
         });
 
         it('can view scores for match with sayg', async () => {
@@ -935,28 +881,16 @@ describe('PrintableSheetMatch', () => {
                 appProps({}, reportedError),
             );
 
-            const link = context
-                .button('📊 1 - 2')
-                .element<HTMLAnchorElement>();
-            expect(link.href).toEqual(
-                `http://localhost/live/match/?id=${saygData.id}`,
-            );
+            const expected = `http://localhost/live/match/?id=${saygData.id}`;
+            const link = context.button('📊 1 - 2');
+            expect(link.element<HTMLAnchorElement>().href).toEqual(expected);
         });
 
         it('can delete sayg from match and keep scores', async () => {
-            const matchData = hideMnemonic(
-                sideABWithLinks({
-                    scoreA: '1',
-                    scoreB: '2',
-                    mnemonic: 'M1',
-                    match: tournamentDataWithMatch!.round!.matches![0],
-                    saygId: saygData.id,
-                }),
-            );
             await renderComponent(
                 containerProps.withTournament(tournamentDataWithMatch).build(),
                 withRound(
-                    patchable(props(matchData, true)),
+                    patchable(props(matchData1, true)),
                     tournamentDataWithMatch!.round!,
                 ),
                 appProps(
@@ -974,9 +908,8 @@ describe('PrintableSheetMatch', () => {
             };
 
             await context.button(START_SCORING).click();
-            const dialog = modalDialog()!;
-            await dialog.button('Debug options').click();
-            await debugOptions(dialog).select('Delete sayg');
+            await dialog().button('Debug options').click();
+            await debugOptions(dialog()).select('Delete sayg');
 
             reportedError.verifyNoError();
             expect(deletedSayg).toEqual({
@@ -988,19 +921,10 @@ describe('PrintableSheetMatch', () => {
         });
 
         it('can delete sayg from match and clear scores', async () => {
-            const matchData = hideMnemonic(
-                sideABWithLinks({
-                    scoreA: '1',
-                    scoreB: '2',
-                    mnemonic: 'M1',
-                    match: tournamentDataWithMatch!.round!.matches![0],
-                    saygId: saygData.id,
-                }),
-            );
             await renderComponent(
                 containerProps.withTournament(tournamentDataWithMatch).build(),
                 withRound(
-                    patchable(props(matchData, true)),
+                    patchable(props(matchData1, true)),
                     tournamentDataWithMatch!.round!,
                 ),
                 appProps(
@@ -1018,9 +942,8 @@ describe('PrintableSheetMatch', () => {
             };
 
             await context.button(START_SCORING).click();
-            const dialog = modalDialog()!;
-            await dialog.button('Debug options').click();
-            await debugOptions(dialog).select('Delete sayg');
+            await dialog().button('Debug options').click();
+            await debugOptions(dialog()).select('Delete sayg');
 
             reportedError.verifyNoError();
             expect(deletedSayg).toEqual({
@@ -1032,19 +955,10 @@ describe('PrintableSheetMatch', () => {
         });
 
         it('handles error deleting sayg from match', async () => {
-            const matchData = hideMnemonic(
-                sideABWithLinks({
-                    scoreA: '1',
-                    scoreB: '2',
-                    mnemonic: 'M1',
-                    match: tournamentDataWithMatch!.round!.matches![0],
-                    saygId: saygData.id,
-                }),
-            );
             await renderComponent(
                 containerProps.withTournament(tournamentDataWithMatch).build(),
                 withRound(
-                    patchable(props(matchData, true)),
+                    patchable(props(matchData1, true)),
                     tournamentDataWithMatch!.round!,
                 ),
                 appProps(
@@ -1061,9 +975,8 @@ describe('PrintableSheetMatch', () => {
             };
 
             await context.button(START_SCORING).click();
-            const dialog = modalDialog()!;
-            await dialog.button('Debug options').click();
-            await debugOptions(dialog).select('Delete sayg');
+            await dialog().button('Debug options').click();
+            await debugOptions(dialog()).select('Delete sayg');
 
             expect(deletedSayg).toEqual({
                 id: tournamentDataWithMatch.id,

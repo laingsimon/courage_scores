@@ -62,7 +62,7 @@ describe('MergeMatch', () => {
             });
 
             reportedError.verifyNoError();
-            expect(context.container.innerHTML).toEqual('');
+            expect(context.html()).toEqual('');
         });
 
         it('when home and away submissions match', async () => {
@@ -180,7 +180,7 @@ describe('MergeMatch', () => {
             });
 
             reportedError.verifyNoError();
-            expect(context.container.innerHTML).toEqual('');
+            expect(context.html()).toEqual('');
         });
 
         it('when home unmerged', async () => {

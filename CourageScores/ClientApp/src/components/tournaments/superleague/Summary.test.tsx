@@ -3,6 +3,7 @@ import {
     brandingProps,
     cleanUp,
     ErrorState,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -37,13 +38,8 @@ describe('Summary', () => {
         );
     }
 
-    function getRowContent(
-        row: HTMLTableRowElement,
-        tagName: string,
-    ): string[] {
-        return Array.from(row.querySelectorAll(tagName)).map(
-            (th) => th.textContent!,
-        );
+    function getRowContent(row: IComponent, tagName: string): string[] {
+        return row.all(tagName).map((th) => th.text());
     }
 
     function createLeg(
@@ -89,7 +85,7 @@ describe('Summary', () => {
             });
 
             reportedError.verifyNoError();
-            expect(context.container.textContent).toContain('No matches');
+            expect(context.text()).toContain('No matches');
         });
 
         it('correct row headings', async () => {
@@ -112,9 +108,7 @@ describe('Summary', () => {
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(
-                context.container.querySelectorAll('table thead tr'),
-            ) as HTMLTableRowElement[];
+            const rows = context.all('table thead tr');
             expect(rows.length).toEqual(1);
             expect(getRowContent(rows[0], 'th')).toEqual([
                 'Match no',
@@ -155,9 +149,7 @@ describe('Summary', () => {
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(
-                context.container.querySelectorAll('table.table tbody tr'),
-            ) as HTMLTableRowElement[];
+            const rows = context.all('table.table tbody tr');
             expect(rows.length).toEqual(1 + 1);
             expect(getRowContent(rows[0], 'td')).toEqual([
                 '1',
@@ -198,9 +190,7 @@ describe('Summary', () => {
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(
-                context.container.querySelectorAll('table.table tbody tr'),
-            ) as HTMLTableRowElement[];
+            const rows = context.all('table.table tbody tr');
             expect(rows.length).toEqual(1 + 1);
             expect(getRowContent(rows[1], 'td')).toEqual([
                 '',
@@ -241,9 +231,7 @@ describe('Summary', () => {
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(
-                context.container.querySelectorAll('table.table tfoot tr'),
-            ) as HTMLTableRowElement[];
+            const rows = context.all('table.table tfoot tr');
             expect(rows.length).toEqual(2);
             expect(getRowContent(rows[0], 'td')).toEqual([
                 '',
@@ -276,9 +264,7 @@ describe('Summary', () => {
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(
-                context.container.querySelectorAll('table.table tfoot tr'),
-            ) as HTMLTableRowElement[];
+            const rows = context.all('table.table tfoot tr');
             expect(rows.length).toEqual(2);
             expect(getRowContent(rows[1], 'td')).toEqual([
                 '',

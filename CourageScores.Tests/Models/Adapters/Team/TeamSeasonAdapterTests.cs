@@ -10,7 +10,7 @@ public class TeamSeasonAdapterTests
 {
     private static readonly TeamPlayer TeamPlayer = new();
     private static readonly TeamPlayerDto TeamPlayerDto = new();
-    private TeamSeasonAdapter _adapter = new(
+    private readonly TeamSeasonAdapter _adapter = new(
         new MockAdapter<TeamPlayer, TeamPlayerDto>(TeamPlayer, TeamPlayerDto));
     private readonly CancellationToken _token = new();
 

@@ -6,7 +6,7 @@ using TypeScriptMapper.MetaData;
 namespace TypeScriptMapper.Dtos;
 
 [ExcludeFromCodeCoverage]
-public class DtoStrategy: IStrategy
+public class DtoStrategy : IStrategy
 {
     private readonly string _dtosNamespace;
     private readonly DtoRepository _dtoRepository;

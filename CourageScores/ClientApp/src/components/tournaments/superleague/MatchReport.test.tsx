@@ -3,6 +3,7 @@ import {
     brandingProps,
     cleanUp,
     ErrorState,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -39,13 +40,8 @@ describe('MatchReport', () => {
         );
     }
 
-    function getRowContent(
-        row: HTMLTableRowElement,
-        tagName: string,
-    ): string[] {
-        return Array.from(row.querySelectorAll(tagName)).map(
-            (th) => th.textContent!,
-        );
+    function getRowContent(row: IComponent, tagName: string): string[] {
+        return row.all(tagName).map((th) => th.text());
     }
 
     function createLeg(
@@ -94,12 +90,10 @@ describe('MatchReport', () => {
             });
 
             reportedError.verifyNoError();
-            expect(context.container.querySelector('h2')!.textContent).toEqual(
+            expect(context.required('h2').text()).toEqual(
                 'SOMERSET DARTS ORGANISATION',
             );
-            expect(context.container.querySelector('h3')!.textContent).toEqual(
-                'DIVISION (GENDER)',
-            );
+            expect(context.required('h3').text()).toEqual('DIVISION (GENDER)');
         });
 
         it('correct heading rows', async () => {
@@ -114,12 +108,12 @@ describe('MatchReport', () => {
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(
-                context.container.querySelectorAll('thead tr'),
-            ) as HTMLTableRowElement[];
+            const rows = context.all('thead tr');
             expect(rows.length).toEqual(3);
             expect(getRowContent(rows[0], 'th')).toEqual(['HOSTvOPPONENT']);
-            expect(rows[0].querySelector('th')!.colSpan).toEqual(23);
+            expect(
+                rows[0].required('th').element<HTMLTableCellElement>().colSpan,
+            ).toEqual(23);
             expect(getRowContent(rows[1], 'th')).toEqual([
                 '',
                 'Scores',
@@ -128,8 +122,12 @@ describe('MatchReport', () => {
                 'Scores',
                 '',
             ]);
-            expect(rows[1].querySelectorAll('th')[1].colSpan).toEqual(4);
-            expect(rows[1].querySelectorAll('th')[4].colSpan).toEqual(4);
+            expect(
+                rows[1].all('th')[1].element<HTMLTableCellElement>().colSpan,
+            ).toEqual(4);
+            expect(
+                rows[1].all('th')[4].element<HTMLTableCellElement>().colSpan,
+            ).toEqual(4);
             expect(getRowContent(rows[2], 'th')).toEqual([
                 'Set',
                 'Ave',
@@ -176,9 +174,7 @@ describe('MatchReport', () => {
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(
-                context.container.querySelectorAll('tbody tr'),
-            ) as HTMLTableRowElement[];
+            const rows = context.all('tbody tr');
             expect(rows.length).toEqual(3);
             expect(getRowContent(rows[0], 'td')).toEqual([
                 'M1',
@@ -226,14 +222,11 @@ describe('MatchReport', () => {
             });
 
             reportedError.verifyNoError();
-            const legsWonContainer =
-                context.container.querySelector('table.table + div')!;
+            const legsWonContainer = context.required('table.table + div');
             expect(legsWonContainer).toBeTruthy();
-            const legsWon = Array.from(
-                legsWonContainer.querySelectorAll('div'),
-            );
-            expect(legsWon[0].textContent).toEqual('Legs won: 2');
-            expect(legsWon[1].textContent).toEqual('Legs won: 0');
+            const legsWon = legsWonContainer.all('div');
+            expect(legsWon[0].text()).toEqual('Legs won: 2');
+            expect(legsWon[1].text()).toEqual('Legs won: 0');
         });
 
         it('when no division', async () => {
@@ -248,12 +241,10 @@ describe('MatchReport', () => {
             });
 
             reportedError.verifyNoError();
-            expect(context.container.querySelector('h2')!.textContent).toEqual(
+            expect(context.required('h2').text()).toEqual(
                 'SOMERSET DARTS ORGANISATION',
             );
-            expect(context.container.querySelector('h3')!.textContent).toEqual(
-                '(GENDER)',
-            );
+            expect(context.required('h3')!.text()).toEqual('(GENDER)');
         });
     });
 });

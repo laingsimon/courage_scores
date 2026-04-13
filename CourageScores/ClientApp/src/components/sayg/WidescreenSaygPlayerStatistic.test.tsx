@@ -66,7 +66,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
                 setOneDartAverage,
             });
 
-            expect(context.container.innerHTML).toContain('Not started');
+            expect(context.html()).toContain('Not started');
         });
 
         it('No of darts', async () => {

@@ -37,7 +37,7 @@ public class DivisionDataFilter : IEquatable<DivisionDataFilter>
 
     public bool IncludeNote(FixtureDateNoteDto note)
     {
-        return (Date == null || note.Date == Date.Value);
+        return Date == null || note.Date == Date.Value;
     }
 
     public bool IncludeTeam(Guid teamId)

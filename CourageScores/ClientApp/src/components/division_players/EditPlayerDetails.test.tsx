@@ -49,12 +49,12 @@ describe('EditPlayerDetails', () => {
     let cumulativeCreatedPlayers: EditTeamPlayerDto[];
 
     const playerApi = api<IPlayerApi>({
-        create: async (
+        async create(
             divisionId: string,
             seasonId: string,
             teamId: string,
             playerDetails: EditTeamPlayerDto,
-        ): Promise<IClientActionResultDto<TeamDto>> => {
+        ) {
             createdPlayers.push({
                 divisionId,
                 seasonId,
@@ -63,7 +63,7 @@ describe('EditPlayerDetails', () => {
             });
             cumulativeCreatedPlayers.push(playerDetails);
 
-            const teamPlayer: TeamPlayerDto = playerDetails as TeamPlayerDto;
+            const teamPlayer = playerDetails as TeamPlayerDto;
             teamPlayer.id = createTemporaryId();
 
             return apiResponse
@@ -84,12 +84,12 @@ describe('EditPlayerDetails', () => {
                       },
                   };
         },
-        update: async (
+        async update(
             seasonId: string,
             teamId: string,
             playerId: string,
             playerDetails: EditTeamPlayerDto,
-        ): Promise<IClientActionResultDto<TeamDto>> => {
+        ) {
             updatedPlayer = { seasonId, teamId, playerId, playerDetails };
             return apiResponse ? apiResponse() : { success: true };
         },
@@ -126,7 +126,7 @@ describe('EditPlayerDetails', () => {
     });
 
     async function renderComponent(
-        props: IEditPlayerDetailsProps,
+        props: Partial<IEditPlayerDetailsProps>,
         teams: TeamDto[],
         divisions: DivisionDto[],
     ) {
@@ -141,7 +141,7 @@ describe('EditPlayerDetails', () => {
                 reportedError,
             ),
             <EditPlayerDetails
-                {...props}
+                {...(props as IEditPlayerDetailsProps)}
                 onSaved={onSaved}
                 onChange={onChange}
                 onCancel={onCancel}
@@ -150,25 +150,21 @@ describe('EditPlayerDetails', () => {
     }
 
     function teamDropdown() {
-        return context.required(
-            'div[datatype="team-selection-team"] .dropdown-menu',
-        );
+        return context
+            .required('div[datatype="team-selection-team"]')
+            .required('.dropdown-menu');
     }
 
     function genderDropdown() {
-        return context.required(
-            'div[datatype="gender-selection"] .dropdown-menu',
-        );
+        return context
+            .required('div[datatype="gender-selection"]')
+            .required('.dropdown-menu');
     }
 
     describe('renders', () => {
-        const division: DivisionDto = divisionBuilder('DIVISION').build();
-        const season: SeasonDto = seasonBuilder('SEASON')
-            .withDivision(division)
-            .build();
-        const team: TeamDto = teamBuilder('TEAM')
-            .forSeason(season, division)
-            .build();
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON').withDivision(division).build();
+        const team = teamBuilder('TEAM').forSeason(season, division).build();
 
         it('existing player details', async () => {
             await renderComponent(
@@ -180,9 +176,6 @@ describe('EditPlayerDetails', () => {
                     seasonId: season.id,
                     team: team,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team],
                 [division],
@@ -211,9 +204,6 @@ describe('EditPlayerDetails', () => {
                     seasonId: season.id,
                     team: team,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team],
                 [division],
@@ -243,9 +233,6 @@ describe('EditPlayerDetails', () => {
                         .build(),
                     seasonId: season.id,
                     team: team,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team],
                 [division],
@@ -277,9 +264,6 @@ describe('EditPlayerDetails', () => {
                     seasonId: season.id,
                     team: team,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team, differentSeasonTeam],
                 [division],
@@ -304,9 +288,6 @@ describe('EditPlayerDetails', () => {
                     seasonId: season.id,
                     team: team,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team, differentSeasonTeam],
                 [division],
@@ -327,9 +308,6 @@ describe('EditPlayerDetails', () => {
                     seasonId: season.id,
                     team: team,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team],
                 [division],
@@ -349,9 +327,6 @@ describe('EditPlayerDetails', () => {
                     seasonId: season.id,
                     team: team,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team],
                 [division],
@@ -387,9 +362,6 @@ describe('EditPlayerDetails', () => {
                     seasonId: season.id,
                     team: team,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team, otherTeam],
                 [division, otherDivision],
@@ -416,9 +388,6 @@ describe('EditPlayerDetails', () => {
                     seasonId: season.id,
                     team: team,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team, otherTeam],
                 [division, otherDivision],
@@ -446,9 +415,6 @@ describe('EditPlayerDetails', () => {
                     seasonId: season.id,
                     team: team,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team, otherTeam],
                 [division, otherDivision],
@@ -473,9 +439,6 @@ describe('EditPlayerDetails', () => {
                     seasonId: season.id,
                     team: team,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team, otherTeam],
                 [division, otherDivision],
@@ -500,9 +463,6 @@ describe('EditPlayerDetails', () => {
                     seasonId: season.id,
                     team: team,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team, otherTeam],
                 [division, otherDivision],
@@ -527,9 +487,6 @@ describe('EditPlayerDetails', () => {
                     seasonId: season.id,
                     team: team,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team, otherTeam],
                 [division, otherDivision],
@@ -556,9 +513,6 @@ describe('EditPlayerDetails', () => {
                     seasonId: season.id,
                     team: team,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team, otherTeam],
                 [division, otherDivision],
@@ -582,9 +536,6 @@ describe('EditPlayerDetails', () => {
                         .build(),
                     seasonId: season.id,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team, otherTeam],
                 [division, otherDivision],
@@ -607,9 +558,6 @@ describe('EditPlayerDetails', () => {
                     seasonId: season.id,
                     team: team,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team, otherTeam],
                 [division, otherDivision],
@@ -632,9 +580,6 @@ describe('EditPlayerDetails', () => {
                     seasonId: season.id,
                     team: team,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team, otherTeam],
                 [division, otherDivision],
@@ -664,9 +609,6 @@ describe('EditPlayerDetails', () => {
                     seasonId: season.id,
                     team: team,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team, otherTeam],
                 [division, otherDivision],
@@ -705,9 +647,6 @@ describe('EditPlayerDetails', () => {
                     seasonId: season.id,
                     team: teamWithDeletedSeason,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [teamWithDeletedSeason, otherTeam],
                 [division, otherDivision],
@@ -762,9 +701,6 @@ describe('EditPlayerDetails', () => {
                     seasonId: season.id,
                     team: team,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team, otherTeam],
                 [division, otherDivision],
@@ -796,9 +732,6 @@ describe('EditPlayerDetails', () => {
                     seasonId: season.id,
                     team: team,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team, otherTeam],
                 [division, otherDivision],
@@ -836,9 +769,6 @@ describe('EditPlayerDetails', () => {
                     team: team,
                     newTeamId: otherTeam.id,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team, otherTeam],
                 [division, otherDivision],
@@ -877,9 +807,6 @@ describe('EditPlayerDetails', () => {
                     gameId: gameId,
                     newTeamId: otherTeam.id,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team, otherTeam],
                 [division, otherDivision],
@@ -915,9 +842,6 @@ describe('EditPlayerDetails', () => {
                     team: team,
                     newTeamId: otherTeam.id,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team, otherTeam],
                 [division, otherDivision],
@@ -944,9 +868,6 @@ describe('EditPlayerDetails', () => {
                     team: team,
                     newTeamId: otherTeam.id,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team, otherTeam],
                 [division, otherDivision],
@@ -976,9 +897,6 @@ describe('EditPlayerDetails', () => {
                     team: team,
                     newTeamId: otherTeam.id,
                     divisionId: division.id,
-                    onCancel,
-                    onSaved,
-                    onChange,
                 },
                 [team, otherTeam],
                 [division, otherDivision],

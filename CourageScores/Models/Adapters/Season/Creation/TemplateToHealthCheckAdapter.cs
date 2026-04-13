@@ -57,7 +57,7 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
             .Select(p => new DivisionTeamDto
             {
                 Name = p,
-                Division = new DivisionDto{ Name = $"Division ${index + 1}" },
+                Division = new DivisionDto { Name = $"Division ${index + 1}" },
                 Id = Guid.NewGuid(),
             })
             .ToDictionary(t => t.Name);
@@ -120,7 +120,7 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
         {
             Name = name,
             Teams = teams.Values.Where(t => teamsInDivision.Contains(t.Name)).ToList(),
-            Dates = divisionTemplate.Dates.Select((d, index) => AdaptDate(d, startDate.AddDays(index*7), teams)).ToList(),
+            Dates = divisionTemplate.Dates.Select((d, index) => AdaptDate(d, startDate.AddDays(index * 7), teams)).ToList(),
         };
     }
 

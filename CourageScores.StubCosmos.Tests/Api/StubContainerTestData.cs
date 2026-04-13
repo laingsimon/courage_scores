@@ -26,10 +26,10 @@ internal static class StubContainerTestData
 
     public static IEnumerable<TestRecord> GetData()
     {
-        yield return new TestRecord {Name = "Simon", Email = "email@somewhere.com"};
-        yield return new TestRecord {Age = 40, ShoeSize = -12};
-        yield return new TestRecord {Weight = 10.5, Height = -6.2};
-        yield return new TestRecord {Married = true, Retired = false};
-        yield return new TestRecord {UserId = Guid.NewGuid(), PatientId = Guid.NewGuid()};
+        yield return new TestRecord { Name = "Simon", Email = "email@somewhere.com" };
+        yield return new TestRecord { Age = 40, ShoeSize = -12 };
+        yield return new TestRecord { Weight = 10.5, Height = -6.2 };
+        yield return new TestRecord { Married = true, Retired = false };
+        yield return new TestRecord { UserId = Guid.NewGuid(), PatientId = Guid.NewGuid() };
     }
 }

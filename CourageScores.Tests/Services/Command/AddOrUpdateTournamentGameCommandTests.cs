@@ -404,7 +404,7 @@ public class AddOrUpdateTournamentGameCommandTests
     [Test]
     public async Task PublishUpdate_GivenDeletedTournament_DoesNotPublishUpdate()
     {
-        var tournament = new TournamentGame {Id = Guid.NewGuid()};
+        var tournament = new TournamentGame { Id = Guid.NewGuid() };
 
         await _command.PublishUpdate(tournament, true, _token);
 
@@ -414,7 +414,7 @@ public class AddOrUpdateTournamentGameCommandTests
     [Test]
     public async Task PublishUpdate_GivenUpdatedTournament_PublishesUpdate()
     {
-        var tournament = new TournamentGame {Id = Guid.NewGuid()};
+        var tournament = new TournamentGame { Id = Guid.NewGuid() };
 
         await _command.PublishUpdate(tournament, false, _token);
 

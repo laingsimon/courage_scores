@@ -2,7 +2,8 @@
 
 namespace CourageScores.StubCosmos.Query;
 
-internal class NotCosmosQueryOperator : IQueryFilterOperator {
+internal class NotCosmosQueryOperator : IQueryFilterOperator
+{
     private readonly IQueryFilterOperator _operator;
 
     public NotCosmosQueryOperator(IQueryFilterOperator @operator)

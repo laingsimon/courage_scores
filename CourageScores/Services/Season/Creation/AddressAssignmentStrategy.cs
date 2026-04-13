@@ -52,7 +52,7 @@ public class AddressAssignmentStrategy : IAddressAssignmentStrategy
 
             var placeholdersInDivisionTemplate = divisionTemplate.Dates
                 .SelectMany(d => d.Fixtures)
-                .SelectMany(f => new[] {f.Home.Key, f.Away?.Key})
+                .SelectMany(f => new[] { f.Home.Key, f.Away?.Key })
                 .Where(a => a != null)
                 .ToHashSet();
             var sharedAddressPlaceHoldersWithFixturesInThisDivisions = templateSeasonSharedAddressPlaceholders

@@ -1,6 +1,6 @@
 import {
     api,
-    appProps,
+    appProps as appPropsFunc,
     brandingProps,
     cleanUp,
     ErrorState,
@@ -58,10 +58,10 @@ describe('CreateSeasonDialog', () => {
     let divisionReloaded: boolean;
 
     const templateApi = api<ISeasonTemplateApi>({
-        getCompatibility: async (seasonId: string) => {
+        async getCompatibility(seasonId: string) {
             return compatibilityResponses[seasonId] || { success: false };
         },
-        propose: async (request: ProposalRequestDto) => {
+        async propose(request: ProposalRequestDto) {
             proposalRequest = request;
             return (
                 apiResponse || {
@@ -74,7 +74,7 @@ describe('CreateSeasonDialog', () => {
         },
     });
     const gameApi = api<IGameApi>({
-        update: async (fixture: EditGameDto) => {
+        async update(fixture: EditGameDto) {
             updatedFixtures.push(fixture);
             return updateFixtureApiResponse
                 ? await updateFixtureApiResponse(fixture)
@@ -86,9 +86,7 @@ describe('CreateSeasonDialog', () => {
         allDataReloaded = true;
     }
 
-    async function onReloadDivision(
-        _?: boolean,
-    ): Promise<DivisionDataDto | null> {
+    async function onReloadDivision(_?: boolean) {
         divisionReloaded = true;
         return null;
     }
@@ -113,50 +111,57 @@ describe('CreateSeasonDialog', () => {
         closed = false;
     });
 
+    function appProps(props: Partial<IAppContainerProps>, re?: ErrorState) {
+        return appPropsFunc(
+            {
+                ...props,
+                reloadAll,
+            },
+            re ?? reportedError,
+        );
+    }
+
     async function renderComponent(
         appContainerProps: IAppContainerProps,
-        divisionDataProps: IDivisionDataContainerProps | null,
-        props: ICreateSeasonDialogProps,
+        divisionDataProps: Partial<IDivisionDataContainerProps> | null,
+        props: Partial<ICreateSeasonDialogProps>,
     ) {
-        const fallbackProps: IDivisionDataContainerProps = {
+        const ddProps: IDivisionDataContainerProps = {
             name: '',
             onReloadDivision,
+            setDivisionData: noop,
+            ...divisionDataProps,
         };
         context = await renderApp(
             iocProps({ templateApi, gameApi }),
             brandingProps(),
             appContainerProps,
-            <DivisionDataContainer {...(divisionDataProps || fallbackProps)}>
-                <CreateSeasonDialog {...props} />
+            <DivisionDataContainer {...ddProps}>
+                <CreateSeasonDialog
+                    {...{
+                        seasonId: '',
+                        onClose,
+                        ...props,
+                    }}
+                />
             </DivisionDataContainer>,
         );
     }
 
-    function addCompatibleResponse(
-        seasonId: string,
-        templateId: string,
-    ): IClientActionResultDto<ActionResultDto<TemplateDto>[]> {
-        const response: IClientActionResultDto<ActionResultDto<TemplateDto>[]> =
-            getCompatibleResponse(seasonId, templateId);
+    function addCompatibleResponse(seasonId: string, templateId: string) {
+        const response = getCompatibleResponse(seasonId, templateId);
         compatibilityResponses[seasonId] = response;
         return response;
     }
 
-    function addIncompatibleResponse(
-        seasonId: string,
-        templateId: string,
-    ): IClientActionResultDto<ActionResultDto<TemplateDto>[]> {
-        const response: IClientActionResultDto<ActionResultDto<TemplateDto>[]> =
-            getCompatibleResponse(seasonId, templateId);
+    function addIncompatibleResponse(seasonId: string, templateId: string) {
+        const response = getCompatibleResponse(seasonId, templateId);
         response.result![0].success = false;
         compatibilityResponses[seasonId] = response;
         return response;
     }
 
-    function getCompatibleResponse(
-        _: string,
-        templateId: string,
-    ): IClientActionResultDto<ActionResultDto<TemplateDto>[]> {
+    function getCompatibleResponse(_: string, templateId: string) {
         const template: TemplateDto = Object.assign(
             getEmptyTemplate(templateId, 2),
             {
@@ -245,9 +250,7 @@ describe('CreateSeasonDialog', () => {
 
     describe('renders', () => {
         // 2-assign placeholders tests are in AssignPlaceholder.test.js
-
         // 3-review tests are in ReviewProposalHealth.test.js
-
         // 4-review proposals tests are in ReviewProposalsFloatingDialog.test.js
 
         describe('5- confirm save', () => {
@@ -255,49 +258,34 @@ describe('CreateSeasonDialog', () => {
             const templateId = createTemporaryId();
             const divisionId = createTemporaryId();
             const anotherDivisionId = createTemporaryId();
-            const team1: TeamDto = teamBuilder('TEAM 1')
+            const team1 = teamBuilder('TEAM 1')
                 .forSeason(seasonId, divisionId)
                 .build();
-            const team2: TeamDto = teamBuilder('TEAM 2')
+            const team2 = teamBuilder('TEAM 2')
                 .forSeason(seasonId, anotherDivisionId)
                 .build();
 
             it('prompt before starting save', async () => {
                 addCompatibleResponse(seasonId, templateId);
                 await renderComponent(
-                    appProps(
-                        {
-                            divisions: [
-                                divisionBuilder(
-                                    'DIVISION 1',
-                                    divisionId,
-                                ).build(),
-                                divisionBuilder(
-                                    'ANOTHER DIVISION',
-                                    anotherDivisionId,
-                                ).build(),
-                            ],
-                            seasons: [
-                                getSeason(
-                                    seasonId,
-                                    divisionId,
-                                    anotherDivisionId,
-                                ),
-                            ],
-                            teams: [team1, team2],
-                            reloadAll,
-                        },
-                        reportedError,
-                    ),
+                    appProps({
+                        divisions: [
+                            divisionBuilder('DIVISION 1', divisionId).build(),
+                            divisionBuilder(
+                                'ANOTHER DIVISION',
+                                anotherDivisionId,
+                            ).build(),
+                        ],
+                        seasons: [
+                            getSeason(seasonId, divisionId, anotherDivisionId),
+                        ],
+                        teams: [team1, team2],
+                    }),
                     {
                         id: divisionId,
-                        name: '',
-                        setDivisionData: noop,
-                        onReloadDivision,
                     },
                     {
                         seasonId: seasonId,
-                        onClose,
                     },
                 );
                 await context.required('.dropdown-menu').select('TEMPLATE');
@@ -391,30 +379,25 @@ describe('CreateSeasonDialog', () => {
     describe('interactivity', () => {
         describe('1- pick', () => {
             const seasonId = createTemporaryId();
-            const division: DivisionDto = divisionBuilder('DIVISION 1').build();
-            const team1: TeamDto = teamBuilder('TEAM 1')
+            const division = divisionBuilder('DIVISION 1').build();
+            const team1 = teamBuilder('TEAM 1')
                 .forSeason(seasonId, division)
                 .build();
-            const team2: TeamDto = teamBuilder('TEAM 2')
+            const team2 = teamBuilder('TEAM 2')
                 .forSeason(seasonId, createTemporaryId())
                 .build();
 
             it('prevents proposal of fixtures for incompatible template', async () => {
                 addIncompatibleResponse(seasonId, createTemporaryId());
                 await renderComponent(
-                    appProps(
-                        {
-                            divisions: [],
-                            seasons: [getSeason(seasonId)],
-                            teams: [team1, team2],
-                            reloadAll,
-                        },
-                        reportedError,
-                    ),
+                    appProps({
+                        divisions: [],
+                        seasons: [getSeason(seasonId)],
+                        teams: [team1, team2],
+                    }),
                     null,
                     {
                         seasonId: seasonId,
-                        onClose,
                     },
                 );
                 await context.required('.dropdown-menu').select('🚫 TEMPLATE');
@@ -434,18 +417,13 @@ describe('CreateSeasonDialog', () => {
                 setApiResponse(true, { id: templateId });
 
                 await renderComponent(
-                    appProps(
-                        {
-                            divisions: [],
-                            seasons: [],
-                            reloadAll,
-                        },
-                        reportedError,
-                    ),
+                    appProps({
+                        divisions: [],
+                        seasons: [],
+                    }),
                     null,
                     {
                         seasonId: createTemporaryId(),
-                        onClose,
                     },
                 );
 
@@ -456,19 +434,14 @@ describe('CreateSeasonDialog', () => {
                 const templateId = createTemporaryId();
                 addCompatibleResponse(seasonId, templateId);
                 await renderComponent(
-                    appProps(
-                        {
-                            divisions: [division],
-                            seasons: [getSeason(seasonId, division.id)],
-                            teams: [team1, team2],
-                            reloadAll,
-                        },
-                        reportedError,
-                    ),
+                    appProps({
+                        divisions: [division],
+                        seasons: [getSeason(seasonId, division.id)],
+                        teams: [team1, team2],
+                    }),
                     null,
                     {
                         seasonId: seasonId,
-                        onClose,
                     },
                 );
                 await context.required('.dropdown-menu').select('TEMPLATE');
@@ -540,12 +513,10 @@ describe('CreateSeasonDialog', () => {
                             ),
                         ],
                         teams: [team1, team2, team3, team4],
-                        reloadAll,
                     }),
                     null,
                     {
                         seasonId: seasonId,
-                        onClose,
                     },
                 );
 
@@ -600,19 +571,15 @@ describe('CreateSeasonDialog', () => {
                         ],
                         seasons: [getSeason(seasonId, divisionId)],
                         teams: [team1, team2],
-                        reloadAll,
                     }),
                     {
                         id: divisionId,
-                        name: '',
                         setDivisionData: async (d?: DivisionDataDto) => {
                             divisionDataSetTo = d;
                         },
-                        onReloadDivision,
                     },
                     {
                         seasonId: seasonId,
-                        onClose,
                     },
                 );
                 await context.required('.dropdown-menu').select('TEMPLATE');
@@ -682,17 +649,12 @@ describe('CreateSeasonDialog', () => {
                             getSeason(seasonId, divisionId, anotherDivisionId),
                         ],
                         teams: [team1, team2],
-                        reloadAll,
                     }),
                     {
                         id: divisionId,
-                        name: '',
-                        setDivisionData: noop,
-                        onReloadDivision,
                     },
                     {
                         seasonId: seasonId,
-                        onClose,
                     },
                 );
 
@@ -815,19 +777,15 @@ describe('CreateSeasonDialog', () => {
                             getSeason(seasonId, divisionId, anotherDivisionId),
                         ],
                         teams: [team1, team2],
-                        reloadAll,
                     }),
                     {
                         id: divisionId,
-                        name: '',
                         setDivisionData: async (d?: DivisionDataDto) => {
                             divisionDataSetTo = d;
                         },
-                        onReloadDivision,
                     },
                     {
                         seasonId: seasonId,
-                        onClose,
                     },
                 );
 
@@ -976,18 +934,14 @@ describe('CreateSeasonDialog', () => {
                         divisions: [],
                         seasons: [],
                         teams: [],
-                        reloadAll,
                     }),
                     {
-                        name: '',
-                        onReloadDivision,
                         setDivisionData: async (d?: DivisionDataDto) => {
                             divisionDataResetTo = d;
                         },
                     },
                     {
                         seasonId: seasonId,
-                        onClose,
                     },
                 );
                 reportedError.verifyNoError();

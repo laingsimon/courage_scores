@@ -101,7 +101,7 @@ describe('ManOfTheMatchInput', () => {
                 setFixtureData,
             });
 
-            expect(context.container.innerHTML).toEqual('');
+            expect(context.html()).toEqual('');
         });
 
         it('when no selected players', async () => {
@@ -118,7 +118,7 @@ describe('ManOfTheMatchInput', () => {
             });
 
             reportedError.verifyNoError();
-            expect(context.container.innerHTML).toEqual('');
+            expect(context.html()).toEqual('');
         });
 
         it('when no man-of-the-match', async () => {
@@ -137,7 +137,7 @@ describe('ManOfTheMatchInput', () => {
             });
 
             reportedError.verifyNoError();
-            expect(context.container.innerHTML).toEqual('');
+            expect(context.html()).toEqual('');
         });
 
         it('when home man-of-the-match', async () => {
@@ -157,7 +157,7 @@ describe('ManOfTheMatchInput', () => {
             });
 
             reportedError.verifyNoError();
-            expect(context.container.innerHTML).toEqual('');
+            expect(context.html()).toEqual('');
         });
 
         it('when away man-of-the-match', async () => {
@@ -177,7 +177,7 @@ describe('ManOfTheMatchInput', () => {
             });
 
             reportedError.verifyNoError();
-            expect(context.container.innerHTML).toEqual('');
+            expect(context.html()).toEqual('');
         });
     });
 

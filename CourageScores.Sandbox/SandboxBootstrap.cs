@@ -10,7 +10,7 @@ namespace CourageScores.Sandbox;
 internal class SandboxBootstrap : Bootstrap
 {
     public SandboxBootstrap()
-        :base(CustomiseBuilder)
+        : base(CustomiseBuilder)
     { }
 
     private static void CustomiseBuilder(WebApplicationBuilder builder)

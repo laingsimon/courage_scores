@@ -3,6 +3,7 @@ import {
     brandingProps,
     cleanUp,
     ErrorState,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -45,10 +46,8 @@ describe('MatchLog', () => {
                 .startingScore(501);
     }
 
-    function rowContent(row: HTMLTableRowElement, tagName: string): string[] {
-        return Array.from(row.querySelectorAll(tagName)).map(
-            (cell) => cell.textContent!,
-        );
+    function rowContent(row: IComponent, tagName: string): string[] {
+        return row.all(tagName).map((cell) => cell.text());
     }
 
     function* after(iterable: string[], afterText: string) {
@@ -80,7 +79,7 @@ describe('MatchLog', () => {
             });
 
             reportedError.verifyNoError();
-            expect(context.container.textContent).toContain(
+            expect(context.text()).toContain(
                 '⚠ No data available for the match between A and B',
             );
         });
@@ -99,7 +98,7 @@ describe('MatchLog', () => {
             });
 
             reportedError.verifyNoError();
-            expect(context.container.textContent).toContain(
+            expect(context.text()).toContain(
                 '⚠ No data available for the match between A and B',
             );
         });
@@ -118,12 +117,8 @@ describe('MatchLog', () => {
             });
 
             reportedError.verifyNoError();
-            const table = Array.from(
-                context.container.querySelectorAll('table.table'),
-            )[0];
-            const rows = Array.from(
-                table.querySelectorAll('tbody tr'),
-            ) as HTMLTableRowElement[];
+            const table = context.required('table.table');
+            const rows = table.all('tbody tr');
             /* 2 heading rows, 3 data rows - repeated for home and away */
             const hostHeadings = rowContent(rows[1], 'th');
             expect([...after(hostHeadings, 'GD')]).toEqual([
@@ -163,12 +158,8 @@ describe('MatchLog', () => {
             });
 
             reportedError.verifyNoError();
-            const table = Array.from(
-                context.container.querySelectorAll('table.table'),
-            )[0];
-            const rows = Array.from(
-                table.querySelectorAll('tbody tr'),
-            ) as HTMLTableRowElement[];
+            const table = context.required('table.table');
+            const rows = table.all('tbody tr');
             /* 2 heading rows, 3 data rows - repeated for home and away */
             expect(rows.length).toEqual(2 + 3 + 2 + 3);
             expect(rowContent(rows[0], 'th')).toEqual([
@@ -271,10 +262,8 @@ describe('MatchLog', () => {
             });
 
             reportedError.verifyNoError();
-            const table = context.container.querySelector('table.table')!;
-            const rows = Array.from(
-                table.querySelectorAll('tbody tr'),
-            ) as HTMLTableRowElement[];
+            const table = context.required('table.table');
+            const rows = table.all('tbody tr');
             /* 2 heading rows, 3 data rows - repeated for home and away */
             expect(rows.length).toEqual(2 + 3 + 2 + 3);
             expect(rowContent(rows[5], 'th')).toEqual([
@@ -377,18 +366,10 @@ describe('MatchLog', () => {
             });
 
             reportedError.verifyNoError();
-            const firstMatchTable = Array.from(
-                context.container.querySelectorAll('table.table'),
-            )[0];
-            const secondMatchTable = Array.from(
-                context.container.querySelectorAll('table.table'),
-            )[1];
-            const firstMatchRows = Array.from(
-                firstMatchTable.querySelectorAll('tbody tr'),
-            ) as HTMLTableRowElement[];
-            const secondMatchRows = Array.from(
-                secondMatchTable.querySelectorAll('tbody tr'),
-            ) as HTMLTableRowElement[];
+            const firstMatchTable = context.all('table.table')[0];
+            const secondMatchTable = context.all('table.table')[1];
+            const firstMatchRows = firstMatchTable.all('tbody tr');
+            const secondMatchRows = secondMatchTable.all('tbody tr');
             /* 2 heading rows, 3 data rows - repeated for home and away */
             expect(secondMatchRows.length).toEqual(2 + 1 + 2 + 1);
             expect(rowContent(secondMatchRows[0], 'th')).toEqual([
@@ -481,18 +462,10 @@ describe('MatchLog', () => {
             });
 
             reportedError.verifyNoError();
-            const firstMatchTable = Array.from(
-                context.container.querySelectorAll('table.table'),
-            )[0];
-            const secondMatchTable = Array.from(
-                context.container.querySelectorAll('table.table'),
-            )[1];
-            const firstMatchRows = Array.from(
-                firstMatchTable.querySelectorAll('tbody tr'),
-            ) as HTMLTableRowElement[];
-            const secondMatchRows = Array.from(
-                secondMatchTable.querySelectorAll('tbody tr'),
-            ) as HTMLTableRowElement[];
+            const firstMatchTable = context.all('table.table')[0];
+            const secondMatchTable = context.all('table.table')[1];
+            const firstMatchRows = firstMatchTable.all('tbody tr');
+            const secondMatchRows = secondMatchTable.all('tbody tr');
             /* 2 heading rows, 3 data rows - repeated for home and away */
             expect(secondMatchRows.length).toEqual(2 + 1 + 2 + 1);
             expect(rowContent(secondMatchRows[3], 'th')).toEqual([

@@ -24,7 +24,7 @@ public class TypeScriptProperty : ITypeScriptMember
         _context = context;
     }
 
-    public IEnumerable<ITypeScriptType> Types => new [] { _helper.GetTypeScriptType(_context, _property.PropertyType) }.ToHashSet();
+    public IEnumerable<ITypeScriptType> Types => new[] { _helper.GetTypeScriptType(_context, _property.PropertyType) }.ToHashSet();
 
     public string Name => _property.Name.ToCamelCase();
 

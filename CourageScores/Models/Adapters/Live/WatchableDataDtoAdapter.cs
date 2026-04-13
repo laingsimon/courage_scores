@@ -25,7 +25,7 @@ public class WatchableDataDtoAdapter : ISimpleOnewayAdapter<WatchableData, Watch
     {
         var originatingUrlBase = string.IsNullOrEmpty(model.Connection.OriginatingUrl)
             ? null
-            : GetBaseFromUrl( model.Connection.OriginatingUrl);
+            : GetBaseFromUrl(model.Connection.OriginatingUrl);
         var relativeUrl = GetRelativeUrl(model.Publication.Id, model.Publication.DataType);
 
         return new WatchableDataDto

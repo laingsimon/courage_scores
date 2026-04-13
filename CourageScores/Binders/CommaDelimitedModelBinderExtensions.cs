@@ -10,37 +10,37 @@ namespace CourageScores.Binders;
 [ExcludeFromCodeCoverage]
 public static class CommaDelimitedModelBinderExtensions
 {
-	public static void AddCommaSeparatedArrayModelBinderProvider(this MvcOptions options)
-	{
-		var providerToInsert = new CommaDelimitedModelBinderProvider();
+    public static void AddCommaSeparatedArrayModelBinderProvider(this MvcOptions options)
+    {
+        var providerToInsert = new CommaDelimitedModelBinderProvider();
 
-		// Find the location of SimpleTypeModelBinder, the CommaDelimitedModelBinder must be inserted before it.
-		var index = options.ModelBinderProviders.FirstIndexOfOrDefault(i => i is SimpleTypeModelBinderProvider);
+        // Find the location of SimpleTypeModelBinder, the CommaDelimitedModelBinder must be inserted before it.
+        var index = options.ModelBinderProviders.FirstIndexOfOrDefault(i => i is SimpleTypeModelBinderProvider);
 
-		if (index != null)
-		{
-			options.ModelBinderProviders.Insert(index.Value, providerToInsert);
-		}
-		else
-		{
-			options.ModelBinderProviders.Add(providerToInsert);
-		}
-	}
+        if (index != null)
+        {
+            options.ModelBinderProviders.Insert(index.Value, providerToInsert);
+        }
+        else
+        {
+            options.ModelBinderProviders.Add(providerToInsert);
+        }
+    }
 
-	private static int? FirstIndexOfOrDefault<T>(this IEnumerable<T> source, Func<T, bool> predicate)
-	{
-		var result = 0;
+    private static int? FirstIndexOfOrDefault<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+    {
+        var result = 0;
 
-		foreach (var item in source)
-		{
-			if (predicate(item))
-			{
-				return result;
-			}
+        foreach (var item in source)
+        {
+            if (predicate(item))
+            {
+                return result;
+            }
 
-			result++;
-		}
+            result++;
+        }
 
-		return null;
-	}
+        return null;
+    }
 }

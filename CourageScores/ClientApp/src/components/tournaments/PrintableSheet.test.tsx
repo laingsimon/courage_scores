@@ -16,8 +16,6 @@ import {
 import { IPrintableSheetProps, PrintableSheet } from './PrintableSheet';
 import { renderDate } from '../../helpers/rendering';
 import { createTemporaryId } from '../../helpers/projection';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
 import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
 import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
 import {
@@ -107,15 +105,13 @@ describe('PrintableSheet', () => {
         selector?: (e: IComponent) => T,
         container?: IComponent,
     ): T[] {
-        const scope = container ? container : context;
-        return scope
+        return (container ?? context)
             .all(`div[data-accolades="${name}"] div`)
             .map((c) => (selector ? selector(c) : (c.text() as T)));
     }
 
     function getPlayers(round: IComponent, name: string) {
-        const parent = round.optional(`div[data-accolades="${name}"]`);
-        if (!parent) {
+        if (!round.optional(`div[data-accolades="${name}"]`)) {
             return null;
         }
 
@@ -133,16 +129,16 @@ describe('PrintableSheet', () => {
                 matches: r
                     .all('div[datatype="match"]')
                     .map((match): ISideInfo => {
-                        function setInfo(
+                        function set(
                             selector: string,
                             name: string,
-                            getter: (element: IComponent) => any,
+                            g?: (element: IComponent) => any,
                         ) {
-                            const element = match.optional(selector);
-                            if (element) {
-                                const value = getter(element);
-                                if (value) {
-                                    info[name] = value;
+                            const e = match.optional(selector);
+                            if (e) {
+                                const v = g ? g(e) : e.text().trim();
+                                if (v) {
+                                    info[name] = v;
                                 }
                             }
                         }
@@ -153,48 +149,22 @@ describe('PrintableSheet', () => {
                                 ?.element<HTMLAnchorElement>().href,
                         };
 
-                        setInfo(
+                        set(
                             'div[datatype="sideA"]',
                             'sideAwinner',
-                            (e: IComponent) =>
-                                e.className().indexOf('bg-winner') !== -1,
+                            (e) => e.className().indexOf('bg-winner') !== -1,
                         );
-                        setInfo(
+                        set(
                             'div[datatype="sideB"]',
                             'sideBwinner',
-                            (e: IComponent) =>
-                                e.className().indexOf('bg-winner') !== -1,
+                            (e) => e.className().indexOf('bg-winner') !== -1,
                         );
-                        setInfo(
-                            'span[datatype="sideAname"]',
-                            'sideAname',
-                            (e: IComponent) => e.text().trim(),
-                        );
-                        setInfo(
-                            'span[datatype="sideBname"]',
-                            'sideBname',
-                            (e: IComponent) => e.text().trim(),
-                        );
-                        setInfo(
-                            'span[datatype="sideAmnemonic"]',
-                            'sideAmnemonic',
-                            (e: IComponent) => e.text().trim(),
-                        );
-                        setInfo(
-                            'span[datatype="sideBmnemonic"]',
-                            'sideBmnemonic',
-                            (e: IComponent) => e.text().trim(),
-                        );
-                        setInfo(
-                            'div[datatype="scoreA"]',
-                            'scoreA',
-                            (e: IComponent) => e.text().trim(),
-                        );
-                        setInfo(
-                            'div[datatype="scoreB"]',
-                            'scoreB',
-                            (e: IComponent) => e.text().trim(),
-                        );
+                        set('span[datatype="sideAname"]', 'sideAname');
+                        set('span[datatype="sideBname"]', 'sideBname');
+                        set('span[datatype="sideAmnemonic"]', 'sideAmnemonic');
+                        set('span[datatype="sideBmnemonic"]', 'sideBmnemonic');
+                        set('div[datatype="scoreA"]', 'scoreA');
+                        set('div[datatype="scoreB"]', 'scoreB');
 
                         return info;
                     }),
@@ -221,12 +191,11 @@ describe('PrintableSheet', () => {
     }
 
     function getWinner(): { name: string; link?: string } {
-        const winnerElement = context.required('[datatype="winner"]');
+        const element = context.required('[datatype="winner"]');
 
         return {
-            name: winnerElement.required('span').text()!,
-            link: winnerElement.optional('a')?.element<HTMLAnchorElement>()
-                .href,
+            name: element.required('span').text()!,
+            link: element.optional('a')?.element<HTMLAnchorElement>().href,
         };
     }
 
@@ -234,22 +203,18 @@ describe('PrintableSheet', () => {
         dataType: string,
         container?: IComponent,
     ): IComponent | undefined {
-        if (container) {
-            return container.optional(`[datatype="${dataType}"]`);
-        }
-        return context.optional(`[datatype="${dataType}"]`);
+        return (container ?? context).optional(`[datatype="${dataType}"]`);
     }
 
-    function modalDialog(): IComponent | undefined {
-        return context.optional('div.modal-dialog');
+    function dialog(): IComponent {
+        return context.required('div.modal-dialog');
     }
 
     async function setPlayerAndScore(side: string, score: string) {
-        const dialog = modalDialog()!;
-        await dialog
+        await dialog()
             .required('div.btn-group:nth-child(2) .dropdown-menu')
             .select(side);
-        await dialog
+        await dialog()
             .required('div.btn-group:nth-child(4) .dropdown-menu')
             .select(score);
     }
@@ -306,24 +271,26 @@ describe('PrintableSheet', () => {
     }
 
     describe('played tournament', () => {
-        const sideA: BuilderParam<ITournamentSideBuilder> = createSide('a');
-        const sideB: BuilderParam<ITournamentSideBuilder> = createSide('b');
-        const sideC: BuilderParam<ITournamentSideBuilder> = createSide('c');
-        const sideD: BuilderParam<ITournamentSideBuilder> = createSide('d');
-        const sideE: BuilderParam<ITournamentSideBuilder> = createSide('e');
-        const sideF: BuilderParam<ITournamentSideBuilder> = createSide('f');
-        const sideG: BuilderParam<ITournamentSideBuilder> = createSide('g');
-        const sideH: BuilderParam<ITournamentSideBuilder> = createSide('h');
-        const sideI: BuilderParam<ITournamentSideBuilder> = createSide('i');
-        const sideJ: BuilderParam<ITournamentSideBuilder> = createSide('j');
-        const sideK: BuilderParam<ITournamentSideBuilder> = createSide('k');
-        const sideL: BuilderParam<ITournamentSideBuilder> = createSide('l');
-        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const sideA = createSide('a');
+        const sideB = createSide('b');
+        const sideC = createSide('c');
+        const sideD = createSide('d');
+        const sideE = createSide('e');
+        const sideF = createSide('f');
+        const sideG = createSide('g');
+        const sideH = createSide('h');
+        const sideI = createSide('i');
+        const sideJ = createSide('j');
+        const sideK = createSide('k');
+        const sideL = createSide('l');
+        const division = divisionBuilder('DIVISION').build();
         const season = seasonBuilder('SEASON').withDivision(division).build();
-        const anotherSeason: SeasonDto = seasonBuilder('SEASON').build();
+        const anotherSeason = seasonBuilder('SEASON').build();
         const matchOptionDefaults = matchOptionsBuilder().build();
-        const player1: TeamPlayerDto = playerBuilder('PLAYER 1').build();
-        const player2: TeamPlayerDto = playerBuilder('PLAYER 2').build();
+        const player1 = playerBuilder('PLAYER 1').build();
+        const player2 = playerBuilder('PLAYER 2').build();
+        const player3 = playerBuilder('PLAYER 3').build();
+        const player4 = playerBuilder('PLAYER 4').build();
         const account = user({});
         const player1Team = teamBuilder('TEAM')
             .forSeason(season, division, [player1])
@@ -334,7 +301,7 @@ describe('PrintableSheet', () => {
         const noPlayerTeam = teamBuilder('TEAM')
             .forSeason(season, division)
             .build();
-        const singles: TournamentGameDto = tournamentBuilder()
+        const singles = tournamentBuilder()
             .withSide((b) => b.name('A').withPlayer(player1))
             .withSide((b) => b.name('B').withPlayer(player2))
             .build();
@@ -370,9 +337,8 @@ describe('PrintableSheet', () => {
         it('renders tournament with one round', async () => {
             await render(props.withTournament(oneRound2Sides));
 
-            expect(getRounds()[0].matches).toEqual([
-                match('A', '1', 'B', '2', 'b'),
-            ]);
+            const m = match('A', '1', 'B', '2', 'b');
+            expect(getRounds()[0].matches).toEqual([m]);
         });
 
         it('renders tournament with sayg id', async () => {
@@ -382,22 +348,20 @@ describe('PrintableSheet', () => {
             await render(props.withTournament(oneRound2Sides));
 
             const liveUrl = 'http://localhost/live/match/?id=' + saygId;
-            expect(getRounds()[0].matches).toEqual([
-                match('A', '1', 'B', '2', 'b', liveUrl),
-            ]);
+            const m = match('A', '1', 'B', '2', 'b', liveUrl);
+            expect(getRounds()[0].matches).toEqual([m]);
         });
 
         it('renders incomplete tournament with six sides and one round', async () => {
-            const tournamentData: TournamentGameDto = tournamentBuilder()
+            const tournamentData = tournamentBuilder()
                 .round((r) => {
                     r = makeMatch(r, sideA, sideB, 0, 0);
                     r = makeMatch(r, sideC, sideD, 0, 0);
                     return makeMatch(r, sideE, sideF, 0, 0);
                 })
-                .withSide(sideA, sideB, sideC, sideD, sideE, sideF)
-                .build();
+                .withSide(sideA, sideB, sideC, sideD, sideE, sideF);
 
-            await render(props.withTournament(tournamentData));
+            await render(props.withTournament(tournamentData.build()));
 
             const rounds = getRounds();
             expect(rounds.length).toEqual(3);
@@ -426,7 +390,7 @@ describe('PrintableSheet', () => {
         });
 
         it('renders tournament with 3 rounds', async () => {
-            const tournamentData: TournamentGameDto = tournamentBuilder()
+            const tournamentData = tournamentBuilder()
                 .round((r) => {
                     r = makeMatch(r, sideA, sideB, 1, 2);
                     r = makeMatch(r, sideC, sideD, 2, 1);
@@ -435,10 +399,9 @@ describe('PrintableSheet', () => {
                         return r.round((r) => makeMatch(r, sideC, sideE, 2, 1));
                     });
                 })
-                .withSide(sideA, sideB, sideC, sideD, sideE)
-                .build();
+                .withSide(sideA, sideB, sideC, sideD, sideE);
 
-            await render(props.withTournament(tournamentData));
+            await render(props.withTournament(tournamentData.build()));
 
             const rounds = getRounds();
             expect(rounds.length).toEqual(3);
@@ -454,7 +417,7 @@ describe('PrintableSheet', () => {
         });
 
         it('renders tournament with 4 rounds', async () => {
-            const tournamentData: TournamentGameDto = tournamentBuilder()
+            const tournamentData = tournamentBuilder()
                 .round((r) => {
                     r = makeMatch(r, sideA, sideB, 1, 2);
                     r = makeMatch(r, sideC, sideD, 2, 1);
@@ -475,10 +438,9 @@ describe('PrintableSheet', () => {
                     });
                 })
                 .withSide(sideA, sideB, sideC, sideD, sideE, sideF, sideG)
-                .withSide(sideH, sideI, sideJ, sideK, sideL)
-                .build();
+                .withSide(sideH, sideI, sideJ, sideK, sideL);
 
-            await render(props.withTournament(tournamentData));
+            await render(props.withTournament(tournamentData.build()));
 
             const rounds = getRounds();
             expect(rounds.length).toEqual(4);
@@ -515,37 +477,22 @@ describe('PrintableSheet', () => {
         });
 
         it('does not render winner when 2 matches in final round (semi final is last round so far)', async () => {
-            const sideCSinglePlayer: BuilderParam<ITournamentSideBuilder> =
-                createSide('C', playerBuilder('PLAYER 3').build());
-            const sideDSinglePlayer: BuilderParam<ITournamentSideBuilder> =
-                createSide('D', playerBuilder('PLAYER 4').build());
+            const sideA = createSide('A', player1);
+            const sideB = createSide('B', player2);
+            const sideC = createSide('C', player3);
+            const sideD = createSide('D', player4);
             const tournamentData = tournamentBuilder()
                 .round((r) => {
-                    r = makeMatch(
-                        r,
-                        side('A', player1),
-                        side('B', player2),
-                        1,
-                        3,
-                        5,
-                    );
-                    return makeMatch(
-                        r,
-                        sideCSinglePlayer,
-                        sideDSinglePlayer,
-                        0,
-                        0,
-                        5,
-                    );
+                    r = makeMatch(r, sideA, sideB, 1, 3, 5);
+                    return makeMatch(r, sideC, sideD, 0, 0, 5);
                 })
                 .withSide((b) => b.name('A').withPlayer(player1))
                 .withSide((b) => b.name('B').withPlayer(player2))
                 .withSide((b) => b.name('C').withPlayer('PLAYER 3'))
                 .withSide((b) => b.name('D').withPlayer('PLAYER 4'))
-                .withSide((b) => b.name('E').withPlayer('PLAYER 5'))
-                .build();
+                .withSide((b) => b.name('E').withPlayer('PLAYER 5'));
 
-            await render(props.withTournament(tournamentData), {
+            await render(props.withTournament(tournamentData.build()), {
                 teams: [player2Team],
                 divisions: [division],
             });
@@ -559,10 +506,9 @@ describe('PrintableSheet', () => {
                 divisions: [division],
             });
 
+            const link = `http://localhost/division/${division.name}/player:${encodeURI(player2.name)}@TEAM/${season.name}`;
             expect(getWinner().name).toEqual('B');
-            expect(getWinner().link).toEqual(
-                `http://localhost/division/${division.name}/player:${encodeURI(player2.name)}@TEAM/${season.name}`,
-            );
+            expect(getWinner().link).toEqual(link);
         });
 
         it('renders winner when cross-divisional', async () => {
@@ -571,10 +517,9 @@ describe('PrintableSheet', () => {
                 divisions: [division],
             });
 
+            const link = `http://localhost/division/${division.name}/player:${encodeURI(player2.name)}@TEAM/${season.name}`;
             expect(getWinner().name).toEqual('B');
-            expect(getWinner().link).toEqual(
-                `http://localhost/division/${division.name}/player:${encodeURI(player2.name)}@TEAM/${season.name}`,
-            );
+            expect(getWinner().link).toEqual(link);
         });
 
         it('renders who is playing (singles)', async () => {
@@ -583,11 +528,9 @@ describe('PrintableSheet', () => {
                 divisions: [division],
             });
 
+            const link = `http://localhost/division/${division.name}/player:${encodeURI('PLAYER 1')}@TEAM/${season.name}`;
             expect(getWhoIsPlaying()).toEqual(['1 - A', '2 - B']);
-            expect(getWhoIsPlaying(linkHref)).toEqual([
-                `http://localhost/division/${division.name}/player:${encodeURI('PLAYER 1')}@TEAM/${season.name}`,
-                null,
-            ]);
+            expect(getWhoIsPlaying(linkHref)).toEqual([link, null]);
         });
 
         it('renders who is playing without links when team season deleted', async () => {
@@ -608,10 +551,9 @@ describe('PrintableSheet', () => {
             const anotherTeam = teamBuilder('ANOTHER TEAM').build();
             const tournamentData = tournamentBuilder()
                 .withSide((b) => b.name('A').teamId(noPlayerTeam.id))
-                .withSide((b) => b.name('B').teamId(anotherTeam.id))
-                .build();
+                .withSide((b) => b.name('B').teamId(anotherTeam.id));
 
-            await render(props.withTournament(tournamentData), {
+            await render(props.withTournament(tournamentData.build()), {
                 teams: [noPlayerTeam],
                 divisions: [division],
             });
@@ -661,18 +603,16 @@ describe('PrintableSheet', () => {
         });
 
         it('renders heading', async () => {
-            const tournamentData: TournamentGameDto = tournamentBuilder()
+            const tournamentData = tournamentBuilder()
                 .type('TYPE')
                 .notes('NOTES')
                 .address('ADDRESS')
-                .date('2023-06-01')
-                .build();
+                .date('2023-06-01');
 
-            await render(props.withTournament(tournamentData));
+            await render(props.withTournament(tournamentData.build()));
 
-            expect(find('heading')!.text()).toEqual(
-                `TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES🔗🖨️`,
-            );
+            const heading = `TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES🔗🖨️`;
+            expect(find('heading')!.text()).toEqual(heading);
         });
 
         it('renders 180s', async () => {
@@ -684,11 +624,9 @@ describe('PrintableSheet', () => {
             });
 
             const names = getAccolades('180s');
+            const link = `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`;
             expect(names).toEqual(['PLAYER 1 x 3', 'PLAYER 2 x 1']);
-            expect(getAccolades('180s', linkHref)).toEqual([
-                `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`,
-                null,
-            ]);
+            expect(getAccolades('180s', linkHref)).toEqual([link, null]);
         });
 
         it('renders 180s when cross-divisional', async () => {
@@ -700,11 +638,9 @@ describe('PrintableSheet', () => {
             });
 
             const names = getAccolades('180s');
+            const link = `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`;
             expect(names).toEqual(['PLAYER 1 x 3', 'PLAYER 2 x 1']);
-            expect(getAccolades('180s', linkHref)).toEqual([
-                `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`,
-                null,
-            ]);
+            expect(getAccolades('180s', linkHref)).toEqual([link, null]);
         });
 
         it('renders 180s where team division cannot be found', async () => {
@@ -720,11 +656,9 @@ describe('PrintableSheet', () => {
             });
 
             const names = getAccolades('180s');
+            const link = `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`;
             expect(names).toEqual(['PLAYER 1 x 3', 'PLAYER 2 x 1']);
-            expect(getAccolades('180s', linkHref)).toEqual([
-                `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`,
-                null,
-            ]);
+            expect(getAccolades('180s', linkHref)).toEqual([link, null]);
         });
 
         it('renders hi checks', async () => {
@@ -737,11 +671,9 @@ describe('PrintableSheet', () => {
             });
 
             const names = getAccolades('hi-checks');
+            const link = `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`;
             expect(names).toEqual(['PLAYER 1 (100)', 'PLAYER 2 (120)']);
-            expect(getAccolades('hi-checks', linkHref)).toEqual([
-                `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`,
-                null,
-            ]);
+            expect(getAccolades('hi-checks', linkHref)).toEqual([link, null]);
         });
 
         it('renders hi checks when cross-divisional', async () => {
@@ -754,11 +686,9 @@ describe('PrintableSheet', () => {
             });
 
             const names = getAccolades('hi-checks');
+            const link = `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`;
             expect(names).toEqual(['PLAYER 1 (100)', 'PLAYER 2 (120)']);
-            expect(getAccolades('hi-checks', linkHref)).toEqual([
-                `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`,
-                null,
-            ]);
+            expect(getAccolades('hi-checks', linkHref)).toEqual([link, null]);
         });
 
         it('cannot set match side a when not permitted', async () => {
@@ -766,7 +696,7 @@ describe('PrintableSheet', () => {
 
             await find('sideA')!.click();
 
-            expect(modalDialog()).toBeFalsy();
+            expect(context.optional('div.modal-dialog')).toBeFalsy();
         });
 
         it('can edit match side a', async () => {
@@ -775,7 +705,7 @@ describe('PrintableSheet', () => {
 
             await find('sideA')!.click();
             await setPlayerAndScore('e', '2');
-            await modalDialog()!.button('Save').click();
+            await dialog().button('Save').click();
 
             const matches = updatedTournament!.round!.matches!;
             expect(matches[0].sideA!.name).toEqual('e');
@@ -798,7 +728,7 @@ describe('PrintableSheet', () => {
 
             await find('sideB')!.click();
             await setPlayerAndScore('e', '2');
-            await modalDialog()!.button('Save').click();
+            await dialog().button('Save').click();
 
             const matches = updatedTournament!.round!.matches!;
             expect(matches[0].sideB!.name).toEqual('e');
@@ -822,10 +752,8 @@ describe('PrintableSheet', () => {
 
             const s180s = 'div[data-accolades="180s"]';
             await context.required(s180s).click();
-            await modalDialog()!
-                .required('.dropdown-menu')
-                .select(player1.name);
-            await modalDialog()!.button('➕').click();
+            await dialog().required('.dropdown-menu').select(player1.name);
+            await dialog().button('➕').click();
 
             expect(updatedTournament!.oneEighties).toEqual([
                 { id: player1.id, name: player1.name },
@@ -839,11 +767,9 @@ describe('PrintableSheet', () => {
 
             const hiChecks = 'div[data-accolades="hi-checks"]';
             await context.required(hiChecks).click();
-            await modalDialog()!
-                .required('.dropdown-menu')
-                .select(player1.name);
-            await modalDialog()!.required('input').change('123');
-            await modalDialog()!.button('➕').click();
+            await dialog().required('.dropdown-menu').select(player1.name);
+            await dialog().required('input').change('123');
+            await dialog().button('➕').click();
 
             expect(updatedTournament!.over100Checkouts).toEqual([
                 { id: player1.id, name: player1.name, score: 123 },
@@ -857,8 +783,8 @@ describe('PrintableSheet', () => {
             );
 
             await find('playing')!.required('li').click();
-            await modalDialog()!.input('name').change('NEW SIDE A');
-            await modalDialog()!.button('Update').click();
+            await dialog().input('name').change('NEW SIDE A');
+            await dialog().button('Update').click();
 
             const names = updatedTournament!.sides!.map((s) => s.name);
             expect(names).toEqual(['b', 'c', 'd', 'NEW SIDE A']);
@@ -871,14 +797,14 @@ describe('PrintableSheet', () => {
             );
 
             await find('playing')!.required('li').click();
-            await modalDialog()!.button('Close').click();
+            await dialog().button('Close').click();
 
             expect(updatedTournament).toBeNull();
-            expect(modalDialog()).toBeFalsy();
+            expect(context.optional('div.modal-dialog')).toBeFalsy();
         });
 
         it('can add a side', async () => {
-            const tournamentData: TournamentGameDto = tournamentBuilder()
+            const tournamentData = tournamentBuilder()
                 .round((r) =>
                     r.withMatch((m) =>
                         m
@@ -887,24 +813,23 @@ describe('PrintableSheet', () => {
                     ),
                 )
                 .withSide((b) => b.name('A').withPlayer(player1))
-                .withSide((b) => b.name('B').withPlayer(player2))
-                .build();
+                .withSide((b) => b.name('B').withPlayer(player2));
             const player3 = playerBuilder('PLAYER 3').build();
             const player3Team = teamBuilder('TEAM')
                 .forSeason(season, division, [player3])
                 .build();
             await renderEditable(
                 props
-                    .withTournament(tournamentData)
+                    .withTournament(tournamentData.build())
                     .withAllPlayers([player1, player2, player3]),
                 { account, teams: [player1Team, player2Team, player3Team] },
             );
             await find('add-side')!.click();
 
-            await modalDialog()!.input('name').change('NEW SIDE');
+            await dialog().input('name').change('NEW SIDE');
             const selector = '.list-group li.list-group-item:not(.disabled)';
-            await modalDialog()!.required(selector).click();
-            await modalDialog()!.button('Add').click();
+            await dialog().required(selector).click();
+            await dialog().button('Add').click();
 
             const names = updatedTournament!.sides!.map((s) => s.name);
             expect(names).toEqual(['A', 'B', 'NEW SIDE']);
@@ -914,13 +839,11 @@ describe('PrintableSheet', () => {
             await renderEditable(props.withTournament(oneRound2Sides), {
                 account,
             });
-            context.prompts.respondToConfirm(
-                'Are you sure you want to remove A?',
-                true,
-            );
+            const prompt = 'Are you sure you want to remove A?';
+            context.prompts.respondToConfirm(prompt, true);
 
             await find('playing')!.required('li.list-group-item').click();
-            await modalDialog()!.button('Delete side').click();
+            await dialog().button('Delete side').click();
 
             expect(updatedTournament!.sides!.map((s) => s.name)).toEqual(['B']);
         });
@@ -960,13 +883,12 @@ describe('PrintableSheet', () => {
         });
 
         it('renders tournament with 2 sides and one no-show', async () => {
-            const tournamentData: TournamentGameDto = tournamentBuilder()
+            const tournamentData = tournamentBuilder()
                 .withSide((b) => b.name('A'))
                 .withSide((b) => b.name('B'))
-                .withSide((b) => b.name('NO SHOW').noShow())
-                .build();
+                .withSide((b) => b.name('NO SHOW').noShow());
 
-            await render(props.withTournament(tournamentData));
+            await render(props.withTournament(tournamentData.build()));
 
             expect(getRounds()[0]).toEqual({
                 heading: 'Final',
@@ -989,18 +911,16 @@ describe('PrintableSheet', () => {
         });
 
         it('renders heading', async () => {
-            const tournamentData: TournamentGameDto = tournamentBuilder()
+            const tournamentData = tournamentBuilder()
                 .type('TYPE')
                 .notes('NOTES')
                 .address('ADDRESS')
-                .date('2023-06-01')
-                .build();
+                .date('2023-06-01');
 
-            await render(props.withTournament(tournamentData));
+            await render(props.withTournament(tournamentData.build()));
 
-            expect(find('heading')!.text()).toEqual(
-                `TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES🔗🖨️`,
-            );
+            const heading = `TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES🔗🖨️`;
+            expect(find('heading')!.text()).toEqual(heading);
         });
 
         it('can set match side a', async () => {
@@ -1008,7 +928,7 @@ describe('PrintableSheet', () => {
 
             await find('sideA')!.click();
             await setPlayerAndScore('A', '2');
-            await modalDialog()!.button('Save').click();
+            await dialog().button('Save').click();
 
             const matches = updatedTournament!.round!.matches!;
             expect(matches[0].sideA!.name).toEqual('A');
@@ -1020,7 +940,7 @@ describe('PrintableSheet', () => {
 
             await find('sideB')!.click();
             await setPlayerAndScore('A', '2');
-            await modalDialog()!.button('Save').click();
+            await dialog().button('Save').click();
 
             const matches = updatedTournament!.round!.matches!;
             expect(matches[0].sideB!.name).toEqual('A');
@@ -1028,18 +948,17 @@ describe('PrintableSheet', () => {
         });
 
         it('cannot set match side to no-show side', async () => {
-            const tournamentData: TournamentGameDto = tournamentBuilder()
+            const tournamentData = tournamentBuilder()
                 .withSide((b) => b.name('A'))
                 .withSide((b) => b.name('B'))
-                .withSide((b) => b.name('NO SHOW').noShow())
-                .build();
-            await renderEditable(props.withTournament(tournamentData));
+                .withSide((b) => b.name('NO SHOW').noShow());
+            await renderEditable(props.withTournament(tournamentData.build()));
 
             await find('sideB')!.click();
 
             const selector =
                 'div.btn-group:nth-child(2) .dropdown-menu .dropdown-item';
-            const sides = modalDialog()!.all(selector);
+            const sides = dialog().all(selector);
             expect(sides.map((s) => s.text())).toEqual(['A', 'B']);
         });
 
@@ -1050,10 +969,10 @@ describe('PrintableSheet', () => {
             );
 
             await find('add-side')!.click();
-            await modalDialog()!.input('name').change('NEW SIDE');
+            await dialog().input('name').change('NEW SIDE');
             const player = '.list-group li.list-group-item';
-            await modalDialog()!.required(player).click();
-            await modalDialog()!.button('Add').click();
+            await dialog().required(player).click();
+            await dialog().button('Add').click();
 
             const names = updatedTournament!.sides!.map((s) => s.name);
             expect(names).toEqual(['NEW SIDE']);
@@ -1068,7 +987,7 @@ describe('PrintableSheet', () => {
             const selector = 'div[datatype="add-sides-hint"] > span';
             await context.required(selector).click();
 
-            expect(modalDialog()).toBeTruthy();
+            expect(dialog()).toBeTruthy();
         });
 
         it('does not show add sides hint when some sides', async () => {
@@ -1087,23 +1006,21 @@ describe('PrintableSheet', () => {
             );
 
             await find('add-side')!.click();
-            await modalDialog()!.button('Close').click();
+            await dialog().button('Close').click();
 
             expect(updatedTournament).toBeNull();
-            expect(modalDialog()).toBeFalsy();
+            expect(context.optional('div.modal-dialog')).toBeFalsy();
         });
 
         it('can remove a side', async () => {
             await renderEditable(props.withTournament(sideAandB), {
                 account,
             });
-            context.prompts.respondToConfirm(
-                'Are you sure you want to remove A?',
-                true,
-            );
+            const prompt = 'Are you sure you want to remove A?';
+            context.prompts.respondToConfirm(prompt, true);
 
             await find('playing')!.required('li.list-group-item').click();
-            await modalDialog()!.button('Delete side').click();
+            await dialog().button('Delete side').click();
 
             expect(updatedTournament!.sides!.map((s) => s.name)).toEqual(['B']);
         });

@@ -54,13 +54,13 @@ describe('Tv', () => {
         it('renders login link', async () => {
             await renderComponent(appProps());
 
-            expect(context.container.textContent).toContain('Login');
+            expect(context.text()).toContain('Login');
         });
 
         it('does not render refresh', async () => {
             await renderComponent(appProps());
 
-            expect(context.container.textContent).not.toContain('Refresh');
+            expect(context.text()).not.toContain('Refresh');
         });
 
         it('does not request links', async () => {
@@ -83,19 +83,19 @@ describe('Tv', () => {
         it('does not render login link', async () => {
             await renderComponent(appProps({ account }));
 
-            expect(context.container.textContent).not.toContain('Login');
+            expect(context.text()).not.toContain('Login');
         });
 
         it('does not render refresh', async () => {
             await renderComponent(appProps({ account }));
 
-            expect(context.container.textContent).not.toContain('Refresh');
+            expect(context.text()).not.toContain('Refresh');
         });
 
         it('renders no access', async () => {
             await renderComponent(appProps({ account }));
 
-            expect(context.container.textContent).toContain('No access');
+            expect(context.text()).toContain('No access');
         });
 
         it('does not request links', async () => {

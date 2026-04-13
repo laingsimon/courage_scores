@@ -189,7 +189,7 @@ public class FinalsNightReportTests
     {
         SetTournamentDetails(type: "Knockout");
         var round = Helper.Round(Helper.Match("SIDE C", "SIDE D", 2, 1));
-        round.MatchOptions = [new GameMatchOptionDto {NumberOfLegs = 3}];
+        round.MatchOptions = [new GameMatchOptionDto { NumberOfLegs = 3 }];
         _tournament.Round!.NextRound = round;
         _tournament.BestOf = 5;
 

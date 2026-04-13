@@ -3,6 +3,7 @@
     brandingProps,
     cleanUp,
     ErrorState,
+    IComponent,
     iocProps,
     renderApp,
     TestContext,
@@ -41,10 +42,8 @@ describe('MatchReportRow', () => {
         );
     }
 
-    function getRowContent(row: HTMLTableRowElement): string[] {
-        return Array.from(row.querySelectorAll('td')).map(
-            (th) => th.textContent!,
-        );
+    function getRowContent(row: IComponent): string[] {
+        return row.all('td').map((th) => th.text());
     }
 
     function createLeg(
@@ -100,8 +99,7 @@ describe('MatchReportRow', () => {
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(context.container.querySelectorAll('tr'));
-            expect(rows.length).toEqual(0);
+            expect(context.all('tr').length).toEqual(0);
         });
 
         it('when no sayg legs', async () => {
@@ -115,8 +113,7 @@ describe('MatchReportRow', () => {
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(context.container.querySelectorAll('tr'));
-            expect(rows.length).toEqual(0);
+            expect(context.all('tr').length).toEqual(0);
         });
 
         it('for the given number of legs', async () => {
@@ -136,8 +133,7 @@ describe('MatchReportRow', () => {
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(context.container.querySelectorAll('tr'));
-            expect(rows.length).toEqual(3);
+            expect(context.all('tr').length).toEqual(3);
         });
 
         it('first leg', async () => {
@@ -155,7 +151,7 @@ describe('MatchReportRow', () => {
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(context.container.querySelectorAll('tr'));
+            const rows = context.all('tr');
             expect(getRowContent(rows[0])).toEqual([
                 'M1',
                 '33.4',
@@ -198,8 +194,7 @@ describe('MatchReportRow', () => {
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(context.container.querySelectorAll('tr'));
-            expect(getRowContent(rows[1])).toEqual([
+            expect(getRowContent(context.all('tr')[1])).toEqual([
                 '2',
                 '90',
                 '90',
@@ -239,22 +234,22 @@ describe('MatchReportRow', () => {
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(context.container.querySelectorAll('tr'));
-            const hostScoreCells = Array.from(
-                rows[0].querySelectorAll('td'),
-            ).filter((_, index) => index >= 4 && index < 8);
-            const opponentScoreCells = Array.from(
-                rows[0].querySelectorAll('td'),
-            ).filter((_, index) => index >= 14 && index < 18);
-            expect(hostScoreCells.map((td) => td.className.trim())).toEqual([
+            const rows = context.all('tr');
+            const hostScoreCells = rows[0]
+                .all('td')
+                .filter((_, index) => index >= 4 && index < 8);
+            const opponentScoreCells = rows[0]
+                .all('td')
+                .filter((_, index) => index >= 14 && index < 18);
+            expect(hostScoreCells.map((td) => td.className().trim())).toEqual([
                 'text-danger',
                 'text-danger',
                 'text-danger',
                 'text-danger',
             ]);
-            expect(opponentScoreCells.map((td) => td.className.trim())).toEqual(
-                ['', '', '', ''],
-            );
+            expect(
+                opponentScoreCells.map((td) => td.className().trim()),
+            ).toEqual(['', '', '', '']);
         });
 
         it('highlights 180 scores', async () => {
@@ -274,22 +269,27 @@ describe('MatchReportRow', () => {
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(context.container.querySelectorAll('tr'));
-            const hostScoreCells = Array.from(
-                rows[0].querySelectorAll('td'),
-            ).filter((_, index) => index >= 4 && index < 8);
-            const opponentScoreCells = Array.from(
-                rows[0].querySelectorAll('td'),
-            ).filter((_, index) => index >= 14 && index < 18);
-            expect(hostScoreCells.map((td) => td.className.trim())).toEqual([
+            const rows = context.all('tr');
+            const hostScoreCells = rows[0]
+                .all('td')
+                .filter((_, index) => index >= 4 && index < 8);
+            const opponentScoreCells = rows[0]
+                .all('td')
+                .filter((_, index) => index >= 14 && index < 18);
+            expect(hostScoreCells.map((td) => td.className().trim())).toEqual([
                 'text-danger fw-bold',
                 'text-danger fw-bold',
                 'text-danger fw-bold',
                 'text-danger fw-bold',
             ]);
-            expect(opponentScoreCells.map((td) => td.className.trim())).toEqual(
-                ['text-danger', 'text-danger', 'text-danger', 'text-danger'],
-            );
+            expect(
+                opponentScoreCells.map((td) => td.className().trim()),
+            ).toEqual([
+                'text-danger',
+                'text-danger',
+                'text-danger',
+                'text-danger',
+            ]);
         });
 
         it('shows non-180-tons correctly', async () => {
@@ -309,11 +309,11 @@ describe('MatchReportRow', () => {
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(context.container.querySelectorAll('tr'));
-            const hostTons = Array.from(rows[0].querySelectorAll('td'))[11];
-            const opponentTons = Array.from(rows[0].querySelectorAll('td'))[21];
-            expect(hostTons.textContent).toEqual('5');
-            expect(opponentTons.textContent).toEqual('5');
+            const rows = context.all('tr');
+            const hostTons = rows[0].all('td')[11];
+            const opponentTons = rows[0].all('td')[21];
+            expect(hostTons.text()).toEqual('5');
+            expect(opponentTons.text()).toEqual('5');
         });
 
         it('shows 180-tons correctly', async () => {
@@ -333,11 +333,11 @@ describe('MatchReportRow', () => {
             });
 
             reportedError.verifyNoError();
-            const rows = Array.from(context.container.querySelectorAll('tr'));
-            const hostTons = Array.from(rows[0].querySelectorAll('td'))[11];
-            const opponentTons = Array.from(rows[0].querySelectorAll('td'))[21];
-            expect(hostTons.textContent).toEqual('5+5');
-            expect(opponentTons.textContent).toEqual('5+5');
+            const rows = context.all('tr');
+            const hostTons = rows[0].all('td')[11];
+            const opponentTons = rows[0].all('td')[21];
+            expect(hostTons.text()).toEqual('5+5');
+            expect(opponentTons.text()).toEqual('5+5');
         });
     });
 });

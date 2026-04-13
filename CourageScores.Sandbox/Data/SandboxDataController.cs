@@ -53,7 +53,7 @@ public class SandboxDataController : ControllerBase
 
             var response = await container.UpsertItemAsync(data, new PartitionKey(id));
 
-            return StatusCode((int) response.StatusCode);
+            return StatusCode((int)response.StatusCode);
         }
         catch (KeyNotFoundException)
         {
@@ -85,7 +85,7 @@ public class SandboxDataController : ControllerBase
         var database = await _databaseFactory.CreateDatabase();
         try
         {
-            var container = (ISnapshottable) database.GetContainer(containerName);
+            var container = (ISnapshottable)database.GetContainer(containerName);
 
             await container.CreateSnapshot(snapshotName);
 
@@ -113,7 +113,7 @@ public class SandboxDataController : ControllerBase
         var database = await _databaseFactory.CreateDatabase();
         try
         {
-            var container = (ISnapshottable) database.GetContainer(containerName);
+            var container = (ISnapshottable)database.GetContainer(containerName);
 
             await container.ResetToSnapshot(snapshotName);
 
@@ -141,7 +141,7 @@ public class SandboxDataController : ControllerBase
         var database = await _databaseFactory.CreateDatabase();
         try
         {
-            var container = (ISnapshottable) database.GetContainer(containerName);
+            var container = (ISnapshottable)database.GetContainer(containerName);
 
             await container.DeleteSnapshot(snapshotName);
 
@@ -199,7 +199,7 @@ public class SandboxDataController : ControllerBase
         var database = await _databaseFactory.CreateDatabase();
         try
         {
-            var container = (IStubCosmosData) database.GetContainer(containerName);
+            var container = (IStubCosmosData)database.GetContainer(containerName);
 
             await container.Clear();
 

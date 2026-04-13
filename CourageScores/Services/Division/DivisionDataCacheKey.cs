@@ -5,7 +5,9 @@ namespace CourageScores.Services.Division;
 public class DivisionDataCacheKey : IEquatable<DivisionDataCacheKey>
 {
     // ReSharper disable once UnusedMember.Local
+#pragma warning disable IDE0052
     private readonly DateTime _created = DateTime.UtcNow;
+#pragma warning restore IDE0052
 
     public DivisionDataCacheKey(DivisionDataFilter filter, string type, string? apiUrl, string? referringUrl)
     {

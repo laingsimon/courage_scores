@@ -60,7 +60,7 @@ public class LiveController : Controller
     public async Task<ActionResultDto<UpdatedDataDto?>> GetUpdate(Guid id, LiveDataType type, CancellationToken token)
     {
         var lastUpdateValue = AsDateTime(Request.Headers.IfModifiedSince);
-        var dto =  await _liveService.GetUpdate(id, type, lastUpdateValue, token);
+        var dto = await _liveService.GetUpdate(id, type, lastUpdateValue, token);
 
         if (dto.Result != null)
         {

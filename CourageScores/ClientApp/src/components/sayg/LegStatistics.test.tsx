@@ -69,7 +69,7 @@ describe('LegStatistics', () => {
                 updateLegDisplayOptions,
             });
 
-            expect(context.container.innerHTML).toEqual('');
+            expect(context.html()).toEqual('');
         });
 
         it('2 player match without winner', async () => {

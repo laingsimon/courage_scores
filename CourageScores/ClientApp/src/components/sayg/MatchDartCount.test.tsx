@@ -33,7 +33,7 @@ describe('MatchDartCount', () => {
             awayCount: 0,
         });
 
-        expect(context.container.innerHTML).toEqual('');
+        expect(context.html()).toEqual('');
     });
 
     it('renders dart counts', async () => {

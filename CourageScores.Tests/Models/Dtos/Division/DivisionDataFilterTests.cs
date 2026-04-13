@@ -166,7 +166,7 @@ public class DivisionDataFilterTests
         var filter2 = new DivisionDataFilter
         {
             Date = DateTime.Parse(MatchingDate),
-            DivisionId =  { Guid.Parse(MatchingDivisionId) },
+            DivisionId = { Guid.Parse(MatchingDivisionId) },
             SeasonId = Guid.Parse(MatchingSeasonId),
             TeamId = Guid.Parse(MatchingTeamId),
         };
