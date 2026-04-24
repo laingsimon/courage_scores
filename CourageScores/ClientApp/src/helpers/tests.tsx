@@ -1,5 +1,5 @@
 ﻿import { act, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent, UserEvent } from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import {
     IocContainer,
@@ -14,7 +14,6 @@ import {
     BrandingContainer,
     IBrandingContainerProps,
 } from '../components/common/BrandingContainer';
-import { UserEvent } from '@testing-library/user-event/setup/setup';
 import { IError } from '../components/common/IError';
 import { ISubscriptions } from '../live/ISubscriptions';
 import { IParentHeight } from '../components/layout/ParentHeight';
