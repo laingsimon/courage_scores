@@ -25,7 +25,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "rootDir": "./src/",
+    "ignoreDeprecations": "6.0", // to silence warning about moduleResolution=node10
   },
   "include": [
     "src"
