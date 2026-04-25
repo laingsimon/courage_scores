@@ -9,8 +9,8 @@ function BackupToUat([string] $source, [string] $destination, [string] $identity
         $backupRequest = @{requestToken=$backupToken;identity=$identity} | ConvertTo-Json
         $backupResponse = Invoke-WebRequest -UseDefaultCredentials -Uri $source -Method POST -UseBasicParsing -ContentType "application/json" -Body $backupRequest
     } catch {
-        Write-Output $_.Exception
-        Write-Output "Unable to continue, exiting"
+        Write-Error $_.Exception
+        Write-Error "Unable to continue, exiting"
         Exit
     }
 
@@ -75,8 +75,8 @@ $($boundary)--
         $reader.BaseStream.Position = 0
         $reader.DiscardBufferedData()
         $responseBody = $reader.ReadToEnd()
-        Write-Output $responseBody
-        Write-Output "Unable to continue, exiting"
+        Write-Error $responseBody
+        Write-Error "Unable to continue, exiting"
         Exit
     }
 
@@ -87,7 +87,7 @@ $($boundary)--
     $responseData.messages | ForEach-Object { Write-Output $_ }
 
     if ($responseData.success -ne $true) {
-        Write-Output "Restore was not successful, exiting"
+        Write-Error "Restore was not successful, exiting"
         Exit
     }
 
