@@ -107,7 +107,7 @@ try {
 
 $responseData = $restoreResponse | ConvertFrom-Json
 
-$responseData.errors | ForEach-Object { Write-Output $_ }
+$responseData.errors | ForEach-Object { Write-Error $_ }
 $responseData.warnings | ForEach-Object { Write-Output $_ }
 $responseData.messages | ForEach-Object { Write-Output $_ }
 
