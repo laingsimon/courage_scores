@@ -59,7 +59,7 @@ $zipBytes = [System.Convert]::FromBase64String($backupData.result.zip)
 Write-Output "Received backup: $([System.Math]::Round($backupData.result.zip.length / 1024))kb"
 
 try {
-    Write-Output "Restoring backup into $($destination)"
+    Write-Output "Restoring '$($identity)' backup into $($destination)"
     ## needs to send a multi-part form request with the zip file
 
     $MultipartContent = [System.Net.Http.MultipartFormDataContent]::new()
