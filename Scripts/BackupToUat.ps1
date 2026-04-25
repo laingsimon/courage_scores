@@ -1,6 +1,6 @@
 # Usage
 #
-# ./BackupToUat.ps1 -source https://localhost:7247/api/Data/Backup/ -destination https://localhost:7247/api/Data/Restore/ -identity automated_backup -backupToken abcd -restoreToken efgh -restorePassword ijkl
+# ./BackupToUat.ps1 -source https://localhost:7247/api/Data/Backup/ -destination https://localhost:7247/api/Data/Restore/ -identity automated_backup
 
 param ([string] $source, [string] $destination, [string] $identity, [switch] $dryRun)
 
