@@ -62,41 +62,23 @@ try {
     Write-Output "Restoring backup into $($destination)"
     ## needs to send a multi-part form request with the zip file
 
-    $zipContent = [System.Text.Encoding]::GetEncoding('ISO-8859-1').GetString($zipBytes)
+    $MultipartContent = [System.Net.Http.MultipartFormDataContent]::new()
 
-    $boundaryHeader = "----WebKitFormBoundarydGBlYGAAkE1mNAF8"
-    $boundary = "--$($boundaryHeader)"
+    $FileContent = [System.Net.Http.StreamContent]::new([System.IO.MemoryStream]::new($zipBytes))
+    $FileHeader = [System.Net.Http.Headers.ContentDispositionHeaderValue]::new("form-data")
+    $FileHeader.Name = "Zip"
+    $FileHeader.FileName = "backup.zip"
+    $FileContent.Headers.ContentDisposition = $FileHeader
+    $FileContent.Headers.ContentType = [System.Net.Http.Headers.MediaTypeHeaderValue]::Parse("application/x-zip-compressed")
+    $MultipartContent.Add($FileContent)
 
-    $restoreRequest = @"
-$($boundary)
-Content-Disposition: form-data; name="Zip"; filename="backup.zip"
-Content-Type: application/x-zip-compressed
+    $MultipartContent.Add([System.Net.Http.StringContent]::new($identity), "identity")
+    $MultipartContent.Add([System.Net.Http.StringContent]::new($restoreToken), "requestToken")
+    $MultipartContent.Add([System.Net.Http.StringContent]::new($restorePassword), "password")
+    $MultipartContent.Add([System.Net.Http.StringContent]::new($dryRun), "dryRun")
+    $MultipartContent.Add([System.Net.Http.StringContent]::new("false"), "purgeData")
 
-$($zipContent)
-$($boundary)
-Content-Disposition: form-data; name="identity"
-
-$($identity)
-$($boundary)
-Content-Disposition: form-data; name="requestToken"
-
-$($restoreToken)
-$($boundary)
-Content-Disposition: form-data; name="password"
-
-$($restorePassword)
-$($boundary)
-Content-Disposition: form-data; name="dryRun"
-
-$($dryRun)
-$($boundary)
-Content-Disposition: form-data; name="purgeData"
-
-false
-$($boundary)--
-"@
-
-    $restoreResponse = Invoke-WebRequest -Uri $destination -Method POST -UseBasicParsing -ContentType "multipart/form-data; boundary=$($boundaryHeader)" -Body $restoreRequest
+    $restoreResponse = Invoke-WebRequest -Uri $destination -Method POST -UseBasicParsing -Body $MultipartContent
 } catch {
     # Write-Error $_.Exception.Response.Content
     Write-Error $_.Exception.Response
