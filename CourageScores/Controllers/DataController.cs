@@ -36,7 +36,7 @@ public class DataController : Controller
     }
 
     [HttpPost("/api/Data/Import")]
-    [RequestFormLimits(KeyLengthLimit = MaxRequestSizeInBytes)]
+    [RequestFormLimits(KeyLengthLimit = MaxRequestSizeInBytes, ValueLengthLimit = 200, MultipartBodyLengthLimit = MaxRequestSizeInBytes)]
     [RequestSizeLimit(bytes: MaxRequestSizeInBytes)]
     public async Task<ActionResultDto<ImportDataResultDto>> Import([FromForm] ImportDataRequestDto request, CancellationToken token)
     {
@@ -53,7 +53,7 @@ public class DataController : Controller
 
     [ExcludeFromTypeScript]
     [HttpPost("/api/Data/Restore")]
-    [RequestFormLimits(KeyLengthLimit = MaxRequestSizeInBytes)]
+    [RequestFormLimits(KeyLengthLimit = MaxRequestSizeInBytes, ValueLengthLimit = 200, MultipartBodyLengthLimit = MaxRequestSizeInBytes)]
     [RequestSizeLimit(bytes: MaxRequestSizeInBytes)]
     public async Task<ActionResultDto<ImportDataResultDto>> RestoreData([FromForm] RestoreDataRequestDto request, CancellationToken token)
     {
