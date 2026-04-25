@@ -36,8 +36,8 @@ public class DataController : Controller
     }
 
     [HttpPost("/api/Data/Import")]
-    [RequestFormLimits(KeyLengthLimit = 1024 * 1027 * 20)] // 20MB
-    [RequestSizeLimit(bytes: 1024 * 1024 * 20)] // 20MB
+    [RequestFormLimits(KeyLengthLimit = MaxRequestSizeInBytes)]
+    [RequestSizeLimit(bytes: MaxRequestSizeInBytes)]
     public async Task<ActionResultDto<ImportDataResultDto>> Import([FromForm] ImportDataRequestDto request, CancellationToken token)
     {
         request.Tables = request.Tables.SelectMany(t => t.Split(',')).ToList();
@@ -55,7 +55,7 @@ public class DataController : Controller
     [HttpPost("/api/Data/Restore")]
     [RequestFormLimits(KeyLengthLimit = MaxRequestSizeInBytes)]
     [RequestSizeLimit(bytes: MaxRequestSizeInBytes)]
-    public async Task<ActionResultDto<ImportDataResultDto>> ExportData([FromForm] RestoreDataRequestDto request, CancellationToken token)
+    public async Task<ActionResultDto<ImportDataResultDto>> RestoreData([FromForm] RestoreDataRequestDto request, CancellationToken token)
     {
         return await _dataService.RestoreData(request, token);
     }
