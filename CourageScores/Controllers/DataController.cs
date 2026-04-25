@@ -11,6 +11,9 @@ namespace CourageScores.Controllers;
 [ExcludeFromCodeCoverage]
 public class DataController : Controller
 {
+    private const int MaxRequestSizeInMb = 20;
+    private const int MaxRequestSizeInBytes = MaxRequestSizeInMb * 1024 * 1024;
+
     private readonly ICosmosTableService _cosmosTableService;
     private readonly IDataService _dataService;
 
@@ -50,8 +53,8 @@ public class DataController : Controller
 
     [ExcludeFromTypeScript]
     [HttpPost("/api/Data/Restore")]
-    [RequestFormLimits(KeyLengthLimit = 1024 * 1027 * 20)] // 20MB
-    [RequestSizeLimit(bytes: 1024 * 1024 * 20)] // 20MB
+    [RequestFormLimits(KeyLengthLimit = MaxRequestSizeInBytes)]
+    [RequestSizeLimit(bytes: MaxRequestSizeInBytes)]
     public async Task<ActionResultDto<ImportDataResultDto>> ExportData([FromForm] RestoreDataRequestDto request, CancellationToken token)
     {
         return await _dataService.RestoreData(request, token);
