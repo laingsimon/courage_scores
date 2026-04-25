@@ -62,56 +62,43 @@ try {
     Write-Output "Restoring backup into $($destination)"
     ## needs to send a multi-part form request with the zip file
 
-    $zipContent = [System.Text.Encoding]::GetEncoding('ISO-8859-1').GetString($zipBytes)
+    $MultipartContent = [System.Net.Http.MultipartFormDataContent]::new()
 
-    $boundaryHeader = "----WebKitFormBoundarydGBlYGAAkE1mNAF8"
-    $boundary = "--$($boundaryHeader)"
+    $FileContent = [System.Net.Http.StreamContent]::new([System.IO.MemoryStream]::new($zipBytes))
+    $FileHeader = [System.Net.Http.Headers.ContentDispositionHeaderValue]::new("form-data")
+    $FileHeader.Name = "Zip"
+    $FileHeader.FileName = "backup.zip"
+    $FileContent.Headers.ContentDisposition = $FileHeader
+    $FileContent.Headers.ContentType = [System.Net.Http.Headers.MediaTypeHeaderValue]::Parse("application/x-zip-compressed")
+    $MultipartContent.Add($FileContent)
 
-    $restoreRequest = @"
-$($boundary)
-Content-Disposition: form-data; name="Zip"; filename="backup.zip"
-Content-Type: application/x-zip-compressed
+    $MultipartContent.Add([System.Net.Http.StringContent]::new($identity), "identity")
+    $MultipartContent.Add([System.Net.Http.StringContent]::new($restoreToken), "requestToken")
+    $MultipartContent.Add([System.Net.Http.StringContent]::new($restorePassword), "password")
+    $MultipartContent.Add([System.Net.Http.StringContent]::new($dryRun), "dryRun")
+    $MultipartContent.Add([System.Net.Http.StringContent]::new("false"), "purgeData")
 
-$($zipContent)
-$($boundary)
-Content-Disposition: form-data; name="identity"
-
-$($identity)
-$($boundary)
-Content-Disposition: form-data; name="requestToken"
-
-$($restoreToken)
-$($boundary)
-Content-Disposition: form-data; name="password"
-
-$($restorePassword)
-$($boundary)
-Content-Disposition: form-data; name="dryRun"
-
-$($dryRun)
-$($boundary)
-Content-Disposition: form-data; name="purgeData"
-
-false
-$($boundary)--
-"@
-
-    $restoreResponse = Invoke-WebRequest -Uri $destination -Method POST -UseBasicParsing -ContentType "multipart/form-data; boundary=$($boundaryHeader)" -Body $restoreRequest
+    $restoreResponse = Invoke-WebRequest -Uri $destination -Method POST -UseBasicParsing -Body $MultipartContent
 } catch {
-    Write-Output $_.Exception
+    # Write-Error $_.Exception.Response.Content
+    Write-Error $_.Exception.Response
 
     try
     {
-        $result = $_.Exception.Response.GetResponseStream()
-        $reader = New-Object System.IO.StreamReader($result)
-        $reader.BaseStream.Position = 0
-        $reader.DiscardBufferedData()
-        $responseBody = $reader.ReadToEnd()
-        Write-Error $responseBody
+        if ($_.Exception.Response -ne $null -and  $_.Exception.Response.GetResponseStream -ne $null)
+        {
+            $result =  $_.Exception.Response.GetResponseStream()
+            $reader = New-Object System.IO.StreamReader($result)
+            $reader.BaseStream.Position = 0
+            $reader.DiscardBufferedData()
+            $responseBody = $reader.ReadToEnd()
+            Write-Error $responseBody
+        }
     }
     catch
     {
-        Write-Error "Unable to read response body"
+        Write-Output $_.Exception
+        Write-Host -ForegroundColor Red "Unable to read response body"
     }
 
     Write-Error "Unable to restore, exiting"
@@ -124,7 +111,8 @@ $responseData.errors | ForEach-Object { Write-Output $_ }
 $responseData.warnings | ForEach-Object { Write-Output $_ }
 $responseData.messages | ForEach-Object { Write-Output $_ }
 
-if ($responseData.success -ne $true) {
+if ($responseData.success -ne $true) 
+{
     Write-Error "Restore was not successful, exiting"
     Exit -4
 }
