@@ -11,7 +11,7 @@ namespace CourageScores.Controllers;
 [ExcludeFromCodeCoverage]
 public class DataController : Controller
 {
-    private const int MaxRequestSizeInMb = 20;
+    private const int MaxRequestSizeInMb = 30;
     private const int MaxRequestSizeInBytes = MaxRequestSizeInMb * 1024 * 1024;
 
     private readonly ICosmosTableService _cosmosTableService;
