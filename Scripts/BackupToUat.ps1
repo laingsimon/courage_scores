@@ -2,7 +2,38 @@
 #
 # ./BackupToUat.ps1 -source https://localhost:7247/api/Data/Backup/ -destination https://localhost:7247/api/Data/Restore/ -identity automated_backup -backupToken abcd -restoreToken efgh -restorePassword ijkl
 
-param ([string] $source, [string] $destination, [string] $identity, [string] $backupToken, [string] $restoreToken, [string] $restorePassword, [switch] $dryRun)
+param ([string] $source, [string] $destination, [string] $identity, [switch] $dryRun)
+
+function Get-Variable([string] $Name)
+{
+    $EnvironmentVariableName = "RunBackup_$($Name)"
+    $EnvironmentVariable = [Environment]::GetEnvironmentVariable("Env:\$($EnvironmentVariableName)")
+    if ($EnvironmentVariable -ne $null -and $EnvironmentVariable -ne "")
+    {
+        return $EnvironmentVariable
+    }
+
+    try 
+    {
+        $Variable = (Get-AutomationVariable -Name $Name)
+
+        if ($Variable -eq $null -or $Variable -eq "")
+        {
+            throw [System.InvalidOperationException] "v1 Azure variable with name '$($Name)' was found but the value is empty"
+        }
+
+        return $Variable
+    }
+    catch
+    {
+        Write-Error $_.Exception
+        throw [System.InvalidOperationException] "Could not find variable with name '$($Name)' or environment variable with name '$($EnvironmentVariableName)'"
+    }
+}
+
+$restorePassword = (Get-Variable -Name "RestorePassword")
+$restoreToken = (Get-Variable -Name "RestoreToken")
+$backupToken = (Get-Variable -Name "BackupToken")
 
 try {
     Write-Output "Requesting backup from $($source)"
