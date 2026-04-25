@@ -10,19 +10,19 @@ try {
     $backupResponse = Invoke-WebRequest -UseDefaultCredentials -Uri $source -Method POST -UseBasicParsing -ContentType "application/json" -Body $backupRequest
 } catch {
     Write-Error $_.Exception
-    Write-Error "Unable to continue, exiting"
-    Exit
+    Write-Error "Unable to backup, exiting"
+    Exit -1
 }
 
 $backupData = $backupResponse | ConvertFrom-Json
 
-$backupData.errors | ForEach-Object { Write-Output $_ }
+$backupData.errors | ForEach-Object { Write-Error $_ }
 $backupData.warnings | ForEach-Object { Write-Output $_ }
 $backupData.messages | ForEach-Object { Write-Output $_ }
 
 if ($backupData.success -ne $true) {
-    Write-Output "Backup was not successful, exiting"
-    Exit
+    Write-Error "Backup was not successful, exiting"
+    Exit -2
 }
 
 $zipBytes = [System.Convert]::FromBase64String($backupData.result.zip)
@@ -76,8 +76,8 @@ $($boundary)--
     $reader.DiscardBufferedData()
     $responseBody = $reader.ReadToEnd()
     Write-Error $responseBody
-    Write-Error "Unable to continue, exiting"
-    Exit
+    Write-Error "Unable to restore, exiting"
+    Exit -3
 }
 
 $responseData = $restoreResponse | ConvertFrom-Json
@@ -88,7 +88,8 @@ $responseData.messages | ForEach-Object { Write-Output $_ }
 
 if ($responseData.success -ne $true) {
     Write-Error "Restore was not successful, exiting"
-    Exit
+    Exit -4
 }
 
 Write-Output "Restore successful"
+Exit 0
