@@ -11,7 +11,7 @@ function Get-BackupScript()
     Invoke-WebRequest -UseDefaultCredentials -Uri $ScriptUrl -Method GET -OutFile $PathToScript
 }
 
-$PathToScript = Get-BackupScript
+Get-BackupScript
 Write-Output "Script written to $($PathToScript)"
 
 try
