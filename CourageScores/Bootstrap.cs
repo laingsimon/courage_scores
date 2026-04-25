@@ -23,6 +23,10 @@ public class Bootstrap
         var builder = WebApplication.CreateBuilder(args);
         var configuration = builder.Configuration;
 
+        var maxBodyInMb = int.Parse(configuration["MaxRequestSizeInMb"] ?? "30");
+        var maxBodyInBytes = maxBodyInMb * 1024 * 1024;
+        builder.WebHost.ConfigureKestrel(options => options.Limits.MaxRequestBodySize = maxBodyInBytes);
+
         builder.Services
             .AddAuthentication(
                 options => { options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme; })
