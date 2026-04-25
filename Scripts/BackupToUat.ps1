@@ -98,20 +98,25 @@ $($boundary)--
 
     $restoreResponse = Invoke-WebRequest -Uri $destination -Method POST -UseBasicParsing -ContentType "multipart/form-data; boundary=$($boundaryHeader)" -Body $restoreRequest
 } catch {
-    Write-Output $_.Exception
+    # Write-Error $_.Exception.Response.Content
+    Write-Error $_.Exception.Response
 
     try
     {
-        $result = $_.Exception.Response.GetResponseStream()
-        $reader = New-Object System.IO.StreamReader($result)
-        $reader.BaseStream.Position = 0
-        $reader.DiscardBufferedData()
-        $responseBody = $reader.ReadToEnd()
-        Write-Error $responseBody
+        if ($_.Exception.Response -ne $null -and  $_.Exception.Response.GetResponseStream -ne $null)
+        {
+            $result =  $_.Exception.Response.GetResponseStream()
+            $reader = New-Object System.IO.StreamReader($result)
+            $reader.BaseStream.Position = 0
+            $reader.DiscardBufferedData()
+            $responseBody = $reader.ReadToEnd()
+            Write-Error $responseBody
+        }
     }
     catch
     {
-        Write-Error "Unable to read response body"
+        Write-Output $_.Exception
+        Write-Host -ForegroundColor Red "Unable to read response body"
     }
 
     Write-Error "Unable to restore, exiting"
@@ -124,7 +129,8 @@ $responseData.errors | ForEach-Object { Write-Output $_ }
 $responseData.warnings | ForEach-Object { Write-Output $_ }
 $responseData.messages | ForEach-Object { Write-Output $_ }
 
-if ($responseData.success -ne $true) {
+if ($responseData.success -ne $true) 
+{
     Write-Error "Restore was not successful, exiting"
     Exit -4
 }
