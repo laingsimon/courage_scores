@@ -7,7 +7,7 @@ param ([string] $source, [string] $destination, [string] $identity, [switch] $dr
 function Get-Variable([string] $Name)
 {
     $EnvironmentVariableName = "RunBackup_$($Name)"
-    $EnvironmentVariable = [Environment]::GetEnvironmentVariable("Env:\$($EnvironmentVariableName)")
+    $EnvironmentVariable = [Environment]::GetEnvironmentVariable($EnvironmentVariableName)
     if ($EnvironmentVariable -ne $null -and $EnvironmentVariable -ne "")
     {
         return $EnvironmentVariable
@@ -26,7 +26,6 @@ function Get-Variable([string] $Name)
     }
     catch
     {
-        Write-Error $_.Exception
         throw [System.InvalidOperationException] "Could not find variable with name '$($Name)' or environment variable with name '$($EnvironmentVariableName)'"
     }
 }
@@ -101,12 +100,20 @@ $($boundary)--
 } catch {
     Write-Output $_.Exception
 
-    $result = $_.Exception.Response.GetResponseStream()
-    $reader = New-Object System.IO.StreamReader($result)
-    $reader.BaseStream.Position = 0
-    $reader.DiscardBufferedData()
-    $responseBody = $reader.ReadToEnd()
-    Write-Error $responseBody
+    try
+    {
+        $result = $_.Exception.Response.GetResponseStream()
+        $reader = New-Object System.IO.StreamReader($result)
+        $reader.BaseStream.Position = 0
+        $reader.DiscardBufferedData()
+        $responseBody = $reader.ReadToEnd()
+        Write-Error $responseBody
+    }
+    catch
+    {
+        Write-Error "Unable to read response body"
+    }
+
     Write-Error "Unable to restore, exiting"
     Exit -3
 }
