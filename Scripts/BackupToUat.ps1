@@ -4,7 +4,7 @@
 
 param ([switch] $dryRun)
 
-function Get-Variable([string] $Name)
+function Get-Variable([string] $Name, [string] $Fallback)
 {
     $EnvironmentVariableName = "RunBackup_$($Name)"
     $EnvironmentVariable = [Environment]::GetEnvironmentVariable($EnvironmentVariableName)
@@ -19,7 +19,12 @@ function Get-Variable([string] $Name)
 
         if ($Variable -eq $null -or $Variable -eq "")
         {
-            throw [System.InvalidOperationException] "v1 Azure variable with name '$($Name)' was found but the value is empty"
+            if ($Fallback -ne $null)
+            {
+                return $Fallback
+            }
+
+            throw [System.InvalidOperationException] "Azure variable with name '$($Name)' was found but the value is empty"
         }
 
         return $Variable
@@ -30,9 +35,9 @@ function Get-Variable([string] $Name)
     }
 }
 
-$Source = "https://courageleague.azurewebsites.net/data/api/Data/Backup/"
-$Destination = "https://courageleagueuat.azurewebsites.net/data/api/Data/Restore/"
-$Identity = "prod_backup"
+$Source = "https://$(Get-Variable -Name "BackupSource" -Fallback "courageleague.azurewebsites.net")/data/api/Data/Backup/"
+$Destination = "https://$(Get-Variable -Name "BackupDestination" -Fallback "courageleagueuat.azurewebsites.net")/data/api/Data/Restore/"
+$Identity = (Get-Variable -Name "BackupIdentity" -Fallback "prod_backup")
 $restorePassword = (Get-Variable -Name "RestorePassword")
 $restoreToken = (Get-Variable -Name "RestoreToken")
 $backupToken = (Get-Variable -Name "BackupToken")
