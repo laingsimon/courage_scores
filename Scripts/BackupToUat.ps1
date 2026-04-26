@@ -31,6 +31,11 @@ function Get-Variable([string] $Name, [string] $Fallback)
     }
     catch
     {
+        if ($Fallback -ne $null)
+        {
+            return $Fallback
+        }
+
         throw [System.InvalidOperationException] "Could not find variable with name '$($Name)' or environment variable with name '$($EnvironmentVariableName)'"
     }
 }
