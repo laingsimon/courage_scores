@@ -1,7 +1,3 @@
-$Source = "https://courageleague.azurewebsites.net/data/api/Data/Backup/"
-$Destination = "https://courageleagueuat.azurewebsites.net/data/api/Data/Restore/"
-$Identity = "prod_backup"
-
 $PathToScript = "./Downloaded-BackupToUat.ps1"
 
 function Get-BackupScript()
@@ -18,7 +14,7 @@ try
 {
     Write-Output "Running the backup..."
 
-    ./Downloaded-BackupToUat.ps1 -source $Source -destination $Destination -identity $Identity
+    & $PathToScript
 }
 finally
 {

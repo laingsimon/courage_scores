@@ -1,8 +1,8 @@
 # Usage
 #
-# ./BackupToUat.ps1 -source https://localhost:7247/api/Data/Backup/ -destination https://localhost:7247/api/Data/Restore/ -identity automated_backup
+# ./BackupToUat.ps1 [-dryRun]
 
-param ([string] $source, [string] $destination, [string] $identity, [switch] $dryRun)
+param ([switch] $dryRun)
 
 function Get-Variable([string] $Name)
 {
@@ -30,6 +30,9 @@ function Get-Variable([string] $Name)
     }
 }
 
+$Source = "https://courageleague.azurewebsites.net/data/api/Data/Backup/"
+$Destination = "https://courageleagueuat.azurewebsites.net/data/api/Data/Restore/"
+$Identity = "prod_backup"
 $restorePassword = (Get-Variable -Name "RestorePassword")
 $restoreToken = (Get-Variable -Name "RestoreToken")
 $backupToken = (Get-Variable -Name "BackupToken")
