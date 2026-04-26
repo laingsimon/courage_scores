@@ -43,8 +43,7 @@ try {
     $backupResponse = Invoke-WebRequest -UseDefaultCredentials -Uri $source -Method POST -UseBasicParsing -ContentType "application/json" -Body $backupRequest
 } catch {
     Write-Error $_.Exception
-    Write-Error "Unable to backup, exiting"
-    Exit -1
+    throw [System.InvalidOperationException] "Unable to backup, exiting"
 }
 
 $backupData = $backupResponse | ConvertFrom-Json
@@ -54,8 +53,7 @@ $backupData.warnings | ForEach-Object { Write-Output $_ }
 $backupData.messages | ForEach-Object { Write-Output $_ }
 
 if ($backupData.success -ne $true) {
-    Write-Error "Backup was not successful, exiting"
-    Exit -2
+    throw [System.InvalidOperationException] "Backup was not successful, exiting"
 }
 
 $zipBytes = [System.Convert]::FromBase64String($backupData.result.zip)
@@ -104,8 +102,7 @@ try {
         Write-Host -ForegroundColor Red "Unable to read response body"
     }
 
-    Write-Error "Unable to restore, exiting"
-    Exit -3
+    throw [System.InvalidOperationException] "Unable to restore, exiting"
 }
 
 $responseData = $restoreResponse | ConvertFrom-Json
@@ -116,8 +113,7 @@ $responseData.messages | ForEach-Object { Write-Output $_ }
 
 if ($responseData.success -ne $true) 
 {
-    Write-Error "Restore was not successful, exiting"
-    Exit -4
+    throw [System.InvalidOperationException] "Restore was not successful, exiting"
 }
 
 Write-Output "Restore successful"
