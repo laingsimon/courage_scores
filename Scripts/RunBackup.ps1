@@ -14,7 +14,7 @@ try
 {
     Write-Output "Running the backup..."
 
-    ./Downloaded-BackupToUat.ps1
+    & $PathToScript
 }
 finally
 {
