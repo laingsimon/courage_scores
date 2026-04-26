@@ -2,9 +2,9 @@
 #
 # ./BackupToUat.ps1 [-dryRun]
 
-param ([switch] $dryRun)
+param ([switch] $dryRun, [string] $Source = "courageleague.azurewebsites.net", [string] $Destination = "courageleagueuat.azurewebsites.net")
 
-function Get-Variable([string] $Name)
+function Get-Variable([string] $Name, [string] $Fallback)
 {
     $EnvironmentVariableName = "RunBackup_$($Name)"
     $EnvironmentVariable = [Environment]::GetEnvironmentVariable($EnvironmentVariableName)
@@ -19,32 +19,41 @@ function Get-Variable([string] $Name)
 
         if ($Variable -eq $null -or $Variable -eq "")
         {
-            throw [System.InvalidOperationException] "v1 Azure variable with name '$($Name)' was found but the value is empty"
+            if ($Fallback -ne $null)
+            {
+                return $Fallback
+            }
+
+            throw [System.InvalidOperationException] "Azure variable with name '$($Name)' was found but the value is empty"
         }
 
         return $Variable
     }
     catch
     {
+        if ($Fallback -ne $null)
+        {
+            return $Fallback
+        }
+
         throw [System.InvalidOperationException] "Could not find variable with name '$($Name)' or environment variable with name '$($EnvironmentVariableName)'"
     }
 }
 
-$Source = "https://courageleague.azurewebsites.net/data/api/Data/Backup/"
-$Destination = "https://courageleagueuat.azurewebsites.net/data/api/Data/Restore/"
-$Identity = "prod_backup"
-$restorePassword = (Get-Variable -Name "RestorePassword")
-$restoreToken = (Get-Variable -Name "RestoreToken")
-$backupToken = (Get-Variable -Name "BackupToken")
+$BackupSource = (Get-Variable -Name "BackupSource" -Fallback $Source)
+$RestoreDestination = (Get-Variable -Name "BackupDestination" -Fallback $Destination)
+$Identity = (Get-Variable -Name "BackupIdentity" -Fallback "prod_backup")
+$RestorePassword = (Get-Variable -Name "RestorePassword")
+$RestoreToken = (Get-Variable -Name "RestoreToken")
+$BackupToken = (Get-Variable -Name "BackupToken")
 
 try {
-    Write-Output "Requesting backup from $($source)"
+    Write-Output "Requesting backup from $($BackupSource)"
     $backupRequest = @{requestToken=$backupToken;identity=$identity} | ConvertTo-Json
-    $backupResponse = Invoke-WebRequest -UseDefaultCredentials -Uri $source -Method POST -UseBasicParsing -ContentType "application/json" -Body $backupRequest
+    $backupResponse = Invoke-WebRequest -UseDefaultCredentials -Uri "https://$($BackupSource)/data/api/Data/Backup/" -Method POST -UseBasicParsing -ContentType "application/json" -Body $backupRequest
 } catch {
     Write-Error $_.Exception
-    Write-Error "Unable to backup, exiting"
-    Exit -1
+    throw [System.InvalidOperationException] "Unable to backup, exiting"
 }
 
 $backupData = $backupResponse | ConvertFrom-Json
@@ -54,15 +63,14 @@ $backupData.warnings | ForEach-Object { Write-Output $_ }
 $backupData.messages | ForEach-Object { Write-Output $_ }
 
 if ($backupData.success -ne $true) {
-    Write-Error "Backup was not successful, exiting"
-    Exit -2
+    throw [System.InvalidOperationException] "Backup was not successful, exiting"
 }
 
 $zipBytes = [System.Convert]::FromBase64String($backupData.result.zip)
 Write-Output "Received backup: $([System.Math]::Round($backupData.result.zip.length / 1024))kb"
 
 try {
-    Write-Output "Restoring '$($identity)' backup into $($destination)"
+    Write-Output "Restoring '$($Identity)' backup into $($RestoreDestination)"
     ## needs to send a multi-part form request with the zip file
 
     $MultipartContent = [System.Net.Http.MultipartFormDataContent]::new()
@@ -81,7 +89,7 @@ try {
     $MultipartContent.Add([System.Net.Http.StringContent]::new($dryRun), "dryRun")
     $MultipartContent.Add([System.Net.Http.StringContent]::new("false"), "purgeData")
 
-    $restoreResponse = Invoke-WebRequest -Uri $destination -Method POST -UseBasicParsing -Body $MultipartContent
+    $restoreResponse = Invoke-WebRequest -Uri "https://$($RestoreDestination)/data/api/Data/Restore/" -Method POST -UseBasicParsing -Body $MultipartContent
 } catch {
     # Write-Error $_.Exception.Response.Content
     Write-Error $_.Exception.Response
@@ -104,8 +112,7 @@ try {
         Write-Host -ForegroundColor Red "Unable to read response body"
     }
 
-    Write-Error "Unable to restore, exiting"
-    Exit -3
+    throw [System.InvalidOperationException] "Unable to restore, exiting"
 }
 
 $responseData = $restoreResponse | ConvertFrom-Json
@@ -116,8 +123,7 @@ $responseData.messages | ForEach-Object { Write-Output $_ }
 
 if ($responseData.success -ne $true) 
 {
-    Write-Error "Restore was not successful, exiting"
-    Exit -4
+    throw [System.InvalidOperationException] "Restore was not successful, exiting"
 }
 
 Write-Output "Restore successful"

@@ -1,14 +1,15 @@
 $PathToScript = "./Downloaded-BackupToUat.ps1"
+$Branch = "main"
 
 function Get-BackupScript()
 {
-    $ScriptUrl = "https://raw.githubusercontent.com/laingsimon/courage_scores/refs/heads/main/Scripts/BackupToUat.ps1"
+    $ScriptUrl = "https://raw.githubusercontent.com/laingsimon/courage_scores/refs/heads/$($Branch)/Scripts/BackupToUat.ps1"
 
     Invoke-WebRequest -UseDefaultCredentials -Uri $ScriptUrl -Method GET -OutFile $PathToScript
+    Write-Output "Script written to $($PathToScript)"
 }
 
 Get-BackupScript
-Write-Output "Script written to $($PathToScript)"
 
 try
 {
