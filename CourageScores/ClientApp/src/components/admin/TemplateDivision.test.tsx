@@ -165,13 +165,13 @@ describe('TemplateDivision', () => {
             });
 
             const sharableAddresses = context.all(
-                'ul[datatype="shareable-addresses"] > li',
+                'div[datatype="shareable-addresses"] > button',
             );
             expect(sharableAddresses.map((d) => d.text())).toEqual([
-                '1,5',
-                '2,6',
-                '3,7',
-                '4,8',
+                '1, 5↑',
+                '2, 6↑',
+                '3, 7↑',
+                '4, 8↑',
             ]);
         });
     });
