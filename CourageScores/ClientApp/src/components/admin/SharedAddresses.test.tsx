@@ -142,7 +142,7 @@ describe('SharedAddresses', () => {
             });
 
             await context
-                .required('ul[datatype="shareable-addresses"] > li')
+                .required('div[datatype="shareable-addresses"] > button')
                 .click();
 
             expect(updatedAddresses).toEqual([

@@ -59,10 +59,8 @@ export function FilterFixtures() {
         getFilterOption('date', 'All dates'),
         getFilterOption('date', 'Past dates', 'past'),
         getFilterOption('date', 'Last week', 'last-week'),
-        getFilterOption('date', 'Yesterday', 'yesterday'),
         getFilterOption('date', 'Prev & next dates', 'last+next'),
         getFilterOption('date', 'Today', 'today'),
-        getFilterOption('date', 'Tomorrow', 'tomorrow'),
         getFilterOption('date', 'Next week', 'next-week'),
         getFilterOption('date', 'Future dates', 'future'),
     ];
