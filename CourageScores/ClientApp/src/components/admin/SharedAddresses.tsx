@@ -41,6 +41,14 @@ export function SharedAddresses({
         await onUpdate(addresses.concat([group]));
     }
 
+    function doesNotExist(sharedAddress: string[]) {
+        const matchFunction = (a: string[]) => a.sort().join(',');
+        const exists = addresses
+            .map(matchFunction)
+            .find((existing) => existing === matchFunction(sharedAddress));
+        return !exists;
+    }
+
     return (
         <ul className="list-group mb-3">
             <li className={`list-group-item ${className} text-light`}>
@@ -63,24 +71,25 @@ export function SharedAddresses({
                     />
                 </li>
             ))}
-            {mnemonicsThatCanShareAddresses ? (
-                <ul
-                    className="list-group-item small"
-                    datatype="shareable-addresses">
-                    Mnemonics that share addresses are:
-                    {mnemonicsThatCanShareAddresses.map((group: string[]) => {
-                        return (
-                            <li
-                                className="ms-4"
-                                key={group.join(',')}
-                                onClick={async () =>
-                                    await addAsSharedAddress(group)
-                                }>
-                                {group.sort().join(',')}
-                            </li>
-                        );
-                    })}
-                </ul>
+            {mnemonicsThatCanShareAddresses?.filter(doesNotExist).length ? (
+                <div className="list-group-item" datatype="shareable-addresses">
+                    <div>Mnemonics that share addresses are:</div>
+                    {mnemonicsThatCanShareAddresses
+                        .filter(doesNotExist)
+                        .map((group: string[]) => {
+                            return (
+                                <button
+                                    key={group.join(',')}
+                                    className="btn btn-sm btn-secondary badge py-1 me-1"
+                                    onClick={async () =>
+                                        await addAsSharedAddress(group)
+                                    }>
+                                    {group.sort().join(', ')}
+                                    <span className="fw-bold ms-1">↑</span>
+                                </button>
+                            );
+                        })}
+                </div>
             ) : null}
             <button
                 className="list-group-item btn-primary small"

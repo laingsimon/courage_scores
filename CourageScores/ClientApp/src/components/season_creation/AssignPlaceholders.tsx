@@ -289,7 +289,7 @@ export function AssignPlaceholders({
                                         return (
                                             <li key={placeholder}>
                                                 <span
-                                                    className={`min-width-25 px-1 d-inline-block text-center margin-right ${className}`}>
+                                                    className={`min-width-25 px-1 d-inline-block text-center margin-right font-monospace ${className}`}>
                                                     {placeholder}
                                                 </span>
                                                 {hasDivisionSharedAddress &&
