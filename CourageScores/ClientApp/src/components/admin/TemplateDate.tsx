@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { any } from '../../helpers/collections';
-import { valueChanged } from '../../helpers/events';
+import { stateChanged } from '../../helpers/events';
 import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto';
 import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto';
 import { UntypedPromise } from '../../interfaces/UntypedPromise';
@@ -30,9 +30,7 @@ export function TemplateDate({
     setHighlight,
     deleteDates,
 }: ITemplateDateProps) {
-    const [newFixture, setNewFixture] = useState<FixtureTemplateDto>({
-        home: '',
-    });
+    const [spec, setSpec] = useState<string>('');
 
     async function updateFixtures(update: FixtureTemplateDto[]) {
         const newDate: DateTemplateDto = Object.assign({}, date);
@@ -49,15 +47,19 @@ export function TemplateDate({
     }
 
     async function addFixture() {
-        if (!newFixture.home) {
-            window.alert('Enter at least a home team');
+        const parts = spec?.match(/^(.+?)(\s?-\s?(.+))?$/);
+        const newFixture: FixtureTemplateDto = {
+            home: (parts?.[1] ?? '').trim(),
+            away: parts?.[3]?.trim(),
+        };
+
+        if (!newFixture.home || newFixture.home.charAt(0) === '-') {
+            window.alert('Enter a spec in the format: "home[ - away]"');
             return;
         }
 
         await updateFixtures(date.fixtures!.concat([newFixture]));
-        setNewFixture({
-            home: '',
-        });
+        setSpec('');
     }
 
     async function onKeyUp(event: React.KeyboardEvent) {
@@ -143,19 +145,12 @@ export function TemplateDate({
             ))}
             <span className="margin-right badge bg-info ps-1">
                 <input
-                    className="width-20 border-0 outline-0"
-                    name="home"
+                    className="width-50 border-0 outline-0"
+                    name="spec"
+                    placeholder="h[ - a]"
                     onKeyUp={onKeyUp}
-                    value={newFixture.home || ''}
-                    onChange={valueChanged(newFixture, setNewFixture, '')}
-                />
-                <span>-</span>
-                <input
-                    className="width-20 border-0 outline-0"
-                    name="away"
-                    onKeyUp={onKeyUp}
-                    value={newFixture.away || ''}
-                    onChange={valueChanged(newFixture, setNewFixture, '')}
+                    value={spec || ''}
+                    onChange={stateChanged(setSpec)}
                 />
                 <button
                     className="ms-1 bg-info border-0 px-0"

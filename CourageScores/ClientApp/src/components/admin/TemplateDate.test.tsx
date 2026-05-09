@@ -264,8 +264,7 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            await context.input('home').change('A');
-            await context.input('away').change('B');
+            await context.input('spec').change('A-B');
             await context.button('➕').click();
 
             expect(update).toEqual({
@@ -292,9 +291,8 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            await context.input('home').change('A');
-            await context.input('away').change('B');
-            await context.input('away').type('{Enter}');
+            await context.input('spec').change('A-B');
+            await context.input('spec').type('{Enter}');
 
             expect(update).toEqual({
                 fixtures: [
@@ -320,12 +318,12 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            await context.input('home').change('A');
-            await context.input('home').change('');
-            await context.input('away').change('B');
+            await context.input('spec').change('-B');
             await context.button('➕').click();
 
-            context.prompts.alertWasShown('Enter at least a home team');
+            context.prompts.alertWasShown(
+                'Enter a spec in the format: "home[ - away]"',
+            );
             expect(update).toBeNull();
         });
 
@@ -343,12 +341,12 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            await context.input('home').change('A');
-            await context.input('home').change('');
-            await context.input('away').change('B');
-            await context.input('home').type('{Enter}');
+            await context.input('spec').change('-B');
+            await context.input('spec').type('{Enter}');
 
-            context.prompts.alertWasShown('Enter at least a home team');
+            context.prompts.alertWasShown(
+                'Enter a spec in the format: "home[ - away]"',
+            );
             expect(update).toBeNull();
         });
 
@@ -366,7 +364,7 @@ describe('TemplateDate', () => {
                 deleteDates,
             });
 
-            await context.input('home').change('A');
+            await context.input('spec').change('A');
             await context.button('➕').click();
 
             expect(update).toEqual({
