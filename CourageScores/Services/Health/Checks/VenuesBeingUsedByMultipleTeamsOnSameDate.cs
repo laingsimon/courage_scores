@@ -5,6 +5,13 @@ namespace CourageScores.Services.Health.Checks;
 
 public class VenuesBeingUsedByMultipleTeamsOnSameDate : ISeasonHealthCheck
 {
+    private readonly int _intervalDays;
+
+    public VenuesBeingUsedByMultipleTeamsOnSameDate(int intervalDays = 7)
+    {
+        _intervalDays = intervalDays;
+    }
+
     [ExcludeFromCodeCoverage]
     public string Name => "Venues do not have multiple fixtures on the same date";
 
@@ -30,10 +37,16 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDate : ISeasonHealthCheck
             foreach (var group in multipleFixturesPerVenue)
             {
                 result.Success = false;
-                result.Warnings.Add($"{group.Key} is being used for {group.Count()} fixtures on {date:d MMM}");
+                result.Warnings.Add($"{group.Key} is being used for {group.Count()} fixtures on week {GetWeekNumber(date, allDates)}");
             }
         }
 
         return Task.FromResult(result);
+    }
+
+    private int GetWeekNumber(DateTime date, IReadOnlyCollection<DateTime> allDates)
+    {
+        var sinceStartOfSeason = date.Date.Subtract(allDates.Min());
+        return (sinceStartOfSeason.Days / _intervalDays) + 1;
     }
 }
