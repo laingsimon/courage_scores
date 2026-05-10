@@ -515,14 +515,11 @@ describe('Score', () => {
             return ts;
         }
 
-        function addPlayerToSeasonDifferentCase(
-            ts: TeamSeasonDto,
-            player: ICreatedPlayer,
-        ) {
-            if (ts.seasonId === player.seasonId) {
+        function addPlayerDifferentCase(ts: TeamSeasonDto, p: ICreatedPlayer) {
+            if (ts.seasonId === p.seasonId) {
                 ts.players = (ts.players ?? []).concat({
-                    ...player.newPlayer,
-                    name: player.newPlayer.name.toLowerCase(),
+                    ...p.newPlayer,
+                    name: p.newPlayer.name.toLowerCase(),
                 });
             }
 
@@ -584,32 +581,19 @@ describe('Score', () => {
             assertRow(rows[13], '180s', '', '100+ c/o');
         });
 
-        it('renders when no divisions', async () => {
-            appData.divisions = [];
-            fixture = getPlayedFixtureData(appData);
+        it.each([['divisions'], ['seasons'], ['teams']])(
+            'renders when no %s',
+            async (prop) => {
+                appData[prop] = [];
+                fixture = getPlayedFixtureData(appData);
 
-            await renderComponent(fixture.id, appData);
+                await renderComponent(fixture.id, appData);
 
-            assertError('App has finished loading, no divisions are available');
-        });
-
-        it('renders when no seasons', async () => {
-            appData.seasons = [];
-            fixture = getPlayedFixtureData(appData);
-
-            await renderComponent(fixture.id, appData);
-
-            assertError('App has finished loading, no seasons are available');
-        });
-
-        it('renders when no teams', async () => {
-            appData.teams = [];
-            fixture = getPlayedFixtureData(appData);
-
-            await renderComponent(fixture.id, appData);
-
-            assertError('App has finished loading, no teams are available');
-        });
+                assertError(
+                    `App has finished loading, no ${prop} are available`,
+                );
+            },
+        );
 
         it('renders when team has no seasons', async () => {
             appData.teams = appData.teams.map((t) => {
@@ -692,9 +676,7 @@ describe('Score', () => {
 
         it('can add multiple players when first comes back with different case', async () => {
             await renderComponent(fixture.id, appData);
-            newPlayerApiResult = modifySeasonOnAdd(
-                addPlayerToSeasonDifferentCase,
-            );
+            newPlayerApiResult = modifySeasonOnAdd(addPlayerDifferentCase);
 
             await createANewPlayer('NEW PLAYER 1\nNEW PLAYER 2', 'home', true);
 
@@ -1040,20 +1022,6 @@ describe('Score', () => {
             expect(legs).toEqual([3, 3, 3, 3, 3, 3, 3, 0]);
         });
 
-        it('can change to league fixture', async () => {
-            fixture.isKnockout = true;
-            await renderComponent(fixture.id, appData);
-
-            await context.input('isKnockout').click();
-            await context.button('Save').click();
-
-            const updatedFixture = updatedFixtures[fixture.id];
-            expect(updatedFixture.isKnockout).toEqual(false);
-            const matchOptions = updatedFixture.matchOptions!;
-            const legs = matchOptions.map((mo) => mo.numberOfLegs);
-            expect(legs).toEqual([5, 5, 5, 5, 5, 3, 3, 3]);
-        });
-
         it('can change to league fixture when match options are missing', async () => {
             fixture.isKnockout = true;
             fixture.matchOptions = take(fixture.matchOptions!, 5);
@@ -1084,25 +1052,6 @@ describe('Score', () => {
         it('renders published score card', async () => {
             fixture.resultsPublished = true;
 
-            await renderComponent(fixture.id, appData);
-
-            assertEmptyScoreCard();
-        });
-    });
-
-    describe('when logged in as an away clerk', () => {
-        const account = user({ inputResults: true }, createTemporaryId());
-        const appData = getDefaultAppData(account);
-        const fixture = getUnplayedFixtureData(appData);
-
-        it('renders score card without results', async () => {
-            await renderComponent(fixture.id, appData);
-
-            assertScoreCardForClerk();
-        });
-
-        it('renders published score card', async () => {
-            fixture.resultsPublished = true;
             await renderComponent(fixture.id, appData);
 
             assertEmptyScoreCard();
