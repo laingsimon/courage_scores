@@ -335,7 +335,7 @@ public class AddPlayerToTeamSeasonCommandTests
             Id = Guid.NewGuid(),
             SeasonId = _season.Id,
         });
-        _player.Name = "Captain America";
+        _player.Name = "Captain America  ";
         _player.Captain = true;
         _player.EmailAddress = "the_captain@america.com";
 

@@ -201,7 +201,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
 
         var newPlayer = new TeamPlayer
         {
-            Name = _player!.Name,
+            Name = _player!.Name.Trim(),
             Captain = _player.Captain,
             EmailAddress = _player.EmailAddress,
             Id = Guid.NewGuid(),
