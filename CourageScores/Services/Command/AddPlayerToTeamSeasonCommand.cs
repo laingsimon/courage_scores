@@ -153,7 +153,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             teamSeason = result.Result;
         }
 
-        var existingPlayer = teamSeason.Players.SingleOrDefault(p => p.Name == _player!.Name);
+        var existingPlayer = teamSeason.Players.SingleOrDefault(p => p.Name.Trim().Equals(_player!.Name.Trim(), StringComparison.OrdinalIgnoreCase));
         if (existingPlayer != null)
         {
             if (existingPlayer.Deleted == null)
@@ -173,6 +173,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             existingPlayer.Captain = _player!.Captain;
             existingPlayer.EmailAddress = _player.EmailAddress ?? existingPlayer.EmailAddress;
             existingPlayer.Gender = _player.Gender.FromGenderDto();
+            existingPlayer.Name = _player.Name.Trim(); // in case the casing - for example - has changed
             _cacheFlags.EvictDivisionDataCacheForSeasonId = season.Id;
             _cacheFlags.EvictDivisionDataCacheForDivisionId = _divisionId;
             return new ActionResult<TeamPlayer>

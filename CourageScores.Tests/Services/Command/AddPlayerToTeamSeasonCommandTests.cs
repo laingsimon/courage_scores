@@ -221,8 +221,10 @@ public class AddPlayerToTeamSeasonCommandTests
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
-    [Test]
-    public async Task ApplyUpdate_WhenPlayerWithSameNameExists_ReturnsSuccessfulNoChangesMade()
+    [TestCase("Captain America")]
+    [TestCase("Captain America  ")]
+    [TestCase("captain america  ")]
+    public async Task ApplyUpdate_WhenPlayerWithSameNameExists_ReturnsSuccessfulNoChangesMade(string requestedPlayerName)
     {
         _team.Seasons.Add(new TeamSeason
         {
@@ -232,12 +234,12 @@ public class AddPlayerToTeamSeasonCommandTests
             {
                 new TeamPlayer
                 {
-                    Name = "Captain America",
+                    Name = "Captain America       ",
                     Deleted = null,
                 },
             },
         });
-        _player.Name = "Captain America";
+        _player.Name = requestedPlayerName;
 
         var result = await _command.ForPlayer(_player).ToDivision(_division.Id).ToSeason(_season.Id).ApplyUpdate(_team, _token);
 
@@ -268,19 +270,19 @@ public class AddPlayerToTeamSeasonCommandTests
                 },
             },
         });
-        _player.Name = "Captain America";
+        _player.Name = "Captain AMERICA";
         _player.Captain = true;
         _player.EmailAddress = "the_captain@america.com";
 
         var result = await _command.ForPlayer(_player).ToDivision(_division.Id).ToSeason(_season.Id).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Player undeleted from team",
-        }));
+        Assert.That(result.Messages, Is.EqualTo([
+            "Player undeleted from team"
+        ]));
         var teamSeason = _team.Seasons.Single(ts => ts.SeasonId == _season.Id);
         var teamPlayer = teamSeason.Players.Single();
+        Assert.That(teamPlayer.Name, Is.EqualTo("Captain AMERICA"));
         Assert.That(teamPlayer.Captain, Is.True);
         Assert.That(teamPlayer.EmailAddress, Is.EqualTo("the_captain@america.com"));
         _auditingHelper.Verify(h => h.SetUpdated(teamPlayer, _token));
