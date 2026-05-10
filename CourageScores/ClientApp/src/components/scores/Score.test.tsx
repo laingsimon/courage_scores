@@ -672,6 +672,7 @@ describe('Score', () => {
             expect(teamsReloaded).toEqual(true);
             expect(createdPlayer).not.toBeNull();
             expect(dialog()).toBeFalsy();
+            reportedError.verifyNoError();
         });
 
         it('can handle missing team season during add new player', async () => {
