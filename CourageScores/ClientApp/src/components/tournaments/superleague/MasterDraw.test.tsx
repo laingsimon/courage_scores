@@ -425,6 +425,8 @@ describe('MasterDraw', () => {
                 .round((r) => r.withMatch(sides, matchId))
                 .build();
 
+            x.sides = x.round!.matches?.flatMap((m) => [m.sideA!, m.sideB!]);
+
             return { ...x, build: () => x };
         }
 
@@ -714,6 +716,10 @@ describe('MasterDraw', () => {
                     equatableSide('PLAYER B', playerB),
                 ),
             ]);
+            expect(updatedTournament?.updated.sides).toEqual([
+                equatableSide('PLAYER A', playerA),
+                equatableSide('PLAYER B', playerB),
+            ]);
             expect(round.matchOptions![0].numberOfLegs).toEqual(7);
         });
 
@@ -732,6 +738,10 @@ describe('MasterDraw', () => {
                     equatableSide('SIDE B', player),
                 ),
             ]);
+            expect(updatedTournament?.updated.sides).toEqual([
+                equatableSide('PLAYER C', playerC),
+                equatableSide('SIDE B', player),
+            ]);
         });
 
         it('saves tournament when sideB changed for existing match', async () => {
@@ -747,6 +757,10 @@ describe('MasterDraw', () => {
                     equatableSide('SIDE A', player),
                     equatableSide('PLAYER D', playerD),
                 ),
+            ]);
+            expect(updatedTournament?.updated.sides).toEqual([
+                equatableSide('SIDE A', player),
+                equatableSide('PLAYER D', playerD),
             ]);
         });
 
@@ -789,6 +803,10 @@ describe('MasterDraw', () => {
                 ),
             ]);
             expect(round.matchOptions![0].numberOfLegs).toEqual(5);
+            expect(updatedTournament?.updated.sides).toEqual([
+                equatableSide('PLAYER & PLAYER', playerA, playerC),
+                equatableSide('PLAYER & PLAYER', playerB, playerD),
+            ]);
         });
 
         it('cannot change host when match exists', async () => {
@@ -811,6 +829,7 @@ describe('MasterDraw', () => {
             expect(updatedTournament?.save).toEqual(true);
             expect(updatedTournament?.updated.round?.matches).toEqual([]);
             expect(updatedTournament?.updated.round?.matchOptions).toEqual([]);
+            expect(updatedTournament?.updated.sides).toEqual([]);
         });
 
         it('does not delete match when cancelled', async () => {
