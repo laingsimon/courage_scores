@@ -150,6 +150,19 @@ public class UpdatePlayerCommandTests
         Assert.That(result.Errors, Is.EqualTo(["Player cannot be updated, not logged in"]));
     }
 
+    [Test]
+    public async Task ApplyUpdate_WhenNameIsEmpty_ReturnsUnsuccessful()
+    {
+        _update.Name = "  ";
+
+        var result = await _command
+            .ForPlayer(_teamPlayer.Id).InSeason(_season.Id).WithData(_update)
+            .ApplyUpdate(_team, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Is.EqualTo(["Player name cannot be empty"]));
+    }
+
     [TestCase(false, false, null)]
     [TestCase(false, false, UserTeamId)]
     [TestCase(false, true, null)]

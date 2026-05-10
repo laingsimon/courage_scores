@@ -90,6 +90,18 @@ public class UpdatePlayerCommand : IUpdateCommand<CosmosTeam, TeamPlayer>
             };
         }
 
+        if (string.IsNullOrWhiteSpace(_player?.Name))
+        {
+            return new ActionResult<TeamPlayer>
+            {
+                Success = false,
+                Errors =
+                {
+                    "Player name cannot be empty",
+                },
+            };
+        }
+
         var canManageTeams = user.Access?.ManageTeams == true;
         var canInputResultsForTeam = user.Access?.InputResults == true && user.TeamId == model.Id;
         if (!canManageTeams && !canInputResultsForTeam)
