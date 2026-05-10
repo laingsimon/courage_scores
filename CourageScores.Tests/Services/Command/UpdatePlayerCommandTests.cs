@@ -330,6 +330,29 @@ public class UpdatePlayerCommandTests
     }
 
     [Test]
+    public async Task ApplyUpdate_WhenAnotherPlayerExistsWithGivenName_ReturnsUnsuccessful()
+    {
+        _gameRepository.Setup(r => r.GetSome(It.IsAny<string>(), _token))
+            .Returns(TestUtilities.AsyncEnumerable<CosmosGame>());
+        var anotherPlayer = new TeamPlayer
+        {
+            Id = Guid.NewGuid(),
+            Name = "Another Player  "
+        };
+        _teamSeason.Players.Add(anotherPlayer);
+        _update.Name = anotherPlayer.Name.ToLower() + "     ";
+
+        var result = await _command
+            .ForPlayer(_teamPlayer.Id)
+            .InSeason(_season.Id)
+            .WithData(_update)
+            .ApplyUpdate(_team, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EqualTo(["1 other player(s) exist with the given name in this season"]));
+    }
+
+    [Test]
     public async Task ApplyUpdate_WhenSameTeamIdProvided_ReturnsSuccessful()
     {
         _gameRepository.Setup(r => r.GetSome(It.IsAny<string>(), _token))

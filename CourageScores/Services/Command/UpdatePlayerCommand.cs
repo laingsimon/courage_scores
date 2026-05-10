@@ -143,6 +143,21 @@ public class UpdatePlayerCommand : IUpdateCommand<CosmosTeam, TeamPlayer>
             };
         }
 
+        var playersWithSameName = teamSeason.Players
+            .Where(p => p.Id != _playerId && p.Deleted == null && p.Name.Trim().Equals(_player?.Name.Trim(), StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        if (playersWithSameName.Length > 0)
+        {
+            return new ActionResult<TeamPlayer>
+            {
+                Success = false,
+                Warnings =
+                {
+                    $"{playersWithSameName.Length} other player(s) exist with the given name in this season",
+                },
+            };
+        }
+
         if (player.Updated != _player!.LastUpdated)
         {
             return new ActionResult<TeamPlayer>
