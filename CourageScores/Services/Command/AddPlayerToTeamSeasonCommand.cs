@@ -64,6 +64,18 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
         _seasonId.ThrowIfNull($"SeasonId hasn't been set, ensure {nameof(ToSeason)} is called");
         _divisionId.ThrowIfNull($"DivisionId hasn't been set, ensure {nameof(ToDivision)} is called");
 
+        if (string.IsNullOrWhiteSpace(_player?.Name))
+        {
+            return new ActionResult<TeamPlayer>
+            {
+                Success = false,
+                Errors =
+                {
+                    "Player name cannot be empty",
+                },
+            };
+        }
+
         if (model.Deleted != null)
         {
             return new ActionResult<TeamPlayer>

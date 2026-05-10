@@ -64,6 +64,7 @@ public class AddPlayerToTeamSeasonCommandTests
     public async Task ApplyUpdate_WhenModelDeleted_ReturnsUnsuccessful()
     {
         _team.Deleted = new DateTime(2001, 02, 03);
+        _player.Name = "not-empty";
 
         var result = await _command.ForPlayer(_player).ToDivision(_division.Id).ToSeason(_season.Id).ApplyUpdate(_team, _token);
 
@@ -79,6 +80,7 @@ public class AddPlayerToTeamSeasonCommandTests
     public async Task ApplyUpdate_WhenNotLoggedIn_ReturnsUnsuccessful()
     {
         _user = null;
+        _player.Name = "not-empty";
 
         var result = await _command.ForPlayer(_player).ToDivision(_division.Id).ToSeason(_season.Id).ApplyUpdate(_team, _token);
 
@@ -97,6 +99,7 @@ public class AddPlayerToTeamSeasonCommandTests
     {
         _user.SetAccess(manageTeams: canManageTeams, inputResults: canInputResults);
         _user!.TeamId = userTeamId != null ? Guid.Parse(userTeamId) : null;
+        _player.Name = "not-empty";
 
         var result = await _command.ForPlayer(_player).ToDivision(_division.Id).ToSeason(_season.Id).ApplyUpdate(_team, _token);
 
@@ -111,6 +114,8 @@ public class AddPlayerToTeamSeasonCommandTests
     [Test]
     public async Task ApplyUpdate_WhenSeasonNotFound_ReturnsUnsuccessful()
     {
+        _player.Name = "not-empty";
+
         var result = await _command.ForPlayer(_player).ToDivision(_division.Id).ToSeason(Guid.NewGuid()).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
@@ -134,6 +139,7 @@ public class AddPlayerToTeamSeasonCommandTests
             Result = new TeamSeason(),
         };
         _addSeasonToTeamCommand.Setup(c => c.ApplyUpdate(_team, _token)).ReturnsAsync(addSeasonToTeamCommandResult);
+        _player.Name = "not-empty";
 
         await _command.ForPlayer(_player).ToDivision(_division.Id).ToSeason(_season.Id).ApplyUpdate(_team, _token);
 
@@ -156,6 +162,7 @@ public class AddPlayerToTeamSeasonCommandTests
             Success = true,
         };
         _addSeasonToTeamCommand.Setup(c => c.ApplyUpdate(_team, _token)).ReturnsAsync(addSeasonToTeamCommandResult);
+        _player.Name = "not-empty";
 
         var result = await _command.ForPlayer(_player).ToDivision(_division.Id).ToSeason(_season.Id).AddSeasonToTeamIfMissing(false).ApplyUpdate(_team, _token);
 
@@ -180,6 +187,7 @@ public class AddPlayerToTeamSeasonCommandTests
             Result = new TeamSeason(),
         };
         _addSeasonToTeamCommand.Setup(c => c.ApplyUpdate(_team, _token)).ReturnsAsync(addSeasonToTeamCommandResult);
+        _player.Name = "not-empty";
 
         var result = await _command.ForPlayer(_player).ToDivision(_division.Id).ToSeason(_season.Id).ApplyUpdate(_team, _token);
 
@@ -189,6 +197,34 @@ public class AddPlayerToTeamSeasonCommandTests
         ]));
         Assert.That(result.Messages, Is.EqualTo([
             "FAILURE"
+        ]));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenPlayerNameIsEmpty_ReturnsUnsuccessful()
+    {
+        _team.Seasons.Add(new TeamSeason
+        {
+            Id = Guid.NewGuid(),
+            SeasonId = _season.Id,
+            Players =
+            {
+                new TeamPlayer
+                {
+                    Name = "Captain America",
+                    Deleted = null,
+                },
+            },
+        });
+        _player.Name = "  ";
+
+        var result = await _command.ForPlayer(_player).ToDivision(_division.Id).ToSeason(_season.Id).ApplyUpdate(_team, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Is.EqualTo([
+            "Player name cannot be empty"
         ]));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
@@ -207,6 +243,7 @@ public class AddPlayerToTeamSeasonCommandTests
             Result = null,
         };
         _addSeasonToTeamCommand.Setup(c => c.ApplyUpdate(_team, _token)).ReturnsAsync(addSeasonToTeamCommandResult);
+        _player.Name = "not-empty";
 
         var result = await _command.ForPlayer(_player).ToDivision(_division.Id).ToSeason(_season.Id).ApplyUpdate(_team, _token);
 
