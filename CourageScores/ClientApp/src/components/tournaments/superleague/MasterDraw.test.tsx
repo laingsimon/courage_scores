@@ -198,6 +198,16 @@ describe('MasterDraw', () => {
         newSaygResponse = undefined;
     });
 
+    function propsBuilder() {
+        return new tournamentContainerPropsBuilder();
+    }
+
+    function propsBuilderFor(tournamentData?: TournamentGameDto) {
+        return new tournamentContainerPropsBuilder({
+            tournamentData,
+        });
+    }
+
     async function setTournamentData(u: TournamentGameDto, s?: boolean) {
         updatedTournament = { updated: u, save: s };
     }
@@ -240,8 +250,7 @@ describe('MasterDraw', () => {
                 reportedError,
             ),
             <TournamentContainer
-                {...(containerProps ??
-                    new tournamentContainerPropsBuilder().build())}>
+                {...(containerProps ?? propsBuilder().build())}>
                 <MasterDraw {...props} />
             </TournamentContainer>,
             '/test',
@@ -370,9 +379,7 @@ describe('MasterDraw', () => {
 
         it('already playing player in collapsed drop-down with their name only', async () => {
             const team = teamBuilder('HOST').forSeason(season, null, [player]);
-            const containerProps = new tournamentContainerPropsBuilder()
-                .withAlreadyPlaying(alreadyPlaying('BOARD 2', player))
-                .build();
+            const playing = alreadyPlaying('BOARD 2', player);
             await renderComponent(
                 props({
                     tournamentData: tournament
@@ -382,7 +389,7 @@ describe('MasterDraw', () => {
                         .build(),
                 }),
                 user({}),
-                containerProps,
+                propsBuilder().withAlreadyPlaying(playing).build(),
                 [team.build()],
             );
 
@@ -418,12 +425,15 @@ describe('MasterDraw', () => {
         const clearScoreMsg =
             'Clear match score (to allow scores to be re-recorded?)';
         const masterDrawSelector = 'div[datatype="master-draw"]';
+        const matchOptions = matchOptionsBuilder().numberOfLegs(7).build();
 
         function getSideAvBTournament(saygId?: string, matchId?: string) {
             const sides = withSides('SIDE A', 'SIDE B', saygId);
             const x = tournament
                 .round((r) => r.withMatch(sides, matchId))
                 .build();
+
+            x.sides = x.round!.matches?.flatMap((m) => [m.sideA!, m.sideB!]);
 
             return { ...x, build: () => x };
         }
@@ -687,14 +697,10 @@ describe('MasterDraw', () => {
         });
 
         it('saves tournament when both players are set', async () => {
-            const mo = matchOptionsBuilder().numberOfLegs(7).build();
-            const tournamentProps = new tournamentContainerPropsBuilder()
-                .withMatchOptionDefaults(mo)
-                .build();
             await renderComponent(
                 props({ tournamentData: tournament.build() }),
                 user({}),
-                tournamentProps,
+                propsBuilder().withMatchOptionDefaults(matchOptions).build(),
                 [teamA, teamB, teamC],
                 season,
             );
@@ -708,12 +714,10 @@ describe('MasterDraw', () => {
 
             expect(updatedTournament!.save).toEqual(true);
             const round = updatedTournament!.updated.round!;
-            expect(round.matches).toEqual([
-                equatableMatch(
-                    equatableSide('PLAYER A', playerA),
-                    equatableSide('PLAYER B', playerB),
-                ),
-            ]);
+            const sideA = equatableSide('PLAYER A', playerA);
+            const sideB = equatableSide('PLAYER B', playerB);
+            expect(round.matches).toEqual([equatableMatch(sideA, sideB)]);
+            expect(updatedTournament?.updated.sides).toEqual([sideA, sideB]);
             expect(round.matchOptions![0].numberOfLegs).toEqual(7);
         });
 
@@ -726,39 +730,34 @@ describe('MasterDraw', () => {
                 .select('PLAYER C');
 
             expect(updatedTournament!.save).toEqual(true);
-            expect(updatedTournament!.updated.round?.matches).toEqual([
-                equatableMatch(
-                    equatableSide('PLAYER C', playerC),
-                    equatableSide('SIDE B', player),
-                ),
-            ]);
+            const sideA = equatableSide('PLAYER C', playerC);
+            const sideB = equatableSide('SIDE B', player);
+            const updatedMatches = updatedTournament!.updated.round?.matches;
+            expect(updatedMatches).toEqual([equatableMatch(sideA, sideB)]);
+            expect(updatedTournament?.updated.sides).toEqual([sideA, sideB]);
         });
 
         it('saves tournament when sideB changed for existing match', async () => {
             await render(getSideAvBTournament());
 
-            const selector =
-                'table tbody tr:first-child td:nth-child(4) .dropdown-menu';
-            await context.required(selector).select('PLAYER D');
+            await context
+                .required('table tbody tr:first-child')
+                .required('td:nth-child(4) .dropdown-menu')
+                .select('PLAYER D');
 
             expect(updatedTournament!.save).toEqual(true);
-            expect(updatedTournament!.updated.round?.matches).toEqual([
-                equatableMatch(
-                    equatableSide('SIDE A', player),
-                    equatableSide('PLAYER D', playerD),
-                ),
-            ]);
+            const sideA = equatableSide('SIDE A', player);
+            const sideB = equatableSide('PLAYER D', playerD);
+            const updatedMatches = updatedTournament!.updated.round?.matches;
+            expect(updatedMatches).toEqual([equatableMatch(sideA, sideB)]);
+            expect(updatedTournament?.updated.sides).toEqual([sideA, sideB]);
         });
 
         it('saves tournament when all pairs players are set', async () => {
-            const mo = matchOptionsBuilder().numberOfLegs(7).build();
-            const tournamentProps = new tournamentContainerPropsBuilder()
-                .withMatchOptionDefaults(mo)
-                .build();
             await renderComponent(
                 props({ tournamentData: tournament.build() }),
                 user({}),
-                tournamentProps,
+                propsBuilder().withMatchOptionDefaults(matchOptions).build(),
                 [teamA, teamB, teamC],
                 season,
             );
@@ -782,13 +781,11 @@ describe('MasterDraw', () => {
 
             expect(updatedTournament!.save).toEqual(true);
             const round = updatedTournament!.updated.round!;
-            expect(round.matches).toEqual([
-                equatableMatch(
-                    equatableSide('PLAYER & PLAYER', playerA, playerC),
-                    equatableSide('PLAYER & PLAYER', playerB, playerD),
-                ),
-            ]);
+            const sideA = equatableSide('PLAYER & PLAYER', playerA, playerC);
+            const sideB = equatableSide('PLAYER & PLAYER', playerB, playerD);
+            expect(round.matches).toEqual([equatableMatch(sideA, sideB)]);
             expect(round.matchOptions![0].numberOfLegs).toEqual(5);
+            expect(updatedTournament?.updated.sides).toEqual([sideA, sideB]);
         });
 
         it('cannot change host when match exists', async () => {
@@ -811,6 +808,7 @@ describe('MasterDraw', () => {
             expect(updatedTournament?.save).toEqual(true);
             expect(updatedTournament?.updated.round?.matches).toEqual([]);
             expect(updatedTournament?.updated.round?.matchOptions).toEqual([]);
+            expect(updatedTournament?.updated.sides).toEqual([]);
         });
 
         it('does not delete match when cancelled', async () => {
@@ -841,9 +839,7 @@ describe('MasterDraw', () => {
             await renderComponent(
                 props({ tournamentData: tournamentData }),
                 canRecordSayg,
-                new tournamentContainerPropsBuilder({
-                    tournamentData,
-                }).build(),
+                propsBuilderFor(tournamentData).build(),
             );
 
             await context
@@ -858,14 +854,11 @@ describe('MasterDraw', () => {
             const saygId = createTemporaryId();
             const matchId = createTemporaryId();
             const tournamentData = getSideAvBTournament(saygId, matchId);
-            const containerProps = new tournamentContainerPropsBuilder({
-                tournamentData,
-            });
 
             await renderComponent(
                 props({ tournamentData: tournamentData }),
                 canRecordSayg,
-                containerProps.build(),
+                propsBuilderFor(tournamentData).build(),
                 undefined,
                 undefined,
                 `/test#${saygId}`,
@@ -886,9 +879,7 @@ describe('MasterDraw', () => {
         });
 
         it('cannot select a player that is already playing in another tournament', async () => {
-            const containerProps = new tournamentContainerPropsBuilder()
-                .withAlreadyPlaying(alreadyPlaying('BOARD 2', playerA))
-                .build();
+            const playing = alreadyPlaying('BOARD 2', playerA);
             await renderComponent(
                 props({
                     tournamentData: tournament
@@ -902,7 +893,7 @@ describe('MasterDraw', () => {
                         .build(),
                 }),
                 user({}),
-                containerProps,
+                propsBuilder().withAlreadyPlaying(playing).build(),
                 [teamA],
             );
 
@@ -911,8 +902,7 @@ describe('MasterDraw', () => {
                 .required('table tbody tr:first-child td:nth-child(2)');
             await home.required('.dropdown-toggle').click();
 
-            const options = home.all('.dropdown-item');
-            const optionText = options.map((o) => o.text());
+            const optionText = home.all('.dropdown-item').map((o) => o.text());
             expect(optionText).toContain('🚫 PLAYER A (playing on BOARD 2)');
         });
     });
@@ -958,7 +948,9 @@ describe('MasterDraw', () => {
                     .saygId(saygId);
         }
 
-        async function render(saygId: string, c?: Partial<IMasterDrawProps>) {
+        async function render(c?: Partial<IMasterDrawProps>) {
+            const saygId = createTemporaryId();
+
             await renderComponent(
                 props({
                     ...c,
@@ -972,11 +964,12 @@ describe('MasterDraw', () => {
                 undefined,
                 `/test/#${saygId}`,
             );
+
+            return saygId;
         }
 
         it('does not patch in 180s', async () => {
-            const saygId = createTemporaryId();
-            await render(saygId);
+            await render();
 
             await keyPad(context, ['1', '8', '0', ENTER_SCORE_BUTTON]);
 
@@ -984,8 +977,7 @@ describe('MasterDraw', () => {
         });
 
         it('does not patch in hi-checks', async () => {
-            const saygId = createTemporaryId();
-            await render(saygId, { patchData });
+            const saygId = await render({ patchData });
 
             await enterScores(
                 context,
@@ -994,17 +986,15 @@ describe('MasterDraw', () => {
             );
             await checkoutWith(context, '2');
 
-            expect(patchedData).toEqual([
-                {
-                    ...sideBWin,
-                    saygId: saygId,
-                },
-            ]);
+            const expected = {
+                ...sideBWin,
+                saygId,
+            };
+            expect(patchedData).toEqual([expected]);
         });
 
         it('records regular checkout with a patch', async () => {
-            const saygId = createTemporaryId();
-            await render(saygId, { patchData });
+            const saygId = await render({ patchData });
 
             await enterScores(
                 context,
@@ -1013,12 +1003,11 @@ describe('MasterDraw', () => {
             );
             await checkoutWith(context, '2');
 
-            expect(patchedData).toEqual([
-                {
-                    ...sideBWin,
-                    saygId: saygId,
-                },
-            ]);
+            const expected = {
+                ...sideBWin,
+                saygId,
+            };
+            expect(patchedData).toEqual([expected]);
         });
     });
 });
