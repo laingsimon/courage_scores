@@ -90,6 +90,18 @@ public class UpdatePlayerCommand : IUpdateCommand<CosmosTeam, TeamPlayer>
             };
         }
 
+        if (string.IsNullOrWhiteSpace(_player?.Name))
+        {
+            return new ActionResult<TeamPlayer>
+            {
+                Success = false,
+                Errors =
+                {
+                    "Player name cannot be empty",
+                },
+            };
+        }
+
         var canManageTeams = user.Access?.ManageTeams == true;
         var canInputResultsForTeam = user.Access?.InputResults == true && user.TeamId == model.Id;
         if (!canManageTeams && !canInputResultsForTeam)
@@ -139,6 +151,21 @@ public class UpdatePlayerCommand : IUpdateCommand<CosmosTeam, TeamPlayer>
                 Warnings =
                 {
                     $"Team does not have a player with this id for the {season.Name} season",
+                },
+            };
+        }
+
+        var playersWithSameName = teamSeason.Players
+            .Where(p => p.Id != _playerId && p.Deleted == null && p.Name.Trim().Equals(_player?.Name.Trim(), StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        if (playersWithSameName.Length > 0)
+        {
+            return new ActionResult<TeamPlayer>
+            {
+                Success = false,
+                Warnings =
+                {
+                    $"{playersWithSameName.Length} other player(s) exist with the given name in this season",
                 },
             };
         }
