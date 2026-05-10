@@ -135,14 +135,15 @@ export function Score() {
                     return;
                 }
 
+                const firstNewPlayer = newPlayerDetails.name.split('\n')[0]?.trim();
                 const newPlayers: TeamPlayerDto[] =
                     updatedTeamSeason.players!.filter(
                         (p: TeamPlayerDto) =>
-                            p.name === newPlayerDetails.name.trim(),
+                            p.name === firstNewPlayer,
                     );
                 if (!any(newPlayers)) {
                     onError(
-                        `Could not find new player in updated season, looking for player with name: "${newPlayerDetails.name.trim()}"`,
+                        `Could not find new player in updated season, looking for player with name: "${firstNewPlayer}"`,
                     );
                     return;
                 }

@@ -527,6 +527,7 @@ describe('Score', () => {
                         .seasons!.map((ts) => modify({ ...ts }, player))
                         .filter(() => truncate !== true),
                 };
+                team.seasons = newTeam.seasons;
 
                 return {
                     success: true,
