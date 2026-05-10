@@ -515,6 +515,20 @@ describe('Score', () => {
             return ts;
         }
 
+        function addPlayerToSeasonDifferentCase(
+            ts: TeamSeasonDto,
+            player: ICreatedPlayer,
+        ) {
+            if (ts.seasonId === player.seasonId) {
+                ts.players = (ts.players ?? []).concat({
+                    ...player.newPlayer,
+                    name: player.newPlayer.name.toLowerCase(),
+                });
+            }
+
+            return ts;
+        }
+
         function modifySeasonOnAdd(
             modify: (ts: TeamSeasonDto, p: ICreatedPlayer) => TeamSeasonDto,
             truncate?: boolean,
@@ -667,6 +681,20 @@ describe('Score', () => {
         it('can add multiple players to home team', async () => {
             await renderComponent(fixture.id, appData);
             newPlayerApiResult = modifySeasonOnAdd(addPlayerToSeason);
+
+            await createANewPlayer('NEW PLAYER 1\nNEW PLAYER 2', 'home', true);
+
+            expect(teamsReloaded).toEqual(true);
+            expect(createdPlayer).not.toBeNull();
+            expect(dialog()).toBeFalsy();
+            reportedError.verifyNoError();
+        });
+
+        it('can add multiple players when first comes back with different case', async () => {
+            await renderComponent(fixture.id, appData);
+            newPlayerApiResult = modifySeasonOnAdd(
+                addPlayerToSeasonDifferentCase,
+            );
 
             await createANewPlayer('NEW PLAYER 1\nNEW PLAYER 2', 'home', true);
 

@@ -135,11 +135,14 @@ export function Score() {
                     return;
                 }
 
-                const firstNewPlayer = newPlayerDetails.name.split('\n')[0]?.trim();
+                const firstNewPlayer = newPlayerDetails.name
+                    .split('\n')[0]
+                    ?.trim();
                 const newPlayers: TeamPlayerDto[] =
                     updatedTeamSeason.players!.filter(
                         (p: TeamPlayerDto) =>
-                            p.name === firstNewPlayer,
+                            p.name.trim().toLowerCase() ===
+                            firstNewPlayer.toLowerCase(),
                     );
                 if (!any(newPlayers)) {
                     onError(
