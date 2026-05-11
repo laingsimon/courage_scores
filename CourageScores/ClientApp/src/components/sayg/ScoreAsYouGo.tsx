@@ -121,6 +121,7 @@ export function ScoreAsYouGo({
     async function legChanged(
         newLeg: LegDto,
         legIndex: number,
+        forceSave?: boolean,
     ): Promise<ScoreAsYouGoDto> {
         const newData: ScoreAsYouGoDto = Object.assign({}, data);
         if (data.legs) {
@@ -128,7 +129,7 @@ export function ScoreAsYouGo({
         }
         newData.legs[legIndex] = newLeg;
         if (onChange) {
-            await onChange(newData);
+            await onChange(newData, forceSave);
         }
         return newData;
     }
@@ -266,9 +267,11 @@ export function ScoreAsYouGo({
             leg={getLeg(legIndex)}
             home={home}
             away={away || ''}
-            onChange={(newLeg: LegDto) => legChanged(newLeg, legIndex)}
-            onChangePrevious={(newLeg: LegDto) =>
-                legChanged(newLeg, legIndex - 1)
+            onChange={async (newLeg: LegDto) =>
+                await legChanged(newLeg, legIndex)
+            }
+            onChangePrevious={async (newLeg: LegDto) =>
+                await legChanged(newLeg, legIndex - 1, true)
             }
             onLegComplete={recordWinner}
             on180={on180}
