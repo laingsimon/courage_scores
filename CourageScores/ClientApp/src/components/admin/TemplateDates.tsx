@@ -104,6 +104,11 @@ export function TemplateDates({
             </li>
             {dates.map((d: DateTemplateDto, index: number) => (
                 <li className="list-group-item position-relative" key={index}>
+                    {index === Math.floor(dates.length / 2) ? (
+                        <div className="position-absolute left-negative-100 top-negative-15 bg-warning-subtle px-2">
+                            Mid season &rarr;
+                        </div>
+                    ) : null}
                     <small className="position-absolute left-0 ps-0 pt-1 text-end width-10">
                         {index + 1}{' '}
                     </small>
