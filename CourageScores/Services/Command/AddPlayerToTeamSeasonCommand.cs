@@ -165,7 +165,10 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             teamSeason = result.Result;
         }
 
-        var existingPlayer = teamSeason.Players.SingleOrDefault(p => p.Name.Trim().Equals(_player!.Name.Trim(), StringComparison.OrdinalIgnoreCase));
+        // should use SingleOrDefault, but as there are a couple of places where 2+ players exist with the same name
+        // I've had to switch to FirstOrDefault to prevent issues creating the player again
+        // (which will result in one of the players being used instead of creating a new player)
+        var existingPlayer = teamSeason.Players.FirstOrDefault(p => p.Name.Trim().Equals(_player!.Name.Trim(), StringComparison.OrdinalIgnoreCase));
         if (existingPlayer != null)
         {
             if (existingPlayer.Deleted == null)
