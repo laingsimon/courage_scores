@@ -413,7 +413,7 @@ export function PlayLeg({
                                     savingInput ||
                                     recordingCheckout !== undefined
                                 }
-                                className="btn btn-success margin-right fs-3 my-2 flex-grow-1"
+                                className={`btn ${!recordingCheckout || recordingCheckout === 1 ? 'btn-success' : 'btn-secondary'} margin-right fs-3 my-2 flex-grow-1`}
                                 onClick={async () =>
                                     await setLastThrowNoOfDarts(1)
                                 }>
@@ -427,7 +427,7 @@ export function PlayLeg({
                                     savingInput ||
                                     recordingCheckout !== undefined
                                 }
-                                className="btn btn-success margin-right fs-3 my-2 flex-grow-1"
+                                className={`btn ${!recordingCheckout || recordingCheckout === 2 ? 'btn-success' : 'btn-secondary'} margin-right fs-3 my-2 flex-grow-1`}
                                 onClick={async () =>
                                     await setLastThrowNoOfDarts(2)
                                 }>
@@ -441,7 +441,7 @@ export function PlayLeg({
                                     savingInput ||
                                     recordingCheckout !== undefined
                                 }
-                                className="btn btn-success margin-right fs-3 my-2 flex-grow-1"
+                                className={`btn ${!recordingCheckout || recordingCheckout === 3 ? 'btn-success' : 'btn-secondary'} margin-right fs-3 my-2 flex-grow-1`}
                                 onClick={async () =>
                                     await setLastThrowNoOfDarts(3)
                                 }>
