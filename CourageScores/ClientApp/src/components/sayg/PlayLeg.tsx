@@ -61,7 +61,9 @@ export function PlayLeg({
     numberOfLegs,
     changeNumberOfLegs,
 }: IPlayLegProps) {
-    const [savingInput, setSavingInput] = useState<boolean>(false);
+    const [recordingCheckout, setRecordingCheckout] = useState<
+        number | undefined
+    >(undefined);
     const [showCheckout, setShowCheckout] = useState<'home' | 'away' | null>(
         null,
     );
@@ -102,9 +104,6 @@ export function PlayLeg({
             collapsedText: '🦺️',
         },
     ];
-    const [recordingCheckout, setRecordingCheckout] = useState<
-        number | undefined
-    >(undefined);
 
     useEffect(() => {
         setScore('');
@@ -196,7 +195,6 @@ export function PlayLeg({
 
     async function addThrow(score: number) {
         try {
-            setSavingInput(true);
             const accumulatorName = leg!.currentThrow as 'home' | 'away';
             const newLeg: LegDto = Object.assign({}, leg);
             const accumulator: LegCompetitorScoreDto = newLeg[accumulatorName];
@@ -230,8 +228,6 @@ export function PlayLeg({
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
-        } finally {
-            setSavingInput(false);
         }
     }
 
@@ -409,10 +405,6 @@ export function PlayLeg({
                         <h6>How many darts to checkout?</h6>
                         <div className="d-flex flex-row justify-content-stretch">
                             <button
-                                disabled={
-                                    savingInput ||
-                                    recordingCheckout !== undefined
-                                }
                                 className={`btn ${!recordingCheckout || recordingCheckout === 1 ? 'btn-success' : 'btn-secondary'} margin-right fs-3 my-2 flex-grow-1`}
                                 onClick={async () =>
                                     await setLastThrowNoOfDarts(1)
@@ -423,10 +415,6 @@ export function PlayLeg({
                                 {CHECKOUT_1_DART}
                             </button>
                             <button
-                                disabled={
-                                    savingInput ||
-                                    recordingCheckout !== undefined
-                                }
                                 className={`btn ${!recordingCheckout || recordingCheckout === 2 ? 'btn-success' : 'btn-secondary'} margin-right fs-3 my-2 flex-grow-1`}
                                 onClick={async () =>
                                     await setLastThrowNoOfDarts(2)
@@ -437,10 +425,6 @@ export function PlayLeg({
                                 {CHECKOUT_2_DART}
                             </button>
                             <button
-                                disabled={
-                                    savingInput ||
-                                    recordingCheckout !== undefined
-                                }
                                 className={`btn ${!recordingCheckout || recordingCheckout === 3 ? 'btn-success' : 'btn-secondary'} margin-right fs-3 my-2 flex-grow-1`}
                                 onClick={async () =>
                                     await setLastThrowNoOfDarts(3)
