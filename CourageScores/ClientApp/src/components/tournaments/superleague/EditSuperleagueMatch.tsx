@@ -76,9 +76,21 @@ export function EditSuperleagueMatch({
     const matchOptions: GameMatchOptionDto = {
         numberOfLegs,
     };
+    const canManagePlayers = hasAccess(
+        account,
+        (a) => a.managePlayers && a.manageTeams,
+    );
     const newPlayer: IBootstrapDropdownItem = {
-        text: '➕ New Player/s',
+        text: canManagePlayers ? (
+            '➕ New Player/s'
+        ) : (
+            <span className="text-secondary">
+                ➕ New Player/s (you need 'Manage players' and 'Manage teams'
+                permission)
+            </span>
+        ),
         value: NEW_PLAYER,
+        disabled: !canManagePlayers,
     };
     const hostPlayers: IBootstrapDropdownItem[] = getPlayersForTeamName(
         tournamentData.host!,
@@ -92,7 +104,6 @@ export function EditSuperleagueMatch({
         useState<TeamDto | null>(null);
     const [newPlayerDetails, setNewPlayerDetails] =
         useState<EditTeamPlayerDto | null>(null);
-    const canManagePlayers = hasAccess(account, (a) => a.managePlayers);
     const [editingPlayer, setEditingPlayer] = useState<TeamPlayerDto | null>(
         null,
     );
@@ -390,16 +401,17 @@ export function EditSuperleagueMatch({
     }
 
     function appendNewPlayer(players: IBootstrapDropdownItem[]) {
-        if (canManagePlayers) {
-            const indexOfFirstDisabledPlayer = players.findIndex(
-                (op) => op.disabled,
-            );
-            const enabledPlayers = take(players, indexOfFirstDisabledPlayer);
-            const disabledPlayers = skip(players, indexOfFirstDisabledPlayer);
-            return enabledPlayers.concat(newPlayer).concat(disabledPlayers);
-        }
+        const indexOfFirstDisabledPlayer = players.findIndex(
+            (op) => op.disabled && op.value !== newPlayer.value, // TODO: Do something more intelligent here
+        );
+        const noOfDisabledPlayers =
+            indexOfFirstDisabledPlayer === -1
+                ? players.length
+                : indexOfFirstDisabledPlayer;
 
-        return players;
+        const enabledPlayers = take(players, noOfDisabledPlayers);
+        const disabledPlayers = skip(players, noOfDisabledPlayers);
+        return enabledPlayers.concat(newPlayer).concat(disabledPlayers);
     }
 
     function prependSelectedPlayer(

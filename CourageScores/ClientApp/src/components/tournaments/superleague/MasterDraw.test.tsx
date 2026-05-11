@@ -426,6 +426,10 @@ describe('MasterDraw', () => {
             'Clear match score (to allow scores to be re-recorded?)';
         const masterDrawSelector = 'div[datatype="master-draw"]';
         const matchOptions = matchOptionsBuilder().numberOfLegs(7).build();
+        const canManagePlayersUser = user({
+            managePlayers: true,
+            manageTeams: true,
+        });
 
         function getSideAvBTournament(saygId?: string, matchId?: string) {
             const sides = withSides('SIDE A', 'SIDE B', saygId);
@@ -545,7 +549,7 @@ describe('MasterDraw', () => {
         });
 
         it('can add host player', async () => {
-            await render(tournament, user({ managePlayers: true }));
+            await render(tournament, canManagePlayersUser);
             setPlayerCreatedCallbackForTeam(teamA);
 
             const dropDownSelector = 'td:nth-child(2) .dropdown-menu';
@@ -567,7 +571,7 @@ describe('MasterDraw', () => {
         });
 
         it('can add opponent player', async () => {
-            await render(tournament, user({ managePlayers: true }));
+            await render(tournament, canManagePlayersUser);
             setPlayerCreatedCallbackForTeam(teamB);
 
             const dropDownSelector = 'td:nth-child(4) .dropdown-menu';
@@ -589,7 +593,7 @@ describe('MasterDraw', () => {
         });
 
         it('can close add player dialog', async () => {
-            await render(tournament, user({ managePlayers: true }));
+            await render(tournament, canManagePlayersUser);
             await getNewSinglesMatchRow()
                 .required('td:nth-child(2) .dropdown-menu')
                 .select('➕ New Player/s');
@@ -603,7 +607,7 @@ describe('MasterDraw', () => {
             const tournament = getSideAvBTournament();
             tournament.round!.matches![0].sideA!.players = [playerD];
             tournament.build = () => tournament;
-            await render(tournament, user({ managePlayers: true }));
+            await render(tournament, canManagePlayersUser);
 
             const selector = 'table tbody tr:first-child td:nth-child(2)';
             await editButton(context.required(selector)).click();
@@ -614,7 +618,7 @@ describe('MasterDraw', () => {
         });
 
         it('can edit host player', async () => {
-            await render(getSideAvBTournament(), user({ managePlayers: true }));
+            await render(getSideAvBTournament(), canManagePlayersUser);
 
             const selector = 'table tbody tr:first-child td:nth-child(2)';
             await editButton(context.required(selector)).click();
@@ -643,7 +647,7 @@ describe('MasterDraw', () => {
         });
 
         it('can edit opponent player', async () => {
-            await render(getSideAvBTournament(), user({ managePlayers: true }));
+            await render(getSideAvBTournament(), canManagePlayersUser);
 
             const selector = 'table tbody tr:first-child td:nth-child(4)';
             await editButton(context.required(selector)).click();
@@ -672,7 +676,7 @@ describe('MasterDraw', () => {
         });
 
         it('can close edit player dialog', async () => {
-            await render(getSideAvBTournament(), user({ managePlayers: true }));
+            await render(getSideAvBTournament(), canManagePlayersUser);
 
             const selector = 'table tbody tr:first-child td:nth-child(2)';
             await editButton(context.required(selector)).click();
@@ -683,10 +687,7 @@ describe('MasterDraw', () => {
         });
 
         it('reports error if team cannot be found', async () => {
-            await render(
-                tournament.host('TEAM A '),
-                user({ managePlayers: true }),
-            );
+            await render(tournament.host('TEAM A '), canManagePlayersUser);
             await getNewSinglesMatchRow()
                 .required('td:nth-child(2) .dropdown-menu')
                 .select('➕ New Player/s');
