@@ -5,7 +5,10 @@ import { ErrorDisplay } from '../common/ErrorDisplay';
 import { ViewHealthCheck } from '../division_health/ViewHealthCheck';
 import { valueChanged } from '../../helpers/events';
 import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { TemplateTextEditor } from './TemplateTextEditor';
+import {
+    excludePropertiesFromEdit,
+    TemplateTextEditor,
+} from './TemplateTextEditor';
 import { TemplateVisualEditor } from './TemplateVisualEditor';
 import { useLocation } from 'react-router';
 import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto';
@@ -34,6 +37,7 @@ export function Templates() {
     const [shouldRefreshHealth, setShouldRefreshHealth] =
         useState<boolean>(false);
     const location = useLocation();
+    const [copied, setCopied] = useState<boolean>(false);
 
     async function loadTemplates() {
         try {
@@ -96,6 +100,16 @@ export function Templates() {
         [shouldRefreshHealth, selected],
     );
 
+    useEffect(() => {
+        if (!copied) {
+            return;
+        }
+
+        window.setTimeout(() => {
+            setCopied(false);
+        }, 2000);
+    }, [copied]);
+
     async function refreshHealth() {
         setShouldRefreshHealth(false);
         const response: IClientActionResultDto<SeasonHealthCheckResultDto> =
@@ -123,6 +137,7 @@ export function Templates() {
     function setEditingTemplate(t: EditTemplateDto) {
         setValid(true);
         setSelected(Object.assign({}, t));
+        setCopied(false);
     }
 
     function isSelected(t: TemplateDto) {
@@ -246,6 +261,13 @@ export function Templates() {
         }
     }
 
+    async function copyTemplate() {
+        const json = JSON.stringify(selected, excludePropertiesFromEdit, '  ');
+        await navigator.clipboard.writeText(json);
+
+        setCopied(true);
+    }
+
     async function updateTemplate(newTemplate: TemplateDto) {
         setSelected(newTemplate);
         setShouldRefreshHealth(true);
@@ -334,12 +356,22 @@ export function Templates() {
                                 Save
                             </button>
                             {selected && selected.id ? (
-                                <button
-                                    className="btn btn-danger margin-right"
-                                    onClick={deleteTemplate}>
-                                    {deleting ? <LoadingSpinnerSmall /> : null}
-                                    Delete
-                                </button>
+                                <>
+                                    <button
+                                        className="btn btn-primary margin-right"
+                                        onClick={copyTemplate}>
+                                        Copy
+                                        {copied ? ' ✅' : null}
+                                    </button>
+                                    <button
+                                        className="btn btn-danger margin-right"
+                                        onClick={deleteTemplate}>
+                                        {deleting ? (
+                                            <LoadingSpinnerSmall />
+                                        ) : null}
+                                        Delete
+                                    </button>
+                                </>
                             ) : null}
                         </div>
                         {selected.templateHealth ? (
