@@ -24,6 +24,7 @@ import { usePreferences } from '../common/PreferencesContainer';
 import { NumberKeyboard } from '../common/NumberKeyboard';
 import { LegPlayerSequenceDto } from '../../interfaces/models/dtos/Game/Sayg/LegPlayerSequenceDto';
 import { DebugOptions } from '../common/DebugOptions';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
 
 export interface IPlayLegProps {
     leg?: LegDto;
@@ -101,6 +102,9 @@ export function PlayLeg({
             collapsedText: '🦺️',
         },
     ];
+    const [recordingCheckout, setRecordingCheckout] = useState<
+        number | undefined
+    >(undefined);
 
     useEffect(() => {
         setScore('');
@@ -232,36 +236,48 @@ export function PlayLeg({
     }
 
     async function setLastThrowNoOfDarts(noOfDarts: number) {
-        const legToEdit = canEditPreviousCheckout ? previousLeg : leg;
-        const accumulatorName: 'home' | 'away' = showCheckout!;
-        const newLeg: LegDto = Object.assign({}, legToEdit);
-        const accumulator: LegCompetitorScoreDto = newLeg[accumulatorName];
-        const lastThrow: LegThrowDto =
-            accumulator.throws![accumulator.throws!.length - 1];
-        const lastScore: number = lastThrow.score || 0;
+        /* istanbul ignore next */
+        if (recordingCheckout) {
+            /* istanbul ignore next */
+            return;
+        }
 
-        if (lastScore >= 100 && !canEditPreviousCheckout) {
-            // hi-check
-            if (onHiCheck) {
-                await onHiCheck(accumulatorName, lastScore);
+        setRecordingCheckout(noOfDarts);
+
+        try {
+            const legToEdit = canEditPreviousCheckout ? previousLeg : leg;
+            const accumulatorName: 'home' | 'away' = showCheckout!;
+            const newLeg: LegDto = Object.assign({}, legToEdit);
+            const accumulator: LegCompetitorScoreDto = newLeg[accumulatorName];
+            const lastThrow: LegThrowDto =
+                accumulator.throws![accumulator.throws!.length - 1];
+            const lastScore: number = lastThrow.score || 0;
+
+            if (lastScore >= 100 && !canEditPreviousCheckout) {
+                // hi-check
+                if (onHiCheck) {
+                    await onHiCheck(accumulatorName, lastScore);
+                }
             }
-        }
 
-        lastThrow.noOfDarts = noOfDarts;
-        accumulator.noOfDarts = sum(
-            accumulator.throws,
-            (thr: LegThrowDto) => thr.noOfDarts || 0,
-        );
-        accumulator.score = getScoreFromThrows(
-            leg?.startingScore || 0,
-            accumulator.throws,
-        );
-        if (canEditPreviousCheckout) {
-            await onChangePrevious(newLeg);
-        } else {
-            await onLegComplete(accumulatorName, newLeg);
+            lastThrow.noOfDarts = noOfDarts;
+            accumulator.noOfDarts = sum(
+                accumulator.throws,
+                (thr: LegThrowDto) => thr.noOfDarts || 0,
+            );
+            accumulator.score = getScoreFromThrows(
+                leg?.startingScore || 0,
+                accumulator.throws,
+            );
+            if (canEditPreviousCheckout) {
+                await onChangePrevious(newLeg);
+            } else {
+                await onLegComplete(accumulatorName, newLeg);
+            }
+            setShowCheckout(null);
+        } finally {
+            setRecordingCheckout(undefined);
         }
-        setShowCheckout(null);
     }
 
     async function cancelCheckout() {
@@ -384,34 +400,54 @@ export function PlayLeg({
                 </div>
             ) : null}
             {showCheckout ? (
-                <Dialog onClose={cancelCheckout} title="Checkout">
+                <Dialog
+                    onClose={recordingCheckout ? cancelCheckout : undefined}
+                    title="Checkout">
                     <div
                         className="my-3 d-flex flex-column flex-grow-1"
                         datatype="gameshot-buttons-score">
                         <h6>How many darts to checkout?</h6>
                         <div className="d-flex flex-row justify-content-stretch">
                             <button
-                                disabled={savingInput}
+                                disabled={
+                                    savingInput ||
+                                    recordingCheckout !== undefined
+                                }
                                 className="btn btn-success margin-right fs-3 my-2 flex-grow-1"
                                 onClick={async () =>
                                     await setLastThrowNoOfDarts(1)
                                 }>
+                                {recordingCheckout === 1 ? (
+                                    <LoadingSpinnerSmall />
+                                ) : null}
                                 {CHECKOUT_1_DART}
                             </button>
                             <button
-                                disabled={savingInput}
+                                disabled={
+                                    savingInput ||
+                                    recordingCheckout !== undefined
+                                }
                                 className="btn btn-success margin-right fs-3 my-2 flex-grow-1"
                                 onClick={async () =>
                                     await setLastThrowNoOfDarts(2)
                                 }>
+                                {recordingCheckout === 2 ? (
+                                    <LoadingSpinnerSmall />
+                                ) : null}
                                 {CHECKOUT_2_DART}
                             </button>
                             <button
-                                disabled={savingInput}
+                                disabled={
+                                    savingInput ||
+                                    recordingCheckout !== undefined
+                                }
                                 className="btn btn-success margin-right fs-3 my-2 flex-grow-1"
                                 onClick={async () =>
                                     await setLastThrowNoOfDarts(3)
                                 }>
+                                {recordingCheckout === 3 ? (
+                                    <LoadingSpinnerSmall />
+                                ) : null}
                                 {CHECKOUT_3_DART}
                             </button>
                         </div>
