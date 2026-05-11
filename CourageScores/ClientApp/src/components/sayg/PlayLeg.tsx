@@ -397,7 +397,7 @@ export function PlayLeg({
             ) : null}
             {showCheckout ? (
                 <Dialog
-                    onClose={recordingCheckout ? cancelCheckout : undefined}
+                    onClose={recordingCheckout ? undefined : cancelCheckout}
                     title="Checkout">
                     <div
                         className="my-3 d-flex flex-column flex-grow-1"
