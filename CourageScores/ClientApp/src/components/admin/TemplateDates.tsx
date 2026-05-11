@@ -78,6 +78,19 @@ export function TemplateDates({
         await onUpdate(newDates);
     }
 
+    async function copyDates() {
+        const secondHalf = dates.map((d) => {
+            const newDate = Object.assign({}, d);
+            newDate.fixtures = d.fixtures?.map((f) => {
+                return f.away ? { home: f.away!, away: f.home } : f;
+            });
+            return newDate;
+        });
+
+        const newDates = dates.concat(secondHalf);
+        await onUpdate(newDates);
+    }
+
     return (
         <ul className="list-group mb-3">
             <li className="list-group-item bg-info text-light">
@@ -132,11 +145,18 @@ export function TemplateDates({
                     />
                 </li>
             ))}
-            <button
-                className="list-group-item btn-primary small"
-                onClick={addDate}>
-                ➕ Add a week
-            </button>
+            <div className="list-group-item d-flex flex-row">
+                <button
+                    className="btn btn-sm btn-primary margin-right"
+                    onClick={addDate}>
+                    ➕ Add a week
+                </button>
+                <button
+                    className="btn btn-sm btn-primary margin-right"
+                    onClick={copyDates}>
+                    📋 Copy to second half
+                </button>
+            </div>
         </ul>
     );
 }
