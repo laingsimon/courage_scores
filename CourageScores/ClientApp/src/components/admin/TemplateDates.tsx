@@ -78,6 +78,19 @@ export function TemplateDates({
         await onUpdate(newDates);
     }
 
+    async function copyDates() {
+        const secondHalf = dates.map((d) => {
+            const newDate = Object.assign({}, d);
+            newDate.fixtures = d.fixtures?.map((f) => {
+                return f.away ? { home: f.away!, away: f.home } : f;
+            });
+            return newDate;
+        });
+
+        const newDates = dates.concat(secondHalf);
+        await onUpdate(newDates);
+    }
+
     return (
         <ul className="list-group mb-3">
             <li className="list-group-item bg-info text-light">
@@ -104,6 +117,11 @@ export function TemplateDates({
             </li>
             {dates.map((d: DateTemplateDto, index: number) => (
                 <li className="list-group-item position-relative" key={index}>
+                    {index === Math.floor(dates.length / 2) ? (
+                        <div className="position-absolute left-negative-100 top-negative-15 bg-warning-subtle px-2">
+                            Mid season &rarr;
+                        </div>
+                    ) : null}
                     <small className="position-absolute left-0 ps-0 pt-1 text-end width-10">
                         {index + 1}{' '}
                     </small>
@@ -127,11 +145,18 @@ export function TemplateDates({
                     />
                 </li>
             ))}
-            <button
-                className="list-group-item btn-primary small"
-                onClick={addDate}>
-                ➕ Add a week
-            </button>
+            <div className="list-group-item d-flex flex-row">
+                <button
+                    className="btn btn-sm btn-primary margin-right"
+                    onClick={addDate}>
+                    ➕ Add a week
+                </button>
+                <button
+                    className="btn btn-sm btn-primary margin-right"
+                    onClick={copyDates}>
+                    📋 Copy to second half
+                </button>
+            </div>
         </ul>
     );
 }

@@ -11,6 +11,27 @@ export interface ITemplateTextEditorProps {
     onUpdate(update: EditTemplateDto): UntypedPromise;
 }
 
+export function excludePropertiesFromEdit(
+    key: string,
+    value: string | object | number,
+) {
+    switch (key) {
+        case 'id':
+        case 'created':
+        case 'author':
+        case 'editor':
+        case 'updated':
+        case 'deleted':
+        case 'remover':
+        case 'templateHealth':
+        case 'name':
+        case 'description':
+            return undefined;
+        default:
+            return value;
+    }
+}
+
 export function TemplateTextEditor({
     template,
     setValid,
@@ -47,27 +68,6 @@ export function TemplateTextEditor({
         jsonString = jsonString.replaceAll('"\n    ]', '" ]');
 
         return jsonString;
-    }
-
-    function excludePropertiesFromEdit(
-        key: string,
-        value: string | object | number,
-    ) {
-        switch (key) {
-            case 'id':
-            case 'created':
-            case 'author':
-            case 'editor':
-            case 'updated':
-            case 'deleted':
-            case 'remover':
-            case 'templateHealth':
-            case 'name':
-            case 'description':
-                return undefined;
-            default:
-                return value;
-        }
     }
 
     async function updateTemplateEvent(
