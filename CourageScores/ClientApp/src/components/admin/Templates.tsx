@@ -268,6 +268,15 @@ export function Templates() {
         setCopied(true);
     }
 
+    async function pasteTemplate() {
+        const json = await navigator.clipboard.readText();
+        if (!json) {
+            return;
+        }
+
+        setSelected(JSON.parse(json));
+    }
+
     async function updateTemplate(newTemplate: TemplateDto) {
         setSelected(newTemplate);
         setShouldRefreshHealth(true);
@@ -362,6 +371,11 @@ export function Templates() {
                                         onClick={copyTemplate}>
                                         Copy
                                         {copied ? ' ✅' : null}
+                                    </button>
+                                    <button
+                                        className="btn btn-primary margin-right"
+                                        onClick={pasteTemplate}>
+                                        Paste
                                     </button>
                                     <button
                                         className="btn btn-danger margin-right"
