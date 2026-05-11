@@ -64,6 +64,18 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
         _seasonId.ThrowIfNull($"SeasonId hasn't been set, ensure {nameof(ToSeason)} is called");
         _divisionId.ThrowIfNull($"DivisionId hasn't been set, ensure {nameof(ToDivision)} is called");
 
+        if (string.IsNullOrWhiteSpace(_player?.Name))
+        {
+            return new ActionResult<TeamPlayer>
+            {
+                Success = false,
+                Errors =
+                {
+                    "Player name cannot be empty",
+                },
+            };
+        }
+
         if (model.Deleted != null)
         {
             return new ActionResult<TeamPlayer>
@@ -153,7 +165,10 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             teamSeason = result.Result;
         }
 
-        var existingPlayer = teamSeason.Players.SingleOrDefault(p => p.Name == _player!.Name);
+        // should use SingleOrDefault, but as there are a couple of places where 2+ players exist with the same name
+        // I've had to switch to FirstOrDefault to prevent issues creating the player again
+        // (which will result in one of the players being used instead of creating a new player)
+        var existingPlayer = teamSeason.Players.FirstOrDefault(p => p.Name.Trim().Equals(_player!.Name.Trim(), StringComparison.OrdinalIgnoreCase));
         if (existingPlayer != null)
         {
             if (existingPlayer.Deleted == null)
@@ -173,6 +188,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             existingPlayer.Captain = _player!.Captain;
             existingPlayer.EmailAddress = _player.EmailAddress ?? existingPlayer.EmailAddress;
             existingPlayer.Gender = _player.Gender.FromGenderDto();
+            existingPlayer.Name = _player.Name.Trim(); // in case the casing - for example - has changed
             _cacheFlags.EvictDivisionDataCacheForSeasonId = season.Id;
             _cacheFlags.EvictDivisionDataCacheForDivisionId = _divisionId;
             return new ActionResult<TeamPlayer>
@@ -188,7 +204,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
 
         var newPlayer = new TeamPlayer
         {
-            Name = _player!.Name,
+            Name = _player!.Name.Trim(),
             Captain = _player.Captain,
             EmailAddress = _player.EmailAddress,
             Id = Guid.NewGuid(),

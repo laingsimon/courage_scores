@@ -153,7 +153,12 @@ export function EditSuperleagueMatch({
                     (selectedForMatch) => selectedForMatch.id === p.id,
                 );
 
-                return playerOption(p, isSelected, playingInAnotherTournament);
+                return playerOption(
+                    p,
+                    isSelected,
+                    playingInAnotherTournament,
+                    team,
+                );
             })
             .sort(playerSort(selectedForThisMatch));
     }
@@ -162,6 +167,7 @@ export function EditSuperleagueMatch({
         p: TournamentPlayerDto,
         isSelected?: boolean,
         playingInAnotherTournament?: DivisionTournamentFixtureDetailsDto,
+        team?: TeamAndSeason,
     ): IBootstrapDropdownItem {
         return {
             text: playingInAnotherTournament ? (
@@ -169,12 +175,28 @@ export function EditSuperleagueMatch({
                     🚫 {p.name} (playing on {playingInAnotherTournament.type})
                 </span>
             ) : (
-                p.name
+                playerName(p, team)
             ),
             value: p.id,
             collapsedText: p.name,
             disabled: !isSelected && !!playingInAnotherTournament,
         };
+    }
+
+    function playerName(player: TournamentPlayerDto, team?: TeamAndSeason) {
+        const players = team?.season?.players ?? [];
+
+        const otherPlayersWithSameName = players
+            .filter((p) => p.id !== player.id)
+            .filter(
+                (p) =>
+                    p.name.trim().toLowerCase() ===
+                    player.name.trim().toLowerCase(),
+            );
+
+        return otherPlayersWithSameName.length === 0
+            ? player.name
+            : `${player.name} (${player.id.substring(0, 8)})`;
     }
 
     function playerSort(
@@ -383,12 +405,20 @@ export function EditSuperleagueMatch({
     function prependSelectedPlayer(
         players: IBootstrapDropdownItem[],
         selectedPlayer?: TournamentPlayerDto,
+        teamName?: string,
     ) {
-        if (!selectedPlayer) {
+        if (!selectedPlayer || !teamName) {
             return players;
         }
 
-        const selectedPlayerOption = playerOption(selectedPlayer, true);
+        const team = getTeamSeason(teamName);
+
+        const selectedPlayerOption = playerOption(
+            selectedPlayer,
+            true,
+            undefined,
+            team,
+        );
         return [selectedPlayerOption].concat(players);
     }
 
@@ -412,6 +442,7 @@ export function EditSuperleagueMatch({
                     options={prependSelectedPlayer(
                         appendNewPlayer(hostPlayers),
                         match.sideA?.players?.[index],
+                        tournamentData.host,
                     )}
                     onChange={(v) => changeHostSide(v!, index)}
                     datatype={`player-index-${index}`}
@@ -428,6 +459,7 @@ export function EditSuperleagueMatch({
                     options={prependSelectedPlayer(
                         appendNewPlayer(opponentPlayers),
                         match.sideB?.players?.[index],
+                        tournamentData.opponent,
                     )}
                     onChange={(v) => changeOpponentSide(v!, index)}
                     datatype={`player-index-${index}`}

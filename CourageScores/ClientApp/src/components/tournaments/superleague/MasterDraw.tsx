@@ -13,7 +13,7 @@ import { TeamDto } from '../../../interfaces/models/dtos/Team/TeamDto';
 import { UntypedPromise } from '../../../interfaces/UntypedPromise';
 import { useState } from 'react';
 import { createTemporaryId } from '../../../helpers/projection';
-import { any, count } from '../../../helpers/collections';
+import { any, count, toDictionary } from '../../../helpers/collections';
 import { useTournament } from '../TournamentContainer';
 import { getTeamsInSeason } from '../../../helpers/teams';
 import {
@@ -81,6 +81,8 @@ export function MasterDraw({
         const newData = Object.assign({}, tournamentData);
         newData.round = newRound;
 
+        newData.sides = newRound.matches.flatMap((m) => [m.sideA!, m.sideB!]);
+
         await setTournamentData(newData, true);
     }
 
@@ -89,15 +91,20 @@ export function MasterDraw({
             return;
         }
 
-        const newRound = Object.assign({}, tournamentData.round!);
-        newRound.matches = tournamentData.round!.matches!.filter(
+        const sideLookup = toDictionary(tournamentData.sides, (s) => s.id!);
+        const round = tournamentData.round!;
+        const newRound = Object.assign({}, round);
+        newRound.matches = round.matches!.filter((_, i) => i !== index);
+        newRound.matchOptions = round.matchOptions!.filter(
             (_, i) => i !== index,
         );
-        newRound.matchOptions = tournamentData.round!.matchOptions!.filter(
-            (_, i) => i !== index,
-        );
+
         const newData = Object.assign({}, tournamentData);
         newData.round = newRound;
+        newData.sides = newRound.matches
+            .flatMap((m) => [m.sideA?.id, m.sideB?.id])
+            .filter((sideId) => !!sideId)
+            .map((sideId) => sideLookup[sideId!]);
 
         await setTournamentData(newData, true);
     }
@@ -124,16 +131,23 @@ export function MasterDraw({
                 newRound.matches = (tournamentData.round?.matches || []).concat(
                     update,
                 );
-                const newData = Object.assign({}, tournamentData);
                 newRound.matchOptions = matchOptionDefaults
                     ? (newRound.matchOptions || []).concat(matchOptionDefaults)
                     : newRound.matchOptions || [];
-                newData.round = newRound;
 
-                newData.sides = (newData.sides ?? []).concat([
+                const newSides = (tournamentData.sides ?? []).concat([
                     update.sideA!,
                     update.sideB!,
                 ]);
+
+                const newData = Object.assign({}, tournamentData);
+                newData.round = newRound;
+
+                const sideLookup = toDictionary(newSides, (s) => s.id!);
+                newData.sides = newRound.matches
+                    .flatMap((m) => [m.sideA?.id, m.sideB?.id])
+                    .filter((sideId) => !!sideId)
+                    .map((sideId) => sideLookup[sideId!]);
 
                 await setTournamentData(newData, true);
                 set(getEmptyMatch());

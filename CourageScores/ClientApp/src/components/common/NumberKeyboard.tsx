@@ -163,14 +163,14 @@ export function NumberKeyboard({
             </div>
             <div className="d-flex flex-row flex-shrink-0 flex-grow-1">
                 <button
-                    className="btn btn-warning m-1 flex-grow-1 flex-shrink-0 fs-1 px-4 py-2"
+                    className={`btn ${value ? 'btn-warning' : 'btn-secondary'} m-1 flex-grow-1 flex-shrink-0 fs-1 px-4 py-2`}
                     onClick={onDelete}
                     disabled={(value || '') === ''}>
                     &larr;
                 </button>
                 {renderNumberButton(0)}
                 <button
-                    className="btn btn-primary m-1 flex-grow-1 flex-shrink-0 fs-1 px-4 py-2"
+                    className={`btn ${value ? 'btn-primary' : 'btn-secondary'} m-1 flex-grow-1 flex-shrink-0 fs-1 px-4 py-2`}
                     onClick={async () => await onEnter(value)}
                     disabled={!value}>
                     &rarr;

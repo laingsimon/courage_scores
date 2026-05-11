@@ -44,6 +44,20 @@ export function PlayerSelection({
         return players.filter((p: ISelectablePlayer) => p.id === playerId)[0];
     }
 
+    function playerName(player: ISelectablePlayer) {
+        const otherPlayersWithSameName = players
+            .filter((p) => p.id !== player.id)
+            .filter(
+                (p) =>
+                    p.name.trim().toLowerCase() ===
+                    player.name.trim().toLowerCase(),
+            );
+
+        return otherPlayersWithSameName.length === 0
+            ? player.name
+            : `${player.name} (${player.id.substring(0, 8)})`;
+    }
+
     return (
         <span>
             <BootstrapDropdown
@@ -61,7 +75,7 @@ export function PlayerSelection({
                                 (except || []).indexOf(p.id) === -1,
                         )
                         .map((p: ISelectablePlayer): IBootstrapDropdownItem => {
-                            return { value: p.id, text: p.name };
+                            return { value: p.id, text: playerName(p) };
                         }),
                 )}
             />
