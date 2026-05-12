@@ -7,6 +7,7 @@ import { ISubscriptionRequest } from './ISubscriptionRequest';
 import { UntypedPromise } from '../interfaces/UntypedPromise';
 import { hasAccess } from '../helpers/conditions';
 import { isEmpty } from '../helpers/collections';
+import { DISCONNECTED } from './WebSocketUpdateStrategy';
 
 const LiveContext = createContext({});
 
@@ -81,10 +82,27 @@ export function LiveContainer({
 
         setSubscribing(true);
         if (enabled && !webSocket.subscriptions[request.id] && canConnect) {
-            await webSocket.subscribe(request, onDataUpdate, onError);
+            await webSocket.subscribe(request, onDataUpdate, (err) =>
+                handleError(request, err),
+            );
         } else if (!enabled) {
             await webSocket.unsubscribe(request.id);
         }
+    }
+
+    async function handleError(request: ISubscriptionRequest, error: any) {
+        if (error === DISCONNECTED) {
+            await handleDisconnected(request);
+            return;
+        }
+
+        onError(error);
+    }
+
+    async function handleDisconnected(request: ISubscriptionRequest) {
+        console.error(
+            `Websocket disconnected for ${request.id} (${request.type})`,
+        );
     }
 
     async function enqueueSubscription(

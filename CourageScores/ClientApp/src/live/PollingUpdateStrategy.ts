@@ -166,6 +166,8 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
                     subscription.type,
                     subscription.lastUpdate || '',
                 );
+
+            subscription.connected = true;
             if (latestData?.success) {
                 if (!latestData.result) {
                     return PollResult.NotTracked;
@@ -192,6 +194,7 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
         } catch (e) {
             const error: IError = e as IError;
 
+            subscription.connected = false;
             subscription.errorHandler({
                 message: error.message ? error.message : error,
                 stack: error.stack,
