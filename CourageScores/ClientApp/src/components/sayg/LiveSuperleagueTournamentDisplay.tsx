@@ -51,13 +51,16 @@ export function LiveSuperleagueTournamentDisplay({
     const [initialData, setInitialData] = useState<
         TournamentGameDto | undefined | null
     >(undefined);
+    const [updatedTournament, setUpdatedTournament] = useState<
+        TournamentGameDto | undefined
+    >(undefined);
     const [refreshing, setRefreshing] = useState<boolean>(false);
     const [subscribing, setSubscribing] = useState<boolean>(false);
     const [pendingLiveSubscriptions, setPendingLiveSubscriptions] = useState<
         ISubscriptionRequest[]
     >([]);
-    const tournament = data ?? initialData;
-    const { enableLiveUpdates } = useLive();
+    const tournament = updatedTournament ?? data ?? initialData;
+    const { enableLiveUpdates, subscriptions } = useLive();
     const canUseWebSockets = hasAccess(
         account,
         (access) => access.useWebSockets,
@@ -73,6 +76,19 @@ export function LiveSuperleagueTournamentDisplay({
             fetchInitialData(id);
         }
     });
+
+    useEffect(() => {
+        if (!updatedTournament) {
+            return;
+        }
+
+        const equatableData = JSON.stringify(data);
+        const equatableUpdatedTournament = JSON.stringify(updatedTournament);
+        if (equatableData === equatableUpdatedTournament) {
+            // clear the temporary stash of the updated tournament to ensure that <data> is used
+            setUpdatedTournament(undefined);
+        }
+    }, [data, updatedTournament]);
 
     useEffect(() => {
         if (refreshRequired) {
@@ -102,6 +118,7 @@ export function LiveSuperleagueTournamentDisplay({
 
         const tournamentUpdate = allUpdates[id] as TournamentGameDto;
         if (tournamentUpdate) {
+            setUpdatedTournament(tournamentUpdate);
             subscribeToNewMatches(tournamentUpdate, newMatchSaygLookup);
         }
     }, [allUpdates]);
@@ -162,6 +179,7 @@ export function LiveSuperleagueTournamentDisplay({
         const allSaygIds: string[] =
             tournamentUpdate.round?.matches
                 ?.filter((m: TournamentMatchDto) => !!m.saygId)
+                .filter((m: TournamentMatchDto) => !hasWinner(m))
                 .map((m: TournamentMatchDto) => m.saygId!) || [];
         const newSaygSubscriptions: ISubscriptionRequest[] = allSaygIds
             .filter((id) => !newMatchSaygLookup[id])
@@ -190,6 +208,17 @@ export function LiveSuperleagueTournamentDisplay({
             setPendingLiveSubscriptions(
                 pendingLiveSubscriptions.filter((_, index) => index > 0),
             );
+
+            if (firstSubscription.type === LiveDataType.sayg) {
+                const saygId = firstSubscription.id;
+                const match = tournament?.round?.matches?.find(
+                    (m) => m.saygId === saygId,
+                );
+                const saygData = await saygApi.get(saygId);
+                if (match && saygData) {
+                    matchSaygData[match.id] = saygData;
+                }
+            }
         } finally {
             setSubscribing(false);
         }
@@ -352,7 +381,7 @@ export function LiveSuperleagueTournamentDisplay({
     function hasSaygData(match: TournamentMatchDto): boolean {
         const matchSayg: RecordedScoreAsYouGoDto | undefined =
             matchSaygData[match.id];
-        return matchSayg && Object.keys(matchSayg.legs).length >= 1;
+        return !!matchSayg;
     }
 
     function matchSort(a: TournamentMatchDto, b: TournamentMatchDto) {
@@ -391,6 +420,15 @@ export function LiveSuperleagueTournamentDisplay({
         : undefined;
     const lastMatchLegs = Object.values(lastMatchSayg?.legs || {});
     const lastLeg = lastMatchLegs[lastMatchLegs.length - 1];
+    const tournamentSubscription = Object.values(subscriptions).find(
+        (s) => s.id === tournament.id && s.type === LiveDataType.tournament,
+    );
+    const lastMatchSubscription = lastMatch
+        ? Object.values(subscriptions).find(
+              (s) => s.id === lastMatch.saygId && s.type === LiveDataType.sayg,
+          )
+        : null;
+
     return (
         <div
             className={`d-flex flex-column justify-content-center${refreshRequired ? ' opacity-50' : ''}`}>
@@ -409,11 +447,24 @@ export function LiveSuperleagueTournamentDisplay({
                         {tournament.type}
                     </Link>
                 )}
-                <button
-                    className="ms-3 btn btn-sm btn-outline-secondary"
-                    onClick={() => setWatchLiveScores(!watchLiveScores)}>
-                    Scores: {watchLiveScores ? '▶️' : '⏸️'}
-                </button>
+                {canUseWebSockets ? (
+                    <button
+                        className="ms-3 btn btn-sm btn-outline-secondary"
+                        onClick={() => setWatchLiveScores(!watchLiveScores)}>
+                        Scores: {watchLiveScores ? '▶️' : '⏸️'}
+                    </button>
+                ) : null}
+                {hasAccess(account, (a) => a.showDebugOptions) ? (
+                    <span className="ms-3 btn btn-sm opacity-50">
+                        S:
+                        {tournamentSubscription?.connected === false
+                            ? '⛓️‍💥'
+                            : '✅'}
+                        WS:{canUseWebSockets ? '✅' : '❌'}
+                        M:{lastMatch ? '✅' : '❌'}
+                        L:{lastLeg ? '✅' : '❌'}
+                    </span>
+                ) : null}
             </h3>
             <table className="table">
                 <thead>
@@ -491,6 +542,9 @@ export function LiveSuperleagueTournamentDisplay({
                     <div className="d-flex flex-row justify-content-center bg-success text-black fs-4 rounded-top-3">
                         <span className="flex-grow-1 px-3 text-end flex-basis-0">
                             {firstInitialAndLastNames(lastMatch!.sideA)}
+                            {lastMatchSubscription?.connected === false
+                                ? '⛓️‍💥'
+                                : null}
                         </span>
                         <span>
                             {getScore(lastMatch!, 'home')} -{' '}

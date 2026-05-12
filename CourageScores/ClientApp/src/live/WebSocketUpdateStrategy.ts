@@ -10,6 +10,8 @@ import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType';
 import { LiveMessageDto } from '../interfaces/models/dtos/LiveMessageDto';
 import { IError } from '../components/common/IError';
 
+export const DISCONNECTED = 'DISCONNECTED';
+
 export class WebSocketUpdateStrategy implements IUpdateStrategy {
     private readonly createSocket: () => WebSocket;
 
@@ -26,7 +28,7 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         props.context.webSocket.onmessage = (msg: any) =>
             this.handleWebSocketMessage(props, msg);
         props.context.webSocket.onclose = async () =>
-            await props.setContext(await this.handleDisconnect(props.context));
+            await props.setContext(await this.handleDisconnect(props));
     }
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -175,6 +177,7 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
 
         const update = new Date();
         for (const subscription of subscriptions) {
+            subscription.connected = true;
             subscription.lastUpdate = update.toISOString();
             subscription.updateHandler(data);
         }
@@ -191,7 +194,15 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
             : Object.values(allSubscriptions);
 
         for (const subscription of subscriptions) {
+            subscription.connected = true;
             subscription.errorHandler(error);
+        }
+    }
+
+    private alertDisconnection(allSubscriptions: ISubscriptions) {
+        for (const subscription of Object.values(allSubscriptions)) {
+            subscription.connected = false;
+            subscription.errorHandler(DISCONNECTED);
         }
     }
 
@@ -246,11 +257,13 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
     }
 
     private async handleDisconnect(
-        context: IWebSocketContext,
+        props: IStrategyData,
     ): Promise<IWebSocketContext> {
+        const context = props.context;
         console.error('Socket disconnected');
         const newContext: IWebSocketContext = Object.assign({}, context);
         newContext.webSocket = undefined;
+        this.alertDisconnection(props.subscriptions);
         return newContext;
     }
 }
