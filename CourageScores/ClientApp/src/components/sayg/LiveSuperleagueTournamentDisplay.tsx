@@ -57,7 +57,7 @@ export function LiveSuperleagueTournamentDisplay({
         ISubscriptionRequest[]
     >([]);
     const tournament = data ?? initialData;
-    const { enableLiveUpdates } = useLive();
+    const { enableLiveUpdates, subscriptions } = useLive();
     const canUseWebSockets = hasAccess(
         account,
         (access) => access.useWebSockets,
@@ -391,6 +391,15 @@ export function LiveSuperleagueTournamentDisplay({
         : undefined;
     const lastMatchLegs = Object.values(lastMatchSayg?.legs || {});
     const lastLeg = lastMatchLegs[lastMatchLegs.length - 1];
+    const tournamentSubscription = Object.values(subscriptions).find(
+        (s) => s.id === tournament.id && s.type === LiveDataType.tournament,
+    );
+    const lastMatchSubscription = lastMatch
+        ? Object.values(subscriptions).find(
+              (s) => s.id === lastMatch.saygId && s.type === LiveDataType.sayg,
+          )
+        : null;
+
     return (
         <div
             className={`d-flex flex-column justify-content-center${refreshRequired ? ' opacity-50' : ''}`}>
@@ -409,11 +418,24 @@ export function LiveSuperleagueTournamentDisplay({
                         {tournament.type}
                     </Link>
                 )}
-                <button
-                    className="ms-3 btn btn-sm btn-outline-secondary"
-                    onClick={() => setWatchLiveScores(!watchLiveScores)}>
-                    Scores: {watchLiveScores ? '▶️' : '⏸️'}
-                </button>
+                {canUseWebSockets ? (
+                    <button
+                        className="ms-3 btn btn-sm btn-outline-secondary"
+                        onClick={() => setWatchLiveScores(!watchLiveScores)}>
+                        Scores: {watchLiveScores ? '▶️' : '⏸️'}
+                    </button>
+                ) : null}
+                {hasAccess(account, (a) => a.showDebugOptions) ? (
+                    <span className="ms-3 btn btn-sm opacity-50">
+                        S:
+                        {tournamentSubscription?.connected === false
+                            ? '⛓️‍💥'
+                            : '✅'}
+                        WS:{canUseWebSockets ? '✅' : '❌'}
+                        M:{lastMatch ? '✅' : '❌'}
+                        L:{lastLeg ? '✅' : '❌'}
+                    </span>
+                ) : null}
             </h3>
             <table className="table">
                 <thead>
@@ -491,6 +513,9 @@ export function LiveSuperleagueTournamentDisplay({
                     <div className="d-flex flex-row justify-content-center bg-success text-black fs-4 rounded-top-3">
                         <span className="flex-grow-1 px-3 text-end flex-basis-0">
                             {firstInitialAndLastNames(lastMatch!.sideA)}
+                            {lastMatchSubscription?.connected === false
+                                ? '⛓️‍💥'
+                                : null}
                         </span>
                         <span>
                             {getScore(lastMatch!, 'home')} -{' '}

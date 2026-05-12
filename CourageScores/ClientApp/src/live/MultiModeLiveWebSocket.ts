@@ -47,6 +47,10 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
         this.pollingStrategy = pollingStrategy;
     }
 
+    isConnected(): boolean {
+        return this.socketContext.webSocket?.readyState === WebSocket.OPEN;
+    }
+
     /* eslint-disable @typescript-eslint/no-explicit-any */
     async publish(id: string, type: LiveDataType, data: any): Promise<boolean> {
         const strategies: IUpdateStrategy[] = this.getAllStrategies(

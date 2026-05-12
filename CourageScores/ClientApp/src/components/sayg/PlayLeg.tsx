@@ -1,4 +1,4 @@
-import { sum } from '../../helpers/collections';
+import { isEmpty, sum } from '../../helpers/collections';
 import { PreviousPlayerScore } from './PreviousPlayerScore';
 import {
     BootstrapDropdown,
@@ -15,7 +15,6 @@ import {
     CHECKOUT_3_DART,
 } from '../../helpers/constants';
 import { LegThrowDto } from '../../interfaces/models/dtos/Game/Sayg/LegThrowDto';
-import { isEmpty } from '../../helpers/collections';
 import { useEditableSayg } from './EditableSaygContainer';
 import { UntypedPromise } from '../../interfaces/UntypedPromise';
 import { getScoreFromThrows } from '../../helpers/sayg';
@@ -25,6 +24,7 @@ import { NumberKeyboard } from '../common/NumberKeyboard';
 import { LegPlayerSequenceDto } from '../../interfaces/models/dtos/Game/Sayg/LegPlayerSequenceDto';
 import { DebugOptions } from '../common/DebugOptions';
 import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
+import { useDependencies } from '../common/IocContainer';
 
 export interface IPlayLegProps {
     leg?: LegDto;
@@ -104,6 +104,8 @@ export function PlayLeg({
             collapsedText: '🦺️',
         },
     ];
+    const { webSocket } = useDependencies();
+    const webSocketConnected = webSocket.isConnected();
 
     useEffect(() => {
         setScore('');
@@ -346,6 +348,11 @@ export function PlayLeg({
                         onClick={changeNumberOfLegs}>
                         {changeNumberOfLegs ? '✏️ ' : ''}
                         Best of: {numberOfLegs}
+                    </span>
+                    <span className="dropdown-item">
+                        {webSocketConnected
+                            ? '✅ Connected'
+                            : '⛓️‍💥 Disconnected'}
                     </span>
                 </DebugOptions>
             </div>

@@ -11,4 +11,5 @@ export interface ILiveWebSocket {
         dataHandler?: (data: any) => void,
         errorHandler?: (error: any) => void,
     ): Promise<boolean>;
+    isConnected(): boolean;
 }
