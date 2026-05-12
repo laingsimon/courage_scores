@@ -51,12 +51,15 @@ export function LiveSuperleagueTournamentDisplay({
     const [initialData, setInitialData] = useState<
         TournamentGameDto | undefined | null
     >(undefined);
+    const [updatedTournament, setUpdatedTournament] = useState<
+        TournamentGameDto | undefined
+    >(undefined);
     const [refreshing, setRefreshing] = useState<boolean>(false);
     const [subscribing, setSubscribing] = useState<boolean>(false);
     const [pendingLiveSubscriptions, setPendingLiveSubscriptions] = useState<
         ISubscriptionRequest[]
     >([]);
-    const tournament = data ?? initialData;
+    const tournament = updatedTournament ?? data ?? initialData;
     const { enableLiveUpdates, subscriptions } = useLive();
     const canUseWebSockets = hasAccess(
         account,
@@ -73,6 +76,19 @@ export function LiveSuperleagueTournamentDisplay({
             fetchInitialData(id);
         }
     });
+
+    useEffect(() => {
+        if (!updatedTournament) {
+            return;
+        }
+
+        const equatableData = JSON.stringify(data);
+        const equatableUpdatedTournament = JSON.stringify(updatedTournament);
+        if (equatableData === equatableUpdatedTournament) {
+            // clear the temporary stash of the updated tournament to ensure that <data> is used
+            setUpdatedTournament(undefined);
+        }
+    }, [data, updatedTournament]);
 
     useEffect(() => {
         if (refreshRequired) {
@@ -102,6 +118,7 @@ export function LiveSuperleagueTournamentDisplay({
 
         const tournamentUpdate = allUpdates[id] as TournamentGameDto;
         if (tournamentUpdate) {
+            setUpdatedTournament(tournamentUpdate);
             subscribeToNewMatches(tournamentUpdate, newMatchSaygLookup);
         }
     }, [allUpdates]);
@@ -162,6 +179,7 @@ export function LiveSuperleagueTournamentDisplay({
         const allSaygIds: string[] =
             tournamentUpdate.round?.matches
                 ?.filter((m: TournamentMatchDto) => !!m.saygId)
+                .filter((m: TournamentMatchDto) => !hasWinner(m))
                 .map((m: TournamentMatchDto) => m.saygId!) || [];
         const newSaygSubscriptions: ISubscriptionRequest[] = allSaygIds
             .filter((id) => !newMatchSaygLookup[id])
@@ -190,6 +208,17 @@ export function LiveSuperleagueTournamentDisplay({
             setPendingLiveSubscriptions(
                 pendingLiveSubscriptions.filter((_, index) => index > 0),
             );
+
+            if (firstSubscription.type === LiveDataType.sayg) {
+                const saygId = firstSubscription.id;
+                const match = tournament?.round?.matches?.find(
+                    (m) => m.saygId === saygId,
+                );
+                const saygData = await saygApi.get(saygId);
+                if (match && saygData) {
+                    matchSaygData[match.id] = saygData;
+                }
+            }
         } finally {
             setSubscribing(false);
         }
@@ -352,7 +381,7 @@ export function LiveSuperleagueTournamentDisplay({
     function hasSaygData(match: TournamentMatchDto): boolean {
         const matchSayg: RecordedScoreAsYouGoDto | undefined =
             matchSaygData[match.id];
-        return matchSayg && Object.keys(matchSayg.legs).length >= 1;
+        return !!matchSayg;
     }
 
     function matchSort(a: TournamentMatchDto, b: TournamentMatchDto) {
