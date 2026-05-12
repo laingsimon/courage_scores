@@ -4,6 +4,7 @@ using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Services;
 using CourageScores.Services.Command;
+using CourageScores.Services.Live;
 using Moq;
 using NUnit.Framework;
 
@@ -14,6 +15,7 @@ public class DeleteTournamentMatchSaygCommandTests
 {
     private readonly CancellationToken _token = new CancellationToken();
     private Mock<IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>> _saygService = null!;
+    private Mock<IWebSocketMessageProcessor> _processor = null!;
     private DeleteTournamentMatchSaygCommand _command = null!;
     private TournamentGame _tournament = null!;
     private TournamentMatch _match = null!;
@@ -22,7 +24,8 @@ public class DeleteTournamentMatchSaygCommandTests
     public void SetupEachTest()
     {
         _saygService = new Mock<IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>>();
-        _command = new DeleteTournamentMatchSaygCommand(_saygService.Object);
+        _processor = new Mock<IWebSocketMessageProcessor>();
+        _command = new DeleteTournamentMatchSaygCommand(_saygService.Object, _processor.Object);
 
         _match = new TournamentMatch
         {
