@@ -2,19 +2,25 @@ using CourageScores.Models;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Models.Dtos.Live;
+using CourageScores.Services.Live;
 
 namespace CourageScores.Services.Command;
 
-public class DeleteTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, TournamentGame>
+public class DeleteTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, TournamentGame>, IPublishingCommand<TournamentGame>
 {
     private readonly IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> _saygService;
+    private readonly IWebSocketMessageProcessor _processor;
 
     private Guid? _matchId;
     private bool _clearScores;
 
-    public DeleteTournamentMatchSaygCommand(IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> saygService)
+    public DeleteTournamentMatchSaygCommand(
+        IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> saygService,
+        IWebSocketMessageProcessor processor)
     {
         _saygService = saygService;
+        _processor = processor;
     }
 
     public DeleteTournamentMatchSaygCommand FromMatch(Guid matchId)
@@ -85,5 +91,13 @@ public class DeleteTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
         }
 
         return result.ToActionResult().As(model);
+    }
+
+    public async Task PublishUpdate(TournamentGame tournament, bool deleted, CancellationToken token)
+    {
+        if (!deleted)
+        {
+            await _processor.PublishUpdate(null, tournament.Id, LiveDataType.Tournament, tournament, token);
+        }
     }
 }
