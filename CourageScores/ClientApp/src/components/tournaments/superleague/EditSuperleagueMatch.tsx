@@ -242,11 +242,29 @@ export function EditSuperleagueMatch({
     }
 
     async function changeHostSide(playerId: string, index: number) {
-        await changeSide(playerId, 'sideA', hostPlayers, index);
+        await changeSide(
+            playerId,
+            'sideA',
+            prependSelectedPlayer(
+                hostPlayers,
+                match.sideA?.players?.[index],
+                tournamentData.host,
+            ),
+            index,
+        );
     }
 
     async function changeOpponentSide(playerId: string, index: number) {
-        await changeSide(playerId, 'sideB', opponentPlayers, index);
+        await changeSide(
+            playerId,
+            'sideB',
+            prependSelectedPlayer(
+                opponentPlayers,
+                match.sideB?.players?.[index],
+                tournamentData.opponent,
+            ),
+            index,
+        );
     }
 
     async function changeSide(
