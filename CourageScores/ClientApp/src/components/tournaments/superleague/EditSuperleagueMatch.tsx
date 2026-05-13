@@ -276,7 +276,7 @@ export function EditSuperleagueMatch({
             const player = players.find((p) => p.value === playerId)!;
             const sidePlayer = {
                 id: playerId,
-                name: player.text as string,
+                name: player.collapsedText,
             };
             newMatch[side].players = repeat(playerCount, (i) => {
                 const currentPlayer = newMatch[side]?.players?.[i];
