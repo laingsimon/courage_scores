@@ -461,8 +461,13 @@ export function LiveSuperleagueTournamentDisplay({
                             ? '⛓️‍💥'
                             : '✅'}
                         WS:{canUseWebSockets ? '✅' : '❌'}
-                        M:{lastMatch ? '✅' : '❌'}
-                        L:{lastLeg ? '✅' : '❌'}
+                        M(
+                        {lastMatch
+                            ? matches?.findIndex((m) => m === lastMatch)
+                            : '-'}
+                        ):
+                        {lastMatch ? '✅' : '❌'}
+                        L({lastMatchLegs?.length - 1}):{lastLeg ? '✅' : '❌'}
                     </span>
                 ) : null}
             </h3>
