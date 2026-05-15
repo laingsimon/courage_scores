@@ -185,7 +185,13 @@ export function LiveSuperleagueTournamentDisplay({
                 .filter((m: TournamentMatchDto) => !hasWinner(m))
                 .map((m: TournamentMatchDto) => m.saygId!) || [];
         const newSaygSubscriptions: ISubscriptionRequest[] = allSaygIds
-            .filter((saygId) => !newMatchSaygLookup[saygId])
+            .filter(
+                (saygId) =>
+                    !any(
+                        Object.values(newMatchSaygLookup),
+                        (s) => s.id === saygId,
+                    ),
+            )
             .map((saygId) => {
                 console.log(
                     `Missing sayg subscription for ${saygId}, allSaygIds: [${allSaygIds.join(', ')}]`,
