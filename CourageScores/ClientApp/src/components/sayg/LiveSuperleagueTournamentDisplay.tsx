@@ -46,7 +46,7 @@ export function LiveSuperleagueTournamentDisplay({
     allUpdates,
 }: ILiveSuperleagueTournamentDisplayProps) {
     const { saygApi, tournamentApi } = useDependencies();
-    const { fullScreen, account } = useApp();
+    const { fullScreen, account, appLoading } = useApp();
     const [matchSaygData, setMatchSaygData] = useState<IMatchSaygLookup>({});
     const [initialData, setInitialData] = useState<
         TournamentGameDto | undefined | null
@@ -98,11 +98,11 @@ export function LiveSuperleagueTournamentDisplay({
     }, [refreshRequired]);
 
     useEffect(() => {
-        if (tournament) {
+        if (!appLoading && tournament) {
             // noinspection JSIgnoredPromiseFromCall
             getLatestMatchData(tournament?.round?.matches || []);
         }
-    }, [tournament, account]);
+    }, [tournament, appLoading]);
 
     useEffect(() => {
         if (isEmpty(pendingLiveSubscriptions) || !account) {
