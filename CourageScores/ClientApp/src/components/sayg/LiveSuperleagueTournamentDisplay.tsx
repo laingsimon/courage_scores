@@ -19,6 +19,7 @@ import { getScoreFromThrows } from '../../helpers/sayg';
 import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
 import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
 import { ifNaN } from '../../helpers/rendering';
+import { LegThrowDto } from '../../interfaces/models/dtos/Game/Sayg/LegThrowDto';
 
 export interface ILiveSuperleagueTournamentDisplayProps {
     id: string;
@@ -35,6 +36,10 @@ interface IMatchSaygLookup {
 }
 
 type SideType = 'home' | 'away';
+
+interface ILastThrow extends LegThrowDto {
+    side: SideType;
+}
 
 export function LiveSuperleagueTournamentDisplay({
     id,
@@ -65,7 +70,7 @@ export function LiveSuperleagueTournamentDisplay({
         account,
         (access) => access.useWebSockets,
     );
-    const [scoreChanged, setScoreChanged] = useState<undefined | SideType>(
+    const [scoreChanged, setScoreChanged] = useState<undefined | ILastThrow>(
         undefined,
     );
     const [watchLiveScores, setWatchLiveScores] = useState<boolean>(true);
@@ -135,7 +140,7 @@ export function LiveSuperleagueTournamentDisplay({
             ...matchSaygData,
         };
         let updated = false;
-        let scoreChanged: undefined | SideType = undefined;
+        let scoreChanged: undefined | ILastThrow = undefined;
 
         for (const matchId in newMatchSaygLookup) {
             const matchSaygId = newMatchSaygLookup[matchId].id;
@@ -155,13 +160,17 @@ export function LiveSuperleagueTournamentDisplay({
             }
 
             const currentThrow = updatedLeg.currentThrow as SideType;
+            const lastCompetitorThrows =
+                updatedLeg[opposite(currentThrow)].throws!;
+            const lastThrow =
+                lastCompetitorThrows[lastCompetitorThrows.length - 1];
             const remaining: number = currentScore(
                 updatedLeg,
                 opposite(currentThrow),
             );
 
             if (remaining !== updatedLeg.startingScore) {
-                scoreChanged = opposite(currentThrow);
+                scoreChanged = { ...lastThrow, side: opposite(currentThrow) };
             }
         }
 
@@ -600,12 +609,24 @@ export function LiveSuperleagueTournamentDisplay({
                         className="d-flex flex-row justify-content-center text-success"
                         datatype="scores">
                         <span
-                            className={`flex-grow-1 p-3 text-center fs-4 ${scoreChanged === 'home' ? ' fw-bold text-flash' : ''}`}>
+                            className={`position-relative overflow-hidden flex-grow-1 p-3 text-center fs-4`}>
                             {currentScore(lastLeg, 'home')}
+                            {scoreChanged?.side === 'home' ? (
+                                <div
+                                    className={`animate-up width-50-pc text-warning fw-bold`}>
+                                    {scoreChanged.score}
+                                </div>
+                            ) : null}
                         </span>
                         <span
-                            className={`flex-grow-1 p-3 text-center fs-4 ${scoreChanged === 'away' ? ' fw-bold text-flash' : ''}`}>
+                            className={`position-relative overflow-hidden flex-grow-1 p-3 text-center fs-4`}>
                             {currentScore(lastLeg, 'away')}
+                            {scoreChanged?.side === 'away' ? (
+                                <div
+                                    className={`animate-up width-50-pc text-warning fw-bold`}>
+                                    {scoreChanged.score}
+                                </div>
+                            ) : null}
                         </span>
                     </div>
                 </div>
