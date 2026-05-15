@@ -233,7 +233,9 @@ export function LiveSuperleagueTournamentDisplay({
                 );
                 const saygData = await saygApi.get(saygId);
                 if (match && saygData) {
-                    matchSaygData[match.id] = saygData;
+                    const newMatchSaygData = Object.assign({}, matchSaygData);
+                    newMatchSaygData[match.id] = saygData;
+                    setMatchSaygData(newMatchSaygData);
                 }
             }
 
