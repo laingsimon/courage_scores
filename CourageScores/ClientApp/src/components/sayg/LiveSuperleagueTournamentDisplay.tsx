@@ -19,6 +19,7 @@ import { getScoreFromThrows } from '../../helpers/sayg';
 import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
 import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
 import { ifNaN } from '../../helpers/rendering';
+import { LegThrowDto } from '../../interfaces/models/dtos/Game/Sayg/LegThrowDto';
 
 export interface ILiveSuperleagueTournamentDisplayProps {
     id: string;
@@ -36,6 +37,10 @@ interface IMatchSaygLookup {
 
 type SideType = 'home' | 'away';
 
+interface ILastThrow extends LegThrowDto {
+    side: SideType;
+}
+
 export function LiveSuperleagueTournamentDisplay({
     id,
     data,
@@ -46,7 +51,7 @@ export function LiveSuperleagueTournamentDisplay({
     allUpdates,
 }: ILiveSuperleagueTournamentDisplayProps) {
     const { saygApi, tournamentApi } = useDependencies();
-    const { fullScreen, account } = useApp();
+    const { fullScreen, account, appLoading } = useApp();
     const [matchSaygData, setMatchSaygData] = useState<IMatchSaygLookup>({});
     const [initialData, setInitialData] = useState<
         TournamentGameDto | undefined | null
@@ -65,7 +70,7 @@ export function LiveSuperleagueTournamentDisplay({
         account,
         (access) => access.useWebSockets,
     );
-    const [scoreChanged, setScoreChanged] = useState<undefined | SideType>(
+    const [scoreChanged, setScoreChanged] = useState<undefined | ILastThrow>(
         undefined,
     );
     const [watchLiveScores, setWatchLiveScores] = useState<boolean>(true);
@@ -98,14 +103,17 @@ export function LiveSuperleagueTournamentDisplay({
     }, [refreshRequired]);
 
     useEffect(() => {
-        if (tournament) {
+        if (!appLoading && tournament) {
             // noinspection JSIgnoredPromiseFromCall
             getLatestMatchData(tournament?.round?.matches || []);
         }
-    }, [tournament, account]);
+    }, [tournament, appLoading]);
 
     useEffect(() => {
         if (isEmpty(pendingLiveSubscriptions) || !account) {
+            console.log(
+                `Finished subscribing to sayg: ${pendingLiveSubscriptions.length} left, account: ${!!account}`,
+            );
             return;
         }
 
@@ -132,7 +140,7 @@ export function LiveSuperleagueTournamentDisplay({
             ...matchSaygData,
         };
         let updated = false;
-        let scoreChanged: undefined | SideType = undefined;
+        let scoreChanged: undefined | ILastThrow = undefined;
 
         for (const matchId in newMatchSaygLookup) {
             const matchSaygId = newMatchSaygLookup[matchId].id;
@@ -152,13 +160,17 @@ export function LiveSuperleagueTournamentDisplay({
             }
 
             const currentThrow = updatedLeg.currentThrow as SideType;
+            const lastCompetitorThrows =
+                updatedLeg[opposite(currentThrow)].throws!;
+            const lastThrow =
+                lastCompetitorThrows[lastCompetitorThrows.length - 1];
             const remaining: number = currentScore(
                 updatedLeg,
                 opposite(currentThrow),
             );
 
             if (remaining !== updatedLeg.startingScore) {
-                scoreChanged = opposite(currentThrow);
+                scoreChanged = { ...lastThrow, side: opposite(currentThrow) };
             }
         }
 
@@ -182,16 +194,29 @@ export function LiveSuperleagueTournamentDisplay({
                 .filter((m: TournamentMatchDto) => !hasWinner(m))
                 .map((m: TournamentMatchDto) => m.saygId!) || [];
         const newSaygSubscriptions: ISubscriptionRequest[] = allSaygIds
-            .filter((id) => !newMatchSaygLookup[id])
-            .map((id) => {
+            .filter(
+                (saygId) =>
+                    !any(
+                        Object.values(newMatchSaygLookup),
+                        (s) => s.id === saygId,
+                    ),
+            )
+            .map((saygId) => {
+                console.log(
+                    `Missing sayg subscription for ${saygId}, allSaygIds: [${allSaygIds.join(', ')}]`,
+                );
                 return {
-                    id: id,
+                    id: saygId,
                     type: LiveDataType.sayg,
                 };
             });
-        setPendingLiveSubscriptions(
-            pendingLiveSubscriptions.concat(newSaygSubscriptions),
+
+        const newPendingSubs =
+            pendingLiveSubscriptions.concat(newSaygSubscriptions);
+        console.log(
+            `Pending subscriptions(subscribeToNewMatches): ${newPendingSubs.length}`,
         );
+        setPendingLiveSubscriptions(newPendingSubs);
     }
 
     async function subscribeToNextSayg() {
@@ -203,22 +228,33 @@ export function LiveSuperleagueTournamentDisplay({
 
         setSubscribing(true);
         try {
-            const firstSubscription = pendingLiveSubscriptions[0];
-            await enableLiveUpdates(true, firstSubscription);
-            setPendingLiveSubscriptions(
-                pendingLiveSubscriptions.filter((_, index) => index > 0),
+            const nextSub = pendingLiveSubscriptions[0];
+            console.log(
+                `Subscribing to sayg: ${nextSub.id}, remaining: ${pendingLiveSubscriptions.length - 1}`,
             );
 
-            if (firstSubscription.type === LiveDataType.sayg) {
-                const saygId = firstSubscription.id;
+            await enableLiveUpdates(true, nextSub);
+
+            if (nextSub.type === LiveDataType.sayg) {
+                const saygId = nextSub.id;
                 const match = tournament?.round?.matches?.find(
                     (m) => m.saygId === saygId,
                 );
                 const saygData = await saygApi.get(saygId);
                 if (match && saygData) {
-                    matchSaygData[match.id] = saygData;
+                    const newMatchSaygData = Object.assign({}, matchSaygData);
+                    newMatchSaygData[match.id] = saygData;
+                    setMatchSaygData(newMatchSaygData);
                 }
             }
+
+            const newPendingSubs = pendingLiveSubscriptions.filter(
+                (sub) => sub !== nextSub,
+            );
+            console.log(
+                `Pending subscriptions(subscribeToNextSayg): ${newPendingSubs.length}`,
+            );
+            setPendingLiveSubscriptions(newPendingSubs);
         } finally {
             setSubscribing(false);
         }
@@ -256,14 +292,18 @@ export function LiveSuperleagueTournamentDisplay({
             }
         }
 
-        setPendingLiveSubscriptions(
-            Object.values(matchSaygData).map((sayg) => {
+        const pendingSubscriptions = Object.values(matchSaygData).map(
+            (sayg) => {
                 return {
                     id: sayg.id,
                     type: LiveDataType.sayg,
                 };
-            }),
+            },
         );
+        console.log(
+            `Pending subscriptions(getLatestMatchData): ${pendingSubscriptions.length}`,
+        );
+        setPendingLiveSubscriptions(pendingSubscriptions);
         setMatchSaygData(matchSaygData);
     }
 
@@ -455,7 +495,13 @@ export function LiveSuperleagueTournamentDisplay({
                     </button>
                 ) : null}
                 {hasAccess(account, (a) => a.showDebugOptions) ? (
-                    <span className="ms-3 btn btn-sm opacity-50">
+                    <button
+                        className="ms-3 btn btn-sm opacity-50"
+                        onClick={() =>
+                            window.alert(
+                                `SaygId: ${lastMatchSayg?.id}\nMatch: ${lastMatchSayg?.tournamentMatchId === lastMatch?.id ? lastMatch?.id : 'Ids mismatch'}\nLegs: ${Object.values(lastMatchSayg?.legs || {}).length}`,
+                            )
+                        }>
                         S:
                         {tournamentSubscription?.connected === false
                             ? '⛓️‍💥'
@@ -468,7 +514,7 @@ export function LiveSuperleagueTournamentDisplay({
                         ):
                         {lastMatch ? '✅' : '❌'}
                         L({lastMatchLegs?.length - 1}):{lastLeg ? '✅' : '❌'}
-                    </span>
+                    </button>
                 ) : null}
             </h3>
             <table className="table">
@@ -563,12 +609,24 @@ export function LiveSuperleagueTournamentDisplay({
                         className="d-flex flex-row justify-content-center text-success"
                         datatype="scores">
                         <span
-                            className={`flex-grow-1 p-3 text-center fs-4 ${scoreChanged === 'home' ? ' fw-bold text-flash' : ''}`}>
+                            className={`position-relative overflow-hidden flex-grow-1 p-3 text-center fs-4`}>
                             {currentScore(lastLeg, 'home')}
+                            {scoreChanged?.side === 'home' ? (
+                                <div
+                                    className={`animate-up width-50-pc text-warning fw-bold`}>
+                                    {scoreChanged.score}
+                                </div>
+                            ) : null}
                         </span>
                         <span
-                            className={`flex-grow-1 p-3 text-center fs-4 ${scoreChanged === 'away' ? ' fw-bold text-flash' : ''}`}>
+                            className={`position-relative overflow-hidden flex-grow-1 p-3 text-center fs-4`}>
                             {currentScore(lastLeg, 'away')}
+                            {scoreChanged?.side === 'away' ? (
+                                <div
+                                    className={`animate-up width-50-pc text-warning fw-bold`}>
+                                    {scoreChanged.score}
+                                </div>
+                            ) : null}
                         </span>
                     </div>
                 </div>
