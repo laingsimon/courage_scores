@@ -106,6 +106,9 @@ export function LiveSuperleagueTournamentDisplay({
 
     useEffect(() => {
         if (isEmpty(pendingLiveSubscriptions) || !account) {
+            console.log(
+                `Finished subscribing to sayg: ${pendingLiveSubscriptions.length} left, account: ${!!account}`,
+            );
             return;
         }
 
@@ -182,16 +185,23 @@ export function LiveSuperleagueTournamentDisplay({
                 .filter((m: TournamentMatchDto) => !hasWinner(m))
                 .map((m: TournamentMatchDto) => m.saygId!) || [];
         const newSaygSubscriptions: ISubscriptionRequest[] = allSaygIds
-            .filter((id) => !newMatchSaygLookup[id])
-            .map((id) => {
+            .filter((saygId) => !newMatchSaygLookup[saygId])
+            .map((saygId) => {
+                console.log(
+                    `Missing sayg subscription for ${saygId}, allSaygIds: [${allSaygIds.join(', ')}]`,
+                );
                 return {
-                    id: id,
+                    id: saygId,
                     type: LiveDataType.sayg,
                 };
             });
-        setPendingLiveSubscriptions(
-            pendingLiveSubscriptions.concat(newSaygSubscriptions),
+
+        const newPendingSubs =
+            pendingLiveSubscriptions.concat(newSaygSubscriptions);
+        console.log(
+            `Pending subscriptions(subscribeToNewMatches): ${newPendingSubs.length}`,
         );
+        setPendingLiveSubscriptions(newPendingSubs);
     }
 
     async function subscribeToNextSayg() {
@@ -203,14 +213,15 @@ export function LiveSuperleagueTournamentDisplay({
 
         setSubscribing(true);
         try {
-            const firstSubscription = pendingLiveSubscriptions[0];
-            await enableLiveUpdates(true, firstSubscription);
-            setPendingLiveSubscriptions(
-                pendingLiveSubscriptions.filter((_, index) => index > 0),
+            const nextSub = pendingLiveSubscriptions[0];
+            console.log(
+                `Subscribing to sayg: ${nextSub.id}, remaining: ${pendingLiveSubscriptions.length - 1}`,
             );
 
-            if (firstSubscription.type === LiveDataType.sayg) {
-                const saygId = firstSubscription.id;
+            await enableLiveUpdates(true, nextSub);
+
+            if (nextSub.type === LiveDataType.sayg) {
+                const saygId = nextSub.id;
                 const match = tournament?.round?.matches?.find(
                     (m) => m.saygId === saygId,
                 );
@@ -219,6 +230,14 @@ export function LiveSuperleagueTournamentDisplay({
                     matchSaygData[match.id] = saygData;
                 }
             }
+
+            const newPendingSubs = pendingLiveSubscriptions.filter(
+                (sub) => sub !== nextSub,
+            );
+            console.log(
+                `Pending subscriptions(subscribeToNextSayg): ${newPendingSubs.length}`,
+            );
+            setPendingLiveSubscriptions(newPendingSubs);
         } finally {
             setSubscribing(false);
         }
@@ -256,14 +275,18 @@ export function LiveSuperleagueTournamentDisplay({
             }
         }
 
-        setPendingLiveSubscriptions(
-            Object.values(matchSaygData).map((sayg) => {
+        const pendingSubscriptions = Object.values(matchSaygData).map(
+            (sayg) => {
                 return {
                     id: sayg.id,
                     type: LiveDataType.sayg,
                 };
-            }),
+            },
         );
+        console.log(
+            `Pending subscriptions(getLatestMatchData): ${pendingSubscriptions.length}`,
+        );
+        setPendingLiveSubscriptions(pendingSubscriptions);
         setMatchSaygData(matchSaygData);
     }
 
