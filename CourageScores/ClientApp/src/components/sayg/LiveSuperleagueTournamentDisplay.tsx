@@ -455,7 +455,13 @@ export function LiveSuperleagueTournamentDisplay({
                     </button>
                 ) : null}
                 {hasAccess(account, (a) => a.showDebugOptions) ? (
-                    <span className="ms-3 btn btn-sm opacity-50">
+                    <button
+                        className="ms-3 btn btn-sm opacity-50"
+                        onClick={() =>
+                            window.alert(
+                                `SaygId: ${lastMatchSayg?.id}\nMatch: ${lastMatchSayg?.tournamentMatchId === lastMatch?.id ? lastMatch?.id : 'Ids mismatch'}\nLegs: ${Object.values(lastMatchSayg?.legs || {}).length}`,
+                            )
+                        }>
                         S:
                         {tournamentSubscription?.connected === false
                             ? '⛓️‍💥'
@@ -468,7 +474,7 @@ export function LiveSuperleagueTournamentDisplay({
                         ):
                         {lastMatch ? '✅' : '❌'}
                         L({lastMatchLegs?.length - 1}):{lastLeg ? '✅' : '❌'}
-                    </span>
+                    </button>
                 ) : null}
             </h3>
             <table className="table">
