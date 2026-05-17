@@ -15,7 +15,9 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
         {
             Name = model.Name,
             StartDate = startDate,
-            Divisions = model.Divisions.Select((d, index) => AdaptDivision(d, $"Division {index + 1}", startDate, GetTeams(model, index))).ToList(),
+            Divisions = model.Divisions
+                .Select((d, index) => AdaptDivision(d, $"Division {index + 1}", startDate, GetTeams(model, index)))
+                .ToList(),
         };
         var dates = dto.Divisions.SelectMany(d => d.Dates).ToArray();
         if (dates.Any())
