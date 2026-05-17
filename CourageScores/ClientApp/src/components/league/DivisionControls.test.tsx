@@ -41,6 +41,9 @@ describe('DivisionControls', () => {
             return (
                 seasonApiResult || {
                     success: true,
+                    result: {
+                        name: data.name,
+                    } as SeasonDto,
                 }
             );
         },
