@@ -82,7 +82,13 @@ export function DivisionControls({
                         setDivisionData(data)
                     }
                     onClose={async () => setDivisionData(null)}
-                    onSave={async () => {
+                    onSave={async (division: DivisionDto) => {
+                        if (originalDivisionData) {
+                            updateNameInAddress(
+                                originalDivisionData.name,
+                                division.name,
+                            );
+                        }
                         await reloadDivisions();
                         if (onDivisionOrSeasonChanged) {
                             await onDivisionOrSeasonChanged(false);
@@ -102,7 +108,14 @@ export function DivisionControls({
             encodeURI(oldName),
             encodeURI(newName),
         );
-        const newAddress = `${newPath}${location.search}${location.hash}`;
+        const oldSearch = new URLSearchParams(location.search);
+        const newSearch = new URLSearchParams(location.search);
+        for (const [key, value] of oldSearch.entries()) {
+            if (value === oldName) {
+                newSearch.set(key, newName);
+            }
+        }
+        const newAddress = `${newPath}?${newSearch}${location.hash}`;
         navigate(newAddress);
     }
 
@@ -118,10 +131,12 @@ export function DivisionControls({
                     }
                     onClose={async () => setSeasonData(null)}
                     onSave={async (season: SeasonDto) => {
-                        updateNameInAddress(
-                            originalSeasonData!.name,
-                            season.name,
-                        );
+                        if (originalSeasonData) {
+                            updateNameInAddress(
+                                originalSeasonData.name,
+                                season.name,
+                            );
+                        }
                         await reloadSeasons();
                         if (onDivisionOrSeasonChanged) {
                             await onDivisionOrSeasonChanged(false);

@@ -11,7 +11,7 @@ import { UntypedPromise } from '../../interfaces/UntypedPromise';
 
 export interface IEditDivisionProps {
     onClose(): UntypedPromise;
-    onSave(): UntypedPromise;
+    onSave(division: DivisionDto): UntypedPromise;
     setSaveError(error: IClientActionResultDto<DivisionDto>): UntypedPromise;
     data: DivisionDataDto;
     onUpdateData(data: DivisionDataDto): UntypedPromise;
@@ -44,15 +44,15 @@ export function EditDivision({
 
         try {
             setSaving(true);
-            const result: IClientActionResultDto<DivisionDto> =
+            const response: IClientActionResultDto<DivisionDto> =
                 await divisionApi.update(
                     Object.assign({ lastUpdated: data.updated }, data),
                 );
 
-            if (result.success) {
-                await onSave();
+            if (response.success) {
+                await onSave(response.result!);
             } else {
-                await setSaveError(result);
+                await setSaveError(response);
             }
         } catch (e) {
             /* istanbul ignore next */
