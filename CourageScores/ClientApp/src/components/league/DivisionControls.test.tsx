@@ -56,6 +56,9 @@ describe('DivisionControls', () => {
             return (
                 divisionApiResult || {
                     success: true,
+                    result: {
+                        name: data.name,
+                    } as DivisionDto,
                 }
             );
         },
