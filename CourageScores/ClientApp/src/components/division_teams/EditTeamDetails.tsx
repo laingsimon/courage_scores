@@ -6,7 +6,7 @@ import {
 } from '../common/BootstrapDropdown';
 import { useDependencies } from '../common/IocContainer';
 import { useApp } from '../common/AppContainer';
-import { handleChange } from '../../helpers/events';
+import { handleChange, stateChanged } from '../../helpers/events';
 import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
 import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
@@ -36,6 +36,7 @@ export function EditTeamDetails({
     const { divisions, onError } = useApp();
     const { teamApi } = useDependencies();
     const [saving, setSaving] = useState<boolean>(false);
+    const [createAnother, setCreateAnother] = useState<boolean>(false);
     const [saveError, setSaveError] =
         useState<IClientActionResultDto<TeamDto> | null>(null);
     const divisionOptions: IBootstrapDropdownItem[] = divisions.map(
@@ -74,7 +75,7 @@ export function EditTeamDetails({
                 if (onChange) {
                     await onChange('updated', response.result!.updated!);
                 }
-                if (onSaved) {
+                if (onSaved && !createAnother) {
                     await onSaved(response.result!);
                 }
             } else {
@@ -145,6 +146,25 @@ export function EditTeamDetails({
                         Cancel
                     </button>
                 </div>
+
+                {team.id ? null : (
+                    <div className="form-check form-switch margin-right">
+                        <input
+                            disabled={saving}
+                            type="checkbox"
+                            name="createAnother"
+                            id="createAnother"
+                            checked={createAnother}
+                            onChange={stateChanged(setCreateAnother)}
+                            className="form-check-input"
+                        />
+                        <label
+                            className="form-check-label"
+                            htmlFor="createAnother">
+                            Create another
+                        </label>
+                    </div>
+                )}
                 <button className="btn btn-primary" onClick={saveChanges}>
                     {saving ? <LoadingSpinnerSmall /> : null}
                     {team.id ? 'Save team' : 'Add team'}
