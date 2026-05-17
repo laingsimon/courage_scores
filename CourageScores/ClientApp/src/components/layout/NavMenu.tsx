@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
 import './NavMenu.css';
-import { any, isEmpty } from '../../helpers/collections';
+import { any, isEmpty, sortBy } from '../../helpers/collections';
 import { useDependencies } from '../common/IocContainer';
 import { useApp } from '../common/AppContainer';
 import { useBranding } from '../common/BrandingContainer';
@@ -175,6 +175,7 @@ export function NavMenu() {
                                 {!appLoading &&
                                     divisions
                                         .filter(shouldShowDivision)
+                                        .sort(sortBy('name'))
                                         .map((division: DivisionDto) => (
                                             <li
                                                 className="nav-item"
