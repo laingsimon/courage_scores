@@ -25,7 +25,11 @@ export function AssignTeamToSeasons({
     teamOverview,
     onClose,
 }: IAssignTeamToSeasonsProps) {
-    const { id: divisionId, season: currentSeason } = useDivisionData();
+    const {
+        id: divisionId,
+        season: currentSeason,
+        onReloadDivision,
+    } = useDivisionData();
     const { divisions, seasons, teams, onError, reloadAll } = useApp();
     const { teamApi } = useDependencies();
     const team = teams.find((t) => t.id === teamOverview.id)!;
@@ -68,6 +72,8 @@ export function AssignTeamToSeasons({
             if (response.success) {
                 // reload all
                 await reloadAll();
+                // reload this division too
+                await onReloadDivision();
             } else {
                 setSaveError(response);
             }
