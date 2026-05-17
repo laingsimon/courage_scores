@@ -11,19 +11,23 @@ export function ReviewProposalHealth({ response }: IReviewProposalHealthProps) {
     function renderError(e: string, i: number) {
         return (
             <li className="text-danger" key={i}>
-                {e}
+                <pre>{e}</pre>
             </li>
         );
     }
 
     function renderWarning(w: string, i: number) {
-        return <li key={i}>{w}</li>;
+        return (
+            <li key={i}>
+                <pre>{w}</pre>
+            </li>
+        );
     }
 
     function renderMessage(m: string, i: number) {
         return (
             <li className="text-secondary" key={i}>
-                {m}
+                <pre>{m}</pre>
             </li>
         );
     }

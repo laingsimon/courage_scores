@@ -119,7 +119,7 @@ public class SeasonTemplateService : ISeasonTemplateService
         }
         catch (Exception exc)
         {
-            return Error<ProposalResultDto>(exc.Message);
+            return Error<ProposalResultDto>(exc.ToString());
         }
     }
 
