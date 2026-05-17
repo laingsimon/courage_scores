@@ -215,7 +215,7 @@ public class AddressAssignmentStrategy : IAddressAssignmentStrategy
 
             if (largestSharedSeasonAddress.Length > largestTemplateSeasonSharedAddress.Count)
             {
-                context.Result.Errors.Add($"{messagePrefix}Shared address has more teams than the template supports");
+                context.Result.Errors.Add($"{messagePrefix}Shared address has more teams {FormatIncompatibility(largestSharedSeasonAddress)} than the template supports {FormatIncompatibility(largestTemplateSeasonSharedAddress)}");
                 return Task.FromResult(false);
             }
 
@@ -227,5 +227,25 @@ public class AddressAssignmentStrategy : IAddressAssignmentStrategy
         }
 
         return Task.FromResult(true);
+    }
+
+    private static string FormatIncompatibility(IReadOnlyCollection<TeamPlaceholderDto> placeholders)
+    {
+        if (placeholders.Count == 0)
+        {
+            return "None";
+        }
+
+        return $"{placeholders.Count} x ({string.Join(", ", placeholders.Select(a => a.Key))})";
+    }
+
+    private static string FormatIncompatibility(IReadOnlyCollection<TeamDto> teams)
+    {
+        if (teams.Count == 0)
+        {
+            return "None";
+        }
+
+        return $"{teams.Count} x ({string.Join(", ", teams.Select(a => a.Name))})";
     }
 }
