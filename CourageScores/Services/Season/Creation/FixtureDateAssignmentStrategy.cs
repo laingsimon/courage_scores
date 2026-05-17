@@ -19,8 +19,13 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
         {
             token.ThrowIfCancellationRequested();
 
-            var templateDateForDivisions = divisionMappings.Select(mapping => mapping.TemplateDivision.Dates[templateDateIndex]).ToArray();
-            var fixtureDateForDivisions = context.MatchContext.Divisions.Select(d => d.Fixtures.Where(fd => fd.Date == currentDate).ToArray()).ToList();
+            var templateDateForDivisions = divisionMappings
+                .Select(mapping => mapping.TemplateDivision.Dates.ElementAtOrDefault(templateDateIndex))
+                .Cast<DateTemplateDto>()
+                .ToArray();
+            var fixtureDateForDivisions = context.MatchContext.Divisions
+                .Select(d => d.Fixtures.Where(fd => fd.Date == currentDate).ToArray())
+                .ToList();
 
             // there must be no fixtures, notes or tournaments on this date
             if (!AreThereAnyFixturesNotesOrTournaments(fixtureDateForDivisions))
@@ -72,13 +77,16 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
     {
         var divisionMappings = context.MatchContext.GetDivisionMappings(context.Template);
         var success = true;
+        var division = 0;
 
         foreach (var mapping in divisionMappings.Zip(templateDateForDivisions))
         {
             token.ThrowIfCancellationRequested();
 
-            var fixturesToCreate = mapping.Second.Fixtures;
-            var divisionToAddFixturesTo = mapping.First.SeasonDivision;
+            division++;
+            var weekOffset = 1 + (currentDate - context.MatchContext.SeasonDto.StartDate).TotalDays / 7;
+            var fixturesToCreate = mapping.Second.Fixtures ?? throw new NullReferenceException($"No fixtures for week {weekOffset} in division {division}");
+            var divisionToAddFixturesTo = mapping.First.SeasonDivision ?? throw new NullReferenceException($"No second division for week {weekOffset} in division {division}");
             var fixtureDate = divisionToAddFixturesTo.Fixtures.FirstOrDefault(fd => fd.Date == currentDate);
             if (fixtureDate == null)
             {
