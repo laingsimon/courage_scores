@@ -288,7 +288,7 @@ export function Templates() {
             return;
         }
 
-        await changeSelected(JSON.parse(json));
+        await changeSelected(Object.assign({}, selected, JSON.parse(json)));
     }
 
     async function updateTemplate(newTemplate: TemplateDto) {
