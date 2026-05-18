@@ -23,6 +23,13 @@ import { seasonBuilder } from '../../helpers/builders/seasons';
 import { IDivisionApi } from '../../interfaces/apis/IDivisionApi';
 import { ISeasonApi } from '../../interfaces/apis/ISeasonApi';
 
+const mockedUsedNavigate = jest.fn();
+
+jest.mock('react-router', () => ({
+    ...jest.requireActual('react-router'),
+    useNavigate: () => mockedUsedNavigate,
+}));
+
 describe('DivisionControls', () => {
     let context: TestContext;
     let reportedError: ErrorState;
@@ -33,6 +40,8 @@ describe('DivisionControls', () => {
     let updatedDivision: EditDivisionDto | null;
     let seasonApiResult: IClientActionResultDto<SeasonDto> | null;
     let divisionApiResult: IClientActionResultDto<DivisionDto> | null;
+    const updatedDivisionNameSuffix = ' NEW NAME';
+    const updatedSeasonNameSuffix = ' NEW NAME';
 
     const seasonApi = api<ISeasonApi>({
         update: async (
@@ -43,7 +52,7 @@ describe('DivisionControls', () => {
                 seasonApiResult || {
                     success: true,
                     result: {
-                        name: data.name,
+                        name: data.name + updatedSeasonNameSuffix,
                     } as SeasonDto,
                 }
             );
@@ -58,7 +67,7 @@ describe('DivisionControls', () => {
                 divisionApiResult || {
                     success: true,
                     result: {
-                        name: data.name,
+                        name: data.name + updatedDivisionNameSuffix,
                     } as DivisionDto,
                 }
             );
@@ -70,6 +79,7 @@ describe('DivisionControls', () => {
     });
 
     beforeEach(() => {
+        jest.resetAllMocks();
         reportedError = new ErrorState();
         changedDivisionOrSeason = undefined;
         reloadDivisionsCalled = false;
@@ -804,9 +814,17 @@ describe('DivisionControls', () => {
 
                 reportedError.verifyNoError();
                 expect(updatedSeason!.name).toEqual('NEW SEASON');
+                expect(mockedUsedNavigate).toHaveBeenCalledWith('/test?');
+                reportedError.verifyNoError();
+                expect(
+                    context.optional('.btn-group .modal-dialog'),
+                ).toBeFalsy();
+                expect(changedDivisionOrSeason).toEqual(false);
+                expect(reloadSeasonsCalled).toEqual(true);
+                expect(updatedSeason).not.toBeNull();
             });
 
-            it('can save season details', async () => {
+            it('updates season name in address', async () => {
                 await renderComponent(
                     {
                         originalSeasonData: season5,
@@ -815,21 +833,25 @@ describe('DivisionControls', () => {
                     account,
                     seasons,
                     divisions,
+                    '/teams/:season',
+                    '/teams/Season%205/?division=Division+5',
                 );
                 reportedError.verifyNoError();
                 await getSeasonButtonGroup()
                     .button(`Season 5 ${seasonDates(season5)}✏`)
                     .click();
+                const newName = 'NEW SEASON';
 
+                await context
+                    .required('.btn-group .modal-dialog')
+                    .input('name')
+                    .change(newName);
                 await context.button('Update season').click();
 
-                reportedError.verifyNoError();
-                expect(
-                    context.optional('.btn-group .modal-dialog'),
-                ).toBeFalsy();
-                expect(changedDivisionOrSeason).toEqual(false);
-                expect(reloadSeasonsCalled).toEqual(true);
-                expect(updatedSeason).not.toBeNull();
+                const expected = encodeURI(newName + updatedSeasonNameSuffix);
+                expect(mockedUsedNavigate).toHaveBeenCalledWith(
+                    `/teams/${expected}/?division=Division+5`,
+                );
             });
 
             it('handles error when saving season details', async () => {
@@ -940,9 +962,17 @@ describe('DivisionControls', () => {
 
                 reportedError.verifyNoError();
                 expect(updatedDivision!.name).toEqual('NEW DIVISION');
+                expect(mockedUsedNavigate).toHaveBeenCalledWith('/test?');
+                reportedError.verifyNoError();
+                expect(
+                    context.optional('.btn-group .modal-dialog'),
+                ).toBeFalsy();
+                expect(changedDivisionOrSeason).toEqual(false);
+                expect(reloadDivisionsCalled).toEqual(true);
+                expect(updatedDivision).not.toBeNull();
             });
 
-            it('can save division details', async () => {
+            it('updates division name in address', async () => {
                 await renderComponent(
                     {
                         originalSeasonData: season5,
@@ -951,19 +981,24 @@ describe('DivisionControls', () => {
                     account,
                     seasons,
                     divisions,
+                    '/teams/:season',
+                    '/teams/Season%205/?division=Division+5',
                 );
                 reportedError.verifyNoError();
                 await getDivisionButtonGroup().button('Division 5✏').click();
+                const newName = 'NEW DIVISION';
 
+                await context
+                    .required('.btn-group .modal-dialog')
+                    .input('name')
+                    .change(newName);
                 await context.button('Update division').click();
 
-                reportedError.verifyNoError();
-                expect(
-                    context.optional('.btn-group .modal-dialog'),
-                ).toBeFalsy();
-                expect(changedDivisionOrSeason).toEqual(false);
-                expect(reloadDivisionsCalled).toEqual(true);
-                expect(updatedDivision).not.toBeNull();
+                const expectedRaw = newName + updatedDivisionNameSuffix;
+                const expected = expectedRaw.replaceAll(' ', '+');
+                expect(mockedUsedNavigate).toHaveBeenCalledWith(
+                    `/teams/Season%205/?division=${expected}`,
+                );
             });
 
             it('handles error when saving division details', async () => {
