@@ -6,7 +6,7 @@ namespace CourageScores.Services.Health.Checks;
 public class SameNumberOfWeeks : ISeasonHealthCheck
 {
     [ExcludeFromCodeCoverage]
-    public string Name => "All fixtures should have the same number of weeks";
+    public string Name => "All divisions should have the same number of weeks";
 
     public Task<HealthCheckResultDto> RunCheck(IReadOnlyCollection<DivisionHealthDto> divisions, HealthCheckContext context, CancellationToken token)
     {
