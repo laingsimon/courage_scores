@@ -8,6 +8,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { DivisionControls, IDivisionControlsProps } from './DivisionControls';
 import { renderDate } from '../../helpers/rendering';
@@ -328,15 +329,10 @@ describe('DivisionControls', () => {
     });
 
     describe('when logged in', () => {
-        const account: UserDto = {
-            name: '',
-            givenName: '',
-            emailAddress: '',
-            access: {
-                manageDivisions: true,
-                manageSeasons: true,
-            },
-        };
+        const account = user({
+            manageDivisions: true,
+            manageSeasons: true,
+        });
         const division3: DivisionDto = divisionBuilder('Division 3').build();
         const division4: DivisionDto = divisionBuilder('Division 4').build();
         const season3: SeasonDto = seasonBuilder('Season 3')
@@ -740,15 +736,10 @@ describe('DivisionControls', () => {
         });
 
         describe('when logged in', () => {
-            const account: UserDto = {
-                name: '',
-                givenName: '',
-                emailAddress: '',
-                access: {
-                    manageDivisions: true,
-                    manageSeasons: true,
-                },
-            };
+            const account = user({
+                manageDivisions: true,
+                manageSeasons: true,
+            });
 
             it('can show edit season dialog', async () => {
                 await renderComponent(

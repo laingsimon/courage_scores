@@ -5,6 +5,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { DebugOptions } from './DebugOptions';
 import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
@@ -36,12 +37,7 @@ describe('DebugOptions', () => {
     });
 
     it('does not render when no access', async () => {
-        const account: UserDto = {
-            emailAddress: '',
-            name: '',
-            givenName: '',
-            access: {},
-        };
+        const account = user({});
 
         await renderComponent(account, <span>item</span>);
 
@@ -49,14 +45,9 @@ describe('DebugOptions', () => {
     });
 
     it('does not render when not permitted', async () => {
-        const account: UserDto = {
-            emailAddress: '',
-            name: '',
-            givenName: '',
-            access: {
-                showDebugOptions: false,
-            },
-        };
+        const account = user({
+            showDebugOptions: false,
+        });
 
         await renderComponent(account, <span>item</span>);
 
@@ -64,14 +55,9 @@ describe('DebugOptions', () => {
     });
 
     it('does not render when permitted', async () => {
-        const account: UserDto = {
-            emailAddress: '',
-            name: '',
-            givenName: '',
-            access: {
-                showDebugOptions: true,
-            },
-        };
+        const account = user({
+            showDebugOptions: true,
+        });
 
         await renderComponent(account, <span>item</span>);
 
@@ -79,14 +65,9 @@ describe('DebugOptions', () => {
     });
 
     it('can expand dropdown', async () => {
-        const account: UserDto = {
-            emailAddress: '',
-            name: '',
-            givenName: '',
-            access: {
-                showDebugOptions: true,
-            },
-        };
+        const account = user({
+            showDebugOptions: true,
+        });
         await renderComponent(account, <span>item</span>);
 
         await context.required('.dropdown-toggle').click();
@@ -95,14 +76,9 @@ describe('DebugOptions', () => {
     });
 
     it('can collapse dropdown', async () => {
-        const account: UserDto = {
-            emailAddress: '',
-            name: '',
-            givenName: '',
-            access: {
-                showDebugOptions: true,
-            },
-        };
+        const account = user({
+            showDebugOptions: true,
+        });
         await renderComponent(account, <span>item</span>);
         await context.required('.dropdown-menu').click();
 

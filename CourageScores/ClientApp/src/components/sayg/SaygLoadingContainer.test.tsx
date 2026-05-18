@@ -9,6 +9,7 @@ import {
     noop,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { act } from '@testing-library/react';
 import {
@@ -25,7 +26,6 @@ import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/
 import { IClientActionResultDto } from '../common/IClientActionResultDto';
 import { ISubscriptions } from '../../live/ISubscriptions';
 import { ILiveOptions } from '../../live/ILiveOptions';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
 import { IAppContainerProps } from '../common/AppContainer';
 import { ISaygApi } from '../../interfaces/apis/ISaygApi';
 import { ISubscriptionRequest } from '../../live/ISubscriptionRequest';
@@ -459,12 +459,7 @@ describe('SaygLoadingContainer', () => {
                 .withLeg(0, (l) => l.startingScore(501).home().away())
                 .addTo(saygDataMap)
                 .build();
-            const account: UserDto = {
-                emailAddress: '',
-                name: '',
-                givenName: '',
-                access: { useWebSockets: true },
-            };
+            const account = user({ useWebSockets: true });
             await renderComponent(
                 {
                     children: (
@@ -508,12 +503,7 @@ describe('SaygLoadingContainer', () => {
                 .withLeg(0, (l) => l.startingScore(501).home().away())
                 .addTo(saygDataMap)
                 .build();
-            const account: UserDto = {
-                givenName: '',
-                name: '',
-                emailAddress: '',
-                access: { useWebSockets: true },
-            };
+            const account = user({ useWebSockets: true });
             await renderComponent(
                 {
                     children: (
@@ -570,12 +560,7 @@ describe('SaygLoadingContainer', () => {
             const newSaygData = saygBuilder(saygData.id)
                 .withLeg(0, (l) => l.startingScore(601).home().away())
                 .build();
-            const account: UserDto = {
-                emailAddress: '',
-                name: '',
-                givenName: '',
-                access: { useWebSockets: true },
-            };
+            const account = user({ useWebSockets: true });
             await renderComponent(
                 {
                     children: (
@@ -667,12 +652,7 @@ describe('SaygLoadingContainer', () => {
                 .withLeg(0, (l) => l.startingScore(501).home().away())
                 .addTo(saygDataMap)
                 .build();
-            const account: UserDto = {
-                emailAddress: '',
-                name: '',
-                givenName: '',
-                access: { useWebSockets: true },
-            };
+            const account = user({ useWebSockets: true });
             await renderComponent(
                 {
                     children: (

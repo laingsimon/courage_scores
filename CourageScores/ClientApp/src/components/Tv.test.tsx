@@ -6,6 +6,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../helpers/tests';
 import { Tv } from './Tv';
 import { ILiveApi } from '../interfaces/apis/ILiveApi';
@@ -14,7 +15,6 @@ import { createTemporaryId } from '../helpers/projection';
 import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType';
 import { PublicationMode } from '../interfaces/models/dtos/Live/PublicationMode';
 import { IAppContainerProps } from './common/AppContainer';
-import { UserDto } from '../interfaces/models/dtos/Identity/UserDto';
 
 describe('Tv', () => {
     let context: TestContext;
@@ -71,14 +71,9 @@ describe('Tv', () => {
     });
 
     describe('when not permitted', () => {
-        const account: UserDto = {
-            emailAddress: '',
-            name: '',
-            givenName: '',
-            access: {
-                useWebSockets: false,
-            },
-        };
+        const account = user({
+            useWebSockets: false,
+        });
 
         it('does not render login link', async () => {
             await renderComponent(appProps({ account }));
@@ -106,14 +101,9 @@ describe('Tv', () => {
     });
 
     describe('when permitted', () => {
-        const account: UserDto = {
-            emailAddress: '',
-            name: '',
-            givenName: '',
-            access: {
-                useWebSockets: true,
-            },
-        };
+        const account = user({
+            useWebSockets: true,
+        });
 
         it('requests links', async () => {
             await renderComponent(appProps({ account }));

@@ -6,6 +6,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { IPhotoManagerProps, PhotoManager } from './PhotoManager';
 import { IAppContainerProps } from './AppContainer';
@@ -71,14 +72,9 @@ describe('PhotoManager', () => {
     }
 
     describe('renders', () => {
-        const account: UserDto = {
-            name: 'USER',
-            givenName: '',
-            emailAddress: '',
-            access: {
-                deleteAnyPhoto: true,
-            },
-        };
+        const account = user({
+            deleteAnyPhoto: true,
+        });
         const myPhoto: PhotoReferenceDto = {
             id: createTemporaryId(),
             contentType: 'image/png',

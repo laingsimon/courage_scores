@@ -8,6 +8,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { createTemporaryId } from '../../helpers/projection';
 import {
@@ -84,14 +85,9 @@ describe('DivisionReports', () => {
     }
 
     describe('when logged in', () => {
-        const account: UserDto = {
-            name: '',
-            givenName: '',
-            emailAddress: '',
-            access: {
-                runReports: true,
-            },
-        };
+        const account = user({
+            runReports: true,
+        });
 
         it('renders component', async () => {
             const divisionId = createTemporaryId();

@@ -7,6 +7,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { DivisionPlayer, IDivisionPlayerProps } from './DivisionPlayer';
 import {
@@ -411,14 +412,9 @@ describe('DivisionPlayer', () => {
     });
 
     describe('when logged in', () => {
-        const account: UserDto = {
-            name: '',
-            givenName: '',
-            emailAddress: '',
-            access: {
-                managePlayers: true,
-            },
-        };
+        const account = user({
+            managePlayers: true,
+        });
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const season: SeasonDto = seasonBuilder('SEASON')
             .withDivision(division)

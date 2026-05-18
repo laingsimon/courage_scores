@@ -8,6 +8,7 @@ import {
     noop,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import {
     ITournamentDetailsProps,
@@ -23,7 +24,6 @@ import { IDataApi } from '../../interfaces/apis/IDataApi';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
 import { seasonBuilder } from '../../helpers/builders/seasons';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
 import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
 import { IAppContainerProps } from '../common/AppContainer';
 
@@ -82,16 +82,11 @@ describe('TournamentDetails', () => {
         .build();
 
     describe('renders', () => {
-        const account: UserDto = {
-            name: '',
-            emailAddress: '',
-            givenName: '',
-            access: {
-                manageTournaments: true,
-                managePlayers: true,
-                recordScoresAsYouGo: true,
-            },
-        };
+        const account = user({
+            manageTournaments: true,
+            managePlayers: true,
+            recordScoresAsYouGo: true,
+        });
 
         it('tournament without any sides', async () => {
             const tournamentData = tournamentBuilder()
@@ -144,27 +139,17 @@ describe('TournamentDetails', () => {
     });
 
     describe('interactivity', () => {
-        const account: UserDto = {
-            name: '',
-            emailAddress: '',
-            givenName: '',
-            access: {
-                manageTournaments: true,
-                managePlayers: true,
-                recordScoresAsYouGo: true,
-            },
-        };
-        const canExportAccount: UserDto = {
-            name: '',
-            emailAddress: '',
-            givenName: '',
-            access: {
-                manageTournaments: true,
-                managePlayers: true,
-                recordScoresAsYouGo: true,
-                exportData: true,
-            },
-        };
+        const account = user({
+            manageTournaments: true,
+            managePlayers: true,
+            recordScoresAsYouGo: true,
+        });
+        const canExportAccount = user({
+            manageTournaments: true,
+            managePlayers: true,
+            recordScoresAsYouGo: true,
+            exportData: true,
+        });
 
         it('can update accolades count', async () => {
             const tournamentData = tournamentBuilder()

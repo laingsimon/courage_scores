@@ -8,6 +8,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { createTemporaryId } from '../../helpers/projection';
 import {
@@ -181,14 +182,9 @@ describe('DivisionTeams', () => {
 
     describe('when logged in', () => {
         beforeEach(() => {
-            account = {
-                name: '',
-                emailAddress: '',
-                givenName: '',
-                access: {
-                    manageTeams: true,
-                },
-            };
+            account = user({
+                manageTeams: true,
+            });
         });
 
         it('renders teams', async () => {

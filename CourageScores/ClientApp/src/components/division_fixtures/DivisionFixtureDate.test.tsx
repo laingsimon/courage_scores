@@ -6,6 +6,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { createTemporaryId } from '../../helpers/projection';
 import { renderDate } from '../../helpers/rendering';
@@ -571,15 +572,10 @@ describe('DivisionFixtureDate', () => {
             .address('ANOTHER ADDRESS')
             .forSeason(season, division)
             .build();
-        const account: UserDto = {
-            emailAddress: '',
-            name: '',
-            givenName: '',
-            access: {
-                manageGames: true,
-                manageNotes: true,
-            },
-        };
+        const account = user({
+            manageGames: true,
+            manageNotes: true,
+        });
 
         it('renders without potential league fixtures when any tournaments exist', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
