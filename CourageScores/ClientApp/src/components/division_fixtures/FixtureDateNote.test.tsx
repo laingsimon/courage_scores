@@ -6,6 +6,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { FixtureDateNote, IFixtureDateNoteProps } from './FixtureDateNote';
 import { DivisionDataContainer } from '../league/DivisionDataContainer';
@@ -82,14 +83,9 @@ describe('FixtureDateNote', () => {
         });
 
         it('when logged in, without ability to delete', async () => {
-            const account: UserDto = {
-                givenName: '',
-                name: '',
-                emailAddress: '',
-                access: {
-                    manageNotes: true,
-                },
-            };
+            const account = user({
+                manageNotes: true,
+            });
             await renderComponent(
                 {
                     note: noteBuilder().note('**some markdown**').build(),
@@ -105,14 +101,9 @@ describe('FixtureDateNote', () => {
         });
 
         it('when logged in, with ability to delete', async () => {
-            const account: UserDto = {
-                givenName: '',
-                name: '',
-                emailAddress: '',
-                access: {
-                    manageNotes: true,
-                },
-            };
+            const account = user({
+                manageNotes: true,
+            });
             await renderComponent(
                 {
                     note: noteBuilder().note('**some markdown**').build(),
@@ -128,14 +119,9 @@ describe('FixtureDateNote', () => {
         });
 
         it('when logged in, without ability to edit', async () => {
-            const account: UserDto = {
-                givenName: '',
-                name: '',
-                emailAddress: '',
-                access: {
-                    manageNotes: true,
-                },
-            };
+            const account = user({
+                manageNotes: true,
+            });
             await renderComponent(
                 {
                     note: noteBuilder().note('**some markdown**').build(),
@@ -151,14 +137,9 @@ describe('FixtureDateNote', () => {
 
     describe('interactivity', () => {
         it('can delete note', async () => {
-            const account: UserDto = {
-                givenName: '',
-                name: '',
-                emailAddress: '',
-                access: {
-                    manageNotes: true,
-                },
-            };
+            const account = user({
+                manageNotes: true,
+            });
             const note = noteBuilder().note('**some markdown**').build();
             await renderComponent({ note, setEditNote }, account);
             context.prompts.respondToConfirm(
@@ -175,14 +156,9 @@ describe('FixtureDateNote', () => {
         });
 
         it('prevents delete if user does not agree', async () => {
-            const account: UserDto = {
-                givenName: '',
-                name: '',
-                emailAddress: '',
-                access: {
-                    manageNotes: true,
-                },
-            };
+            const account = user({
+                manageNotes: true,
+            });
             const note = noteBuilder().note('**some markdown**').build();
             await renderComponent({ note, setEditNote }, account);
             context.prompts.respondToConfirm(
@@ -199,14 +175,9 @@ describe('FixtureDateNote', () => {
         });
 
         it('alerts if unable to delete', async () => {
-            const account: UserDto = {
-                givenName: '',
-                name: '',
-                emailAddress: '',
-                access: {
-                    manageNotes: true,
-                },
-            };
+            const account = user({
+                manageNotes: true,
+            });
             const note = noteBuilder().note('**some markdown**').build();
             await renderComponent({ note, setEditNote }, account);
             deleteResult = { success: false };
@@ -221,14 +192,9 @@ describe('FixtureDateNote', () => {
         });
 
         it('can edit note', async () => {
-            const account: UserDto = {
-                givenName: '',
-                name: '',
-                emailAddress: '',
-                access: {
-                    manageNotes: true,
-                },
-            };
+            const account = user({
+                manageNotes: true,
+            });
             const note = noteBuilder().note('**some markdown**').build();
             await renderComponent({ note, setEditNote }, account);
 

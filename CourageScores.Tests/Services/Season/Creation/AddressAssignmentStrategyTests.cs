@@ -171,7 +171,7 @@ public class AddressAssignmentStrategyTests
         Assert.That(result, Is.False);
         Assert.That(context.Result.Errors, Is.EquivalentTo(new[]
         {
-            "Shared address has more teams than the template supports",
+            "Shared address has more teams 1 x (C) than the template supports None",
         }));
     }
 
@@ -350,7 +350,7 @@ public class AddressAssignmentStrategyTests
         Assert.That(result, Is.False);
         Assert.That(context.Result.Errors, Is.EquivalentTo(new[]
         {
-            "Division 1: Shared address has more teams than the template supports",
+            "Division 1: Shared address has more teams 3 x (A, B, C) than the template supports 2 x (A, B)",
         }));
     }
 

@@ -9,6 +9,7 @@ import {
     noop,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { PracticeMatch } from './PracticeMatch';
 import { createTemporaryId } from '../../helpers/projection';
@@ -460,14 +461,13 @@ describe('PracticeMatch', () => {
     });
 
     describe('logged in', () => {
-        const account: UserDto = {
-            givenName: 'GIVEN NAME',
-            name: 'NAME',
-            emailAddress: '',
-            access: {
+        const account = user(
+            {
                 useWebSockets: false,
             },
-        };
+            undefined,
+            'GIVEN NAME',
+        );
 
         it('when no data loaded, sets your name to account givenName', async () => {
             await renderComponent(account, '');

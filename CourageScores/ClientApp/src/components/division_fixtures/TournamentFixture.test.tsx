@@ -9,6 +9,7 @@ import {
     noop,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { createTemporaryId } from '../../helpers/projection';
 import {
@@ -572,14 +573,9 @@ describe('TournamentFixture', () => {
         const season: SeasonDto = seasonBuilder('SEASON').build();
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const player: DivisionPlayerDto = playerBuilder('PLAYER').build();
-        const account: UserDto = {
-            name: '',
-            givenName: '',
-            emailAddress: '',
-            access: {
-                manageTournaments: true,
-            },
-        };
+        const account = user({
+            manageTournaments: true,
+        });
 
         it('can delete tournament', async () => {
             const tournament = tournamentBuilder()

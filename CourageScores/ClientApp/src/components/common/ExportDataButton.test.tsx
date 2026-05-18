@@ -7,6 +7,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { ExportDataButton, IExportDataButtonProps } from './ExportDataButton';
 import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
@@ -58,14 +59,9 @@ describe('ExportDataButton', () => {
     });
 
     describe('when logged in, not permitted to export', () => {
-        const account: UserDto = {
-            emailAddress: '',
-            name: '',
-            givenName: '',
-            access: {
-                exportData: false,
-            },
-        };
+        const account = user({
+            exportData: false,
+        });
 
         it('renders nothing', async () => {
             await renderComponent({}, account);
@@ -75,14 +71,9 @@ describe('ExportDataButton', () => {
     });
 
     describe('when logged in, permitted to export', () => {
-        const account: UserDto = {
-            emailAddress: '',
-            name: '',
-            givenName: '',
-            access: {
-                exportData: true,
-            },
-        };
+        const account = user({
+            exportData: true,
+        });
 
         it('when nothing to export, does not render button', async () => {
             await renderComponent({}, account);

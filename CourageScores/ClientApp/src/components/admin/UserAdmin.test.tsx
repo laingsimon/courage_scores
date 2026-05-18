@@ -7,6 +7,7 @@
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { UserAdmin } from './UserAdmin';
 import { AdminContainer } from './AdminContainer';
@@ -94,14 +95,9 @@ describe('UserAdmin', () => {
     });
 
     it('renders user with no access', async () => {
-        const account: UserDto = {
-            givenName: '',
-            emailAddress: 'a@b.com',
-            name: 'Admin',
-            access: {
-                manageAccess: true,
-            },
-        };
+        const account = user({
+            manageAccess: true,
+        });
         const otherAccount: UserDto = {
             givenName: '',
             emailAddress: 'c@d.com',
@@ -238,22 +234,12 @@ describe('UserAdmin', () => {
     });
 
     it('can change access for self', async () => {
-        const account: UserDto = {
-            givenName: '',
-            emailAddress: 'a@b.com',
-            name: 'Admin',
-            access: {
-                manageAccess: true,
-            },
-        };
-        const otherAccount: UserDto = {
-            givenName: '',
-            emailAddress: 'c@d.com',
-            name: 'Other user',
-            access: {
-                manageAccess: true,
-            },
-        };
+        const account = user({
+            manageAccess: true,
+        });
+        const otherAccount = user({
+            manageAccess: true,
+        });
         await renderComponent([account, otherAccount], account);
         await getAccess('manageGames').click();
 

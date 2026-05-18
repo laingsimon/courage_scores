@@ -3,7 +3,7 @@ import {
     DropdownMenu,
     DropdownToggle,
 } from '../common/ButtonDropdown';
-import { Link, useLocation, useParams } from 'react-router';
+import { Link, useLocation, useNavigate, useParams } from 'react-router';
 import { useState } from 'react';
 import { ErrorDisplay } from '../common/ErrorDisplay';
 import { Dialog } from '../common/Dialog';
@@ -59,6 +59,7 @@ export function DivisionControls({
         null,
     );
     const location = useLocation();
+    const navigate = useNavigate();
 
     function toggleDropdown(name: string) {
         if (openDropdown === null || openDropdown !== name) {
@@ -81,7 +82,13 @@ export function DivisionControls({
                         setDivisionData(data)
                     }
                     onClose={async () => setDivisionData(null)}
-                    onSave={async () => {
+                    onSave={async (division: DivisionDto) => {
+                        if (originalDivisionData) {
+                            updateNameInAddress(
+                                originalDivisionData.name,
+                                division.name,
+                            );
+                        }
                         await reloadDivisions();
                         if (onDivisionOrSeasonChanged) {
                             await onDivisionOrSeasonChanged(false);
@@ -96,6 +103,22 @@ export function DivisionControls({
         );
     }
 
+    function updateNameInAddress(oldName: string, newName: string) {
+        const newPath = location.pathname.replace(
+            encodeURI(oldName),
+            encodeURI(newName),
+        );
+        const oldSearch = new URLSearchParams(location.search);
+        const newSearch = new URLSearchParams(location.search);
+        for (const [key, value] of oldSearch.entries()) {
+            if (value === oldName) {
+                newSearch.set(key, newName);
+            }
+        }
+        const newAddress = `${newPath}?${newSearch}${location.hash}`;
+        navigate(newAddress);
+    }
+
     function renderEditSeasonDialog() {
         return (
             <Dialog
@@ -107,7 +130,13 @@ export function DivisionControls({
                         setSeasonData(season)
                     }
                     onClose={async () => setSeasonData(null)}
-                    onSave={async () => {
+                    onSave={async (season: SeasonDto) => {
+                        if (originalSeasonData) {
+                            updateNameInAddress(
+                                originalSeasonData.name,
+                                season.name,
+                            );
+                        }
                         await reloadSeasons();
                         if (onDivisionOrSeasonChanged) {
                             await onDivisionOrSeasonChanged(false);

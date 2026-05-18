@@ -439,10 +439,14 @@ export interface IBrowserNavigator {
     share: (data: ShareData) => void;
 }
 
-export function user(access: AccessDto, teamId?: string): UserDto {
+export function user(
+    access: AccessDto,
+    teamId?: string,
+    givenName?: string,
+): UserDto {
     return {
         name: '',
-        givenName: '',
+        givenName: givenName ?? '',
         emailAddress: '',
         access,
         teamId,

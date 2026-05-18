@@ -10,11 +10,12 @@ import {
     TemplateTextEditor,
 } from './TemplateTextEditor';
 import { TemplateVisualEditor } from './TemplateVisualEditor';
-import { useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto';
 import { IClientActionResultDto } from '../common/IClientActionResultDto';
 import { SeasonHealthCheckResultDto } from '../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto';
 import { EditTemplateDto } from '../../interfaces/models/dtos/Season/Creation/EditTemplateDto';
+import { UntypedPromise } from '../../interfaces/UntypedPromise';
 
 export function Templates() {
     const EMPTY_TEMPLATE: EditTemplateDto = {
@@ -38,6 +39,19 @@ export function Templates() {
         useState<boolean>(false);
     const location = useLocation();
     const [copied, setCopied] = useState<boolean>(false);
+    const navigate = useNavigate();
+
+    async function changeSelected(
+        selected: EditTemplateDto | null,
+    ): UntypedPromise {
+        setSelected(selected);
+        if (selected) {
+            navigate(`/admin/templates/?select=${selected.name}`);
+            setValid(true);
+        } else {
+            navigate(`/admin/templates`);
+        }
+    }
 
     async function loadTemplates() {
         try {
@@ -54,14 +68,14 @@ export function Templates() {
                     (t) => t.id === idish || t.name === idish,
                 )[0];
                 if (templateToSelect) {
-                    setSelected(templateToSelect);
+                    await changeSelected(templateToSelect);
                 }
             } else if (selected) {
                 // replace the selected template with what has just been (re)loaded
                 const newSelectedItem: TemplateDto[] = templates.filter(
                     (t) => t.id === selected.id,
                 );
-                setSelected(
+                await changeSelected(
                     newSelectedItem.length === 1 ? newSelectedItem[0] : null,
                 );
             }
@@ -118,25 +132,25 @@ export function Templates() {
         if (selected && response && response.result) {
             const newTemplate: EditTemplateDto = Object.assign({}, selected);
             newTemplate.templateHealth = response.result;
-            setSelected(newTemplate);
+            await changeSelected(newTemplate);
         }
     }
 
     function toggleSelected(t: TemplateDto) {
         return () => {
             if (isSelected(t)) {
-                setSelected(null);
+                changeSelected(null);
                 return;
             }
 
-            setSelected(Object.assign({}, t));
+            changeSelected(Object.assign({}, t));
             setEditingTemplate(t);
         };
     }
 
     function setEditingTemplate(t: EditTemplateDto) {
         setValid(true);
-        setSelected(Object.assign({}, t));
+        changeSelected(Object.assign({}, t));
         setCopied(false);
     }
 
@@ -248,7 +262,7 @@ export function Templates() {
         try {
             const result = await templateApi.delete(selected!.id!);
             if (result.success) {
-                setSelected(null);
+                await changeSelected(null);
                 await loadTemplates();
             } else {
                 setSaveError(result);
@@ -274,11 +288,11 @@ export function Templates() {
             return;
         }
 
-        setSelected(JSON.parse(json));
+        await changeSelected(Object.assign({}, selected, JSON.parse(json)));
     }
 
     async function updateTemplate(newTemplate: TemplateDto) {
-        setSelected(newTemplate);
+        await changeSelected(newTemplate);
         setShouldRefreshHealth(true);
     }
 
@@ -304,7 +318,10 @@ export function Templates() {
                                 name="name"
                                 className="form-control"
                                 value={selected.name || ''}
-                                onChange={valueChanged(selected, setSelected)}
+                                onChange={valueChanged(
+                                    selected,
+                                    changeSelected,
+                                )}
                             />
                         </div>
                         <div className="input-group mb-3">
@@ -317,7 +334,10 @@ export function Templates() {
                                 name="description"
                                 className="form-control"
                                 value={selected.description || ''}
-                                onChange={valueChanged(selected, setSelected)}
+                                onChange={valueChanged(
+                                    selected,
+                                    changeSelected,
+                                )}
                             />
                         </div>
                         <div className="form-check form-switch input-group-prepend mb-2">

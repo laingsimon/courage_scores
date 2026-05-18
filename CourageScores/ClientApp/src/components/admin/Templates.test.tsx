@@ -6,6 +6,7 @@ import {
     brandingProps,
     cleanUp,
     ErrorState,
+    IComponent,
     iocProps,
     noop,
     renderApp,
@@ -17,6 +18,13 @@ import { IClientActionResultDto } from '../common/IClientActionResultDto';
 import { SeasonHealthCheckResultDto } from '../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto';
 import { EditTemplateDto } from '../../interfaces/models/dtos/Season/Creation/EditTemplateDto';
 import { ISeasonTemplateApi } from '../../interfaces/apis/ISeasonTemplateApi';
+
+const mockedUsedNavigate = jest.fn();
+
+jest.mock('react-router', () => ({
+    ...jest.requireActual('react-router'),
+    useNavigate: () => mockedUsedNavigate,
+}));
 
 describe('Templates', () => {
     let context: TestContext;
@@ -92,6 +100,16 @@ describe('Templates', () => {
         );
     }
 
+    function assertMessages(
+        items: IComponent[],
+        type: 'danger' | 'warning' | 'success',
+        expected: string[][],
+    ) {
+        expect(
+            items.map((li) => li.all(`span.bg-${type}`).map((s) => s.text())),
+        ).toEqual(expected);
+    }
+
     describe('renders', () => {
         it('renders templates', async () => {
             const template: TemplateDto = {
@@ -113,21 +131,9 @@ describe('Templates', () => {
             expect(
                 templateItems.map((li) => li.required('small').text()),
             ).toEqual(['DESCRIPTION']);
-            expect(
-                templateItems.map((li) =>
-                    li.all('span.bg-danger').map((s) => s.text()),
-                ),
-            ).toEqual([[]]);
-            expect(
-                templateItems.map((li) =>
-                    li.all('span.bg-warning').map((s) => s.text()),
-                ),
-            ).toEqual([[]]);
-            expect(
-                templateItems.map((li) =>
-                    li.all('span.bg-success').map((s) => s.text()),
-                ),
-            ).toEqual([[]]);
+            assertMessages(templateItems, 'danger', [[]]);
+            assertMessages(templateItems, 'warning', [[]]);
+            assertMessages(templateItems, 'success', [[]]);
         });
 
         it('renders selected template by id', async () => {
@@ -193,21 +199,9 @@ describe('Templates', () => {
             expect(templateItems.map((li) => li.optional('small'))).toEqual([
                 undefined,
             ]);
-            expect(
-                templateItems.map((li) =>
-                    li.all('span.bg-danger').map((s) => s.text()),
-                ),
-            ).toEqual([[]]);
-            expect(
-                templateItems.map((li) =>
-                    li.all('span.bg-warning').map((s) => s.text()),
-                ),
-            ).toEqual([[]]);
-            expect(
-                templateItems.map((li) =>
-                    li.all('span.bg-success').map((s) => s.text()),
-                ),
-            ).toEqual([[]]);
+            assertMessages(templateItems, 'danger', [[]]);
+            assertMessages(templateItems, 'warning', [[]]);
+            assertMessages(templateItems, 'success', [[]]);
         });
 
         it('template with some errors', async () => {
@@ -228,21 +222,9 @@ describe('Templates', () => {
             expect(
                 templateItems.map((li) => li.required('label').text()),
             ).toEqual(['TEMPLATE']);
-            expect(
-                templateItems.map((li) =>
-                    li.all('span.bg-danger').map((s) => s.text()),
-                ),
-            ).toEqual([['1']]);
-            expect(
-                templateItems.map((li) =>
-                    li.all('span.bg-warning').map((s) => s.text()),
-                ),
-            ).toEqual([[]]);
-            expect(
-                templateItems.map((li) =>
-                    li.all('span.bg-success').map((s) => s.text()),
-                ),
-            ).toEqual([[]]);
+            assertMessages(templateItems, 'danger', [['1']]);
+            assertMessages(templateItems, 'warning', [[]]);
+            assertMessages(templateItems, 'success', [[]]);
         });
 
         it('template with some check errors', async () => {
@@ -269,21 +251,9 @@ describe('Templates', () => {
             expect(
                 templateItems.map((li) => li.required('label').text()),
             ).toEqual(['TEMPLATE']);
-            expect(
-                templateItems.map((li) =>
-                    li.all('span.bg-danger').map((s) => s.text()),
-                ),
-            ).toEqual([['1']]);
-            expect(
-                templateItems.map((li) =>
-                    li.all('span.bg-warning').map((s) => s.text()),
-                ),
-            ).toEqual([[]]);
-            expect(
-                templateItems.map((li) =>
-                    li.all('span.bg-success').map((s) => s.text()),
-                ),
-            ).toEqual([[]]);
+            assertMessages(templateItems, 'danger', [['1']]);
+            assertMessages(templateItems, 'warning', [[]]);
+            assertMessages(templateItems, 'success', [[]]);
         });
 
         it('template with an unsuccessful check', async () => {
@@ -310,21 +280,9 @@ describe('Templates', () => {
             expect(
                 templateItems.map((li) => li.required('label').text()),
             ).toEqual(['TEMPLATE']);
-            expect(
-                templateItems.map((li) =>
-                    li.all('span.bg-danger').map((s) => s.text()),
-                ),
-            ).toEqual([[]]);
-            expect(
-                templateItems.map((li) =>
-                    li.all('span.bg-warning').map((s) => s.text()),
-                ),
-            ).toEqual([['1']]);
-            expect(
-                templateItems.map((li) =>
-                    li.all('span.bg-success').map((s) => s.text()),
-                ),
-            ).toEqual([[]]);
+            assertMessages(templateItems, 'danger', [[]]);
+            assertMessages(templateItems, 'warning', [['1']]);
+            assertMessages(templateItems, 'success', [[]]);
         });
 
         it('template with an successful check', async () => {
@@ -351,21 +309,9 @@ describe('Templates', () => {
             expect(
                 templateItems.map((li) => li.required('label').text()),
             ).toEqual(['TEMPLATE']);
-            expect(
-                templateItems.map((li) =>
-                    li.all('span.bg-danger').map((s) => s.text()),
-                ),
-            ).toEqual([[]]);
-            expect(
-                templateItems.map((li) =>
-                    li.all('span.bg-warning').map((s) => s.text()),
-                ),
-            ).toEqual([[]]);
-            expect(
-                templateItems.map((li) =>
-                    li.all('span.bg-success').map((s) => s.text()),
-                ),
-            ).toEqual([['1']]);
+            assertMessages(templateItems, 'danger', [[]]);
+            assertMessages(templateItems, 'warning', [[]]);
+            assertMessages(templateItems, 'success', [['1']]);
         });
     });
 
@@ -393,6 +339,9 @@ describe('Templates', () => {
             expect(templateItems.map((li) => li.className())).toEqual([
                 'list-group-item flex-column active',
             ]);
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(
+                '/admin/templates/?select=TEMPLATE',
+            );
         });
 
         it('can deselect template', async () => {
@@ -419,6 +368,7 @@ describe('Templates', () => {
                 'list-group-item flex-column',
             ]);
             expect(context.optional('textarea')).toBeFalsy();
+            expect(mockedUsedNavigate).toHaveBeenCalledWith('/admin/templates');
         });
 
         it('can save template', async () => {

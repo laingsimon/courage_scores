@@ -8,6 +8,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { createTemporaryId } from '../../helpers/projection';
 import {
@@ -356,14 +357,9 @@ describe('DivisionPlayers', () => {
 
     describe('when logged in', () => {
         beforeEach(() => {
-            account = {
-                name: '',
-                emailAddress: '',
-                givenName: '',
-                access: {
-                    managePlayers: true,
-                },
-            };
+            account = user({
+                managePlayers: true,
+            });
         });
 
         it('renders players with heading and venue', async () => {

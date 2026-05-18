@@ -25,8 +25,22 @@ export function PickTemplate({
 }: IPickTemplateProps) {
     const templateOptions: IBootstrapDropdownItem[] =
         templates && templates.result
-            ? templates.result.map(getTemplateOption)
+            ? templates.result.sort(sortCompatibleFirst).map(getTemplateOption)
             : [];
+
+    function sortCompatibleFirst(
+        x: ActionResultDto<TemplateDto>,
+        y: ActionResultDto<TemplateDto>,
+    ) {
+        const xSuccess = x.success ? 1 : 0;
+        const ySuccess = y.success ? 1 : 0;
+
+        const compatibilityEquality = ySuccess - xSuccess;
+
+        return compatibilityEquality === 0
+            ? x.result!.name!.localeCompare(y.result!.name)
+            : compatibilityEquality;
+    }
 
     function getTemplateOption(
         compatibility: ActionResultDto<TemplateDto>,

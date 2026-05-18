@@ -7,8 +7,8 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
 import { IDivisionApi } from '../../interfaces/apis/IDivisionApi';
 import { ISaygApi } from '../../interfaces/apis/ISaygApi';
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
@@ -67,14 +67,9 @@ describe('AnalyseScores', () => {
     });
 
     async function renderComponent(query?: string, seasonName?: string) {
-        const account: UserDto = {
-            access: {
-                analyseMatches: true,
-            },
-            name: '',
-            givenName: '',
-            emailAddress: '',
-        };
+        const account = user({
+            analyseMatches: true,
+        });
         context = await renderApp(
             iocProps({ divisionApi, saygApi }),
             brandingProps(),

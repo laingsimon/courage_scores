@@ -13,7 +13,7 @@ import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
 
 export interface IEditSeasonProps {
     onClose(): UntypedPromise;
-    onSave(): UntypedPromise;
+    onSave(season: SeasonDto): UntypedPromise;
     setSaveError(error: IClientActionResultDto<SeasonDto>): UntypedPromise;
     data: EditSeasonDto & SeasonDto;
     onUpdateData(season: EditSeasonDto): UntypedPromise;
@@ -46,14 +46,14 @@ export function EditSeason({
 
         try {
             setSaving(true);
-            const result = await seasonApi.update(
+            const response = await seasonApi.update(
                 Object.assign({ lastUpdated: data.updated }, data),
             );
 
-            if (result.success) {
-                await onSave();
+            if (response.success) {
+                await onSave(response.result!);
             } else {
-                await setSaveError(result);
+                await setSaveError(response);
             }
         } catch (e) {
             /* istanbul ignore next */

@@ -6,6 +6,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { NavMenu } from './NavMenu';
 import { ISettings } from '../../api/settings';
@@ -469,12 +470,7 @@ describe('NavMenu', () => {
         };
 
         it('should not show admin link', async () => {
-            const nonAdminAccount: UserDto = {
-                name: '',
-                emailAddress: '',
-                access: {},
-                givenName: 'Not an admin',
-            };
+            const nonAdminAccount = user({});
             await renderComponent(
                 settings,
                 appProps({

@@ -7,6 +7,7 @@ import {
     noop,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { IRefreshControlProps, RefreshControl } from './RefreshControl';
 import { LiveContainer, useLive } from '../../live/LiveContainer';
@@ -53,14 +54,9 @@ describe('RefreshControl', () => {
     }
 
     describe('renders', () => {
-        const account: UserDto = {
-            emailAddress: '',
-            name: '',
-            givenName: '',
-            access: {
-                useWebSockets: true,
-            },
-        };
+        const account = user({
+            useWebSockets: true,
+        });
 
         it('nothing when logged out', async () => {
             const id = createTemporaryId();
@@ -73,10 +69,7 @@ describe('RefreshControl', () => {
         it('nothing when not permitted', async () => {
             const id = createTemporaryId();
 
-            await renderComponent(
-                { id, type: LiveDataType.sayg },
-                { givenName: '', name: '', emailAddress: '', access: {} },
-            );
+            await renderComponent({ id, type: LiveDataType.sayg }, user({}));
 
             expect(context.optional('.dropdown-menu')).toBeFalsy();
         });
@@ -124,14 +117,9 @@ describe('RefreshControl', () => {
     });
 
     describe('interactivity', () => {
-        const account: UserDto = {
-            emailAddress: '',
-            name: '',
-            givenName: '',
-            access: {
-                useWebSockets: true,
-            },
-        };
+        const account = user({
+            useWebSockets: true,
+        });
 
         it('enables live', async () => {
             const id = createTemporaryId();

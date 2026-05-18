@@ -7,6 +7,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests';
 import { createTemporaryId } from '../../helpers/projection';
 import { DivisionTeam } from './DivisionTeam';
@@ -244,14 +245,9 @@ describe('DivisionTeam', () => {
     });
 
     describe('when logged in', () => {
-        const account: UserDto = {
-            emailAddress: '',
-            name: '',
-            givenName: '',
-            access: {
-                manageTeams: true,
-            },
-        };
+        const account = user({
+            manageTeams: true,
+        });
         const division = divisionBuilder('DIVISION').build();
         const season = seasonBuilder('SEASON').withDivision(division).build();
 
