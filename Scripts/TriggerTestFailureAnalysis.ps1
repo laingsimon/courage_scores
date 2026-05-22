@@ -63,7 +63,7 @@ $CommentText = Get-PullRequestCommentText
 
 try
 {
-    Update-PullRequestComment -GitHubToken $AddCommentToken -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $Comments -Markdown "### $($TestsCommentHeading)`n$($CommentText)"
+    Set-PullRequestComment -GitHubToken $AddCommentToken -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $Comments -Markdown "### $($TestsCommentHeading)`n$($CommentText)"
 }
 catch
 {

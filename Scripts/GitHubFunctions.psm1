@@ -42,7 +42,7 @@ Function Get-PullRequests($GitHubToken, $Repo, $Base)
     return $Response | ConvertFrom-Json | Select-Object @{ label='url'; expression={$_.url}}, @{ label='title'; expression={$_.title}}, @{ label='number'; expression={$_.number}}
 }
 
-Function Remove-ExistingComments($GitHubToken, $Comments) 
+Function Clear-ExistingComments($GitHubToken, $Comments) 
 {
     If ($Comments.Count -gt 0)
     {
@@ -51,7 +51,57 @@ Function Remove-ExistingComments($GitHubToken, $Comments)
     }
 }
 
-Function Update-PullRequestComment($GitHubToken, $Repo, $PullRequestNumber, $Comments, $Markdown)
+Function Get-PullRequestReviewComments($GitHubToken, $Repo, $PullRequestNumber, $CommitId, $Path, $Side, $SubjectType)
+{
+    # comments should be returned with an `id` and a `body`
+
+    Write-Host "Get pull-request review comments for #$($PullRequestNumber)"
+
+    $Response = Invoke-WebRequest `
+        -Uri "https://api.github.com/repos/$($Repo)/pulls/$($PullRequestNumber)/comments" `
+        -Method Get `
+        -Headers @{
+            Authorization="Bearer $($GitHubToken)";
+        }
+
+    if ($Response.StatusCode -ne 200)
+    {
+        Write-Error "Error getting pull request review comments from #$($PullRequestNumber)"
+    }
+
+    $Json = $Response | ConvertFrom-Json
+    return $Json
+}
+
+Function Clear-PullRequestReviewComments($GitHubToken, $Repo, $PullRequestNumber, $Comments)
+{
+    $Comments | ForEach-Object { Remove-PullRequestComment -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -CommentId $_.id }
+}
+
+Function Set-PullRequestReviewComment($GitHubToken, $Repo, $PullRequestNumber, $Body, $CommitId, $Path, $Side, $SubjectType)
+{
+    $Marker = "<!-- BuildChecksCommit -->"
+    $AllExistingComments = Get-PullRequestReviewComments -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -CommitId $CommitId -Path $Path -Side $Side -SubjectType $SubjectType
+    $ExistingComments = $AllExistingComments | Where-Object { $_.body -like "*$($Marker)*" }
+    if ($ExistingComments.Length -eq 1) 
+    {
+        ## update the comment
+        $ExistingComment = $ExistingComments[0]
+        Update-PullRequestReviewComment -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -CommentId $ExistingComment.id -Body "$($Marker)$($Body)"
+        return
+    }
+
+    if ($ExistingComments.Length -gt 1)
+    {
+        ## remove the comments
+        Clear-PullRequestReviewComments -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $ExistingComments
+    }
+
+    ## add the comment (prepend the marker)
+    Add-PullRequestReviewComment -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -CommitId $CommitId -Path $Path -Side $Side -SubjectType $SubjectType -Body "$($Marker)$($Body)"
+}
+
+Function Set-PullRequestComment($GitHubToken, $Repo, $PullRequestNumber, $Comments, $Markdown)
 {
     if ($Comments -ne $null -and $Comments.Length -eq 1)
     {
@@ -62,7 +112,7 @@ Function Update-PullRequestComment($GitHubToken, $Repo, $PullRequestNumber, $Com
 
     if ($Comments -ne $null)
     { 
-        Remove-ExistingComments -GitHubToken $GitHubToken -Comments $Comments
+        Clear-ExistingComments -GitHubToken $GitHubToken -Comments $Comments
     }
     Add-PullRequestComment -GitHubToken $GitHubToken -Repo $Repo -Markdown $Markdown -PullRequestNumber $PullRequestNumber
 }

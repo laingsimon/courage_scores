@@ -129,7 +129,7 @@ If ($Vulnerabilities.Count -gt 0)
 
     if ($GitHubEvent -eq "pull_request")
     {
-        Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $AuditComments -Markdown "#### $($AuditCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($FormattedVulnerabilities)`n$($NpmAuditResult.error)`n$($GitHubMarkdownCodeBlock)`n$($BypassInstruction)"
+        Set-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $AuditComments -Markdown "#### $($AuditCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($FormattedVulnerabilities)`n$($NpmAuditResult.error)`n$($GitHubMarkdownCodeBlock)`n$($BypassInstruction)"
     }
     else
     {
@@ -138,7 +138,7 @@ If ($Vulnerabilities.Count -gt 0)
 }
 elseif ($GitHubEvent -eq "pull_request")
 {
-    Remove-ExistingComments -GitHubToken $Token -Comments $AuditComments
+    Clear-ExistingComments -GitHubToken $Token -Comments $AuditComments
 }
 
 $OutdatedNpmModulesComment = Invoke-Expression "$($PSScriptRoot)/Format-OutdatedNpmModules.ps1 -OutdatedCommentHeading ""$OutdatedCommentHeading"""
@@ -146,7 +146,7 @@ If ($OutdatedNpmModulesComment -ne "")
 {
     if ($GitHubEvent -eq "pull_request")
     {
-        Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $OutdatedComments -Markdown $OutdatedNpmModulesComment
+        Set-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $OutdatedComments -Markdown $OutdatedNpmModulesComment
     }
     else
     {
@@ -155,7 +155,7 @@ If ($OutdatedNpmModulesComment -ne "")
 }
 elseif ($GitHubEvent -eq "pull_request")
 {
-    Remove-ExistingComments -GitHubToken $Token -Comments $OutdatedComments
+    Clear-ExistingComments -GitHubToken $Token -Comments $OutdatedComments
 }
 
 If ($NpmAuditResult.ExitCode -ne 0 -and $BypassNpmAuditViaCommentComments.Length -gt 0)
