@@ -10,6 +10,8 @@ import { EditSeasonDto } from '../../interfaces/models/dtos/Season/EditSeasonDto
 import { UntypedPromise } from '../../interfaces/UntypedPromise';
 import { IClientActionResultDto } from '../common/IClientActionResultDto';
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
+import { useDivisionData } from './DivisionDataContainer';
+import { renderDate } from '../../helpers/rendering';
 
 export interface IEditSeasonProps {
     onClose(): UntypedPromise;
@@ -30,12 +32,36 @@ export function EditSeason({
     const [deleting, setDeleting] = useState<boolean>(false);
     const { seasonApi } = useDependencies();
     const { seasons, divisions, onError } = useApp();
+    const { fixtures: fixtureDates } = useDivisionData();
     const navigate = useNavigate();
+    const orderedDates = fixtureDates?.sort(sortBy('date')) ?? [];
+    const earliestFixtureDate = orderedDates[0]?.date;
+    const latestFixtureDate = orderedDates[orderedDates.length - 1]?.date;
+    const fixturesBeforeStartDate = data.startDate > earliestFixtureDate;
+    const fixturesAfterEndDate = data.endDate < latestFixtureDate;
 
     async function saveSeason() {
         /* istanbul ignore next */
         if (saving || deleting) {
             /* istanbul ignore next */
+            return;
+        }
+
+        if (fixturesBeforeStartDate) {
+            window.alert(
+                `Start date is after some fixtures in the season, this would prevent them from appearing on the fixture list.
+
+Alter the date to ${renderDate(earliestFixtureDate)} so they are included`,
+            );
+            return;
+        }
+
+        if (fixturesAfterEndDate) {
+            window.alert(
+                `End date is before some fixtures in the season, this would prevent them from appearing on the fixture list.
+
+Alter the date to ${renderDate(latestFixtureDate)} so they are included`,
+            );
             return;
         }
 
@@ -142,7 +168,8 @@ export function EditSeason({
                     onChange={valueChanged(data, onUpdateData)}
                     value={(data.startDate || '').substring(0, 10)}
                     type="date"
-                    className="form-control margin-right"
+                    title={`Earliest fixture is on ${renderDate(earliestFixtureDate)}`}
+                    className={`form-control margin-right${fixturesBeforeStartDate || !data.startDate ? ' is-invalid' : ''}`}
                 />
                 <div className="input-group-prepend">
                     <label htmlFor="endDate" className="input-group-text">
@@ -156,7 +183,8 @@ export function EditSeason({
                     onChange={valueChanged(data, onUpdateData)}
                     value={(data.endDate || '').substring(0, 10)}
                     type="date"
-                    className="form-control margin-right"
+                    title={`Last fixture is on ${renderDate(latestFixtureDate)}`}
+                    className={`form-control margin-right${fixturesAfterEndDate || !data.endDate ? ' is-invalid' : ''}`}
                 />
             </div>
             <div className="input-group mb-3">

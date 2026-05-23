@@ -5,6 +5,7 @@ import {
     cleanUp,
     ErrorState,
     iocProps,
+    noop,
     renderApp,
     TestContext,
 } from '../../helpers/tests';
@@ -16,6 +17,9 @@ import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
 import { divisionBuilder } from '../../helpers/builders/divisions';
 import { seasonBuilder } from '../../helpers/builders/seasons';
 import { ISeasonApi } from '../../interfaces/apis/ISeasonApi';
+import { renderDate } from '../../helpers/rendering';
+import { DivisionDataContainer } from './DivisionDataContainer';
+import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -32,16 +36,13 @@ describe('EditSeason', () => {
     let updatedSeason: EditSeasonDto | null;
     let apiResponse: IClientActionResultDto<SeasonDto>;
     let deletedId: string | null;
+    let updatedData: EditSeasonDto | null;
     const seasonApi = api<ISeasonApi>({
-        update: async (
-            data: EditSeasonDto,
-        ): Promise<IClientActionResultDto<SeasonDto>> => {
+        update: async (data: EditSeasonDto) => {
             updatedSeason = data;
             return apiResponse;
         },
-        delete: async (
-            id: string,
-        ): Promise<IClientActionResultDto<SeasonDto>> => {
+        delete: async (id: string) => {
             deletedId = id;
             return apiResponse;
         },
@@ -57,7 +58,9 @@ describe('EditSeason', () => {
         saveError = err;
     }
 
-    async function onUpdateData(_: EditSeasonDto) {}
+    async function onUpdateData(data: EditSeasonDto) {
+        updatedData = data;
+    }
 
     afterEach(async () => {
         await cleanUp(context);
@@ -69,16 +72,25 @@ describe('EditSeason', () => {
         saveError = null;
         updatedSeason = null;
         deletedId = null;
+        updatedData = null;
         apiResponse = {
             success: true,
         };
     });
 
     async function renderComponent(
-        props: IEditSeasonProps,
+        p: Partial<IEditSeasonProps>,
         seasons: SeasonDto[],
         divisions: DivisionDto[],
+        fixtures?: DivisionFixtureDateDto[],
     ) {
+        const props = {
+            setSaveError,
+            onClose,
+            onSave,
+            onUpdateData,
+            ...p,
+        } as IEditSeasonProps;
         context = await renderApp(
             iocProps({ seasonApi }),
             brandingProps(),
@@ -89,7 +101,12 @@ describe('EditSeason', () => {
                 },
                 reportedError,
             ),
-            <EditSeason {...props} />,
+            <DivisionDataContainer
+                onReloadDivision={noop}
+                name="division"
+                fixtures={fixtures}>
+                <EditSeason {...props} />
+            </DivisionDataContainer>,
         );
     }
 
@@ -105,16 +122,9 @@ describe('EditSeason', () => {
     const divisions = [division1, division2];
 
     it('updates season name', async () => {
-        let updatedData: EditSeasonDto;
         await renderComponent(
             {
                 data: season,
-                onUpdateData: async (update: EditSeasonDto) => {
-                    updatedData = update;
-                },
-                setSaveError,
-                onClose,
-                onSave,
             },
             [season],
             divisions,
@@ -129,16 +139,9 @@ describe('EditSeason', () => {
     });
 
     it('updates season dates', async () => {
-        let updatedData: EditSeasonDto;
         await renderComponent(
             {
                 data: season,
-                onUpdateData: async (update: EditSeasonDto) => {
-                    updatedData = update;
-                },
-                setSaveError,
-                onClose,
-                onSave,
             },
             [season],
             divisions,
@@ -157,16 +160,9 @@ describe('EditSeason', () => {
     });
 
     it('updates season fixture timings', async () => {
-        let updatedData: EditSeasonDto;
         await renderComponent(
             {
                 data: season,
-                onUpdateData: async (update: EditSeasonDto) => {
-                    updatedData = update;
-                },
-                setSaveError,
-                onClose,
-                onSave,
             },
             [season],
             divisions,
@@ -185,16 +181,9 @@ describe('EditSeason', () => {
     });
 
     it('can select a division', async () => {
-        let updatedData: EditSeasonDto;
         await renderComponent(
             {
                 data: season,
-                onUpdateData: async (update: EditSeasonDto) => {
-                    updatedData = update;
-                },
-                setSaveError,
-                onClose,
-                onSave,
             },
             [season],
             divisions,
@@ -214,16 +203,9 @@ describe('EditSeason', () => {
     });
 
     it('can unselect a division', async () => {
-        let updatedData: EditSeasonDto;
         await renderComponent(
             {
                 data: season,
-                onUpdateData: async (update: EditSeasonDto) => {
-                    updatedData = update;
-                },
-                setSaveError,
-                onClose,
-                onSave,
             },
             [season],
             divisions,
@@ -246,16 +228,9 @@ describe('EditSeason', () => {
         const seasonWithoutId: EditSeasonDto = Object.assign({}, season);
         seasonWithoutId.id = undefined;
         const otherSeason = seasonBuilder('OTHER SEASON').build();
-        let updatedData: EditSeasonDto;
         await renderComponent(
             {
                 data: seasonWithoutId as EditSeasonDto & SeasonDto,
-                onUpdateData: async (update: EditSeasonDto) => {
-                    updatedData = update;
-                },
-                setSaveError,
-                onClose,
-                onSave,
             },
             [otherSeason],
             divisions,
@@ -274,10 +249,6 @@ describe('EditSeason', () => {
         await renderComponent(
             {
                 data: seasonWithoutName,
-                setSaveError,
-                onClose,
-                onSave,
-                onUpdateData,
             },
             [seasonWithoutName],
             divisions,
@@ -289,14 +260,58 @@ describe('EditSeason', () => {
         expect(saved).toEqual(false);
     });
 
+    it('prevents save when start date is after first fixture', async () => {
+        const earliestFixtureDate = '2026-02-01';
+        const startsAfterFirstFixture = { ...season, startDate: '2026-02-02' };
+        const fixture = {
+            date: earliestFixtureDate,
+        } as DivisionFixtureDateDto;
+        await renderComponent(
+            {
+                data: startsAfterFirstFixture,
+            },
+            [startsAfterFirstFixture],
+            divisions,
+            [fixture],
+        );
+
+        await context.button('Update season').click();
+
+        context.prompts
+            .alertWasShown(`Start date is after some fixtures in the season, this would prevent them from appearing on the fixture list.
+
+Alter the date to ${renderDate(earliestFixtureDate)} so they are included`);
+        expect(saved).toEqual(false);
+    });
+
+    it('prevents save when end date is before last fixture', async () => {
+        const latestFixtureDate = '2026-02-02';
+        const endsBeforeLastFixture = { ...season, endDate: '2026-02-01' };
+        const fixture = {
+            date: latestFixtureDate,
+        } as DivisionFixtureDateDto;
+        await renderComponent(
+            {
+                data: endsBeforeLastFixture,
+            },
+            [endsBeforeLastFixture],
+            divisions,
+            [fixture],
+        );
+
+        await context.button('Update season').click();
+
+        context.prompts
+            .alertWasShown(`End date is before some fixtures in the season, this would prevent them from appearing on the fixture list.
+
+Alter the date to ${renderDate(latestFixtureDate)} so they are included`);
+        expect(saved).toEqual(false);
+    });
+
     it('saves season updates', async () => {
         await renderComponent(
             {
                 data: season,
-                setSaveError,
-                onClose,
-                onSave,
-                onUpdateData,
             },
             [season],
             divisions,
@@ -316,10 +331,6 @@ describe('EditSeason', () => {
         await renderComponent(
             {
                 data: season,
-                setSaveError,
-                onClose,
-                onSave,
-                onUpdateData,
             },
             [season],
             divisions,
@@ -339,10 +350,6 @@ describe('EditSeason', () => {
         await renderComponent(
             {
                 data: season,
-                setSaveError,
-                onClose,
-                onSave,
-                onUpdateData,
             },
             [season],
             divisions,
@@ -350,7 +357,7 @@ describe('EditSeason', () => {
         reportedError.verifyNoError();
         context.prompts.respondToConfirm(
             'Are you sure you want to delete the SEASON season?',
-            true,
+            false,
         );
 
         await context.button('Delete season').click();
@@ -365,10 +372,6 @@ describe('EditSeason', () => {
         await renderComponent(
             {
                 data: season,
-                setSaveError,
-                onClose,
-                onSave,
-                onUpdateData,
             },
             [season],
             divisions,
@@ -389,10 +392,6 @@ describe('EditSeason', () => {
         await renderComponent(
             {
                 data: season,
-                setSaveError,
-                onClose,
-                onSave,
-                onUpdateData,
             },
             [season],
             divisions,
@@ -417,10 +416,6 @@ describe('EditSeason', () => {
         await renderComponent(
             {
                 data: season,
-                setSaveError,
-                onClose,
-                onSave,
-                onUpdateData,
             },
             [season],
             divisions,

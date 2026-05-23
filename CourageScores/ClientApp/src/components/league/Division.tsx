@@ -349,15 +349,16 @@ export function Division() {
 
     try {
         return (
-            <div>
+            <DivisionDataContainer
+                {...divisionDataToUse}
+                onReloadDivision={reloadDivisionData}
+                favouritesEnabled={favouritesEnabled}
+                setDivisionData={asyncCallback(setOverrideDivisionData)}>
                 {controls || !divisionDataToUse.season ? (
                     <DivisionControls
                         originalSeasonData={divisionDataToUse.season}
                         originalDivisionData={{
-                            name: divisionDataToUse.name,
-                            id: divisionDataToUse.id,
-                            updated: divisionDataToUse.updated,
-                            superleague: divisionDataToUse.superleague,
+                            ...divisionDataToUse,
                         }}
                         onDivisionOrSeasonChanged={reloadDivisionData}
                         overrideMode={requestedMode}
@@ -474,13 +475,7 @@ export function Division() {
                 {(!dataErrors || !account) &&
                 any(requestedDivisions) &&
                 requestedSeason?.id !== INVALID.id ? (
-                    <DivisionDataContainer
-                        {...divisionDataToUse}
-                        onReloadDivision={reloadDivisionData}
-                        favouritesEnabled={favouritesEnabled}
-                        setDivisionData={asyncCallback(
-                            setOverrideDivisionData,
-                        )}>
+                    <>
                         {effectiveTab === 'teams' &&
                         divisionDataToUse.season ? (
                             <DivisionTeams />
@@ -533,9 +528,9 @@ export function Division() {
                                 )}
                             />
                         ) : null}
-                    </DivisionDataContainer>
+                    </>
                 ) : null}
-            </div>
+            </DivisionDataContainer>
         );
     } catch (e) {
         /* istanbul ignore next */
