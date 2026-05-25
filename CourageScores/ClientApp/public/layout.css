@@ -146,6 +146,10 @@ input[type="date"] {
     overflow-x: auto;
 }
 
+.overflow-y-auto {
+    overflow-y: auto;
+}
+
 .no-list-indent {
     padding-left: 0px;
 }
