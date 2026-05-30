@@ -1,35 +1,35 @@
 import { useEffect, useState } from 'react';
-import { DivisionTeams } from '../division_teams/DivisionTeams';
-import { DivisionFixtures } from '../division_fixtures/DivisionFixtures';
-import { DivisionPlayers } from '../division_players/DivisionPlayers';
-import { DivisionControls } from './DivisionControls';
-import { DivisionReports } from '../division_reports/DivisionReports';
-import { TeamOverview } from '../division_teams/TeamOverview';
+import { DivisionTeams } from '../division_teams/DivisionTeams.tsx';
+import { DivisionFixtures } from '../division_fixtures/DivisionFixtures.tsx';
+import { DivisionPlayers } from '../division_players/DivisionPlayers.tsx';
+import { DivisionControls } from './DivisionControls.tsx';
+import { DivisionReports } from '../division_reports/DivisionReports.tsx';
+import { TeamOverview } from '../division_teams/TeamOverview.tsx';
 import {
     IPlayerOverviewProps,
     PlayerOverview,
-} from '../division_players/PlayerOverview';
-import { Loading } from '../common/Loading';
-import { all, any } from '../../helpers/collections';
-import { asyncCallback, propChanged } from '../../helpers/events';
-import { useDependencies } from '../common/IocContainer';
-import { useApp } from '../common/AppContainer';
-import { DivisionDataContainer } from './DivisionDataContainer';
-import { isGuid } from '../../helpers/projection';
-import { DivisionHealth } from '../division_health/DivisionHealth';
-import { DataError } from './DataError';
-import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
-import { DivisionTeamDto } from '../../interfaces/models/dtos/Division/DivisionTeamDto';
-import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/DivisionPlayerDto';
-import { DataErrorDto } from '../../interfaces/models/dtos/Division/DataErrorDto';
-import { IFailedRequest } from '../common/IFailedRequest';
-import { DivisionDataFilter } from '../../interfaces/models/dtos/Division/DivisionDataFilter';
-import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto';
-import { INVALID, useDivisionUri } from './DivisionUriContainer';
-import { IIdish } from './IDivisionUri';
-import { IError } from '../common/IError';
-import { NavLink } from '../common/NavLink';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
+} from '../division_players/PlayerOverview.tsx';
+import { Loading } from '../common/Loading.tsx';
+import { all, any } from '../../helpers/collections.ts';
+import { asyncCallback, propChanged } from '../../helpers/events.ts';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { DivisionDataContainer } from './DivisionDataContainer.tsx';
+import { isGuid } from '../../helpers/projection.ts';
+import { DivisionHealth } from '../division_health/DivisionHealth.tsx';
+import { DataError } from './DataError.tsx';
+import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
+import { DivisionTeamDto } from '../../interfaces/models/dtos/Division/DivisionTeamDto.ts';
+import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/DivisionPlayerDto.ts';
+import { DataErrorDto } from '../../interfaces/models/dtos/Division/DataErrorDto.ts';
+import { IFailedRequest } from '../common/IFailedRequest.ts';
+import { DivisionDataFilter } from '../../interfaces/models/dtos/Division/DivisionDataFilter.ts';
+import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto.ts';
+import { INVALID, useDivisionUri } from './DivisionUriContainer.tsx';
+import { IIdish } from './IDivisionUri.ts';
+import { IError } from '../common/IError.ts';
+import { NavLink } from '../common/NavLink.tsx';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
 
 export interface IRequestedDivisionDataDto
     extends DivisionDataDto, IFailedRequest {

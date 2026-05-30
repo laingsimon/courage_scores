@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
-import { IEditingThrow } from './IEditingThrow';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { IEditingThrow } from './IEditingThrow.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 const EditableSaygContext = createContext({});
 

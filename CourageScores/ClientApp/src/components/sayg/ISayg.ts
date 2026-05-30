@@ -1,6 +1,6 @@
-﻿import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
-import { ScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+﻿import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto.ts';
+import { ScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface ISayg {
     sayg: UpdateRecordedScoreAsYouGoDto;

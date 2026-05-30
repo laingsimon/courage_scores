@@ -5,8 +5,8 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { IMatchAverageProps, MatchAverage } from './MatchAverage';
+} from '../../helpers/tests.tsx';
+import { IMatchAverageProps, MatchAverage } from './MatchAverage.tsx';
 
 describe('MatchAverage', () => {
     let context: TestContext;

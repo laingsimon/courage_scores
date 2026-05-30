@@ -5,18 +5,18 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { renderDate } from '../../helpers/rendering';
-import { FilterFixtures } from './FilterFixtures';
+} from '../../helpers/tests.tsx';
+import { renderDate } from '../../helpers/rendering.ts';
+import { FilterFixtures } from './FilterFixtures.tsx';
 import {
     DivisionDataContainer,
     IDivisionDataContainerProps,
-} from '../league/DivisionDataContainer';
-import { teamBuilder } from '../../helpers/builders/teams';
-import { IInitialisedFilters } from './filters';
-import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
-import { IPreferenceData } from '../common/PreferencesContainer';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+} from '../league/DivisionDataContainer.tsx';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
+import { IInitialisedFilters } from './filters.ts';
+import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
+import { IPreferenceData } from '../common/PreferencesContainer.tsx';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 describe('FilterFixtures', () => {
     let context: TestContext;

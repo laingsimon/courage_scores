@@ -9,37 +9,37 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
+} from '../../helpers/tests.tsx';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
 import {
     ITournamentContainerProps,
     TournamentContainer,
-} from './TournamentContainer';
-import { IAppContainerProps } from '../common/AppContainer';
+} from './TournamentContainer.tsx';
+import { IAppContainerProps } from '../common/AppContainer.tsx';
 import {
     IPrintableSheetMatchProps,
     PrintableSheetMatch,
-} from './PrintableSheetMatch';
+} from './PrintableSheetMatch.tsx';
 import {
     sideBuilder,
     tournamentBuilder,
-} from '../../helpers/builders/tournaments';
-import { createTemporaryId } from '../../helpers/projection';
-import { matchOptionsBuilder } from '../../helpers/builders/games';
-import { PatchTournamentDto } from '../../interfaces/models/dtos/Game/PatchTournamentDto';
-import { PatchTournamentRoundDto } from '../../interfaces/models/dtos/Game/PatchTournamentRoundDto';
-import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
-import { ISaygApi } from '../../interfaces/apis/ISaygApi';
-import { saygBuilder } from '../../helpers/builders/sayg';
-import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { ILayoutDataForMatch } from './layout/ILayoutDataForMatch';
-import { START_SCORING } from './tournaments';
-import { ITournamentGameApi } from '../../interfaces/apis/ITournamentGameApi';
-import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
-import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto';
-import { tournamentContainerPropsBuilder } from './tournamentContainerPropsBuilder';
-import { ILayoutDataForSide } from './layout/ILayoutDataForSide';
+} from '../../helpers/builders/tournaments.ts';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { matchOptionsBuilder } from '../../helpers/builders/games.ts';
+import { PatchTournamentDto } from '../../interfaces/models/dtos/Game/PatchTournamentDto.ts';
+import { PatchTournamentRoundDto } from '../../interfaces/models/dtos/Game/PatchTournamentRoundDto.ts';
+import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto.ts';
+import { ISaygApi } from '../../interfaces/apis/ISaygApi.ts';
+import { saygBuilder } from '../../helpers/builders/sayg.ts';
+import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { ILayoutDataForMatch } from './layout/ILayoutDataForMatch.ts';
+import { START_SCORING } from './tournaments.ts';
+import { ITournamentGameApi } from '../../interfaces/apis/ITournamentGameApi.ts';
+import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto.ts';
+import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto.ts';
+import { tournamentContainerPropsBuilder } from './tournamentContainerPropsBuilder.ts';
+import { ILayoutDataForSide } from './layout/ILayoutDataForSide.ts';
 
 describe('PrintableSheetMatch', () => {
     let context: TestContext;

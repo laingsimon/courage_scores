@@ -4,9 +4,9 @@ import {
     IAccoladeFixtureData,
     remove180,
     removeHiCheck,
-} from './Accolades';
-import { playerBuilder } from '../../helpers/builders/players';
-import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto';
+} from './Accolades.tsx';
+import { playerBuilder } from '../../helpers/builders/players.ts';
+import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto.ts';
 
 describe('Accolades', () => {
     const player1: GamePlayerDto = playerBuilder('PLAYER 1').build();

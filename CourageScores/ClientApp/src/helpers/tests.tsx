@@ -4,33 +4,33 @@ import { MemoryRouter, Route, Routes } from 'react-router';
 import {
     IocContainer,
     IIocContainerProps,
-} from '../components/common/IocContainer';
+} from '../components/common/IocContainer.tsx';
 import {
     AppContainer,
     IAppContainerProps,
-} from '../components/common/AppContainer';
+} from '../components/common/AppContainer.tsx';
 import ReactDOM from 'react-dom/client';
 import {
     BrandingContainer,
     IBrandingContainerProps,
-} from '../components/common/BrandingContainer';
-import { IError } from '../components/common/IError';
-import { ISubscriptions } from '../live/ISubscriptions';
-import { IParentHeight } from '../components/layout/ParentHeight';
-import { IHttp } from '../api/http';
+} from '../components/common/BrandingContainer.tsx';
+import { IError } from '../components/common/IError.ts';
+import { ISubscriptions } from '../live/ISubscriptions.ts';
+import { IParentHeight } from '../components/layout/ParentHeight.ts';
+import { IHttp } from '../api/http.ts';
 import { ReactNode, useEffect } from 'react';
-import { MessageType } from '../interfaces/models/dtos/MessageType';
+import { MessageType } from '../interfaces/models/dtos/MessageType.ts';
 import {
     IPreferenceData,
     PreferencesContainer,
-} from '../components/common/PreferencesContainer';
+} from '../components/common/PreferencesContainer.tsx';
 import { Cookies, useCookies } from 'react-cookie';
-import { UntypedPromise } from '../interfaces/UntypedPromise';
-import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType';
-import { IDependencies } from '../components/common/IDependencies';
-import { IClientActionResultDto } from '../components/common/IClientActionResultDto';
-import { AccessDto } from '../interfaces/models/dtos/Identity/AccessDto';
-import { UserDto } from '../interfaces/models/dtos/Identity/UserDto';
+import { UntypedPromise } from '../interfaces/UntypedPromise.ts';
+import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType.ts';
+import { IDependencies } from '../components/common/IDependencies.ts';
+import { IClientActionResultDto } from '../components/common/IClientActionResultDto.ts';
+import { AccessDto } from '../interfaces/models/dtos/Identity/AccessDto.ts';
+import { UserDto } from '../interfaces/models/dtos/Identity/UserDto.ts';
 
 /* istanbul ignore file */
 

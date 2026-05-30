@@ -1,26 +1,30 @@
-import { propChanged, stateChanged, valueChanged } from '../../helpers/events';
+import {
+    propChanged,
+    stateChanged,
+    valueChanged,
+} from '../../helpers/events.ts';
 import { useState } from 'react';
-import { Dialog } from '../common/Dialog';
+import { Dialog } from '../common/Dialog.tsx';
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
-} from '../common/BootstrapDropdown';
-import { useApp } from '../common/AppContainer';
-import { any, sortBy } from '../../helpers/collections';
-import { useTournament } from './TournamentContainer';
-import { EditPlayerDetails } from '../division_players/EditPlayerDetails';
-import { EditTeamPlayerDto } from '../../interfaces/models/dtos/Team/EditTeamPlayerDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto';
-import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
-import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
-import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
-import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { hasAccess } from '../../helpers/conditions';
-import { getTeamSeasons } from '../../helpers/teams';
+} from '../common/BootstrapDropdown.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { any, sortBy } from '../../helpers/collections.ts';
+import { useTournament } from './TournamentContainer.tsx';
+import { EditPlayerDetails } from '../division_players/EditPlayerDetails.tsx';
+import { EditTeamPlayerDto } from '../../interfaces/models/dtos/Team/EditTeamPlayerDto.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto.ts';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
+import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto.ts';
+import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { hasAccess } from '../../helpers/conditions.ts';
+import { getTeamSeasons } from '../../helpers/teams.ts';
 
 export interface IEditSideProps {
     side: TournamentSideDto;

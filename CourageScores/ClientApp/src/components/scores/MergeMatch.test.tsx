@@ -6,12 +6,12 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { IMergeMatchProps, MergeMatch } from './MergeMatch';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { fixtureBuilder, matchBuilder } from '../../helpers/builders/games';
-import { playerBuilder } from '../../helpers/builders/players';
-import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto';
+} from '../../helpers/tests.tsx';
+import { IMergeMatchProps, MergeMatch } from './MergeMatch.tsx';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { fixtureBuilder, matchBuilder } from '../../helpers/builders/games.ts';
+import { playerBuilder } from '../../helpers/builders/players.ts';
+import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto.ts';
 
 describe('MergeMatch', () => {
     let context: TestContext;

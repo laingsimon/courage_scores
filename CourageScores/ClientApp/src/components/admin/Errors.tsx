@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { sortBy } from '../../helpers/collections';
-import { stateChanged } from '../../helpers/events';
-import { useDependencies } from '../common/IocContainer';
-import { useApp } from '../common/AppContainer';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { ErrorDetailDto } from '../../interfaces/models/dtos/ErrorDetailDto';
+import { sortBy } from '../../helpers/collections.ts';
+import { stateChanged } from '../../helpers/events.ts';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { ErrorDetailDto } from '../../interfaces/models/dtos/ErrorDetailDto.ts';
 
 export function Errors() {
     const [since, setSince] = useState<string>(

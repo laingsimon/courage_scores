@@ -1,18 +1,18 @@
-import { sum } from '../../helpers/collections';
-import { MatchDartCount } from './MatchDartCount';
-import { MatchAverage } from './MatchAverage';
-import { LegStatistics } from './LegStatistics';
+import { sum } from '../../helpers/collections.ts';
+import { MatchDartCount } from './MatchDartCount.tsx';
+import { MatchAverage } from './MatchAverage.tsx';
+import { LegStatistics } from './LegStatistics.tsx';
 import { useState } from 'react';
-import { RefreshControl } from '../common/RefreshControl';
-import { useLive } from '../../live/LiveContainer';
-import { ILegDisplayOptions } from './ILegDisplayOptions';
-import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto';
-import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { asyncCallback } from '../../helpers/events';
-import { ifUndefined } from '../../helpers/rendering';
-import { DebugOptions } from '../common/DebugOptions';
-import { useDependencies } from '../common/IocContainer';
+import { RefreshControl } from '../common/RefreshControl.tsx';
+import { useLive } from '../../live/LiveContainer.tsx';
+import { ILegDisplayOptions } from './ILegDisplayOptions.ts';
+import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto.ts';
+import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { asyncCallback } from '../../helpers/events.ts';
+import { ifUndefined } from '../../helpers/rendering.ts';
+import { DebugOptions } from '../common/DebugOptions.tsx';
+import { useDependencies } from '../common/IocContainer.tsx';
 
 export interface IMatchStatisticsProps {
     saygId: string;

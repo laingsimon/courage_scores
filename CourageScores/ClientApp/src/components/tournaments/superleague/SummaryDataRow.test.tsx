@@ -7,16 +7,16 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../../helpers/tests';
-import { ISummaryDataRowProps, SummaryDataRow } from './SummaryDataRow';
-import { LegThrowDto } from '../../../interfaces/models/dtos/Game/Sayg/LegThrowDto';
-import { ScoreAsYouGoDto } from '../../../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto';
+} from '../../../helpers/tests.tsx';
+import { ISummaryDataRowProps, SummaryDataRow } from './SummaryDataRow.tsx';
+import { LegThrowDto } from '../../../interfaces/models/dtos/Game/Sayg/LegThrowDto.ts';
+import { ScoreAsYouGoDto } from '../../../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto.ts';
 import {
     ILegBuilder,
     ILegCompetitorScoreBuilder,
     saygBuilder,
-} from '../../../helpers/builders/sayg';
-import { BuilderParam } from '../../../helpers/builders/builders';
+} from '../../../helpers/builders/sayg.ts';
+import { BuilderParam } from '../../../helpers/builders/builders.ts';
 
 describe('SummaryDataRow', () => {
     let context: TestContext;

@@ -1,16 +1,16 @@
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
-} from '../common/BootstrapDropdown';
-import { any, isEmpty, sortBy } from '../../helpers/collections';
-import { renderDate } from '../../helpers/rendering';
-import { ShareButton } from '../common/ShareButton';
-import { useDivisionData } from '../league/DivisionDataContainer';
-import { useBranding } from '../common/BrandingContainer';
-import { getFilter, IInitialisedFilters } from './filters';
-import { usePreferences } from '../common/PreferencesContainer';
+} from '../common/BootstrapDropdown.tsx';
+import { any, isEmpty, sortBy } from '../../helpers/collections.ts';
+import { renderDate } from '../../helpers/rendering.ts';
+import { ShareButton } from '../common/ShareButton.tsx';
+import { useDivisionData } from '../league/DivisionDataContainer.tsx';
+import { useBranding } from '../common/BrandingContainer.tsx';
+import { getFilter, IInitialisedFilters } from './filters.ts';
+import { usePreferences } from '../common/PreferencesContainer.tsx';
 import { Link, useLocation } from 'react-router';
-import { useDependencies } from '../common/IocContainer';
+import { useDependencies } from '../common/IocContainer.tsx';
 
 export function FilterFixtures() {
     const { id, season, teams, favouritesEnabled, superleague } =

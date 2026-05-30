@@ -1,7 +1,7 @@
-import { sum } from '../../helpers/collections';
-import { ifNaN, round2dp } from '../../helpers/rendering';
-import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { sum } from '../../helpers/collections.ts';
+import { ifNaN, round2dp } from '../../helpers/rendering.ts';
+import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface IWidescreenSaygPlayerStatisticProps {
     legs: { [legKey: number]: LegDto };

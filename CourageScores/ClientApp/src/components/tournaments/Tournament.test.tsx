@@ -9,52 +9,55 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { Tournament } from './Tournament';
-import { any } from '../../helpers/collections';
-import { createTemporaryId } from '../../helpers/projection';
-import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
-import { EditTournamentGameDto } from '../../interfaces/models/dtos/Game/EditTournamentGameDto';
-import { PatchTournamentDto } from '../../interfaces/models/dtos/Game/PatchTournamentDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { EditTeamPlayerDto } from '../../interfaces/models/dtos/Team/EditTeamPlayerDto';
-import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
-import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
+} from '../../helpers/tests.tsx';
+import { Tournament } from './Tournament.tsx';
+import { any } from '../../helpers/collections.ts';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { EditTournamentGameDto } from '../../interfaces/models/dtos/Game/EditTournamentGameDto.ts';
+import { PatchTournamentDto } from '../../interfaces/models/dtos/Game/PatchTournamentDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { EditTeamPlayerDto } from '../../interfaces/models/dtos/Team/EditTeamPlayerDto.ts';
+import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto.ts';
+import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
 import {
     divisionBuilder,
     divisionDataBuilder,
-} from '../../helpers/builders/divisions';
-import { seasonBuilder } from '../../helpers/builders/seasons';
+} from '../../helpers/builders/divisions.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
 import {
     roundBuilder,
     sideBuilder,
     tournamentBuilder,
-} from '../../helpers/builders/tournaments';
-import { teamBuilder } from '../../helpers/builders/teams';
-import { playerBuilder } from '../../helpers/builders/players';
-import { saygBuilder } from '../../helpers/builders/sayg';
-import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto';
-import { ISaygApi } from '../../interfaces/apis/ISaygApi';
-import { IDivisionApi } from '../../interfaces/apis/IDivisionApi';
-import { DivisionDataFilter } from '../../interfaces/models/dtos/Division/DivisionDataFilter';
-import { IPlayerApi } from '../../interfaces/apis/IPlayerApi';
-import { ITournamentGameApi } from '../../interfaces/apis/ITournamentGameApi';
-import { PhotoReferenceDto } from '../../interfaces/models/dtos/PhotoReferenceDto';
-import { UploadPhotoDto } from '../../interfaces/models/dtos/UploadPhotoDto';
-import { CHECKOUT_3_DART, ENTER_SCORE_BUTTON } from '../../helpers/constants';
-import { IFeatureApi } from '../../interfaces/apis/IFeatureApi';
-import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto';
-import { checkoutWith, keyPad } from '../../helpers/sayg';
-import { START_SCORING } from './tournaments';
-import { AccessDto } from '../../interfaces/models/dtos/Identity/AccessDto';
-import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
-import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
-import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto';
+} from '../../helpers/builders/tournaments.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
+import { playerBuilder } from '../../helpers/builders/players.ts';
+import { saygBuilder } from '../../helpers/builders/sayg.ts';
+import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto.ts';
+import { ISaygApi } from '../../interfaces/apis/ISaygApi.ts';
+import { IDivisionApi } from '../../interfaces/apis/IDivisionApi.ts';
+import { DivisionDataFilter } from '../../interfaces/models/dtos/Division/DivisionDataFilter.ts';
+import { IPlayerApi } from '../../interfaces/apis/IPlayerApi.ts';
+import { ITournamentGameApi } from '../../interfaces/apis/ITournamentGameApi.ts';
+import { PhotoReferenceDto } from '../../interfaces/models/dtos/PhotoReferenceDto.ts';
+import { UploadPhotoDto } from '../../interfaces/models/dtos/UploadPhotoDto.ts';
+import {
+    CHECKOUT_3_DART,
+    ENTER_SCORE_BUTTON,
+} from '../../helpers/constants.ts';
+import { IFeatureApi } from '../../interfaces/apis/IFeatureApi.ts';
+import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto.ts';
+import { checkoutWith, keyPad } from '../../helpers/sayg.ts';
+import { START_SCORING } from './tournaments.ts';
+import { AccessDto } from '../../interfaces/models/dtos/Identity/AccessDto.ts';
+import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto.ts';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
+import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto.ts';
 
 interface IScenario {
     account?: UserDto;

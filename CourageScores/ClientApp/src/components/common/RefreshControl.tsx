@@ -1,7 +1,10 @@
-import { BootstrapDropdown, IBootstrapDropdownItem } from './BootstrapDropdown';
-import { useLive } from '../../live/LiveContainer';
-import { useApp } from './AppContainer';
-import { ISubscriptionRequest } from '../../live/ISubscriptionRequest';
+import {
+    BootstrapDropdown,
+    IBootstrapDropdownItem,
+} from './BootstrapDropdown.tsx';
+import { useLive } from '../../live/LiveContainer.tsx';
+import { useApp } from './AppContainer.tsx';
+import { ISubscriptionRequest } from '../../live/ISubscriptionRequest.ts';
 
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 export interface IRefreshControlProps extends ISubscriptionRequest {}

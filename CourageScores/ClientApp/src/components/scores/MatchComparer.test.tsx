@@ -1,7 +1,7 @@
-import { matchEquals } from './MatchComparer';
-import { createTemporaryId } from '../../helpers/projection';
-import { matchBuilder } from '../../helpers/builders/games';
-import { playerBuilder } from '../../helpers/builders/players';
+import { matchEquals } from './MatchComparer.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { matchBuilder } from '../../helpers/builders/games.ts';
+import { playerBuilder } from '../../helpers/builders/players.ts';
 
 describe('MatchComparer', () => {
     describe('matchEquals', () => {

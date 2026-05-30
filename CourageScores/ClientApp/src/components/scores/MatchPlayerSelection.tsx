@@ -1,25 +1,28 @@
 import { useState, useEffect } from 'react';
-import { ISelectablePlayer, PlayerSelection } from '../common/PlayerSelection';
-import { Dialog } from '../common/Dialog';
-import { any, count, distinct, isEmpty } from '../../helpers/collections';
-import { repeat } from '../../helpers/projection';
-import { propChanged, stateChanged } from '../../helpers/events';
-import { EditMatchOptions } from '../common/EditMatchOptions';
-import { ScoreAsYouGo } from '../sayg/ScoreAsYouGo';
-import { useApp } from '../common/AppContainer';
-import { useLeagueFixture } from './LeagueFixtureContainer';
-import { useMatchType } from './MatchTypeContainer';
-import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto';
-import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto';
-import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto';
-import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
-import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
-import { LiveContainer } from '../../live/LiveContainer';
-import { ILiveOptions } from '../../live/ILiveOptions';
+import {
+    ISelectablePlayer,
+    PlayerSelection,
+} from '../common/PlayerSelection.tsx';
+import { Dialog } from '../common/Dialog.tsx';
+import { any, count, distinct, isEmpty } from '../../helpers/collections.ts';
+import { repeat } from '../../helpers/projection.ts';
+import { propChanged, stateChanged } from '../../helpers/events.ts';
+import { EditMatchOptions } from '../common/EditMatchOptions.tsx';
+import { ScoreAsYouGo } from '../sayg/ScoreAsYouGo.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { useLeagueFixture } from './LeagueFixtureContainer.tsx';
+import { useMatchType } from './MatchTypeContainer.tsx';
+import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto.ts';
+import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto.ts';
+import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto.ts';
+import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
+import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto.ts';
+import { LiveContainer } from '../../live/LiveContainer.tsx';
+import { ILiveOptions } from '../../live/ILiveOptions.ts';
 import { Link } from 'react-router';
-import { EditableSaygContainer } from '../sayg/EditableSaygContainer';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { hasAccess } from '../../helpers/conditions';
+import { EditableSaygContainer } from '../sayg/EditableSaygContainer.tsx';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { hasAccess } from '../../helpers/conditions.ts';
 
 export const NEW_PLAYER: string = 'NEW_PLAYER';
 

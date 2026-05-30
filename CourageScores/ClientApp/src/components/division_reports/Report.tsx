@@ -1,10 +1,10 @@
-import { isEmpty } from '../../helpers/collections';
-import { NoRows } from './NoRows';
-import { ReportRowDto } from '../../interfaces/models/dtos/Report/ReportRowDto';
-import { ReportCellDto } from '../../interfaces/models/dtos/Report/ReportCellDto';
+import { isEmpty } from '../../helpers/collections.ts';
+import { NoRows } from './NoRows.tsx';
+import { ReportRowDto } from '../../interfaces/models/dtos/Report/ReportRowDto.ts';
+import { ReportCellDto } from '../../interfaces/models/dtos/Report/ReportCellDto.ts';
 import { Link } from 'react-router';
-import { useDivisionData } from '../league/DivisionDataContainer';
-import { repeat } from '../../helpers/projection';
+import { useDivisionData } from '../league/DivisionDataContainer.tsx';
+import { repeat } from '../../helpers/projection.ts';
 import { ReactNode } from 'react';
 
 export interface IReportProps {

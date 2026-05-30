@@ -1,5 +1,5 @@
-﻿import { AdminHome } from './AdminHome';
-import { AdminContainer } from './AdminContainer';
+﻿import { AdminHome } from './AdminHome.tsx';
+import { AdminContainer } from './AdminContainer.tsx';
 import {
     api,
     appProps,
@@ -10,19 +10,19 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { TableDto } from '../../interfaces/models/dtos/Data/TableDto';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto';
-import { WebSocketDto } from '../../interfaces/models/dtos/Live/WebSocketDto';
-import { AccessDto } from '../../interfaces/models/dtos/Identity/AccessDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { AccountApi } from '../../interfaces/apis/IAccountApi';
-import { SeasonTemplateApi } from '../../interfaces/apis/ISeasonTemplateApi';
-import { ILiveApi } from '../../interfaces/apis/ILiveApi';
-import { DataApi } from '../../interfaces/apis/IDataApi';
-import { IFeatureApi } from '../../interfaces/apis/IFeatureApi';
-import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto';
+} from '../../helpers/tests.tsx';
+import { TableDto } from '../../interfaces/models/dtos/Data/TableDto.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto.ts';
+import { WebSocketDto } from '../../interfaces/models/dtos/Live/WebSocketDto.ts';
+import { AccessDto } from '../../interfaces/models/dtos/Identity/AccessDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { AccountApi } from '../../interfaces/apis/IAccountApi.ts';
+import { SeasonTemplateApi } from '../../interfaces/apis/ISeasonTemplateApi.ts';
+import { ILiveApi } from '../../interfaces/apis/ILiveApi.ts';
+import { DataApi } from '../../interfaces/apis/IDataApi.ts';
+import { IFeatureApi } from '../../interfaces/apis/IFeatureApi.ts';
+import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto.ts';
 
 describe('AdminHome', () => {
     let context: TestContext;

@@ -9,37 +9,37 @@ import {
     noop,
     renderApp,
     TestContext,
-} from '../../../helpers/tests';
+} from '../../../helpers/tests.tsx';
 import {
     ISuperLeaguePrintoutProps,
     SuperLeaguePrintout,
-} from './SuperLeaguePrintout';
+} from './SuperLeaguePrintout.tsx';
 import {
     ITournamentContainerProps,
     TournamentContainer,
-} from '../TournamentContainer';
+} from '../TournamentContainer.tsx';
 import { act } from '@testing-library/react';
-import { RecordedScoreAsYouGoDto } from '../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
-import { TournamentGameDto } from '../../../interfaces/models/dtos/Game/TournamentGameDto';
-import { DivisionDto } from '../../../interfaces/models/dtos/DivisionDto';
+import { RecordedScoreAsYouGoDto } from '../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto.ts';
+import { TournamentGameDto } from '../../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { DivisionDto } from '../../../interfaces/models/dtos/DivisionDto.ts';
 import {
     ILegBuilder,
     ILegCompetitorScoreBuilder,
     saygBuilder,
-} from '../../../helpers/builders/sayg';
-import { tournamentBuilder } from '../../../helpers/builders/tournaments';
-import { divisionBuilder } from '../../../helpers/builders/divisions';
-import { ISaygApi } from '../../../interfaces/apis/ISaygApi';
-import { MessageType } from '../../../interfaces/models/dtos/MessageType';
-import { AccessDto } from '../../../interfaces/models/dtos/Identity/AccessDto';
-import { UpdateRecordedScoreAsYouGoDto } from '../../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
-import { IClientActionResultDto } from '../../common/IClientActionResultDto';
-import { CHECKOUT_2_DART } from '../../../helpers/constants';
-import { checkoutWith, enterScores } from '../../../helpers/sayg';
-import { START_SCORING } from '../tournaments';
-import { tournamentContainerPropsBuilder } from '../tournamentContainerPropsBuilder';
-import { BuilderParam } from '../../../helpers/builders/builders';
-import { playerBuilder } from '../../../helpers/builders/players';
+} from '../../../helpers/builders/sayg.ts';
+import { tournamentBuilder } from '../../../helpers/builders/tournaments.ts';
+import { divisionBuilder } from '../../../helpers/builders/divisions.ts';
+import { ISaygApi } from '../../../interfaces/apis/ISaygApi.ts';
+import { MessageType } from '../../../interfaces/models/dtos/MessageType.ts';
+import { AccessDto } from '../../../interfaces/models/dtos/Identity/AccessDto.ts';
+import { UpdateRecordedScoreAsYouGoDto } from '../../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto.ts';
+import { IClientActionResultDto } from '../../common/IClientActionResultDto.ts';
+import { CHECKOUT_2_DART } from '../../../helpers/constants.ts';
+import { checkoutWith, enterScores } from '../../../helpers/sayg.ts';
+import { START_SCORING } from '../tournaments.ts';
+import { tournamentContainerPropsBuilder } from '../tournamentContainerPropsBuilder.ts';
+import { BuilderParam } from '../../../helpers/builders/builders.ts';
+import { playerBuilder } from '../../../helpers/builders/players.ts';
 
 describe('SuperLeaguePrintout', () => {
     let context: TestContext;

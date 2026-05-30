@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedReference
 
-import { isDateEqualTo, isInFuture, isInPast, isToday } from './dates';
+import { isDateEqualTo, isInFuture, isInPast, isToday } from './dates.ts';
 
 describe('dates', () => {
     const today = date(0);

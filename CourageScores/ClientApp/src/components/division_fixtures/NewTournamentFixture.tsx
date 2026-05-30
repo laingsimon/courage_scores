@@ -1,25 +1,25 @@
-import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto';
+import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto.ts';
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
-} from '../common/BootstrapDropdown';
+} from '../common/BootstrapDropdown.tsx';
 import { useState } from 'react';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
-import { createTemporaryId } from '../../helpers/projection';
-import { useDependencies } from '../common/IocContainer';
-import { useDivisionData } from '../league/DivisionDataContainer';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { ErrorDisplay } from '../common/ErrorDisplay';
-import { useApp } from '../common/AppContainer';
-import { any, distinct } from '../../helpers/collections';
-import { renderDate } from '../../helpers/rendering';
-import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto';
-import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
-import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto';
-import { Dialog } from '../common/Dialog';
-import { stateChanged } from '../../helpers/events';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useDivisionData } from '../league/DivisionDataContainer.tsx';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { ErrorDisplay } from '../common/ErrorDisplay.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { any, distinct } from '../../helpers/collections.ts';
+import { renderDate } from '../../helpers/rendering.ts';
+import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto.ts';
+import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto.ts';
+import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto.ts';
+import { Dialog } from '../common/Dialog.tsx';
+import { stateChanged } from '../../helpers/events.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface INewTournamentFixtureProps {
     date: string;

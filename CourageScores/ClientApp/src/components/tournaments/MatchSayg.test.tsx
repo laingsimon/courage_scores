@@ -9,36 +9,36 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     ITournamentContainerProps,
     TournamentContainer,
-} from './TournamentContainer';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { IMatchSaygProps, MatchSayg } from './MatchSayg';
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
+} from './TournamentContainer.tsx';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { IMatchSaygProps, MatchSayg } from './MatchSayg.tsx';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
 import {
     ITournamentMatchBuilder,
     sideBuilder,
     tournamentBuilder,
-} from '../../helpers/builders/tournaments';
-import { matchOptionsBuilder } from '../../helpers/builders/games';
-import { PatchTournamentDto } from '../../interfaces/models/dtos/Game/PatchTournamentDto';
-import { PatchTournamentRoundDto } from '../../interfaces/models/dtos/Game/PatchTournamentRoundDto';
-import { createTemporaryId } from '../../helpers/projection';
-import { ITournamentGameApi } from '../../interfaces/apis/ITournamentGameApi';
-import { CreateTournamentSaygDto } from '../../interfaces/models/dtos/Game/CreateTournamentSaygDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { ISaygApi } from '../../interfaces/apis/ISaygApi';
-import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
-import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
-import { saygBuilder } from '../../helpers/builders/sayg';
-import { ENTER_SCORE_BUTTON } from '../../helpers/constants';
-import { checkoutWith, keyPad } from '../../helpers/sayg';
-import { START_SCORING } from './tournaments';
-import { tournamentContainerPropsBuilder } from './tournamentContainerPropsBuilder';
-import { BuilderParam } from '../../helpers/builders/builders';
-import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto';
+} from '../../helpers/builders/tournaments.ts';
+import { matchOptionsBuilder } from '../../helpers/builders/games.ts';
+import { PatchTournamentDto } from '../../interfaces/models/dtos/Game/PatchTournamentDto.ts';
+import { PatchTournamentRoundDto } from '../../interfaces/models/dtos/Game/PatchTournamentRoundDto.ts';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { ITournamentGameApi } from '../../interfaces/apis/ITournamentGameApi.ts';
+import { CreateTournamentSaygDto } from '../../interfaces/models/dtos/Game/CreateTournamentSaygDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { ISaygApi } from '../../interfaces/apis/ISaygApi.ts';
+import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto.ts';
+import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto.ts';
+import { saygBuilder } from '../../helpers/builders/sayg.ts';
+import { ENTER_SCORE_BUTTON } from '../../helpers/constants.ts';
+import { checkoutWith, keyPad } from '../../helpers/sayg.ts';
+import { START_SCORING } from './tournaments.ts';
+import { tournamentContainerPropsBuilder } from './tournamentContainerPropsBuilder.ts';
+import { BuilderParam } from '../../helpers/builders/builders.ts';
+import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto.ts';
 
 const mockedUsedNavigate = jest.fn();
 

@@ -10,28 +10,28 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import { act } from '@testing-library/react';
 import {
     ILoadedScoreAsYouGoDto,
     ISaygLoadingContainerProps,
     SaygLoadingContainer,
     useSayg,
-} from './SaygLoadingContainer';
-import { any } from '../../helpers/collections';
-import { legBuilder, saygBuilder } from '../../helpers/builders/sayg';
-import { useLive } from '../../live/LiveContainer';
-import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
-import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { ISubscriptions } from '../../live/ISubscriptions';
-import { ILiveOptions } from '../../live/ILiveOptions';
-import { IAppContainerProps } from '../common/AppContainer';
-import { ISaygApi } from '../../interfaces/apis/ISaygApi';
-import { ISubscriptionRequest } from '../../live/ISubscriptionRequest';
-import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType';
-import { MessageType } from '../../interfaces/models/dtos/MessageType';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+} from './SaygLoadingContainer.tsx';
+import { any } from '../../helpers/collections.ts';
+import { legBuilder, saygBuilder } from '../../helpers/builders/sayg.ts';
+import { useLive } from '../../live/LiveContainer.tsx';
+import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto.ts';
+import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { ISubscriptions } from '../../live/ISubscriptions.ts';
+import { ILiveOptions } from '../../live/ILiveOptions.ts';
+import { IAppContainerProps } from '../common/AppContainer.tsx';
+import { ISaygApi } from '../../interfaces/apis/ISaygApi.ts';
+import { ISubscriptionRequest } from '../../live/ISubscriptionRequest.ts';
+import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType.ts';
+import { MessageType } from '../../interfaces/models/dtos/MessageType.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 describe('SaygLoadingContainer', () => {
     let context: TestContext;

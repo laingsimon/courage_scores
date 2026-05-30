@@ -6,14 +6,14 @@ import {
     noop,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     IToggleFavouriteTeamProps,
     ToggleFavouriteTeam,
-} from './ToggleFavouriteTeam';
-import { IPreferenceData } from './PreferencesContainer';
-import { createTemporaryId } from '../../helpers/projection';
-import { DivisionDataContainer } from '../league/DivisionDataContainer';
+} from './ToggleFavouriteTeam.tsx';
+import { IPreferenceData } from './PreferencesContainer.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { DivisionDataContainer } from '../league/DivisionDataContainer.tsx';
 
 describe('ToggleFavouriteTeam', () => {
     let context: TestContext;

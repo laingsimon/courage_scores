@@ -7,13 +7,13 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { INumberKeyboardProps, NumberKeyboard } from './NumberKeyboard';
-import { StringMapObject, toDictionary } from '../../helpers/collections';
+} from '../../helpers/tests.tsx';
+import { INumberKeyboardProps, NumberKeyboard } from './NumberKeyboard.tsx';
+import { StringMapObject, toDictionary } from '../../helpers/collections.ts';
 import {
     DELETE_SCORE_BUTTON,
     ENTER_SCORE_BUTTON,
-} from '../../helpers/constants';
+} from '../../helpers/constants.ts';
 
 describe('NumberKeyboard', () => {
     let context: TestContext;

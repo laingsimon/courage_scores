@@ -1,18 +1,18 @@
 import { useState } from 'react';
-import { ErrorDisplay } from '../common/ErrorDisplay';
+import { ErrorDisplay } from '../common/ErrorDisplay.tsx';
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
-} from '../common/BootstrapDropdown';
-import { useDependencies } from '../common/IocContainer';
-import { useApp } from '../common/AppContainer';
-import { handleChange, stateChanged } from '../../helpers/events';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { EditTeamDto } from '../../interfaces/models/dtos/Team/EditTeamDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+} from '../common/BootstrapDropdown.tsx';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { handleChange, stateChanged } from '../../helpers/events.ts';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { EditTeamDto } from '../../interfaces/models/dtos/Team/EditTeamDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface IEditTeamDetailsProps {
     divisionId: string;

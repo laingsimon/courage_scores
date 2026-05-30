@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { any } from '../../helpers/collections';
-import { stateChanged } from '../../helpers/events';
-import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto';
-import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { any } from '../../helpers/collections.ts';
+import { stateChanged } from '../../helpers/events.ts';
+import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto.ts';
+import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface ITemplateDateProps {
     date: DateTemplateDto;

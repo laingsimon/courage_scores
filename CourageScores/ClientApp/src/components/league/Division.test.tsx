@@ -10,37 +10,37 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { Division, IRequestedDivisionDataDto } from './Division';
-import { any } from '../../helpers/collections';
-import { renderDate } from '../../helpers/rendering';
-import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
-import { SeasonHealthCheckResultDto } from '../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { IApp } from '../common/IApp';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { seasonBuilder } from '../../helpers/builders/seasons';
+} from '../../helpers/tests.tsx';
+import { Division, IRequestedDivisionDataDto } from './Division.tsx';
+import { any } from '../../helpers/collections.ts';
+import { renderDate } from '../../helpers/rendering.ts';
+import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
+import { SeasonHealthCheckResultDto } from '../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto.ts';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { IApp } from '../common/IApp.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
 import {
     divisionBuilder,
     divisionDataBuilder,
-} from '../../helpers/builders/divisions';
-import { teamBuilder } from '../../helpers/builders/teams';
-import { playerBuilder } from '../../helpers/builders/players';
-import { IDivisionApi } from '../../interfaces/apis/IDivisionApi';
-import { DivisionDataFilter } from '../../interfaces/models/dtos/Division/DivisionDataFilter';
-import { IGameApi } from '../../interfaces/apis/IGameApi';
-import { ISeasonApi } from '../../interfaces/apis/ISeasonApi';
-import { IFeatureApi } from '../../interfaces/apis/IFeatureApi';
-import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto';
+} from '../../helpers/builders/divisions.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
+import { playerBuilder } from '../../helpers/builders/players.ts';
+import { IDivisionApi } from '../../interfaces/apis/IDivisionApi.ts';
+import { DivisionDataFilter } from '../../interfaces/models/dtos/Division/DivisionDataFilter.ts';
+import { IGameApi } from '../../interfaces/apis/IGameApi.ts';
+import { ISeasonApi } from '../../interfaces/apis/ISeasonApi.ts';
+import { IFeatureApi } from '../../interfaces/apis/IFeatureApi.ts';
+import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto.ts';
 import {
     DivisionUriContainer,
     IDivisionUriContainerProps,
     UrlStyle,
-} from './DivisionUriContainer';
-import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/DivisionPlayerDto';
+} from './DivisionUriContainer.tsx';
+import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/DivisionPlayerDto.ts';
 
 describe('Division', () => {
     const TEAM_TABLE_HEADINGS = [

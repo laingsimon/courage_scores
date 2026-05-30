@@ -7,34 +7,34 @@ import {
     Prompts,
     TestContext,
     wrapComponent,
-} from './helpers/tests';
-import { App } from './App';
+} from './helpers/tests.tsx';
+import { App } from './App.tsx';
 import { act } from '@testing-library/react';
 import { MemoryRouter, Route } from 'react-router';
 import {
     IocContainer,
     IIocContainerProps,
-} from './components/common/IocContainer';
+} from './components/common/IocContainer.tsx';
 import ReactDOM from 'react-dom/client';
-import { useApp } from './components/common/AppContainer';
-import { BrandingContainer } from './components/common/BrandingContainer';
-import { UserDto } from './interfaces/models/dtos/Identity/UserDto';
-import { SeasonDto } from './interfaces/models/dtos/Season/SeasonDto';
-import { TeamDto } from './interfaces/models/dtos/Team/TeamDto';
-import { ErrorDetailDto } from './interfaces/models/dtos/ErrorDetailDto';
-import { DivisionDto } from './interfaces/models/dtos/DivisionDto';
-import { IBuild } from './components/common/IBuild';
-import { IClientActionResultDto } from './components/common/IClientActionResultDto';
-import { divisionBuilder } from './helpers/builders/divisions';
-import { IAccountApi } from './interfaces/apis/IAccountApi';
-import { IErrorApi } from './interfaces/apis/IErrorApi';
-import { IDivisionApi } from './interfaces/apis/IDivisionApi';
-import { ISeasonApi } from './interfaces/apis/ISeasonApi';
-import { ITeamApi } from './interfaces/apis/ITeamApi';
+import { useApp } from './components/common/AppContainer.tsx';
+import { BrandingContainer } from './components/common/BrandingContainer.tsx';
+import { UserDto } from './interfaces/models/dtos/Identity/UserDto.ts';
+import { SeasonDto } from './interfaces/models/dtos/Season/SeasonDto.ts';
+import { TeamDto } from './interfaces/models/dtos/Team/TeamDto.ts';
+import { ErrorDetailDto } from './interfaces/models/dtos/ErrorDetailDto.ts';
+import { DivisionDto } from './interfaces/models/dtos/DivisionDto.ts';
+import { IBuild } from './components/common/IBuild.ts';
+import { IClientActionResultDto } from './components/common/IClientActionResultDto.ts';
+import { divisionBuilder } from './helpers/builders/divisions.ts';
+import { IAccountApi } from './interfaces/apis/IAccountApi.ts';
+import { IErrorApi } from './interfaces/apis/IErrorApi.ts';
+import { IDivisionApi } from './interfaces/apis/IDivisionApi.ts';
+import { ISeasonApi } from './interfaces/apis/ISeasonApi.ts';
+import { ITeamApi } from './interfaces/apis/ITeamApi.ts';
 import React from 'react';
 import { CookiesProvider } from 'react-cookie';
-import { ISettings } from './api/settings';
-import userEvent from '@testing-library/user-event';
+import { ISettings } from './api/settings.ts';
+import { userEvent } from '@testing-library/user-event';
 
 describe('App', () => {
     let context: TestContext;

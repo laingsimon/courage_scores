@@ -1,11 +1,11 @@
-import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto';
+import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto.ts';
 import { ChangeEvent, useState } from 'react';
-import { ReconfigureFeatureDto } from '../../interfaces/models/dtos/ReconfigureFeatureDto';
-import { useDependencies } from '../common/IocContainer';
-import { useApp } from '../common/AppContainer';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { ReconfigureFeatureDto } from '../../interfaces/models/dtos/ReconfigureFeatureDto.ts';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface IEditFeatureProps {
     feature: ConfiguredFeatureDto;

@@ -5,11 +5,11 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     IWidescreenSaygRecentThrowProps,
     WidescreenSaygRecentThrow,
-} from './WidescreenSaygRecentThrow';
+} from './WidescreenSaygRecentThrow.tsx';
 
 describe('WidescreenSaygRecentThrow', () => {
     let context: TestContext;

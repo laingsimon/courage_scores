@@ -7,17 +7,17 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../../helpers/tests';
-import { IMatchReportProps, MatchReport } from './MatchReport';
-import { ISuperleagueSaygMatchMapping } from './ISuperleagueSaygMatchMapping';
+} from '../../../helpers/tests.tsx';
+import { IMatchReportProps, MatchReport } from './MatchReport.tsx';
+import { ISuperleagueSaygMatchMapping } from './ISuperleagueSaygMatchMapping.ts';
 import {
     ILegBuilder,
     ILegCompetitorScoreBuilder,
     saygBuilder,
-} from '../../../helpers/builders/sayg';
-import { divisionBuilder } from '../../../helpers/builders/divisions';
-import { tournamentMatchBuilder } from '../../../helpers/builders/tournaments';
-import { BuilderParam } from '../../../helpers/builders/builders';
+} from '../../../helpers/builders/sayg.ts';
+import { divisionBuilder } from '../../../helpers/builders/divisions.ts';
+import { tournamentMatchBuilder } from '../../../helpers/builders/tournaments.ts';
+import { BuilderParam } from '../../../helpers/builders/builders.ts';
 
 describe('MatchReport', () => {
     let context: TestContext;

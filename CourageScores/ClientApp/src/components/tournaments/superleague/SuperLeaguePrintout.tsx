@@ -1,29 +1,29 @@
-import { MasterDraw } from './MasterDraw';
-import { MatchLog } from './MatchLog';
-import { Summary } from './Summary';
-import { MatchReport } from './MatchReport';
+import { MasterDraw } from './MasterDraw.tsx';
+import { MatchLog } from './MatchLog.tsx';
+import { Summary } from './Summary.tsx';
+import { MatchReport } from './MatchReport.tsx';
 import { useEffect, useState } from 'react';
-import { any, max } from '../../../helpers/collections';
-import { useDependencies } from '../../common/IocContainer';
-import { useApp } from '../../common/AppContainer';
-import { useTournament } from '../TournamentContainer';
+import { any, max } from '../../../helpers/collections.ts';
+import { useDependencies } from '../../common/IocContainer.tsx';
+import { useApp } from '../../common/AppContainer.tsx';
+import { useTournament } from '../TournamentContainer.tsx';
 import { useLocation } from 'react-router';
 import {
     getNoOfLegs,
     maxNoOfThrowsAllMatches,
-} from '../../../helpers/superleague';
-import { RefreshControl } from '../../common/RefreshControl';
-import { useLive } from '../../../live/LiveContainer';
-import { ISuperleagueSaygMatchMapping } from './ISuperleagueSaygMatchMapping';
-import { DivisionDto } from '../../../interfaces/models/dtos/DivisionDto';
-import { TournamentMatchDto } from '../../../interfaces/models/dtos/Game/TournamentMatchDto';
-import { RecordedScoreAsYouGoDto } from '../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
-import { ISubscription } from '../../../live/ISubscription';
-import { PatchTournamentDto } from '../../../interfaces/models/dtos/Game/PatchTournamentDto';
-import { PatchTournamentRoundDto } from '../../../interfaces/models/dtos/Game/PatchTournamentRoundDto';
-import { LiveDataType } from '../../../interfaces/models/dtos/Live/LiveDataType';
-import { Loading } from '../../common/Loading';
-import { hasAccess } from '../../../helpers/conditions';
+} from '../../../helpers/superleague.ts';
+import { RefreshControl } from '../../common/RefreshControl.tsx';
+import { useLive } from '../../../live/LiveContainer.tsx';
+import { ISuperleagueSaygMatchMapping } from './ISuperleagueSaygMatchMapping.ts';
+import { DivisionDto } from '../../../interfaces/models/dtos/DivisionDto.ts';
+import { TournamentMatchDto } from '../../../interfaces/models/dtos/Game/TournamentMatchDto.ts';
+import { RecordedScoreAsYouGoDto } from '../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto.ts';
+import { ISubscription } from '../../../live/ISubscription.ts';
+import { PatchTournamentDto } from '../../../interfaces/models/dtos/Game/PatchTournamentDto.ts';
+import { PatchTournamentRoundDto } from '../../../interfaces/models/dtos/Game/PatchTournamentRoundDto.ts';
+import { LiveDataType } from '../../../interfaces/models/dtos/Live/LiveDataType.ts';
+import { Loading } from '../../common/Loading.tsx';
+import { hasAccess } from '../../../helpers/conditions.ts';
 
 export interface ISuperLeaguePrintoutProps {
     division: DivisionDto;

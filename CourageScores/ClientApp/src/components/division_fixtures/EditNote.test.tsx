@@ -7,17 +7,20 @@ import {
     noop,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { EditNote } from './EditNote';
-import { EditFixtureDateNoteDto } from '../../interfaces/models/dtos/EditFixtureDateNoteDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { divisionBuilder, noteBuilder } from '../../helpers/builders/divisions';
-import { INoteApi } from '../../interfaces/apis/INoteApi';
-import { DivisionDataContainer } from '../league/DivisionDataContainer';
+} from '../../helpers/tests.tsx';
+import { EditNote } from './EditNote.tsx';
+import { EditFixtureDateNoteDto } from '../../interfaces/models/dtos/EditFixtureDateNoteDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import {
+    divisionBuilder,
+    noteBuilder,
+} from '../../helpers/builders/divisions.ts';
+import { INoteApi } from '../../interfaces/apis/INoteApi.ts';
+import { DivisionDataContainer } from '../league/DivisionDataContainer.tsx';
 
 describe('EditNote', () => {
     let context: TestContext;

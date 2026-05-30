@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
-import { ErrorDisplay } from '../common/ErrorDisplay';
-import { TableSelection } from './TableSelection';
-import { any } from '../../helpers/collections';
-import { asyncClear, propChanged, valueChanged } from '../../helpers/events';
-import { useDependencies } from '../common/IocContainer';
-import { useAdmin } from './AdminContainer';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { ImportDataRequestDto } from '../../interfaces/models/dtos/Data/ImportDataRequestDto';
-import { ImportDataResultDto } from '../../interfaces/models/dtos/Data/ImportDataResultDto';
-import { TableDto } from '../../interfaces/models/dtos/Data/TableDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
+import { ErrorDisplay } from '../common/ErrorDisplay.tsx';
+import { TableSelection } from './TableSelection.tsx';
+import { any } from '../../helpers/collections.ts';
+import { asyncClear, propChanged, valueChanged } from '../../helpers/events.ts';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useAdmin } from './AdminContainer.tsx';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { ImportDataRequestDto } from '../../interfaces/models/dtos/Data/ImportDataRequestDto.ts';
+import { ImportDataResultDto } from '../../interfaces/models/dtos/Data/ImportDataResultDto.ts';
+import { TableDto } from '../../interfaces/models/dtos/Data/TableDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
 
 export function ImportData() {
     const { dataApi } = useDependencies();

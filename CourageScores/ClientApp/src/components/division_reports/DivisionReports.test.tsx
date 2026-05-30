@@ -9,18 +9,18 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { createTemporaryId } from '../../helpers/projection';
+} from '../../helpers/tests.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
 import {
     DivisionDataContainer,
     IDivisionDataContainerProps,
-} from '../league/DivisionDataContainer';
-import { DivisionReports } from './DivisionReports';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { ReportDto } from '../../interfaces/models/dtos/Report/ReportDto';
-import { ReportCollectionDto } from '../../interfaces/models/dtos/Report/ReportCollectionDto';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { IReportApi } from '../../interfaces/apis/IReportApi';
+} from '../league/DivisionDataContainer.tsx';
+import { DivisionReports } from './DivisionReports.tsx';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { ReportDto } from '../../interfaces/models/dtos/Report/ReportDto.ts';
+import { ReportCollectionDto } from '../../interfaces/models/dtos/Report/ReportCollectionDto.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { IReportApi } from '../../interfaces/apis/IReportApi.ts';
 
 describe('DivisionReports', () => {
     let context: TestContext;

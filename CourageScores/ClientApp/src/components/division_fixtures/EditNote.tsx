@@ -1,16 +1,16 @@
 import { useState } from 'react';
-import { Dialog } from '../common/Dialog';
-import { ErrorDisplay } from '../common/ErrorDisplay';
-import { valueChanged } from '../../helpers/events';
-import { useDependencies } from '../common/IocContainer';
-import { useApp } from '../common/AppContainer';
-import { FixtureDateNote } from './FixtureDateNote';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { EditFixtureDateNoteDto } from '../../interfaces/models/dtos/EditFixtureDateNoteDto';
-import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { useDivisionData } from '../league/DivisionDataContainer';
+import { Dialog } from '../common/Dialog.tsx';
+import { ErrorDisplay } from '../common/ErrorDisplay.tsx';
+import { valueChanged } from '../../helpers/events.ts';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { FixtureDateNote } from './FixtureDateNote.tsx';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { EditFixtureDateNoteDto } from '../../interfaces/models/dtos/EditFixtureDateNoteDto.ts';
+import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { useDivisionData } from '../league/DivisionDataContainer.tsx';
 
 export interface IEditNoteProps {
     note: EditFixtureDateNoteDto;

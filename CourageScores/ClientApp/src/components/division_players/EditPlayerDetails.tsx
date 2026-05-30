@@ -2,21 +2,21 @@ import { useState } from 'react';
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
-} from '../common/BootstrapDropdown';
-import { ErrorDisplay } from '../common/ErrorDisplay';
-import { useDependencies } from '../common/IocContainer';
-import { useApp } from '../common/AppContainer';
-import { any, sortBy } from '../../helpers/collections';
-import { handleChange, stateChanged } from '../../helpers/events';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
-import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { EditTeamPlayerDto } from '../../interfaces/models/dtos/Team/EditTeamPlayerDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { getTeamSeasons } from '../../helpers/teams';
-import { GenderDto } from '../../interfaces/models/dtos/Team/GenderDto';
+} from '../common/BootstrapDropdown.tsx';
+import { ErrorDisplay } from '../common/ErrorDisplay.tsx';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { any, sortBy } from '../../helpers/collections.ts';
+import { handleChange, stateChanged } from '../../helpers/events.ts';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
+import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { EditTeamPlayerDto } from '../../interfaces/models/dtos/Team/EditTeamPlayerDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { getTeamSeasons } from '../../helpers/teams.ts';
+import { GenderDto } from '../../interfaces/models/dtos/Team/GenderDto.ts';
 
 export interface IEditPlayerDetailsProps {
     onSaved(team: TeamDto, newPlayers: TeamPlayerDto[] | null): UntypedPromise;

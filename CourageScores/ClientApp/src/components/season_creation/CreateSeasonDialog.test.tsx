@@ -8,36 +8,36 @@ import {
     noop,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { repeat, createTemporaryId } from '../../helpers/projection';
+} from '../../helpers/tests.tsx';
+import { repeat, createTemporaryId } from '../../helpers/projection.ts';
 import {
     CreateSeasonDialog,
     ICreateSeasonDialogProps,
-} from './CreateSeasonDialog';
+} from './CreateSeasonDialog.tsx';
 import {
     DivisionDataContainer,
     IDivisionDataContainerProps,
-} from '../league/DivisionDataContainer';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { ActionResultDto } from '../../interfaces/models/dtos/ActionResultDto';
-import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto';
-import { ProposalResultDto } from '../../interfaces/models/dtos/Season/Creation/ProposalResultDto';
-import { ProposalRequestDto } from '../../interfaces/models/dtos/Season/Creation/ProposalRequestDto';
-import { EditGameDto } from '../../interfaces/models/dtos/Game/EditGameDto';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { IAppContainerProps } from '../common/AppContainer';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { DivisionTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto';
-import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
-import { teamBuilder } from '../../helpers/builders/teams';
+} from '../league/DivisionDataContainer.tsx';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { ActionResultDto } from '../../interfaces/models/dtos/ActionResultDto.ts';
+import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto.ts';
+import { ProposalResultDto } from '../../interfaces/models/dtos/Season/Creation/ProposalResultDto.ts';
+import { ProposalRequestDto } from '../../interfaces/models/dtos/Season/Creation/ProposalRequestDto.ts';
+import { EditGameDto } from '../../interfaces/models/dtos/Game/EditGameDto.ts';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { IAppContainerProps } from '../common/AppContainer.tsx';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { DivisionTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto.ts';
+import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
 import {
     divisionBuilder,
     fixtureDateBuilder,
-} from '../../helpers/builders/divisions';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { ISeasonTemplateApi } from '../../interfaces/apis/ISeasonTemplateApi';
-import { IGameApi } from '../../interfaces/apis/IGameApi';
+} from '../../helpers/builders/divisions.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { ISeasonTemplateApi } from '../../interfaces/apis/ISeasonTemplateApi.ts';
+import { IGameApi } from '../../interfaces/apis/IGameApi.ts';
 
 describe('CreateSeasonDialog', () => {
     let context: TestContext;

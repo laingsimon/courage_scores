@@ -9,19 +9,22 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { DivisionControls, IDivisionControlsProps } from './DivisionControls';
-import { renderDate } from '../../helpers/rendering';
-import { EditSeasonDto } from '../../interfaces/models/dtos/Season/EditSeasonDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { EditDivisionDto } from '../../interfaces/models/dtos/EditDivisionDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { divisionBuilder } from '../../helpers/builders/divisions';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { IDivisionApi } from '../../interfaces/apis/IDivisionApi';
-import { ISeasonApi } from '../../interfaces/apis/ISeasonApi';
+} from '../../helpers/tests.tsx';
+import {
+    DivisionControls,
+    IDivisionControlsProps,
+} from './DivisionControls.tsx';
+import { renderDate } from '../../helpers/rendering.ts';
+import { EditSeasonDto } from '../../interfaces/models/dtos/Season/EditSeasonDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { EditDivisionDto } from '../../interfaces/models/dtos/EditDivisionDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { divisionBuilder } from '../../helpers/builders/divisions.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { IDivisionApi } from '../../interfaces/apis/IDivisionApi.ts';
+import { ISeasonApi } from '../../interfaces/apis/ISeasonApi.ts';
 
 const mockedUsedNavigate = jest.fn();
 

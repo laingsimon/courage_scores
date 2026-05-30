@@ -5,10 +5,10 @@ import {
     brandingProps,
     appProps,
     TestContext,
-} from '../../helpers/tests';
-import { EditThrow, IEditThrowProps } from './EditThrow';
-import { valueChanged } from '../../helpers/events';
-import { LegThrowDto } from '../../interfaces/models/dtos/Game/Sayg/LegThrowDto';
+} from '../../helpers/tests.tsx';
+import { EditThrow, IEditThrowProps } from './EditThrow.tsx';
+import { valueChanged } from '../../helpers/events.ts';
+import { LegThrowDto } from '../../interfaces/models/dtos/Game/Sayg/LegThrowDto.ts';
 import React from 'react';
 
 describe('EditThrow', () => {

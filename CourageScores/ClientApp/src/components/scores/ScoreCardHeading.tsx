@@ -1,13 +1,13 @@
-import { useApp } from '../common/AppContainer';
-import { useLeagueFixture } from './LeagueFixtureContainer';
-import { renderDate } from '../../helpers/rendering';
-import { count } from '../../helpers/collections';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto';
-import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
+import { useApp } from '../common/AppContainer.tsx';
+import { useLeagueFixture } from './LeagueFixtureContainer.tsx';
+import { renderDate } from '../../helpers/rendering.ts';
+import { count } from '../../helpers/collections.ts';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto.ts';
+import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
 import { Link } from 'react-router';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface IScoreCardHeadingProps {
     data: GameDto;

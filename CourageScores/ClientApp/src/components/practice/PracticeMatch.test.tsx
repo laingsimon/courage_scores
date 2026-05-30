@@ -10,17 +10,20 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { PracticeMatch } from './PracticeMatch';
-import { createTemporaryId } from '../../helpers/projection';
-import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
-import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { saygBuilder } from '../../helpers/builders/sayg';
-import { ISaygApi } from '../../interfaces/apis/ISaygApi';
-import { CHECKOUT_3_DART, ENTER_SCORE_BUTTON } from '../../helpers/constants';
-import { checkoutWith, keyPad } from '../../helpers/sayg';
+} from '../../helpers/tests.tsx';
+import { PracticeMatch } from './PracticeMatch.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto.ts';
+import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { saygBuilder } from '../../helpers/builders/sayg.ts';
+import { ISaygApi } from '../../interfaces/apis/ISaygApi.ts';
+import {
+    CHECKOUT_3_DART,
+    ENTER_SCORE_BUTTON,
+} from '../../helpers/constants.ts';
+import { checkoutWith, keyPad } from '../../helpers/sayg.ts';
 
 const mockedUsedNavigate = jest.fn();
 

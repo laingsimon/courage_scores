@@ -7,9 +7,12 @@ import {
     noop,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { PreferencesContainer, usePreferences } from './PreferencesContainer';
-import { IPreferences } from './IPreferences';
+} from '../../helpers/tests.tsx';
+import {
+    PreferencesContainer,
+    usePreferences,
+} from './PreferencesContainer.tsx';
+import { IPreferences } from './IPreferences.ts';
 import { Cookies } from 'react-cookie';
 import { act } from '@testing-library/react';
 

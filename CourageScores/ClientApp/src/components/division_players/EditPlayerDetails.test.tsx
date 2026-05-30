@@ -7,25 +7,25 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { createTemporaryId } from '../../helpers/projection';
+} from '../../helpers/tests.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
 import {
     EditPlayerDetails,
     IEditPlayerDetailsProps,
-} from './EditPlayerDetails';
-import { EditTeamPlayerDto } from '../../interfaces/models/dtos/Team/EditTeamPlayerDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { divisionBuilder } from '../../helpers/builders/divisions';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { teamBuilder } from '../../helpers/builders/teams';
-import { playerBuilder } from '../../helpers/builders/players';
-import { IPlayerApi } from '../../interfaces/apis/IPlayerApi';
-import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto';
-import { GenderDto } from '../../interfaces/models/dtos/Team/GenderDto';
+} from './EditPlayerDetails.tsx';
+import { EditTeamPlayerDto } from '../../interfaces/models/dtos/Team/EditTeamPlayerDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { divisionBuilder } from '../../helpers/builders/divisions.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
+import { playerBuilder } from '../../helpers/builders/players.ts';
+import { IPlayerApi } from '../../interfaces/apis/IPlayerApi.ts';
+import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto.ts';
+import { GenderDto } from '../../interfaces/models/dtos/Team/GenderDto.ts';
 
 describe('EditPlayerDetails', () => {
     let context: TestContext;

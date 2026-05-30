@@ -5,8 +5,8 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { ISavingProposalsProps, SavingProposals } from './SavingProposals';
+} from '../../helpers/tests.tsx';
+import { ISavingProposalsProps, SavingProposals } from './SavingProposals.tsx';
 
 describe('SavingProposals', () => {
     let context: TestContext;

@@ -5,12 +5,12 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     IWidescreenSaygMatchDetailsProps,
     WidescreenSaygMatchDetails,
-} from './WidescreenSaygMatchDetails';
-import { saygBuilder } from '../../helpers/builders/sayg';
+} from './WidescreenSaygMatchDetails.tsx';
+import { saygBuilder } from '../../helpers/builders/sayg.ts';
 
 describe('WidescreenSaygMatchDetails', () => {
     let context: TestContext;

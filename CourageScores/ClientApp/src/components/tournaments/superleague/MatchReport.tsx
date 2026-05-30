@@ -1,9 +1,9 @@
-import { useApp } from '../../common/AppContainer';
-import { legsWon } from '../../../helpers/superleague';
-import { repeat } from '../../../helpers/projection';
-import { MatchReportRow } from './MatchReportRow';
-import { ISuperleagueSaygMatchMapping } from './ISuperleagueSaygMatchMapping';
-import { DivisionDto } from '../../../interfaces/models/dtos/DivisionDto';
+import { useApp } from '../../common/AppContainer.tsx';
+import { legsWon } from '../../../helpers/superleague.ts';
+import { repeat } from '../../../helpers/projection.ts';
+import { MatchReportRow } from './MatchReportRow.tsx';
+import { ISuperleagueSaygMatchMapping } from './ISuperleagueSaygMatchMapping.ts';
+import { DivisionDto } from '../../../interfaces/models/dtos/DivisionDto.ts';
 
 export interface IMatchReportProps {
     division: DivisionDto;

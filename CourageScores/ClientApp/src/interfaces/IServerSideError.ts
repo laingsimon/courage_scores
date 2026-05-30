@@ -1,4 +1,4 @@
-import { IServerSideException } from './IServerSideException';
+import { IServerSideException } from './IServerSideException.ts';
 
 export interface IServerSideError {
     Exception?: IServerSideException;

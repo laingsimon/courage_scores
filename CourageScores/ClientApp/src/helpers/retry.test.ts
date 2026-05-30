@@ -1,5 +1,5 @@
-﻿import { retry } from './retry';
-import { noop } from './tests';
+﻿import { retry } from './retry.ts';
+import { noop } from './tests.tsx';
 
 describe('retry', () => {
     let response: boolean;

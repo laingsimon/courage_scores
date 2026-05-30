@@ -1,4 +1,4 @@
-import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto';
+import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto.ts';
 
 export interface IWidescreenSaygMatchDetailsProps {
     legs: { [legKey: number]: LegDto };

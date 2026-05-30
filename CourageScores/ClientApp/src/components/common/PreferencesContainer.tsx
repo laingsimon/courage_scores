@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react';
-import { IPreferences } from './IPreferences';
+import { IPreferences } from './IPreferences.ts';
 import { CookiesProvider, useCookies } from 'react-cookie';
 
 const PreferencesContext = createContext({});

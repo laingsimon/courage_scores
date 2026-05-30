@@ -1,6 +1,6 @@
-﻿import { TeamDto } from '../interfaces/models/dtos/Team/TeamDto';
-import { any } from './collections';
-import { TeamSeasonDto } from '../interfaces/models/dtos/Team/TeamSeasonDto';
+﻿import { TeamDto } from '../interfaces/models/dtos/Team/TeamDto.ts';
+import { any } from './collections.ts';
+import { TeamSeasonDto } from '../interfaces/models/dtos/Team/TeamSeasonDto.ts';
 
 export function getTeamSeasons(
     t: TeamDto,

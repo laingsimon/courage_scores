@@ -1,14 +1,14 @@
-import { PlayedEngine } from './PlayedEngine';
-import { ILayoutEngine } from './ILayoutEngine';
-import { ILayoutRequest } from './ILayoutRequest';
-import { TournamentSideDto } from '../../../interfaces/models/dtos/Game/TournamentSideDto';
-import { GameMatchOptionDto } from '../../../interfaces/models/dtos/Game/GameMatchOptionDto';
-import { TournamentRoundDto } from '../../../interfaces/models/dtos/Game/TournamentRoundDto';
-import { createTemporaryId } from '../../../helpers/projection';
-import { TournamentMatchDto } from '../../../interfaces/models/dtos/Game/TournamentMatchDto';
-import { ILayoutDataForSide } from './ILayoutDataForSide';
-import { ILayoutDataForMatch } from './ILayoutDataForMatch';
-import { ILayoutDataForRound } from './ILayoutDataForRound';
+import { PlayedEngine } from './PlayedEngine.ts';
+import { ILayoutEngine } from './ILayoutEngine.ts';
+import { ILayoutRequest } from './ILayoutRequest.ts';
+import { TournamentSideDto } from '../../../interfaces/models/dtos/Game/TournamentSideDto.ts';
+import { GameMatchOptionDto } from '../../../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
+import { TournamentRoundDto } from '../../../interfaces/models/dtos/Game/TournamentRoundDto.ts';
+import { createTemporaryId } from '../../../helpers/projection.ts';
+import { TournamentMatchDto } from '../../../interfaces/models/dtos/Game/TournamentMatchDto.ts';
+import { ILayoutDataForSide } from './ILayoutDataForSide.ts';
+import { ILayoutDataForMatch } from './ILayoutDataForMatch.ts';
+import { ILayoutDataForRound } from './ILayoutDataForRound.ts';
 import { ReactElement } from 'react';
 
 interface ISideLayoutInfo {

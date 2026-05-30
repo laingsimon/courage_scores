@@ -1,11 +1,11 @@
-import { SharedAddresses } from './SharedAddresses';
-import { TemplateDates } from './TemplateDates';
+import { SharedAddresses } from './SharedAddresses.tsx';
+import { TemplateDates } from './TemplateDates.tsx';
 import { useState } from 'react';
-import { DivisionTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto';
-import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto';
-import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto';
-import { any, distinct } from '../../helpers/collections';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { DivisionTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto.ts';
+import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto.ts';
+import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto.ts';
+import { any, distinct } from '../../helpers/collections.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface ITemplateDivisionProps {
     divisionNo: number;

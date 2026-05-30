@@ -10,31 +10,31 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { DivisionFixtures } from './DivisionFixtures';
+} from '../../helpers/tests.tsx';
+import { DivisionFixtures } from './DivisionFixtures.tsx';
 import {
     DivisionDataContainer,
     IDivisionDataContainerProps,
-} from '../league/DivisionDataContainer';
-import { EditFixtureDateNoteDto } from '../../interfaces/models/dtos/EditFixtureDateNoteDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { IEditableDivisionFixtureDateDto } from './IEditableDivisionFixtureDateDto';
-import { teamBuilder } from '../../helpers/builders/teams';
+} from '../league/DivisionDataContainer.tsx';
+import { EditFixtureDateNoteDto } from '../../interfaces/models/dtos/EditFixtureDateNoteDto.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { IEditableDivisionFixtureDateDto } from './IEditableDivisionFixtureDateDto.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
 import {
     divisionDataBuilder,
     fixtureDateBuilder,
-} from '../../helpers/builders/divisions';
-import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto';
-import { ISeasonTemplateApi } from '../../interfaces/apis/ISeasonTemplateApi';
-import { INoteApi } from '../../interfaces/apis/INoteApi';
-import { ITournamentGameApi } from '../../interfaces/apis/ITournamentGameApi';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto';
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
-import { IGameApi } from '../../interfaces/apis/IGameApi';
-import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto';
-import { ISeasonApi } from '../../interfaces/apis/ISeasonApi';
+} from '../../helpers/builders/divisions.ts';
+import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto.ts';
+import { ISeasonTemplateApi } from '../../interfaces/apis/ISeasonTemplateApi.ts';
+import { INoteApi } from '../../interfaces/apis/INoteApi.ts';
+import { ITournamentGameApi } from '../../interfaces/apis/ITournamentGameApi.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto.ts';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { IGameApi } from '../../interfaces/apis/IGameApi.ts';
+import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto.ts';
+import { ISeasonApi } from '../../interfaces/apis/ISeasonApi.ts';
 
 describe('DivisionFixtures', () => {
     let context: TestContext;

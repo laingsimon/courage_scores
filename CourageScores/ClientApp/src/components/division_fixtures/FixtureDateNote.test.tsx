@@ -7,15 +7,15 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { FixtureDateNote, IFixtureDateNoteProps } from './FixtureDateNote';
-import { DivisionDataContainer } from '../league/DivisionDataContainer';
-import { noteBuilder } from '../../helpers/builders/divisions';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { createTemporaryId } from '../../helpers/projection';
-import { INoteApi } from '../../interfaces/apis/INoteApi';
+} from '../../helpers/tests.tsx';
+import { FixtureDateNote, IFixtureDateNoteProps } from './FixtureDateNote.tsx';
+import { DivisionDataContainer } from '../league/DivisionDataContainer.tsx';
+import { noteBuilder } from '../../helpers/builders/divisions.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { INoteApi } from '../../interfaces/apis/INoteApi.ts';
 
 describe('FixtureDateNote', () => {
     let context: TestContext;

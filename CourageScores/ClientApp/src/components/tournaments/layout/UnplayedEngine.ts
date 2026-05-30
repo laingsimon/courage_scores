@@ -1,17 +1,17 @@
-import { ILayoutEngine } from './ILayoutEngine';
-import { TournamentSideDto } from '../../../interfaces/models/dtos/Game/TournamentSideDto';
-import { repeat } from '../../../helpers/projection';
+import { ILayoutEngine } from './ILayoutEngine.ts';
+import { TournamentSideDto } from '../../../interfaces/models/dtos/Game/TournamentSideDto.ts';
+import { repeat } from '../../../helpers/projection.ts';
 import {
     getPrefixDecrementingMnemonicCalculator,
     getPrefixIncrementingMnemonicCalculator,
     getSideMnemonicGenerator,
     IMnemonicGenerator,
-} from './MnemonicGenerators';
-import { any, batchValues, skip, take } from '../../../helpers/collections';
-import { ILayoutRequest } from './ILayoutRequest';
-import { ILayoutDataForRound } from './ILayoutDataForRound';
-import { ILayoutDataForMatch } from './ILayoutDataForMatch';
-import { ILayoutDataForSide } from './ILayoutDataForSide';
+} from './MnemonicGenerators.ts';
+import { any, batchValues, skip, take } from '../../../helpers/collections.ts';
+import { ILayoutRequest } from './ILayoutRequest.ts';
+import { ILayoutDataForRound } from './ILayoutDataForRound.ts';
+import { ILayoutDataForMatch } from './ILayoutDataForMatch.ts';
+import { ILayoutDataForSide } from './ILayoutDataForSide.ts';
 
 interface IRequestContext {
     matchMnemonics: IMnemonicGenerator;

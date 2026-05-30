@@ -1,5 +1,11 @@
-import { AndFilter, Filter, NotFilter, NullFilter, OrFilter } from './Filter';
-import { IFilter } from './IFilter';
+import {
+    AndFilter,
+    Filter,
+    NotFilter,
+    NullFilter,
+    OrFilter,
+} from './Filter.ts';
+import { IFilter } from './IFilter.ts';
 
 describe('Filter', () => {
     describe('Filter', () => {

@@ -1,14 +1,14 @@
-import { DivisionPlayers } from './DivisionPlayers';
-import { ShareButton } from '../common/ShareButton';
-import { any } from '../../helpers/collections';
-import { renderDate } from '../../helpers/rendering';
-import { useDivisionData } from '../league/DivisionDataContainer';
-import { useBranding } from '../common/BrandingContainer';
-import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/DivisionPlayerDto';
-import { DivisionTeamDto } from '../../interfaces/models/dtos/Division/DivisionTeamDto';
-import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto';
-import { DivisionFixtureDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDto';
-import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto';
+import { DivisionPlayers } from './DivisionPlayers.tsx';
+import { ShareButton } from '../common/ShareButton.tsx';
+import { any } from '../../helpers/collections.ts';
+import { renderDate } from '../../helpers/rendering.ts';
+import { useDivisionData } from '../league/DivisionDataContainer.tsx';
+import { useBranding } from '../common/BrandingContainer.tsx';
+import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/DivisionPlayerDto.ts';
+import { DivisionTeamDto } from '../../interfaces/models/dtos/Division/DivisionTeamDto.ts';
+import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto.ts';
+import { DivisionFixtureDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDto.ts';
+import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto.ts';
 import { Link } from 'react-router';
 
 export interface IPlayerOverviewProps {

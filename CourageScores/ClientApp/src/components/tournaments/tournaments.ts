@@ -1,10 +1,10 @@
-import { createTemporaryId } from '../../helpers/projection';
-import { sortBy } from '../../helpers/collections';
-import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
-import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto';
-import { ISaveSideOptions } from './EditSide';
-import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { sortBy } from '../../helpers/collections.ts';
+import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto.ts';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto.ts';
+import { ISaveSideOptions } from './EditSide.ts';
+import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto.ts';
 
 export const START_SCORING: string = '📊 Start scoring...';
 

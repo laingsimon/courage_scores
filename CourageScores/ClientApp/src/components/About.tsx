@@ -1,6 +1,6 @@
-import { useApp } from './common/AppContainer';
-import { renderDate } from '../helpers/rendering';
-import { useBranding } from './common/BrandingContainer';
+import { useApp } from './common/AppContainer.tsx';
+import { renderDate } from '../helpers/rendering.ts';
+import { useBranding } from './common/BrandingContainer.tsx';
 
 export function About() {
     const { build } = useApp();

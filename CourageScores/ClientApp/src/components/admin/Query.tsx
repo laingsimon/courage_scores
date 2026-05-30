@@ -1,20 +1,20 @@
-﻿import { useAdmin } from './AdminContainer';
+﻿import { useAdmin } from './AdminContainer.tsx';
 import { useEffect, useRef, useState } from 'react';
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
-} from '../common/BootstrapDropdown';
-import { any, isEmpty, skip, sortBy } from '../../helpers/collections';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
+} from '../common/BootstrapDropdown.tsx';
+import { any, isEmpty, skip, sortBy } from '../../helpers/collections.ts';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
 import { useLocation, useNavigate } from 'react-router';
-import { useDependencies } from '../common/IocContainer';
-import { QueryRequestDto } from '../../interfaces/models/dtos/Query/QueryRequestDto';
-import { useApp } from '../common/AppContainer';
-import { QueryResponseDto } from '../../interfaces/models/dtos/Query/QueryResponseDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { stateChanged } from '../../helpers/events';
-import { renderDate } from '../../helpers/rendering';
-import { isGuid } from '../../helpers/projection';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { QueryRequestDto } from '../../interfaces/models/dtos/Query/QueryRequestDto.ts';
+import { useApp } from '../common/AppContainer.tsx';
+import { QueryResponseDto } from '../../interfaces/models/dtos/Query/QueryResponseDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { stateChanged } from '../../helpers/events.ts';
+import { renderDate } from '../../helpers/rendering.ts';
+import { isGuid } from '../../helpers/projection.ts';
 
 export function Query() {
     const { onError } = useApp();

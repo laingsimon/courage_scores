@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react';
-import { IApp } from './IApp';
+import { IApp } from './IApp.ts';
 
 const AppContext = createContext({});
 

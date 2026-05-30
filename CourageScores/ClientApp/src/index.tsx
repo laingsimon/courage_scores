@@ -1,13 +1,13 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router';
-import { App } from './App';
+import { App } from './App.tsx';
 import {
     IIocContainerProps,
     IocContainer,
-} from './components/common/IocContainer';
-import { BrandingContainer } from './components/common/BrandingContainer';
-import { IBrandingData } from './components/common/IBrandingData';
+} from './components/common/IocContainer.tsx';
+import { BrandingContainer } from './components/common/BrandingContainer.tsx';
+import { IBrandingData } from './components/common/IBrandingData.ts';
 
 interface IConfiguredPage {
     branding?: IBrandingData;
@@ -16,7 +16,7 @@ interface IConfiguredPage {
 const baseUrl: string | null = document
     .getElementsByTagName('base')[0]
     .getAttribute('href');
-const rootElement: HTMLElement | null = document.getElementById('root');
+const rootElement: HTMLElement = document.getElementById('root')!;
 const root = createRoot(rootElement);
 const search: string = document.location.search;
 const hash: string = document.location.hash;

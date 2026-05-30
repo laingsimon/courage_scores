@@ -7,17 +7,17 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     IMultiPlayerSelectionProps,
     MultiPlayerSelection,
-} from './MultiPlayerSelection';
-import { ISelectablePlayer } from './PlayerSelection';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { divisionBuilder } from '../../helpers/builders/divisions';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { playerBuilder } from '../../helpers/builders/players';
-import { teamBuilder } from '../../helpers/builders/teams';
+} from './MultiPlayerSelection.tsx';
+import { ISelectablePlayer } from './PlayerSelection.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { divisionBuilder } from '../../helpers/builders/divisions.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { playerBuilder } from '../../helpers/builders/players.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
 
 describe('MultiPlayerSelection', () => {
     let context: TestContext;

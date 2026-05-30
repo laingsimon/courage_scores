@@ -7,14 +7,14 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../helpers/tests';
-import { Tv } from './Tv';
-import { ILiveApi } from '../interfaces/apis/ILiveApi';
-import { WatchableDataDto } from '../interfaces/models/dtos/Live/WatchableDataDto';
-import { createTemporaryId } from '../helpers/projection';
-import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType';
-import { PublicationMode } from '../interfaces/models/dtos/Live/PublicationMode';
-import { IAppContainerProps } from './common/AppContainer';
+} from '../helpers/tests.tsx';
+import { Tv } from './Tv.tsx';
+import { ILiveApi } from '../interfaces/apis/ILiveApi.ts';
+import { WatchableDataDto } from '../interfaces/models/dtos/Live/WatchableDataDto.ts';
+import { createTemporaryId } from '../helpers/projection.ts';
+import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType.ts';
+import { PublicationMode } from '../interfaces/models/dtos/Live/PublicationMode.ts';
+import { IAppContainerProps } from './common/AppContainer.tsx';
 
 describe('Tv', () => {
     let context: TestContext;

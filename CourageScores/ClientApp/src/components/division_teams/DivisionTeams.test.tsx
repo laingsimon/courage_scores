@@ -9,21 +9,21 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { createTemporaryId } from '../../helpers/projection';
+} from '../../helpers/tests.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
 import {
     DivisionDataContainer,
     IDivisionDataContainerProps,
-} from '../league/DivisionDataContainer';
-import { DivisionTeams } from './DivisionTeams';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { EditTeamDto } from '../../interfaces/models/dtos/Team/EditTeamDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
-import { ITeamApi } from '../../interfaces/apis/ITeamApi';
+} from '../league/DivisionDataContainer.tsx';
+import { DivisionTeams } from './DivisionTeams.tsx';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { EditTeamDto } from '../../interfaces/models/dtos/Team/EditTeamDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
+import { ITeamApi } from '../../interfaces/apis/ITeamApi.ts';
 
 describe('DivisionTeams', () => {
     let context: TestContext;

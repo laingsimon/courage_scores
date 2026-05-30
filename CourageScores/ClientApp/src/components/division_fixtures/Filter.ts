@@ -1,5 +1,5 @@
-import { all, any } from '../../helpers/collections';
-import { IFilter } from './IFilter';
+import { all, any } from '../../helpers/collections.ts';
+import { IFilter } from './IFilter.ts';
 
 export class Filter<T> implements IFilter<T> {
     /* eslint-disable @typescript-eslint/no-explicit-any */

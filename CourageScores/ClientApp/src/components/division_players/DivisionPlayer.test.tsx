@@ -8,24 +8,24 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { DivisionPlayer, IDivisionPlayerProps } from './DivisionPlayer';
+} from '../../helpers/tests.tsx';
+import { DivisionPlayer, IDivisionPlayerProps } from './DivisionPlayer.tsx';
 import {
     DivisionDataContainer,
     IDivisionDataContainerProps,
-} from '../league/DivisionDataContainer';
-import { createTemporaryId, EMPTY_ID } from '../../helpers/projection';
-import { EditTeamPlayerDto } from '../../interfaces/models/dtos/Team/EditTeamPlayerDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/DivisionPlayerDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { divisionBuilder } from '../../helpers/builders/divisions';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { IPlayerApi } from '../../interfaces/apis/IPlayerApi';
-import { IPreferenceData } from '../common/PreferencesContainer';
+} from '../league/DivisionDataContainer.tsx';
+import { createTemporaryId, EMPTY_ID } from '../../helpers/projection.ts';
+import { EditTeamPlayerDto } from '../../interfaces/models/dtos/Team/EditTeamPlayerDto.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/DivisionPlayerDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { divisionBuilder } from '../../helpers/builders/divisions.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { IPlayerApi } from '../../interfaces/apis/IPlayerApi.ts';
+import { IPreferenceData } from '../common/PreferencesContainer.tsx';
 
 describe('DivisionPlayer', () => {
     let context: TestContext;

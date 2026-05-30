@@ -1,5 +1,5 @@
-﻿import { WebSocketMode } from './WebSocketMode';
-import { ISubscriptionRequest } from './ISubscriptionRequest';
+﻿import { WebSocketMode } from './WebSocketMode.ts';
+import { ISubscriptionRequest } from './ISubscriptionRequest.ts';
 
 export interface ISubscription extends ISubscriptionRequest {
     method?: WebSocketMode;

@@ -8,13 +8,13 @@
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { UserAdmin } from './UserAdmin';
-import { AdminContainer } from './AdminContainer';
-import { UpdateAccessDto } from '../../interfaces/models/dtos/Identity/UpdateAccessDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { IAccountApi } from '../../interfaces/apis/IAccountApi';
+} from '../../helpers/tests.tsx';
+import { UserAdmin } from './UserAdmin.tsx';
+import { AdminContainer } from './AdminContainer.tsx';
+import { UpdateAccessDto } from '../../interfaces/models/dtos/Identity/UpdateAccessDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { IAccountApi } from '../../interfaces/apis/IAccountApi.ts';
 
 describe('UserAdmin', () => {
     let context: TestContext;

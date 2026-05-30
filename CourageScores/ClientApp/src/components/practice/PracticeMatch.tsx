@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import { useApp } from '../common/AppContainer';
+import { useApp } from '../common/AppContainer.tsx';
 import {
     ILoadedScoreAsYouGoDto,
     SaygLoadingContainer,
-} from '../sayg/SaygLoadingContainer';
-import { EditSaygPracticeOptions } from './EditSaygPracticeOptions';
-import { Loading } from '../common/Loading';
-import { ILiveOptions } from '../../live/ILiveOptions';
-import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
+} from '../sayg/SaygLoadingContainer.tsx';
+import { EditSaygPracticeOptions } from './EditSaygPracticeOptions.tsx';
+import { Loading } from '../common/Loading.tsx';
+import { ILiveOptions } from '../../live/ILiveOptions.ts';
+import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto.ts';
 
 interface IPracticeScoreAsYouGoDto extends UpdateRecordedScoreAsYouGoDto {
     loaded: boolean;

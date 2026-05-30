@@ -7,10 +7,10 @@
     iocProps,
     renderApp,
     TestContext,
-} from '../../../helpers/tests';
-import { IMatchLogRowProps, MatchLogRow } from './MatchLogRow';
-import { legBuilder } from '../../../helpers/builders/sayg';
-import { LegDto } from '../../../interfaces/models/dtos/Game/Sayg/LegDto';
+} from '../../../helpers/tests.tsx';
+import { IMatchLogRowProps, MatchLogRow } from './MatchLogRow.tsx';
+import { legBuilder } from '../../../helpers/builders/sayg.ts';
+import { LegDto } from '../../../interfaces/models/dtos/Game/Sayg/LegDto.ts';
 
 describe('MatchLogRow', () => {
     let context: TestContext;

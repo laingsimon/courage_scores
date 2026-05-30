@@ -1,5 +1,5 @@
-import { ActionResultDto } from '../../interfaces/models/dtos/ActionResultDto';
-import { IFailedRequest } from './IFailedRequest';
+import { ActionResultDto } from '../../interfaces/models/dtos/ActionResultDto.ts';
+import { IFailedRequest } from './IFailedRequest.ts';
 // NOTE: This adds in the extra properties that are exposed by the fetch() API
 // https://developer.mozilla.org/en-US/docs/Web/API/Response
 

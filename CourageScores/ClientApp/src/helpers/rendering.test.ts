@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedReference
 
-import { ifNaN, renderDate, round2dp } from './rendering';
+import { ifNaN, renderDate, round2dp } from './rendering.ts';
 
 describe('rendering', () => {
     describe('round2dp', () => {

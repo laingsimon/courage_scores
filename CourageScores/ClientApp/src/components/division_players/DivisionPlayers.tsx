@@ -1,11 +1,11 @@
-import { DivisionPlayer } from './DivisionPlayer';
-import { useDivisionData } from '../league/DivisionDataContainer';
-import { sortBy } from '../../helpers/collections';
-import { useApp } from '../common/AppContainer';
-import { PrintDivisionHeading } from '../league/PrintDivisionHeading';
-import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/DivisionPlayerDto';
-import { useBranding } from '../common/BrandingContainer';
-import { hasAccess } from '../../helpers/conditions';
+import { DivisionPlayer } from './DivisionPlayer.tsx';
+import { useDivisionData } from '../league/DivisionDataContainer.tsx';
+import { sortBy } from '../../helpers/collections.ts';
+import { useApp } from '../common/AppContainer.tsx';
+import { PrintDivisionHeading } from '../league/PrintDivisionHeading.tsx';
+import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/DivisionPlayerDto.ts';
+import { useBranding } from '../common/BrandingContainer.tsx';
+import { hasAccess } from '../../helpers/conditions.ts';
 
 export interface IDivisionPlayersProps {
     hideVenue?: boolean;

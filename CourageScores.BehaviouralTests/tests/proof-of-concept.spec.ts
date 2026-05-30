@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { ensureLoggedIn } from '../Helpers/session';
-import { ensureSeasonExists, selectSeason } from '../Helpers/seasons';
-import { ensureDivisionExists } from '../Helpers/divisions';
-import { waitForLoadingToFinish } from '../Helpers/app';
+import { ensureLoggedIn } from '../Helpers/session.ts';
+import { ensureSeasonExists, selectSeason } from '../Helpers/seasons.ts';
+import { ensureDivisionExists } from '../Helpers/divisions.ts';
+import { waitForLoadingToFinish } from '../Helpers/app.ts';
 
 test.describe('proof of concept', () => {
     test('can login', async ({ page }) => {

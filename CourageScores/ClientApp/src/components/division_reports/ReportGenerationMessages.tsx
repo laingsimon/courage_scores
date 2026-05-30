@@ -1,4 +1,4 @@
-import { isEmpty } from '../../helpers/collections';
+import { isEmpty } from '../../helpers/collections.ts';
 
 export interface IReportGenerationMessagesProps {
     messages: string[];

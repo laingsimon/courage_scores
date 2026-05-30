@@ -1,4 +1,4 @@
-﻿import { AdminContainer } from './AdminContainer';
+﻿import { AdminContainer } from './AdminContainer.tsx';
 import {
     appProps,
     brandingProps,
@@ -7,13 +7,13 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     ITemplateVisualEditorProps,
     TemplateVisualEditor,
-} from './TemplateVisualEditor';
-import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto';
-import { createTemporaryId } from '../../helpers/projection';
+} from './TemplateVisualEditor.tsx';
+import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto.ts';
+import { createTemporaryId } from '../../helpers/projection.ts';
 
 describe('TemplateVisualEditor', () => {
     let context: TestContext;

@@ -7,13 +7,13 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { IPhotoManagerProps, PhotoManager } from './PhotoManager';
-import { IAppContainerProps } from './AppContainer';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { PhotoReferenceDto } from '../../interfaces/models/dtos/PhotoReferenceDto';
-import { renderDate } from '../../helpers/rendering';
-import { createTemporaryId } from '../../helpers/projection';
+} from '../../helpers/tests.tsx';
+import { IPhotoManagerProps, PhotoManager } from './PhotoManager.tsx';
+import { IAppContainerProps } from './AppContainer.tsx';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { PhotoReferenceDto } from '../../interfaces/models/dtos/PhotoReferenceDto.ts';
+import { renderDate } from '../../helpers/rendering.ts';
+import { createTemporaryId } from '../../helpers/projection.ts';
 
 describe('PhotoManager', () => {
     let context: TestContext;

@@ -1,5 +1,8 @@
-import { BootstrapDropdown, IBootstrapDropdownItem } from './BootstrapDropdown';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import {
+    BootstrapDropdown,
+    IBootstrapDropdownItem,
+} from './BootstrapDropdown.tsx';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface ISelectablePlayer {
     id: string;

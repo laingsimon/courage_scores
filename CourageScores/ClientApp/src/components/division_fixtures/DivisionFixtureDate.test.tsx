@@ -7,29 +7,29 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { createTemporaryId } from '../../helpers/projection';
-import { renderDate } from '../../helpers/rendering';
+} from '../../helpers/tests.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { renderDate } from '../../helpers/rendering.ts';
 import {
     DivisionFixtureDate,
     IDivisionFixtureDateProps,
-} from './DivisionFixtureDate';
+} from './DivisionFixtureDate.tsx';
 import {
     DivisionDataContainer,
     IDivisionDataContainerProps,
-} from '../league/DivisionDataContainer';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto';
+} from '../league/DivisionDataContainer.tsx';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto.ts';
 import {
     divisionBuilder,
     divisionDataBuilder,
     fixtureDateBuilder,
-} from '../../helpers/builders/divisions';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { teamBuilder } from '../../helpers/builders/teams';
+} from '../../helpers/builders/divisions.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
 
 describe('DivisionFixtureDate', () => {
     let context: TestContext;

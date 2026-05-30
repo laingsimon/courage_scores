@@ -6,9 +6,9 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { ViewHealthCheck } from './ViewHealthCheck';
-import { SeasonHealthCheckResultDto } from '../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto';
+} from '../../helpers/tests.tsx';
+import { ViewHealthCheck } from './ViewHealthCheck.tsx';
+import { SeasonHealthCheckResultDto } from '../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto.ts';
 
 describe('ViewHealthCheck', () => {
     let context: TestContext;

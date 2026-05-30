@@ -1,4 +1,4 @@
-import { IWindow, ParentHeight } from './ParentHeight';
+import { IWindow, ParentHeight } from './ParentHeight.ts';
 
 describe('ParentHeight', () => {
     let intervalCreated: any | undefined;

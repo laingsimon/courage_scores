@@ -16,14 +16,14 @@ import {
     maxNoOfThrowsAllMatches,
     playerOverallAverage,
     sumOverThrows,
-} from './superleague';
-import { ScoreAsYouGoDto } from '../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto';
-import { LegDto } from '../interfaces/models/dtos/Game/Sayg/LegDto';
-import { ISuperleagueSayg } from '../components/tournaments/superleague/ISuperleagueSayg';
-import { LegThrowDto } from '../interfaces/models/dtos/Game/Sayg/LegThrowDto';
-import { LegCompetitorScoreDto } from '../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto';
-import { sum } from './collections';
-import { getScoreFromThrows } from './sayg';
+} from './superleague.ts';
+import { ScoreAsYouGoDto } from '../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto.ts';
+import { LegDto } from '../interfaces/models/dtos/Game/Sayg/LegDto.ts';
+import { ISuperleagueSayg } from '../components/tournaments/superleague/ISuperleagueSayg.ts';
+import { LegThrowDto } from '../interfaces/models/dtos/Game/Sayg/LegThrowDto.ts';
+import { LegCompetitorScoreDto } from '../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto.ts';
+import { sum } from './collections.ts';
+import { getScoreFromThrows } from './sayg.ts';
 
 describe('superleague', () => {
     const ton: LegThrowDto = thr(100);

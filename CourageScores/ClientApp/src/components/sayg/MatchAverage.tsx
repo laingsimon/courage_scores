@@ -1,6 +1,6 @@
-import { ifNaN, ifUndefined, round2dp } from '../../helpers/rendering';
-import { stateChanged } from '../../helpers/events';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { ifNaN, ifUndefined, round2dp } from '../../helpers/rendering.ts';
+import { stateChanged } from '../../helpers/events.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface IMatchAverageProps {
     homeAverage?: number;

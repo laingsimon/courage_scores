@@ -7,15 +7,15 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../../helpers/tests';
-import { ISummaryProps, Summary } from './Summary';
+} from '../../../helpers/tests.tsx';
+import { ISummaryProps, Summary } from './Summary.tsx';
 import {
     ILegBuilder,
     ILegCompetitorScoreBuilder,
     saygBuilder,
-} from '../../../helpers/builders/sayg';
-import { tournamentMatchBuilder } from '../../../helpers/builders/tournaments';
-import { BuilderParam } from '../../../helpers/builders/builders';
+} from '../../../helpers/builders/sayg.ts';
+import { tournamentMatchBuilder } from '../../../helpers/builders/tournaments.ts';
+import { BuilderParam } from '../../../helpers/builders/builders.ts';
 
 describe('Summary', () => {
     let context: TestContext;

@@ -1,35 +1,35 @@
 import { Link } from 'react-router';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
 import { useEffect, useState } from 'react';
-import { CreateTournamentSaygDto } from '../../interfaces/models/dtos/Game/CreateTournamentSaygDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
-import { useApp } from '../common/AppContainer';
-import { useDependencies } from '../common/IocContainer';
-import { ErrorDisplay } from '../common/ErrorDisplay';
-import { ILiveOptions } from '../../live/ILiveOptions';
-import { Dialog } from '../common/Dialog';
+import { CreateTournamentSaygDto } from '../../interfaces/models/dtos/Game/CreateTournamentSaygDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { useApp } from '../common/AppContainer.tsx';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { ErrorDisplay } from '../common/ErrorDisplay.tsx';
+import { ILiveOptions } from '../../live/ILiveOptions.ts';
+import { Dialog } from '../common/Dialog.tsx';
 import {
     ILoadedScoreAsYouGoDto,
     SaygLoadingContainer,
-} from '../sayg/SaygLoadingContainer';
-import { MatchHeading } from './MatchHeading';
-import { DebugOptions } from '../common/DebugOptions';
-import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
-import { count } from '../../helpers/collections';
-import { useTournament } from './TournamentContainer';
-import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto';
-import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
-import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto';
-import { PatchTournamentDto } from '../../interfaces/models/dtos/Game/PatchTournamentDto';
-import { PatchTournamentRoundDto } from '../../interfaces/models/dtos/Game/PatchTournamentRoundDto';
-import { add180, addHiCheck } from '../common/Accolades';
-import { START_SCORING } from './tournaments';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { asyncClear } from '../../helpers/events';
-import { hasAccess } from '../../helpers/conditions';
+} from '../sayg/SaygLoadingContainer.tsx';
+import { MatchHeading } from './MatchHeading.tsx';
+import { DebugOptions } from '../common/DebugOptions.tsx';
+import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto.ts';
+import { count } from '../../helpers/collections.ts';
+import { useTournament } from './TournamentContainer.tsx';
+import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto.ts';
+import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
+import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto.ts';
+import { PatchTournamentDto } from '../../interfaces/models/dtos/Game/PatchTournamentDto.ts';
+import { PatchTournamentRoundDto } from '../../interfaces/models/dtos/Game/PatchTournamentRoundDto.ts';
+import { add180, addHiCheck } from '../common/Accolades.tsx';
+import { START_SCORING } from './tournaments.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { asyncClear } from '../../helpers/events.ts';
+import { hasAccess } from '../../helpers/conditions.ts';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto';
+import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto.ts';
 
 export interface IMatchSaygProps {
     match: TournamentMatchDto;

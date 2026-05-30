@@ -1,4 +1,4 @@
-import { AdminContainer, IAdminContainerProps } from './AdminContainer';
+import { AdminContainer, IAdminContainerProps } from './AdminContainer.tsx';
 import {
     api,
     appProps,
@@ -9,12 +9,12 @@ import {
     noop,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { ImportData } from './ImportData';
-import { ImportDataRequestDto } from '../../interfaces/models/dtos/Data/ImportDataRequestDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { ImportDataResultDto } from '../../interfaces/models/dtos/Data/ImportDataResultDto';
-import { IDataApi } from '../../interfaces/apis/IDataApi';
+} from '../../helpers/tests.tsx';
+import { ImportData } from './ImportData.tsx';
+import { ImportDataRequestDto } from '../../interfaces/models/dtos/Data/ImportDataRequestDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { ImportDataResultDto } from '../../interfaces/models/dtos/Data/ImportDataResultDto.ts';
+import { IDataApi } from '../../interfaces/apis/IDataApi.ts';
 
 describe('ImportData', () => {
     let context: TestContext;

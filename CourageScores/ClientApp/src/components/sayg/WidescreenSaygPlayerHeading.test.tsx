@@ -5,12 +5,12 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     IWidescreenSaygPlayerHeadingProps,
     WidescreenSaygPlayerHeading,
-} from './WidescreenSaygPlayerHeading';
-import { skip } from '../../helpers/collections';
+} from './WidescreenSaygPlayerHeading.tsx';
+import { skip } from '../../helpers/collections.ts';
 
 describe('WidescreenSaygPlayerHeading', () => {
     let context: TestContext;

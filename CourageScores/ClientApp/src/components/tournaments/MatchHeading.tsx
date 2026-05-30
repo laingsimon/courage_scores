@@ -1,7 +1,7 @@
-import { useSayg } from '../sayg/SaygLoadingContainer';
-import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto';
-import { DebugOptions } from '../common/DebugOptions';
-import { useDependencies } from '../common/IocContainer';
+import { useSayg } from '../sayg/SaygLoadingContainer.tsx';
+import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto.ts';
+import { DebugOptions } from '../common/DebugOptions.tsx';
+import { useDependencies } from '../common/IocContainer.tsx';
 
 export interface ISuperleagueMatchHeadingProps {
     match: TournamentMatchDto;
