@@ -100,7 +100,8 @@ export function ReviewProposalsFloatingDialog({
 
                             return (
                                 <li key={key}>
-                                    <span className={`px-2 ${className}`}>
+                                    <span
+                                        className={`px-2 ${className} font-monospace`}>
                                         {key}
                                     </span>{' '}
                                     &rarr; {mappedTeam.name}

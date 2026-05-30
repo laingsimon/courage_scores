@@ -46,7 +46,7 @@ export function ViewHealthCheck({ result }: IViewHealthCheckProps) {
                                 <div>
                                     {checkResult.success ? '✔' : '❌'} {check}
                                 </div>
-                                <div className="ps-4 small">
+                                <div className="ps-4 small max-height-100 overflow-y-auto">
                                     {checkResult.errors?.map(renderError)}
                                     {checkResult.warnings?.map(renderWarning)}
                                     {checkResult.messages?.map(renderMessage)}
