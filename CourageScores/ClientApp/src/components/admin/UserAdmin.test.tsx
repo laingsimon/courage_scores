@@ -234,12 +234,22 @@ describe('UserAdmin', () => {
     });
 
     it('can change access for self', async () => {
-        const account = user({
-            manageAccess: true,
-        });
-        const otherAccount = user({
-            manageAccess: true,
-        });
+        const account: UserDto = {
+            givenName: '',
+            emailAddress: 'a@b.com',
+            name: 'Admin',
+            access: {
+                manageAccess: true,
+            },
+        };
+        const otherAccount: UserDto = {
+            givenName: '',
+            emailAddress: 'c@d.com',
+            name: 'Other user',
+            access: {
+                manageAccess: true,
+            },
+        };
         await renderComponent([account, otherAccount], account);
         await getAccess('manageGames').click();
 
