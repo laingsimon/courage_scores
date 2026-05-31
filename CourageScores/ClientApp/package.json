@@ -51,8 +51,8 @@
     "compile-ts": "tsc",
     "build": "tsc && vite build --emptyOutDir",
     "preview": "vite preview",
-    "test": "env TZ=Europe/London jest",
-    "compile-and-test": "tsc && env TZ=Europe/London jest"
+    "test": "env TZ=Europe/London node --no-warnings --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "compile-and-test": "tsc && env TZ=Europe/London node --no-warnings --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "eslintConfig": {
     "extends": [

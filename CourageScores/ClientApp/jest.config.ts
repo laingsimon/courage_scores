@@ -1,7 +1,7 @@
 ﻿import type { Config } from 'jest';
-import { createJsWithTsPreset } from 'ts-jest';
+import { createDefaultEsmPreset } from 'ts-jest';
 
-const presetConfig = createJsWithTsPreset({});
+const presetConfig = createDefaultEsmPreset({});
 
 export default {
     testEnvironment: 'jest-environment-jsdom',
