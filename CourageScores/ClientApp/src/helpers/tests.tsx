@@ -447,7 +447,7 @@ export function user(
     return {
         name: '',
         givenName: givenName ?? '',
-        emailAddress: '',
+        emailAddress: `${givenName || 'a'}@b.com`,
         access,
         teamId,
     };
