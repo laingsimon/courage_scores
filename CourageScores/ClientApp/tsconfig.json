@@ -6,7 +6,7 @@
       "dom.iterable",
       "esnext"
     ],
-    "types": ["vite/client", "jest", "websocket"],
+    "types": ["vite/client", "jest", "websocket", "node"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
