@@ -46,29 +46,6 @@
     "css-what": "^5.0.1",
     "nth-check": "^3.0.1"
   },
-  "jest": {
-    "preset": "ts-jest/presets/js-with-ts",
-    "testEnvironment": "jest-environment-jsdom",
-    "coverageReporters": [
-      "lcov"
-    ],
-    "moduleNameMapper": {
-      "next/router": ",<rootDir>/__mocks__/next/router.js",
-      "\\.(css|less)$": "<rootDir>/src/__mocks__/style-mock.js",
-      "^.+\\.(jpg|jpeg|png|gif|webp|avif|svg)$": "<rootDir>/src/__mocks__/file-mock.js"
-    },
-    "collectCoverageFrom": [
-      "!src/index.tsx",
-      "!src/tests/**/*.ts",
-      "!coverage/**/*.js",
-      "!dist/**/*.*",
-      "!src/interfaces/apis/**/*.ts",
-      "!src/interfaces/models/**/*.ts"
-    ],
-    "setupFiles": [
-      "<rootDir>/setup.jest.js"
-    ]
-  },
   "scripts": {
     "start": "vite",
     "compile-ts": "tsc",

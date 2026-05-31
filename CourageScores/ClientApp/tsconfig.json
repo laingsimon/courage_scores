@@ -6,7 +6,7 @@
       "dom.iterable",
       "esnext"
     ],
-    "types": ["vite/client", "jest", "websocket"],
+    "types": ["vite/client", "jest", "websocket", "node"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -30,7 +30,13 @@
     "rootDir": "./src/",
     "ignoreDeprecations": "6.0", // to silence warning about moduleResolution=node10
   },
+  "exclude": [
+    "node_modules", "dist"
+  ],
   "include": [
-    "src"
-  ]
+    "src/**/*"
+  ],
+  "ts-node": {
+    "esm": true,
+  },
 }

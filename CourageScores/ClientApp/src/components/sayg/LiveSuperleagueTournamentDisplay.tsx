@@ -111,9 +111,6 @@ export function LiveSuperleagueTournamentDisplay({
 
     useEffect(() => {
         if (isEmpty(pendingLiveSubscriptions) || !account) {
-            console.log(
-                `Finished subscribing to sayg: ${pendingLiveSubscriptions.length} left, account: ${!!account}`,
-            );
             return;
         }
 
@@ -202,9 +199,6 @@ export function LiveSuperleagueTournamentDisplay({
                     ),
             )
             .map((saygId) => {
-                console.log(
-                    `Missing sayg subscription for ${saygId}, allSaygIds: [${allSaygIds.join(', ')}]`,
-                );
                 return {
                     id: saygId,
                     type: LiveDataType.sayg,
@@ -213,9 +207,6 @@ export function LiveSuperleagueTournamentDisplay({
 
         const newPendingSubs =
             pendingLiveSubscriptions.concat(newSaygSubscriptions);
-        console.log(
-            `Pending subscriptions(subscribeToNewMatches): ${newPendingSubs.length}`,
-        );
         setPendingLiveSubscriptions(newPendingSubs);
     }
 
@@ -229,9 +220,6 @@ export function LiveSuperleagueTournamentDisplay({
         setSubscribing(true);
         try {
             const nextSub = pendingLiveSubscriptions[0];
-            console.log(
-                `Subscribing to sayg: ${nextSub.id}, remaining: ${pendingLiveSubscriptions.length - 1}`,
-            );
 
             await enableLiveUpdates(true, nextSub);
 
@@ -250,9 +238,6 @@ export function LiveSuperleagueTournamentDisplay({
 
             const newPendingSubs = pendingLiveSubscriptions.filter(
                 (sub) => sub !== nextSub,
-            );
-            console.log(
-                `Pending subscriptions(subscribeToNextSayg): ${newPendingSubs.length}`,
             );
             setPendingLiveSubscriptions(newPendingSubs);
         } finally {
@@ -299,9 +284,6 @@ export function LiveSuperleagueTournamentDisplay({
                     type: LiveDataType.sayg,
                 };
             },
-        );
-        console.log(
-            `Pending subscriptions(getLatestMatchData): ${pendingSubscriptions.length}`,
         );
         setPendingLiveSubscriptions(pendingSubscriptions);
         setMatchSaygData(matchSaygData);
