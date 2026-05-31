@@ -6,6 +6,7 @@ const presetConfig = createJsWithTsPreset({});
 export default {
     testEnvironment: 'jest-environment-jsdom', // node
     testMatch: ['**/*.test.ts', '**/*.test.tsx'],
+    maxWorkers: '50%',
     coverageReporters: ['lcov'],
     moduleNameMapper: {
         'next/router': ',<rootDir>/__mocks__/next/router.js',
