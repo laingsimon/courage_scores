@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react';
-import { IAdmin } from './IAdmin';
+import { IAdmin } from './IAdmin.ts';
 
 const AdminContext = createContext({});
 

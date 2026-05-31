@@ -1,7 +1,7 @@
-import { ILiveOptions } from './ILiveOptions';
-import { ISubscriptions } from './ISubscriptions';
-import { ISubscriptionRequest } from './ISubscriptionRequest';
-import { UntypedPromise } from '../interfaces/UntypedPromise';
+import { ILiveOptions } from './ILiveOptions.ts';
+import { ISubscriptions } from './ISubscriptions.ts';
+import { ISubscriptionRequest } from './ISubscriptionRequest.ts';
+import { UntypedPromise } from '../interfaces/UntypedPromise.ts';
 
 export interface ILive {
     liveOptions: ILiveOptions;

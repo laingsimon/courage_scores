@@ -6,14 +6,14 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     ISaygLoadingContainerProps,
     SaygLoadingContainer,
-} from './SaygLoadingContainer';
-import { saygBuilder } from '../../helpers/builders/sayg';
-import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
-import { ISaygApi } from '../../interfaces/apis/ISaygApi';
+} from './SaygLoadingContainer.tsx';
+import { saygBuilder } from '../../helpers/builders/sayg.ts';
+import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto.ts';
+import { ISaygApi } from '../../interfaces/apis/ISaygApi.ts';
 
 describe('WidescreenMatchStatistics', () => {
     let context: TestContext;

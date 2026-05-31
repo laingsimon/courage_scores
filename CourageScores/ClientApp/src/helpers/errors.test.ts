@@ -1,6 +1,6 @@
-import { mapError, mapForLogging } from './errors';
-import { noop } from './tests';
-import { UserDto } from '../interfaces/models/dtos/Identity/UserDto';
+import { mapError, mapForLogging } from './errors.ts';
+import { noop } from './tests.tsx';
+import { UserDto } from '../interfaces/models/dtos/Identity/UserDto.ts';
 
 describe('errors', () => {
     describe('mapError', () => {

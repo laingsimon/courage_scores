@@ -1,9 +1,9 @@
-import { ShareButton } from '../common/ShareButton';
-import { valueChanged } from '../../helpers/events';
-import { useBranding } from '../common/BrandingContainer';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
+import { ShareButton } from '../common/ShareButton.tsx';
+import { valueChanged } from '../../helpers/events.ts';
+import { useBranding } from '../common/BrandingContainer.tsx';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
 
 export interface IGameDetailsProps {
     saving: boolean;

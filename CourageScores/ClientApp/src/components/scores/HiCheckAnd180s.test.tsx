@@ -5,13 +5,13 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { HiCheckAnd180s, IHiCheckAnd180sProps } from './HiCheckAnd180s';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { divisionBuilder } from '../../helpers/builders/divisions';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { fixtureBuilder } from '../../helpers/builders/games';
-import { playerBuilder } from '../../helpers/builders/players';
+} from '../../helpers/tests.tsx';
+import { HiCheckAnd180s, IHiCheckAnd180sProps } from './HiCheckAnd180s.tsx';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { divisionBuilder } from '../../helpers/builders/divisions.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { fixtureBuilder } from '../../helpers/builders/games.ts';
+import { playerBuilder } from '../../helpers/builders/players.ts';
 
 describe('HiCheckAnd180s', () => {
     let context: TestContext;

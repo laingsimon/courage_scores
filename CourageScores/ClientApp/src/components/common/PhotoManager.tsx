@@ -1,12 +1,12 @@
 import { ChangeEvent, MouseEvent, useState } from 'react';
-import { PhotoReferenceDto } from '../../interfaces/models/dtos/PhotoReferenceDto';
-import { Dialog } from './Dialog';
-import { useApp } from './AppContainer';
-import { renderDate } from '../../helpers/rendering';
-import { useDependencies } from './IocContainer';
-import { LoadingSpinnerSmall } from './LoadingSpinnerSmall';
-import { any } from '../../helpers/collections';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { PhotoReferenceDto } from '../../interfaces/models/dtos/PhotoReferenceDto.ts';
+import { Dialog } from './Dialog.tsx';
+import { useApp } from './AppContainer.tsx';
+import { renderDate } from '../../helpers/rendering.ts';
+import { useDependencies } from './IocContainer.tsx';
+import { LoadingSpinnerSmall } from './LoadingSpinnerSmall.tsx';
+import { any } from '../../helpers/collections.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface IPhotoManagerProps {
     doUpload(file: File): Promise<boolean>;

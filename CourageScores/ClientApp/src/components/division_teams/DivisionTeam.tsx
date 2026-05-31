@@ -1,18 +1,18 @@
 import { useState } from 'react';
-import { EditTeamDetails } from './EditTeamDetails';
-import { Dialog } from '../common/Dialog';
-import { propChanged } from '../../helpers/events';
-import { useApp } from '../common/AppContainer';
-import { useDivisionData } from '../league/DivisionDataContainer';
-import { AssignTeamToSeasons } from './AssignTeamToSeasons';
-import { DivisionTeamDto } from '../../interfaces/models/dtos/Division/DivisionTeamDto';
-import { EditTeamDto } from '../../interfaces/models/dtos/Team/EditTeamDto';
-import { ToggleFavouriteTeam } from '../common/ToggleFavouriteTeam';
-import { usePreferences } from '../common/PreferencesContainer';
-import { any } from '../../helpers/collections';
+import { EditTeamDetails } from './EditTeamDetails.tsx';
+import { Dialog } from '../common/Dialog.tsx';
+import { propChanged } from '../../helpers/events.ts';
+import { useApp } from '../common/AppContainer.tsx';
+import { useDivisionData } from '../league/DivisionDataContainer.tsx';
+import { AssignTeamToSeasons } from './AssignTeamToSeasons.tsx';
+import { DivisionTeamDto } from '../../interfaces/models/dtos/Division/DivisionTeamDto.ts';
+import { EditTeamDto } from '../../interfaces/models/dtos/Team/EditTeamDto.ts';
+import { ToggleFavouriteTeam } from '../common/ToggleFavouriteTeam.tsx';
+import { usePreferences } from '../common/PreferencesContainer.tsx';
+import { any } from '../../helpers/collections.ts';
 import { Link } from 'react-router';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { hasAccess } from '../../helpers/conditions';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { hasAccess } from '../../helpers/conditions.ts';
 
 export interface IDivisionTeamProps {
     team: DivisionTeamDto;

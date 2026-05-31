@@ -9,43 +9,46 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     IMatchPlayerSelectionProps,
     MatchPlayerSelection,
     NEW_PLAYER,
-} from './MatchPlayerSelection';
+} from './MatchPlayerSelection.tsx';
 import {
     ILeagueFixtureContainerProps,
     LeagueFixtureContainer,
-} from './LeagueFixtureContainer';
+} from './LeagueFixtureContainer.tsx';
 import {
     IMatchTypeContainerProps,
     MatchTypeContainer,
-} from './MatchTypeContainer';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto';
-import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
-import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto';
-import { ICreatePlayerFor } from './Score';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { playerBuilder } from '../../helpers/builders/players';
+} from './MatchTypeContainer.tsx';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto.ts';
+import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
+import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto.ts';
+import { ICreatePlayerFor } from './Score.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { playerBuilder } from '../../helpers/builders/players.ts';
 import {
     IMatchBuilder,
     matchBuilder,
     matchOptionsBuilder,
-} from '../../helpers/builders/games';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { divisionBuilder } from '../../helpers/builders/divisions';
-import { teamBuilder } from '../../helpers/builders/teams';
-import { createTemporaryId } from '../../helpers/projection';
-import { CHECKOUT_3_DART, ENTER_SCORE_BUTTON } from '../../helpers/constants';
-import { checkoutWith, keyPad } from '../../helpers/sayg';
-import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto';
-import { ILegBuilder } from '../../helpers/builders/sayg';
-import { BuilderParam } from '../../helpers/builders/builders';
-import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
+} from '../../helpers/builders/games.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { divisionBuilder } from '../../helpers/builders/divisions.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import {
+    CHECKOUT_3_DART,
+    ENTER_SCORE_BUTTON,
+} from '../../helpers/constants.ts';
+import { checkoutWith, keyPad } from '../../helpers/sayg.ts';
+import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto.ts';
+import { ILegBuilder } from '../../helpers/builders/sayg.ts';
+import { BuilderParam } from '../../helpers/builders/builders.ts';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
 
 describe('MatchPlayerSelection', () => {
     const emptyTeam: GameTeamDto = { id: '', name: '' };

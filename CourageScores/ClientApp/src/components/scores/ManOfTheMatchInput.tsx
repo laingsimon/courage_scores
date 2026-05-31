@@ -1,10 +1,13 @@
-import { ISelectablePlayer, PlayerSelection } from '../common/PlayerSelection';
-import { distinct, sortBy } from '../../helpers/collections';
-import { useApp } from '../common/AppContainer';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto';
-import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import {
+    ISelectablePlayer,
+    PlayerSelection,
+} from '../common/PlayerSelection.tsx';
+import { distinct, sortBy } from '../../helpers/collections.ts';
+import { useApp } from '../common/AppContainer.tsx';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto.ts';
+import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface IManOfTheMatchInputProps {
     fixtureData: GameDto;

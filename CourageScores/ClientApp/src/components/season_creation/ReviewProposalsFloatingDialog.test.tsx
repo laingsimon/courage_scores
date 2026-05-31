@@ -6,20 +6,20 @@ import {
     brandingProps,
     appProps,
     TestContext,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     IReviewProposalsFloatingDialogProps,
     ReviewProposalsFloatingDialog,
-} from './ReviewProposalsFloatingDialog';
-import { toDictionary } from '../../helpers/collections';
-import { createTemporaryId } from '../../helpers/projection';
-import { IAppContainerProps } from '../common/AppContainer';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { ProposalResultDto } from '../../interfaces/models/dtos/Season/Creation/ProposalResultDto';
-import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
-import { divisionBuilder } from '../../helpers/builders/divisions';
-import { teamBuilder } from '../../helpers/builders/teams';
+} from './ReviewProposalsFloatingDialog.tsx';
+import { toDictionary } from '../../helpers/collections.ts';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { IAppContainerProps } from '../common/AppContainer.tsx';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { ProposalResultDto } from '../../interfaces/models/dtos/Season/Creation/ProposalResultDto.ts';
+import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
+import { divisionBuilder } from '../../helpers/builders/divisions.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
 
 describe('ReviewProposalsFloatingDialog', () => {
     let context: TestContext;

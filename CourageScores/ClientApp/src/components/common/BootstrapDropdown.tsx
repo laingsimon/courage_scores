@@ -1,7 +1,11 @@
 import { ReactElement, useEffect, useRef, useState } from 'react';
-import { ButtonDropdown, DropdownMenu, DropdownToggle } from './ButtonDropdown';
-import { isEmpty } from '../../helpers/collections';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import {
+    ButtonDropdown,
+    DropdownMenu,
+    DropdownToggle,
+} from './ButtonDropdown.tsx';
+import { isEmpty } from '../../helpers/collections.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface IBootstrapDropdownItem {
     value?: string;

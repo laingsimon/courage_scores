@@ -9,34 +9,37 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { renderDate } from '../../helpers/rendering';
-import { createTemporaryId } from '../../helpers/projection';
-import { DivisionFixture, IDivisionFixtureProps } from './DivisionFixture';
-import { DivisionDataContainer } from '../league/DivisionDataContainer';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { EditGameDto } from '../../interfaces/models/dtos/Game/EditGameDto';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { IEditableDivisionFixtureDateDto } from './IEditableDivisionFixtureDateDto';
+} from '../../helpers/tests.tsx';
+import { renderDate } from '../../helpers/rendering.ts';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { DivisionFixture, IDivisionFixtureProps } from './DivisionFixture.tsx';
+import { DivisionDataContainer } from '../league/DivisionDataContainer.tsx';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { EditGameDto } from '../../interfaces/models/dtos/Game/EditGameDto.ts';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { IEditableDivisionFixtureDateDto } from './IEditableDivisionFixtureDateDto.ts';
 import {
     divisionBuilder,
     divisionDataBuilder,
     divisionFixtureBuilder,
     IDivisionDataBuilder,
     IDivisionFixtureBuilder,
-} from '../../helpers/builders/divisions';
-import { teamBuilder } from '../../helpers/builders/teams';
-import { ISeasonBuilder, seasonBuilder } from '../../helpers/builders/seasons';
-import { IGameApi } from '../../interfaces/apis/IGameApi';
-import { IPreferenceData } from '../common/PreferencesContainer';
-import { IDatedDivisionFixtureDto } from './IDatedDivisionFixtureDto';
-import { take } from '../../helpers/collections';
-import { BuilderParam } from '../../helpers/builders/builders';
+} from '../../helpers/builders/divisions.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
+import {
+    ISeasonBuilder,
+    seasonBuilder,
+} from '../../helpers/builders/seasons.ts';
+import { IGameApi } from '../../interfaces/apis/IGameApi.ts';
+import { IPreferenceData } from '../common/PreferencesContainer.tsx';
+import { IDatedDivisionFixtureDto } from './IDatedDivisionFixtureDto.ts';
+import { take } from '../../helpers/collections.ts';
+import { BuilderParam } from '../../helpers/builders/builders.ts';
 
 describe('DivisionFixture', () => {
     const home = teamBuilder('HOME').build();

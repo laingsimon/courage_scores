@@ -7,16 +7,16 @@
     iocProps,
     renderApp,
     TestContext,
-} from '../../../helpers/tests';
-import { IMatchReportRowProps, MatchReportRow } from './MatchReportRow';
-import { LegThrowDto } from '../../../interfaces/models/dtos/Game/Sayg/LegThrowDto';
-import { RecordedScoreAsYouGoDto } from '../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
+} from '../../../helpers/tests.tsx';
+import { IMatchReportRowProps, MatchReportRow } from './MatchReportRow.tsx';
+import { LegThrowDto } from '../../../interfaces/models/dtos/Game/Sayg/LegThrowDto.ts';
+import { RecordedScoreAsYouGoDto } from '../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto.ts';
 import {
     ILegBuilder,
     ILegCompetitorScoreBuilder,
     saygBuilder,
-} from '../../../helpers/builders/sayg';
-import { BuilderParam } from '../../../helpers/builders/builders';
+} from '../../../helpers/builders/sayg.ts';
+import { BuilderParam } from '../../../helpers/builders/builders.ts';
 
 describe('MatchReportRow', () => {
     let context: TestContext;

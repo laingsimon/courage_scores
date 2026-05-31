@@ -8,15 +8,15 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { IRefreshControlProps, RefreshControl } from './RefreshControl';
-import { LiveContainer, useLive } from '../../live/LiveContainer';
-import { createTemporaryId } from '../../helpers/projection';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { ILive } from '../../live/ILive';
+} from '../../helpers/tests.tsx';
+import { IRefreshControlProps, RefreshControl } from './RefreshControl.tsx';
+import { LiveContainer, useLive } from '../../live/LiveContainer.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { ILive } from '../../live/ILive.ts';
 import { act } from '@testing-library/react';
-import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType';
-import { ILiveOptions } from '../../live/ILiveOptions';
+import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType.ts';
+import { ILiveOptions } from '../../live/ILiveOptions.ts';
 
 describe('RefreshControl', () => {
     let context: TestContext;

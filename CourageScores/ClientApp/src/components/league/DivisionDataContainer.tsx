@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react';
-import { IDivisionData } from './IDivisionData';
+import { IDivisionData } from './IDivisionData.ts';
 
 const DivisionDataContext = createContext({});
 

@@ -9,18 +9,18 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { createTemporaryId } from '../../helpers/projection';
+} from '../../helpers/tests.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
 import {
     DivisionDataContainer,
     IDivisionDataContainerProps,
-} from '../league/DivisionDataContainer';
-import { DivisionPlayers, IDivisionPlayersProps } from './DivisionPlayers';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
-import { IPlayerApi } from '../../interfaces/apis/IPlayerApi';
+} from '../league/DivisionDataContainer.tsx';
+import { DivisionPlayers, IDivisionPlayersProps } from './DivisionPlayers.tsx';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
+import { IPlayerApi } from '../../interfaces/apis/IPlayerApi.ts';
 
 describe('DivisionPlayers', () => {
     let context: TestContext;

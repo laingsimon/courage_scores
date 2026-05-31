@@ -6,9 +6,9 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { DebugOptions } from './DebugOptions';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
+} from '../../helpers/tests.tsx';
+import { DebugOptions } from './DebugOptions.tsx';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
 import React from 'react';
 
 describe('DebugOptions', () => {

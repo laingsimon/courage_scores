@@ -1,4 +1,4 @@
-import { AdminContainer } from './AdminContainer';
+import { AdminContainer } from './AdminContainer.tsx';
 import {
     api,
     appProps,
@@ -9,11 +9,11 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto';
-import { IFeatureApi } from '../../interfaces/apis/IFeatureApi';
-import { FeatureAdmin } from './FeatureAdmin';
-import { createTemporaryId } from '../../helpers/projection';
+} from '../../helpers/tests.tsx';
+import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto.ts';
+import { IFeatureApi } from '../../interfaces/apis/IFeatureApi.ts';
+import { FeatureAdmin } from './FeatureAdmin.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
 
 describe('FeatureAdmin', () => {
     let context: TestContext;

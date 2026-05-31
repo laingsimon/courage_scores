@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { valueChanged } from '../../helpers/events';
-import { useDependencies } from '../common/IocContainer';
-import { useApp } from '../common/AppContainer';
+import { valueChanged } from '../../helpers/events.ts';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useApp } from '../common/AppContainer.tsx';
 import { useNavigate } from 'react-router';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface IEditDivisionProps {
     onClose(): UntypedPromise;

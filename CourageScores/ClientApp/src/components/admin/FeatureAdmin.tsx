@@ -1,9 +1,9 @@
-import { useDependencies } from '../common/IocContainer';
-import { useApp } from '../common/AppContainer';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useApp } from '../common/AppContainer.tsx';
 import { useEffect, useState } from 'react';
-import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { EditFeature } from './EditFeature';
+import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto.ts';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { EditFeature } from './EditFeature.tsx';
 
 export function FeatureAdmin() {
     const { featureApi } = useDependencies();

@@ -1,9 +1,9 @@
-import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto';
-import { LegThrowDto } from '../../interfaces/models/dtos/Game/Sayg/LegThrowDto';
-import { repeat } from '../../helpers/projection';
+import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto.ts';
+import { LegThrowDto } from '../../interfaces/models/dtos/Game/Sayg/LegThrowDto.ts';
+import { repeat } from '../../helpers/projection.ts';
 import { useEffect } from 'react';
-import { IEditingThrow } from './IEditingThrow';
-import { useEditableSayg } from './EditableSaygContainer';
+import { IEditingThrow } from './IEditingThrow.ts';
+import { useEditableSayg } from './EditableSaygContainer.tsx';
 
 export interface IPreviousPlayerScoreProps {
     homeScore: number;

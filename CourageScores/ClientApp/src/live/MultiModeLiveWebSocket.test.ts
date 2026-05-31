@@ -1,14 +1,14 @@
-import { MultiModeLiveWebSocket } from './MultiModeLiveWebSocket';
-import { IWebSocketContext } from './IWebSocketContext';
-import { ISubscriptions } from './ISubscriptions';
-import { createTemporaryId } from '../helpers/projection';
-import { ILiveWebSocket } from './ILiveWebSocket';
-import { WebSocketMode } from './WebSocketMode';
-import { IUpdateStrategy } from './IUpdateStrategy';
-import { ISubscriptionRequest } from './ISubscriptionRequest';
-import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType';
-import { IStrategyData } from './IStrategyData';
-import { noop } from '../helpers/tests';
+import { MultiModeLiveWebSocket } from './MultiModeLiveWebSocket.ts';
+import { IWebSocketContext } from './IWebSocketContext.ts';
+import { ISubscriptions } from './ISubscriptions.ts';
+import { createTemporaryId } from '../helpers/projection.ts';
+import { ILiveWebSocket } from './ILiveWebSocket.ts';
+import { WebSocketMode } from './WebSocketMode.ts';
+import { IUpdateStrategy } from './IUpdateStrategy.ts';
+import { ISubscriptionRequest } from './ISubscriptionRequest.ts';
+import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType.ts';
+import { IStrategyData } from './IStrategyData.ts';
+import { noop } from '../helpers/tests.tsx';
 
 interface IMockUpdateStrategy extends IUpdateStrategy {
     refreshRequest: IStrategyData[];

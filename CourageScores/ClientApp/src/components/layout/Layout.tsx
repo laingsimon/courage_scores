@@ -1,10 +1,10 @@
-import { NavMenu } from './NavMenu';
-import { Heading } from './Heading';
-import { PageError } from '../common/PageError';
-import { useApp } from '../common/AppContainer';
-import { Footer } from './Footer';
+import { NavMenu } from './NavMenu.tsx';
+import { Heading } from './Heading.tsx';
+import { PageError } from '../common/PageError.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { Footer } from './Footer.tsx';
 import React from 'react';
-import { hasAccess } from '../../helpers/conditions';
+import { hasAccess } from '../../helpers/conditions.ts';
 
 export interface ILayoutProps {
     children?: React.ReactNode;

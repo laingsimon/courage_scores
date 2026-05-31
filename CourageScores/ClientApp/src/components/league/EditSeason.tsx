@@ -1,17 +1,17 @@
 import { useState } from 'react';
-import { any, sortBy } from '../../helpers/collections';
-import { propChanged, valueChanged } from '../../helpers/events';
-import { BootstrapDropdown } from '../common/BootstrapDropdown';
-import { useDependencies } from '../common/IocContainer';
-import { useApp } from '../common/AppContainer';
+import { any, sortBy } from '../../helpers/collections.ts';
+import { propChanged, valueChanged } from '../../helpers/events.ts';
+import { BootstrapDropdown } from '../common/BootstrapDropdown.tsx';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useApp } from '../common/AppContainer.tsx';
 import { useNavigate } from 'react-router';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { EditSeasonDto } from '../../interfaces/models/dtos/Season/EditSeasonDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { useDivisionData } from './DivisionDataContainer';
-import { renderDate } from '../../helpers/rendering';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { EditSeasonDto } from '../../interfaces/models/dtos/Season/EditSeasonDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { useDivisionData } from './DivisionDataContainer.tsx';
+import { renderDate } from '../../helpers/rendering.ts';
 
 export interface IEditSeasonProps {
     onClose(): UntypedPromise;

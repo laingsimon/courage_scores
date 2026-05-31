@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react';
-import { IMatchType } from './IMatchType';
+import { IMatchType } from './IMatchType.ts';
 
 const MatchTypeContext = createContext({});
 

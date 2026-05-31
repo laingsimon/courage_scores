@@ -1,6 +1,10 @@
-import { ButtonDropdown, DropdownMenu, DropdownToggle } from './ButtonDropdown';
+import {
+    ButtonDropdown,
+    DropdownMenu,
+    DropdownToggle,
+} from './ButtonDropdown.tsx';
 import React, { useState } from 'react';
-import { useApp } from './AppContainer';
+import { useApp } from './AppContainer.tsx';
 
 export interface IDebugOptionsProps {
     text?: string;

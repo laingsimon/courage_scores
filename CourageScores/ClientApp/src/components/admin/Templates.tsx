@@ -1,21 +1,21 @@
-import { useDependencies } from '../common/IocContainer';
+import { useDependencies } from '../common/IocContainer.tsx';
 import { useEffect, useState } from 'react';
-import { useApp } from '../common/AppContainer';
-import { ErrorDisplay } from '../common/ErrorDisplay';
-import { ViewHealthCheck } from '../division_health/ViewHealthCheck';
-import { valueChanged } from '../../helpers/events';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
+import { useApp } from '../common/AppContainer.tsx';
+import { ErrorDisplay } from '../common/ErrorDisplay.tsx';
+import { ViewHealthCheck } from '../division_health/ViewHealthCheck.tsx';
+import { valueChanged } from '../../helpers/events.ts';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
 import {
     excludePropertiesFromEdit,
     TemplateTextEditor,
-} from './TemplateTextEditor';
-import { TemplateVisualEditor } from './TemplateVisualEditor';
+} from './TemplateTextEditor.tsx';
+import { TemplateVisualEditor } from './TemplateVisualEditor.tsx';
 import { useLocation, useNavigate } from 'react-router';
-import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { SeasonHealthCheckResultDto } from '../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto';
-import { EditTemplateDto } from '../../interfaces/models/dtos/Season/Creation/EditTemplateDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { SeasonHealthCheckResultDto } from '../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto.ts';
+import { EditTemplateDto } from '../../interfaces/models/dtos/Season/Creation/EditTemplateDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export function Templates() {
     const EMPTY_TEMPLATE: EditTemplateDto = {

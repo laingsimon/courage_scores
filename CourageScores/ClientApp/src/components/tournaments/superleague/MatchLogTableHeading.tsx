@@ -1,4 +1,4 @@
-import { repeat } from '../../../helpers/projection';
+import { repeat } from '../../../helpers/projection.ts';
 
 export interface IMatchLogTableHeadingProps {
     team: string;

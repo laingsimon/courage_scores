@@ -5,8 +5,8 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { ErrorDisplay, IErrorDisplayProps } from './ErrorDisplay';
+} from '../../helpers/tests.tsx';
+import { ErrorDisplay, IErrorDisplayProps } from './ErrorDisplay.tsx';
 
 describe('ErrorDisplay', () => {
     let context: TestContext;

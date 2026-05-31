@@ -1,12 +1,12 @@
-import { WidescreenSaygRecentThrow } from './WidescreenSaygRecentThrow';
-import { reverse } from '../../helpers/collections';
-import { useLive } from '../../live/LiveContainer';
-import { RefreshControl } from '../common/RefreshControl';
-import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto';
-import { LegThrowDto } from '../../interfaces/models/dtos/Game/Sayg/LegThrowDto';
-import { useApp } from '../common/AppContainer';
-import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { WidescreenSaygRecentThrow } from './WidescreenSaygRecentThrow.tsx';
+import { reverse } from '../../helpers/collections.ts';
+import { useLive } from '../../live/LiveContainer.tsx';
+import { RefreshControl } from '../common/RefreshControl.tsx';
+import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto.ts';
+import { LegThrowDto } from '../../interfaces/models/dtos/Game/Sayg/LegThrowDto.ts';
+import { useApp } from '../common/AppContainer.tsx';
+import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface IWidescreenSaygPlayerProps {
     saygId: string;

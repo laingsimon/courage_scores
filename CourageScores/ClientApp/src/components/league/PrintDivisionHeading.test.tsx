@@ -5,20 +5,20 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     IPrintDivisionHeadingProps,
     PrintDivisionHeading,
-} from './PrintDivisionHeading';
+} from './PrintDivisionHeading.tsx';
 import {
     DivisionDataContainer,
     IDivisionDataContainerProps,
-} from './DivisionDataContainer';
+} from './DivisionDataContainer.tsx';
 import {
     divisionBuilder,
     divisionDataBuilder,
-} from '../../helpers/builders/divisions';
-import { createTemporaryId } from '../../helpers/projection';
+} from '../../helpers/builders/divisions.ts';
+import { createTemporaryId } from '../../helpers/projection.ts';
 
 describe('PrintDivisionHeading', () => {
     let context: TestContext;

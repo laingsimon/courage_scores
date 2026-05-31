@@ -1,6 +1,6 @@
-import { valueChanged } from '../../helpers/events';
-import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { valueChanged } from '../../helpers/events.ts';
+import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface IEditMatchOptionsProps {
     matchOptions: GameMatchOptionDto;

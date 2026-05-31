@@ -2,23 +2,23 @@ import {
     ButtonDropdown,
     DropdownMenu,
     DropdownToggle,
-} from '../common/ButtonDropdown';
+} from '../common/ButtonDropdown.tsx';
 import { Link, useLocation, useNavigate, useParams } from 'react-router';
 import { useState } from 'react';
-import { ErrorDisplay } from '../common/ErrorDisplay';
-import { Dialog } from '../common/Dialog';
-import { EditDivision } from './EditDivision';
-import { EditSeason } from './EditSeason';
-import { any, isEmpty, sortBy } from '../../helpers/collections';
-import { renderDate } from '../../helpers/rendering';
-import { useApp } from '../common/AppContainer';
-import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { EditSeasonDto } from '../../interfaces/models/dtos/Season/EditSeasonDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { asyncClear } from '../../helpers/events';
+import { ErrorDisplay } from '../common/ErrorDisplay.tsx';
+import { Dialog } from '../common/Dialog.tsx';
+import { EditDivision } from './EditDivision.tsx';
+import { EditSeason } from './EditSeason.tsx';
+import { any, isEmpty, sortBy } from '../../helpers/collections.ts';
+import { renderDate } from '../../helpers/rendering.ts';
+import { useApp } from '../common/AppContainer.tsx';
+import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { EditSeasonDto } from '../../interfaces/models/dtos/Season/EditSeasonDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { asyncClear } from '../../helpers/events.ts';
 
 export interface IDivisionControlsProps {
     originalSeasonData?: SeasonDto;

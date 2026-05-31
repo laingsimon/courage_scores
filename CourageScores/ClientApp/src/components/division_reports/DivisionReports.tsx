@@ -1,20 +1,20 @@
 import { useEffect, useState } from 'react';
-import { BootstrapDropdown } from '../common/BootstrapDropdown';
-import { any, isEmpty, sortBy } from '../../helpers/collections';
-import { stateChanged } from '../../helpers/events';
-import { useDependencies } from '../common/IocContainer';
-import { useDivisionData } from '../league/DivisionDataContainer';
-import { Report } from './Report';
-import { ReportGenerationMessages } from './ReportGenerationMessages';
-import { PrintDivisionHeading } from '../league/PrintDivisionHeading';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { useApp } from '../common/AppContainer';
-import { ReportCollectionDto } from '../../interfaces/models/dtos/Report/ReportCollectionDto';
-import { ReportDto } from '../../interfaces/models/dtos/Report/ReportDto';
-import { ReportRequestDto } from '../../interfaces/models/dtos/Report/ReportRequestDto';
+import { BootstrapDropdown } from '../common/BootstrapDropdown.tsx';
+import { any, isEmpty, sortBy } from '../../helpers/collections.ts';
+import { stateChanged } from '../../helpers/events.ts';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useDivisionData } from '../league/DivisionDataContainer.tsx';
+import { Report } from './Report.tsx';
+import { ReportGenerationMessages } from './ReportGenerationMessages.tsx';
+import { PrintDivisionHeading } from '../league/PrintDivisionHeading.tsx';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { ReportCollectionDto } from '../../interfaces/models/dtos/Report/ReportCollectionDto.ts';
+import { ReportDto } from '../../interfaces/models/dtos/Report/ReportDto.ts';
+import { ReportRequestDto } from '../../interfaces/models/dtos/Report/ReportRequestDto.ts';
 import { useLocation, useNavigate } from 'react-router';
-import { useBranding } from '../common/BrandingContainer';
-import { IServerSideError } from '../../interfaces/IServerSideError';
+import { useBranding } from '../common/BrandingContainer.tsx';
+import { IServerSideError } from '../../interfaces/IServerSideError.ts';
 
 export function DivisionReports() {
     const {

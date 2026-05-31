@@ -215,10 +215,10 @@ public class ControllerStrategy : IStrategy
 
     private static async Task WriteImports(TextWriter writer, TypeScriptInterface controller, CancellationToken token)
     {
-        await writer.WriteLineAsync("import {IHttp} from '../../api/http';");
+        await writer.WriteLineAsync("import {IHttp} from '../../api/http.ts';");
         if (controller.Members.OfType<IRouteMethod>().Any(m => m.FileUploadPropertyName != null))
         {
-            await writer.WriteLineAsync("import {Settings} from '../../api/settings';");
+            await writer.WriteLineAsync("import {Settings} from '../../api/settings.ts';");
         }
 
         foreach (var import in controller.Types.SelectMany(t => t.GetImports()).Where(i => i.RelativePath != null).DistinctBy(t => t.RelativePath).OrderBy(i => i.Name))
@@ -228,7 +228,7 @@ public class ControllerStrategy : IStrategy
                 break;
             }
 
-            await writer.WriteLineAsync($"import {{{import.Name}}} from '{import.RelativePath}';");
+            await writer.WriteLineAsync($"import {{{import.Name}}} from '{import.RelativePath}.ts';");
         }
     }
 

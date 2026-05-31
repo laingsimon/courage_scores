@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { stateChanged } from '../../helpers/events';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { stateChanged } from '../../helpers/events.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface ISharedAddressProps {
     address: string[];

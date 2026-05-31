@@ -6,14 +6,14 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     IMergeHiCheckAnd180sProps,
     MergeHiCheckAnd180s,
-} from './MergeHiCheckAnd180s';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { fixtureBuilder } from '../../helpers/builders/games';
-import { playerBuilder } from '../../helpers/builders/players';
+} from './MergeHiCheckAnd180s.tsx';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { fixtureBuilder } from '../../helpers/builders/games.ts';
+import { playerBuilder } from '../../helpers/builders/players.ts';
 
 describe('MergeHiCheckAnd180s', () => {
     let context: TestContext;

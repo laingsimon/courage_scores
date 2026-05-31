@@ -9,31 +9,31 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { EditSide, IEditSideProps, ISaveSideOptions } from './EditSide';
-import { TournamentContainer } from './TournamentContainer';
-import { createTemporaryId } from '../../helpers/projection';
-import { EditTeamPlayerDto } from '../../interfaces/models/dtos/Team/EditTeamPlayerDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
-import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { playerBuilder } from '../../helpers/builders/players';
-import { divisionBuilder } from '../../helpers/builders/divisions';
+} from '../../helpers/tests.tsx';
+import { EditSide, IEditSideProps, ISaveSideOptions } from './EditSide.tsx';
+import { TournamentContainer } from './TournamentContainer.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { EditTeamPlayerDto } from '../../interfaces/models/dtos/Team/EditTeamPlayerDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
+import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { playerBuilder } from '../../helpers/builders/players.ts';
+import { divisionBuilder } from '../../helpers/builders/divisions.ts';
 import {
     sideBuilder,
     tournamentBuilder,
-} from '../../helpers/builders/tournaments';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { teamBuilder } from '../../helpers/builders/teams';
-import { IPlayerApi } from '../../interfaces/apis/IPlayerApi';
-import { ITournamentPlayerMap } from './Tournament';
-import { tournamentContainerPropsBuilder } from './tournamentContainerPropsBuilder';
-import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto';
+} from '../../helpers/builders/tournaments.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
+import { IPlayerApi } from '../../interfaces/apis/IPlayerApi.ts';
+import { ITournamentPlayerMap } from './Tournament.ts';
+import { tournamentContainerPropsBuilder } from './tournamentContainerPropsBuilder.ts';
+import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto.ts';
 
 describe('EditSide', () => {
     const player: TeamPlayerDto = playerBuilder('PLAYER').build();

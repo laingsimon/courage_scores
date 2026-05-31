@@ -1,4 +1,4 @@
-import { AdminContainer } from './AdminContainer';
+import { AdminContainer } from './AdminContainer.tsx';
 import {
     appProps,
     brandingProps,
@@ -6,8 +6,8 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { ISharedAddressProps, SharedAddress } from './SharedAddress';
+} from '../../helpers/tests.tsx';
+import { ISharedAddressProps, SharedAddress } from './SharedAddress.tsx';
 
 describe('SharedAddress', () => {
     let context: TestContext;

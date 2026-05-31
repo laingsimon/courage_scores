@@ -1,15 +1,15 @@
 ﻿/* istanbul ignore file */
 
-import { ITournamentContainerProps } from './TournamentContainer';
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
-import { noop } from '../../helpers/tests';
-import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
-import { ITournamentPlayerMap } from './Tournament';
-import { tournamentBuilder } from '../../helpers/builders/tournaments';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto';
+import { ITournamentContainerProps } from './TournamentContainer.tsx';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
+import { noop } from '../../helpers/tests.tsx';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
+import { ITournamentPlayerMap } from './Tournament.ts';
+import { tournamentBuilder } from '../../helpers/builders/tournaments.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto.ts';
 
 export class tournamentContainerPropsBuilder {
     private readonly props: ITournamentContainerProps;

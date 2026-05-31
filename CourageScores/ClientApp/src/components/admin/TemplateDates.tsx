@@ -1,9 +1,9 @@
-import { TemplateDate } from './TemplateDate';
-import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto';
-import { repeat } from '../../helpers/projection';
-import { any } from '../../helpers/collections';
-import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { TemplateDate } from './TemplateDate.tsx';
+import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto.ts';
+import { repeat } from '../../helpers/projection.ts';
+import { any } from '../../helpers/collections.ts';
+import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface ITemplateDatesProps {
     dates: DateTemplateDto[];

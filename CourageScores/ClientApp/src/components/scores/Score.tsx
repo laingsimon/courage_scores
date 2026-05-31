@@ -1,60 +1,64 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
-import { MatchPlayerSelection, NEW_PLAYER } from './MatchPlayerSelection';
-import { ErrorDisplay } from '../common/ErrorDisplay';
-import { DivisionControls } from '../league/DivisionControls';
-import { any, elementAt, isEmpty, sortBy } from '../../helpers/collections';
-import { asyncCallback, asyncClear, propChanged } from '../../helpers/events';
-import { EMPTY_ID, repeat } from '../../helpers/projection';
-import { renderDate } from '../../helpers/rendering';
-import { Loading } from '../common/Loading';
-import { MergeMatch } from './MergeMatch';
-import { HiCheckAnd180s } from './HiCheckAnd180s';
-import { MergeManOfTheMatch } from './MergeManOfTheMatch';
-import { ManOfTheMatchInput } from './ManOfTheMatchInput';
-import { MergeHiCheckAnd180s } from './MergeHiCheckAnd180s';
-import { ScoreCardHeading } from './ScoreCardHeading';
-import { GameDetails } from './GameDetails';
-import { add180, addHiCheck } from '../common/Accolades';
-import { useDependencies } from '../common/IocContainer';
-import { useApp } from '../common/AppContainer';
-import { Dialog } from '../common/Dialog';
-import { EditPlayerDetails } from '../division_players/EditPlayerDetails';
+import { MatchPlayerSelection, NEW_PLAYER } from './MatchPlayerSelection.tsx';
+import { ErrorDisplay } from '../common/ErrorDisplay.tsx';
+import { DivisionControls } from '../league/DivisionControls.tsx';
+import { any, elementAt, isEmpty, sortBy } from '../../helpers/collections.ts';
+import {
+    asyncCallback,
+    asyncClear,
+    propChanged,
+} from '../../helpers/events.ts';
+import { EMPTY_ID, repeat } from '../../helpers/projection.ts';
+import { renderDate } from '../../helpers/rendering.ts';
+import { Loading } from '../common/Loading.tsx';
+import { MergeMatch } from './MergeMatch.tsx';
+import { HiCheckAnd180s } from './HiCheckAnd180s.tsx';
+import { MergeManOfTheMatch } from './MergeManOfTheMatch.tsx';
+import { ManOfTheMatchInput } from './ManOfTheMatchInput.tsx';
+import { MergeHiCheckAnd180s } from './MergeHiCheckAnd180s.tsx';
+import { ScoreCardHeading } from './ScoreCardHeading.tsx';
+import { GameDetails } from './GameDetails.tsx';
+import { add180, addHiCheck } from '../common/Accolades.tsx';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { Dialog } from '../common/Dialog.tsx';
+import { EditPlayerDetails } from '../division_players/EditPlayerDetails.tsx';
 import {
     ILeagueFixtureContainerProps,
     LeagueFixtureContainer,
-} from './LeagueFixtureContainer';
+} from './LeagueFixtureContainer.tsx';
 import {
     IMatchTypeContainerProps,
     MatchTypeContainer,
-} from './MatchTypeContainer';
+} from './MatchTypeContainer.tsx';
 import {
     getMatchDefaults,
     getMatchOptionDefaults,
     getMatchOptionsLookup,
     IMatchOptionsLookup,
-} from '../../helpers/matchOptions';
-import { PageError } from '../common/PageError';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { DebugOptions } from '../common/DebugOptions';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { IFailedRequest } from '../common/IFailedRequest';
-import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto';
-import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
-import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
-import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { ISelectablePlayer } from '../common/PlayerSelection';
-import { RecordScoresDto } from '../../interfaces/models/dtos/Game/RecordScoresDto';
-import { PhotoManager } from '../common/PhotoManager';
-import { UploadPhotoDto } from '../../interfaces/models/dtos/UploadPhotoDto';
-import { useBranding } from '../common/BrandingContainer';
-import { NavLink } from '../common/NavLink';
-import { hasAccess } from '../../helpers/conditions';
-import { getTeamSeasons } from '../../helpers/teams';
+} from '../../helpers/matchOptions.ts';
+import { PageError } from '../common/PageError.tsx';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { DebugOptions } from '../common/DebugOptions.tsx';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { IFailedRequest } from '../common/IFailedRequest.ts';
+import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto.ts';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
+import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
+import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { ISelectablePlayer } from '../common/PlayerSelection.ts';
+import { RecordScoresDto } from '../../interfaces/models/dtos/Game/RecordScoresDto.ts';
+import { PhotoManager } from '../common/PhotoManager.tsx';
+import { UploadPhotoDto } from '../../interfaces/models/dtos/UploadPhotoDto.ts';
+import { useBranding } from '../common/BrandingContainer.tsx';
+import { NavLink } from '../common/NavLink.tsx';
+import { hasAccess } from '../../helpers/conditions.ts';
+import { getTeamSeasons } from '../../helpers/teams.ts';
 
 export interface ICreatePlayerFor {
     side: string;

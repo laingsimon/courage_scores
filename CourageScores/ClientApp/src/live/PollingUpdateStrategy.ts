@@ -1,16 +1,16 @@
-import { IUpdateStrategy } from './IUpdateStrategy';
-import { ISubscription } from './ISubscription';
-import { IClientActionResultDto } from '../components/common/IClientActionResultDto';
-import { any } from '../helpers/collections';
-import { IWebSocketContext } from './IWebSocketContext';
-import { ISubscriptions } from './ISubscriptions';
-import { ISubscriptionRequest } from './ISubscriptionRequest';
-import { ILiveApi } from '../interfaces/apis/ILiveApi';
-import { WebSocketMode } from './WebSocketMode';
-import { UpdatedDataDto } from '../interfaces/models/dtos/Live/UpdatedDataDto';
-import { IStrategyData } from './IStrategyData';
-import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType';
-import { IError } from '../components/common/IError';
+import { IUpdateStrategy } from './IUpdateStrategy.ts';
+import { ISubscription } from './ISubscription.ts';
+import { IClientActionResultDto } from '../components/common/IClientActionResultDto.ts';
+import { any } from '../helpers/collections.ts';
+import { IWebSocketContext } from './IWebSocketContext.ts';
+import { ISubscriptions } from './ISubscriptions.ts';
+import { ISubscriptionRequest } from './ISubscriptionRequest.ts';
+import { ILiveApi } from '../interfaces/apis/ILiveApi.ts';
+import { WebSocketMode } from './WebSocketMode.ts';
+import { UpdatedDataDto } from '../interfaces/models/dtos/Live/UpdatedDataDto.ts';
+import { IStrategyData } from './IStrategyData.ts';
+import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType.ts';
+import { IError } from '../components/common/IError.ts';
 
 enum PollResult {
     Updated,

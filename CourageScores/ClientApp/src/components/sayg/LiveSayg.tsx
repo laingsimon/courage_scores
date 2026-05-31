@@ -1,18 +1,18 @@
 import { useLocation, useNavigate, useParams } from 'react-router';
-import { ILiveOptions } from '../../live/ILiveOptions';
-import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType';
-import { LiveSuperleagueTournamentDisplay } from './LiveSuperleagueTournamentDisplay';
+import { ILiveOptions } from '../../live/ILiveOptions.ts';
+import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType.ts';
+import { LiveSuperleagueTournamentDisplay } from './LiveSuperleagueTournamentDisplay.tsx';
 import { useEffect, useState } from 'react';
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
-import { useApp } from '../common/AppContainer';
-import { SaygLoadingContainer } from './SaygLoadingContainer';
-import { any, count } from '../../helpers/collections';
-import { useDependencies } from '../common/IocContainer';
-import { renderDate } from '../../helpers/rendering';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { SaygLoadingContainer } from './SaygLoadingContainer.tsx';
+import { any, count } from '../../helpers/collections.ts';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { renderDate } from '../../helpers/rendering.ts';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
 import { QRCodeSVG } from 'qrcode.react';
-import { stateChanged } from '../../helpers/events';
-import { LiveContainer } from '../../live/LiveContainer';
+import { stateChanged } from '../../helpers/events.ts';
+import { LiveContainer } from '../../live/LiveContainer.tsx';
 
 interface IIdentifiedUpdate {
     id: string;

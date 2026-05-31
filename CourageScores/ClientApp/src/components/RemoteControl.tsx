@@ -1,13 +1,13 @@
-﻿import { useApp } from './common/AppContainer';
+﻿import { useApp } from './common/AppContainer.tsx';
 import { useEffect, useState } from 'react';
-import { useDependencies } from './common/IocContainer';
+import { useDependencies } from './common/IocContainer.tsx';
 import { useNavigate, useParams, useLocation } from 'react-router';
-import { stateChanged } from '../helpers/events';
-import { createTemporaryId } from '../helpers/projection';
+import { stateChanged } from '../helpers/events.ts';
+import { createTemporaryId } from '../helpers/projection.ts';
 import { QRCodeSVG } from 'qrcode.react';
-import { RemoteControlUpdateDto } from '../interfaces/models/dtos/RemoteControl/RemoteControlUpdateDto';
-import { LoadingSpinnerSmall } from './common/LoadingSpinnerSmall';
-import { Loading } from './common/Loading';
+import { RemoteControlUpdateDto } from '../interfaces/models/dtos/RemoteControl/RemoteControlUpdateDto.ts';
+import { LoadingSpinnerSmall } from './common/LoadingSpinnerSmall.tsx';
+import { Loading } from './common/Loading.tsx';
 
 export interface IRemoteControlProps {
     pinGenerator?: () => string;

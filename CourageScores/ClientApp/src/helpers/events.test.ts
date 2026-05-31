@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedReference
 
-import { handleChange, propChanged, valueChanged } from './events';
+import { handleChange, propChanged, valueChanged } from './events.ts';
 
 describe('events', () => {
     describe('valueChanged', () => {

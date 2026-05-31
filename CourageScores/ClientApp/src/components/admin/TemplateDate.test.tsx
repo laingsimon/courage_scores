@@ -1,4 +1,4 @@
-import { AdminContainer } from './AdminContainer';
+import { AdminContainer } from './AdminContainer.tsx';
 import {
     appProps,
     brandingProps,
@@ -7,10 +7,10 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { ITemplateDateProps, TemplateDate } from './TemplateDate';
-import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto';
-import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto';
+} from '../../helpers/tests.tsx';
+import { ITemplateDateProps, TemplateDate } from './TemplateDate.tsx';
+import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto.ts';
+import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto.ts';
 
 describe('TemplateDate', () => {
     let context: TestContext;

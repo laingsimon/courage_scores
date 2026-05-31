@@ -9,23 +9,23 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     ITournamentDetailsProps,
     TournamentDetails,
-} from './TournamentDetails';
-import { tournamentBuilder } from '../../helpers/builders/tournaments';
-import { divisionBuilder } from '../../helpers/builders/divisions';
-import { createTemporaryId } from '../../helpers/projection';
-import { teamBuilder } from '../../helpers/builders/teams';
-import { playerBuilder } from '../../helpers/builders/players';
-import { ExportDataRequestDto } from '../../interfaces/models/dtos/Data/ExportDataRequestDto';
-import { IDataApi } from '../../interfaces/apis/IDataApi';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
-import { IAppContainerProps } from '../common/AppContainer';
+} from './TournamentDetails.tsx';
+import { tournamentBuilder } from '../../helpers/builders/tournaments.ts';
+import { divisionBuilder } from '../../helpers/builders/divisions.ts';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
+import { playerBuilder } from '../../helpers/builders/players.ts';
+import { ExportDataRequestDto } from '../../interfaces/models/dtos/Data/ExportDataRequestDto.ts';
+import { IDataApi } from '../../interfaces/apis/IDataApi.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { IAppContainerProps } from '../common/AppContainer.tsx';
 
 describe('TournamentDetails', () => {
     let context: TestContext;

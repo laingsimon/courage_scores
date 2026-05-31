@@ -1,6 +1,6 @@
-import { ITournamentLayoutGenerationContext } from '../competition';
-import { TournamentRoundDto } from '../../../interfaces/models/dtos/Game/TournamentRoundDto';
-import { TournamentSideDto } from '../../../interfaces/models/dtos/Game/TournamentSideDto';
+import { ITournamentLayoutGenerationContext } from '../competition.ts';
+import { TournamentRoundDto } from '../../../interfaces/models/dtos/Game/TournamentRoundDto.ts';
+import { TournamentSideDto } from '../../../interfaces/models/dtos/Game/TournamentSideDto.ts';
 
 export interface ILayoutRequest {
     sides: TournamentSideDto[];

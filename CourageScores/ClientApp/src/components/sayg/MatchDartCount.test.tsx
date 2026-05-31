@@ -5,8 +5,8 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { IMatchDartCountProps, MatchDartCount } from './MatchDartCount';
+} from '../../helpers/tests.tsx';
+import { IMatchDartCountProps, MatchDartCount } from './MatchDartCount.tsx';
 
 describe('MatchDartCount', () => {
     let context: TestContext;

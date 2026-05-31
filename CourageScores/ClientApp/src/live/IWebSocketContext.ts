@@ -1,4 +1,4 @@
-﻿import { WebSocketMode } from './WebSocketMode';
+﻿import { WebSocketMode } from './WebSocketMode.ts';
 
 export interface IWebSocketContext {
     webSocket?: WebSocket;

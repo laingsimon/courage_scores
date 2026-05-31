@@ -2,7 +2,7 @@
  * Change a property of a state-object based on on event
  * */
 import { Dispatch, SetStateAction } from 'react';
-import { UntypedPromise } from '../interfaces/UntypedPromise';
+import { UntypedPromise } from '../interfaces/UntypedPromise.ts';
 
 export function valueChanged<T>(
     get: T,

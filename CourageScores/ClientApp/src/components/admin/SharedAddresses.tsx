@@ -1,5 +1,5 @@
-import { SharedAddress } from './SharedAddress';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { SharedAddress } from './SharedAddress.tsx';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface ISharedAddressesProps {
     addresses: string[][];

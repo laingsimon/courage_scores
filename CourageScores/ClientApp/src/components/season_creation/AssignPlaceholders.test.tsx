@@ -6,21 +6,21 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     AssignPlaceholders,
     IAssignPlaceholdersProps,
     IPlaceholderMappings,
-} from './AssignPlaceholders';
-import { IAppContainerProps } from '../common/AppContainer';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto';
-import { divisionBuilder } from '../../helpers/builders/divisions';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { teamBuilder } from '../../helpers/builders/teams';
-import { createTemporaryId } from '../../helpers/projection';
+} from './AssignPlaceholders.tsx';
+import { IAppContainerProps } from '../common/AppContainer.tsx';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto.ts';
+import { divisionBuilder } from '../../helpers/builders/divisions.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
+import { createTemporaryId } from '../../helpers/projection.ts';
 
 describe('AssignPlaceholders', () => {
     let context: TestContext;

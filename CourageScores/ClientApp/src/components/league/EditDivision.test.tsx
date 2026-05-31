@@ -7,14 +7,14 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { EditDivision, IEditDivisionProps } from './EditDivision';
-import { divisionBuilder } from '../../helpers/builders/divisions';
-import { EditDivisionDto } from '../../interfaces/models/dtos/EditDivisionDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
-import { IDivisionApi } from '../../interfaces/apis/IDivisionApi';
+} from '../../helpers/tests.tsx';
+import { EditDivision, IEditDivisionProps } from './EditDivision.tsx';
+import { divisionBuilder } from '../../helpers/builders/divisions.ts';
+import { EditDivisionDto } from '../../interfaces/models/dtos/EditDivisionDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
+import { IDivisionApi } from '../../interfaces/apis/IDivisionApi.ts';
 
 const mockedUsedNavigate = jest.fn();
 

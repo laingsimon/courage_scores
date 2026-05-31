@@ -7,17 +7,17 @@
     appProps,
     ErrorState,
     api,
-} from '../../helpers/tests';
-import { createTemporaryId } from '../../helpers/projection';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { AdminContainer } from './AdminContainer';
-import { TableDto } from '../../interfaces/models/dtos/Data/TableDto';
-import { Query } from './Query';
-import { QueryApi } from '../../interfaces/apis/IQueryApi';
-import { QueryRequestDto } from '../../interfaces/models/dtos/Query/QueryRequestDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { QueryResponseDto } from '../../interfaces/models/dtos/Query/QueryResponseDto';
-import { renderDate } from '../../helpers/rendering';
+} from '../../helpers/tests.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { AdminContainer } from './AdminContainer.tsx';
+import { TableDto } from '../../interfaces/models/dtos/Data/TableDto.ts';
+import { Query } from './Query.tsx';
+import { QueryApi } from '../../interfaces/apis/IQueryApi.ts';
+import { QueryRequestDto } from '../../interfaces/models/dtos/Query/QueryRequestDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { QueryResponseDto } from '../../interfaces/models/dtos/Query/QueryResponseDto.ts';
+import { renderDate } from '../../helpers/rendering.ts';
 
 const mockedUsedNavigate = jest.fn();
 const mockedClipboardWrite = jest.fn();

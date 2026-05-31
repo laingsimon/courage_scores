@@ -6,13 +6,13 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
     IBootstrapDropdownProps,
-} from './BootstrapDropdown';
-import { toDictionary } from '../../helpers/collections';
+} from './BootstrapDropdown.tsx';
+import { toDictionary } from '../../helpers/collections.ts';
 
 describe('BootstrapDropdown', () => {
     let context: TestContext;

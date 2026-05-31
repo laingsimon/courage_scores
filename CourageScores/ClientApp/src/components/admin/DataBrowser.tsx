@@ -1,19 +1,19 @@
 import { Link, useLocation, useNavigate } from 'react-router';
 import { useEffect, useState, ChangeEvent } from 'react';
-import { stateChanged } from '../../helpers/events';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { useDependencies } from '../common/IocContainer';
-import { renderDate } from '../../helpers/rendering';
-import { repeat } from '../../helpers/projection';
-import { SingleDataResultDto } from '../../interfaces/models/dtos/Data/SingleDataResultDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { useApp } from '../common/AppContainer';
+import { stateChanged } from '../../helpers/events.ts';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { renderDate } from '../../helpers/rendering.ts';
+import { repeat } from '../../helpers/projection.ts';
+import { SingleDataResultDto } from '../../interfaces/models/dtos/Data/SingleDataResultDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { useApp } from '../common/AppContainer.tsx';
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
-} from '../common/BootstrapDropdown';
-import { sortBy } from '../../helpers/collections';
-import { useAdmin } from './AdminContainer';
+} from '../common/BootstrapDropdown.tsx';
+import { sortBy } from '../../helpers/collections.ts';
+import { useAdmin } from './AdminContainer.tsx';
 
 export function DataBrowser() {
     const { onError } = useApp();

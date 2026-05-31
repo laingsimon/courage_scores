@@ -6,16 +6,16 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { createTemporaryId } from '../../helpers/projection';
-import { EditTeamDetails, IEditTeamDetailsProps } from './EditTeamDetails';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { EditTeamDto } from '../../interfaces/models/dtos/Team/EditTeamDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { teamBuilder } from '../../helpers/builders/teams';
-import { divisionBuilder } from '../../helpers/builders/divisions';
-import { ITeamApi } from '../../interfaces/apis/ITeamApi';
+} from '../../helpers/tests.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { EditTeamDetails, IEditTeamDetailsProps } from './EditTeamDetails.tsx';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { EditTeamDto } from '../../interfaces/models/dtos/Team/EditTeamDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
+import { divisionBuilder } from '../../helpers/builders/divisions.ts';
+import { ITeamApi } from '../../interfaces/apis/ITeamApi.ts';
 
 describe('EditTeamDetails', () => {
     let context: TestContext;

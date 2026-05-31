@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Dialog } from './Dialog';
-import { useApp } from './AppContainer';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { IServerSideException } from '../../interfaces/IServerSideException';
-import { IServerSideError } from '../../interfaces/IServerSideError';
-import { IClientActionResultDto } from './IClientActionResultDto';
+import { Dialog } from './Dialog.tsx';
+import { useApp } from './AppContainer.tsx';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { IServerSideException } from '../../interfaces/IServerSideException.ts';
+import { IServerSideError } from '../../interfaces/IServerSideError.ts';
+import { IClientActionResultDto } from './IClientActionResultDto.ts';
 
 export type IErrorDisplayProps = Omit<
     IClientActionResultDto<unknown>,

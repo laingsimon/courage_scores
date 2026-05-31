@@ -1,9 +1,9 @@
-import { any, isEmpty } from '../../helpers/collections';
-import { useApp } from '../common/AppContainer';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto';
-import { NotablePlayerDto } from '../../interfaces/models/dtos/Game/NotablePlayerDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { any, isEmpty } from '../../helpers/collections.ts';
+import { useApp } from '../common/AppContainer.tsx';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto.ts';
+import { NotablePlayerDto } from '../../interfaces/models/dtos/Game/NotablePlayerDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface IMergeHiCheckAnd180sProps {
     fixtureData: GameDto;

@@ -9,19 +9,19 @@ import {
     noop,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { DivisionDataContainer } from '../league/DivisionDataContainer';
-import { AssignTeamToSeasons } from './AssignTeamToSeasons';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { DivisionTeamDto } from '../../interfaces/models/dtos/Division/DivisionTeamDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { teamBuilder } from '../../helpers/builders/teams';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { divisionBuilder } from '../../helpers/builders/divisions';
-import { ITeamApi } from '../../interfaces/apis/ITeamApi';
-import { ModifyTeamSeasonDto } from '../../interfaces/models/dtos/Team/ModifyTeamSeasonDto';
+} from '../../helpers/tests.tsx';
+import { DivisionDataContainer } from '../league/DivisionDataContainer.tsx';
+import { AssignTeamToSeasons } from './AssignTeamToSeasons.tsx';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { DivisionTeamDto } from '../../interfaces/models/dtos/Division/DivisionTeamDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { divisionBuilder } from '../../helpers/builders/divisions.ts';
+import { ITeamApi } from '../../interfaces/apis/ITeamApi.ts';
+import { ModifyTeamSeasonDto } from '../../interfaces/models/dtos/Team/ModifyTeamSeasonDto.ts';
 
 describe('AssignTeamToSeasons', () => {
     let context: TestContext;

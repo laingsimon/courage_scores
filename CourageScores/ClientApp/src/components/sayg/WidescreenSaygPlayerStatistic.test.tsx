@@ -5,13 +5,13 @@ import {
     brandingProps,
     appProps,
     TestContext,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     IWidescreenSaygPlayerStatisticProps,
     WidescreenSaygPlayerStatistic,
-} from './WidescreenSaygPlayerStatistic';
-import { saygBuilder } from '../../helpers/builders/sayg';
-import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto';
+} from './WidescreenSaygPlayerStatistic.tsx';
+import { saygBuilder } from '../../helpers/builders/sayg.ts';
+import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto.ts';
 
 describe('WidescreenSaygPlayerStatistic', () => {
     let context: TestContext;

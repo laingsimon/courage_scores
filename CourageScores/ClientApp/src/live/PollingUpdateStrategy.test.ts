@@ -1,16 +1,16 @@
-import { PollingUpdateStrategy } from './PollingUpdateStrategy';
-import { IWebSocketContext } from './IWebSocketContext';
-import { createTemporaryId } from '../helpers/projection';
-import { api, noop } from '../helpers/tests';
-import { ILiveApi } from '../interfaces/apis/ILiveApi';
-import { ISubscriptions } from './ISubscriptions';
-import { ISubscriptionRequest } from './ISubscriptionRequest';
-import { WebSocketMode } from './WebSocketMode';
-import { IClientActionResultDto } from '../components/common/IClientActionResultDto';
-import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType';
-import { UpdatedDataDto } from '../interfaces/models/dtos/Live/UpdatedDataDto';
-import { IStrategyData } from './IStrategyData';
-import { ISubscription } from './ISubscription';
+import { PollingUpdateStrategy } from './PollingUpdateStrategy.ts';
+import { IWebSocketContext } from './IWebSocketContext.ts';
+import { createTemporaryId } from '../helpers/projection.ts';
+import { api, noop } from '../helpers/tests.tsx';
+import { ILiveApi } from '../interfaces/apis/ILiveApi.ts';
+import { ISubscriptions } from './ISubscriptions.ts';
+import { ISubscriptionRequest } from './ISubscriptionRequest.ts';
+import { WebSocketMode } from './WebSocketMode.ts';
+import { IClientActionResultDto } from '../components/common/IClientActionResultDto.ts';
+import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType.ts';
+import { UpdatedDataDto } from '../interfaces/models/dtos/Live/UpdatedDataDto.ts';
+import { IStrategyData } from './IStrategyData.ts';
+import { ISubscription } from './ISubscription.ts';
 
 describe('PollingUpdateStrategy', () => {
     let updateLookup: {

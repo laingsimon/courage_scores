@@ -1,5 +1,5 @@
-import { useApp } from '../../common/AppContainer';
-import { repeat } from '../../../helpers/projection';
+import { useApp } from '../../common/AppContainer.tsx';
+import { repeat } from '../../../helpers/projection.ts';
 import {
     getMatchWinner,
     legActualDarts,
@@ -7,9 +7,9 @@ import {
     legScoreLeft,
     legTonsSplit,
     playerOverallAverage,
-} from '../../../helpers/superleague';
-import { ifNaN, round2dp } from '../../../helpers/rendering';
-import { ScoreAsYouGoDto } from '../../../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto';
+} from '../../../helpers/superleague.ts';
+import { ifNaN, round2dp } from '../../../helpers/rendering.ts';
+import { ScoreAsYouGoDto } from '../../../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto.ts';
 
 export interface IMatchReportRowProps {
     matchIndex: number;

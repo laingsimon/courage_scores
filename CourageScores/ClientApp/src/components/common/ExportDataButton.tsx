@@ -1,11 +1,11 @@
-import { useApp } from './AppContainer';
-import { any } from '../../helpers/collections';
-import { useDependencies } from './IocContainer';
+import { useApp } from './AppContainer.tsx';
+import { any } from '../../helpers/collections.ts';
+import { useDependencies } from './IocContainer.tsx';
 import { useState } from 'react';
-import { LoadingSpinnerSmall } from './LoadingSpinnerSmall';
-import { ExportDataRequestDto } from '../../interfaces/models/dtos/Data/ExportDataRequestDto';
-import { ExportDataResultDto } from '../../interfaces/models/dtos/Data/ExportDataResultDto';
-import { IClientActionResultDto } from './IClientActionResultDto';
+import { LoadingSpinnerSmall } from './LoadingSpinnerSmall.tsx';
+import { ExportDataRequestDto } from '../../interfaces/models/dtos/Data/ExportDataRequestDto.ts';
+import { ExportDataResultDto } from '../../interfaces/models/dtos/Data/ExportDataResultDto.ts';
+import { IClientActionResultDto } from './IClientActionResultDto.ts';
 
 export interface IExportDataButtonProps extends ExportDataRequestDto {
     tables?: { [key: string]: string[] };

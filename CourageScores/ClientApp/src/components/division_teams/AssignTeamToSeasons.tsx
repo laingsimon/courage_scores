@@ -1,20 +1,20 @@
 import { useState } from 'react';
-import { useApp } from '../common/AppContainer';
-import { sortBy } from '../../helpers/collections';
-import { asyncClear, propChanged } from '../../helpers/events';
-import { useDivisionData } from '../league/DivisionDataContainer';
-import { useDependencies } from '../common/IocContainer';
-import { DivisionTeamDto } from '../../interfaces/models/dtos/Division/DivisionTeamDto';
-import { ModifyTeamSeasonDto } from '../../interfaces/models/dtos/Team/ModifyTeamSeasonDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto';
+import { useApp } from '../common/AppContainer.tsx';
+import { sortBy } from '../../helpers/collections.ts';
+import { asyncClear, propChanged } from '../../helpers/events.ts';
+import { useDivisionData } from '../league/DivisionDataContainer.tsx';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { DivisionTeamDto } from '../../interfaces/models/dtos/Division/DivisionTeamDto.ts';
+import { ModifyTeamSeasonDto } from '../../interfaces/models/dtos/Team/ModifyTeamSeasonDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto.ts';
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
-} from '../common/BootstrapDropdown';
-import { ErrorDisplay } from '../common/ErrorDisplay';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
+} from '../common/BootstrapDropdown.tsx';
+import { ErrorDisplay } from '../common/ErrorDisplay.tsx';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
 
 export interface IAssignTeamToSeasonsProps {
     teamOverview: DivisionTeamDto;

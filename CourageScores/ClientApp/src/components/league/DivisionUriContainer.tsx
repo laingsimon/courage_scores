@@ -1,9 +1,9 @@
 import React, { createContext, useContext } from 'react';
-import { IDivisionUri, IIdish } from './IDivisionUri';
-import { isGuid } from '../../helpers/projection';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { useApp } from '../common/AppContainer';
+import { IDivisionUri, IIdish } from './IDivisionUri.ts';
+import { isGuid } from '../../helpers/projection.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { useApp } from '../common/AppContainer.tsx';
 import { useLocation, useParams } from 'react-router';
 
 function makeIdish(item: { id: string; name?: string }): IIdish {

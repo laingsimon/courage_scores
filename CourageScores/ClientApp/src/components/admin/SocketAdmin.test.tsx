@@ -1,4 +1,4 @@
-import { AdminContainer } from './AdminContainer';
+import { AdminContainer } from './AdminContainer.tsx';
 import {
     api,
     appProps,
@@ -8,12 +8,12 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { SocketAdmin } from './SocketAdmin';
-import { createTemporaryId } from '../../helpers/projection';
-import { WebSocketDto } from '../../interfaces/models/dtos/Live/WebSocketDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { ILiveApi } from '../../interfaces/apis/ILiveApi';
+} from '../../helpers/tests.tsx';
+import { SocketAdmin } from './SocketAdmin.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { WebSocketDto } from '../../interfaces/models/dtos/Live/WebSocketDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { ILiveApi } from '../../interfaces/apis/ILiveApi.ts';
 
 describe('SocketAdmin', () => {
     let context: TestContext;

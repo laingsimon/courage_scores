@@ -1,27 +1,30 @@
-import { Dialog } from '../common/Dialog';
+import { Dialog } from '../common/Dialog.tsx';
 import { useEffect, useState } from 'react';
-import { useDependencies } from '../common/IocContainer';
-import { useApp } from '../common/AppContainer';
-import { any } from '../../helpers/collections';
-import { useDivisionData } from '../league/DivisionDataContainer';
-import { renderDate } from '../../helpers/rendering';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { ReviewProposalsFloatingDialog } from './ReviewProposalsFloatingDialog';
-import { PickTemplate } from './PickTemplate';
-import { SavingProposals } from './SavingProposals';
-import { ReviewProposalHealth } from './ReviewProposalHealth';
-import { ConfirmSave } from './ConfirmSave';
-import { AssignPlaceholders, IPlaceholderMappings } from './AssignPlaceholders';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto';
-import { ActionResultDto } from '../../interfaces/models/dtos/ActionResultDto';
-import { ProposalResultDto } from '../../interfaces/models/dtos/Season/Creation/ProposalResultDto';
-import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { DivisionFixtureDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDto';
-import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { asyncCallback } from '../../helpers/events';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { any } from '../../helpers/collections.ts';
+import { useDivisionData } from '../league/DivisionDataContainer.tsx';
+import { renderDate } from '../../helpers/rendering.ts';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { ReviewProposalsFloatingDialog } from './ReviewProposalsFloatingDialog.tsx';
+import { PickTemplate } from './PickTemplate.tsx';
+import { SavingProposals } from './SavingProposals.tsx';
+import { ReviewProposalHealth } from './ReviewProposalHealth.tsx';
+import { ConfirmSave } from './ConfirmSave.tsx';
+import {
+    AssignPlaceholders,
+    IPlaceholderMappings,
+} from './AssignPlaceholders.tsx';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto.ts';
+import { ActionResultDto } from '../../interfaces/models/dtos/ActionResultDto.ts';
+import { ProposalResultDto } from '../../interfaces/models/dtos/Season/Creation/ProposalResultDto.ts';
+import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { DivisionFixtureDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDto.ts';
+import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { asyncCallback } from '../../helpers/events.ts';
 
 export interface ICreateSeasonDialogProps {
     seasonId: string;

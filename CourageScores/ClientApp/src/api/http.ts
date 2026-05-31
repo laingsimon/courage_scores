@@ -1,5 +1,5 @@
-import { ISettings } from './settings';
-import { UntypedPromise } from '../interfaces/UntypedPromise';
+import { ISettings } from './settings.ts';
+import { UntypedPromise } from '../interfaces/UntypedPromise.ts';
 
 export interface IHeaders {
     [name: string]: string;

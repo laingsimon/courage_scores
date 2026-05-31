@@ -1,16 +1,16 @@
-import { repeat } from '../../../helpers/projection';
-import { sum } from '../../../helpers/collections';
-import { round2dp } from '../../../helpers/rendering';
-import { useApp } from '../../common/AppContainer';
+import { repeat } from '../../../helpers/projection.ts';
+import { sum } from '../../../helpers/collections.ts';
+import { round2dp } from '../../../helpers/rendering.ts';
+import { useApp } from '../../common/AppContainer.tsx';
 import {
     countLegThrowsBetween,
     isLegWinner,
     legTons,
-} from '../../../helpers/superleague';
-import { LegDto } from '../../../interfaces/models/dtos/Game/Sayg/LegDto';
-import { LegCompetitorScoreDto } from '../../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto';
-import { LegThrowDto } from '../../../interfaces/models/dtos/Game/Sayg/LegThrowDto';
-import { getScoreFromThrows } from '../../../helpers/sayg';
+} from '../../../helpers/superleague.ts';
+import { LegDto } from '../../../interfaces/models/dtos/Game/Sayg/LegDto.ts';
+import { LegCompetitorScoreDto } from '../../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto.ts';
+import { LegThrowDto } from '../../../interfaces/models/dtos/Game/Sayg/LegThrowDto.ts';
+import { getScoreFromThrows } from '../../../helpers/sayg.ts';
 
 export interface IMatchLogRowProps {
     leg: LegDto;

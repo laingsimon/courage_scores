@@ -7,14 +7,14 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../helpers/tests';
-import { defaultPinGenerator, RemoteControl } from './RemoteControl';
-import { UserDto } from '../interfaces/models/dtos/Identity/UserDto';
-import { RemoteControlApi } from '../interfaces/apis/IRemoteControlApi';
-import { IClientActionResultDto } from './common/IClientActionResultDto';
-import { RemoteControlDto } from '../interfaces/models/dtos/RemoteControl/RemoteControlDto';
+} from '../helpers/tests.tsx';
+import { defaultPinGenerator, RemoteControl } from './RemoteControl.tsx';
+import { UserDto } from '../interfaces/models/dtos/Identity/UserDto.ts';
+import { RemoteControlApi } from '../interfaces/apis/IRemoteControlApi.ts';
+import { IClientActionResultDto } from './common/IClientActionResultDto.ts';
+import { RemoteControlDto } from '../interfaces/models/dtos/RemoteControl/RemoteControlDto.ts';
 import { act, fireEvent } from '@testing-library/react';
-import { RemoteControlUpdateDto } from '../interfaces/models/dtos/RemoteControl/RemoteControlUpdateDto';
+import { RemoteControlUpdateDto } from '../interfaces/models/dtos/RemoteControl/RemoteControlUpdateDto.ts';
 
 jest.useFakeTimers();
 const mockedUsedNavigate = jest.fn();

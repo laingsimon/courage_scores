@@ -1,7 +1,7 @@
-import { UserDto } from '../interfaces/models/dtos/Identity/UserDto';
-import { IError } from '../components/common/IError';
-import { ErrorDetailDto } from '../interfaces/models/dtos/ErrorDetailDto';
-import { createTemporaryId } from './projection';
+import { UserDto } from '../interfaces/models/dtos/Identity/UserDto.ts';
+import { IError } from '../components/common/IError.ts';
+import { ErrorDetailDto } from '../interfaces/models/dtos/ErrorDetailDto.ts';
+import { createTemporaryId } from './projection.ts';
 
 export function mapError(error: string | IError): IError {
     const errorObject: IError = error as IError;

@@ -1,11 +1,11 @@
-import { DivisionPlayers } from '../division_players/DivisionPlayers';
-import { ShareButton } from '../common/ShareButton';
-import { any } from '../../helpers/collections';
-import { renderDate } from '../../helpers/rendering';
-import { useDivisionData } from '../league/DivisionDataContainer';
-import { useApp } from '../common/AppContainer';
-import { useBranding } from '../common/BrandingContainer';
-import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto';
+import { DivisionPlayers } from '../division_players/DivisionPlayers.tsx';
+import { ShareButton } from '../common/ShareButton.tsx';
+import { any } from '../../helpers/collections.ts';
+import { renderDate } from '../../helpers/rendering.ts';
+import { useDivisionData } from '../league/DivisionDataContainer.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { useBranding } from '../common/BrandingContainer.tsx';
+import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto.ts';
 import { Link } from 'react-router';
 
 export interface ITeamOverviewProps {

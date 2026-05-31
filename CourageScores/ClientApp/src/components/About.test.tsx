@@ -5,12 +5,12 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../helpers/tests';
-import { renderDate } from '../helpers/rendering';
-import { About } from './About';
-import { IBuild } from './common/IBuild';
-import { IBrandingContainerProps } from './common/BrandingContainer';
-import { IBrandingData } from './common/IBrandingData';
+} from '../helpers/tests.tsx';
+import { renderDate } from '../helpers/rendering.ts';
+import { About } from './About.tsx';
+import { IBuild } from './common/IBuild.ts';
+import { IBrandingContainerProps } from './common/BrandingContainer.tsx';
+import { IBrandingData } from './common/IBrandingData.ts';
 
 describe('About', () => {
     let context: TestContext;

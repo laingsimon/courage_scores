@@ -1,4 +1,4 @@
-import { ISettings } from './settings';
+import { ISettings } from './settings.ts';
 
 /* istanbul ignore file */
 

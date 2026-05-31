@@ -1,11 +1,11 @@
 ﻿/* istanbul ignore file */
 
-import { BuilderParam, IAddableBuilder, IBuilder } from './builders';
-import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
-import { createTemporaryId } from '../projection';
-import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto';
-import { LegCompetitorScoreDto } from '../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto';
-import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
+import { BuilderParam, IAddableBuilder, IBuilder } from './builders.ts';
+import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto.ts';
+import { createTemporaryId } from '../projection.ts';
+import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto.ts';
+import { LegCompetitorScoreDto } from '../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto.ts';
+import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto.ts';
 
 export interface IRecordedSaygBuilder extends IAddableBuilder<
     RecordedScoreAsYouGoDto & UpdateRecordedScoreAsYouGoDto

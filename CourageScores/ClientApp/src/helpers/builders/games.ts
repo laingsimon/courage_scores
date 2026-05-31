@@ -1,17 +1,17 @@
 ﻿/* istanbul ignore file */
 
-import { BuilderParam, IAddableBuilder, IBuilder } from './builders';
-import { IDatedDivisionFixtureDto } from '../../components/division_fixtures/IDatedDivisionFixtureDto';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { createTemporaryId } from '../projection';
-import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto';
-import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
-import { IRecordedSaygBuilder, saygBuilder } from './sayg';
-import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto';
-import { teamBuilder } from './teams';
+import { BuilderParam, IAddableBuilder, IBuilder } from './builders.ts';
+import { IDatedDivisionFixtureDto } from '../../components/division_fixtures/IDatedDivisionFixtureDto.ts';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { createTemporaryId } from '../projection.ts';
+import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto.ts';
+import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
+import { IRecordedSaygBuilder, saygBuilder } from './sayg.ts';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto.ts';
+import { teamBuilder } from './teams.ts';
 
 export interface IFixtureBuilder extends IAddableBuilder<
     IDatedDivisionFixtureDto & GameDto

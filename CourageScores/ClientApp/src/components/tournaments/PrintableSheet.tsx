@@ -1,42 +1,42 @@
-import { useTournament } from './TournamentContainer';
-import { repeat } from '../../helpers/projection';
+import { useTournament } from './TournamentContainer.tsx';
+import { repeat } from '../../helpers/projection.ts';
 import {
     any,
     count,
     groupAndSortByOccurrences,
     IFrequency,
     sortBy,
-} from '../../helpers/collections';
-import { renderDate } from '../../helpers/rendering';
+} from '../../helpers/collections.ts';
+import { renderDate } from '../../helpers/rendering.ts';
 import { useEffect, useState } from 'react';
-import { useApp } from '../common/AppContainer';
-import { ShareButton } from '../common/ShareButton';
-import { useBranding } from '../common/BrandingContainer';
-import { RefreshControl } from '../common/RefreshControl';
-import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
-import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto';
-import { addSide, removeSide, sideChanged } from './tournaments';
-import { getLayoutData } from './competition';
-import { NotableTournamentPlayerDto } from '../../interfaces/models/dtos/Game/NotableTournamentPlayerDto';
-import { PrintableSheetMatch } from './PrintableSheetMatch';
-import { EditSide, ISaveSideOptions } from './EditSide';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { Dialog } from '../common/Dialog';
+import { useApp } from '../common/AppContainer.tsx';
+import { ShareButton } from '../common/ShareButton.tsx';
+import { useBranding } from '../common/BrandingContainer.tsx';
+import { RefreshControl } from '../common/RefreshControl.tsx';
+import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto.ts';
+import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto.ts';
+import { addSide, removeSide, sideChanged } from './tournaments.ts';
+import { getLayoutData } from './competition.ts';
+import { NotableTournamentPlayerDto } from '../../interfaces/models/dtos/Game/NotableTournamentPlayerDto.ts';
+import { PrintableSheetMatch } from './PrintableSheetMatch.tsx';
+import { EditSide, ISaveSideOptions } from './EditSide.tsx';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { Dialog } from '../common/Dialog.tsx';
 import {
     add180,
     addHiCheck,
     remove180,
     removeHiCheck,
-} from '../common/Accolades';
-import { MultiPlayerSelection } from '../common/MultiPlayerSelection';
-import { PatchTournamentDto } from '../../interfaces/models/dtos/Game/PatchTournamentDto';
-import { PatchTournamentRoundDto } from '../../interfaces/models/dtos/Game/PatchTournamentRoundDto';
-import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType';
+} from '../common/Accolades.tsx';
+import { MultiPlayerSelection } from '../common/MultiPlayerSelection.tsx';
+import { PatchTournamentDto } from '../../interfaces/models/dtos/Game/PatchTournamentDto.ts';
+import { PatchTournamentRoundDto } from '../../interfaces/models/dtos/Game/PatchTournamentRoundDto.ts';
+import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType.ts';
 import { Link } from 'react-router';
-import { ILayoutDataForRound } from './layout/ILayoutDataForRound';
-import { ILayoutDataForMatch } from './layout/ILayoutDataForMatch';
-import { findTeam } from '../../helpers/teams';
+import { ILayoutDataForRound } from './layout/ILayoutDataForRound.ts';
+import { ILayoutDataForMatch } from './layout/ILayoutDataForMatch.ts';
+import { findTeam } from '../../helpers/teams.ts';
 
 export interface IPrintableSheetProps {
     editable?: boolean;

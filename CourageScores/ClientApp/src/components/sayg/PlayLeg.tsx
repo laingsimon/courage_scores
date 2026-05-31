@@ -1,30 +1,30 @@
-import { isEmpty, sum } from '../../helpers/collections';
-import { PreviousPlayerScore } from './PreviousPlayerScore';
+import { isEmpty, sum } from '../../helpers/collections.ts';
+import { PreviousPlayerScore } from './PreviousPlayerScore.tsx';
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
-} from '../common/BootstrapDropdown';
-import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto';
-import { LegCompetitorScoreDto } from '../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto';
+} from '../common/BootstrapDropdown.tsx';
+import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto.ts';
+import { LegCompetitorScoreDto } from '../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto.ts';
 import { useEffect, useState } from 'react';
-import { useApp } from '../common/AppContainer';
-import { Dialog } from '../common/Dialog';
+import { useApp } from '../common/AppContainer.tsx';
+import { Dialog } from '../common/Dialog.tsx';
 import {
     CHECKOUT_1_DART,
     CHECKOUT_2_DART,
     CHECKOUT_3_DART,
-} from '../../helpers/constants';
-import { LegThrowDto } from '../../interfaces/models/dtos/Game/Sayg/LegThrowDto';
-import { useEditableSayg } from './EditableSaygContainer';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { getScoreFromThrows } from '../../helpers/sayg';
-import { isLegWinner } from '../../helpers/superleague';
-import { usePreferences } from '../common/PreferencesContainer';
-import { NumberKeyboard } from '../common/NumberKeyboard';
-import { LegPlayerSequenceDto } from '../../interfaces/models/dtos/Game/Sayg/LegPlayerSequenceDto';
-import { DebugOptions } from '../common/DebugOptions';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { useDependencies } from '../common/IocContainer';
+} from '../../helpers/constants.ts';
+import { LegThrowDto } from '../../interfaces/models/dtos/Game/Sayg/LegThrowDto.ts';
+import { useEditableSayg } from './EditableSaygContainer.tsx';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { getScoreFromThrows } from '../../helpers/sayg.ts';
+import { isLegWinner } from '../../helpers/superleague.ts';
+import { usePreferences } from '../common/PreferencesContainer.tsx';
+import { NumberKeyboard } from '../common/NumberKeyboard.tsx';
+import { LegPlayerSequenceDto } from '../../interfaces/models/dtos/Game/Sayg/LegPlayerSequenceDto.ts';
+import { DebugOptions } from '../common/DebugOptions.tsx';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { useDependencies } from '../common/IocContainer.tsx';
 
 export interface IPlayLegProps {
     leg?: LegDto;

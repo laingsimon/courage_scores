@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
 import './NavMenu.css';
-import { any, isEmpty, sortBy } from '../../helpers/collections';
-import { useDependencies } from '../common/IocContainer';
-import { useApp } from '../common/AppContainer';
-import { useBranding } from '../common/BrandingContainer';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { IMenuItem } from './IMenuItem';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { AccessDto } from '../../interfaces/models/dtos/Identity/AccessDto';
-import { IError } from '../common/IError';
-import { NavLink } from '../common/NavLink';
+import { any, isEmpty, sortBy } from '../../helpers/collections.ts';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { useBranding } from '../common/BrandingContainer.tsx';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { IMenuItem } from './IMenuItem.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { AccessDto } from '../../interfaces/models/dtos/Identity/AccessDto.ts';
+import { IError } from '../common/IError.ts';
+import { NavLink } from '../common/NavLink.tsx';
 
 export function NavMenu() {
     const { settings } = useDependencies();

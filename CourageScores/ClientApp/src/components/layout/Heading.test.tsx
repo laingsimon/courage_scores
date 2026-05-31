@@ -4,11 +4,11 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { Heading } from './Heading';
-import { IBuild } from '../common/IBuild';
-import { IBrandingContainerProps } from '../common/BrandingContainer';
-import { renderDate } from '../../helpers/rendering';
+} from '../../helpers/tests.tsx';
+import { Heading } from './Heading.tsx';
+import { IBuild } from '../common/IBuild.ts';
+import { IBrandingContainerProps } from '../common/BrandingContainer.tsx';
+import { renderDate } from '../../helpers/rendering.ts';
 
 describe('Heading', () => {
     let context: TestContext;

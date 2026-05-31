@@ -1,10 +1,10 @@
-import { valueChanged } from '../../helpers/events';
-import { ShareButton } from '../common/ShareButton';
-import { useSayg } from '../sayg/SaygLoadingContainer';
-import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
-import { useEditableSayg } from '../sayg/EditableSaygContainer';
+import { valueChanged } from '../../helpers/events.ts';
+import { ShareButton } from '../common/ShareButton.tsx';
+import { useSayg } from '../sayg/SaygLoadingContainer.tsx';
+import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto.ts';
+import { useEditableSayg } from '../sayg/EditableSaygContainer.tsx';
 import { useLocation, useNavigate } from 'react-router';
-import { useApp } from '../common/AppContainer';
+import { useApp } from '../common/AppContainer.tsx';
 
 export interface IEditSaygPracticeOptionsProps {
     hideSaveButton?: boolean;

@@ -7,23 +7,23 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { createTemporaryId } from '../../helpers/projection';
+} from '../../helpers/tests.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
 import {
     DivisionDataContainer,
     IDivisionDataContainerProps,
-} from '../league/DivisionDataContainer';
-import { TeamOverview } from './TeamOverview';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/DivisionPlayerDto';
-import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto';
+} from '../league/DivisionDataContainer.tsx';
+import { TeamOverview } from './TeamOverview.tsx';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/DivisionPlayerDto.ts';
+import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto.ts';
 import {
     divisionBuilder,
     divisionDataBuilder,
     fixtureDateBuilder,
-} from '../../helpers/builders/divisions';
-import { teamBuilder } from '../../helpers/builders/teams';
+} from '../../helpers/builders/divisions.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
 
 describe('TeamOverview', () => {
     let context: TestContext;

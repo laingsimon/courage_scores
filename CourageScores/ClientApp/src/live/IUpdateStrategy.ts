@@ -1,7 +1,7 @@
-import { IWebSocketContext } from './IWebSocketContext';
-import { ISubscriptionRequest } from './ISubscriptionRequest';
-import { IStrategyData } from './IStrategyData';
-import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType';
+import { IWebSocketContext } from './IWebSocketContext.ts';
+import { ISubscriptionRequest } from './ISubscriptionRequest.ts';
+import { IStrategyData } from './IStrategyData.ts';
+import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType.ts';
 
 export interface IUpdateStrategy {
     refresh(props: IStrategyData): void;

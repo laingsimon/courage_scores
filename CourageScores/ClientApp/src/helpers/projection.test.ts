@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedReference
 
-import { createTemporaryId, isGuid, repeat } from './projection';
+import { createTemporaryId, isGuid, repeat } from './projection.ts';
 
 describe('projection', () => {
     describe('createTemporaryId', () => {

@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react';
-import { ILeagueFixture } from './ILeagueFixture';
+import { ILeagueFixture } from './ILeagueFixture.ts';
 
 const LeagueFixtureContext = createContext({});
 

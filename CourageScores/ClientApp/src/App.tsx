@@ -1,34 +1,34 @@
-import { useDependencies } from './components/common/IocContainer';
+import { useDependencies } from './components/common/IocContainer.tsx';
 import React, { useEffect, useState } from 'react';
-import { Layout } from './components/layout/Layout';
+import { Layout } from './components/layout/Layout.tsx';
 import { Route, Routes } from 'react-router';
-import { Home } from './components/Home';
-import { Score } from './components/scores/Score';
-import { AdminHome } from './components/admin/AdminHome';
-import { Tournament } from './components/tournaments/Tournament';
-import { PracticeMatch } from './components/practice/PracticeMatch';
-import { AppContainer } from './components/common/AppContainer';
-import { About } from './components/About';
-import { mapError, mapForLogging } from './helpers/errors';
-import { getBuild } from './helpers/build';
-import { LiveSayg } from './components/sayg/LiveSayg';
-import { IApp } from './components/common/IApp';
-import { DivisionDto } from './interfaces/models/dtos/DivisionDto';
-import { SeasonDto } from './interfaces/models/dtos/Season/SeasonDto';
-import { TeamDto } from './interfaces/models/dtos/Team/TeamDto';
-import { UserDto } from './interfaces/models/dtos/Identity/UserDto';
-import { Tv } from './components/Tv';
-import { IBrowserType } from './components/common/IBrowserType';
-import { PreferencesContainer } from './components/common/PreferencesContainer';
+import { Home } from './components/Home.tsx';
+import { Score } from './components/scores/Score.tsx';
+import { AdminHome } from './components/admin/AdminHome.tsx';
+import { Tournament } from './components/tournaments/Tournament.tsx';
+import { PracticeMatch } from './components/practice/PracticeMatch.tsx';
+import { AppContainer } from './components/common/AppContainer.tsx';
+import { About } from './components/About.tsx';
+import { mapError, mapForLogging } from './helpers/errors.ts';
+import { getBuild } from './helpers/build.ts';
+import { LiveSayg } from './components/sayg/LiveSayg.tsx';
+import { IApp } from './components/common/IApp.ts';
+import { DivisionDto } from './interfaces/models/dtos/DivisionDto.ts';
+import { SeasonDto } from './interfaces/models/dtos/Season/SeasonDto.ts';
+import { TeamDto } from './interfaces/models/dtos/Team/TeamDto.ts';
+import { UserDto } from './interfaces/models/dtos/Identity/UserDto.ts';
+import { Tv } from './components/Tv.tsx';
+import { IBrowserType } from './components/common/IBrowserType.ts';
+import { PreferencesContainer } from './components/common/PreferencesContainer.tsx';
 import {
     DivisionUriContainer,
     UrlStyle,
-} from './components/league/DivisionUriContainer';
-import { Division } from './components/league/Division';
-import { IError } from './components/common/IError';
-import { IFullScreen } from './components/common/IFullScreen';
-import { AnalyseScores } from './components/analysis/AnalyseScores';
-import { RemoteControl } from './components/RemoteControl';
+} from './components/league/DivisionUriContainer.tsx';
+import { Division } from './components/league/Division.tsx';
+import { IError } from './components/common/IError.ts';
+import { IFullScreen } from './components/common/IFullScreen.ts';
+import { AnalyseScores } from './components/analysis/AnalyseScores.tsx';
+import { RemoteControl } from './components/RemoteControl.tsx';
 
 export interface IAppProps {
     embed?: boolean;

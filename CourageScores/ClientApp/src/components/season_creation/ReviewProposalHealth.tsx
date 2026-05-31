@@ -1,7 +1,7 @@
-import { any } from '../../helpers/collections';
-import { ViewHealthCheck } from '../division_health/ViewHealthCheck';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { ProposalResultDto } from '../../interfaces/models/dtos/Season/Creation/ProposalResultDto';
+import { any } from '../../helpers/collections.ts';
+import { ViewHealthCheck } from '../division_health/ViewHealthCheck.tsx';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { ProposalResultDto } from '../../interfaces/models/dtos/Season/Creation/ProposalResultDto.ts';
 
 export interface IReviewProposalHealthProps {
     response: IClientActionResultDto<ProposalResultDto>;

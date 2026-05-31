@@ -1,7 +1,7 @@
-import { any } from '../../helpers/collections';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
+import { any } from '../../helpers/collections.ts';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
 
 export interface ISavingProposalsProps {
     saveMessage: string;

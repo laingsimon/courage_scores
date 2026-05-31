@@ -1,15 +1,15 @@
 import { useState } from 'react';
-import { useDependencies } from '../common/IocContainer';
-import { useDivisionData } from '../league/DivisionDataContainer';
-import { useApp } from '../common/AppContainer';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useDivisionData } from '../league/DivisionDataContainer.tsx';
+import { useApp } from '../common/AppContainer.tsx';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto';
-import { EditFixtureDateNoteDto } from '../../interfaces/models/dtos/EditFixtureDateNoteDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { hasAccess } from '../../helpers/conditions';
-import { renderDate } from '../../helpers/rendering';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto.ts';
+import { EditFixtureDateNoteDto } from '../../interfaces/models/dtos/EditFixtureDateNoteDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { hasAccess } from '../../helpers/conditions.ts';
+import { renderDate } from '../../helpers/rendering.ts';
 
 export interface IFixtureDateNoteProps {
     note: EditFixtureDateNoteDto;

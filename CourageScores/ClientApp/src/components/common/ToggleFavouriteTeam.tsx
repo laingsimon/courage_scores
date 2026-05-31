@@ -1,6 +1,6 @@
-import { any } from '../../helpers/collections';
-import { usePreferences } from './PreferencesContainer';
-import { useDivisionData } from '../league/DivisionDataContainer';
+import { any } from '../../helpers/collections.ts';
+import { usePreferences } from './PreferencesContainer.tsx';
+import { useDivisionData } from '../league/DivisionDataContainer.tsx';
 
 export interface IToggleFavouriteTeamProps {
     teamId: string;

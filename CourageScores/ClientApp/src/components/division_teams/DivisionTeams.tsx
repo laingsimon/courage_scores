@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import { DivisionTeam } from './DivisionTeam';
-import { Dialog } from '../common/Dialog';
-import { EditTeamDetails } from './EditTeamDetails';
-import { useApp } from '../common/AppContainer';
-import { useDivisionData } from '../league/DivisionDataContainer';
-import { sortBy } from '../../helpers/collections';
-import { PrintDivisionHeading } from '../league/PrintDivisionHeading';
-import { EditTeamDto } from '../../interfaces/models/dtos/Team/EditTeamDto';
-import { useBranding } from '../common/BrandingContainer';
-import { hasAccess } from '../../helpers/conditions';
+import { DivisionTeam } from './DivisionTeam.tsx';
+import { Dialog } from '../common/Dialog.tsx';
+import { EditTeamDetails } from './EditTeamDetails.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { useDivisionData } from '../league/DivisionDataContainer.tsx';
+import { sortBy } from '../../helpers/collections.ts';
+import { PrintDivisionHeading } from '../league/PrintDivisionHeading.tsx';
+import { EditTeamDto } from '../../interfaces/models/dtos/Team/EditTeamDto.ts';
+import { useBranding } from '../common/BrandingContainer.tsx';
+import { hasAccess } from '../../helpers/conditions.ts';
 
 export function DivisionTeams() {
     const {

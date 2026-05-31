@@ -10,20 +10,20 @@
     isLastFixtureBeforeToday,
     isNextFixtureAfterToday,
     optionallyInvertFilter,
-} from './filters';
-import { IFilter } from './IFilter';
+} from './filters.ts';
+import { IFilter } from './IFilter.ts';
 import {
     divisionFixtureBuilder,
     fixtureDateBuilder,
     noteBuilder,
-} from '../../helpers/builders/divisions';
-import { tournamentBuilder } from '../../helpers/builders/tournaments';
-import { teamBuilder } from '../../helpers/builders/teams';
-import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto';
-import { Filter, NullFilter } from './Filter';
-import { fixtureBuilder } from '../../helpers/builders/games';
-import { DivisionFixtureDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDto';
-import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto';
+} from '../../helpers/builders/divisions.ts';
+import { tournamentBuilder } from '../../helpers/builders/tournaments.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
+import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto.ts';
+import { Filter, NullFilter } from './Filter.ts';
+import { fixtureBuilder } from '../../helpers/builders/games.ts';
+import { DivisionFixtureDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDto.ts';
+import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto.ts';
 
 describe('filters', () => {
     const today = date(0);

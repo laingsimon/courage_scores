@@ -6,8 +6,8 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { IShareButtonProps, ShareButton } from './ShareButton';
+} from '../../helpers/tests.tsx';
+import { IShareButtonProps, ShareButton } from './ShareButton.tsx';
 
 describe('ShareButton', () => {
     let context: TestContext;

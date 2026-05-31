@@ -7,15 +7,15 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { DivisionHealth } from './DivisionHealth';
+} from '../../helpers/tests.tsx';
+import { DivisionHealth } from './DivisionHealth.tsx';
 import {
     DivisionDataContainer,
     IDivisionDataContainerProps,
-} from '../league/DivisionDataContainer';
-import { createTemporaryId } from '../../helpers/projection';
-import { SeasonHealthCheckResultDto } from '../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto';
-import { SeasonApi } from '../../interfaces/apis/ISeasonApi';
+} from '../league/DivisionDataContainer.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { SeasonHealthCheckResultDto } from '../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto.ts';
+import { SeasonApi } from '../../interfaces/apis/ISeasonApi.ts';
 
 describe('DivisionHealth', () => {
     let context: TestContext;

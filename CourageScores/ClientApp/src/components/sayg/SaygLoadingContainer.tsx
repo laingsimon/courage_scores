@@ -1,21 +1,21 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useDependencies } from '../common/IocContainer';
-import { useApp } from '../common/AppContainer';
-import { Loading } from '../common/Loading';
-import { ErrorDisplay } from '../common/ErrorDisplay';
-import { ScoreAsYouGo } from './ScoreAsYouGo';
-import { LiveContainer } from '../../live/LiveContainer';
-import { ISayg } from './ISayg';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { ILiveOptions } from '../../live/ILiveOptions';
-import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
-import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType';
-import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto';
-import { EditableSaygContainer } from './EditableSaygContainer';
-import { ILegDisplayOptions } from './ILegDisplayOptions';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { isLegWinner } from '../../helpers/superleague';
-import { retry } from '../../helpers/retry';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { Loading } from '../common/Loading.tsx';
+import { ErrorDisplay } from '../common/ErrorDisplay.tsx';
+import { ScoreAsYouGo } from './ScoreAsYouGo.tsx';
+import { LiveContainer } from '../../live/LiveContainer.tsx';
+import { ISayg } from './ISayg.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { ILiveOptions } from '../../live/ILiveOptions.ts';
+import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto.ts';
+import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType.ts';
+import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto.ts';
+import { EditableSaygContainer } from './EditableSaygContainer.tsx';
+import { ILegDisplayOptions } from './ILegDisplayOptions.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { isLegWinner } from '../../helpers/superleague.ts';
+import { retry } from '../../helpers/retry.ts';
 
 const SaygContext = createContext({});
 

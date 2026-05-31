@@ -8,13 +8,16 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { ExportDataButton, IExportDataButtonProps } from './ExportDataButton';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { ExportDataRequestDto } from '../../interfaces/models/dtos/Data/ExportDataRequestDto';
-import { ExportDataResultDto } from '../../interfaces/models/dtos/Data/ExportDataResultDto';
-import { IClientActionResultDto } from './IClientActionResultDto';
-import { IDataApi } from '../../interfaces/apis/IDataApi';
+} from '../../helpers/tests.tsx';
+import {
+    ExportDataButton,
+    IExportDataButtonProps,
+} from './ExportDataButton.tsx';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { ExportDataRequestDto } from '../../interfaces/models/dtos/Data/ExportDataRequestDto.ts';
+import { ExportDataResultDto } from '../../interfaces/models/dtos/Data/ExportDataResultDto.ts';
+import { IClientActionResultDto } from './IClientActionResultDto.ts';
+import { IDataApi } from '../../interfaces/apis/IDataApi.ts';
 
 describe('ExportDataButton', () => {
     let context: TestContext;

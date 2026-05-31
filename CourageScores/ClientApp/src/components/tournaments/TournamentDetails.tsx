@@ -1,18 +1,18 @@
-import { renderDate } from '../../helpers/rendering';
-import { ExportDataButton } from '../common/ExportDataButton';
-import { propChanged, valueChanged } from '../../helpers/events';
+import { renderDate } from '../../helpers/rendering.ts';
+import { ExportDataButton } from '../common/ExportDataButton.tsx';
+import { propChanged, valueChanged } from '../../helpers/events.ts';
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
-} from '../common/BootstrapDropdown';
-import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto';
-import { any, distinct } from '../../helpers/collections';
-import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto';
-import { useApp } from '../common/AppContainer';
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
-import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { findTeam } from '../../helpers/teams';
+} from '../common/BootstrapDropdown.tsx';
+import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto.ts';
+import { any, distinct } from '../../helpers/collections.ts';
+import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto.ts';
+import { useApp } from '../common/AppContainer.tsx';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { findTeam } from '../../helpers/teams.ts';
 
 export interface ITournamentDetailsProps {
     tournamentData: TournamentGameDto;

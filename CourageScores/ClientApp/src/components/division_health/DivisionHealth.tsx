@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { useApp } from '../common/AppContainer';
-import { useDependencies } from '../common/IocContainer';
-import { useDivisionData } from '../league/DivisionDataContainer';
-import { Loading } from '../common/Loading';
-import { ViewHealthCheck } from './ViewHealthCheck';
-import { isEmpty } from '../../helpers/collections';
-import { SeasonHealthCheckResultDto } from '../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto';
-import { useBranding } from '../common/BrandingContainer';
+import { useApp } from '../common/AppContainer.tsx';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useDivisionData } from '../league/DivisionDataContainer.tsx';
+import { Loading } from '../common/Loading.tsx';
+import { ViewHealthCheck } from './ViewHealthCheck.tsx';
+import { isEmpty } from '../../helpers/collections.ts';
+import { SeasonHealthCheckResultDto } from '../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto.ts';
+import { useBranding } from '../common/BrandingContainer.tsx';
 
 export function DivisionHealth() {
     const [result, setResult] = useState<SeasonHealthCheckResultDto | null>(

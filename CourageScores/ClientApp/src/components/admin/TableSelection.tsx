@@ -1,6 +1,6 @@
-import { any, sortBy } from '../../helpers/collections';
-import { TableDto } from '../../interfaces/models/dtos/Data/TableDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { any, sortBy } from '../../helpers/collections.ts';
+import { TableDto } from '../../interfaces/models/dtos/Data/TableDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface ITableSelectionProps {
     allTables?: TableDto[];

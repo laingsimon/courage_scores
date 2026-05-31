@@ -8,29 +8,29 @@ import {
     noop,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     DivisionDataContainer,
     IDivisionDataContainerProps,
-} from '../league/DivisionDataContainer';
-import { EditTournamentGameDto } from '../../interfaces/models/dtos/Game/EditTournamentGameDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
-import { ITournamentGameApi } from '../../interfaces/apis/ITournamentGameApi';
+} from '../league/DivisionDataContainer.tsx';
+import { EditTournamentGameDto } from '../../interfaces/models/dtos/Game/EditTournamentGameDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { ITournamentGameApi } from '../../interfaces/apis/ITournamentGameApi.ts';
 import {
     INewTournamentFixtureProps,
     NewTournamentFixture,
-} from './NewTournamentFixture';
+} from './NewTournamentFixture.tsx';
 import {
     divisionBuilder,
     fixtureDateBuilder,
-} from '../../helpers/builders/divisions';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { tournamentBuilder } from '../../helpers/builders/tournaments';
-import { renderDate } from '../../helpers/rendering';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto';
+} from '../../helpers/builders/divisions.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { tournamentBuilder } from '../../helpers/builders/tournaments.ts';
+import { renderDate } from '../../helpers/rendering.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto.ts';
 
 describe('NewTournamentFixture', () => {
     let context: TestContext;

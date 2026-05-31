@@ -9,19 +9,19 @@ import {
     appProps,
     ErrorState,
     IComponent,
-} from '../../helpers/tests';
-import { DataBrowser } from './DataBrowser';
-import { createTemporaryId, repeat } from '../../helpers/projection';
-import { renderDate } from '../../helpers/rendering';
-import { SingleDataResultDto } from '../../interfaces/models/dtos/Data/SingleDataResultDto';
-import { IAppContainerProps } from '../common/AppContainer';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { IError } from '../common/IError';
-import { IFailedRequest } from '../common/IFailedRequest';
-import { IDataApi } from '../../interfaces/apis/IDataApi';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { AdminContainer } from './AdminContainer';
-import { TableDto } from '../../interfaces/models/dtos/Data/TableDto';
+} from '../../helpers/tests.tsx';
+import { DataBrowser } from './DataBrowser.tsx';
+import { createTemporaryId, repeat } from '../../helpers/projection.ts';
+import { renderDate } from '../../helpers/rendering.ts';
+import { SingleDataResultDto } from '../../interfaces/models/dtos/Data/SingleDataResultDto.ts';
+import { IAppContainerProps } from '../common/AppContainer.tsx';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { IError } from '../common/IError.ts';
+import { IFailedRequest } from '../common/IFailedRequest.ts';
+import { IDataApi } from '../../interfaces/apis/IDataApi.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { AdminContainer } from './AdminContainer.tsx';
+import { TableDto } from '../../interfaces/models/dtos/Data/TableDto.ts';
 
 const mockedUsedNavigate = jest.fn();
 
