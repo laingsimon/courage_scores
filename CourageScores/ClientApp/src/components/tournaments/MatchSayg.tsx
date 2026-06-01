@@ -28,7 +28,7 @@ import { START_SCORING } from './tournaments.ts';
 import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 import { asyncClear } from '../../helpers/events.ts';
 import { hasAccess } from '../../helpers/conditions.ts';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router';
 import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto.ts';
 
 export interface IMatchSaygProps {
