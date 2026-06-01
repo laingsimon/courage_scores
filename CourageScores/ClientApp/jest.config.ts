@@ -4,16 +4,14 @@ import { createJsWithTsPreset } from 'ts-jest';
 const presetConfig = createJsWithTsPreset({});
 
 export default {
-    testEnvironment: 'jest-environment-jsdom', // node
+    testEnvironment: 'jest-environment-jsdom',
     testMatch: ['**/*.test.ts', '**/*.test.tsx'],
     maxWorkers: '50%',
     coverageReporters: ['lcov'],
     moduleNameMapper: {
-        'next/router': ',<rootDir>/__mocks__/next/router.js',
         '\\.(css|less)$': '<rootDir>/src/__mocks__/style-mock.js',
         '^.+\\.(jpg|jpeg|png|gif|webp|avif|svg)$':
             '<rootDir>/src/__mocks__/file-mock.js',
-        '^(\\.{1,2}/.*)\\.js$': '$1',
     },
     collectCoverageFrom: [
         '!src/index.tsx',
