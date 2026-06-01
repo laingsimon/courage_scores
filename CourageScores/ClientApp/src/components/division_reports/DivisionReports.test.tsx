@@ -21,6 +21,7 @@ import { ReportDto } from '../../interfaces/models/dtos/Report/ReportDto.ts';
 import { ReportCollectionDto } from '../../interfaces/models/dtos/Report/ReportCollectionDto.ts';
 import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
 import { IReportApi } from '../../interfaces/apis/IReportApi.ts';
+import { ReportCellDto } from '../../interfaces/models/dtos/Report/ReportCellDto.ts';
 
 describe('DivisionReports', () => {
     let context: TestContext;
@@ -82,6 +83,12 @@ describe('DivisionReports', () => {
 
     function assertReportRow(row: IComponent, values: string[]) {
         expect(row.all('td').map((t) => t.text())).toEqual(values);
+    }
+
+    function cell(text: string): ReportCellDto {
+        return {
+            text,
+        };
     }
 
     describe('when logged in', () => {
@@ -321,28 +328,16 @@ describe('DivisionReports', () => {
                         rows: [
                             {
                                 cells: [
-                                    {
-                                        text: 'A team',
-                                    },
-                                    {
-                                        text: 'A player',
-                                    },
-                                    {
-                                        text: '1',
-                                    },
+                                    cell('A team'),
+                                    cell('A player'),
+                                    cell('1'),
                                 ],
                             },
                             {
                                 cells: [
-                                    {
-                                        text: 'Another team',
-                                    },
-                                    {
-                                        text: 'Another player',
-                                    },
-                                    {
-                                        text: '2',
-                                    },
+                                    cell('Another team'),
+                                    cell('Another player'),
+                                    cell('2'),
                                 ],
                             },
                         ],
@@ -391,28 +386,16 @@ describe('DivisionReports', () => {
                         rows: [
                             {
                                 cells: [
-                                    {
-                                        text: 'A team',
-                                    },
-                                    {
-                                        text: 'A player',
-                                    },
-                                    {
-                                        text: '1',
-                                    },
+                                    cell('A team'),
+                                    cell('A player'),
+                                    cell('1'),
                                 ],
                             },
                             {
                                 cells: [
-                                    {
-                                        text: 'Another team',
-                                    },
-                                    {
-                                        text: 'Another player',
-                                    },
-                                    {
-                                        text: '2',
-                                    },
+                                    cell('Another team'),
+                                    cell('Another player'),
+                                    cell('2'),
                                 ],
                             },
                         ],
@@ -449,28 +432,16 @@ describe('DivisionReports', () => {
                         rows: [
                             {
                                 cells: [
-                                    {
-                                        text: 'A team',
-                                    },
-                                    {
-                                        text: 'A player',
-                                    },
-                                    {
-                                        text: '1',
-                                    },
+                                    cell('A team'),
+                                    cell('A player'),
+                                    cell('1'),
                                 ],
                             },
                             {
                                 cells: [
-                                    {
-                                        text: 'Another team',
-                                    },
-                                    {
-                                        text: 'Another player',
-                                    },
-                                    {
-                                        text: '2',
-                                    },
+                                    cell('Another team'),
+                                    cell('Another player'),
+                                    cell('2'),
                                 ],
                             },
                         ],
@@ -714,11 +685,7 @@ describe('DivisionReports', () => {
                         columns: ['heading', 'optional column '],
                         rows: [
                             {
-                                cells: [
-                                    {
-                                        text: 'TEXT',
-                                    },
-                                ],
+                                cells: [cell('TEXT')],
                             },
                         ],
                     },
