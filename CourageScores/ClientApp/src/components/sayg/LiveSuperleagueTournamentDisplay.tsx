@@ -423,6 +423,32 @@ export function LiveSuperleagueTournamentDisplay({
         return indexOfMatchA - indexOfMatchB;
     }
 
+    function shouldShowMatch(match: TournamentMatchDto): boolean {
+        if (!hasSaygData(match)) {
+            // The match hasn't started yet (no sayg data, show so everyone who's playing next)
+            return true;
+        }
+
+        const inProgressMatch =
+            lastMatch && lastLeg && !hasWinner(lastMatch!) ? lastMatch : null;
+        if (!inProgressMatch) {
+            // There is no in progress match
+            return true;
+        }
+
+        const noOfPlayersForInProgressMatch =
+            inProgressMatch?.sideA?.players?.length ??
+            inProgressMatch?.sideB?.players?.length ??
+            0;
+
+        const noOfPlayersInMatch =
+            match?.sideA?.players?.length ?? match?.sideB?.players?.length ?? 0;
+
+        // number of players in the match must be the same as the number of
+        // players in the currently active match
+        return noOfPlayersInMatch === noOfPlayersForInProgressMatch;
+    }
+
     if (!tournament) {
         return showLoading ? (
             <div className="flex-grow-1 bg-white">
@@ -450,6 +476,7 @@ export function LiveSuperleagueTournamentDisplay({
               (s) => s.id === lastMatch.saygId && s.type === LiveDataType.sayg,
           )
         : null;
+    let skippedMatches = 0;
 
     return (
         <div
@@ -520,32 +547,63 @@ export function LiveSuperleagueTournamentDisplay({
                             totals.home += getScore(m, 'home');
                             totals.away += getScore(m, 'away');
 
+                            if (!shouldShowMatch(m)) {
+                                skippedMatches++;
+                                return undefined;
+                            }
+
+                            const prefixRow =
+                                skippedMatches > 0 ? (
+                                    <tr key={`skipped-matches-${m.id}`}>
+                                        <td
+                                            colSpan={7}
+                                            className="text-center text-secondary opacity-75">
+                                            &mdash; {skippedMatches} match
+                                            {skippedMatches > 1
+                                                ? 'es'
+                                                : ''}{' '}
+                                            &mdash;
+                                        </td>
+                                    </tr>
+                                ) : null;
+
+                            skippedMatches = 0;
+
                             return (
-                                <tr key={m.id}>
-                                    <td
-                                        className={`text-danger ${homeWinner ? 'fw-bold' : ''}`}>
-                                        {getAverage(m, 'home')}
-                                    </td>
-                                    <td
-                                        className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>
-                                        {firstInitialAndLastNames(m.sideA)}
-                                    </td>
-                                    <td
-                                        className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>
-                                        {getScore(m, 'home')}
-                                    </td>
-                                    <td>-</td>
-                                    <td className={awayWinner ? 'fw-bold' : ''}>
-                                        {getScore(m, 'away')}
-                                    </td>
-                                    <td className={awayWinner ? 'fw-bold' : ''}>
-                                        {firstInitialAndLastNames(m.sideB)}
-                                    </td>
-                                    <td
-                                        className={`text-danger ${awayWinner ? 'fw-bold' : ''}`}>
-                                        {getAverage(m, 'away')}
-                                    </td>
-                                </tr>
+                                <>
+                                    {prefixRow}
+                                    <tr key={m.id}>
+                                        <td
+                                            className={`text-danger ${homeWinner ? 'fw-bold' : ''}`}>
+                                            {getAverage(m, 'home')}
+                                        </td>
+                                        <td
+                                            className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>
+                                            {firstInitialAndLastNames(m.sideA)}
+                                        </td>
+                                        <td
+                                            className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>
+                                            {getScore(m, 'home')}
+                                        </td>
+                                        <td>-</td>
+                                        <td
+                                            className={
+                                                awayWinner ? 'fw-bold' : ''
+                                            }>
+                                            {getScore(m, 'away')}
+                                        </td>
+                                        <td
+                                            className={
+                                                awayWinner ? 'fw-bold' : ''
+                                            }>
+                                            {firstInitialAndLastNames(m.sideB)}
+                                        </td>
+                                        <td
+                                            className={`text-danger ${awayWinner ? 'fw-bold' : ''}`}>
+                                            {getAverage(m, 'away')}
+                                        </td>
+                                    </tr>
+                                </>
                             );
                         })}
                 </tbody>
