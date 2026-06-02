@@ -6,11 +6,11 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { GameDetails, IGameDetailsProps } from './GameDetails';
-import { fixtureBuilder } from '../../helpers/builders/games';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { seasonBuilder } from '../../helpers/builders/seasons';
+} from '../../helpers/tests.tsx';
+import { GameDetails, IGameDetailsProps } from './GameDetails.tsx';
+import { fixtureBuilder } from '../../helpers/builders/games.ts';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
 
 describe('GameDetails', () => {
     let context: TestContext;

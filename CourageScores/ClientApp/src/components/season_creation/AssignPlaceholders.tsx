@@ -1,19 +1,19 @@
-import { useApp } from '../common/AppContainer';
-import { any, distinct, sortBy } from '../../helpers/collections';
+import { useApp } from '../common/AppContainer.tsx';
+import { any, distinct, sortBy } from '../../helpers/collections.ts';
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
-} from '../common/BootstrapDropdown';
-import { ActionResultDto } from '../../interfaces/models/dtos/ActionResultDto';
-import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { DivisionTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto';
-import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto';
-import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { getTeamsInSeason } from '../../helpers/teams';
+} from '../common/BootstrapDropdown.tsx';
+import { ActionResultDto } from '../../interfaces/models/dtos/ActionResultDto.ts';
+import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { DivisionTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto.ts';
+import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto.ts';
+import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { getTeamsInSeason } from '../../helpers/teams.ts';
 
 export interface IPlaceholderMappings {
     [placeholder: string]: string;

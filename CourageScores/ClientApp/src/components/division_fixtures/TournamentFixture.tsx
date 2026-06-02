@@ -1,21 +1,21 @@
 import { useState } from 'react';
-import { ErrorDisplay } from '../common/ErrorDisplay';
-import { any, count, isEmpty, sortBy, sum } from '../../helpers/collections';
-import { useDependencies } from '../common/IocContainer';
-import { useApp } from '../common/AppContainer';
-import { useDivisionData } from '../league/DivisionDataContainer';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
-import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto';
-import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto';
-import { usePreferences } from '../common/PreferencesContainer';
-import { ToggleFavouriteTeam } from '../common/ToggleFavouriteTeam';
+import { ErrorDisplay } from '../common/ErrorDisplay.tsx';
+import { any, count, isEmpty, sortBy, sum } from '../../helpers/collections.ts';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { useDivisionData } from '../league/DivisionDataContainer.tsx';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto.ts';
+import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto.ts';
+import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto.ts';
+import { usePreferences } from '../common/PreferencesContainer.tsx';
+import { ToggleFavouriteTeam } from '../common/ToggleFavouriteTeam.tsx';
 import { Link } from 'react-router';
-import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { hasAccess } from '../../helpers/conditions';
+import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { hasAccess } from '../../helpers/conditions.ts';
 
 export interface ITournamentFixtureProps {
     tournament: DivisionTournamentFixtureDetailsDto;

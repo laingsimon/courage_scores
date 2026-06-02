@@ -1,6 +1,6 @@
-import { IComponent, TestContext } from './tests';
-import { ENTER_SCORE_BUTTON } from './constants';
-import { LegThrowDto } from '../interfaces/models/dtos/Game/Sayg/LegThrowDto';
+import { IComponent, TestContext } from './tests.tsx';
+import { ENTER_SCORE_BUTTON } from './constants.ts';
+import { LegThrowDto } from '../interfaces/models/dtos/Game/Sayg/LegThrowDto.ts';
 
 function scopeFromOptionalRoot(
     context: TestContext,

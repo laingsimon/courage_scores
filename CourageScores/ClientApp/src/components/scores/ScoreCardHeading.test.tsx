@@ -7,24 +7,27 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { IScoreCardHeadingProps, ScoreCardHeading } from './ScoreCardHeading';
+} from '../../helpers/tests.tsx';
+import {
+    IScoreCardHeadingProps,
+    ScoreCardHeading,
+} from './ScoreCardHeading.tsx';
 import {
     ILeagueFixtureContainerProps,
     LeagueFixtureContainer,
-} from './LeagueFixtureContainer';
-import { renderDate } from '../../helpers/rendering';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto';
-import { fixtureBuilder } from '../../helpers/builders/games';
-import { divisionBuilder } from '../../helpers/builders/divisions';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { teamBuilder } from '../../helpers/builders/teams';
-import { playerBuilder } from '../../helpers/builders/players';
+} from './LeagueFixtureContainer.tsx';
+import { renderDate } from '../../helpers/rendering.ts';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto.ts';
+import { fixtureBuilder } from '../../helpers/builders/games.ts';
+import { divisionBuilder } from '../../helpers/builders/divisions.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
+import { playerBuilder } from '../../helpers/builders/players.ts';
 
 describe('ScoreCardHeading', () => {
     let context: TestContext;

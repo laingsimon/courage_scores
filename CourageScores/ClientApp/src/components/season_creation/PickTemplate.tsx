@@ -1,14 +1,14 @@
-import { any } from '../../helpers/collections';
-import { ViewHealthCheck } from '../division_health/ViewHealthCheck';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
+import { any } from '../../helpers/collections.ts';
+import { ViewHealthCheck } from '../division_health/ViewHealthCheck.tsx';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
-} from '../common/BootstrapDropdown';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { ActionResultDto } from '../../interfaces/models/dtos/ActionResultDto';
-import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+} from '../common/BootstrapDropdown.tsx';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { ActionResultDto } from '../../interfaces/models/dtos/ActionResultDto.ts';
+import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface IPickTemplateProps {
     selectedTemplate: ActionResultDto<TemplateDto> | null;

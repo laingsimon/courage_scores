@@ -1,4 +1,4 @@
-import { AdminContainer } from './AdminContainer';
+import { AdminContainer } from './AdminContainer.tsx';
 import {
     api,
     appProps,
@@ -8,13 +8,13 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { ReconfigureFeatureDto } from '../../interfaces/models/dtos/ReconfigureFeatureDto';
-import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto';
-import { IFeatureApi } from '../../interfaces/apis/IFeatureApi';
-import { EditFeature, IEditFeatureProps } from './EditFeature';
-import { createTemporaryId } from '../../helpers/projection';
+} from '../../helpers/tests.tsx';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { ReconfigureFeatureDto } from '../../interfaces/models/dtos/ReconfigureFeatureDto.ts';
+import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto.ts';
+import { IFeatureApi } from '../../interfaces/apis/IFeatureApi.ts';
+import { EditFeature, IEditFeatureProps } from './EditFeature.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
 
 describe('EditFeature', () => {
     let context: TestContext;

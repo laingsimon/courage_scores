@@ -1,4 +1,4 @@
-import { useDivisionData } from './DivisionDataContainer';
+import { useDivisionData } from './DivisionDataContainer.tsx';
 
 export interface IPrintDivisionHeadingProps {
     hideDivision?: boolean;

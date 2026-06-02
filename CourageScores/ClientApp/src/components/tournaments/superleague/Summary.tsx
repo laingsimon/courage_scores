@@ -1,6 +1,6 @@
-import { SummaryDataRow } from './SummaryDataRow';
-import { useApp } from '../../common/AppContainer';
-import { any, sum } from '../../../helpers/collections';
+import { SummaryDataRow } from './SummaryDataRow.tsx';
+import { useApp } from '../../common/AppContainer.tsx';
+import { any, sum } from '../../../helpers/collections.ts';
 import {
     countMatch100,
     countMatch140,
@@ -8,9 +8,9 @@ import {
     matchTons,
     playerOverallAverage,
     sumOverThrows,
-} from '../../../helpers/superleague';
-import { ifNaN, round2dp } from '../../../helpers/rendering';
-import { ISuperleagueSaygMatchMapping } from './ISuperleagueSaygMatchMapping';
+} from '../../../helpers/superleague.ts';
+import { ifNaN, round2dp } from '../../../helpers/rendering.ts';
+import { ISuperleagueSaygMatchMapping } from './ISuperleagueSaygMatchMapping.ts';
 
 export interface ISummaryProps {
     showWinner?: boolean;

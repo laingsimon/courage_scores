@@ -1,5 +1,5 @@
 ﻿import { expect, Page } from '@playwright/test';
-import { formatDate, today, tomorrow } from './dates';
+import { formatDate, today, tomorrow } from './dates.ts';
 
 export async function ensureSeasonExists(
     page: Page,

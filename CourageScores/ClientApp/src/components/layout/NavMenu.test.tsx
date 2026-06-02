@@ -7,15 +7,15 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { NavMenu } from './NavMenu';
-import { ISettings } from '../../api/settings';
-import { IBrandingContainerProps } from '../common/BrandingContainer';
-import { divisionBuilder } from '../../helpers/builders/divisions';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { IAppContainerProps } from '../common/AppContainer';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
+} from '../../helpers/tests.tsx';
+import { NavMenu } from './NavMenu.tsx';
+import { ISettings } from '../../api/settings.ts';
+import { IBrandingContainerProps } from '../common/BrandingContainer.tsx';
+import { divisionBuilder } from '../../helpers/builders/divisions.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { IAppContainerProps } from '../common/AppContainer.tsx';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
 
 describe('NavMenu', () => {
     let context: TestContext;

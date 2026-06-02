@@ -5,9 +5,9 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { Layout } from './Layout';
-import { IError } from '../common/IError';
+} from '../../helpers/tests.tsx';
+import { Layout } from './Layout.tsx';
+import { IError } from '../common/IError.ts';
 
 describe('Layout', () => {
     let context: TestContext;

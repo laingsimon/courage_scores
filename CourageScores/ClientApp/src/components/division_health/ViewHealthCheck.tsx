@@ -1,6 +1,6 @@
-import { useApp } from '../common/AppContainer';
-import { SeasonHealthCheckResultDto } from '../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto';
-import { HealthCheckResultDto } from '../../interfaces/models/dtos/Health/HealthCheckResultDto';
+import { useApp } from '../common/AppContainer.tsx';
+import { SeasonHealthCheckResultDto } from '../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto.ts';
+import { HealthCheckResultDto } from '../../interfaces/models/dtos/Health/HealthCheckResultDto.ts';
 
 export interface IViewHealthCheckProps {
     result: SeasonHealthCheckResultDto;
@@ -46,7 +46,7 @@ export function ViewHealthCheck({ result }: IViewHealthCheckProps) {
                                 <div>
                                     {checkResult.success ? '✔' : '❌'} {check}
                                 </div>
-                                <div className="ps-4 small">
+                                <div className="ps-4 small max-height-100 overflow-y-auto">
                                     {checkResult.errors?.map(renderError)}
                                     {checkResult.warnings?.map(renderWarning)}
                                     {checkResult.messages?.map(renderMessage)}

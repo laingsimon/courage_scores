@@ -1,14 +1,14 @@
 import { useLocation, useNavigate, useParams } from 'react-router';
 import { useEffect, useState } from 'react';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto';
-import { any, isEmpty } from '../../helpers/collections';
-import { renderDate } from '../../helpers/rendering';
-import { useDependencies } from '../common/IocContainer';
-import { useApp } from '../common/AppContainer';
-import { AnalysisResponseDto } from '../../interfaces/models/dtos/Analysis/AnalysisResponseDto';
-import { NamedBreakdownDto } from '../../interfaces/models/dtos/Analysis/NamedBreakdownDto';
-import { ScoreBreakdownDto } from '../../interfaces/models/dtos/Analysis/ScoreBreakdownDto';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto.ts';
+import { any, isEmpty } from '../../helpers/collections.ts';
+import { renderDate } from '../../helpers/rendering.ts';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { AnalysisResponseDto } from '../../interfaces/models/dtos/Analysis/AnalysisResponseDto.ts';
+import { NamedBreakdownDto } from '../../interfaces/models/dtos/Analysis/NamedBreakdownDto.ts';
+import { ScoreBreakdownDto } from '../../interfaces/models/dtos/Analysis/ScoreBreakdownDto.ts';
 
 interface IBreakdown {
     [team: string]: (ScoreBreakdownDto | NamedBreakdownDto)[];

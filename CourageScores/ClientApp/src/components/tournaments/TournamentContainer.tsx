@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from 'react';
-import { LiveContainer } from '../../live/LiveContainer';
-import { ITournament } from './ITournament';
-import { ILiveOptions } from '../../live/ILiveOptions';
+import { LiveContainer } from '../../live/LiveContainer.tsx';
+import { ITournament } from './ITournament.ts';
+import { ILiveOptions } from '../../live/ILiveOptions.ts';
 
 const TournamentContext = createContext({});
 

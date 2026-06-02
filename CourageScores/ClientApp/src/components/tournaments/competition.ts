@@ -1,11 +1,11 @@
-import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto';
-import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
-import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
-import { any } from '../../helpers/collections';
-import { PlayedEngine } from './layout/PlayedEngine';
-import { UnplayedEngine } from './layout/UnplayedEngine';
-import { ILayoutEngine } from './layout/ILayoutEngine';
-import { ILayoutDataForRound } from './layout/ILayoutDataForRound';
+import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto.ts';
+import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
+import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto.ts';
+import { any } from '../../helpers/collections.ts';
+import { PlayedEngine } from './layout/PlayedEngine.ts';
+import { UnplayedEngine } from './layout/UnplayedEngine.ts';
+import { ILayoutEngine } from './layout/ILayoutEngine.ts';
+import { ILayoutDataForRound } from './layout/ILayoutDataForRound.ts';
 import { ReactElement } from 'react';
 
 export interface ITournamentLayoutGenerationContext {

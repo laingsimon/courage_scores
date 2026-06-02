@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { stateChanged } from '../../helpers/events';
-import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto';
-import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto';
-import { EditTemplateDto } from '../../interfaces/models/dtos/Season/Creation/EditTemplateDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { stateChanged } from '../../helpers/events.ts';
+import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto.ts';
+import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto.ts';
+import { EditTemplateDto } from '../../interfaces/models/dtos/Season/Creation/EditTemplateDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface ITemplateTextEditorProps {
     template: EditTemplateDto;

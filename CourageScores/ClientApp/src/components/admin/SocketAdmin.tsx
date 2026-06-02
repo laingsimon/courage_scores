@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useDependencies } from '../common/IocContainer';
-import { useApp } from '../common/AppContainer';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { any, sortBy } from '../../helpers/collections';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { WebSocketDto } from '../../interfaces/models/dtos/Live/WebSocketDto';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { any, sortBy } from '../../helpers/collections.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { WebSocketDto } from '../../interfaces/models/dtos/Live/WebSocketDto.ts';
 
 export function SocketAdmin() {
     const { liveApi } = useDependencies();

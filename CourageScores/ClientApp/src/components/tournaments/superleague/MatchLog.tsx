@@ -1,11 +1,11 @@
-import { MatchLogRow } from './MatchLogRow';
-import { MatchLogTableHeading } from './MatchLogTableHeading';
-import { useApp } from '../../common/AppContainer';
+import { MatchLogRow } from './MatchLogRow.tsx';
+import { MatchLogTableHeading } from './MatchLogTableHeading.tsx';
+import { useApp } from '../../common/AppContainer.tsx';
 import {
     getNoOfLegs,
     playerOverallAverage,
-} from '../../../helpers/superleague';
-import { ISuperleagueSaygMatchMapping } from './ISuperleagueSaygMatchMapping';
+} from '../../../helpers/superleague.ts';
+import { ISuperleagueSaygMatchMapping } from './ISuperleagueSaygMatchMapping.ts';
 
 export interface IMatchLogProps {
     showWinner?: boolean;

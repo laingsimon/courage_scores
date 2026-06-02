@@ -1,6 +1,6 @@
-import { IWebSocketContext } from './IWebSocketContext';
-import { ISubscriptions } from './ISubscriptions';
-import { UntypedPromise } from '../interfaces/UntypedPromise';
+import { IWebSocketContext } from './IWebSocketContext.ts';
+import { ISubscriptions } from './ISubscriptions.ts';
+import { UntypedPromise } from '../interfaces/UntypedPromise.ts';
 
 export interface IStrategyData {
     context: IWebSocketContext;

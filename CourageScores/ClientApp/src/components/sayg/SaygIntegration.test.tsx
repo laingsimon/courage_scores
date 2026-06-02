@@ -1,7 +1,7 @@
 import {
     ISaygLoadingContainerProps,
     SaygLoadingContainer,
-} from './SaygLoadingContainer';
+} from './SaygLoadingContainer.tsx';
 import {
     api,
     appProps,
@@ -13,21 +13,21 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { ILegBuilder, saygBuilder } from '../../helpers/builders/sayg';
-import { ISaygApi } from '../../interfaces/apis/ISaygApi';
-import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
-import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { createTemporaryId } from '../../helpers/projection';
+} from '../../helpers/tests.tsx';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { ILegBuilder, saygBuilder } from '../../helpers/builders/sayg.ts';
+import { ISaygApi } from '../../interfaces/apis/ISaygApi.ts';
+import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto.ts';
+import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { createTemporaryId } from '../../helpers/projection.ts';
 import {
     CHECKOUT_1_DART,
     CHECKOUT_2_DART,
     CHECKOUT_3_DART,
     DELETE_SCORE_BUTTON,
     ENTER_SCORE_BUTTON,
-} from '../../helpers/constants';
+} from '../../helpers/constants.ts';
 import {
     assertWaitingForScoreFor,
     awayRemainingFromRow,
@@ -41,10 +41,10 @@ import {
     playsFirst,
     previousScoreRows,
     scoreCardDivTexts,
-} from '../../helpers/sayg';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { isLegWinner } from '../../helpers/superleague';
-import { sum } from '../../helpers/collections';
+} from '../../helpers/sayg.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { isLegWinner } from '../../helpers/superleague.ts';
+import { sum } from '../../helpers/collections.ts';
 
 describe('SaygIntegrationTest', () => {
     let context: TestContext;

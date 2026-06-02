@@ -1,17 +1,17 @@
-import { any, distinct, sortBy } from '../../helpers/collections';
+import { any, distinct, sortBy } from '../../helpers/collections.ts';
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
-} from '../common/BootstrapDropdown';
-import { useApp } from '../common/AppContainer';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { ProposalResultDto } from '../../interfaces/models/dtos/Season/Creation/ProposalResultDto';
-import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto';
-import { DivisionTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto';
-import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto';
-import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
+} from '../common/BootstrapDropdown.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { ProposalResultDto } from '../../interfaces/models/dtos/Season/Creation/ProposalResultDto.ts';
+import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto.ts';
+import { DivisionTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto.ts';
+import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto.ts';
+import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
 
 export interface IReviewProposalsFloatingDialogProps {
     proposalResult: ProposalResultDto;
@@ -100,7 +100,8 @@ export function ReviewProposalsFloatingDialog({
 
                             return (
                                 <li key={key}>
-                                    <span className={`px-2 ${className}`}>
+                                    <span
+                                        className={`px-2 ${className} font-monospace`}>
                                         {key}
                                     </span>{' '}
                                     &rarr; {mappedTeam.name}

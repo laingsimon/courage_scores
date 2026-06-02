@@ -5,14 +5,14 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { DataError } from './DataError';
+} from '../../helpers/tests.tsx';
+import { DataError } from './DataError.tsx';
 import {
     DivisionDataContainer,
     IDivisionDataContainerProps,
-} from './DivisionDataContainer';
-import { createTemporaryId } from '../../helpers/projection';
-import { DataErrorDto } from '../../interfaces/models/dtos/Division/DataErrorDto';
+} from './DivisionDataContainer.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { DataErrorDto } from '../../interfaces/models/dtos/Division/DataErrorDto.ts';
 
 describe('DataError', () => {
     let context: TestContext;

@@ -1,10 +1,10 @@
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
-import { ITournamentPlayerMap } from './Tournament';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { ISelectablePlayer } from '../common/PlayerSelection';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
+import { ITournamentPlayerMap } from './Tournament.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { ISelectablePlayer } from '../common/PlayerSelection.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface ITournament {
     tournamentData: TournamentGameDto;

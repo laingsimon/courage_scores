@@ -1,10 +1,10 @@
-import { useDependencies } from './common/IocContainer';
+import { useDependencies } from './common/IocContainer.tsx';
 import { ReactElement, useEffect, useState } from 'react';
-import { WatchableDataDto } from '../interfaces/models/dtos/Live/WatchableDataDto';
-import { LoadingSpinnerSmall } from './common/LoadingSpinnerSmall';
-import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType';
-import { PublicationMode } from '../interfaces/models/dtos/Live/PublicationMode';
-import { useApp } from './common/AppContainer';
+import { WatchableDataDto } from '../interfaces/models/dtos/Live/WatchableDataDto.ts';
+import { LoadingSpinnerSmall } from './common/LoadingSpinnerSmall.tsx';
+import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType.ts';
+import { PublicationMode } from '../interfaces/models/dtos/Live/PublicationMode.ts';
+import { useApp } from './common/AppContainer.tsx';
 import { useLocation } from 'react-router';
 
 export function Tv() {
@@ -145,17 +145,6 @@ export function Tv() {
                 <div>No access</div>
             ) : null}
             <div className="mt-1">
-                {account &&
-                account.access &&
-                account.access.useWebSockets &&
-                !appLoading ? (
-                    <button
-                        className="btn btn-primary"
-                        onClick={reloadConnections}>
-                        {loading ? <LoadingSpinnerSmall /> : null}
-                        Refresh
-                    </button>
-                ) : null}
                 {!account && !appLoading ? (
                     <a
                         className="btn btn-primary"

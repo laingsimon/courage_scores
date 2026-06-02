@@ -1,14 +1,14 @@
-import { WebSocketUpdateStrategy } from './WebSocketUpdateStrategy';
-import { IWebSocketContext } from './IWebSocketContext';
-import { createTemporaryId } from '../helpers/projection';
-import { ISubscriptions } from './ISubscriptions';
-import { ISubscriptionRequest } from './ISubscriptionRequest';
-import { WebSocketMode } from './WebSocketMode';
-import { noop } from '../helpers/tests';
-import { MessageType } from '../interfaces/models/dtos/MessageType';
-import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType';
-import { IStrategyData } from './IStrategyData';
-import { ISubscription } from './ISubscription';
+import { WebSocketUpdateStrategy } from './WebSocketUpdateStrategy.ts';
+import { IWebSocketContext } from './IWebSocketContext.ts';
+import { createTemporaryId } from '../helpers/projection.ts';
+import { ISubscriptions } from './ISubscriptions.ts';
+import { ISubscriptionRequest } from './ISubscriptionRequest.ts';
+import { WebSocketMode } from './WebSocketMode.ts';
+import { noop } from '../helpers/tests.tsx';
+import { MessageType } from '../interfaces/models/dtos/MessageType.ts';
+import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType.ts';
+import { IStrategyData } from './IStrategyData.ts';
+import { ISubscription } from './ISubscription.ts';
 
 describe('WebSocketUpdateStrategy', () => {
     let newContext: IWebSocketContext | null;

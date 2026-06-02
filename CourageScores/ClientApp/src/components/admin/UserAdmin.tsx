@@ -1,19 +1,19 @@
 // noinspection SqlDialectInspection,SqlNoDataSourceInspection
 
 import React, { useEffect, useState } from 'react';
-import { ErrorDisplay } from '../common/ErrorDisplay';
+import { ErrorDisplay } from '../common/ErrorDisplay.tsx';
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
-} from '../common/BootstrapDropdown';
-import { useDependencies } from '../common/IocContainer';
-import { useApp } from '../common/AppContainer';
-import { useAdmin } from './AdminContainer';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { UpdateAccessDto } from '../../interfaces/models/dtos/Identity/UpdateAccessDto';
-import { AccessDto } from '../../interfaces/models/dtos/Identity/AccessDto';
+} from '../common/BootstrapDropdown.tsx';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { useAdmin } from './AdminContainer.tsx';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { UpdateAccessDto } from '../../interfaces/models/dtos/Identity/UpdateAccessDto.ts';
+import { AccessDto } from '../../interfaces/models/dtos/Identity/AccessDto.ts';
 
 export function UserAdmin() {
     const { account, onError, reloadAccount } = useApp();

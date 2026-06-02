@@ -1,36 +1,36 @@
 import { useState } from 'react';
-import { FilterFixtures } from './FilterFixtures';
+import { FilterFixtures } from './FilterFixtures.tsx';
 import { useLocation } from 'react-router';
-import { EditNote } from './EditNote';
-import { any, isEmpty, sortBy } from '../../helpers/collections';
-import { asyncCallback, stateChanged } from '../../helpers/events';
-import { useApp } from '../common/AppContainer';
-import { useDivisionData } from '../league/DivisionDataContainer';
-import { DivisionFixtureDate } from './DivisionFixtureDate';
+import { EditNote } from './EditNote.tsx';
+import { any, isEmpty, sortBy } from '../../helpers/collections.ts';
+import { asyncCallback, stateChanged } from '../../helpers/events.ts';
+import { useApp } from '../common/AppContainer.tsx';
+import { useDivisionData } from '../league/DivisionDataContainer.tsx';
+import { DivisionFixtureDate } from './DivisionFixtureDate.tsx';
 import {
     getFixtureDateFilters,
     getFixtureFilters,
     IFixtureMapping,
     getFilter,
-} from './filters';
-import { Dialog } from '../common/Dialog';
-import { CreateSeasonDialog } from '../season_creation/CreateSeasonDialog';
-import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
-import { EditFixtureDateNoteDto } from '../../interfaces/models/dtos/EditFixtureDateNoteDto';
-import { IEditableDivisionFixtureDateDto } from './IEditableDivisionFixtureDateDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto';
-import { DivisionFixtureDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDto';
-import { IFilter } from './IFilter';
-import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto';
-import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto';
-import { useBranding } from '../common/BrandingContainer';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { hasAccess } from '../../helpers/conditions';
-import { useDependencies } from '../common/IocContainer';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
+} from './filters.ts';
+import { Dialog } from '../common/Dialog.tsx';
+import { CreateSeasonDialog } from '../season_creation/CreateSeasonDialog.tsx';
+import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
+import { EditFixtureDateNoteDto } from '../../interfaces/models/dtos/EditFixtureDateNoteDto.ts';
+import { IEditableDivisionFixtureDateDto } from './IEditableDivisionFixtureDateDto.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto.ts';
+import { DivisionFixtureDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDto.ts';
+import { IFilter } from './IFilter.ts';
+import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto.ts';
+import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto.ts';
+import { useBranding } from '../common/BrandingContainer.tsx';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { hasAccess } from '../../helpers/conditions.ts';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
 import { Link } from 'react-router';
-import { getTeamsInSeason } from '../../helpers/teams';
+import { getTeamsInSeason } from '../../helpers/teams.ts';
 
 export interface IDivisionFixturesProps {
     setNewFixtures(fixtures: DivisionFixtureDateDto[]): UntypedPromise;

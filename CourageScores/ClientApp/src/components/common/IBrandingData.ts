@@ -1,4 +1,4 @@
-﻿import { IMenuItem } from '../layout/IMenuItem';
+﻿import { IMenuItem } from '../layout/IMenuItem.ts';
 
 export interface IBrandingData {
     name: string;

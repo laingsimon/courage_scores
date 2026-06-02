@@ -1,24 +1,24 @@
 import { useState } from 'react';
-import { Dialog } from '../common/Dialog';
+import { Dialog } from '../common/Dialog.tsx';
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
-} from '../common/BootstrapDropdown';
-import { asyncClear, propChanged, stateChanged } from '../../helpers/events';
-import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
-import { useTournament } from './TournamentContainer';
-import { any, sortBy } from '../../helpers/collections';
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
-import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto';
-import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto';
-import { createTemporaryId, repeat } from '../../helpers/projection';
-import { MatchSayg } from './MatchSayg';
-import { PatchTournamentDto } from '../../interfaces/models/dtos/Game/PatchTournamentDto';
-import { PatchTournamentRoundDto } from '../../interfaces/models/dtos/Game/PatchTournamentRoundDto';
-import { ILayoutDataForMatch } from './layout/ILayoutDataForMatch';
-import { ILayoutDataForSide } from './layout/ILayoutDataForSide';
-import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+} from '../common/BootstrapDropdown.tsx';
+import { asyncClear, propChanged, stateChanged } from '../../helpers/events.ts';
+import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto.tsx';
+import { useTournament } from './TournamentContainer.tsx';
+import { any, sortBy } from '../../helpers/collections.ts';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto.ts';
+import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto.ts';
+import { createTemporaryId, repeat } from '../../helpers/projection.ts';
+import { MatchSayg } from './MatchSayg.tsx';
+import { PatchTournamentDto } from '../../interfaces/models/dtos/Game/PatchTournamentDto.ts';
+import { PatchTournamentRoundDto } from '../../interfaces/models/dtos/Game/PatchTournamentRoundDto.ts';
+import { ILayoutDataForMatch } from './layout/ILayoutDataForMatch.ts';
+import { ILayoutDataForSide } from './layout/ILayoutDataForSide.ts';
+import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface IPrintableSheetMatchProps {
     matchData: ILayoutDataForMatch;

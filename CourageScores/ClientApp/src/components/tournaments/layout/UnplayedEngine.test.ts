@@ -1,10 +1,10 @@
-import { TournamentSideDto } from '../../../interfaces/models/dtos/Game/TournamentSideDto';
-import { repeat } from '../../../helpers/projection';
-import { UnplayedEngine } from './UnplayedEngine';
-import { ILayoutEngine } from './ILayoutEngine';
-import { ILayoutDataForSide } from './ILayoutDataForSide';
-import { ILayoutDataForMatch } from './ILayoutDataForMatch';
-import { ILayoutDataForRound } from './ILayoutDataForRound';
+import { TournamentSideDto } from '../../../interfaces/models/dtos/Game/TournamentSideDto.ts';
+import { repeat } from '../../../helpers/projection.ts';
+import { UnplayedEngine } from './UnplayedEngine.ts';
+import { ILayoutEngine } from './ILayoutEngine.ts';
+import { ILayoutDataForSide } from './ILayoutDataForSide.ts';
+import { ILayoutDataForMatch } from './ILayoutDataForMatch.ts';
+import { ILayoutDataForRound } from './ILayoutDataForRound.ts';
 
 describe('UnplayedEngine', () => {
     let possibleSides: TournamentSideDto[] | null;

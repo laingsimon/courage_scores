@@ -5,11 +5,11 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     IReviewProposalHealthProps,
     ReviewProposalHealth,
-} from './ReviewProposalHealth';
+} from './ReviewProposalHealth.tsx';
 
 describe('ReviewProposalHealth', () => {
     let context: TestContext;

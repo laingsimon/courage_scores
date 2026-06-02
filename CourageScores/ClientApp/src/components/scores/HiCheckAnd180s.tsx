@@ -1,18 +1,18 @@
-import { MultiPlayerSelection } from '../common/MultiPlayerSelection';
-import { any, distinct, sortBy } from '../../helpers/collections';
+import { MultiPlayerSelection } from '../common/MultiPlayerSelection.tsx';
+import { any, distinct, sortBy } from '../../helpers/collections.ts';
 import {
     add180,
     addHiCheck,
     remove180,
     removeHiCheck,
-} from '../common/Accolades';
-import { useApp } from '../common/AppContainer';
-import { useLeagueFixture } from './LeagueFixtureContainer';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto';
-import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto';
-import { ISelectablePlayer } from '../common/PlayerSelection';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+} from '../common/Accolades.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { useLeagueFixture } from './LeagueFixtureContainer.tsx';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto.ts';
+import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto.ts';
+import { ISelectablePlayer } from '../common/PlayerSelection.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface IHiCheckAnd180sProps {
     access: string;

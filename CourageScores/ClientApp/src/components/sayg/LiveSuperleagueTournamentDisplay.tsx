@@ -1,25 +1,25 @@
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
-import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto.ts';
 import { useEffect, useState } from 'react';
-import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
-import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto';
-import { any, isEmpty, reverse, sum } from '../../helpers/collections';
-import { useDependencies } from '../common/IocContainer';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto.ts';
+import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto.ts';
+import { any, isEmpty, reverse, sum } from '../../helpers/collections.ts';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 import { Link } from 'react-router';
-import { Loading } from '../common/Loading';
-import { useApp } from '../common/AppContainer';
-import { useLive } from '../../live/LiveContainer';
-import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType';
-import { ISubscriptionRequest } from '../../live/ISubscriptionRequest';
-import { IUpdateLookup } from './LiveSayg';
-import { LegCompetitorScoreDto } from '../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto';
-import { hasAccess } from '../../helpers/conditions';
-import { getScoreFromThrows } from '../../helpers/sayg';
-import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto';
-import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
-import { ifNaN } from '../../helpers/rendering';
-import { LegThrowDto } from '../../interfaces/models/dtos/Game/Sayg/LegThrowDto';
+import { Loading } from '../common/Loading.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { useLive } from '../../live/LiveContainer.tsx';
+import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType.ts';
+import { ISubscriptionRequest } from '../../live/ISubscriptionRequest.ts';
+import { IUpdateLookup } from './LiveSayg.ts';
+import { LegCompetitorScoreDto } from '../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto.ts';
+import { hasAccess } from '../../helpers/conditions.ts';
+import { getScoreFromThrows } from '../../helpers/sayg.ts';
+import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
+import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto.ts';
+import { ifNaN } from '../../helpers/rendering.ts';
+import { LegThrowDto } from '../../interfaces/models/dtos/Game/Sayg/LegThrowDto.ts';
 
 export interface ILiveSuperleagueTournamentDisplayProps {
     id: string;
@@ -111,9 +111,6 @@ export function LiveSuperleagueTournamentDisplay({
 
     useEffect(() => {
         if (isEmpty(pendingLiveSubscriptions) || !account) {
-            console.log(
-                `Finished subscribing to sayg: ${pendingLiveSubscriptions.length} left, account: ${!!account}`,
-            );
             return;
         }
 
@@ -202,9 +199,6 @@ export function LiveSuperleagueTournamentDisplay({
                     ),
             )
             .map((saygId) => {
-                console.log(
-                    `Missing sayg subscription for ${saygId}, allSaygIds: [${allSaygIds.join(', ')}]`,
-                );
                 return {
                     id: saygId,
                     type: LiveDataType.sayg,
@@ -213,9 +207,6 @@ export function LiveSuperleagueTournamentDisplay({
 
         const newPendingSubs =
             pendingLiveSubscriptions.concat(newSaygSubscriptions);
-        console.log(
-            `Pending subscriptions(subscribeToNewMatches): ${newPendingSubs.length}`,
-        );
         setPendingLiveSubscriptions(newPendingSubs);
     }
 
@@ -229,9 +220,6 @@ export function LiveSuperleagueTournamentDisplay({
         setSubscribing(true);
         try {
             const nextSub = pendingLiveSubscriptions[0];
-            console.log(
-                `Subscribing to sayg: ${nextSub.id}, remaining: ${pendingLiveSubscriptions.length - 1}`,
-            );
 
             await enableLiveUpdates(true, nextSub);
 
@@ -250,9 +238,6 @@ export function LiveSuperleagueTournamentDisplay({
 
             const newPendingSubs = pendingLiveSubscriptions.filter(
                 (sub) => sub !== nextSub,
-            );
-            console.log(
-                `Pending subscriptions(subscribeToNextSayg): ${newPendingSubs.length}`,
             );
             setPendingLiveSubscriptions(newPendingSubs);
         } finally {
@@ -299,9 +284,6 @@ export function LiveSuperleagueTournamentDisplay({
                     type: LiveDataType.sayg,
                 };
             },
-        );
-        console.log(
-            `Pending subscriptions(getLatestMatchData): ${pendingSubscriptions.length}`,
         );
         setPendingLiveSubscriptions(pendingSubscriptions);
         setMatchSaygData(matchSaygData);

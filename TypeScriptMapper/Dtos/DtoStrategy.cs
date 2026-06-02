@@ -151,7 +151,7 @@ public class DtoStrategy : IStrategy
                 continue;
             }
 
-            await writer.WriteLineAsync($"import {{{import.Name}}} from '{import.RelativePath}';");
+            await writer.WriteLineAsync($"import {{{import.Name}}} from '{import.RelativePath}.ts';");
             importWritten = true;
         }
 
@@ -162,13 +162,13 @@ public class DtoStrategy : IStrategy
                 break;
             }
 
-            await writer.WriteLineAsync($"import {{{interfaceType.Name}}} from '{interfaceType.RelativePath}';");
+            await writer.WriteLineAsync($"import {{{interfaceType.Name}}} from '{interfaceType.RelativePath}.ts';");
             importWritten = true;
         }
 
         if (type.BaseType != null)
         {
-            await writer.WriteLineAsync($"import {{{type.BaseType.Name}}} from '{type.BaseType.RelativePath}';");
+            await writer.WriteLineAsync($"import {{{type.BaseType.Name}}} from '{type.BaseType.RelativePath}.ts';");
             importWritten = true;
         }
 

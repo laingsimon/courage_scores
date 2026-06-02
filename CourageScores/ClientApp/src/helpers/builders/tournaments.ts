@@ -1,14 +1,14 @@
 ﻿/* istanbul ignore file */
 
-import { BuilderParam, IAddableBuilder, IBuilder } from './builders';
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
-import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto';
-import { createTemporaryId } from '../projection';
-import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
-import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto';
-import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto';
-import { IMatchOptionsBuilder, matchOptionsBuilder } from './games';
-import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
+import { BuilderParam, IAddableBuilder, IBuilder } from './builders.ts';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto.ts';
+import { createTemporaryId } from '../projection.ts';
+import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto.ts';
+import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto.ts';
+import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto.ts';
+import { IMatchOptionsBuilder, matchOptionsBuilder } from './games.ts';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
 
 export interface ITournamentBuilder extends IAddableBuilder<
     TournamentGameDto & DivisionTournamentFixtureDetailsDto

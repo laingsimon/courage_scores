@@ -16,7 +16,7 @@ import {
     sum,
     take,
     toDictionary,
-} from './collections';
+} from './collections.ts';
 
 describe('collections', () => {
     describe('sortBy', () => {

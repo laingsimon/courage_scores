@@ -1,12 +1,12 @@
 ﻿/* istanbul ignore file */
 
-import { IAddableBuilder } from './builders';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { EditTeamDto } from '../../interfaces/models/dtos/Team/EditTeamDto';
-import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
-import { createTemporaryId } from '../projection';
-import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto';
-import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto';
+import { IAddableBuilder } from './builders.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { EditTeamDto } from '../../interfaces/models/dtos/Team/EditTeamDto.ts';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
+import { createTemporaryId } from '../projection.ts';
+import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto.ts';
+import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto.ts';
 
 export interface ITeamBuilder extends IAddableBuilder<
     TeamDto & EditTeamDto & GameTeamDto

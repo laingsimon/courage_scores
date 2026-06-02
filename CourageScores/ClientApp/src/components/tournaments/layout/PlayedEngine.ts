@@ -1,14 +1,14 @@
-import { ILayoutEngine } from './ILayoutEngine';
-import { TournamentSideDto } from '../../../interfaces/models/dtos/Game/TournamentSideDto';
-import { TournamentRoundDto } from '../../../interfaces/models/dtos/Game/TournamentRoundDto';
-import { any, skip } from '../../../helpers/collections';
-import { TournamentMatchDto } from '../../../interfaces/models/dtos/Game/TournamentMatchDto';
-import { GameMatchOptionDto } from '../../../interfaces/models/dtos/Game/GameMatchOptionDto';
-import { ILayoutRequest } from './ILayoutRequest';
-import { ITournamentLayoutGenerationContext } from '../competition';
-import { ILayoutDataForRound } from './ILayoutDataForRound';
-import { ILayoutDataForMatch } from './ILayoutDataForMatch';
-import { ILayoutDataForSide } from './ILayoutDataForSide';
+import { ILayoutEngine } from './ILayoutEngine.ts';
+import { TournamentSideDto } from '../../../interfaces/models/dtos/Game/TournamentSideDto.ts';
+import { TournamentRoundDto } from '../../../interfaces/models/dtos/Game/TournamentRoundDto.ts';
+import { any, skip } from '../../../helpers/collections.ts';
+import { TournamentMatchDto } from '../../../interfaces/models/dtos/Game/TournamentMatchDto.ts';
+import { GameMatchOptionDto } from '../../../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
+import { ILayoutRequest } from './ILayoutRequest.ts';
+import { ITournamentLayoutGenerationContext } from '../competition.ts';
+import { ILayoutDataForRound } from './ILayoutDataForRound.ts';
+import { ILayoutDataForMatch } from './ILayoutDataForMatch.ts';
+import { ILayoutDataForSide } from './ILayoutDataForSide.ts';
 
 export class PlayedEngine implements ILayoutEngine {
     private readonly _unplayedEngine: ILayoutEngine;

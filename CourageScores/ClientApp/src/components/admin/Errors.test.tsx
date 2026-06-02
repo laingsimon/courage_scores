@@ -1,7 +1,7 @@
 import { act } from '@testing-library/react';
-import { AdminContainer } from './AdminContainer';
-import { Errors } from './Errors';
-import { all } from '../../helpers/collections';
+import { AdminContainer } from './AdminContainer.tsx';
+import { Errors } from './Errors.tsx';
+import { all } from '../../helpers/collections.ts';
 import {
     api,
     appProps,
@@ -12,9 +12,9 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { ErrorDetailDto } from '../../interfaces/models/dtos/ErrorDetailDto';
-import { IErrorApi } from '../../interfaces/apis/IErrorApi';
+} from '../../helpers/tests.tsx';
+import { ErrorDetailDto } from '../../interfaces/models/dtos/ErrorDetailDto.ts';
+import { IErrorApi } from '../../interfaces/apis/IErrorApi.ts';
 
 describe('Errors', () => {
     let context: TestContext;

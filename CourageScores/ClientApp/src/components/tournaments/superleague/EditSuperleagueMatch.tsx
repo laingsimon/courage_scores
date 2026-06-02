@@ -1,34 +1,34 @@
-﻿import { MatchSayg } from '../MatchSayg';
-import { TournamentMatchDto } from '../../../interfaces/models/dtos/Game/TournamentMatchDto';
+﻿import { MatchSayg } from '../MatchSayg.tsx';
+import { TournamentMatchDto } from '../../../interfaces/models/dtos/Game/TournamentMatchDto.ts';
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
-} from '../../common/BootstrapDropdown';
-import { TeamDto } from '../../../interfaces/models/dtos/Team/TeamDto';
-import { GameMatchOptionDto } from '../../../interfaces/models/dtos/Game/GameMatchOptionDto';
-import { useApp } from '../../common/AppContainer';
-import { PatchTournamentDto } from '../../../interfaces/models/dtos/Game/PatchTournamentDto';
-import { PatchTournamentRoundDto } from '../../../interfaces/models/dtos/Game/PatchTournamentRoundDto';
-import { any, skip, take } from '../../../helpers/collections';
-import { TeamPlayerDto } from '../../../interfaces/models/dtos/Team/TeamPlayerDto';
-import { TournamentSideDto } from '../../../interfaces/models/dtos/Game/TournamentSideDto';
-import { NEW_PLAYER } from '../../scores/MatchPlayerSelection';
+} from '../../common/BootstrapDropdown.tsx';
+import { TeamDto } from '../../../interfaces/models/dtos/Team/TeamDto.ts';
+import { GameMatchOptionDto } from '../../../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
+import { useApp } from '../../common/AppContainer.tsx';
+import { PatchTournamentDto } from '../../../interfaces/models/dtos/Game/PatchTournamentDto.ts';
+import { PatchTournamentRoundDto } from '../../../interfaces/models/dtos/Game/PatchTournamentRoundDto.ts';
+import { any, skip, take } from '../../../helpers/collections.ts';
+import { TeamPlayerDto } from '../../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
+import { TournamentSideDto } from '../../../interfaces/models/dtos/Game/TournamentSideDto.ts';
+import { NEW_PLAYER } from '../../scores/MatchPlayerSelection.tsx';
 import { useState } from 'react';
-import { Dialog } from '../../common/Dialog';
-import { EditPlayerDetails } from '../../division_players/EditPlayerDetails';
-import { propChanged } from '../../../helpers/events';
-import { EditTeamPlayerDto } from '../../../interfaces/models/dtos/Team/EditTeamPlayerDto';
-import { useTournament } from '../TournamentContainer';
-import { DivisionTournamentFixtureDetailsDto } from '../../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto';
-import { hasAccess } from '../../../helpers/conditions';
-import { getTeamSeasons } from '../../../helpers/teams';
-import { repeat } from '../../../helpers/projection';
-import { matchPlayerFilter } from '../../../helpers/superleague';
-import { TeamSeasonDto } from '../../../interfaces/models/dtos/Team/TeamSeasonDto';
-import { TournamentGameDto } from '../../../interfaces/models/dtos/Game/TournamentGameDto';
-import { UntypedPromise } from '../../../interfaces/UntypedPromise';
-import { TournamentPlayerDto } from '../../../interfaces/models/dtos/Game/TournamentPlayerDto';
-import { IPlayerSizeTournamentPlayerMap } from '../Tournament';
+import { Dialog } from '../../common/Dialog.tsx';
+import { EditPlayerDetails } from '../../division_players/EditPlayerDetails.tsx';
+import { propChanged } from '../../../helpers/events.ts';
+import { EditTeamPlayerDto } from '../../../interfaces/models/dtos/Team/EditTeamPlayerDto.ts';
+import { useTournament } from '../TournamentContainer.tsx';
+import { DivisionTournamentFixtureDetailsDto } from '../../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto.ts';
+import { hasAccess } from '../../../helpers/conditions.ts';
+import { getTeamSeasons } from '../../../helpers/teams.ts';
+import { repeat } from '../../../helpers/projection.ts';
+import { matchPlayerFilter } from '../../../helpers/superleague.ts';
+import { TeamSeasonDto } from '../../../interfaces/models/dtos/Team/TeamSeasonDto.ts';
+import { TournamentGameDto } from '../../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { UntypedPromise } from '../../../interfaces/UntypedPromise.ts';
+import { TournamentPlayerDto } from '../../../interfaces/models/dtos/Game/TournamentPlayerDto.ts';
+import { IPlayerSizeTournamentPlayerMap } from '../Tournament.tsx';
 
 export interface TeamAndSeason {
     team: TeamDto;

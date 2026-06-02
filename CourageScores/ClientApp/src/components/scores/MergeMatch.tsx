@@ -1,10 +1,10 @@
-import { useApp } from '../common/AppContainer';
-import { matchEquals } from './MatchComparer';
-import { repeat } from '../../helpers/projection';
-import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { useApp } from '../common/AppContainer.tsx';
+import { matchEquals } from './MatchComparer.tsx';
+import { repeat } from '../../helpers/projection.ts';
+import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto.ts';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface IMergeMatchProps {
     readOnly?: boolean;

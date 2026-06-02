@@ -1,18 +1,18 @@
-import { PlayLeg } from './PlayLeg';
-import { MatchStatistics } from './MatchStatistics';
-import { useApp } from '../common/AppContainer';
-import { WidescreenMatchStatistics } from './WidescreenMatchStatistics';
+import { PlayLeg } from './PlayLeg.tsx';
+import { MatchStatistics } from './MatchStatistics.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { WidescreenMatchStatistics } from './WidescreenMatchStatistics.tsx';
 import { Location, useLocation } from 'react-router';
 import { useState } from 'react';
-import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto';
-import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
-import { ScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto';
-import { IBrowserType } from '../common/IBrowserType';
-import { ILegDisplayOptions } from './ILegDisplayOptions';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { asyncCallback } from '../../helpers/events';
-import { LegPlayerSequenceDto } from '../../interfaces/models/dtos/Game/Sayg/LegPlayerSequenceDto';
-import { hasAccess } from '../../helpers/conditions';
+import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto.ts';
+import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto.ts';
+import { ScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto.ts';
+import { IBrowserType } from '../common/IBrowserType.ts';
+import { ILegDisplayOptions } from './ILegDisplayOptions.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { asyncCallback } from '../../helpers/events.ts';
+import { LegPlayerSequenceDto } from '../../interfaces/models/dtos/Game/Sayg/LegPlayerSequenceDto.ts';
+import { hasAccess } from '../../helpers/conditions.ts';
 
 export interface IScoreAsYouGoProps {
     data: UpdateRecordedScoreAsYouGoDto;

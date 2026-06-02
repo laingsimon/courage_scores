@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { WidescreenSaygPlayer } from './WidescreenSaygPlayer';
-import { WidescreenSaygPlayerStatistic } from './WidescreenSaygPlayerStatistic';
-import { WidescreenSaygPlayerHeading } from './WidescreenSaygPlayerHeading';
-import { WidescreenSaygMatchDetails } from './WidescreenSaygMatchDetails';
-import { IMatchStatisticsProps } from './MatchStatistics';
+import { WidescreenSaygPlayer } from './WidescreenSaygPlayer.tsx';
+import { WidescreenSaygPlayerStatistic } from './WidescreenSaygPlayerStatistic.tsx';
+import { WidescreenSaygPlayerHeading } from './WidescreenSaygPlayerHeading.tsx';
+import { WidescreenSaygMatchDetails } from './WidescreenSaygMatchDetails.tsx';
+import { IMatchStatisticsProps } from './MatchStatistics.ts';
 
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 export interface IWidescreenMatchStatisticsProps extends IMatchStatisticsProps {}

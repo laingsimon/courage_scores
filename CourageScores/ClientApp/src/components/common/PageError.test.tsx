@@ -6,9 +6,9 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { PageError } from './PageError';
-import { IError } from './IError';
+} from '../../helpers/tests.tsx';
+import { PageError } from './PageError.tsx';
+import { IError } from './IError.ts';
 
 describe('PageError', () => {
     let context: TestContext;

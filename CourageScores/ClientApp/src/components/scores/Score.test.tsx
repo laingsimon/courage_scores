@@ -10,34 +10,34 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { any, take } from '../../helpers/collections';
-import { createTemporaryId, repeat } from '../../helpers/projection';
-import { Score } from './Score';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { RecordScoresDto } from '../../interfaces/models/dtos/Game/RecordScoresDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { EditTeamPlayerDto } from '../../interfaces/models/dtos/Team/EditTeamPlayerDto';
-import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { IAppContainerProps } from '../common/AppContainer';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { playerBuilder } from '../../helpers/builders/players';
-import { divisionBuilder } from '../../helpers/builders/divisions';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { teamBuilder } from '../../helpers/builders/teams';
-import { fixtureBuilder, IMatchBuilder } from '../../helpers/builders/games';
-import { IFailedRequest } from '../common/IFailedRequest';
-import { IGameApi } from '../../interfaces/apis/IGameApi';
-import { IPlayerApi } from '../../interfaces/apis/IPlayerApi';
-import { UploadPhotoDto } from '../../interfaces/models/dtos/UploadPhotoDto';
-import { PhotoReferenceDto } from '../../interfaces/models/dtos/PhotoReferenceDto';
-import { IFeatureApi } from '../../interfaces/apis/IFeatureApi';
-import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto';
-import { IDatedDivisionFixtureDto } from '../division_fixtures/IDatedDivisionFixtureDto';
-import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto';
+} from '../../helpers/tests.tsx';
+import { any, take } from '../../helpers/collections.ts';
+import { createTemporaryId, repeat } from '../../helpers/projection.ts';
+import { Score } from './Score.tsx';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { RecordScoresDto } from '../../interfaces/models/dtos/Game/RecordScoresDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { EditTeamPlayerDto } from '../../interfaces/models/dtos/Team/EditTeamPlayerDto.ts';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { IAppContainerProps } from '../common/AppContainer.tsx';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { playerBuilder } from '../../helpers/builders/players.ts';
+import { divisionBuilder } from '../../helpers/builders/divisions.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
+import { fixtureBuilder, IMatchBuilder } from '../../helpers/builders/games.ts';
+import { IFailedRequest } from '../common/IFailedRequest.ts';
+import { IGameApi } from '../../interfaces/apis/IGameApi.ts';
+import { IPlayerApi } from '../../interfaces/apis/IPlayerApi.ts';
+import { UploadPhotoDto } from '../../interfaces/models/dtos/UploadPhotoDto.ts';
+import { PhotoReferenceDto } from '../../interfaces/models/dtos/PhotoReferenceDto.ts';
+import { IFeatureApi } from '../../interfaces/apis/IFeatureApi.ts';
+import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto.ts';
+import { IDatedDivisionFixtureDto } from '../division_fixtures/IDatedDivisionFixtureDto.ts';
+import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto.ts';
 
 interface ICreatedPlayer {
     divisionId: string;

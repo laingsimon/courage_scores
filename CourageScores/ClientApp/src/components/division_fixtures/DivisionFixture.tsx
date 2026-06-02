@@ -3,26 +3,26 @@ import { Link } from 'react-router';
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
-} from '../common/BootstrapDropdown';
-import { ErrorDisplay } from '../common/ErrorDisplay';
-import { renderDate } from '../../helpers/rendering';
-import { any, sortBy } from '../../helpers/collections';
-import { useDependencies } from '../common/IocContainer';
-import { useApp } from '../common/AppContainer';
-import { useDivisionData } from '../league/DivisionDataContainer';
-import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall';
-import { DivisionFixtureDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto';
-import { DivisionTeamDto } from '../../interfaces/models/dtos/Division/DivisionTeamDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { IEditableDivisionFixtureDateDto } from './IEditableDivisionFixtureDateDto';
-import { usePreferences } from '../common/PreferencesContainer';
-import { ToggleFavouriteTeam } from '../common/ToggleFavouriteTeam';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { getTeamsInSeason } from '../../helpers/teams';
+} from '../common/BootstrapDropdown.tsx';
+import { ErrorDisplay } from '../common/ErrorDisplay.tsx';
+import { renderDate } from '../../helpers/rendering.ts';
+import { any, sortBy } from '../../helpers/collections.ts';
+import { useDependencies } from '../common/IocContainer.tsx';
+import { useApp } from '../common/AppContainer.tsx';
+import { useDivisionData } from '../league/DivisionDataContainer.tsx';
+import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
+import { DivisionFixtureDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto.ts';
+import { DivisionTeamDto } from '../../interfaces/models/dtos/Division/DivisionTeamDto.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { IEditableDivisionFixtureDateDto } from './IEditableDivisionFixtureDateDto.ts';
+import { usePreferences } from '../common/PreferencesContainer.tsx';
+import { ToggleFavouriteTeam } from '../common/ToggleFavouriteTeam.tsx';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { getTeamsInSeason } from '../../helpers/teams.ts';
 
 export interface IDivisionFixtureProps {
     fixture: IEditableDivisionFixtureDto;

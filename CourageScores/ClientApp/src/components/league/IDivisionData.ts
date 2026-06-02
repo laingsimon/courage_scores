@@ -1,5 +1,5 @@
-import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface IDivisionData extends DivisionDataDto {
     onReloadDivision(

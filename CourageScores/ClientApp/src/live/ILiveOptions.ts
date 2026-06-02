@@ -1,4 +1,4 @@
-import { ISubscriptionRequest } from './ISubscriptionRequest';
+import { ISubscriptionRequest } from './ISubscriptionRequest.ts';
 
 export interface ILiveOptions {
     publish?: boolean;

@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from 'react';
-import { IBrandingData } from './IBrandingData';
-import { IBranding } from './IBranding';
+import { IBrandingData } from './IBrandingData.ts';
+import { IBranding } from './IBranding.ts';
 
 const BrandingContext = createContext({});
 

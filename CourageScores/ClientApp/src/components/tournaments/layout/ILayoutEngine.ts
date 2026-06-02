@@ -1,5 +1,5 @@
-import { ILayoutRequest } from './ILayoutRequest';
-import { ILayoutDataForRound } from './ILayoutDataForRound';
+import { ILayoutRequest } from './ILayoutRequest.ts';
+import { ILayoutDataForRound } from './ILayoutDataForRound.ts';
 
 export interface ILayoutEngine {
     calculate(request: ILayoutRequest): ILayoutDataForRound[];

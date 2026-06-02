@@ -1,8 +1,8 @@
-import { TournamentPlayerDto } from '../../../interfaces/models/dtos/Game/TournamentPlayerDto';
-import { TournamentSideDto } from '../../../interfaces/models/dtos/Game/TournamentSideDto';
-import { TournamentMatchDto } from '../../../interfaces/models/dtos/Game/TournamentMatchDto';
-import { IComponent } from '../../../helpers/tests';
-import { tournamentBuilder } from '../../../helpers/builders/tournaments';
+import { TournamentPlayerDto } from '../../../interfaces/models/dtos/Game/TournamentPlayerDto.ts';
+import { TournamentSideDto } from '../../../interfaces/models/dtos/Game/TournamentSideDto.ts';
+import { TournamentMatchDto } from '../../../interfaces/models/dtos/Game/TournamentMatchDto.ts';
+import { IComponent } from '../../../helpers/tests.tsx';
+import { tournamentBuilder } from '../../../helpers/builders/tournaments.ts';
 
 export function equatableSide(
     name: string,

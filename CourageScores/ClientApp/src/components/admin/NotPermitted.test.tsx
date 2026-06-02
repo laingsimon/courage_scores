@@ -6,9 +6,9 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { NotPermitted } from './NotPermitted';
-import { IAppContainerProps } from '../common/AppContainer';
+} from '../../helpers/tests.tsx';
+import { NotPermitted } from './NotPermitted.tsx';
+import { IAppContainerProps } from '../common/AppContainer.tsx';
 
 describe('NotPermitted', () => {
     let context: TestContext;

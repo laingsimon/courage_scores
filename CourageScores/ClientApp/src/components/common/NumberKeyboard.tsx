@@ -1,5 +1,5 @@
 import { MouseEvent, useEffect } from 'react';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface INumberKeyboardProps {
     value: string;

@@ -1,18 +1,24 @@
-import { all, any } from '../../helpers/collections';
-import { AndFilter, Filter, NotFilter, NullFilter, OrFilter } from './Filter';
+import { all, any } from '../../helpers/collections.ts';
+import {
+    AndFilter,
+    Filter,
+    NotFilter,
+    NullFilter,
+    OrFilter,
+} from './Filter.ts';
 import {
     isInFuture,
     isInPast,
     isDateEqualTo,
     isToday,
-} from '../../helpers/dates';
-import { IFilter } from './IFilter';
-import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto';
-import { DivisionFixtureDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDto';
-import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto';
-import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto';
-import { IEditableDivisionFixtureDateDto } from './IEditableDivisionFixtureDateDto';
-import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
+} from '../../helpers/dates.ts';
+import { IFilter } from './IFilter.ts';
+import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto.ts';
+import { DivisionFixtureDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDto.ts';
+import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto.ts';
+import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto.ts';
+import { IEditableDivisionFixtureDateDto } from './IEditableDivisionFixtureDateDto.ts';
+import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto.ts';
 
 export interface IRenderContext {
     lastFixtureDateBeforeToday?: string;

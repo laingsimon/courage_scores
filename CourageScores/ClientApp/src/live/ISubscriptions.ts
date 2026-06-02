@@ -1,4 +1,4 @@
-﻿import { ISubscription } from './ISubscription';
+﻿import { ISubscription } from './ISubscription.ts';
 
 export interface ISubscriptions {
     [key: string]: ISubscription;

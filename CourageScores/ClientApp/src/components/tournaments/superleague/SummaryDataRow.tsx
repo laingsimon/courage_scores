@@ -1,13 +1,13 @@
-import { useApp } from '../../common/AppContainer';
-import { ifNaN, round2dp } from '../../../helpers/rendering';
+import { useApp } from '../../common/AppContainer.tsx';
+import { ifNaN, round2dp } from '../../../helpers/rendering.ts';
 import {
     countMatch100,
     countMatch140,
     countMatch180,
     matchTons,
     playerOverallAverage,
-} from '../../../helpers/superleague';
-import { ScoreAsYouGoDto } from '../../../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto';
+} from '../../../helpers/superleague.ts';
+import { ScoreAsYouGoDto } from '../../../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto.ts';
 
 export interface ISummaryDataRowProps {
     matchNo: number;

@@ -1,7 +1,7 @@
-import { useApp } from '../common/AppContainer';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { useApp } from '../common/AppContainer.tsx';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 
 export interface IMergeManOfTheMatchProps {
     data: GameDto;

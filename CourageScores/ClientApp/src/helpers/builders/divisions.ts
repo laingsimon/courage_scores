@@ -1,25 +1,25 @@
 ﻿/* istanbul ignore file */
 
-import { BuilderParam, IAddableBuilder, IBuilder } from './builders';
-import { IDatedDivisionFixtureDto } from '../../components/division_fixtures/IDatedDivisionFixtureDto';
-import { IEditableDivisionFixtureDto } from '../../components/division_fixtures/DivisionFixture';
-import { createTemporaryId } from '../projection';
-import { OtherDivisionFixtureDto } from '../../interfaces/models/dtos/Division/OtherDivisionFixtureDto';
-import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto';
-import { IEditableDivisionFixtureDateDto } from '../../components/division_fixtures/IEditableDivisionFixtureDateDto';
-import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
-import { ISeasonBuilder, seasonBuilder } from './seasons';
-import { IDivisionDataContainerProps } from '../../components/league/DivisionDataContainer';
-import { ITournamentBuilder, tournamentBuilder } from './tournaments';
+import { BuilderParam, IAddableBuilder, IBuilder } from './builders.ts';
+import { IDatedDivisionFixtureDto } from '../../components/division_fixtures/IDatedDivisionFixtureDto.ts';
+import { IEditableDivisionFixtureDto } from '../../components/division_fixtures/DivisionFixture.ts';
+import { createTemporaryId } from '../projection.ts';
+import { OtherDivisionFixtureDto } from '../../interfaces/models/dtos/Division/OtherDivisionFixtureDto.ts';
+import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto.ts';
+import { IEditableDivisionFixtureDateDto } from '../../components/division_fixtures/IEditableDivisionFixtureDateDto.ts';
+import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
+import { ISeasonBuilder, seasonBuilder } from './seasons.ts';
+import { IDivisionDataContainerProps } from '../../components/league/DivisionDataContainer.tsx';
+import { ITournamentBuilder, tournamentBuilder } from './tournaments.ts';
 import { ReactNode } from 'react';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { noop } from '../tests';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/DivisionPlayerDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { noop } from '../tests.tsx';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/DivisionPlayerDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto.ts';
 
 export interface IDivisionFixtureBuilder extends IAddableBuilder<IDatedDivisionFixtureDto> {
     withOtherFixtureUsingUsingAddress(

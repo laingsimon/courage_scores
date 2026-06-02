@@ -1,4 +1,4 @@
-import { AdminContainer, IAdminContainerProps } from './AdminContainer';
+import { AdminContainer, IAdminContainerProps } from './AdminContainer.tsx';
 import {
     api,
     appProps,
@@ -8,12 +8,12 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { ExportData } from './ExportData';
-import { ExportDataRequestDto } from '../../interfaces/models/dtos/Data/ExportDataRequestDto';
-import { ExportDataResultDto } from '../../interfaces/models/dtos/Data/ExportDataResultDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { IDataApi } from '../../interfaces/apis/IDataApi';
+} from '../../helpers/tests.tsx';
+import { ExportData } from './ExportData.tsx';
+import { ExportDataRequestDto } from '../../interfaces/models/dtos/Data/ExportDataRequestDto.ts';
+import { ExportDataResultDto } from '../../interfaces/models/dtos/Data/ExportDataResultDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { IDataApi } from '../../interfaces/apis/IDataApi.ts';
 
 describe('ExportData', () => {
     let context: TestContext;

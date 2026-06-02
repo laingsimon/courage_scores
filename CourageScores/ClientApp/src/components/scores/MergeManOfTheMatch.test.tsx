@@ -6,15 +6,15 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     IMergeManOfTheMatchProps,
     MergeManOfTheMatch,
-} from './MergeManOfTheMatch';
-import { playerBuilder } from '../../helpers/builders/players';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
-import { fixtureBuilder } from '../../helpers/builders/games';
+} from './MergeManOfTheMatch.tsx';
+import { playerBuilder } from '../../helpers/builders/players.ts';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
+import { fixtureBuilder } from '../../helpers/builders/games.ts';
 
 describe('MergeManOfTheMatch', () => {
     let context: TestContext;

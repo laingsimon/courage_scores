@@ -8,19 +8,19 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { IDivisionApi } from '../../interfaces/apis/IDivisionApi';
-import { ISaygApi } from '../../interfaces/apis/ISaygApi';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { DivisionDataFilter } from '../../interfaces/models/dtos/Division/DivisionDataFilter';
-import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
-import { divisionDataBuilder } from '../../helpers/builders/divisions';
-import { renderDate } from '../../helpers/rendering';
-import { AnalyseScores } from './AnalyseScores';
-import { AnalysisRequestDto } from '../../interfaces/models/dtos/Analysis/AnalysisRequestDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { AnalysisResponseDto } from '../../interfaces/models/dtos/Analysis/AnalysisResponseDto';
+} from '../../helpers/tests.tsx';
+import { IDivisionApi } from '../../interfaces/apis/IDivisionApi.ts';
+import { ISaygApi } from '../../interfaces/apis/ISaygApi.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { DivisionDataFilter } from '../../interfaces/models/dtos/Division/DivisionDataFilter.ts';
+import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
+import { divisionDataBuilder } from '../../helpers/builders/divisions.ts';
+import { renderDate } from '../../helpers/rendering.ts';
+import { AnalyseScores } from './AnalyseScores.tsx';
+import { AnalysisRequestDto } from '../../interfaces/models/dtos/Analysis/AnalysisRequestDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { AnalysisResponseDto } from '../../interfaces/models/dtos/Analysis/AnalysisResponseDto.ts';
 
 const mockedUsedNavigate = jest.fn();
 

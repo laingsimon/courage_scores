@@ -1,8 +1,8 @@
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
-import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto';
-import { ISelectablePlayer } from '../common/PlayerSelection';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
+import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto.ts';
+import { ISelectablePlayer } from '../common/PlayerSelection.ts';
 
 export interface ILeagueFixture {
     season: SeasonDto;

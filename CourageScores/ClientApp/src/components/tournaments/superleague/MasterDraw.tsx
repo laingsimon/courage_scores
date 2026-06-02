@@ -1,30 +1,30 @@
-import { useApp } from '../../common/AppContainer';
-import { renderDate } from '../../../helpers/rendering';
-import { TournamentMatchDto } from '../../../interfaces/models/dtos/Game/TournamentMatchDto';
-import { PatchTournamentDto } from '../../../interfaces/models/dtos/Game/PatchTournamentDto';
-import { PatchTournamentRoundDto } from '../../../interfaces/models/dtos/Game/PatchTournamentRoundDto';
-import { propChanged, valueChanged } from '../../../helpers/events';
+import { useApp } from '../../common/AppContainer.tsx';
+import { renderDate } from '../../../helpers/rendering.ts';
+import { TournamentMatchDto } from '../../../interfaces/models/dtos/Game/TournamentMatchDto.ts';
+import { PatchTournamentDto } from '../../../interfaces/models/dtos/Game/PatchTournamentDto.ts';
+import { PatchTournamentRoundDto } from '../../../interfaces/models/dtos/Game/PatchTournamentRoundDto.ts';
+import { propChanged, valueChanged } from '../../../helpers/events.ts';
 import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
-} from '../../common/BootstrapDropdown';
-import { TournamentGameDto } from '../../../interfaces/models/dtos/Game/TournamentGameDto';
-import { TeamDto } from '../../../interfaces/models/dtos/Team/TeamDto';
-import { UntypedPromise } from '../../../interfaces/UntypedPromise';
+} from '../../common/BootstrapDropdown.tsx';
+import { TournamentGameDto } from '../../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { TeamDto } from '../../../interfaces/models/dtos/Team/TeamDto.ts';
+import { UntypedPromise } from '../../../interfaces/UntypedPromise.ts';
 import { useState } from 'react';
-import { createTemporaryId } from '../../../helpers/projection';
-import { any, count, toDictionary } from '../../../helpers/collections';
-import { useTournament } from '../TournamentContainer';
-import { getTeamsInSeason } from '../../../helpers/teams';
+import { createTemporaryId } from '../../../helpers/projection.ts';
+import { any, count, toDictionary } from '../../../helpers/collections.ts';
+import { useTournament } from '../TournamentContainer.tsx';
+import { getTeamsInSeason } from '../../../helpers/teams.ts';
 import {
     EditSuperleagueMatch,
     IEditSuperleagueMatchProps,
-} from './EditSuperleagueMatch';
+} from './EditSuperleagueMatch.tsx';
 import {
     hasPlayerCount,
     matchPlayerFilter,
-} from '../../../helpers/superleague';
-import { GameMatchOptionDto } from '../../../interfaces/models/dtos/Game/GameMatchOptionDto';
+} from '../../../helpers/superleague.ts';
+import { GameMatchOptionDto } from '../../../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
 import { Link } from 'react-router';
 
 export interface IMasterDrawProps {

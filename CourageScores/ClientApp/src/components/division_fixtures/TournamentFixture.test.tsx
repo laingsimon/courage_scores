@@ -10,34 +10,34 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { createTemporaryId } from '../../helpers/projection';
+} from '../../helpers/tests.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
 import {
     DivisionDataContainer,
     IDivisionDataContainerProps,
-} from '../league/DivisionDataContainer';
+} from '../league/DivisionDataContainer.tsx';
 import {
     ITournamentFixtureProps,
     TournamentFixture,
-} from './TournamentFixture';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/DivisionPlayerDto';
-import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto';
+} from './TournamentFixture.tsx';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/DivisionPlayerDto.ts';
+import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto.ts';
 import {
     sideBuilder,
     tournamentBuilder,
-} from '../../helpers/builders/tournaments';
-import { teamBuilder } from '../../helpers/builders/teams';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { divisionBuilder } from '../../helpers/builders/divisions';
-import { playerBuilder } from '../../helpers/builders/players';
-import { ITournamentGameApi } from '../../interfaces/apis/ITournamentGameApi';
-import { IPreferenceData } from '../common/PreferencesContainer';
+} from '../../helpers/builders/tournaments.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { divisionBuilder } from '../../helpers/builders/divisions.ts';
+import { playerBuilder } from '../../helpers/builders/players.ts';
+import { ITournamentGameApi } from '../../interfaces/apis/ITournamentGameApi.ts';
+import { IPreferenceData } from '../common/PreferencesContainer.tsx';
 
 describe('TournamentFixture', () => {
     let context: TestContext;

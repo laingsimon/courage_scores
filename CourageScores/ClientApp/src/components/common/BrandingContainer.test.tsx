@@ -5,9 +5,9 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { BrandingContainer, useBranding } from './BrandingContainer';
-import { IBrandingData } from './IBrandingData';
+} from '../../helpers/tests.tsx';
+import { BrandingContainer, useBranding } from './BrandingContainer.tsx';
+import { IBrandingData } from './IBrandingData.ts';
 
 describe('BrandingContainer', () => {
     let context: TestContext;

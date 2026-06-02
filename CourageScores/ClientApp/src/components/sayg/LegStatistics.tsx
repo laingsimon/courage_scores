@@ -1,14 +1,14 @@
-import { sum } from '../../helpers/collections';
-import { ifNaN, round2dp } from '../../helpers/rendering';
-import { valueChanged } from '../../helpers/events';
+import { sum } from '../../helpers/collections.ts';
+import { ifNaN, round2dp } from '../../helpers/rendering.ts';
+import { valueChanged } from '../../helpers/events.ts';
 import { useState } from 'react';
-import { EditThrow } from './EditThrow';
-import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto';
-import { LegThrowDto } from '../../interfaces/models/dtos/Game/Sayg/LegThrowDto';
-import { LegCompetitorScoreDto } from '../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto';
-import { ILegDisplayOptions } from './ILegDisplayOptions';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { isLegWinner } from '../../helpers/superleague';
+import { EditThrow } from './EditThrow.tsx';
+import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto.ts';
+import { LegThrowDto } from '../../interfaces/models/dtos/Game/Sayg/LegThrowDto.ts';
+import { LegCompetitorScoreDto } from '../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto.ts';
+import { ILegDisplayOptions } from './ILegDisplayOptions.ts';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { isLegWinner } from '../../helpers/superleague.ts';
 
 export interface ILegStatisticsProps {
     leg: LegDto;

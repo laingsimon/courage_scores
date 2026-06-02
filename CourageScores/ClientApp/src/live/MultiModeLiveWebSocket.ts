@@ -1,13 +1,13 @@
-import { ISubscriptions } from './ISubscriptions';
-import { IWebSocketContext } from './IWebSocketContext';
-import { ILiveWebSocket } from './ILiveWebSocket';
-import { ISubscriptionRequest } from './ISubscriptionRequest';
-import { IUpdateStrategy } from './IUpdateStrategy';
-import { WebSocketMode } from './WebSocketMode';
-import { IStrategyData } from './IStrategyData';
-import { ISubscription } from './ISubscription';
-import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType';
-import { UntypedPromise } from '../interfaces/UntypedPromise';
+import { ISubscriptions } from './ISubscriptions.ts';
+import { IWebSocketContext } from './IWebSocketContext.ts';
+import { ILiveWebSocket } from './ILiveWebSocket.ts';
+import { ISubscriptionRequest } from './ISubscriptionRequest.ts';
+import { IUpdateStrategy } from './IUpdateStrategy.ts';
+import { WebSocketMode } from './WebSocketMode.ts';
+import { IStrategyData } from './IStrategyData.ts';
+import { ISubscription } from './ISubscription.ts';
+import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType.ts';
+import { UntypedPromise } from '../interfaces/UntypedPromise.ts';
 
 interface IMultiModeLiveWebSocketProps {
     socketContext: IWebSocketContext;

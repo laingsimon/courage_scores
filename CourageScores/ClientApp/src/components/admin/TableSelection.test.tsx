@@ -6,9 +6,9 @@
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { ITableSelectionProps, TableSelection } from './TableSelection';
-import { TableDto } from '../../interfaces/models/dtos/Data/TableDto';
+} from '../../helpers/tests.tsx';
+import { ITableSelectionProps, TableSelection } from './TableSelection.tsx';
+import { TableDto } from '../../interfaces/models/dtos/Data/TableDto.ts';
 
 describe('TableSelection', () => {
     let context: TestContext;

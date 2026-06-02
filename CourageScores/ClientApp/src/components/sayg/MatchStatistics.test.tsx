@@ -11,24 +11,24 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { ILegBuilder, saygBuilder } from '../../helpers/builders/sayg';
+} from '../../helpers/tests.tsx';
+import { ILegBuilder, saygBuilder } from '../../helpers/builders/sayg.ts';
 import {
     ISaygLoadingContainerProps,
     SaygLoadingContainer,
-} from './SaygLoadingContainer';
-import { createTemporaryId } from '../../helpers/projection';
+} from './SaygLoadingContainer.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
 import { act } from '@testing-library/react';
-import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
-import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto';
-import { IAppContainerProps } from '../common/AppContainer';
-import { ILiveOptions } from '../../live/ILiveOptions';
-import { ILegDisplayOptions } from './ILegDisplayOptions';
-import { ISaygApi } from '../../interfaces/apis/ISaygApi';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType';
-import { MessageType } from '../../interfaces/models/dtos/MessageType';
-import { BuilderParam } from '../../helpers/builders/builders';
+import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto.ts';
+import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto.ts';
+import { IAppContainerProps } from '../common/AppContainer.tsx';
+import { ILiveOptions } from '../../live/ILiveOptions.ts';
+import { ILegDisplayOptions } from './ILegDisplayOptions.ts';
+import { ISaygApi } from '../../interfaces/apis/ISaygApi.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType.ts';
+import { MessageType } from '../../interfaces/models/dtos/MessageType.ts';
+import { BuilderParam } from '../../helpers/builders/builders.ts';
 
 describe('MatchStatistics', () => {
     let context: TestContext;

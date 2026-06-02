@@ -1,4 +1,4 @@
-import { AdminContainer } from './AdminContainer';
+import { AdminContainer } from './AdminContainer.tsx';
 import {
     appProps,
     brandingProps,
@@ -7,9 +7,9 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { ITemplateDatesProps, TemplateDates } from './TemplateDates';
-import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto';
+} from '../../helpers/tests.tsx';
+import { ITemplateDatesProps, TemplateDates } from './TemplateDates.tsx';
+import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto.ts';
 
 describe('TemplateDates', () => {
     let context: TestContext;

@@ -1,11 +1,11 @@
-import { count, sum } from './collections';
-import { LegThrowDto } from '../interfaces/models/dtos/Game/Sayg/LegThrowDto';
-import { ScoreAsYouGoDto } from '../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto';
-import { LegDto } from '../interfaces/models/dtos/Game/Sayg/LegDto';
-import { LegCompetitorScoreDto } from '../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto';
-import { ISuperleagueSayg } from '../components/tournaments/superleague/ISuperleagueSayg';
-import { getScoreFromThrows } from './sayg';
-import { TournamentMatchDto } from '../interfaces/models/dtos/Game/TournamentMatchDto';
+import { count, sum } from './collections.ts';
+import { LegThrowDto } from '../interfaces/models/dtos/Game/Sayg/LegThrowDto.ts';
+import { ScoreAsYouGoDto } from '../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto.ts';
+import { LegDto } from '../interfaces/models/dtos/Game/Sayg/LegDto.ts';
+import { LegCompetitorScoreDto } from '../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto.ts';
+import { ISuperleagueSayg } from '../components/tournaments/superleague/ISuperleagueSayg.ts';
+import { getScoreFromThrows } from './sayg.ts';
+import { TournamentMatchDto } from '../interfaces/models/dtos/Game/TournamentMatchDto.ts';
 
 export function playerOverallAverage(
     saygData: ScoreAsYouGoDto | null | undefined,

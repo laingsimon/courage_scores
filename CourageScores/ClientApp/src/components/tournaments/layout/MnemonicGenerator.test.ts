@@ -1,7 +1,7 @@
 import {
     getSideMnemonicGenerator,
     IMnemonicGenerator,
-} from './MnemonicGenerators';
+} from './MnemonicGenerators.ts';
 
 describe('MnemonicGenerator', () => {
     describe('getSideMnemonicGenerator', () => {

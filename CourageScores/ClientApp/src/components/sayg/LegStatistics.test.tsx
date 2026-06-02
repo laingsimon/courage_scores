@@ -6,11 +6,11 @@ import {
     appProps,
     TestContext,
     IComponent,
-} from '../../helpers/tests';
-import { ILegStatisticsProps, LegStatistics } from './LegStatistics';
-import { legBuilder } from '../../helpers/builders/sayg';
-import { ILegDisplayOptions } from './ILegDisplayOptions';
-import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto';
+} from '../../helpers/tests.tsx';
+import { ILegStatisticsProps, LegStatistics } from './LegStatistics.tsx';
+import { legBuilder } from '../../helpers/builders/sayg.ts';
+import { ILegDisplayOptions } from './ILegDisplayOptions.ts';
+import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto.ts';
 
 describe('LegStatistics', () => {
     let context: TestContext;

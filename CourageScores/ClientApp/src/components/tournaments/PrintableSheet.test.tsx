@@ -8,31 +8,31 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     ITournamentContainerProps,
     TournamentContainer,
-} from './TournamentContainer';
-import { IPrintableSheetProps, PrintableSheet } from './PrintableSheet';
-import { renderDate } from '../../helpers/rendering';
-import { createTemporaryId } from '../../helpers/projection';
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
-import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
+} from './TournamentContainer.tsx';
+import { IPrintableSheetProps, PrintableSheet } from './PrintableSheet.tsx';
+import { renderDate } from '../../helpers/rendering.ts';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
 import {
     ITournamentRoundBuilder,
     ITournamentSideBuilder,
     sideBuilder,
     tournamentBuilder,
-} from '../../helpers/builders/tournaments';
-import { matchOptionsBuilder } from '../../helpers/builders/games';
-import { playerBuilder } from '../../helpers/builders/players';
-import { teamBuilder } from '../../helpers/builders/teams';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { divisionBuilder } from '../../helpers/builders/divisions';
-import { IAppContainerProps } from '../common/AppContainer';
-import { tournamentContainerPropsBuilder } from './tournamentContainerPropsBuilder';
-import { BuilderParam } from '../../helpers/builders/builders';
-import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto';
+} from '../../helpers/builders/tournaments.ts';
+import { matchOptionsBuilder } from '../../helpers/builders/games.ts';
+import { playerBuilder } from '../../helpers/builders/players.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { divisionBuilder } from '../../helpers/builders/divisions.ts';
+import { IAppContainerProps } from '../common/AppContainer.tsx';
+import { tournamentContainerPropsBuilder } from './tournamentContainerPropsBuilder.ts';
+import { BuilderParam } from '../../helpers/builders/builders.ts';
+import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto.ts';
 
 interface ISideInfo {
     sideAwinner?: boolean;

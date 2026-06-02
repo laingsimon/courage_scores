@@ -1,6 +1,6 @@
-import { ISubscriptions } from './ISubscriptions';
-import { ISubscriptionRequest } from './ISubscriptionRequest';
-import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType';
+import { ISubscriptions } from './ISubscriptions.ts';
+import { ISubscriptionRequest } from './ISubscriptionRequest.ts';
+import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType.ts';
 
 export interface ILiveWebSocket {
     subscriptions: ISubscriptions;

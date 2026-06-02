@@ -1,16 +1,16 @@
 import { useState } from 'react';
-import { ISelectablePlayer, PlayerSelection } from './PlayerSelection';
-import { any } from '../../helpers/collections';
-import { useApp } from './AppContainer';
-import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
-import { NotablePlayerDto } from '../../interfaces/models/dtos/Game/NotablePlayerDto';
-import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto';
-import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto';
-import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
+import { ISelectablePlayer, PlayerSelection } from './PlayerSelection.tsx';
+import { any } from '../../helpers/collections.ts';
+import { useApp } from './AppContainer.tsx';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
+import { NotablePlayerDto } from '../../interfaces/models/dtos/Game/NotablePlayerDto.ts';
+import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto.ts';
+import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto.ts';
+import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
 import { Link } from 'react-router';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { findTeam } from '../../helpers/teams';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { findTeam } from '../../helpers/teams.ts';
 
 export interface IMultiPlayerSelectionProps {
     onAddPlayer?(player: ISelectablePlayer, score: number): UntypedPromise;

@@ -1,6 +1,6 @@
-import { ILayoutDataForSide } from './ILayoutDataForSide';
-import { GameMatchOptionDto } from '../../../interfaces/models/dtos/Game/GameMatchOptionDto';
-import { TournamentMatchDto } from '../../../interfaces/models/dtos/Game/TournamentMatchDto';
+import { ILayoutDataForSide } from './ILayoutDataForSide.ts';
+import { GameMatchOptionDto } from '../../../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
+import { TournamentMatchDto } from '../../../interfaces/models/dtos/Game/TournamentMatchDto.ts';
 
 export interface ILayoutDataForMatch {
     sideA: ILayoutDataForSide;

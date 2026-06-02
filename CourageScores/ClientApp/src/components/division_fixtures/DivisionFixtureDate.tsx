@@ -1,26 +1,26 @@
-import { any } from '../../helpers/collections';
-import { renderDate } from '../../helpers/rendering';
-import { FixtureDateNote } from './FixtureDateNote';
+import { any } from '../../helpers/collections.ts';
+import { renderDate } from '../../helpers/rendering.ts';
+import { FixtureDateNote } from './FixtureDateNote.tsx';
 import {
     DivisionFixture,
     IEditableDivisionFixtureDto,
-} from './DivisionFixture';
-import { TournamentFixture } from './TournamentFixture';
-import { useApp } from '../common/AppContainer';
+} from './DivisionFixture.tsx';
+import { TournamentFixture } from './TournamentFixture.tsx';
+import { useApp } from '../common/AppContainer.tsx';
 import { useLocation, useNavigate, Link } from 'react-router';
-import { useDivisionData } from '../league/DivisionDataContainer';
-import { isInPast, isToday } from '../../helpers/dates';
-import { DivisionFixtureDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDto';
-import { IEditableDivisionFixtureDateDto } from './IEditableDivisionFixtureDateDto';
-import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto';
-import { DivisionTeamDto } from '../../interfaces/models/dtos/Division/DivisionTeamDto';
-import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto';
-import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto';
-import { EditFixtureDateNoteDto } from '../../interfaces/models/dtos/EditFixtureDateNoteDto';
-import { NewTournamentFixture } from './NewTournamentFixture';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
+import { useDivisionData } from '../league/DivisionDataContainer.tsx';
+import { isInPast, isToday } from '../../helpers/dates.ts';
+import { DivisionFixtureDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDto.ts';
+import { IEditableDivisionFixtureDateDto } from './IEditableDivisionFixtureDateDto.ts';
+import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto.ts';
+import { DivisionTeamDto } from '../../interfaces/models/dtos/Division/DivisionTeamDto.ts';
+import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto.ts';
+import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto.ts';
+import { EditFixtureDateNoteDto } from '../../interfaces/models/dtos/EditFixtureDateNoteDto.ts';
+import { NewTournamentFixture } from './NewTournamentFixture.tsx';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 import React from 'react';
-import { hasAccess } from '../../helpers/conditions';
+import { hasAccess } from '../../helpers/conditions.ts';
 
 export interface IDivisionFixtureDateProps {
     date: IEditableDivisionFixtureDateDto;

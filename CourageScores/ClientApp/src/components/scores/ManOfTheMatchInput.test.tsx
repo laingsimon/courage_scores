@@ -7,15 +7,15 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     IManOfTheMatchInputProps,
     ManOfTheMatchInput,
-} from './ManOfTheMatchInput';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { fixtureBuilder } from '../../helpers/builders/games';
-import { playerBuilder } from '../../helpers/builders/players';
+} from './ManOfTheMatchInput.tsx';
+import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { fixtureBuilder } from '../../helpers/builders/games.ts';
+import { playerBuilder } from '../../helpers/builders/players.ts';
 
 describe('ManOfTheMatchInput', () => {
     let context: TestContext;

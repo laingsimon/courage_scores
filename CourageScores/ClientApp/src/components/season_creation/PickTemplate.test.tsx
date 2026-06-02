@@ -6,12 +6,12 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
-import { IPickTemplateProps, PickTemplate } from './PickTemplate';
-import { createTemporaryId } from '../../helpers/projection';
-import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { ActionResultDto } from '../../interfaces/models/dtos/ActionResultDto';
+} from '../../helpers/tests.tsx';
+import { IPickTemplateProps, PickTemplate } from './PickTemplate.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { ActionResultDto } from '../../interfaces/models/dtos/ActionResultDto.ts';
 
 describe('PickTemplate', () => {
     let context: TestContext;

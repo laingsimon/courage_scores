@@ -1,10 +1,10 @@
-﻿import { addSide } from './tournaments';
+﻿import { addSide } from './tournaments.ts';
 import {
     sideBuilder,
     tournamentBuilder,
-} from '../../helpers/builders/tournaments';
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
-import { playerBuilder } from '../../helpers/builders/players';
+} from '../../helpers/builders/tournaments.ts';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
+import { playerBuilder } from '../../helpers/builders/players.ts';
 
 describe('tournaments', () => {
     describe('addSide', () => {

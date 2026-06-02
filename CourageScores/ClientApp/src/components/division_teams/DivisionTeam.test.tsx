@@ -8,23 +8,23 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { createTemporaryId } from '../../helpers/projection';
-import { DivisionTeam } from './DivisionTeam';
+} from '../../helpers/tests.tsx';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { DivisionTeam } from './DivisionTeam.tsx';
 import {
     DivisionDataContainer,
     IDivisionDataContainerProps,
-} from '../league/DivisionDataContainer';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
-import { EditTeamDto } from '../../interfaces/models/dtos/Team/EditTeamDto';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
-import { DivisionTeamDto } from '../../interfaces/models/dtos/Division/DivisionTeamDto';
-import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
-import { IClientActionResultDto } from '../common/IClientActionResultDto';
-import { seasonBuilder } from '../../helpers/builders/seasons';
-import { divisionBuilder } from '../../helpers/builders/divisions';
-import { ITeamApi } from '../../interfaces/apis/ITeamApi';
-import { IPreferenceData } from '../common/PreferencesContainer';
+} from '../league/DivisionDataContainer.tsx';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { EditTeamDto } from '../../interfaces/models/dtos/Team/EditTeamDto.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
+import { DivisionTeamDto } from '../../interfaces/models/dtos/Division/DivisionTeamDto.ts';
+import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
+import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { divisionBuilder } from '../../helpers/builders/divisions.ts';
+import { ITeamApi } from '../../interfaces/apis/ITeamApi.ts';
+import { IPreferenceData } from '../common/PreferencesContainer.tsx';
 
 describe('DivisionTeam', () => {
     let context: TestContext;

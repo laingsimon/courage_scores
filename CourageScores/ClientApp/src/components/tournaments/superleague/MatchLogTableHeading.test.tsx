@@ -7,11 +7,11 @@
     iocProps,
     renderApp,
     TestContext,
-} from '../../../helpers/tests';
+} from '../../../helpers/tests.tsx';
 import {
     IMatchLogTableHeadingProps,
     MatchLogTableHeading,
-} from './MatchLogTableHeading';
+} from './MatchLogTableHeading.tsx';
 
 describe('MatchLogTableHeading', () => {
     let context: TestContext;

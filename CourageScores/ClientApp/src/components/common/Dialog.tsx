@@ -1,6 +1,6 @@
 import React from 'react';
-import { UntypedPromise } from '../../interfaces/UntypedPromise';
-import { useApp } from './AppContainer';
+import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { useApp } from './AppContainer.tsx';
 
 export interface IDialogProps {
     children: React.ReactNode;

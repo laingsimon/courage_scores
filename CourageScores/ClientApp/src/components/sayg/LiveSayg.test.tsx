@@ -11,37 +11,37 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests';
-import { LiveSayg } from './LiveSayg';
+} from '../../helpers/tests.tsx';
+import { LiveSayg } from './LiveSayg.tsx';
 import {
     ILegBuilder,
     ILegCompetitorScoreBuilder,
     saygBuilder,
-} from '../../helpers/builders/sayg';
-import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
-import { ISaygApi } from '../../interfaces/apis/ISaygApi';
-import { IAppContainerProps } from '../common/AppContainer';
+} from '../../helpers/builders/sayg.ts';
+import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto.ts';
+import { ISaygApi } from '../../interfaces/apis/ISaygApi.ts';
+import { IAppContainerProps } from '../common/AppContainer.tsx';
 import {
     ITournamentMatchBuilder,
     roundBuilder,
     tournamentBuilder,
-} from '../../helpers/builders/tournaments';
-import { ITournamentGameApi } from '../../interfaces/apis/ITournamentGameApi';
-import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto';
+} from '../../helpers/builders/tournaments.ts';
+import { ITournamentGameApi } from '../../interfaces/apis/ITournamentGameApi.ts';
+import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
 import { act } from '@testing-library/react';
-import { MessageType } from '../../interfaces/models/dtos/MessageType';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
+import { MessageType } from '../../interfaces/models/dtos/MessageType.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
 import {
     divisionBuilder,
     divisionDataBuilder,
-} from '../../helpers/builders/divisions';
-import { IDivisionApi } from '../../interfaces/apis/IDivisionApi';
-import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto';
-import { renderDate } from '../../helpers/rendering';
-import { createTemporaryId } from '../../helpers/projection';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
-import { IFullScreen } from '../common/IFullScreen';
-import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto';
+} from '../../helpers/builders/divisions.ts';
+import { IDivisionApi } from '../../interfaces/apis/IDivisionApi.ts';
+import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
+import { renderDate } from '../../helpers/rendering.ts';
+import { createTemporaryId } from '../../helpers/projection.ts';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { IFullScreen } from '../common/IFullScreen.ts';
+import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
 
 const mockedUsedNavigate = jest.fn();
 

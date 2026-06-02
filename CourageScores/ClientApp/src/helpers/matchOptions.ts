@@ -1,5 +1,5 @@
-import { elementAt } from './collections';
-import { GameMatchOptionDto } from '../interfaces/models/dtos/Game/GameMatchOptionDto';
+import { elementAt } from './collections.ts';
+import { GameMatchOptionDto } from '../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
 
 export interface IMultiMatchOptions {
     [legIndex: number]: number;

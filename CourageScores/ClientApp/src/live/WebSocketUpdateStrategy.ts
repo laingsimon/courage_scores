@@ -1,14 +1,14 @@
-import { IUpdateStrategy } from './IUpdateStrategy';
-import { IWebSocketContext } from './IWebSocketContext';
-import { any } from '../helpers/collections';
-import { ISubscriptions } from './ISubscriptions';
-import { ISubscriptionRequest } from './ISubscriptionRequest';
-import { ISubscription } from './ISubscription';
-import { MessageType } from '../interfaces/models/dtos/MessageType';
-import { IStrategyData } from './IStrategyData';
-import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType';
-import { LiveMessageDto } from '../interfaces/models/dtos/LiveMessageDto';
-import { IError } from '../components/common/IError';
+import { IUpdateStrategy } from './IUpdateStrategy.ts';
+import { IWebSocketContext } from './IWebSocketContext.ts';
+import { any } from '../helpers/collections.ts';
+import { ISubscriptions } from './ISubscriptions.ts';
+import { ISubscriptionRequest } from './ISubscriptionRequest.ts';
+import { ISubscription } from './ISubscription.ts';
+import { MessageType } from '../interfaces/models/dtos/MessageType.ts';
+import { IStrategyData } from './IStrategyData.ts';
+import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType.ts';
+import { LiveMessageDto } from '../interfaces/models/dtos/LiveMessageDto.ts';
+import { IError } from '../components/common/IError.ts';
 
 export const DISCONNECTED = 'DISCONNECTED';
 

@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useDependencies } from '../components/common/IocContainer';
-import { useApp } from '../components/common/AppContainer';
-import { ILive } from './ILive';
-import { ILiveOptions } from './ILiveOptions';
-import { ISubscriptionRequest } from './ISubscriptionRequest';
-import { UntypedPromise } from '../interfaces/UntypedPromise';
-import { hasAccess } from '../helpers/conditions';
-import { isEmpty } from '../helpers/collections';
-import { DISCONNECTED } from './WebSocketUpdateStrategy';
+import { useDependencies } from '../components/common/IocContainer.tsx';
+import { useApp } from '../components/common/AppContainer.tsx';
+import { ILive } from './ILive.ts';
+import { ILiveOptions } from './ILiveOptions.ts';
+import { ISubscriptionRequest } from './ISubscriptionRequest.ts';
+import { UntypedPromise } from '../interfaces/UntypedPromise.ts';
+import { hasAccess } from '../helpers/conditions.ts';
+import { isEmpty } from '../helpers/collections.ts';
+import { DISCONNECTED } from './WebSocketUpdateStrategy.ts';
 
 const LiveContext = createContext({});
 

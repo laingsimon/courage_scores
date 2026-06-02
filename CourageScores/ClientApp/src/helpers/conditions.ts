@@ -1,5 +1,5 @@
-﻿import { UserDto } from '../interfaces/models/dtos/Identity/UserDto';
-import { AccessDto } from '../interfaces/models/dtos/Identity/AccessDto';
+﻿import { UserDto } from '../interfaces/models/dtos/Identity/UserDto.ts';
+import { AccessDto } from '../interfaces/models/dtos/Identity/AccessDto.ts';
 
 export function hasAccess(
     account: UserDto | undefined,

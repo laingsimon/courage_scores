@@ -7,20 +7,20 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests';
+} from '../../helpers/tests.tsx';
 import {
     IWidescreenSaygPlayerProps,
     WidescreenSaygPlayer,
-} from './WidescreenSaygPlayer';
-import { saygBuilder } from '../../helpers/builders/sayg';
-import { LiveContainer } from '../../live/LiveContainer';
+} from './WidescreenSaygPlayer.tsx';
+import { saygBuilder } from '../../helpers/builders/sayg.ts';
+import { LiveContainer } from '../../live/LiveContainer.tsx';
 import {
     ISaygLoadingContainerProps,
     SaygLoadingContainer,
-} from './SaygLoadingContainer';
-import { ILiveOptions } from '../../live/ILiveOptions';
-import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto';
-import { ISaygApi } from '../../interfaces/apis/ISaygApi';
+} from './SaygLoadingContainer.tsx';
+import { ILiveOptions } from '../../live/ILiveOptions.ts';
+import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto.ts';
+import { ISaygApi } from '../../interfaces/apis/ISaygApi.ts';
 
 describe('WidescreenSaygPlayer', () => {
     let context: TestContext;
