@@ -21,14 +21,15 @@
     "useUnknownInCatchVariables": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "nodenext",
+    "module": "esnext",
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
-    "moduleResolution": "nodenext",
+    "moduleResolution": "node10",
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
     "rootDir": "./src/",
+    "ignoreDeprecations": "6.0"
   },
   "exclude": [
     "node_modules", "dist"

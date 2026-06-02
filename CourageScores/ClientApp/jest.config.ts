@@ -1,9 +1,10 @@
 ﻿import type { Config } from 'jest';
-import { createDefaultEsmPreset } from 'ts-jest';
+import { createJsWithTsPreset } from 'ts-jest';
 
-const presetConfig = createDefaultEsmPreset({});
+const presetConfig = createJsWithTsPreset({});
 
 export default {
+    ...presetConfig,
     testEnvironment: 'jest-environment-jsdom',
     testMatch: ['**/*.test.ts', '**/*.test.tsx'],
     maxWorkers: '50%',
@@ -22,5 +23,4 @@ export default {
         '!src/interfaces/models/**/*.ts',
     ],
     setupFiles: ['<rootDir>/setup.jest.js'],
-    ...presetConfig,
 } satisfies Config;
