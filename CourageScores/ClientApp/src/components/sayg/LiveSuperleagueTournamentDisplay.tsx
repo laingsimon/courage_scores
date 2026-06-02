@@ -541,7 +541,7 @@ export function LiveSuperleagueTournamentDisplay({
                 <tbody>
                     {tournament.round?.matches
                         ?.sort(matchSort)
-                        ?.map((m: TournamentMatchDto) => {
+                        ?.flatMap((m: TournamentMatchDto) => {
                             const homeWinner = isWinner(m, 'home');
                             const awayWinner = isWinner(m, 'away');
                             totals.home += getScore(m, 'home');
@@ -549,7 +549,7 @@ export function LiveSuperleagueTournamentDisplay({
 
                             if (!shouldShowMatch(m)) {
                                 skippedMatches++;
-                                return undefined;
+                                return [];
                             }
 
                             const prefixRow =
@@ -569,42 +569,35 @@ export function LiveSuperleagueTournamentDisplay({
 
                             skippedMatches = 0;
 
-                            return (
-                                <>
-                                    {prefixRow}
-                                    <tr key={m.id}>
-                                        <td
-                                            className={`text-danger ${homeWinner ? 'fw-bold' : ''}`}>
-                                            {getAverage(m, 'home')}
-                                        </td>
-                                        <td
-                                            className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>
-                                            {firstInitialAndLastNames(m.sideA)}
-                                        </td>
-                                        <td
-                                            className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>
-                                            {getScore(m, 'home')}
-                                        </td>
-                                        <td>-</td>
-                                        <td
-                                            className={
-                                                awayWinner ? 'fw-bold' : ''
-                                            }>
-                                            {getScore(m, 'away')}
-                                        </td>
-                                        <td
-                                            className={
-                                                awayWinner ? 'fw-bold' : ''
-                                            }>
-                                            {firstInitialAndLastNames(m.sideB)}
-                                        </td>
-                                        <td
-                                            className={`text-danger ${awayWinner ? 'fw-bold' : ''}`}>
-                                            {getAverage(m, 'away')}
-                                        </td>
-                                    </tr>
-                                </>
+                            const thisRow = (
+                                <tr key={m.id}>
+                                    <td
+                                        className={`text-danger ${homeWinner ? 'fw-bold' : ''}`}>
+                                        {getAverage(m, 'home')}
+                                    </td>
+                                    <td
+                                        className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>
+                                        {firstInitialAndLastNames(m.sideA)}
+                                    </td>
+                                    <td
+                                        className={`text-end ${homeWinner ? 'fw-bold' : ''}`}>
+                                        {getScore(m, 'home')}
+                                    </td>
+                                    <td>-</td>
+                                    <td className={awayWinner ? 'fw-bold' : ''}>
+                                        {getScore(m, 'away')}
+                                    </td>
+                                    <td className={awayWinner ? 'fw-bold' : ''}>
+                                        {firstInitialAndLastNames(m.sideB)}
+                                    </td>
+                                    <td
+                                        className={`text-danger ${awayWinner ? 'fw-bold' : ''}`}>
+                                        {getAverage(m, 'away')}
+                                    </td>
+                                </tr>
                             );
+
+                            return prefixRow ? [prefixRow, thisRow] : [thisRow];
                         })}
                 </tbody>
                 {any(tournament.round?.matches) ? (
