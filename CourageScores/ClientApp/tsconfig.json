@@ -24,11 +24,11 @@
     "module": "esnext",
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
+    "moduleResolution": "bundler",
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
     "rootDir": "./src/",
-    "ignoreDeprecations": "6.0", // to silence warning about moduleResolution=node10
   },
   "exclude": [
     "node_modules", "dist"
