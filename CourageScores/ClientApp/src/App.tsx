@@ -154,6 +154,13 @@ export function App({ embed, controls, testRoute }: IAppProps) {
             if (document.fullscreenEnabled) {
                 await (element ?? document.body).requestFullscreen();
             }
+
+            try {
+                await navigator.wakeLock.request('screen');
+            } catch (err) {
+                // the wake lock request fails - usually system related, such being low on battery
+                console.error(err);
+            }
         },
         async exitFullScreen(): Promise<void> {
             if (isFullScreen) {
