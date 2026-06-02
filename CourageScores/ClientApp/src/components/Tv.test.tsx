@@ -57,12 +57,6 @@ describe('Tv', () => {
             expect(context.text()).toContain('Login');
         });
 
-        it('does not render refresh', async () => {
-            await renderComponent(appProps());
-
-            expect(context.text()).not.toContain('Refresh');
-        });
-
         it('does not request links', async () => {
             await renderComponent(appProps());
 
@@ -79,12 +73,6 @@ describe('Tv', () => {
             await renderComponent(appProps({ account }));
 
             expect(context.text()).not.toContain('Login');
-        });
-
-        it('does not render refresh', async () => {
-            await renderComponent(appProps({ account }));
-
-            expect(context.text()).not.toContain('Refresh');
         });
 
         it('renders no access', async () => {
@@ -325,29 +313,6 @@ describe('Tv', () => {
 
             const item = context.required('.list-group-item');
             expect(item.text()).toContain('foo');
-        });
-
-        it('can reload connections', async () => {
-            await renderComponent(appProps({ account }));
-            request = null;
-
-            connections = [
-                {
-                    id: createTemporaryId(),
-                    dataType: 'foo',
-                    relativeUrl: '/match/ID',
-                    lastUpdate: '',
-                },
-            ];
-            await context.button('Refresh').click();
-
-            expect(request).toEqual({
-                type: '',
-            });
-            const items = context.all('.list-group-item');
-            expect(
-                items.map((i) => i.element<HTMLAnchorElement>().href),
-            ).toEqual(['http://localhost/match/ID']);
         });
     });
 });

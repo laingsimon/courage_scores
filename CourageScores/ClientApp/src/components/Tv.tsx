@@ -145,17 +145,6 @@ export function Tv() {
                 <div>No access</div>
             ) : null}
             <div className="mt-1">
-                {account &&
-                account.access &&
-                account.access.useWebSockets &&
-                !appLoading ? (
-                    <button
-                        className="btn btn-primary"
-                        onClick={reloadConnections}>
-                        {loading ? <LoadingSpinnerSmall /> : null}
-                        Refresh
-                    </button>
-                ) : null}
                 {!account && !appLoading ? (
                     <a
                         className="btn btn-primary"
