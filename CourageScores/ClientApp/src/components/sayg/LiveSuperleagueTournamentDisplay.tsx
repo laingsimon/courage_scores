@@ -423,6 +423,32 @@ export function LiveSuperleagueTournamentDisplay({
         return indexOfMatchA - indexOfMatchB;
     }
 
+    function shouldShowMatch(match: TournamentMatchDto): boolean {
+        if (!hasSaygData(match)) {
+            // The match hasn't started yet (no sayg data, show so everyone who's playing next)
+            return true;
+        }
+
+        const inProgressMatch =
+            lastMatch && lastLeg && !hasWinner(lastMatch!) ? lastMatch : null;
+        if (!inProgressMatch) {
+            // There is no in progress match
+            return true;
+        }
+
+        const noOfPlayersForInProgressMatch =
+            inProgressMatch?.sideA?.players?.length ??
+            inProgressMatch?.sideB?.players?.length ??
+            0;
+
+        const noOfPlayersInMatch =
+            match?.sideA?.players?.length ?? match?.sideB?.players?.length ?? 0;
+
+        // number of players in the match must be the same as the number of
+        // players in the currently active match
+        return noOfPlayersInMatch === noOfPlayersForInProgressMatch;
+    }
+
     if (!tournament) {
         return showLoading ? (
             <div className="flex-grow-1 bg-white">
@@ -450,6 +476,7 @@ export function LiveSuperleagueTournamentDisplay({
               (s) => s.id === lastMatch.saygId && s.type === LiveDataType.sayg,
           )
         : null;
+    let skippedMatches = 0;
 
     return (
         <div
@@ -514,13 +541,35 @@ export function LiveSuperleagueTournamentDisplay({
                 <tbody>
                     {tournament.round?.matches
                         ?.sort(matchSort)
-                        ?.map((m: TournamentMatchDto) => {
+                        ?.flatMap((m: TournamentMatchDto) => {
                             const homeWinner = isWinner(m, 'home');
                             const awayWinner = isWinner(m, 'away');
                             totals.home += getScore(m, 'home');
                             totals.away += getScore(m, 'away');
 
-                            return (
+                            if (!shouldShowMatch(m)) {
+                                skippedMatches++;
+                                return [];
+                            }
+
+                            const prefixRow =
+                                skippedMatches > 0 ? (
+                                    <tr key={`skipped-matches-${m.id}`}>
+                                        <td
+                                            colSpan={7}
+                                            className="text-center text-secondary opacity-75">
+                                            &mdash; {skippedMatches} match
+                                            {skippedMatches > 1
+                                                ? 'es'
+                                                : ''}{' '}
+                                            &mdash;
+                                        </td>
+                                    </tr>
+                                ) : null;
+
+                            skippedMatches = 0;
+
+                            const thisRow = (
                                 <tr key={m.id}>
                                     <td
                                         className={`text-danger ${homeWinner ? 'fw-bold' : ''}`}>
@@ -547,6 +596,8 @@ export function LiveSuperleagueTournamentDisplay({
                                     </td>
                                 </tr>
                             );
+
+                            return prefixRow ? [prefixRow, thisRow] : [thisRow];
                         })}
                 </tbody>
                 {any(tournament.round?.matches) ? (

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using CourageScores.Common;
@@ -6,6 +7,7 @@ using Newtonsoft.Json.Linq;
 
 namespace CourageScores.Services.Query;
 
+[ExcludeFromCodeCoverage]
 internal static class QueryExtensions
 {
     public static async IAsyncEnumerable<T> EnumerateResults<T>(this FeedIterator<T> records, [EnumeratorCancellation] CancellationToken token)
