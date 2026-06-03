@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Dtos.Data;
+﻿using System.Net;
+using CourageScores.Models.Dtos.Data;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Query;
 using CourageScores.Services.Data;
@@ -111,5 +112,23 @@ public class QueryServiceTests
         var result = await _service.ExecuteQuery(request, _token);
 
         Assert.That(result.Success, Is.True);
+    }
+
+    [Test]
+    public async Task ExecuteQuery_WhenErrorThrown_ReturnsDetails()
+    {
+        var request = new QueryRequestDto
+        {
+            Container = "game",
+            Query = "select * from game",
+        };
+        _database
+            .Setup(d => d.GetContainer(It.IsAny<string>()))
+            .Throws(new CosmosException("some error", HttpStatusCode.BadRequest, 0, "", 0));
+
+        var result = await _service.ExecuteQuery(request, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Is.EquivalentTo(["some error"]));
     }
 }
