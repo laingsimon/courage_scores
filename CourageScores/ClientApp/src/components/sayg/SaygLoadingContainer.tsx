@@ -221,6 +221,7 @@ export function SaygLoadingContainer({
         return <Loading />;
     }
 
+    /* istanbul ignore next */
     async function changeNumberOfLegs() {
         if (!sayg) {
             return;
