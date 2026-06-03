@@ -352,6 +352,45 @@ describe('TemplateDates', () => {
             expect(copyToDivisionIndex).toEqual(1);
         });
 
+        it('can copy fixtures to second half', async () => {
+            await renderComponent({
+                dates: [
+                    {
+                        fixtures: [fixture('A', 'B')],
+                    },
+                    {
+                        fixtures: [fixture('C', 'D')],
+                    },
+                ],
+                divisionSharedAddresses: [],
+                templateSharedAddresses: [],
+                onUpdate,
+                divisionCount: 2,
+                divisionNo: 1,
+                onCopyToDivision,
+                highlight: '',
+                setHighlight,
+            });
+
+            await context.button('📋 Copy to second half').click();
+
+            expect(update).toEqual([
+                {
+                    fixtures: [fixture('A', 'B')],
+                },
+                {
+                    fixtures: [fixture('C', 'D')],
+                },
+
+                {
+                    fixtures: [fixture('B', 'A')],
+                },
+                {
+                    fixtures: [fixture('D', 'C')],
+                },
+            ]);
+        });
+
         it('can delete all fixtures for a given mnemonic', async () => {
             await renderComponent({
                 dates: [
