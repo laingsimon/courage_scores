@@ -206,6 +206,7 @@ export function SaygLoadingContainer({
                 if (
                     !(await webSocket.publish(id, LiveDataType.sayg, newSayg))
                 ) {
+                    /* istanbul ignore next */
                     window.alert('Unable to publish updated data');
                 }
             } catch (e) {
