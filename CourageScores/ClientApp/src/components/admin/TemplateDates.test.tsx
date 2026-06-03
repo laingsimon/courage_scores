@@ -10,6 +10,7 @@ import {
 } from '../../helpers/tests.tsx';
 import { ITemplateDatesProps, TemplateDates } from './TemplateDates.tsx';
 import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto.ts';
+import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto';
 
 describe('TemplateDates', () => {
     let context: TestContext;
@@ -46,6 +47,13 @@ describe('TemplateDates', () => {
                 <TemplateDates {...props} />
             </AdminContainer>,
         );
+    }
+
+    function fixture(home: string, away: string): FixtureTemplateDto {
+        return {
+            home,
+            away,
+        };
     }
 
     describe('renders', () => {
@@ -156,12 +164,7 @@ describe('TemplateDates', () => {
             await renderComponent({
                 dates: [
                     {
-                        fixtures: [
-                            {
-                                home: 'A',
-                                away: 'B',
-                            },
-                        ],
+                        fixtures: [fixture('A', 'B')],
                     },
                 ],
                 divisionSharedAddresses: [],
@@ -206,12 +209,7 @@ describe('TemplateDates', () => {
             await renderComponent({
                 dates: [
                     {
-                        fixtures: [
-                            {
-                                home: 'A',
-                                away: 'B',
-                            },
-                        ],
+                        fixtures: [fixture('A', 'B')],
                     },
                 ],
                 divisionSharedAddresses: [],
@@ -233,20 +231,10 @@ describe('TemplateDates', () => {
             await renderComponent({
                 dates: [
                     {
-                        fixtures: [
-                            {
-                                home: 'A',
-                                away: 'B',
-                            },
-                        ],
+                        fixtures: [fixture('A', 'B')],
                     },
                     {
-                        fixtures: [
-                            {
-                                home: 'C',
-                                away: 'D',
-                            },
-                        ],
+                        fixtures: [fixture('C', 'D')],
                     },
                 ],
                 divisionSharedAddresses: [],
@@ -266,20 +254,10 @@ describe('TemplateDates', () => {
 
             expect(update).toEqual([
                 {
-                    fixtures: [
-                        {
-                            home: 'C',
-                            away: 'D',
-                        },
-                    ],
+                    fixtures: [fixture('C', 'D')],
                 },
                 {
-                    fixtures: [
-                        {
-                            home: 'A',
-                            away: 'B',
-                        },
-                    ],
+                    fixtures: [fixture('A', 'B')],
                 },
             ]);
         });
@@ -288,20 +266,10 @@ describe('TemplateDates', () => {
             await renderComponent({
                 dates: [
                     {
-                        fixtures: [
-                            {
-                                home: 'A',
-                                away: 'B',
-                            },
-                        ],
+                        fixtures: [fixture('A', 'B')],
                     },
                     {
-                        fixtures: [
-                            {
-                                home: 'C',
-                                away: 'D',
-                            },
-                        ],
+                        fixtures: [fixture('C', 'D')],
                     },
                 ],
                 divisionSharedAddresses: [],
@@ -319,20 +287,10 @@ describe('TemplateDates', () => {
 
             expect(update).toEqual([
                 {
-                    fixtures: [
-                        {
-                            home: 'C',
-                            away: 'D',
-                        },
-                    ],
+                    fixtures: [fixture('C', 'D')],
                 },
                 {
-                    fixtures: [
-                        {
-                            home: 'A',
-                            away: 'B',
-                        },
-                    ],
+                    fixtures: [fixture('A', 'B')],
                 },
             ]);
         });
@@ -341,20 +299,10 @@ describe('TemplateDates', () => {
             await renderComponent({
                 dates: [
                     {
-                        fixtures: [
-                            {
-                                home: 'A',
-                                away: 'B',
-                            },
-                        ],
+                        fixtures: [fixture('A', 'B')],
                     },
                     {
-                        fixtures: [
-                            {
-                                home: 'C',
-                                away: 'D',
-                            },
-                        ],
+                        fixtures: [fixture('C', 'D')],
                     },
                 ],
                 divisionSharedAddresses: [],
@@ -374,12 +322,7 @@ describe('TemplateDates', () => {
                     fixtures: [],
                 },
                 {
-                    fixtures: [
-                        {
-                            home: 'C',
-                            away: 'D',
-                        },
-                    ],
+                    fixtures: [fixture('C', 'D')],
                 },
             ]);
         });
@@ -388,20 +331,10 @@ describe('TemplateDates', () => {
             await renderComponent({
                 dates: [
                     {
-                        fixtures: [
-                            {
-                                home: 'A',
-                                away: 'B',
-                            },
-                        ],
+                        fixtures: [fixture('A', 'B')],
                     },
                     {
-                        fixtures: [
-                            {
-                                home: 'C',
-                                away: 'D',
-                            },
-                        ],
+                        fixtures: [fixture('C', 'D')],
                     },
                 ],
                 divisionSharedAddresses: ['A', 'C'],
@@ -419,32 +352,53 @@ describe('TemplateDates', () => {
             expect(copyToDivisionIndex).toEqual(1);
         });
 
+        it('can copy fixtures to second half', async () => {
+            await renderComponent({
+                dates: [
+                    {
+                        fixtures: [fixture('A', 'B')],
+                    },
+                    {
+                        fixtures: [fixture('C', 'D')],
+                    },
+                ],
+                divisionSharedAddresses: [],
+                templateSharedAddresses: [],
+                onUpdate,
+                divisionCount: 2,
+                divisionNo: 1,
+                onCopyToDivision,
+                highlight: '',
+                setHighlight,
+            });
+
+            await context.button('📋 Copy to second half').click();
+
+            expect(update).toEqual([
+                {
+                    fixtures: [fixture('A', 'B')],
+                },
+                {
+                    fixtures: [fixture('C', 'D')],
+                },
+
+                {
+                    fixtures: [fixture('B', 'A')],
+                },
+                {
+                    fixtures: [fixture('D', 'C')],
+                },
+            ]);
+        });
+
         it('can delete all fixtures for a given mnemonic', async () => {
             await renderComponent({
                 dates: [
                     {
-                        fixtures: [
-                            {
-                                home: 'A',
-                                away: 'C',
-                            },
-                            {
-                                home: 'A',
-                                away: 'B',
-                            },
-                        ],
+                        fixtures: [fixture('A', 'C'), fixture('A', 'B')],
                     },
                     {
-                        fixtures: [
-                            {
-                                home: 'C',
-                                away: 'D',
-                            },
-                            {
-                                home: 'B',
-                                away: 'A',
-                            },
-                        ],
+                        fixtures: [fixture('C', 'D'), fixture('B', 'A')],
                     },
                 ],
                 divisionSharedAddresses: ['A', 'C'],
@@ -465,20 +419,10 @@ describe('TemplateDates', () => {
 
             expect(update).toEqual([
                 {
-                    fixtures: [
-                        {
-                            home: 'A',
-                            away: 'B',
-                        },
-                    ],
+                    fixtures: [fixture('A', 'B')],
                 },
                 {
-                    fixtures: [
-                        {
-                            home: 'B',
-                            away: 'A',
-                        },
-                    ],
+                    fixtures: [fixture('B', 'A')],
                 },
             ]);
         });

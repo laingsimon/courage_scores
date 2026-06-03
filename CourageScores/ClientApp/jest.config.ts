@@ -1,6 +1,8 @@
 ﻿import type { Config } from 'jest';
 import { createJsWithTsPreset } from 'ts-jest';
 
+/* istanbul ignore file */
+
 const presetConfig = createJsWithTsPreset({});
 
 export default {
