@@ -151,7 +151,7 @@ export function UserAdmin() {
 
         return {
             value: acc.emailAddress,
-            text: `${name}${showEmailAddress ? ' ' + acc.emailAddress : ''}`,
+            text: `${name}${showEmailAddress ? ' ' + acc.emailAddress : ''}${acc.transient ? ' 🪅' : ''}`,
             className: className,
         };
     }
