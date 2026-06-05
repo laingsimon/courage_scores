@@ -34,4 +34,5 @@ public class Access
     public bool KioskMode { get; set; }
     public bool AnalyseMatches { get; set; }
     public bool RunDataQueries { get; set; }
+    public bool LoginServiceAccounts { get; set; }
 }

@@ -45,6 +45,7 @@ public class AccessAdapterTests
             KioskMode = true,
             AnalyseMatches = true,
             RunDataQueries = true,
+            LoginServiceAccounts = true,
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -78,6 +79,7 @@ public class AccessAdapterTests
         Assert.That(result.KioskMode, Is.EqualTo(model.KioskMode));
         Assert.That(result.AnalyseMatches, Is.EqualTo(model.AnalyseMatches));
         Assert.That(result.RunDataQueries, Is.EqualTo(model.RunDataQueries));
+        Assert.That(result.LoginServiceAccounts, Is.EqualTo(model.LoginServiceAccounts));
     }
 
     [Test]
@@ -114,6 +116,7 @@ public class AccessAdapterTests
             KioskMode = true,
             AnalyseMatches = true,
             RunDataQueries = true,
+            LoginServiceAccounts = true,
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -146,5 +149,6 @@ public class AccessAdapterTests
         Assert.That(result.KioskMode, Is.EqualTo(dto.KioskMode));
         Assert.That(result.AnalyseMatches, Is.EqualTo(dto.AnalyseMatches));
         Assert.That(result.RunDataQueries, Is.EqualTo(dto.RunDataQueries));
+        Assert.That(result.LoginServiceAccounts, Is.EqualTo(dto.LoginServiceAccounts));
     }
 }

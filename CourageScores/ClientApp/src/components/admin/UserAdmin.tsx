@@ -363,6 +363,11 @@ export function UserAdmin() {
                         'Manage features',
                         'Configure system features',
                     )}
+                    {renderAccessOption(
+                        'loginServiceAccounts',
+                        'Login service accounts',
+                        'Login tables and tv accounts remotely',
+                    )}
                 </div>
             </div>
             <div>
