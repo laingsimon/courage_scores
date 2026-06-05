@@ -229,6 +229,7 @@ public static class DependencyInjectionExtensions
         AddAdapter<Season, SeasonDto, SeasonAdapter>(services);
         AddAdapter<ErrorDetail, ErrorDetailDto, ErrorDetailAdapter>(services);
         AddAdapter<Template, TemplateDto, TemplateAdapter>(services);
+        AddAdapter<ServiceAccountSession, ServiceAccountSessionDto, ServiceAccountSessionAdapter>(services);
 
         AddAdapter<ConfiguredFeature, ConfiguredFeatureDto, ConfiguredFeatureDtoAdapter>(services);
 
