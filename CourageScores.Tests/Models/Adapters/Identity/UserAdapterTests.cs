@@ -8,7 +8,7 @@ namespace CourageScores.Tests.Models.Adapters.Identity;
 public class UserAdapterTests
 {
     private readonly UserAdapter _adapter = new(new AccessAdapter());
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
 
     [Test]
     public async Task Adapt_GivenModel_SetsPropertiesSuccessfully()
@@ -21,6 +21,7 @@ public class UserAdapterTests
             Name = "name",
             EmailAddress = "email@somewhere.com",
             GivenName = "Simon",
+            Transient = true,
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -30,6 +31,7 @@ public class UserAdapterTests
         Assert.That(result.EmailAddress, Is.EqualTo(model.EmailAddress));
         Assert.That(result.GivenName, Is.EqualTo(model.GivenName));
         Assert.That(result.Access, Is.Not.Null);
+        Assert.That(result.Transient, Is.True);
     }
 
     [Test]
@@ -58,6 +60,7 @@ public class UserAdapterTests
             Name = "name",
             EmailAddress = "email@somewhere.com",
             GivenName = "Simon",
+            Transient = true,
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -67,6 +70,7 @@ public class UserAdapterTests
         Assert.That(result.EmailAddress, Is.EqualTo(dto.EmailAddress));
         Assert.That(result.GivenName, Is.EqualTo(dto.GivenName));
         Assert.That(result.Access, Is.Not.Null);
+        Assert.That(result.Transient, Is.True);
     }
 
     [Test]

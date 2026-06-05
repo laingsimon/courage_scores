@@ -29,4 +29,9 @@ public class UserDto
     /// The identity of the team this user is attributed to, via their email address
     /// </summary>
     public Guid? TeamId { get; set; }
+
+    /// <summary>
+    /// Is this a transient user?
+    /// </summary>
+    public bool Transient { get; set; }
 }

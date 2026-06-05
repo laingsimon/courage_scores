@@ -16,11 +16,10 @@ public class User
     [JsonProperty("emailAddress")]
     public string EmailAddress { get; set; } = null!;
 
-    /// <summary>
-    /// What access does this user have?
-    /// </summary>
     public Access? Access { get; set; } = new();
 
     [JsonIgnore]
     public Guid? TeamId { get; set; }
+
+    public bool Transient { get; set; }
 }

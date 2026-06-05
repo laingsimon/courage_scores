@@ -151,7 +151,7 @@ export function UserAdmin() {
 
         return {
             value: acc.emailAddress,
-            text: `${name}${showEmailAddress ? ' ' + acc.emailAddress : ''}`,
+            text: `${name}${showEmailAddress ? ' ' + acc.emailAddress : ''}${acc.transient ? ' 🪅' : ''}`,
             className: className,
         };
     }
@@ -362,6 +362,11 @@ export function UserAdmin() {
                         'manageFeatures',
                         'Manage features',
                         'Configure system features',
+                    )}
+                    {renderAccessOption(
+                        'loginServiceAccounts',
+                        'Login service accounts',
+                        'Login tables and tv accounts remotely',
                     )}
                 </div>
             </div>
