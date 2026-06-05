@@ -1,7 +1,9 @@
 ﻿namespace CourageScores.Models.Dtos.Identity;
 
-public class ServiceAccountSessionDto : AuditedDto
+public class ServiceAccountSessionDto : AuditedDto, IIntegrityCheckDto
 {
+    public const string CookieName = "ServiceAccountSession";
+
     /// <summary>
     /// The ip address of the tablet/tv
     /// </summary>
@@ -47,4 +49,6 @@ public class ServiceAccountSessionDto : AuditedDto
     /// The name of the user that was created for this session
     /// </summary>
     public string? TransientUsername { get; set; }
+
+    public DateTime? LastUpdated { get; set; }
 }
