@@ -90,7 +90,7 @@ public class CreateServiceAccountSessionCommandTests
             .Returns(true);
         var existingSession = SessionDto();
         _service
-            .Setup(s => s.GetWhere($"c.{nameof(newModel.CookieValue)} = '{cookieValue}'", _token))
+            .Setup(s => s.GetWhere($"t.{nameof(newModel.CookieValue)} = '{cookieValue}'", _token))
             .Returns(TestUtilities.AsyncEnumerable(existingSession));
 
         var result = await _command.WithRequest(_request).ApplyUpdate(newModel, _token);
@@ -109,7 +109,7 @@ public class CreateServiceAccountSessionCommandTests
             .Setup(c => c.TryGetValue(ServiceAccountSessionDto.CookieName, out cookieValue))
             .Returns(true);
         _service
-            .Setup(s => s.GetWhere($"c.{nameof(newModel.CookieValue)} = '{cookieValue}'", _token))
+            .Setup(s => s.GetWhere($"t.{nameof(newModel.CookieValue)} = '{cookieValue}'", _token))
             .Returns(TestUtilities.AsyncEnumerable<ServiceAccountSessionDto>());
 
         var result = await _command.WithRequest(_request).ApplyUpdate(newModel, _token);
