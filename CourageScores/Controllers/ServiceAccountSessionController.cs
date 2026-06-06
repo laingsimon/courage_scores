@@ -9,12 +9,12 @@ namespace CourageScores.Controllers;
 
 [ApiController]
 [ExcludeFromCodeCoverage]
-public class ServiceAccountController : Controller
+public class ServiceAccountSessionController : Controller
 {
     private readonly ICommandFactory _commandFactory;
     private readonly IServiceAccountSessionService _service;
 
-    public ServiceAccountController(ICommandFactory commandFactory, IServiceAccountSessionService service)
+    public ServiceAccountSessionController(ICommandFactory commandFactory, IServiceAccountSessionService service)
     {
         _commandFactory = commandFactory;
         _service = service;
