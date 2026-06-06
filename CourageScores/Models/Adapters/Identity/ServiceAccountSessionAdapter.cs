@@ -5,6 +5,13 @@ namespace CourageScores.Models.Adapters.Identity;
 
 public class ServiceAccountSessionAdapter : IAdapter<ServiceAccountSession, ServiceAccountSessionDto>
 {
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public ServiceAccountSessionAdapter(IHttpContextAccessor httpContextAccessor)
+    {
+        _httpContextAccessor = httpContextAccessor;
+    }
+
     public Task<ServiceAccountSessionDto> Adapt(ServiceAccountSession model, CancellationToken token)
     {
         return Task.FromResult(new ServiceAccountSessionDto
@@ -20,6 +27,7 @@ public class ServiceAccountSessionAdapter : IAdapter<ServiceAccountSession, Serv
             RejectedBy = model.RejectedBy,
             TransientUsername = model.TransientUsername,
             LastUpdated = model.Updated,
+            MyIpAddress = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString(),
         }.AddAuditProperties(model));
     }
 
