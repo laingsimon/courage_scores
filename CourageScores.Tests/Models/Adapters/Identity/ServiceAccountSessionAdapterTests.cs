@@ -26,6 +26,7 @@ public class ServiceAccountSessionAdapterTests
             RejectedBy = "rejected-by",
             TransientUsername = "username",
             Id = Guid.NewGuid(),
+            Updated = new DateTime(2002, 03, 04),
         };
 
         var dto = await _adapter.Adapt(model, _token);
@@ -40,6 +41,7 @@ public class ServiceAccountSessionAdapterTests
         Assert.That(dto.ServiceIpAddress, Is.EqualTo(model.ServiceIpAddress));
         Assert.That(dto.ServiceUserAgent, Is.EqualTo(model.ServiceUserAgent));
         Assert.That(dto.TransientUsername, Is.EqualTo(model.TransientUsername));
+        Assert.That(dto.LastUpdated, Is.EqualTo(model.Updated));
     }
 
     [Test]

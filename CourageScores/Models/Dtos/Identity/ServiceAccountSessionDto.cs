@@ -1,7 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using Newtonsoft.Json;
 
 namespace CourageScores.Models.Dtos.Identity;
 
+[ExcludeFromCodeCoverage]
 public class ServiceAccountSessionDto : AuditedDto, IIntegrityCheckDto
 {
     public const string CookieName = "ServiceAccountSession";

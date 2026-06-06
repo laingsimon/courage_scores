@@ -1,7 +1,9 @@
-﻿using CourageScores.Models.Dtos.Identity;
+﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos.Identity;
 
 namespace CourageScores.Models.Cosmos.Identity;
 
+[ExcludeFromCodeCoverage]
 public class ServiceAccountSession : AuditedEntity, IPermissionedEntity
 {
     public required string ServiceIpAddress { get; set; }

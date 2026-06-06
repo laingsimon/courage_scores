@@ -19,6 +19,7 @@ public class ServiceAccountSessionAdapter : IAdapter<ServiceAccountSession, Serv
             Message = model.Message,
             RejectedBy = model.RejectedBy,
             TransientUsername = model.TransientUsername,
+            LastUpdated = model.Updated,
         }.AddAuditProperties(model));
     }
 
