@@ -52,4 +52,11 @@ public class ServiceAccountSessionController : Controller
         var command = _commandFactory.GetCommand<RejectServiceAccountSessionCommand>().WithRequest(request);
         return await _service.Upsert(id, command, token);
     }
+
+    [HttpPost("/api/ServiceAccount/{id}/activate")]
+    public async Task<ActionResultDto<ServiceAccountSessionDto>> Activate(Guid id, ActivateSessionRequestDto request, CancellationToken token)
+    {
+        var command = _commandFactory.GetCommand<ActivateServiceAccountSessionCommand>().WithRequest(request);
+        return await _service.Upsert(id, command, token);
+    }
 }
