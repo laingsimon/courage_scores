@@ -11,7 +11,7 @@ using NUnit.Framework;
 
 namespace CourageScores.Tests.Services.Identity;
 
-public class ServiceAccountServiceTests
+public class ServiceAccountSessionServiceTests
 {
     private readonly CancellationToken _token = CancellationToken.None;
     private Mock<IUserService> _userService = null!;
@@ -20,7 +20,7 @@ public class ServiceAccountServiceTests
     private UserDto? _user;
     private DefaultHttpContext _httpContext = null!;
 
-    private ServiceAccountService _service = null!;
+    private ServiceAccountSessionService _service = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -30,7 +30,7 @@ public class ServiceAccountServiceTests
         _dataService = new Mock<IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto>>();
         _requestCookies = new Mock<IRequestCookieCollection>();
         var httpContextAccessor = new Mock<IHttpContextAccessor>();
-        _service = new ServiceAccountService(_userService.Object, _dataService.Object, httpContextAccessor.Object);
+        _service = new ServiceAccountSessionService(_userService.Object, _dataService.Object, httpContextAccessor.Object);
         _httpContext = new DefaultHttpContext
         {
             Request =

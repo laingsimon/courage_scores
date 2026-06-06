@@ -6,13 +6,13 @@ using CourageScores.Services.Command;
 
 namespace CourageScores.Services.Identity;
 
-public class ServiceAccountService : IServiceAccountService
+public class ServiceAccountSessionService : IServiceAccountSessionService
 {
     private readonly IUserService _userService;
     private readonly IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto> _dataService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public ServiceAccountService(
+    public ServiceAccountSessionService(
         IUserService userService,
         IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto> dataService,
         IHttpContextAccessor httpContextAccessor)

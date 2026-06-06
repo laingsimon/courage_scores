@@ -3,6 +3,6 @@ using CourageScores.Models.Dtos.Identity;
 
 namespace CourageScores.Services.Identity;
 
-public interface IServiceAccountService : IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto>
+public interface IServiceAccountSessionService : IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto>
 {
 }
