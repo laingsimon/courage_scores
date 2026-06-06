@@ -183,7 +183,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IRemoteControlService, RemoteControlService>();
 
         services.AddScoped<IQueryService, QueryService>();
-        services.AddScoped<IServiceAccountService, ServiceAccountService>();
+        services.AddScoped<IServiceAccountSessionService, ServiceAccountSessionService>();
     }
 
     private static void AddRepositories(IServiceCollection services)

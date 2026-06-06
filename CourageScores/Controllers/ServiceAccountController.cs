@@ -12,9 +12,9 @@ namespace CourageScores.Controllers;
 public class ServiceAccountController : Controller
 {
     private readonly ICommandFactory _commandFactory;
-    private readonly IServiceAccountService _service;
+    private readonly IServiceAccountSessionService _service;
 
-    public ServiceAccountController(ICommandFactory commandFactory, IServiceAccountService service)
+    public ServiceAccountController(ICommandFactory commandFactory, IServiceAccountSessionService service)
     {
         _commandFactory = commandFactory;
         _service = service;
