@@ -11,7 +11,6 @@ public class CreateServiceAccountSessionCommand : IUpdateCommand<ServiceAccountS
     private readonly IUserService _userService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto> _service;
-    private CreateServiceAccountSessionDto? _request;
 
     public CreateServiceAccountSessionCommand(
         IUserService userService,
@@ -25,25 +24,12 @@ public class CreateServiceAccountSessionCommand : IUpdateCommand<ServiceAccountS
 
     public bool RequiresLogin => false;
 
-    public CreateServiceAccountSessionCommand WithRequest(CreateServiceAccountSessionDto request)
-    {
-        _request = request;
-        return this;
-    }
-
     public async Task<ActionResult<ServiceAccountSession>> ApplyUpdate(ServiceAccountSession model, CancellationToken token)
     {
-        _request.ThrowIfNull("Request must be provided");
-
         var user = await _userService.GetUser(token);
         if (user != null)
         {
             return Warning("Cannot create a session when logged in");
-        }
-
-        if (string.IsNullOrEmpty(_request!.PinHash))
-        {
-            return Warning("Pin hash is missing");
         }
 
         var httpContext = _httpContextAccessor.HttpContext!;
@@ -61,7 +47,6 @@ public class CreateServiceAccountSessionCommand : IUpdateCommand<ServiceAccountS
         }
 
         model.Id = Guid.NewGuid();
-        model.PinHash = _request.PinHash;
         model.ServiceIpAddress = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
         model.ServiceUserAgent = httpRequest.Headers.UserAgent.ToString();
         model.CookieValue = Guid.NewGuid().ToString();

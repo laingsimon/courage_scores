@@ -1,4 +1,6 @@
-﻿namespace CourageScores.Models.Dtos.Identity;
+﻿using Newtonsoft.Json;
+
+namespace CourageScores.Models.Dtos.Identity;
 
 public class ServiceAccountSessionDto : AuditedDto, IIntegrityCheckDto
 {
@@ -15,9 +17,11 @@ public class ServiceAccountSessionDto : AuditedDto, IIntegrityCheckDto
     public required string ServiceUserAgent { get; set; }
 
     /// <summary>
-    /// The hash of a pin held only on the tablet/tv when creating the session
+    /// The pin entered by the approver, the tablet should send the pin when attempting to 'activate' the session
+    /// This value must never be sent back to the client
     /// </summary>
-    public required string PinHash { get; set; }
+    [JsonIgnore]
+    public string? PinFromApprover { get; set; }
 
     /// <summary>
     /// A cookie-value to be set by the tablet/tv when creating the session

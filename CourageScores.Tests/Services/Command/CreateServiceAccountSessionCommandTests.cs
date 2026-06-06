@@ -15,7 +15,6 @@ public class CreateServiceAccountSessionCommandTests
     private Mock<IUserService> _userService = null!;
     private Mock<IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto>> _service = null!;
     private DefaultHttpContext _httpContext = null!;
-    private CreateServiceAccountSessionDto _request = null!;
     private ServiceAccountSession _existingSession = null!;
     private UserDto? _user;
     private Mock<IRequestCookieCollection> _requestCookies = null!;
@@ -37,16 +36,11 @@ public class CreateServiceAccountSessionCommandTests
             },
         };
         _command = new CreateServiceAccountSessionCommand(_userService.Object, httpContextAccessor.Object, _service.Object);
-        _request = new CreateServiceAccountSessionDto
-        {
-            PinHash = "request-pin-hash",
-        };
         _existingSession = new ServiceAccountSession
         {
             Id = Guid.NewGuid(),
             ServiceIpAddress = "existing-ip-address",
             ServiceUserAgent = "existing-user-agent",
-            PinHash = "existing-pin-hash",
             CookieValue = "existing-cookie",
         };
         _user = null;
@@ -63,21 +57,10 @@ public class CreateServiceAccountSessionCommandTests
             Access = new AccessDto(),
         };
 
-        var result = await _command.WithRequest(_request).ApplyUpdate(_existingSession, _token);
+        var result = await _command.ApplyUpdate(_existingSession, _token);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(["Cannot create a session when logged in"]));
-    }
-
-    [Test]
-    public async Task ApplyUpdates_WhenPinHashIsEmpty_ReturnPinHashMissing()
-    {
-        _request.PinHash = "";
-
-        var result = await _command.WithRequest(_request).ApplyUpdate(_existingSession, _token);
-
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(["Pin hash is missing"]));
     }
 
     [Test]
@@ -93,7 +76,7 @@ public class CreateServiceAccountSessionCommandTests
             .Setup(s => s.GetWhere($"t.{nameof(newModel.CookieValue)} = '{cookieValue}'", _token))
             .Returns(TestUtilities.AsyncEnumerable(existingSession));
 
-        var result = await _command.WithRequest(_request).ApplyUpdate(newModel, _token);
+        var result = await _command.ApplyUpdate(newModel, _token);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Messages, Is.EquivalentTo(["Session created"]));
@@ -112,7 +95,7 @@ public class CreateServiceAccountSessionCommandTests
             .Setup(s => s.GetWhere($"t.{nameof(newModel.CookieValue)} = '{cookieValue}'", _token))
             .Returns(TestUtilities.AsyncEnumerable<ServiceAccountSessionDto>());
 
-        var result = await _command.WithRequest(_request).ApplyUpdate(newModel, _token);
+        var result = await _command.ApplyUpdate(newModel, _token);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Messages, Is.EquivalentTo(["Session created"]));
@@ -128,7 +111,7 @@ public class CreateServiceAccountSessionCommandTests
             .Setup(c => c.TryGetValue(ServiceAccountSessionDto.CookieName, out cookieValue))
             .Returns(false);
 
-        var result = await _command.WithRequest(_request).ApplyUpdate(newModel, _token);
+        var result = await _command.ApplyUpdate(newModel, _token);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Messages, Is.EquivalentTo(["Session created"]));
@@ -141,7 +124,6 @@ public class CreateServiceAccountSessionCommandTests
         return new ServiceAccountSession
         {
             Id = Guid.NewGuid(),
-            PinHash = "",
             ServiceIpAddress = "",
             ServiceUserAgent = "",
             CookieValue = "",
@@ -153,7 +135,6 @@ public class CreateServiceAccountSessionCommandTests
         return new ServiceAccountSessionDto
         {
             Id = Guid.NewGuid(),
-            PinHash = "",
             ServiceIpAddress = "",
             ServiceUserAgent = "",
             CookieValue = "",

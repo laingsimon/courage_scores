@@ -21,9 +21,9 @@ public class ServiceAccountController : Controller
     }
 
     [HttpPost("/api/ServiceAccount")]
-    public async Task<ActionResultDto<ServiceAccountSessionDto>> Create(CreateServiceAccountSessionDto request, CancellationToken token)
+    public async Task<ActionResultDto<ServiceAccountSessionDto>> Create(CancellationToken token)
     {
-        var command = _commandFactory.GetCommand<CreateServiceAccountSessionCommand>().WithRequest(request);
+        var command = _commandFactory.GetCommand<CreateServiceAccountSessionCommand>();
         return await _service.Upsert(null, command, token);
     }
 

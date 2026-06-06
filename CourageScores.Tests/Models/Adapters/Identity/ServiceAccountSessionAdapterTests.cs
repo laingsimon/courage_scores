@@ -17,7 +17,7 @@ public class ServiceAccountSessionAdapterTests
         var model = new ServiceAccountSession
         {
             CookieValue = "cookie-value",
-            PinHash = "pin-hash",
+            PinFromApprover = "pin",
             ServiceIpAddress = "ip-address",
             ServiceUserAgent = "user-agent",
             ApprovedBy = "approved-by",
@@ -35,7 +35,7 @@ public class ServiceAccountSessionAdapterTests
         Assert.That(dto.Id, Is.EqualTo(model.Id));
         Assert.That(dto.LastRequest, Is.EqualTo(model.LastRequest));
         Assert.That(dto.Message, Is.EqualTo(model.Message));
-        Assert.That(dto.PinHash, Is.EqualTo(model.PinHash));
+        Assert.That(dto.PinFromApprover, Is.EqualTo(model.PinFromApprover));
         Assert.That(dto.RejectedBy, Is.EqualTo(model.RejectedBy));
         Assert.That(dto.ServiceIpAddress, Is.EqualTo(model.ServiceIpAddress));
         Assert.That(dto.ServiceUserAgent, Is.EqualTo(model.ServiceUserAgent));
@@ -48,7 +48,7 @@ public class ServiceAccountSessionAdapterTests
         var dto = new ServiceAccountSessionDto
         {
             CookieValue = "cookie-value",
-            PinHash = "pin-hash",
+            PinFromApprover = "pin",
             ServiceIpAddress = "ip-address",
             ServiceUserAgent = "user-agent",
             ApprovedBy = "approved-by",
@@ -66,7 +66,7 @@ public class ServiceAccountSessionAdapterTests
         Assert.That(model.Id, Is.EqualTo(dto.Id));
         Assert.That(model.LastRequest, Is.EqualTo(dto.LastRequest));
         Assert.That(model.Message, Is.EqualTo(dto.Message));
-        Assert.That(model.PinHash, Is.EqualTo(dto.PinHash));
+        Assert.That(model.PinFromApprover, Is.EqualTo(dto.PinFromApprover));
         Assert.That(model.RejectedBy, Is.EqualTo(dto.RejectedBy));
         Assert.That(model.ServiceIpAddress, Is.EqualTo(dto.ServiceIpAddress));
         Assert.That(model.ServiceUserAgent, Is.EqualTo(dto.ServiceUserAgent));

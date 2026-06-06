@@ -11,7 +11,7 @@ public class ServiceAccountSessionAdapter : IAdapter<ServiceAccountSession, Serv
         {
             Id = model.Id,
             CookieValue = model.CookieValue,
-            PinHash = model.PinHash,
+            PinFromApprover = model.PinFromApprover,
             ServiceIpAddress = model.ServiceIpAddress,
             ServiceUserAgent = model.ServiceUserAgent,
             ApprovedBy = model.ApprovedBy,
@@ -28,7 +28,7 @@ public class ServiceAccountSessionAdapter : IAdapter<ServiceAccountSession, Serv
         {
             Id = dto.Id,
             CookieValue = dto.CookieValue,
-            PinHash = dto.PinHash,
+            PinFromApprover = dto.PinFromApprover,
             ServiceIpAddress = dto.ServiceIpAddress,
             ServiceUserAgent = dto.ServiceUserAgent,
             ApprovedBy = dto.ApprovedBy,
