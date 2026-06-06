@@ -56,7 +56,7 @@ public class ServiceAccountService : IServiceAccountService
     public async IAsyncEnumerable<ServiceAccountSessionDto> GetAll([EnumeratorCancellation] CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        if (user?.Access?.LoginServiceAccounts == true)
+        if (user?.Access?.LoginServiceAccounts != true)
         {
             yield break;
         }
