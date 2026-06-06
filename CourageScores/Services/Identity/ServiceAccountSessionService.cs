@@ -11,50 +11,62 @@ public class ServiceAccountSessionService : IServiceAccountSessionService
     private readonly IUserService _userService;
     private readonly IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto> _dataService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IServiceAccountSessionCleanUpService _cleanupService;
 
-    public ServiceAccountSessionService(
-        IUserService userService,
+    public ServiceAccountSessionService(IUserService userService,
         IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto> dataService,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor,
+        IServiceAccountSessionCleanUpService cleanupService)
     {
         _userService = userService;
         _dataService = dataService;
         _httpContextAccessor = httpContextAccessor;
+        _cleanupService = cleanupService;
     }
 
     public async Task<ServiceAccountSessionDto?> Get(Guid id, CancellationToken token)
     {
-        var session = await _dataService.Get(id, token);
-        if (session == null)
+        try
         {
-            return null;
-        }
+            var session = await _dataService.Get(id, token);
+            if (session == null)
+            {
+                return null;
+            }
 
-        var user = await _userService.GetUser(token);
-        if (user?.Access?.LoginServiceAccounts == true)
-        {
+            var user = await _userService.GetUser(token);
+            if (user?.Access?.LoginServiceAccounts == true)
+            {
+                return session;
+            }
+
+            var httpContext = _httpContextAccessor.HttpContext!;
+
+            if (session.ServiceIpAddress != httpContext.Connection.RemoteIpAddress?.ToString())
+            {
+                return null;
+            }
+
+            var httpRequest = httpContext.Request;
+
+            if (!httpRequest.Cookies.TryGetValue(ServiceAccountSessionDto.CookieName, out var cookieValue) ||
+                cookieValue != session.CookieValue)
+            {
+                return null;
+            }
+
             return session;
         }
-
-        var httpContext = _httpContextAccessor.HttpContext!;
-
-        if (session.ServiceIpAddress != httpContext.Connection.RemoteIpAddress?.ToString())
+        finally
         {
-            return null;
+            await _cleanupService.DeleteExpiredSessions(token);
         }
-
-        var httpRequest = httpContext.Request;
-
-        if (!httpRequest.Cookies.TryGetValue(ServiceAccountSessionDto.CookieName, out var cookieValue) || cookieValue != session.CookieValue)
-        {
-            return null;
-        }
-
-        return session;
     }
 
     public async IAsyncEnumerable<ServiceAccountSessionDto> GetAll([EnumeratorCancellation] CancellationToken token)
     {
+        await _cleanupService.DeleteExpiredSessions(token);
+
         var user = await _userService.GetUser(token);
         if (user?.Access?.LoginServiceAccounts != true)
         {
@@ -72,9 +84,10 @@ public class ServiceAccountSessionService : IServiceAccountSessionService
         throw new NotSupportedException();
     }
 
-    public Task<ActionResultDto<ServiceAccountSessionDto>> Upsert<TOut>(Guid? id, IUpdateCommand<ServiceAccountSession, TOut> updateCommand, CancellationToken token)
+    public async Task<ActionResultDto<ServiceAccountSessionDto>> Upsert<TOut>(Guid? id, IUpdateCommand<ServiceAccountSession, TOut> updateCommand, CancellationToken token)
     {
-        return _dataService.Upsert(id, updateCommand, token);
+        await _cleanupService.DeleteExpiredSessions(token);
+        return await _dataService.Upsert(id, updateCommand, token);
     }
 
     public Task<ActionResultDto<ServiceAccountSessionDto>> Delete(Guid id, CancellationToken token)
