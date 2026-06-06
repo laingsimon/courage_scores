@@ -20,6 +20,12 @@ public class ServiceAccountSessionController : Controller
         _service = service;
     }
 
+    [HttpGet("/api/ServiceAccount")]
+    public IAsyncEnumerable<ServiceAccountSessionDto> GetAll(CancellationToken token)
+    {
+        return _service.GetAll(token);
+    }
+
     [HttpPost("/api/ServiceAccount")]
     public async Task<ActionResultDto<ServiceAccountSessionDto>> Create(CancellationToken token)
     {
