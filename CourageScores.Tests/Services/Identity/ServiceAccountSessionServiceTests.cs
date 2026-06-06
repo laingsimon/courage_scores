@@ -16,6 +16,7 @@ public class ServiceAccountSessionServiceTests
     private readonly CancellationToken _token = CancellationToken.None;
     private Mock<IUserService> _userService = null!;
     private Mock<IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto>> _dataService = null!;
+    private Mock<IServiceAccountSessionCleanUpService> _cleanupService = null!;
     private Mock<IRequestCookieCollection> _requestCookies = null!;
     private UserDto? _user;
     private DefaultHttpContext _httpContext = null!;
@@ -28,9 +29,10 @@ public class ServiceAccountSessionServiceTests
         _user = null;
         _userService = new Mock<IUserService>();
         _dataService = new Mock<IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto>>();
+        _cleanupService = new Mock<IServiceAccountSessionCleanUpService>();
         _requestCookies = new Mock<IRequestCookieCollection>();
         var httpContextAccessor = new Mock<IHttpContextAccessor>();
-        _service = new ServiceAccountSessionService(_userService.Object, _dataService.Object, httpContextAccessor.Object);
+        _service = new ServiceAccountSessionService(_userService.Object, _dataService.Object, httpContextAccessor.Object, _cleanupService.Object);
         _httpContext = new DefaultHttpContext
         {
             Request =
@@ -58,6 +60,7 @@ public class ServiceAccountSessionServiceTests
 
         var result = await _service.Get(id, _token);
 
+        _cleanupService.Verify(s => s.DeleteExpiredSessions(_token));
         Assert.That(result, Is.Null);
     }
 
@@ -80,6 +83,7 @@ public class ServiceAccountSessionServiceTests
 
         var result = await _service.Get(session.Id, _token);
 
+        _cleanupService.Verify(s => s.DeleteExpiredSessions(_token));
         Assert.That(result, Is.EqualTo(session));
     }
 
@@ -95,6 +99,7 @@ public class ServiceAccountSessionServiceTests
 
         var result = await _service.Get(session.Id, _token);
 
+        _cleanupService.Verify(s => s.DeleteExpiredSessions(_token));
         Assert.That(result, Is.Null);
     }
 
@@ -110,6 +115,7 @@ public class ServiceAccountSessionServiceTests
 
         var result = await _service.Get(session.Id, _token);
 
+        _cleanupService.Verify(s => s.DeleteExpiredSessions(_token));
         Assert.That(result, Is.Null);
     }
 
@@ -125,6 +131,7 @@ public class ServiceAccountSessionServiceTests
 
         var result = await _service.Get(session.Id, _token);
 
+        _cleanupService.Verify(s => s.DeleteExpiredSessions(_token));
         Assert.That(result, Is.Null);
     }
 
@@ -140,6 +147,7 @@ public class ServiceAccountSessionServiceTests
 
         var result = await _service.Get(session.Id, _token);
 
+        _cleanupService.Verify(s => s.DeleteExpiredSessions(_token));
         Assert.That(result, Is.EqualTo(session));
     }
 
@@ -154,6 +162,7 @@ public class ServiceAccountSessionServiceTests
         var sessions = await _service.GetAll(_token).ToList();
 
         _dataService.Verify(s => s.GetAll(_token), Times.Never);
+        _cleanupService.Verify(s => s.DeleteExpiredSessions(_token));
         Assert.That(sessions, Is.Empty);
     }
 
@@ -172,6 +181,7 @@ public class ServiceAccountSessionServiceTests
         var sessions = await _service.GetAll(_token).ToList();
 
         _dataService.Verify(s => s.GetAll(_token), Times.Never);
+        _cleanupService.Verify(s => s.DeleteExpiredSessions(_token));
         Assert.That(sessions, Is.Empty);
     }
 
@@ -190,6 +200,7 @@ public class ServiceAccountSessionServiceTests
         var sessions = await _service.GetAll(_token).ToList();
 
         _dataService.Verify(s => s.GetAll(_token));
+        _cleanupService.Verify(s => s.DeleteExpiredSessions(_token));
         Assert.That(sessions, Is.EquivalentTo([session]));
     }
 
@@ -211,7 +222,7 @@ public class ServiceAccountSessionServiceTests
         await _service.Upsert(id, command.Object, _token);
 
         _dataService.Verify(s => s.Upsert(id, command.Object, _token));
-
+        _cleanupService.Verify(s => s.DeleteExpiredSessions(_token));
     }
 
     [Test]
@@ -224,6 +235,7 @@ public class ServiceAccountSessionServiceTests
         await _service.Upsert(id, command.Object, _token);
 
         _dataService.Verify(s => s.Upsert(id, command.Object, _token));
+        _cleanupService.Verify(s => s.DeleteExpiredSessions(_token));
     }
 
     [Test]

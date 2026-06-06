@@ -184,6 +184,7 @@ public static class DependencyInjectionExtensions
 
         services.AddScoped<IQueryService, QueryService>();
         services.AddScoped<IServiceAccountSessionService, ServiceAccountSessionService>();
+        services.AddScoped<IServiceAccountSessionCleanUpService, ServiceAccountSessionCleanUpService>();
     }
 
     private static void AddRepositories(IServiceCollection services)
