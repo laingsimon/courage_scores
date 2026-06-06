@@ -29,6 +29,7 @@ public class ServiceAccountSessionDto : AuditedDto, IIntegrityCheckDto
     /// A cookie-value to be set by the tablet/tv when creating the session
     /// This value should cycle periodically
     /// </summary>
+    [JsonIgnore] // don't expose this either, it's for the tablet headers only
     public required string CookieValue { get; set; }
 
     /// <summary>
