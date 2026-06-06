@@ -1,6 +1,9 @@
-﻿using CourageScores.Models.Adapters.Identity;
+﻿using System.Net;
+using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
+using Microsoft.AspNetCore.Http;
+using Moq;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters.Identity;
@@ -9,7 +12,25 @@ namespace CourageScores.Tests.Models.Adapters.Identity;
 public class ServiceAccountSessionAdapterTests
 {
     private readonly CancellationToken _token = CancellationToken.None;
-    private readonly ServiceAccountSessionAdapter _adapter = new ServiceAccountSessionAdapter();
+    private ServiceAccountSessionAdapter _adapter = null!;
+    private DefaultHttpContext _httpContext = null!;
+
+    [SetUp]
+    public void SetupEachTest()
+    {
+        _httpContext = new DefaultHttpContext
+        {
+            Connection =
+            {
+                RemoteIpAddress = IPAddress.Parse("1.2.3.4"),
+            }
+        };
+        var httpContextAccessor = new Mock<IHttpContextAccessor>();
+
+        _adapter = new ServiceAccountSessionAdapter(httpContextAccessor.Object);
+
+        httpContextAccessor.Setup(a => a.HttpContext).Returns(_httpContext);
+    }
 
     [Test]
     public async Task Adapt_GivenModel_SetsPropertiesCorrectly()
@@ -42,6 +63,7 @@ public class ServiceAccountSessionAdapterTests
         Assert.That(dto.ServiceUserAgent, Is.EqualTo(model.ServiceUserAgent));
         Assert.That(dto.TransientUsername, Is.EqualTo(model.TransientUsername));
         Assert.That(dto.LastUpdated, Is.EqualTo(model.Updated));
+        Assert.That(dto.MyIpAddress, Is.EqualTo(_httpContext.Connection.RemoteIpAddress!.ToString()));
     }
 
     [Test]

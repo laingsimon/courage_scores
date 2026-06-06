@@ -14,6 +14,11 @@ public class ServiceAccountSessionDto : AuditedDto, IIntegrityCheckDto
     public required string ServiceIpAddress { get; init; }
 
     /// <summary>
+    /// The ip address of the current request
+    /// </summary>
+    public string? MyIpAddress { get; set; }
+
+    /// <summary>
     /// The user agent of the tablet/tv
     /// </summary>
     public required string ServiceUserAgent { get; init; }
