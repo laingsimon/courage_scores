@@ -32,4 +32,11 @@ public class ServiceAccountSessionController : Controller
     {
         return await _service.Get(id, token);
     }
+
+    [HttpPost("/api/ServiceAccount/{id}/approve")]
+    public async Task<ActionResultDto<ServiceAccountSessionDto>> Approve(Guid id, ApproveServiceAccountSessionDto request, CancellationToken token)
+    {
+        var command = _commandFactory.GetCommand<ApproveServiceAccountSessionCommand>().WithRequest(request);
+        return await _service.Upsert(id, command, token);
+    }
 }
