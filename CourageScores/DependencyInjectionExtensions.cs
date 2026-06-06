@@ -183,6 +183,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IRemoteControlService, RemoteControlService>();
 
         services.AddScoped<IQueryService, QueryService>();
+        services.AddScoped<IServiceAccountService, ServiceAccountService>();
     }
 
     private static void AddRepositories(IServiceCollection services)
@@ -229,6 +230,7 @@ public static class DependencyInjectionExtensions
         AddAdapter<Season, SeasonDto, SeasonAdapter>(services);
         AddAdapter<ErrorDetail, ErrorDetailDto, ErrorDetailAdapter>(services);
         AddAdapter<Template, TemplateDto, TemplateAdapter>(services);
+        AddAdapter<ServiceAccountSession, ServiceAccountSessionDto, ServiceAccountSessionAdapter>(services);
 
         AddAdapter<ConfiguredFeature, ConfiguredFeatureDto, ConfiguredFeatureDtoAdapter>(services);
 
