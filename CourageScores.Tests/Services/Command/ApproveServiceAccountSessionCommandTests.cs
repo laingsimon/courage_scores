@@ -56,6 +56,7 @@ public class ApproveServiceAccountSessionCommandTests
         {
             Id = Guid.NewGuid(),
             CookieValue = "cookie-value",
+            FriendlyName = "friendly-name",
             ServiceIpAddress = _httpContext.Connection.RemoteIpAddress.ToString(),
             ServiceUserAgent = "user-agent",
         };

@@ -254,6 +254,7 @@ public class ServiceAccountSessionServiceTests
             Id = Guid.NewGuid(),
             ServiceIpAddress = "1.2.3.4",
             ServiceUserAgent = "user-agent",
+            FriendlyName = "friendly-name",
             CookieValue = "cookie-value",
         };
     }

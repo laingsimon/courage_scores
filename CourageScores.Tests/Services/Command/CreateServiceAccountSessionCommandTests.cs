@@ -45,6 +45,7 @@ public class CreateServiceAccountSessionCommandTests
         _existingSession = new ServiceAccountSession
         {
             Id = Guid.NewGuid(),
+            FriendlyName = "friendly-name",
             ServiceIpAddress = "existing-ip-address",
             ServiceUserAgent = "existing-user-agent",
             CookieValue = "existing-cookie",
@@ -153,6 +154,7 @@ public class CreateServiceAccountSessionCommandTests
         return new ServiceAccountSession
         {
             Id = Guid.NewGuid(),
+            FriendlyName = "",
             ServiceIpAddress = "",
             ServiceUserAgent = "",
             CookieValue = "",
@@ -164,6 +166,7 @@ public class CreateServiceAccountSessionCommandTests
         return new ServiceAccountSessionDto
         {
             Id = Guid.NewGuid(),
+            FriendlyName = "",
             ServiceIpAddress = "",
             ServiceUserAgent = "",
             CookieValue = "",

@@ -38,6 +38,7 @@ public class ServiceAccountSessionAdapterTests
         var model = new ServiceAccountSession
         {
             CookieValue = "cookie-value",
+            FriendlyName = "friendly-name",
             PinFromApprover = "pin",
             ServiceIpAddress = "ip-address",
             ServiceUserAgent = "user-agent",
@@ -63,6 +64,7 @@ public class ServiceAccountSessionAdapterTests
         Assert.That(dto.ServiceUserAgent, Is.EqualTo(model.ServiceUserAgent));
         Assert.That(dto.TransientUsername, Is.EqualTo(model.TransientUsername));
         Assert.That(dto.LastUpdated, Is.EqualTo(model.Updated));
+        Assert.That(dto.FriendlyName, Is.EqualTo(model.FriendlyName));
         Assert.That(dto.MyIpAddress, Is.EqualTo(_httpContext.Connection.RemoteIpAddress!.ToString()));
     }
 
@@ -74,6 +76,7 @@ public class ServiceAccountSessionAdapterTests
             CookieValue = "cookie-value",
             PinFromApprover = "pin",
             ServiceIpAddress = "ip-address",
+            FriendlyName = "friendly-name",
             ServiceUserAgent = "user-agent",
             ApprovedBy = "approved-by",
             LastRequest = new DateTime(2001, 02, 03),
@@ -95,5 +98,6 @@ public class ServiceAccountSessionAdapterTests
         Assert.That(model.ServiceIpAddress, Is.EqualTo(dto.ServiceIpAddress));
         Assert.That(model.ServiceUserAgent, Is.EqualTo(dto.ServiceUserAgent));
         Assert.That(model.TransientUsername, Is.EqualTo(dto.TransientUsername));
+        Assert.That(model.FriendlyName, Is.EqualTo(dto.FriendlyName));
     }
 }

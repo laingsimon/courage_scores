@@ -24,6 +24,11 @@ public class ServiceAccountSessionDto : AuditedDto, IIntegrityCheckDto
     public required string ServiceUserAgent { get; init; }
 
     /// <summary>
+    /// A friendly name for the service account
+    /// </summary>
+    public required string FriendlyName { get; set; }
+
+    /// <summary>
     /// The pin entered by the approver, the tablet should send the pin when attempting to 'activate' the session
     /// This value must never be sent back to the client
     /// </summary>
