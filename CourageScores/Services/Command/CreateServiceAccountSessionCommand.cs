@@ -13,6 +13,7 @@ public class CreateServiceAccountSessionCommand : IUpdateCommand<ServiceAccountS
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto> _service;
     private readonly IFeatureService _featureService;
+    private CreateSessionRequestDto? _request;
 
     public CreateServiceAccountSessionCommand(
         IUserService userService,
@@ -28,8 +29,16 @@ public class CreateServiceAccountSessionCommand : IUpdateCommand<ServiceAccountS
 
     public bool RequiresLogin => false;
 
+    public CreateServiceAccountSessionCommand WithRequest(CreateSessionRequestDto request)
+    {
+        _request = request;
+        return this;
+    }
+
     public async Task<ActionResult<ServiceAccountSession>> ApplyUpdate(ServiceAccountSession model, CancellationToken token)
     {
+        _request.ThrowIfNull($"Call {nameof(WithRequest)} first");
+
         var feature = await _featureService.Get(FeatureLookup.ServiceAccountSessions, token);
         if (feature?.ConfiguredValue != "true")
         {
@@ -60,6 +69,7 @@ public class CreateServiceAccountSessionCommand : IUpdateCommand<ServiceAccountS
         model.ServiceIpAddress = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
         model.ServiceUserAgent = httpRequest.Headers.UserAgent.ToString();
         model.CookieValue = Guid.NewGuid().ToString();
+        model.FriendlyName = _request!.FriendlyName;
         httpContext.Response.Cookies.Append(ServiceAccountSessionDto.CookieName, model.CookieValue, new CookieOptions
         {
             HttpOnly = true,
