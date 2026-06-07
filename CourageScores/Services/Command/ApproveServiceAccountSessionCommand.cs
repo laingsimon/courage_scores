@@ -88,6 +88,7 @@ public class ApproveServiceAccountSessionCommand : IUpdateCommand<ServiceAccount
         model.ApprovedBy = user.Name;
         model.PinFromApprover = _request.Pin;
         model.TransientUsername = transientUser.EmailAddress;
+
         return new ActionResult<ServiceAccountSession>
         {
             Result = model,

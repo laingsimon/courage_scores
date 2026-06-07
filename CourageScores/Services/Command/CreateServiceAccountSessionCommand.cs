@@ -55,7 +55,7 @@ public class CreateServiceAccountSessionCommand : IUpdateCommand<ServiceAccountS
         var httpRequest = httpContext.Request;
         var cookies = httpRequest.Cookies;
 
-        if (cookies.TryGetValue(ServiceAccountSessionDto.CookieName, out var cookieValue))
+        if (cookies.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out var cookieValue))
         {
             // lookup the existing session and return it
             var existingSession = (await _service.GetWhere($"t.{nameof(model.CookieValue)} = '{cookieValue}'", token).ToList()).SingleOrDefault();
@@ -70,7 +70,7 @@ public class CreateServiceAccountSessionCommand : IUpdateCommand<ServiceAccountS
         model.ServiceUserAgent = httpRequest.Headers.UserAgent.ToString();
         model.CookieValue = Guid.NewGuid().ToString();
         model.FriendlyName = _request!.FriendlyName;
-        httpContext.Response.Cookies.Append(ServiceAccountSessionDto.CookieName, model.CookieValue, new CookieOptions
+        httpContext.Response.Cookies.Append(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, model.CookieValue, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,

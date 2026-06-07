@@ -147,5 +147,7 @@ public class ActivateServiceAccountSessionCommandTests
         Assert.That(_model.LastRequest, Is.Not.Null);
         Assert.That(result.Success, Is.True);
         Assert.That(result.Messages, Is.EquivalentTo(["Session activated"]));
+        var setCookieHeaders = _httpContext.Response.Headers.SetCookie;
+        Assert.That(setCookieHeaders.Select(h => h), Has.All.StartsWith($"{ServiceAccountSessionDto.ActivatedSessionIdCookieName}={_model.Id}"));
     }
 }

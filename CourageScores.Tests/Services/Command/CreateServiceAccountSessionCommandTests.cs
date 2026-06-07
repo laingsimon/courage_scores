@@ -104,7 +104,7 @@ public class CreateServiceAccountSessionCommandTests
         var newModel = Session();
         var cookieValue = _existingSession.CookieValue;
         _requestCookies
-            .Setup(c => c.TryGetValue(ServiceAccountSessionDto.CookieName, out cookieValue))
+            .Setup(c => c.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out cookieValue))
             .Returns(true);
         var existingSession = SessionDto();
         _service
@@ -125,7 +125,7 @@ public class CreateServiceAccountSessionCommandTests
         var newModel = Session();
         var cookieValue = _existingSession.CookieValue;
         _requestCookies
-            .Setup(c => c.TryGetValue(ServiceAccountSessionDto.CookieName, out cookieValue))
+            .Setup(c => c.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out cookieValue))
             .Returns(true);
         _service
             .Setup(s => s.GetWhere($"t.{nameof(newModel.CookieValue)} = '{cookieValue}'", _token))
@@ -145,7 +145,7 @@ public class CreateServiceAccountSessionCommandTests
         var newModel = Session();
         var cookieValue = "not present";
         _requestCookies
-            .Setup(c => c.TryGetValue(ServiceAccountSessionDto.CookieName, out cookieValue))
+            .Setup(c => c.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out cookieValue))
             .Returns(false);
 
         var result = await _command.ApplyUpdate(newModel, _token);
@@ -154,6 +154,8 @@ public class CreateServiceAccountSessionCommandTests
         Assert.That(newModel.FriendlyName, Is.EqualTo(_request.FriendlyName));
         Assert.That(result.Messages, Is.EquivalentTo(["Session created"]));
         _service.Verify(s => s.GetWhere(It.IsAny<string>(), _token), Times.Never);
+        var setCookieHeaders = _httpContext.Response.Headers.SetCookie;
+        Assert.That(setCookieHeaders.Select(h => h), Has.All.StartsWith($"{ServiceAccountSessionDto.RequestedSessionCookieValueCookieName}={newModel.CookieValue}"));
     }
 
     private static ServiceAccountSession Session()

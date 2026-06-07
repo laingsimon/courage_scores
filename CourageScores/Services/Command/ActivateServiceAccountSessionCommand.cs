@@ -36,7 +36,8 @@ public class ActivateServiceAccountSessionCommand : IUpdateCommand<ServiceAccoun
             return Warning("Service account sessions are not allowed");
         }
 
-        var ipAddress = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
+        var httpContext = _httpContextAccessor.HttpContext!;
+        var ipAddress = httpContext.Connection.RemoteIpAddress?.ToString();
         if (ipAddress != model.ServiceIpAddress)
         {
             return Warning("Cannot activate a session from a different location");
@@ -63,6 +64,13 @@ public class ActivateServiceAccountSessionCommand : IUpdateCommand<ServiceAccoun
             return Warning("The user for this session was not found");
         }
 
+        httpContext.Response.Cookies.Append(ServiceAccountSessionDto.ActivatedSessionIdCookieName, model.Id.ToString(), new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            IsEssential = true,
+            Expires = null, // session cookie
+        });
         model.LastRequest = DateTime.UtcNow;
         return new ActionResult<ServiceAccountSession>
         {
