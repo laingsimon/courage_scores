@@ -2,6 +2,7 @@
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
+using CourageScores.Repository;
 using CourageScores.Repository.Identity;
 using CourageScores.Services.Identity;
 
@@ -13,18 +14,21 @@ public class ApproveServiceAccountSessionCommand : IUpdateCommand<ServiceAccount
     private readonly IUserRepository _userRepository;
     private readonly ISimpleAdapter<Access, AccessDto> _accessAdapter;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IFeatureService _featureService;
     private ApproveServiceAccountSessionDto? _request;
 
     public ApproveServiceAccountSessionCommand(
         IUserService userService,
         IUserRepository userRepository,
         ISimpleAdapter<Access, AccessDto> accessAdapter,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor,
+        IFeatureService featureService)
     {
         _userService = userService;
         _userRepository = userRepository;
         _accessAdapter = accessAdapter;
         _httpContextAccessor = httpContextAccessor;
+        _featureService = featureService;
     }
 
     public ApproveServiceAccountSessionCommand WithRequest(ApproveServiceAccountSessionDto request)
@@ -46,6 +50,12 @@ public class ApproveServiceAccountSessionCommand : IUpdateCommand<ServiceAccount
         if (user.Access?.LoginServiceAccounts != true)
         {
             return Warning("Not permitted");
+        }
+
+        var feature = await _featureService.Get(FeatureLookup.ServiceAccountSessions, token);
+        if (feature?.ConfiguredValue != "true")
+        {
+            return Warning("Service account sessions are not allowed");
         }
 
         var ipAddress = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();

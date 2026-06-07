@@ -1,6 +1,7 @@
 ﻿using CourageScores.Models;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
+using CourageScores.Repository;
 using CourageScores.Services.Identity;
 
 namespace CourageScores.Services.Command;
@@ -9,12 +10,14 @@ public class ActivateServiceAccountSessionCommand : IUpdateCommand<ServiceAccoun
 {
     private readonly IUserService _userService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IFeatureService _featureService;
     private ActivateSessionRequestDto? _request;
 
-    public ActivateServiceAccountSessionCommand(IUserService userService, IHttpContextAccessor httpContextAccessor)
+    public ActivateServiceAccountSessionCommand(IUserService userService, IHttpContextAccessor httpContextAccessor, IFeatureService featureService)
     {
         _userService = userService;
         _httpContextAccessor = httpContextAccessor;
+        _featureService = featureService;
     }
 
     public ActivateServiceAccountSessionCommand WithRequest(ActivateSessionRequestDto request)
@@ -26,6 +29,12 @@ public class ActivateServiceAccountSessionCommand : IUpdateCommand<ServiceAccoun
     public async Task<ActionResult<ServiceAccountSession>> ApplyUpdate(ServiceAccountSession model, CancellationToken token)
     {
         _request.ThrowIfNull($"Call {nameof(WithRequest)} first");
+
+        var feature = await _featureService.Get(FeatureLookup.ServiceAccountSessions, token);
+        if (feature?.ConfiguredValue != "true")
+        {
+            return Warning("Service account sessions are not allowed");
+        }
 
         var ipAddress = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
         if (ipAddress != model.ServiceIpAddress)

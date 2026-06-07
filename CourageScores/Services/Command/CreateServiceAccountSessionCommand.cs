@@ -2,6 +2,7 @@
 using CourageScores.Models;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
+using CourageScores.Repository;
 using CourageScores.Services.Identity;
 
 namespace CourageScores.Services.Command;
@@ -11,21 +12,30 @@ public class CreateServiceAccountSessionCommand : IUpdateCommand<ServiceAccountS
     private readonly IUserService _userService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto> _service;
+    private readonly IFeatureService _featureService;
 
     public CreateServiceAccountSessionCommand(
         IUserService userService,
         IHttpContextAccessor httpContextAccessor,
-        IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto> service)
+        IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto> service,
+        IFeatureService featureService)
     {
         _userService = userService;
         _httpContextAccessor = httpContextAccessor;
         _service = service;
+        _featureService = featureService;
     }
 
     public bool RequiresLogin => false;
 
     public async Task<ActionResult<ServiceAccountSession>> ApplyUpdate(ServiceAccountSession model, CancellationToken token)
     {
+        var feature = await _featureService.Get(FeatureLookup.ServiceAccountSessions, token);
+        if (feature?.ConfiguredValue != "true")
+        {
+            return Warning("Service account sessions are not allowed");
+        }
+
         var user = await _userService.GetUser(token);
         if (user != null)
         {
