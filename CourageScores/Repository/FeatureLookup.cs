@@ -38,6 +38,14 @@ public class FeatureLookup : IFeatureLookup
         "false",
         AllFeatures);
 
+    public static readonly Feature ServiceAccountSessions = new(
+        Guid.Parse("1F866FA2-8B9A-4345-A191-D7AAECCD8D72"),
+        "ServiceAccountSessionsAllowed",
+        "Service account sessions are allowed (allowing tablets and tvs to be signed in)",
+        Feature.FeatureValueType.Boolean,
+        "false",
+        AllFeatures);
+
     public IEnumerable<Feature> GetAll()
     {
         return AllFeatures.Values;
