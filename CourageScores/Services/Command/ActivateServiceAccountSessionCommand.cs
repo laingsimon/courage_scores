@@ -20,6 +20,8 @@ public class ActivateServiceAccountSessionCommand : IUpdateCommand<ServiceAccoun
         _featureService = featureService;
     }
 
+    public bool RequiresLogin => false;
+
     public ActivateServiceAccountSessionCommand WithRequest(ActivateSessionRequestDto request)
     {
         _request = request;
