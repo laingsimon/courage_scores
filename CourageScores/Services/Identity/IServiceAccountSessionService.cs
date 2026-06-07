@@ -5,4 +5,5 @@ namespace CourageScores.Services.Identity;
 
 public interface IServiceAccountSessionService : IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto>
 {
+    Task<bool> SignOutAsync(CancellationToken token);
 }

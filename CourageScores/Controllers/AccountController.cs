@@ -15,10 +15,12 @@ namespace CourageScores.Controllers;
 public class AccountController : Controller
 {
     private readonly IUserService _userService;
+    private readonly IServiceAccountSessionService _serviceAccountSessionService;
 
-    public AccountController(IUserService userService)
+    public AccountController(IUserService userService, IServiceAccountSessionService serviceAccountSessionService)
     {
         _userService = userService;
+        _serviceAccountSessionService = serviceAccountSessionService;
     }
 
     [ExcludeFromTypeScript]
@@ -34,9 +36,14 @@ public class AccountController : Controller
 
     [ExcludeFromTypeScript]
     [HttpGet("/api/Account/Logout")]
-    public async Task<RedirectResult> Logout(string redirectUrl = "/")
+    public async Task<RedirectResult> Logout(CancellationToken token, string redirectUrl = "/")
     {
-        await HttpContext.SignOutAsync();
+        var wasSignedOut = await _serviceAccountSessionService.SignOutAsync(token);
+        if (!wasSignedOut)
+        {
+            await HttpContext.SignOutAsync();
+        }
+
         return Redirect(redirectUrl);
     }
 

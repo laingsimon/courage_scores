@@ -24,6 +24,33 @@ public class ServiceAccountSessionService : IServiceAccountSessionService
         _cleanupService = cleanupService;
     }
 
+    public async Task<bool> SignOutAsync(CancellationToken token)
+    {
+        var httpContext = _httpContextAccessor.HttpContext!;
+        var requestCookies = httpContext.Request.Cookies;
+        var responseCookies = httpContext.Response.Cookies;
+
+        if (requestCookies.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out _))
+        {
+            // delete this cookie
+            responseCookies.Delete(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName);
+        }
+
+        if (requestCookies.TryGetValue(ServiceAccountSessionDto.ActivatedSessionIdCookieName, out var activatedSessionCookie))
+        {
+            // delete this cookie
+            responseCookies.Delete(ServiceAccountSessionDto.ActivatedSessionIdCookieName);
+            if (Guid.TryParse(activatedSessionCookie, out var sessionId))
+            {
+                await _dataService.Delete(sessionId, token);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
     public async Task<ServiceAccountSessionDto?> Get(Guid id, CancellationToken token)
     {
         try
