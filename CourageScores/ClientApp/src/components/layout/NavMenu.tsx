@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import './NavMenu.css';
 import { any, isEmpty, sortBy } from '../../helpers/collections.ts';
 import { useDependencies } from '../common/IocContainer.tsx';
@@ -44,14 +44,18 @@ export function NavMenu() {
         }
     }
 
-    function getAccountUrl(action: string) {
+    function getLogoutUrl() {
+        return `${settings.apiHost}/api/Account/Logout/?redirectUrl=${getRedirectUrl()}`;
+    }
+
+    function getRedirectUrl() {
         const currentLink: string =
             'https://' +
             document.location.host +
             location.pathname +
             location.search;
 
-        return `${settings.apiHost}/api/Account/${action}/?redirectUrl=${encodeURIComponent(currentLink)}`;
+        return encodeURIComponent(currentLink);
     }
 
     function shouldShowDivision(division: DivisionDto) {
@@ -217,16 +221,16 @@ export function NavMenu() {
                                         {!appLoading && account ? (
                                             <a
                                                 className="nav-link"
-                                                href={`${getAccountUrl('Logout')}`}>
+                                                href={`${getLogoutUrl()}`}>
                                                 Logout ({account.givenName})
                                             </a>
                                         ) : null}
                                         {!appLoading && !account ? (
-                                            <a
+                                            <Link
                                                 className="nav-link"
-                                                href={`${getAccountUrl('Login')}`}>
+                                                to={`/login/?redirectUrl=${getRedirectUrl()}`}>
                                                 Login
-                                            </a>
+                                            </Link>
                                         ) : null}
                                     </li>
                                 ) : null}
