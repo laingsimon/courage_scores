@@ -80,8 +80,8 @@ public class ApproveServiceAccountSessionCommand : IUpdateCommand<ServiceAccount
             Access = await _accessAdapter.Adapt(_request.Access, token),
             EmailAddress = $"{model.Id}@couragescores.com",
             Transient = true,
-            Name = model.Id.ToString(),
-            GivenName = model.Id.ToString(),
+            Name = model.FriendlyName,
+            GivenName = model.FriendlyName,
         };
         await _userRepository.UpsertUser(transientUser);
 

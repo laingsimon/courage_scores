@@ -56,6 +56,7 @@ public class ApproveServiceAccountSessionCommandTests
         {
             Id = Guid.NewGuid(),
             CookieValue = "cookie-value",
+            FriendlyName = "friendly-name",
             ServiceIpAddress = _httpContext.Connection.RemoteIpAddress.ToString(),
             ServiceUserAgent = "user-agent",
         };
@@ -173,6 +174,8 @@ public class ApproveServiceAccountSessionCommandTests
         var transientUserName = $"{_model.Id}@couragescores.com";
         _userRepository.Verify(u => u.UpsertUser(It.Is<User>(user => user.Access!.ManageGames == true
                                                                      && user.EmailAddress == transientUserName
+                                                                     && user.GivenName == _model.FriendlyName
+                                                                     && user.Name == _model.FriendlyName
                                                                      && user.Transient == true)));
         Assert.That(_model.PinFromApprover, Is.EqualTo(_request.Pin));
         Assert.That(_model.ApprovedBy, Is.EqualTo(_user!.Name));

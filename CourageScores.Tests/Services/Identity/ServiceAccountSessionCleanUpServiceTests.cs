@@ -51,6 +51,7 @@ public class ServiceAccountSessionCleanUpServiceTests
             CookieValue = "cookie-value",
             ServiceIpAddress = "ip-address",
             ServiceUserAgent = "user-agent",
+            FriendlyName = "friendly-name",
             ApprovedBy = "approver",
             LastRequest = _now.DateTime,
             PinFromApprover = "pin",
@@ -71,6 +72,7 @@ public class ServiceAccountSessionCleanUpServiceTests
             CookieValue = "cookie-value",
             ServiceIpAddress = "ip-address",
             ServiceUserAgent = "user-agent",
+            FriendlyName = "friendly-name",
             Created = _now.DateTime.AddDays(-1),
             Updated = _now.DateTime.AddDays(-1),
         };
@@ -88,6 +90,7 @@ public class ServiceAccountSessionCleanUpServiceTests
         {
             CookieValue = "cookie-value",
             ServiceIpAddress = "ip-address",
+            FriendlyName = "friendly-name",
             ServiceUserAgent = "user-agent",
             Created = _now.DateTime.AddDays(-1),
             Updated = _now.DateTime.AddDays(-1),
@@ -108,6 +111,7 @@ public class ServiceAccountSessionCleanUpServiceTests
             CookieValue = "cookie-value",
             ServiceIpAddress = "ip-address",
             ServiceUserAgent = "user-agent",
+            FriendlyName = "friendly-name",
             Created = _now.DateTime.AddDays(-1),
             Updated = _now.DateTime.AddDays(-1),
             LastRequest = _now.DateTime.AddDays(-1),

@@ -49,6 +49,7 @@ public class ActivateServiceAccountSessionCommandTests
             ServiceIpAddress = _httpContext.Connection.RemoteIpAddress.ToString(),
             CookieValue = "cookie",
             ApprovedBy = "someone",
+            FriendlyName = "friendly-name",
             ServiceUserAgent = "user-agent",
             TransientUsername = "username",
             PinFromApprover = _request.Pin,

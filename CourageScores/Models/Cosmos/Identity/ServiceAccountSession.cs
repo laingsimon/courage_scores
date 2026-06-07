@@ -9,6 +9,7 @@ public class ServiceAccountSession : AuditedEntity, IPermissionedEntity
     public required string ServiceIpAddress { get; set; }
     public required string ServiceUserAgent { get; set; }
     public required string CookieValue { get; set; }
+    public required string FriendlyName { get; set; }
     public DateTime? LastRequest { get; set; }
     public string? PinFromApprover { get; set; }
     public string? ApprovedBy { get; set; }

@@ -22,6 +22,10 @@ public class CreateServiceAccountSessionCommandTests
     private Mock<IRequestCookieCollection> _requestCookies = null!;
     private Mock<IFeatureService> _featureService = null!;
     private ConfiguredFeatureDto _feature = null!;
+    private readonly CreateSessionRequestDto _request = new CreateSessionRequestDto
+    {
+        FriendlyName = "friendly-name",
+    };
 
     private CreateServiceAccountSessionCommand _command = null!;
 
@@ -41,10 +45,12 @@ public class CreateServiceAccountSessionCommandTests
                 Cookies = _requestCookies.Object,
             },
         };
-        _command = new CreateServiceAccountSessionCommand(_userService.Object, httpContextAccessor.Object, _service.Object, _featureService.Object);
+        _command = new CreateServiceAccountSessionCommand(_userService.Object, httpContextAccessor.Object, _service.Object, _featureService.Object)
+            .WithRequest(_request);
         _existingSession = new ServiceAccountSession
         {
             Id = Guid.NewGuid(),
+            FriendlyName = "friendly-name",
             ServiceIpAddress = "existing-ip-address",
             ServiceUserAgent = "existing-user-agent",
             CookieValue = "existing-cookie",
@@ -108,6 +114,7 @@ public class CreateServiceAccountSessionCommandTests
         var result = await _command.ApplyUpdate(newModel, _token);
 
         Assert.That(result.Success, Is.True);
+        Assert.That(newModel.FriendlyName, Is.EqualTo(_request.FriendlyName));
         Assert.That(result.Messages, Is.EquivalentTo(["Session created"]));
         _service.Verify(s => s.Delete(existingSession.Id, _token));
     }
@@ -127,6 +134,7 @@ public class CreateServiceAccountSessionCommandTests
         var result = await _command.ApplyUpdate(newModel, _token);
 
         Assert.That(result.Success, Is.True);
+        Assert.That(newModel.FriendlyName, Is.EqualTo(_request.FriendlyName));
         Assert.That(result.Messages, Is.EquivalentTo(["Session created"]));
         _service.Verify(s => s.Delete(It.IsAny<Guid>(), _token), Times.Never);
     }
@@ -143,9 +151,9 @@ public class CreateServiceAccountSessionCommandTests
         var result = await _command.ApplyUpdate(newModel, _token);
 
         Assert.That(result.Success, Is.True);
+        Assert.That(newModel.FriendlyName, Is.EqualTo(_request.FriendlyName));
         Assert.That(result.Messages, Is.EquivalentTo(["Session created"]));
         _service.Verify(s => s.GetWhere(It.IsAny<string>(), _token), Times.Never);
-        // _httpContext.Response.Cookies
     }
 
     private static ServiceAccountSession Session()
@@ -153,6 +161,7 @@ public class CreateServiceAccountSessionCommandTests
         return new ServiceAccountSession
         {
             Id = Guid.NewGuid(),
+            FriendlyName = "",
             ServiceIpAddress = "",
             ServiceUserAgent = "",
             CookieValue = "",
@@ -164,6 +173,7 @@ public class CreateServiceAccountSessionCommandTests
         return new ServiceAccountSessionDto
         {
             Id = Guid.NewGuid(),
+            FriendlyName = "",
             ServiceIpAddress = "",
             ServiceUserAgent = "",
             CookieValue = "",

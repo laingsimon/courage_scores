@@ -40,6 +40,7 @@ public class RejectServiceAccountSessionCommandTests
         _model = new ServiceAccountSession
         {
             Id = Guid.NewGuid(),
+            FriendlyName = "friendly-name",
             CookieValue = "cookie-value",
             ServiceIpAddress = "ip-address",
             ServiceUserAgent = "user-agent",
