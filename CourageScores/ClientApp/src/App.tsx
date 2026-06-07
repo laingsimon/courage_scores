@@ -28,7 +28,6 @@ import { Division } from './components/league/Division.tsx';
 import { IError } from './components/common/IError.ts';
 import { IFullScreen } from './components/common/IFullScreen.ts';
 import { AnalyseScores } from './components/analysis/AnalyseScores.tsx';
-import { RemoteControl } from './components/RemoteControl.tsx';
 
 export interface IAppProps {
     embed?: boolean;
@@ -327,11 +326,6 @@ export function App({ embed, controls, testRoute }: IAppProps) {
                                 path="/analyse/:season"
                                 element={<AnalyseScores />}
                             />
-                            <Route
-                                path="/rc/:id/:pin"
-                                element={<RemoteControl />}
-                            />
-                            <Route path="/rc" element={<RemoteControl />} />
                             {testRoute}
                         </Routes>
                     </Layout>
