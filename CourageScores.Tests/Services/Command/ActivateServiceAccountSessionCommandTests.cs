@@ -47,7 +47,7 @@ public class ActivateServiceAccountSessionCommandTests
         _model = new ServiceAccountSession
         {
             ServiceIpAddress = _httpContext.Connection.RemoteIpAddress.ToString(),
-            CookieValue = "cookie",
+            VerificationValue = "cookie",
             ApprovedBy = "someone",
             FriendlyName = "friendly-name",
             ServiceUserAgent = "user-agent",

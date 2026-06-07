@@ -30,10 +30,10 @@ public class ServiceAccountSessionService : IServiceAccountSessionService
         var requestCookies = httpContext.Request.Cookies;
         var responseCookies = httpContext.Response.Cookies;
 
-        if (requestCookies.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out _))
+        if (requestCookies.TryGetValue(ServiceAccountSessionDto.SessionVerificationCookieName, out _))
         {
             // delete this cookie
-            responseCookies.Delete(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName);
+            responseCookies.Delete(ServiceAccountSessionDto.SessionVerificationCookieName);
         }
 
         if (requestCookies.TryGetValue(ServiceAccountSessionDto.ActivatedSessionIdCookieName, out var activatedSessionCookie))
@@ -76,8 +76,8 @@ public class ServiceAccountSessionService : IServiceAccountSessionService
 
             var httpRequest = httpContext.Request;
 
-            if (!httpRequest.Cookies.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out var cookieValue) ||
-                cookieValue != session.CookieValue)
+            if (!httpRequest.Cookies.TryGetValue(ServiceAccountSessionDto.SessionVerificationCookieName, out var cookieValue) ||
+                cookieValue != session.VerificationValue)
             {
                 return null;
             }

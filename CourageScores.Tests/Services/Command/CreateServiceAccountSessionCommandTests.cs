@@ -53,7 +53,7 @@ public class CreateServiceAccountSessionCommandTests
             FriendlyName = "friendly-name",
             ServiceIpAddress = "existing-ip-address",
             ServiceUserAgent = "existing-user-agent",
-            CookieValue = "existing-cookie",
+            VerificationValue = "existing-cookie",
         };
         _user = null;
 
@@ -102,13 +102,13 @@ public class CreateServiceAccountSessionCommandTests
     public async Task ApplyUpdates_WhenCookiePresentAndExistingSessionFound_DeletesExistingSessionAndReturnsNewSession()
     {
         var newModel = Session();
-        var cookieValue = _existingSession.CookieValue;
+        var cookieValue = _existingSession.VerificationValue;
         _requestCookies
-            .Setup(c => c.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out cookieValue))
+            .Setup(c => c.TryGetValue(ServiceAccountSessionDto.SessionVerificationCookieName, out cookieValue))
             .Returns(true);
         var existingSession = SessionDto();
         _service
-            .Setup(s => s.GetWhere($"t.{nameof(newModel.CookieValue)} = '{cookieValue}'", _token))
+            .Setup(s => s.GetWhere($"t.{nameof(newModel.VerificationValue)} = '{cookieValue}'", _token))
             .Returns(TestUtilities.AsyncEnumerable(existingSession));
 
         var result = await _command.ApplyUpdate(newModel, _token);
@@ -123,12 +123,12 @@ public class CreateServiceAccountSessionCommandTests
     public async Task ApplyUpdates_WhenCookiePresentAndExistingSessionNotFound_ReturnsNewSessionAndDeletesCookie()
     {
         var newModel = Session();
-        var cookieValue = _existingSession.CookieValue;
+        var cookieValue = _existingSession.VerificationValue;
         _requestCookies
-            .Setup(c => c.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out cookieValue))
+            .Setup(c => c.TryGetValue(ServiceAccountSessionDto.SessionVerificationCookieName, out cookieValue))
             .Returns(true);
         _service
-            .Setup(s => s.GetWhere($"t.{nameof(newModel.CookieValue)} = '{cookieValue}'", _token))
+            .Setup(s => s.GetWhere($"t.{nameof(newModel.VerificationValue)} = '{cookieValue}'", _token))
             .Returns(TestUtilities.AsyncEnumerable<ServiceAccountSessionDto>());
 
         var result = await _command.ApplyUpdate(newModel, _token);
@@ -145,7 +145,7 @@ public class CreateServiceAccountSessionCommandTests
         var newModel = Session();
         var cookieValue = "not present";
         _requestCookies
-            .Setup(c => c.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out cookieValue))
+            .Setup(c => c.TryGetValue(ServiceAccountSessionDto.SessionVerificationCookieName, out cookieValue))
             .Returns(false);
 
         var result = await _command.ApplyUpdate(newModel, _token);
@@ -155,7 +155,7 @@ public class CreateServiceAccountSessionCommandTests
         Assert.That(result.Messages, Is.EquivalentTo(["Session created"]));
         _service.Verify(s => s.GetWhere(It.IsAny<string>(), _token), Times.Never);
         var setCookieHeaders = _httpContext.Response.Headers.SetCookie;
-        Assert.That(setCookieHeaders.Select(h => h), Has.All.StartsWith($"{ServiceAccountSessionDto.RequestedSessionCookieValueCookieName}={newModel.CookieValue}"));
+        Assert.That(setCookieHeaders.Select(h => h), Has.All.StartsWith($"{ServiceAccountSessionDto.SessionVerificationCookieName}={newModel.VerificationValue}"));
     }
 
     private static ServiceAccountSession Session()
@@ -166,7 +166,7 @@ public class CreateServiceAccountSessionCommandTests
             FriendlyName = "",
             ServiceIpAddress = "",
             ServiceUserAgent = "",
-            CookieValue = "",
+            VerificationValue = "",
         };
     }
 
@@ -178,7 +178,7 @@ public class CreateServiceAccountSessionCommandTests
             FriendlyName = "",
             ServiceIpAddress = "",
             ServiceUserAgent = "",
-            CookieValue = "",
+            VerificationValue = "",
         };
     }
 }

@@ -55,10 +55,10 @@ public class CreateServiceAccountSessionCommand : IUpdateCommand<ServiceAccountS
         var httpRequest = httpContext.Request;
         var cookies = httpRequest.Cookies;
 
-        if (cookies.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out var cookieValue))
+        if (cookies.TryGetValue(ServiceAccountSessionDto.SessionVerificationCookieName, out var cookieValue))
         {
             // lookup the existing session and return it
-            var existingSession = (await _service.GetWhere($"t.{nameof(model.CookieValue)} = '{cookieValue}'", token).ToList()).SingleOrDefault();
+            var existingSession = (await _service.GetWhere($"t.{nameof(model.VerificationValue)} = '{cookieValue}'", token).ToList()).SingleOrDefault();
             if (existingSession != null)
             {
                 await _service.Delete(existingSession.Id, token);
@@ -68,9 +68,9 @@ public class CreateServiceAccountSessionCommand : IUpdateCommand<ServiceAccountS
         model.Id = Guid.NewGuid();
         model.ServiceIpAddress = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
         model.ServiceUserAgent = httpRequest.Headers.UserAgent.ToString();
-        model.CookieValue = Guid.NewGuid().ToString();
+        model.VerificationValue = Guid.NewGuid().ToString();
         model.FriendlyName = _request!.FriendlyName;
-        httpContext.Response.Cookies.Append(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, model.CookieValue, new CookieOptions
+        httpContext.Response.Cookies.Append(ServiceAccountSessionDto.SessionVerificationCookieName, model.VerificationValue, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,

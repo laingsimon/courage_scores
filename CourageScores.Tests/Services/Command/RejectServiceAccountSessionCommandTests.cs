@@ -41,7 +41,7 @@ public class RejectServiceAccountSessionCommandTests
         {
             Id = Guid.NewGuid(),
             FriendlyName = "friendly-name",
-            CookieValue = "cookie-value",
+            VerificationValue = "cookie-value",
             ServiceIpAddress = "ip-address",
             ServiceUserAgent = "user-agent",
         };

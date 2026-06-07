@@ -48,7 +48,7 @@ public class ServiceAccountSessionCleanUpServiceTests
     {
         var activeSession = new ServiceAccountSession
         {
-            CookieValue = "cookie-value",
+            VerificationValue = "cookie-value",
             ServiceIpAddress = "ip-address",
             ServiceUserAgent = "user-agent",
             FriendlyName = "friendly-name",
@@ -69,7 +69,7 @@ public class ServiceAccountSessionCleanUpServiceTests
     {
         var activeSession = new ServiceAccountSession
         {
-            CookieValue = "cookie-value",
+            VerificationValue = "cookie-value",
             ServiceIpAddress = "ip-address",
             ServiceUserAgent = "user-agent",
             FriendlyName = "friendly-name",
@@ -88,7 +88,7 @@ public class ServiceAccountSessionCleanUpServiceTests
     {
         var activeSession = new ServiceAccountSession
         {
-            CookieValue = "cookie-value",
+            VerificationValue = "cookie-value",
             ServiceIpAddress = "ip-address",
             FriendlyName = "friendly-name",
             ServiceUserAgent = "user-agent",
@@ -108,7 +108,7 @@ public class ServiceAccountSessionCleanUpServiceTests
     {
         var activeSession = new ServiceAccountSession
         {
-            CookieValue = "cookie-value",
+            VerificationValue = "cookie-value",
             ServiceIpAddress = "ip-address",
             ServiceUserAgent = "user-agent",
             FriendlyName = "friendly-name",

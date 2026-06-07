@@ -37,7 +37,7 @@ public class ServiceAccountSessionAdapterTests
     {
         var model = new ServiceAccountSession
         {
-            CookieValue = "cookie-value",
+            VerificationValue = "cookie-value",
             FriendlyName = "friendly-name",
             PinFromApprover = "pin",
             ServiceIpAddress = "ip-address",
@@ -54,7 +54,7 @@ public class ServiceAccountSessionAdapterTests
         var dto = await _adapter.Adapt(model, _token);
 
         Assert.That(dto.ApprovedBy, Is.EqualTo(model.ApprovedBy));
-        Assert.That(dto.CookieValue, Is.EqualTo(model.CookieValue));
+        Assert.That(dto.VerificationValue, Is.EqualTo(model.VerificationValue));
         Assert.That(dto.Id, Is.EqualTo(model.Id));
         Assert.That(dto.LastRequest, Is.EqualTo(model.LastRequest));
         Assert.That(dto.Message, Is.EqualTo(model.Message));
@@ -73,7 +73,7 @@ public class ServiceAccountSessionAdapterTests
     {
         var dto = new ServiceAccountSessionDto
         {
-            CookieValue = "cookie-value",
+            VerificationValue = "cookie-value",
             PinFromApprover = "pin",
             ServiceIpAddress = "ip-address",
             FriendlyName = "friendly-name",
@@ -89,7 +89,7 @@ public class ServiceAccountSessionAdapterTests
         var model = await _adapter.Adapt(dto, _token);
 
         Assert.That(model.ApprovedBy, Is.EqualTo(dto.ApprovedBy));
-        Assert.That(model.CookieValue, Is.EqualTo(dto.CookieValue));
+        Assert.That(model.VerificationValue, Is.EqualTo(dto.VerificationValue));
         Assert.That(model.Id, Is.EqualTo(dto.Id));
         Assert.That(model.LastRequest, Is.EqualTo(dto.LastRequest));
         Assert.That(model.Message, Is.EqualTo(dto.Message));
