@@ -28,6 +28,7 @@ import { Division } from './components/league/Division.tsx';
 import { IError } from './components/common/IError.ts';
 import { IFullScreen } from './components/common/IFullScreen.ts';
 import { AnalyseScores } from './components/analysis/AnalyseScores.tsx';
+import { Login } from './components/Login.tsx';
 
 export interface IAppProps {
     embed?: boolean;
@@ -210,6 +211,7 @@ export function App({ embed, controls, testRoute }: IAppProps) {
                     <Layout>
                         <Routes>
                             <Route path="/" element={<Home />} />
+                            <Route path="/login" element={<Login />} />
                             <Route
                                 path="/division/:divisionId"
                                 element={
