@@ -2,20 +2,20 @@
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Repository;
-using CourageScores.Services.Identity;
+using CourageScores.Repository.Identity;
 
 namespace CourageScores.Services.Command;
 
 public class ActivateServiceAccountSessionCommand : IUpdateCommand<ServiceAccountSession, ServiceAccountSession>
 {
-    private readonly IUserService _userService;
+    private readonly IUserRepository _userRepository;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IFeatureService _featureService;
     private ActivateSessionRequestDto? _request;
 
-    public ActivateServiceAccountSessionCommand(IUserService userService, IHttpContextAccessor httpContextAccessor, IFeatureService featureService)
+    public ActivateServiceAccountSessionCommand(IUserRepository userRepository, IHttpContextAccessor httpContextAccessor, IFeatureService featureService)
     {
-        _userService = userService;
+        _userRepository = userRepository;
         _httpContextAccessor = httpContextAccessor;
         _featureService = featureService;
     }
@@ -60,7 +60,7 @@ public class ActivateServiceAccountSessionCommand : IUpdateCommand<ServiceAccoun
             return Warning("A user was not created for this session");
         }
 
-        var user = await _userService.GetUser(model.TransientUsername!, token);
+        var user = await _userRepository.GetUser(model.TransientUsername!);
         if (user == null)
         {
             return Warning("The user for this session was not found");
