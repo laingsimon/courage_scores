@@ -71,7 +71,7 @@ public class ServiceAccountSessionServiceTests
         var ipAddress = IPAddress.Parse("4.5.6.7");
         var cookieValue = session.CookieValue;
         _dataService.Setup(s => s.Get(session.Id, _token)).ReturnsAsync(session);
-        _requestCookies.Setup(c => c.TryGetValue(ServiceAccountSessionDto.CookieName, out cookieValue)).Returns(true);
+        _requestCookies.Setup(c => c.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out cookieValue)).Returns(true);
         _httpContext.Connection.RemoteIpAddress = ipAddress;
         _user = new UserDto
         {
@@ -94,7 +94,7 @@ public class ServiceAccountSessionServiceTests
         var ipAddress = IPAddress.Parse("4.5.6.7");
         var cookieValue = session.CookieValue;
         _dataService.Setup(s => s.Get(session.Id, _token)).ReturnsAsync(session);
-        _requestCookies.Setup(c => c.TryGetValue(ServiceAccountSessionDto.CookieName, out cookieValue)).Returns(true);
+        _requestCookies.Setup(c => c.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out cookieValue)).Returns(true);
         _httpContext.Connection.RemoteIpAddress = ipAddress;
 
         var result = await _service.Get(session.Id, _token);
@@ -110,7 +110,7 @@ public class ServiceAccountSessionServiceTests
         var ipAddress = IPAddress.Parse(session.ServiceIpAddress);
         var cookieValue = "not found";
         _dataService.Setup(s => s.Get(session.Id, _token)).ReturnsAsync(session);
-        _requestCookies.Setup(c => c.TryGetValue(ServiceAccountSessionDto.CookieName, out cookieValue)).Returns(false);
+        _requestCookies.Setup(c => c.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out cookieValue)).Returns(false);
         _httpContext.Connection.RemoteIpAddress = ipAddress;
 
         var result = await _service.Get(session.Id, _token);
@@ -126,7 +126,7 @@ public class ServiceAccountSessionServiceTests
         var ipAddress = IPAddress.Parse(session.ServiceIpAddress);
         var cookieValue = "different cookie value";
         _dataService.Setup(s => s.Get(session.Id, _token)).ReturnsAsync(session);
-        _requestCookies.Setup(c => c.TryGetValue(ServiceAccountSessionDto.CookieName, out cookieValue)).Returns(true);
+        _requestCookies.Setup(c => c.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out cookieValue)).Returns(true);
         _httpContext.Connection.RemoteIpAddress = ipAddress;
 
         var result = await _service.Get(session.Id, _token);
@@ -142,7 +142,7 @@ public class ServiceAccountSessionServiceTests
         var ipAddress = IPAddress.Parse(session.ServiceIpAddress);
         var cookieValue = session.CookieValue;
         _dataService.Setup(s => s.Get(session.Id, _token)).ReturnsAsync(session);
-        _requestCookies.Setup(c => c.TryGetValue(ServiceAccountSessionDto.CookieName, out cookieValue)).Returns(true);
+        _requestCookies.Setup(c => c.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out cookieValue)).Returns(true);
         _httpContext.Connection.RemoteIpAddress = ipAddress;
 
         var result = await _service.Get(session.Id, _token);

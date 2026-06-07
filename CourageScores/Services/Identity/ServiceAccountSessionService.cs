@@ -49,7 +49,7 @@ public class ServiceAccountSessionService : IServiceAccountSessionService
 
             var httpRequest = httpContext.Request;
 
-            if (!httpRequest.Cookies.TryGetValue(ServiceAccountSessionDto.CookieName, out var cookieValue) ||
+            if (!httpRequest.Cookies.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out var cookieValue) ||
                 cookieValue != session.CookieValue)
             {
                 return null;
