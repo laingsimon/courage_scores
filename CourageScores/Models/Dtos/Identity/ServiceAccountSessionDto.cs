@@ -7,7 +7,7 @@ namespace CourageScores.Models.Dtos.Identity;
 public class ServiceAccountSessionDto : AuditedDto, IIntegrityCheckDto
 {
     public const string RequestedSessionCookieValueCookieName = "SessionVerificationValue";
-    public const string ActivatedSessionIdCookieName = "ApprovedSessionId";
+    public const string ActivatedSessionIdCookieName = "ActivatedSessionId";
 
     /// <summary>
     /// The ip address of the tablet/tv

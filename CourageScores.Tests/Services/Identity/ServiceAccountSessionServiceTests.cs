@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System.Collections;
+using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using CourageScores.Common;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
@@ -17,7 +19,7 @@ public class ServiceAccountSessionServiceTests
     private Mock<IUserService> _userService = null!;
     private Mock<IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto>> _dataService = null!;
     private Mock<IServiceAccountSessionCleanUpService> _cleanupService = null!;
-    private Mock<IRequestCookieCollection> _requestCookies = null!;
+    private MockRequestCookies _requestCookies = null!;
     private UserDto? _user;
     private DefaultHttpContext _httpContext = null!;
 
@@ -30,14 +32,14 @@ public class ServiceAccountSessionServiceTests
         _userService = new Mock<IUserService>();
         _dataService = new Mock<IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto>>();
         _cleanupService = new Mock<IServiceAccountSessionCleanUpService>();
-        _requestCookies = new Mock<IRequestCookieCollection>();
+        _requestCookies = new MockRequestCookies();
         var httpContextAccessor = new Mock<IHttpContextAccessor>();
         _service = new ServiceAccountSessionService(_userService.Object, _dataService.Object, httpContextAccessor.Object, _cleanupService.Object);
         _httpContext = new DefaultHttpContext
         {
             Request =
             {
-                Cookies = _requestCookies.Object,
+                Cookies = _requestCookies,
             }
         };
 
@@ -71,7 +73,7 @@ public class ServiceAccountSessionServiceTests
         var ipAddress = IPAddress.Parse("4.5.6.7");
         var cookieValue = session.CookieValue;
         _dataService.Setup(s => s.Get(session.Id, _token)).ReturnsAsync(session);
-        _requestCookies.Setup(c => c.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out cookieValue)).Returns(true);
+        _requestCookies.Cookies[ServiceAccountSessionDto.RequestedSessionCookieValueCookieName] = cookieValue;
         _httpContext.Connection.RemoteIpAddress = ipAddress;
         _user = new UserDto
         {
@@ -94,7 +96,7 @@ public class ServiceAccountSessionServiceTests
         var ipAddress = IPAddress.Parse("4.5.6.7");
         var cookieValue = session.CookieValue;
         _dataService.Setup(s => s.Get(session.Id, _token)).ReturnsAsync(session);
-        _requestCookies.Setup(c => c.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out cookieValue)).Returns(true);
+        _requestCookies.Cookies[ServiceAccountSessionDto.RequestedSessionCookieValueCookieName] = cookieValue;
         _httpContext.Connection.RemoteIpAddress = ipAddress;
 
         var result = await _service.Get(session.Id, _token);
@@ -108,9 +110,7 @@ public class ServiceAccountSessionServiceTests
     {
         var session = SessionDto();
         var ipAddress = IPAddress.Parse(session.ServiceIpAddress);
-        var cookieValue = "not found";
         _dataService.Setup(s => s.Get(session.Id, _token)).ReturnsAsync(session);
-        _requestCookies.Setup(c => c.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out cookieValue)).Returns(false);
         _httpContext.Connection.RemoteIpAddress = ipAddress;
 
         var result = await _service.Get(session.Id, _token);
@@ -126,7 +126,7 @@ public class ServiceAccountSessionServiceTests
         var ipAddress = IPAddress.Parse(session.ServiceIpAddress);
         var cookieValue = "different cookie value";
         _dataService.Setup(s => s.Get(session.Id, _token)).ReturnsAsync(session);
-        _requestCookies.Setup(c => c.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out cookieValue)).Returns(true);
+        _requestCookies.Cookies[ServiceAccountSessionDto.RequestedSessionCookieValueCookieName] = cookieValue;
         _httpContext.Connection.RemoteIpAddress = ipAddress;
 
         var result = await _service.Get(session.Id, _token);
@@ -142,7 +142,7 @@ public class ServiceAccountSessionServiceTests
         var ipAddress = IPAddress.Parse(session.ServiceIpAddress);
         var cookieValue = session.CookieValue;
         _dataService.Setup(s => s.Get(session.Id, _token)).ReturnsAsync(session);
-        _requestCookies.Setup(c => c.TryGetValue(ServiceAccountSessionDto.RequestedSessionCookieValueCookieName, out cookieValue)).Returns(true);
+        _requestCookies.Cookies[ServiceAccountSessionDto.RequestedSessionCookieValueCookieName] = cookieValue;
         _httpContext.Connection.RemoteIpAddress = ipAddress;
 
         var result = await _service.Get(session.Id, _token);
@@ -247,6 +247,62 @@ public class ServiceAccountSessionServiceTests
         _dataService.Verify(s => s.Delete(It.IsAny<Guid>(), _token), Times.Never);
     }
 
+    [Test]
+    public async Task SignOutAsync_WhenNoActivatedCookieFound_ReturnsFalse()
+    {
+        var result = await _service.SignOutAsync(_token);
+
+        Assert.That(result, Is.False);
+    }
+
+    [Test]
+    public async Task SignOutAsync_WhenActivatedCookieFoundWithNonGuidValue_RemovesCookieAndReturnsTrue()
+    {
+        _requestCookies.Cookies[ServiceAccountSessionDto.ActivatedSessionIdCookieName] = "not a guid";
+
+        var result = await _service.SignOutAsync(_token);
+
+        Assert.That(result, Is.True);
+        var responseCookieHeaders = _httpContext.Response.Headers.SetCookie;
+        Assert.That(responseCookieHeaders.Select(h => h), Has.Some.StartsWith($"{ServiceAccountSessionDto.ActivatedSessionIdCookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT"));
+    }
+
+    [Test]
+    public async Task SignOutAsync_WhenActivatedCookieFoundWithGuidValue_DeletesSessionRemovesCookieAndReturnsTrue()
+    {
+        var activatedId = Guid.NewGuid();
+        _requestCookies.Cookies[ServiceAccountSessionDto.ActivatedSessionIdCookieName] = activatedId.ToString();
+
+        var result = await _service.SignOutAsync(_token);
+
+        _dataService.Verify(s => s.Delete(activatedId, _token));
+        Assert.That(result, Is.True);
+        var responseCookieHeaders = _httpContext.Response.Headers.SetCookie;
+        Assert.That(responseCookieHeaders.Select(h => h), Has.Some.StartsWith($"{ServiceAccountSessionDto.ActivatedSessionIdCookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT"));
+    }
+
+    [Test]
+    public async Task SignOutAsync_WhenLinkedSessionCookieFound_DeletesCookie()
+    {
+        _requestCookies.Cookies[ServiceAccountSessionDto.RequestedSessionCookieValueCookieName] = "anything";
+
+        var result = await _service.SignOutAsync(_token);
+
+        Assert.That(result, Is.False);
+        var responseCookieHeaders = _httpContext.Response.Headers.SetCookie;
+        Assert.That(responseCookieHeaders.Select(h => h), Has.Some.StartsWith($"{ServiceAccountSessionDto.RequestedSessionCookieValueCookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT"));
+    }
+
+    [Test]
+    public async Task SignOutAsync_WhenLinkedSessionCookieNotFound_DoesNotDeleteCookie()
+    {
+        var result = await _service.SignOutAsync(_token);
+
+        Assert.That(result, Is.False);
+        var responseCookieHeaders = _httpContext.Response.Headers.SetCookie;
+        Assert.That(responseCookieHeaders.Select(h => h), Is.Empty);
+    }
+
     private static ServiceAccountSessionDto SessionDto()
     {
         return new ServiceAccountSessionDto
@@ -257,5 +313,35 @@ public class ServiceAccountSessionServiceTests
             FriendlyName = "friendly-name",
             CookieValue = "cookie-value",
         };
+    }
+
+    private class MockRequestCookies : IRequestCookieCollection
+    {
+        public Dictionary<string, string> Cookies { get; } = new();
+
+        public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
+        {
+            return Cookies.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public bool ContainsKey(string key)
+        {
+            return Cookies.ContainsKey(key);
+        }
+
+        public bool TryGetValue(string key, [NotNullWhen(true)] out string? value)
+        {
+            return Cookies.TryGetValue(key, out value);
+        }
+
+        public int Count => Cookies.Count;
+        public ICollection<string> Keys => Cookies.Keys;
+
+        public string this[string key] => Cookies[key];
     }
 }
