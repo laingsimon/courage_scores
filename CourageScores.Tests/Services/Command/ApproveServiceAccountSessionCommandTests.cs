@@ -1,8 +1,11 @@
 ﻿using System.Net;
 using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Cosmos.Identity;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Identity;
+using CourageScores.Repository;
 using CourageScores.Repository.Identity;
+using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Http;
@@ -19,10 +22,12 @@ public class ApproveServiceAccountSessionCommandTests
     private Mock<IUserRepository> _userRepository = null!;
     private UserDto? _user;
     private DefaultHttpContext _httpContext = null!;
-
-    private ApproveServiceAccountSessionCommand _command = null!;
     private ServiceAccountSession _model = null!;
     private ApproveServiceAccountSessionDto _request = null!;
+    private Mock<IFeatureService> _featureService = null!;
+    private ConfiguredFeatureDto _feature = null!;
+
+    private ApproveServiceAccountSessionCommand _command = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -35,6 +40,8 @@ public class ApproveServiceAccountSessionCommandTests
                 LoginServiceAccounts = true,
             },
         };
+        _featureService = new Mock<IFeatureService>();
+        _feature = new ConfiguredFeatureDto { ConfiguredValue = "true" };
         var httpContextAccessor = new Mock<IHttpContextAccessor>();
         _httpContext = new DefaultHttpContext
         {
@@ -49,18 +56,19 @@ public class ApproveServiceAccountSessionCommandTests
         {
             Id = Guid.NewGuid(),
             CookieValue = "cookie-value",
-            ServiceIpAddress = _httpContext.Connection.RemoteIpAddress!.ToString(),
+            ServiceIpAddress = _httpContext.Connection.RemoteIpAddress.ToString(),
             ServiceUserAgent = "user-agent",
         };
         _request = new ApproveServiceAccountSessionDto
         {
             Pin = "approver pin",
         };
-        _command = new ApproveServiceAccountSessionCommand(_userService.Object, _userRepository.Object, new AccessAdapter(), httpContextAccessor.Object)
+        _command = new ApproveServiceAccountSessionCommand(_userService.Object, _userRepository.Object, new AccessAdapter(), httpContextAccessor.Object, _featureService.Object)
             .WithRequest(_request);
 
         httpContextAccessor.Setup(a => a.HttpContext).Returns(_httpContext);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        _featureService.Setup(s => s.Get(FeatureLookup.ServiceAccountSessions, _token)).ReturnsAsync(() => _feature);
     }
 
     [Test]
@@ -89,6 +97,28 @@ public class ApproveServiceAccountSessionCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(["Not permitted"]));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenFeatureFlagIsNotConfigured_ReturnsUnsuccessful()
+    {
+        _feature.ConfiguredValue = null;
+
+        var result = await _command.ApplyUpdate(_model, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EquivalentTo(["Service account sessions are not allowed"]));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenFeatureFlagIsDisabled_ReturnsUnsuccessful()
+    {
+        _feature.ConfiguredValue = "false";
+
+        var result = await _command.ApplyUpdate(_model, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EquivalentTo(["Service account sessions are not allowed"]));
     }
 
     [Test]

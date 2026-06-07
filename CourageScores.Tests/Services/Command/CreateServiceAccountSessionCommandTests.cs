@@ -1,5 +1,7 @@
 ﻿using CourageScores.Models.Cosmos.Identity;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Identity;
+using CourageScores.Repository;
 using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
@@ -18,6 +20,8 @@ public class CreateServiceAccountSessionCommandTests
     private ServiceAccountSession _existingSession = null!;
     private UserDto? _user;
     private Mock<IRequestCookieCollection> _requestCookies = null!;
+    private Mock<IFeatureService> _featureService = null!;
+    private ConfiguredFeatureDto _feature = null!;
 
     private CreateServiceAccountSessionCommand _command = null!;
 
@@ -26,6 +30,8 @@ public class CreateServiceAccountSessionCommandTests
     {
         var httpContextAccessor = new Mock<IHttpContextAccessor>();
         _userService = new Mock<IUserService>();
+        _featureService = new Mock<IFeatureService>();
+        _feature = new ConfiguredFeatureDto { ConfiguredValue = "true" };
         _service = new Mock<IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto>>();
         _requestCookies = new Mock<IRequestCookieCollection>();
         _httpContext = new DefaultHttpContext
@@ -35,7 +41,7 @@ public class CreateServiceAccountSessionCommandTests
                 Cookies = _requestCookies.Object,
             },
         };
-        _command = new CreateServiceAccountSessionCommand(_userService.Object, httpContextAccessor.Object, _service.Object);
+        _command = new CreateServiceAccountSessionCommand(_userService.Object, httpContextAccessor.Object, _service.Object, _featureService.Object);
         _existingSession = new ServiceAccountSession
         {
             Id = Guid.NewGuid(),
@@ -47,6 +53,29 @@ public class CreateServiceAccountSessionCommandTests
 
         _userService.Setup(u => u.GetUser(_token)).ReturnsAsync(() => _user);
         httpContextAccessor.Setup(x => x.HttpContext).Returns(_httpContext);
+        _featureService.Setup(s => s.Get(FeatureLookup.ServiceAccountSessions, _token)).ReturnsAsync(() => _feature);
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenFeatureFlagIsNotConfigured_ReturnsUnsuccessful()
+    {
+        _feature.ConfiguredValue = null;
+
+        var result = await _command.ApplyUpdate(Session(), _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EquivalentTo(["Service account sessions are not allowed"]));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenFeatureFlagIsDisabled_ReturnsUnsuccessful()
+    {
+        _feature.ConfiguredValue = "false";
+
+        var result = await _command.ApplyUpdate(Session(), _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EquivalentTo(["Service account sessions are not allowed"]));
     }
 
     [Test]
