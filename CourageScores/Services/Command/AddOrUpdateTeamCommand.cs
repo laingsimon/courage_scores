@@ -4,10 +4,11 @@ using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Game;
 using CourageScores.Services.Team;
+using CosmosTeam = CourageScores.Models.Cosmos.Team.Team;
 
 namespace CourageScores.Services.Command;
 
-public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team, EditTeamDto>
+public class AddOrUpdateTeamCommand : AddOrUpdateCommand<CosmosTeam, EditTeamDto>
 {
     private readonly ScopedCacheManagementFlags _cacheFlags;
     private readonly ICommandFactory _commandFactory;
@@ -29,7 +30,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
         _serializer = serializer;
     }
 
-    protected override async Task<ActionResult<Models.Cosmos.Team.Team>> ApplyUpdates(Models.Cosmos.Team.Team team, EditTeamDto update, CancellationToken token)
+    protected override async Task<ActionResult<CosmosTeam>> ApplyUpdates(CosmosTeam team, EditTeamDto update, CancellationToken token)
     {
         var games = _gameService.GetWhere($"t.DivisionId = '{update.DivisionId}' and t.SeasonId = '{update.SeasonId}'", token);
 
@@ -44,7 +45,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
                 return $"{pair.Key:dd MMM yyyy}: {string.Join(", ", pair.Value.Select(g => $"{g.Home.Name} vs {g.Away.Name}"))}";
             });
 
-            return new ActionResult<Models.Cosmos.Team.Team>
+            return new ActionResult<CosmosTeam>
             {
                 Success = false,
                 Warnings =
@@ -57,7 +58,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
         if (gamesToUpdate.Count > 0 && update.DivisionId != update.NewDivisionId)
         {
             // some games assigned to this team in the current division, not possible to change team division as it would require the game division to change too
-            return new ActionResult<Models.Cosmos.Team.Team>
+            return new ActionResult<CosmosTeam>
             {
                 Success = false,
                 Warnings =
@@ -84,8 +85,8 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
             if (!result.Success || result.Result == null)
             {
                 return result
-                    .As<Models.Cosmos.Team.Team>()
-                    .Merge(new ActionResult<Models.Cosmos.Team.Team>
+                    .As<CosmosTeam>()
+                    .Merge(new ActionResult<CosmosTeam>
                     {
                         Success = false,
                     });
@@ -97,7 +98,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
         teamSeason.DivisionId = update.NewDivisionId;
         _cacheFlags.EvictDivisionDataCacheForDivisionId = update.DivisionId;
         _cacheFlags.EvictDivisionDataCacheForSeasonId = update.SeasonId;
-        return new ActionResult<Models.Cosmos.Team.Team>
+        return new ActionResult<CosmosTeam>
         {
             Success = true,
             Messages =
