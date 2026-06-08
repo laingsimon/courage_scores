@@ -17,7 +17,7 @@ public class ServiceAccountSessionAdapter : IAdapter<ServiceAccountSession, Serv
         return Task.FromResult(new ServiceAccountSessionDto
         {
             Id = model.Id,
-            CookieValue = model.CookieValue,
+            VerificationValue = model.VerificationValue,
             FriendlyName = model.FriendlyName,
             PinFromApprover = model.PinFromApprover,
             ServiceIpAddress = model.ServiceIpAddress,
@@ -37,7 +37,7 @@ public class ServiceAccountSessionAdapter : IAdapter<ServiceAccountSession, Serv
         return Task.FromResult(new ServiceAccountSession
         {
             Id = dto.Id,
-            CookieValue = dto.CookieValue,
+            VerificationValue = dto.VerificationValue,
             FriendlyName = dto.FriendlyName,
             PinFromApprover = dto.PinFromApprover,
             ServiceIpAddress = dto.ServiceIpAddress,

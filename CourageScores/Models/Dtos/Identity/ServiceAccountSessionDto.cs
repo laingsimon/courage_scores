@@ -6,7 +6,7 @@ namespace CourageScores.Models.Dtos.Identity;
 [ExcludeFromCodeCoverage]
 public class ServiceAccountSessionDto : AuditedDto, IIntegrityCheckDto
 {
-    public const string RequestedSessionCookieValueCookieName = "SessionVerificationValue";
+    public const string SessionVerificationCookieName = "SessionVerificationValue";
     public const string ActivatedSessionIdCookieName = "ActivatedSessionId";
 
     /// <summary>
@@ -41,7 +41,7 @@ public class ServiceAccountSessionDto : AuditedDto, IIntegrityCheckDto
     /// This value should cycle periodically
     /// </summary>
     [JsonIgnore] // don't expose this either, it's for the tablet headers only
-    public required string CookieValue { get; init; }
+    public required string VerificationValue { get; init; }
 
     /// <summary>
     /// When the last api request was received by the signed-in user

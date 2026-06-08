@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using System.Net;
+﻿using System.Net;
 using CourageScores.Common;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
@@ -71,9 +69,9 @@ public class ServiceAccountSessionServiceTests
     {
         var session = SessionDto();
         var ipAddress = IPAddress.Parse("4.5.6.7");
-        var cookieValue = session.CookieValue;
+        var cookieValue = session.VerificationValue;
         _dataService.Setup(s => s.Get(session.Id, _token)).ReturnsAsync(session);
-        _requestCookies.Cookies[ServiceAccountSessionDto.RequestedSessionCookieValueCookieName] = cookieValue;
+        _requestCookies.Cookies[ServiceAccountSessionDto.SessionVerificationCookieName] = cookieValue;
         _httpContext.Connection.RemoteIpAddress = ipAddress;
         _user = new UserDto
         {
@@ -94,9 +92,9 @@ public class ServiceAccountSessionServiceTests
     {
         var session = SessionDto();
         var ipAddress = IPAddress.Parse("4.5.6.7");
-        var cookieValue = session.CookieValue;
+        var cookieValue = session.VerificationValue;
         _dataService.Setup(s => s.Get(session.Id, _token)).ReturnsAsync(session);
-        _requestCookies.Cookies[ServiceAccountSessionDto.RequestedSessionCookieValueCookieName] = cookieValue;
+        _requestCookies.Cookies[ServiceAccountSessionDto.SessionVerificationCookieName] = cookieValue;
         _httpContext.Connection.RemoteIpAddress = ipAddress;
 
         var result = await _service.Get(session.Id, _token);
@@ -126,7 +124,7 @@ public class ServiceAccountSessionServiceTests
         var ipAddress = IPAddress.Parse(session.ServiceIpAddress);
         var cookieValue = "different cookie value";
         _dataService.Setup(s => s.Get(session.Id, _token)).ReturnsAsync(session);
-        _requestCookies.Cookies[ServiceAccountSessionDto.RequestedSessionCookieValueCookieName] = cookieValue;
+        _requestCookies.Cookies[ServiceAccountSessionDto.SessionVerificationCookieName] = cookieValue;
         _httpContext.Connection.RemoteIpAddress = ipAddress;
 
         var result = await _service.Get(session.Id, _token);
@@ -140,9 +138,9 @@ public class ServiceAccountSessionServiceTests
     {
         var session = SessionDto();
         var ipAddress = IPAddress.Parse(session.ServiceIpAddress);
-        var cookieValue = session.CookieValue;
+        var cookieValue = session.VerificationValue;
         _dataService.Setup(s => s.Get(session.Id, _token)).ReturnsAsync(session);
-        _requestCookies.Cookies[ServiceAccountSessionDto.RequestedSessionCookieValueCookieName] = cookieValue;
+        _requestCookies.Cookies[ServiceAccountSessionDto.SessionVerificationCookieName] = cookieValue;
         _httpContext.Connection.RemoteIpAddress = ipAddress;
 
         var result = await _service.Get(session.Id, _token);
@@ -284,13 +282,13 @@ public class ServiceAccountSessionServiceTests
     [Test]
     public async Task SignOutAsync_WhenLinkedSessionCookieFound_DeletesCookie()
     {
-        _requestCookies.Cookies[ServiceAccountSessionDto.RequestedSessionCookieValueCookieName] = "anything";
+        _requestCookies.Cookies[ServiceAccountSessionDto.SessionVerificationCookieName] = "anything";
 
         var result = await _service.SignOutAsync(_token);
 
         Assert.That(result, Is.False);
         var responseCookieHeaders = _httpContext.Response.Headers.SetCookie;
-        Assert.That(responseCookieHeaders.Select(h => h), Has.Some.StartsWith($"{ServiceAccountSessionDto.RequestedSessionCookieValueCookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT"));
+        Assert.That(responseCookieHeaders.Select(h => h), Has.Some.StartsWith($"{ServiceAccountSessionDto.SessionVerificationCookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT"));
     }
 
     [Test]
@@ -311,37 +309,7 @@ public class ServiceAccountSessionServiceTests
             ServiceIpAddress = "1.2.3.4",
             ServiceUserAgent = "user-agent",
             FriendlyName = "friendly-name",
-            CookieValue = "cookie-value",
+            VerificationValue = "cookie-value",
         };
-    }
-
-    private class MockRequestCookies : IRequestCookieCollection
-    {
-        public Dictionary<string, string> Cookies { get; } = new();
-
-        public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
-        {
-            return Cookies.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        public bool ContainsKey(string key)
-        {
-            return Cookies.ContainsKey(key);
-        }
-
-        public bool TryGetValue(string key, [NotNullWhen(true)] out string? value)
-        {
-            return Cookies.TryGetValue(key, out value);
-        }
-
-        public int Count => Cookies.Count;
-        public ICollection<string> Keys => Cookies.Keys;
-
-        public string this[string key] => Cookies[key];
     }
 }
