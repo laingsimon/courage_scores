@@ -54,7 +54,7 @@ public class AddOrUpdateTeamCommandTests
         Name = LambB.Name,
     };
 
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly IJsonSerializerService _serializer = new JsonSerializerService(new JsonSerializer());
 
     private Mock<IGameService> _gameService = null!;
@@ -189,10 +189,7 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(Update(team)).ApplyUpdate(team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Some error",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(["Some error"]));
         AssertCacheEviction(null, null);
     }
 
@@ -283,10 +280,9 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(update).ApplyUpdate(team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            $"Unable to update address, {updateAddress} is in use for multiple games on the same dates, see 03 Feb 2001: Lamb A vs Another team, Lamb B vs Another team",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo([
+            $"Unable to update address, {updateAddress} is in use for multiple games on the same dates, see 03 Feb 2001: Lamb A vs Another team, Lamb B vs Another team"
+        ]));
         AssertCacheEviction(null, null);
     }
 
@@ -317,10 +313,9 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(update).ApplyUpdate(team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            $"Unable to update address, {updateAddress} is in use for multiple games on the same dates, see 03 Feb 2001: Lamb A vs Another team, Lamb B vs Another team",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo([
+            $"Unable to update address, {updateAddress} is in use for multiple games on the same dates, see 03 Feb 2001: Lamb A vs Another team, Lamb B vs Another team"
+        ]));
         AssertCacheEviction(null, null);
     }
 
@@ -343,10 +338,9 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(update).ApplyUpdate(team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "Unable to change division when games exist, delete these 1 game/s first",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo([
+            "Unable to change division when games exist, delete these 1 game/s first"
+        ]));
         AssertCacheEviction(null, null);
     }
 
@@ -368,10 +362,7 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(update).ApplyUpdate(team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Team updated",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(["Team updated"]));
         AssertCacheEviction(DivisionId, SeasonId);
     }
 
@@ -399,10 +390,7 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(Update(team)).ApplyUpdate(team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Team updated",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(["Team updated"]));
         AssertCacheEviction(DivisionId, SeasonId);
     }
 
