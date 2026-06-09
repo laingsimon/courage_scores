@@ -30,6 +30,7 @@ import { IFullScreen } from './components/common/IFullScreen.ts';
 import { AnalyseScores } from './components/analysis/AnalyseScores.tsx';
 import { Login } from './components/Login.tsx';
 import { NewSession } from './components/service_account_sessions/NewSession.tsx';
+import { SessionResponse } from './components/service_account_sessions/SessionResponse.tsx';
 
 export interface IAppProps {
     embed?: boolean;
@@ -216,6 +217,10 @@ export function App({ embed, controls, testRoute }: IAppProps) {
                             <Route
                                 path="/new_session/:friendlyName?"
                                 element={<NewSession />}
+                            />
+                            <Route
+                                path="/accept_session/:id"
+                                element={<SessionResponse />}
                             />
                             <Route
                                 path="/division/:divisionId"

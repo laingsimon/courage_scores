@@ -143,7 +143,7 @@ describe('NewSession', () => {
             await context.input('friendlyName').change('Board 2');
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                '/new_session/Board 2',
+                '/new_session/Board 2/',
             );
         });
 
@@ -185,7 +185,7 @@ describe('NewSession', () => {
             ).toEqual(`https://localhost/accept_session/${createdSession.id}`);
             expect(
                 context.required('[data-testid="session-pin"]').text(),
-            ).toHaveLength(4);
+            ).toMatch(/^PIN: [a-z0-9]{4}$/);
         });
 
         it('shows errors when create fails', async () => {
@@ -247,7 +247,7 @@ describe('NewSession', () => {
 
             reportedError.verifyNoError();
             expect(activateSessionId).toEqual(createdSession.id);
-            expect(activateRequest?.pin).toHaveLength(4);
+            expect(activateRequest?.pin).toMatch(/^[a-z0-9]{4}$/);
             expect(allDataReloaded).toEqual(true);
             expect(context.required('h3').text()).toEqual('Session approved');
             expect(
@@ -308,7 +308,7 @@ describe('NewSession', () => {
 
             reportedError.verifyNoError();
             expect(activateSessionId).toEqual(createdSession.id);
-            expect(activateRequest?.pin).toEqual(pin);
+            expect(activateRequest?.pin).toEqual(pin.replace('PIN: ', ''));
             expect(allDataReloaded).toEqual(true);
             expect(context.required('h3').text()).toEqual('Session approved');
         });
@@ -333,6 +333,30 @@ describe('NewSession', () => {
                 'Session was not created',
             );
             expect(context.text()).toContain('Refresh exploded');
+        });
+    });
+
+    describe('session rejection', () => {
+        it('shows rejection', async () => {
+            createResponse = {
+                success: true,
+                result: session({
+                    rejectedBy: 'Someone',
+                    message: 'Rejection reason',
+                }),
+            };
+            await renderComponent('/new_session/Board%201');
+
+            await context.button('Create session').click();
+
+            reportedError.verifyNoError();
+            expect(allDataReloaded).toEqual(false);
+            expect(context.required('h3').text()).toEqual(
+                'Request rejected by Someone',
+            );
+            expect(context.required('p').text()).toEqual(
+                'Reason: Rejection reason',
+            );
         });
     });
 });
