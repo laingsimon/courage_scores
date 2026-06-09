@@ -21,39 +21,12 @@ public class AddOrUpdateTeamCommandTests
 {
     private static readonly Guid DivisionId = Guid.NewGuid();
     private static readonly Guid SeasonId = Guid.NewGuid();
-    private static readonly TeamDto AnotherTeam = new TeamDto
-    {
-        Name = "Another team",
-        Id = Guid.NewGuid(),
-        Address = "Another address",
-    };
-    private static readonly GameTeamDto AnotherTeamDto = new GameTeamDto
-    {
-        Id = AnotherTeam.Id,
-        Name = AnotherTeam.Name,
-    };
-    private static readonly TeamDto LambA = new TeamDto
-    {
-        Name = "Lamb A",
-        Id = Guid.NewGuid(),
-        Address = "The Lamb",
-    };
-    private static readonly GameTeamDto LambADto = new GameTeamDto
-    {
-        Id = LambA.Id,
-        Name = LambA.Name,
-    };
-    private static readonly TeamDto LambB = new TeamDto
-    {
-        Name = "Lamb B",
-        Id = Guid.NewGuid(),
-        Address = "The Lamb",
-    };
-    private static readonly GameTeamDto LambBDto = new GameTeamDto
-    {
-        Id = LambB.Id,
-        Name = LambB.Name,
-    };
+    private static readonly TeamDto AnotherTeam = new() { Name = "Another team", Id = Guid.NewGuid(), Address = "Another address" };
+    private static readonly GameTeamDto AnotherTeamDto = new() { Id = AnotherTeam.Id, Name = AnotherTeam.Name };
+    private static readonly TeamDto LambA = new() { Name = "Lamb A", Id = Guid.NewGuid(), Address = "The Lamb" };
+    private static readonly GameTeamDto LambADto = new() { Id = LambA.Id, Name = LambA.Name };
+    private static readonly TeamDto LambB = new() { Name = "Lamb B", Id = Guid.NewGuid(), Address = "The Lamb" };
+    private static readonly GameTeamDto LambBDto = new() { Id = LambB.Id, Name = LambB.Name };
 
     private readonly CancellationToken _token = CancellationToken.None;
     private readonly IJsonSerializerService _serializer = new JsonSerializerService(new JsonSerializer());
@@ -75,17 +48,11 @@ public class AddOrUpdateTeamCommandTests
     {
         _games = new List<GameDto>();
         _cacheFlags = new ScopedCacheManagementFlags();
-        _addedTeamSeason = new TeamSeason
-        {
-            SeasonId = SeasonId,
-        };
+        _addedTeamSeason = new TeamSeason { SeasonId = SeasonId };
         _addSeasonToTeamActionResult = new ActionResult<TeamSeason>
         {
             Success = true,
-            Messages =
-            {
-                "Success",
-            },
+            Messages = { "Success" },
             Result = _addedTeamSeason,
         };
 
@@ -97,15 +64,9 @@ public class AddOrUpdateTeamCommandTests
         _addOrUpdateGameCommand = new Mock<AddOrUpdateGameCommand>(_seasonService.Object, _commandFactory.Object, _teamService.Object, _cacheFlags);
         _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(new Mock<IAuditingHelper>().Object, _seasonService.Object, _cacheFlags);
 
-        _addOrUpdateGameCommand
-            .Setup(c => c.WithData(It.IsAny<EditGameDto>()))
-            .Returns(_addOrUpdateGameCommand.Object);
-        _addSeasonToTeamCommand
-            .Setup(c => c.ForSeason(SeasonId))
-            .Returns(_addSeasonToTeamCommand.Object);
-        _addSeasonToTeamCommand
-            .Setup(c => c.ForDivision(DivisionId))
-            .Returns(_addSeasonToTeamCommand.Object);
+        _addOrUpdateGameCommand.Setup(c => c.WithData(It.IsAny<EditGameDto>())).Returns(_addOrUpdateGameCommand.Object);
+        _addSeasonToTeamCommand.Setup(c => c.ForSeason(SeasonId)).Returns(_addSeasonToTeamCommand.Object);
+        _addSeasonToTeamCommand.Setup(c => c.ForDivision(DivisionId)).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand
             .Setup(c => c.ApplyUpdate(It.IsAny<CosmosTeam>(), _token))
             .ReturnsAsync((CosmosTeam team, CancellationToken _) =>
@@ -113,12 +74,8 @@ public class AddOrUpdateTeamCommandTests
                 team.Seasons.Add(_addedTeamSeason);
                 return _addSeasonToTeamActionResult;
             });
-        _commandFactory
-            .Setup(f => f.GetCommand<AddOrUpdateGameCommand>())
-            .Returns(_addOrUpdateGameCommand.Object);
-        _commandFactory
-            .Setup(f => f.GetCommand<AddSeasonToTeamCommand>())
-            .Returns(_addSeasonToTeamCommand.Object);
+        _commandFactory.Setup(f => f.GetCommand<AddOrUpdateGameCommand>()).Returns(_addOrUpdateGameCommand.Object);
+        _commandFactory.Setup(f => f.GetCommand<AddSeasonToTeamCommand>()).Returns(_addSeasonToTeamCommand.Object);
         _gameService
             .Setup(s => s.GetWhere($"t.DivisionId = '{DivisionId}' and t.SeasonId = '{SeasonId}'", _token))
             .Returns(() => TestUtilities.AsyncEnumerable(_games.ToArray()));
@@ -184,10 +141,7 @@ public class AddOrUpdateTeamCommandTests
         _addSeasonToTeamActionResult = new ActionResult<TeamSeason>
         {
             Success = false,
-            Messages =
-            {
-                "Some error",
-            },
+            Messages = { "Some error" },
         };
 
         var result = await _command.WithData(Update(team)).ApplyUpdate(team, _token);
@@ -201,12 +155,7 @@ public class AddOrUpdateTeamCommandTests
     public async Task ApplyUpdates_WhenHomeGameInDivisionAndSeason_UpdatesTeamProperties()
     {
         var team = GetTeam();
-        var game = new GameDto
-        {
-            Home = GameTeamDto(team),
-            Away = AnotherTeamDto,
-            Id = Guid.NewGuid(),
-        };
+        var game = new GameDto { Home = GameTeamDto(team), Away = AnotherTeamDto, Id = Guid.NewGuid() };
         var update = Update(team);
         _games.Add(game);
 
@@ -222,12 +171,7 @@ public class AddOrUpdateTeamCommandTests
     public async Task ApplyUpdates_IfGameUpdatesFail_ReturnsUnsuccessful()
     {
         var team = GetTeam();
-        var game = new GameDto
-        {
-            Home = GameTeamDto(team),
-            Away = AnotherTeamDto,
-            Id = Guid.NewGuid(),
-        };
+        var game = new GameDto { Home = GameTeamDto(team), Away = AnotherTeamDto, Id = Guid.NewGuid() };
         var update = Update(team);
         var updateGameResult = new ActionResultDto<GameDto>
         {
@@ -405,13 +349,7 @@ public class AddOrUpdateTeamCommandTests
     public async Task ApplyUpdates_WhenAnExistingTeamHasANullAddress_IgnoresTeamWithNullAddress()
     {
         var team = GetTeam();
-        var awayTeam = new TeamDto
-        {
-            Id = AnotherTeam.Id,
-#pragma warning disable CS8625
-            Address = null,
-#pragma warning restore CS8625
-        };
+        var awayTeam = new TeamDto { Id = AnotherTeam.Id, Address = null! };
         var game = new GameDto
         {
             Home = GameTeamDto(team),
