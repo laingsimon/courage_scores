@@ -16,11 +16,11 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class AddOrUpdateGameCommandTests
 {
+    private readonly CancellationToken _token = CancellationToken.None;
     private Mock<ICommandFactory> _commandFactory = null!;
     private Mock<ITeamService> _teamService = null!;
     private Mock<AddSeasonToTeamCommand> _addSeasonToTeamCommand = null!;
     private Mock<ICachingSeasonService> _seasonService = null!;
-    private CancellationToken _token;
     private AddOrUpdateGameCommand _command = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
     private CosmosGame _game = null!;
@@ -58,7 +58,6 @@ public class AddOrUpdateGameCommandTests
         _seasonService = new Mock<ICachingSeasonService>();
         _commandFactory = new Mock<ICommandFactory>();
         _teamService = new Mock<ITeamService>();
-        _token = new CancellationToken();
         _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(new Mock<IAuditingHelper>().Object, _seasonService.Object, _cacheFlags);
         _commandFactory.Setup(f => f.GetCommand<AddSeasonToTeamCommand>()).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.ForSeason(_season.Id)).Returns(_addSeasonToTeamCommand.Object);
@@ -87,10 +86,9 @@ public class AddOrUpdateGameCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "Unable to update a game where the home team and away team are the same",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo([
+            "Unable to update a game where the home team and away team are the same"
+        ]));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -109,10 +107,7 @@ public class AddOrUpdateGameCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "SeasonId must be provided",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(["SeasonId must be provided"]));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -132,10 +127,7 @@ public class AddOrUpdateGameCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "Unable to add or update game, season not found",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(["Unable to add or update game, season not found"]));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -195,7 +187,7 @@ public class AddOrUpdateGameCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[] { "Unable to find team with id " + update.HomeTeamId }));
+        Assert.That(result.Errors, Is.EqualTo(["Unable to find team with id " + update.HomeTeamId]));
     }
 
     [Test]
@@ -222,7 +214,7 @@ public class AddOrUpdateGameCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[] { "Unable to find team with id " + update.AwayTeamId }));
+        Assert.That(result.Errors, Is.EqualTo(["Unable to find team with id " + update.AwayTeamId]));
     }
 
     [Test]
@@ -352,7 +344,7 @@ public class AddOrUpdateGameCommandTests
 
         var result = await _command.WithData(update).ApplyUpdate(_game, _token);
 
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Some error1", "Some error2" }));
+        Assert.That(result.Errors, Is.EquivalentTo(["Some error1", "Some error2"]));
         Assert.That(result.Success, Is.False);
         _addSeasonToTeamCommand.Verify(c => c.ForSeason(_season.Id));
         _teamService.Verify(s => s.Upsert(_homeTeam.Id, _addSeasonToTeamCommand.Object, _token));
