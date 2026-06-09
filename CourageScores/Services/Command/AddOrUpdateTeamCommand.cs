@@ -150,7 +150,14 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<CosmosTeam, EditTeamDto
             {
                 var editGame = GameDtoToEditGameDto(game);
                 editGame.Address = update.Address?.Trim() ?? "";
+                editGame.HomeTeamName = update.Name.TrimOrDefault();
                 editGame.DivisionId = update.NewDivisionId;
+                gamesToUpdate.Add(editGame);
+            }
+            else if (game.Away.Id == update.Id)
+            {
+                var editGame = GameDtoToEditGameDto(game);
+                editGame.AwayTeamName = update.Name.TrimOrDefault();
                 gamesToUpdate.Add(editGame);
             }
         }
@@ -161,8 +168,10 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<CosmosTeam, EditTeamDto
     private EditGameDto GameDtoToEditGameDto(GameDto game)
     {
         var editGame = _serializer.DeserialiseTo<EditGameDto>(_serializer.SerialiseToString(game));
-        editGame.AwayTeamId = game.Away.Id;
         editGame.HomeTeamId = game.Home.Id;
+        editGame.HomeTeamName = game.Home.Name;
+        editGame.AwayTeamId = game.Away.Id;
+        editGame.AwayTeamName = game.Away.Name;
 
         return editGame;
     }

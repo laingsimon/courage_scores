@@ -6,7 +6,9 @@ namespace CourageScores.Models.Dtos.Game;
 public class EditGameDto : IEditGameDto, IIntegrityCheckDto
 {
     public Guid HomeTeamId { get; set; }
+    public string HomeTeamName { get; set; } = "";
     public Guid AwayTeamId { get; set; }
+    public string AwayTeamName { get; set; } = "";
 
     public Guid? Id { get; set; }
     public string Address { get; set; } = null!;
