@@ -68,10 +68,20 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<CosmosTeam, EditTeamDto
             };
         }
 
+        var updateGamesResult = new ActionResult<CosmosTeam>
+        {
+            Success = true,
+        };
         foreach (var gameUpdate in gamesToUpdate)
         {
             var command = _commandFactory.GetCommand<AddOrUpdateGameCommand>().WithData(gameUpdate);
-            await _gameService.Upsert(gameUpdate.Id, command, token);
+            var result = await _gameService.Upsert(gameUpdate.Id, command, token);
+            updateGamesResult = updateGamesResult.Merge(result.As<CosmosTeam>());
+        }
+
+        if (!updateGamesResult.Success)
+        {
+            return updateGamesResult;
         }
 
         team.Name = update.Name.TrimOrDefault();
@@ -105,7 +115,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<CosmosTeam, EditTeamDto
             {
                 "Team updated",
             },
-        };
+        }.Merge(updateGamesResult);
     }
 
     private async Task<Dictionary<DateTime, HashSet<GameDto>>> GamesWithSameHomeAddress(EditTeamDto update,
@@ -140,7 +150,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<CosmosTeam, EditTeamDto
                 {
                     gamesWithSameHomeAddressAsUpdate[game.Date].Add(game);
                 }
-                else if (!string.IsNullOrEmpty(game.Address?.Trim()) && game.Address.Trim().Equals(update.Address?.Trim(), StringComparison.OrdinalIgnoreCase))
+                else if (!string.IsNullOrEmpty(game.Address.Trim()) && game.Address.Trim().Equals(update.Address?.Trim(), StringComparison.OrdinalIgnoreCase))
                 {
                     gamesWithSameHomeAddressAsUpdate[game.Date].Add(game);
                 }
@@ -172,6 +182,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<CosmosTeam, EditTeamDto
         editGame.HomeTeamName = game.Home.Name;
         editGame.AwayTeamId = game.Away.Id;
         editGame.AwayTeamName = game.Away.Name;
+        editGame.LastUpdated = game.Updated;
 
         return editGame;
     }
