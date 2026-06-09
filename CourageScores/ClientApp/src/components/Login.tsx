@@ -89,9 +89,9 @@ export function Login() {
                 </a>
                 {serviceAccountSessionsAllowed ? (
                     <Link
-                        to="/create-service-account"
+                        to="/new_session"
                         className="btn btn-outline-secondary py-2">
-                        📺 Create a service account
+                        📺 New service account session
                     </Link>
                 ) : null}
             </div>

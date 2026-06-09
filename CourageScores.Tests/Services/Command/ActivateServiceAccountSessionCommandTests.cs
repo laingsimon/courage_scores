@@ -3,9 +3,9 @@ using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Repository;
+using CourageScores.Repository.Identity;
 using CourageScores.Services;
 using CourageScores.Services.Command;
-using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using NUnit.Framework;
@@ -16,7 +16,7 @@ namespace CourageScores.Tests.Services.Command;
 public class ActivateServiceAccountSessionCommandTests
 {
     private readonly CancellationToken _token = CancellationToken.None;
-    private Mock<IUserService> _userService = null!;
+    private Mock<IUserRepository> _userRepository = null!;
     private DefaultHttpContext _httpContext = null!;
     private ServiceAccountSession _model = null!;
     private Mock<IFeatureService> _featureService = null!;
@@ -28,7 +28,7 @@ public class ActivateServiceAccountSessionCommandTests
     [SetUp]
     public void SetupEachTest()
     {
-        _userService = new Mock<IUserService>();
+        _userRepository = new Mock<IUserRepository>();
         _featureService = new Mock<IFeatureService>();
         _feature = new ConfiguredFeatureDto { ConfiguredValue = "true" };
         var httpAccountAccessor = new Mock<IHttpContextAccessor>();
@@ -43,7 +43,7 @@ public class ActivateServiceAccountSessionCommandTests
         {
             Pin = "pin from service account",
         };
-        _command = new ActivateServiceAccountSessionCommand(_userService.Object, httpAccountAccessor.Object, _featureService.Object).WithRequest(_request);
+        _command = new ActivateServiceAccountSessionCommand(_userRepository.Object, httpAccountAccessor.Object, _featureService.Object).WithRequest(_request);
         _model = new ServiceAccountSession
         {
             ServiceIpAddress = _httpContext.Connection.RemoteIpAddress.ToString(),
@@ -128,7 +128,7 @@ public class ActivateServiceAccountSessionCommandTests
     [Test]
     public async Task ApplyUpdate_WhenUserNotFound_ReturnsUnsuccessful()
     {
-        _userService.Setup(s => s.GetUser(_model.TransientUsername!, _token)).ReturnsAsync(() => null);
+        _userRepository.Setup(s => s.GetUser(_model.TransientUsername!)).ReturnsAsync(() => null);
 
         var result = await _command.ApplyUpdate(_model, _token);
 
@@ -139,8 +139,8 @@ public class ActivateServiceAccountSessionCommandTests
     [Test]
     public async Task ApplyUpdate_WhenPinAndIpAddressMatch_ReturnsSuccessful()
     {
-        var user = new UserDto();
-        _userService.Setup(s => s.GetUser(_model.TransientUsername!, _token)).ReturnsAsync(user);
+        var user = new User();
+        _userRepository.Setup(s => s.GetUser(_model.TransientUsername!)).ReturnsAsync(user);
 
         var result = await _command.ApplyUpdate(_model, _token);
 

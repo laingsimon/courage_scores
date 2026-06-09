@@ -60,11 +60,18 @@ public class ServiceAccountSessionCleanUpService : IServiceAccountSessionCleanUp
 
     private async Task DeleteUser(string transientUserName, CancellationToken token)
     {
-        var user = await _userRepository.GetUser(transientUserName);
-
-        if (user != null)
+        try
         {
-            await _userRepository.DeleteUser(user, token);
+            var user = await _userRepository.GetUser(transientUserName);
+
+            if (user?.Transient == true)
+            {
+                await _userRepository.DeleteUser(user, token);
+            }
+        }
+        catch (Exception)
+        {
+            // user not found
         }
     }
 }

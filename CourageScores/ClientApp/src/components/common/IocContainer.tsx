@@ -27,6 +27,7 @@ import { WebSocketMode } from '../../live/WebSocketMode.ts';
 import { FeatureApi } from '../../interfaces/apis/IFeatureApi.ts';
 import { CookiesProvider } from 'react-cookie';
 import { QueryApi } from '../../interfaces/apis/IQueryApi.ts';
+import { ServiceAccountSessionApi } from '../../interfaces/apis/IServiceAccountSessionApi.ts';
 
 const DependenciesContext = createContext({});
 
@@ -92,6 +93,7 @@ export function IocContainer({
             ),
         }),
         featureApi: new FeatureApi(http),
+        serviceAccountSessionApi: new ServiceAccountSessionApi(http),
     };
 
     const dependencies = Object.assign({}, defaultServices, services);

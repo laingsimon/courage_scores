@@ -24,7 +24,7 @@ public class ServiceAccountSession : AuditedEntity, IPermissionedEntity
 
     public bool CanEdit(UserDto? user)
     {
-        return user?.Access?.LoginServiceAccounts == true;
+        return user?.Access?.LoginServiceAccounts == true || user == null;
     }
 
     public bool CanDelete(UserDto? user)

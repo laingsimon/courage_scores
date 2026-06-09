@@ -104,6 +104,28 @@ public class ServiceAccountSessionCleanUpServiceTests
     }
 
     [Test]
+    public async Task DeleteExpiredSessions_WhenSessionHasUserLinkedButUserCannotBeFound_DoesNotThrow()
+    {
+        var activeSession = new ServiceAccountSession
+        {
+            VerificationValue = "cookie-value",
+            ServiceIpAddress = "ip-address",
+            ServiceUserAgent = "user-agent",
+            FriendlyName = "friendly-name",
+            Created = _now.DateTime.AddDays(-1),
+            Updated = _now.DateTime.AddDays(-1),
+            LastRequest = _now.DateTime.AddDays(-1),
+            TransientUsername = "transient-username",
+        };
+        _sessions = [activeSession];
+        _userRepository.Setup(r => r.GetUser(activeSession.TransientUsername)).ThrowsAsync(new InvalidOperationException("user not found"));
+
+        await Assert.ThatAsync(
+            () => _service.DeleteExpiredSessions(_token),
+            Throws.Nothing);
+    }
+
+    [Test]
     public async Task DeleteExpiredSessions_WhenSessionHasUserLinked_DeletesUser()
     {
         var activeSession = new ServiceAccountSession
@@ -117,7 +139,10 @@ public class ServiceAccountSessionCleanUpServiceTests
             LastRequest = _now.DateTime.AddDays(-1),
             TransientUsername = "transient-username",
         };
-        var user = new User();
+        var user = new User
+        {
+            Transient = true,
+        };
         _sessions = [activeSession];
         _userRepository.Setup(r => r.GetUser(activeSession.TransientUsername)).ReturnsAsync(user);
 
