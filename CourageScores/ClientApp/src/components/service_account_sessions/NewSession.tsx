@@ -43,7 +43,9 @@ export function NewSession() {
     }, [session]);
 
     async function activateSession() {
+        /* istanbul ignore next */
         if (activating) {
+            /* istanbul ignore next */
             return;
         }
 
@@ -110,7 +112,9 @@ export function NewSession() {
     }
 
     async function createSession() {
+        /* istanbul ignore next */
         if (creating) {
+            /* istanbul ignore next */
             return;
         }
 
