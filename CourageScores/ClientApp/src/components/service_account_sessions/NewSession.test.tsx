@@ -185,7 +185,7 @@ describe('NewSession', () => {
             ).toEqual(`https://localhost/accept_session/${createdSession.id}`);
             expect(
                 context.required('[data-testid="session-pin"]').text(),
-            ).toHaveLength(4);
+            ).toMatch(/^PIN: [a-z0-9]{4}$/);
         });
 
         it('shows errors when create fails', async () => {
@@ -247,7 +247,7 @@ describe('NewSession', () => {
 
             reportedError.verifyNoError();
             expect(activateSessionId).toEqual(createdSession.id);
-            expect(activateRequest?.pin).toHaveLength(4);
+            expect(activateRequest?.pin).toMatch(/^[a-z0-9]{4}$/);
             expect(allDataReloaded).toEqual(true);
             expect(context.required('h3').text()).toEqual('Session approved');
             expect(
@@ -308,7 +308,7 @@ describe('NewSession', () => {
 
             reportedError.verifyNoError();
             expect(activateSessionId).toEqual(createdSession.id);
-            expect(activateRequest?.pin).toEqual(pin);
+            expect(activateRequest?.pin).toEqual(pin.replace('PIN: ', ''));
             expect(allDataReloaded).toEqual(true);
             expect(context.required('h3').text()).toEqual('Session approved');
         });

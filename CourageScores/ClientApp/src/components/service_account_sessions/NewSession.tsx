@@ -179,7 +179,7 @@ export function NewSession() {
                         <h6>{friendlyName}</h6>
                         <QRCodeSVG value={addressForApprovals} size={150} />
                         <pre className="fs-3" data-testid="session-pin">
-                            {pin}
+                            PIN: {pin}
                         </pre>
                         <pre>IP address: {session!.result!.myIpAddress}</pre>
                         <a
