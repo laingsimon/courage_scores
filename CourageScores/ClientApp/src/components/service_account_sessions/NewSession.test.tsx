@@ -143,7 +143,7 @@ describe('NewSession', () => {
             await context.input('friendlyName').change('Board 2');
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
-                '/new_session/Board 2',
+                '/new_session/Board 2/',
             );
         });
 

@@ -101,7 +101,7 @@ export function NewSession() {
     }
 
     function setFriendlyName(name: string) {
-        navigate(`/new_session/${name}`);
+        navigate(`/new_session/${name}/`);
     }
 
     function createPin() {
@@ -145,7 +145,7 @@ export function NewSession() {
                         id="friendlyName"
                         name="friendlyName"
                         className="form-control"
-                        value={friendlyName}
+                        value={friendlyName || ''}
                         onChange={stateChanged(setFriendlyName)}
                     />
                 </div>
