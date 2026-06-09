@@ -68,10 +68,15 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<CosmosTeam, EditTeamDto
             };
         }
 
+        var updateGamesResult = new ActionResult<CosmosTeam>
+        {
+            Success = true,
+        };
         foreach (var gameUpdate in gamesToUpdate)
         {
             var command = _commandFactory.GetCommand<AddOrUpdateGameCommand>().WithData(gameUpdate);
-            await _gameService.Upsert(gameUpdate.Id, command, token);
+            var result = await _gameService.Upsert(gameUpdate.Id, command, token);
+            updateGamesResult = updateGamesResult.Merge(result.As<CosmosTeam>());
         }
 
         team.Name = update.Name.TrimOrDefault();
@@ -105,7 +110,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<CosmosTeam, EditTeamDto
             {
                 "Team updated",
             },
-        };
+        }.Merge(updateGamesResult);
     }
 
     private async Task<Dictionary<DateTime, HashSet<GameDto>>> GamesWithSameHomeAddress(EditTeamDto update,
