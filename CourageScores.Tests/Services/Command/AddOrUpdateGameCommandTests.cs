@@ -165,8 +165,42 @@ public class AddOrUpdateGameCommandTests
         Assert.That(_game.AccoladesCount, Is.EqualTo(update.AccoladesCount));
         Assert.That(_game.DivisionId, Is.EqualTo(update.DivisionId));
         Assert.That(_game.SeasonId, Is.EqualTo(update.SeasonId));
+        Assert.That(_game.Home.Name, Is.EqualTo(_homeTeam.Name));
+        Assert.That(_game.Away.Name, Is.EqualTo(_awayTeam.Name));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_game.DivisionId));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
+    }
+
+    [Test]
+    public async Task ApplyUpdates_WithSeasonsAndSpecifiedTeamNames_ThenUpdatesGame()
+    {
+        var update = new EditGameDto
+        {
+            HomeTeamId = _homeTeam.Id,
+            HomeTeamName = "new home name ",
+            AwayTeamId = _awayTeam.Id,
+            AwayTeamName = "new away name ",
+            Address = "new address",
+            Date = new DateTime(2001, 02, 03, 04, 05, 06),
+            Postponed = true,
+            DivisionId = Guid.NewGuid(),
+            IsKnockout = true,
+            Id = _game.Id,
+            SeasonId = _season.Id,
+            AccoladesCount = true,
+            LastUpdated = _game.Updated,
+        };
+        _homeTeam.Seasons.Add(_teamSeason);
+        _awayTeam.Seasons.Add(_teamSeason);
+        _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(() => _season);
+        _teamService.Setup(s => s.Get(update.HomeTeamId, _token)).ReturnsAsync(_homeTeam);
+        _teamService.Setup(s => s.Get(update.AwayTeamId, _token)).ReturnsAsync(_awayTeam);
+
+        var result = await _command.WithData(update).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(_game.Home.Name, Is.EqualTo(update.HomeTeamName.Trim()));
+        Assert.That(_game.Away.Name, Is.EqualTo(update.AwayTeamName.Trim()));
     }
 
     [Test]
