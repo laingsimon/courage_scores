@@ -140,7 +140,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<CosmosTeam, EditTeamDto
                 {
                     gamesWithSameHomeAddressAsUpdate[game.Date].Add(game);
                 }
-                else if (!string.IsNullOrEmpty(game.Address?.Trim()) && game.Address.Trim().Equals(update.Address?.Trim(), StringComparison.OrdinalIgnoreCase))
+                else if (!string.IsNullOrEmpty(game.Address.Trim()) && game.Address.Trim().Equals(update.Address?.Trim(), StringComparison.OrdinalIgnoreCase))
                 {
                     gamesWithSameHomeAddressAsUpdate[game.Date].Add(game);
                 }

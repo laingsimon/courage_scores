@@ -241,6 +241,7 @@ public class AddOrUpdateTeamCommandTests
         var team = GetTeam();
         var game = new GameDto
         {
+            Address = "",
             Home = AnotherTeamDto,
             Away = GameTeamDto(team),
             Id = Guid.NewGuid(),
@@ -352,6 +353,7 @@ public class AddOrUpdateTeamCommandTests
         var team = GetTeam();
         _games.Add(new GameDto
         {
+            Address = "",
             Home = AnotherTeamDto,
             Away = GameTeamDto(team),
             Id = Guid.NewGuid(),
