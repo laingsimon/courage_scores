@@ -135,8 +135,8 @@ public class AddOrUpdateTeamCommandTests
 
         var result = await _command.WithData(update).ApplyUpdate(team, _token);
 
-        Assert.That(team.Name, Is.EqualTo(update.Name));
-        Assert.That(team.Address, Is.EqualTo(update.Address));
+        Assert.That(team.Name, Is.EqualTo(update.Name.Trim()));
+        Assert.That(team.Address, Is.EqualTo(update.Address.Trim()));
         var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == update.SeasonId);
         Assert.That(teamSeason, Is.Not.Null);
         Assert.That(teamSeason!.DivisionId, Is.EqualTo(update.DivisionId));
@@ -468,8 +468,8 @@ public class AddOrUpdateTeamCommandTests
     {
         return new EditTeamDto
         {
-            Name = "new name",
-            Address = "new address",
+            Name = "new name ",
+            Address = "new address ",
             DivisionId = DivisionId,
             SeasonId = SeasonId,
             Id = team.Id,
