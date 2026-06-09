@@ -54,7 +54,7 @@ public class AddOrUpdateTeamCommandTests
         Name = LambB.Name,
     };
 
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly IJsonSerializerService _serializer = new JsonSerializerService(new JsonSerializer());
 
     private Mock<IGameService> _gameService = null!;
@@ -135,8 +135,8 @@ public class AddOrUpdateTeamCommandTests
 
         var result = await _command.WithData(update).ApplyUpdate(team, _token);
 
-        Assert.That(team.Name, Is.EqualTo(update.Name));
-        Assert.That(team.Address, Is.EqualTo(update.Address));
+        Assert.That(team.Name, Is.EqualTo(update.Name.Trim()));
+        Assert.That(team.Address, Is.EqualTo(update.Address.Trim()));
         var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == update.SeasonId);
         Assert.That(teamSeason, Is.Not.Null);
         Assert.That(teamSeason!.DivisionId, Is.EqualTo(update.DivisionId));
@@ -189,10 +189,7 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(Update(team)).ApplyUpdate(team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Some error",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(["Some error"]));
         AssertCacheEviction(null, null);
     }
 
@@ -211,7 +208,7 @@ public class AddOrUpdateTeamCommandTests
 
         var result = await _command.WithData(update).ApplyUpdate(team, _token);
 
-        _addOrUpdateGameCommand.Verify(c => c.WithData(It.Is<EditGameDto>(dto => EditGameDtoMatches(dto, game, update))));
+        _addOrUpdateGameCommand.Verify(c => c.WithData(It.Is<EditGameDto>(dto => EditGameDtoMatches(dto, game, update, TeamChange.Home))));
         _gameService.Verify(s => s.Upsert(game.Id, _addOrUpdateGameCommand.Object, _token));
         Assert.That(result.Success, Is.True);
         AssertCacheEviction(DivisionId, SeasonId);
@@ -248,12 +245,13 @@ public class AddOrUpdateTeamCommandTests
             Away = GameTeamDto(team),
             Id = Guid.NewGuid(),
         };
+        var update = Update(team);
         _games.Add(game);
 
-        var result = await _command.WithData(Update(team)).ApplyUpdate(team, _token);
+        var result = await _command.WithData(update).ApplyUpdate(team, _token);
 
-        _addOrUpdateGameCommand.Verify(c => c.WithData(It.IsAny<EditGameDto>()), Times.Never);
-        _gameService.Verify(s => s.Upsert(game.Id, _addOrUpdateGameCommand.Object, _token), Times.Never);
+        _addOrUpdateGameCommand.Verify(c => c.WithData(It.Is<EditGameDto>(dto => EditGameDtoMatches(dto, game, update, TeamChange.Away))));
+        _gameService.Verify(s => s.Upsert(game.Id, _addOrUpdateGameCommand.Object, _token));
         Assert.That(result.Success, Is.True);
         AssertCacheEviction(DivisionId, SeasonId);
     }
@@ -283,10 +281,9 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(update).ApplyUpdate(team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            $"Unable to update address, {updateAddress} is in use for multiple games on the same dates, see 03 Feb 2001: Lamb A vs Another team, Lamb B vs Another team",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo([
+            $"Unable to update address, {updateAddress} is in use for multiple games on the same dates, see 03 Feb 2001: Lamb A vs Another team, Lamb B vs Another team"
+        ]));
         AssertCacheEviction(null, null);
     }
 
@@ -317,10 +314,9 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(update).ApplyUpdate(team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            $"Unable to update address, {updateAddress} is in use for multiple games on the same dates, see 03 Feb 2001: Lamb A vs Another team, Lamb B vs Another team",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo([
+            $"Unable to update address, {updateAddress} is in use for multiple games on the same dates, see 03 Feb 2001: Lamb A vs Another team, Lamb B vs Another team"
+        ]));
         AssertCacheEviction(null, null);
     }
 
@@ -343,10 +339,9 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(update).ApplyUpdate(team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "Unable to change division when games exist, delete these 1 game/s first",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo([
+            "Unable to change division when games exist, delete these 1 game/s first"
+        ]));
         AssertCacheEviction(null, null);
     }
 
@@ -368,10 +363,7 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(update).ApplyUpdate(team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Team updated",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(["Team updated"]));
         AssertCacheEviction(DivisionId, SeasonId);
     }
 
@@ -399,10 +391,7 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(Update(team)).ApplyUpdate(team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Team updated",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(["Team updated"]));
         AssertCacheEviction(DivisionId, SeasonId);
     }
 
@@ -423,18 +412,26 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(Update(team)).ApplyUpdate(team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Team updated",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(["Team updated"]));
         AssertCacheEviction(DivisionId, SeasonId);
     }
 
-    private static bool EditGameDtoMatches(EditGameDto editGameDto, GameDto game, EditTeamDto update)
+    private static bool EditGameDtoMatches(EditGameDto editGameDto, GameDto game, EditTeamDto update, TeamChange teamChange)
     {
         // equal to updated value
-        Assert.That(editGameDto.DivisionId, Is.EqualTo(update.DivisionId), "DivisionId");
-        Assert.That(editGameDto.Address, Is.EqualTo(update.Address), "Address");
+        if (teamChange.HasFlag(TeamChange.Home))
+        {
+            Assert.That(editGameDto.DivisionId, Is.EqualTo(update.DivisionId), "DivisionId");
+            Assert.That(editGameDto.Address, Is.EqualTo(update.Address.Trim()), "Address");
+            Assert.That(editGameDto.HomeTeamName, Is.EqualTo(update.Name.Trim()), "HomeTeamName");
+            Assert.That(editGameDto.AwayTeamName, Is.EqualTo(game.Away.Name), "AwayTeamName - unchanged");
+        }
+
+        if (teamChange.HasFlag(TeamChange.Away))
+        {
+            Assert.That(editGameDto.HomeTeamName, Is.EqualTo(game.Home.Name), "HomeTeamName - unchanged");
+            Assert.That(editGameDto.AwayTeamName, Is.EqualTo(update.Name.Trim()), "AwayTeamName");
+        }
 
         // equal to current value
         Assert.That(editGameDto.Id, Is.EqualTo(game.Id), "GameId");
@@ -480,8 +477,8 @@ public class AddOrUpdateTeamCommandTests
     {
         return new EditTeamDto
         {
-            Name = "new name",
-            Address = "new address",
+            Name = "new name ",
+            Address = "new address ",
             DivisionId = DivisionId,
             SeasonId = SeasonId,
             Id = team.Id,
@@ -494,5 +491,12 @@ public class AddOrUpdateTeamCommandTests
     {
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(divisionId));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(seasonId));
+    }
+
+    [Flags]
+    private enum TeamChange
+    {
+        Home = 1,
+        Away = 2
     }
 }
