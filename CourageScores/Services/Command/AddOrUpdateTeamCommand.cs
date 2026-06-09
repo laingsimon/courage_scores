@@ -172,6 +172,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<CosmosTeam, EditTeamDto
         editGame.HomeTeamName = game.Home.Name;
         editGame.AwayTeamId = game.Away.Id;
         editGame.AwayTeamName = game.Away.Name;
+        editGame.LastUpdated = game.Updated;
 
         return editGame;
     }

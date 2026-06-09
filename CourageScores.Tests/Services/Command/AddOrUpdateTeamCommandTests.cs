@@ -442,6 +442,7 @@ public class AddOrUpdateTeamCommandTests
         Assert.That(editGameDto.Postponed, Is.EqualTo(game.Postponed), "Postponed");
         Assert.That(editGameDto.HomeTeamId, Is.EqualTo(game.Home.Id), "HomeTeamId");
         Assert.That(editGameDto.AwayTeamId, Is.EqualTo(game.Away.Id), "AwayTeamId");
+        Assert.That(editGameDto.LastUpdated, Is.EqualTo(game.Updated), "LastUpdated");
         return true;
     }
 
