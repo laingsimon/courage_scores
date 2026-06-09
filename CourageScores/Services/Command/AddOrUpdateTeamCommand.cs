@@ -79,6 +79,11 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<CosmosTeam, EditTeamDto
             updateGamesResult = updateGamesResult.Merge(result.As<CosmosTeam>());
         }
 
+        if (!updateGamesResult.Success)
+        {
+            return updateGamesResult;
+        }
+
         team.Name = update.Name.TrimOrDefault();
         team.Address = update.Address.TrimOrDefault();
         var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == update.SeasonId && ts.Deleted == null);

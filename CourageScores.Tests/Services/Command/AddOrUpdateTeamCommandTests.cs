@@ -1,6 +1,7 @@
 ﻿using CourageScores.Filters;
 using CourageScores.Models;
 using CourageScores.Models.Cosmos.Team;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services;
@@ -125,6 +126,9 @@ public class AddOrUpdateTeamCommandTests
         _teamService.Setup(s => s.Get(AnotherTeam.Id, _token)).ReturnsAsync(AnotherTeam);
         _teamService.Setup(s => s.Get(LambB.Id, _token)).ReturnsAsync(LambB);
         _teamService.Setup(s => s.Get(LambA.Id, _token)).ReturnsAsync(LambA);
+        _gameService
+            .Setup(s => s.Upsert(It.IsAny<Guid>(), _addOrUpdateGameCommand.Object, _token))
+            .ReturnsAsync(new ActionResultDto<GameDto> { Success = true });
     }
 
     [Test]
@@ -212,6 +216,34 @@ public class AddOrUpdateTeamCommandTests
         _gameService.Verify(s => s.Upsert(game.Id, _addOrUpdateGameCommand.Object, _token));
         Assert.That(result.Success, Is.True);
         AssertCacheEviction(DivisionId, SeasonId);
+    }
+
+    [Test]
+    public async Task ApplyUpdates_IfGameUpdatesFail_ReturnsUnsuccessful()
+    {
+        var team = GetTeam();
+        var game = new GameDto
+        {
+            Home = GameTeamDto(team),
+            Away = AnotherTeamDto,
+            Id = Guid.NewGuid(),
+        };
+        var update = Update(team);
+        var updateGameResult = new ActionResultDto<GameDto>
+        {
+            Success = false,
+            Warnings = { "GAME NOT UPDATED" },
+        };
+        _games.Add(game);
+        _gameService.Setup(s => s.Upsert(game.Id, _addOrUpdateGameCommand.Object, _token)).ReturnsAsync(updateGameResult);
+
+        var result = await _command.WithData(update).ApplyUpdate(team, _token);
+
+        _addOrUpdateGameCommand.Verify(c => c.WithData(It.Is<EditGameDto>(dto => EditGameDtoMatches(dto, game, update, TeamChange.Home))));
+        _gameService.Verify(s => s.Upsert(game.Id, _addOrUpdateGameCommand.Object, _token));
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EquivalentTo(["GAME NOT UPDATED"]));
+        AssertCacheEviction(null, null);
     }
 
     [Test]
