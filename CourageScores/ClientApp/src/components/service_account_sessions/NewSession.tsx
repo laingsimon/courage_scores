@@ -169,41 +169,55 @@ export function NewSession() {
             );
         }
 
-        if (session!.success) {
-            const addressForApprovals = `https://${location.host}/accept_session/${session!.result!.id}`;
-
+        if (!session?.success) {
             return (
-                <div className="position-relative">
-                    <h3>Waiting for approval...</h3>
-                    <div className="d-flex flex-column align-items-center">
-                        <h6>{friendlyName}</h6>
-                        <QRCodeSVG value={addressForApprovals} size={150} />
-                        <pre className="fs-3" data-testid="session-pin">
-                            PIN: {pin}
-                        </pre>
-                        <pre>IP address: {session!.result!.myIpAddress}</pre>
-                        <a
-                            href={addressForApprovals}
-                            rel="noopener noreferrer"
-                            target="_blank">
-                            Open approval link in new tab
-                        </a>
-                    </div>
-                    <div className="position-absolute top-0 right-0">
-                        {refreshing || activating ? (
-                            <LoadingSpinnerSmall />
-                        ) : null}
-                    </div>
+                <div>
+                    <h3>Session was not created</h3>
+                    {renderMessages('text-danger', session!.errors)}
+                    {renderMessages('text-warning', session!.warnings)}
+                    {renderMessages('text-secondary', session!.messages)}
                 </div>
             );
         }
 
+        if (session!.result?.rejectedBy) {
+            return renderRejected();
+        }
+        return renderWaitingForApproval();
+    }
+
+    function renderRejected() {
         return (
             <div>
-                <h3>Session was not created</h3>
-                {renderMessages('text-danger', session!.errors)}
-                {renderMessages('text-warning', session!.warnings)}
-                {renderMessages('text-secondary', session!.messages)}
+                <h3>Request rejected by {session?.result?.rejectedBy}</h3>
+                <p>Reason: {session?.result?.message}</p>
+            </div>
+        );
+    }
+
+    function renderWaitingForApproval() {
+        const addressForApprovals = `https://${location.host}/accept_session/${session!.result!.id}`;
+
+        return (
+            <div className="position-relative">
+                <h3>Waiting for approval...</h3>
+                <div className="d-flex flex-column align-items-center">
+                    <h6>{friendlyName}</h6>
+                    <QRCodeSVG value={addressForApprovals} size={150} />
+                    <pre className="fs-3" data-testid="session-pin">
+                        PIN: {pin}
+                    </pre>
+                    <pre>IP address: {session!.result!.myIpAddress}</pre>
+                    <a
+                        href={addressForApprovals}
+                        rel="noopener noreferrer"
+                        target="_blank">
+                        Open approval link in new tab
+                    </a>
+                </div>
+                <div className="position-absolute top-0 right-0">
+                    {refreshing || activating ? <LoadingSpinnerSmall /> : null}
+                </div>
             </div>
         );
     }

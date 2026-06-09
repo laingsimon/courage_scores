@@ -335,4 +335,28 @@ describe('NewSession', () => {
             expect(context.text()).toContain('Refresh exploded');
         });
     });
+
+    describe('session rejection', () => {
+        it('shows rejection', async () => {
+            createResponse = {
+                success: true,
+                result: session({
+                    rejectedBy: 'Someone',
+                    message: 'Rejection reason',
+                }),
+            };
+            await renderComponent('/new_session/Board%201');
+
+            await context.button('Create session').click();
+
+            reportedError.verifyNoError();
+            expect(allDataReloaded).toEqual(false);
+            expect(context.required('h3').text()).toEqual(
+                'Request rejected by Someone',
+            );
+            expect(context.required('p').text()).toEqual(
+                'Reason: Rejection reason',
+            );
+        });
+    });
 });
