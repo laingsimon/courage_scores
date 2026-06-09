@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using CourageScores.Models.Adapters;
+using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Identity;
@@ -16,6 +17,8 @@ public class UserService : IUserService
     private readonly ISimpleAdapter<Access, AccessDto> _accessAdapter;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IGenericRepository<Models.Cosmos.Team.Team> _teamRepository;
+    private readonly IGenericRepository<ServiceAccountSession> _serviceAccountSessionService;
+    private readonly IGenericRepository<ConfiguredFeature> _featureRepository;
     private readonly ISimpleAdapter<User, UserDto> _userAdapter;
     private readonly IUserRepository _userRepository;
     private User? _user;
@@ -26,13 +29,17 @@ public class UserService : IUserService
         IUserRepository userRepository,
         ISimpleAdapter<User, UserDto> userAdapter,
         ISimpleAdapter<Access, AccessDto> accessAdapter,
-        IGenericRepository<Models.Cosmos.Team.Team> teamRepository)
+        IGenericRepository<Models.Cosmos.Team.Team> teamRepository,
+        IGenericRepository<ServiceAccountSession> serviceAccountSessionService,
+        IGenericRepository<ConfiguredFeature> featureRepository)
     {
         _httpContextAccessor = httpContextAccessor;
         _userRepository = userRepository;
         _userAdapter = userAdapter;
         _accessAdapter = accessAdapter;
         _teamRepository = teamRepository;
+        _serviceAccountSessionService = serviceAccountSessionService;
+        _featureRepository = featureRepository;
     }
 
     public async Task<UserDto?> GetUser(CancellationToken token)
@@ -179,6 +186,13 @@ public class UserService : IUserService
             return null;
         }
 
+        var serviceAccountSessionFeature = await _featureRepository.Get(FeatureLookup.ServiceAccountSessions.Id, token);
+        var serviceAccountSessionsAllowed = serviceAccountSessionFeature?.ConfiguredValue == "true";
+        if (serviceAccountSessionsAllowed && httpContext.Request.Cookies.TryGetValue(ServiceAccountSessionDto.ActivatedSessionIdCookieName, out var sessionIdString))
+        {
+            return await GetServiceAccountSessionUser(sessionIdString, httpContext, token);
+        }
+
         var result = await httpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
         if (!result.Succeeded)
@@ -211,6 +225,61 @@ public class UserService : IUserService
         }
 
         await _userRepository.UpsertUser(user);
+
+        return user;
+    }
+
+    private async Task<User?> GetServiceAccountSessionUser(string sessionIdString, HttpContext httpContext, CancellationToken token)
+    {
+        if (!httpContext.Request.Cookies.TryGetValue(ServiceAccountSessionDto.SessionVerificationCookieName, out var givenCookieValue))
+        {
+            // no cookie value
+            httpContext.Response.Cookies.Delete(ServiceAccountSessionDto.ActivatedSessionIdCookieName);
+            return null;
+        }
+
+        if (!Guid.TryParse(sessionIdString, out var sessionId))
+        {
+            // could not parse out the session id
+            httpContext.Response.Cookies.Delete(ServiceAccountSessionDto.SessionVerificationCookieName);
+            httpContext.Response.Cookies.Delete(ServiceAccountSessionDto.ActivatedSessionIdCookieName);
+            return null;
+        }
+
+        var session = await _serviceAccountSessionService.Get(sessionId, token);
+        if (session == null)
+        {
+            // session not found
+            httpContext.Response.Cookies.Delete(ServiceAccountSessionDto.SessionVerificationCookieName);
+            httpContext.Response.Cookies.Delete(ServiceAccountSessionDto.ActivatedSessionIdCookieName);
+            return null;
+        }
+
+        var myIpAddress = httpContext.Connection.RemoteIpAddress?.ToString();
+        if (session.ApprovedBy == null || myIpAddress != session.ServiceIpAddress || session.TransientUsername == null)
+        {
+            // session not approved
+            httpContext.Response.Cookies.Delete(ServiceAccountSessionDto.SessionVerificationCookieName);
+            httpContext.Response.Cookies.Delete(ServiceAccountSessionDto.ActivatedSessionIdCookieName);
+            return null;
+        }
+
+        if (givenCookieValue != session.VerificationValue)
+        {
+            // cookie value mismatch
+            httpContext.Response.Cookies.Delete(ServiceAccountSessionDto.SessionVerificationCookieName);
+            httpContext.Response.Cookies.Delete(ServiceAccountSessionDto.ActivatedSessionIdCookieName);
+            return null;
+        }
+
+        var user = await _userRepository.GetUser(session.TransientUsername);
+        if (user == null)
+        {
+            // user not found
+            httpContext.Response.Cookies.Delete(ServiceAccountSessionDto.SessionVerificationCookieName);
+            httpContext.Response.Cookies.Delete(ServiceAccountSessionDto.ActivatedSessionIdCookieName);
+            return null;
+        }
 
         return user;
     }

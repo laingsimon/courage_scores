@@ -16,8 +16,8 @@ import { ITeamApi } from '../../interfaces/apis/ITeamApi.ts';
 import { ITournamentGameApi } from '../../interfaces/apis/ITournamentGameApi.ts';
 import { IDataApi } from '../../interfaces/apis/IDataApi.ts';
 import { IFeatureApi } from '../../interfaces/apis/IFeatureApi.ts';
-import { IRemoteControlApi } from '../../interfaces/apis/IRemoteControlApi.ts';
 import { IQueryApi } from '../../interfaces/apis/IQueryApi.ts';
+import { IServiceAccountSessionApi } from '../../interfaces/apis/IServiceAccountSessionApi.ts';
 
 export interface IDependencies {
     divisionApi: IDivisionApi;
@@ -38,6 +38,6 @@ export interface IDependencies {
     liveApi: ILiveApi;
     webSocket: ILiveWebSocket;
     featureApi: IFeatureApi;
-    remoteControlApi: IRemoteControlApi;
     queryApi: IQueryApi;
+    serviceAccountSessionApi: IServiceAccountSessionApi;
 }

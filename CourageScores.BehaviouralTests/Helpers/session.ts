@@ -18,7 +18,7 @@ export async function ensureLoggedIn(
 ): Promise<void> {
     const loginLogoutOption = page.locator('header nav ul li:last-child');
     const loginLogoutText = await loginLogoutOption.textContent();
-    if (loginLogoutText.startsWith('Logout')) {
+    if (loginLogoutText?.startsWith('Logout')) {
         // logged in, don't need to do anything
         if (loginLogoutText === `Logout (${as.givenName})`) {
             return;
@@ -30,6 +30,11 @@ export async function ensureLoggedIn(
 
     const loginOption = loginLogoutOption.getByText('Login');
     await loginOption.click();
+
+    // Login.tsx should be shown
+    const loginWithGoogle = page.getByTestId('login-with-google');
+    await loginWithGoogle.click();
+
     await page.fill('input[name="name"]', as.name);
     await page.fill('input[name="givenName"]', as.givenName);
     await page.fill('input[name="emailAddress"]', as.emailAddress);

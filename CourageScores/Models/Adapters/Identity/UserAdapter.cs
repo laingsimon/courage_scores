@@ -21,6 +21,7 @@ public class UserAdapter : ISimpleAdapter<User, UserDto>
             GivenName = model.GivenName,
             Access = await _accessAdapter.Adapt(model.Access ?? new Access(), token),
             TeamId = model.TeamId,
+            Transient = model.Transient,
         };
     }
 
@@ -35,6 +36,7 @@ public class UserAdapter : ISimpleAdapter<User, UserDto>
                 ? await _accessAdapter.Adapt(dto.Access, token)
                 : new Access(),
             TeamId = dto.TeamId,
+            Transient = dto.Transient,
         };
     }
 }

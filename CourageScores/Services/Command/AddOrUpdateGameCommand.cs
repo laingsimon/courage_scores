@@ -88,6 +88,13 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<CosmosGame, EditGameDto
             }
 
             game.Home = homeResult.Result!;
+            game.Home.Name = update.HomeTeamName.TrimOrDefault();
+        }
+        else if (game.Home.Id == update.HomeTeamId)
+        {
+            // the team name change may not have been committed yet, if issued via a team update
+            // so apply the given team name here
+            game.Home.Name = update.HomeTeamName.TrimOrDefault();
         }
 
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
@@ -100,6 +107,13 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<CosmosGame, EditGameDto
             }
 
             game.Away = awayResult.Result!;
+            game.Away.Name = update.AwayTeamName.TrimOrDefault();
+        }
+        else if (game.Away.Id == update.AwayTeamId)
+        {
+            // the team name change may not have been committed yet, if issued via a team update
+            // so apply the given team name here
+            game.Away.Name = update.AwayTeamName.TrimOrDefault();
         }
 
         return new ActionResult<CosmosGame>

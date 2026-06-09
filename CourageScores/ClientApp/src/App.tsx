@@ -28,7 +28,9 @@ import { Division } from './components/league/Division.tsx';
 import { IError } from './components/common/IError.ts';
 import { IFullScreen } from './components/common/IFullScreen.ts';
 import { AnalyseScores } from './components/analysis/AnalyseScores.tsx';
-import { RemoteControl } from './components/RemoteControl.tsx';
+import { Login } from './components/Login.tsx';
+import { NewSession } from './components/service_account_sessions/NewSession.tsx';
+import { SessionResponse } from './components/service_account_sessions/SessionResponse.tsx';
 
 export interface IAppProps {
     embed?: boolean;
@@ -211,6 +213,15 @@ export function App({ embed, controls, testRoute }: IAppProps) {
                     <Layout>
                         <Routes>
                             <Route path="/" element={<Home />} />
+                            <Route path="/login" element={<Login />} />
+                            <Route
+                                path="/new_session/:friendlyName?"
+                                element={<NewSession />}
+                            />
+                            <Route
+                                path="/accept_session/:id"
+                                element={<SessionResponse />}
+                            />
                             <Route
                                 path="/division/:divisionId"
                                 element={
@@ -327,11 +338,6 @@ export function App({ embed, controls, testRoute }: IAppProps) {
                                 path="/analyse/:season"
                                 element={<AnalyseScores />}
                             />
-                            <Route
-                                path="/rc/:id/:pin"
-                                element={<RemoteControl />}
-                            />
-                            <Route path="/rc" element={<RemoteControl />} />
                             {testRoute}
                         </Routes>
                     </Layout>

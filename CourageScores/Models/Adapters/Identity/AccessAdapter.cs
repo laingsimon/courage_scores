@@ -38,6 +38,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             KioskMode = model.KioskMode,
             AnalyseMatches = model.AnalyseMatches,
             RunDataQueries = model.RunDataQueries,
+            LoginServiceAccounts = model.LoginServiceAccounts,
         });
     }
 
@@ -74,6 +75,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             KioskMode = dto.KioskMode,
             AnalyseMatches = dto.AnalyseMatches,
             RunDataQueries = dto.RunDataQueries,
+            LoginServiceAccounts = dto.LoginServiceAccounts,
         });
     }
 }

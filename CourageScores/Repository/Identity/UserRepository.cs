@@ -24,7 +24,7 @@ public class UserRepository : IUserRepository
             return item;
         }
 
-        return default;
+        return null;
     }
 
     public async IAsyncEnumerable<User> GetAll()
@@ -39,6 +39,11 @@ public class UserRepository : IUserRepository
     {
         await _container.Value.UpsertItemAsync(user, new PartitionKey(user.EmailAddress));
         return await GetUser(user.EmailAddress) ?? throw new InvalidOperationException("User could not be created");
+    }
+
+    public async Task DeleteUser(User user, CancellationToken token)
+    {
+        await _container.Value.DeleteItemAsync<User>(user.EmailAddress, new PartitionKey(user.EmailAddress), cancellationToken: token);
     }
 
     private async IAsyncEnumerable<User> Query(string? query)

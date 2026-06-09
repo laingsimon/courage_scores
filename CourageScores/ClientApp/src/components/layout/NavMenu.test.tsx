@@ -165,7 +165,7 @@ describe('NavMenu', () => {
                     division.name,
                 'https://localhost/AFTER1',
                 'https://localhost/AFTER2',
-                `https://localhost/api/Account/Login/?redirectUrl=${encodeURIComponent('https://localhost/practice?q=value')}`,
+                `http://localhost/login/?redirectUrl=${encodeURIComponent('https://localhost/practice?q=value')}`,
             ]);
         });
 
@@ -225,7 +225,7 @@ describe('NavMenu', () => {
 
             const link = loginItem.required('a');
             expect(link.element<HTMLAnchorElement>().href).toEqual(
-                `https://localhost/api/Account/Login/?redirectUrl=${encodeURIComponent('https://localhost/practice?q=value')}`,
+                `http://localhost/login/?redirectUrl=${encodeURIComponent('https://localhost/practice?q=value')}`,
             );
         });
 
