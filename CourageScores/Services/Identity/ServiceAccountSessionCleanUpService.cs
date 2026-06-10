@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using CourageScores.Common;
+﻿using CourageScores.Common;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Repository;
 using CourageScores.Repository.Identity;
@@ -50,10 +49,9 @@ public class ServiceAccountSessionCleanUpService : IServiceAccountSessionCleanUp
             {
                 await _userRepository.DeleteUser(inactiveUser, token);
             }
-            catch (Exception exc)
+            catch
             {
-                // don't cause exceptions outside of this scope
-                Trace.TraceError(exc.ToString());
+                // ignore exceptions
             }
         }
     }
