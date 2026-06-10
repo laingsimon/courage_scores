@@ -30,7 +30,7 @@
     "globals": "^17.6.0",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
-    "prettier": "3.8.3",
+    "prettier": "3.8.4",
     "react": "^19.0.0",
     "react-dom": "^19.2.7",
     "ts-jest": "^29.4.11",
