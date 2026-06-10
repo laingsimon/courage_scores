@@ -18,6 +18,7 @@ import { FeatureAdmin } from './FeatureAdmin.tsx';
 import { useBranding } from '../common/BrandingContainer.tsx';
 import { NavLink } from '../common/NavLink.tsx';
 import { Query } from './Query.tsx';
+import { ServiceAccountSessions } from './ServiceAccountSessions.tsx';
 
 export function AdminHome() {
     const { mode } = useParams();
@@ -114,6 +115,11 @@ export function AdminHome() {
                             'query',
                             'Query data',
                         )}
+                        {renderTab(
+                            access.loginServiceAccounts,
+                            'service_accounts',
+                            'Service accounts',
+                        )}
                     </ul>
                 ) : null}
                 {!appLoading && adminLoading ? (
@@ -173,6 +179,12 @@ export function AdminHome() {
                             ? renderIfPermitted(
                                   <Query />,
                                   access.runDataQueries,
+                              )
+                            : null}
+                        {!appLoading && effectiveTab === 'service_accounts'
+                            ? renderIfPermitted(
+                                  <ServiceAccountSessions />,
+                                  access.loginServiceAccounts,
                               )
                             : null}
                     </AdminContainer>
