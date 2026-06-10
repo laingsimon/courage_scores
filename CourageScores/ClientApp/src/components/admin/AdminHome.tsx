@@ -65,6 +65,22 @@ export function AdminHome() {
         return permitted ? component : <NotPermitted />;
     }
 
+    function renderTab(
+        permitted: boolean | undefined,
+        route: string,
+        title: string,
+    ) {
+        return permitted ? (
+            <li className="nav-item">
+                <NavLink
+                    className={effectiveTab === route ? ' active' : ''}
+                    to={`/admin/${route}`}>
+                    {title}
+                </NavLink>
+            </li>
+        ) : null;
+    }
+
     setTitle('Admin');
 
     try {
@@ -73,121 +89,31 @@ export function AdminHome() {
                 {appLoading ? <Loading /> : null}
                 {!appLoading && account ? (
                     <ul className="nav nav-tabs">
-                        {access.manageAccess ? (
-                            <li className="nav-item">
-                                <NavLink
-                                    className={
-                                        effectiveTab === 'user' ? ' active' : ''
-                                    }
-                                    to={`/admin/user`}>
-                                    User admin
-                                </NavLink>
-                            </li>
-                        ) : null}
-                        {access.importData ? (
-                            <li className="nav-item">
-                                <NavLink
-                                    className={
-                                        effectiveTab === 'import'
-                                            ? ' active'
-                                            : ''
-                                    }
-                                    to={`/admin/import`}>
-                                    Import data
-                                </NavLink>
-                            </li>
-                        ) : null}
-                        {access.exportData ? (
-                            <li className="nav-item">
-                                <NavLink
-                                    className={
-                                        effectiveTab === 'export'
-                                            ? ' active'
-                                            : ''
-                                    }
-                                    to={`/admin/export`}>
-                                    Export data
-                                </NavLink>
-                            </li>
-                        ) : null}
-                        {access.viewExceptions ? (
-                            <li className="nav-item">
-                                <NavLink
-                                    className={
-                                        effectiveTab === 'errors'
-                                            ? '  active'
-                                            : ''
-                                    }
-                                    to={`/admin/errors`}>
-                                    Errors
-                                </NavLink>
-                            </li>
-                        ) : null}
-                        {access.manageSeasonTemplates ? (
-                            <li className="nav-item">
-                                <NavLink
-                                    className={
-                                        effectiveTab === 'templates'
-                                            ? '  active'
-                                            : ''
-                                    }
-                                    to={`/admin/templates`}>
-                                    Templates
-                                </NavLink>
-                            </li>
-                        ) : null}
-                        {access.manageSockets ? (
-                            <li className="nav-item">
-                                <NavLink
-                                    className={
-                                        effectiveTab === 'sockets'
-                                            ? '  active'
-                                            : ''
-                                    }
-                                    to={`/admin/sockets`}>
-                                    Sockets
-                                </NavLink>
-                            </li>
-                        ) : null}
-                        {access.exportData ? (
-                            <li className="nav-item">
-                                <NavLink
-                                    className={
-                                        effectiveTab === 'browser'
-                                            ? '  active'
-                                            : ''
-                                    }
-                                    to={`/admin/browser`}>
-                                    Data Browser
-                                </NavLink>
-                            </li>
-                        ) : null}
-                        {access.manageFeatures ? (
-                            <li className="nav-item">
-                                <NavLink
-                                    className={
-                                        effectiveTab === 'features'
-                                            ? '  active'
-                                            : ''
-                                    }
-                                    to={`/admin/features`}>
-                                    Features
-                                </NavLink>
-                            </li>
-                        ) : null}
-                        {access.runDataQueries ? (
-                            <li className="nav-item">
-                                <NavLink
-                                    className={
-                                        effectiveTab === 'query'
-                                            ? ' active'
-                                            : ''
-                                    }
-                                    to={`/admin/query`}>
-                                    Query data
-                                </NavLink>
-                            </li>
-                        ) : null}
+                        {renderTab(access.manageAccess, 'user', 'User admin')}
+                        {renderTab(access.importData, 'import', 'Import data')}
+                        {renderTab(access.exportData, 'export', 'Export data')}
+                        {renderTab(access.viewExceptions, 'errors', 'Errors')}
+                        {renderTab(
+                            access.manageSeasonTemplates,
+                            'templates',
+                            'Templates',
+                        )}
+                        {renderTab(access.manageSockets, 'sockets', 'Sockets')}
+                        {renderTab(
+                            access.exportData,
+                            'browser',
+                            'Data Browser',
+                        )}
+                        {renderTab(
+                            access.manageFeatures,
+                            'features',
+                            'Features',
+                        )}
+                        {renderTab(
+                            access.runDataQueries,
+                            'query',
+                            'Query data',
+                        )}
                     </ul>
                 ) : null}
                 {!appLoading && adminLoading ? (
