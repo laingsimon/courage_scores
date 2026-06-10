@@ -281,6 +281,8 @@ public class UserService : IUserService
             return null;
         }
 
+        session.LastRequest = DateTime.UtcNow;
+        await _serviceAccountSessionService.Upsert(session, token);
         return user;
     }
 }

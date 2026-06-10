@@ -34,6 +34,26 @@ public class ServiceAccountSessionCleanUpService : IServiceAccountSessionCleanUp
                 await DeleteSession(session, token);
             }
         }
+
+        var allUsers = await _userRepository.GetAll().ToList();
+        var allTransientUsers = allUsers.Where(u => u.Transient).ToArray();
+        var activeTransientUsernames = allSessions
+            .Where(s => !string.IsNullOrEmpty(s.TransientUsername))
+            .Select(s => s.TransientUsername).ToHashSet();
+        var inactiveTransientUsers =
+            allTransientUsers.Where(u => !activeTransientUsernames.Contains(u.EmailAddress)).ToArray();
+
+        foreach (var inactiveUser in inactiveTransientUsers)
+        {
+            try
+            {
+                await _userRepository.DeleteUser(inactiveUser, token);
+            }
+            catch
+            {
+                // ignore exceptions
+            }
+        }
     }
 
     private bool HasExpired(ServiceAccountSession session)
