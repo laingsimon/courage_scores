@@ -470,15 +470,17 @@ public class UserServiceTests
     }
 
     [Test]
-    public async Task GetUser_WhenServiceAccountSessionCanBeFoundAndMatches_ReturnsUser()
+    public async Task GetUser_WhenServiceAccountSessionCanBeFoundAndMatches_ReturnsUserAndUpdatesLastRequest()
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
         var sessionUser = GetUser("name", "session@couragescores.com", givenName: "given name");
-        var session = CreateActivatedSession();
+        var prevLastRequest = DateTime.Today;
+        var session = CreateActivatedSession(s => s.LastRequest = prevLastRequest);
         _userRepository.Setup(r => r.GetUser(session.TransientUsername!)).ReturnsAsync(sessionUser);
 
         var user = await _service.GetUser(_token);
 
+        _serviceAccountSessionRepository.Verify(r => r.Upsert(It.Is<ServiceAccountSession>(s => s.LastRequest!.Value > prevLastRequest), _token));
         Assert.That(_httpContext!.Response.Headers.SetCookie.Select(h => h), Is.Empty);
         Assert.That(user!.EmailAddress, Is.EqualTo(sessionUser.EmailAddress));
         Assert.That(user.Name, Is.EqualTo(sessionUser.Name));

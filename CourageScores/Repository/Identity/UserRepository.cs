@@ -43,7 +43,8 @@ public class UserRepository : IUserRepository
 
     public async Task DeleteUser(User user, CancellationToken token)
     {
-        await _container.Value.DeleteItemAsync<User>(user.EmailAddress, new PartitionKey(user.EmailAddress), cancellationToken: token);
+        var partitionKey = new PartitionKey(user.EmailAddress);
+        await _container.Value.DeleteItemAsync<User>(user.Id.ToString(), partitionKey, cancellationToken: token);
     }
 
     private async IAsyncEnumerable<User> Query(string? query)

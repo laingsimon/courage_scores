@@ -151,7 +151,7 @@ export function UserAdmin() {
 
         return {
             value: acc.emailAddress,
-            text: `${name}${showEmailAddress ? ' ' + acc.emailAddress : ''}${acc.transient ? ' 🪅' : ''}`,
+            text: `${acc.transient ? '🪅 ' : ''}${name}${showEmailAddress ? ' ' + acc.emailAddress : ''}`,
             className: className,
         };
     }
@@ -180,6 +180,7 @@ export function UserAdmin() {
                         className="form-check-input"
                         type="checkbox"
                         name="showEmailAddress"
+                        id="showEmailAddress"
                         checked={showEmailAddress}
                         onChange={(event) =>
                             setShowEmailAddress(event.target.checked)

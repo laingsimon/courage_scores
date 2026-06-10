@@ -1,4 +1,5 @@
-﻿using CourageScores.Common;
+﻿using System.Diagnostics;
+using CourageScores.Common;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Repository;
 using CourageScores.Repository.Identity;
@@ -32,6 +33,27 @@ public class ServiceAccountSessionCleanUpService : IServiceAccountSessionCleanUp
             if (HasExpired(session))
             {
                 await DeleteSession(session, token);
+            }
+        }
+
+        var allUsers = await _userRepository.GetAll().ToList();
+        var allTransientUsers = allUsers.Where(u => u.Transient).ToArray();
+        var activeTransientUsernames = allSessions
+            .Where(s => !string.IsNullOrEmpty(s.TransientUsername))
+            .Select(s => s.TransientUsername).ToHashSet();
+        var inactiveTransientUsers =
+            allTransientUsers.Where(u => !activeTransientUsernames.Contains(u.EmailAddress)).ToArray();
+
+        foreach (var inactiveUser in inactiveTransientUsers)
+        {
+            try
+            {
+                await _userRepository.DeleteUser(inactiveUser, token);
+            }
+            catch (Exception exc)
+            {
+                // don't cause exceptions outside of this scope
+                Trace.TraceError(exc.ToString());
             }
         }
     }

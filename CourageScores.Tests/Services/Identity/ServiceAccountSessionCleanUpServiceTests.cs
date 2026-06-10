@@ -18,16 +18,21 @@ public class ServiceAccountSessionCleanUpServiceTests
     private ServiceAccountSession[] _sessions = null!;
 
     private IServiceAccountSessionCleanUpService _service = null!;
+    private User[] _users = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
+        _users = [];
         _repository = new Mock<IGenericRepository<ServiceAccountSession>>();
         _userRepository = new Mock<IUserRepository>();
         _clock = new Mock<TimeProvider>();
         _service = new ServiceAccountSessionCleanUpService(_repository.Object, _userRepository.Object, _clock.Object);
         _sessions = [];
 
+        _userRepository
+            .Setup(r => r.GetAll())
+            .Returns(() => TestUtilities.AsyncEnumerable(_users));
         _repository
             .Setup(r => r.GetSome("t.Deleted = null", _token))
             .Returns(() => TestUtilities.AsyncEnumerable(_sessions));
@@ -149,5 +154,24 @@ public class ServiceAccountSessionCleanUpServiceTests
         await _service.DeleteExpiredSessions(_token);
 
         _userRepository.Verify(r => r.DeleteUser(user, _token));
+    }
+
+    [Test]
+    public async Task DeleteExpiredSessions_WhenTransientUsersAreOrphaned_DeletesUsers()
+    {
+        var transientUser = new User
+        {
+            Transient = true,
+        };
+        var regularUser = new User
+        {
+            Transient = false,
+        };
+        _users = [transientUser, regularUser];
+
+        await _service.DeleteExpiredSessions(_token);
+
+        _userRepository.Verify(r => r.DeleteUser(transientUser, _token));
+        _userRepository.Verify(r => r.DeleteUser(regularUser, _token), Times.Never);
     }
 }
