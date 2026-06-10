@@ -174,4 +174,21 @@ public class ServiceAccountSessionCleanUpServiceTests
         _userRepository.Verify(r => r.DeleteUser(transientUser, _token));
         _userRepository.Verify(r => r.DeleteUser(regularUser, _token), Times.Never);
     }
+
+    [Test]
+    public async Task DeleteExpiredSessions_WhenExceptionThrownWhenOrphanedUserIsDeleted_DoesNotThrow()
+    {
+        var transientUser = new User
+        {
+            Transient = true,
+        };
+        _users = [transientUser];
+        _userRepository
+            .Setup(r => r.DeleteUser(transientUser, _token))
+            .ThrowsAsync(new InvalidOperationException("error"));
+
+        await Assert.ThatAsync(() => _service.DeleteExpiredSessions(_token), Throws.Nothing);
+
+        _userRepository.Verify(r => r.DeleteUser(transientUser, _token));
+    }
 }
