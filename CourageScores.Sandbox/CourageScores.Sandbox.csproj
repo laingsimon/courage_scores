@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <!-- This should match - exactly - what is in CourageScores.csproj -->
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
         <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
