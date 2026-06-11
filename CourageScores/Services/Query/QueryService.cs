@@ -1,4 +1,5 @@
-﻿using CourageScores.Common;
+﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Common;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Query;
 using CourageScores.Services.Data;
@@ -123,12 +124,14 @@ public class QueryService : IQueryService
         }
     }
 
+    [ExcludeFromCodeCoverage]
     private class ErrorResponse
     {
         [JsonProperty("errors")]
         public required ErrorDetail[] Errors { get; set; }
     }
 
+    [ExcludeFromCodeCoverage]
     private class ErrorDetail
     {
         [JsonProperty("severity")]

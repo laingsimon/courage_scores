@@ -1,8 +1,10 @@
-﻿using CourageScores.Models.Dtos.Analysis;
+﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos.Analysis;
 using CourageScores.Models.Dtos.Game.Sayg;
 
 namespace CourageScores.Services.Analysis;
 
+[ExcludeFromCodeCoverage]
 public abstract class AllThrowsSaygVisitor : ISaygVisitor
 {
     private readonly string _breakdownName;
