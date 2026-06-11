@@ -1,4 +1,6 @@
-﻿import { act, fireEvent } from '@testing-library/react';
+﻿/* istanbul ignore file */
+
+import { act, fireEvent } from '@testing-library/react';
 import { userEvent, UserEvent } from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import {
@@ -31,8 +33,6 @@ import { IDependencies } from '../components/common/IDependencies.ts';
 import { IClientActionResultDto } from '../components/common/IClientActionResultDto.ts';
 import { AccessDto } from '../interfaces/models/dtos/Identity/AccessDto.ts';
 import { UserDto } from '../interfaces/models/dtos/Identity/UserDto.ts';
-
-/* istanbul ignore file */
 
 export interface TestContext extends IComponent {
     cleanUp(): UntypedPromise;
