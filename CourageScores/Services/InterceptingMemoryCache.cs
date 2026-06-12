@@ -1,8 +1,10 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace CourageScores.Services;
 
+[ExcludeFromCodeCoverage]
 public class InterceptingMemoryCache : ICache
 {
     private readonly IMemoryCache _cache;
