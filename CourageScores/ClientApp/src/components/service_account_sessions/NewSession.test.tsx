@@ -255,6 +255,55 @@ describe('NewSession', () => {
             ).toEqual('http://localhost/');
         });
 
+        it('does not redirect after activation if redirect url is /', async () => {
+            const createdSession = session({
+                approvedBy: 'admin@example.com',
+            });
+            createResponse = {
+                success: true,
+                result: createdSession,
+            };
+            activateResponse = {
+                success: true,
+            };
+            await renderComponent('/new_session/Board%201/?redirectUrl=/');
+
+            await context.button('Create session').click();
+
+            reportedError.verifyNoError();
+            expect(activateSessionId).toEqual(createdSession.id);
+            expect(activateRequest?.pin).toMatch(/^[a-z0-9]{4}$/);
+            expect(allDataReloaded).toEqual(true);
+            expect(context.required('h3').text()).toEqual('Session approved');
+            expect(
+                context.required('a.btn').element<HTMLAnchorElement>().href,
+            ).toEqual('http://localhost/');
+        });
+
+        it('redirects after activation when redirect url present', async () => {
+            const createdSession = session({
+                approvedBy: 'admin@example.com',
+            });
+            createResponse = {
+                success: true,
+                result: createdSession,
+            };
+            activateResponse = {
+                success: true,
+            };
+            await renderComponent(
+                '/new_session/Board%201/?redirectUrl=/somewhere',
+            );
+
+            await context.button('Create session').click();
+
+            reportedError.verifyNoError();
+            expect(activateSessionId).toEqual(createdSession.id);
+            expect(activateRequest?.pin).toMatch(/^[a-z0-9]{4}$/);
+            expect(allDataReloaded).toEqual(true);
+            expect(mockedUsedNavigate).toHaveBeenCalledWith('/somewhere');
+        });
+
         it('shows errors when activation fails', async () => {
             const createdSession = session({
                 approvedBy: 'admin@example.com',

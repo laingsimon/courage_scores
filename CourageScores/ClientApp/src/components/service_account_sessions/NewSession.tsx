@@ -1,5 +1,5 @@
 ﻿import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router';
+import { useParams, useNavigate, useLocation } from 'react-router';
 import { useDependencies } from '../common/IocContainer.tsx';
 import { createTemporaryId } from '../../helpers/projection.ts';
 import { CreateSessionRequestDto } from '../../interfaces/models/dtos/Identity/CreateSessionRequestDto';
@@ -25,6 +25,7 @@ export function NewSession() {
     const [activated, setActivated] = useState<boolean>(false);
     const { serviceAccountSessionApi } = useDependencies();
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
         if (session?.success) {
@@ -41,6 +42,12 @@ export function NewSession() {
             };
         }
     }, [session]);
+
+    function getRedirectUrl() {
+        const search = new URLSearchParams(location.search);
+        const url = search.get('redirectUrl') || '/';
+        return url === '/' ? undefined : url;
+    }
 
     async function activateSession() {
         /* istanbul ignore next */
@@ -62,7 +69,11 @@ export function NewSession() {
 
             if (response.success) {
                 await reloadAll();
+                const redirectUrl = getRedirectUrl();
                 setActivated(true);
+                if (redirectUrl) {
+                    navigate(redirectUrl);
+                }
                 return;
             }
 
@@ -200,7 +211,7 @@ export function NewSession() {
     }
 
     function renderWaitingForApproval() {
-        const addressForApprovals = `https://${location.host}/accept_session/${session!.result!.id}`;
+        const addressForApprovals = `https://${document.location.host}/accept_session/${session!.result!.id}`;
 
         return (
             <div className="position-relative">
