@@ -205,11 +205,11 @@ export function SessionResponse() {
                         device.
                     </p>
                     <div className="d-flex flex-row align-items-center input-group">
-                        <div className="input-group-prepend">
-                            <label className="input-group-text" htmlFor="pin">
-                                Pin
-                            </label>
-                        </div>
+                        <label
+                            className="d-inline-block min-width-75"
+                            htmlFor="pin">
+                            Pin
+                        </label>
                         <div className="flex-grow-0">
                             <input
                                 id="pin"
@@ -217,10 +217,14 @@ export function SessionResponse() {
                                 maxLength={4}
                                 placeholder="Under QR code"
                                 onChange={stateChanged(updatePin)}
-                                className="form-control width-75"
+                                className="form-control width-100"
                             />
                         </div>
-                        <span className="mx-2">Access</span>
+                    </div>
+                    <div className="d-flex flex-row align-items-center">
+                        <span className="d-inline-block min-width-75">
+                            Access
+                        </span>
                         <div className="flex-grow-1">
                             <BootstrapDropdown
                                 value={accessTemplateId}
