@@ -125,7 +125,7 @@ export function NewSession() {
 
     function createPin() {
         const fullPin = createTemporaryId();
-        return fullPin.substring(0, 4);
+        return fullPin.substring(0, 4).toUpperCase();
     }
 
     async function createSession() {

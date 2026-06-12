@@ -72,6 +72,10 @@ export function SessionResponse() {
         loadSession();
     }, []);
 
+    function updatePin(value: string) {
+        setPin(value.toUpperCase());
+    }
+
     async function loadSession() {
         /* istanbul ignore next */
         if (loading) {
@@ -210,7 +214,7 @@ export function SessionResponse() {
                             id="pin"
                             value={pin}
                             placeholder="Under QR code"
-                            onChange={stateChanged(setPin)}
+                            onChange={stateChanged(updatePin)}
                             className="form-control"
                         />
                         <label className="mx-2">Access</label>
