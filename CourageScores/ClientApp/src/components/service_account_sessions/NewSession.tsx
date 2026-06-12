@@ -15,7 +15,7 @@ import { usePreferences } from '../common/PreferencesContainer.tsx';
 
 export function NewSession() {
     const { friendlyName } = useParams();
-    const { onError, reloadAll } = useApp();
+    const { onError, reloadAll, appLoading, account } = useApp();
     const { getPreference, upsertPreference } = usePreferences();
     const [pin] = useState<string>(createPin());
     const [session, setSession] = useState<
@@ -47,6 +47,12 @@ export function NewSession() {
     }, [session]);
 
     useEffect(() => {
+        if (!appLoading && account) {
+            // logged in, redirect
+            navigate('/login');
+            return;
+        }
+
         if (cookieSessionName && !friendlyName) {
             setFriendlyName(cookieSessionName);
         }

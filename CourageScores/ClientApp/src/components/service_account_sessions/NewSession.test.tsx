@@ -8,6 +8,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests.tsx';
 import { createTemporaryId } from '../../helpers/projection.ts';
 import { NewSession } from './NewSession.tsx';
@@ -17,6 +18,7 @@ import { ServiceAccountSessionDto } from '../../interfaces/models/dtos/Identity/
 import { CreateSessionRequestDto } from '../../interfaces/models/dtos/Identity/CreateSessionRequestDto.ts';
 import { ActivateSessionRequestDto } from '../../interfaces/models/dtos/Identity/ActivateSessionRequestDto.ts';
 import { IAppContainerProps } from '../common/AppContainer.tsx';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -101,11 +103,14 @@ describe('NewSession', () => {
         );
     }
 
-    async function renderComponent(currentPath: string = '/new_session') {
+    async function renderComponent(
+        currentPath: string = '/new_session',
+        account?: UserDto,
+    ) {
         context = await renderApp(
             iocProps({ serviceAccountSessionApi }),
             brandingProps(),
-            appProps(),
+            appProps({ account }),
             <NewSession />,
             '/new_session/:friendlyName?',
             currentPath,
@@ -127,6 +132,14 @@ describe('NewSession', () => {
     }
 
     describe('create session', () => {
+        it('redirects to login if logged in', async () => {
+            const account = user({});
+
+            await renderComponent('/new_session/Board%201', account);
+
+            expect(mockedUsedNavigate).toHaveBeenCalledWith('/login');
+        });
+
         it('renders create session form', async () => {
             await renderComponent('/new_session/Board%201');
 
