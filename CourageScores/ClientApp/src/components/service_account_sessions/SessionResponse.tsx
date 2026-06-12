@@ -13,6 +13,8 @@ import { ApproveServiceAccountSessionDto } from '../../interfaces/models/dtos/Id
 import { RejectServiceAccountSessionDto } from '../../interfaces/models/dtos/Identity/RejectServiceAccountSessionDto';
 import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
 import { isEmpty } from '../../helpers/collections.ts';
+import { useApp } from '../common/AppContainer.tsx';
+import { Loading } from '../common/Loading.tsx';
 
 interface AccessTemplate {
     name: string;
@@ -50,7 +52,8 @@ type Mode = 'approve' | 'reject';
 
 export function SessionResponse() {
     const { id } = useParams();
-    const { serviceAccountSessionApi } = useDependencies();
+    const { account, appLoading } = useApp();
+    const { settings, serviceAccountSessionApi } = useDependencies();
     const [pin, setPin] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [message, setMessage] = useState<string>('');
@@ -266,6 +269,35 @@ export function SessionResponse() {
                     </button>
                 </div>
             </>
+        );
+    }
+
+    function getLoginUrl() {
+        return `${settings.apiHost}/api/Account/Login/?redirectUrl=${getRedirectUrl()}`;
+    }
+
+    function getRedirectUrl() {
+        const currentLink: string = location.pathname + location.search;
+
+        return encodeURIComponent(currentLink);
+    }
+
+    if (appLoading) {
+        return <Loading />;
+    }
+
+    if (account?.access?.loginServiceAccounts !== true) {
+        return (
+            <div className="content-background p-3">
+                <h3>Service account session</h3>
+                {account ? (
+                    <p>Not permitted</p>
+                ) : (
+                    <a className="btn btn-primary" href={getLoginUrl()}>
+                        Login
+                    </a>
+                )}
+            </div>
         );
     }
 
