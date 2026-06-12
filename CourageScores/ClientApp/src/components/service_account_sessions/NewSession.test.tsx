@@ -195,11 +195,6 @@ describe('NewSession', () => {
                 `IP address: ${createdSession.myIpAddress}`,
             );
             expect(
-                context
-                    .required('a[target="_blank"]')
-                    .element<HTMLAnchorElement>().href,
-            ).toEqual(`https://localhost/accept_session/${createdSession.id}`);
-            expect(
                 context.required('[data-testid="session-pin"]').text(),
             ).toMatch(/^PIN: [A-Z0-9]{4}$/);
         });

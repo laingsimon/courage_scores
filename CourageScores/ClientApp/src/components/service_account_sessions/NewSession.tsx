@@ -245,12 +245,6 @@ export function NewSession() {
                         PIN: {pin}
                     </pre>
                     <pre>IP address: {session!.result!.myIpAddress}</pre>
-                    <a
-                        href={addressForApprovals}
-                        rel="noopener noreferrer"
-                        target="_blank">
-                        Open approval link in new tab
-                    </a>
                 </div>
                 <div className="position-absolute top-0 right-0">
                     {refreshing || activating ? <LoadingSpinnerSmall /> : null}
