@@ -241,9 +241,14 @@ export function NewSession() {
                 <div className="d-flex flex-column align-items-center">
                     <h6>{friendlyName}</h6>
                     <QRCodeSVG value={addressForApprovals} size={150} />
-                    <pre className="fs-3" data-testid="session-pin">
-                        PIN: {pin}
-                    </pre>
+                    <p className="fs-4 mt-3">
+                        PIN:
+                        <span
+                            className="ms-3 fs-2 letter-spacing-3 text-danger font-monospace"
+                            data-testid="session-pin">
+                            {pin}
+                        </span>
+                    </p>
                     <pre>IP address: {session!.result!.myIpAddress}</pre>
                 </div>
                 <div className="position-absolute top-0 right-0">
