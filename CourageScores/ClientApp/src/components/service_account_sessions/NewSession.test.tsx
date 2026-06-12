@@ -144,6 +144,9 @@ describe('NewSession', () => {
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
                 '/new_session/Board 2/',
+                {
+                    replace: true,
+                },
             );
         });
 

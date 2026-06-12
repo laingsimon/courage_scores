@@ -114,7 +114,13 @@ export function NewSession() {
     }
 
     function setFriendlyName(name: string) {
-        navigate(`/new_session/${name}/`);
+        const redirectUrl = getRedirectUrl();
+        navigate(
+            `/new_session/${name}/${redirectUrl ? `?redirectUrl=${redirectUrl}` : ''}`,
+            {
+                replace: true,
+            },
+        );
     }
 
     function createPin() {
