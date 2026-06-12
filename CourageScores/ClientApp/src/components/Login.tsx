@@ -3,11 +3,12 @@ import { ConfiguredFeatureDto } from '../interfaces/models/dtos/ConfiguredFeatur
 import { useDependencies } from './common/IocContainer.tsx';
 import { useApp } from './common/AppContainer.tsx';
 import { Loading } from './common/Loading.tsx';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 
 export function Login() {
     const { account, appLoading } = useApp();
     const { featureApi, settings } = useDependencies();
+    const location = useLocation();
     const serviceAccountSessionFeatureId =
         '1f866fa2-8b9a-4345-a191-d7aaeccd8d72';
     // check to see if the feature is enabled
@@ -33,10 +34,13 @@ export function Login() {
     );
 
     function getAccountUrl(action: string) {
+        return `${settings.apiHost}/api/Account/${action}/${getRedirectUrl()}`;
+    }
+
+    function getRedirectUrl() {
         const search = new URLSearchParams(location.search);
         const redirectUrl = search.get('redirectUrl') || '/';
-
-        return `${settings.apiHost}/api/Account/${action}/?redirectUrl=${encodeURIComponent(redirectUrl)}`;
+        return `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
     }
 
     if (appLoading) {
@@ -89,7 +93,7 @@ export function Login() {
                 </a>
                 {serviceAccountSessionsAllowed ? (
                     <Link
-                        to="/new_session"
+                        to={`/new_session/${getRedirectUrl()}`}
                         className="btn btn-outline-secondary py-2">
                         📺 New service account session
                     </Link>
