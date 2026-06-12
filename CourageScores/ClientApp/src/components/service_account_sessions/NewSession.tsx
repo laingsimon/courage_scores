@@ -11,10 +11,12 @@ import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
 import { isEmpty } from '../../helpers/collections.ts';
 import { QRCodeSVG } from 'qrcode.react';
 import { ActivateSessionRequestDto } from '../../interfaces/models/dtos/Identity/ActivateSessionRequestDto';
+import { usePreferences } from '../common/PreferencesContainer.tsx';
 
 export function NewSession() {
     const { friendlyName } = useParams();
     const { onError, reloadAll } = useApp();
+    const { getPreference, upsertPreference } = usePreferences();
     const [pin] = useState<string>(createPin());
     const [session, setSession] = useState<
         IClientActionResultDto<ServiceAccountSessionDto> | undefined
@@ -26,6 +28,7 @@ export function NewSession() {
     const { serviceAccountSessionApi } = useDependencies();
     const navigate = useNavigate();
     const location = useLocation();
+    const cookieSessionName = getPreference<string>('session-name');
 
     useEffect(() => {
         if (session?.success) {
@@ -42,6 +45,12 @@ export function NewSession() {
             };
         }
     }, [session]);
+
+    useEffect(() => {
+        if (cookieSessionName && !friendlyName) {
+            setFriendlyName(cookieSessionName);
+        }
+    }, []);
 
     function getRedirectUrl() {
         const search = new URLSearchParams(location.search);
@@ -136,6 +145,7 @@ export function NewSession() {
         }
 
         setCreating(true);
+        upsertPreference('session-name', friendlyName);
 
         try {
             const request: CreateSessionRequestDto = {
