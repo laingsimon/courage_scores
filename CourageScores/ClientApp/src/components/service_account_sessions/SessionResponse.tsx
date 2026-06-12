@@ -210,19 +210,26 @@ export function SessionResponse() {
                                 Pin
                             </label>
                         </div>
-                        <input
-                            id="pin"
-                            value={pin}
-                            placeholder="Under QR code"
-                            onChange={stateChanged(updatePin)}
-                            className="form-control"
-                        />
-                        <label className="mx-2">Access</label>
-                        <BootstrapDropdown
-                            value={accessTemplateId}
-                            onChange={async (opt) => setAccessTemplateId(opt!)}
-                            options={accessTemplateOptions}
-                        />
+                        <div className="flex-grow-0">
+                            <input
+                                id="pin"
+                                value={pin}
+                                maxLength={4}
+                                placeholder="Under QR code"
+                                onChange={stateChanged(updatePin)}
+                                className="form-control width-75"
+                            />
+                        </div>
+                        <span className="mx-2">Access</span>
+                        <div className="flex-grow-1">
+                            <BootstrapDropdown
+                                value={accessTemplateId}
+                                onChange={async (opt) =>
+                                    setAccessTemplateId(opt!)
+                                }
+                                options={accessTemplateOptions}
+                            />
+                        </div>
                     </div>
                 </div>
                 <div className="d-flex justify-content-end gap-1 mt-2">
