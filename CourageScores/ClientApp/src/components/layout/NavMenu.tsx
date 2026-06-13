@@ -128,7 +128,7 @@ export function NavMenu() {
         }
 
         const season: SeasonDto = currentSeasons[0];
-        return `/fixtures/${season.name}/?division=${division.name}&date=future`;
+        return `/fixtures/${season.name}/?division=${division.name}`;
     }
 
     if (navMenuError) {
