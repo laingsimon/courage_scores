@@ -13,6 +13,8 @@ import { ApproveServiceAccountSessionDto } from '../../interfaces/models/dtos/Id
 import { RejectServiceAccountSessionDto } from '../../interfaces/models/dtos/Identity/RejectServiceAccountSessionDto';
 import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
 import { isEmpty } from '../../helpers/collections.ts';
+import { useApp } from '../common/AppContainer.tsx';
+import { Loading } from '../common/Loading.tsx';
 
 interface AccessTemplate {
     name: string;
@@ -50,7 +52,8 @@ type Mode = 'approve' | 'reject';
 
 export function SessionResponse() {
     const { id } = useParams();
-    const { serviceAccountSessionApi } = useDependencies();
+    const { account, appLoading } = useApp();
+    const { settings, serviceAccountSessionApi } = useDependencies();
     const [pin, setPin] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [message, setMessage] = useState<string>('');
@@ -68,6 +71,10 @@ export function SessionResponse() {
         // noinspection JSIgnoredPromiseFromCall
         loadSession();
     }, []);
+
+    function updatePin(value: string) {
+        setPin(value.toUpperCase());
+    }
 
     async function loadSession() {
         /* istanbul ignore next */
@@ -198,24 +205,35 @@ export function SessionResponse() {
                         device.
                     </p>
                     <div className="d-flex flex-row align-items-center input-group">
-                        <div className="input-group-prepend">
-                            <label className="input-group-text" htmlFor="pin">
-                                Pin
-                            </label>
+                        <label
+                            className="d-inline-block min-width-75"
+                            htmlFor="pin">
+                            Pin
+                        </label>
+                        <div className="flex-grow-0">
+                            <input
+                                id="pin"
+                                value={pin}
+                                maxLength={4}
+                                placeholder="Under QR code"
+                                onChange={stateChanged(updatePin)}
+                                className="form-control width-100"
+                            />
                         </div>
-                        <input
-                            id="pin"
-                            value={pin}
-                            placeholder="Under QR code"
-                            onChange={stateChanged(setPin)}
-                            className="form-control"
-                        />
-                        <label className="mx-2">Access</label>
-                        <BootstrapDropdown
-                            value={accessTemplateId}
-                            onChange={async (opt) => setAccessTemplateId(opt!)}
-                            options={accessTemplateOptions}
-                        />
+                    </div>
+                    <div className="d-flex flex-row align-items-center">
+                        <span className="d-inline-block min-width-75">
+                            Access
+                        </span>
+                        <div className="flex-grow-1">
+                            <BootstrapDropdown
+                                value={accessTemplateId}
+                                onChange={async (opt) =>
+                                    setAccessTemplateId(opt!)
+                                }
+                                options={accessTemplateOptions}
+                            />
+                        </div>
                     </div>
                 </div>
                 <div className="d-flex justify-content-end gap-1 mt-2">
@@ -266,6 +284,35 @@ export function SessionResponse() {
                     </button>
                 </div>
             </>
+        );
+    }
+
+    function getLoginUrl() {
+        return `${settings.apiHost}/api/Account/Login/?redirectUrl=${getRedirectUrl()}`;
+    }
+
+    function getRedirectUrl() {
+        const currentLink: string = location.pathname + location.search;
+
+        return encodeURIComponent(currentLink);
+    }
+
+    if (appLoading) {
+        return <Loading />;
+    }
+
+    if (account?.access?.loginServiceAccounts !== true) {
+        return (
+            <div className="content-background p-3">
+                <h3>Service account session</h3>
+                {account ? (
+                    <p>Not permitted</p>
+                ) : (
+                    <a className="btn btn-primary" href={getLoginUrl()}>
+                        Login
+                    </a>
+                )}
+            </div>
         );
     }
 

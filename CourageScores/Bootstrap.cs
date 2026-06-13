@@ -11,6 +11,8 @@ namespace CourageScores;
 [ExcludeFromCodeCoverage]
 public class Bootstrap
 {
+    public const string LocalhostAddress = "https://localhost:44426";
+
     private readonly Action<WebApplicationBuilder> _customiseBuilder;
 
     public Bootstrap(Action<WebApplicationBuilder>? customiseBuilder = null)
@@ -82,7 +84,7 @@ public class Bootstrap
 
         app.UseCors(cors =>
         {
-            cors.WithOrigins("https://localhost:44426");
+            cors.WithOrigins(LocalhostAddress);
             cors.AllowAnyMethod();
             cors.AllowAnyHeader();
             cors.AllowCredentials();

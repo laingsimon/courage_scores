@@ -31,12 +31,17 @@ describe('Login', () => {
         features = [];
     });
 
-    async function renderComponent(appProps: IAppContainerProps) {
+    async function renderComponent(
+        appProps: IAppContainerProps,
+        path?: string,
+    ) {
         context = await renderApp(
             iocProps({ featureApi }),
             brandingProps(),
             appProps,
             <Login />,
+            '/login',
+            path ?? '/login',
         );
     }
 
@@ -108,7 +113,37 @@ describe('Login', () => {
                 '📺 New service account session',
             );
             expect(serviceAccount.element<HTMLAnchorElement>().href).toEqual(
-                'http://localhost/new_session',
+                'http://localhost/new_session/?redirectUrl=%2F',
+            );
+        });
+
+        it('when no service-account feature enabled - redirects google and service-account after login', async () => {
+            features = [
+                {
+                    id: '1f866fa2-8b9a-4345-a191-d7aaeccd8d72',
+                    configuredValue: 'true',
+                    description: 'service-accounts',
+                    name: 'service-accounts',
+                },
+            ];
+
+            await renderComponent(appProps(), '/Login/?redirectUrl=somewhere');
+
+            expect(context.text()).not.toContain('You are logged in');
+            const google = context.required(
+                'a[data-testid="login-with-google"]',
+            );
+            expect(google.text()).toContain('Google');
+            expect(google.element<HTMLAnchorElement>().href).toContain(
+                '/api/Account/Login/?redirectUrl=somewhere',
+            );
+
+            const serviceAccount = context.required('a:nth-child(2)');
+            expect(serviceAccount.text()).toContain(
+                '📺 New service account session',
+            );
+            expect(serviceAccount.element<HTMLAnchorElement>().href).toEqual(
+                'http://localhost/new_session/?redirectUrl=somewhere',
             );
         });
     });

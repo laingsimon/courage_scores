@@ -27,6 +27,9 @@ public class AccountController : Controller
     [HttpGet("/api/Account/Login")]
     public IActionResult Login(string redirectUrl = "/")
     {
+#if DEBUG
+        redirectUrl = $"{Bootstrap.LocalhostAddress}{redirectUrl}";
+#endif
         var properties = new AuthenticationProperties
         {
             RedirectUri = redirectUrl,
@@ -38,6 +41,9 @@ public class AccountController : Controller
     [HttpGet("/api/Account/Logout")]
     public async Task<RedirectResult> Logout(CancellationToken token, string redirectUrl = "/")
     {
+#if DEBUG
+        redirectUrl = $"{Bootstrap.LocalhostAddress}{redirectUrl}";
+#endif
         var wasSignedOut = await _serviceAccountSessionService.SignOutAsync(token);
         if (!wasSignedOut)
         {
