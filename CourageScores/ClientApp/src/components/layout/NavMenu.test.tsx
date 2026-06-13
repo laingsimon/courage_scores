@@ -159,7 +159,7 @@ describe('NavMenu', () => {
             ).toEqual([
                 'https://localhost/BEFORE1',
                 'https://localhost/BEFORE2',
-                `http://localhost/fixtures/${currentSeason.name}/?division=${division.name}`,
+                `http://localhost/fixtures/${currentSeason.name}/?division=${division.name}&date=future`,
                 'https://localhost/AFTER1',
                 'https://localhost/AFTER2',
                 `http://localhost/login/?redirectUrl=${encodeURIComponent('/practice?q=value')}`,
