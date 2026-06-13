@@ -40,6 +40,7 @@ const accessTemplates: AccessTemplate[] = [
         access: {
             showDebugOptions: true,
             useWebSockets: true,
+            kioskMode: true,
         },
     },
 ];
