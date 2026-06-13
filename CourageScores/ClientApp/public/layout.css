@@ -346,7 +346,7 @@ body .width-50 {
     width: 50px;
 }
 
-.width-75 {
+body .width-75 {
     width: 75px;
 }
 
@@ -498,4 +498,8 @@ body .width-50 {
     animation-name: animate-up-keyframes;
     animation-duration: 2s;
     animation-iteration-count: 1;
+}
+
+.letter-spacing-3 {
+    letter-spacing: 10px;
 }

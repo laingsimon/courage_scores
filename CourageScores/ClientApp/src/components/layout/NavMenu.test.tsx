@@ -165,7 +165,7 @@ describe('NavMenu', () => {
                     division.name,
                 'https://localhost/AFTER1',
                 'https://localhost/AFTER2',
-                `http://localhost/login/?redirectUrl=${encodeURIComponent('https://localhost/practice?q=value')}`,
+                `http://localhost/login/?redirectUrl=${encodeURIComponent('/practice?q=value')}`,
             ]);
         });
 
@@ -225,7 +225,7 @@ describe('NavMenu', () => {
 
             const link = loginItem.required('a');
             expect(link.element<HTMLAnchorElement>().href).toEqual(
-                `http://localhost/login/?redirectUrl=${encodeURIComponent('https://localhost/practice?q=value')}`,
+                `http://localhost/login/?redirectUrl=${encodeURIComponent('/practice?q=value')}`,
             );
         });
 
@@ -545,7 +545,7 @@ describe('NavMenu', () => {
             const logoutItem = items[items.length - 1];
             const link = logoutItem.required('a');
             expect(link.element<HTMLAnchorElement>().href).toEqual(
-                `https://localhost/api/Account/Logout/?redirectUrl=${encodeURIComponent('https://localhost/practice?q=value')}`,
+                `https://localhost/api/Account/Logout/?redirectUrl=${encodeURIComponent('/practice?q=value')}`,
             );
         });
     });

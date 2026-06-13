@@ -8,6 +8,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests.tsx';
 import { createTemporaryId } from '../../helpers/projection.ts';
 import { SessionResponse } from './SessionResponse.tsx';
@@ -16,8 +17,10 @@ import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
 import { ServiceAccountSessionDto } from '../../interfaces/models/dtos/Identity/ServiceAccountSessionDto.ts';
 import { ApproveServiceAccountSessionDto } from '../../interfaces/models/dtos/Identity/ApproveServiceAccountSessionDto.ts';
 import { RejectServiceAccountSessionDto } from '../../interfaces/models/dtos/Identity/RejectServiceAccountSessionDto.ts';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
 
 describe('SessionResponse', () => {
+    const permitted = user({ loginServiceAccounts: true });
     let context: TestContext;
     let reportedError: ErrorState;
     let sessionId: string;
@@ -78,11 +81,11 @@ describe('SessionResponse', () => {
         rejectResponse = null;
     });
 
-    async function renderComponent() {
+    async function renderComponent(user?: UserDto) {
         context = await renderApp(
             iocProps({ serviceAccountSessionApi }),
             brandingProps(),
-            appProps({}, reportedError),
+            appProps({ account: user }, reportedError),
             <SessionResponse />,
             '/accept_session/:id',
             `/accept_session/${sessionId}`,
@@ -111,6 +114,16 @@ describe('SessionResponse', () => {
             currentSession = session({ friendlyName: 'TV 1' });
             await renderComponent();
 
+            expect(context.required('h3').text()).toEqual(
+                'Service account session',
+            );
+            expect(context.text()).toContain('Login');
+        });
+
+        it('renders session details', async () => {
+            currentSession = session({ friendlyName: 'TV 1' });
+            await renderComponent(permitted);
+
             reportedError.verifyNoError();
             expect(getSessionId).toEqual(sessionId);
             expect(context.required('h3').text()).toEqual(
@@ -126,7 +139,7 @@ describe('SessionResponse', () => {
     describe('ip address', () => {
         it('shows matching ip address', async () => {
             currentSession = session();
-            await renderComponent();
+            await renderComponent(permitted);
 
             reportedError.verifyNoError();
             expect(context.text()).toContain('Ip address: 127.0.0.1✅');
@@ -135,7 +148,7 @@ describe('SessionResponse', () => {
 
         it('disables approve when ip address differs', async () => {
             currentSession = session({ myIpAddress: '192.168.0.10' });
-            await renderComponent();
+            await renderComponent(permitted);
 
             reportedError.verifyNoError();
             expect(context.text()).toContain('❌ - your ip = 192.168.0.10');
@@ -147,7 +160,7 @@ describe('SessionResponse', () => {
     describe('already responded', () => {
         it('shows approved by', async () => {
             currentSession = session({ approvedBy: 'admin@example.com' });
-            await renderComponent();
+            await renderComponent(permitted);
 
             reportedError.verifyNoError();
             expect(context.text()).toContain('Approved by admin@example.com');
@@ -156,7 +169,7 @@ describe('SessionResponse', () => {
 
         it('shows rejected by', async () => {
             currentSession = session({ rejectedBy: 'admin@example.com' });
-            await renderComponent();
+            await renderComponent(permitted);
 
             reportedError.verifyNoError();
             expect(context.text()).toContain('Rejected by admin@example.com');
@@ -170,7 +183,7 @@ describe('SessionResponse', () => {
         });
 
         it('shows approve form', async () => {
-            await renderComponent();
+            await renderComponent(permitted);
 
             await context.button('Approve...').click();
 
@@ -181,7 +194,7 @@ describe('SessionResponse', () => {
         });
 
         it('returns to selection from approve form', async () => {
-            await renderComponent();
+            await renderComponent(permitted);
 
             await context.button('Approve...').click();
             await context.button('← Back').click();
@@ -192,7 +205,7 @@ describe('SessionResponse', () => {
         });
 
         it('alerts when access template not selected', async () => {
-            await renderComponent();
+            await renderComponent(permitted);
 
             await context.button('Approve...').click();
             await context.required('#pin').change('1234');
@@ -211,7 +224,7 @@ describe('SessionResponse', () => {
                 success: true,
                 result: approvedSession,
             };
-            await renderComponent();
+            await renderComponent(permitted);
 
             await context.button('Approve...').click();
             await context.required('#pin').change('1234');
@@ -242,7 +255,7 @@ describe('SessionResponse', () => {
                 warnings: ['Approve warning'],
                 messages: ['Approve message'],
             };
-            await renderComponent();
+            await renderComponent(permitted);
 
             await context.button('Approve...').click();
             await context.required('#pin').change('1234');
@@ -267,7 +280,7 @@ describe('SessionResponse', () => {
         });
 
         it('shows reject form', async () => {
-            await renderComponent();
+            await renderComponent(permitted);
 
             await context.button('Reject...').click();
 
@@ -278,7 +291,7 @@ describe('SessionResponse', () => {
         });
 
         it('returns to selection from reject form', async () => {
-            await renderComponent();
+            await renderComponent(permitted);
 
             await context.button('Reject...').click();
             await context.button('← Back').click();
@@ -289,7 +302,7 @@ describe('SessionResponse', () => {
         });
 
         it('alerts when rejection reason not entered', async () => {
-            await renderComponent();
+            await renderComponent(permitted);
 
             await context.button('Reject...').click();
             await context.button('Reject').click();
@@ -307,7 +320,7 @@ describe('SessionResponse', () => {
                 success: true,
                 result: rejectedSession,
             };
-            await renderComponent();
+            await renderComponent(permitted);
 
             await context.button('Reject...').click();
             await context.input('message').change('Not recognised');
@@ -326,7 +339,7 @@ describe('SessionResponse', () => {
                 warnings: ['Reject warning'],
                 messages: ['Reject message'],
             };
-            await renderComponent();
+            await renderComponent(permitted);
 
             await context.button('Reject...').click();
             await context.input('message').change('Not recognised');

@@ -1,5 +1,5 @@
 ﻿import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router';
+import { useParams, useNavigate, useLocation } from 'react-router';
 import { useDependencies } from '../common/IocContainer.tsx';
 import { createTemporaryId } from '../../helpers/projection.ts';
 import { CreateSessionRequestDto } from '../../interfaces/models/dtos/Identity/CreateSessionRequestDto';
@@ -11,10 +11,12 @@ import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
 import { isEmpty } from '../../helpers/collections.ts';
 import { QRCodeSVG } from 'qrcode.react';
 import { ActivateSessionRequestDto } from '../../interfaces/models/dtos/Identity/ActivateSessionRequestDto';
+import { usePreferences } from '../common/PreferencesContainer.tsx';
 
 export function NewSession() {
     const { friendlyName } = useParams();
-    const { onError, reloadAll } = useApp();
+    const { onError, reloadAll, appLoading, account } = useApp();
+    const { getPreference, upsertPreference } = usePreferences();
     const [pin] = useState<string>(createPin());
     const [session, setSession] = useState<
         IClientActionResultDto<ServiceAccountSessionDto> | undefined
@@ -25,6 +27,8 @@ export function NewSession() {
     const [activated, setActivated] = useState<boolean>(false);
     const { serviceAccountSessionApi } = useDependencies();
     const navigate = useNavigate();
+    const location = useLocation();
+    const cookieSessionName = getPreference<string>('session-name');
 
     useEffect(() => {
         if (session?.success) {
@@ -41,6 +45,24 @@ export function NewSession() {
             };
         }
     }, [session]);
+
+    useEffect(() => {
+        if (!appLoading && account) {
+            // logged in, redirect
+            navigate('/login');
+            return;
+        }
+
+        if (cookieSessionName && !friendlyName) {
+            setFriendlyName(cookieSessionName);
+        }
+    }, []);
+
+    function getRedirectUrl() {
+        const search = new URLSearchParams(location.search);
+        const url = search.get('redirectUrl') || '/';
+        return url === '/' ? undefined : url;
+    }
 
     async function activateSession() {
         /* istanbul ignore next */
@@ -62,7 +84,11 @@ export function NewSession() {
 
             if (response.success) {
                 await reloadAll();
+                const redirectUrl = getRedirectUrl();
                 setActivated(true);
+                if (redirectUrl) {
+                    navigate(redirectUrl);
+                }
                 return;
             }
 
@@ -103,12 +129,18 @@ export function NewSession() {
     }
 
     function setFriendlyName(name: string) {
-        navigate(`/new_session/${name}/`);
+        const redirectUrl = getRedirectUrl();
+        navigate(
+            `/new_session/${name}/${redirectUrl ? `?redirectUrl=${redirectUrl}` : ''}`,
+            {
+                replace: true,
+            },
+        );
     }
 
     function createPin() {
         const fullPin = createTemporaryId();
-        return fullPin.substring(0, 4);
+        return fullPin.substring(0, 4).toUpperCase();
     }
 
     async function createSession() {
@@ -119,6 +151,7 @@ export function NewSession() {
         }
 
         setCreating(true);
+        upsertPreference('session-name', friendlyName);
 
         try {
             const request: CreateSessionRequestDto = {
@@ -200,7 +233,7 @@ export function NewSession() {
     }
 
     function renderWaitingForApproval() {
-        const addressForApprovals = `https://${location.host}/accept_session/${session!.result!.id}`;
+        const addressForApprovals = `https://${document.location.host}/accept_session/${session!.result!.id}`;
 
         return (
             <div className="position-relative">
@@ -208,16 +241,15 @@ export function NewSession() {
                 <div className="d-flex flex-column align-items-center">
                     <h6>{friendlyName}</h6>
                     <QRCodeSVG value={addressForApprovals} size={150} />
-                    <pre className="fs-3" data-testid="session-pin">
-                        PIN: {pin}
-                    </pre>
+                    <p className="fs-4 mt-3">
+                        PIN:
+                        <span
+                            className="ms-3 fs-2 letter-spacing-3 text-danger font-monospace"
+                            data-testid="session-pin">
+                            {pin}
+                        </span>
+                    </p>
                     <pre>IP address: {session!.result!.myIpAddress}</pre>
-                    <a
-                        href={addressForApprovals}
-                        rel="noopener noreferrer"
-                        target="_blank">
-                        Open approval link in new tab
-                    </a>
                 </div>
                 <div className="position-absolute top-0 right-0">
                     {refreshing || activating ? <LoadingSpinnerSmall /> : null}

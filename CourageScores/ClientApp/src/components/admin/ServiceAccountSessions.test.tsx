@@ -143,9 +143,8 @@ describe('ServiceAccountSessions', () => {
 
             reportedError.verifyNoError();
             const item = sessionItem(rejectedSession.id);
-            expect(item.text()).toContain(
-                '❌ admin@example.com with pin Not recognised',
-            );
+            expect(item.text()).toContain('❌ admin@example.com');
+            expect(item.text()).toContain('Not recognised');
             expect(item.optional('button')).toBeUndefined();
             expect(item.optional('a')).toBeUndefined();
         });
@@ -224,9 +223,8 @@ describe('ServiceAccountSessions', () => {
             await sessionItem(pendingSession.id).button('Reject').click();
 
             reportedError.verifyNoError();
-            expect(context.text()).toContain(
-                '❌ admin@example.com with pin Rejected by admin',
-            );
+            expect(context.text()).toContain('❌ admin@example.com');
+            expect(context.text()).toContain('Rejected by admin');
             expect(
                 sessionItem(pendingSession.id).optional('button'),
             ).toBeUndefined();

@@ -49,11 +49,7 @@ export function NavMenu() {
     }
 
     function getRedirectUrl() {
-        const currentLink: string =
-            'https://' +
-            document.location.host +
-            location.pathname +
-            location.search;
+        const currentLink: string = location.pathname + location.search;
 
         return encodeURIComponent(currentLink);
     }

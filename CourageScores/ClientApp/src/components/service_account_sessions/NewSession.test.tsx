@@ -8,6 +8,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests.tsx';
 import { createTemporaryId } from '../../helpers/projection.ts';
 import { NewSession } from './NewSession.tsx';
@@ -17,6 +18,7 @@ import { ServiceAccountSessionDto } from '../../interfaces/models/dtos/Identity/
 import { CreateSessionRequestDto } from '../../interfaces/models/dtos/Identity/CreateSessionRequestDto.ts';
 import { ActivateSessionRequestDto } from '../../interfaces/models/dtos/Identity/ActivateSessionRequestDto.ts';
 import { IAppContainerProps } from '../common/AppContainer.tsx';
+import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -101,11 +103,14 @@ describe('NewSession', () => {
         );
     }
 
-    async function renderComponent(currentPath: string = '/new_session') {
+    async function renderComponent(
+        currentPath: string = '/new_session',
+        account?: UserDto,
+    ) {
         context = await renderApp(
             iocProps({ serviceAccountSessionApi }),
             brandingProps(),
-            appProps(),
+            appProps({ account }),
             <NewSession />,
             '/new_session/:friendlyName?',
             currentPath,
@@ -127,6 +132,14 @@ describe('NewSession', () => {
     }
 
     describe('create session', () => {
+        it('redirects to login if logged in', async () => {
+            const account = user({});
+
+            await renderComponent('/new_session/Board%201', account);
+
+            expect(mockedUsedNavigate).toHaveBeenCalledWith('/login');
+        });
+
         it('renders create session form', async () => {
             await renderComponent('/new_session/Board%201');
 
@@ -144,6 +157,9 @@ describe('NewSession', () => {
 
             expect(mockedUsedNavigate).toHaveBeenCalledWith(
                 '/new_session/Board 2/',
+                {
+                    replace: true,
+                },
             );
         });
 
@@ -179,13 +195,8 @@ describe('NewSession', () => {
                 `IP address: ${createdSession.myIpAddress}`,
             );
             expect(
-                context
-                    .required('a[target="_blank"]')
-                    .element<HTMLAnchorElement>().href,
-            ).toEqual(`https://localhost/accept_session/${createdSession.id}`);
-            expect(
                 context.required('[data-testid="session-pin"]').text(),
-            ).toMatch(/^PIN: [a-z0-9]{4}$/);
+            ).toMatch(/^[A-Z0-9]{4}$/);
         });
 
         it('shows errors when create fails', async () => {
@@ -247,12 +258,61 @@ describe('NewSession', () => {
 
             reportedError.verifyNoError();
             expect(activateSessionId).toEqual(createdSession.id);
-            expect(activateRequest?.pin).toMatch(/^[a-z0-9]{4}$/);
+            expect(activateRequest?.pin).toMatch(/^[A-Z0-9]{4}$/);
             expect(allDataReloaded).toEqual(true);
             expect(context.required('h3').text()).toEqual('Session approved');
             expect(
                 context.required('a.btn').element<HTMLAnchorElement>().href,
             ).toEqual('http://localhost/');
+        });
+
+        it('does not redirect after activation if redirect url is /', async () => {
+            const createdSession = session({
+                approvedBy: 'admin@example.com',
+            });
+            createResponse = {
+                success: true,
+                result: createdSession,
+            };
+            activateResponse = {
+                success: true,
+            };
+            await renderComponent('/new_session/Board%201/?redirectUrl=/');
+
+            await context.button('Create session').click();
+
+            reportedError.verifyNoError();
+            expect(activateSessionId).toEqual(createdSession.id);
+            expect(activateRequest?.pin).toMatch(/^[A-Z0-9]{4}$/);
+            expect(allDataReloaded).toEqual(true);
+            expect(context.required('h3').text()).toEqual('Session approved');
+            expect(
+                context.required('a.btn').element<HTMLAnchorElement>().href,
+            ).toEqual('http://localhost/');
+        });
+
+        it('redirects after activation when redirect url present', async () => {
+            const createdSession = session({
+                approvedBy: 'admin@example.com',
+            });
+            createResponse = {
+                success: true,
+                result: createdSession,
+            };
+            activateResponse = {
+                success: true,
+            };
+            await renderComponent(
+                '/new_session/Board%201/?redirectUrl=/somewhere',
+            );
+
+            await context.button('Create session').click();
+
+            reportedError.verifyNoError();
+            expect(activateSessionId).toEqual(createdSession.id);
+            expect(activateRequest?.pin).toMatch(/^[A-Z0-9]{4}$/);
+            expect(allDataReloaded).toEqual(true);
+            expect(mockedUsedNavigate).toHaveBeenCalledWith('/somewhere');
         });
 
         it('shows errors when activation fails', async () => {
@@ -308,7 +368,7 @@ describe('NewSession', () => {
 
             reportedError.verifyNoError();
             expect(activateSessionId).toEqual(createdSession.id);
-            expect(activateRequest?.pin).toEqual(pin.replace('PIN: ', ''));
+            expect(activateRequest?.pin).toEqual(pin);
             expect(allDataReloaded).toEqual(true);
             expect(context.required('h3').text()).toEqual('Session approved');
         });

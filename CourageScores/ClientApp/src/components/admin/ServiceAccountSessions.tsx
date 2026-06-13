@@ -80,7 +80,10 @@ export function ServiceAccountSessions() {
                             ) : null}
                             {s.rejectedBy ? (
                                 <span>
-                                    ❌ <strong>{s.rejectedBy}</strong> with pin{' '}
+                                    ❌{' '}
+                                    <strong className="me-1">
+                                        {s.rejectedBy}
+                                    </strong>
                                     {s.message}
                                 </span>
                             ) : null}
