@@ -256,7 +256,7 @@ export function LiveSayg() {
                     className="btn btn-primary position-absolute top-0 left-0 m-2"
                     onClick={() => refresh()}>
                     {any(refreshIds) ? <LoadingSpinnerSmall /> : null}
-                    Refresh
+                    🔄️
                 </button>
             ) : null}
             {type === 'match' && count(ids) === 1 ? renderMatch() : null}
