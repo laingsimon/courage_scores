@@ -648,7 +648,7 @@ describe('LiveSayg', () => {
             tournament.type = 'BOARD UPDATED';
             expect(context.text()).toContain('BOARD 1');
 
-            await context.button('Refresh').click();
+            await context.button('🔄️').click();
 
             expect(context.text()).not.toContain('BOARD 1');
             expect(context.text()).toContain('BOARD UPDATED');

@@ -3,7 +3,7 @@ import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/Tournament
 import { useEffect, useState } from 'react';
 import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto.ts';
 import { LegDto } from '../../interfaces/models/dtos/Game/Sayg/LegDto.ts';
-import { any, isEmpty, reverse, sum } from '../../helpers/collections.ts';
+import { all, any, isEmpty, reverse, sum } from '../../helpers/collections.ts';
 import { useDependencies } from '../common/IocContainer.tsx';
 import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 import { Link } from 'react-router';
@@ -433,7 +433,16 @@ export function LiveSuperleagueTournamentDisplay({
             lastMatch && lastLeg && !hasWinner(lastMatch!) ? lastMatch : null;
         if (!inProgressMatch) {
             // There is no in progress match
-            return true;
+            const matches = tournament?.round?.matches ?? [];
+            const lastMatch = matches[matches.length - 1];
+            const noOfPlayersInLastMatch = lastMatch?.sideA?.players?.length;
+            const noOfPlayersInMatch = match.sideA?.players?.length;
+            const allMatchesComplete = all(matches, hasWinner);
+            return (
+                noOfPlayersInMatch === noOfPlayersInLastMatch ||
+                noOfPlayersInLastMatch === 0 ||
+                allMatchesComplete
+            );
         }
 
         const noOfPlayersForInProgressMatch =
