@@ -18,7 +18,7 @@ public class PhotoRepository : IPhotoRepository
         var photo = await _cosmosRepository.Get(id, token);
         if (photo != null)
         {
-            photo.PhotoBytes = (await _blobStorageRepository.Read(photo.Id.ToString(), token)) ?? Array.Empty<byte>();
+            photo.PhotoBytes = (await _blobStorageRepository.Read("photos", photo.Id.ToString(), token)) ?? Array.Empty<byte>();
         }
 
         return photo;
@@ -29,11 +29,11 @@ public class PhotoRepository : IPhotoRepository
         var photo = await _cosmosRepository.Upsert(item, token);
         if (item.Deleted != null)
         {
-            await _blobStorageRepository.Delete(photo.Id.ToString(), token);
+            await _blobStorageRepository.Delete("photos", photo.Id.ToString(), token);
         }
         else
         {
-            await _blobStorageRepository.Write(photo.Id.ToString(), item.PhotoBytes, token);
+            await _blobStorageRepository.Write("photos", photo.Id.ToString(), item.PhotoBytes, token);
         }
 
         return photo;

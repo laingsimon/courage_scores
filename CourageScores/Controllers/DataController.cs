@@ -46,7 +46,7 @@ public class DataController : Controller
 
     [ExcludeFromTypeScript]
     [HttpPost("/api/Data/Backup")]
-    public async Task<ActionResultDto<ExportDataResultDto>> ExportData(BackupDataRequestDto request, CancellationToken token)
+    public async Task<ActionResultDto<ExportDataResultDto>> BackupData(BackupDataRequestDto request, CancellationToken token)
     {
         return await _dataService.BackupData(request, token);
     }

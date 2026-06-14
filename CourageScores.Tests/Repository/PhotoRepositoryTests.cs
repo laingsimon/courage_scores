@@ -29,7 +29,7 @@ public class PhotoRepositoryTests
 
         _cosmosRepository.Setup(r => r.Get(_photo.Id, _token)).ReturnsAsync(() => _photo);
         _cosmosRepository.Setup(r => r.Upsert(_photo, _token)).ReturnsAsync(() => _photo);
-        _blobStorageRepository.Setup(r => r.Read(_photo.Id.ToString(), _token)).ReturnsAsync(() => _photoBytes);
+        _blobStorageRepository.Setup(r => r.Read("photos", _photo.Id.ToString(), _token)).ReturnsAsync(() => _photoBytes);
     }
 
     [Test]
@@ -68,7 +68,7 @@ public class PhotoRepositoryTests
         var result = await _repository.Upsert(_photo, _token);
 
         _cosmosRepository.Verify(r => r.Upsert(_photo, _token));
-        _blobStorageRepository.Verify(r => r.Delete(_photo.Id.ToString(), _token));
+        _blobStorageRepository.Verify(r => r.Delete("photos", _photo.Id.ToString(), _token));
         Assert.That(result, Is.SameAs(_photo));
     }
 
@@ -81,7 +81,7 @@ public class PhotoRepositoryTests
         var result = await _repository.Upsert(_photo, _token);
 
         _cosmosRepository.Verify(r => r.Upsert(_photo, _token));
-        _blobStorageRepository.Verify(r => r.Write(_photo.Id.ToString(), new byte[] { 5, 6, 7, 8 }, _token));
+        _blobStorageRepository.Verify(r => r.Write("photos", _photo.Id.ToString(), new byte[] { 5, 6, 7, 8 }, _token));
         Assert.That(result, Is.SameAs(_photo));
     }
 }
