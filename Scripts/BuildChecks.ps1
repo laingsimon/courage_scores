@@ -10,10 +10,16 @@ Function Get-Files($MinLines, $MaxLines)
     return Get-ChildItem -Recurse `
         | Where-Object { $_.Name.EndsWith($Extension) } `
         | Where-Object { $_.FullName.Contains("node_modules") -eq $False } `
-        | Select-Object @{ label='fullName'; expression={$_.FullName} }, @{ label='name'; expression={$_.name} }, @{ label='lines'; expression={(Get-Content $_.FullName | Measure-Object -Line).Lines} } `
+        | Select-Object  @{ label='fullName'; expression={$_.FullName} }, 
+                         @{ label='relativePath'; expression={[System.IO.Path]::GetRelativePath($currentDirectory, $_.fullName)}},
+                         @{ label='name'; expression={$_.name} },
+                         @{ label='lines'; expression={(Get-Content $_.FullName | Measure-Object -Line).Lines} } `
         | Where-Object { $_.lines -gt $MinLines -and $_.lines -le $MaxLines } `
         | Sort-Object -descending -property 'lines' `
-        | Select-Object @{ label='row'; expression = {"| [$($_.name)](../blob/$($branch)/$([System.IO.Path]::GetRelativePath($currentDirectory, $_.fullName))) | $($_.lines) |" } }
+        | Select-Object @{ label='row'; expression = {"| [$($_.name)](../blob/$($branch)/$($_.relativePath)))) | $($_.lines) |" } },
+                        @{ label='file'; expression = {$_.fullName} },
+                        @{ label='relativePath'; expression = {$_.relativePath} },
+                        @{ label='lines'; expression = {$_.lines} }
 }
 
 Function Print-Files($Heading, $Files, $Comments) 
