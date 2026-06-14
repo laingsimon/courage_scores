@@ -42,7 +42,7 @@ Function Remove-OutOfDateComments($GitHubToken, $Matching)
     $AllComments = Get-PullRequestReviewComments -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Side "LEFT" -SubjectType "file"
 
     Write-Message "Found $($AllComments.length) pull request review comments"
-    $CommentsToRemove = $AllComments | Where-Object { $_.body -like "*<!-- BuildChecksComment -->*" -and $_.body -like $Matching } | Where-Object {
+    $CommentsToRemove = $AllComments | Where-Object { $_.body -like "*<!-- BuildChecksComment -->*" -and $_.body -like $Matching -and $_.body -like "*<!-- Extension: $($Extension) -->*" } | Where-Object {
         $Comment = $_
         $CommentPath = $Comment.path
         $MatchingComment = $Files | Where-Object { $Comment.relativePath -eq $CommentPath }
@@ -73,7 +73,7 @@ Function Upsert-PullRequestReviewComment($GitHubToken, $File, $RelativePath, $Li
         $Reason = "has exceeded the threshold of $($ErrorThreshold) lines"
     }
 
-    $Message = "File has $($Lines) which $($Reason)"
+    $Message = "<!-- Extension: $($Extension) -->File has $($Lines) which $($Reason)"
     $CommitSha = $env:COMMIT_SHA
 
     if ($GitHubEvent -ne "pull_request")
