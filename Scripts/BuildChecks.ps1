@@ -2,7 +2,7 @@ param([int] $ErrorThreshold, [int] $WarningThreshold, [string] $Extension)
 
 $currentDirectory = (Get-Item .).FullName
 $branch = $env:GITHUB_HEAD_REF
-Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1"
+Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1" -Force
 
 Function Get-Files($MinLines, $MaxLines)
 {
@@ -10,10 +10,16 @@ Function Get-Files($MinLines, $MaxLines)
     return Get-ChildItem -Recurse `
         | Where-Object { $_.Name.EndsWith($Extension) } `
         | Where-Object { $_.FullName.Contains("node_modules") -eq $False } `
-        | Select-Object @{ label='fullName'; expression={$_.FullName} }, @{ label='name'; expression={$_.name} }, @{ label='lines'; expression={(Get-Content $_.FullName | Measure-Object -Line).Lines} } `
+        | Select-Object  @{ label='fullName'; expression={$_.FullName} }, 
+                         @{ label='relativePath'; expression={[System.IO.Path]::GetRelativePath($currentDirectory, $_.fullName)}},
+                         @{ label='name'; expression={$_.name} },
+                         @{ label='lines'; expression={(Get-Content $_.FullName | Measure-Object -Line).Lines} } `
         | Where-Object { $_.lines -gt $MinLines -and $_.lines -le $MaxLines } `
         | Sort-Object -descending -property 'lines' `
-        | Select-Object @{ label='row'; expression = {"| [$($_.name)](../blob/$($branch)/$([System.IO.Path]::GetRelativePath($currentDirectory, $_.fullName))) | $($_.lines) |" } }
+        | Select-Object @{ label='row'; expression = {"| [$($_.name)](../blob/$($branch)/$($_.relativePath)) | $($_.lines) |" } },
+                        @{ label='file'; expression = {$_.fullName} },
+                        @{ label='relativePath'; expression = {$_.relativePath} },
+                        @{ label='lines'; expression = {$_.lines} }
 }
 
 Function Print-Files($Heading, $Files, $Comments) 
@@ -22,15 +28,61 @@ Function Print-Files($Heading, $Files, $Comments)
     $Output += "| File | Lines |`n"
     $Output += "| --- | --- |`n"
 
-    $Files | ForEach-Object { $Output += "$($_.row)`n" }
+    $Files | ForEach-Object {
+        Upsert-PullRequestReviewComment -GitHubToken $Token -File $_.file -RelativePath $_.relativePath -Lines $_.lines
+        $Output += "$($_.row)`n"
+    }
 
     [Console]::Error.WriteLine($Heading)
     [Console]::Error.WriteLine($Output)
+}
 
-    if ($GitHubEvent -eq "pull_request")
-    {
-        Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $Comments -Markdown "### $($Heading)`n$($Output)"
+Function Remove-OutOfDateComments($GitHubToken, $Matching)
+{
+    $AllComments = Get-PullRequestReviewComments -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Side "LEFT" -SubjectType "file"
+
+    Write-Message "Found $($AllComments.length) pull request review comments"
+    $CommentsToRemove = $AllComments | Where-Object { $_.body -like "*<!-- BuildChecksComment -->*" -and $_.body -like $Matching -and $_.body -like "*<!-- Extension: $($Extension) -->*" } | Where-Object {
+        $Comment = $_
+        $CommentPath = $Comment.path
+        $MatchingComment = $Files | Where-Object { $Comment.relativePath -eq $CommentPath }
+        $CanRemove = $MatchingComment -eq $null
+
+        if ($CanRemove)
+        {
+            Write-Message "File $($CommentPath) doesn't exceed the threshold, the comment $($Comment.id) can be removed"
+        }
+        return $CanRemove
     }
+
+    Write-Message "Attempting to remove $($CommentsToRemove.length) pull request review comments"
+    if ($CommentsToRemove -ne $null)
+    {
+        Clear-PullRequestReviewComments -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $CommentsToRemove
+    }
+}
+
+Function Upsert-PullRequestReviewComment($GitHubToken, $File, $RelativePath, $Lines)
+{
+    If ($Lines -le $ErrorThreshold)
+    {
+        $Reason = "is approaching the threshold of $($ErrorThreshold) lines"
+    }
+    else
+    {
+        $Reason = "has exceeded the threshold of $($ErrorThreshold) lines"
+    }
+
+    $Message = "<!-- Extension: $($Extension) -->File has $($Lines) which $($Reason)"
+    $CommitSha = $env:COMMIT_SHA
+
+    if ($GitHubEvent -ne "pull_request")
+    {
+        return
+    }
+
+    $RelativePath = $RelativePath.Replace("\", "/")
+    Set-PullRequestReviewComment -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -Body $Message -CommitId $CommitSha -Path $RelativePath -Side "LEFT" -SubjectType "file"
 }
 
 Function Write-Message($Message)
@@ -97,7 +149,7 @@ If ($ErrorThreshold -gt 0)
     }
     elseif ($GitHubEvent -eq "pull_request")
     {
-        Remove-ExistingComments -GitHubToken $Token -Comments $ExceedingComments
+        Remove-OutOfDateComments -GitHubToken $Token -Matching "*exceeded*"
     }
 }
 
@@ -120,7 +172,7 @@ If ($WarningThreshold -gt 0)
     }
     elseif ($GitHubEvent -eq "pull_request")
     {
-        Remove-ExistingComments -GitHubToken $Token -Comments $ApproachingComments
+        Remove-OutOfDateComments -GitHubToken $Token -Matching "*approaching*"
     }
 }
 
@@ -128,5 +180,3 @@ if ($ErrorThreshold -le 0 -and $WarningThreshold -le 0)
 {
     [Console]::Error.WriteLine("Neither -ErrorThreshold nor -WarningThreshold are supplied; no constraints to apply to files")
 }
-
-Exit $FilesOverThreshold.Length

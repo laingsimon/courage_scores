@@ -69,6 +69,7 @@ jobs:
         run: ./Scripts/BuildChecks.ps1 -ErrorThreshold 1000 -WarningThreshold 900 -Extension '.tsx'
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          COMMIT_SHA: "${{ inputs.commit-sha }}"
 
       - name: Check .ts file sizes
         if: ${{ github.event.inputs.ignore_sizes != 'true' }}
@@ -76,6 +77,7 @@ jobs:
         run: ./Scripts/BuildChecks.ps1 -ErrorThreshold 500 -WarningThreshold 450 -Extension '.ts'
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          COMMIT_SHA: "${{ inputs.commit-sha }}"
 
       - name: Run npm audit
         shell: pwsh
