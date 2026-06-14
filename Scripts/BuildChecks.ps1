@@ -150,7 +150,6 @@ If ($ErrorThreshold -gt 0)
     elseif ($GitHubEvent -eq "pull_request")
     {
         Remove-OutOfDateComments -GitHubToken $Token -Matching "*exceeded*"
-        Remove-ExistingComments -GitHubToken $Token -Comments $ExceedingComments
     }
 }
 
@@ -174,7 +173,6 @@ If ($WarningThreshold -gt 0)
     elseif ($GitHubEvent -eq "pull_request")
     {
         Remove-OutOfDateComments -GitHubToken $Token -Matching "*approaching*"
-        Remove-ExistingComments -GitHubToken $Token -Comments $ApproachingComments
     }
 }
 
