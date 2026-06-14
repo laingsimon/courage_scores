@@ -10,18 +10,18 @@ public class StubBlobStorageRepository : IBlobStorageRepository, IStubCosmosData
     private readonly Dictionary<string, Dictionary<string, byte[]>> _snapshots = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, byte[]> _content = new(StringComparer.OrdinalIgnoreCase);
 
-    public Task<byte[]?> Read(string path, CancellationToken token)
+    public Task<byte[]?> Read(string container, string path, CancellationToken token)
     {
         return Task.FromResult<byte[]?>(_content[path]);
     }
 
-    public Task Write(string path, byte[] contents, CancellationToken token)
+    public Task Write(string container, string path, byte[] contents, CancellationToken token)
     {
         _content[path] = contents;
         return Task.CompletedTask;
     }
 
-    public Task Delete(string path, CancellationToken token)
+    public Task Delete(string container, string path, CancellationToken token)
     {
         _content.Remove(path);
         return Task.CompletedTask;

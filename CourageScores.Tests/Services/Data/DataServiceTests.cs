@@ -34,6 +34,7 @@ public class DataServiceTests
     private Mock<IConfiguration> _configuration = null!;
     private Mock<IDataBrowserRepository<SingleDataResultDto>> _dataBrowserRepository = null!;
     private Mock<IDataBrowserRepository<object>> _dataViewRepository = null!;
+    private Mock<IBlobStorageRepository> _blobStorageRepository = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -50,6 +51,7 @@ public class DataServiceTests
         _configuration = new Mock<IConfiguration>();
         _dataBrowserRepository = new Mock<IDataBrowserRepository<SingleDataResultDto>>();
         _dataViewRepository = new Mock<IDataBrowserRepository<object>>();
+        _blobStorageRepository = new Mock<IBlobStorageRepository>();
         _exportRequest = new ExportDataRequestDto();
         _importRequest = new ImportDataRequestDto
         {
@@ -88,7 +90,8 @@ public class DataServiceTests
             _zipBuilderFactory.Object,
             _configuration.Object,
             _dataBrowserRepository.Object,
-            _dataViewRepository.Object);
+            _dataViewRepository.Object,
+            _blobStorageRepository.Object);
     }
 
     [Test]
@@ -312,7 +315,7 @@ public class DataServiceTests
     }
 
     [Test]
-    public async Task BackupData_GivenCorrectRequestToken_ReturnsSuccessful()
+    public async Task BackupData_GivenCorrectRequestToken_ReturnsSuccessfulAndPersistsToBlobStorage()
     {
         var request = GetBackupDataRequestDto();
         _zipBuilderFactory
@@ -325,6 +328,8 @@ public class DataServiceTests
         var result = await _dataService.BackupData(request, _token);
 
         result.AssertSuccessful();
+        var now = DateTime.UtcNow.ToString("yyyy-MM-ddT");
+        _blobStorageRepository.Verify(r => r.Write("backup", It.IsRegex($@"Backup_{now}\d{{2}}-\d{{2}}\.zip"), result.Result!.Zip!, _token));
     }
 
     [Test]

@@ -9,6 +9,9 @@ on:
       ignore_sizes:
         required: false
         type: string
+      commit-sha:
+        required: true
+        type: string
 jobs:
   with-dotnet:
     runs-on: ubuntu-latest
@@ -39,6 +42,7 @@ jobs:
         run: ./Scripts/BuildChecks.ps1 -ErrorThreshold 500 -WarningThreshold 450 -Extension '.cs'
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          COMMIT_SHA: "${{ inputs.commit-sha }}"
 
       - name: Publish dotnet coverage
         uses: coverallsapp/github-action@v2.3.6
