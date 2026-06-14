@@ -22,6 +22,7 @@ jobs:
     uses: ./.github/workflows/build.yml
     with: 
       ignore_sizes: true # ignoring sizes on a PROD build; they should have been picked up in UAT - also to reduce friction for any hotfixes
+      commit-sha: ${{ github.sha }}
 
   publish:
     needs:

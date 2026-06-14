@@ -41,6 +41,7 @@ jobs:
     uses: ./.github/workflows/build.yml
     with: 
       ignore_sizes: ${{ github.event.inputs.ignore_sizes }}
+      commit-sha: ${{ github.sha }}
 
   publish:
     needs: 
