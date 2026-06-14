@@ -74,7 +74,7 @@ If ($NpmPrettierCheckResult.ExitCode -ne 0)
 
     if ($GitHubEvent -eq "pull_request")
     {
-        Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $PrettierComments -Markdown "#### $($PrettierCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($CommentContent)`n$($GitHubMarkdownCodeBlock)`n$($BypassInstruction)"
+        Set-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $PrettierComments -Markdown "#### $($PrettierCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($CommentContent)`n$($GitHubMarkdownCodeBlock)`n$($BypassInstruction)"
     }
     else
     {
@@ -90,4 +90,4 @@ If ($NpmPrettierCheckResult.ExitCode -ne 0)
     Exit -1
 }
 
-Remove-ExistingComments -GitHubToken $Token -Comments $PrettierComments
+Clear-ExistingComments -GitHubToken $Token -Comments $PrettierComments
