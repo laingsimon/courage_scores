@@ -182,5 +182,3 @@ if ($ErrorThreshold -le 0 -and $WarningThreshold -le 0)
 {
     [Console]::Error.WriteLine("Neither -ErrorThreshold nor -WarningThreshold are supplied; no constraints to apply to files")
 }
-
-Exit $FilesOverThreshold.Length
