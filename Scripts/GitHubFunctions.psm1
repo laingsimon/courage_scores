@@ -51,6 +51,61 @@ Function Remove-ExistingComments($GitHubToken, $Comments)
     }
 }
 
+Function Get-PullRequestReviewComments($GitHubToken, $Repo, $PullRequestNumber, $Path, $Side, $SubjectType)
+{
+    # comments should be returned with an `id` and a `body`
+
+    Write-Host "Get pull-request review comments for #$($PullRequestNumber)"
+
+    $Response = Invoke-WebRequest `
+        -Uri "https://api.github.com/repos/$($Repo)/pulls/$($PullRequestNumber)/comments" `
+        -Method Get `
+        -Headers @{
+            Authorization="Bearer $($GitHubToken)";
+        }
+
+    if ($Response.StatusCode -ne 200)
+    {
+        Write-Error "Error getting pull request review comments from #$($PullRequestNumber)"
+    }
+
+    $Json = $Response | ConvertFrom-Json
+
+    # TODO: Filter on type too?
+    # NOTE: Not filtering on commit-id intentionally, as this may change - but the comment should still be updated/removed
+    return $Json | Where-Object { ($_.path -eq $Path -or $Path -eq $null) -and $_.side -eq $side }
+}
+
+Function Clear-PullRequestReviewComments($GitHubToken, $Repo, $PullRequestNumber, $Comments)
+{
+    $Comments | ForEach-Object {
+        Remove-PullRequestReviewComment -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -CommentId $_.id 
+    }
+}
+
+Function Set-PullRequestReviewComment($GitHubToken, $Repo, $PullRequestNumber, $Body, $CommitId, $Path, $Side, $SubjectType)
+{
+    $Marker = "<!-- BuildChecksComment -->"
+    $AllExistingComments = Get-PullRequestReviewComments -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -Path $Path -Side $Side -SubjectType $SubjectType
+    $ExistingComments = $AllExistingComments | Where-Object { $_.body -like "*$($Marker)*" }
+    if ($ExistingComments.Length -eq 1) 
+    {
+        ## update the comment
+        $ExistingComment = $ExistingComments[0]
+        Update-PullRequestReviewComment -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -CommentId $ExistingComment.id -Body "$($Marker)$($Body)"
+        return
+    }
+
+    if ($ExistingComments.Length -gt 1)
+    {
+        ## remove the comments
+        Clear-PullRequestReviewComments -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $ExistingComments
+    }
+
+    ## add the comment (prepend the marker)
+    Add-PullRequestReviewComment -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -CommitId $CommitId -Path $Path -Side $Side -SubjectType $SubjectType -Body "$($Marker)$($Body)"
+}
+
 Function Update-PullRequestComment($GitHubToken, $Repo, $PullRequestNumber, $Comments, $Markdown)
 {
     if ($Comments -ne $null -and $Comments.Length -eq 1)
