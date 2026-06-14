@@ -19,6 +19,7 @@ public class DataService : IDataService
     private readonly IZipFileReaderFactory _zipFileReaderFactory;
     private readonly IDataBrowserRepository<SingleDataResultDto> _dataBrowserRepository;
     private readonly IDataBrowserRepository<object> _dataViewRepository;
+    private readonly IBlobStorageRepository _blobStorageRepository;
 
     public DataService(
         Database database,
@@ -29,7 +30,8 @@ public class DataService : IDataService
         IZipBuilderFactory zipBuilderFactory,
         IConfiguration configuration,
         IDataBrowserRepository<SingleDataResultDto> dataBrowserRepository,
-        IDataBrowserRepository<object> dataViewRepository)
+        IDataBrowserRepository<object> dataViewRepository,
+        IBlobStorageRepository blobStorageRepository)
     {
         _database = database;
         _userService = userService;
@@ -40,6 +42,7 @@ public class DataService : IDataService
         _configuration = configuration;
         _dataBrowserRepository = dataBrowserRepository;
         _dataViewRepository = dataViewRepository;
+        _blobStorageRepository = blobStorageRepository;
     }
 
     public async Task<ActionResultDto<ExportDataResultDto>> ExportData(ExportDataRequestDto request, CancellationToken token)
@@ -92,7 +95,15 @@ public class DataService : IDataService
             IncludeDeletedEntries = true,
         };
 
-        return await DoExport(request.Identity, exportRequest, token);
+        var backup = await DoExport(request.Identity, exportRequest, token);
+
+        if (backup.Success && backup.Result?.Zip != null)
+        {
+            var fileName = $"Backup_{DateTime.UtcNow:yyyy-MM-dd'T'HH-mm}.zip";
+            await _blobStorageRepository.Write("backup", fileName, backup.Result.Zip, token);
+        }
+
+        return backup;
     }
 
     public async Task<ActionResultDto<ImportDataResultDto>> RestoreData(RestoreDataRequestDto request, CancellationToken token)
