@@ -35,11 +35,6 @@ Function Print-Files($Heading, $Files, $Comments)
 
     [Console]::Error.WriteLine($Heading)
     [Console]::Error.WriteLine($Output)
-
-    if ($GitHubEvent -eq "pull_request")
-    {
-        Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $Comments -Markdown "### $($Heading)`n$($Output)"
-    }
 }
 
 Function Remove-OutOfDateComments($GitHubToken, $Matching)
