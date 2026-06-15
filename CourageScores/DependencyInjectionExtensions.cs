@@ -139,6 +139,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped(typeof(IGenericDataService<,>), typeof(GenericDataService<,>));
         services.AddScoped<ITeamService, TeamService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IAccessService, AccessService>();
         services.AddScoped<IDivisionService, DivisionService>();
         services.AddScoped<ISeasonService, SeasonService>();
         services.AddScoped<IReportService, ReportService>();
