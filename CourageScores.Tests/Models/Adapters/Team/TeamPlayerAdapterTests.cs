@@ -3,7 +3,6 @@ using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Identity;
-using CourageScores.Tests.Services;
 using Moq;
 using NUnit.Framework;
 
@@ -14,6 +13,7 @@ public class TeamPlayerAdapterTests
 {
     private readonly CancellationToken _token = new();
     private Mock<IUserService> _userService = null!;
+    private Mock<IAccessService> _accessService = null!;
     private TeamPlayerAdapter _adapter = null!;
     private UserDto? _user;
 
@@ -22,7 +22,8 @@ public class TeamPlayerAdapterTests
     {
         _user = null;
         _userService = new Mock<IUserService>();
-        _adapter = new TeamPlayerAdapter(_userService.Object);
+        _accessService = new Mock<IAccessService>();
+        _adapter = new TeamPlayerAdapter(_userService.Object, _accessService.Object);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
     }
 
@@ -35,7 +36,8 @@ public class TeamPlayerAdapterTests
             Name = "name   ",
             Gender = Gender.Female,
         };
-        _user = _user.SetAccess(manageTeams: true);
+        _user = new UserDto();
+        _accessService.Setup(s => s.HasAccess(_user, AccessOption.ManageTeams, _token)).ReturnsAsync(true);
 
         var result = await _adapter.Adapt(model, _token);
 
@@ -69,7 +71,7 @@ public class TeamPlayerAdapterTests
             EmailAddress = "email@somewhere.com",
             Name = "name",
         };
-        _user = _user.SetAccess(manageTeams: false);
+        _accessService.Setup(s => s.HasAccess(_user, AccessOption.ManageTeams, _token)).ReturnsAsync(false);
 
         var result = await _adapter.Adapt(model, _token);
 
@@ -84,7 +86,7 @@ public class TeamPlayerAdapterTests
             EmailAddress = "email@somewhere.com",
             Name = "name",
         };
-        _user = _user.SetAccess(manageTeams: false);
+        _accessService.Setup(s => s.HasAccess(_user, AccessOption.ManageTeams, _token)).ReturnsAsync(false);
 
         var result = await _adapter.Adapt(model, _token);
 
@@ -103,7 +105,9 @@ public class TeamPlayerAdapterTests
             Captain = true,
             EmailAddress = "email@somewhere.com",
         };
-        _user = _user.SetAccess(manageTeams: manageTeams, manageAccess: manageAccess);
+        _user = new UserDto();
+        _accessService.Setup(s => s.HasAccess(_user, AccessOption.ManageTeams, _token)).ReturnsAsync(manageTeams);
+        _accessService.Setup(s => s.HasAccess(_user, AccessOption.ManageAccess, _token)).ReturnsAsync(manageAccess);
         _user.EmailAddress = emailAddress ?? "other@somewhere.com";
 
         var result = await _adapter.Adapt(model, _token);
