@@ -20,6 +20,7 @@ public class ApproveServiceAccountSessionCommandTests
     private readonly CancellationToken _token = CancellationToken.None;
     private Mock<IUserService> _userService = null!;
     private Mock<IUserRepository> _userRepository = null!;
+    private Mock<IAccessService> _accessService = null!;
     private UserDto? _user;
     private DefaultHttpContext _httpContext = null!;
     private ServiceAccountSession _model = null!;
@@ -35,10 +36,6 @@ public class ApproveServiceAccountSessionCommandTests
         _user = new UserDto
         {
             Name = "approver",
-            Access = new()
-            {
-                LoginServiceAccounts = true,
-            },
         };
         _featureService = new Mock<IFeatureService>();
         _feature = new ConfiguredFeatureDto { ConfiguredValue = "true" };
@@ -52,6 +49,7 @@ public class ApproveServiceAccountSessionCommandTests
         };
         _userService = new Mock<IUserService>();
         _userRepository = new Mock<IUserRepository>();
+        _accessService = new Mock<IAccessService>();
         _model = new ServiceAccountSession
         {
             Id = Guid.NewGuid(),
@@ -64,12 +62,13 @@ public class ApproveServiceAccountSessionCommandTests
         {
             Pin = "approver pin",
         };
-        _command = new ApproveServiceAccountSessionCommand(_userService.Object, _userRepository.Object, new AccessAdapter(), httpContextAccessor.Object, _featureService.Object)
+        _command = new ApproveServiceAccountSessionCommand(_userService.Object, _userRepository.Object, new AccessAdapter(), httpContextAccessor.Object, _featureService.Object, _accessService.Object)
             .WithRequest(_request);
 
         httpContextAccessor.Setup(a => a.HttpContext).Returns(_httpContext);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _featureService.Setup(s => s.Get(FeatureLookup.ServiceAccountSessions, _token)).ReturnsAsync(() => _feature);
+        _accessService.Setup(s => s.HasAccess(_user, AccessOption.LoginServiceAccounts, _token)).ReturnsAsync(true);
     }
 
     [Test]
@@ -86,13 +85,8 @@ public class ApproveServiceAccountSessionCommandTests
     [Test]
     public async Task ApplyUpdate_WhenNotPermitted_ReturnUnsuccessful()
     {
-        _user = new UserDto
-        {
-            Access = new()
-            {
-                LoginServiceAccounts = false,
-            }
-        };
+        _user = new UserDto();
+        _accessService.Setup(s => s.HasAccess(_user, AccessOption.LoginServiceAccounts, _token)).ReturnsAsync(false);
 
         var result = await _command.ApplyUpdate(_model, _token);
 

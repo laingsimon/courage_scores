@@ -15,6 +15,7 @@ public class ApproveServiceAccountSessionCommand : IUpdateCommand<ServiceAccount
     private readonly ISimpleAdapter<Access, AccessDto> _accessAdapter;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IFeatureService _featureService;
+    private readonly IAccessService _accessService;
     private ApproveServiceAccountSessionDto? _request;
 
     public ApproveServiceAccountSessionCommand(
@@ -22,13 +23,15 @@ public class ApproveServiceAccountSessionCommand : IUpdateCommand<ServiceAccount
         IUserRepository userRepository,
         ISimpleAdapter<Access, AccessDto> accessAdapter,
         IHttpContextAccessor httpContextAccessor,
-        IFeatureService featureService)
+        IFeatureService featureService,
+        IAccessService accessService)
     {
         _userService = userService;
         _userRepository = userRepository;
         _accessAdapter = accessAdapter;
         _httpContextAccessor = httpContextAccessor;
         _featureService = featureService;
+        _accessService = accessService;
     }
 
     public ApproveServiceAccountSessionCommand WithRequest(ApproveServiceAccountSessionDto request)
@@ -47,7 +50,7 @@ public class ApproveServiceAccountSessionCommand : IUpdateCommand<ServiceAccount
             return Warning("Not logged in");
         }
 
-        if (user.Access?.LoginServiceAccounts != true)
+        if (!await _accessService.HasAccess(user, AccessOption.LoginServiceAccounts, token))
         {
             return Warning("Not permitted");
         }
