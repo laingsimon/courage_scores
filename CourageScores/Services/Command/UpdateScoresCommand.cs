@@ -1,4 +1,5 @@
-﻿using CourageScores.Common;
+﻿using System.Diagnostics;
+using CourageScores.Common;
 using CourageScores.Filters;
 using CourageScores.Models;
 using CourageScores.Models.Adapters;
@@ -27,6 +28,7 @@ public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
     private readonly ICachingSeasonService _seasonService;
     private readonly ITeamService _teamService;
     private readonly IUserService _userService;
+    private readonly IAccessService _accessService;
     private RecordScoresDto? _scores;
 
     public UpdateScoresCommand(IUserService userService,
@@ -38,7 +40,8 @@ public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
         ITeamService teamService,
         ScopedCacheManagementFlags cacheFlags,
         IUpdateScoresAdapter updateScoresAdapter,
-        IEqualityComparer<CosmosGame> submissionComparer)
+        IEqualityComparer<CosmosGame> submissionComparer,
+        IAccessService accessService)
     {
         _userService = userService;
         _gameAdapter = gameAdapter;
@@ -50,8 +53,10 @@ public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
         _cacheFlags = cacheFlags;
         _updateScoresAdapter = updateScoresAdapter;
         _submissionComparer = submissionComparer;
+        _accessService = accessService;
     }
 
+    [DebuggerStepThrough]
     public UpdateScoresCommand WithData(RecordScoresDto scores)
     {
         _scores = scores;
@@ -73,8 +78,9 @@ public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
             return Error("Game cannot be updated, not logged in");
         }
 
-        var access = user.Access ?? new AccessDto();
-        if (!(access.ManageScores || access.InputResults && (user.TeamId == game.Home.Id || user.TeamId == game.Away.Id)))
+        var manageScores = await _accessService.HasAccess(user, AccessOption.ManageScores, token);
+        var inputResults = await _accessService.HasAccess(user, AccessOption.InputResults, token);
+        if (!(manageScores || inputResults && (user.TeamId == game.Home.Id || user.TeamId == game.Away.Id)))
         {
             return Error("Game cannot be updated, not permitted");
         }
@@ -83,7 +89,7 @@ public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
         {
             Success = true,
         };
-        if (access.ManageScores)
+        if (manageScores)
         {
             // edit the root game record
             result = result.Merge(await UpdateResults(game, token));
@@ -95,7 +101,7 @@ public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
             _cacheFlags.EvictDivisionDataCacheForDivisionId = game.DivisionId;
             _cacheFlags.EvictDivisionDataCacheForSeasonId = game.SeasonId;
         }
-        else if (access.InputResults)
+        else if (inputResults)
         {
             result = result.Merge(await UpdateSubmission(game, user, token));
             if (!result.Success)
@@ -104,7 +110,7 @@ public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
             }
         }
 
-        if (access.ManageGames)
+        if (await _accessService.HasAccess(user, AccessOption.ManageGames, token))
         {
             result = result.Merge(await UpdateGameDetails(game, token));
             if (!result.Success)
