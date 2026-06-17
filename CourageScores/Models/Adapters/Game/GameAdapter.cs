@@ -23,6 +23,7 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
     private readonly TimeProvider _clock;
     private readonly IAdapter<NotablePlayer, NotablePlayerDto> _notablePlayerAdapter;
     private readonly Random _random;
+    private readonly IAccessService _accessService;
 
     public GameAdapter(
         IAdapter<GameMatch, GameMatchDto> gameMatchAdapter,
@@ -34,7 +35,8 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
         IFeatureService featureService,
         IUserService userService,
         TimeProvider clock,
-        Random random)
+        Random random,
+        IAccessService accessService)
     {
         _gameMatchAdapter = gameMatchAdapter;
         _gameTeamAdapter = gameTeamAdapter;
@@ -46,6 +48,7 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
         _userService = userService;
         _clock = clock;
         _random = random;
+        _accessService = accessService;
     }
 
     public async Task<GameDto> Adapt(CosmosGame model, CancellationToken token)
@@ -112,8 +115,8 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
     private async IAsyncEnumerable<GameMatchDto> AdaptMatches(CosmosGame model, [EnumeratorCancellation] CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var canInputResultsForHomeOrAwayTeam = user?.Access?.InputResults == true && (user.TeamId == model.Home.Id || user.TeamId == model.Away.Id);
-        var canRecordScoresForFixture = user?.Access?.ManageScores == true || canInputResultsForHomeOrAwayTeam;
+        var canInputResultsForHomeOrAwayTeam = await _accessService.HasAccess(user, AccessOption.InputResults, token) && (user!.TeamId == model.Home.Id || user.TeamId == model.Away.Id);
+        var canRecordScoresForFixture = await _accessService.HasAccess(user, AccessOption.ManageScores, token) || canInputResultsForHomeOrAwayTeam;
         var isRandomiseSinglesFeatureEnabled = await _featureService.GetFeatureValue(FeatureLookup.RandomisedSingles, token, false);
         var randomiseSingles = !canRecordScoresForFixture && isRandomiseSinglesFeatureEnabled;
         var obscureScores = !canRecordScoresForFixture && await ShouldObscureScores(model, token);
