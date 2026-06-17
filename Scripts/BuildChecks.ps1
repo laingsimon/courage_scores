@@ -42,7 +42,7 @@ Function Remove-OutOfDateComments($GitHubToken, $Matching)
     $AllComments = Get-PullRequestReviewComments -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Side "LEFT" -SubjectType "file"
 
     Write-Message "Found $($AllComments.length) pull request review comments"
-    $CommentsToRemove = $AllComments | Where-Object { $_.body -like "*<!-- BuildChecksComment -->*" -and $_.body -like $Matching -and $_.body -like "*<!-- Extension: $($Extension) -->*" } | Where-Object {
+    $CommentsToRemove = $AllComments | Where-Object { $_.body -like "*<!-- BuildChecksComment -->*" -and $_.body -notlike "*<!-- Run: $($RunId) -->*" -and $_.body -like $Matching -and $_.body -like "*<!-- Extension: $($Extension) -->*" } | Where-Object {
         $Comment = $_
         $CommentPath = $Comment.path
         $MatchingComment = $Files | Where-Object { $Comment.relativePath -eq $CommentPath }
@@ -64,6 +64,11 @@ Function Remove-OutOfDateComments($GitHubToken, $Matching)
 
 Function Upsert-PullRequestReviewComment($GitHubToken, $File, $RelativePath, $Lines)
 {
+    if ($GitHubEvent -ne "pull_request")
+    {
+        return
+    }
+
     If ($Lines -le $ErrorThreshold)
     {
         $Reason = "is approaching the threshold of $($ErrorThreshold) lines"
@@ -73,13 +78,8 @@ Function Upsert-PullRequestReviewComment($GitHubToken, $File, $RelativePath, $Li
         $Reason = "has exceeded the threshold of $($ErrorThreshold) lines"
     }
 
-    $Message = "<!-- Extension: $($Extension) -->File has $($Lines) which $($Reason)"
+    $Message = "<!-- Extension: $($Extension) --><!-- Run: $($RunId) -->File has $($Lines) which $($Reason)"
     $CommitSha = $env:COMMIT_SHA
-
-    if ($GitHubEvent -ne "pull_request")
-    {
-        return
-    }
 
     $RelativePath = $RelativePath.Replace("\", "/")
     Set-PullRequestReviewComment -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -Body $Message -CommitId $CommitSha -Path $RelativePath -Side "LEFT" -SubjectType "file"
@@ -98,6 +98,8 @@ If ($Extension -eq $null -or $Extension -eq "" -or $Extension -eq ".")
 
 $RefName=$env:GITHUB_REF_NAME # will be in the format <pr_number>/merge
 $Token=$env:GITHUB_TOKEN
+$RunId=[System.DateTime]::UtcNow.ToString()
+
 If ($RefName -ne $null)
 {
     $PullRequestNumber=$RefName.Replace("/merge", "")
@@ -147,7 +149,8 @@ If ($ErrorThreshold -gt 0)
         Print-Files -Heading "$($FilesOverThreshold.Length) $($Extension) file/s exceeding limit" -Files $FilesOverThreshold -Comments $ExceedingComments
         [Console]::Error.WriteLine("There are $($FilesOverThreshold.Length) $($Extension) file/s that have more than $($ErrorThreshold) lines")
     }
-    elseif ($GitHubEvent -eq "pull_request")
+
+    if ($GitHubEvent -eq "pull_request")
     {
         Remove-OutOfDateComments -GitHubToken $Token -Matching "*exceeded*"
     }
@@ -170,7 +173,8 @@ If ($WarningThreshold -gt 0)
     {
         Print-Files -Heading "$($FilesNearingLimit.Length) $($Extension) file/s $($Warning)" -Files $FilesNearingLimit -Comments $ApproachingComments
     }
-    elseif ($GitHubEvent -eq "pull_request")
+
+    if ($GitHubEvent -eq "pull_request")
     {
         Remove-OutOfDateComments -GitHubToken $Token -Matching "*approaching*"
     }
