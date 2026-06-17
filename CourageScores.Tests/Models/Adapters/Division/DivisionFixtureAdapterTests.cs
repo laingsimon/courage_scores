@@ -20,7 +20,7 @@ namespace CourageScores.Tests.Models.Adapters.Division;
 [TestFixture]
 public class DivisionFixtureAdapterTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private DivisionFixtureAdapter _adapter = null!;
     private Mock<IDivisionFixtureTeamAdapter> _divisionFixtureTeamAdapter = null!;
     private TeamDto _homeTeam = null!;
@@ -33,6 +33,8 @@ public class DivisionFixtureAdapterTests
     private Mock<IUserService> _userService = null!;
     private UserDto? _user;
     private SeasonDto _season = null!;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -46,7 +48,8 @@ public class DivisionFixtureAdapterTests
         _featureService = new Mock<IFeatureService>();
         _clock = new Mock<TimeProvider>();
         _userService = new Mock<IUserService>();
-        _adapter = new DivisionFixtureAdapter(_divisionFixtureTeamAdapter.Object, _featureService.Object, _clock.Object, _userService.Object);
+        _accessService = new Mock<IAccessService>();
+        _adapter = new DivisionFixtureAdapter(_divisionFixtureTeamAdapter.Object, _featureService.Object, _clock.Object, _userService.Object, _accessService.Object);
         _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, 07, TimeSpan.Zero);
         _homeTeam = new TeamDto
         {
@@ -66,6 +69,7 @@ public class DivisionFixtureAdapterTests
         {
             Id = _awayTeam.Id,
         };
+        _access = [];
 
         _divisionFixtureTeamAdapter
             .Setup(a => a.Adapt(It.Is<GameTeam>(t => t.Id == _homeTeam.Id), It.IsAny<string>(), _token))
@@ -75,6 +79,9 @@ public class DivisionFixtureAdapterTests
             .ReturnsAsync(_awayTeamDto);
         _clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        _accessService
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
     }
 
     [Test]
@@ -201,13 +208,8 @@ public class DivisionFixtureAdapterTests
             ValueType = Feature.FeatureValueType.TimeSpan,
         };
         _featureService.Setup(s => s.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(featureValue);
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManageScores = true,
-            }
-        };
+        _user = new UserDto();
+        _access = _access.With(AccessOption.ManageScores);
 
         var result = await _adapter.Adapt(game, _season, _homeTeam, _awayTeam, null, null, _token);
 
@@ -448,10 +450,7 @@ public class DivisionFixtureAdapterTests
             .Setup(a => a.Adapt(team, _token))
             .ReturnsAsync(_homeTeamDto);
 
-        var result = await _adapter.ForUnselectedTeam(team, false, new[]
-        {
-            game,
-        }, null, _token);
+        var result = await _adapter.ForUnselectedTeam(team, false, [game], null, _token);
 
         Assert.That(result.Id, Is.EqualTo(team.Id));
         Assert.That(result.FixturesUsingAddress.Count, Is.EqualTo(1));
@@ -470,14 +469,8 @@ public class DivisionFixtureAdapterTests
         {
             HomeScore = homeScore,
             AwayScore = awayScore,
-            HomePlayers = new List<GamePlayer>
-            {
-                new(),
-            },
-            AwayPlayers = new List<GamePlayer>
-            {
-                new(),
-            },
+            HomePlayers = [new()],
+            AwayPlayers = [new()],
         };
     }
 }
