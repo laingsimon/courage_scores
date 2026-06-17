@@ -54,7 +54,8 @@ public class UpdatePlayerCommandTests
             _commandFactory.Object,
             _auditingHelper.Object,
             _userService.Object,
-            new ScopedCacheManagementFlags());
+            new ScopedCacheManagementFlags(),
+            new Mock<IAccessService>().Object);
         _command = new UpdatePlayerCommand(
             _userService.Object,
             _seasonService.Object,
