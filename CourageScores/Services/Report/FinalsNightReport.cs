@@ -22,6 +22,7 @@ public class FinalsNightReport : CompositeReport
     private readonly ICachingDivisionService _divisionService;
     private readonly IGenericDataService<TournamentGame, TournamentGameDto> _tournamentService;
     private readonly ITournamentTypeResolver _tournamentTypeResolver;
+    private readonly IAccessService _accessService;
     private readonly int _minSingles;
 
     public FinalsNightReport(
@@ -30,7 +31,8 @@ public class FinalsNightReport : CompositeReport
         SeasonDto season,
         ICachingDivisionService divisionService,
         IGenericDataService<TournamentGame, TournamentGameDto> tournamentService,
-        ITournamentTypeResolver tournamentTypeResolver)
+        ITournamentTypeResolver tournamentTypeResolver,
+        IAccessService accessService)
         : base([manOfTheMatchReport])
     {
         _userService = userService;
@@ -39,6 +41,7 @@ public class FinalsNightReport : CompositeReport
         _divisionService = divisionService;
         _tournamentService = tournamentService;
         _tournamentTypeResolver = tournamentTypeResolver;
+        _accessService = accessService;
         _minSingles = 5;
     }
 
@@ -368,7 +371,7 @@ public class FinalsNightReport : CompositeReport
     {
         var user = await _userService.GetUser(token);
 
-        if (user?.Access?.ManageScores != true)
+        if (!await _accessService.HasAccess(user, AccessOption.ManageScores, token))
         {
             yield return Row(Cell(text: "Man of the match"));
             yield break;

@@ -53,6 +53,7 @@ public class ReportFactory : IReportFactory
             (await _seasonService.Get(request.SeasonId, token))!,
             _divisionService,
             _tournamentService,
-            _tournamentTypeResolver);
+            _tournamentTypeResolver,
+            _accessService);
     }
 }
