@@ -14,12 +14,14 @@ public class UpdateScoresAdapter : IUpdateScoresAdapter
     private readonly IAuditingHelper _auditingHelper;
     private readonly IUserService _userService;
     private readonly ISimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto> _scoreAsYouGoAdapter;
+    private readonly IAccessService _accessService;
 
-    public UpdateScoresAdapter(IAuditingHelper auditingHelper, IUserService userService, ISimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto> scoreAsYouGoAdapter)
+    public UpdateScoresAdapter(IAuditingHelper auditingHelper, IUserService userService, ISimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto> scoreAsYouGoAdapter, IAccessService accessService)
     {
         _auditingHelper = auditingHelper;
         _userService = userService;
         _scoreAsYouGoAdapter = scoreAsYouGoAdapter;
+        _accessService = accessService;
     }
 
     public async Task<GamePlayer> AdaptToPlayer(RecordScoresDto.RecordScoresGamePlayerDto player, CancellationToken token)
@@ -50,7 +52,7 @@ public class UpdateScoresAdapter : IUpdateScoresAdapter
     public async Task<GameMatch> AdaptToMatch(RecordScoresDto.RecordScoresGameMatchDto updatedMatch, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var permitted = user?.Access?.RecordScoresAsYouGo == true;
+        var permitted = await _accessService.HasAccess(user, AccessOption.RecordScoresAsYouGo, token);
 
         var match = new GameMatch
         {
@@ -71,7 +73,7 @@ public class UpdateScoresAdapter : IUpdateScoresAdapter
     public async Task<GameMatch> UpdateMatch(GameMatch currentMatch, RecordScoresDto.RecordScoresGameMatchDto updatedMatch, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var permitted = user?.Access?.RecordScoresAsYouGo == true;
+        var permitted = await _accessService.HasAccess(user, AccessOption.RecordScoresAsYouGo, token);
         if (!updatedMatch.HomePlayers.Any() || !updatedMatch.AwayPlayers.Any())
         {
             updatedMatch.Sayg = null;

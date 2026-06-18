@@ -20,11 +20,13 @@ public class UpdateScoresAdapterTests
     private static readonly RecordScoresDto.RecordScoresGamePlayerDto HomePlayerDto = new() { Id = Guid.NewGuid(), Name = "HOME" };
     private static readonly RecordScoresDto.RecordScoresGamePlayerDto AwayPlayerDto = new() { Id = Guid.NewGuid(), Name = "AWAY" };
 
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = CancellationToken.None;
     private Mock<IAuditingHelper> _auditingHelper = null!;
     private Mock<IUserService> _userService = null!;
     private MockSimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto> _scoreAsYouGoAdapter = null!;
     private UserDto? _user;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     private UpdateScoresAdapter _adapter = null!;
 
@@ -33,14 +35,20 @@ public class UpdateScoresAdapterTests
     {
         _auditingHelper = new Mock<IAuditingHelper>();
         _userService = new Mock<IUserService>();
+        _access = [AccessOption.RecordScoresAsYouGo];
+        _accessService = new Mock<IAccessService>();
         _scoreAsYouGoAdapter = new MockSimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto>(SaygModel, SaygDto);
         _adapter = new UpdateScoresAdapter(
             _auditingHelper.Object,
             _userService.Object,
-            _scoreAsYouGoAdapter);
+            _scoreAsYouGoAdapter,
+            _accessService.Object);
 
-        _user = _user.SetAccess(recordScoresAsYouGo: true);
+        _user = new UserDto();
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        _accessService
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }
 
     [Test]
@@ -120,8 +128,8 @@ public class UpdateScoresAdapterTests
         var result = await _adapter.AdaptToMatch(inputMatch, _token);
 
         Assert.That(result.Id, Is.Not.EqualTo(Guid.Empty));
-        Assert.That(result.HomePlayers.Select(p => p.Id), Is.EqualTo(new[] { HomePlayerDto.Id }));
-        Assert.That(result.AwayPlayers.Select(p => p.Id), Is.EqualTo(new[] { AwayPlayerDto.Id }));
+        Assert.That(result.HomePlayers.Select(p => p.Id), Is.EqualTo([HomePlayerDto.Id]));
+        Assert.That(result.AwayPlayers.Select(p => p.Id), Is.EqualTo([AwayPlayerDto.Id]));
         Assert.That(result.HomeScore, Is.EqualTo(inputMatch.HomeScore));
         Assert.That(result.AwayScore, Is.EqualTo(inputMatch.AwayScore));
         Assert.That(result.Sayg, Is.Null);
@@ -131,7 +139,7 @@ public class UpdateScoresAdapterTests
     [Test]
     public async Task AdaptToMatch_WhenNotPermitted_AdaptsToMatch()
     {
-        _user.SetAccess(recordScoresAsYouGo: false);
+        _access = _access.Without(AccessOption.RecordScoresAsYouGo);
         var inputMatch = new RecordScoresDto.RecordScoresGameMatchDto
         {
             HomePlayers = { HomePlayerDto },
@@ -144,8 +152,8 @@ public class UpdateScoresAdapterTests
         var result = await _adapter.AdaptToMatch(inputMatch, _token);
 
         Assert.That(result.Id, Is.Not.EqualTo(Guid.Empty));
-        Assert.That(result.HomePlayers.Select(p => p.Id), Is.EqualTo(new[] { HomePlayerDto.Id }));
-        Assert.That(result.AwayPlayers.Select(p => p.Id), Is.EqualTo(new[] { AwayPlayerDto.Id }));
+        Assert.That(result.HomePlayers.Select(p => p.Id), Is.EqualTo([HomePlayerDto.Id]));
+        Assert.That(result.AwayPlayers.Select(p => p.Id), Is.EqualTo([AwayPlayerDto.Id]));
         Assert.That(result.HomeScore, Is.EqualTo(inputMatch.HomeScore));
         Assert.That(result.AwayScore, Is.EqualTo(inputMatch.AwayScore));
         Assert.That(result.Sayg, Is.Null);
@@ -167,8 +175,8 @@ public class UpdateScoresAdapterTests
         var result = await _adapter.AdaptToMatch(inputMatch, _token);
 
         Assert.That(result.Id, Is.Not.EqualTo(Guid.Empty));
-        Assert.That(result.HomePlayers.Select(p => p.Id), Is.EqualTo(new[] { HomePlayerDto.Id }));
-        Assert.That(result.AwayPlayers.Select(p => p.Id), Is.EqualTo(new[] { AwayPlayerDto.Id }));
+        Assert.That(result.HomePlayers.Select(p => p.Id), Is.EqualTo([HomePlayerDto.Id]));
+        Assert.That(result.AwayPlayers.Select(p => p.Id), Is.EqualTo([AwayPlayerDto.Id]));
         Assert.That(result.HomeScore, Is.EqualTo(inputMatch.HomeScore));
         Assert.That(result.AwayScore, Is.EqualTo(inputMatch.AwayScore));
         Assert.That(result.Sayg, Is.SameAs(SaygModel));
@@ -212,8 +220,8 @@ public class UpdateScoresAdapterTests
         Assert.That(result.Version, Is.EqualTo(currentMatch.Version));
         Assert.That(result.HomeScore, Is.EqualTo(2));
         Assert.That(result.AwayScore, Is.EqualTo(3));
-        Assert.That(result.HomePlayers.Select(p => p.Id), Is.EqualTo(new[] { HomePlayerDto.Id }));
-        Assert.That(result.AwayPlayers.Select(p => p.Id), Is.EqualTo(new[] { AwayPlayerDto.Id }));
+        Assert.That(result.HomePlayers.Select(p => p.Id), Is.EqualTo([HomePlayerDto.Id]));
+        Assert.That(result.AwayPlayers.Select(p => p.Id), Is.EqualTo([AwayPlayerDto.Id]));
         Assert.That(result.Sayg, Is.Null); // the current match has no sayg
         _auditingHelper.Verify(h => h.SetUpdated(result, _token));
     }
@@ -221,7 +229,7 @@ public class UpdateScoresAdapterTests
     [Test]
     public async Task UpdateMatch_WhenNotPermitted_AdaptsToMatch()
     {
-        _user.SetAccess(recordScoresAsYouGo: false);
+        _access = _access.Without(AccessOption.RecordScoresAsYouGo);
         var currentMatch = new GameMatch
         {
             Id = Guid.NewGuid(),
@@ -255,8 +263,8 @@ public class UpdateScoresAdapterTests
         Assert.That(result.Version, Is.EqualTo(currentMatch.Version));
         Assert.That(result.HomeScore, Is.EqualTo(2));
         Assert.That(result.AwayScore, Is.EqualTo(3));
-        Assert.That(result.HomePlayers.Select(p => p.Id), Is.EqualTo(new[] { HomePlayerDto.Id }));
-        Assert.That(result.AwayPlayers.Select(p => p.Id), Is.EqualTo(new[] { AwayPlayerDto.Id }));
+        Assert.That(result.HomePlayers.Select(p => p.Id), Is.EqualTo([HomePlayerDto.Id]));
+        Assert.That(result.AwayPlayers.Select(p => p.Id), Is.EqualTo([AwayPlayerDto.Id]));
         Assert.That(result.Sayg, Is.Null); // the current match has no sayg
         _auditingHelper.Verify(h => h.SetUpdated(result, _token));
     }
@@ -297,8 +305,8 @@ public class UpdateScoresAdapterTests
         Assert.That(result.Version, Is.EqualTo(currentMatch.Version));
         Assert.That(result.HomeScore, Is.EqualTo(2));
         Assert.That(result.AwayScore, Is.EqualTo(3));
-        Assert.That(result.HomePlayers.Select(p => p.Id), Is.EqualTo(new[] { HomePlayerDto.Id }));
-        Assert.That(result.AwayPlayers.Select(p => p.Id), Is.EqualTo(new[] { AwayPlayerDto.Id }));
+        Assert.That(result.HomePlayers.Select(p => p.Id), Is.EqualTo([HomePlayerDto.Id]));
+        Assert.That(result.AwayPlayers.Select(p => p.Id), Is.EqualTo([AwayPlayerDto.Id]));
         Assert.That(result.Sayg, Is.EqualTo(SaygModel));
         _auditingHelper.Verify(h => h.SetUpdated(result, _token));
     }
