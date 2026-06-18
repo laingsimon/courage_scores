@@ -15,24 +15,31 @@ public class DeleteTeamCommandTests
 {
     private Mock<IUserService> _userService = null!;
     private Mock<IAuditingHelper> _auditingHelper = null!;
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly Guid _seasonId = Guid.NewGuid();
     private DeleteTeamCommand _command = null!;
     private CosmosTeam _team = null!;
     private UserDto? _user;
     private ScopedCacheManagementFlags _cacheFlags = null!;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetUpEachTest()
     {
         _cacheFlags = new ScopedCacheManagementFlags();
         _userService = new Mock<IUserService>();
+        _access = [AccessOption.ManageTeams];
+        _accessService = new Mock<IAccessService>();
         _auditingHelper = new Mock<IAuditingHelper>();
-        _command = new DeleteTeamCommand(_userService.Object, _auditingHelper.Object, _cacheFlags);
+        _command = new DeleteTeamCommand(_userService.Object, _auditingHelper.Object, _cacheFlags, _accessService.Object);
         _team = new CosmosTeam();
-        _user = _user.SetAccess(manageTeams: true);
+        _user = new UserDto();
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        _accessService
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }
 
     [Test]
@@ -43,10 +50,7 @@ public class DeleteTeamCommandTests
         var result = await _command.FromSeason(_seasonId).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "Team has already been deleted",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(["Team has already been deleted"]));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -59,10 +63,7 @@ public class DeleteTeamCommandTests
         var result = await _command.FromSeason(_seasonId).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "Not permitted",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(["Not permitted"]));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -70,18 +71,12 @@ public class DeleteTeamCommandTests
     [Test]
     public async Task ApplyUpdate_WhenNoAccess_ReturnsNotPermitted()
     {
-        _user = new UserDto
-        {
-            Access = null,
-        };
+        _access = [];
 
         var result = await _command.FromSeason(_seasonId).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "Not permitted",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(["Not permitted"]));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -89,15 +84,12 @@ public class DeleteTeamCommandTests
     [Test]
     public async Task ApplyUpdate_WhenNotPermitted_ReturnsNotPermitted()
     {
-        _user.SetAccess(manageTeams: false);
+        _access = _access.Without(AccessOption.ManageTeams);
 
         var result = await _command.FromSeason(_seasonId).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "Not permitted",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(["Not permitted"]));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -155,10 +147,7 @@ public class DeleteTeamCommandTests
         var result = await _command.FromSeason(_seasonId).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "Team allocated to other season/s",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(["Team allocated to other season/s"]));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -178,10 +167,7 @@ public class DeleteTeamCommandTests
         var result = await _command.FromSeason(_seasonId).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Removed team from 1 season/s",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(["Removed team from 1 season/s"]));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
     }
@@ -199,10 +185,7 @@ public class DeleteTeamCommandTests
         var result = await _command.FromSeason(_seasonId).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Removed team from 0 season/s",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(["Removed team from 0 season/s"]));
         Assert.That(result.Delete, Is.False);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
@@ -211,6 +194,7 @@ public class DeleteTeamCommandTests
     [Test]
     public async Task ApplyUpdate_WhenNoRemainingTeamSeasonsAndDeleteRequested_ThenDeletesTeam()
     {
+        _user.SetAccess(manageTeams: true);
         var teamSeason = new TeamSeason
         {
             SeasonId = Guid.NewGuid(),
@@ -221,10 +205,7 @@ public class DeleteTeamCommandTests
         var result = await _command.FromSeason(_seasonId).DeleteIfNoSeasonsAssigned().ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Team deleted",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(["Team deleted"]));
         Assert.That(result.Delete, Is.True);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
@@ -244,10 +225,7 @@ public class DeleteTeamCommandTests
         var result = await _command.FromSeason(_seasonId).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Removed team from 1 season/s",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(["Removed team from 1 season/s"]));
         Assert.That(result.Delete, Is.False);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
@@ -256,6 +234,7 @@ public class DeleteTeamCommandTests
     [Test]
     public async Task ApplyUpdate_WhenLastTeamSeasonDeletedAndDeleteRequested_ThenDeletesTeam()
     {
+        _user.SetAccess(manageTeams: true);
         var teamSeason = new TeamSeason
         {
             SeasonId = _seasonId,
@@ -267,10 +246,7 @@ public class DeleteTeamCommandTests
         var result = await _command.FromSeason(_seasonId).DeleteIfNoSeasonsAssigned().ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Removed team from 1 season/s, and team deleted",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(["Removed team from 1 season/s, and team deleted"]));
         Assert.That(result.Delete, Is.True);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
@@ -287,17 +263,14 @@ public class DeleteTeamCommandTests
         _team.Seasons.Add(teamSeason);
         _auditingHelper.Setup(h => h.SetDeleted(teamSeason, _token)).Callback(() =>
         {
-            _user.SetAccess(manageTeams: false); // change the permissions part way through
+            _access = _access.Without(AccessOption.ManageTeams); // change the permissions part way through
             teamSeason.Deleted = new DateTime(2001, 02, 03);
         });
 
         var result = await _command.FromSeason(_seasonId).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Removed team from 1 season/s",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(["Removed team from 1 season/s"]));
         Assert.That(result.Delete, Is.False);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
@@ -314,17 +287,14 @@ public class DeleteTeamCommandTests
         _team.Seasons.Add(teamSeason);
         _auditingHelper.Setup(h => h.SetDeleted(teamSeason, _token)).Callback(() =>
         {
-            _user.SetAccess(manageTeams: false); // change the permissions part way through
+            _access = _access.Without(AccessOption.ManageTeams); // change the permissions part way through
             teamSeason.Deleted = new DateTime(2001, 02, 03);
         });
 
         var result = await _command.FromSeason(_seasonId).DeleteIfNoSeasonsAssigned().ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Removed team from 1 season/s, not permitted to delete the team entirely",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(["Removed team from 1 season/s, not permitted to delete the team entirely"]));
         Assert.That(result.Delete, Is.False);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
