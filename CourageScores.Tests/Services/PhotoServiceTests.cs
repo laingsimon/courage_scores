@@ -13,13 +13,15 @@ namespace CourageScores.Tests.Services;
 [TestFixture]
 public class PhotoServiceTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = CancellationToken.None;
     private Mock<IUserService> _userService = null!;
     private Mock<IPhotoRepository> _photoRepository = null!;
     private Mock<IPhotoHelper> _photoHelper = null!;
     private Mock<TimeProvider> _clock = null!;
     private Mock<IFeatureService> _featureService = null!;
     private UserDto? _user;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     private PhotoService _service = null!;
     private Photo _photo = null!;
@@ -33,22 +35,23 @@ public class PhotoServiceTests
     public void SetupEachTest()
     {
         _userService = new Mock<IUserService>();
+        _access = [];
+        _accessService = new Mock<IAccessService>();
         _photoRepository = new Mock<IPhotoRepository>();
         _photoHelper = new Mock<IPhotoHelper>();
         _featureService = new Mock<IFeatureService>();
         _clock = new Mock<TimeProvider>();
         _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
-        _resizedBytes = new byte[] { 5, 6, 7, 8 };
+        _resizedBytes = [5, 6, 7, 8];
         _settings = new MutablePhotoSettings
         {
             MaxPhotoHeight = 5000,
         };
-        _user = _user.SetAccess();
-        _user.Name = "USER";
+        _user = new UserDto { Name = "USER" };
         _photo = new Photo
         {
             Id = Guid.NewGuid(),
-            PhotoBytes = new byte[] { 1, 2, 3, 4 },
+            PhotoBytes = [1, 2, 3, 4],
             ContentType = "image/png",
             FileName = "photo.png",
             Author = "USER",
@@ -56,10 +59,7 @@ public class PhotoServiceTests
         _existingPhoto = new Photo
         {
             Id = Guid.NewGuid(),
-            PhotoBytes = new byte[]
-            {
-                1, 2, 3, 4,
-            },
+            PhotoBytes = [1, 2, 3, 4],
         };
         _featureState = new ConfiguredFeatureDto
         {
@@ -69,8 +69,11 @@ public class PhotoServiceTests
         _clock.Setup(c => c.GetUtcNow()).Returns(_now);
         _photoRepository.Setup(r => r.Get(_existingPhoto.Id, _token)).ReturnsAsync(_existingPhoto);
         _featureService.Setup(s => s.Get(FeatureLookup.Photos, _token)).ReturnsAsync(() => _featureState);
+        _accessService
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
 
-        _service = new PhotoService(_userService.Object, _photoRepository.Object, _photoHelper.Object, _clock.Object, _settings, _featureService.Object);
+        _service = new PhotoService(_userService.Object, _photoRepository.Object, _photoHelper.Object, _clock.Object, _settings, _featureService.Object, _accessService.Object);
     }
 
     [Test]
@@ -81,36 +84,36 @@ public class PhotoServiceTests
         var result = await _service.Upsert(_photo, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Not permitted"]));
     }
 
     [Test]
     public async Task Upsert_WhenNotPermitted_ReturnsNotPermitted()
     {
-        _user!.Access!.UploadPhotos = false;
+        _access = _access.Without(AccessOption.UploadPhotos);
 
         var result = await _service.Upsert(_photo, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Not permitted"]));
     }
 
     [Test]
     public async Task Upsert_When_FeatureDisabled_ReturnsFeatureDisabled()
     {
         _featureState.ConfiguredValue = "false";
-        _user!.Access!.UploadPhotos = true;
+        _access = _access.With(AccessOption.UploadPhotos);
 
         var result = await _service.Upsert(_photo, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Feature disabled" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Feature disabled"]));
     }
 
     [Test]
     public async Task Upsert_GivenPhoto_ResizesThenStoresPhoto()
     {
-        _user!.Access!.UploadPhotos = true;
+        _access = _access.With(AccessOption.UploadPhotos);
         var resizeResult = new ActionResult<byte[]>
         {
             Success = true,
@@ -135,7 +138,7 @@ public class PhotoServiceTests
     [Test]
     public async Task Upsert_GivenNonPhotoFile_ReturnsUnsuccessful()
     {
-        _user!.Access!.UploadPhotos = true;
+        _access = _access.With(AccessOption.UploadPhotos);
         var resizeResult = new ActionResult<byte[]>
         {
             Success = false,
@@ -148,13 +151,13 @@ public class PhotoServiceTests
 
         _photoRepository.Verify(r => r.Upsert(It.IsAny<Photo>(), _token), Times.Never);
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not a valid photo file" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Not a valid photo file"]));
     }
 
     [Test]
     public async Task Upsert_GivenNewPhoto_SetsAuthorAndEditor()
     {
-        _user!.Access!.UploadPhotos = true;
+        _access = _access.With(AccessOption.UploadPhotos);
         var resizeResult = new ActionResult<byte[]>
         {
             Success = true,
@@ -174,7 +177,7 @@ public class PhotoServiceTests
     [Test]
     public async Task Upsert_GivenReplacementPhoto_SetsEditor()
     {
-        _user!.Access!.UploadPhotos = true;
+        _access = _access.With(AccessOption.UploadPhotos);
         var resizeResult = new ActionResult<byte[]>
         {
             Success = true,
@@ -205,7 +208,7 @@ public class PhotoServiceTests
     [Test]
     public async Task GetPhoto_WhenNotAdmin_ReturnsNull()
     {
-        _user!.Access!.UploadPhotos = true;
+        _access = _access.With(AccessOption.UploadPhotos);
         _existingPhoto.Author = "ANOTHER USER";
 
         var result = await _service.GetPhoto(_existingPhoto.Id, _token);
@@ -217,7 +220,7 @@ public class PhotoServiceTests
     public async Task GetPhoto_WhenFeatureDisabled_ReturnsNull()
     {
         _featureState.ConfiguredValue = "false";
-        _user!.Access!.UploadPhotos = true;
+        _access = _access.With(AccessOption.UploadPhotos);
 
         var result = await _service.GetPhoto(_existingPhoto.Id, _token);
 
@@ -227,7 +230,7 @@ public class PhotoServiceTests
     [Test]
     public async Task GetPhoto_ForOwnPhotoWhenNotAdmin_ReturnsBytes()
     {
-        _user!.Access!.UploadPhotos = true;
+        _access = _access.With(AccessOption.UploadPhotos);
         _existingPhoto.Author = _user!.Name;
 
         var result = await _service.GetPhoto(_existingPhoto.Id, _token);
@@ -238,8 +241,7 @@ public class PhotoServiceTests
     [Test]
     public async Task GetPhoto_WhenPhotoNotFound_ReturnsNull()
     {
-        _user!.Access!.UploadPhotos = true;
-        _user!.Access!.ViewAnyPhoto = true;
+        _access = _access.With(AccessOption.UploadPhotos, AccessOption.ViewAnyPhoto);
         var id = Guid.NewGuid();
         _photoRepository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => null);
 
@@ -251,8 +253,7 @@ public class PhotoServiceTests
     [Test]
     public async Task GetPhoto_WhenPhotoFromAnotherUser_ReturnsBytes()
     {
-        _user!.Access!.UploadPhotos = true;
-        _user!.Access!.ViewAnyPhoto = true;
+        _access = _access.With(AccessOption.UploadPhotos, AccessOption.ViewAnyPhoto);
         _photo.Author = "ANOTHER USER";
 
         var result = await _service.GetPhoto(_existingPhoto.Id, _token);
@@ -268,61 +269,60 @@ public class PhotoServiceTests
         var result = await _service.Delete(_existingPhoto.Id, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Not permitted"]));
     }
 
     [Test]
     public async Task Delete_WhenNotAdmin_ReturnsNotPermitted()
     {
-        _user!.Access!.DeleteAnyPhoto = false;
+        _access = _access.Without(AccessOption.DeleteAnyPhoto);
 
         var result = await _service.Delete(_existingPhoto.Id, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Not permitted"]));
     }
 
     [Test]
     public async Task Delete_WhenFeatureDisabled_ReturnsFeatureDisabled()
     {
         _featureState.ConfiguredValue = "false";
-        _user!.Access!.DeleteAnyPhoto = true;
+        _access = _access.With(AccessOption.DeleteAnyPhoto);
 
         var result = await _service.Delete(_existingPhoto.Id, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Feature disabled" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Feature disabled"]));
     }
 
     [Test]
     public async Task Delete_WhenPhotoNotFound_ReturnsNotFound()
     {
-        _user!.Access!.DeleteAnyPhoto = true;
+        _access = _access.With(AccessOption.DeleteAnyPhoto);
 
         var result = await _service.Delete(Guid.NewGuid(), _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not found" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Not found"]));
     }
 
     [Test]
     public async Task Delete_WhenOnlyAbleToUploadPhotosAndPhotoIsFromADifferentUser_ReturnsNotPermitted()
     {
-        _user!.Access!.DeleteAnyPhoto = false;
-        _user!.Access!.UploadPhotos = true;
+        _access = _access.With(AccessOption.UploadPhotos).Without(AccessOption.DeleteAnyPhoto);
         _existingPhoto.Author = "ANOTHER USER";
 
         var result = await _service.Delete(_existingPhoto.Id, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "You can only delete your own photos" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["You can only delete your own photos"]));
     }
 
     [Test]
     public async Task Delete_WhenOnlyAbleToUploadPhotosAndPhotoIsFromSelf_DeletesPhoto()
     {
-        _user!.Access!.UploadPhotos = true;
-        _existingPhoto.Author = _user.Name;
+        _access = _access.With(AccessOption.UploadPhotos);
+        _existingPhoto.Author = _user!.Name;
 
         var result = await _service.Delete(_existingPhoto.Id, _token);
 
@@ -330,15 +330,14 @@ public class PhotoServiceTests
         Assert.That(result.Result, Is.EqualTo(_existingPhoto));
         Assert.That(_existingPhoto.Deleted, Is.EqualTo(_now.UtcDateTime));
         Assert.That(_existingPhoto.Remover, Is.EqualTo(_user.Name));
-        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Photo deleted" }));
+        Assert.That(result.Messages, Is.EquivalentTo(["Photo deleted"]));
         _photoRepository.Verify(r => r.Upsert(_existingPhoto, _token));
     }
 
     [Test]
     public async Task Delete_WhenAdminAndPhotoIsFromADifferentUser_DeletesPhoto()
     {
-        _user!.Access!.DeleteAnyPhoto = true;
-        _user!.Access!.UploadPhotos = false;
+        _access = _access.Without(AccessOption.UploadPhotos).With(AccessOption.DeleteAnyPhoto);
         _existingPhoto.Author = "ANOTHER USER";
 
         var result = await _service.Delete(_existingPhoto.Id, _token);
@@ -347,16 +346,16 @@ public class PhotoServiceTests
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.EqualTo(_existingPhoto));
         Assert.That(_existingPhoto.Deleted, Is.EqualTo(_now.UtcDateTime));
-        Assert.That(_existingPhoto.Remover, Is.EqualTo(_user.Name));
-        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Photo deleted" }));
+        Assert.That(_existingPhoto.Remover, Is.EqualTo(_user!.Name));
+        Assert.That(result.Messages, Is.EquivalentTo(["Photo deleted"]));
         _photoRepository.Verify(r => r.Upsert(_existingPhoto, _token));
     }
 
     [Test]
     public async Task Delete_WhenAdminAndPhotoIsFromSelf_DeletesPhoto()
     {
-        _user!.Access!.DeleteAnyPhoto = true;
-        _existingPhoto.Author = _user.Name;
+        _access = _access.With(AccessOption.DeleteAnyPhoto);
+        _existingPhoto.Author = _user!.Name;
 
         var result = await _service.Delete(_existingPhoto.Id, _token);
 
@@ -365,7 +364,7 @@ public class PhotoServiceTests
         Assert.That(result.Result, Is.EqualTo(_existingPhoto));
         Assert.That(_existingPhoto.Deleted, Is.EqualTo(_now.UtcDateTime));
         Assert.That(_existingPhoto.Remover, Is.EqualTo(_user.Name));
-        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Photo deleted" }));
+        Assert.That(result.Messages, Is.EquivalentTo(["Photo deleted"]));
         _photoRepository.Verify(r => r.Upsert(_existingPhoto, _token));
     }
 }
