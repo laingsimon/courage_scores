@@ -16,23 +16,31 @@ public class TournamentMatchAdapterTests
     private static readonly TournamentSideDto SideADto = new();
     private static readonly TournamentSide SideB = new();
     private static readonly TournamentSideDto SideBDto = new();
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private TournamentMatchAdapter _adapter = null!;
     private Mock<IUserService> _userService = null!;
     private UserDto? _user;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _user = _user.SetAccess(recordScoresAsYouGo: true);
+        _user = new UserDto();
         _userService = new Mock<IUserService>();
+        _access = [AccessOption.RecordScoresAsYouGo];
+        _accessService = new Mock<IAccessService>();
         _adapter = new TournamentMatchAdapter(
             new MockSimpleAdapter<TournamentSide, TournamentSideDto>(
                 [SideA, SideB, null!],
                 [SideADto, SideBDto, null!]),
-            _userService.Object);
+            _userService.Object,
+            _accessService.Object);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        _accessService
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }
 
     [Test]
@@ -97,7 +105,7 @@ public class TournamentMatchAdapterTests
         }
         else if (!permittedToRecordScoresAsYouGo)
         {
-            _user.SetAccess(recordScoresAsYouGo: false);
+            _access = _access.Without(AccessOption.RecordScoresAsYouGo);
         }
         var dto = new TournamentMatchDto
         {
