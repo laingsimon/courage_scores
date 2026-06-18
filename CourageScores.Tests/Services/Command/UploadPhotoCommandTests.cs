@@ -14,7 +14,7 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class UploadPhotoCommandTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = CancellationToken.None;
     private Mock<IPhotoService> _photoService = null!;
     private Mock<IUserService> _userService = null!;
     private Mock<IFormFile> _photo = null!;
@@ -23,14 +23,17 @@ public class UploadPhotoCommandTests
     private UploadPhotoCommand<CosmosGame> _command = null!;
     private byte[] _fileContents = null!;
     private IPhotoSettings _settings = null!;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
         _userService = new Mock<IUserService>();
         _photoService = new Mock<IPhotoService>();
-        _user = _user.SetAccess(uploadPhotos: true);
-        _user.Name = "USER";
+        _access = [AccessOption.UploadPhotos];
+        _accessService = new Mock<IAccessService>();
+        _user = new UserDto { Name = "USER" };
         _game = new CosmosGame
         {
             Id = Guid.NewGuid(),
@@ -49,10 +52,13 @@ public class UploadPhotoCommandTests
                 stream.Write(_fileContents, 0, _fileContents.Length);
             });
 
-        _command = new UploadPhotoCommand<CosmosGame>(_userService.Object, _photoService.Object, _settings)
+        _command = new UploadPhotoCommand<CosmosGame>(_userService.Object, _photoService.Object, _settings, _accessService.Object)
             .WithPhoto(_photo.Object);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        _accessService
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }
 
     [Test]
@@ -63,18 +69,18 @@ public class UploadPhotoCommandTests
         var result = await _command.ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Not permitted"]));
     }
 
     [Test]
     public async Task ApplyUpdate_WhenNotPermitted_ReturnsNotPermitted()
     {
-        _user!.Access!.UploadPhotos = false;
+        _access = _access.Without(AccessOption.UploadPhotos);
 
         var result = await _command.ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Not permitted"]));
     }
 
     [Test]
@@ -85,7 +91,7 @@ public class UploadPhotoCommandTests
         var result = await _command.ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "File is empty" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["File is empty"]));
     }
 
     [Test]
@@ -129,7 +135,7 @@ public class UploadPhotoCommandTests
         var result = await _command.ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "UNSUCCESSFUL" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["UNSUCCESSFUL"]));
         Assert.That(_game.Photos, Is.Empty);
     }
 
@@ -152,8 +158,8 @@ public class UploadPhotoCommandTests
         var result = await _command.ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Photo added" }));
-        Assert.That(_game.Photos, Is.EquivalentTo(new[] { photoReference }));
+        Assert.That(result.Messages, Is.EquivalentTo(["Photo added"]));
+        Assert.That(_game.Photos, Is.EquivalentTo([photoReference]));
     }
 
     [Test]
@@ -182,8 +188,8 @@ public class UploadPhotoCommandTests
 
         _photoService.Verify(s => s.Upsert(It.Is<Photo>(p => p.Id == existingPhotoId), _token));
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Photo added" }));
-        Assert.That(_game.Photos, Is.EquivalentTo(new[] { photoReference }));
+        Assert.That(result.Messages, Is.EquivalentTo(["Photo added"]));
+        Assert.That(_game.Photos, Is.EquivalentTo([photoReference]));
     }
 
     [Test]
@@ -218,8 +224,8 @@ public class UploadPhotoCommandTests
 
         _photoService.Verify(s => s.Upsert(It.Is<Photo>(p => p.Id == existingPhotoId), _token));
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Photo added" }));
-        Assert.That(_game.Photos, Is.EquivalentTo(new[] { photoReference, otherUserPhoto }));
+        Assert.That(result.Messages, Is.EquivalentTo(["Photo added"]));
+        Assert.That(_game.Photos, Is.EquivalentTo([photoReference, otherUserPhoto]));
     }
 
     [Test]
@@ -253,7 +259,7 @@ public class UploadPhotoCommandTests
 
         _photoService.Verify(s => s.Upsert(It.IsAny<Photo>(), _token), Times.Never);
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "No more photos can be added to this entity, maximum photo count reached: 2" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["No more photos can be added to this entity, maximum photo count reached: 2"]));
     }
 
     private class Parameter<T>

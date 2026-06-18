@@ -10,14 +10,16 @@ public class UploadPhotoCommand<T> : IUpdateCommand<T, T>
     private readonly IUserService _userService;
     private readonly IPhotoService _photoService;
     private readonly IPhotoSettings _settings;
+    private readonly IAccessService _accessService;
 
     private IFormFile? _photo;
 
-    public UploadPhotoCommand(IUserService userService, IPhotoService photoService, IPhotoSettings settings)
+    public UploadPhotoCommand(IUserService userService, IPhotoService photoService, IPhotoSettings settings, IAccessService accessService)
     {
         _userService = userService;
         _photoService = photoService;
         _settings = settings;
+        _accessService = accessService;
     }
 
     public UploadPhotoCommand<T> WithPhoto(IFormFile photo)
@@ -31,7 +33,7 @@ public class UploadPhotoCommand<T> : IUpdateCommand<T, T>
         _photo.ThrowIfNull($"{nameof(WithPhoto)} must be called first");
 
         var user = await _userService.GetUser(token);
-        if (user?.Access?.UploadPhotos != true)
+        if (!await _accessService.HasAccess(user, AccessOption.UploadPhotos, token))
         {
             return new ActionResult<T>
             {
@@ -58,7 +60,7 @@ public class UploadPhotoCommand<T> : IUpdateCommand<T, T>
             };
         }
 
-        var existingPhotosForUser = model.Photos.Where(p => p.Author == user.Name).ToArray();
+        var existingPhotosForUser = model.Photos.Where(p => p.Author == user!.Name).ToArray();
 
         if (model.Photos.Count - existingPhotosForUser.Length + 1 > _settings.MaxPhotoCountPerEntity)
         {
@@ -75,7 +77,7 @@ public class UploadPhotoCommand<T> : IUpdateCommand<T, T>
         var photo = new Photo
         {
             Id = existingPhotosForUser.Select(p => p.Id).FirstOrDefault(Guid.NewGuid()),
-            TeamId = user.TeamId,
+            TeamId = user!.TeamId,
             EntityId = model.Id,
             FileName = _photo.FileName,
             ContentType = _photo.ContentType,
