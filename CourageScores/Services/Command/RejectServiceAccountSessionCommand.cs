@@ -10,12 +10,14 @@ public class RejectServiceAccountSessionCommand : IUpdateCommand<ServiceAccountS
 {
     private readonly IUserService _userService;
     private readonly IFeatureService _featureService;
+    private readonly IAccessService _accessService;
     private RejectServiceAccountSessionDto? _request;
 
-    public RejectServiceAccountSessionCommand(IUserService userService, IFeatureService featureService)
+    public RejectServiceAccountSessionCommand(IUserService userService, IFeatureService featureService, IAccessService accessService)
     {
         _userService = userService;
         _featureService = featureService;
+        _accessService = accessService;
     }
 
     public RejectServiceAccountSessionCommand WithRequest(RejectServiceAccountSessionDto request)
@@ -34,7 +36,7 @@ public class RejectServiceAccountSessionCommand : IUpdateCommand<ServiceAccountS
             return Warning("Not logged in");
         }
 
-        if (user.Access?.LoginServiceAccounts != true)
+        if (!await _accessService.HasAccess(user, AccessOption.LoginServiceAccounts, token))
         {
             return Warning("Not permitted");
         }
