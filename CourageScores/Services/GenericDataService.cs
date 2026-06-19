@@ -15,6 +15,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
     where TDto : AuditedDto
 {
     private readonly IActionResultAdapter _actionResultAdapter;
+    private readonly IAccessService _accessService;
     private readonly IAdapter<TModel, TDto> _adapter;
     private readonly IAuditingHelper _auditingHelper;
     private readonly IGenericRepository<TModel> _repository;
@@ -25,13 +26,15 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
         IAdapter<TModel, TDto> adapter,
         IUserService userService,
         IAuditingHelper auditingHelper,
-        IActionResultAdapter actionResultAdapter)
+        IActionResultAdapter actionResultAdapter,
+        IAccessService accessService)
     {
         _repository = repository;
         _adapter = adapter;
         _userService = userService;
         _auditingHelper = auditingHelper;
         _actionResultAdapter = actionResultAdapter;
+        _accessService = accessService;
     }
 
     public async Task<TDto?> Get(Guid id, CancellationToken token)
@@ -62,6 +65,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
         CancellationToken token)
     {
         var user = await _userService.GetUser(token);
+        var userAccess = new UserAccessService(_accessService, user);
 
         if (user == null && updateCommand.RequiresLogin)
         {
@@ -74,12 +78,12 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
         {
             item = new TModel();
 
-            if (!item.CanCreate(user))
+            if (!await item.CanCreate(userAccess, token))
             {
                 return await _actionResultAdapter.Warning<TDto>("Not permitted");
             }
         }
-        else if (!item.CanEdit(user))
+        else if (!await item.CanEdit(userAccess, token))
         {
             return await _actionResultAdapter.Warning<TDto>("Not permitted");
         }
@@ -93,7 +97,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
         await _auditingHelper.SetUpdated(item, token);
         if (outcome.Delete)
         {
-            if (item.CanDelete(user))
+            if (await item.CanDelete(userAccess, token))
             {
                 await _auditingHelper.SetDeleted(item, token);
             }
@@ -122,6 +126,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
             return await _actionResultAdapter.Warning<TDto>("Not logged in");
         }
 
+        var userAccess = new UserAccessService(_accessService, user);
         var item = await _repository.Get(id, token);
 
         if (item == null)
@@ -129,7 +134,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
             return await _actionResultAdapter.Warning<TDto>($"{typeof(TModel).Name} not found");
         }
 
-        if (!item.CanDelete(user))
+        if (!await item.CanDelete(userAccess, token))
         {
             return await _actionResultAdapter.Warning<TDto>("Not permitted");
         }

@@ -24,6 +24,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     private readonly TimeProvider _clock;
     private readonly IFeatureService _featureService;
     private readonly IConfiguration _configuration;
+    private readonly IAccessService _accessService;
 
     public DivisionDataDtoFactory(
         IDivisionPlayerAdapter divisionPlayerAdapter,
@@ -32,7 +33,8 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         IUserService userService,
         TimeProvider clock,
         IFeatureService featureService,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IAccessService accessService)
     {
         _divisionPlayerAdapter = divisionPlayerAdapter;
         _divisionTeamAdapter = divisionTeamAdapter;
@@ -41,6 +43,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         _clock = clock;
         _featureService = featureService;
         _configuration = configuration;
+        _accessService = accessService;
     }
 
     public async Task<DivisionDataDto> CreateDivisionDataDto(DivisionDataContext context, IReadOnlyCollection<DivisionDto?> divisions, bool includeProposals, CancellationToken token)
@@ -70,7 +73,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         var playerResults = await GetPlayers(divisionData, playerToTeamLookup, context, token).ToList();
         var teamResults = await GetTeams(divisionData, context, playerResults, token).ToList();
         var user = await _userService.GetUser(token);
-        var canShowDataErrors = user?.Access?.ImportData == true;
+        var canShowDataErrors = await _accessService.HasAccess(user, AccessOption.ImportData, token);
 
         return new DivisionDataDto(_configuration["ProductName"])
         {
@@ -165,8 +168,8 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     private async Task<bool> ShouldObscureScores(CosmosGame game, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var canInputResultsForHomeOrAwayTeam = user?.Access?.InputResults == true && (user.TeamId == game.Home.Id || user.TeamId == game.Away.Id);
-        var canRecordScoresForFixture = user?.Access?.ManageScores == true || canInputResultsForHomeOrAwayTeam;
+        var canInputResultsForHomeOrAwayTeam = await _accessService.HasAccess(user, AccessOption.InputResults, token) && (user?.TeamId == game.Home.Id || user?.TeamId == game.Away.Id);
+        var canRecordScoresForFixture = await _accessService.HasAccess(user, AccessOption.ManageScores, token) || canInputResultsForHomeOrAwayTeam;
         if (canRecordScoresForFixture)
         {
             return false;
@@ -183,7 +186,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         DivisionDataContext context,
         CancellationToken token)
     {
-        if (userDto?.Access?.ManagePlayers != true)
+        if (!await _accessService.HasAccess(userDto, AccessOption.ManagePlayers, token))
         {
             return players;
         }

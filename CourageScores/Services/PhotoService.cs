@@ -14,6 +14,7 @@ public class PhotoService : IPhotoService
     private readonly TimeProvider _clock;
     private readonly IPhotoSettings _settings;
     private readonly IFeatureService _featureService;
+    private readonly IAccessService _accessService;
 
     public PhotoService(
         IUserService userService,
@@ -21,7 +22,8 @@ public class PhotoService : IPhotoService
         IPhotoHelper photoHelper,
         TimeProvider clock,
         IPhotoSettings settings,
-        IFeatureService featureService)
+        IFeatureService featureService,
+        IAccessService accessService)
     {
         _userService = userService;
         _photoRepository = photoRepository;
@@ -29,12 +31,13 @@ public class PhotoService : IPhotoService
         _clock = clock;
         _settings = settings;
         _featureService = featureService;
+        _accessService = accessService;
     }
 
     public async Task<ActionResult<PhotoReference>> Upsert(Photo photo, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        if (user?.Access?.UploadPhotos != true)
+        if (!await _accessService.HasAccess(user, AccessOption.UploadPhotos, token))
         {
             return Warning<PhotoReference>("Not permitted");
         }
@@ -51,12 +54,12 @@ public class PhotoService : IPhotoService
         }
 
         photo.Author = photo.Created == default
-            ? user.Name
+            ? user!.Name
             : photo.Author;
         photo.Created = photo.Created == default
             ? _clock.GetUtcNow().UtcDateTime
             : photo.Created;
-        photo.Editor = user.Name;
+        photo.Editor = user!.Name;
         photo.Updated = _clock.GetUtcNow().UtcDateTime;
         photo.PhotoBytes = resizedPhoto.Result;
 
@@ -79,8 +82,8 @@ public class PhotoService : IPhotoService
     public async Task<Photo?> GetPhoto(Guid id, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var canViewAllPhotos = user?.Access?.ViewAnyPhoto == true;
-        var canViewOwnPhoto = user?.Access?.UploadPhotos == true;
+        var canViewAllPhotos = await _accessService.HasAccess(user, AccessOption.ViewAnyPhoto, token);
+        var canViewOwnPhoto = await _accessService.HasAccess(user, AccessOption.UploadPhotos, token);
 
         if (!canViewAllPhotos && !canViewOwnPhoto)
         {
@@ -106,8 +109,8 @@ public class PhotoService : IPhotoService
     public async Task<ActionResult<Photo>> Delete(Guid id, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var canDeleteAnyPhoto = user?.Access?.DeleteAnyPhoto == true;
-        var canDeleteOwnPhoto = user?.Access?.UploadPhotos == true;
+        var canDeleteAnyPhoto = await _accessService.HasAccess(user, AccessOption.DeleteAnyPhoto, token);
+        var canDeleteOwnPhoto = await _accessService.HasAccess(user, AccessOption.UploadPhotos, token);
 
         if (!canDeleteOwnPhoto && !canDeleteAnyPhoto)
         {

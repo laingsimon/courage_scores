@@ -12,6 +12,7 @@ public class ReportService : IReportService
 {
     private readonly TimeProvider _clock;
     private readonly IReportFactory _reportFactory;
+    private readonly IAccessService _accessService;
     private readonly ICachingDivisionService _divisionService;
     private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
     private readonly ICachingSeasonService _seasonService;
@@ -25,7 +26,8 @@ public class ReportService : IReportService
         IGenericRepository<Models.Cosmos.Game.Game> gameRepository,
         IGenericRepository<TournamentGame> tournamentRepository,
         TimeProvider clock,
-        IReportFactory reportFactory)
+        IReportFactory reportFactory,
+        IAccessService accessService)
     {
         _userService = userService;
         _seasonService = seasonService;
@@ -34,12 +36,13 @@ public class ReportService : IReportService
         _tournamentRepository = tournamentRepository;
         _clock = clock;
         _reportFactory = reportFactory;
+        _accessService = accessService;
     }
 
     public async Task<ReportCollectionDto> GetReports(ReportRequestDto request, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        if (user?.Access == null || !user.Access.RunReports)
+        if (!await _accessService.HasAccess(user, AccessOption.RunReports, token))
         {
             return UnableToProduceReport("Not permitted", request);
         }
@@ -57,7 +60,7 @@ public class ReportService : IReportService
         }
 
         var reportVisitors = await _reportFactory.GetReports(request, token).ToList();
-        var reportVisitor = new CompositeGameVisitor(reportVisitors, user.Access.ManageScores);
+        var reportVisitor = new CompositeGameVisitor(reportVisitors, await _accessService.HasAccess(user, AccessOption.ManageScores, token));
         var gameCount = 0;
         var playerLookup = new PlayerLookup();
         var visitorScope = new VisitorScope();

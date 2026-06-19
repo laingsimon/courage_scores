@@ -14,7 +14,7 @@ namespace CourageScores.Tests.Services.Season;
 [TestFixture]
 public class CachingSeasonServiceTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly SeasonDto? _latestSeason = new();
     private CachingSeasonService _service = null!;
     private Mock<ISeasonService> _underlyingService = null!;
@@ -50,7 +50,7 @@ public class CachingSeasonServiceTests
     [Test]
     public async Task GetLatest_WhenLoggedIn_BypassesCache()
     {
-        _user = _user.SetAccess();
+        _user = new UserDto();
         var result1 = await _service.GetLatest(_token);
         var result2 = await _service.GetLatest(_token);
 

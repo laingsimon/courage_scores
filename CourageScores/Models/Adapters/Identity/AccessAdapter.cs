@@ -3,6 +3,7 @@ using CourageScores.Models.Dtos.Identity;
 
 namespace CourageScores.Models.Adapters.Identity;
 
+#pragma warning disable CS0618 // Type or member is obsolete
 public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
 {
     public Task<AccessDto> Adapt(Access model, CancellationToken token)
@@ -79,3 +80,4 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
         });
     }
 }
+#pragma warning restore CS0618 // Type or member is obsolete

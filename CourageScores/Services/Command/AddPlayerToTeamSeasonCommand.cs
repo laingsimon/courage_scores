@@ -12,6 +12,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
 {
     private readonly IAuditingHelper _auditingHelper;
     private readonly ScopedCacheManagementFlags _cacheFlags;
+    private readonly IAccessService _accessService;
     private readonly ICommandFactory _commandFactory;
     private readonly ICachingSeasonService _seasonService;
     private readonly IUserService _userService;
@@ -25,13 +26,15 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
         ICommandFactory commandFactory,
         IAuditingHelper auditingHelper,
         IUserService userService,
-        ScopedCacheManagementFlags cacheFlags)
+        ScopedCacheManagementFlags cacheFlags,
+        IAccessService accessService)
     {
         _seasonService = seasonService;
         _commandFactory = commandFactory;
         _auditingHelper = auditingHelper;
         _userService = userService;
         _cacheFlags = cacheFlags;
+        _accessService = accessService;
     }
 
     public virtual AddPlayerToTeamSeasonCommand ForPlayer(EditTeamPlayerDto player)
@@ -101,8 +104,8 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             };
         }
 
-        var canManageTeams = user.Access?.ManageTeams == true;
-        var canInputResultsForTeam = user.Access?.InputResults == true && user.TeamId == model.Id;
+        var canManageTeams = await _accessService.HasAccess(user, AccessOption.ManageTeams, token);
+        var canInputResultsForTeam = await _accessService.HasAccess(user, AccessOption.InputResults, token) && user.TeamId == model.Id;
         if (!canManageTeams && !canInputResultsForTeam)
         {
             return new ActionResult<TeamPlayer>

@@ -15,15 +15,18 @@ public class QueryService : IQueryService
     private readonly Database _database;
     private readonly IUserService _userService;
     private readonly ICosmosTableService _cosmosTableService;
+    private readonly IAccessService _accessService;
 
     public QueryService(
         Database database,
         IUserService userService,
-        ICosmosTableService cosmosTableService)
+        ICosmosTableService cosmosTableService,
+        IAccessService accessService)
     {
         _database = database;
         _userService = userService;
         _cosmosTableService = cosmosTableService;
+        _accessService = accessService;
     }
 
     public async Task<ActionResultDto<QueryResponseDto>> ExecuteQuery(QueryRequestDto request, CancellationToken token)
@@ -34,7 +37,7 @@ public class QueryService : IQueryService
             return Warning("Not logged in");
         }
 
-        if (user.Access?.RunDataQueries != true)
+        if (!await _accessService.HasAccess(user, AccessOption.RunDataQueries, token))
         {
             return Warning("Not permitted");
         }

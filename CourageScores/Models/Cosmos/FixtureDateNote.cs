@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using CourageScores.Models.Dtos.Identity;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Cosmos;
 
@@ -27,20 +27,20 @@ public class FixtureDateNote : AuditedEntity, IPermissionedEntity
     public Guid? DivisionId { get; set; }
 
     [ExcludeFromCodeCoverage]
-    public bool CanCreate(UserDto? user)
+    public async Task<bool> CanCreate(IUserAccessService userAccess, CancellationToken token)
     {
-        return user?.Access?.ManageNotes == true;
+        return await userAccess.HasAccess(AccessOption.ManageNotes, token);
     }
 
     [ExcludeFromCodeCoverage]
-    public bool CanEdit(UserDto? user)
+    public async Task<bool> CanEdit(IUserAccessService userAccess, CancellationToken token)
     {
-        return user?.Access?.ManageNotes == true;
+        return await userAccess.HasAccess(AccessOption.ManageNotes, token);
     }
 
     [ExcludeFromCodeCoverage]
-    public bool CanDelete(UserDto? user)
+    public async Task<bool> CanDelete(IUserAccessService userAccess, CancellationToken token)
     {
-        return user?.Access?.ManageNotes == true;
+        return await userAccess.HasAccess(AccessOption.ManageNotes, token);
     }
 }

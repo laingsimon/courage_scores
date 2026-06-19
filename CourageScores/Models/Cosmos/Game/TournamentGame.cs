@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using CourageScores.Models.Dtos.Identity;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Cosmos.Game;
 
@@ -56,20 +56,20 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
     }
 
     [ExcludeFromCodeCoverage]
-    public bool CanCreate(UserDto? user)
+    public async Task<bool> CanCreate(IUserAccessService userAccess, CancellationToken token)
     {
-        return user?.Access?.ManageTournaments == true;
+        return await userAccess.HasAccess(AccessOption.ManageTournaments, token);
     }
 
     [ExcludeFromCodeCoverage]
-    public bool CanEdit(UserDto? user)
+    public async Task<bool> CanEdit(IUserAccessService userAccess, CancellationToken token)
     {
-        return user?.Access?.ManageTournaments == true || user?.Access?.EnterTournamentResults == true || user?.Access?.UploadPhotos == true;
+        return await userAccess.HasAnyAccess([AccessOption.ManageTournaments, AccessOption.EnterTournamentResults, AccessOption.UploadPhotos], token);
     }
 
     [ExcludeFromCodeCoverage]
-    public bool CanDelete(UserDto? user)
+    public async Task<bool> CanDelete(IUserAccessService userAccess, CancellationToken token)
     {
-        return user?.Access?.ManageTournaments == true;
+        return await userAccess.HasAccess(AccessOption.ManageTournaments, token);
     }
 }

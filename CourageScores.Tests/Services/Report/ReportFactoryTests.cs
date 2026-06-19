@@ -17,12 +17,14 @@ namespace CourageScores.Tests.Services.Report;
 [TestFixture]
 public class ReportFactoryTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = CancellationToken.None;
     private Mock<IUserService> _userService = null!;
     private Mock<ICachingDivisionService> _divisionService = null!;
     private Mock<ICachingSeasonService> _seasonService = null!;
     private Mock<IGenericDataService<TournamentGame, TournamentGameDto>> _tournamentService = null!;
     private Mock<ITournamentTypeResolver> _tournamentTypeResolver = null!;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
     private ReportFactory _factory = null!;
     private UserDto? _user;
 
@@ -34,15 +36,21 @@ public class ReportFactoryTests
         _divisionService = new Mock<ICachingDivisionService>();
         _tournamentService = new Mock<IGenericDataService<TournamentGame, TournamentGameDto>>();
         _tournamentTypeResolver = new Mock<ITournamentTypeResolver>();
+        _access = [AccessOption.RunReports];
+        _accessService = new Mock<IAccessService>();
         _factory = new ReportFactory(
             _userService.Object,
             _divisionService.Object,
             _seasonService.Object,
             _tournamentService.Object,
-            _tournamentTypeResolver.Object);
+            _tournamentTypeResolver.Object,
+            _accessService.Object);
 
-        _user = _user.SetAccess(runReports: true);
+        _user = new UserDto();
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        _accessService
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }
 
     [Test]
@@ -58,7 +66,7 @@ public class ReportFactoryTests
     [Test]
     public async Task GetReports_WhenNotPermitted_DoesNotReturnManOfMatch()
     {
-        _user.SetAccess(manageScores: false);
+        _access = _access.Without(AccessOption.ManageScores);
 
         var reports = await _factory.GetReports(new ReportRequestDto(), _token).ToList();
 
@@ -68,7 +76,7 @@ public class ReportFactoryTests
     [Test]
     public async Task GetReports_WhenPermitted_DoesNotReturnManOfMatch()
     {
-        _user.SetAccess(manageScores: true);
+        _access = _access.With(AccessOption.ManageScores);
 
         var reports = await _factory.GetReports(new ReportRequestDto(), _token).ToList();
 

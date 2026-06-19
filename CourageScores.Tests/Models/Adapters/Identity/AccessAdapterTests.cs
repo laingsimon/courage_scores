@@ -5,6 +5,7 @@ using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters.Identity;
 
+#pragma warning disable CS0618 // Type or member is obsolete
 [TestFixture]
 public class AccessAdapterTests
 {
@@ -152,3 +153,4 @@ public class AccessAdapterTests
         Assert.That(result.LoginServiceAccounts, Is.EqualTo(dto.LoginServiceAccounts));
     }
 }
+#pragma warning restore CS0618 // Type or member is obsolete

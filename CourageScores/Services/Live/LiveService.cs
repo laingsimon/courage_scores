@@ -21,6 +21,7 @@ public class LiveService : ILiveService
     private readonly IWebSocketMessageProcessor _webSocketMessageProcessor;
     private readonly ISimpleOnewayAdapter<WebSocketDetail, WebSocketDto> _webSocketDetailAdapter;
     private readonly ISimpleOnewayAdapter<WatchableData, WatchableDataDto> _watchableDataAdapter;
+    private readonly IAccessService _accessService;
 
     public LiveService(
         ICollection<IWebSocketContract> sockets,
@@ -29,7 +30,8 @@ public class LiveService : ILiveService
         IUpdatedDataSource updatedDataSource,
         IWebSocketMessageProcessor webSocketMessageProcessor,
         ISimpleOnewayAdapter<WebSocketDetail, WebSocketDto> webSocketDetailAdapter,
-        ISimpleOnewayAdapter<WatchableData, WatchableDataDto> watchableDataAdapter)
+        ISimpleOnewayAdapter<WatchableData, WatchableDataDto> watchableDataAdapter,
+        IAccessService accessService)
     {
         _sockets = sockets;
         _socketContractFactory = socketContractFactory;
@@ -38,12 +40,13 @@ public class LiveService : ILiveService
         _webSocketMessageProcessor = webSocketMessageProcessor;
         _webSocketDetailAdapter = webSocketDetailAdapter;
         _watchableDataAdapter = watchableDataAdapter;
+        _accessService = accessService;
     }
 
     public async Task Accept(WebSocket webSocket, string originatingUrl, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        if (user?.Access?.UseWebSockets != true)
+        if (!await _accessService.HasAccess(user, AccessOption.UseWebSockets, token))
         {
             return;
         }
@@ -61,7 +64,7 @@ public class LiveService : ILiveService
             return Error<List<WebSocketDto>>("Not logged in");
         }
 
-        if (user.Access?.ManageSockets != true)
+        if (!await _accessService.HasAccess(user, AccessOption.ManageSockets, token))
         {
             return Error<List<WebSocketDto>>("Not permitted");
         }
@@ -81,7 +84,7 @@ public class LiveService : ILiveService
             return Error<WebSocketDto>("Not logged in");
         }
 
-        if (user.Access?.ManageSockets != true)
+        if (!await _accessService.HasAccess(user, AccessOption.ManageSockets, token))
         {
             return Error<WebSocketDto>("Not permitted");
         }

@@ -15,6 +15,7 @@ public class ApproveServiceAccountSessionCommand : IUpdateCommand<ServiceAccount
     private readonly ISimpleAdapter<Access, AccessDto> _accessAdapter;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IFeatureService _featureService;
+    private readonly IAccessService _accessService;
     private ApproveServiceAccountSessionDto? _request;
 
     public ApproveServiceAccountSessionCommand(
@@ -22,13 +23,15 @@ public class ApproveServiceAccountSessionCommand : IUpdateCommand<ServiceAccount
         IUserRepository userRepository,
         ISimpleAdapter<Access, AccessDto> accessAdapter,
         IHttpContextAccessor httpContextAccessor,
-        IFeatureService featureService)
+        IFeatureService featureService,
+        IAccessService accessService)
     {
         _userService = userService;
         _userRepository = userRepository;
         _accessAdapter = accessAdapter;
         _httpContextAccessor = httpContextAccessor;
         _featureService = featureService;
+        _accessService = accessService;
     }
 
     public ApproveServiceAccountSessionCommand WithRequest(ApproveServiceAccountSessionDto request)
@@ -47,7 +50,7 @@ public class ApproveServiceAccountSessionCommand : IUpdateCommand<ServiceAccount
             return Warning("Not logged in");
         }
 
-        if (user.Access?.LoginServiceAccounts != true)
+        if (!await _accessService.HasAccess(user, AccessOption.LoginServiceAccounts, token))
         {
             return Warning("Not permitted");
         }
@@ -64,6 +67,7 @@ public class ApproveServiceAccountSessionCommand : IUpdateCommand<ServiceAccount
             return Warning("Cannot approve session from a different location");
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         if (_request!.Access.ManageAccess)
         {
             return Warning("Cannot create session with manage access permission");
@@ -73,6 +77,7 @@ public class ApproveServiceAccountSessionCommand : IUpdateCommand<ServiceAccount
         {
             return Warning("Cannot create session with login service accounts permission");
         }
+#pragma warning restore CS0618 // Type or member is obsolete
 
         var transientUser = new User
         {

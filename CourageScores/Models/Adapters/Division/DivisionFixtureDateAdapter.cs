@@ -14,16 +14,19 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
 {
     private readonly IDivisionFixtureAdapter _divisionFixtureAdapter;
     private readonly IDivisionTournamentFixtureDetailsAdapter _divisionTournamentFixtureDetailsAdapter;
+    private readonly IAccessService _accessService;
     private readonly IUserService _userService;
 
     public DivisionFixtureDateAdapter(
         IUserService userService,
         IDivisionFixtureAdapter divisionFixtureAdapter,
-        IDivisionTournamentFixtureDetailsAdapter divisionTournamentFixtureDetailsAdapter)
+        IDivisionTournamentFixtureDetailsAdapter divisionTournamentFixtureDetailsAdapter,
+        IAccessService accessService)
     {
         _userService = userService;
         _divisionFixtureAdapter = divisionFixtureAdapter;
         _divisionTournamentFixtureDetailsAdapter = divisionTournamentFixtureDetailsAdapter;
+        _accessService = accessService;
     }
 
     public async Task<DivisionFixtureDateDto> Adapt(
@@ -39,7 +42,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var canCreateTournaments = user?.Access?.ManageTournaments ?? false;
+        var canCreateTournaments = await _accessService.HasAccess(user, AccessOption.ManageTournaments, token);
         var includeFixtureProposals = !tournamentGamesForDate.Any() && includeProposals;
 
         return new DivisionFixtureDateDto

@@ -42,7 +42,7 @@ public class GameAdapterTests
     private static readonly NotablePlayerDto HiCheckPlayerDto = new();
     private static readonly PhotoReference PhotoReference = new();
     private static readonly PhotoReferenceDto PhotoReferenceDto = new();
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private Mock<IFeatureService> _featureService = null!;
     private Mock<IUserService> _userService = null!;
     private GameAdapter _adapter = null!;
@@ -52,25 +52,27 @@ public class GameAdapterTests
     private Mock<TimeProvider> _clock = null!;
     private Mock<Random> _random = null!;
     private Queue<int> _randomValues = null!;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _user = _user.SetAccess(manageScores: true);
+        _user = new UserDto();
         _featureService = new Mock<IFeatureService>();
         _userService = new Mock<IUserService>();
+        _accessService = new Mock<IAccessService>();
         _clock = new Mock<TimeProvider>();
         _random = new Mock<Random>();
         _randomValues = new Queue<int>();
+        _access = [AccessOption.ManageScores];
         _matchAdapter = new MockAdapter<GameMatch, GameMatchDto>(
-            new[] { GameMatch, PublishedGameMatch },
-            new[] { GameMatchDto, PublishedGameMatchDto });
+            [GameMatch, PublishedGameMatch],
+            [GameMatchDto, PublishedGameMatchDto]);
 
         _adapter = new GameAdapter(
             _matchAdapter,
-            new MockAdapter<GameTeam, GameTeamDto>(
-                new[] { HomeTeam, AwayTeam },
-                new[] { HomeTeamDto, AwayTeamDto }),
+            new MockAdapter<GameTeam, GameTeamDto>([HomeTeam, AwayTeam], [HomeTeamDto, AwayTeamDto]),
             new MockAdapter<GamePlayer, GamePlayerDto>(OneEightyPlayer, OneEightyPlayerDto),
             new MockAdapter<NotablePlayer, NotablePlayerDto>(HiCheckPlayer, HiCheckPlayerDto),
             new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(MatchOption, MatchOptionDto),
@@ -78,11 +80,15 @@ public class GameAdapterTests
             _featureService.Object,
             _userService.Object,
             _clock.Object,
-            _random.Object);
+            _random.Object,
+            _accessService.Object);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
         _random.Setup(r => r.Next()).Returns(() => _randomValues.Dequeue());
+        _accessService
+            .Setup(s => s.HasAccess(_user, It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto _, AccessOption access, CancellationToken _) => _access.Contains(access));
     }
 
     [Test]
@@ -117,11 +123,11 @@ public class GameAdapterTests
         Assert.That(result.Away, Is.SameAs(AwayTeamDto));
         Assert.That(result.HomeSubmission, Is.Not.Null);
         Assert.That(result.AwaySubmission, Is.Not.Null);
-        Assert.That(result.OneEighties, Is.EqualTo(new[] { OneEightyPlayerDto }));
-        Assert.That(result.Over100Checkouts, Is.EqualTo(new[] { HiCheckPlayerDto }));
+        Assert.That(result.OneEighties, Is.EqualTo([OneEightyPlayerDto]));
+        Assert.That(result.Over100Checkouts, Is.EqualTo([HiCheckPlayerDto]));
         Assert.That(result.AccoladesCount, Is.EqualTo(model.AccoladesCount));
         Assert.That(result.ResultsPublished, Is.False);
-        Assert.That(result.Photos, Is.EquivalentTo(new[] { PhotoReferenceDto }));
+        Assert.That(result.Photos, Is.EquivalentTo([PhotoReferenceDto]));
     }
 
     [Test]
@@ -135,7 +141,7 @@ public class GameAdapterTests
         var result = await _adapter.Adapt(model, _token);
 
         Assert.That(result.ResultsPublished, Is.True);
-        Assert.That(result.MatchOptions, Is.EquivalentTo(new[] { MatchOptionDto }));
+        Assert.That(result.MatchOptions, Is.EquivalentTo([MatchOptionDto]));
     }
 
     [TestCase("true")]
@@ -166,7 +172,8 @@ public class GameAdapterTests
     public async Task Adapt_GivenRandomiseSinglesConfigurationEnabled_ConditionallyRandomisesSingles(bool canManageScores, bool canInputResultsForHome, bool canInputResultsForAway, bool randomises)
     {
         _featureService.Setup(f => f.Get(FeatureLookup.RandomisedSingles, _token)).ReturnsAsync(GameAdapterTestHelpers.RandomisesSinglesFeatureDto("true"));
-        _user.SetAccess(manageScores: canManageScores, inputResults: canInputResultsForHome || canInputResultsForAway);
+        _access = canManageScores ? _access.With(AccessOption.ManageScores) : _access;
+        _access = canInputResultsForHome || canInputResultsForAway ? _access.With(AccessOption.InputResults) : _access;
         SetUserTeamId(canInputResultsForHome, canInputResultsForAway);
         var model = new GameBuilder()
             .WithDate(new DateTime(2001, 02, 03))
@@ -199,7 +206,8 @@ public class GameAdapterTests
     {
         var enabled = new ConfiguredFeatureDto { ConfiguredValue = "false" };
         _featureService.Setup(f => f.Get(FeatureLookup.RandomisedSingles, _token)).ReturnsAsync(enabled);
-        _user.SetAccess(manageScores: canManageScores, inputResults: canInputResultsForHome || canInputResultsForAway);
+        _access = canManageScores ? _access.With(AccessOption.ManageScores) : _access;
+        _access = canInputResultsForHome || canInputResultsForAway ? _access.With(AccessOption.InputResults) : _access;
         SetUserTeamId(canInputResultsForHome, canInputResultsForAway);
         var model = new GameBuilder()
             .WithDate(new DateTime(2001, 02, 03))
@@ -222,7 +230,8 @@ public class GameAdapterTests
     {
         var enabled = new ConfiguredFeatureDto { ConfiguredValue = null };
         _featureService.Setup(f => f.Get(FeatureLookup.RandomisedSingles, _token)).ReturnsAsync(enabled);
-        _user.SetAccess(manageScores: canManageScores, inputResults: canInputResultsForHome || canInputResultsForAway);
+        _access = canManageScores ? _access.With(AccessOption.ManageScores) : _access;
+        _access = canInputResultsForHome || canInputResultsForAway ? _access.With(AccessOption.InputResults) : _access;
         SetUserTeamId(canInputResultsForHome, canInputResultsForAway);
         var model = new GameBuilder()
             .WithDate(new DateTime(2001, 02, 03))
@@ -244,7 +253,8 @@ public class GameAdapterTests
     public async Task Adapt_GivenRandomiseSinglesNotConfigured_NeverRandomisesSingles(bool canManageScores, bool canInputResultsForHome, bool canInputResultsForAway)
     {
         _featureService.Setup(f => f.Get(FeatureLookup.RandomisedSingles, _token)).ReturnsAsync(() => null);
-        _user.SetAccess(manageScores: canManageScores, inputResults: canInputResultsForHome || canInputResultsForAway);
+        _access = canManageScores ? _access.With(AccessOption.ManageScores) : _access;
+        _access = canInputResultsForHome || canInputResultsForAway ? _access.With(AccessOption.InputResults) : _access;
         SetUserTeamId(canInputResultsForHome, canInputResultsForAway);
         var model = new GameBuilder()
             .WithDate(new DateTime(2001, 02, 03))
@@ -272,7 +282,7 @@ public class GameAdapterTests
     [Test]
     public async Task Adapt_GivenVetoScoresIsConfiguredAndNotPermitted_DoesNotAdaptMatchesBeforeVeto()
     {
-        _user.SetAccess(manageScores: false);
+        _access = _access.Without(AccessOption.ManageScores);
         _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         _featureService.Setup(f => f.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(GameAdapterTestHelpers.VetoFeatureDto("2.00:00:00"));
 
@@ -282,7 +292,7 @@ public class GameAdapterTests
     [Test]
     public async Task Adapt_GivenVetoScoresIsConfiguredAndNotPermitted_AdaptMatchesAtVetoBoundaryTime()
     {
-        _user.SetAccess(manageScores: false);
+        _access = _access.Without(AccessOption.ManageScores);
         _now = new DateTimeOffset(2001, 02, 05, 04, 05, 06, TimeSpan.Zero);
         _featureService.Setup(f => f.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(GameAdapterTestHelpers.VetoFeatureDto("2.00:00:00"));
 
@@ -292,7 +302,7 @@ public class GameAdapterTests
     [Test]
     public async Task Adapt_GivenVetoScoresIsConfiguredAndNotPermitted_AdaptMatchesAfterVeto()
     {
-        _user.SetAccess(manageScores: false);
+        _access = _access.Without(AccessOption.ManageScores);
         _now = new DateTimeOffset(2001, 02, 06, 04, 05, 06, TimeSpan.Zero);
         _featureService.Setup(f => f.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(GameAdapterTestHelpers.VetoFeatureDto("2.00:00:00"));
 
@@ -305,7 +315,8 @@ public class GameAdapterTests
     [TestCase(true, false, false, false)]
     public async Task Adapt_GivenVetoScoresIsConfigured_DoesNotAdaptMatchesBeforeVeto(bool canManageScores, bool canInputResultsForHome, bool canInputResultsForAway, bool obscuresMatches)
     {
-        _user.SetAccess(manageScores: canManageScores, inputResults: canInputResultsForHome || canInputResultsForAway);
+        _access = canManageScores ? _access.With(AccessOption.ManageScores) : _access.Without(AccessOption.ManageScores);
+        _access = canInputResultsForHome || canInputResultsForAway ? _access.With(AccessOption.InputResults) : _access;
         SetUserTeamId(canInputResultsForHome, canInputResultsForAway);
         _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         _featureService.Setup(f => f.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(GameAdapterTestHelpers.VetoFeatureDto("2.00:00:00"));
@@ -322,7 +333,8 @@ public class GameAdapterTests
         _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         var enabled = GameAdapterTestHelpers.VetoFeatureDto(null);
         _featureService.Setup(f => f.Get(FeatureLookup.RandomisedSingles, _token)).ReturnsAsync(enabled);
-        _user.SetAccess(manageScores: canManageScores, inputResults: canInputResultsForHome || canInputResultsForAway);
+        _access = canManageScores ? _access.With(AccessOption.ManageScores) : _access;
+        _access = canInputResultsForHome || canInputResultsForAway ? _access.With(AccessOption.InputResults) : _access;
         SetUserTeamId(canInputResultsForHome, canInputResultsForAway);
 
         await RunVetoScoresTest(new DateTime(2001, 01, 01), true);
@@ -336,7 +348,8 @@ public class GameAdapterTests
     {
         _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         _featureService.Setup(f => f.Get(FeatureLookup.RandomisedSingles, _token)).ReturnsAsync(() => null);
-        _user.SetAccess(manageScores: canManageScores, inputResults: canInputResultsForHome || canInputResultsForAway);
+        _access = canManageScores ? _access.With(AccessOption.ManageScores) : _access;
+        _access = canInputResultsForHome || canInputResultsForAway ? _access.With(AccessOption.InputResults) : _access;
         SetUserTeamId(canInputResultsForHome, canInputResultsForAway);
 
         await RunVetoScoresTest(new DateTime(2001, 01, 01), true);
@@ -377,14 +390,14 @@ public class GameAdapterTests
         Assert.That(result.IsKnockout, Is.EqualTo(dto.IsKnockout));
         Assert.That(result.Home, Is.SameAs(HomeTeam));
         Assert.That(result.Away, Is.SameAs(AwayTeam));
-        Assert.That(result.Matches, Is.EqualTo(new[] { GameMatch }));
+        Assert.That(result.Matches, Is.EqualTo([GameMatch]));
         Assert.That(result.HomeSubmission, Is.Not.Null);
         Assert.That(result.AwaySubmission, Is.Not.Null);
-        Assert.That(result.OneEighties, Is.EqualTo(new[] { OneEightyPlayer }));
-        Assert.That(result.Over100Checkouts, Is.EqualTo(new[] { HiCheckPlayer }));
+        Assert.That(result.OneEighties, Is.EqualTo([OneEightyPlayer]));
+        Assert.That(result.Over100Checkouts, Is.EqualTo([HiCheckPlayer]));
         Assert.That(result.AccoladesCount, Is.EqualTo(dto.AccoladesCount));
-        Assert.That(result.Photos, Is.EquivalentTo(new[] { PhotoReference }));
-        Assert.That(result.MatchOptions, Is.EqualTo(new[] { MatchOption }));
+        Assert.That(result.Photos, Is.EquivalentTo([PhotoReference]));
+        Assert.That(result.MatchOptions, Is.EqualTo([MatchOption]));
     }
 
     [Test]

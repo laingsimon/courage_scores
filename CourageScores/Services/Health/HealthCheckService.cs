@@ -13,6 +13,7 @@ public class HealthCheckService : IHealthCheckService
 {
     private readonly ICachingDivisionService _divisionService;
     private readonly ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions, SeasonHealthDto> _seasonAdapter;
+    private readonly IAccessService _accessService;
     private readonly ISeasonHealthCheckFactory _seasonHealthCheckFactory;
     private readonly ICachingSeasonService _seasonService;
     private readonly IUserService _userService;
@@ -22,20 +23,22 @@ public class HealthCheckService : IHealthCheckService
         ICachingSeasonService seasonService,
         ICachingDivisionService divisionService,
         ISeasonHealthCheckFactory seasonHealthCheckFactory,
-        ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions, SeasonHealthDto> seasonAdapter)
+        ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions, SeasonHealthDto> seasonAdapter,
+        IAccessService accessService)
     {
         _userService = userService;
         _seasonService = seasonService;
         _divisionService = divisionService;
         _seasonHealthCheckFactory = seasonHealthCheckFactory;
         _seasonAdapter = seasonAdapter;
+        _accessService = accessService;
     }
 
     public async Task<SeasonHealthCheckResultDto> Check(Guid seasonId, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
 
-        if (user?.Access?.RunHealthChecks != true)
+        if (!await _accessService.HasAccess(user, AccessOption.RunHealthChecks, token))
         {
             return new SeasonHealthCheckResultDto
             {

@@ -8,6 +8,7 @@ namespace CourageScores.Services.Command;
 public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamPlayer>
 {
     private readonly IAuditingHelper _auditingHelper;
+    private readonly IAccessService _accessService;
     private readonly ICachingSeasonService _seasonService;
     private readonly IUserService _userService;
     private Guid? _playerId;
@@ -16,11 +17,13 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
     public RemovePlayerCommand(
         ICachingSeasonService seasonService,
         IUserService userService,
-        IAuditingHelper auditingHelper)
+        IAuditingHelper auditingHelper,
+        IAccessService accessService)
     {
         _seasonService = seasonService;
         _userService = userService;
         _auditingHelper = auditingHelper;
+        _accessService = accessService;
     }
 
     public RemovePlayerCommand ForPlayer(Guid playerId)
@@ -65,8 +68,8 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             };
         }
 
-        var canManageTeams = user.Access?.ManageTeams == true;
-        var canInputResultsForTeam = user.Access?.InputResults == true && user.TeamId == model.Id;
+        var canManageTeams = await _accessService.HasAccess(user, AccessOption.ManageTeams, token);
+        var canInputResultsForTeam = await _accessService.HasAccess(user, AccessOption.InputResults, token) && user.TeamId == model.Id;
         if (!canManageTeams && !canInputResultsForTeam)
         {
             return new ActionResult<TeamPlayer>

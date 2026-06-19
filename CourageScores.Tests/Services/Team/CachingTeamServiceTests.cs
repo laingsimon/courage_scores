@@ -15,16 +15,9 @@ namespace CourageScores.Tests.Services.Team;
 [TestFixture]
 public class CachingTeamServiceTests
 {
-    private readonly CancellationToken _token = new();
-    private readonly List<TeamDto> _seasonIdOnlyTeams = new()
-    {
-        new TeamDto(),
-    };
-    private readonly List<TeamDto> _seasonIdAndDivisionIdTeams = new()
-    {
-        new TeamDto(),
-        new TeamDto(),
-    };
+    private readonly CancellationToken _token = CancellationToken.None;
+    private readonly List<TeamDto> _seasonIdOnlyTeams = [new TeamDto()];
+    private readonly List<TeamDto> _seasonIdAndDivisionIdTeams = [new TeamDto(), new TeamDto()];
     private CachingTeamService _service = null!;
     private Mock<ITeamService> _underlyingService = null!;
     private ICache _cache = null!;
@@ -63,7 +56,7 @@ public class CachingTeamServiceTests
     public async Task GetTeamsForSeason_GivenSeasonIdWhenLoggedIn_BypassesCache()
     {
         var seasonId = Guid.NewGuid();
-        _user = _user.SetAccess();
+        _user = new UserDto();
 
         var result = await _service.GetTeamsForSeason(seasonId, _token).ToList();
 
@@ -106,7 +99,7 @@ public class CachingTeamServiceTests
     {
         var seasonId = Guid.NewGuid();
         var divisionId = Guid.NewGuid();
-        _user = _user.SetAccess();
+        _user = new UserDto();
 
         var result = await _service.GetTeamsForSeason(seasonId, divisionId, _token).ToList();
 

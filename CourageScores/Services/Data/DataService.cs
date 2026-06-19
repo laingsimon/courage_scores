@@ -20,6 +20,7 @@ public class DataService : IDataService
     private readonly IDataBrowserRepository<SingleDataResultDto> _dataBrowserRepository;
     private readonly IDataBrowserRepository<object> _dataViewRepository;
     private readonly IBlobStorageRepository _blobStorageRepository;
+    private readonly IAccessService _accessService;
 
     public DataService(
         Database database,
@@ -31,7 +32,8 @@ public class DataService : IDataService
         IConfiguration configuration,
         IDataBrowserRepository<SingleDataResultDto> dataBrowserRepository,
         IDataBrowserRepository<object> dataViewRepository,
-        IBlobStorageRepository blobStorageRepository)
+        IBlobStorageRepository blobStorageRepository,
+        IAccessService accessService)
     {
         _database = database;
         _userService = userService;
@@ -43,6 +45,7 @@ public class DataService : IDataService
         _dataBrowserRepository = dataBrowserRepository;
         _dataViewRepository = dataViewRepository;
         _blobStorageRepository = blobStorageRepository;
+        _accessService = accessService;
     }
 
     public async Task<ActionResultDto<ExportDataResultDto>> ExportData(ExportDataRequestDto request, CancellationToken token)
@@ -53,7 +56,7 @@ public class DataService : IDataService
             return Unsuccessful<ExportDataResultDto>("Not logged in");
         }
 
-        if (user.Access?.ExportData != true)
+        if (!await _accessService.HasAccess(user, AccessOption.ExportData, token))
         {
             return Unsuccessful<ExportDataResultDto>("Not permitted");
         }
@@ -69,7 +72,7 @@ public class DataService : IDataService
             return Unsuccessful<ImportDataResultDto>("Not logged in");
         }
 
-        if (user.Access?.ImportData != true)
+        if (!await _accessService.HasAccess(user, AccessOption.ImportData, token))
         {
             return Unsuccessful<ImportDataResultDto>("Not permitted");
         }
@@ -129,7 +132,7 @@ public class DataService : IDataService
             return Unsuccessful<IReadOnlyCollection<SingleDataResultDto>>("Not logged in");
         }
 
-        if (user.Access?.ExportData != true)
+        if (!await _accessService.HasAccess(user, AccessOption.ExportData, token))
         {
             return Unsuccessful<IReadOnlyCollection<SingleDataResultDto>>("Not permitted");
         }
@@ -160,7 +163,7 @@ public class DataService : IDataService
             return Unsuccessful<object>("Not logged in");
         }
 
-        if (user.Access?.ExportData != true)
+        if (!await _accessService.HasAccess(user, AccessOption.ExportData, token))
         {
             return Unsuccessful<object>("Not permitted");
         }

@@ -11,13 +11,15 @@ public class CosmosTableService : ICosmosTableService
 {
     private readonly Database _database;
     private readonly IJsonSerializerService _serializer;
+    private readonly IAccessService _accessService;
     private readonly IUserService _userService;
 
-    public CosmosTableService(Database database, IUserService userService, IJsonSerializerService serializer)
+    public CosmosTableService(Database database, IUserService userService, IJsonSerializerService serializer, IAccessService accessService)
     {
         _database = database;
         _userService = userService;
         _serializer = serializer;
+        _accessService = accessService;
     }
 
     public async IAsyncEnumerable<ITableAccessor> GetTables(ExportDataRequestDto request, [EnumeratorCancellation] CancellationToken token)
@@ -78,13 +80,14 @@ public class CosmosTableService : ICosmosTableService
             return false;
         }
 
-        return user.Access?.ExportData == true;
+        return await _accessService.HasAccess(user, AccessOption.ExportData, token);
     }
 
     private async Task<bool> CanImportDataType(Type? dataType, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        if (user == null || user.Access?.ImportData != true)
+        var importData = await _accessService.HasAccess(user, AccessOption.ImportData, token);
+        if (!importData)
         {
             return false;
         }
@@ -94,7 +97,8 @@ public class CosmosTableService : ICosmosTableService
             return false;
         }
 
+        var userAccess = new UserAccessService(_accessService, user);
         var instance = (IPermissionedEntity)Activator.CreateInstance(dataType)!;
-        return instance.CanCreate(user) && instance.CanEdit(user) && instance.CanDelete(user);
+        return await instance.CanCreate(userAccess, token) && await instance.CanEdit(userAccess, token) && await instance.CanDelete(userAccess, token);
     }
 }

@@ -30,14 +30,18 @@ public class RemovePlayerCommandTests
     private UserDto? _user;
     private RemovePlayerCommand _command = null!;
     private TeamSeason _teamSeason = null!;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
         _seasonService = new Mock<ICachingSeasonService>();
         _userService = new Mock<IUserService>();
+        _access = [AccessOption.ManageTeams];
+        _accessService = new Mock<IAccessService>();
         _auditingHelper = new Mock<IAuditingHelper>();
-        _user = _user.SetAccess(manageTeams: true, teamId: Guid.Parse(UserTeamId));
+        _user = new UserDto { TeamId = Guid.Parse(UserTeamId) };
         _teamSeason = new TeamSeason
         {
             SeasonId = _season.Id,
@@ -49,10 +53,13 @@ public class RemovePlayerCommandTests
             Seasons = { _teamSeason },
             Name = "TEAM",
         };
-        _command = new RemovePlayerCommand(_seasonService.Object, _userService.Object, _auditingHelper.Object);
+        _command = new RemovePlayerCommand(_seasonService.Object, _userService.Object, _auditingHelper.Object, _accessService.Object);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
+        _accessService
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
     }
 
     [Test]
@@ -83,7 +90,8 @@ public class RemovePlayerCommandTests
     [TestCase(false, true, "8937E8EB-0E3B-4541-AFC6-8025B8E4E625")]
     public async Task ApplyUpdate_WhenNotPermitted_ReturnsUnsuccessful(bool manageTeams, bool inputResults, string? teamId)
     {
-        _user.SetAccess(manageTeams: manageTeams, inputResults: inputResults);
+        _access = manageTeams ? _access.With(AccessOption.ManageTeams) : _access.Without(AccessOption.ManageTeams);
+        _access = inputResults ? _access.With(AccessOption.InputResults) : _access.Without(AccessOption.InputResults);
         _user!.TeamId = teamId != null ? Guid.Parse(teamId) : null;
 
         var result = await _command.ForPlayer(TeamPlayer.Id).FromSeason(_season.Id).ApplyUpdate(_team, _token);

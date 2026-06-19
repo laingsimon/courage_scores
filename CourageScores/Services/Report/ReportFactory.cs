@@ -16,26 +16,29 @@ public class ReportFactory : IReportFactory
     private readonly ICachingSeasonService _seasonService;
     private readonly IGenericDataService<TournamentGame, TournamentGameDto> _tournamentService;
     private readonly ITournamentTypeResolver _tournamentTypeResolver;
+    private readonly IAccessService _accessService;
 
     public ReportFactory(
         IUserService userService,
         ICachingDivisionService divisionService,
         ICachingSeasonService seasonService,
         IGenericDataService<TournamentGame, TournamentGameDto> tournamentService,
-        ITournamentTypeResolver tournamentTypeResolver)
+        ITournamentTypeResolver tournamentTypeResolver,
+        IAccessService accessService)
     {
         _userService = userService;
         _divisionService = divisionService;
         _seasonService = seasonService;
         _tournamentService = tournamentService;
         _tournamentTypeResolver = tournamentTypeResolver;
+        _accessService = accessService;
     }
 
     public async IAsyncEnumerable<IReport> GetReports(ReportRequestDto request, [EnumeratorCancellation] CancellationToken token)
     {
         var user = await _userService.GetUser(token);
 
-        if (user?.Access?.ManageScores == true)
+        if (await _accessService.HasAccess(user, AccessOption.ManageScores, token))
         {
             yield return new ManOfTheMatchReport(request.TopCount);
         }
@@ -50,6 +53,7 @@ public class ReportFactory : IReportFactory
             (await _seasonService.Get(request.SeasonId, token))!,
             _divisionService,
             _tournamentService,
-            _tournamentTypeResolver);
+            _tournamentTypeResolver,
+            _accessService);
     }
 }

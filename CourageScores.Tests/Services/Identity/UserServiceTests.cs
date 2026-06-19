@@ -38,6 +38,7 @@ public class UserServiceTests
     private Mock<IGenericRepository<ServiceAccountSession>> _serviceAccountSessionRepository = null!;
     private Mock<IGenericRepository<ConfiguredFeature>> _featureRepository = null!;
     private MockRequestCookies _requestCookies = null!;
+    private Mock<IAccessService> _accessService = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -54,9 +55,10 @@ public class UserServiceTests
         _featureRepository = new Mock<IGenericRepository<ConfiguredFeature>>();
         _requestCookies = new MockRequestCookies();
         _httpContext = null;
+        _accessService = new Mock<IAccessService>();
 
         _service = new UserService(_httpContextAccessor.Object, _userRepository.Object, _userAdapter, _accessAdapter,
-            _teamRepository.Object, _serviceAccountSessionRepository.Object, _featureRepository.Object);
+            _teamRepository.Object, _serviceAccountSessionRepository.Object, _featureRepository.Object, _accessService.Object);
 
         _httpContextServices.Setup(p => p.GetService(typeof(IAuthenticationService))).Returns(_authenticationService.Object);
         _teamRepository.Setup(r => r.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_allTeams.ToArray()));
@@ -66,9 +68,7 @@ public class UserServiceTests
     [Test]
     public async Task GetUser_WhenCalledFirstTimeAndNoHttpContext_ReturnsNull()
     {
-        var user = await _service.GetUser(_token);
-
-        Assert.That(user, Is.Null);
+        Assert.That(await _service.GetUser(_token), Is.Null);
     }
 
     [Test]
@@ -108,7 +108,7 @@ public class UserServiceTests
 
         _userRepository.Verify(r => r.GetUser("simon@email.com"));
         _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u =>
-                u.Name == "Simon Laing" && u.GivenName == "Simon" && u.EmailAddress == "simon@email.com" && u.TeamId == team.Id)));
+            u.Name == "Simon Laing" && u.GivenName == "Simon" && u.EmailAddress == "simon@email.com" && u.TeamId == team.Id)));
     }
 
     [Test]
@@ -116,9 +116,8 @@ public class UserServiceTests
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
         var teamPlayer = new TeamPlayer { Id = Guid.NewGuid(), EmailAddress = "simon@email.com", Deleted = new DateTime(2001, 02, 03) };
-        var team = new CosmosTeam { Id = Guid.NewGuid(), Seasons = { new TeamSeason { Players = { teamPlayer } } } };
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(GetUser());
-        _allTeams.Add(team);
+        _allTeams.Add(new CosmosTeam { Id = Guid.NewGuid(), Seasons = { new TeamSeason { Players = { teamPlayer } } } });
 
         await _service.GetUser(_token);
 
@@ -160,11 +159,12 @@ public class UserServiceTests
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(() => null);
+
         await _service.GetUser(_token);
 
         _userRepository.Verify(r => r.GetUser("simon@email.com"));
         _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u =>
-                u.Name == "Simon Laing" && u.GivenName == "Simon" && u.EmailAddress == "simon@email.com")));
+            u.Name == "Simon Laing" && u.GivenName == "Simon" && u.EmailAddress == "simon@email.com")));
     }
 
     [Test]
@@ -195,9 +195,7 @@ public class UserServiceTests
     [Test]
     public async Task GetUser_GivenEmailAddressWhenNotLoggedIn_ReturnsNull()
     {
-        var user = await _service.GetUser("other@email.com", _token);
-
-        Assert.That(user, Is.Null);
+        Assert.That(await _service.GetUser("other@email.com", _token), Is.Null);
     }
 
     [Test]
@@ -215,7 +213,8 @@ public class UserServiceTests
     public async Task GetUser_GivenEmailAddressWhenPermitted_ReturnsOtherUserDetails()
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
-        _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(GetUser(manageAccess: true));
+        _accessService.Setup(s => s.HasAccess(It.Is<UserDto?>(u => u!.EmailAddress == "simon@email.com"), AccessOption.ManageAccess, _token)).ReturnsAsync(true);
+        _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(GetUser(emailAddress: "simon@email.com"));
         _userRepository.Setup(r => r.GetUser("other@email.com")).ReturnsAsync(GetUser(name: "Other User", emailAddress: "other@email.com"));
 
         var user = await _service.GetUser("other@email.com", _token);
@@ -228,7 +227,8 @@ public class UserServiceTests
     public async Task GetUser_GivenEmailAddressWhenPermittedAndUserNotFound_ReturnsNull()
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
-        _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(GetUser(manageAccess: true));
+        _accessService.Setup(s => s.HasAccess(It.Is<UserDto?>(u => u!.EmailAddress == "simon@email.com"), AccessOption.ManageAccess, _token)).ReturnsAsync(true);
+        _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(GetUser(emailAddress: "simon@email.com"));
         _userRepository.Setup(r => r.GetUser("other@email.com")).ReturnsAsync(() => null);
 
         var user = await _service.GetUser("other@email.com", _token);
@@ -239,9 +239,7 @@ public class UserServiceTests
     [Test]
     public async Task GetAll_WhenNotLoggedIn_ReturnsEmpty()
     {
-        var users = await _service.GetAll(_token).ToList();
-
-        Assert.That(users, Is.Empty);
+        Assert.That(await _service.GetAll(_token).ToList(), Is.Empty);
     }
 
     [Test]
@@ -259,7 +257,8 @@ public class UserServiceTests
     public async Task GetAll_WhenPermitted_ReturnsAllUsers()
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
-        var loggedInUser = GetUser(name: "Logged in user", manageAccess: true);
+        var loggedInUser = GetUser(name: "Logged in user");
+        _accessService.Setup(s => s.HasAccess(It.IsAny<UserDto?>(), AccessOption.ManageAccess, _token)).ReturnsAsync(true);
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
         _userRepository.Setup(r => r.GetAll()).Returns(TestUtilities.AsyncEnumerable(GetUser(name: "Other user"), loggedInUser));
 
@@ -292,9 +291,7 @@ public class UserServiceTests
     [Test]
     public async Task UpdateAccess_WhenUserNotFound_ReturnsNotFound()
     {
-        CreateTicket("Simon Laing", "simon@email.com", "Simon");
-        _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(GetUser(manageAccess: true));
-        _userRepository.Setup(r => r.GetUser("other@email.com")).ReturnsAsync(() => null);
+        SetupUsers(secondaryUserEmail: "not-other@email.com");
 
         var result = await _service.UpdateAccess(GetUpdateAccessDto(emailAddress: "other@email.com"), _token);
 
@@ -305,8 +302,7 @@ public class UserServiceTests
     [Test]
     public async Task UpdateAccess_WhenRemovingManageAccessFromSelf_ReturnsNotAllowedToRemoveOwnManageAccess()
     {
-        CreateTicket("Simon Laing", "simon@email.com", "Simon");
-        _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(GetUser(manageAccess: true));
+        SetupUsers();
 
         var result = await _service.UpdateAccess(GetUpdateAccessDto(emailAddress: "simon@email.com"), _token);
 
@@ -317,10 +313,8 @@ public class UserServiceTests
     [Test]
     public async Task UpdateAccess_WhenUserFoundWithNoExistingAccess_UpdatesAccess()
     {
-        CreateTicket("Simon Laing", "simon@email.com", "Simon");
         var update = GetUpdateAccessDto(emailAddress: "other@email.com", manageGames: true);
-        _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(GetUser(manageAccess: true));
-        _userRepository.Setup(r => r.GetUser("other@email.com")).ReturnsAsync(GetUser("Other User"));
+        SetupUsers();
 
         var result = await _service.UpdateAccess(update, _token);
 
@@ -332,10 +326,7 @@ public class UserServiceTests
     [Test]
     public async Task UpdateAccess_WhenUserFoundWithExistingAccess_UpdatesAccess()
     {
-        CreateTicket("Simon Laing", "simon@email.com", "Simon");
-        _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(GetUser(manageAccess: true));
-        _userRepository.Setup(r => r.GetUser("other@email.com")).ReturnsAsync(GetUser(name: "Other User", manageGames: true));
-
+        SetupUsers();
         var result = await _service.UpdateAccess(GetUpdateAccessDto(emailAddress: "other@email.com"), _token);
 
         _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u => u.Name == "Other User" && u.Access!.ManageGames == false)));
@@ -487,6 +478,17 @@ public class UserServiceTests
         Assert.That(user.GivenName, Is.EqualTo(sessionUser.GivenName));
     }
 
+    private void SetupUsers(string primaryUserEmail = "simon@email.com", string secondaryUserEmail = "other@email.com", AccessOption[]? hasAccesses = null)
+    {
+        CreateTicket("Simon Laing", primaryUserEmail, "Simon");
+        foreach (var hasAccess in hasAccesses ?? [AccessOption.ManageAccess])
+        {
+            _accessService.Setup(s => s.HasAccess(It.Is<UserDto?>(u => u!.EmailAddress == primaryUserEmail), hasAccess, _token)).ReturnsAsync(true);
+        }
+        _userRepository.Setup(r => r.GetUser(primaryUserEmail)).ReturnsAsync(GetUser(emailAddress: primaryUserEmail));
+        _userRepository.Setup(r => r.GetUser(secondaryUserEmail)).ReturnsAsync(GetUser(name: "Other User"));
+    }
+
     private ServiceAccountSession CreateActivatedSession(Action<ServiceAccountSession>? modifier = null, bool setupCookies = true)
     {
         var session = new ServiceAccountSession
@@ -495,7 +497,6 @@ public class UserServiceTests
             VerificationValue = "some verification value",
             ServiceIpAddress = _httpContext!.Connection.RemoteIpAddress!.ToString(),
             ServiceUserAgent = _httpContext!.Request.Headers.UserAgent.ToString(),
-            Id = Guid.NewGuid(),
             ApprovedBy = "approver",
             TransientUsername = "assigned user",
         };
@@ -541,14 +542,15 @@ public class UserServiceTests
         _authenticationService.Setup(s => s.AuthenticateAsync(_httpContext!, scheme)).ReturnsAsync(result);
     }
 
-    private static User GetUser(string name = "", string emailAddress = "", Guid? teamId = null, bool manageAccess = false, bool manageGames = false, string givenName = "givenName")
+    private static User GetUser(string name = "", string emailAddress = "", Guid? teamId = null, string givenName = "givenName")
     {
-        var access = new Access { ManageAccess = manageAccess, ManageGames = manageGames };
-        return new User { Name = name, EmailAddress = emailAddress, TeamId = teamId, GivenName = givenName, Access = access };
+        return new User { Name = name, EmailAddress = emailAddress, TeamId = teamId, GivenName = givenName };
     }
 
     private static UpdateAccessDto GetUpdateAccessDto(string emailAddress = "", bool manageGames = false)
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         return new UpdateAccessDto { EmailAddress = emailAddress, Access = new AccessDto { ManageGames = manageGames } };
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

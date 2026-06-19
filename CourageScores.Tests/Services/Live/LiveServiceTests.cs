@@ -14,7 +14,7 @@ namespace CourageScores.Tests.Services.Live;
 [TestFixture]
 public class LiveServiceTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = CancellationToken.None;
     private List<IWebSocketContract> _sockets = null!;
     private Mock<IWebSocketContractFactory> _contractFactory = null!;
     private Mock<IWebSocketContract> _contract = null!;
@@ -25,6 +25,8 @@ public class LiveServiceTests
     private Mock<IWebSocketMessageProcessor> _webSocketMessageProcessor = null!;
     private Mock<ISimpleOnewayAdapter<WebSocketDetail, WebSocketDto>> _detailsAdapter = null!;
     private Mock<ISimpleOnewayAdapter<WatchableData, WatchableDataDto>> _watchableAdapter = null!;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -32,6 +34,9 @@ public class LiveServiceTests
         _sockets = new List<IWebSocketContract>();
         _contractFactory = new Mock<IWebSocketContractFactory>();
         _userService = new Mock<IUserService>();
+        _user = null;
+        _access = [];
+        _accessService = new Mock<IAccessService>();
         _updatedDataSource = new Mock<IUpdatedDataSource>();
         _webSocketMessageProcessor = new Mock<IWebSocketMessageProcessor>();
         _detailsAdapter = new Mock<ISimpleOnewayAdapter<WebSocketDetail, WebSocketDto>>();
@@ -43,7 +48,8 @@ public class LiveServiceTests
             _updatedDataSource.Object,
             _webSocketMessageProcessor.Object,
             _detailsAdapter.Object,
-            _watchableAdapter.Object);
+            _watchableAdapter.Object,
+            _accessService.Object);
         _contract = new Mock<IWebSocketContract>();
 
         _contractFactory
@@ -52,6 +58,9 @@ public class LiveServiceTests
         _userService
             .Setup(s => s.GetUser(_token))
             .ReturnsAsync(() => _user);
+        _accessService
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }
 
     [Test]
@@ -69,7 +78,7 @@ public class LiveServiceTests
     public async Task Accept_WhenNotPermitted_DoesNotAddWebSocket()
     {
         var socket = new Mock<WebSocket>();
-        _user = _user.SetAccess();
+        _user = new UserDto();
 
         await _service.Accept(socket.Object, "originatingUrl", _token);
 
@@ -80,7 +89,8 @@ public class LiveServiceTests
     public async Task Accept_WhenPermitted_AddsWebSocket()
     {
         var socket = new Mock<WebSocket>();
-        _user = _user.SetAccess(useWebSockets: true);
+        _user = new UserDto();
+        _access = _access.With(AccessOption.UseWebSockets);
 
         await _service.Accept(socket.Object, "originatingUrl", _token);
 
@@ -91,7 +101,8 @@ public class LiveServiceTests
     public async Task Accept_WhenPermitted_AcceptsTheContract()
     {
         var socket = new Mock<WebSocket>();
-        _user = _user.SetAccess(useWebSockets: true);
+        _user = new UserDto();
+        _access = _access.With(AccessOption.UseWebSockets);
 
         await _service.Accept(socket.Object, "originatingUrl", _token);
 
@@ -107,18 +118,18 @@ public class LiveServiceTests
         var result = await _service.GetSockets(_token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Not logged in" }));
+        Assert.That(result.Errors, Is.EquivalentTo(["Not logged in"]));
     }
 
     [Test]
     public async Task GetSockets_WhenNotPermitted_ReturnsNotPermitted()
     {
-        _user = _user.SetAccess();
+        _user = new UserDto();
 
         var result = await _service.GetSockets(_token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Errors, Is.EquivalentTo(["Not permitted"]));
     }
 
     [Test]
@@ -127,7 +138,8 @@ public class LiveServiceTests
         var socketDto = new WebSocketDto();
         var details = new WebSocketDetail();
         var socket = new Mock<IWebSocketContract>();
-        _user = _user.SetAccess(manageSockets: true);
+        _user = new UserDto();
+        _access = _access.With(AccessOption.ManageSockets);
         _sockets.Add(socket.Object);
         _detailsAdapter.Setup(a => a.Adapt(details, _token)).ReturnsAsync(socketDto);
         socket.Setup(s => s.Details).Returns(details);
@@ -135,7 +147,7 @@ public class LiveServiceTests
         var result = await _service.GetSockets(_token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Result, Is.EquivalentTo(new[] { socketDto }));
+        Assert.That(result.Result, Is.EquivalentTo([socketDto]));
     }
 
     [Test]
@@ -158,13 +170,13 @@ public class LiveServiceTests
         var result = await _service.CloseSocket(socketDto.Id, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Not logged in" }));
+        Assert.That(result.Errors, Is.EquivalentTo(["Not logged in"]));
     }
 
     [Test]
     public async Task CloseSocket_WhenNotPermitted_ReturnsNotPermitted()
     {
-        _user = _user.SetAccess();
+        _user = new UserDto();
         var details = new WebSocketDetail
         {
             Id = Guid.NewGuid(),
@@ -181,13 +193,14 @@ public class LiveServiceTests
         var result = await _service.CloseSocket(socketDto.Id, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Errors, Is.EquivalentTo(["Not permitted"]));
     }
 
     [Test]
     public async Task CloseSocket_WhenPermittedAndSocketNotFound_ReturnsNotFound()
     {
-        _user = _user.SetAccess(manageSockets: true);
+        _user = new UserDto();
+        _access = _access.With(AccessOption.ManageSockets);
         var details = new WebSocketDetail
         {
             Id = Guid.NewGuid(),
@@ -204,13 +217,14 @@ public class LiveServiceTests
         var result = await _service.CloseSocket(Guid.NewGuid(), _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Not found" }));
+        Assert.That(result.Errors, Is.EquivalentTo(["Not found"]));
     }
 
     [Test]
     public async Task CloseSocket_WhenPermitted_ClosesSocket()
     {
-        _user = _user.SetAccess(manageSockets: true);
+        _user = new UserDto();
+        _access = _access.With(AccessOption.ManageSockets);
         var details = new WebSocketDetail
         {
             Id = Guid.NewGuid(),
@@ -228,7 +242,7 @@ public class LiveServiceTests
 
         socket.Verify(s => s.Close(_token));
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Socket closed" }));
+        Assert.That(result.Messages, Is.EquivalentTo(["Socket closed"]));
         Assert.That(result.Result, Is.EqualTo(socketDto));
     }
 
@@ -315,7 +329,7 @@ public class LiveServiceTests
 
         _watchableAdapter.Verify(a => a.Adapt(sayg, _token));
         _watchableAdapter.Verify(a => a.Adapt(tournament, _token));
-        Assert.That(dtos.Select(d => d.Id), Is.EquivalentTo(new[] { tournament.Publication.Id, sayg.Publication.Id }));
+        Assert.That(dtos.Select(d => d.Id), Is.EquivalentTo([tournament.Publication.Id, sayg.Publication.Id]));
     }
 
     [Test]
@@ -345,7 +359,7 @@ public class LiveServiceTests
 
         _watchableAdapter.Verify(a => a.Adapt(sayg, _token));
         _watchableAdapter.Verify(a => a.Adapt(tournament, _token));
-        Assert.That(dtos.Select(d => d.Id), Is.EquivalentTo(new[] { sayg.Publication.Id }));
+        Assert.That(dtos.Select(d => d.Id), Is.EquivalentTo([sayg.Publication.Id]));
     }
 
     [Test]
@@ -374,6 +388,6 @@ public class LiveServiceTests
 
         _watchableAdapter.Verify(a => a.Adapt(webSocket, _token));
         _watchableAdapter.Verify(a => a.Adapt(polling, _token));
-        Assert.That(dtos.Select(d => d.Id), Is.EquivalentTo(new[] { webSocket.Publication.Id }));
+        Assert.That(dtos.Select(d => d.Id), Is.EquivalentTo([webSocket.Publication.Id]));
     }
 }

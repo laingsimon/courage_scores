@@ -14,32 +14,29 @@ using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 namespace CourageScores.Tests.Services.Game;
 
 [TestFixture]
-public class GameServiceTests
+public partial class GameServiceTests
 {
-    private static readonly GameDto EditedSubmission = new GameDto
-    {
-        Author = "AUTHOR",
-        Editor = "EDITOR",
-        Created = new DateTime(2001, 02, 03),
-        Updated = new DateTime(2002, 03, 04),
-    };
     private static readonly Guid SeasonId = Guid.NewGuid();
 
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private GameDto? _game;
     private Mock<IUserService> _userService = null!;
     private Mock<IGenericDataService<CosmosGame, GameDto>> _underlyingService = null!;
     private UserDto? _user;
     private GameService _service = null!;
     private Mock<IPermanentDeleteRepository<CosmosGame>> _deletableRepository = null!;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
         _userService = new Mock<IUserService>();
+        _access = [];
+        _accessService = new Mock<IAccessService>();
         _underlyingService = new Mock<IGenericDataService<CosmosGame, GameDto>>();
         _deletableRepository = new Mock<IPermanentDeleteRepository<CosmosGame>>();
-        _service = new GameService(_underlyingService.Object, _userService.Object, _deletableRepository.Object);
+        _service = new GameService(_underlyingService.Object, _userService.Object, _deletableRepository.Object, _accessService.Object);
         _game = new GameDto
         {
             Id = Guid.NewGuid(),
@@ -66,11 +63,14 @@ public class GameServiceTests
             HomeSubmission = new GameDto(),
             AwaySubmission = new GameDto(),
         };
-        _user = _user.SetAccess(manageScores: false);
+        _user = new UserDto();
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _underlyingService.Setup(s => s.Get(It.IsAny<Guid>(), _token)).ReturnsAsync(() => _game);
         _underlyingService.Setup(s => s.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_game));
         _underlyingService.Setup(s => s.GetWhere(It.IsAny<string>(), _token)).Returns(() => TestUtilities.AsyncEnumerable(_game));
+        _accessService
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
     }
 
     [Test]
@@ -87,7 +87,7 @@ public class GameServiceTests
     [Test]
     public async Task Get_WhenLoggedInAsAnAdmin_ShouldReturnGame()
     {
-        _user.SetAccess(manageScores: true);
+        _access = _access.With(AccessOption.ManageScores);
 
         var result = await _service.Get(_game!.Id, _token);
 
@@ -98,7 +98,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task Get_WhenNotPermitted_ShouldExcludeSubmissions(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
+        SetAccess(loggedIn, inputResults);
 
         var result = await _service.Get(_game!.Id, _token);
 
@@ -110,7 +110,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task Get_WhenResultsPublished_ShouldReturnGame(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
+        SetAccess(loggedIn, inputResults);
         _game!.ResultsPublished = true;
 
         var result = await _service.Get(_game!.Id, _token);
@@ -122,7 +122,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task Get_WhenResultsUnpublishedAndNotPermitted_ShouldReturnGame(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
+        SetAccess(loggedIn, inputResults);
 
         var result = await _service.Get(_game!.Id, _token);
 
@@ -143,40 +143,43 @@ public class GameServiceTests
                 ManOfTheMatch = Guid.NewGuid(),
             },
         };
-        _user.SetAccess(inputResults: true, teamId: _game!.Home.Id);
+        _access = _access.With(AccessOption.InputResults);
+        _user!.TeamId = _game.Home.Id;
 
         var result = await _service.Get(_game!.Id, _token);
 
         Assert.That(result!.Matches, Is.SameAs(_game.HomeSubmission.Matches));
         Assert.That(result.Home, Is.SameAs(_game.HomeSubmission.Home));
-        result.AssertSubmissionHasGameProperties(_game);
-        result.AssertHasAuditProperties(_game.HomeSubmission);
+        AssertSubmissionHasGameProperties(result, _game);
+        AssertHasAuditProperties(result, _game.HomeSubmission);
     }
 
     [Test]
     public async Task Get_WhenResultsUnpublishedUserCanInputResultsForHomeTeamAndNoHomeSubmissionAuditProperties_ShouldReturnAuditPropertiesFromGame()
     {
-        _user.SetAccess(inputResults: true, teamId: _game!.Home.Id);
+        _user!.TeamId = _game!.Home.Id;
+        _access = _access.With(AccessOption.InputResults);
 
         var result = await _service.Get(_game!.Id, _token);
 
         Assert.That(result!.Matches, Is.SameAs(_game!.HomeSubmission!.Matches));
-        result.AssertSubmissionHasGameProperties(_game);
-        result.AssertHasAuditProperties(_game);
+        AssertSubmissionHasGameProperties(result, _game);
+        AssertHasAuditProperties(result, _game);
     }
 
     [Test]
     public async Task Get_WhenResultsUnpublishedUserCanInputResultsForHomeTeamAndNoHomeSubmission_ShouldCreateSubmission()
     {
         _game!.HomeSubmission = null;
-        _user.SetAccess(inputResults: true, teamId: _game!.Home.Id);
+        _user!.TeamId = _game!.Home.Id;
+        _access = _access.With(AccessOption.InputResults);
 
         var result = await _service.Get(_game!.Id, _token);
 
         Assert.That(result, Is.Not.SameAs(_game));
         Assert.That(result!.Home, Is.SameAs(_game.Home));
-        result.AssertSubmissionHasGameProperties(_game);
-        result.AssertHasAuditProperties(_game);
+        AssertSubmissionHasGameProperties(result, _game);
+        AssertHasAuditProperties(result, _game);
     }
 
     [Test]
@@ -193,46 +196,49 @@ public class GameServiceTests
                 ManOfTheMatch = Guid.NewGuid(),
             },
         };
-        _user.SetAccess(inputResults: true, teamId: _game!.Away.Id);
+        _user!.TeamId = _game!.Away.Id;
+        _access = _access.With(AccessOption.InputResults);
 
         var result = await _service.Get(_game!.Id, _token);
 
         Assert.That(result!.Matches, Is.SameAs(_game.AwaySubmission.Matches));
         Assert.That(result.Away, Is.SameAs(_game.AwaySubmission.Away));
-        result.AssertSubmissionHasGameProperties(_game);
-        result.AssertHasAuditProperties(_game.AwaySubmission);
+        AssertSubmissionHasGameProperties(result, _game);
+        AssertHasAuditProperties(result, _game.AwaySubmission);
     }
 
     [Test]
     public async Task Get_WhenResultsUnpublishedUserCanInputResultsForAwayTeamAndNoAwaySubmission_ShouldCreateSubmission()
     {
         _game!.AwaySubmission = null;
-        _user.SetAccess(inputResults: true, teamId: _game!.Away.Id);
+        _user!.TeamId = _game!.Away.Id;
+        _access = _access.With(AccessOption.InputResults);
 
         var result = await _service.Get(_game!.Id, _token);
 
         Assert.That(result, Is.Not.SameAs(_game));
         Assert.That(result!.Away, Is.SameAs(_game.Away));
-        result.AssertSubmissionHasGameProperties(_game);
-        result.AssertHasAuditProperties(_game);
+        AssertSubmissionHasGameProperties(result, _game);
+        AssertHasAuditProperties(result, _game);
     }
 
     [Test]
     public async Task Get_WhenResultsUnpublishedUserCanInputResultsForAwayTeamAndNoAwaySubmissionAuditProperties_ShouldReturnAuditPropertiesFromGame()
     {
-        _user.SetAccess(inputResults: true, teamId: _game!.Away.Id);
+        _user!.TeamId = _game!.Away.Id;
+        _access = _access.With(AccessOption.InputResults);
 
         var result = await _service.Get(_game!.Id, _token);
 
         Assert.That(result!.Matches, Is.SameAs(_game!.AwaySubmission!.Matches));
-        result.AssertSubmissionHasGameProperties(_game);
-        result.AssertHasAuditProperties(_game);
+        AssertSubmissionHasGameProperties(result, _game);
+        AssertHasAuditProperties(result, _game);
     }
 
     [Test]
     public async Task GetAll_WhenLoggedInAsAnAdmin_ShouldReturnGame()
     {
-        _user.SetAccess(manageScores: true);
+        _access = _access.With(AccessOption.ManageScores);
 
         var games = await _service.GetAll(_token).ToList();
 
@@ -244,7 +250,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task GetAll_WhenNotPermitted_ShouldExcludeSubmissions(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
+        SetAccess(loggedIn, inputResults);
 
         var games = await _service.GetAll(_token).ToList();
 
@@ -256,7 +262,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task GetAll_WhenResultsPublished_ShouldReturnGame(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
+        SetAccess(loggedIn, inputResults);
         _game!.ResultsPublished = true;
 
         var games = await _service.GetAll(_token).ToList();
@@ -268,7 +274,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task GetAll_WhenResultsUnpublishedAndNotPermitted_ShouldReturnGame(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
+        SetAccess(loggedIn, inputResults);
 
         var games = await _service.GetAll(_token).ToList();
 
@@ -279,32 +285,34 @@ public class GameServiceTests
     public async Task GetAll_WhenResultsUnpublishedUserCanInputResultsForHomeTeam_ShouldReturnHomeTeamSubmission()
     {
         _game!.HomeSubmission = EditedSubmission;
-        _user.SetAccess(inputResults: true, teamId: _game.Home.Id);
+        _user!.TeamId = _game!.Home.Id;
+        _access = _access.With(AccessOption.InputResults);
 
         var games = await _service.GetAll(_token).ToList();
 
         Assert.That(games.Single().Matches, Is.SameAs(_game.HomeSubmission.Matches));
-        games.Single().AssertSubmissionHasGameProperties(_game);
-        games.Single().AssertHasAuditProperties(_game.HomeSubmission);
+        AssertSubmissionHasGameProperties(games.Single(), _game);
+        AssertHasAuditProperties(games.Single(), _game.HomeSubmission);
     }
 
     [Test]
     public async Task GetAll_WhenResultsUnpublishedUserCanInputResultsForAwayTeam_ShouldReturnAwayTeamSubmission()
     {
         _game!.AwaySubmission = EditedSubmission;
-        _user.SetAccess(inputResults: true, teamId: _game.Away.Id);
+        _user!.TeamId = _game!.Away.Id;
+        _access = _access.With(AccessOption.InputResults);
 
         var games = await _service.GetAll(_token).ToList();
 
         Assert.That(games.Single().Matches, Is.SameAs(_game.AwaySubmission.Matches));
-        games.Single().AssertSubmissionHasGameProperties(_game);
-        games.Single().AssertHasAuditProperties(_game.AwaySubmission);
+        AssertSubmissionHasGameProperties(games.Single(), _game);
+        AssertHasAuditProperties(games.Single(), _game.AwaySubmission);
     }
 
     [Test]
     public async Task GetWhere_WhenLoggedInAsAnAdmin_ShouldReturnGame()
     {
-        _user.SetAccess(manageScores: true);
+        _access = _access.With(AccessOption.ManageScores);
 
         var games = await _service.GetWhere("query", _token).ToList();
 
@@ -316,7 +324,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task GetWhere_WhenNotPermitted_ShouldExcludeSubmissions(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
+        SetAccess(loggedIn, inputResults);
 
         var games = await _service.GetWhere("query", _token).ToList();
 
@@ -328,7 +336,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task GetWhere_WhenResultsPublished_ShouldReturnGame(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
+        SetAccess(loggedIn, inputResults);
         _game!.ResultsPublished = true;
 
         var games = await _service.GetWhere("query", _token).ToList();
@@ -340,7 +348,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task GetWhere_WhenResultsUnpublishedAndNotPermitted_ShouldReturnGame(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
+        SetAccess(loggedIn, inputResults);
 
         var games = await _service.GetWhere("query", _token).ToList();
 
@@ -351,33 +359,34 @@ public class GameServiceTests
     public async Task GetWhere_WhenResultsUnpublishedUserCanInputResultsForHomeTeam_ShouldReturnHomeTeamSubmission()
     {
         _game!.HomeSubmission = EditedSubmission;
-        _user.SetAccess(inputResults: true, teamId: _game.Home.Id);
+        _user!.TeamId = _game!.Home.Id;
+        _access = _access.With(AccessOption.InputResults);
 
         var games = await _service.GetWhere("query", _token).ToList();
 
         Assert.That(games.Single().Matches, Is.SameAs(_game.HomeSubmission.Matches));
-        games.Single().AssertSubmissionHasGameProperties(_game);
-        games.Single().AssertHasAuditProperties(_game.HomeSubmission);
+        AssertSubmissionHasGameProperties(games.Single(), _game);
+        AssertHasAuditProperties(games.Single(), _game.HomeSubmission);
     }
 
     [Test]
     public async Task GetWhere_WhenResultsUnpublishedUserCanInputResultsForAwayTeam_ShouldReturnAwayTeamSubmission()
     {
         _game!.AwaySubmission = EditedSubmission;
-        _user.SetAccess(inputResults: true, teamId: _game.Away.Id);
-
+        _user!.TeamId = _game!.Away.Id;
+        _access = _access.With(AccessOption.InputResults);
 
         var games = await _service.GetWhere("query", _token).ToList();
 
         Assert.That(games.Single().Matches, Is.SameAs(_game.AwaySubmission.Matches));
-        games.Single().AssertSubmissionHasGameProperties(_game.AwaySubmission);
+        AssertSubmissionHasGameProperties(games.Single(), _game.AwaySubmission);
     }
 
     [TestCase(false, false)]
     [TestCase(true, false)]
     public async Task Delete_WhenNotPermitted_ExcludesSubmissionsFromResult(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
+        SetAccess(loggedIn, inputResults);
         _underlyingService.Setup(s => s.Delete(_game!.Id, _token)).ReturnsAsync(() => new ActionResultDto<GameDto>
         {
             Result = _game,
@@ -395,7 +404,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task Delete_WhenNotPermitted_ReturnsNull(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
+        SetAccess(loggedIn, inputResults);
         _underlyingService.Setup(s => s.Delete(_game!.Id, _token)).ReturnsAsync(() => new ActionResultDto<GameDto>
         {
             Result = null,
@@ -412,7 +421,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task Upsert_WhenNotPermitted_ExcludesSubmissionsFromResult(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
+        SetAccess(loggedIn, inputResults);
         var command = new Mock<IUpdateCommand<CosmosGame, CosmosGame>>();
         _underlyingService.Setup(s => s.Upsert(_game!.Id, command.Object, _token)).ReturnsAsync(() => new ActionResultDto<GameDto>
         {
@@ -431,7 +440,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task Upsert_WhenNotPermitted_ReturnsNull(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
+        SetAccess(loggedIn, inputResults);
         var command = new Mock<IUpdateCommand<CosmosGame, CosmosGame>>();
         _underlyingService.Setup(s => s.Upsert(_game!.Id, command.Object, _token)).ReturnsAsync(() => new ActionResultDto<GameDto>
         {
@@ -458,7 +467,7 @@ public class GameServiceTests
     [Test]
     public async Task DeleteUnplayedLeagueFixtures_WhenNotPermitted_ReturnsUnsuccessful()
     {
-        _user!.Access!.BulkDeleteLeagueFixtures = false;
+        _access = _access.Without(AccessOption.BulkDeleteLeagueFixtures);
 
         var result = await _service.DeleteUnplayedLeagueFixtures(SeasonId, true, _token);
 
@@ -468,7 +477,7 @@ public class GameServiceTests
     [Test]
     public async Task DeleteUnplayedLeagueFixtures_WhenDryRun_FindsButDoesNotDeleteFixtures()
     {
-        _user!.Access!.BulkDeleteLeagueFixtures = true;
+        _access = _access.With(AccessOption.BulkDeleteLeagueFixtures);
 
         var result = await _service.DeleteUnplayedLeagueFixtures(SeasonId, true, _token);
 
@@ -479,11 +488,11 @@ public class GameServiceTests
     [Test]
     public async Task DeleteUnplayedLeagueFixtures_WhenDryRun_WouldDeleteFixtureWithNoMatches()
     {
-        _user!.Access!.BulkDeleteLeagueFixtures = true;
+        _access = _access.With(AccessOption.BulkDeleteLeagueFixtures);
 
         var result = await _service.DeleteUnplayedLeagueFixtures(SeasonId, true, _token);
 
-        Assert.That(result.Result, Is.EquivalentTo(new[] { $"{_game!.Id} - 3 Feb 2001 (home vs away)" }));
+        Assert.That(result.Result, Is.EquivalentTo([$"{_game!.Id} - 3 Feb 2001 (home vs away)"]));
         Assert.That(result.Success, Is.True);
     }
 
@@ -491,7 +500,7 @@ public class GameServiceTests
     public async Task DeleteUnplayedLeagueFixtures_WhenDryRun_WouldNotDeleteFixtureWhereMatchHasAHomeScore()
     {
         _game!.Matches.Add(new GameMatchDto { HomeScore = 1 });
-        _user!.Access!.BulkDeleteLeagueFixtures = true;
+        _access = _access.With(AccessOption.BulkDeleteLeagueFixtures);
 
         var result = await _service.DeleteUnplayedLeagueFixtures(SeasonId, true, _token);
 
@@ -503,7 +512,7 @@ public class GameServiceTests
     public async Task DeleteUnplayedLeagueFixtures_WhenDryRun_WouldNotDeleteFixtureWhereMatchHasAnAwayScore()
     {
         _game!.Matches.Add(new GameMatchDto { AwayScore = 2 });
-        _user!.Access!.BulkDeleteLeagueFixtures = true;
+        _access = _access.With(AccessOption.BulkDeleteLeagueFixtures);
 
         var result = await _service.DeleteUnplayedLeagueFixtures(SeasonId, true, _token);
 
@@ -515,11 +524,11 @@ public class GameServiceTests
     public async Task DeleteUnplayedLeagueFixtures_WhenDryRun_WouldDeleteFixtureWhereMatchScoresAre0()
     {
         _game!.Matches.Add(new GameMatchDto { HomeScore = 0, AwayScore = 0 });
-        _user!.Access!.BulkDeleteLeagueFixtures = true;
+        _access = _access.With(AccessOption.BulkDeleteLeagueFixtures);
 
         var result = await _service.DeleteUnplayedLeagueFixtures(SeasonId, true, _token);
 
-        Assert.That(result.Result, Is.EquivalentTo(new[] { $"{_game!.Id} - 3 Feb 2001 (home vs away)" }));
+        Assert.That(result.Result, Is.EquivalentTo([$"{_game!.Id} - 3 Feb 2001 (home vs away)"]));
         Assert.That(result.Success, Is.True);
     }
 
@@ -527,22 +536,22 @@ public class GameServiceTests
     public async Task DeleteUnplayedLeagueFixtures_WhenDryRun_WouldDeleteFixtureWhereMatchScoresAreNull()
     {
         _game!.Matches.Add(new GameMatchDto());
-        _user!.Access!.BulkDeleteLeagueFixtures = true;
+        _access = _access.With(AccessOption.BulkDeleteLeagueFixtures);
 
         var result = await _service.DeleteUnplayedLeagueFixtures(SeasonId, true, _token);
 
-        Assert.That(result.Result, Is.EquivalentTo(new[] { $"{_game!.Id} - 3 Feb 2001 (home vs away)" }));
+        Assert.That(result.Result, Is.EquivalentTo([$"{_game!.Id} - 3 Feb 2001 (home vs away)"]));
         Assert.That(result.Success, Is.True);
     }
 
     [Test]
     public async Task DeleteUnplayedLeagueFixtures_WhenNotDryRun_FindsAndDeletesFixtures()
     {
-        _user!.Access!.BulkDeleteLeagueFixtures = true;
+        _access = _access.With(AccessOption.BulkDeleteLeagueFixtures);
 
         var result = await _service.DeleteUnplayedLeagueFixtures(SeasonId, false, _token);
 
-        Assert.That(result.Result, Is.EquivalentTo(new[] { $"{_game!.Id} - 3 Feb 2001 (home vs away)" }));
+        Assert.That(result.Result, Is.EquivalentTo([$"{_game!.Id} - 3 Feb 2001 (home vs away)"]));
         Assert.That(result.Success, Is.True);
         _deletableRepository.Verify(d => d.Delete(_game.Id, _token));
     }

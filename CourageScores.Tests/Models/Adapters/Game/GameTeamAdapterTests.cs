@@ -13,18 +13,25 @@ namespace CourageScores.Tests.Models.Adapters.Game;
 public class GameTeamAdapterTests
 {
     private const string UserTeamId = "BB6F3067-F2C2-464F-9136-EA6E0C1E2AD0";
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private GameTeamAdapter _adapter = null!;
     private Mock<IUserService> _userService = null!;
     private UserDto? _user;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _user = _user.SetAccess(teamId: Guid.Parse(UserTeamId));
+        _user = new UserDto { TeamId = Guid.Parse(UserTeamId) };
+        _access = [];
         _userService = new Mock<IUserService>();
-        _adapter = new GameTeamAdapter(_userService.Object);
+        _accessService = new Mock<IAccessService>();
+        _adapter = new GameTeamAdapter(_userService.Object, _accessService.Object);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        _accessService
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
     }
 
     [Test]
@@ -61,7 +68,8 @@ public class GameTeamAdapterTests
     [TestCase(false, false, UserTeamId)]
     public async Task Adapt_GivenModelAndLoggedInAndNotPermitted_DoesNotReturnManOfTheMatch(bool manageScores, bool inputResults, string? teamId)
     {
-        _user.SetAccess(manageScores: manageScores, inputResults: inputResults);
+        _access = manageScores ? _access.With(AccessOption.ManageScores) : _access;
+        _access = inputResults ? _access.With(AccessOption.InputResults) : _access;
         var model = new GameTeam
         {
             Id = teamId != null ? Guid.Parse(teamId) : Guid.Empty,
@@ -80,7 +88,8 @@ public class GameTeamAdapterTests
     [TestCase(true, false, "8333B9FA-0C8C-4902-9F07-E697B147333B")]
     public async Task Adapt_GivenModelAndLoggedInAndPermitted_ReturnsManOfTheMatch(bool manageScores, bool inputResults, string? teamId)
     {
-        _user.SetAccess(manageScores: manageScores, inputResults: inputResults);
+        _access = manageScores ? _access.With(AccessOption.ManageScores) : _access;
+        _access = inputResults ? _access.With(AccessOption.InputResults) : _access;
         var model = new GameTeam
         {
             Id = teamId != null ? Guid.Parse(teamId) : Guid.Empty,

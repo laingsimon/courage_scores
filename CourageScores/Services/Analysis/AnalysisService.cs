@@ -14,17 +14,20 @@ public class AnalysisService : IAnalysisService
     private readonly IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> _saygService;
     private readonly ISaygVisitorFactory _saygVisitorFactory;
     private readonly IUserService _userService;
+    private readonly IAccessService _accessService;
 
     public AnalysisService(
         IGenericDataService<TournamentGame, TournamentGameDto> tournamentService,
         IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> saygService,
         ISaygVisitorFactory saygVisitorFactory,
-        IUserService userService)
+        IUserService userService,
+        IAccessService accessService)
     {
         _tournamentService = tournamentService;
         _saygService = saygService;
         _saygVisitorFactory = saygVisitorFactory;
         _userService = userService;
+        _accessService = accessService;
     }
 
     public async Task<ActionResultDto<AnalysisResponseDto>> Analyse(AnalysisRequestDto request, CancellationToken token)
@@ -38,7 +41,7 @@ public class AnalysisService : IAnalysisService
 
 
         var user = await _userService.GetUser(token);
-        if (user?.Access?.AnalyseMatches != true)
+        if (!await _accessService.HasAccess(user, AccessOption.AnalyseMatches, token))
         {
             result.Warnings.Add(user == null
                 ? "Not logged in"

@@ -15,20 +15,28 @@ public class AddOrUpdateSaygCommandTests
 {
     private static readonly Leg LegModel = new();
     private static readonly LegDto LegDto = new();
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private AddOrUpdateSaygCommand _command = null!;
     private ISimpleAdapter<Leg, LegDto> _adapter = null!;
     private Mock<IUserService> _userService = null!;
     private UserDto? _user;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
+        _user = null;
         _userService = new Mock<IUserService>();
+        _access = [];
+        _accessService = new Mock<IAccessService>();
         _adapter = new MockSimpleAdapter<Leg, LegDto>(LegModel, LegDto);
-        _command = new AddOrUpdateSaygCommand(_adapter, _userService.Object);
+        _command = new AddOrUpdateSaygCommand(_adapter, _userService.Object, _accessService.Object);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        _accessService
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }
 
     [Test]
@@ -54,14 +62,8 @@ public class AddOrUpdateSaygCommandTests
         var result = await _command.WithData(updateDto).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(model.Legs.Keys, Is.EquivalentTo(new[]
-        {
-            1,
-        }));
-        Assert.That(model.Legs.Values, Is.EquivalentTo(new[]
-        {
-            LegModel,
-        }));
+        Assert.That(model.Legs.Keys, Is.EquivalentTo([1]));
+        Assert.That(model.Legs.Values, Is.EquivalentTo([LegModel]));
         Assert.That(model.HomeScore, Is.EqualTo(1));
         Assert.That(model.AwayScore, Is.EqualTo(2));
         Assert.That(model.YourName, Is.EqualTo("you"));
@@ -74,6 +76,8 @@ public class AddOrUpdateSaygCommandTests
     [Test]
     public async Task ApplyUpdates_GivenTournamentMatchId_SetsPropertiesCorrectly()
     {
+        _user = new UserDto();
+        _access = _access.With(AccessOption.RecordScoresAsYouGo);
         var model = new RecordedScoreAsYouGo();
         var updateDto = new UpdateRecordedScoreAsYouGoDto
         {
@@ -95,14 +99,8 @@ public class AddOrUpdateSaygCommandTests
         var result = await _command.WithData(updateDto).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(model.Legs.Keys, Is.EquivalentTo(new[]
-        {
-            1,
-        }));
-        Assert.That(model.Legs.Values, Is.EquivalentTo(new[]
-        {
-            LegModel,
-        }));
+        Assert.That(model.Legs.Keys, Is.EquivalentTo([1]));
+        Assert.That(model.Legs.Values, Is.EquivalentTo([LegModel]));
         Assert.That(model.HomeScore, Is.EqualTo(1));
         Assert.That(model.AwayScore, Is.EqualTo(2));
         Assert.That(model.YourName, Is.EqualTo("you"));
@@ -119,7 +117,8 @@ public class AddOrUpdateSaygCommandTests
     {
         if (loggedIn)
         {
-            _user = _user.SetAccess(recordScoresAsYouGo: permitted);
+            _access = permitted ? _access.With(AccessOption.RecordScoresAsYouGo) : _access.Without(AccessOption.RecordScoresAsYouGo);
+            _user = new UserDto();
         }
         var model = new RecordedScoreAsYouGo();
         var updateDto = new UpdateRecordedScoreAsYouGoDto
@@ -136,17 +135,15 @@ public class AddOrUpdateSaygCommandTests
         }
         else
         {
-            Assert.That(result.Errors, Is.EqualTo(new[]
-            {
-                "Not permitted to modify tournament sayg sessions",
-            }));
+            Assert.That(result.Errors, Is.EqualTo([$"Not permitted to modify tournament sayg sessions"]));
         }
     }
 
     [Test]
     public async Task ApplyUpdates_GivenRemovalOfTournamentMatchId_ReturnsUnsuccessful()
     {
-        _user = _user.SetAccess(recordScoresAsYouGo: true);
+        _user = new UserDto();
+        _access = _access.With(AccessOption.RecordScoresAsYouGo);
         var model = new RecordedScoreAsYouGo
         {
             TournamentMatchId = Guid.NewGuid(),
@@ -159,16 +156,14 @@ public class AddOrUpdateSaygCommandTests
         var result = await _command.WithData(updateDto).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "Sayg session ids cannot be removed",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(["Sayg session ids cannot be removed"]));
     }
 
     [Test]
     public async Task ApplyUpdates_GivenChangeOfTournamentMatchId_ReturnsUnsuccessful()
     {
-        _user = _user.SetAccess(recordScoresAsYouGo: true);
+        _user = new UserDto();
+        _access = _access.With(AccessOption.RecordScoresAsYouGo);
         var model = new RecordedScoreAsYouGo
         {
             TournamentMatchId = Guid.NewGuid(),
@@ -181,9 +176,6 @@ public class AddOrUpdateSaygCommandTests
         var result = await _command.WithData(updateDto).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "Sayg session ids cannot be changed",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(["Sayg session ids cannot be changed"]));
     }
 }
