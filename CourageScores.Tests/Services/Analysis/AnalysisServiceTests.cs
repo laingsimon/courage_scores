@@ -23,6 +23,8 @@ public class AnalysisServiceTests
     private Mock<ISaygVisitor> _visitor = null!;
     private Mock<IUserService> _userService = null!;
     private UserDto? _user;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -32,18 +34,17 @@ public class AnalysisServiceTests
         _visitorFactory = new Mock<ISaygVisitorFactory>();
         _visitor = new Mock<ISaygVisitor>();
         _userService = new Mock<IUserService>();
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                AnalyseMatches = true,
-            },
-        };
+        _access = [AccessOption.AnalyseMatches];
+        _accessService = new Mock<IAccessService>();
+        _user = new UserDto();
 
-        _service = new AnalysisService(_tournamentService.Object, _saygService.Object, _visitorFactory.Object, _userService.Object);
+        _service = new AnalysisService(_tournamentService.Object, _saygService.Object, _visitorFactory.Object, _userService.Object, _accessService.Object);
 
         _visitorFactory.Setup(f => f.CreateForRequest(It.IsAny<AnalysisRequestDto>())).Returns(_visitor.Object);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        _accessService
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }
 
     [Test]
@@ -61,7 +62,7 @@ public class AnalysisServiceTests
     [Test]
     public async Task Analyse_WhenNotPermitted_ReturnsUnsuccessful()
     {
-        _user!.Access!.AnalyseMatches = false;
+        _access = _access.Without(AccessOption.AnalyseMatches);
         var request = new AnalysisRequestDto();
 
         var result = await _service.Analyse(request, _token);
@@ -111,7 +112,7 @@ public class AnalysisServiceTests
         {
             TournamentIds = [tournament1.Id, tournament2.Id],
         };
-        _tournamentService.Setup(s => s.Get(tournament1.Id, source.Token)).Callback(() => source.Cancel()).ReturnsAsync(tournament1);
+        _tournamentService.Setup(s => s.Get(tournament1.Id, source.Token)).Callback(source.Cancel).ReturnsAsync(tournament1);
         _tournamentService.Setup(s => s.Get(tournament2.Id, source.Token)).ReturnsAsync(tournament2);
         _userService.Setup(s => s.GetUser(source.Token)).ReturnsAsync(() => _user);
 
