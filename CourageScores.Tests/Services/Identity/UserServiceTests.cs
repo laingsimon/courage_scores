@@ -68,9 +68,7 @@ public class UserServiceTests
     [Test]
     public async Task GetUser_WhenCalledFirstTimeAndNoHttpContext_ReturnsNull()
     {
-        var user = await _service.GetUser(_token);
-
-        Assert.That(user, Is.Null);
+        Assert.That(await _service.GetUser(_token), Is.Null);
     }
 
     [Test]
@@ -118,9 +116,8 @@ public class UserServiceTests
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
         var teamPlayer = new TeamPlayer { Id = Guid.NewGuid(), EmailAddress = "simon@email.com", Deleted = new DateTime(2001, 02, 03) };
-        var team = new CosmosTeam { Id = Guid.NewGuid(), Seasons = { new TeamSeason { Players = { teamPlayer } } } };
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(GetUser());
-        _allTeams.Add(team);
+        _allTeams.Add(new CosmosTeam { Id = Guid.NewGuid(), Seasons = { new TeamSeason { Players = { teamPlayer } } } });
 
         await _service.GetUser(_token);
 
@@ -162,6 +159,7 @@ public class UserServiceTests
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(() => null);
+
         await _service.GetUser(_token);
 
         _userRepository.Verify(r => r.GetUser("simon@email.com"));
@@ -197,9 +195,7 @@ public class UserServiceTests
     [Test]
     public async Task GetUser_GivenEmailAddressWhenNotLoggedIn_ReturnsNull()
     {
-        var user = await _service.GetUser("other@email.com", _token);
-
-        Assert.That(user, Is.Null);
+        Assert.That(await _service.GetUser("other@email.com", _token), Is.Null);
     }
 
     [Test]
@@ -243,9 +239,7 @@ public class UserServiceTests
     [Test]
     public async Task GetAll_WhenNotLoggedIn_ReturnsEmpty()
     {
-        var users = await _service.GetAll(_token).ToList();
-
-        Assert.That(users, Is.Empty);
+        Assert.That(await _service.GetAll(_token).ToList(), Is.Empty);
     }
 
     [Test]
@@ -503,7 +497,6 @@ public class UserServiceTests
             VerificationValue = "some verification value",
             ServiceIpAddress = _httpContext!.Connection.RemoteIpAddress!.ToString(),
             ServiceUserAgent = _httpContext!.Request.Headers.UserAgent.ToString(),
-            Id = Guid.NewGuid(),
             ApprovedBy = "approver",
             TransientUsername = "assigned user",
         };
