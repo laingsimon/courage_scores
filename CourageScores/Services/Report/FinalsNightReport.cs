@@ -10,7 +10,6 @@ using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Division;
 using CourageScores.Services.Identity;
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
 namespace CourageScores.Services.Report;
 
