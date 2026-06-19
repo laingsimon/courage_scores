@@ -40,7 +40,9 @@ public class AccessServiceTests
         {
             Access = new AccessDto
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 AnalyseMatches = true,
+#pragma warning restore CS0618 // Type or member is obsolete
             }
         };
 

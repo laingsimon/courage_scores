@@ -58,18 +58,24 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
     [ExcludeFromCodeCoverage]
     public bool CanCreate(UserDto? user)
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         return user?.Access?.ManageTournaments == true;
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     [ExcludeFromCodeCoverage]
     public bool CanEdit(UserDto? user)
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         return user?.Access?.ManageTournaments == true || user?.Access?.EnterTournamentResults == true || user?.Access?.UploadPhotos == true;
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     [ExcludeFromCodeCoverage]
     public bool CanDelete(UserDto? user)
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         return user?.Access?.ManageTournaments == true;
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

@@ -24,11 +24,15 @@ public class ServiceAccountSession : AuditedEntity, IPermissionedEntity
 
     public bool CanEdit(UserDto? user)
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         return user?.Access?.LoginServiceAccounts == true || user == null;
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     public bool CanDelete(UserDto? user)
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         return user?.Access?.LoginServiceAccounts == true;
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

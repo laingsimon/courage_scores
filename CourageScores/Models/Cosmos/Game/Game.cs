@@ -149,19 +149,25 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable, IPhotoEn
     [ExcludeFromCodeCoverage]
     public bool CanCreate(UserDto? user)
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         return user?.Access?.ManageGames == true;
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     [ExcludeFromCodeCoverage]
     public bool CanEdit(UserDto? user)
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         return user?.Access?.ManageGames == true || user?.Access?.ManageScores == true || user?.Access?.InputResults == true || user?.Access?.UploadPhotos == true;
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     [ExcludeFromCodeCoverage]
     public bool CanDelete(UserDto? user)
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         return user?.Access?.ManageGames == true;
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     private class GameScoreVisitor : IGameVisitor, IGameVisitable

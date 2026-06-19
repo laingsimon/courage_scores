@@ -31,6 +31,7 @@ public static class UserDtoTestExtensions
         user.Access ??= new AccessDto();
 
         var access = user.Access;
+#pragma warning disable CS0618 // Type or member is obsolete
         access.ExportData = exportData ?? access.ExportData;
         access.ImportData = importData ?? access.ImportData;
         access.InputResults = inputResults ?? access.InputResults;
@@ -48,6 +49,7 @@ public static class UserDtoTestExtensions
         access.UploadPhotos = uploadPhotos ?? access.UploadPhotos;
         access.ViewExceptions = viewExceptions ?? access.ViewExceptions;
         access.UseWebSockets = useWebSockets ?? access.UseWebSockets;
+#pragma warning restore CS0618 // Type or member is obsolete
 
         user.TeamId = teamId ?? user.TeamId;
 

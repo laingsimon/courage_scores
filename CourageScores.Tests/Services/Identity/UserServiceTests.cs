@@ -556,6 +556,8 @@ public class UserServiceTests
 
     private static UpdateAccessDto GetUpdateAccessDto(string emailAddress = "", bool manageGames = false)
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         return new UpdateAccessDto { EmailAddress = emailAddress, Access = new AccessDto { ManageGames = manageGames } };
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

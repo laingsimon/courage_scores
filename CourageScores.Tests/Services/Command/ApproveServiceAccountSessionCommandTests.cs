@@ -132,7 +132,9 @@ public class ApproveServiceAccountSessionCommandTests
     {
         _request.Access = new AccessDto
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             ManageAccess = true,
+#pragma warning restore CS0618 // Type or member is obsolete
         };
 
         var result = await _command.ApplyUpdate(_model, _token);
@@ -146,7 +148,9 @@ public class ApproveServiceAccountSessionCommandTests
     {
         _request.Access = new AccessDto
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             LoginServiceAccounts = true,
+#pragma warning restore CS0618 // Type or member is obsolete
         };
 
         var result = await _command.ApplyUpdate(_model, _token);
@@ -160,7 +164,9 @@ public class ApproveServiceAccountSessionCommandTests
     {
         _request.Access = new AccessDto
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             ManageGames = true,
+#pragma warning restore CS0618 // Type or member is obsolete
         };
 
         var result = await _command.ApplyUpdate(_model, _token);

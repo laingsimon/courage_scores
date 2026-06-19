@@ -67,6 +67,7 @@ public class ApproveServiceAccountSessionCommand : IUpdateCommand<ServiceAccount
             return Warning("Cannot approve session from a different location");
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         if (_request!.Access.ManageAccess)
         {
             return Warning("Cannot create session with manage access permission");
@@ -76,6 +77,7 @@ public class ApproveServiceAccountSessionCommand : IUpdateCommand<ServiceAccount
         {
             return Warning("Cannot create session with login service accounts permission");
         }
+#pragma warning restore CS0618 // Type or member is obsolete
 
         var transientUser = new User
         {
