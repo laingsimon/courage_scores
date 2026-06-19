@@ -23,7 +23,7 @@ public class FeatureServiceTests
     private static readonly Feature TimeSpanFeature = CreateFeature(Feature.FeatureValueType.TimeSpan);
     private static readonly ReconfigureFeatureDto ReconfigureBooleanFeature = ReconfigureFeatureDto(BooleanFeature);
 
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly DateTimeOffset _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
     private ConfiguredFeature _configuredBoolFeature = null!;
     private ConfiguredFeatureDto _configuredBoolFeatureDto = null!;
@@ -43,6 +43,8 @@ public class FeatureServiceTests
         ConfiguredValue = "CONFIG",
     };
     private ReconfigureFeatureDto _reconfigureUntypedFeature = null!;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -50,8 +52,9 @@ public class FeatureServiceTests
         _configuredBoolFeature = ConfiguredFeature(BooleanFeature);
         _configuredBoolFeatureDto = new ConfiguredFeatureDto { Id = BooleanFeature.Id };
         _reconfigureBoolFeatureDto = ReconfigureFeatureDto(BooleanFeature);
-        _user = _user.SetAccess(manageFeatures: true);
-        _user.Name = "USER";
+        _access = [AccessOption.ManageFeatures];
+        _accessService = new Mock<IAccessService>();
+        _user = new UserDto { Name = "USER" };
         _repository = new Mock<IGenericRepository<ConfiguredFeature>>();
         _userService = new Mock<IUserService>();
         _featureLookup = new Mock<IFeatureLookup>();
@@ -67,7 +70,8 @@ public class FeatureServiceTests
             _userService.Object,
             _featureLookup.Object,
             new LoadedFeatures(),
-            _clock.Object);
+            _clock.Object,
+            _accessService.Object);
         _untypedFeature = new ConfiguredFeature
         {
             Id = Guid.NewGuid(),
@@ -87,6 +91,9 @@ public class FeatureServiceTests
         _featureLookup.Setup(l => l.Get(BooleanFeature.Id)).Returns(BooleanFeature);
         _reconfigureAdapter.Setup(a => a.Adapt(_reconfigureUntypedFeature, _token)).ReturnsAsync(_untypedFeature);
         _reconfigureAdapter.Setup(a => a.Adapt(_reconfigureBoolFeatureDto, _token)).ReturnsAsync(_configuredBoolFeature);
+        _accessService
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }
 
     [Test]
@@ -126,7 +133,7 @@ public class FeatureServiceTests
         var result = await _service.GetAllFeatures(_token).ToList();
 
         _repository.Verify(r => r.GetAll(_token));
-        Assert.That(result, Is.EquivalentTo(new[] { _configuredBoolFeatureDto }));
+        Assert.That(result, Is.EquivalentTo([_configuredBoolFeatureDto]));
     }
 
     [Test]
@@ -137,7 +144,7 @@ public class FeatureServiceTests
         var result = await _service.GetAllFeatures(_token).ToList();
 
         _repository.Verify(r => r.GetAll(_token), Times.Once);
-        Assert.That(result, Is.EquivalentTo(new[] { _configuredBoolFeatureDto }));
+        Assert.That(result, Is.EquivalentTo([_configuredBoolFeatureDto]));
     }
 
     [Test]
@@ -152,7 +159,7 @@ public class FeatureServiceTests
 
         var result = await _service.GetAllFeatures(_token).ToList();
 
-        Assert.That(result, Is.EquivalentTo(new[] { unconfiguredDto }));
+        Assert.That(result, Is.EquivalentTo([unconfiguredDto]));
     }
 
     [Test]
@@ -163,18 +170,18 @@ public class FeatureServiceTests
         var result = await _service.UpdateFeature(ReconfigureBooleanFeature, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not logged in" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Not logged in"]));
     }
 
     [Test]
     public async Task UpdateFeature_WhenNotPermitted_ReturnsUnsuccessful()
     {
-        _user!.Access!.ManageFeatures = false;
+        _access = _access.Without(AccessOption.ManageFeatures);
 
         var result = await _service.UpdateFeature(ReconfigureBooleanFeature, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Not permitted"]));
     }
 
     [Test]
@@ -184,7 +191,7 @@ public class FeatureServiceTests
 
         Assert.That(result.Success, Is.True);
         _repository.Verify(r => r.Upsert(_untypedFeature, _token));
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Feature isn't known (anymore/yet) - data type cannot be validated" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Feature isn't known (anymore/yet) - data type cannot be validated"]));
     }
 
     [Test]
@@ -267,7 +274,7 @@ public class FeatureServiceTests
 
         Assert.That(result.Success, Is.False);
         _repository.Verify(r => r.Upsert(It.IsAny<ConfiguredFeature>(), _token), Times.Never);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Unable to create a configuration with an empty value" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Unable to create a configuration with an empty value"]));
     }
 
     [Test]
