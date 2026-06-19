@@ -86,7 +86,8 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
             };
         }
 
-        if (model.CanDelete(user) && _deleteIfNoSeasonsAssigned)
+        var userAccess = new UserAccessService(_accessService, user);
+        if (await model.CanDelete(userAccess, token) && _deleteIfNoSeasonsAssigned)
         {
             if (!matchingSeasons.Any())
             {

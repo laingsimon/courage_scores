@@ -14,7 +14,7 @@ namespace CourageScores.Tests.Services.Data;
 [TestFixture]
 public class CosmosTableServiceTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private Mock<Database> _database = null!;
     private Mock<IUserService> _userService = null!;
     private Mock<IJsonSerializerService> _jsonSerializer = null!;
@@ -27,12 +27,7 @@ public class CosmosTableServiceTests
     [SetUp]
     public void SetupEachTest()
     {
-        _tables = new List<string>
-        {
-            "game",
-            "tournamentgame",
-            "team",
-        };
+        _tables = ["game", "tournamentgame", "team"];
         _database = new Mock<Database>();
         _userService = new Mock<IUserService>();
         _access = [AccessOption.ExportData, AccessOption.ImportData];
@@ -61,12 +56,7 @@ public class CosmosTableServiceTests
 
         var tableAccessors = await _service.GetTables(request, _token).ToList();
 
-        Assert.That(tableAccessors.Select(a => a.TableName), Is.EquivalentTo(new[]
-        {
-            "game",
-            "tournamentgame",
-            "team",
-        }));
+        Assert.That(tableAccessors.Select(a => a.TableName), Is.EquivalentTo(["game", "tournamentgame", "team"]));
     }
 
     [TestCase(true, nameof(Game))]
@@ -93,10 +83,7 @@ public class CosmosTableServiceTests
 
         var tableAccessors = await _service.GetTables(request, _token).ToList();
 
-        Assert.That(tableAccessors.Select(a => a.TableName), Is.EqualTo(new[]
-        {
-            "game",
-        }));
+        Assert.That(tableAccessors.Select(a => a.TableName), Is.EqualTo(["game"]));
     }
 
     [Test]
@@ -105,12 +92,7 @@ public class CosmosTableServiceTests
         _user = null;
         var tables = await _service.GetTables(_token).ToList();
 
-        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(new[]
-        {
-            "game",
-            "tournamentgame",
-            "team",
-        }));
+        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(["game", "tournamentgame", "team"]));
     }
 
     [Test]
@@ -120,12 +102,7 @@ public class CosmosTableServiceTests
         _user = null;
         var tables = await _service.GetTables(_token).ToList();
 
-        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(new[]
-        {
-            "game",
-            "tournamentgame",
-            "team",
-        }));
+        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(["game", "tournamentgame", "team"]));
     }
 
     [Test]
@@ -133,12 +110,7 @@ public class CosmosTableServiceTests
     {
         var tables = await _service.GetTables(_token).ToList();
 
-        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(new[]
-        {
-            "game",
-            "tournamentgame",
-            "team",
-        }));
+        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(["game", "tournamentgame", "team"]));
     }
 
     [Test]
@@ -146,12 +118,7 @@ public class CosmosTableServiceTests
     {
         var tables = await _service.GetTables(_token).ToList();
 
-        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(new[]
-        {
-            "game",
-            "tournamentgame",
-            "team",
-        }));
+        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(["game", "tournamentgame", "team"]));
         Assert.That(tables.Select(a => a.PartitionKey), Has.All.EqualTo("/id"));
         Assert.That(tables.Select(a => a.DataType), Has.All.Not.Null);
     }
@@ -193,7 +160,6 @@ public class CosmosTableServiceTests
     [TestCase(true, false, true, false)]
     public async Task GetTables_WhenLoggedInAndUserCanCreateEditAndDeleteEntity_ReturnsCorrectly(bool canImport, bool canExport, bool expectedCanImport, bool expectedCanExport)
     {
-        _user.SetAccess(manageGames: true);
         _access = _access.With(AccessOption.ManageGames);
         _access = canImport ? _access.With(AccessOption.ImportData) : _access.Without(AccessOption.ImportData);
         _access = canExport ? _access.With(AccessOption.ExportData) : _access.Without(AccessOption.ExportData);
@@ -211,7 +177,7 @@ public class CosmosTableServiceTests
     [TestCase(true, false, false, false)]
     public async Task GetTables_WhenLoggedInAndUserCannotCreateEditOrDeleteEntity_ReturnsCorrectly(bool canImport, bool canExport, bool expectedCanImport, bool expectedCanExport)
     {
-        _user.SetAccess(manageGames: false);
+        _user = new UserDto();
         _access = _access.Without(AccessOption.ManageGames);
         _access = canImport ? _access.With(AccessOption.ImportData) : _access.Without(AccessOption.ImportData);
         _access = canExport ? _access.With(AccessOption.ExportData) : _access.Without(AccessOption.ExportData);

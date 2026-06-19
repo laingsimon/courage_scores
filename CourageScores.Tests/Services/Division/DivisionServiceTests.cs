@@ -465,7 +465,8 @@ public class DivisionServiceTests
     public async Task GetDivisionData_WhenLoggedInAndCannotManageGames_GetsFixturesForFilterDivisionOnly()
     {
         _someGames.AddRange([Division1GameInSeason, Division1GameOutOfSeason]);
-        _userDto.SetAccess(manageGames: false);
+        _userDto = new UserDto();
+        _access = _access.Without(AccessOption.ManageGames);
 
         await _service.GetDivisionData(Division1AndSeason1Filter, _token);
 

@@ -75,7 +75,7 @@ public class CachingDataServiceTests
     public async Task Get_WhenLoggedIn_BypassesCache()
     {
         var id = Guid.NewGuid();
-        _user = _user.SetAccess();
+        _user = new UserDto();
 
         var result = await _service.Get(id, _token);
 
@@ -117,7 +117,7 @@ public class CachingDataServiceTests
     [Test]
     public async Task GetAll_WhenLoggedIn_BypassesCache()
     {
-        _user = _user.SetAccess();
+        _user = new UserDto();
 
         var result = await _service.GetAll(_token).ToList();
 
@@ -157,7 +157,7 @@ public class CachingDataServiceTests
     [Test]
     public async Task GetWhere_WhenLoggedIn_BypassesCache()
     {
-        _user = _user.SetAccess();
+        _user = new UserDto();
 
         var result = await _service.GetWhere("where", _token).ToList();
 

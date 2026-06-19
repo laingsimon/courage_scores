@@ -23,12 +23,14 @@ public class TeamServiceTests
     private Mock<IAuditingHelper> _auditingHelper = null!;
     private List<CosmosTeam> _allTeams = null!;
     private List<CosmosTeam> _someTeams = null!;
+    private Mock<IAccessService> _accessService = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
         _repository = new Mock<IGenericRepository<CosmosTeam>>();
         _userService = new Mock<IUserService>();
+        _accessService = new Mock<IAccessService>();
         _auditingHelper = new Mock<IAuditingHelper>();
         _repository = new Mock<IGenericRepository<CosmosTeam>>();
         _allTeams = new List<CosmosTeam>();
@@ -39,7 +41,8 @@ public class TeamServiceTests
             _adapter.Object,
             _userService.Object,
             _auditingHelper.Object,
-            new ActionResultAdapter());
+            new ActionResultAdapter(),
+            _accessService.Object);
 
         _repository.Setup(r => r.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_allTeams.ToArray()));
         _repository.Setup(r => r.GetSome(It.IsAny<string>(), _token)).Returns(() => TestUtilities.AsyncEnumerable(_someTeams.ToArray()));

@@ -43,6 +43,7 @@ public class GenericDataServiceTests
     private Mock<IAuditingHelper> _auditingHelper = null!;
     private Guid _id;
     private Model _model = null!;
+    private Mock<IAccessService> _accessService = null!;
 
     [SetUp]
     public void Setup()
@@ -50,6 +51,7 @@ public class GenericDataServiceTests
         _repository = new Mock<IGenericRepository<Model>>();
         _adapter = new Mock<IAdapter<Model, Dto>>();
         _userService = new Mock<IUserService>();
+        _accessService = new Mock<IAccessService>();
         _auditingHelper = new Mock<IAuditingHelper>();
         _id = Guid.NewGuid();
         _model = new Model();
@@ -59,7 +61,8 @@ public class GenericDataServiceTests
             _adapter.Object,
             _userService.Object,
             _auditingHelper.Object,
-            new ActionResultAdapter());
+            new ActionResultAdapter(),
+            _accessService.Object);
 
         _repository.Setup(r => r.Get(_id, _token)).ReturnsAsync(() => _model);
     }
@@ -97,7 +100,7 @@ public class GenericDataServiceTests
         var returnedItems = await _service.GetAll(_token).ToList();
 
         Assert.That(returnedItems, Is.Not.Empty);
-        Assert.That(returnedItems, Is.EquivalentTo(new[] { dto }));
+        Assert.That(returnedItems, Is.EquivalentTo([dto]));
         _adapter.Verify(a => a.Adapt(_model, _token));
     }
 
@@ -111,7 +114,7 @@ public class GenericDataServiceTests
         var returnedItems = await _service.GetWhere("filter", _token).ToList();
 
         Assert.That(returnedItems, Is.Not.Empty);
-        Assert.That(returnedItems, Is.EquivalentTo(new[] { dto }));
+        Assert.That(returnedItems, Is.EquivalentTo([dto]));
         _adapter.Verify(a => a.Adapt(_model, _token));
     }
 
@@ -167,7 +170,7 @@ public class GenericDataServiceTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Not permitted"]));
         _repository.Verify(r => r.Upsert(It.IsAny<Model>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -182,7 +185,7 @@ public class GenericDataServiceTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not logged in" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Not logged in"]));
         _repository.Verify(r => r.Upsert(It.IsAny<Model>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -191,7 +194,7 @@ public class GenericDataServiceTests
     {
         var repository = new Mock<IGenericRepository<AnonymousModel>>();
         var adapter = new Mock<IAdapter<AnonymousModel, Dto>>();
-        var service = new GenericDataService<AnonymousModel, Dto>(repository.Object, adapter.Object, _userService.Object, _auditingHelper.Object, new ActionResultAdapter());
+        var service = new GenericDataService<AnonymousModel, Dto>(repository.Object, adapter.Object, _userService.Object, _auditingHelper.Object, new ActionResultAdapter(), _accessService.Object);
         var command = new Mock<IUpdateCommand<AnonymousModel, object>>();
         var commandResult = new ActionResult<object>
         {
@@ -221,7 +224,7 @@ public class GenericDataServiceTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Not permitted"]));
         _repository.Verify(r => r.Upsert(It.IsAny<Model>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -248,7 +251,7 @@ public class GenericDataServiceTests
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.False);
         Assert.That(result.Result, Is.Null);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "some message" }));
+        Assert.That(result.Errors, Is.EquivalentTo(["some message"]));
     }
 
     [Test]
@@ -274,7 +277,7 @@ public class GenericDataServiceTests
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.SameAs(updatedDto));
-        Assert.That(result.Messages, Is.EquivalentTo(new[] { "some message" }));
+        Assert.That(result.Messages, Is.EquivalentTo(["some message"]));
     }
 
     [Test]
@@ -288,7 +291,7 @@ public class GenericDataServiceTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Model not found" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Model not found"]));
         Assert.That(result.Result, Is.Null);
     }
 
@@ -301,7 +304,7 @@ public class GenericDataServiceTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not logged in" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Not logged in"]));
         Assert.That(result.Result, Is.Null);
         _repository.Verify(r => r.Upsert(It.IsAny<Model>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -316,7 +319,7 @@ public class GenericDataServiceTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Not permitted"]));
         Assert.That(result.Result, Is.Null);
         _repository.Verify(r => r.Upsert(It.IsAny<Model>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -335,7 +338,7 @@ public class GenericDataServiceTests
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.SameAs(deletedDto));
-        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Model deleted" }));
+        Assert.That(result.Messages, Is.EquivalentTo(["Model deleted"]));
     }
 
     [Test]
@@ -357,7 +360,7 @@ public class GenericDataServiceTests
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.False);
         Assert.That(result.Result, Is.Null);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Not permitted"]));
         Assert.That(_model.Deleted, Is.Null);
         Assert.That(_model.Remover, Is.Null);
     }
@@ -382,7 +385,7 @@ public class GenericDataServiceTests
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.SameAs(deletedDto));
-        Assert.That(result.Messages, Is.EquivalentTo(new[] { "some message" }));
+        Assert.That(result.Messages, Is.EquivalentTo(["some message"]));
     }
 
     [Test]
@@ -433,38 +436,38 @@ public class GenericDataServiceTests
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public class Model : AuditedEntity, IPermissionedEntity
     {
-        public virtual bool CanCreate(UserDto? user)
+        public virtual Task<bool> CanCreate(IUserAccessService userAccess, CancellationToken token)
         {
-            return user?.Name == nameof(CreatePermitted);
+            return Task.FromResult(userAccess.User?.Name == nameof(CreatePermitted));
         }
 
-        public virtual bool CanEdit(UserDto? user)
+        public virtual Task<bool> CanEdit(IUserAccessService userAccess, CancellationToken token)
         {
-            return user?.Name == nameof(EditPermitted) || user?.Name == nameof(EditAndDeletePermitted);
+            return Task.FromResult(userAccess.User?.Name == nameof(EditPermitted) || userAccess.User?.Name == nameof(EditAndDeletePermitted));
         }
 
-        public virtual bool CanDelete(UserDto? user)
+        public virtual Task<bool> CanDelete(IUserAccessService userAccess, CancellationToken token)
         {
-            return user?.Name == nameof(DeletePermitted) || user?.Name == nameof(EditAndDeletePermitted);
+            return Task.FromResult(userAccess.User?.Name == nameof(DeletePermitted) || userAccess.User?.Name == nameof(EditAndDeletePermitted));
         }
     }
 
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")] // must be public to be mockable
     public class AnonymousModel : AuditedEntity, IPermissionedEntity
     {
-        public bool CanCreate(UserDto? user)
+        public Task<bool> CanCreate(IUserAccessService userAccess, CancellationToken token)
         {
-            return true;
+            return Task.FromResult(true);
         }
 
-        public bool CanEdit(UserDto? user)
+        public Task<bool> CanEdit(IUserAccessService userAccess, CancellationToken token)
         {
-            return false;
+            return Task.FromResult(false);
         }
 
-        public bool CanDelete(UserDto? user)
+        public Task<bool> CanDelete(IUserAccessService userAccess, CancellationToken token)
         {
-            return false;
+            return Task.FromResult(false);
         }
     }
 

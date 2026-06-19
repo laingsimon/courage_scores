@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using CourageScores.Models.Dtos.Identity;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Cosmos;
 
@@ -20,26 +20,20 @@ public class Division : AuditedEntity, IPermissionedEntity
     public bool Superleague { get; set; }
 
     [ExcludeFromCodeCoverage]
-    public bool CanCreate(UserDto? user)
+    public async Task<bool> CanCreate(IUserAccessService userAccess, CancellationToken token)
     {
-#pragma warning disable CS0618 // Type or member is obsolete
-        return user?.Access?.ManageDivisions == true;
-#pragma warning restore CS0618 // Type or member is obsolete
+        return await userAccess.HasAccess(AccessOption.ManageDivisions, token);
     }
 
     [ExcludeFromCodeCoverage]
-    public bool CanEdit(UserDto? user)
+    public async Task<bool> CanEdit(IUserAccessService userAccess, CancellationToken token)
     {
-#pragma warning disable CS0618 // Type or member is obsolete
-        return user?.Access?.ManageDivisions == true;
-#pragma warning restore CS0618 // Type or member is obsolete
+        return await userAccess.HasAccess(AccessOption.ManageDivisions, token);
     }
 
     [ExcludeFromCodeCoverage]
-    public bool CanDelete(UserDto? user)
+    public async Task<bool> CanDelete(IUserAccessService userAccess, CancellationToken token)
     {
-#pragma warning disable CS0618 // Type or member is obsolete
-        return user?.Access?.ManageDivisions == true;
-#pragma warning restore CS0618 // Type or member is obsolete
+        return await userAccess.HasAccess(AccessOption.ManageDivisions, token);
     }
 }

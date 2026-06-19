@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using CourageScores.Models.Dtos.Identity;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Cosmos.Game.Sayg;
 
@@ -14,21 +14,21 @@ public class RecordedScoreAsYouGo : AuditedEntity, IPermissionedEntity, IScoreAs
     public Guid? TournamentMatchId { get; set; }
 
     [ExcludeFromCodeCoverage]
-    public bool CanCreate(UserDto? user)
+    public Task<bool> CanCreate(IUserAccessService userAccess, CancellationToken token)
     {
-        return true;
+        return Task.FromResult(true);
     }
 
     [ExcludeFromCodeCoverage]
-    public bool CanEdit(UserDto? user)
+    public Task<bool> CanEdit(IUserAccessService userAccess, CancellationToken token)
     {
-        return true;
+        return Task.FromResult(true);
     }
 
     [ExcludeFromCodeCoverage]
-    public bool CanDelete(UserDto? user)
+    public Task<bool> CanDelete(IUserAccessService userAccess, CancellationToken token)
     {
-        return true;
+        return Task.FromResult(true);
     }
 
     public Dictionary<int, Leg> Legs { get; set; } = new();

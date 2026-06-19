@@ -97,7 +97,8 @@ public class CosmosTableService : ICosmosTableService
             return false;
         }
 
+        var userAccess = new UserAccessService(_accessService, user);
         var instance = (IPermissionedEntity)Activator.CreateInstance(dataType)!;
-        return instance.CanCreate(user) && instance.CanEdit(user) && instance.CanDelete(user);
+        return await instance.CanCreate(userAccess, token) && await instance.CanEdit(userAccess, token) && await instance.CanDelete(userAccess, token);
     }
 }

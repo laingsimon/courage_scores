@@ -194,7 +194,8 @@ public class DeleteTeamCommandTests
     [Test]
     public async Task ApplyUpdate_WhenNoRemainingTeamSeasonsAndDeleteRequested_ThenDeletesTeam()
     {
-        _user.SetAccess(manageTeams: true);
+        _user = new UserDto();
+        _access = _access.With(AccessOption.ManageTeams);
         var teamSeason = new TeamSeason
         {
             SeasonId = Guid.NewGuid(),
@@ -234,7 +235,8 @@ public class DeleteTeamCommandTests
     [Test]
     public async Task ApplyUpdate_WhenLastTeamSeasonDeletedAndDeleteRequested_ThenDeletesTeam()
     {
-        _user.SetAccess(manageTeams: true);
+        _user = new UserDto();
+        _access = _access.With(AccessOption.ManageTeams);
         var teamSeason = new TeamSeason
         {
             SeasonId = _seasonId,

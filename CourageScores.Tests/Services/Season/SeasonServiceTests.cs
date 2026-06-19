@@ -25,11 +25,14 @@ public class SeasonServiceTests
     private SeasonService _service = null!;
     private CosmosSeason _season = null!;
     private SeasonDto _seasonDto = null!;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _user = _user.SetAccess(manageGames: true);
+        _access = [AccessOption.ManageGames];
+        _user = new UserDto();
         _season = new CosmosSeason
         {
             Id = Guid.NewGuid(),
@@ -42,6 +45,7 @@ public class SeasonServiceTests
         _adapter = new MockAdapter<CosmosSeason, SeasonDto>(_season, _seasonDto);
         _auditingHelper = new Mock<IAuditingHelper>();
         _userService = new Mock<IUserService>();
+        _accessService = new Mock<IAccessService>();
         _clock = new Mock<TimeProvider>();
 
         _service = new SeasonService(
@@ -50,10 +54,14 @@ public class SeasonServiceTests
             _userService.Object,
             _auditingHelper.Object,
             _clock.Object,
-            new ActionResultAdapter());
+            new ActionResultAdapter(),
+            _accessService.Object);
 
         _repository.Setup(r => r.Get(_season.Id, _token)).ReturnsAsync(_season);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        _accessService
+            .Setup(s => s.HasAccess(_user, It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto _, AccessOption option, CancellationToken _) => _user != null && _access.Contains(option));
     }
 
     [Test]
