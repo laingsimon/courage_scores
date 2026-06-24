@@ -43,6 +43,7 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install chromium
         working-directory: ./CourageScores.BehaviouralTests/
+        timeout-minutes: 1
 
       - name: Run Playwright tests
         run: npx playwright test
