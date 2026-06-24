@@ -19,4 +19,11 @@ public static class NameExtensions
         // we check for null before trying to trim the value
         return value?.Trim() ?? fallbackValue;
     }
+
+    public static string Coalesce(this string? value, params string[] values)
+    {
+        var sequence = new[] { value ?? "" }.Concat(values);
+        // return value ?? string.Empty;
+        return sequence.FirstOrDefault(v => !string.IsNullOrEmpty(v)) ?? string.Empty;
+    }
 }

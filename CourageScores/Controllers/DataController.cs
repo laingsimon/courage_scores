@@ -24,7 +24,7 @@ public class DataController : Controller
     }
 
     [HttpPost("/api/Data/Export")]
-    public async Task<ActionResultDto<ExportDataResultDto>> Export(ExportDataRequestDto request, CancellationToken token)
+    public async Task<ActionResultDto<ExportDataResultDto>> ExportData(ExportDataRequestDto request, CancellationToken token)
     {
         return await _dataService.ExportData(request, token);
     }
@@ -38,7 +38,7 @@ public class DataController : Controller
     [HttpPost("/api/Data/Import")]
     [RequestFormLimits(KeyLengthLimit = MaxRequestSizeInBytes, ValueLengthLimit = 200, MultipartBodyLengthLimit = MaxRequestSizeInBytes)]
     [RequestSizeLimit(bytes: MaxRequestSizeInBytes)]
-    public async Task<ActionResultDto<ImportDataResultDto>> Import([FromForm] ImportDataRequestDto request, CancellationToken token)
+    public async Task<ActionResultDto<ImportDataResultDto>> ImportData([FromForm] ImportDataRequestDto request, CancellationToken token)
     {
         request.Tables = request.Tables.SelectMany(t => t.Split(',')).ToList();
         return await _dataService.ImportData(request, token);

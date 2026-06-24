@@ -25,7 +25,7 @@ describe('ExportDataButton', () => {
     let apiResult: IClientActionResultDto<ExportDataResultDto> | null;
 
     const dataApi = api<IDataApi>({
-        export: async (
+        exportData: async (
             request: ExportDataRequestDto,
         ): Promise<IClientActionResultDto<ExportDataResultDto>> => {
             exportRequest = request;

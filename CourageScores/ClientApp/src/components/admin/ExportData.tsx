@@ -62,7 +62,7 @@ export function ExportData() {
         setExporting(true);
         try {
             const response: IClientActionResultDto<ExportDataResultDto> =
-                await dataApi.export(exportRequest);
+                await dataApi.exportData(exportRequest);
             if (response.success) {
                 setZipContent(response.result!.zip!);
             } else {

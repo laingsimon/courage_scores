@@ -40,7 +40,7 @@ export function ExportDataButton({ tables }: IExportDataButtonProps) {
             };
 
             const response: IClientActionResultDto<ExportDataResultDto> =
-                await dataApi.export(request);
+                await dataApi.exportData(request);
             if (response.success) {
                 window.open(
                     `data:application/zip;base64,${response.result!.zip}`,
