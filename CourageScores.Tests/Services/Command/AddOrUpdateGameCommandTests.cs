@@ -48,12 +48,14 @@ public class AddOrUpdateGameCommandTests
             Id = Guid.NewGuid(),
             Created = DateTime.Now,
             Updated = DateTime.Now,
+            Name = "HOME",
         };
         _awayTeam = new TeamDto
         {
             Id = Guid.NewGuid(),
             Created = DateTime.Now,
             Updated = DateTime.Now,
+            Name = "AWAY",
         };
 
         _seasonService = new Mock<ICachingSeasonService>();
@@ -138,9 +140,7 @@ public class AddOrUpdateGameCommandTests
     {
         var update = new EditGameDto
         {
-            HomeTeamName = "HOME TEAM",
             HomeTeamId = _homeTeam.Id,
-            AwayTeamName = "AWAY TEAM",
             AwayTeamId = _awayTeam.Id,
             Address = "new address",
             Date = new DateTime(2001, 02, 03, 04, 05, 06),
@@ -168,8 +168,8 @@ public class AddOrUpdateGameCommandTests
         Assert.That(_game.AccoladesCount, Is.EqualTo(update.AccoladesCount));
         Assert.That(_game.DivisionId, Is.EqualTo(update.DivisionId));
         Assert.That(_game.SeasonId, Is.EqualTo(update.SeasonId));
-        Assert.That(_game.Home.Name, Is.EqualTo(update.HomeTeamName.Trim()));
-        Assert.That(_game.Away.Name, Is.EqualTo(update.AwayTeamName.Trim()));
+        Assert.That(_game.Home.Name, Is.EqualTo(_homeTeam.Name));
+        Assert.That(_game.Away.Name, Is.EqualTo(_awayTeam.Name));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_game.DivisionId));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
     }
