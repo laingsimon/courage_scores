@@ -47,11 +47,15 @@ public class FinalsNightReportTests
     private TournamentGameDto _tournament = null!;
     private DivisionFixtureDateDto _tournamentFixtureDateDto = null!;
     private Mock<ITournamentTypeResolver> _tournamentTypeResolver = null!;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
         _userService = new Mock<IUserService>();
+        _access = [AccessOption.ManageScores, AccessOption.RunReports];
+        _accessService = new Mock<IAccessService>();
         _manOfTheMatchReport = new Mock<IReport>();
         _division1 = new DivisionDtoBuilder(name: "Division 1").Build();
         _division2 = new DivisionDtoBuilder(name: "Division 2").Build();
@@ -59,7 +63,7 @@ public class FinalsNightReportTests
         _divisionData1 = new DivisionDataDto(null) { Id = _division1.Id, Name = _division1.Name, };
         _divisionData2 = new DivisionDataDto(null) { Id = _division2.Id, Name = _division2.Name, };
         _season = new SeasonDtoBuilder().WithDivisions(_division1, _division2).Build();
-        _user = _user.SetAccess(manageScores: true, runReports: true);
+        _user = new UserDto();
         _playerLookup = new PlayerLookup();
         _divisionService = new Mock<ICachingDivisionService>();
         _tournamentService = new Mock<IGenericDataService<TournamentGame, TournamentGameDto>>();
@@ -75,7 +79,7 @@ public class FinalsNightReportTests
             Round = Helper.Round(Helper.Match("SIDE A", "SIDE B", 1, 2)),
         };
         _tournamentFixtureDateDto = Helper.DivisionFixtureDateDto(new DateTime(2001, 02, 03), Helper.DivisionTournamentFixtureDetailsDto(_tournament.Id, type: _tournament.Type));
-        _report = new FinalsNightReport(_userService.Object, _manOfTheMatchReport.Object, _season, _divisionService.Object, _tournamentService.Object, _tournamentTypeResolver.Object);
+        _report = new FinalsNightReport(_userService.Object, _manOfTheMatchReport.Object, _season, _divisionService.Object, _tournamentService.Object, _tournamentTypeResolver.Object, _accessService.Object);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _divisionService
@@ -90,6 +94,9 @@ public class FinalsNightReportTests
         _tournamentTypeResolver
             .Setup(r => r.GetTournamentType(It.IsAny<DivisionTournamentFixtureDetailsDto>()))
             .Returns((DivisionTournamentFixtureDetailsDto _) => _tournament.Type ?? "Tournament");
+        _accessService
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }
 
     [Test]
@@ -275,7 +282,7 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenNotPermitted_ReturnsEmptyManOfTheMatch()
     {
-        _user.SetAccess(manageScores: false);
+        _access = _access.Without(AccessOption.ManageScores);
 
         var report = await _report.GetReport(_playerLookup, _token);
 

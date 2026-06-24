@@ -17,6 +17,7 @@ public class UpdatePlayerCommand : IUpdateCommand<CosmosTeam, TeamPlayer>
 {
     private readonly IAuditingHelper _auditingHelper;
     private readonly ICommandFactory _commandFactory;
+    private readonly IAccessService _accessService;
     private readonly IGenericRepository<CosmosGame> _gameRepository;
     private readonly ICachingSeasonService _seasonService;
     private readonly ITeamService _teamService;
@@ -31,7 +32,8 @@ public class UpdatePlayerCommand : IUpdateCommand<CosmosTeam, TeamPlayer>
         IAuditingHelper auditingHelper,
         IGenericRepository<CosmosGame> gameRepository,
         ITeamService teamService,
-        ICommandFactory commandFactory)
+        ICommandFactory commandFactory,
+        IAccessService accessService)
     {
         _userService = userService;
         _seasonService = seasonService;
@@ -39,6 +41,7 @@ public class UpdatePlayerCommand : IUpdateCommand<CosmosTeam, TeamPlayer>
         _gameRepository = gameRepository;
         _teamService = teamService;
         _commandFactory = commandFactory;
+        _accessService = accessService;
     }
 
     public UpdatePlayerCommand ForPlayer(Guid playerId)
@@ -102,8 +105,8 @@ public class UpdatePlayerCommand : IUpdateCommand<CosmosTeam, TeamPlayer>
             };
         }
 
-        var canManageTeams = user.Access?.ManageTeams == true;
-        var canInputResultsForTeam = user.Access?.InputResults == true && user.TeamId == model.Id;
+        var canManageTeams = await _accessService.HasAccess(user, AccessOption.ManageTeams, token);
+        var canInputResultsForTeam = await _accessService.HasAccess(user, AccessOption.InputResults, token) && user.TeamId == model.Id;
         if (!canManageTeams && !canInputResultsForTeam)
         {
             return new ActionResult<TeamPlayer>

@@ -20,6 +20,8 @@ public class ServiceAccountSessionServiceTests
     private MockRequestCookies _requestCookies = null!;
     private UserDto? _user;
     private DefaultHttpContext _httpContext = null!;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     private ServiceAccountSessionService _service = null!;
 
@@ -27,12 +29,14 @@ public class ServiceAccountSessionServiceTests
     public void SetupEachTest()
     {
         _user = null;
+        _access = [];
+        _accessService = new Mock<IAccessService>();
         _userService = new Mock<IUserService>();
         _dataService = new Mock<IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto>>();
         _cleanupService = new Mock<IServiceAccountSessionCleanUpService>();
         _requestCookies = new MockRequestCookies();
         var httpContextAccessor = new Mock<IHttpContextAccessor>();
-        _service = new ServiceAccountSessionService(_userService.Object, _dataService.Object, httpContextAccessor.Object, _cleanupService.Object);
+        _service = new ServiceAccountSessionService(_userService.Object, _dataService.Object, httpContextAccessor.Object, _cleanupService.Object, _accessService.Object);
         _httpContext = new DefaultHttpContext
         {
             Request =
@@ -43,6 +47,9 @@ public class ServiceAccountSessionServiceTests
 
         httpContextAccessor.Setup(a => a.HttpContext).Returns(_httpContext);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        _accessService
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }
 
     [Test]
@@ -50,13 +57,8 @@ public class ServiceAccountSessionServiceTests
     {
         var id = Guid.NewGuid();
         _dataService.Setup(s => s.Get(id, _token)).ReturnsAsync(() => null);
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                LoginServiceAccounts = true,
-            }
-        };
+        _user = new UserDto();
+        _access = _access.With(AccessOption.LoginServiceAccounts);
 
         var result = await _service.Get(id, _token);
 
@@ -73,13 +75,8 @@ public class ServiceAccountSessionServiceTests
         _dataService.Setup(s => s.Get(session.Id, _token)).ReturnsAsync(session);
         _requestCookies.Cookies[ServiceAccountSessionDto.SessionVerificationCookieName] = cookieValue;
         _httpContext.Connection.RemoteIpAddress = ipAddress;
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                LoginServiceAccounts = true,
-            }
-        };
+        _user = new UserDto();
+        _access = _access.With(AccessOption.LoginServiceAccounts);
 
         var result = await _service.Get(session.Id, _token);
 
@@ -167,10 +164,8 @@ public class ServiceAccountSessionServiceTests
     [Test]
     public async Task GetAll_WhenNotPermitted_ReturnsEmpty()
     {
-        _user = new UserDto
-        {
-            Access = new AccessDto { LoginServiceAccounts = false },
-        };
+        _user = new UserDto();
+        _access = _access.Without(AccessOption.LoginServiceAccounts);
         var session = SessionDto();
         _dataService
             .Setup(s => s.GetAll(_token))
@@ -186,10 +181,8 @@ public class ServiceAccountSessionServiceTests
     [Test]
     public async Task GetAll_WhenPermitted_ReturnsAllSessions()
     {
-        _user = new UserDto
-        {
-            Access = new AccessDto { LoginServiceAccounts = true },
-        };
+        _user = new UserDto();
+        _access = _access.With(AccessOption.LoginServiceAccounts);
         var session = SessionDto();
         _dataService
             .Setup(s => s.GetAll(_token))

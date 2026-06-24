@@ -12,11 +12,13 @@ public class AddOrUpdateSaygCommand : AddOrUpdateCommand<RecordedScoreAsYouGo, U
 {
     private readonly ISimpleAdapter<Leg, LegDto> _legAdapter;
     private readonly IUserService _userService;
+    private readonly IAccessService _accessService;
 
-    public AddOrUpdateSaygCommand(ISimpleAdapter<Leg, LegDto> legAdapter, IUserService userService)
+    public AddOrUpdateSaygCommand(ISimpleAdapter<Leg, LegDto> legAdapter, IUserService userService, IAccessService accessService)
     {
         _legAdapter = legAdapter;
         _userService = userService;
+        _accessService = accessService;
     }
 
     [ExcludeFromCodeCoverage]
@@ -25,7 +27,7 @@ public class AddOrUpdateSaygCommand : AddOrUpdateCommand<RecordedScoreAsYouGo, U
     protected override async Task<ActionResult<RecordedScoreAsYouGo>> ApplyUpdates(RecordedScoreAsYouGo model, UpdateRecordedScoreAsYouGoDto update, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        if ((model.TournamentMatchId ?? update.TournamentMatchId) != null && user?.Access?.RecordScoresAsYouGo != true)
+        if ((model.TournamentMatchId ?? update.TournamentMatchId) != null && !await _accessService.HasAccess(user, AccessOption.RecordScoresAsYouGo, token))
         {
             return new ActionResult<RecordedScoreAsYouGo>
             {

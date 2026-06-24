@@ -12,16 +12,19 @@ public class ServiceAccountSessionService : IServiceAccountSessionService
     private readonly IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto> _dataService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IServiceAccountSessionCleanUpService _cleanupService;
+    private readonly IAccessService _accessService;
 
     public ServiceAccountSessionService(IUserService userService,
         IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto> dataService,
         IHttpContextAccessor httpContextAccessor,
-        IServiceAccountSessionCleanUpService cleanupService)
+        IServiceAccountSessionCleanUpService cleanupService,
+        IAccessService accessService)
     {
         _userService = userService;
         _dataService = dataService;
         _httpContextAccessor = httpContextAccessor;
         _cleanupService = cleanupService;
+        _accessService = accessService;
     }
 
     public async Task<bool> SignOutAsync(CancellationToken token)
@@ -62,7 +65,7 @@ public class ServiceAccountSessionService : IServiceAccountSessionService
             }
 
             var user = await _userService.GetUser(token);
-            if (user?.Access?.LoginServiceAccounts == true)
+            if (await _accessService.HasAccess(user, AccessOption.LoginServiceAccounts, token))
             {
                 return session;
             }
@@ -95,7 +98,7 @@ public class ServiceAccountSessionService : IServiceAccountSessionService
         await _cleanupService.DeleteExpiredSessions(token);
 
         var user = await _userService.GetUser(token);
-        if (user?.Access?.LoginServiceAccounts != true)
+        if (!await _accessService.HasAccess(user, AccessOption.LoginServiceAccounts, token))
         {
             yield break;
         }

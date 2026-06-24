@@ -9,13 +9,11 @@ namespace CourageScores;
 
 public class ExceptionHandler
 {
-    private readonly string? _debugToken;
     private readonly bool _includeErrorDetails;
 
-    public ExceptionHandler(bool includeErrorDetails, string? debugToken)
+    public ExceptionHandler(bool includeErrorDetails)
     {
         _includeErrorDetails = includeErrorDetails;
-        _debugToken = debugToken;
     }
 
     // ReSharper disable once MemberCanBeMadeStatic.Global
@@ -29,7 +27,7 @@ public class ExceptionHandler
         var content = new ErrorDetails
         {
             Exception = exceptionHandlerPathFeature?.Error != null
-                ? FromException(exceptionHandlerPathFeature.Error, ShouldIncludeStack(context), ShouldIncludeMessage(context))
+                ? FromException(exceptionHandlerPathFeature.Error)
                 : null,
             RequestTimeUtc = DateTime.UtcNow.ToString("O"),
             Request = FromRequest(context.Request, exceptionHandlerPathFeature?.RouteValues),
@@ -54,28 +52,6 @@ public class ExceptionHandler
         await service.AddError(details, token);
     }
 
-    private bool ShouldIncludeStack(HttpContext httpContext)
-    {
-        return _includeErrorDetails || HasDebugToken(httpContext);
-    }
-
-    private bool ShouldIncludeMessage(HttpContext httpContext)
-    {
-        return _includeErrorDetails || HasDebugToken(httpContext);
-    }
-
-    private bool HasDebugToken(HttpContext httpContext)
-    {
-        if (string.IsNullOrEmpty(_debugToken))
-        {
-            return false;
-        }
-
-        var debugQueryString = (string?)httpContext.Request.Query["debugToken"];
-        return !string.IsNullOrEmpty(debugQueryString)
-               && debugQueryString.Equals(_debugToken, StringComparison.OrdinalIgnoreCase);
-    }
-
     private static RequestDetails FromRequest(HttpRequest request, RouteValueDictionary? routeValueDictionary)
     {
         return new RequestDetails
@@ -89,13 +65,13 @@ public class ExceptionHandler
         };
     }
 
-    private static ExceptionDetails FromException(Exception exception, bool includeStack, bool includeMessage)
+    private ExceptionDetails FromException(Exception exception)
     {
         return new ExceptionDetails
         {
             Type = exception.GetType().Name,
-            Message = includeMessage ? exception.Message : null,
-            StackTrace = includeStack
+            Message = _includeErrorDetails ? exception.Message : null,
+            StackTrace = _includeErrorDetails
                 ? exception.StackTrace?
                     .Split(new[]
                     {

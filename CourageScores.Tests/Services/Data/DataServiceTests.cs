@@ -15,7 +15,7 @@ namespace CourageScores.Tests.Services.Data;
 [TestFixture]
 public class DataServiceTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private DataService _dataService = null!;
     private Mock<Database> _database = null!;
     private Mock<IUserService> _userService = null!;
@@ -35,6 +35,8 @@ public class DataServiceTests
     private Mock<IDataBrowserRepository<SingleDataResultDto>> _dataBrowserRepository = null!;
     private Mock<IDataBrowserRepository<object>> _dataViewRepository = null!;
     private Mock<IBlobStorageRepository> _blobStorageRepository = null!;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -52,14 +54,15 @@ public class DataServiceTests
         _dataBrowserRepository = new Mock<IDataBrowserRepository<SingleDataResultDto>>();
         _dataViewRepository = new Mock<IDataBrowserRepository<object>>();
         _blobStorageRepository = new Mock<IBlobStorageRepository>();
+        _accessService = new Mock<IAccessService>();
+        _access = [AccessOption.ExportData, AccessOption.ImportData];
         _exportRequest = new ExportDataRequestDto();
         _importRequest = new ImportDataRequestDto
         {
             Zip = new FormFile(new MemoryStream(), 0, 10, "name", "fileName.zip"),
             Password = "correct password",
         };
-        _user = _user.SetAccess(exportData: true, importData: true);
-        _user.Name = "USER";
+        _user = new UserDto { Name = "USER" };
         _importMetaData = new ExportMetaData { Hostname = "HOST" };
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _zipBuilderFactory.Setup(f => f.Create("USER", _exportRequest, _token)).ReturnsAsync(_zipBuilder.Object);
@@ -80,6 +83,9 @@ public class DataServiceTests
         _importZip.Setup(z => z.HasFile(ExportMetaData.FileName)).Returns(true);
         _configuration.Setup(c => c["RestoreRequestToken"]).Returns("Correct");
         _configuration.Setup(c => c["BackupRequestToken"]).Returns("Correct");
+        _accessService
+            .Setup(s => s.HasAccess(_user, It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
 
         _dataService = new DataService(
             _database.Object,
@@ -91,7 +97,8 @@ public class DataServiceTests
             _configuration.Object,
             _dataBrowserRepository.Object,
             _dataViewRepository.Object,
-            _blobStorageRepository.Object);
+            _blobStorageRepository.Object,
+            _accessService.Object);
     }
 
     [Test]
@@ -107,7 +114,7 @@ public class DataServiceTests
     [Test]
     public async Task ExportData_WhenNotPermitted_ReturnsUnsuccessful()
     {
-        _user.SetAccess(exportData: false);
+        _access = _access.Without(AccessOption.ExportData);
 
         var result = await _dataService.ExportData(_exportRequest, _token);
 
@@ -148,7 +155,7 @@ public class DataServiceTests
     public async Task ExportData_WhenTablesReturned_ExportsEachTable()
     {
         var table = new Mock<ITableAccessor>();
-        _tables = new[] { table.Object };
+        _tables = [table.Object];
 
         await _dataService.ExportData(_exportRequest, _token);
 
@@ -181,7 +188,7 @@ public class DataServiceTests
     [Test]
     public async Task ImportData_WhenNotPermitted_ReturnsUnsuccessful()
     {
-        _user.SetAccess(importData: false);
+        _access = _access.Without(AccessOption.ImportData);
 
         var result = await _dataService.ImportData(_importRequest, _token);
 
@@ -236,7 +243,7 @@ public class DataServiceTests
     public async Task ImportData_WithV2PartialDataExportAndPurge_ReturnsUnsuccessful()
     {
         _importRequest.PurgeData = true;
-        _importMetaData.RequestedTables.Add("TABLE 1", new List<Guid>(new[] { Guid.Empty }));
+        _importMetaData.RequestedTables.Add("TABLE 1", [Guid.Empty]);
 
         var result = await _dataService.ImportData(_importRequest, _token);
 
@@ -422,7 +429,7 @@ public class DataServiceTests
     [Test]
     public async Task BrowseAllItems_WhenNotPermitted_ReturnsNotPermitted()
     {
-        _user.SetAccess(exportData: false);
+        _access = _access.Without(AccessOption.ExportData);
 
         var result = await _dataService.Browse("table", _token);
 
@@ -458,7 +465,7 @@ public class DataServiceTests
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Errors, Is.Empty);
-        Assert.That(result.Result, Is.EquivalentTo(new[] { item }));
+        Assert.That(result.Result, Is.EquivalentTo([item]));
     }
 
     [Test]
@@ -475,7 +482,7 @@ public class DataServiceTests
     [Test]
     public async Task View_WhenNotPermitted_ReturnsNotPermitted()
     {
-        _user.SetAccess(exportData: false);
+        _access = _access.Without(AccessOption.ExportData);
         var id = Guid.NewGuid();
 
         var result = await _dataService.View("table", id, _token);

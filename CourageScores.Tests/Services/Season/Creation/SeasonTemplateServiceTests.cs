@@ -37,7 +37,7 @@ public class SeasonTemplateServiceTests
         Success = false,
     };
 
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private SeasonTemplateService _service = null!;
     private Mock<IGenericDataService<Template, TemplateDto>> _underlyingService = null!;
     private Mock<IUserService> _userService = null!;
@@ -47,6 +47,7 @@ public class SeasonTemplateServiceTests
     private Mock<ICompatibilityCheck> _check = null!;
     private Mock<ISeasonProposalStrategy> _proposalStrategy = null!;
     private Mock<ICachingTeamService> _teamService = null!;
+    private Mock<IAccessService> _accessService = null!;
     private UserDto? _user;
     private TemplateDto[] _templates = null!;
     private SeasonDto _season = null!;
@@ -55,6 +56,7 @@ public class SeasonTemplateServiceTests
     private MockAdapter<Template, TemplateDto> _templateAdapter = null!;
     private Mock<IHealthCheckService> _healthCheckService = null!;
     private Mock<ISimpleOnewayAdapter<Template, SeasonHealthDto>> _healthCheckAdapter = null!;
+    private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -62,6 +64,7 @@ public class SeasonTemplateServiceTests
         _underlyingService = new Mock<IGenericDataService<Template, TemplateDto>>();
         _userService = new Mock<IUserService>();
         _seasonService = new Mock<ICachingSeasonService>();
+        _accessService = new Mock<IAccessService>();
         _divisionService = new Mock<ICachingDivisionService>();
         _checkFactory = new Mock<ICompatibilityCheckFactory>();
         _check = new Mock<ICompatibilityCheck>();
@@ -80,9 +83,11 @@ public class SeasonTemplateServiceTests
             _teamService.Object,
             _healthCheckAdapter.Object,
             _healthCheckService.Object,
-            _templateAdapter);
-        _user = _user.SetAccess(manageGames: true);
-        _templates = Array.Empty<TemplateDto>();
+            _templateAdapter,
+            _accessService.Object);
+        _user = new UserDto();
+        _access = [AccessOption.ManageGames];
+        _templates = [];
         var divisionId = Guid.NewGuid();
         _season = new SeasonDtoBuilder()
             .WithDivisions(new DivisionDtoBuilder(divisionId).Build())
@@ -96,7 +101,7 @@ public class SeasonTemplateServiceTests
                 Id = _season.Id,
             },
         };
-        _teamsInSeason = Array.Empty<TeamDto>();
+        _teamsInSeason = [];
 
         _underlyingService.Setup(s => s.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_templates));
         _underlyingService
@@ -111,6 +116,9 @@ public class SeasonTemplateServiceTests
         _checkFactory.Setup(f => f.CreateChecks()).Returns(_check.Object);
         _teamService.Setup(s => s.GetTeamsForSeason(_season.Id, _token))
             .Returns(() => TestUtilities.AsyncEnumerable(_teamsInSeason));
+        _accessService
+            .Setup(s => s.HasAccess(_user, It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
     }
 
     [Test]
@@ -121,18 +129,18 @@ public class SeasonTemplateServiceTests
         var result = await _service.GetForSeason(_season.Id, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Not logged in" }));
+        Assert.That(result.Errors, Is.EquivalentTo(["Not logged in"]));
     }
 
     [Test]
     public async Task GetForSeason_WhenNotPermitted_ReturnsNotPermitted()
     {
-        _user.SetAccess(manageGames: false, manageSeasonTemplates: false);
+        _access = _access.Without(AccessOption.ManageGames);
 
         var result = await _service.GetForSeason(_season.Id, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Errors, Is.EquivalentTo(["Not permitted"]));
     }
 
     [Test]
@@ -141,7 +149,7 @@ public class SeasonTemplateServiceTests
         var result = await _service.GetForSeason(Guid.NewGuid(), _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Season not found" }));
+        Assert.That(result.Errors, Is.EquivalentTo(["Season not found"]));
     }
 
     [TestCase(true, true)]
@@ -149,8 +157,9 @@ public class SeasonTemplateServiceTests
     [TestCase(false, true)]
     public async Task GetForSeason_WhenPermitted_ReturnsEmptyList(bool manageGames, bool manageTemplates)
     {
-        _user.SetAccess(manageGames: manageGames, manageSeasonTemplates: manageTemplates);
-        _templates = Array.Empty<TemplateDto>();
+        _access = manageGames ? _access.With(AccessOption.ManageGames) : _access.Without(AccessOption.ManageGames);
+        _access = manageTemplates ? _access.With(AccessOption.ManageSeasonTemplates) : _access;
+        _templates = [];
 
         var result = await _service.GetForSeason(_season.Id, _token);
 
@@ -180,18 +189,18 @@ public class SeasonTemplateServiceTests
     {
         var division1 = Guid.NewGuid();
         var division2 = Guid.NewGuid();
-        _templates = new[] { TemplateDto };
+        _templates = [TemplateDto];
         var division1Team1 = TeamDto(TeamSeasonDto(division1));
         var division1Team2 = TeamDto(TeamSeasonDto(division1));
         var division2Team1 = TeamDto(TeamSeasonDto(division2));
-        _teamsInSeason = new[] { division1Team1, division1Team2, division2Team1 };
+        _teamsInSeason = [division1Team1, division1Team2, division2Team1];
         var expected = new Dictionary<Guid, TeamDto[]>
         {
             {
-                division1, new[] { division1Team1, division1Team2 }
+                division1, [division1Team1, division1Team2]
             },
             {
-                division2, new[] { division2Team1 }
+                division2, [division2Team1]
             },
         };
         _check
@@ -208,11 +217,11 @@ public class SeasonTemplateServiceTests
     {
         var division1 = Guid.NewGuid();
         var division2 = Guid.NewGuid();
-        _templates = new[] { TemplateDto };
+        _templates = [TemplateDto];
         var division1Team1 = TeamDto(TeamSeasonDto(division1, deleted: true));
         var division1Team2 = TeamDto(TeamSeasonDto(division1, deleted: true));
         var division2Team1 = TeamDto(TeamSeasonDto(division2, deleted: true));
-        _teamsInSeason = new[] { division1Team1, division1Team2, division2Team1 };
+        _teamsInSeason = [division1Team1, division1Team2, division2Team1];
         var expected = new Dictionary<Guid, TeamDto[]>();
         _check
             .Setup(c => c.Check(TemplateDto, It.IsAny<TemplateMatchContext>(), _token))
@@ -226,7 +235,7 @@ public class SeasonTemplateServiceTests
     [Test]
     public async Task GetForSeason_GivenTemplateIncompatible_ReturnsIncompatible()
     {
-        _templates = new[] { TemplateDto };
+        _templates = [TemplateDto];
         _check
             .Setup(c => c.Check(TemplateDto, It.IsAny<TemplateMatchContext>(), _token))
             .ReturnsAsync(NotSuccess);
@@ -241,7 +250,7 @@ public class SeasonTemplateServiceTests
     [Test]
     public async Task GetForSeason_GivenTemplateCompatible_ReturnsCompatible()
     {
-        _templates = new[] { TemplateDto };
+        _templates = [TemplateDto];
         _check
             .Setup(c => c.Check(TemplateDto, It.IsAny<TemplateMatchContext>(), _token))
             .ReturnsAsync(Success);
@@ -257,7 +266,7 @@ public class SeasonTemplateServiceTests
     public async Task ProposeForSeason_WhenLoggedOut_ReturnsNotLoggedIn()
     {
         _user = null;
-        _templates = new[] { TemplateDto };
+        _templates = [TemplateDto];
         var request = new ProposalRequestDto
         {
             SeasonId = _season.Id,
@@ -267,14 +276,14 @@ public class SeasonTemplateServiceTests
         var result = await _service.ProposeForSeason(request, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Not logged in" }));
+        Assert.That(result.Errors, Is.EquivalentTo(["Not logged in"]));
     }
 
     [Test]
     public async Task ProposeForSeason_WhenNotPermitted_ReturnsNotPermitted()
     {
-        _user.SetAccess(manageGames: false);
-        _templates = new[] { TemplateDto };
+        _access = _access.Without(AccessOption.ManageGames);
+        _templates = [TemplateDto];
         var request = new ProposalRequestDto
         {
             SeasonId = _season.Id,
@@ -284,13 +293,13 @@ public class SeasonTemplateServiceTests
         var result = await _service.ProposeForSeason(request, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Errors, Is.EquivalentTo(["Not permitted"]));
     }
 
     [Test]
     public async Task ProposeForSeason_WhenSeasonNotFound_ReturnsSeasonNotFound()
     {
-        _templates = new[] { TemplateDto };
+        _templates = [TemplateDto];
         var request = new ProposalRequestDto
         {
             SeasonId = Guid.NewGuid(),
@@ -300,13 +309,13 @@ public class SeasonTemplateServiceTests
         var result = await _service.ProposeForSeason(request, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Season not found" }));
+        Assert.That(result.Errors, Is.EquivalentTo(["Season not found"]));
     }
 
     [Test]
     public async Task ProposeForSeason_WhenTemplateNotFound_ReturnsTemplateNotFound()
     {
-        _templates = new[] { TemplateDto };
+        _templates = [TemplateDto];
         var request = new ProposalRequestDto
         {
             SeasonId = _season.Id,
@@ -316,13 +325,13 @@ public class SeasonTemplateServiceTests
         var result = await _service.ProposeForSeason(request, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Template not found" }));
+        Assert.That(result.Errors, Is.EquivalentTo(["Template not found"]));
     }
 
     [Test]
     public async Task ProposeForSeason_WhenPermitted_ProposesFixturesForAllDivisions()
     {
-        _templates = new[] { TemplateDto };
+        _templates = [TemplateDto];
         var request = new ProposalRequestDto
         {
             SeasonId = _season.Id,
@@ -343,18 +352,18 @@ public class SeasonTemplateServiceTests
     {
         var division1 = Guid.NewGuid();
         var division2 = Guid.NewGuid();
-        _templates = new[] { TemplateDto };
+        _templates = [TemplateDto];
         var division1Team1 = TeamDto(TeamSeasonDto(division1));
         var division1Team2 = TeamDto(TeamSeasonDto(division1));
         var division2Team1 = TeamDto(TeamSeasonDto(division2));
-        _teamsInSeason = new[] { division1Team1, division1Team2, division2Team1 };
+        _teamsInSeason = [division1Team1, division1Team2, division2Team1];
         var expected = new Dictionary<Guid, TeamDto[]>
         {
             {
-                division1, new[] { division1Team1, division1Team2 }
+                division1, [division1Team1, division1Team2]
             },
             {
-                division2, new[] { division2Team1 }
+                division2, [division2Team1]
             },
         };
         var request = new ProposalRequestDto
@@ -373,11 +382,11 @@ public class SeasonTemplateServiceTests
     {
         var division1 = Guid.NewGuid();
         var division2 = Guid.NewGuid();
-        _templates = new[] { TemplateDto };
+        _templates = [TemplateDto];
         var division1Team1 = TeamDto(TeamSeasonDto(division1, deleted: true));
         var division1Team2 = TeamDto(TeamSeasonDto(division1, deleted: true));
         var division2Team1 = TeamDto(TeamSeasonDto(division2, deleted: true));
-        _teamsInSeason = new[] { division1Team1, division1Team2, division2Team1 };
+        _teamsInSeason = [division1Team1, division1Team2, division2Team1];
         var expected = new Dictionary<Guid, TeamDto[]>();
         var request = new ProposalRequestDto
         {
@@ -399,25 +408,24 @@ public class SeasonTemplateServiceTests
         var result = await _service.GetTemplateHealth(template, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Not logged in" }));
+        Assert.That(result.Errors, Is.EquivalentTo(["Not logged in"]));
     }
 
     [Test]
     public async Task GetTemplateHealth_WhenNotPermitted_ReturnsNotLoggedIn()
     {
-        _user.SetAccess(manageSeasonTemplates: false);
         var template = new EditTemplateDto();
 
         var result = await _service.GetTemplateHealth(template, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Errors, Is.EquivalentTo(["Not permitted"]));
     }
 
     [Test]
     public async Task GetTemplateHealth_WhenPermitted_ReturnsTemplateHealth()
     {
-        _user.SetAccess(manageSeasonTemplates: true);
+        _access = _access.With(AccessOption.ManageSeasonTemplates);
         var editTemplateDto = new EditTemplateDto();
         var templateHealth = new SeasonHealthCheckResultDto();
         var seasonHealth = new SeasonHealthDto();

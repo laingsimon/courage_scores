@@ -17,7 +17,7 @@ namespace CourageScores.Tests.Services.Report;
 [TestFixture]
 public class ReportServiceTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private Mock<IUserService> _userService = null!;
     private Mock<ICachingSeasonService> _seasonService = null!;
     private Mock<ICachingDivisionService> _divisionService = null!;
@@ -33,11 +33,15 @@ public class ReportServiceTests
     private CosmosGame _game1 = null!;
     private CosmosGame _game2 = null!;
     private TournamentGame _tournament1 = null!;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
         _userService = new Mock<IUserService>();
+        _access = [AccessOption.RunReports];
+        _accessService = new Mock<IAccessService>();
         _seasonService = new Mock<ICachingSeasonService>();
         _divisionService = new Mock<ICachingDivisionService>();
         _gameRepository = new Mock<IGenericRepository<CosmosGame>>();
@@ -52,9 +56,10 @@ public class ReportServiceTests
             _gameRepository.Object,
             _tournamentRepository.Object,
             _clock.Object,
-            _reportFactory.Object);
+            _reportFactory.Object,
+            _accessService.Object);
 
-        _user = _user.SetAccess(runReports: true);
+        _user = new UserDto();
         _season = new SeasonDtoBuilder().Build();
         _division = new DivisionDtoBuilder().Build();
         _game1 = new CosmosGame
@@ -88,6 +93,9 @@ public class ReportServiceTests
             {
                 Name = "Report",
             });
+        _accessService
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }
 
     [Test]
@@ -103,16 +111,13 @@ public class ReportServiceTests
         var reports = await _service.GetReports(request, _token);
 
         Assert.That(reports.Reports, Is.Empty);
-        Assert.That(reports.Messages, Is.EquivalentTo(new[]
-        {
-            "Not permitted",
-        }));
+        Assert.That(reports.Messages, Is.EquivalentTo(["Not permitted"]));
     }
 
     [Test]
     public async Task GetReports_WhenNotPermitted_ReturnsNotPermitted()
     {
-        _user!.Access!.RunReports = false;
+        _access = _access.Without(AccessOption.RunReports);
         var request = new ReportRequestDto
         {
             SeasonId = _season.Id,
@@ -122,10 +127,7 @@ public class ReportServiceTests
         var reports = await _service.GetReports(request, _token);
 
         Assert.That(reports.Reports, Is.Empty);
-        Assert.That(reports.Messages, Is.EquivalentTo(new[]
-        {
-            "Not permitted",
-        }));
+        Assert.That(reports.Messages, Is.EquivalentTo(["Not permitted"]));
     }
 
     [Test]
@@ -140,10 +142,7 @@ public class ReportServiceTests
         var reports = await _service.GetReports(request, _token);
 
         Assert.That(reports.Reports, Is.Empty);
-        Assert.That(reports.Messages, Is.EquivalentTo(new[]
-        {
-            "Season not found",
-        }));
+        Assert.That(reports.Messages, Is.EquivalentTo(["Season not found"]));
     }
 
     [Test]
@@ -158,10 +157,7 @@ public class ReportServiceTests
         var reports = await _service.GetReports(request, _token);
 
         Assert.That(reports.Reports, Is.Empty);
-        Assert.That(reports.Messages, Is.EquivalentTo(new[]
-        {
-            "Division not found",
-        }));
+        Assert.That(reports.Messages, Is.EquivalentTo(["Division not found"]));
     }
 
     [Test]
@@ -172,11 +168,11 @@ public class ReportServiceTests
             SeasonId = _season.Id,
             DivisionId = _division.Id,
         };
-        _user.SetAccess(manageScores: false);
+        _access = _access.Without(AccessOption.ManageScores);
 
         var reports = await _service.GetReports(request, _token);
 
         Assert.That(reports.Reports, Is.Not.Empty);
-        Assert.That(reports.Reports.Select(r => r.Name), Is.EqualTo(new[] { "Report" }));
+        Assert.That(reports.Reports.Select(r => r.Name), Is.EqualTo(["Report"]));
     }
 }

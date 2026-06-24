@@ -68,8 +68,7 @@ public class Bootstrap
             app.UseHsts();
         }
 
-        var debugToken = configuration["DebugToken"];
-        var handler = new ExceptionHandler(app.Environment.IsDevelopment(), debugToken);
+        var handler = new ExceptionHandler(app.Environment.IsDevelopment());
         app.UseExceptionHandler(exceptionHandlerApp => { exceptionHandlerApp.Run(handler.HandleException); });
 
         app.UseHttpsRedirection();

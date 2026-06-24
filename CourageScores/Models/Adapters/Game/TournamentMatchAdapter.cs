@@ -8,13 +8,16 @@ public class TournamentMatchAdapter : IAdapter<TournamentMatch, TournamentMatchD
 {
     private readonly ISimpleAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
     private readonly IUserService _userService;
+    private readonly IAccessService _accessService;
 
     public TournamentMatchAdapter(
         ISimpleAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter,
-        IUserService userService)
+        IUserService userService,
+        IAccessService accessService)
     {
         _tournamentSideAdapter = tournamentSideAdapter;
         _userService = userService;
+        _accessService = accessService;
     }
 
     public async Task<TournamentMatchDto> Adapt(TournamentMatch model, CancellationToken token)
@@ -33,7 +36,7 @@ public class TournamentMatchAdapter : IAdapter<TournamentMatch, TournamentMatchD
     public async Task<TournamentMatch> Adapt(TournamentMatchDto dto, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var permitted = user?.Access?.RecordScoresAsYouGo == true;
+        var permitted = await _accessService.HasAccess(user, AccessOption.RecordScoresAsYouGo, token);
 
         return new TournamentMatch
         {

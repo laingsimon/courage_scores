@@ -33,7 +33,7 @@ describe('TournamentDetails', () => {
     let updatedTournamentData: TournamentGameDto | null;
 
     const dataApi = api<IDataApi>({
-        export: async (request: ExportDataRequestDto) => {
+        exportData: async (request: ExportDataRequestDto) => {
             exportRequest = request;
             return { success: true, result: { zip: 'content' } };
         },

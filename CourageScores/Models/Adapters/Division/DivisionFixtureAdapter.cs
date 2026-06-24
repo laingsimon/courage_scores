@@ -16,17 +16,20 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
     private readonly IFeatureService _featureService;
     private readonly TimeProvider _clock;
     private readonly IUserService _userService;
+    private readonly IAccessService _accessService;
 
     public DivisionFixtureAdapter(
         IDivisionFixtureTeamAdapter divisionFixtureTeamAdapter,
         IFeatureService featureService,
         TimeProvider clock,
-        IUserService userService)
+        IUserService userService,
+        IAccessService accessService)
     {
         _divisionFixtureTeamAdapter = divisionFixtureTeamAdapter;
         _featureService = featureService;
         _clock = clock;
         _userService = userService;
+        _accessService = accessService;
     }
 
     public async Task<DivisionFixtureDto> Adapt(CosmosGame game, SeasonDto season, TeamDto? homeTeam, TeamDto? awayTeam, DivisionDto? homeDivision, DivisionDto? awayDivision, CancellationToken token)
@@ -118,8 +121,8 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
     private async Task<bool> ShouldObscureScores(CosmosGame game, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var canInputResultsForHomeOrAwayTeam = user?.Access?.InputResults == true && (user.TeamId == game.Home.Id || user.TeamId == game.Away.Id);
-        var canRecordScoresForFixture = user?.Access?.ManageScores == true || canInputResultsForHomeOrAwayTeam;
+        var canInputResultsForHomeOrAwayTeam = await _accessService.HasAccess(user, AccessOption.InputResults, token) && (user?.TeamId == game.Home.Id || user?.TeamId == game.Away.Id);
+        var canRecordScoresForFixture = await _accessService.HasAccess(user, AccessOption.ManageScores, token) || canInputResultsForHomeOrAwayTeam;
         if (canRecordScoresForFixture)
         {
             return false;

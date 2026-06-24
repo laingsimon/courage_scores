@@ -13,8 +13,9 @@ public class TeamService : GenericDataService<Models.Cosmos.Team.Team, TeamDto>,
         IAdapter<Models.Cosmos.Team.Team, TeamDto> adapter,
         IUserService userService,
         IAuditingHelper auditingHelper,
-        IActionResultAdapter actionResultAdapter)
-        : base(repository, adapter, userService, auditingHelper, actionResultAdapter)
+        IActionResultAdapter actionResultAdapter,
+        IAccessService accessService)
+        : base(repository, adapter, userService, auditingHelper, actionResultAdapter, accessService)
     {
     }
 

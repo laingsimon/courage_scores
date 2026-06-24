@@ -12,6 +12,7 @@ public class ErrorDetailService : IErrorDetailService
 {
     private readonly ICommandFactory _commandFactory;
     private readonly IErrorDetailAdapter _errorDetailAdapter;
+    private readonly IAccessService _accessService;
     private readonly IGenericDataService<ErrorDetail, ErrorDetailDto> _genericDataService;
     private readonly IUserService _userService;
 
@@ -19,12 +20,14 @@ public class ErrorDetailService : IErrorDetailService
         IGenericDataService<ErrorDetail, ErrorDetailDto> genericDataService,
         IUserService userService,
         ICommandFactory commandFactory,
-        IErrorDetailAdapter errorDetailAdapter)
+        IErrorDetailAdapter errorDetailAdapter,
+        IAccessService accessService)
     {
         _genericDataService = genericDataService;
         _userService = userService;
         _commandFactory = commandFactory;
         _errorDetailAdapter = errorDetailAdapter;
+        _accessService = accessService;
     }
 
     public async Task<ErrorDetailDto?> Get(Guid id, CancellationToken token)
@@ -70,6 +73,6 @@ public class ErrorDetailService : IErrorDetailService
     private async Task<bool> CanViewErrors(CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        return user?.Access?.ViewExceptions == true;
+        return await _accessService.HasAccess(user, AccessOption.ViewExceptions, token);
     }
 }

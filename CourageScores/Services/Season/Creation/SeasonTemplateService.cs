@@ -28,6 +28,7 @@ public class SeasonTemplateService : ISeasonTemplateService
     private readonly ISimpleOnewayAdapter<Template, SeasonHealthDto> _healthCheckAdapter;
     private readonly IHealthCheckService _healthCheckService;
     private readonly IAdapter<Template, TemplateDto> _templateAdapter;
+    private readonly IAccessService _accessService;
 
     public SeasonTemplateService(
         IGenericDataService<Template, TemplateDto> underlyingService,
@@ -39,7 +40,8 @@ public class SeasonTemplateService : ISeasonTemplateService
         ICachingTeamService teamService,
         ISimpleOnewayAdapter<Template, SeasonHealthDto> healthCheckAdapter,
         IHealthCheckService healthCheckService,
-        IAdapter<Template, TemplateDto> templateAdapter)
+        IAdapter<Template, TemplateDto> templateAdapter,
+        IAccessService accessService)
     {
         _underlyingService = underlyingService;
         _userService = userService;
@@ -51,6 +53,7 @@ public class SeasonTemplateService : ISeasonTemplateService
         _healthCheckAdapter = healthCheckAdapter;
         _healthCheckService = healthCheckService;
         _templateAdapter = templateAdapter;
+        _accessService = accessService;
     }
 
     public async Task<ActionResultDto<List<ActionResultDto<TemplateDto>>>> GetForSeason(Guid seasonId, CancellationToken token)
@@ -61,7 +64,7 @@ public class SeasonTemplateService : ISeasonTemplateService
             return Error<List<ActionResultDto<TemplateDto>>>("Not logged in");
         }
 
-        if (user.Access?.ManageGames != true && user.Access?.ManageSeasonTemplates != true)
+        if (!await _accessService.HasAccess(user, AccessOption.ManageGames, token) && !await _accessService.HasAccess(user, AccessOption.ManageSeasonTemplates, token))
         {
             return Error<List<ActionResultDto<TemplateDto>>>("Not permitted");
         }
@@ -95,7 +98,7 @@ public class SeasonTemplateService : ISeasonTemplateService
             return Error<ProposalResultDto>("Not logged in");
         }
 
-        if (user.Access?.ManageGames != true)
+        if (!await _accessService.HasAccess(user, AccessOption.ManageGames, token))
         {
             return Error<ProposalResultDto>("Not permitted");
         }
@@ -131,7 +134,7 @@ public class SeasonTemplateService : ISeasonTemplateService
             return Error<SeasonHealthCheckResultDto>("Not logged in");
         }
 
-        if (user.Access?.ManageSeasonTemplates != true)
+        if (!await _accessService.HasAccess(user, AccessOption.ManageSeasonTemplates, token))
         {
             return Error<SeasonHealthCheckResultDto>("Not permitted");
         }

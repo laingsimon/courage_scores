@@ -39,11 +39,15 @@ public class UpdatePlayerCommandTests
     private EditTeamPlayerDto _update = null!;
     private UserDto? _user;
     private CosmosGame _game = null!;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
         _userService = new Mock<IUserService>();
+        _access = [AccessOption.ManageTeams];
+        _accessService = new Mock<IAccessService>();
         _seasonService = new Mock<ICachingSeasonService>();
         _auditingHelper = new Mock<IAuditingHelper>();
         _gameRepository = new Mock<IGenericRepository<CosmosGame>>();
@@ -54,17 +58,18 @@ public class UpdatePlayerCommandTests
             _commandFactory.Object,
             _auditingHelper.Object,
             _userService.Object,
-            new ScopedCacheManagementFlags());
+            new ScopedCacheManagementFlags(),
+            new Mock<IAccessService>().Object);
         _command = new UpdatePlayerCommand(
             _userService.Object,
             _seasonService.Object,
             _auditingHelper.Object,
             _gameRepository.Object,
             _teamService.Object,
-            _commandFactory.Object);
+            _commandFactory.Object,
+            _accessService.Object);
 
-        _user = _user.SetAccess(manageTeams: true, teamId: Guid.Parse(UserTeamId));
-        _user.Name = "USER";
+        _user = new UserDto { TeamId = Guid.Parse(UserTeamId), Name = "USER" };
         _season = new SeasonDtoBuilder().Build();
         _teamPlayer = new TeamPlayer
         {
@@ -109,6 +114,9 @@ public class UpdatePlayerCommandTests
         _addPlayerToSeasonCommand
             .Setup(c => c.AddSeasonToTeamIfMissing(It.IsAny<bool>()))
             .Returns(_addPlayerToSeasonCommand.Object);
+        _accessService
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
 
         _game = new CosmosGame
         {
@@ -169,7 +177,8 @@ public class UpdatePlayerCommandTests
     [TestCase(false, true, "8937E8EB-0E3B-4541-AFC6-8025B8E4E625")]
     public async Task ApplyUpdate_WhenNotPermitted_ReturnsUnsuccessful(bool manageTeams, bool inputResults, string? userTeamId)
     {
-        _user.SetAccess(manageTeams: manageTeams, inputResults: inputResults);
+        _access = manageTeams ? _access.With(AccessOption.ManageTeams) : _access.Without(AccessOption.ManageTeams);
+        _access = inputResults ? _access.With(AccessOption.InputResults) : _access.Without(AccessOption.InputResults);
         _user!.TeamId = userTeamId != null ? Guid.Parse(userTeamId) : null;
 
         var result = await _command

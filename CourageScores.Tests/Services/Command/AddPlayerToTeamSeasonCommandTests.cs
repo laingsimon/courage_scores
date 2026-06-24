@@ -32,6 +32,8 @@ public class AddPlayerToTeamSeasonCommandTests
     private AddPlayerToTeamSeasonCommand _command = null!;
     private UserDto? _user;
     private ScopedCacheManagementFlags _cacheFlags = null!;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -41,6 +43,8 @@ public class AddPlayerToTeamSeasonCommandTests
         _commandFactory = new Mock<ICommandFactory>();
         _auditingHelper = new Mock<IAuditingHelper>();
         _userService = new Mock<IUserService>();
+        _access = [AccessOption.ManageTeams, AccessOption.InputResults];
+        _accessService = new Mock<IAccessService>();
         _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(_auditingHelper.Object, _seasonService.Object, _cacheFlags);
 
         _player = new EditTeamPlayerDto();
@@ -49,15 +53,17 @@ public class AddPlayerToTeamSeasonCommandTests
             Id = Guid.Parse(UserTeamId),
             Name = "TEAM",
         };
-        _user = _user.SetAccess(manageTeams: true, inputResults: true, teamId: Guid.Parse(UserTeamId));
-        _user.Name = "an admin";
-        _command = new AddPlayerToTeamSeasonCommand(_seasonService.Object, _commandFactory.Object, _auditingHelper.Object, _userService.Object, _cacheFlags);
+        _user = new UserDto { TeamId = Guid.Parse(UserTeamId), Name = "an admin" };
+        _command = new AddPlayerToTeamSeasonCommand(_seasonService.Object, _commandFactory.Object, _auditingHelper.Object, _userService.Object, _cacheFlags, _accessService.Object);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
         _addSeasonToTeamCommand.Setup(c => c.ForSeason(_season.Id)).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.ForDivision(_division.Id)).Returns(_addSeasonToTeamCommand.Object);
         _commandFactory.Setup(f => f.GetCommand<AddSeasonToTeamCommand>()).Returns(_addSeasonToTeamCommand.Object);
+        _accessService
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
     }
 
     [Test]
@@ -97,7 +103,8 @@ public class AddPlayerToTeamSeasonCommandTests
     [TestCase(false, true, "11111111-1111-1111-1111-111111111111")]
     public async Task ApplyUpdate_WhenUserNotPermitted_ReturnsUnsuccessful(bool canManageTeams, bool canInputResults, string? userTeamId)
     {
-        _user.SetAccess(manageTeams: canManageTeams, inputResults: canInputResults);
+        _access = canManageTeams ? _access.With(AccessOption.ManageTeams) : _access.Without(AccessOption.ManageTeams);
+        _access = canInputResults ? _access.With(AccessOption.InputResults) : _access.Without(AccessOption.InputResults);
         _user!.TeamId = userTeamId != null ? Guid.Parse(userTeamId) : null;
         _player.Name = "not-empty";
 

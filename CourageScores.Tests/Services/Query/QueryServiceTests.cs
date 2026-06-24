@@ -21,26 +21,21 @@ public class QueryServiceTests
     private Mock<ICosmosTableService> _cosmosTableService = null!;
     private UserDto? _user;
     private TableDto[] _tables = null!;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
         _user = null;
+        _access = [AccessOption.RunDataQueries];
+        _accessService = new Mock<IAccessService>();
         _userService = new Mock<IUserService>();
         _database = new Mock<Database> { DefaultValue = DefaultValue.Mock };
         _cosmosTableService = new Mock<ICosmosTableService>();
-        _service = new QueryService(_database.Object, _userService.Object, _cosmosTableService.Object);
-        _user = new UserDto
-        {
-            Access = new()
-            {
-                RunDataQueries = true,
-            },
-        };
-        _tables = new[]
-        {
-            new TableDto {Name = "game"},
-        };
+        _service = new QueryService(_database.Object, _userService.Object, _cosmosTableService.Object, _accessService.Object);
+        _user = new UserDto();
+        _tables = [new TableDto { Name = "game" }];
 
         _database
             .Setup(d => d.CreateContainerIfNotExistsAsync(It.IsAny<string>(), It.IsAny<string>(), null, null, _token))
@@ -49,6 +44,9 @@ public class QueryServiceTests
         _cosmosTableService
             .Setup(s => s.GetTables(_token))
             .Returns(() => TestUtilities.AsyncEnumerable(_tables));
+        _accessService
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }
 
     [Test]
@@ -75,7 +73,7 @@ public class QueryServiceTests
             Container = "game",
             Query = "select * from game",
         };
-        _user!.Access!.RunDataQueries = false;
+        _access = _access.Without(AccessOption.RunDataQueries);
 
         var result = await _service.ExecuteQuery(request, _token);
 

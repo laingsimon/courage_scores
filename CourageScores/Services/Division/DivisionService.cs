@@ -24,6 +24,7 @@ public class DivisionService : IDivisionService
     private readonly IGenericDataService<FixtureDateNote, FixtureDateNoteDto> _noteService;
     private readonly IGenericRepository<TournamentGame> _tournamentGameRepository;
     private readonly IUserService _userService;
+    private readonly IAccessService _accessService;
 
     public DivisionService(
         IGenericDataService<Models.Cosmos.Division, DivisionDto> genericDivisionService,
@@ -34,7 +35,8 @@ public class DivisionService : IDivisionService
         IGenericDataService<FixtureDateNote, FixtureDateNoteDto> noteService,
         TimeProvider clock,
         IDivisionDataDtoFactory divisionDataDtoFactory,
-        IUserService userService)
+        IUserService userService,
+        IAccessService accessService)
     {
         _genericDivisionService = genericDivisionService;
         _genericTeamService = genericTeamService;
@@ -45,6 +47,7 @@ public class DivisionService : IDivisionService
         _clock = clock;
         _divisionDataDtoFactory = divisionDataDtoFactory;
         _userService = userService;
+        _accessService = accessService;
     }
 
     public async Task<DivisionDataDto> GetDivisionData(DivisionDataFilter filter, CancellationToken token)
@@ -142,7 +145,7 @@ public class DivisionService : IDivisionService
     private async Task<List<Models.Cosmos.Game.Game>> GetGames(DivisionDataFilter filter, SeasonDto season, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        if (user?.Access?.ManageGames == true)
+        if (await _accessService.HasAccess(user, AccessOption.ManageGames, token))
         {
             // return games from all divisions so that they fixtures in other divisions, for the same address can prevent
             // new games being created at the same address

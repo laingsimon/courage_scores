@@ -13,15 +13,18 @@ public class GameService : IGameService
     private readonly IGenericDataService<CosmosGame, GameDto> _underlyingService;
     private readonly IUserService _userService;
     private readonly IPermanentDeleteRepository<CosmosGame> _repository;
+    private readonly IAccessService _accessService;
 
     public GameService(
         IGenericDataService<CosmosGame, GameDto> underlyingService,
         IUserService userService,
-        IPermanentDeleteRepository<CosmosGame> repository)
+        IPermanentDeleteRepository<CosmosGame> repository,
+        IAccessService accessService)
     {
         _underlyingService = underlyingService;
         _userService = userService;
         _repository = repository;
+        _accessService = accessService;
     }
 
     public async Task<GameDto?> Get(Guid id, CancellationToken token)
@@ -66,7 +69,7 @@ public class GameService : IGameService
     public async Task<ActionResultDto<List<string>>> DeleteUnplayedLeagueFixtures(Guid seasonId, bool dryRun, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        if (user?.Access?.BulkDeleteLeagueFixtures != true)
+        if (!await _accessService.HasAccess(user, AccessOption.BulkDeleteLeagueFixtures, token))
         {
             // admin access
             return new ActionResultDto<List<string>>
@@ -104,18 +107,19 @@ public class GameService : IGameService
     private async Task<GameDto> Adapt(GameDto game, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        if (user?.Access?.ManageScores == true)
+        if (await _accessService.HasAccess(user, AccessOption.ManageScores, token))
         {
             // admin access
             return game;
         }
 
-        if (user?.TeamId != game.Home.Id || user.Access?.InputResults != true)
+        var inputResults = await _accessService.HasAccess(user, AccessOption.InputResults, token);
+        if (user?.TeamId != game.Home.Id || !inputResults)
         {
             game.HomeSubmission = null;
         }
 
-        if (user?.TeamId != game.Away.Id || user.Access?.InputResults != true)
+        if (user?.TeamId != game.Away.Id || !inputResults)
         {
             game.AwaySubmission = null;
         }
@@ -126,13 +130,13 @@ public class GameService : IGameService
             return game;
         }
 
-        if (user?.TeamId == game.Home.Id && user.Access?.InputResults == true)
+        if (user?.TeamId == game.Home.Id && inputResults)
         {
             // return the submissions details, with the key game details
             return MergeDetails(game, game.HomeSubmission);
         }
 
-        if (user?.TeamId == game.Away.Id && user.Access?.InputResults == true)
+        if (user?.TeamId == game.Away.Id && inputResults)
         {
             // return the submissions details, with the key game details
             return MergeDetails(game, game.AwaySubmission);

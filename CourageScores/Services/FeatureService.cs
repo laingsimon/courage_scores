@@ -19,6 +19,7 @@ public class FeatureService : IFeatureService
     private readonly IFeatureLookup _featureLookup;
     private readonly LoadedFeatures _loadedFeatures;
     private readonly TimeProvider _clock;
+    private readonly IAccessService _accessService;
 
     public FeatureService(
         IGenericRepository<ConfiguredFeature> repository,
@@ -28,7 +29,8 @@ public class FeatureService : IFeatureService
         IUserService userService,
         IFeatureLookup featureLookup,
         LoadedFeatures loadedFeatures,
-        TimeProvider clock)
+        TimeProvider clock,
+        IAccessService accessService)
     {
         _repository = repository;
         _featureAdapter = featureAdapter;
@@ -38,6 +40,7 @@ public class FeatureService : IFeatureService
         _featureLookup = featureLookup;
         _loadedFeatures = loadedFeatures;
         _clock = clock;
+        _accessService = accessService;
     }
 
     public async Task<ConfiguredFeatureDto?> Get(Feature feature, CancellationToken token)
@@ -75,7 +78,7 @@ public class FeatureService : IFeatureService
             return Warning("Not logged in");
         }
 
-        if (user.Access?.ManageFeatures != true)
+        if (!await _accessService.HasAccess(user, AccessOption.ManageFeatures, token))
         {
             return Warning("Not permitted");
         }

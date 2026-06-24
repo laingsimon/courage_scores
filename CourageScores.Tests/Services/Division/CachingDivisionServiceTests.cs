@@ -18,18 +18,11 @@ namespace CourageScores.Tests.Services.Division;
 [TestFixture]
 public class CachingDivisionServiceTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly DivisionDataDto _divisionData = new(null);
     private readonly DivisionDto? _divisionDto = new();
-    private readonly List<DivisionDto> _allDivisions = new()
-    {
-        new DivisionDto(),
-        new DivisionDto(),
-    };
-    private readonly List<DivisionDto> _someDivisions = new()
-    {
-        new DivisionDto(),
-    };
+    private readonly List<DivisionDto> _allDivisions = [new DivisionDto(), new DivisionDto()];
+    private readonly List<DivisionDto> _someDivisions = [new DivisionDto()];
     private CachingDivisionService _service = null!;
     private Mock<IDivisionService> _underlyingService = null!;
     private ICache _cache = null!;
@@ -73,7 +66,7 @@ public class CachingDivisionServiceTests
     [Test]
     public async Task GetDivisionData_WhenLoggedIn_BypassesCache()
     {
-        _user = _user.SetAccess();
+        _user = new UserDto();
         var divisionId = Guid.NewGuid();
         var seasonId = Guid.NewGuid();
         var result1 = await _service.GetDivisionData(new DivisionDataFilter
@@ -141,7 +134,7 @@ public class CachingDivisionServiceTests
     [Test]
     public async Task Get_WhenLoggedIn_ReturnsSecondRequestFromCache()
     {
-        _user = _user.SetAccess();
+        _user = new UserDto();
         var divisionId = Guid.NewGuid();
         var result1 = await _service.Get(divisionId, _token);
 
@@ -182,7 +175,7 @@ public class CachingDivisionServiceTests
     [Test]
     public async Task GetAll_WhenLoggedIn_ReturnsSecondRequestFromCache()
     {
-        _user = _user.SetAccess();
+        _user = new UserDto();
         var result1 = await _service.GetAll(_token).ToList();
 
         var result2 = await _service.GetAll(_token).ToList();
@@ -220,7 +213,7 @@ public class CachingDivisionServiceTests
     [Test]
     public async Task GetWhere_WhenLoggedIn_BypassesCache()
     {
-        _user = _user.SetAccess();
+        _user = new UserDto();
         var result1 = await _service.GetWhere("where", _token).ToList();
 
         var result2 = await _service.GetWhere("where", _token).ToList();

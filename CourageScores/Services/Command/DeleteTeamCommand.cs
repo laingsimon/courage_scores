@@ -8,15 +8,17 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
 {
     private readonly IAuditingHelper _auditingHelper;
     private readonly ScopedCacheManagementFlags _cacheFlags;
+    private readonly IAccessService _accessService;
     private readonly IUserService _userService;
     private bool _deleteIfNoSeasonsAssigned;
     private Guid? _seasonId;
 
-    public DeleteTeamCommand(IUserService userService, IAuditingHelper auditingHelper, ScopedCacheManagementFlags cacheFlags)
+    public DeleteTeamCommand(IUserService userService, IAuditingHelper auditingHelper, ScopedCacheManagementFlags cacheFlags, IAccessService accessService)
     {
         _userService = userService;
         _auditingHelper = auditingHelper;
         _cacheFlags = cacheFlags;
+        _accessService = accessService;
     }
 
     public async Task<ActionResult<Models.Cosmos.Team.Team>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
@@ -38,7 +40,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
 
         var user = await _userService.GetUser(token);
 
-        if (user?.Access?.ManageTeams != true)
+        if (!await _accessService.HasAccess(user, AccessOption.ManageTeams, token))
         {
             return new ActionResult<Models.Cosmos.Team.Team>
             {
@@ -84,7 +86,8 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
             };
         }
 
-        if (model.CanDelete(user) && _deleteIfNoSeasonsAssigned)
+        var userAccess = new UserAccessService(_accessService, user);
+        if (await model.CanDelete(userAccess, token) && _deleteIfNoSeasonsAssigned)
         {
             if (!matchingSeasons.Any())
             {

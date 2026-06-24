@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using CourageScores.Models.Dtos.Identity;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Cosmos;
 
@@ -15,18 +15,18 @@ public class ErrorDetail : AuditedEntity, IPermissionedEntity
     public string? UserAgent { get; set; }
     public string? Url { get; set; }
 
-    public bool CanCreate(UserDto? user)
+    public Task<bool> CanCreate(IUserAccessService userAccess, CancellationToken token)
     {
-        return true;
+        return Task.FromResult(true);
     }
 
-    public bool CanEdit(UserDto? user)
+    public Task<bool> CanEdit(IUserAccessService userAccess, CancellationToken token)
     {
-        return false;
+        return Task.FromResult(false);
     }
 
-    public bool CanDelete(UserDto? user)
+    public Task<bool> CanDelete(IUserAccessService userAccess, CancellationToken token)
     {
-        return false;
+        return Task.FromResult(false);
     }
 }

@@ -19,6 +19,7 @@ public class UserService : IUserService
     private readonly IGenericRepository<Models.Cosmos.Team.Team> _teamRepository;
     private readonly IGenericRepository<ServiceAccountSession> _serviceAccountSessionService;
     private readonly IGenericRepository<ConfiguredFeature> _featureRepository;
+    private readonly IAccessService _accessService;
     private readonly ISimpleAdapter<User, UserDto> _userAdapter;
     private readonly IUserRepository _userRepository;
     private User? _user;
@@ -31,7 +32,8 @@ public class UserService : IUserService
         ISimpleAdapter<Access, AccessDto> accessAdapter,
         IGenericRepository<Models.Cosmos.Team.Team> teamRepository,
         IGenericRepository<ServiceAccountSession> serviceAccountSessionService,
-        IGenericRepository<ConfiguredFeature> featureRepository)
+        IGenericRepository<ConfiguredFeature> featureRepository,
+        IAccessService accessService)
     {
         _httpContextAccessor = httpContextAccessor;
         _userRepository = userRepository;
@@ -40,6 +42,7 @@ public class UserService : IUserService
         _teamRepository = teamRepository;
         _serviceAccountSessionService = serviceAccountSessionService;
         _featureRepository = featureRepository;
+        _accessService = accessService;
     }
 
     public async Task<UserDto?> GetUser(CancellationToken token)
@@ -57,7 +60,8 @@ public class UserService : IUserService
 
     public async IAsyncEnumerable<UserDto> GetAll([EnumeratorCancellation] CancellationToken token)
     {
-        if ((await GetUser(token))?.Access?.ManageAccess != true)
+        var loggedInUser = await GetUser(token);
+        if (!await _accessService.HasAccess(loggedInUser, AccessOption.ManageAccess, token))
         {
             yield break;
         }
@@ -76,7 +80,7 @@ public class UserService : IUserService
     public async Task<UserDto?> GetUser(string emailAddress, CancellationToken token)
     {
         var loggedInUser = await GetUser(token);
-        if (loggedInUser?.Access?.ManageAccess != true)
+        if (!await _accessService.HasAccess(loggedInUser, AccessOption.ManageAccess, token))
         {
             return null;
         }
@@ -102,7 +106,7 @@ public class UserService : IUserService
             };
         }
 
-        if (loggedInUser.Access?.ManageAccess != true)
+        if (!await _accessService.HasAccess(loggedInUser, AccessOption.ManageAccess, token))
         {
             return new ActionResultDto<UserDto>
             {

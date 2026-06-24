@@ -7,10 +7,12 @@ namespace CourageScores.Models.Adapters.Team;
 public class TeamPlayerAdapter : IAdapter<TeamPlayer, TeamPlayerDto>
 {
     private readonly IUserService _userService;
+    private readonly IAccessService _accessService;
 
-    public TeamPlayerAdapter(IUserService userService)
+    public TeamPlayerAdapter(IUserService userService, IAccessService accessService)
     {
         _userService = userService;
+        _accessService = accessService;
     }
 
     public async Task<TeamPlayerDto> Adapt(TeamPlayer model, CancellationToken token)
@@ -49,8 +51,8 @@ public class TeamPlayerAdapter : IAdapter<TeamPlayer, TeamPlayerDto>
             return false;
         }
 
-        return user.Access?.ManageAccess == true
-               || user.Access?.ManageTeams == true
-               || player.EmailAddress == user.EmailAddress;
+        return await _accessService.HasAccess(user, AccessOption.ManageAccess, token)
+            || await _accessService.HasAccess(user, AccessOption.ManageTeams, token)
+            || player.EmailAddress == user.EmailAddress;
     }
 }

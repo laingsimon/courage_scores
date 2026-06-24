@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models;
 using CourageScores.Models.Cosmos;
@@ -68,6 +69,7 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
 
     protected abstract Task<ActionResult<TModel>> ApplyUpdates(TModel model, TDto update, CancellationToken token);
 
+    [DebuggerStepThrough]
     public virtual AddOrUpdateCommand<TModel, TDto> WithData(TDto update)
     {
         _update = update;

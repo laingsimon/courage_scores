@@ -16,7 +16,7 @@ namespace CourageScores.Tests.Services.Error;
 [TestFixture]
 public class ErrorDetailServiceTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private ErrorDetailService _service = null!;
     private Mock<IGenericDataService<ErrorDetail, ErrorDetailDto>> _genericService = null!;
     private Mock<IUserService> _userService = null!;
@@ -26,11 +26,13 @@ public class ErrorDetailServiceTests
     private UserDto? _user;
     private ErrorDetail _error = null!;
     private ErrorDetailDto _errorDto = null!;
+    private Mock<IAccessService> _accessService = null!;
+    private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _user = _user.SetAccess(viewExceptions: true);
+        _user = new UserDto();
         _error = new ErrorDetail
         {
             Id = Guid.NewGuid(),
@@ -41,6 +43,8 @@ public class ErrorDetailServiceTests
         };
         _genericService = new Mock<IGenericDataService<ErrorDetail, ErrorDetailDto>>();
         _userService = new Mock<IUserService>();
+        _accessService = new Mock<IAccessService>();
+        _access = [AccessOption.ViewExceptions];
         _commandFactory = new Mock<ICommandFactory>();
         _errorDetailAdapter = new Mock<IErrorDetailAdapter>();
         _addErrorCommand = new Mock<AddErrorCommand>(_userService.Object);
@@ -48,7 +52,8 @@ public class ErrorDetailServiceTests
             _genericService.Object,
             _userService.Object,
             _commandFactory.Object,
-            _errorDetailAdapter.Object);
+            _errorDetailAdapter.Object,
+            _accessService.Object);
 
         _genericService.Setup(s => s.Get(_error.Id, _token)).ReturnsAsync(_errorDto);
         _genericService
@@ -56,6 +61,9 @@ public class ErrorDetailServiceTests
             .Returns(TestUtilities.AsyncEnumerable(_errorDto));
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _commandFactory.Setup(f => f.GetCommand<AddErrorCommand>()).Returns(_addErrorCommand.Object);
+        _accessService
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }
 
     [Test]
@@ -71,7 +79,7 @@ public class ErrorDetailServiceTests
     [Test]
     public async Task Get_WhenNotPermitted_ReturnsNull()
     {
-        _user!.Access!.ViewExceptions = false;
+        _access = _access.Without(AccessOption.ViewExceptions);
 
         var result = await _service.Get(_error.Id, _token);
 
@@ -99,7 +107,7 @@ public class ErrorDetailServiceTests
     [Test]
     public async Task GetSince_WhenNotPermitted_ReturnsEmpty()
     {
-        _user!.Access!.ViewExceptions = false;
+        _access = _access.Without(AccessOption.ViewExceptions);
 
         var result = await _service.GetSince(new DateTime(2001, 02, 03), _token).ToList();
 
@@ -112,10 +120,7 @@ public class ErrorDetailServiceTests
         var result = await _service.GetSince(new DateTime(2001, 02, 03), _token).ToList();
 
         _genericService.Verify(s => s.GetWhere("t.Time >= '2001-02-03T00:00:00'", _token));
-        Assert.That(result, Is.EqualTo(new[]
-        {
-            _errorDto,
-        }));
+        Assert.That(result, Is.EqualTo([_errorDto]));
     }
 
     [TestCase(false, false)]
@@ -129,7 +134,7 @@ public class ErrorDetailServiceTests
         }
         else if (!permitted)
         {
-            _user!.Access!.ViewExceptions = false;
+            _access = _access.Without(AccessOption.ViewExceptions);
         }
         var details = new ExceptionHandlerPathFeature
         {
@@ -155,7 +160,7 @@ public class ErrorDetailServiceTests
         }
         else if (!permitted)
         {
-            _user!.Access!.ViewExceptions = false;
+            _access = _access.Without(AccessOption.ViewExceptions);
         }
 
         await _service.AddError(_errorDto, _token);

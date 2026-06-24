@@ -21,7 +21,7 @@ describe('ExportData', () => {
     let exportRequest: ExportDataRequestDto | null;
     let apiResponse: IClientActionResultDto<ExportDataResultDto> | null;
     const dataApi = api<IDataApi>({
-        export: async (
+        exportData: async (
             request: ExportDataRequestDto,
         ): Promise<IClientActionResultDto<ExportDataResultDto>> => {
             exportRequest = request;

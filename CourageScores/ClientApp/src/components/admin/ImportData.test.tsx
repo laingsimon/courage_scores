@@ -22,7 +22,7 @@ describe('ImportData', () => {
     let importRequest: ImportDataRequestDto | null;
     let apiResponse: IClientActionResultDto<ImportDataResultDto> | null;
     const dataApi = api<IDataApi>({
-        import: async (
+        importData: async (
             request: ImportDataRequestDto,
         ): Promise<IClientActionResultDto<ImportDataResultDto>> => {
             importRequest = request;
