@@ -70,7 +70,7 @@ export function ImportData() {
         setResponse(null);
         try {
             const response: IClientActionResultDto<ImportDataResultDto> =
-                await dataApi.import(importRequest, input.files![0]);
+                await dataApi.importData(importRequest, input.files![0]);
 
             if (response.success) {
                 setResponse(response);
