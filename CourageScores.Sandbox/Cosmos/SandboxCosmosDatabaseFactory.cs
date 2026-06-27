@@ -1,4 +1,5 @@
-﻿using CourageScores.Repository;
+﻿using CourageScores.Models.Adapters.Identity;
+using CourageScores.Repository;
 using CourageScores.Repository.Identity;
 using CourageScores.Sandbox.Auth;
 using CourageScores.StubCosmos.Api;
@@ -24,7 +25,7 @@ public class SandboxCosmosDatabaseFactory : ICosmosDatabaseFactory, IStubCosmosD
     private async Task<Database> CreateDatabaseWithAdminUser()
     {
         var database = await _stubDatabaseFactory.CreateDatabase();
-        var userRepo = new UserRepository(database);
+        var userRepo = new UserRepository(database, new AccessLevelAdapter(new AccessAdapter()));
 
         await TestAuthenticationService.AddAdminUserToContainer(userRepo);
 

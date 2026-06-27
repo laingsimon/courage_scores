@@ -176,7 +176,7 @@ public class ApproveServiceAccountSessionCommandTests
                                                                      && user.EmailAddress == transientUserName
                                                                      && user.GivenName == _model.FriendlyName
                                                                      && user.Name == _model.FriendlyName
-                                                                     && user.Transient == true)));
+                                                                     && user.Transient == true), _token));
         Assert.That(_model.PinFromApprover, Is.EqualTo(_request.Pin));
         Assert.That(_model.ApprovedBy, Is.EqualTo(_user!.Name));
         Assert.That(_model.TransientUsername, Is.EqualTo(transientUserName));

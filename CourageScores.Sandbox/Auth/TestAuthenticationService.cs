@@ -51,7 +51,7 @@ public class TestAuthenticationService : IAuthenticationService
 
     internal static async Task AddAdminUserToContainer(IUserRepository repo)
     {
-        await repo.UpsertUser(DefaultAdminUser);
+        await repo.UpsertUser(DefaultAdminUser, CancellationToken.None);
     }
 
     public Task<AuthenticateResult> AuthenticateAsync(HttpContext context, string? scheme)

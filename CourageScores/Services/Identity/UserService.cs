@@ -67,7 +67,7 @@ public class UserService : IUserService
             yield break;
         }
 
-        await foreach (var user in _userRepository.GetAll().WithCancellation(token))
+        await foreach (var user in _userRepository.GetAll(token))
         {
             if (token.IsCancellationRequested)
             {
@@ -86,7 +86,7 @@ public class UserService : IUserService
             return null;
         }
 
-        var user = await _userRepository.GetUser(emailAddress);
+        var user = await _userRepository.GetUser(emailAddress, token);
         return user != null
             ? await _userAdapter.Adapt(user, token)
             : null;
@@ -119,7 +119,7 @@ public class UserService : IUserService
             };
         }
 
-        var userToUpdate = await _userRepository.GetUser(user.EmailAddress);
+        var userToUpdate = await _userRepository.GetUser(user.EmailAddress, token);
 
         if (userToUpdate == null)
         {
@@ -147,7 +147,7 @@ public class UserService : IUserService
             };
         }
 
-        await _userRepository.UpsertUser(userToUpdate);
+        await _userRepository.UpsertUser(userToUpdate, token);
 
         return new ActionResultDto<UserDto>
         {
@@ -220,7 +220,7 @@ public class UserService : IUserService
             GivenName = claims[ClaimTypes.GivenName],
         };
 
-        var existingUser = await _userRepository.GetUser(emailAddress);
+        var existingUser = await _userRepository.GetUser(emailAddress, token);
         if (existingUser != null)
         {
             user.Access = existingUser.Access;
@@ -228,7 +228,7 @@ public class UserService : IUserService
             user.TeamId = existingUser.TeamId ?? await GetTeamIdForEmailAddress(emailAddress, token);
         }
 
-        await _userRepository.UpsertUser(user);
+        await _userRepository.UpsertUser(user, token);
 
         return user;
     }
@@ -276,7 +276,7 @@ public class UserService : IUserService
             return null;
         }
 
-        var user = await _userRepository.GetUser(session.TransientUsername);
+        var user = await _userRepository.GetUser(session.TransientUsername, token);
         if (user == null)
         {
             // user not found
