@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Dtos.Identity;
+﻿using CourageScores.Models.Cosmos.Identity;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services.Identity;
 using NUnit.Framework;
 
@@ -21,7 +22,7 @@ public class AccessServiceTests
     }
 
     [Test]
-    public async Task HasAccess_WhenUserDoesNotHaveAccess_ReturnsFalse()
+    public async Task HasAccess_WhenUserDtoDoesNotHaveAccess_ReturnsFalse()
     {
         var user = new UserDto
         {
@@ -34,11 +35,42 @@ public class AccessServiceTests
     }
 
     [Test]
-    public async Task HasAccess_WhenUserDoesHaveAccess_ReturnsTrue()
+    public async Task HasAccess_WhenUserDtoDoesHaveAccess_ReturnsTrue()
     {
         var user = new UserDto
         {
             Access = new AccessDto
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                AnalyseMatches = true,
+#pragma warning restore CS0618 // Type or member is obsolete
+            }
+        };
+
+        var result = await _service.HasAccess(user, AccessOption.AnalyseMatches, _token);
+
+        Assert.That(result, Is.True);
+    }
+
+    [Test]
+    public async Task HasAccess_WhenUserDoesNotHaveAccess_ReturnsFalse()
+    {
+        var user = new User
+        {
+            Access = new Access()
+        };
+
+        var result = await _service.HasAccess(user, AccessOption.AnalyseMatches, _token);
+
+        Assert.That(result, Is.False);
+    }
+
+    [Test]
+    public async Task HasAccess_WhenUserDoesHaveAccess_ReturnsTrue()
+    {
+        var user = new User
+        {
+            Access = new Access
             {
 #pragma warning disable CS0618 // Type or member is obsolete
                 AnalyseMatches = true,
