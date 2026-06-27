@@ -303,6 +303,7 @@ public class UserServiceTests
     public async Task UpdateAccess_WhenRemovingManageAccessFromSelf_ReturnsNotAllowedToRemoveOwnManageAccess()
     {
         SetupUsers();
+        _accessService.Setup(s => s.HasAccess(It.IsAny<User>(), AccessOption.ManageAccess, _token)).ReturnsAsync(false);
 
         var result = await _service.UpdateAccess(GetUpdateAccessDto(emailAddress: "simon@email.com"), _token);
 
