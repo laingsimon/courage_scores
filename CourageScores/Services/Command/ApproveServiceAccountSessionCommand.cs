@@ -88,7 +88,7 @@ public class ApproveServiceAccountSessionCommand : IUpdateCommand<ServiceAccount
             Name = model.FriendlyName,
             GivenName = model.FriendlyName,
         };
-        await _userRepository.UpsertUser(transientUser);
+        await _userRepository.UpsertUser(transientUser, token);
 
         model.ApprovedBy = user.Name;
         model.PinFromApprover = _request.Pin;

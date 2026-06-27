@@ -31,7 +31,7 @@ public class ServiceAccountSessionCleanUpServiceTests
         _sessions = [];
 
         _userRepository
-            .Setup(r => r.GetAll())
+            .Setup(r => r.GetAll(_token))
             .Returns(() => TestUtilities.AsyncEnumerable(_users));
         _repository
             .Setup(r => r.GetSome("t.Deleted = null", _token))
@@ -123,7 +123,7 @@ public class ServiceAccountSessionCleanUpServiceTests
             TransientUsername = "transient-username",
         };
         _sessions = [activeSession];
-        _userRepository.Setup(r => r.GetUser(activeSession.TransientUsername)).ThrowsAsync(new InvalidOperationException("user not found"));
+        _userRepository.Setup(r => r.GetUser(activeSession.TransientUsername, _token)).ThrowsAsync(new InvalidOperationException("user not found"));
 
         await Assert.ThatAsync(
             () => _service.DeleteExpiredSessions(_token),
@@ -149,7 +149,7 @@ public class ServiceAccountSessionCleanUpServiceTests
             Transient = true,
         };
         _sessions = [activeSession];
-        _userRepository.Setup(r => r.GetUser(activeSession.TransientUsername)).ReturnsAsync(user);
+        _userRepository.Setup(r => r.GetUser(activeSession.TransientUsername, _token)).ReturnsAsync(user);
 
         await _service.DeleteExpiredSessions(_token);
 

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
 
 namespace CourageScores.Services.Identity;
@@ -11,7 +12,14 @@ public class AccessService : IAccessService
         return Task.FromResult(GetAccess(userAccess, access));
     }
 
-    private static bool GetAccess(AccessDto userAccess, AccessOption access)
+    public Task<bool> HasAccess(User? user, AccessOption access, CancellationToken token)
+    {
+        var userAccess = user?.Access ?? new Access();
+        return Task.FromResult(GetAccess(userAccess, access));
+    }
+
+    private static bool GetAccess<T>(T userAccess, AccessOption access)
+        where T : notnull
     {
         var prop = userAccess.GetType().GetProperty(access.ToString());
         if (prop == null)

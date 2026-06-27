@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using CourageScores.Models.Adapters;
+using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos;
@@ -14,7 +15,7 @@ namespace CourageScores.Services.Identity;
 
 public class UserService : IUserService
 {
-    private readonly ISimpleAdapter<Access, AccessDto> _accessAdapter;
+    private readonly IAccessLevelAdapter _accessAdapter;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IGenericRepository<Models.Cosmos.Team.Team> _teamRepository;
     private readonly IGenericRepository<ServiceAccountSession> _serviceAccountSessionService;
@@ -29,7 +30,7 @@ public class UserService : IUserService
         IHttpContextAccessor httpContextAccessor,
         IUserRepository userRepository,
         ISimpleAdapter<User, UserDto> userAdapter,
-        ISimpleAdapter<Access, AccessDto> accessAdapter,
+        IAccessLevelAdapter accessAdapter,
         IGenericRepository<Models.Cosmos.Team.Team> teamRepository,
         IGenericRepository<ServiceAccountSession> serviceAccountSessionService,
         IGenericRepository<ConfiguredFeature> featureRepository,
@@ -66,7 +67,7 @@ public class UserService : IUserService
             yield break;
         }
 
-        await foreach (var user in _userRepository.GetAll().WithCancellation(token))
+        await foreach (var user in _userRepository.GetAll(token))
         {
             if (token.IsCancellationRequested)
             {
@@ -85,7 +86,7 @@ public class UserService : IUserService
             return null;
         }
 
-        var user = await _userRepository.GetUser(emailAddress);
+        var user = await _userRepository.GetUser(emailAddress, token);
         return user != null
             ? await _userAdapter.Adapt(user, token)
             : null;
@@ -118,7 +119,7 @@ public class UserService : IUserService
             };
         }
 
-        var userToUpdate = await _userRepository.GetUser(user.EmailAddress);
+        var userToUpdate = await _userRepository.GetUser(user.EmailAddress, token);
 
         if (userToUpdate == null)
         {
@@ -132,11 +133,9 @@ public class UserService : IUserService
             };
         }
 
-        userToUpdate.Access = user.Access != null
-            ? await _accessAdapter.Adapt(user.Access, token)
-            : new Access();
+        userToUpdate = await _accessAdapter.AddAccess(userToUpdate, user, token);
 
-        if (loggedInUser.EmailAddress == user.EmailAddress && userToUpdate.Access.ManageAccess == false)
+        if (loggedInUser.EmailAddress == user.EmailAddress && !await _accessService.HasAccess(userToUpdate, AccessOption.ManageAccess, token))
         {
             return new ActionResultDto<UserDto>
             {
@@ -148,7 +147,7 @@ public class UserService : IUserService
             };
         }
 
-        await _userRepository.UpsertUser(userToUpdate);
+        await _userRepository.UpsertUser(userToUpdate, token);
 
         return new ActionResultDto<UserDto>
         {
@@ -221,14 +220,15 @@ public class UserService : IUserService
             GivenName = claims[ClaimTypes.GivenName],
         };
 
-        var existingUser = await _userRepository.GetUser(emailAddress);
+        var existingUser = await _userRepository.GetUser(emailAddress, token);
         if (existingUser != null)
         {
             user.Access = existingUser.Access;
+            user.AccessLevels = existingUser.AccessLevels;
             user.TeamId = existingUser.TeamId ?? await GetTeamIdForEmailAddress(emailAddress, token);
         }
 
-        await _userRepository.UpsertUser(user);
+        await _userRepository.UpsertUser(user, token);
 
         return user;
     }
@@ -276,7 +276,7 @@ public class UserService : IUserService
             return null;
         }
 
-        var user = await _userRepository.GetUser(session.TransientUsername);
+        var user = await _userRepository.GetUser(session.TransientUsername, token);
         if (user == null)
         {
             // user not found

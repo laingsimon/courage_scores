@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Services.Identity;
 using Newtonsoft.Json;
 
 namespace CourageScores.Models.Cosmos.Identity;
@@ -17,6 +18,8 @@ public class User
     public string EmailAddress { get; set; } = null!;
 
     public Access? Access { get; set; } = new();
+
+    public Dictionary<AccessOption, AccessLevel> AccessLevels { get; set; } = new();
 
     [JsonIgnore]
     public Guid? TeamId { get; set; }

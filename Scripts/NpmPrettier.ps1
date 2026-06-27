@@ -55,6 +55,8 @@ if ($GitHubEvent -eq "pull_request")
 }
 
 Write-Message "Running prettier..."
+Invoke-NpmCommand -Command "install"
+
 $NpmPrettierCheckResult = Invoke-NpxCommand -Command "prettier . --check"
 
 If ($NpmPrettierCheckResult.ExitCode -ne 0)
