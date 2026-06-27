@@ -28,7 +28,7 @@ public class UserServiceTests
     private Mock<IHttpContextAccessor> _httpContextAccessor = null!;
     private Mock<IUserRepository> _userRepository = null!;
     private ISimpleAdapter<User, UserDto> _userAdapter = null!;
-    private ISimpleAdapter<Access, AccessDto> _accessAdapter = null!;
+    private IAccessLevelAdapter _accessAdapter = null!;
     private Mock<IGenericRepository<CosmosTeam>> _teamRepository = null!;
     private UserService _service = null!;
     private DefaultHttpContext? _httpContext;
@@ -46,7 +46,7 @@ public class UserServiceTests
         _allTeams = new List<CosmosTeam>();
         _httpContextAccessor = new Mock<IHttpContextAccessor>();
         _userRepository = new Mock<IUserRepository>();
-        _accessAdapter = new AccessAdapter();
+        _accessAdapter = new AccessLevelAdapter(new AccessAdapter());
         _userAdapter = new UserAdapter(_accessAdapter);
         _teamRepository = new Mock<IGenericRepository<CosmosTeam>>();
         _httpContextServices = new Mock<IServiceProvider>();

@@ -5,38 +5,38 @@ namespace CourageScores.Models.Adapters.Identity;
 
 public class UserAdapter : ISimpleAdapter<User, UserDto>
 {
-    private readonly ISimpleAdapter<Access, AccessDto> _accessAdapter;
+    private readonly IAccessLevelAdapter _accessLevelAdapter;
 
-    public UserAdapter(ISimpleAdapter<Access, AccessDto> accessAdapter)
+    public UserAdapter(IAccessLevelAdapter accessLevelAdapter)
     {
-        _accessAdapter = accessAdapter;
+        _accessLevelAdapter = accessLevelAdapter;
     }
 
     public async Task<UserDto> Adapt(User model, CancellationToken token)
     {
-        return new UserDto
+        var dto = new UserDto
         {
             Name = model.Name,
             EmailAddress = model.EmailAddress,
             GivenName = model.GivenName,
-            Access = await _accessAdapter.Adapt(model.Access ?? new Access(), token),
             TeamId = model.TeamId,
             Transient = model.Transient,
         };
+
+        return await _accessLevelAdapter.AddAccess(dto, model, token);
     }
 
     public async Task<User> Adapt(UserDto dto, CancellationToken token)
     {
-        return new User
+        var user = new User
         {
             Name = dto.Name.TrimOrDefault(),
             EmailAddress = dto.EmailAddress.TrimOrDefault(),
             GivenName = dto.GivenName.TrimOrDefault(),
-            Access = dto.Access != null
-                ? await _accessAdapter.Adapt(dto.Access, token)
-                : new Access(),
             TeamId = dto.TeamId,
             Transient = dto.Transient,
         };
+
+        return await _accessLevelAdapter.AddAccess(user, dto, token);
     }
 }
