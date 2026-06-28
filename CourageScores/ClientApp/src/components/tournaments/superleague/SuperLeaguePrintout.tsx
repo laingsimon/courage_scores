@@ -24,6 +24,7 @@ import { PatchTournamentRoundDto } from '../../../interfaces/models/dtos/Game/Pa
 import { LiveDataType } from '../../../interfaces/models/dtos/Live/LiveDataType.ts';
 import { Loading } from '../../common/Loading.tsx';
 import { hasAccess } from '../../../helpers/conditions.ts';
+import { AccessOption } from '../../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface ISuperLeaguePrintoutProps {
     division: DivisionDto;
@@ -66,7 +67,7 @@ export function SuperLeaguePrintout({
                 !any(Object.keys(saygDataMap), (key: string) => key === id),
         );
     const showWinner: boolean = location.search.indexOf('winner') !== -1;
-    const kioskMode: boolean = hasAccess(account, (access) => access.kioskMode);
+    const kioskMode: boolean = hasAccess(account, AccessOption.kioskMode);
 
     useEffect(
         () => {

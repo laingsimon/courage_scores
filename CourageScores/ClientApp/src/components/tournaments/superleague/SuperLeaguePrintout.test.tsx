@@ -9,6 +9,7 @@ import {
     noop,
     renderApp,
     TestContext,
+    user,
 } from '../../../helpers/tests.tsx';
 import {
     ISuperLeaguePrintoutProps,
@@ -31,7 +32,6 @@ import { tournamentBuilder } from '../../../helpers/builders/tournaments.ts';
 import { divisionBuilder } from '../../../helpers/builders/divisions.ts';
 import { ISaygApi } from '../../../interfaces/apis/ISaygApi.ts';
 import { MessageType } from '../../../interfaces/models/dtos/MessageType.ts';
-import { AccessDto } from '../../../interfaces/models/dtos/Identity/AccessDto.ts';
 import { UpdateRecordedScoreAsYouGoDto } from '../../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto.ts';
 import { IClientActionResultDto } from '../../common/IClientActionResultDto.ts';
 import { CHECKOUT_2_DART } from '../../../helpers/constants.ts';
@@ -40,6 +40,7 @@ import { START_SCORING } from '../tournaments.ts';
 import { tournamentContainerPropsBuilder } from '../tournamentContainerPropsBuilder.ts';
 import { BuilderParam } from '../../../helpers/builders/builders.ts';
 import { playerBuilder } from '../../../helpers/builders/players.ts';
+import { UserDto } from '../../../interfaces/models/dtos/Identity/UserDto';
 
 describe('SuperLeaguePrintout', () => {
     let context: TestContext;
@@ -93,7 +94,7 @@ describe('SuperLeaguePrintout', () => {
     async function renderComponent(
         tournamentData: ITournamentContainerProps,
         props: ISuperLeaguePrintoutProps,
-        access: AccessDto,
+        account: UserDto,
     ) {
         context = await renderApp(
             iocProps({
@@ -103,12 +104,7 @@ describe('SuperLeaguePrintout', () => {
             brandingProps(),
             appProps(
                 {
-                    account: {
-                        emailAddress: '',
-                        givenName: '',
-                        name: '',
-                        access,
-                    },
+                    account,
                 },
                 reportedError,
             ),
@@ -152,9 +148,9 @@ describe('SuperLeaguePrintout', () => {
     }
 
     describe('renders', () => {
-        const access: AccessDto = {
+        const account = user({
             useWebSockets: true,
-        };
+        });
         const containerProps = new tournamentContainerPropsBuilder();
 
         it('print out', async () => {
@@ -185,7 +181,7 @@ describe('SuperLeaguePrintout', () => {
             await renderComponent(
                 containerProps.withTournament(tournamentData).build(),
                 { division },
-                access,
+                account,
             );
 
             reportedError.verifyNoError();
@@ -200,9 +196,9 @@ describe('SuperLeaguePrintout', () => {
 
     describe('interactivity', () => {
         describe('live updates', () => {
-            const access: AccessDto = {
+            const account = user({
                 useWebSockets: true,
-            };
+            });
             const containerProps = new tournamentContainerPropsBuilder();
 
             it('can start live updates', async () => {
@@ -239,7 +235,7 @@ describe('SuperLeaguePrintout', () => {
                 await renderComponent(
                     containerProps.withTournament(tournamentData).build(),
                     { division },
-                    access,
+                    account,
                 );
 
                 await context.required('.dropdown-menu').select('▶️ Live');
@@ -283,7 +279,7 @@ describe('SuperLeaguePrintout', () => {
                 await renderComponent(
                     containerProps.withTournament(tournamentData).build(),
                     { division },
-                    access,
+                    account,
                 );
                 await context.required('.dropdown-menu').select('▶️ Live');
                 expect(
@@ -368,7 +364,7 @@ describe('SuperLeaguePrintout', () => {
                 await renderComponent(
                     containerProps.withTournament(tournamentData).build(),
                     { division },
-                    access,
+                    account,
                 );
                 await context.required('.dropdown-menu').select('▶️ Live');
 
@@ -411,7 +407,7 @@ describe('SuperLeaguePrintout', () => {
                 await renderComponent(
                     containerProps.withTournament(tournamentData).build(),
                     { division },
-                    access,
+                    account,
                 );
                 await context.required('.dropdown-menu').select('▶️ Live');
                 await context.required('.dropdown-menu').select('⏸️ Paused');
@@ -426,10 +422,10 @@ describe('SuperLeaguePrintout', () => {
         });
 
         describe('sayg', () => {
-            const access: AccessDto = {
+            const account = user({
                 manageTournaments: true,
                 recordScoresAsYouGo: true,
-            };
+            });
             const containerProps = new tournamentContainerPropsBuilder();
 
             it('does not reload sayg data if patch cannot be applied', async () => {
@@ -458,7 +454,7 @@ describe('SuperLeaguePrintout', () => {
                 await renderComponent(
                     containerProps.withTournament(tournamentData).build(),
                     { division },
-                    access,
+                    account,
                 );
                 await context.button(START_SCORING).click();
                 const dialog = context.required('div.modal-dialog');
@@ -505,7 +501,7 @@ describe('SuperLeaguePrintout', () => {
                 await renderComponent(
                     containerProps.withTournament(tournamentData).build(),
                     { division, patchData },
-                    access,
+                    account,
                 );
                 await context.button(START_SCORING).click();
                 const dialog = context.required('div.modal-dialog');

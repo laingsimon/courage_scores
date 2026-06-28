@@ -17,6 +17,7 @@ import { any } from '../../helpers/collections.ts';
 import { Link } from 'react-router';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
 import { hasAccess } from '../../helpers/conditions.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface IDivisionPlayerProps {
     player: DivisionPlayerDto;
@@ -39,10 +40,7 @@ export function DivisionPlayer({ player, hideVenue }: IDivisionPlayerProps) {
     const [deleting, setDeleting] = useState<boolean>(false);
     const [saveError, setSaveError] =
         useState<IClientActionResultDto<TeamDto> | null>(null);
-    const isAdmin: boolean = hasAccess(
-        account,
-        (access) => access.managePlayers,
-    );
+    const isAdmin: boolean = hasAccess(account, AccessOption.managePlayers);
     const team: TeamDto = {
         id: player.teamId!,
         name: player.team,

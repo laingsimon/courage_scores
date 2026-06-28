@@ -501,7 +501,7 @@ describe('DivisionFixtures', () => {
     });
 
     describe('when logged in', () => {
-        const account = user({
+        let account = user({
             manageGames: true,
             manageTournaments: true,
             manageNotes: true,
@@ -924,7 +924,10 @@ A dry-run of the deletion will run first.`;
 a message`;
 
             it('does not delete any fixtures if user cancels prompt', async () => {
-                account!.access!.bulkDeleteLeagueFixtures = true;
+                account = user({
+                    bulkDeleteLeagueFixtures: true,
+                    ...account.access,
+                });
                 await renderComponent(divisionData, account);
                 context.prompts.respondToConfirm(dryRunPrompt, false);
 
@@ -934,7 +937,10 @@ a message`;
             });
 
             it('handles a failure when dry running the delete', async () => {
-                account!.access!.bulkDeleteLeagueFixtures = true;
+                account = user({
+                    bulkDeleteLeagueFixtures: true,
+                    ...account.access,
+                });
                 await renderComponent(divisionData, account);
                 context.prompts.respondToConfirm(dryRunPrompt, true);
                 bulkDeleteResponse = {
@@ -953,7 +959,10 @@ a message`;
             });
 
             it('exits if no fixtures are identified', async () => {
-                account!.access!.bulkDeleteLeagueFixtures = true;
+                account = user({
+                    bulkDeleteLeagueFixtures: true,
+                    ...account.access,
+                });
                 await renderComponent(divisionData, account);
                 context.prompts.respondToConfirm(dryRunPrompt, true);
                 bulkDeleteResponse = {
@@ -971,7 +980,10 @@ a message`;
             });
 
             it('does not delete any fixtures if user cancels dry run result prompt', async () => {
-                account!.access!.bulkDeleteLeagueFixtures = true;
+                account = user({
+                    bulkDeleteLeagueFixtures: true,
+                    ...account.access,
+                });
                 await renderComponent(divisionData, account);
                 context.prompts.respondToConfirm(dryRunPrompt, true);
                 bulkDeleteResponse = {
@@ -990,7 +1002,10 @@ a message`;
             });
 
             it.skip('deletes all fixtures if user confirms dry run result prompt', async () => {
-                account!.access!.bulkDeleteLeagueFixtures = true;
+                account = user({
+                    bulkDeleteLeagueFixtures: true,
+                    ...account.access,
+                });
                 await renderComponent(divisionData, account);
                 Object.defineProperty(window, 'location', {
                     configurable: true,
@@ -1014,7 +1029,10 @@ a message`;
             });
 
             it('reports an error if actual delete fails', async () => {
-                account!.access!.bulkDeleteLeagueFixtures = true;
+                account = user({
+                    bulkDeleteLeagueFixtures: true,
+                    ...account.access,
+                });
                 await renderComponent(divisionData, account);
                 context.prompts.respondToConfirm(dryRunPrompt, true);
                 bulkDeleteResponse = {

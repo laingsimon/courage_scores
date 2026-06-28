@@ -57,8 +57,9 @@ import { PhotoManager } from '../common/PhotoManager.tsx';
 import { UploadPhotoDto } from '../../interfaces/models/dtos/UploadPhotoDto.ts';
 import { useBranding } from '../common/BrandingContainer.tsx';
 import { NavLink } from '../common/NavLink.tsx';
-import { hasAccess } from '../../helpers/conditions.ts';
+import { hasAccess, hasAnyAccess } from '../../helpers/conditions.ts';
 import { getTeamSeasons } from '../../helpers/teams.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface ICreatePlayerFor {
     side: string;
@@ -949,17 +950,18 @@ export function Score() {
                         doDelete={deletePhotos}
                         canUploadPhotos={hasAccess(
                             account,
-                            (a) => a.uploadPhotos,
+                            AccessOption.uploadPhotos,
                         )}
                         canDeletePhotos={
-                            hasAccess(
+                            hasAnyAccess(
                                 account,
-                                (a) => a.uploadPhotos || a.deleteAnyPhoto,
+                                AccessOption.uploadPhotos,
+                                AccessOption.deleteAnyPhoto,
                             ) || access === 'admin'
                         }
                         canViewAllPhotos={
                             access === 'admin' ||
-                            hasAccess(account, (access) => access.viewAnyPhoto)
+                            hasAccess(account, AccessOption.viewAnyPhoto)
                         }
                     />
                 ) : null}

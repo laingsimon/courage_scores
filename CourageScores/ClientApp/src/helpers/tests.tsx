@@ -33,6 +33,8 @@ import { IDependencies } from '../components/common/IDependencies.ts';
 import { IClientActionResultDto } from '../components/common/IClientActionResultDto.ts';
 import { AccessDto } from '../interfaces/models/dtos/Identity/AccessDto.ts';
 import { UserDto } from '../interfaces/models/dtos/Identity/UserDto.ts';
+import { AccessLevelDto } from '../interfaces/models/dtos/Identity/AccessLevelDto';
+import { AccessOption } from '../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface TestContext extends IComponent {
     cleanUp(): UntypedPromise;
@@ -450,7 +452,25 @@ export function user(
         emailAddress: `${givenName || 'a'}@b.com`,
         access,
         teamId,
+        accessLevels: access ? buildAccessLevels(access) : {},
     };
+}
+
+function buildAccessLevels(access: AccessDto): {
+    [key: string]: AccessLevelDto;
+} {
+    const accessLevels: { [key: string]: AccessLevelDto } = {};
+    for (const opt in access) {
+        if (access[opt]) {
+            const accessOption = getAccessOption(opt);
+            accessLevels[accessOption] = {};
+        }
+    }
+    return accessLevels;
+}
+
+function getAccessOption(camelCased: string): AccessOption {
+    return AccessOption[camelCased];
 }
 
 export function wrapComponent(element: Element, user: UserEvent): IComponent {

@@ -20,7 +20,7 @@ import { propChanged } from '../../../helpers/events.ts';
 import { EditTeamPlayerDto } from '../../../interfaces/models/dtos/Team/EditTeamPlayerDto.ts';
 import { useTournament } from '../TournamentContainer.tsx';
 import { DivisionTournamentFixtureDetailsDto } from '../../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto.ts';
-import { hasAccess } from '../../../helpers/conditions.ts';
+import { hasAllAccess } from '../../../helpers/conditions.ts';
 import { getTeamSeasons } from '../../../helpers/teams.ts';
 import { repeat } from '../../../helpers/projection.ts';
 import { matchPlayerFilter } from '../../../helpers/superleague.ts';
@@ -29,6 +29,7 @@ import { TournamentGameDto } from '../../../interfaces/models/dtos/Game/Tourname
 import { UntypedPromise } from '../../../interfaces/UntypedPromise.ts';
 import { TournamentPlayerDto } from '../../../interfaces/models/dtos/Game/TournamentPlayerDto.ts';
 import { IPlayerSizeTournamentPlayerMap } from '../Tournament.tsx';
+import { AccessOption } from '../../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface TeamAndSeason {
     team: TeamDto;
@@ -76,9 +77,10 @@ export function EditSuperleagueMatch({
     const matchOptions: GameMatchOptionDto = {
         numberOfLegs,
     };
-    const canManagePlayers = hasAccess(
+    const canManagePlayers = hasAllAccess(
         account,
-        (a) => a.managePlayers && a.manageTeams,
+        AccessOption.managePlayers,
+        AccessOption.manageTeams,
     );
     const newPlayer: IBootstrapDropdownItem = {
         text: canManagePlayers ? (

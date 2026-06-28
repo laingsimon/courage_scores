@@ -16,6 +16,7 @@ import { Link } from 'react-router';
 import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto.ts';
 import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 import { hasAccess } from '../../helpers/conditions.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface ITournamentFixtureProps {
     tournament: DivisionTournamentFixtureDetailsDto;
@@ -34,10 +35,7 @@ export function TournamentFixture({
     const [deleting, setDeleting] = useState<boolean>(false);
     const [saveError, setSaveError] =
         useState<IClientActionResultDto<TournamentGameDto> | null>(null);
-    const isAdmin: boolean = hasAccess(
-        account,
-        (access) => access.manageTournaments,
-    );
+    const isAdmin: boolean = hasAccess(account, AccessOption.manageTournaments);
     const { tournamentApi } = useDependencies();
     const favouriteTeamIds: string[] =
         getPreference<string[]>('favouriteTeamIds') || [];

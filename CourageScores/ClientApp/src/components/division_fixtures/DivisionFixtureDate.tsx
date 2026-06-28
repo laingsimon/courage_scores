@@ -7,7 +7,7 @@ import {
 } from './DivisionFixture.tsx';
 import { TournamentFixture } from './TournamentFixture.tsx';
 import { useApp } from '../common/AppContainer.tsx';
-import { useLocation, useNavigate, Link } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { useDivisionData } from '../league/DivisionDataContainer.tsx';
 import { isInPast, isToday } from '../../helpers/dates.ts';
 import { DivisionFixtureDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDto.ts';
@@ -21,6 +21,7 @@ import { NewTournamentFixture } from './NewTournamentFixture.tsx';
 import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 import React from 'react';
 import { hasAccess } from '../../helpers/conditions.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface IDivisionFixtureDateProps {
     date: IEditableDivisionFixtureDateDto;
@@ -47,20 +48,17 @@ export function DivisionFixtureDate({
     const { season, fixtures, teams, superleague } = useDivisionData();
     const canManageTournaments: boolean = hasAccess(
         account,
-        (access) => access.manageTournaments,
+        AccessOption.manageTournaments,
     );
     const canManageGames: boolean = hasAccess(
         account,
-        (access) => access.manageGames,
+        AccessOption.manageGames,
     );
     const canAnalyseMatches: boolean = hasAccess(
         account,
-        (access) => access.analyseMatches,
+        AccessOption.analyseMatches,
     );
-    const isNoteAdmin: boolean = hasAccess(
-        account,
-        (access) => access.manageNotes,
-    );
+    const isNoteAdmin: boolean = hasAccess(account, AccessOption.manageNotes);
     const filterByDateUrl: string = getFilterByDateUrl(date.date);
 
     function getFilterByDateUrl(date: string): string {
