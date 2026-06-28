@@ -16,6 +16,7 @@ import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNote
 import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
 import { createTemporaryId } from '../../helpers/projection.ts';
 import { INoteApi } from '../../interfaces/apis/INoteApi.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('FixtureDateNote', () => {
     let context: TestContext;
@@ -83,9 +84,7 @@ describe('FixtureDateNote', () => {
         });
 
         it('when logged in, without ability to delete', async () => {
-            const account = user({
-                manageNotes: true,
-            });
+            const account = user([AccessOption.manageNotes]);
             await renderComponent(
                 {
                     note: noteBuilder().note('**some markdown**').build(),
@@ -101,9 +100,7 @@ describe('FixtureDateNote', () => {
         });
 
         it('when logged in, with ability to delete', async () => {
-            const account = user({
-                manageNotes: true,
-            });
+            const account = user([AccessOption.manageNotes]);
             await renderComponent(
                 {
                     note: noteBuilder().note('**some markdown**').build(),
@@ -119,9 +116,7 @@ describe('FixtureDateNote', () => {
         });
 
         it('when logged in, without ability to edit', async () => {
-            const account = user({
-                manageNotes: true,
-            });
+            const account = user([AccessOption.manageNotes]);
             await renderComponent(
                 {
                     note: noteBuilder().note('**some markdown**').build(),
@@ -137,9 +132,7 @@ describe('FixtureDateNote', () => {
 
     describe('interactivity', () => {
         it('can delete note', async () => {
-            const account = user({
-                manageNotes: true,
-            });
+            const account = user([AccessOption.manageNotes]);
             const note = noteBuilder().note('**some markdown**').build();
             await renderComponent({ note, setEditNote }, account);
             context.prompts.respondToConfirm(
@@ -156,9 +149,7 @@ describe('FixtureDateNote', () => {
         });
 
         it('prevents delete if user does not agree', async () => {
-            const account = user({
-                manageNotes: true,
-            });
+            const account = user([AccessOption.manageNotes]);
             const note = noteBuilder().note('**some markdown**').build();
             await renderComponent({ note, setEditNote }, account);
             context.prompts.respondToConfirm(
@@ -175,9 +166,7 @@ describe('FixtureDateNote', () => {
         });
 
         it('alerts if unable to delete', async () => {
-            const account = user({
-                manageNotes: true,
-            });
+            const account = user([AccessOption.manageNotes]);
             const note = noteBuilder().note('**some markdown**').build();
             await renderComponent({ note, setEditNote }, account);
             deleteResult = { success: false };
@@ -192,9 +181,7 @@ describe('FixtureDateNote', () => {
         });
 
         it('can edit note', async () => {
-            const account = user({
-                manageNotes: true,
-            });
+            const account = user([AccessOption.manageNotes]);
             const note = noteBuilder().note('**some markdown**').build();
             await renderComponent({ note, setEditNote }, account);
 

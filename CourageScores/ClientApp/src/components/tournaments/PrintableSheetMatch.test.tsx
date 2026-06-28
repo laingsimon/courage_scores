@@ -40,6 +40,7 @@ import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentS
 import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto.ts';
 import { tournamentContainerPropsBuilder } from './tournamentContainerPropsBuilder.ts';
 import { ILayoutDataForSide } from './layout/ILayoutDataForSide.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('PrintableSheetMatch', () => {
     let context: TestContext;
@@ -324,11 +325,11 @@ describe('PrintableSheetMatch', () => {
             'Are you sure you want to delete the sayg data for this match?';
         const clearScorePrompt =
             'Clear match score (to allow scores to be re-recorded?)';
-        const debugAndSaygUser = user({
-            recordScoresAsYouGo: true,
-            showDebugOptions: true,
-            manageTournaments: true,
-        });
+        const debugAndSaygUser = user([
+            AccessOption.recordScoresAsYouGo,
+            AccessOption.showDebugOptions,
+            AccessOption.manageTournaments,
+        ]);
 
         function sideABWithLinks(c?: Partial<ILayoutDataForMatch>) {
             return layoutDataForMatch({

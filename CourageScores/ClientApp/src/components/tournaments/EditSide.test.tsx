@@ -34,6 +34,7 @@ import { IPlayerApi } from '../../interfaces/apis/IPlayerApi.ts';
 import { ITournamentPlayerMap } from './Tournament.ts';
 import { tournamentContainerPropsBuilder } from './tournamentContainerPropsBuilder.ts';
 import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('EditSide', () => {
     const player: TeamPlayerDto = playerBuilder('PLAYER').build();
@@ -151,7 +152,7 @@ describe('EditSide', () => {
             appProps(
                 {
                     teams: teams || [],
-                    account: account || user({}),
+                    account: account || user(),
                     reloadTeams,
                     divisions,
                 },
@@ -513,7 +514,7 @@ describe('EditSide', () => {
                 containerProps,
                 props(side),
                 [team],
-                user({ managePlayers: true }),
+                user([AccessOption.managePlayers]),
             );
 
             expect(findButtons()).toContain('New player/s');
@@ -524,7 +525,7 @@ describe('EditSide', () => {
                 containerProps,
                 props(sideWithPlayer),
                 [team],
-                user({ managePlayers: true }),
+                user([AccessOption.managePlayers]),
             );
 
             expect(findButtons()).toContain('New player/s');
@@ -535,7 +536,7 @@ describe('EditSide', () => {
                 containerProps,
                 props(teamSide),
                 [team],
-                user({}),
+                user(),
             );
 
             expect(findButtons()).not.toContain('Add player');
@@ -546,7 +547,7 @@ describe('EditSide', () => {
                 containerProps,
                 props(teamSide),
                 [team],
-                user({}),
+                user(),
             );
 
             expect(findButtons()).not.toContain('Add player');
@@ -861,7 +862,7 @@ describe('EditSide', () => {
                 containerProps,
                 props(sideWithPlayer),
                 [team],
-                user({ managePlayers: true }),
+                user([AccessOption.managePlayers]),
             );
 
             await context.button('New player/s').click();
@@ -874,7 +875,7 @@ describe('EditSide', () => {
                 containerProps,
                 props(sideWithPlayer),
                 [team],
-                user({ managePlayers: true }),
+                user([AccessOption.managePlayers]),
             );
             await context.button('New player/s').click();
 
@@ -888,7 +889,7 @@ describe('EditSide', () => {
                 containerProps,
                 props(sideWithPlayer),
                 [team],
-                user({ managePlayers: true }),
+                user([AccessOption.managePlayers]),
             );
             await context.button('New player/s').click();
             const dialog = findDialog('Add a player...')!;
@@ -916,7 +917,7 @@ describe('EditSide', () => {
                 containerProps.withTournament(multiDivisionTournament),
                 props(sideWithPlayer),
                 [team],
-                user({ managePlayers: true }),
+                user([AccessOption.managePlayers]),
             );
             await context.button('New player/s').click();
             const dialog = findDialog('Add a player...')!;
@@ -937,7 +938,7 @@ describe('EditSide', () => {
                 containerProps,
                 props(sideWithPlayer),
                 [team],
-                user({ managePlayers: true }),
+                user([AccessOption.managePlayers]),
             );
             await context.button('New player/s').click();
             const dialog = findDialog('Add a player...')!;
@@ -961,7 +962,7 @@ describe('EditSide', () => {
                 containerProps,
                 props(sideWithPlayer),
                 [team],
-                user({ managePlayers: true }),
+                user([AccessOption.managePlayers]),
             );
             await context.button('New player/s').click();
             const dialog = findDialog('Add a player...')!;
@@ -978,7 +979,7 @@ describe('EditSide', () => {
                 containerProps,
                 props(sideWithPlayer),
                 [team],
-                user({ managePlayers: true }),
+                user([AccessOption.managePlayers]),
             );
             await context.button('New player/s').click();
             const dialog = findDialog('Add a player...')!;

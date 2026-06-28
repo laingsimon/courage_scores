@@ -5,6 +5,8 @@ import {
 import { useLive } from '../../live/LiveContainer.tsx';
 import { useApp } from './AppContainer.tsx';
 import { ISubscriptionRequest } from '../../live/ISubscriptionRequest.ts';
+import { hasAccess } from '../../helpers/conditions.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 export interface IRefreshControlProps extends ISubscriptionRequest {}
@@ -20,7 +22,7 @@ export function RefreshControl({ id, type }: IRefreshControlProps) {
         ];
     }
 
-    if (!account || !account.access || !account.access.useWebSockets) {
+    if (!hasAccess(account, AccessOption.useWebSockets)) {
         return null;
     }
 

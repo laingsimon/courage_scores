@@ -17,6 +17,7 @@ import { ILive } from '../../live/ILive.ts';
 import { act } from '@testing-library/react';
 import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType.ts';
 import { ILiveOptions } from '../../live/ILiveOptions.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('RefreshControl', () => {
     let context: TestContext;
@@ -54,9 +55,7 @@ describe('RefreshControl', () => {
     }
 
     describe('renders', () => {
-        const account = user({
-            useWebSockets: true,
-        });
+        const account = user([AccessOption.useWebSockets]);
 
         it('nothing when logged out', async () => {
             const id = createTemporaryId();
@@ -69,7 +68,7 @@ describe('RefreshControl', () => {
         it('nothing when not permitted', async () => {
             const id = createTemporaryId();
 
-            await renderComponent({ id, type: LiveDataType.sayg }, user({}));
+            await renderComponent({ id, type: LiveDataType.sayg }, user());
 
             expect(context.optional('.dropdown-menu')).toBeFalsy();
         });
@@ -117,9 +116,7 @@ describe('RefreshControl', () => {
     });
 
     describe('interactivity', () => {
-        const account = user({
-            useWebSockets: true,
-        });
+        const account = user([AccessOption.useWebSockets]);
 
         it('enables live', async () => {
             const id = createTemporaryId();

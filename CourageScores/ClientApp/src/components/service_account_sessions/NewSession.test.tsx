@@ -133,7 +133,7 @@ describe('NewSession', () => {
 
     describe('create session', () => {
         it('redirects to login if logged in', async () => {
-            const account = user({});
+            const account = user();
 
             await renderComponent('/new_session/Board%201', account);
 

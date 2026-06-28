@@ -35,6 +35,7 @@ import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentG
 import { IGameApi } from '../../interfaces/apis/IGameApi.ts';
 import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto.ts';
 import { ISeasonApi } from '../../interfaces/apis/ISeasonApi.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('DivisionFixtures', () => {
     let context: TestContext;
@@ -501,16 +502,19 @@ describe('DivisionFixtures', () => {
     });
 
     describe('when logged in', () => {
-        const account = user({
-            manageGames: true,
-            manageTournaments: true,
-            manageNotes: true,
-            manageScores: true,
-        });
-        const bulkDeleteAccount = user({
-            ...account.access,
-            bulkDeleteLeagueFixtures: true,
-        });
+        const account = user([
+            AccessOption.manageGames,
+            AccessOption.manageTournaments,
+            AccessOption.manageNotes,
+            AccessOption.manageScores,
+        ]);
+        const bulkDeleteAccount = user([
+            AccessOption.manageGames,
+            AccessOption.manageTournaments,
+            AccessOption.manageNotes,
+            AccessOption.manageScores,
+            AccessOption.bulkDeleteLeagueFixtures,
+        ]);
         let divisionData: IDivisionDataContainerProps;
 
         beforeEach(() => {

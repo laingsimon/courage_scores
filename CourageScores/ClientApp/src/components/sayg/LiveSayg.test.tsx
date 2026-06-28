@@ -42,6 +42,7 @@ import { createTemporaryId } from '../../helpers/projection.ts';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
 import { IFullScreen } from '../common/IFullScreen.ts';
 import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -714,7 +715,7 @@ describe('LiveSayg', () => {
 
     describe('updates', () => {
         let tournament1: TournamentGameDto;
-        const account: UserDto = user({ useWebSockets: true });
+        const account: UserDto = user([AccessOption.useWebSockets]);
         const bo = 3;
 
         async function sendUpdate(update: { id: string }) {

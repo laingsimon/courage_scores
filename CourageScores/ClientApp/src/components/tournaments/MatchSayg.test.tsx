@@ -39,6 +39,7 @@ import { START_SCORING } from './tournaments.ts';
 import { tournamentContainerPropsBuilder } from './tournamentContainerPropsBuilder.ts';
 import { BuilderParam } from '../../helpers/builders/builders.ts';
 import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -203,11 +204,11 @@ describe('MatchSayg', () => {
             .withPlayer('PLAYER C 1')
             .withPlayer('PLAYER C 2')
             .build();
-        const notPermitted: UserDto = user({ recordScoresAsYouGo: false });
-        const permitted: UserDto = user({
-            recordScoresAsYouGo: true,
-            manageTournaments: true,
-        });
+        const notPermitted: UserDto = user([]);
+        const permitted: UserDto = user([
+            AccessOption.recordScoresAsYouGo,
+            AccessOption.manageTournaments,
+        ]);
         const containerProps = new tournamentContainerPropsBuilder({
             saveTournament,
             setTournamentData,
@@ -360,15 +361,15 @@ describe('MatchSayg', () => {
             .withPlayer('PLAYER B 1')
             .withPlayer('PLAYER B 2')
             .build();
-        const permitted: UserDto = user({
-            recordScoresAsYouGo: true,
-            manageTournaments: true,
-        });
-        const permittedWithDebug: UserDto = user({
-            recordScoresAsYouGo: true,
-            showDebugOptions: true,
-            manageTournaments: true,
-        });
+        const permitted: UserDto = user([
+            AccessOption.recordScoresAsYouGo,
+            AccessOption.manageTournaments,
+        ]);
+        const permittedWithDebug: UserDto = user([
+            AccessOption.recordScoresAsYouGo,
+            AccessOption.showDebugOptions,
+            AccessOption.manageTournaments,
+        ]);
         const containerProps = new tournamentContainerPropsBuilder({
             saveTournament,
             setTournamentData,

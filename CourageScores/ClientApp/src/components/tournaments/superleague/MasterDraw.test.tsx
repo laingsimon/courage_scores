@@ -54,6 +54,7 @@ import {
     equatableSide,
     withName,
 } from './MasterDraw.test.helpers.tsx';
+import { AccessOption } from '../../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -388,7 +389,7 @@ describe('MasterDraw', () => {
                         )
                         .build(),
                 }),
-                user({}),
+                user(),
                 propsBuilder().withAlreadyPlaying(playing).build(),
                 [team.build()],
             );
@@ -414,11 +415,11 @@ describe('MasterDraw', () => {
             .build();
         const teamC = teamBuilder('ANOTHER TEAM').forSeason(season).build();
         let tournament: ITournamentBuilder;
-        const canRecordSayg = user({
-            recordScoresAsYouGo: true,
-            showDebugOptions: true,
-            manageTournaments: true,
-        });
+        const canRecordSayg = user([
+            AccessOption.recordScoresAsYouGo,
+            AccessOption.showDebugOptions,
+            AccessOption.manageTournaments,
+        ]);
         const removeMatchMsg = 'Are you sure you want to remove this match?';
         const deleteSaygMsg =
             'Are you sure you want to delete the sayg data for this match?';
@@ -426,10 +427,10 @@ describe('MasterDraw', () => {
             'Clear match score (to allow scores to be re-recorded?)';
         const masterDrawSelector = 'div[datatype="master-draw"]';
         const matchOptions = matchOptionsBuilder().numberOfLegs(7).build();
-        const canManagePlayersUser = user({
-            managePlayers: true,
-            manageTeams: true,
-        });
+        const canManagePlayersUser = user([
+            AccessOption.managePlayers,
+            AccessOption.manageTeams,
+        ]);
 
         function getSideAvBTournament(saygId?: string, matchId?: string) {
             const sides = withSides('SIDE A', 'SIDE B', saygId);
@@ -455,7 +456,7 @@ describe('MasterDraw', () => {
         async function render(t: IBuilder<TournamentGameDto>, a?: UserDto) {
             await renderComponent(
                 props({ tournamentData: t.build() }),
-                a ?? user({}),
+                a ?? user(),
                 undefined,
                 [teamA, teamB, teamC],
                 season,
@@ -700,7 +701,7 @@ describe('MasterDraw', () => {
         it('saves tournament when both players are set', async () => {
             await renderComponent(
                 props({ tournamentData: tournament.build() }),
-                user({}),
+                user(),
                 propsBuilder().withMatchOptionDefaults(matchOptions).build(),
                 [teamA, teamB, teamC],
                 season,
@@ -757,7 +758,7 @@ describe('MasterDraw', () => {
         it('saves tournament when all pairs players are set', async () => {
             await renderComponent(
                 props({ tournamentData: tournament.build() }),
-                user({}),
+                user(),
                 propsBuilder().withMatchOptionDefaults(matchOptions).build(),
                 [teamA, teamB, teamC],
                 season,
@@ -791,7 +792,7 @@ describe('MasterDraw', () => {
 
         it('cannot change host when match exists', async () => {
             const tournamentData = getSideAvBTournament();
-            await renderComponent(props({ tournamentData }), user({}));
+            await renderComponent(props({ tournamentData }), user());
 
             const hostSelector = '[datatype="host"] .dropdown-menu';
             const opponentSelector = '[datatype="opponent"] .dropdown-menu';
@@ -893,7 +894,7 @@ describe('MasterDraw', () => {
                         )
                         .build(),
                 }),
-                user({}),
+                user(),
                 propsBuilder().withAlreadyPlaying(playing).build(),
                 [teamA],
             );
@@ -911,10 +912,10 @@ describe('MasterDraw', () => {
     describe('sayg', () => {
         const playerA = playerBuilder('PLAYER A').build();
         const playerB = playerBuilder('PLAYER B').build();
-        const account = user({
-            recordScoresAsYouGo: true,
-            manageTournaments: true,
-        });
+        const account = user([
+            AccessOption.recordScoresAsYouGo,
+            AccessOption.manageTournaments,
+        ]);
         let tournament: ITournamentBuilder;
         const sideBWin = {
             nestInRound: true,

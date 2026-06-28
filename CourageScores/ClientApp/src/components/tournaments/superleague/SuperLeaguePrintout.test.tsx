@@ -41,6 +41,7 @@ import { tournamentContainerPropsBuilder } from '../tournamentContainerPropsBuil
 import { BuilderParam } from '../../../helpers/builders/builders.ts';
 import { playerBuilder } from '../../../helpers/builders/players.ts';
 import { UserDto } from '../../../interfaces/models/dtos/Identity/UserDto';
+import { AccessOption } from '../../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('SuperLeaguePrintout', () => {
     let context: TestContext;
@@ -148,9 +149,7 @@ describe('SuperLeaguePrintout', () => {
     }
 
     describe('renders', () => {
-        const account = user({
-            useWebSockets: true,
-        });
+        const account = user([AccessOption.useWebSockets]);
         const containerProps = new tournamentContainerPropsBuilder();
 
         it('print out', async () => {
@@ -196,9 +195,7 @@ describe('SuperLeaguePrintout', () => {
 
     describe('interactivity', () => {
         describe('live updates', () => {
-            const account = user({
-                useWebSockets: true,
-            });
+            const account = user([AccessOption.useWebSockets]);
             const containerProps = new tournamentContainerPropsBuilder();
 
             it('can start live updates', async () => {
@@ -422,10 +419,10 @@ describe('SuperLeaguePrintout', () => {
         });
 
         describe('sayg', () => {
-            const account = user({
-                manageTournaments: true,
-                recordScoresAsYouGo: true,
-            });
+            const account = user([
+                AccessOption.manageTournaments,
+                AccessOption.recordScoresAsYouGo,
+            ]);
             const containerProps = new tournamentContainerPropsBuilder();
 
             it('does not reload sayg data if patch cannot be applied', async () => {

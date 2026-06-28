@@ -18,9 +18,10 @@ import { ServiceAccountSessionDto } from '../../interfaces/models/dtos/Identity/
 import { ApproveServiceAccountSessionDto } from '../../interfaces/models/dtos/Identity/ApproveServiceAccountSessionDto.ts';
 import { RejectServiceAccountSessionDto } from '../../interfaces/models/dtos/Identity/RejectServiceAccountSessionDto.ts';
 import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('SessionResponse', () => {
-    const permitted = user({ loginServiceAccounts: true });
+    const permitted = user([AccessOption.loginServiceAccounts]);
     let context: TestContext;
     let reportedError: ErrorState;
     let sessionId: string;

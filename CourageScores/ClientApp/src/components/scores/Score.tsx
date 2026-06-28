@@ -199,8 +199,8 @@ export function Score() {
     }
 
     function getAccess(): string {
-        if (account && account.access) {
-            if (account.access.manageScores) {
+        if (account) {
+            if (hasAccess(account, AccessOption.manageScores)) {
                 return 'admin';
             } else if (account.teamId) {
                 return 'clerk';
@@ -736,7 +736,7 @@ export function Score() {
             (!saving &&
                 ((access === 'admin' && !submission) ||
                     (!fixtureData.resultsPublished &&
-                        account?.access?.inputResults === true))) ||
+                        hasAccess(account, AccessOption.inputResults)))) ||
             false;
         const leagueFixtureData: ILeagueFixtureContainerProps = {
             season: season,
@@ -905,9 +905,11 @@ export function Score() {
                                 Unpublish
                             </button>
                         ) : null}
-                        {(account?.access?.uploadPhotos ||
-                            account?.access?.viewAnyPhoto) &&
-                        photosEnabled ? (
+                        {hasAnyAccess(
+                            account,
+                            AccessOption.uploadPhotos,
+                            AccessOption.viewAnyPhoto,
+                        ) && photosEnabled ? (
                             <button
                                 className="btn btn-primary margin-right"
                                 onClick={() => setShowPhotoManager(true)}>
@@ -936,7 +938,9 @@ export function Score() {
                                 {leagueFixtureData.disabled ? 'Yes' : 'No'}
                                 <span> | </span>
                                 InputResults:{' '}
-                                {account?.access?.inputResults ? 'Yes' : 'No'}
+                                {hasAccess(account, AccessOption.inputResults)
+                                    ? 'Yes'
+                                    : 'No'}
                             </span>
                         </DebugOptions>
                     </div>

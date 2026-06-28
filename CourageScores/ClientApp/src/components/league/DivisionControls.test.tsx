@@ -25,6 +25,7 @@ import { divisionBuilder } from '../../helpers/builders/divisions.ts';
 import { seasonBuilder } from '../../helpers/builders/seasons.ts';
 import { IDivisionApi } from '../../interfaces/apis/IDivisionApi.ts';
 import { ISeasonApi } from '../../interfaces/apis/ISeasonApi.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -277,10 +278,10 @@ describe('DivisionControls', () => {
     });
 
     describe('when logged in', () => {
-        const account = user({
-            manageDivisions: true,
-            manageSeasons: true,
-        });
+        const account = user([
+            AccessOption.manageDivisions,
+            AccessOption.manageSeasons,
+        ]);
         const division3: DivisionDto = divisionBuilder('Division 3').build();
         const division4: DivisionDto = divisionBuilder('Division 4').build();
         const season3: SeasonDto = seasonBuilder('Season 3')
@@ -605,10 +606,10 @@ describe('DivisionControls', () => {
         });
 
         describe('when logged in', () => {
-            const account = user({
-                manageDivisions: true,
-                manageSeasons: true,
-            });
+            const account = user([
+                AccessOption.manageDivisions,
+                AccessOption.manageSeasons,
+            ]);
 
             it('can show edit season dialog', async () => {
                 await renderComponent(div5Season5, account, seasons, divisions);

@@ -6,6 +6,8 @@ import { LoadingSpinnerSmall } from './LoadingSpinnerSmall.tsx';
 import { ExportDataRequestDto } from '../../interfaces/models/dtos/Data/ExportDataRequestDto.ts';
 import { ExportDataResultDto } from '../../interfaces/models/dtos/Data/ExportDataResultDto.ts';
 import { IClientActionResultDto } from './IClientActionResultDto.ts';
+import { hasAccess } from '../../helpers/conditions.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface IExportDataButtonProps extends ExportDataRequestDto {
     tables?: { [key: string]: string[] };
@@ -16,7 +18,7 @@ export function ExportDataButton({ tables }: IExportDataButtonProps) {
     const { dataApi } = useDependencies();
     const [exporting, setExporting] = useState<boolean>(false);
 
-    if (!account || !account.access || !account.access.exportData) {
+    if (!hasAccess(account, AccessOption.exportData)) {
         return null;
     }
 

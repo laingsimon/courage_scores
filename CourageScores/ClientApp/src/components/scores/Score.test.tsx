@@ -38,6 +38,7 @@ import { IFeatureApi } from '../../interfaces/apis/IFeatureApi.ts';
 import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto.ts';
 import { IDatedDivisionFixtureDto } from '../division_fixtures/IDatedDivisionFixtureDto.ts';
 import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 interface ICreatedPlayer {
     divisionId: string;
@@ -490,15 +491,15 @@ describe('Score', () => {
     });
 
     describe('when logged in', () => {
-        const account = user({ manageScores: true });
+        const account = user([AccessOption.manageScores]);
         let appData: IAppContainerProps;
         let fixture: GameDto;
         const unpublishedMessage =
             'Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved';
-        const canUploadPhotos = user({
-            manageScores: true,
-            uploadPhotos: true,
-        });
+        const canUploadPhotos = user([
+            AccessOption.manageScores,
+            AccessOption.uploadPhotos,
+        ]);
         const validPhoto: PhotoReferenceDto = {
             id: createTemporaryId(),
             author: canUploadPhotos.name,
@@ -898,7 +899,7 @@ describe('Score', () => {
         });
 
         it('does not render photos button when not permitted', async () => {
-            const notPermitted = user({ manageScores: true });
+            const notPermitted = user([AccessOption.manageScores]);
             const appData = getDefaultAppData(notPermitted);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
@@ -1039,7 +1040,7 @@ describe('Score', () => {
     });
 
     describe('when logged in as a home clerk', () => {
-        const account = user({ inputResults: true }, createTemporaryId());
+        const account = user([AccessOption.inputResults], createTemporaryId());
         const appData = getDefaultAppData(account);
         const fixture = getUnplayedFixtureData(appData);
 

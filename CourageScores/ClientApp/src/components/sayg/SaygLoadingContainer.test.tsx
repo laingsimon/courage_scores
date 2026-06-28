@@ -32,6 +32,7 @@ import { ISubscriptionRequest } from '../../live/ISubscriptionRequest.ts';
 import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType.ts';
 import { MessageType } from '../../interfaces/models/dtos/MessageType.ts';
 import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('SaygLoadingContainer', () => {
     let context: TestContext;
@@ -459,7 +460,7 @@ describe('SaygLoadingContainer', () => {
                 .withLeg(0, (l) => l.startingScore(501).home().away())
                 .addTo(saygDataMap)
                 .build();
-            const account = user({ useWebSockets: true });
+            const account = user([AccessOption.useWebSockets]);
             await renderComponent(
                 {
                     children: (
@@ -503,7 +504,7 @@ describe('SaygLoadingContainer', () => {
                 .withLeg(0, (l) => l.startingScore(501).home().away())
                 .addTo(saygDataMap)
                 .build();
-            const account = user({ useWebSockets: true });
+            const account = user([AccessOption.useWebSockets]);
             await renderComponent(
                 {
                     children: (
@@ -560,7 +561,7 @@ describe('SaygLoadingContainer', () => {
             const newSaygData = saygBuilder(saygData.id)
                 .withLeg(0, (l) => l.startingScore(601).home().away())
                 .build();
-            const account = user({ useWebSockets: true });
+            const account = user([AccessOption.useWebSockets]);
             await renderComponent(
                 {
                     children: (
@@ -652,7 +653,7 @@ describe('SaygLoadingContainer', () => {
                 .withLeg(0, (l) => l.startingScore(501).home().away())
                 .addTo(saygDataMap)
                 .build();
-            const account = user({ useWebSockets: true });
+            const account = user([AccessOption.useWebSockets]);
             await renderComponent(
                 {
                     children: (

@@ -41,6 +41,7 @@ import {
     UrlStyle,
 } from './DivisionUriContainer.tsx';
 import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/DivisionPlayerDto.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('Division', () => {
     const TEAM_TABLE_HEADINGS = [
@@ -638,14 +639,14 @@ describe('Division', () => {
             });
 
             it('does not render tab when not permitted', async () => {
-                await render({ account: user({}) });
+                await render({ account: user() });
 
                 expect(tabs()).not.toContain('Reports');
             });
 
             it('renders tab when permitted', async () => {
                 await render({
-                    account: user({ runReports: true }),
+                    account: user([AccessOption.runReports]),
                     controls: true,
                 });
 
@@ -653,13 +654,13 @@ describe('Division', () => {
             });
 
             it('does not render reports content when not permitted', async () => {
-                await render({ account: user({}) });
+                await render({ account: user() });
 
                 expect(context.optional('.btn.btn-primary')).toBeFalsy();
             });
 
             it('renders reports content when permitted', async () => {
-                await render({ account: user({ runReports: true }) });
+                await render({ account: user([AccessOption.runReports]) });
 
                 const button = context.required('.btn.btn-primary');
                 expect(button.text()).toEqual('📊 Get reports...');
@@ -693,7 +694,7 @@ describe('Division', () => {
 
             it('does not render tab when not permitted', async () => {
                 await render({
-                    account: user({}),
+                    account: user(),
                 });
 
                 expect(tabs()).not.toContain('Health');
@@ -701,7 +702,7 @@ describe('Division', () => {
 
             it('renders tab when permitted', async () => {
                 await render({
-                    account: user({ runHealthChecks: true }),
+                    account: user([AccessOption.runHealthChecks]),
                     controls: true,
                 });
 
@@ -710,7 +711,7 @@ describe('Division', () => {
 
             it('does not render health content when not permitted', async () => {
                 await render({
-                    account: user({}),
+                    account: user(),
                 });
 
                 expect(context.optional('.btn.btn-primary')).toBeFalsy();
@@ -718,7 +719,7 @@ describe('Division', () => {
 
             it('renders health content when permitted', async () => {
                 await render({
-                    account: user({ runHealthChecks: true }),
+                    account: user([AccessOption.runHealthChecks]),
                 });
 
                 expect(context.optional('div[datatype="health"]')).toBeTruthy();
@@ -727,7 +728,7 @@ describe('Division', () => {
             it('does not render health tab for superleague', async () => {
                 await render(
                     {
-                        account: user({ runHealthChecks: true }),
+                        account: user([AccessOption.runHealthChecks]),
                         divisions: [superleagueDivision],
                     },
                     superleagueDivision,
@@ -762,13 +763,13 @@ describe('Division', () => {
             }
 
             it('renders data errors when permitted', async () => {
-                await render({ account: user({}) });
+                await render({ account: user() });
 
                 expect(heading()).toEqual('⚠ Errors in division data');
             });
 
             it('can hide data errors', async () => {
-                await render({ account: user({}) });
+                await render({ account: user() });
                 expect(heading()).toEqual('⚠ Errors in division data');
 
                 await context.button('Hide errors').click();
@@ -807,7 +808,7 @@ describe('Division', () => {
                 };
 
                 await renderComponent(
-                    defaultAppProps({ account: user({}) }),
+                    defaultAppProps({ account: user() }),
                     '/teams/:seasonId',
                     `/teams/${season.id}/?division=${division.id}`,
                 );
@@ -914,7 +915,7 @@ describe('Division', () => {
                     .build();
                 await renderComponent(
                     defaultAppProps({
-                        account: user({ manageGames: true }),
+                        account: user([AccessOption.manageGames]),
                         teams: [homeTeam, awayTeam],
                     }),
                     '/fixtures',
@@ -953,7 +954,7 @@ describe('Division', () => {
                     .build();
                 await renderComponent(
                     defaultAppProps({
-                        account: user({ manageGames: true }),
+                        account: user([AccessOption.manageGames]),
                         teams: [homeTeam, awayTeam],
                     }),
                     '/fixtures',

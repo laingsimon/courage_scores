@@ -26,6 +26,7 @@ import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
 import { seasonBuilder } from '../../helpers/builders/seasons.ts';
 import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
 import { IAppContainerProps } from '../common/AppContainer.tsx';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('TournamentDetails', () => {
     let context: TestContext;
@@ -82,11 +83,11 @@ describe('TournamentDetails', () => {
         .build();
 
     describe('renders', () => {
-        const account = user({
-            manageTournaments: true,
-            managePlayers: true,
-            recordScoresAsYouGo: true,
-        });
+        const account = user([
+            AccessOption.manageTournaments,
+            AccessOption.managePlayers,
+            AccessOption.recordScoresAsYouGo,
+        ]);
 
         it('tournament without any sides', async () => {
             const tournamentData = tournamentBuilder()
@@ -139,17 +140,17 @@ describe('TournamentDetails', () => {
     });
 
     describe('interactivity', () => {
-        const account = user({
-            manageTournaments: true,
-            managePlayers: true,
-            recordScoresAsYouGo: true,
-        });
-        const canExportAccount = user({
-            manageTournaments: true,
-            managePlayers: true,
-            recordScoresAsYouGo: true,
-            exportData: true,
-        });
+        const account = user([
+            AccessOption.manageTournaments,
+            AccessOption.managePlayers,
+            AccessOption.recordScoresAsYouGo,
+        ]);
+        const canExportAccount = user([
+            AccessOption.manageTournaments,
+            AccessOption.managePlayers,
+            AccessOption.recordScoresAsYouGo,
+            AccessOption.exportData,
+        ]);
 
         it('can update accolades count', async () => {
             const tournamentData = tournamentBuilder()
