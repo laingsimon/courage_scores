@@ -2,6 +2,7 @@
 using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Report;
 using CourageScores.Services.Division;
 using CourageScores.Services.Identity;

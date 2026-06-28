@@ -1,6 +1,6 @@
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
-using CourageScores.Services.Identity;
+using CourageScores.Models.Dtos.Identity;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Services.Game;

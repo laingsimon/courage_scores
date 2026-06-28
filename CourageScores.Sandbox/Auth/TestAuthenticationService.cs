@@ -1,8 +1,8 @@
 ﻿using System.Net.Mime;
 using System.Security.Claims;
 using CourageScores.Models.Cosmos.Identity;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Repository.Identity;
-using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Authentication;
 using CosmosUser = CourageScores.Models.Cosmos.Identity.User;
 

@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Dtos.Identity;
 

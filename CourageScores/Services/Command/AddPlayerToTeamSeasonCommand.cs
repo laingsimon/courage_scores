@@ -2,6 +2,7 @@ using CourageScores.Filters;
 using CourageScores.Models;
 using CourageScores.Models.Adapters.Team;
 using CourageScores.Models.Cosmos.Team;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;

@@ -4,6 +4,7 @@ using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services;
 using CourageScores.Services.Identity;
 
