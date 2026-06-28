@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Dtos.Health;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Cosmos.Season.Creation;

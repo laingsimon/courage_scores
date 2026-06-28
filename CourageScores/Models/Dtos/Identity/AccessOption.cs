@@ -1,4 +1,4 @@
-﻿namespace CourageScores.Services.Identity;
+﻿namespace CourageScores.Models.Dtos.Identity;
 
 public enum AccessOption
 {

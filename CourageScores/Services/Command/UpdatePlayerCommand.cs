@@ -3,6 +3,7 @@ using CourageScores.Common;
 using CourageScores.Models;
 using CourageScores.Models.Adapters.Team;
 using CourageScores.Models.Cosmos.Team;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services.Identity;

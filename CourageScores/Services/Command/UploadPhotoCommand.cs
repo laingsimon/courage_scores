@@ -1,5 +1,6 @@
 using CourageScores.Models;
 using CourageScores.Models.Cosmos;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services.Identity;
 
 namespace CourageScores.Services.Command;

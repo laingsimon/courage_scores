@@ -1,5 +1,6 @@
 using CourageScores.Common;
 using CourageScores.Models.Cosmos.Game;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Report;
 using CourageScores.Repository;
 using CourageScores.Services.Division;

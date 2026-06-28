@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using CourageScores.Services.Identity;
+using CourageScores.Models.Dtos.Identity;
 using Newtonsoft.Json;
 
 namespace CourageScores.Models.Cosmos.Identity;

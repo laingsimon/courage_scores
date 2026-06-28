@@ -1,5 +1,5 @@
 using System.Diagnostics.Contracts;
-using CourageScores.Services.Identity;
+using CourageScores.Models.Dtos.Identity;
 
 namespace CourageScores.Tests.Services;
 

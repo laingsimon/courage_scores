@@ -5,6 +5,7 @@ using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Health;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Season.Creation;
 using CourageScores.Services.Command;
