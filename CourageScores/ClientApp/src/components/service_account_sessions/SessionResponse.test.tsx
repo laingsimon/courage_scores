@@ -238,13 +238,13 @@ describe('SessionResponse', () => {
             expect(approveSessionId).toEqual(sessionId);
             expect(approveRequest).toEqual({
                 pin: '1234',
-                access: {
-                    useWebSockets: true,
-                    showDebugOptions: true,
-                    enterTournamentResults: true,
-                    recordScoresAsYouGo: true,
-                    kioskMode: true,
-                },
+                access: [
+                    AccessOption.useWebSockets,
+                    AccessOption.showDebugOptions,
+                    AccessOption.enterTournamentResults,
+                    AccessOption.recordScoresAsYouGo,
+                    AccessOption.kioskMode,
+                ],
             });
             expect(context.text()).toContain('Approved by admin@example.com');
         });

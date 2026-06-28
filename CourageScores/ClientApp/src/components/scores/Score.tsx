@@ -143,12 +143,11 @@ export function Score() {
                 const firstNewPlayer = newPlayerDetails.name
                     .split('\n')[0]
                     ?.trim();
-                const newPlayers: TeamPlayerDto[] =
-                    updatedTeamSeason.players!.filter(
-                        (p: TeamPlayerDto) =>
-                            p.name.trim().toLowerCase() ===
-                            firstNewPlayer.toLowerCase(),
-                    );
+                const newPlayers = updatedTeamSeason.players!.filter(
+                    (p) =>
+                        p.name.trim().toLowerCase() ===
+                        firstNewPlayer.toLowerCase(),
+                );
                 if (!any(newPlayers)) {
                     onError(
                         `Could not find new player in updated season, looking for player with name: "${firstNewPlayer}"`,
@@ -365,10 +364,7 @@ export function Score() {
                 const suffix: string = failedRequest.errors
                     ? ' -- ' +
                       Object.keys(failedRequest.errors)
-                          .map(
-                              (key: string) =>
-                                  `${key}: ${failedRequest.errors![key]}`,
-                          )
+                          .map((key) => `${key}: ${failedRequest.errors![key]}`)
                           .join(', ')
                     : '';
                 onError(
@@ -819,11 +815,10 @@ export function Score() {
                             />
                             {hasBeenPlayed ||
                             access === 'admin' ||
-                            (account &&
-                                access === 'clerk' &&
+                            (access === 'clerk' &&
                                 ((data!.away &&
-                                    account.teamId === data!.away.id) ||
-                                    account.teamId === data!.home.id)) ? (
+                                    account?.teamId === data!.away.id) ||
+                                    account?.teamId === data!.home.id)) ? (
                                 <tbody>
                                     <tr>
                                         <td
