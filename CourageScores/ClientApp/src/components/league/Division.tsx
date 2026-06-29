@@ -512,11 +512,9 @@ export function Division() {
                         effectiveTab.startsWith('team:') &&
                         divisionDataToUse.season ? (
                             <TeamOverview
-                                teamId={
-                                    getTeamId(
-                                        effectiveTab.substring('team:'.length),
-                                    )!
-                                }
+                                teamId={getTeamId(
+                                    effectiveTab.substring('team:'.length),
+                                )!}
                             />
                         ) : null}
                         {effectiveTab &&

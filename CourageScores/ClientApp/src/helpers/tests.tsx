@@ -107,10 +107,7 @@ export function brandingProps(
 }
 
 export type ErrorValue =
-    | IError
-    | string
-    | string[]
-    | IClientActionResultDto<unknown>;
+    IError | string | string[] | IClientActionResultDto<unknown>;
 export class ErrorState {
     error?: ErrorValue;
 

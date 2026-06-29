@@ -157,8 +157,8 @@ export function EditSuperleagueMatch({
                     alreadyPlaying?.[`${playerCount}`] ?? {};
 
                 const playingInAnotherTournament:
-                    | DivisionTournamentFixtureDetailsDto
-                    | undefined = sameCountPlayersInOtherTournaments[p.id];
+                    DivisionTournamentFixtureDetailsDto | undefined =
+                    sameCountPlayersInOtherTournaments[p.id];
                 const isSelected = any(
                     selectedForThisMatch,
                     (selectedForMatch) => selectedForMatch.id === p.id,
@@ -221,8 +221,8 @@ export function EditSuperleagueMatch({
                 alreadyPlaying?.[`${playerCount}`] ?? {};
 
             const playingInAnotherTournament:
-                | DivisionTournamentFixtureDetailsDto
-                | undefined = sameCountPlayersInOtherTournaments[option.value!];
+                DivisionTournamentFixtureDetailsDto | undefined =
+                sameCountPlayersInOtherTournaments[option.value!];
             const isSelected = any(
                 alreadySelected,
                 (p) => p.id === option.value,
