@@ -44,9 +44,27 @@ public class AccessLevelAdapterTests
     }
 
     [Test]
-    public async Task AddAccess_GivenAUserAccessUpdate_AdaptsAccessAndAccessLevels()
+    public async Task AddAccess_GivenAUserAccessUpdateWithAccess_AdaptsAccessAndAccessLevels()
     {
         var source = new UpdateAccessDto { Access = AccessDto };
+        var target = new User();
+
+        var result = await _adapter.AddAccess(target, source, _token);
+
+        Assert.That(result.Access, Is.EqualTo(Access));
+        Assert.That(result.AccessLevels, Is.EquivalentTo([new KeyValuePair<AccessOption, AccessLevel>(AccessOption.ManageNotes, AccessLevel.Granted)]));
+    }
+
+    [Test]
+    public async Task AddAccess_GivenAUserAccessUpdateWithAccessLevels_AdaptsAccessAndAccessLevels()
+    {
+        var source = new UpdateAccessDto
+        {
+            AccessLevels = new Dictionary<AccessOption, AccessLevelDto>
+            {
+                { AccessOption.ManageNotes, AccessLevelDto.Granted },
+            },
+        };
         var target = new User();
 
         var result = await _adapter.AddAccess(target, source, _token);
