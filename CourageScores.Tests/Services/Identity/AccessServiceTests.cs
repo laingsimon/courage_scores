@@ -24,10 +24,7 @@ public class AccessServiceTests
     [Test]
     public async Task HasAccess_WhenUserDtoDoesNotHaveAccess_ReturnsFalse()
     {
-        var user = new UserDto
-        {
-            Access = new AccessDto()
-        };
+        var user = new UserDto();
 
         var result = await _service.HasAccess(user, AccessOption.AnalyseMatches, _token);
 
@@ -86,10 +83,7 @@ public class AccessServiceTests
     [Test]
     public async Task HasAccess_GivenAnyAccessOption_DoesNotThrow([Values] AccessOption accessOption)
     {
-        var user = new UserDto
-        {
-            Access = new AccessDto()
-        };
+        var user = new UserDto();
 
         var result = await _service.HasAccess(user, accessOption, _token);
 
