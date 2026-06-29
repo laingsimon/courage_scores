@@ -31,8 +31,9 @@ import { UntypedPromise } from '../interfaces/UntypedPromise.ts';
 import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType.ts';
 import { IDependencies } from '../components/common/IDependencies.ts';
 import { IClientActionResultDto } from '../components/common/IClientActionResultDto.ts';
-import { AccessDto } from '../interfaces/models/dtos/Identity/AccessDto.ts';
 import { UserDto } from '../interfaces/models/dtos/Identity/UserDto.ts';
+import { AccessLevelDto } from '../interfaces/models/dtos/Identity/AccessLevelDto';
+import { AccessOption } from '../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface TestContext extends IComponent {
     cleanUp(): UntypedPromise;
@@ -436,8 +437,23 @@ export interface IBrowserNavigator {
     share: (data: ShareData) => void;
 }
 
+export interface IAccessLevels {
+    [key: string]: AccessLevelDto;
+}
+
+export function access(...options: AccessOption[]): IAccessLevels {
+    const access = {};
+    const granted = {};
+
+    for (const option of options) {
+        access[option] = granted;
+    }
+
+    return access;
+}
+
 export function user(
-    access: AccessDto,
+    accessOptions?: AccessOption[],
     teamId?: string,
     givenName?: string,
 ): UserDto {
@@ -445,7 +461,7 @@ export function user(
         name: '',
         givenName: givenName ?? '',
         emailAddress: `${givenName || 'a'}@b.com`,
-        access,
+        accessLevels: access(...(accessOptions ?? [])),
         teamId,
     };
 }

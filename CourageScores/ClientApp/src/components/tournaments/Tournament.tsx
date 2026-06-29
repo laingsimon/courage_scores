@@ -45,6 +45,8 @@ import { renderDate } from '../../helpers/rendering.ts';
 import { isEqual } from '../common/ObjectComparer.ts';
 import { retry } from '../../helpers/retry.ts';
 import { getTeamsInSeason } from '../../helpers/teams.ts';
+import { hasAccess, hasAnyAccess } from '../../helpers/conditions.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface ITournamentPlayerMap {
     [playerCount: number]: IPlayerSizeTournamentPlayerMap;
@@ -67,18 +69,18 @@ export function Tournament() {
     } = useApp();
     const { divisionApi, tournamentApi, webSocket, featureApi } =
         useDependencies();
-    const canManageTournaments: boolean = !!(
-        account &&
-        account.access &&
-        account.access.manageTournaments
+    const canManageTournaments: boolean = hasAccess(
+        account,
+        AccessOption.manageTournaments,
     );
-    const canManagePlayers: boolean = !!(
-        account &&
-        account.access &&
-        account.access.managePlayers
+    const canManagePlayers: boolean = hasAccess(
+        account,
+        AccessOption.managePlayers,
     );
-    const canEnterTournamentResults =
-        account && account.access && account.access.enterTournamentResults;
+    const canEnterTournamentResults = hasAccess(
+        account,
+        AccessOption.enterTournamentResults,
+    );
     const [loading, setLoading] = useState<string>('init');
     const [saving, setSaving] = useState<boolean>(false);
     const [patching, setPatching] = useState<boolean>(false);
@@ -575,10 +577,11 @@ export function Tournament() {
                                 Add player
                             </button>
                         ) : null}
-                        {account &&
-                        account.access &&
-                        (account.access.uploadPhotos ||
-                            account.access.viewAnyPhoto) &&
+                        {hasAnyAccess(
+                            account,
+                            AccessOption.uploadPhotos,
+                            AccessOption.viewAnyPhoto,
+                        ) &&
                         photosEnabled &&
                         !tournamentData.singleRound ? (
                             <button
@@ -597,28 +600,19 @@ export function Tournament() {
                         photos={tournamentData!.photos!}
                         onClose={async () => setShowPhotoManager(false)}
                         doDelete={deletePhotos}
-                        canUploadPhotos={
-                            !!(
-                                account &&
-                                account.access &&
-                                account.access.uploadPhotos
-                            )
-                        }
-                        canDeletePhotos={
-                            !!(
-                                account &&
-                                account.access &&
-                                (account.access.uploadPhotos ||
-                                    account.access.deleteAnyPhoto)
-                            )
-                        }
-                        canViewAllPhotos={
-                            !!(
-                                account &&
-                                account.access &&
-                                account.access.viewAnyPhoto
-                            )
-                        }
+                        canUploadPhotos={hasAccess(
+                            account,
+                            AccessOption.uploadPhotos,
+                        )}
+                        canDeletePhotos={hasAnyAccess(
+                            account,
+                            AccessOption.uploadPhotos,
+                            AccessOption.deleteAnyPhoto,
+                        )}
+                        canViewAllPhotos={hasAccess(
+                            account,
+                            AccessOption.viewAnyPhoto,
+                        )}
                     />
                 ) : null}
                 {saveError ? (

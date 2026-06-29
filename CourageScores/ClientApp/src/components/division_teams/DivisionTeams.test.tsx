@@ -24,6 +24,7 @@ import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
 import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
 import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
 import { ITeamApi } from '../../interfaces/apis/ITeamApi.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('DivisionTeams', () => {
     let context: TestContext;
@@ -182,9 +183,7 @@ describe('DivisionTeams', () => {
 
     describe('when logged in', () => {
         beforeEach(() => {
-            account = user({
-                manageTeams: true,
-            });
+            account = user([AccessOption.manageTeams]);
         });
 
         it('renders teams', async () => {

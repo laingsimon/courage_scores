@@ -14,6 +14,7 @@ import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
 import { PhotoReferenceDto } from '../../interfaces/models/dtos/PhotoReferenceDto.ts';
 import { renderDate } from '../../helpers/rendering.ts';
 import { createTemporaryId } from '../../helpers/projection.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('PhotoManager', () => {
     let context: TestContext;
@@ -72,9 +73,7 @@ describe('PhotoManager', () => {
     }
 
     describe('renders', () => {
-        const account = user({
-            deleteAnyPhoto: true,
-        });
+        const account = user([AccessOption.deleteAnyPhoto]);
         const myPhoto: PhotoReferenceDto = {
             id: createTemporaryId(),
             contentType: 'image/png',

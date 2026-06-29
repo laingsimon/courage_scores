@@ -54,10 +54,10 @@ import { IFeatureApi } from '../../interfaces/apis/IFeatureApi.ts';
 import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto.ts';
 import { checkoutWith, keyPad } from '../../helpers/sayg.ts';
 import { START_SCORING } from './tournaments.ts';
-import { AccessDto } from '../../interfaces/models/dtos/Identity/AccessDto.ts';
 import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto.ts';
 import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
 import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 interface IScenario {
     account?: UserDto;
@@ -213,15 +213,15 @@ describe('Tournament', () => {
         deletePhotoResponse = null;
     });
 
-    function patchMatchUseCase(access: AccessDto) {
+    function patchMatchUseCase(...accessOptions: AccessOption[]) {
         return {
-            user: user({
-                managePlayers: true,
-                recordScoresAsYouGo: true,
-                uploadPhotos: true,
-                ...access,
-            }),
-            toString: () => JSON.stringify(access),
+            user: user([
+                AccessOption.managePlayers,
+                AccessOption.recordScoresAsYouGo,
+                AccessOption.uploadPhotos,
+                ...accessOptions,
+            ]),
+            toString: () => JSON.stringify(accessOptions),
         };
     }
 
@@ -499,21 +499,23 @@ describe('Tournament', () => {
         const playerB = playerBuilder('PLAYER B').build();
         const playerC = playerBuilder('PLAYER C').build();
         const allPlayers = ['PLAYER A', 'PLAYER B', 'PLAYER C'];
-        const account = user({
-            manageTournaments: true,
-            managePlayers: true,
-            recordScoresAsYouGo: true,
-        });
-        const permitted = user({
-            ...account.access,
-            uploadPhotos: true,
-        });
+        const account = user([
+            AccessOption.manageTournaments,
+            AccessOption.managePlayers,
+            AccessOption.recordScoresAsYouGo,
+        ]);
+        const permitted = user([
+            AccessOption.manageTournaments,
+            AccessOption.managePlayers,
+            AccessOption.recordScoresAsYouGo,
+            AccessOption.uploadPhotos,
+        ]);
         const teamNoPlayers = makeTeam('TEAM');
         const teamWithPlayersABC = makeTeam('TEAM', playerA, playerB, playerC);
         const sideA = sideBuilder('A').withPlayer(playerA).build();
         const sideB = sideBuilder('B').withPlayer(playerB).build();
         const sideC = sideBuilder('C').withPlayer(playerC).build();
-        const notPermittedAccount = user({});
+        const notPermittedAccount = user();
         const deletePhotoPrompt = 'Are you sure you want to delete this photo?';
         let tournamentData: TournamentGameDto;
         let divisionData: DivisionDataDto;
@@ -713,12 +715,8 @@ describe('Tournament', () => {
         });
 
         it.each([
-            patchMatchUseCase({
-                manageTournaments: true,
-            }),
-            patchMatchUseCase({
-                enterTournamentResults: true,
-            }),
+            patchMatchUseCase(AccessOption.manageTournaments),
+            patchMatchUseCase(AccessOption.enterTournamentResults),
         ])(
             'can patch data with sayg score for match [%s]',
             async (useCase: { user: UserDto }) => {
@@ -913,7 +911,7 @@ describe('Tournament', () => {
         });
 
         it('cannot edit tournament details via printable sheet when logged out', async () => {
-            await render(teamNoPlayers, user({}));
+            await render(teamNoPlayers, user());
 
             await heading().click();
 

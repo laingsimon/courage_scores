@@ -15,6 +15,7 @@ import { UpdateAccessDto } from '../../interfaces/models/dtos/Identity/UpdateAcc
 import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
 import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
 import { IAccountApi } from '../../interfaces/apis/IAccountApi.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('UserAdmin', () => {
     let context: TestContext;
@@ -95,9 +96,7 @@ describe('UserAdmin', () => {
     });
 
     it('renders user with no access', async () => {
-        const account = user({
-            manageAccess: true,
-        });
+        const account = user([AccessOption.manageAccess]);
         const otherAccount: UserDto = {
             givenName: '',
             emailAddress: 'c@d.com',

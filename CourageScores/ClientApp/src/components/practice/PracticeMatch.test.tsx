@@ -24,6 +24,7 @@ import {
     ENTER_SCORE_BUTTON,
 } from '../../helpers/constants.ts';
 import { checkoutWith, keyPad } from '../../helpers/sayg.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -464,13 +465,7 @@ describe('PracticeMatch', () => {
     });
 
     describe('logged in', () => {
-        const account = user(
-            {
-                useWebSockets: false,
-            },
-            undefined,
-            'GIVEN NAME',
-        );
+        const account = user([], undefined, 'GIVEN NAME');
 
         it('when no data loaded, sets your name to account givenName', async () => {
             await renderComponent(account, '');
@@ -569,7 +564,7 @@ describe('PracticeMatch', () => {
                 id: createTemporaryId(),
             };
             saygData[jsonData.id] = jsonData;
-            account.access!.kioskMode = false;
+            delete account.accessLevels![AccessOption.kioskMode];
             await renderComponent(account, '#' + jsonData.id);
             reportedError.verifyNoError();
             assertNoDataError();
@@ -591,7 +586,7 @@ describe('PracticeMatch', () => {
                 id: createTemporaryId(),
             };
             saygData[jsonData.id] = jsonData;
-            account.access!.kioskMode = true;
+            account.accessLevels![AccessOption.kioskMode] = {};
             await renderComponent(account, '#' + jsonData.id);
             reportedError.verifyNoError();
             assertNoDataError();

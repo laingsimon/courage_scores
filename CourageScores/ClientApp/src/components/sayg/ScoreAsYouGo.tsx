@@ -13,6 +13,7 @@ import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 import { asyncCallback } from '../../helpers/events.ts';
 import { LegPlayerSequenceDto } from '../../interfaces/models/dtos/Game/Sayg/LegPlayerSequenceDto.ts';
 import { hasAccess } from '../../helpers/conditions.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface IScoreAsYouGoProps {
     data: UpdateRecordedScoreAsYouGoDto;
@@ -64,7 +65,7 @@ export function ScoreAsYouGo({
     const { onError, account, browser } = useApp();
     const canEditThrows: boolean = hasAccess(
         account,
-        (access) => access.recordScoresAsYouGo,
+        AccessOption.recordScoresAsYouGo,
     );
     const location: Location = useLocation();
     const [useWidescreenStatistics, setUseWidescreenStatistics] =

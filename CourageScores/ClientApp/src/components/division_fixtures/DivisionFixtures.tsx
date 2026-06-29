@@ -31,6 +31,7 @@ import { useDependencies } from '../common/IocContainer.tsx';
 import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
 import { Link } from 'react-router';
 import { getTeamsInSeason } from '../../helpers/teams.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface IDivisionFixturesProps {
     setNewFixtures(fixtures: DivisionFixtureDateDto[]): UntypedPromise;
@@ -48,10 +49,10 @@ export function DivisionFixtures({ setNewFixtures }: IDivisionFixturesProps) {
     const { gameApi } = useDependencies();
     const location = useLocation();
     const { account, onError, controls, teams } = useApp();
-    const isAdmin: boolean = hasAccess(account, (access) => access.manageGames);
+    const isAdmin: boolean = hasAccess(account, AccessOption.manageGames);
     const canAnalyseMatches: boolean = hasAccess(
         account,
-        (access) => access.analyseMatches,
+        AccessOption.analyseMatches,
     );
     const [newDate, setNewDate] = useState<string>('');
     const [newDateDialogOpen, setNewDateDialogOpen] = useState<boolean>(false);
@@ -391,7 +392,7 @@ export function DivisionFixtures({ setNewFixtures }: IDivisionFixturesProps) {
                         {superleague ||
                         !hasAccess(
                             account,
-                            (a) => a.bulkDeleteLeagueFixtures,
+                            AccessOption.bulkDeleteLeagueFixtures,
                         ) ? null : (
                             <button
                                 className="btn btn-danger margin-right"

@@ -57,8 +57,9 @@ import { PhotoManager } from '../common/PhotoManager.tsx';
 import { UploadPhotoDto } from '../../interfaces/models/dtos/UploadPhotoDto.ts';
 import { useBranding } from '../common/BrandingContainer.tsx';
 import { NavLink } from '../common/NavLink.tsx';
-import { hasAccess } from '../../helpers/conditions.ts';
+import { hasAccess, hasAnyAccess } from '../../helpers/conditions.ts';
 import { getTeamSeasons } from '../../helpers/teams.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface ICreatePlayerFor {
     side: string;
@@ -142,12 +143,11 @@ export function Score() {
                 const firstNewPlayer = newPlayerDetails.name
                     .split('\n')[0]
                     ?.trim();
-                const newPlayers: TeamPlayerDto[] =
-                    updatedTeamSeason.players!.filter(
-                        (p: TeamPlayerDto) =>
-                            p.name.trim().toLowerCase() ===
-                            firstNewPlayer.toLowerCase(),
-                    );
+                const newPlayers = updatedTeamSeason.players!.filter(
+                    (p) =>
+                        p.name.trim().toLowerCase() ===
+                        firstNewPlayer.toLowerCase(),
+                );
                 if (!any(newPlayers)) {
                     onError(
                         `Could not find new player in updated season, looking for player with name: "${firstNewPlayer}"`,
@@ -198,8 +198,8 @@ export function Score() {
     }
 
     function getAccess(): string {
-        if (account && account.access) {
-            if (account.access.manageScores) {
+        if (account) {
+            if (hasAccess(account, AccessOption.manageScores)) {
                 return 'admin';
             } else if (account.teamId) {
                 return 'clerk';
@@ -364,10 +364,7 @@ export function Score() {
                 const suffix: string = failedRequest.errors
                     ? ' -- ' +
                       Object.keys(failedRequest.errors)
-                          .map(
-                              (key: string) =>
-                                  `${key}: ${failedRequest.errors![key]}`,
-                          )
+                          .map((key) => `${key}: ${failedRequest.errors![key]}`)
                           .join(', ')
                     : '';
                 onError(
@@ -735,7 +732,7 @@ export function Score() {
             (!saving &&
                 ((access === 'admin' && !submission) ||
                     (!fixtureData.resultsPublished &&
-                        account?.access?.inputResults === true))) ||
+                        hasAccess(account, AccessOption.inputResults)))) ||
             false;
         const leagueFixtureData: ILeagueFixtureContainerProps = {
             season: season,
@@ -818,11 +815,10 @@ export function Score() {
                             />
                             {hasBeenPlayed ||
                             access === 'admin' ||
-                            (account &&
-                                access === 'clerk' &&
+                            (access === 'clerk' &&
                                 ((data!.away &&
-                                    account.teamId === data!.away.id) ||
-                                    account.teamId === data!.home.id)) ? (
+                                    account?.teamId === data!.away.id) ||
+                                    account?.teamId === data!.home.id)) ? (
                                 <tbody>
                                     <tr>
                                         <td
@@ -904,9 +900,11 @@ export function Score() {
                                 Unpublish
                             </button>
                         ) : null}
-                        {(account?.access?.uploadPhotos ||
-                            account?.access?.viewAnyPhoto) &&
-                        photosEnabled ? (
+                        {hasAnyAccess(
+                            account,
+                            AccessOption.uploadPhotos,
+                            AccessOption.viewAnyPhoto,
+                        ) && photosEnabled ? (
                             <button
                                 className="btn btn-primary margin-right"
                                 onClick={() => setShowPhotoManager(true)}>
@@ -935,7 +933,9 @@ export function Score() {
                                 {leagueFixtureData.disabled ? 'Yes' : 'No'}
                                 <span> | </span>
                                 InputResults:{' '}
-                                {account?.access?.inputResults ? 'Yes' : 'No'}
+                                {hasAccess(account, AccessOption.inputResults)
+                                    ? 'Yes'
+                                    : 'No'}
                             </span>
                         </DebugOptions>
                     </div>
@@ -949,17 +949,18 @@ export function Score() {
                         doDelete={deletePhotos}
                         canUploadPhotos={hasAccess(
                             account,
-                            (a) => a.uploadPhotos,
+                            AccessOption.uploadPhotos,
                         )}
                         canDeletePhotos={
-                            hasAccess(
+                            hasAnyAccess(
                                 account,
-                                (a) => a.uploadPhotos || a.deleteAnyPhoto,
+                                AccessOption.uploadPhotos,
+                                AccessOption.deleteAnyPhoto,
                             ) || access === 'admin'
                         }
                         canViewAllPhotos={
                             access === 'admin' ||
-                            hasAccess(account, (access) => access.viewAnyPhoto)
+                            hasAccess(account, AccessOption.viewAnyPhoto)
                         }
                     />
                 ) : null}

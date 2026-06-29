@@ -21,6 +21,7 @@ import { AnalyseScores } from './AnalyseScores.tsx';
 import { AnalysisRequestDto } from '../../interfaces/models/dtos/Analysis/AnalysisRequestDto.ts';
 import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
 import { AnalysisResponseDto } from '../../interfaces/models/dtos/Analysis/AnalysisResponseDto.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -67,9 +68,7 @@ describe('AnalyseScores', () => {
     });
 
     async function renderComponent(query?: string, seasonName?: string) {
-        const account = user({
-            analyseMatches: true,
-        });
+        const account = user([AccessOption.analyseMatches]);
         context = await renderApp(
             iocProps({ divisionApi, saygApi }),
             brandingProps(),

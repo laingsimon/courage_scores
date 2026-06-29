@@ -7,6 +7,8 @@ import { useDependencies } from './IocContainer.tsx';
 import { LoadingSpinnerSmall } from './LoadingSpinnerSmall.tsx';
 import { any } from '../../helpers/collections.ts';
 import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { hasAnyAccess } from '../../helpers/conditions.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface IPhotoManagerProps {
     doUpload(file: File): Promise<boolean>;
@@ -38,10 +40,10 @@ export function PhotoManager({
     const photosToShow: PhotoReferenceDto[] = canViewAllPhotos
         ? photos || []
         : myPhotos;
-    const showPhotoSize: boolean = !!(
-        account &&
-        account.access &&
-        (account.access.viewAnyPhoto || account.access.deleteAnyPhoto)
+    const showPhotoSize: boolean = hasAnyAccess(
+        account,
+        AccessOption.viewAnyPhoto,
+        AccessOption.deleteAnyPhoto,
     );
 
     function getDownloadAddress(
