@@ -16,6 +16,7 @@ import { UpdateAccessDto } from '../../interfaces/models/dtos/Identity/UpdateAcc
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 import { IAccessLevels } from '../../helpers/conditions.ts';
 import { groupBy } from '../../helpers/collections.ts';
+import { AccessDto } from '../../interfaces/models/dtos/Identity/AccessDto';
 
 interface IAccessMapping {
     option: AccessOption;
@@ -222,13 +223,20 @@ export function UserAdmin() {
         try {
             const currentAccount: UserDto = Object.assign({}, userAccount);
             const currentAccess: AccessDto = currentAccount.access ?? {};
-            const value: string | boolean =
-                event.target.type === 'checkbox'
-                    ? event.target.checked
-                    : event.target.value;
-            const name: string = event.target.name;
+            const accessLevels: IAccessLevels =
+                currentAccount.accessLevels ?? {};
+            const checked: boolean = event.target.checked;
+            const option: AccessOption = event.target.name as AccessOption;
+            const accessName: string = Object.keys(AccessOption).filter(
+                (k) => AccessOption[k] === option,
+            )[0];
 
-            currentAccess[name] = value;
+            currentAccess[accessName] = checked;
+            if (checked) {
+                accessLevels[option] = {}; // granted
+            } else {
+                delete accessLevels[option];
+            }
             setUserAccount(currentAccount);
         } catch (e) {
             /* istanbul ignore next */
@@ -248,6 +256,7 @@ export function UserAdmin() {
             const update: UpdateAccessDto = {
                 emailAddress: emailAddress,
                 access: userAccount?.access,
+                accessLevels: userAccount?.accessLevels,
             };
             const result: IClientActionResultDto<UserDto> =
                 await accountApi.update(update);
@@ -278,25 +287,29 @@ export function UserAdmin() {
     }
 
     function renderAccessOption(
-        name: string,
+        option: AccessOption,
         description: string,
         explanation?: string,
     ) {
         const access: AccessDto = (userAccount ? userAccount : {}).access || {};
+        const accessLevels: IAccessLevels = userAccount?.accessLevels ?? {};
+        const accessName: string = Object.keys(AccessOption).filter(
+            (k) => AccessOption[k] === option,
+        )[0];
 
         return (
-            <div key={name} className="input-group mb-3">
+            <div key={option} className="input-group mb-3">
                 <div className="form-check form-switch margin-right">
                     <input
                         disabled={saving}
                         className="form-check-input"
                         type="checkbox"
-                        id={name}
-                        name={name}
-                        checked={!!access[name]}
+                        id={option}
+                        name={option}
+                        checked={!!access[accessName] || !!accessLevels[option]}
                         onChange={accessChanged}
                     />
-                    <label className="form-check-label" htmlFor={name}>
+                    <label className="form-check-label" htmlFor={option}>
                         {description}
                         {explanation ? (
                             <>
