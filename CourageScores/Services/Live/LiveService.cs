@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using CourageScores.Common;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Dtos;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Live;
 using CourageScores.Models.Live;
 using CourageScores.Services.Identity;

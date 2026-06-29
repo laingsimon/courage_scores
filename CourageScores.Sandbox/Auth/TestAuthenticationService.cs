@@ -1,6 +1,7 @@
 ﻿using System.Net.Mime;
 using System.Security.Claims;
 using CourageScores.Models.Cosmos.Identity;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Repository.Identity;
 using Microsoft.AspNetCore.Authentication;
 using CosmosUser = CourageScores.Models.Cosmos.Identity.User;
@@ -19,7 +20,15 @@ public class TestAuthenticationService : IAuthenticationService
         Name = "Admin",
         TeamId = null,
         Access = CreateAdminAccess(),
+        AccessLevels = CreateAdminAccessLevels(),
     };
+
+    private static Dictionary<AccessOption, AccessLevel> CreateAdminAccessLevels()
+    {
+        return Enum.GetValues<AccessOption>()
+            .Except([AccessOption.KioskMode])
+            .ToDictionary(ao => ao, _ => AccessLevel.Granted);
+    }
 
     private static Access CreateAdminAccess()
     {
@@ -42,7 +51,7 @@ public class TestAuthenticationService : IAuthenticationService
 
     internal static async Task AddAdminUserToContainer(IUserRepository repo)
     {
-        await repo.UpsertUser(DefaultAdminUser);
+        await repo.UpsertUser(DefaultAdminUser, CancellationToken.None);
     }
 
     public Task<AuthenticateResult> AuthenticateAsync(HttpContext context, string? scheme)

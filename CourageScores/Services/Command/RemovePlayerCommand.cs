@@ -1,5 +1,6 @@
 ﻿using CourageScores.Models;
 using CourageScores.Models.Cosmos.Team;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
 

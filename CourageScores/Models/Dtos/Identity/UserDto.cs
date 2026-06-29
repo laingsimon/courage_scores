@@ -26,6 +26,11 @@ public class UserDto
     public AccessDto? Access { get; set; }
 
     /// <summary>
+    /// What levels of access does this person have?
+    /// </summary>
+    public Dictionary<AccessOption, AccessLevelDto> AccessLevels { get; set; } = new();
+
+    /// <summary>
     /// The identity of the team this user is attributed to, via their email address
     /// </summary>
     public Guid? TeamId { get; set; }

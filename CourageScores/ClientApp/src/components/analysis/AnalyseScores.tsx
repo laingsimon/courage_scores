@@ -225,8 +225,7 @@ export function AnalyseScores() {
                     .sort()
                     .map((team: string) => {
                         const detail: (
-                            | ScoreBreakdownDto
-                            | NamedBreakdownDto
+                            ScoreBreakdownDto | NamedBreakdownDto
                         )[] = breakdown[team];
 
                         return (

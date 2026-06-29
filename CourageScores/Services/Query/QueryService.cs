@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using CourageScores.Common;
 using CourageScores.Models.Dtos;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Query;
 using CourageScores.Services.Data;
 using CourageScores.Services.Identity;

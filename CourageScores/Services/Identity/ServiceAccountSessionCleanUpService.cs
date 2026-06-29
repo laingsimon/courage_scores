@@ -35,7 +35,7 @@ public class ServiceAccountSessionCleanUpService : IServiceAccountSessionCleanUp
             }
         }
 
-        var allUsers = await _userRepository.GetAll().ToList();
+        var allUsers = await _userRepository.GetAll(token).ToList();
         var allTransientUsers = allUsers.Where(u => u.Transient).ToArray();
         var activeTransientUsernames = allSessions
             .Where(s => !string.IsNullOrEmpty(s.TransientUsername))
@@ -82,7 +82,7 @@ public class ServiceAccountSessionCleanUpService : IServiceAccountSessionCleanUp
     {
         try
         {
-            var user = await _userRepository.GetUser(transientUserName);
+            var user = await _userRepository.GetUser(transientUserName, token);
 
             if (user?.Transient == true)
             {

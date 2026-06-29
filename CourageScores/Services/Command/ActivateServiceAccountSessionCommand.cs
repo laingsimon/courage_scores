@@ -60,7 +60,7 @@ public class ActivateServiceAccountSessionCommand : IUpdateCommand<ServiceAccoun
             return Warning("A user was not created for this session");
         }
 
-        var user = await _userRepository.GetUser(model.TransientUsername!);
+        var user = await _userRepository.GetUser(model.TransientUsername!, token);
         if (user == null)
         {
             return Warning("The user for this session was not found");

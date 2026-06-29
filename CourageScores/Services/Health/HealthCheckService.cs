@@ -3,6 +3,7 @@ using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Health;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Health;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services.Division;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;

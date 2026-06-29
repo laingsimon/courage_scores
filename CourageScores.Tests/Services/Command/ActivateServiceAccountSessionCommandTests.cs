@@ -128,7 +128,7 @@ public class ActivateServiceAccountSessionCommandTests
     [Test]
     public async Task ApplyUpdate_WhenUserNotFound_ReturnsUnsuccessful()
     {
-        _userRepository.Setup(s => s.GetUser(_model.TransientUsername!)).ReturnsAsync(() => null);
+        _userRepository.Setup(s => s.GetUser(_model.TransientUsername!, _token)).ReturnsAsync(() => null);
 
         var result = await _command.ApplyUpdate(_model, _token);
 
@@ -140,7 +140,7 @@ public class ActivateServiceAccountSessionCommandTests
     public async Task ApplyUpdate_WhenPinAndIpAddressMatch_ReturnsSuccessful()
     {
         var user = new User();
-        _userRepository.Setup(s => s.GetUser(_model.TransientUsername!)).ReturnsAsync(user);
+        _userRepository.Setup(s => s.GetUser(_model.TransientUsername!, _token)).ReturnsAsync(user);
 
         var result = await _command.ApplyUpdate(_model, _token);
 

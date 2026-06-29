@@ -2,6 +2,7 @@
 using CourageScores.Common.Cosmos;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos.Data;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services.Identity;
 using Microsoft.Azure.Cosmos;
 
