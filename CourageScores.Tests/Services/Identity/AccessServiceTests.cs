@@ -36,11 +36,9 @@ public class AccessServiceTests
     {
         var user = new UserDto
         {
-            Access = new AccessDto
+            AccessLevels = new Dictionary<AccessOption, AccessLevelDto>
             {
-#pragma warning disable CS0618 // Type or member is obsolete
-                AnalyseMatches = true,
-#pragma warning restore CS0618 // Type or member is obsolete
+                { AccessOption.AnalyseMatches, AccessLevelDto.Granted }
             }
         };
 
@@ -52,10 +50,7 @@ public class AccessServiceTests
     [Test]
     public async Task HasAccess_WhenUserDoesNotHaveAccess_ReturnsFalse()
     {
-        var user = new User
-        {
-            Access = new Access()
-        };
+        var user = new User();
 
         var result = await _service.HasAccess(user, AccessOption.AnalyseMatches, _token);
 
@@ -67,11 +62,9 @@ public class AccessServiceTests
     {
         var user = new User
         {
-            Access = new Access
+            AccessLevels = new Dictionary<AccessOption, AccessLevel>
             {
-#pragma warning disable CS0618 // Type or member is obsolete
-                AnalyseMatches = true,
-#pragma warning restore CS0618 // Type or member is obsolete
+                { AccessOption.AnalyseMatches, AccessLevel.Granted }
             }
         };
 
@@ -89,16 +82,4 @@ public class AccessServiceTests
 
         Assert.That(result, Is.False);
     }
-
-    [TestCaseSource(nameof(AccessDtoProperties))]
-    public void HasAccess_GivenAnyAccessOption_DoesNotThrow(string accessDtoProperty)
-    {
-        var names = Enum.GetNames<AccessOption>();
-
-        Assert.That(names, Has.Member(accessDtoProperty));
-    }
-
-    public static IEnumerable<string> AccessDtoProperties => typeof(AccessDto).GetProperties()
-        .Where(p => p.PropertyType == typeof(bool))
-        .Select(p => p.Name);
 }

@@ -16,7 +16,6 @@ import { UpdateAccessDto } from '../../interfaces/models/dtos/Identity/UpdateAcc
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 import { IAccessLevels } from '../../helpers/conditions.ts';
 import { groupBy } from '../../helpers/collections.ts';
-import { AccessDto } from '../../interfaces/models/dtos/Identity/AccessDto';
 
 interface IAccessMapping {
     option: AccessOption;
@@ -222,16 +221,11 @@ export function UserAdmin() {
     function accessChanged(event: React.ChangeEvent<HTMLInputElement>) {
         try {
             const currentAccount: UserDto = Object.assign({}, userAccount);
-            const currentAccess: AccessDto = currentAccount.access ?? {};
             const accessLevels: IAccessLevels =
                 currentAccount.accessLevels ?? {};
             const checked: boolean = event.target.checked;
             const option: AccessOption = event.target.name as AccessOption;
-            const accessName: string = Object.keys(AccessOption).filter(
-                (k) => AccessOption[k] === option,
-            )[0];
 
-            currentAccess[accessName] = checked;
             if (checked) {
                 accessLevels[option] = {}; // granted
             } else {
@@ -255,7 +249,6 @@ export function UserAdmin() {
         try {
             const update: UpdateAccessDto = {
                 emailAddress: emailAddress,
-                access: userAccount?.access,
                 accessLevels: userAccount?.accessLevels,
             };
             const result: IClientActionResultDto<UserDto> =
@@ -291,11 +284,7 @@ export function UserAdmin() {
         description: string,
         explanation?: string,
     ) {
-        const access: AccessDto = (userAccount ? userAccount : {}).access || {};
         const accessLevels: IAccessLevels = userAccount?.accessLevels ?? {};
-        const accessName: string = Object.keys(AccessOption).filter(
-            (k) => AccessOption[k] === option,
-        )[0];
 
         return (
             <div key={option} className="input-group mb-3">
@@ -306,7 +295,7 @@ export function UserAdmin() {
                         type="checkbox"
                         id={option}
                         name={option}
-                        checked={!!access[accessName] || !!accessLevels[option]}
+                        checked={!!accessLevels[option]}
                         onChange={accessChanged}
                     />
                     <label className="form-check-label" htmlFor={option}>
