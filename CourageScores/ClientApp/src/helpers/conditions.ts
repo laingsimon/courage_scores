@@ -1,6 +1,11 @@
 ﻿import { UserDto } from '../interfaces/models/dtos/Identity/UserDto.ts';
 import { AccessOption } from '../interfaces/models/dtos/Identity/AccessOption.ts';
 import { all, any } from './collections.ts';
+import { AccessLevelDto } from '../interfaces/models/dtos/Identity/AccessLevelDto';
+
+export interface IAccessLevels {
+    [key: string]: AccessLevelDto;
+}
 
 export function hasAccess(
     account: UserDto | undefined,

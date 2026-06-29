@@ -32,8 +32,8 @@ import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType.ts';
 import { IDependencies } from '../components/common/IDependencies.ts';
 import { IClientActionResultDto } from '../components/common/IClientActionResultDto.ts';
 import { UserDto } from '../interfaces/models/dtos/Identity/UserDto.ts';
-import { AccessLevelDto } from '../interfaces/models/dtos/Identity/AccessLevelDto';
 import { AccessOption } from '../interfaces/models/dtos/Identity/AccessOption.ts';
+import { IAccessLevels } from './conditions.ts';
 
 export interface TestContext extends IComponent {
     cleanUp(): UntypedPromise;
@@ -435,10 +435,6 @@ export interface IBrowserWindow {
 
 export interface IBrowserNavigator {
     share: (data: ShareData) => void;
-}
-
-export interface IAccessLevels {
-    [key: string]: AccessLevelDto;
 }
 
 export function access(...options: AccessOption[]): IAccessLevels {
