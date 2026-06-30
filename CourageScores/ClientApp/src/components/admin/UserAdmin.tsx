@@ -13,7 +13,175 @@ import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
 import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
 import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
 import { UpdateAccessDto } from '../../interfaces/models/dtos/Identity/UpdateAccessDto.ts';
-import { AccessDto } from '../../interfaces/models/dtos/Identity/AccessDto.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
+import { IAccessLevels } from '../../helpers/conditions.ts';
+import { groupBy } from '../../helpers/collections.ts';
+import { AccessDto } from '../../interfaces/models/dtos/Identity/AccessDto';
+
+interface IAccessMapping {
+    option: AccessOption;
+    section: string;
+    name: string;
+    description?: string;
+}
+
+const accessMappings: IAccessMapping[] = [
+    {
+        option: AccessOption.analyseMatches,
+        section: 'Superleague',
+        name: 'Analyse scores',
+        description: 'Analyse scores across fixtures',
+    },
+    {
+        option: AccessOption.bulkDeleteLeagueFixtures,
+        section: 'League',
+        name: 'Bulk delete fixtures',
+        description: 'Delete all unplayed fixtures in a season in one go',
+    },
+    {
+        option: AccessOption.deleteAnyPhoto,
+        section: 'League',
+        name: 'Delete photos from anyone',
+    },
+    {
+        option: AccessOption.exportData,
+        section: 'System admin',
+        name: 'Export data (backup)',
+    },
+    {
+        option: AccessOption.enterTournamentResults,
+        section: 'Superleague',
+        name: 'Enter tournament results',
+        description: 'Record scores for tournaments without editing details',
+    },
+    {
+        option: AccessOption.inputResults,
+        section: 'League',
+        name: 'Input results',
+        description: 'Enter league-fixture results for their team',
+    },
+    {
+        option: AccessOption.importData,
+        section: 'System admin',
+        name: 'Import data (restore)',
+    },
+    {
+        option: AccessOption.kioskMode,
+        section: 'Superleague',
+        name: 'Score results in full screen',
+        description: 'Enter full screen when recording scores',
+    },
+    {
+        option: AccessOption.loginServiceAccounts,
+        section: 'Superleague',
+        name: 'Login service accounts',
+        description: 'Login tables and tv accounts remotely',
+    },
+    {
+        option: AccessOption.manageAccess,
+        section: 'System admin',
+        name: 'Manage user access',
+        description: 'Manage who can do what',
+    },
+    {
+        option: AccessOption.manageScores,
+        section: 'League',
+        name: 'Manage scores',
+        description: '⚠️ Enter league-fixture results for any team',
+    },
+    {
+        option: AccessOption.managePlayers,
+        section: 'League',
+        name: 'Manage players',
+        description: 'Add/Edit/Delete players',
+    },
+    {
+        option: AccessOption.manageTournaments,
+        section: 'League',
+        name: 'Manage tournaments',
+        description: 'Create/Edit/Delete tournaments and record scores',
+    },
+    {
+        option: AccessOption.manageGames,
+        section: 'League',
+        name: 'Manage games',
+        description: 'Create/Edit/Delete league fixtures',
+    },
+    {
+        option: AccessOption.manageDivisions,
+        section: 'League',
+        name: 'Manage divisions',
+    },
+    {
+        option: AccessOption.manageFeatures,
+        section: 'System admin',
+        name: 'Manage features',
+        description: 'Configure system features',
+    },
+    {
+        option: AccessOption.manageSockets,
+        section: 'System admin',
+        name: 'Manage sockets',
+        description: 'Manage who is viewing live results',
+    },
+    {
+        option: AccessOption.manageSeasonTemplates,
+        section: 'League',
+        name: 'Manage season templates',
+        description: 'Manage the templates used to create new seasons',
+    },
+    {
+        option: AccessOption.manageNotes,
+        section: 'League',
+        name: 'Manage notes',
+    },
+    {
+        option: AccessOption.manageSeasons,
+        section: 'League',
+        name: 'Manage seasons',
+    },
+    {
+        option: AccessOption.manageTeams,
+        section: 'League',
+        name: 'Manage teams',
+    },
+    {
+        option: AccessOption.runDataQueries,
+        section: 'System admin',
+        name: 'Run data queries',
+        description: '⚠️ Query the data model',
+    },
+    {
+        option: AccessOption.showDebugOptions,
+        section: 'System admin',
+        name: 'Show debug options',
+        description: 'See additional debugging options',
+    },
+    {
+        option: AccessOption.useWebSockets,
+        section: 'Superleague',
+        name: 'Show live results',
+        description:
+            "Show results as they're recorded on other devices (tv/mobile)",
+    },
+    {
+        option: AccessOption.uploadPhotos,
+        section: 'League',
+        name: 'Upload photos',
+    },
+    {
+        option: AccessOption.viewAnyPhoto,
+        section: 'League',
+        name: 'View photos from anyone',
+        description: '⚠️ (allows viewing of man-of-the-match submissions)',
+    },
+    {
+        option: AccessOption.viewExceptions,
+        section: 'System admin',
+        name: 'View exceptions',
+        description: 'View any errors reported in the system',
+    },
+];
 
 export function UserAdmin() {
     const { account, onError, reloadAccount } = useApp();
@@ -55,13 +223,20 @@ export function UserAdmin() {
         try {
             const currentAccount: UserDto = Object.assign({}, userAccount);
             const currentAccess: AccessDto = currentAccount.access ?? {};
-            const value: string | boolean =
-                event.target.type === 'checkbox'
-                    ? event.target.checked
-                    : event.target.value;
-            const name: string = event.target.name;
+            const accessLevels: IAccessLevels =
+                currentAccount.accessLevels ?? {};
+            const checked: boolean = event.target.checked;
+            const option: AccessOption = event.target.name as AccessOption;
+            const accessName: string = Object.keys(AccessOption).filter(
+                (k) => AccessOption[k] === option,
+            )[0];
 
-            currentAccess[name] = value;
+            currentAccess[accessName] = checked;
+            if (checked) {
+                accessLevels[option] = {}; // granted
+            } else {
+                delete accessLevels[option];
+            }
             setUserAccount(currentAccount);
         } catch (e) {
             /* istanbul ignore next */
@@ -81,6 +256,7 @@ export function UserAdmin() {
             const update: UpdateAccessDto = {
                 emailAddress: emailAddress,
                 access: userAccount?.access,
+                accessLevels: userAccount?.accessLevels,
             };
             const result: IClientActionResultDto<UserDto> =
                 await accountApi.update(update);
@@ -111,25 +287,29 @@ export function UserAdmin() {
     }
 
     function renderAccessOption(
-        name: string,
+        option: AccessOption,
         description: string,
         explanation?: string,
     ) {
         const access: AccessDto = (userAccount ? userAccount : {}).access || {};
+        const accessLevels: IAccessLevels = userAccount?.accessLevels ?? {};
+        const accessName: string = Object.keys(AccessOption).filter(
+            (k) => AccessOption[k] === option,
+        )[0];
 
         return (
-            <div className="input-group mb-3">
+            <div key={option} className="input-group mb-3">
                 <div className="form-check form-switch margin-right">
                     <input
                         disabled={saving}
                         className="form-check-input"
                         type="checkbox"
-                        id={name}
-                        name={name}
-                        checked={access[name] || false}
+                        id={option}
+                        name={option}
+                        checked={!!access[accessName] || !!accessLevels[option]}
                         onChange={accessChanged}
                     />
-                    <label className="form-check-label" htmlFor={name}>
+                    <label className="form-check-label" htmlFor={option}>
                         {description}
                         {explanation ? (
                             <>
@@ -198,178 +378,24 @@ export function UserAdmin() {
             </ul>
             <h6>Access</h6>
             <div className="d-flex flex-wrap">
-                <div className="border-1 border-secondary border-solid m-1 p-2">
-                    <h6>League</h6>
-                    {renderAccessOption(
-                        'managePlayers',
-                        'Manage players',
-                        'Add/Edit/Delete players',
-                    )}
-                    {renderAccessOption(
-                        'manageScores',
-                        'Manage scores',
-                        '⚠️ Enter league-fixture results for any team',
-                    )}
-                    {renderAccessOption(
-                        'inputResults',
-                        'Input results',
-                        'Enter league-fixture results for their team',
-                    )}
-                </div>
-                <div className="border-1 border-secondary border-solid m-1 p-2">
-                    <h6>
-                        Tournaments{' '}
-                        <small>
-                            (pairs, singles, knockout and finals night)
-                        </small>
-                    </h6>
-                    {renderAccessOption(
-                        'manageTournaments',
-                        'Manage tournaments',
-                        'Create/Edit/Delete tournaments and record scores',
-                    )}
-                    {renderAccessOption(
-                        'enterTournamentResults',
-                        'Enter tournament results',
-                        'Record scores for tournaments without editing details',
-                    )}
-                    {renderAccessOption(
-                        'analyseMatches',
-                        'Analyse scores',
-                        'Analyse scores across fixtures',
-                    )}
-                </div>
-                <div className="border-1 border-secondary border-solid m-1 p-2">
-                    <h6>Management</h6>
-                    {renderAccessOption(
-                        'manageDivisions',
-                        'Manage divisions',
-                        'Create/Edit/Delete divisions',
-                    )}
-                    {renderAccessOption(
-                        'manageGames',
-                        'Manage games',
-                        'Create/Edit/Delete league fixtures',
-                    )}
-                    {renderAccessOption(
-                        'manageNotes',
-                        'Manage fixture/date notes',
-                        'Create/Edit/Delete notes in the fixture list',
-                    )}
-                    {renderAccessOption(
-                        'manageSeasons',
-                        'Manage seasons',
-                        'Create/Edit/Delete any seasons',
-                    )}
-                    {renderAccessOption(
-                        'manageTeams',
-                        'Manage teams',
-                        'Create/Edit/Delete any teams in a season',
-                    )}
-                    {renderAccessOption(
-                        'runHealthChecks',
-                        'Run health checks',
-                        'Run any health checks over a season',
-                    )}
-                    {renderAccessOption(
-                        'manageSeasonTemplates',
-                        'Manage season templates',
-                        'Manage the templates used to create new seasons',
-                    )}
-                    {renderAccessOption(
-                        'runReports',
-                        'Run reports',
-                        'Run league/season reports',
-                    )}
-                    {renderAccessOption(
-                        'runDataQueries',
-                        '⚠️ Execute data queries',
-                        'Query the data model',
-                    )}
-                </div>
-                <div className="border-1 border-secondary border-solid m-1 p-2">
-                    <h6>Live scoring (super league)</h6>
-                    {renderAccessOption(
-                        'recordScoresAsYouGo',
-                        "Record scores as they're played",
-                        'Record scores as matches are played. Required for super league',
-                    )}
-                    {renderAccessOption(
-                        'useWebSockets',
-                        'Show live results',
-                        "Show results as they're recorded on other devices (tv/mobile)",
-                    )}
-                    {renderAccessOption(
-                        'kioskMode',
-                        'Score results in full screen',
-                        'Enter full screen when recording scores',
-                    )}
-                </div>
-                <div className="border-1 border-secondary border-solid m-1 p-2">
-                    <h6>Photos</h6>
-                    {renderAccessOption(
-                        'uploadPhotos',
-                        'Upload photos of results',
-                        '(people can view and delete their own photos)',
-                    )}
-                    {renderAccessOption(
-                        'viewAnyPhoto',
-                        '⚠️ View photos from anyone',
-                        '(allows viewing of man-of-the-match submissions)',
-                    )}
-                    {renderAccessOption(
-                        'deleteAnyPhoto',
-                        'Delete photos from anyone',
-                    )}
-                </div>
-                <div className="border-1 border-secondary border-solid m-1 p-2">
-                    <h6>System admin</h6>
-                    {renderAccessOption(
-                        'manageAccess',
-                        'Manage user access',
-                        'Manage who can do what',
-                    )}
-                    {renderAccessOption(
-                        'showDebugOptions',
-                        'Show debug options',
-                        'See additional debugging options',
-                    )}
-                    {renderAccessOption(
-                        'manageSockets',
-                        'Manage web sockets',
-                        'Manage who is viewing live results',
-                    )}
-                    {renderAccessOption(
-                        'viewExceptions',
-                        'View exceptions',
-                        'View any errors reported in the system',
-                    )}
-                    {renderAccessOption(
-                        'exportData',
-                        'Export data (backup)',
-                        'Export/Backup data',
-                    )}
-                    {renderAccessOption(
-                        'importData',
-                        'Import data (restore)',
-                        'Import/Restore data',
-                    )}
-                    {renderAccessOption(
-                        'bulkDeleteLeagueFixtures',
-                        'Bulk delete fixtures',
-                        'Delete all unplayed fixtures in a season in one go',
-                    )}
-                    {renderAccessOption(
-                        'manageFeatures',
-                        'Manage features',
-                        'Configure system features',
-                    )}
-                    {renderAccessOption(
-                        'loginServiceAccounts',
-                        'Login service accounts',
-                        'Login tables and tv accounts remotely',
-                    )}
-                </div>
+                {groupBy(accessMappings, 'section')
+                    .sort((a, b) => a.key.localeCompare(b.key))
+                    .map((grouping) => (
+                        <div
+                            key={grouping.key}
+                            className="border-1 border-secondary border-solid m-1 p-2">
+                            <h6>{grouping.key}</h6>
+                            {grouping.items
+                                .sort((a, b) => a.name.localeCompare(b.name))
+                                .map((ao) =>
+                                    renderAccessOption(
+                                        ao.option,
+                                        ao.name,
+                                        ao.description,
+                                    ),
+                                )}
+                        </div>
+                    ))}
             </div>
             <div>
                 <button
