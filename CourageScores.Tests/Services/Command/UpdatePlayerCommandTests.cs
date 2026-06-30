@@ -1,4 +1,4 @@
-using CourageScores.Filters;
+using AutoFixture;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
@@ -23,12 +23,9 @@ namespace CourageScores.Tests.Services.Command;
 public class UpdatePlayerCommandTests
 {
     private const string UserTeamId = "0AEBA4F0-3AB3-49A7-97AC-7318887E1F51";
-    private Mock<IUserService> _userService = null!;
-    private Mock<ICachingSeasonService> _seasonService = null!;
     private Mock<IAuditingHelper> _auditingHelper = null!;
     private Mock<IGenericRepository<CosmosGame>> _gameRepository = null!;
     private Mock<ITeamService> _teamService = null!;
-    private Mock<ICommandFactory> _commandFactory = null!;
     private Mock<AddPlayerToTeamSeasonCommand> _addPlayerToSeasonCommand = null!;
     private readonly CancellationToken _token = CancellationToken.None;
     private UpdatePlayerCommand _command = null!;
@@ -39,35 +36,22 @@ public class UpdatePlayerCommandTests
     private EditTeamPlayerDto _update = null!;
     private UserDto? _user;
     private CosmosGame _game = null!;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _userService = new Mock<IUserService>();
+        var fixture = AutoFixture.Create();
+        var userService = fixture.FreezeMock<IUserService>();
         _access = [AccessOption.ManageTeams];
-        _accessService = new Mock<IAccessService>();
-        _seasonService = new Mock<ICachingSeasonService>();
-        _auditingHelper = new Mock<IAuditingHelper>();
-        _gameRepository = new Mock<IGenericRepository<CosmosGame>>();
-        _teamService = new Mock<ITeamService>();
-        _commandFactory = new Mock<ICommandFactory>();
-        _addPlayerToSeasonCommand = new Mock<AddPlayerToTeamSeasonCommand>(
-            _seasonService.Object,
-            _commandFactory.Object,
-            _auditingHelper.Object,
-            _userService.Object,
-            new ScopedCacheManagementFlags(),
-            new Mock<IAccessService>().Object);
-        _command = new UpdatePlayerCommand(
-            _userService.Object,
-            _seasonService.Object,
-            _auditingHelper.Object,
-            _gameRepository.Object,
-            _teamService.Object,
-            _commandFactory.Object,
-            _accessService.Object);
+        var accessService = fixture.FreezeMock<IAccessService>();
+        var seasonService = fixture.FreezeMock<ICachingSeasonService>();
+        _auditingHelper = fixture.FreezeMock<IAuditingHelper>();
+        _gameRepository = fixture.FreezeMock<IGenericRepository<CosmosGame>>();
+        _teamService = fixture.FreezeMock<ITeamService>();
+        var commandFactory = fixture.FreezeMock<ICommandFactory>();
+        _addPlayerToSeasonCommand = fixture.FreezeMockOf<AddPlayerToTeamSeasonCommand>();
+        _command = fixture.Create<UpdatePlayerCommand>();
 
         _user = new UserDto { TeamId = Guid.Parse(UserTeamId), Name = "USER" };
         _season = new SeasonDtoBuilder().Build();
@@ -97,9 +81,9 @@ public class UpdatePlayerCommandTests
             LastUpdated = new DateTime(2001, 02, 03),
         };
 
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
-        _commandFactory
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
+        commandFactory
             .Setup(f => f.GetCommand<AddPlayerToTeamSeasonCommand>())
             .Returns(_addPlayerToSeasonCommand.Object);
         _addPlayerToSeasonCommand
@@ -114,7 +98,7 @@ public class UpdatePlayerCommandTests
         _addPlayerToSeasonCommand
             .Setup(c => c.AddSeasonToTeamIfMissing(It.IsAny<bool>()))
             .Returns(_addPlayerToSeasonCommand.Object);
-        _accessService
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
 

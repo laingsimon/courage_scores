@@ -1,9 +1,9 @@
 using System.IO.Compression;
+using AutoFixture;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Services;
 using CourageScores.Services.Data;
 using Microsoft.AspNetCore.Http;
-using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
@@ -12,24 +12,24 @@ namespace CourageScores.Tests.Services.Data;
 [TestFixture]
 public class ZipBuilderFactoryTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly DateTimeOffset _utcNow = DateTimeOffset.UtcNow;
     private readonly IJsonSerializerService _serializer = new JsonSerializerService(new JsonSerializer());
-    private Mock<TimeProvider> _clock = null!;
-    private Mock<IHttpContextAccessor> _httpContextAccessor = null!;
     private HttpContext _httpContext = null!;
     private ZipBuilderFactory _factory = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _httpContextAccessor = new Mock<IHttpContextAccessor>();
-        _clock = new Mock<TimeProvider>();
+        var fixture = AutoFixture.Create();
+        fixture.Register(() => _serializer);
+        var httpContextAccessor = fixture.FreezeMock<IHttpContextAccessor>();
+        var clock = fixture.FreezeMock<TimeProvider>();
         _httpContext = new DefaultHttpContext();
-        _factory = new ZipBuilderFactory(_httpContextAccessor.Object, _clock.Object, _serializer);
+        _factory = fixture.Create<ZipBuilderFactory>();
 
-        _httpContextAccessor.Setup(a => a.HttpContext).Returns(_httpContext);
-        _clock.Setup(c => c.GetUtcNow()).Returns(_utcNow);
+        httpContextAccessor.Setup(a => a.HttpContext).Returns(_httpContext);
+        clock.Setup(c => c.GetUtcNow()).Returns(_utcNow);
     }
 
     [Test]
@@ -116,10 +116,7 @@ public class ZipBuilderFactoryTests
             Tables =
             {
                 {
-                    "TABLE 1", new List<Guid>(new[]
-                    {
-                        Guid.Empty,
-                    })
+                    "TABLE 1", [Guid.Empty]
                 },
             },
 #pragma warning restore CS0618
@@ -136,21 +133,22 @@ public class ZipBuilderFactoryTests
     private static async Task<ExportMetaData> AssertZipCanBeRead(IZipBuilder builder, string password)
     {
         var zipBytes = await builder.CreateZip();
-        var zip = new ZipArchive(new MemoryStream(zipBytes), ZipArchiveMode.Read);
+        await using var zip = new ZipArchive(new MemoryStream(zipBytes), ZipArchiveMode.Read);
         var encryptor = string.IsNullOrEmpty(password) ? NullContentEncryptor.Instance : new ContentEncryptor(password);
 
         var entries = zip.Entries.ToList();
         Assert.That(entries, Is.Not.Empty);
         Assert.That(entries.Select(e => e.FullName), Has.Member("meta.json"));
         var entry = zip.GetEntry("meta.json");
-        var content = new MemoryStream();
-        await entry!.Open().CopyToAsync(content);
+        using var content = new MemoryStream();
+        await (await entry!.OpenAsync()).CopyToAsync(content);
         content.Seek(0, SeekOrigin.Begin);
 
-        var decrypted = new MemoryStream();
+        using var decrypted = new MemoryStream();
         await encryptor.Decrypt(content, decrypted);
         decrypted.Seek(0, SeekOrigin.Begin);
-        var json = await new StreamReader(decrypted).ReadToEndAsync();
+        using var reader = new StreamReader(decrypted);
+        var json = await reader.ReadToEndAsync();
         return JsonConvert.DeserializeObject<ExportMetaData>(json)!;
     }
 }

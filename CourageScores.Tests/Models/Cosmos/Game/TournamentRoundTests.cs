@@ -92,10 +92,7 @@ public class TournamentRoundTests
         {
             NumberOfLegs = 5,
         });
-        _round.Sides.AddRange(new[]
-        {
-            sideA, sideB,
-        });
+        _round.Sides.AddRange([sideA, sideB]);
 
         _round.Accept(VisitorScope, visitor.Object);
 
@@ -120,10 +117,7 @@ public class TournamentRoundTests
             NumberOfLegs = 5,
         });
         _round.Matches.Add(final);
-        _round.Sides.AddRange(new[]
-        {
-            sideA, sideB,
-        });
+        _round.Sides.AddRange([sideA, sideB]);
 
         _round.Accept(VisitorScope, visitor.Object);
 
@@ -144,10 +138,7 @@ public class TournamentRoundTests
             SideB = sideB,
         };
         _round.Matches.Add(final);
-        _round.Sides.AddRange(new[]
-        {
-            sideA, sideB,
-        });
+        _round.Sides.AddRange([sideA, sideB]);
 
         _round.Accept(VisitorScope, visitor.Object);
 
@@ -168,10 +159,7 @@ public class TournamentRoundTests
             SideB = sideB,
         };
         _round.Matches.Add(final);
-        _round.Sides.AddRange(new[]
-        {
-            sideA, sideB,
-        });
+        _round.Sides.AddRange([sideA, sideB]);
 
         _round.Accept(VisitorScope, visitor.Object);
 

@@ -1,4 +1,6 @@
-﻿using CourageScores.Models.Adapters.Team;
+﻿using AutoFixture;
+using CourageScores.Models.Adapters;
+using CourageScores.Models.Adapters.Team;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
 using NUnit.Framework;
@@ -10,9 +12,17 @@ public class TeamSeasonAdapterTests
 {
     private static readonly TeamPlayer TeamPlayer = new();
     private static readonly TeamPlayerDto TeamPlayerDto = new();
-    private readonly TeamSeasonAdapter _adapter = new(
-        new MockAdapter<TeamPlayer, TeamPlayerDto>(TeamPlayer, TeamPlayerDto));
-    private readonly CancellationToken _token = new();
+    private TeamSeasonAdapter _adapter = null!;
+    private readonly CancellationToken _token = CancellationToken.None;
+
+    [SetUp]
+    public void SetupEachTest()
+    {
+        var fixture = AutoFixture.Create();
+        fixture.Register<IAdapter<TeamPlayer, TeamPlayerDto>>(() => new MockAdapter<TeamPlayer, TeamPlayerDto>(TeamPlayer, TeamPlayerDto));
+
+        _adapter = fixture.Create<TeamSeasonAdapter>();
+    }
 
     [Test]
     public async Task Adapt_GivenModel_MapsPropertiesSuccessfully()
@@ -33,10 +43,7 @@ public class TeamSeasonAdapterTests
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.SeasonId, Is.EqualTo(model.SeasonId));
         Assert.That(result.DivisionId, Is.EqualTo(model.DivisionId));
-        Assert.That(result.Players, Is.EqualTo(new[]
-        {
-            TeamPlayerDto,
-        }));
+        Assert.That(result.Players, Is.EqualTo([TeamPlayerDto]));
     }
 
     [Test]
@@ -58,9 +65,6 @@ public class TeamSeasonAdapterTests
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.SeasonId, Is.EqualTo(dto.SeasonId));
         Assert.That(result.DivisionId, Is.EqualTo(dto.DivisionId));
-        Assert.That(result.Players, Is.EqualTo(new[]
-        {
-            TeamPlayer,
-        }));
+        Assert.That(result.Players, Is.EqualTo([TeamPlayer]));
     }
 }

@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using AutoFixture;
 using CourageScores.Common;
 using CourageScores.Models;
 using CourageScores.Models.Adapters;
@@ -48,21 +49,17 @@ public class GenericDataServiceTests
     [SetUp]
     public void Setup()
     {
-        _repository = new Mock<IGenericRepository<Model>>();
-        _adapter = new Mock<IAdapter<Model, Dto>>();
-        _userService = new Mock<IUserService>();
-        _accessService = new Mock<IAccessService>();
-        _auditingHelper = new Mock<IAuditingHelper>();
+        var fixture = AutoFixture.Create();
+        _repository = fixture.FreezeMock<IGenericRepository<Model>>();
+        _adapter = fixture.FreezeMock<IAdapter<Model, Dto>>();
+        _userService = fixture.FreezeMock<IUserService>();
+        _accessService = fixture.FreezeMock<IAccessService>();
+        _auditingHelper = fixture.FreezeMock<IAuditingHelper>();
+        fixture.Register<IActionResultAdapter>(() => new ActionResultAdapter());
         _id = Guid.NewGuid();
         _model = new Model();
 
-        _service = new GenericDataService<Model, Dto>(
-            _repository.Object,
-            _adapter.Object,
-            _userService.Object,
-            _auditingHelper.Object,
-            new ActionResultAdapter(),
-            _accessService.Object);
+        _service = fixture.Create<GenericDataService<Model, Dto>>();
 
         _repository.Setup(r => r.Get(_id, _token)).ReturnsAsync(() => _model);
     }

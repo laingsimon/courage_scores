@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
@@ -10,7 +11,6 @@ using CourageScores.Services.Division;
 using CourageScores.Services.Identity;
 using CourageScores.Tests.Models.Cosmos.Game;
 using CourageScores.Tests.Models.Dtos;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using NUnit.Framework;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
@@ -63,42 +63,32 @@ public class DivisionDataDtoFactoryTests
 
     private readonly CancellationToken _token = CancellationToken.None;
     private DivisionDataDtoFactory _factory = null!;
-    private IDivisionPlayerAdapter _divisionPlayerAdapter = null!;
-    private IDivisionTeamAdapter _divisionTeamAdapter = null!;
     private Mock<IDivisionFixtureDateAdapter> _divisionFixtureDateAdapter = null!;
-    private Mock<IUserService> _userService = null!;
-    private Mock<TimeProvider> _clock = null!;
-    private Mock<IFeatureService> _featureService = null!;
-    private UserDto? _user;
     private ConfiguredFeatureDto? _vetoedFeature;
-    private Mock<IConfiguration> _configuration = null!;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _divisionPlayerAdapter = new DivisionPlayerAdapter(new PlayerPerformanceAdapter());
-        _divisionTeamAdapter = new DivisionTeamAdapter();
-        _divisionFixtureDateAdapter = new Mock<IDivisionFixtureDateAdapter>();
-        _userService = new Mock<IUserService>();
-        _accessService = new Mock<IAccessService>();
-        _clock = new Mock<TimeProvider>();
-        _featureService = new Mock<IFeatureService>();
-        _configuration = new Mock<IConfiguration>();
-        _user = new UserDto();
+        var fixture = AutoFixture.Create();
+        fixture.Register<IDivisionPlayerAdapter>(() => new DivisionPlayerAdapter(new PlayerPerformanceAdapter()));
+        fixture.Register<IDivisionTeamAdapter>(() => new DivisionTeamAdapter());
+        _divisionFixtureDateAdapter = fixture.FreezeMock<IDivisionFixtureDateAdapter>();
+        var userService = fixture.FreezeMock<IUserService>();
+        var accessService = fixture.FreezeMock<IAccessService>();
+        var clock = fixture.FreezeMock<TimeProvider>();
+        var featureService = fixture.FreezeMock<IFeatureService>();
+        var user = new UserDto();
         _access = [];
-        _factory = new DivisionDataDtoFactory(_divisionPlayerAdapter, _divisionTeamAdapter,
-            _divisionFixtureDateAdapter.Object, _userService.Object, _clock.Object, _featureService.Object,
-            _configuration.Object, _accessService.Object);
+        _factory = fixture.Create<DivisionDataDtoFactory>();
 
-        _clock.Setup(c => c.GetUtcNow()).Returns(new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero));
+        clock.Setup(c => c.GetUtcNow()).Returns(new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero));
         Helper.SetupDivisionFixtureDateDtoReturnWithDate(_divisionFixtureDateAdapter, _token);
         _vetoedFeature = null;
 
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _featureService.Setup(s => s.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(() => _vetoedFeature);
-        _accessService.Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token)).ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
+        featureService.Setup(s => s.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(() => _vetoedFeature);
+        accessService.Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token)).ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
     }
 
     [Test]

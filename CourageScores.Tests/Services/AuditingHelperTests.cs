@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services;
@@ -10,20 +11,20 @@ namespace CourageScores.Tests.Services;
 [TestFixture]
 public class AuditingHelperTests
 {
+    private readonly CancellationToken _token = CancellationToken.None;
 #pragma warning disable CS8618
     private Mock<TimeProvider> _clock;
     private Mock<IUserService> _userService;
     private AuditingHelper _helper;
-    private CancellationToken _token;
 #pragma warning restore CS8618
 
     [SetUp]
     public void Setup()
     {
-        _clock = new Mock<TimeProvider>();
-        _token = new CancellationToken();
-        _userService = new Mock<IUserService>();
-        _helper = new AuditingHelper(_clock.Object, _userService.Object);
+        var fixture = AutoFixture.Create();
+        _clock = fixture.FreezeMock<TimeProvider>();
+        _userService = fixture.FreezeMock<IUserService>();
+        _helper = fixture.Create<AuditingHelper>();
     }
 
     [TestCase(true, "user")]
@@ -136,7 +137,5 @@ public class AuditingHelperTests
         Assert.That(model.Deleted, Is.EqualTo(now.UtcDateTime));
     }
 
-    public class Model : AuditedEntity
-    {
-    }
+    public class Model : AuditedEntity;
 }

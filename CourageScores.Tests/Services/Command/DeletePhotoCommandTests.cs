@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models;
 using CourageScores.Models.Cosmos;
 using CourageScores.Services;
@@ -11,7 +12,7 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class DeletePhotoCommandTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = CancellationToken.None;
     private DeletePhotoCommand<CosmosGame> _command = null!;
     private Mock<IPhotoService> _photoService = null!;
     private PhotoReference _photoReference = null!;
@@ -20,6 +21,7 @@ public class DeletePhotoCommandTests
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _photoReference = new PhotoReference
         {
             Id = Guid.NewGuid(),
@@ -32,8 +34,8 @@ public class DeletePhotoCommandTests
             },
         };
 
-        _photoService = new Mock<IPhotoService>();
-        _command = new DeletePhotoCommand<CosmosGame>(_photoService.Object).WithId(_photoReference.Id);
+        _photoService = fixture.FreezeMock<IPhotoService>();
+        _command = fixture.Create<DeletePhotoCommand<CosmosGame>>().WithId(_photoReference.Id);
     }
 
     [Test]
@@ -52,8 +54,8 @@ public class DeletePhotoCommandTests
         var result = await _command.ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Could not delete photo" }));
-        Assert.That(_game.Photos, Is.EquivalentTo(new[] { _photoReference }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Could not delete photo"]));
+        Assert.That(_game.Photos, Is.EquivalentTo([_photoReference]));
     }
 
     [Test]
@@ -69,7 +71,7 @@ public class DeletePhotoCommandTests
         var result = await _command.ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Photo deleted" }));
+        Assert.That(result.Messages, Is.EquivalentTo(["Photo deleted"]));
         Assert.That(_game.Photos, Is.EquivalentTo(Array.Empty<PhotoReference>()));
     }
 }

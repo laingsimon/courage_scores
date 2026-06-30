@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using AutoFixture;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Repository;
@@ -18,8 +19,6 @@ public class DataServiceTests
     private readonly CancellationToken _token = CancellationToken.None;
     private DataService _dataService = null!;
     private Mock<Database> _database = null!;
-    private Mock<IUserService> _userService = null!;
-    private Mock<IZipFileReaderFactory> _zipFileReaderFactory = null!;
     private Mock<IDataImporterFactory> _dataImporterFactory = null!;
     private Mock<ICosmosTableService> _cosmosTableService = null!;
     private Mock<IZipBuilderFactory> _zipBuilderFactory = null!;
@@ -35,26 +34,26 @@ public class DataServiceTests
     private Mock<IDataBrowserRepository<SingleDataResultDto>> _dataBrowserRepository = null!;
     private Mock<IDataBrowserRepository<object>> _dataViewRepository = null!;
     private Mock<IBlobStorageRepository> _blobStorageRepository = null!;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _database = new Mock<Database>();
-        _userService = new Mock<IUserService>();
-        _zipBuilderFactory = new Mock<IZipBuilderFactory>();
-        _cosmosTableService = new Mock<ICosmosTableService>();
-        _dataImporterFactory = new Mock<IDataImporterFactory>();
-        _zipFileReaderFactory = new Mock<IZipFileReaderFactory>();
-        _zipBuilder = new Mock<IZipBuilder>();
-        _importZip = new Mock<IZipFileReader>();
-        _tableImporter = new Mock<IDataImporter>();
-        _configuration = new Mock<IConfiguration>();
-        _dataBrowserRepository = new Mock<IDataBrowserRepository<SingleDataResultDto>>();
-        _dataViewRepository = new Mock<IDataBrowserRepository<object>>();
-        _blobStorageRepository = new Mock<IBlobStorageRepository>();
-        _accessService = new Mock<IAccessService>();
+        var fixture = AutoFixture.Create();
+        _database = fixture.FreezeMock<Database>();
+        var userService = fixture.FreezeMock<IUserService>();
+        _zipBuilderFactory = fixture.FreezeMock<IZipBuilderFactory>();
+        _cosmosTableService = fixture.FreezeMock<ICosmosTableService>();
+        _dataImporterFactory = fixture.FreezeMock<IDataImporterFactory>();
+        var zipFileReaderFactory = fixture.FreezeMock<IZipFileReaderFactory>();
+        _zipBuilder = fixture.FreezeMock<IZipBuilder>();
+        _importZip = fixture.FreezeMock<IZipFileReader>();
+        _tableImporter = fixture.FreezeMock<IDataImporter>();
+        _configuration = fixture.FreezeMock<IConfiguration>();
+        _dataBrowserRepository = fixture.FreezeMock<IDataBrowserRepository<SingleDataResultDto>>();
+        _dataViewRepository = fixture.FreezeMock<IDataBrowserRepository<object>>();
+        _blobStorageRepository = fixture.FreezeMock<IBlobStorageRepository>();
+        var accessService = fixture.FreezeMock<IAccessService>();
         _access = [AccessOption.ExportData, AccessOption.ImportData];
         _exportRequest = new ExportDataRequestDto();
         _importRequest = new ImportDataRequestDto
@@ -64,15 +63,15 @@ public class DataServiceTests
         };
         _user = new UserDto { Name = "USER" };
         _importMetaData = new ExportMetaData { Hostname = "HOST" };
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _zipBuilderFactory.Setup(f => f.Create("USER", _exportRequest, _token)).ReturnsAsync(_zipBuilder.Object);
         _cosmosTableService
             .Setup(s => s.GetTables(_exportRequest, _token))
             .Returns(() => TestUtilities.AsyncEnumerable(_tables));
-        _zipFileReaderFactory
+        zipFileReaderFactory
             .Setup(f => f.Create(It.IsAny<Stream>(), "correct password"))
             .ReturnsAsync(() => _importZip.Object);
-        _zipFileReaderFactory
+        zipFileReaderFactory
             .Setup(f => f.Create(It.IsAny<Stream>(), It.Is<string>(p => p != "correct password")))
             .Throws(() => new CryptographicException("bad password"));
         _dataImporterFactory
@@ -83,22 +82,11 @@ public class DataServiceTests
         _importZip.Setup(z => z.HasFile(ExportMetaData.FileName)).Returns(true);
         _configuration.Setup(c => c["RestoreRequestToken"]).Returns("Correct");
         _configuration.Setup(c => c["BackupRequestToken"]).Returns("Correct");
-        _accessService
+        accessService
             .Setup(s => s.HasAccess(_user, It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
 
-        _dataService = new DataService(
-            _database.Object,
-            _userService.Object,
-            _zipFileReaderFactory.Object,
-            _dataImporterFactory.Object,
-            _cosmosTableService.Object,
-            _zipBuilderFactory.Object,
-            _configuration.Object,
-            _dataBrowserRepository.Object,
-            _dataViewRepository.Object,
-            _blobStorageRepository.Object,
-            _accessService.Object);
+        _dataService = fixture.Create<DataService>();
     }
 
     [Test]

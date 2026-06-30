@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos;
@@ -11,15 +12,16 @@ namespace CourageScores.Tests.Models.Adapters;
 [TestFixture]
 public class ConfiguredFeatureDtoAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = CancellationToken.None;
     private Mock<IFeatureLookup> _featureLookup = null!;
     private ConfiguredFeatureDtoAdapter _adapter = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _featureLookup = new Mock<IFeatureLookup>();
-        _adapter = new ConfiguredFeatureDtoAdapter(_featureLookup.Object);
+        var fixture = AutoFixture.Create();
+        _featureLookup = fixture.FreezeMock<IFeatureLookup>();
+        _adapter = fixture.Create<ConfiguredFeatureDtoAdapter>();
     }
 
     [Test]

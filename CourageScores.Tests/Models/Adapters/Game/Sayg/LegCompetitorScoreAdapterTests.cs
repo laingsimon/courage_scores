@@ -1,3 +1,5 @@
+using AutoFixture;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Game.Sayg;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game.Sayg;
@@ -8,7 +10,7 @@ namespace CourageScores.Tests.Models.Adapters.Game.Sayg;
 [TestFixture]
 public class LegCompetitorScoreAdapterTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private LegCompetitorScoreAdapter _adapter = null!;
     private LegThrow _legThrow = null!;
     private LegThrowDto _legThrowDto = null!;
@@ -16,10 +18,12 @@ public class LegCompetitorScoreAdapterTests
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _legThrow = new LegThrow();
         _legThrowDto = new LegThrowDto();
-        _adapter = new LegCompetitorScoreAdapter(
-            new MockSimpleAdapter<LegThrow, LegThrowDto>(_legThrow, _legThrowDto));
+        fixture.Register<ISimpleAdapter<LegThrow, LegThrowDto>>(() => new MockSimpleAdapter<LegThrow, LegThrowDto>(_legThrow, _legThrowDto));
+
+        _adapter = fixture.Create<LegCompetitorScoreAdapter>();
     }
 
     [TestCase(501, 100, 100)]
@@ -59,10 +63,7 @@ public class LegCompetitorScoreAdapterTests
 
         var result = await _adapter.Adapt(context, _token);
 
-        Assert.That(result.Throws, Is.EqualTo(new[]
-        {
-            _legThrowDto,
-        }));
+        Assert.That(result.Throws, Is.EqualTo([_legThrowDto]));
     }
 
     [Test]
@@ -97,9 +98,6 @@ public class LegCompetitorScoreAdapterTests
 
         var result = await _adapter.Adapt(dto, _token);
 
-        Assert.That(result.Score.Throws, Is.EqualTo(new[]
-        {
-            _legThrow,
-        }));
+        Assert.That(result.Score.Throws, Is.EqualTo([_legThrow]));
     }
 }

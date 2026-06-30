@@ -11,7 +11,7 @@ namespace CourageScores.Tests.Services.Season.Creation.CompatibilityCheck;
 [TestFixture]
 public class NoMoreThanTemplateDivisionTeamCountTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly SeasonDto _season = new();
     private readonly NoMoreThanTemplateDivisionTeamCount _check = new();
 
@@ -179,20 +179,14 @@ public class NoMoreThanTemplateDivisionTeamCountTests
         var result = await _check.Check(template, TemplateMatchContext(division, teams), _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "Division One has 3 teams, template has fewer (2)",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo([$"{nameof(Division)} One has 3 teams, template has fewer (2)"]));
     }
 
     private TemplateMatchContext TemplateMatchContext(DivisionDataDto division, TeamDto[] teams)
     {
         return new TemplateMatchContext(
             _season,
-            new[]
-            {
-                division,
-            },
+            [division],
             new Dictionary<Guid, TeamDto[]>
             {
                 {

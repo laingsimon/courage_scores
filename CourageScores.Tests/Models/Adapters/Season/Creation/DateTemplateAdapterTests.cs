@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Adapters;
+﻿using AutoFixture;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Season.Creation;
 using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Dtos.Season.Creation;
@@ -11,15 +12,15 @@ public class DateTemplateAdapterTests
 {
     private static readonly FixtureTemplate FixtureTemplate = new();
     private static readonly FixtureTemplateDto FixtureTemplateDto = new();
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private DateTemplateAdapter _adapter = null!;
-    private ISimpleAdapter<FixtureTemplate, FixtureTemplateDto> _fixtureAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _fixtureAdapter = new MockSimpleAdapter<FixtureTemplate, FixtureTemplateDto>(FixtureTemplate, FixtureTemplateDto);
-        _adapter = new DateTemplateAdapter(_fixtureAdapter);
+        var fixture = AutoFixture.Create();
+        fixture.Register<ISimpleAdapter<FixtureTemplate, FixtureTemplateDto>>(() => new MockSimpleAdapter<FixtureTemplate, FixtureTemplateDto>(FixtureTemplate, FixtureTemplateDto));
+        _adapter = fixture.Create<DateTemplateAdapter>();
     }
 
     [Test]
@@ -35,10 +36,7 @@ public class DateTemplateAdapterTests
 
         var result = await _adapter.Adapt(dto, _token);
 
-        Assert.That(result.Fixtures, Is.EquivalentTo(new[]
-        {
-            FixtureTemplate,
-        }));
+        Assert.That(result.Fixtures, Is.EquivalentTo([FixtureTemplate]));
     }
 
     [Test]
@@ -54,9 +52,6 @@ public class DateTemplateAdapterTests
 
         var result = await _adapter.Adapt(model, _token);
 
-        Assert.That(result.Fixtures, Is.EquivalentTo(new[]
-        {
-            FixtureTemplateDto,
-        }));
+        Assert.That(result.Fixtures, Is.EquivalentTo([FixtureTemplateDto]));
     }
 }

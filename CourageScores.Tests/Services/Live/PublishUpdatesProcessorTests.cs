@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Common;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game.Sayg;
@@ -13,34 +14,32 @@ namespace CourageScores.Tests.Services.Live;
 [TestFixture]
 public class PublishUpdatesProcessorTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = CancellationToken.None;
     private List<IWebSocketContract> _sockets = null!;
     private Mock<IWebSocketContract> _publisherSocket = null!;
     private Mock<IWebSocketContract> _subscriberSocket = null!;
     private PublishUpdatesProcessor _processor = null!;
     private Guid _key;
     private WebSocketDetail _publisherDetails = null!;
-    private Mock<TimeProvider> _clock = null!;
     private DateTimeOffset _now;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _publisherSocket = new Mock<IWebSocketContract>();
-        _subscriberSocket = new Mock<IWebSocketContract>();
-        _sockets = new List<IWebSocketContract>(new[]
-        {
-            _publisherSocket.Object, _subscriberSocket.Object
-        });
-        _clock = new Mock<TimeProvider>();
-        _processor = new PublishUpdatesProcessor(_sockets, _clock.Object);
+        var fixture = AutoFixture.Create();
+        _publisherSocket = fixture.FreezeMock<IWebSocketContract>();
+        _subscriberSocket = fixture.FreezeMock<IWebSocketContract>();
+        _sockets = new List<IWebSocketContract>([_publisherSocket.Object, _subscriberSocket.Object]);
+        fixture.Register(() => _sockets);
+        var clock = fixture.FreezeMock<TimeProvider>();
+        _processor = fixture.Create<PublishUpdatesProcessor>();
         _key = Guid.NewGuid();
         _publisherDetails = new WebSocketDetail();
 
         _publisherSocket.Setup(s => s.IsSubscribedTo(_key)).Returns(true);
         _subscriberSocket.Setup(s => s.IsSubscribedTo(_key)).Returns(true);
         _publisherSocket.Setup(s => s.Details).Returns(_publisherDetails);
-        _clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
+        clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
     }
 
     [Test]
@@ -48,7 +47,7 @@ public class PublishUpdatesProcessorTests
     {
         _processor.Disconnected(_publisherSocket.Object);
 
-        Assert.That(_sockets, Is.EquivalentTo(new[] { _subscriberSocket.Object }));
+        Assert.That(_sockets, Is.EquivalentTo([_subscriberSocket.Object]));
     }
 
     [Test]
@@ -62,9 +61,10 @@ public class PublishUpdatesProcessorTests
 
         await _processor.PublishUpdate(_publisherSocket.Object, _key, LiveDataType.Sayg, data, _token);
 
-        Assert.That(_publisherDetails.Publishing.Select(p => p.Id), Is.EquivalentTo(new[] { _key }));
-        Assert.That(_publisherDetails.Publishing.Select(p => p.DataType), Is.EquivalentTo(new[] { LiveDataType.Sayg }));
-        Assert.That(_publisherDetails.Publishing.Select(p => p.LastUpdate), Is.EquivalentTo(new[] { new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero) }));
+        Assert.That(_publisherDetails.Publishing.Select(p => p.Id), Is.EquivalentTo([_key]));
+        Assert.That(_publisherDetails.Publishing.Select(p => p.DataType), Is.EquivalentTo([LiveDataType.Sayg]));
+        Assert.That(_publisherDetails.Publishing.Select(p => p.LastUpdate), Is.EquivalentTo([new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero)
+        ]));
     }
 
     [Test]
@@ -84,9 +84,10 @@ public class PublishUpdatesProcessorTests
 
         await _processor.PublishUpdate(_publisherSocket.Object, _key, LiveDataType.Sayg, data, _token);
 
-        Assert.That(_publisherDetails.Publishing.Select(p => p.Id), Is.EquivalentTo(new[] { _key }));
-        Assert.That(_publisherDetails.Publishing.Select(p => p.DataType), Is.EquivalentTo(new[] { LiveDataType.Sayg }));
-        Assert.That(_publisherDetails.Publishing.Select(p => p.LastUpdate), Is.EquivalentTo(new[] { new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero) }));
+        Assert.That(_publisherDetails.Publishing.Select(p => p.Id), Is.EquivalentTo([_key]));
+        Assert.That(_publisherDetails.Publishing.Select(p => p.DataType), Is.EquivalentTo([LiveDataType.Sayg]));
+        Assert.That(_publisherDetails.Publishing.Select(p => p.LastUpdate), Is.EquivalentTo([new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero)
+        ]));
     }
 
     [Test]
@@ -165,8 +166,8 @@ public class PublishUpdatesProcessorTests
 
         var result = await _processor.GetWatchableData(_token).ToList();
 
-        Assert.That(result.Select(d => d.PublicationMode), Is.EquivalentTo(new[] { PublicationMode.WebSocket }));
-        Assert.That(result.Select(d => d.Publication), Is.EquivalentTo(new[] { sayg }));
-        Assert.That(result.Select(d => d.Connection), Is.EquivalentTo(new[] { details }));
+        Assert.That(result.Select(d => d.PublicationMode), Is.EquivalentTo([PublicationMode.WebSocket]));
+        Assert.That(result.Select(d => d.Publication), Is.EquivalentTo([sayg]));
+        Assert.That(result.Select(d => d.Connection), Is.EquivalentTo([details]));
     }
 }

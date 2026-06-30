@@ -1,10 +1,10 @@
-﻿using CourageScores.Filters;
+﻿using AutoFixture;
+using CourageScores.Filters;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
-using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Season;
 using CourageScores.Services.Team;
@@ -18,7 +18,6 @@ namespace CourageScores.Tests.Services.Command;
 public class AddOrUpdateGameCommandTests
 {
     private readonly CancellationToken _token = CancellationToken.None;
-    private Mock<ICommandFactory> _commandFactory = null!;
     private Mock<ITeamService> _teamService = null!;
     private Mock<AddSeasonToTeamCommand> _addSeasonToTeamCommand = null!;
     private Mock<ICachingSeasonService> _seasonService = null!;
@@ -33,6 +32,7 @@ public class AddOrUpdateGameCommandTests
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _game = new CosmosGame
         {
             Id = Guid.NewGuid(),
@@ -58,20 +58,16 @@ public class AddOrUpdateGameCommandTests
             Name = "AWAY",
         };
 
-        _seasonService = new Mock<ICachingSeasonService>();
-        _commandFactory = new Mock<ICommandFactory>();
-        _teamService = new Mock<ITeamService>();
-        _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(new Mock<IAuditingHelper>().Object, _seasonService.Object, _cacheFlags);
-        _commandFactory.Setup(f => f.GetCommand<AddSeasonToTeamCommand>()).Returns(_addSeasonToTeamCommand.Object);
+        _seasonService = fixture.FreezeMock<ICachingSeasonService>();
+        var commandFactory = fixture.FreezeMock<ICommandFactory>();
+        _teamService = fixture.FreezeMock<ITeamService>();
+        fixture.WithCacheManagementFlags(out _cacheFlags);
+        _addSeasonToTeamCommand = fixture.FreezeMockOf<AddSeasonToTeamCommand>();
+        commandFactory.Setup(f => f.GetCommand<AddSeasonToTeamCommand>()).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.ForSeason(_season.Id)).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.ForDivision(_game.DivisionId)).Returns(_addSeasonToTeamCommand.Object);
-        _cacheFlags = new ScopedCacheManagementFlags();
 
-        _command = new AddOrUpdateGameCommand(
-            _seasonService.Object,
-            _commandFactory.Object,
-            _teamService.Object,
-            _cacheFlags);
+        _command = fixture.Create<AddOrUpdateGameCommand>();
     }
 
     [Test]

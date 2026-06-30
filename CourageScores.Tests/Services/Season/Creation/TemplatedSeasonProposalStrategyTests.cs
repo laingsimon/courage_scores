@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Health;
 using CourageScores.Models.Dtos.Division;
@@ -15,7 +16,7 @@ namespace CourageScores.Tests.Services.Season.Creation;
 [TestFixture]
 public class TemplatedSeasonProposalStrategyTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly SeasonDto _season = new();
     private readonly TemplateDto _template = new();
     private Mock<IAddressAssignmentStrategy> _addressAssignmentStrategy = null!;
@@ -28,15 +29,12 @@ public class TemplatedSeasonProposalStrategyTests
     [SetUp]
     public void BeforeEachTest()
     {
-        _addressAssignmentStrategy = new Mock<IAddressAssignmentStrategy>();
-        _dateAssignmentStrategy = new Mock<IFixtureDateAssignmentStrategy>();
-        _healthCheckService = new Mock<IHealthCheckService>();
-        _adapter = new Mock<ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions, SeasonHealthDto>>();
-        _strategy = new TemplatedSeasonProposalStrategy(
-            _addressAssignmentStrategy.Object,
-            _dateAssignmentStrategy.Object,
-            _healthCheckService.Object,
-            _adapter.Object);
+        var fixture = AutoFixture.Create();
+        _addressAssignmentStrategy = fixture.FreezeMock<IAddressAssignmentStrategy>();
+        _dateAssignmentStrategy = fixture.FreezeMock<IFixtureDateAssignmentStrategy>();
+        _healthCheckService = fixture.FreezeMock<IHealthCheckService>();
+        _adapter = fixture.FreezeMock<ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions, SeasonHealthDto>>();
+        _strategy = fixture.Create<TemplatedSeasonProposalStrategy>();
         _matchContext = new TemplateMatchContext(_season, Array.Empty<DivisionDataDto>(), new Dictionary<Guid, TeamDto[]>(), new Dictionary<string, Guid>());
     }
 
@@ -56,10 +54,7 @@ public class TemplatedSeasonProposalStrategyTests
         Assert.That(result.Result, Is.Not.Null);
         Assert.That(result.Result!.Season, Is.SameAs(_season));
         Assert.That(result.Result!.Template, Is.SameAs(_template));
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "Could not assign all teams to placeholders in the template",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Could not assign all teams to placeholders in the template"]));
     }
 
     [Test]
@@ -78,10 +73,7 @@ public class TemplatedSeasonProposalStrategyTests
         Assert.That(result.Result, Is.Not.Null);
         Assert.That(result.Result!.Season, Is.SameAs(_season));
         Assert.That(result.Result!.Template, Is.SameAs(_template));
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "Could not create all fixtures/dates from the template",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Could not create all fixtures/dates from the template"]));
     }
 
     [Test]

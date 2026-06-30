@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Filters;
 using CourageScores.Models;
 using CourageScores.Models.Cosmos.Team;
@@ -19,10 +20,7 @@ namespace CourageScores.Tests.Services.Command;
 public class AddPlayerToTeamSeasonCommandTests
 {
     private const string UserTeamId = "501A2E90-8F4E-4370-A77D-8B151BCF0F95";
-    private Mock<ICachingSeasonService> _seasonService = null!;
-    private Mock<ICommandFactory> _commandFactory = null!;
     private Mock<IAuditingHelper> _auditingHelper = null!;
-    private Mock<IUserService> _userService = null!;
     private Mock<AddSeasonToTeamCommand> _addSeasonToTeamCommand = null!;
     private readonly CancellationToken _token = CancellationToken.None;
     private readonly SeasonDto _season = new SeasonDtoBuilder().Build();
@@ -32,20 +30,19 @@ public class AddPlayerToTeamSeasonCommandTests
     private AddPlayerToTeamSeasonCommand _command = null!;
     private UserDto? _user;
     private ScopedCacheManagementFlags _cacheFlags = null!;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _cacheFlags = new ScopedCacheManagementFlags();
-        _seasonService = new Mock<ICachingSeasonService>();
-        _commandFactory = new Mock<ICommandFactory>();
-        _auditingHelper = new Mock<IAuditingHelper>();
-        _userService = new Mock<IUserService>();
+        var fixture = AutoFixture.Create().WithCacheManagementFlags(out _cacheFlags);
+        var seasonService = fixture.FreezeMock<ICachingSeasonService>();
+        var commandFactory = fixture.FreezeMock<ICommandFactory>();
+        _auditingHelper = fixture.FreezeMock<IAuditingHelper>();
+        var userService = fixture.FreezeMock<IUserService>();
         _access = [AccessOption.ManageTeams, AccessOption.InputResults];
-        _accessService = new Mock<IAccessService>();
-        _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(_auditingHelper.Object, _seasonService.Object, _cacheFlags);
+        var accessService = fixture.FreezeMock<IAccessService>();
+        _addSeasonToTeamCommand = fixture.FreezeMockOf<AddSeasonToTeamCommand>();
 
         _player = new EditTeamPlayerDto();
         _team = new CosmosTeam
@@ -54,14 +51,14 @@ public class AddPlayerToTeamSeasonCommandTests
             Name = "TEAM",
         };
         _user = new UserDto { TeamId = Guid.Parse(UserTeamId), Name = "an admin" };
-        _command = new AddPlayerToTeamSeasonCommand(_seasonService.Object, _commandFactory.Object, _auditingHelper.Object, _userService.Object, _cacheFlags, _accessService.Object);
+        _command = fixture.Create<AddPlayerToTeamSeasonCommand>();
 
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
         _addSeasonToTeamCommand.Setup(c => c.ForSeason(_season.Id)).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.ForDivision(_division.Id)).Returns(_addSeasonToTeamCommand.Object);
-        _commandFactory.Setup(f => f.GetCommand<AddSeasonToTeamCommand>()).Returns(_addSeasonToTeamCommand.Object);
-        _accessService
+        commandFactory.Setup(f => f.GetCommand<AddSeasonToTeamCommand>()).Returns(_addSeasonToTeamCommand.Object);
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
     }

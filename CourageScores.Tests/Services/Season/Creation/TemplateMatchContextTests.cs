@@ -42,7 +42,7 @@ public class TemplateMatchContextTests
     {
         var context = new TemplateMatchContext(
             _season,
-            new[] { Division1 },
+            [Division1],
             new Dictionary<Guid, TeamDto[]>(),
             new Dictionary<string, Guid>());
 
@@ -57,12 +57,12 @@ public class TemplateMatchContextTests
         var teams = new Dictionary<Guid, TeamDto[]>
         {
             {
-                Division1.Id, new[] { TeamA, TeamB }
+                Division1.Id, [TeamA, TeamB]
             },
         };
         var context = new TemplateMatchContext(
             _season,
-            new[] { Division1 },
+            [Division1],
             teams,
             new Dictionary<string, Guid>());
 
@@ -77,12 +77,12 @@ public class TemplateMatchContextTests
         var teams = new Dictionary<Guid, TeamDto[]>
         {
             {
-                Division1.Id, new[] { TeamA, TeamB, TeamC }
+                Division1.Id, [TeamA, TeamB, TeamC]
             },
         };
         var context = new TemplateMatchContext(
             _season,
-            new[] { Division1 },
+            [Division1],
             teams,
             new Dictionary<string, Guid>());
 
@@ -100,24 +100,21 @@ public class TemplateMatchContextTests
         var teams = new Dictionary<Guid, TeamDto[]>
         {
             {
-                Division1.Id, new[] { TeamA, TeamB, TeamC }
+                Division1.Id, [TeamA, TeamB, TeamC]
             },
             {
-                Division2.Id, new[] { teamC2, teamB2, teamC3 }
+                Division2.Id, [teamC2, teamB2, teamC3]
             },
         };
         var context = new TemplateMatchContext(
             _season,
-            new[] { Division1, Division2 },
+            [Division1, Division2],
             teams,
             new Dictionary<string, Guid>());
 
         var result = context.GetSeasonSharedAddresses();
 
-        Assert.That(result, Is.EquivalentTo(new[]
-        {
-            new[] { "B", "B" },
-        }));
+        Assert.That(result, Is.EquivalentTo([new[] { "B", "B" }]));
     }
 
     [Test]
@@ -129,24 +126,21 @@ public class TemplateMatchContextTests
         var teams = new Dictionary<Guid, TeamDto[]>
         {
             {
-                Division1.Id, new[] { TeamA, TeamB, TeamC }
+                Division1.Id, [TeamA, TeamB, TeamC]
             },
             {
-                Division2.Id, new[] { teamC2, teamB2, teamC3WithWhiteSpace }
+                Division2.Id, [teamC2, teamB2, teamC3WithWhiteSpace]
             },
         };
         var context = new TemplateMatchContext(
             _season,
-            new[] { Division1, Division2 },
+            [Division1, Division2],
             teams,
             new Dictionary<string, Guid>());
 
         var result = context.GetSeasonSharedAddresses();
 
-        Assert.That(result, Is.EquivalentTo(new[]
-        {
-            new[] { "B", "B" },
-        }));
+        Assert.That(result, Is.EquivalentTo([new[] { "B", "B" }]));
     }
 
     [Test]
@@ -158,24 +152,21 @@ public class TemplateMatchContextTests
         var teams = new Dictionary<Guid, TeamDto[]>
         {
             {
-                Division1.Id, new[] { TeamA, TeamB, TeamALowerCase }
+                Division1.Id, [TeamA, TeamB, TeamALowerCase]
             },
             {
-                Division2.Id, new[] { teamC2, teamBLowerCase, teamCLowerCase }
+                Division2.Id, [teamC2, teamBLowerCase, teamCLowerCase]
             },
         };
         var context = new TemplateMatchContext(
             _season,
-            new[] { Division1, Division2 },
+            [Division1, Division2],
             teams,
             new Dictionary<string, Guid>());
 
         var result = context.GetSeasonSharedAddresses();
 
-        Assert.That(result, Is.EquivalentTo(new[]
-        {
-            new[] { "B", "b" },
-        }));
+        Assert.That(result, Is.EquivalentTo([new[] { "B", "b" }]));
     }
 
     [Test]
@@ -218,7 +209,7 @@ public class TemplateMatchContextTests
     {
         var context = new TemplateMatchContext(
             _season,
-            new[] { Division1 },
+            [Division1],
             new Dictionary<Guid, TeamDto[]>(),
             new Dictionary<string, Guid>());
 
@@ -239,7 +230,7 @@ public class TemplateMatchContextTests
         };
         var context = new TemplateMatchContext(
             _season,
-            new[] { Division1 },
+            [Division1],
             new Dictionary<Guid, TeamDto[]>(),
             new Dictionary<string, Guid>());
 
@@ -273,7 +264,7 @@ public class TemplateMatchContextTests
         var mapping = new TemplateMatchContext.DivisionSharedAddressMapping(
             seasonDivision,
             templateDivision,
-            new[] { TeamA, TeamB, TeamC });
+            [TeamA, TeamB, TeamC]);
 
         var result = mapping.SharedAddressesFromSeason;
 
@@ -289,14 +280,11 @@ public class TemplateMatchContextTests
         var mapping = new TemplateMatchContext.DivisionSharedAddressMapping(
             seasonDivision,
             templateDivision,
-            new[] { TeamA, TeamB, teamA2 });
+            [TeamA, TeamB, teamA2]);
 
         var result = mapping.SharedAddressesFromSeason;
 
-        Assert.That(result, Is.EquivalentTo(new[]
-        {
-            new[] { TeamA, teamA2 },
-        }));
+        Assert.That(result, Is.EquivalentTo([new[] { TeamA, teamA2 }]));
     }
 
     [Test]
@@ -308,14 +296,11 @@ public class TemplateMatchContextTests
         var mapping = new TemplateMatchContext.DivisionSharedAddressMapping(
             seasonDivision,
             templateDivision,
-            new[] { TeamA, TeamB, teamAWithWhiteSpace });
+            [TeamA, TeamB, teamAWithWhiteSpace]);
 
         var result = mapping.SharedAddressesFromSeason;
 
-        Assert.That(result, Is.EquivalentTo(new[]
-        {
-            new[] { TeamA, teamAWithWhiteSpace },
-        }));
+        Assert.That(result, Is.EquivalentTo([new[] { TeamA, teamAWithWhiteSpace }]));
     }
 
     [Test]
@@ -326,13 +311,10 @@ public class TemplateMatchContextTests
         var mapping = new TemplateMatchContext.DivisionSharedAddressMapping(
             seasonDivision,
             templateDivision,
-            new[] { TeamA, TeamB, TeamALowerCase });
+            [TeamA, TeamB, TeamALowerCase]);
 
         var result = mapping.SharedAddressesFromSeason;
 
-        Assert.That(result, Is.EquivalentTo(new[]
-        {
-            new[] { TeamA, TeamALowerCase },
-        }));
+        Assert.That(result, Is.EquivalentTo([new[] { TeamA, TeamALowerCase }]));
     }
 }

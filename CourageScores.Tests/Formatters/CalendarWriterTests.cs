@@ -1,4 +1,5 @@
-﻿using CourageScores.Formatters;
+﻿using AutoFixture;
+using CourageScores.Formatters;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using NUnit.Framework;
@@ -17,9 +18,10 @@ public class CalendarWriterTests
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _context = new DefaultHttpContext();
-        _httpContextAccessor = new Mock<IHttpContextAccessor>();
-        _writer = new CalendarWriter(_httpContextAccessor.Object);
+        _httpContextAccessor = fixture.FreezeMock<IHttpContextAccessor>();
+        _writer = fixture.Create<CalendarWriter>();
         _textWriter = new StringWriter();
         _token = CancellationToken.None;
 

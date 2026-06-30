@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
@@ -14,13 +15,9 @@ namespace CourageScores.Tests.Services;
 public class PhotoServiceTests
 {
     private readonly CancellationToken _token = CancellationToken.None;
-    private Mock<IUserService> _userService = null!;
     private Mock<IPhotoRepository> _photoRepository = null!;
     private Mock<IPhotoHelper> _photoHelper = null!;
-    private Mock<TimeProvider> _clock = null!;
-    private Mock<IFeatureService> _featureService = null!;
     private UserDto? _user;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     private PhotoService _service = null!;
@@ -34,19 +31,21 @@ public class PhotoServiceTests
     [SetUp]
     public void SetupEachTest()
     {
-        _userService = new Mock<IUserService>();
+        var fixture = AutoFixture.Create();
+        var userService = fixture.FreezeMock<IUserService>();
         _access = [];
-        _accessService = new Mock<IAccessService>();
-        _photoRepository = new Mock<IPhotoRepository>();
-        _photoHelper = new Mock<IPhotoHelper>();
-        _featureService = new Mock<IFeatureService>();
-        _clock = new Mock<TimeProvider>();
+        var accessService = fixture.FreezeMock<IAccessService>();
+        _photoRepository = fixture.FreezeMock<IPhotoRepository>();
+        _photoHelper = fixture.FreezeMock<IPhotoHelper>();
+        var featureService = fixture.FreezeMock<IFeatureService>();
+        var clock = fixture.FreezeMock<TimeProvider>();
         _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         _resizedBytes = [5, 6, 7, 8];
         _settings = new MutablePhotoSettings
         {
             MaxPhotoHeight = 5000,
         };
+        fixture.Register<IPhotoSettings>(() => _settings);
         _user = new UserDto { Name = "USER" };
         _photo = new Photo
         {
@@ -65,15 +64,15 @@ public class PhotoServiceTests
         {
             ConfiguredValue = "true",
         };
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _clock.Setup(c => c.GetUtcNow()).Returns(_now);
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        clock.Setup(c => c.GetUtcNow()).Returns(_now);
         _photoRepository.Setup(r => r.Get(_existingPhoto.Id, _token)).ReturnsAsync(_existingPhoto);
-        _featureService.Setup(s => s.Get(FeatureLookup.Photos, _token)).ReturnsAsync(() => _featureState);
-        _accessService
+        featureService.Setup(s => s.Get(FeatureLookup.Photos, _token)).ReturnsAsync(() => _featureState);
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
 
-        _service = new PhotoService(_userService.Object, _photoRepository.Object, _photoHelper.Object, _clock.Object, _settings, _featureService.Object, _accessService.Object);
+        _service = fixture.Create<PhotoService>();
     }
 
     [Test]

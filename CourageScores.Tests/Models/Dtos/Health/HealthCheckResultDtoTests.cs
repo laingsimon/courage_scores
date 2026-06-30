@@ -94,10 +94,7 @@ public class HealthCheckResultDtoTests
 
         var result = one.MergeWith(two);
 
-        Assert.That(result.Errors, Is.EquivalentTo(new[]
-        {
-            "ONE", "TWO",
-        }));
+        Assert.That(result.Errors, Is.EquivalentTo(["ONE", "TWO"]));
     }
 
     [Test]
@@ -120,10 +117,7 @@ public class HealthCheckResultDtoTests
 
         var result = one.MergeWith(two);
 
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "ONE", "TWO",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["ONE", "TWO"]));
     }
 
     [Test]
@@ -146,9 +140,6 @@ public class HealthCheckResultDtoTests
 
         var result = one.MergeWith(two);
 
-        Assert.That(result.Messages, Is.EquivalentTo(new[]
-        {
-            "ONE", "TWO",
-        }));
+        Assert.That(result.Messages, Is.EquivalentTo(["ONE", "TWO"]));
     }
 }

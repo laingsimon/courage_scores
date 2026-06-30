@@ -10,7 +10,7 @@ namespace CourageScores.Tests.Services.Health.Checks;
 public class ContiguousByesTests
 {
     private static readonly Guid TeamId = Guid.NewGuid();
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly ContiguousByes _check = new();
 
     [Test]
@@ -30,10 +30,7 @@ public class ContiguousByesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division,
-        }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.Empty);
@@ -62,16 +59,10 @@ public class ContiguousByesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division,
-        }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Errors, Is.Empty);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "DIVISION: HOME has 2 byes in a row from 3 Feb - 10 Feb",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["DIVISION: HOME has 2 byes in a row from 3 Feb - 10 Feb"]));
         Assert.That(result.Success, Is.False);
     }
 
@@ -98,16 +89,10 @@ public class ContiguousByesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division,
-        }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Errors, Is.Empty);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "DIVISION: HOME has 2 byes in a row from 3 Feb - 10 Feb",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["DIVISION: HOME has 2 byes in a row from 3 Feb - 10 Feb"]));
         Assert.That(result.Success, Is.False);
     }
 
@@ -134,10 +119,7 @@ public class ContiguousByesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division,
-        }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.Empty);
@@ -167,10 +149,7 @@ public class ContiguousByesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division,
-        }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.Empty);
@@ -201,16 +180,10 @@ public class ContiguousByesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division,
-        }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Errors, Is.Empty);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "DIVISION: HOME has 4 byes in a row from 3 Feb - 24 Feb",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["DIVISION: HOME has 4 byes in a row from 3 Feb - 24 Feb"]));
         Assert.That(result.Success, Is.False);
     }
 
@@ -235,15 +208,9 @@ public class ContiguousByesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division,
-        }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
-        Assert.That(result.Errors, Is.EquivalentTo(new[]
-        {
-            "DIVISION: Found multiple fixtures on 03 Feb for HOME",
-        }));
+        Assert.That(result.Errors, Is.EquivalentTo(["DIVISION: Found multiple fixtures on 03 Feb for HOME"]));
         Assert.That(result.Warnings, Is.Empty);
         Assert.That(result.Success, Is.False);
     }

@@ -20,7 +20,7 @@ public class RequestedDivisionOnlyReportTests
     };
     private static readonly IVisitorScope VisitorScope = new VisitorScope();
 
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private Mock<IReport> _underlying = null!;
 
     [SetUp]

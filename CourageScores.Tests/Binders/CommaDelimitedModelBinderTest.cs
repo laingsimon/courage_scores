@@ -1,4 +1,5 @@
 using System.Collections;
+using AutoFixture;
 using CourageScores.Binders;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -12,11 +13,13 @@ namespace CourageScores.Tests.Binders;
 public class CommaDelimitedModelBinderTest
 {
     private CommaDelimitedModelBinder _binder = null!;
+    private IFixture _fixture = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _binder = new CommaDelimitedModelBinder();
+        _fixture = AutoFixture.Create();
+        _binder = _fixture.Create<CommaDelimitedModelBinder>();
     }
 
     [Test]
@@ -60,7 +63,7 @@ public class CommaDelimitedModelBinderTest
         await _binder.BindModelAsync(bindingContext);
 
         Assert.That(bindingContext.Result.IsModelSet, Is.True);
-        Assert.That(bindingContext.Result.Model, Is.EqualTo(new[] { "abc" }));
+        Assert.That(bindingContext.Result.Model, Is.EqualTo(["abc"]));
     }
 
     [Test]
@@ -72,7 +75,7 @@ public class CommaDelimitedModelBinderTest
 
         Assert.That(bindingContext.Result.IsModelSet, Is.True);
         Assert.That(bindingContext.Result.Model, Is.TypeOf<List<string>>());
-        Assert.That(bindingContext.Result.Model, Is.EqualTo(new[] { "abc" }));
+        Assert.That(bindingContext.Result.Model, Is.EqualTo(["abc"]));
     }
 
     [Test]
@@ -84,7 +87,7 @@ public class CommaDelimitedModelBinderTest
 
         Assert.That(bindingContext.Result.IsModelSet, Is.True);
         Assert.That(bindingContext.Result.Model, Is.TypeOf<string[]>());
-        Assert.That(bindingContext.Result.Model, Is.EqualTo(new[] { "abc" }));
+        Assert.That(bindingContext.Result.Model, Is.EqualTo(["abc"]));
     }
 
     [Test]
@@ -96,7 +99,7 @@ public class CommaDelimitedModelBinderTest
 
         Assert.That(bindingContext.Result.IsModelSet, Is.True);
         Assert.That(bindingContext.Result.Model, Is.TypeOf<string[]>());
-        Assert.That(bindingContext.Result.Model, Is.EqualTo(new[] { "abc" }));
+        Assert.That(bindingContext.Result.Model, Is.EqualTo(["abc"]));
     }
 
     [Test]
@@ -108,7 +111,7 @@ public class CommaDelimitedModelBinderTest
 
         Assert.That(bindingContext.Result.IsModelSet, Is.True);
         Assert.That(bindingContext.Result.Model, Is.TypeOf<HashSet<string>>());
-        Assert.That(bindingContext.Result.Model, Is.EqualTo(new[] { "abc" }));
+        Assert.That(bindingContext.Result.Model, Is.EqualTo(["abc"]));
     }
 
     [Test]
@@ -119,7 +122,7 @@ public class CommaDelimitedModelBinderTest
         await _binder.BindModelAsync(bindingContext);
 
         Assert.That(bindingContext.Result.IsModelSet, Is.True);
-        Assert.That(bindingContext.Result.Model, Is.EqualTo(new[] { "abc" }));
+        Assert.That(bindingContext.Result.Model, Is.EqualTo(["abc"]));
     }
 
     [Test]
@@ -163,7 +166,7 @@ public class CommaDelimitedModelBinderTest
         await _binder.BindModelAsync(bindingContext);
 
         Assert.That(bindingContext.Result.IsModelSet, Is.True);
-        Assert.That(bindingContext.Result.Model, Is.EqualTo(new[] { "abc", "def" }));
+        Assert.That(bindingContext.Result.Model, Is.EqualTo(["abc", "def"]));
     }
 
     [Test]
@@ -174,7 +177,7 @@ public class CommaDelimitedModelBinderTest
         await _binder.BindModelAsync(bindingContext);
 
         Assert.That(bindingContext.Result.IsModelSet, Is.True);
-        Assert.That(bindingContext.Result.Model, Is.EqualTo(new[] { "abc", "def" }));
+        Assert.That(bindingContext.Result.Model, Is.EqualTo(["abc", "def"]));
     }
 
     [TestCase(typeof(int), "1,2", new[] { 1, 2 })]

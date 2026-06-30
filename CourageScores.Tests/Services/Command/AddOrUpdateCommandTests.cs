@@ -9,13 +9,7 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class AddOrUpdateCommandTests
 {
-    private CancellationToken _token;
-
-    [SetUp]
-    public void SetUpOnce()
-    {
-        _token = new CancellationToken();
-    }
+    private readonly CancellationToken _token = CancellationToken.None;
 
     [Test]
     public async Task ApplyUpdate_WhenWithDataHasNotBeenCalled_Throws()
@@ -50,10 +44,7 @@ public class AddOrUpdateCommandTests
         var result = await command.WithData(update).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "Cannot update a Model that has already been deleted",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(["Cannot update a Model that has already been deleted"]));
     }
 
     [Test]
@@ -66,10 +57,7 @@ public class AddOrUpdateCommandTests
         var result = await command.WithData(update).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Model created",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(["Model created"]));
         Assert.That(result.Result, Is.SameAs(model));
         Assert.That(model.Id, Is.Not.Null);
         Assert.That(command.ApplyUpdatesModel, Is.SameAs(model));
@@ -92,10 +80,7 @@ public class AddOrUpdateCommandTests
         var result = await command.WithData(update).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Model updated",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(["Model updated"]));
         Assert.That(result.Result, Is.SameAs(model));
         Assert.That(command.ApplyUpdatesModel, Is.SameAs(model));
         Assert.That(command.ApplyUpdatesUpdate, Is.SameAs(update));
@@ -119,10 +104,7 @@ public class AddOrUpdateCommandTests
         var result = await command.WithData(update).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "Unable to update Model, EDITOR updated it before you at 1 Jan 2021 01:01:01",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(["Unable to update Model, EDITOR updated it before you at 1 Jan 2021 01:01:01"]));
     }
 
     [Test]
@@ -140,10 +122,7 @@ public class AddOrUpdateCommandTests
         var result = await command.WithData(update).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "Unable to update Model, data integrity token is missing",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(["Unable to update Model, data integrity token is missing"]));
     }
 
     private class MockCommand : AddOrUpdateCommand<Model, ModelDto>

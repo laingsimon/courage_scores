@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Common;
 using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
@@ -18,12 +19,6 @@ namespace CourageScores.Tests.Services.Report;
 public class ReportFactoryTests
 {
     private readonly CancellationToken _token = CancellationToken.None;
-    private Mock<IUserService> _userService = null!;
-    private Mock<ICachingDivisionService> _divisionService = null!;
-    private Mock<ICachingSeasonService> _seasonService = null!;
-    private Mock<IGenericDataService<TournamentGame, TournamentGameDto>> _tournamentService = null!;
-    private Mock<ITournamentTypeResolver> _tournamentTypeResolver = null!;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
     private ReportFactory _factory = null!;
     private UserDto? _user;
@@ -31,24 +26,19 @@ public class ReportFactoryTests
     [SetUp]
     public void SetupEachTest()
     {
-        _userService = new Mock<IUserService>();
-        _seasonService = new Mock<ICachingSeasonService>();
-        _divisionService = new Mock<ICachingDivisionService>();
-        _tournamentService = new Mock<IGenericDataService<TournamentGame, TournamentGameDto>>();
-        _tournamentTypeResolver = new Mock<ITournamentTypeResolver>();
+        var fixture = AutoFixture.Create();
+        var userService = fixture.FreezeMock<IUserService>();
+        fixture.FreezeMock<ICachingSeasonService>();
+        fixture.FreezeMock<ICachingDivisionService>();
+        fixture.FreezeMock<IGenericDataService<TournamentGame, TournamentGameDto>>();
+        fixture.FreezeMock<ITournamentTypeResolver>();
         _access = [AccessOption.RunReports];
-        _accessService = new Mock<IAccessService>();
-        _factory = new ReportFactory(
-            _userService.Object,
-            _divisionService.Object,
-            _seasonService.Object,
-            _tournamentService.Object,
-            _tournamentTypeResolver.Object,
-            _accessService.Object);
+        var accessService = fixture.FreezeMock<IAccessService>();
+        _factory = fixture.Create<ReportFactory>();
 
         _user = new UserDto();
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _accessService
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }

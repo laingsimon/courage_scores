@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Filters;
 using CourageScores.Services.Division;
 using Microsoft.AspNetCore.Http;
@@ -25,9 +26,10 @@ public class CacheManagementFilterTests
     [SetUp]
     public void SetupEachTest()
     {
-        _flags = new ScopedCacheManagementFlags();
-        _cachingDivisionService = new Mock<ICachingDivisionService>();
-        _filter = new CacheManagementFilter(_flags, _cachingDivisionService.Object);
+        var fixture = AutoFixture.Create();
+        fixture.WithCacheManagementFlags(out _flags);
+        _cachingDivisionService = fixture.FreezeMock<ICachingDivisionService>();
+        _filter = fixture.Create<CacheManagementFilter>();
     }
 
     [Test]

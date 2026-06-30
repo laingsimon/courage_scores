@@ -44,16 +44,16 @@ public class ContentEncryptorTests
     {
         var encryptor = new ContentEncryptor(password);
         var zipStream = new MemoryStream();
-        using (var zip = new ZipArchive(zipStream, ZipArchiveMode.Create))
+        await using (var zip = new ZipArchive(zipStream, ZipArchiveMode.Create))
         {
             var unencrypted = new MemoryStream();
-            using (var streamWriter = new StreamWriter(unencrypted))
+            await using (var streamWriter = new StreamWriter(unencrypted))
             {
                 await streamWriter.WriteAsync(content);
             }
 
             var entry = zip.CreateEntry(path);
-            using (var entryStream = entry.Open())
+            await using (var entryStream = await entry.OpenAsync())
             {
                 var buffer = new MemoryStream(unencrypted.ToArray());
                 await encryptor.Encrypt(buffer, entryStream);
@@ -65,20 +65,21 @@ public class ContentEncryptorTests
 
     private static async Task<string> GetFileContent(byte[] zipBytes, string password, string path)
     {
-        var zip = new ZipArchive(new MemoryStream(zipBytes), ZipArchiveMode.Read);
+        await using var zip = new ZipArchive(new MemoryStream(zipBytes), ZipArchiveMode.Read);
         var encryptor = new ContentEncryptor(password);
 
         var entries = zip.Entries.ToList();
         Assert.That(entries, Is.Not.Empty);
         Assert.That(entries.Select(e => e.FullName), Has.Member(path));
         var entry = zip.GetEntry(path);
-        var content = new MemoryStream();
-        await entry!.Open().CopyToAsync(content);
+        using var content = new MemoryStream();
+        await (await entry!.OpenAsync()).CopyToAsync(content);
         content.Seek(0, SeekOrigin.Begin);
 
-        var decrypted = new MemoryStream();
+        using var decrypted = new MemoryStream();
         await encryptor.Decrypt(content, decrypted);
         decrypted.Seek(0, SeekOrigin.Begin);
-        return await new StreamReader(decrypted).ReadToEndAsync();
+        using var reader = new StreamReader(decrypted);
+        return await reader.ReadToEndAsync();
     }
 }

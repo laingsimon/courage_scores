@@ -10,7 +10,7 @@ namespace CourageScores.Tests.Services.Health.Checks;
 public class TeamsAreNotPlayingAgainstThemselvesTests
 {
     private static readonly Guid TeamId = Guid.NewGuid();
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly TeamsAreNotPlayingAgainstThemselves _check = new();
 
     [Test]
@@ -48,10 +48,7 @@ public class TeamsAreNotPlayingAgainstThemselvesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division,
-        }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.Empty);
@@ -93,15 +90,9 @@ public class TeamsAreNotPlayingAgainstThemselvesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division,
-        }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
-        Assert.That(result.Errors, Is.EquivalentTo(new[]
-        {
-            "Found HOME playing against themselves on 3 Feb",
-        }));
+        Assert.That(result.Errors, Is.EquivalentTo(["Found HOME playing against themselves on 3 Feb"]));
         Assert.That(result.Warnings, Is.Empty);
         Assert.That(result.Success, Is.False);
     }

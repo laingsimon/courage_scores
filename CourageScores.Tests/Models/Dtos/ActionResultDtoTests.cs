@@ -157,11 +157,7 @@ public class ActionResultDtoTests
 
         var result = current.Merge(other);
 
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "CURRENT",
-            "OTHER",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(["CURRENT", "OTHER"]));
     }
 
     [Test]
@@ -178,11 +174,7 @@ public class ActionResultDtoTests
 
         var result = current.Merge(other);
 
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "CURRENT",
-            "OTHER",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(["CURRENT", "OTHER"]));
     }
 
     [Test]
@@ -199,11 +191,7 @@ public class ActionResultDtoTests
 
         var result = current.Merge(other);
 
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "CURRENT",
-            "OTHER",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(["CURRENT", "OTHER"]));
     }
 
     [Test]
@@ -356,11 +344,7 @@ public class ActionResultDtoTests
 
         var result = current.Merge(other);
 
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "CURRENT",
-            "OTHER",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(["CURRENT", "OTHER"]));
     }
 
     [Test]
@@ -377,11 +361,7 @@ public class ActionResultDtoTests
 
         var result = current.Merge(other);
 
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "CURRENT",
-            "OTHER",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(["CURRENT", "OTHER"]));
     }
 
     [Test]
@@ -398,11 +378,7 @@ public class ActionResultDtoTests
 
         var result = current.Merge(other);
 
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "CURRENT",
-            "OTHER",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(["CURRENT", "OTHER"]));
     }
 
     [Test]
@@ -419,9 +395,9 @@ public class ActionResultDtoTests
 
         var result = current.As("NEW");
 
-        Assert.That(result.Errors, Is.EqualTo(new[] { "ERROR" }));
-        Assert.That(result.Warnings, Is.EqualTo(new[] { "WARNING" }));
-        Assert.That(result.Messages, Is.EqualTo(new[] { "MESSAGE" }));
+        Assert.That(result.Errors, Is.EqualTo(["ERROR"]));
+        Assert.That(result.Warnings, Is.EqualTo(["WARNING"]));
+        Assert.That(result.Messages, Is.EqualTo(["MESSAGE"]));
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.EqualTo("NEW"));
     }
@@ -440,9 +416,9 @@ public class ActionResultDtoTests
 
         var result = current.As<string>();
 
-        Assert.That(result.Errors, Is.EqualTo(new[] { "ERROR" }));
-        Assert.That(result.Warnings, Is.EqualTo(new[] { "WARNING" }));
-        Assert.That(result.Messages, Is.EqualTo(new[] { "MESSAGE" }));
+        Assert.That(result.Errors, Is.EqualTo(["ERROR"]));
+        Assert.That(result.Warnings, Is.EqualTo(["WARNING"]));
+        Assert.That(result.Messages, Is.EqualTo(["MESSAGE"]));
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.Null);
     }
@@ -461,9 +437,9 @@ public class ActionResultDtoTests
 
         var result = current.ToActionResult();
 
-        Assert.That(result.Errors, Is.EqualTo(new[] { "ERROR" }));
-        Assert.That(result.Warnings, Is.EqualTo(new[] { "WARNING" }));
-        Assert.That(result.Messages, Is.EqualTo(new[] { "MESSAGE" }));
+        Assert.That(result.Errors, Is.EqualTo(["ERROR"]));
+        Assert.That(result.Warnings, Is.EqualTo(["WARNING"]));
+        Assert.That(result.Messages, Is.EqualTo(["MESSAGE"]));
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.EqualTo("CURRENT"));
     }

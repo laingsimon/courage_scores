@@ -18,21 +18,11 @@ public class GameMatchAdapterTests
     private static readonly GamePlayerDto OneEightyPlayerDto = new();
     private static readonly ScoreAsYouGo ScoreAsYouGo = new();
     private static readonly ScoreAsYouGoDto ScoreAsYouGoDto = new();
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly GameMatchAdapter _adapter = new(
         new MockAdapter<GamePlayer, GamePlayerDto>(
-            new[]
-            {
-                HomePlayer,
-                AwayPlayer,
-                OneEightyPlayer,
-            },
-            new[]
-            {
-                HomePlayerDto,
-                AwayPlayerDto,
-                OneEightyPlayerDto,
-            }),
+            [HomePlayer, AwayPlayer, OneEightyPlayer],
+            [HomePlayerDto, AwayPlayerDto, OneEightyPlayerDto]),
         new MockSimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto>(ScoreAsYouGo, ScoreAsYouGoDto));
 
     [Test]
@@ -59,14 +49,8 @@ public class GameMatchAdapterTests
         Assert.That(result.HomeScore, Is.EqualTo(model.HomeScore));
         Assert.That(result.AwayScore, Is.EqualTo(model.AwayScore));
         Assert.That(result.Id, Is.EqualTo(model.Id));
-        Assert.That(result.HomePlayers, Is.EqualTo(new[]
-        {
-            HomePlayerDto,
-        }));
-        Assert.That(result.AwayPlayers, Is.EqualTo(new[]
-        {
-            AwayPlayerDto,
-        }));
+        Assert.That(result.HomePlayers, Is.EqualTo([HomePlayerDto]));
+        Assert.That(result.AwayPlayers, Is.EqualTo([AwayPlayerDto]));
         Assert.That(result.Sayg, Is.EqualTo(ScoreAsYouGoDto));
     }
 
@@ -108,19 +92,13 @@ public class GameMatchAdapterTests
         Assert.That(result.HomeScore, Is.EqualTo(dto.HomeScore));
         Assert.That(result.AwayScore, Is.EqualTo(dto.AwayScore));
         Assert.That(result.Id, Is.EqualTo(dto.Id));
-        Assert.That(result.HomePlayers, Is.EqualTo(new[]
-        {
-            HomePlayer,
-        }));
-        Assert.That(result.AwayPlayers, Is.EqualTo(new[]
-        {
-            AwayPlayer,
-        }));
+        Assert.That(result.HomePlayers, Is.EqualTo([HomePlayer]));
+        Assert.That(result.AwayPlayers, Is.EqualTo([AwayPlayer]));
         Assert.That(result.Sayg, Is.EqualTo(ScoreAsYouGo));
     }
 
     [Test]
-    public async Task Adapt_GivenDtoWithoutSayh_SetsSaygToNull()
+    public async Task Adapt_GivenDtoWithoutSayg_SetsSaygToNull()
     {
         var dto = new GameMatchDto
         {

@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Analysis;
@@ -19,30 +20,29 @@ public class AnalysisServiceTests
     private AnalysisService _service = null!;
     private Mock<IGenericDataService<TournamentGame, TournamentGameDto>> _tournamentService = null!;
     private Mock<IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>> _saygService = null!;
-    private Mock<ISaygVisitorFactory> _visitorFactory = null!;
     private Mock<ISaygVisitor> _visitor = null!;
     private Mock<IUserService> _userService = null!;
     private UserDto? _user;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _tournamentService = new Mock<IGenericDataService<TournamentGame, TournamentGameDto>>();
-        _saygService = new Mock<IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>>();
-        _visitorFactory = new Mock<ISaygVisitorFactory>();
-        _visitor = new Mock<ISaygVisitor>();
-        _userService = new Mock<IUserService>();
+        var fixture = AutoFixture.Create();
+        _tournamentService = fixture.FreezeMock<IGenericDataService<TournamentGame, TournamentGameDto>>();
+        _saygService = fixture.FreezeMock<IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>>();
+        var visitorFactory = fixture.FreezeMock<ISaygVisitorFactory>();
+        _visitor = fixture.FreezeMock<ISaygVisitor>();
+        _userService = fixture.FreezeMock<IUserService>();
         _access = [AccessOption.AnalyseMatches];
-        _accessService = new Mock<IAccessService>();
+        var accessService = fixture.FreezeMock<IAccessService>();
         _user = new UserDto();
 
-        _service = new AnalysisService(_tournamentService.Object, _saygService.Object, _visitorFactory.Object, _userService.Object, _accessService.Object);
+        _service = fixture.Create<AnalysisService>();
 
-        _visitorFactory.Setup(f => f.CreateForRequest(It.IsAny<AnalysisRequestDto>())).Returns(_visitor.Object);
+        visitorFactory.Setup(f => f.CreateForRequest(It.IsAny<AnalysisRequestDto>())).Returns(_visitor.Object);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _accessService
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }

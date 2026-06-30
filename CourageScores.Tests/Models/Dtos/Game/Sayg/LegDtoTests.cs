@@ -46,15 +46,7 @@ public class LegDtoTests
 
         Assert.That(
             throws,
-            Is.EqualTo(new[]
-            {
-                "HOME:1",
-                "AWAY:2",
-                "HOME:3",
-                "AWAY:4",
-                "HOME:5",
-                "AWAY:6",
-            }));
+            Is.EqualTo(["HOME:1", "AWAY:2", "HOME:3", "AWAY:4", "HOME:5", "AWAY:6"]));
     }
 
     [Test]
@@ -78,15 +70,7 @@ public class LegDtoTests
 
         Assert.That(
             throws,
-            Is.EqualTo(new[]
-            {
-                "AWAY:2",
-                "HOME:1",
-                "AWAY:4",
-                "HOME:3",
-                "AWAY:6",
-                "HOME:5",
-            }));
+            Is.EqualTo(["AWAY:2", "HOME:1", "AWAY:4", "HOME:3", "AWAY:6", "HOME:5"]));
     }
 
     [Test]

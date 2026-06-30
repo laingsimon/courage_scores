@@ -2,7 +2,6 @@ using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
-using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Division;
 using NUnit.Framework;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
@@ -27,13 +26,10 @@ public class DivisionDataContextTests
             IsKnockout = false,
         };
         var context = new DivisionDataContext(
-            new[]
-            {
-                fixtureInDivision, otherDivisionFixture,
-            },
-            Array.Empty<TeamDto>(),
-            Array.Empty<TournamentGame>(),
-            Array.Empty<FixtureDateNoteDto>(),
+            [fixtureInDivision, otherDivisionFixture],
+            [],
+            [],
+            [],
             new SeasonDto(),
             new Dictionary<Guid, Guid?>(),
             new Dictionary<Guid, DivisionDto>(),
@@ -41,10 +37,7 @@ public class DivisionDataContextTests
 
         var result = context.AllGames(divisionId).ToArray();
 
-        Assert.That(result, Is.EquivalentTo(new[]
-        {
-            fixtureInDivision,
-        }));
+        Assert.That(result, Is.EquivalentTo([fixtureInDivision]));
     }
 
     [Test]
@@ -62,13 +55,10 @@ public class DivisionDataContextTests
             IsKnockout = true,
         };
         var context = new DivisionDataContext(
-            new[]
-            {
-                knockoutInDivision, otherDivisionKnockout,
-            },
-            Array.Empty<TeamDto>(),
-            Array.Empty<TournamentGame>(),
-            Array.Empty<FixtureDateNoteDto>(),
+            [knockoutInDivision, otherDivisionKnockout],
+            [],
+            [],
+            [],
             new SeasonDto(),
             new Dictionary<Guid, Guid?>(),
             new Dictionary<Guid, DivisionDto>(),
@@ -76,10 +66,7 @@ public class DivisionDataContextTests
 
         var result = context.AllGames(divisionId).ToArray();
 
-        Assert.That(result, Is.EquivalentTo(new[]
-        {
-            knockoutInDivision, otherDivisionKnockout,
-        }));
+        Assert.That(result, Is.EquivalentTo([knockoutInDivision, otherDivisionKnockout]));
     }
 
     [Test]
@@ -107,16 +94,15 @@ public class DivisionDataContextTests
             IsKnockout = true,
         };
         var context = new DivisionDataContext(
-            new[]
-            {
+            [
                 fixtureInDivision,
                 otherDivisionFixture,
                 knockoutInDivision,
-                otherDivisionKnockout,
-            },
-            Array.Empty<TeamDto>(),
-            Array.Empty<TournamentGame>(),
-            Array.Empty<FixtureDateNoteDto>(),
+                otherDivisionKnockout
+            ],
+            [],
+            [],
+            [],
             new SeasonDto(),
             new Dictionary<Guid, Guid?>(),
             new Dictionary<Guid, DivisionDto>(),
@@ -124,13 +110,12 @@ public class DivisionDataContextTests
 
         var result = context.AllGames(null).ToArray();
 
-        Assert.That(result, Is.EquivalentTo(new[]
-        {
+        Assert.That(result, Is.EquivalentTo([
             fixtureInDivision,
             otherDivisionFixture,
             knockoutInDivision,
-            otherDivisionKnockout,
-        }));
+            otherDivisionKnockout
+        ]));
     }
 
     [Test]
@@ -145,13 +130,10 @@ public class DivisionDataContextTests
             DivisionId = null,
         };
         var context = new DivisionDataContext(
-            Array.Empty<CosmosGame>(),
-            Array.Empty<TeamDto>(),
-            new[]
-            {
-                tournamentInDivision, crossDivisionTournament,
-            },
-            Array.Empty<FixtureDateNoteDto>(),
+            [],
+            [],
+            [tournamentInDivision, crossDivisionTournament],
+            [],
             new SeasonDto(),
             new Dictionary<Guid, Guid?>(),
             new Dictionary<Guid, DivisionDto>(),
@@ -159,10 +141,7 @@ public class DivisionDataContextTests
 
         var result = context.AllTournamentGames(Array.Empty<Guid>());
 
-        Assert.That(result, Is.EquivalentTo(new[]
-        {
-            tournamentInDivision, crossDivisionTournament,
-        }));
+        Assert.That(result, Is.EquivalentTo([tournamentInDivision, crossDivisionTournament]));
     }
 
     [Test]
@@ -181,25 +160,21 @@ public class DivisionDataContextTests
             DivisionId = null,
         };
         var context = new DivisionDataContext(
-            Array.Empty<CosmosGame>(),
-            Array.Empty<TeamDto>(),
-            new[]
-            {
+            [],
+            [],
+            [
                 tournamentInDivision,
                 tournamentInAnotherDivision,
-                crossDivisionTournament,
-            },
-            Array.Empty<FixtureDateNoteDto>(),
+                crossDivisionTournament
+            ],
+            [],
             new SeasonDto(),
             new Dictionary<Guid, Guid?>(),
             new Dictionary<Guid, DivisionDto>(),
             new DivisionDataFilter());
 
-        var result = context.AllTournamentGames(new[] { tournamentInDivision.DivisionId.Value });
+        var result = context.AllTournamentGames([tournamentInDivision.DivisionId.Value]);
 
-        Assert.That(result, Is.EquivalentTo(new[]
-        {
-            tournamentInDivision, crossDivisionTournament,
-        }));
+        Assert.That(result, Is.EquivalentTo([tournamentInDivision, crossDivisionTournament]));
     }
 }

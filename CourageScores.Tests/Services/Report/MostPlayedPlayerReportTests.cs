@@ -8,7 +8,7 @@ namespace CourageScores.Tests.Services.Report;
 [TestFixture]
 public class MostPlayedPlayerReportTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly Guid _daveId = Guid.NewGuid();
     private readonly Guid _jonId = Guid.NewGuid();
     private readonly PlayerDetails _dave = new()
@@ -29,7 +29,8 @@ public class MostPlayedPlayerReportTests
     [SetUp]
     public void SetupEachTest()
     {
-        _playerLookup = new Mock<IPlayerLookup>();
+        var fixture = AutoFixture.Create();
+        _playerLookup = fixture.FreezeMock<IPlayerLookup>();
         _playerLookup.Setup(l => l.GetPlayer(_daveId)).ReturnsAsync(_dave);
         _playerLookup.Setup(l => l.GetPlayer(_jonId)).ReturnsAsync(_jon);
         _playerLookup.Setup(l => l.GetPlayer(It.Is<Guid>(id => id != _daveId && id != _jonId)))
@@ -62,26 +63,11 @@ public class MostPlayedPlayerReportTests
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
-        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo(new[]
-        {
-            _jonId,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerName), Is.EquivalentTo(new[]
-        {
-            _jon.PlayerName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[0].TeamId), Is.EquivalentTo(new[]
-        {
-            _jon.TeamId,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[0].TeamName), Is.EquivalentTo(new[]
-        {
-            _jon.TeamName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(new[]
-        {
-            score.ToString(),
-        }));
+        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo([_jonId]));
+        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerName), Is.EquivalentTo([_jon.PlayerName]));
+        Assert.That(result.Rows.Select(r => r.Cells[0].TeamId), Is.EquivalentTo([_jon.TeamId]));
+        Assert.That(result.Rows.Select(r => r.Cells[0].TeamName), Is.EquivalentTo([_jon.TeamName]));
+        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo([score.ToString()]));
     }
 
     [TestCase(true, 1)]
@@ -100,26 +86,11 @@ public class MostPlayedPlayerReportTests
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
-        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo(new[]
-        {
-            _jonId,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerName), Is.EquivalentTo(new[]
-        {
-            _jon.PlayerName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[0].TeamId), Is.EquivalentTo(new[]
-        {
-            _jon.TeamId,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[0].TeamName), Is.EquivalentTo(new[]
-        {
-            _jon.TeamName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(new[]
-        {
-            score.ToString(),
-        }));
+        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo([_jonId]));
+        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerName), Is.EquivalentTo([_jon.PlayerName]));
+        Assert.That(result.Rows.Select(r => r.Cells[0].TeamId), Is.EquivalentTo([_jon.TeamId]));
+        Assert.That(result.Rows.Select(r => r.Cells[0].TeamName), Is.EquivalentTo([_jon.TeamName]));
+        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo([score.ToString()]));
     }
 
     [TestCase(true, 1)]
@@ -138,26 +109,11 @@ public class MostPlayedPlayerReportTests
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
-        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo(new[]
-        {
-            _jonId,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerName), Is.EquivalentTo(new[]
-        {
-            _jon.PlayerName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[0].TeamId), Is.EquivalentTo(new[]
-        {
-            _jon.TeamId,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[0].TeamName), Is.EquivalentTo(new[]
-        {
-            _jon.TeamName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(new[]
-        {
-            score.ToString(),
-        }));
+        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo([_jonId]));
+        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerName), Is.EquivalentTo([_jon.PlayerName]));
+        Assert.That(result.Rows.Select(r => r.Cells[0].TeamId), Is.EquivalentTo([_jon.TeamId]));
+        Assert.That(result.Rows.Select(r => r.Cells[0].TeamName), Is.EquivalentTo([_jon.TeamName]));
+        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo([score.ToString()]));
     }
 
     [Test]
@@ -185,26 +141,11 @@ public class MostPlayedPlayerReportTests
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
-        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo(new[]
-        {
-            _jonId,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerName), Is.EquivalentTo(new[]
-        {
-            _jon.PlayerName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[0].TeamId), Is.EquivalentTo(new[]
-        {
-            _jon.TeamId,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[0].TeamName), Is.EquivalentTo(new[]
-        {
-            _jon.TeamName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(new[]
-        {
-            "1",
-        }));
+        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo([_jonId]));
+        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerName), Is.EquivalentTo([_jon.PlayerName]));
+        Assert.That(result.Rows.Select(r => r.Cells[0].TeamId), Is.EquivalentTo([_jon.TeamId]));
+        Assert.That(result.Rows.Select(r => r.Cells[0].TeamName), Is.EquivalentTo([_jon.TeamName]));
+        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(["1"]));
     }
 
     [Test]
@@ -222,26 +163,11 @@ public class MostPlayedPlayerReportTests
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
-        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo(new[]
-        {
-            _jonId, _daveId,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerName), Is.EquivalentTo(new[]
-        {
-            _jon.PlayerName, _dave.PlayerName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[0].TeamId), Is.EquivalentTo(new[]
-        {
-            _jon.TeamId, _dave.TeamId,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[0].TeamName), Is.EquivalentTo(new[]
-        {
-            _jon.TeamName, _dave.TeamName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(new[]
-        {
-            "1", "1",
-        }));
+        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo([_jonId, _daveId]));
+        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerName), Is.EquivalentTo([_jon.PlayerName, _dave.PlayerName]));
+        Assert.That(result.Rows.Select(r => r.Cells[0].TeamId), Is.EquivalentTo([_jon.TeamId, _dave.TeamId]));
+        Assert.That(result.Rows.Select(r => r.Cells[0].TeamName), Is.EquivalentTo([_jon.TeamName, _dave.TeamName]));
+        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(["1", "1"]));
     }
 
     [Test]
@@ -259,26 +185,11 @@ public class MostPlayedPlayerReportTests
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
-        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo(new[]
-        {
-            _jonId,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerName), Is.EquivalentTo(new[]
-        {
-            _jon.PlayerName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[0].TeamId), Is.EquivalentTo(new[]
-        {
-            _jon.TeamId,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[0].TeamName), Is.EquivalentTo(new[]
-        {
-            _jon.TeamName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(new[]
-        {
-            "2",
-        }));
+        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo([_jonId]));
+        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerName), Is.EquivalentTo([_jon.PlayerName]));
+        Assert.That(result.Rows.Select(r => r.Cells[0].TeamId), Is.EquivalentTo([_jon.TeamId]));
+        Assert.That(result.Rows.Select(r => r.Cells[0].TeamName), Is.EquivalentTo([_jon.TeamName]));
+        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(["2"]));
     }
 
     [Test]
@@ -296,26 +207,11 @@ public class MostPlayedPlayerReportTests
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
-        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo(new[]
-        {
-            _jonId, _daveId,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerName), Is.EquivalentTo(new[]
-        {
-            _jon.PlayerName, _dave.PlayerName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[0].TeamId), Is.EquivalentTo(new[]
-        {
-            _jon.TeamId, _dave.TeamId,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[0].TeamName), Is.EquivalentTo(new[]
-        {
-            _jon.TeamName, _dave.TeamName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(new[]
-        {
-            "1", "1",
-        }));
+        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo([_jonId, _daveId]));
+        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerName), Is.EquivalentTo([_jon.PlayerName, _dave.PlayerName]));
+        Assert.That(result.Rows.Select(r => r.Cells[0].TeamId), Is.EquivalentTo([_jon.TeamId, _dave.TeamId]));
+        Assert.That(result.Rows.Select(r => r.Cells[0].TeamName), Is.EquivalentTo([_jon.TeamName, _dave.TeamName]));
+        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(["1", "1"]));
     }
 
     [Test]
@@ -345,25 +241,10 @@ public class MostPlayedPlayerReportTests
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
-        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo(new[]
-        {
-            _jonId, _daveId,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerName), Is.EquivalentTo(new[]
-        {
-            _jon.PlayerName, _dave.PlayerName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[0].TeamId), Is.EquivalentTo(new[]
-        {
-            _jon.TeamId, _dave.TeamId,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[0].TeamName), Is.EquivalentTo(new[]
-        {
-            _jon.TeamName, _dave.TeamName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(new[]
-        {
-            "2", "2",
-        }));
+        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo([_jonId, _daveId]));
+        Assert.That(result.Rows.Select(r => r.Cells[1].PlayerName), Is.EquivalentTo([_jon.PlayerName, _dave.PlayerName]));
+        Assert.That(result.Rows.Select(r => r.Cells[0].TeamId), Is.EquivalentTo([_jon.TeamId, _dave.TeamId]));
+        Assert.That(result.Rows.Select(r => r.Cells[0].TeamName), Is.EquivalentTo([_jon.TeamName, _dave.TeamName]));
+        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(["2", "2"]));
     }
 }

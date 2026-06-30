@@ -1,3 +1,5 @@
+using AutoFixture;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
@@ -14,11 +16,20 @@ public class TournamentRoundAdapterTests
     private static readonly TournamentMatchDto MatchDto = new();
     private static readonly GameMatchOption MatchOption = new();
     private static readonly GameMatchOptionDto MatchOptionDto = new();
-    private readonly CancellationToken _token = new();
-    private readonly TournamentRoundAdapter _adapter = new(
-        new MockAdapter<TournamentMatch, TournamentMatchDto>(Match, MatchDto),
-        new MockSimpleAdapter<TournamentSide, TournamentSideDto>(Side, SideDto),
-        new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(MatchOption, MatchOptionDto));
+    private readonly CancellationToken _token = CancellationToken.None;
+    private TournamentRoundAdapter _adapter = null!;
+
+    [SetUp]
+    public void SetupEachTest()
+    {
+        var fixture = AutoFixture.Create();
+
+        fixture.Register<IAdapter<TournamentMatch, TournamentMatchDto>>(() => new MockAdapter<TournamentMatch, TournamentMatchDto>(Match, MatchDto));
+        fixture.Register<ISimpleAdapter<TournamentSide, TournamentSideDto>>(() => new MockSimpleAdapter<TournamentSide, TournamentSideDto>(Side, SideDto));
+        fixture.Register<ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?>>(() => new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(MatchOption, MatchOptionDto));
+
+        _adapter = fixture.Create<TournamentRoundAdapter>();
+    }
 
     [Test]
     public async Task Adapt_GivenModelWithoutNextRound_SetsPropertiesCorrectly()
@@ -45,20 +56,11 @@ public class TournamentRoundAdapterTests
         var result = await _adapter.Adapt(model, _token);
 
         Assert.That(result.Id, Is.EqualTo(model.Id));
-        Assert.That(result.Matches, Is.EqualTo(new[]
-        {
-            MatchDto,
-        }));
-        Assert.That(result.Sides, Is.EqualTo(new[]
-        {
-            SideDto,
-        }));
+        Assert.That(result.Matches, Is.EqualTo([MatchDto]));
+        Assert.That(result.Sides, Is.EqualTo([SideDto]));
         Assert.That(result.NextRound, Is.Null);
         Assert.That(result.Name, Is.EqualTo(model.Name));
-        Assert.That(result.MatchOptions, Is.EqualTo(new[]
-        {
-            MatchOptionDto,
-        }));
+        Assert.That(result.MatchOptions, Is.EqualTo([MatchOptionDto]));
     }
 
     [Test]
@@ -91,10 +93,7 @@ public class TournamentRoundAdapterTests
 
         Assert.That(result.NextRound, Is.Not.Null);
         Assert.That(result.NextRound!.Id, Is.EqualTo(nextRound.Id));
-        Assert.That(result.MatchOptions, Is.EqualTo(new[]
-        {
-            MatchOptionDto,
-        }));
+        Assert.That(result.MatchOptions, Is.EqualTo([MatchOptionDto]));
     }
 
     [Test]
@@ -122,20 +121,11 @@ public class TournamentRoundAdapterTests
         var result = await _adapter.Adapt(dto, _token);
 
         Assert.That(result.Id, Is.EqualTo(dto.Id));
-        Assert.That(result.Matches, Is.EqualTo(new[]
-        {
-            Match,
-        }));
-        Assert.That(result.Sides, Is.EqualTo(new[]
-        {
-            Side,
-        }));
+        Assert.That(result.Matches, Is.EqualTo([Match]));
+        Assert.That(result.Sides, Is.EqualTo([Side]));
         Assert.That(result.NextRound, Is.Null);
         Assert.That(result.Name, Is.EqualTo(dto.Name));
-        Assert.That(result.MatchOptions, Is.EqualTo(new[]
-        {
-            MatchOption,
-        }));
+        Assert.That(result.MatchOptions, Is.EqualTo([MatchOption]));
     }
 
     [Test]
@@ -168,10 +158,7 @@ public class TournamentRoundAdapterTests
 
         Assert.That(result.NextRound, Is.Not.Null);
         Assert.That(result.NextRound!.Id, Is.EqualTo(nextRound.Id));
-        Assert.That(result.MatchOptions, Is.EqualTo(new[]
-        {
-            MatchOption,
-        }));
+        Assert.That(result.MatchOptions, Is.EqualTo([MatchOption]));
     }
 
     [Test]

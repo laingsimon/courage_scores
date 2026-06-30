@@ -1,3 +1,5 @@
+using AutoFixture;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Season;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Game.Sayg;
@@ -22,10 +24,7 @@ public class UpdateScoresAdapterTests
 
     private readonly CancellationToken _token = CancellationToken.None;
     private Mock<IAuditingHelper> _auditingHelper = null!;
-    private Mock<IUserService> _userService = null!;
-    private MockSimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto> _scoreAsYouGoAdapter = null!;
     private UserDto? _user;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     private UpdateScoresAdapter _adapter = null!;
@@ -33,20 +32,17 @@ public class UpdateScoresAdapterTests
     [SetUp]
     public void SetupEachTest()
     {
-        _auditingHelper = new Mock<IAuditingHelper>();
-        _userService = new Mock<IUserService>();
+        var fixture = AutoFixture.Create();
+        _auditingHelper = fixture.FreezeMock<IAuditingHelper>();
+        var userService = fixture.FreezeMock<IUserService>();
         _access = [AccessOption.RecordScoresAsYouGo];
-        _accessService = new Mock<IAccessService>();
-        _scoreAsYouGoAdapter = new MockSimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto>(SaygModel, SaygDto);
-        _adapter = new UpdateScoresAdapter(
-            _auditingHelper.Object,
-            _userService.Object,
-            _scoreAsYouGoAdapter,
-            _accessService.Object);
+        var accessService = fixture.FreezeMock<IAccessService>();
+        fixture.Register<ISimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto>>(() => new MockSimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto>(SaygModel, SaygDto));
+        _adapter = fixture.Create<UpdateScoresAdapter>();
 
         _user = new UserDto();
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _accessService
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }
