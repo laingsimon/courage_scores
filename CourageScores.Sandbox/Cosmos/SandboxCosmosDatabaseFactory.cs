@@ -25,7 +25,7 @@ public class SandboxCosmosDatabaseFactory : ICosmosDatabaseFactory, IStubCosmosD
     private async Task<Database> CreateDatabaseWithAdminUser()
     {
         var database = await _stubDatabaseFactory.CreateDatabase();
-        var userRepo = new UserRepository(database, new AccessLevelAdapter(new AccessAdapter()));
+        var userRepo = new UserRepository(database, new AccessLevelAdapter());
 
         await TestAuthenticationService.AddAdminUserToContainer(userRepo);
 

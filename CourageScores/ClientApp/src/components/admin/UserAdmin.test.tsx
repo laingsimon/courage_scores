@@ -120,9 +120,6 @@ describe('UserAdmin', () => {
             givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
-            access: {
-                manageAccess: true,
-            },
             accessLevels: {
                 [AccessOption.manageAccess]: {},
             },
@@ -131,9 +128,6 @@ describe('UserAdmin', () => {
             givenName: '',
             emailAddress: 'c@d.com',
             name: 'Other user',
-            access: {
-                manageAccess: true,
-            },
             accessLevels: {
                 [AccessOption.manageAccess]: {},
             },
@@ -155,9 +149,6 @@ describe('UserAdmin', () => {
             givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
-            access: {
-                manageAccess: true,
-            },
             accessLevels: {
                 [AccessOption.manageAccess]: {},
             },
@@ -166,9 +157,6 @@ describe('UserAdmin', () => {
             givenName: '',
             emailAddress: 'c@d.com',
             name: 'Other user',
-            access: {
-                manageAccess: true,
-            },
             accessLevels: {
                 [AccessOption.manageAccess]: {},
             },
@@ -181,10 +169,6 @@ describe('UserAdmin', () => {
 
         reportedError.verifyNoError();
         expect(updatedAccess).toEqual({
-            access: {
-                manageAccess: true,
-                manageGames: true,
-            },
             accessLevels: {
                 [AccessOption.manageGames]: {},
                 [AccessOption.manageAccess]: {},
@@ -198,9 +182,6 @@ describe('UserAdmin', () => {
             givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
-            access: {
-                manageAccess: true,
-            },
             accessLevels: {
                 [AccessOption.manageAccess]: {},
             },
@@ -209,9 +190,6 @@ describe('UserAdmin', () => {
             givenName: '',
             emailAddress: 'c@d.com',
             name: 'Other user',
-            access: {
-                manageAccess: true,
-            },
             accessLevels: {
                 [AccessOption.manageAccess]: {},
             },
@@ -233,9 +211,6 @@ describe('UserAdmin', () => {
             givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
-            access: {
-                manageAccess: true,
-            },
             accessLevels: {
                 [AccessOption.manageAccess]: {},
             },
@@ -244,9 +219,6 @@ describe('UserAdmin', () => {
             givenName: '',
             emailAddress: 'c@d.com',
             name: 'Other user',
-            access: {
-                manageAccess: true,
-            },
             accessLevels: {
                 [AccessOption.manageAccess]: {},
             },
@@ -268,9 +240,6 @@ describe('UserAdmin', () => {
             givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
-            access: {
-                manageAccess: true,
-            },
             accessLevels: {
                 [AccessOption.manageAccess]: {},
             },
@@ -279,9 +248,6 @@ describe('UserAdmin', () => {
             givenName: '',
             emailAddress: 'c@d.com',
             name: 'Other user',
-            access: {
-                manageAccess: true,
-            },
             accessLevels: {
                 [AccessOption.manageAccess]: {},
             },
