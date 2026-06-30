@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Filters;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Season;
@@ -13,12 +14,11 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class AddOrUpdateDivisionCommandTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private ScopedCacheManagementFlags _cacheFlags = null!;
     private AddOrUpdateDivisionCommand _command = null!;
     private EditDivisionDto _update = null!;
     private CourageScores.Models.Cosmos.Division _division = null!;
-    private Mock<ISeasonService> _seasonService = null!;
     private CosmosDivision _seasonDivision = null!;
     private CosmosSeason _season = null!;
     private SeasonDto _seasonDto = null!;
@@ -26,9 +26,10 @@ public class AddOrUpdateDivisionCommandTests
     [SetUp]
     public void SetupEachTest()
     {
-        _cacheFlags = new ScopedCacheManagementFlags();
-        _seasonService = new Mock<ISeasonService>();
-        _command = new AddOrUpdateDivisionCommand(_cacheFlags, _seasonService.Object);
+        var fixture = AutoFixture.Create();
+        fixture.WithCacheManagementFlags(out _cacheFlags);
+        var seasonService = fixture.FreezeMock<ISeasonService>();
+        _command = fixture.Create<AddOrUpdateDivisionCommand>();
         _division = new CourageScores.Models.Cosmos.Division
         {
             Name = "name",
@@ -56,8 +57,8 @@ public class AddOrUpdateDivisionCommandTests
             Id = _season.Id,
         };
 
-        _seasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_seasonDto));
-        _seasonService
+        seasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_seasonDto));
+        seasonService
             .Setup(s => s.Upsert(_seasonDto.Id, It.IsAny<IUpdateCommand<CosmosSeason, SeasonDto>>(), _token))
             .Callback((Guid? _, IUpdateCommand<CosmosSeason, SeasonDto> command, CancellationToken token) => command.ApplyUpdate(_season, token));
     }

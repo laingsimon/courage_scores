@@ -8,8 +8,8 @@ namespace CourageScores.Tests.Models.Adapters;
 [TestFixture]
 public class PhotoReferenceAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly PhotoReferenceAdapter _adapter = new PhotoReferenceAdapter();
+    private readonly CancellationToken _token = CancellationToken.None;
+    private readonly PhotoReferenceAdapter _adapter = new();
 
     [Test]
     public async Task Adapt_GivenDto_SetsPropertiesCorrectly()

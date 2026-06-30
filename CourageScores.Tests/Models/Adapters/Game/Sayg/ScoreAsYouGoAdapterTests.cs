@@ -1,3 +1,5 @@
+using AutoFixture;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Game.Sayg;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game.Sayg;
@@ -8,7 +10,7 @@ namespace CourageScores.Tests.Models.Adapters.Game.Sayg;
 [TestFixture]
 public class ScoreAsYouGoAdapterTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private ScoreAsYouGoAdapter _adapter = null!;
     private Leg _leg = null!;
     private LegDto _legDto = null!;
@@ -16,10 +18,11 @@ public class ScoreAsYouGoAdapterTests
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _leg = new Leg();
         _legDto = new LegDto();
-        _adapter = new ScoreAsYouGoAdapter(
-            new MockSimpleAdapter<Leg, LegDto>(_leg, _legDto));
+        fixture.Register<ISimpleAdapter<Leg, LegDto>>(() => new MockSimpleAdapter<Leg, LegDto>(_leg, _legDto));
+        _adapter = fixture.Create<ScoreAsYouGoAdapter>();
     }
 
     [Test]
@@ -37,10 +40,7 @@ public class ScoreAsYouGoAdapterTests
 
         var result = await _adapter.Adapt(model, _token);
 
-        Assert.That(result.Legs.Keys, Is.EqualTo(new[]
-        {
-            0,
-        }));
+        Assert.That(result.Legs.Keys, Is.EqualTo([0]));
         Assert.That(result.Legs[0], Is.EqualTo(_legDto));
     }
 
@@ -59,10 +59,7 @@ public class ScoreAsYouGoAdapterTests
 
         var result = await _adapter.Adapt(dto, _token);
 
-        Assert.That(result.Legs.Keys, Is.EqualTo(new[]
-        {
-            0,
-        }));
+        Assert.That(result.Legs.Keys, Is.EqualTo([0]));
         Assert.That(result.Legs[0], Is.EqualTo(_leg));
     }
 }

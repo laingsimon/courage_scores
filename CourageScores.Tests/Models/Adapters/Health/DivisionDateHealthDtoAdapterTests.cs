@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Health;
 using CourageScores.Models.Dtos.Division;
@@ -10,15 +11,17 @@ namespace CourageScores.Tests.Models.Adapters.Health;
 [TestFixture]
 public class DivisionDateHealthDtoAdapterTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private DivisionDateHealthDtoAdapter _adapter = null!;
     private Mock<ISimpleOnewayAdapter<LeagueFixtureHealthDtoAdapter.FixtureDateMapping, LeagueFixtureHealthDto?>> _fixtureAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _fixtureAdapter = new Mock<ISimpleOnewayAdapter<LeagueFixtureHealthDtoAdapter.FixtureDateMapping, LeagueFixtureHealthDto?>>();
-        _adapter = new DivisionDateHealthDtoAdapter(_fixtureAdapter.Object);
+        var fixture = AutoFixture.Create();
+
+        _fixtureAdapter = fixture.FreezeMock<ISimpleOnewayAdapter<LeagueFixtureHealthDtoAdapter.FixtureDateMapping, LeagueFixtureHealthDto?>>();
+        _adapter = fixture.Create<DivisionDateHealthDtoAdapter>();
     }
 
     [Test]
@@ -41,9 +44,6 @@ public class DivisionDateHealthDtoAdapterTests
         var result = await _adapter.Adapt(model, _token);
 
         Assert.That(result.Date, Is.EqualTo(model.Date));
-        Assert.That(result.Fixtures, Is.EqualTo(new[]
-        {
-            fixtureDto,
-        }));
+        Assert.That(result.Fixtures, Is.EqualTo([fixtureDto]));
     }
 }

@@ -1,3 +1,5 @@
+using AutoFixture;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
@@ -10,9 +12,18 @@ public class TournamentSideAdapterTests
 {
     private static readonly TournamentPlayer Player = new();
     private static readonly TournamentPlayerDto PlayerDto = new();
-    private readonly CancellationToken _token = new();
-    private readonly TournamentSideAdapter _adapter = new(
-        new MockAdapter<TournamentPlayer, TournamentPlayerDto>(Player, PlayerDto));
+    private readonly CancellationToken _token = CancellationToken.None;
+    private TournamentSideAdapter _adapter = null!;
+
+    [SetUp]
+    public void SetupEachTest()
+    {
+        var fixture = AutoFixture.Create();
+
+        fixture.Register<IAdapter<TournamentPlayer, TournamentPlayerDto>>(() => new MockAdapter<TournamentPlayer, TournamentPlayerDto>(Player, PlayerDto));
+
+        _adapter = fixture.Create<TournamentSideAdapter>();
+    }
 
     [Test]
     public async Task Adapt_GivenModel_SetsPropertiesCorrectly()
@@ -33,10 +44,7 @@ public class TournamentSideAdapterTests
 
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.Name, Is.EqualTo(model.Name));
-        Assert.That(result.Players, Is.EqualTo(new[]
-        {
-            PlayerDto,
-        }));
+        Assert.That(result.Players, Is.EqualTo([PlayerDto]));
         Assert.That(result.TeamId, Is.EqualTo(model.TeamId));
         Assert.That(result.NoShow, Is.True);
     }
@@ -60,10 +68,7 @@ public class TournamentSideAdapterTests
 
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.Name, Is.EqualTo(dto.Name));
-        Assert.That(result.Players, Is.EqualTo(new[]
-        {
-            Player,
-        }));
+        Assert.That(result.Players, Is.EqualTo([Player]));
         Assert.That(result.TeamId, Is.EqualTo(dto.TeamId));
         Assert.That(result.NoShow, Is.True);
     }

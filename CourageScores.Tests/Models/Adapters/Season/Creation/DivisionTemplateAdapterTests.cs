@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Adapters;
+﻿using AutoFixture;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Season.Creation;
 using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Dtos.Season.Creation;
@@ -13,19 +14,16 @@ public class DivisionTemplateAdapterTests
     private static readonly DateTemplateDto DateTemplateDto = new();
     private static readonly List<string> SharedAddress = new();
     private static readonly List<TeamPlaceholderDto> SharedAddressDto = new();
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private DivisionTemplateAdapter _adapter = null!;
-    private ISimpleAdapter<DateTemplate, DateTemplateDto> _dateTemplateAdapter = null!;
-    private ISimpleAdapter<List<string>, List<TeamPlaceholderDto>> _sharedAddressAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _dateTemplateAdapter = new MockSimpleAdapter<DateTemplate, DateTemplateDto>(DateTemplate, DateTemplateDto);
-        _sharedAddressAdapter = new MockSimpleAdapter<List<string>, List<TeamPlaceholderDto>>(SharedAddress, SharedAddressDto);
-        _adapter = new DivisionTemplateAdapter(
-            _dateTemplateAdapter,
-            _sharedAddressAdapter);
+        var fixture = AutoFixture.Create();
+        fixture.Register<ISimpleAdapter<DateTemplate, DateTemplateDto>>(() => new MockSimpleAdapter<DateTemplate, DateTemplateDto>(DateTemplate, DateTemplateDto));
+        fixture.Register<ISimpleAdapter<List<string>, List<TeamPlaceholderDto>>>(() => new MockSimpleAdapter<List<string>, List<TeamPlaceholderDto>>(SharedAddress, SharedAddressDto));
+        _adapter = fixture.Create<DivisionTemplateAdapter>();
     }
 
     [Test]
@@ -45,14 +43,8 @@ public class DivisionTemplateAdapterTests
 
         var result = await _adapter.Adapt(dto, _token);
 
-        Assert.That(result.Dates, Is.EquivalentTo(new[]
-        {
-            DateTemplate,
-        }));
-        Assert.That(result.SharedAddresses, Is.EquivalentTo(new[]
-        {
-            SharedAddress,
-        }));
+        Assert.That(result.Dates, Is.EquivalentTo([DateTemplate]));
+        Assert.That(result.SharedAddresses, Is.EquivalentTo([SharedAddress]));
     }
 
     [Test]
@@ -72,13 +64,7 @@ public class DivisionTemplateAdapterTests
 
         var result = await _adapter.Adapt(model, _token);
 
-        Assert.That(result.Dates, Is.EquivalentTo(new[]
-        {
-            DateTemplateDto,
-        }));
-        Assert.That(result.SharedAddresses, Is.EquivalentTo(new[]
-        {
-            SharedAddressDto,
-        }));
+        Assert.That(result.Dates, Is.EquivalentTo([DateTemplateDto]));
+        Assert.That(result.SharedAddresses, Is.EquivalentTo([SharedAddressDto]));
     }
 }

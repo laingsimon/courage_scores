@@ -7,8 +7,8 @@ namespace CourageScores.Tests.Models.Adapters;
 [TestFixture]
 public class ReconfigureFeatureAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly ReconfigureFeatureAdapter _adapter = new ReconfigureFeatureAdapter();
+    private readonly CancellationToken _token = CancellationToken.None;
+    private readonly ReconfigureFeatureAdapter _adapter = new();
 
     [Test]
     public async Task Adapt_GivenModel_SetsPropertiesCorrectly()

@@ -8,7 +8,7 @@ namespace CourageScores.Tests.Models.Adapters.Game.Sayg;
 [TestFixture]
 public class LegPlayerSequenceAdapterTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly LegPlayerSequenceAdapter _adapter = new();
 
     [TestCase(CompetitorType.Home, "home")]

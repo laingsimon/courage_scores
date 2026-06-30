@@ -34,18 +34,9 @@ public class ActionResultAdapterTests
 
         var dto = await _adapter.Adapt(result, otherResult);
 
-        Assert.That(dto.Errors, Is.EqualTo(new[]
-        {
-            "error",
-        }));
-        Assert.That(dto.Warnings, Is.EqualTo(new[]
-        {
-            "warning",
-        }));
-        Assert.That(dto.Messages, Is.EqualTo(new[]
-        {
-            "message",
-        }));
+        Assert.That(dto.Errors, Is.EqualTo(["error"]));
+        Assert.That(dto.Warnings, Is.EqualTo(["warning"]));
+        Assert.That(dto.Messages, Is.EqualTo(["message"]));
         Assert.That(dto.Result, Is.SameAs(otherResult));
         Assert.That(dto.Success, Is.True);
     }
@@ -74,18 +65,9 @@ public class ActionResultAdapterTests
 
         var dto = await _adapter.Adapt<object, string>(result);
 
-        Assert.That(dto.Errors, Is.EqualTo(new[]
-        {
-            "error",
-        }));
-        Assert.That(dto.Warnings, Is.EqualTo(new[]
-        {
-            "warning",
-        }));
-        Assert.That(dto.Messages, Is.EqualTo(new[]
-        {
-            "message",
-        }));
+        Assert.That(dto.Errors, Is.EqualTo(["error"]));
+        Assert.That(dto.Warnings, Is.EqualTo(["warning"]));
+        Assert.That(dto.Messages, Is.EqualTo(["message"]));
         Assert.That(dto.Result, Is.Null);
         Assert.That(dto.Success, Is.True);
     }
@@ -96,10 +78,7 @@ public class ActionResultAdapterTests
         var dto = await _adapter.Warning<string>("warning");
 
         Assert.That(dto.Errors, Is.Empty);
-        Assert.That(dto.Warnings, Is.EqualTo(new[]
-        {
-            "warning",
-        }));
+        Assert.That(dto.Warnings, Is.EqualTo(["warning"]));
         Assert.That(dto.Messages, Is.Empty);
         Assert.That(dto.Result, Is.Null);
         Assert.That(dto.Success, Is.False);

@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
@@ -8,13 +9,14 @@ namespace CourageScores.Tests.Models.Adapters.Game;
 [TestFixture]
 public class NotableTournamentPlayerAdapterTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private NotableTournamentPlayerAdapter _adapter = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _adapter = new NotableTournamentPlayerAdapter();
+        var fixture = AutoFixture.Create();
+        _adapter = fixture.Create<NotableTournamentPlayerAdapter>();
     }
 
     [Test]

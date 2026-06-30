@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Adapters.Identity;
+﻿using AutoFixture;
+using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
 using NUnit.Framework;
@@ -22,7 +23,8 @@ public class AccessLevelAdapterTests
     [SetUp]
     public void SetupEachTest()
     {
-        _adapter = new AccessLevelAdapter();
+        var fixture = AutoFixture.Create();
+        _adapter = fixture.Create<AccessLevelAdapter>();
     }
 
     [Test]

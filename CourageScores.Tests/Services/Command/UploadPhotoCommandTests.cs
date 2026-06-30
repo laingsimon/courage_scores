@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos.Identity;
@@ -16,34 +17,32 @@ public class UploadPhotoCommandTests
 {
     private readonly CancellationToken _token = CancellationToken.None;
     private Mock<IPhotoService> _photoService = null!;
-    private Mock<IUserService> _userService = null!;
     private Mock<IFormFile> _photo = null!;
     private UserDto? _user;
     private CosmosGame _game = null!;
     private UploadPhotoCommand<CosmosGame> _command = null!;
     private byte[] _fileContents = null!;
-    private IPhotoSettings _settings = null!;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _userService = new Mock<IUserService>();
-        _photoService = new Mock<IPhotoService>();
+        var fixture = AutoFixture.Create();
+        var userService = fixture.FreezeMock<IUserService>();
+        _photoService = fixture.FreezeMock<IPhotoService>();
         _access = [AccessOption.UploadPhotos];
-        _accessService = new Mock<IAccessService>();
+        var accessService = fixture.FreezeMock<IAccessService>();
         _user = new UserDto { Name = "USER" };
         _game = new CosmosGame
         {
             Id = Guid.NewGuid(),
         };
-        _photo = new Mock<IFormFile>();
-        _settings = new MutablePhotoSettings
+        _photo = fixture.FreezeMock<IFormFile>();
+        fixture.Register<IPhotoSettings>(() => new MutablePhotoSettings
         {
             MinPhotoFileSize = 1024,
             MaxPhotoCountPerEntity = 2,
-        };
+        });
         _fileContents = Enumerable.Range(0, 1024).Select(_ => (byte)1).ToArray();
         _photo
             .Setup(p => p.CopyToAsync(It.IsAny<MemoryStream>(), _token))
@@ -52,11 +51,10 @@ public class UploadPhotoCommandTests
                 stream.Write(_fileContents, 0, _fileContents.Length);
             });
 
-        _command = new UploadPhotoCommand<CosmosGame>(_userService.Object, _photoService.Object, _settings, _accessService.Object)
-            .WithPhoto(_photo.Object);
+        _command = fixture.Create<UploadPhotoCommand<CosmosGame>>().WithPhoto(_photo.Object);
 
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _accessService
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }
