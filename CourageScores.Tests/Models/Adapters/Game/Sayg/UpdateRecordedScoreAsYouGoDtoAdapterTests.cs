@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models.Adapters.Game.Sayg;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game.Sayg;
@@ -11,15 +12,16 @@ namespace CourageScores.Tests.Models.Adapters.Game.Sayg;
 [TestFixture]
 public class UpdateRecordedScoreAsYouGoDtoAdapterTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private UpdateRecordedScoreAsYouGoDtoAdapter _adapter = null!;
     private Mock<ICachingTeamService> _teamService = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _teamService = new Mock<ICachingTeamService>();
-        _adapter = new UpdateRecordedScoreAsYouGoDtoAdapter(_teamService.Object);
+        var fixture = AutoFixture.Create();
+        _teamService = fixture.FreezeMock<ICachingTeamService>();
+        _adapter = fixture.Create<UpdateRecordedScoreAsYouGoDtoAdapter>();
     }
 
     [Test]

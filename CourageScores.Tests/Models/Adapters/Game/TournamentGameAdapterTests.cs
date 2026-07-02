@@ -1,3 +1,5 @@
+using AutoFixture;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
@@ -21,13 +23,22 @@ public class TournamentGameAdapterTests
     private static readonly PhotoReference PhotoReference = new();
     private static readonly PhotoReferenceDto PhotoReferenceDto = new();
 
-    private readonly CancellationToken _token = new();
-    private readonly TournamentGameAdapter _adapter = new(
-        new MockAdapter<TournamentRound, TournamentRoundDto>(Round, RoundDto),
-        new MockSimpleAdapter<TournamentSide, TournamentSideDto>(Side, SideDto),
-        new MockAdapter<TournamentPlayer, TournamentPlayerDto>(OneEightyPlayer, OneEightyPlayerDto),
-        new MockAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto>(HiCheckPlayer, HiCheckPlayerDto),
-        new MockSimpleAdapter<PhotoReference, PhotoReferenceDto>(PhotoReference, PhotoReferenceDto));
+    private readonly CancellationToken _token = CancellationToken.None;
+    private TournamentGameAdapter _adapter = null!;
+
+    [SetUp]
+    public void SetupEachTest()
+    {
+        var fixture = AutoFixture.Create();
+
+        fixture.Register<IAdapter<TournamentRound, TournamentRoundDto>>(() => new MockAdapter<TournamentRound, TournamentRoundDto>(Round, RoundDto));
+        fixture.Register<ISimpleAdapter<TournamentSide, TournamentSideDto>>(() => new MockSimpleAdapter<TournamentSide, TournamentSideDto>(Side, SideDto));
+        fixture.Register<IAdapter<TournamentPlayer, TournamentPlayerDto>>(() => new MockAdapter<TournamentPlayer, TournamentPlayerDto>(OneEightyPlayer, OneEightyPlayerDto));
+        fixture.Register<IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto>>(() => new MockAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto>(HiCheckPlayer, HiCheckPlayerDto));
+        fixture.Register<ISimpleAdapter<PhotoReference, PhotoReferenceDto>>(() => new MockSimpleAdapter<PhotoReference, PhotoReferenceDto>(PhotoReference, PhotoReferenceDto));
+
+        _adapter = fixture.Create<TournamentGameAdapter>();
+    }
 
     [Test]
     public async Task Adapt_GivenModelWithRound_SetsPropertiesCorrectly()
@@ -70,21 +81,12 @@ public class TournamentGameAdapterTests
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.Round, Is.EqualTo(RoundDto));
         Assert.That(result.Date, Is.EqualTo(model.Date));
-        Assert.That(result.Sides, Is.EqualTo(new[]
-        {
-            SideDto,
-        }));
+        Assert.That(result.Sides, Is.EqualTo([SideDto]));
         Assert.That(result.SeasonId, Is.EqualTo(model.SeasonId));
         Assert.That(result.DivisionId, Is.EqualTo(model.DivisionId));
         Assert.That(result.Address, Is.EqualTo(model.Address));
-        Assert.That(result.OneEighties, Is.EqualTo(new[]
-        {
-            OneEightyPlayerDto,
-        }));
-        Assert.That(result.Over100Checkouts, Is.EqualTo(new[]
-        {
-            HiCheckPlayerDto,
-        }));
+        Assert.That(result.OneEighties, Is.EqualTo([OneEightyPlayerDto]));
+        Assert.That(result.Over100Checkouts, Is.EqualTo([HiCheckPlayerDto]));
         Assert.That(result.Notes, Is.EqualTo(model.Notes));
         Assert.That(result.AccoladesCount, Is.True);
         Assert.That(result.BestOf, Is.EqualTo(model.BestOf));
@@ -92,7 +94,7 @@ public class TournamentGameAdapterTests
         Assert.That(result.Host, Is.EqualTo(model.Host));
         Assert.That(result.Opponent, Is.EqualTo(model.Opponent));
         Assert.That(result.Gender, Is.EqualTo(model.Gender));
-        Assert.That(result.Photos, Is.EquivalentTo(new[] { PhotoReferenceDto }));
+        Assert.That(result.Photos, Is.EquivalentTo([PhotoReferenceDto]));
     }
 
     [Test]
@@ -146,21 +148,12 @@ public class TournamentGameAdapterTests
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.Round, Is.EqualTo(Round));
         Assert.That(result.Date, Is.EqualTo(dto.Date));
-        Assert.That(result.Sides, Is.EqualTo(new[]
-        {
-            Side,
-        }));
+        Assert.That(result.Sides, Is.EqualTo([Side]));
         Assert.That(result.SeasonId, Is.EqualTo(dto.SeasonId));
         Assert.That(result.DivisionId, Is.EqualTo(dto.DivisionId));
         Assert.That(result.Address, Is.EqualTo(dto.Address));
-        Assert.That(result.OneEighties, Is.EqualTo(new[]
-        {
-            OneEightyPlayer,
-        }));
-        Assert.That(result.Over100Checkouts, Is.EqualTo(new[]
-        {
-            HiCheckPlayer,
-        }));
+        Assert.That(result.OneEighties, Is.EqualTo([OneEightyPlayer]));
+        Assert.That(result.Over100Checkouts, Is.EqualTo([HiCheckPlayer]));
         Assert.That(result.Notes, Is.EqualTo(dto.Notes));
         Assert.That(result.AccoladesCount, Is.True);
         Assert.That(result.BestOf, Is.EqualTo(dto.BestOf));
@@ -168,7 +161,7 @@ public class TournamentGameAdapterTests
         Assert.That(result.Host, Is.EqualTo(dto.Host));
         Assert.That(result.Opponent, Is.EqualTo(dto.Opponent));
         Assert.That(result.Gender, Is.EqualTo(dto.Gender));
-        Assert.That(result.Photos, Is.EquivalentTo(new[] { PhotoReference }));
+        Assert.That(result.Photos, Is.EquivalentTo([PhotoReference]));
     }
 
     [Test]

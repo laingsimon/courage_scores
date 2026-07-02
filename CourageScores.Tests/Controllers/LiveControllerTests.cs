@@ -1,10 +1,10 @@
+using AutoFixture;
 using CourageScores.Controllers;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Live;
 using CourageScores.Services.Live;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
 using Moq;
 using NUnit.Framework;
@@ -14,17 +14,17 @@ namespace CourageScores.Tests.Controllers;
 [TestFixture]
 public class LiveControllerTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = CancellationToken.None;
     private Mock<ILiveService> _service = null!;
-    private Mock<IConfiguration> _configuration = null!;
     private LiveController _controller = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _service = new Mock<ILiveService>();
-        _configuration = new Mock<IConfiguration>();
-        _controller = new LiveController(_service.Object, _configuration.Object);
+        var fixture = AutoFixture.Create();
+
+        _service = fixture.FreezeMock<ILiveService>();
+        _controller = fixture.Build<LiveController>().OmitAutoProperties().Create();
         _controller.ControllerContext = new ControllerContext
         {
             HttpContext = new DefaultHttpContext(),

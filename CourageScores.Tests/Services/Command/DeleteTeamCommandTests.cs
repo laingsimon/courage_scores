@@ -1,4 +1,5 @@
-﻿using CourageScores.Filters;
+﻿using AutoFixture;
+using CourageScores.Filters;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services;
@@ -13,7 +14,6 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class DeleteTeamCommandTests
 {
-    private Mock<IUserService> _userService = null!;
     private Mock<IAuditingHelper> _auditingHelper = null!;
     private readonly CancellationToken _token = CancellationToken.None;
     private readonly Guid _seasonId = Guid.NewGuid();
@@ -21,23 +21,22 @@ public class DeleteTeamCommandTests
     private CosmosTeam _team = null!;
     private UserDto? _user;
     private ScopedCacheManagementFlags _cacheFlags = null!;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetUpEachTest()
     {
-        _cacheFlags = new ScopedCacheManagementFlags();
-        _userService = new Mock<IUserService>();
+        var fixture = AutoFixture.Create().WithCacheManagementFlags(out _cacheFlags);
+        var userService = fixture.FreezeMock<IUserService>();
         _access = [AccessOption.ManageTeams];
-        _accessService = new Mock<IAccessService>();
-        _auditingHelper = new Mock<IAuditingHelper>();
-        _command = new DeleteTeamCommand(_userService.Object, _auditingHelper.Object, _cacheFlags, _accessService.Object);
+        var accessService = fixture.FreezeMock<IAccessService>();
+        _auditingHelper = fixture.FreezeMock<IAuditingHelper>();
+        _command = fixture.Create<DeleteTeamCommand>();
         _team = new CosmosTeam();
         _user = new UserDto();
 
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _accessService
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }

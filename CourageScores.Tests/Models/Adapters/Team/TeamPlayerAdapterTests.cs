@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Adapters.Team;
+﻿using AutoFixture;
+using CourageScores.Models.Adapters.Team;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Team;
@@ -11,8 +12,7 @@ namespace CourageScores.Tests.Models.Adapters.Team;
 [TestFixture]
 public class TeamPlayerAdapterTests
 {
-    private readonly CancellationToken _token = new();
-    private Mock<IUserService> _userService = null!;
+    private readonly CancellationToken _token = CancellationToken.None;
     private Mock<IAccessService> _accessService = null!;
     private TeamPlayerAdapter _adapter = null!;
     private UserDto? _user;
@@ -20,11 +20,12 @@ public class TeamPlayerAdapterTests
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _user = null;
-        _userService = new Mock<IUserService>();
-        _accessService = new Mock<IAccessService>();
-        _adapter = new TeamPlayerAdapter(_userService.Object, _accessService.Object);
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        var userService = fixture.FreezeMock<IUserService>();
+        _accessService = fixture.FreezeMock<IAccessService>();
+        _adapter = fixture.Create<TeamPlayerAdapter>();
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
     }
 
     [Test]

@@ -1,3 +1,5 @@
+using AutoFixture;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
@@ -44,49 +46,38 @@ public class GameAdapterTests
     private static readonly PhotoReferenceDto PhotoReferenceDto = new();
     private readonly CancellationToken _token = CancellationToken.None;
     private Mock<IFeatureService> _featureService = null!;
-    private Mock<IUserService> _userService = null!;
     private GameAdapter _adapter = null!;
     private UserDto? _user;
     private MockAdapter<GameMatch, GameMatchDto> _matchAdapter = null!;
     private DateTimeOffset _now;
-    private Mock<TimeProvider> _clock = null!;
-    private Mock<Random> _random = null!;
     private Queue<int> _randomValues = null!;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _user = new UserDto();
-        _featureService = new Mock<IFeatureService>();
-        _userService = new Mock<IUserService>();
-        _accessService = new Mock<IAccessService>();
-        _clock = new Mock<TimeProvider>();
-        _random = new Mock<Random>();
+        _featureService = fixture.FreezeMock<IFeatureService>();
+        var userService = fixture.FreezeMock<IUserService>();
+        var accessService = fixture.FreezeMock<IAccessService>();
+        var clock = fixture.FreezeMock<TimeProvider>();
+        var random = fixture.FreezeMock<Random>();
         _randomValues = new Queue<int>();
         _access = [AccessOption.ManageScores];
-        _matchAdapter = new MockAdapter<GameMatch, GameMatchDto>(
-            [GameMatch, PublishedGameMatch],
-            [GameMatchDto, PublishedGameMatchDto]);
+        _matchAdapter = new MockAdapter<GameMatch, GameMatchDto>([GameMatch, PublishedGameMatch], [GameMatchDto, PublishedGameMatchDto]);
+        fixture.Register<IAdapter<GameMatch, GameMatchDto>>(() => _matchAdapter);
+        fixture.Register<IAdapter<GameTeam, GameTeamDto>>(() => new MockAdapter<GameTeam, GameTeamDto>([HomeTeam, AwayTeam], [HomeTeamDto, AwayTeamDto]));
+        fixture.Register<IAdapter<GamePlayer, GamePlayerDto>>(() => new MockAdapter<GamePlayer, GamePlayerDto>(OneEightyPlayer, OneEightyPlayerDto));
+        fixture.Register<IAdapter<NotablePlayer, NotablePlayerDto>>(() => new MockAdapter<NotablePlayer, NotablePlayerDto>(HiCheckPlayer, HiCheckPlayerDto));
+        fixture.Register<ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?>>(() => new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(MatchOption, MatchOptionDto));
+        fixture.Register<ISimpleAdapter<PhotoReference, PhotoReferenceDto>>(() => new MockSimpleAdapter<PhotoReference, PhotoReferenceDto>(PhotoReference, PhotoReferenceDto));
+        _adapter = fixture.Create<GameAdapter>();
 
-        _adapter = new GameAdapter(
-            _matchAdapter,
-            new MockAdapter<GameTeam, GameTeamDto>([HomeTeam, AwayTeam], [HomeTeamDto, AwayTeamDto]),
-            new MockAdapter<GamePlayer, GamePlayerDto>(OneEightyPlayer, OneEightyPlayerDto),
-            new MockAdapter<NotablePlayer, NotablePlayerDto>(HiCheckPlayer, HiCheckPlayerDto),
-            new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(MatchOption, MatchOptionDto),
-            new MockSimpleAdapter<PhotoReference, PhotoReferenceDto>(PhotoReference, PhotoReferenceDto),
-            _featureService.Object,
-            _userService.Object,
-            _clock.Object,
-            _random.Object,
-            _accessService.Object);
-
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
-        _random.Setup(r => r.Next()).Returns(() => _randomValues.Dequeue());
-        _accessService
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
+        random.Setup(r => r.Next()).Returns(() => _randomValues.Dequeue());
+        accessService
             .Setup(s => s.HasAccess(_user, It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto _, AccessOption access, CancellationToken _) => _access.Contains(access));
     }

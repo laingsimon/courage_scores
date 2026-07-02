@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Cosmos;
+﻿using AutoFixture;
+using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services.Command;
@@ -11,18 +12,18 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class AddErrorCommandTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private AddErrorCommand _command = null!;
     private ErrorDetailDto _update = null!;
     private ErrorDetail _error = null!;
-    private Mock<IUserService> _userService = null!;
     private UserDto? _user;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _userService = new Mock<IUserService>();
-        _command = new AddErrorCommand(_userService.Object);
+        var fixture = AutoFixture.Create();
+        var userService = fixture.FreezeMock<IUserService>();
+        _command = fixture.Create<AddErrorCommand>();
         _update = new ErrorDetailDto();
         _error = new ErrorDetail();
         _user = new UserDto
@@ -30,7 +31,7 @@ public class AddErrorCommandTests
             Name = "user-name",
         };
 
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
     }
 
     [Test]
@@ -38,10 +39,7 @@ public class AddErrorCommandTests
     {
         _update.Message = "new message";
         _update.Source = SourceSystem.Api;
-        _update.Stack = new[]
-        {
-            "frame1",
-        };
+        _update.Stack = ["frame1"];
         _update.Type = "type";
         _update.UserAgent = "user agent";
         _update.UserName = "update-user-name";

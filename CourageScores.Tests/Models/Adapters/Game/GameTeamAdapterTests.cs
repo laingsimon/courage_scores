@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
@@ -15,21 +16,20 @@ public class GameTeamAdapterTests
     private const string UserTeamId = "BB6F3067-F2C2-464F-9136-EA6E0C1E2AD0";
     private readonly CancellationToken _token = CancellationToken.None;
     private GameTeamAdapter _adapter = null!;
-    private Mock<IUserService> _userService = null!;
     private UserDto? _user;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _user = new UserDto { TeamId = Guid.Parse(UserTeamId) };
         _access = [];
-        _userService = new Mock<IUserService>();
-        _accessService = new Mock<IAccessService>();
-        _adapter = new GameTeamAdapter(_userService.Object, _accessService.Object);
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _accessService
+        var userService = fixture.FreezeMock<IUserService>();
+        var accessService = fixture.FreezeMock<IAccessService>();
+        _adapter = fixture.Create<GameTeamAdapter>();
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
     }

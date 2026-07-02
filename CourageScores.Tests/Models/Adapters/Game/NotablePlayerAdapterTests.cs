@@ -8,7 +8,7 @@ namespace CourageScores.Tests.Models.Adapters.Game;
 [TestFixture]
 public class NotablePlayerAdapterTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly NotablePlayerAdapter _adapter = new();
 
     [Test]

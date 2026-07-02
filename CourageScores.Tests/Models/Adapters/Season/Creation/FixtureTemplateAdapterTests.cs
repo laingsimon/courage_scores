@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Adapters.Season.Creation;
+﻿using AutoFixture;
+using CourageScores.Models.Adapters.Season.Creation;
 using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Dtos.Season.Creation;
 using CourageScores.Tests.Models.Dtos.Season.Creation;
@@ -9,13 +10,14 @@ namespace CourageScores.Tests.Models.Adapters.Season.Creation;
 [TestFixture]
 public class FixtureTemplateAdapterTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private FixtureTemplateAdapter _adapter = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _adapter = new FixtureTemplateAdapter();
+        var fixture = AutoFixture.Create();
+        _adapter = fixture.Create<FixtureTemplateAdapter>();
     }
 
     [Test]

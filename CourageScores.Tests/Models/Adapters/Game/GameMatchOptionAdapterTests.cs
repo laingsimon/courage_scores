@@ -8,7 +8,7 @@ namespace CourageScores.Tests.Models.Adapters.Game;
 [TestFixture]
 public class GameMatchOptionAdapterTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
 
     [Test]
     public async Task Adapt_GivenNullDto_ReturnsNullModel()

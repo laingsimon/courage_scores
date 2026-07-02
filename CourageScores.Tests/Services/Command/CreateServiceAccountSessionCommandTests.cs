@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Cosmos.Identity;
+﻿using AutoFixture;
+using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Repository;
@@ -14,13 +15,11 @@ namespace CourageScores.Tests.Services.Command;
 public class CreateServiceAccountSessionCommandTests
 {
     private readonly CancellationToken _token = CancellationToken.None;
-    private Mock<IUserService> _userService = null!;
     private Mock<IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto>> _service = null!;
     private DefaultHttpContext _httpContext = null!;
     private ServiceAccountSession _existingSession = null!;
     private UserDto? _user;
     private Mock<IRequestCookieCollection> _requestCookies = null!;
-    private Mock<IFeatureService> _featureService = null!;
     private ConfiguredFeatureDto _feature = null!;
     private readonly CreateSessionRequestDto _request = new CreateSessionRequestDto
     {
@@ -32,12 +31,13 @@ public class CreateServiceAccountSessionCommandTests
     [SetUp]
     public void SetupEachTest()
     {
-        var httpContextAccessor = new Mock<IHttpContextAccessor>();
-        _userService = new Mock<IUserService>();
-        _featureService = new Mock<IFeatureService>();
+        var fixture = AutoFixture.Create();
+        var httpContextAccessor = fixture.FreezeMock<IHttpContextAccessor>();
+        var userService = fixture.FreezeMock<IUserService>();
+        var featureService = fixture.FreezeMock<IFeatureService>();
         _feature = new ConfiguredFeatureDto { ConfiguredValue = "true" };
-        _service = new Mock<IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto>>();
-        _requestCookies = new Mock<IRequestCookieCollection>();
+        _service = fixture.FreezeMock<IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto>>();
+        _requestCookies = fixture.FreezeMock<IRequestCookieCollection>();
         _httpContext = new DefaultHttpContext
         {
             Request =
@@ -45,8 +45,7 @@ public class CreateServiceAccountSessionCommandTests
                 Cookies = _requestCookies.Object,
             },
         };
-        _command = new CreateServiceAccountSessionCommand(_userService.Object, httpContextAccessor.Object, _service.Object, _featureService.Object)
-            .WithRequest(_request);
+        _command = fixture.Create<CreateServiceAccountSessionCommand>().WithRequest(_request);
         _existingSession = new ServiceAccountSession
         {
             Id = Guid.NewGuid(),
@@ -57,9 +56,9 @@ public class CreateServiceAccountSessionCommandTests
         };
         _user = null;
 
-        _userService.Setup(u => u.GetUser(_token)).ReturnsAsync(() => _user);
+        userService.Setup(u => u.GetUser(_token)).ReturnsAsync(() => _user);
         httpContextAccessor.Setup(x => x.HttpContext).Returns(_httpContext);
-        _featureService.Setup(s => s.Get(FeatureLookup.ServiceAccountSessions, _token)).ReturnsAsync(() => _feature);
+        featureService.Setup(s => s.Get(FeatureLookup.ServiceAccountSessions, _token)).ReturnsAsync(() => _feature);
     }
 
     [Test]

@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Filters;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Game;
@@ -11,7 +12,6 @@ using CourageScores.Models.Dtos.Live;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Services;
 using CourageScores.Services.Command;
-using CourageScores.Services.Identity;
 using CourageScores.Services.Live;
 using CourageScores.Services.Season;
 using CourageScores.Tests.Models.Adapters;
@@ -55,22 +55,15 @@ public class AddOrUpdateTournamentGameCommandTests
         Players = { Side2Player1 },
     };
 
-    private Mock<ICachingSeasonService> _seasonService = null!;
-    private ISimpleAdapter<TournamentSide, TournamentSideDto> _sideAdapter = null!;
-    private IAdapter<TournamentRound, TournamentRoundDto> _roundAdapter = null!;
-    private Mock<IAuditingHelper> _auditingHelper = null!;
     private AddOrUpdateTournamentGameCommand _command = null!;
     private readonly CancellationToken _token = CancellationToken.None;
-    private readonly SeasonDto _season = new SeasonDtoBuilder().Build();
+    private SeasonDto? _season;
     private TournamentGame _game = null!;
     private EditTournamentGameDto _update = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
-    private MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?> _matchOptionAdapter = null!;
     private MockAdapter<TournamentMatch, TournamentMatchDto> _matchAdapter = null!;
     private Mock<IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>> _saygService = null!;
     private Mock<ICommandFactory> _commandFactory = null!;
-    private Mock<IAdapter<TournamentPlayer, TournamentPlayerDto>> _tournamentPlayerAdapter = null!;
-    private Mock<IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto>> _notableTournamentPlayerAdapter = null!;
     private Mock<IUpdateRecordedScoreAsYouGoDtoAdapter> _updateRecordedScoreAsYouGoDtoAdapter = null!;
     private Mock<IWebSocketMessageProcessor> _processor = null!;
     private GameMatchOption _matchOptions = null!;
@@ -79,6 +72,8 @@ public class AddOrUpdateTournamentGameCommandTests
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create().WithCacheManagementFlags(out _cacheFlags);
+        _season = new SeasonDtoBuilder().Build();
         _matchOptions = new GameMatchOption();
         _matchOptionsDto = new GameMatchOptionDto();
         _game = new TournamentGameBuilder().WithDate(new DateTime(2002, 03, 04)).Build();
@@ -88,34 +83,22 @@ public class AddOrUpdateTournamentGameCommandTests
             SeasonId = _season.Id,
             LastUpdated = _game.Updated,
         };
-        _cacheFlags = new ScopedCacheManagementFlags();
-        _seasonService = new Mock<ICachingSeasonService>();
-        _processor = new Mock<IWebSocketMessageProcessor>();
-        _tournamentPlayerAdapter = new Mock<IAdapter<TournamentPlayer, TournamentPlayerDto>>();
-        _sideAdapter = new TournamentSideAdapter(_tournamentPlayerAdapter.Object);
-        _matchOptionAdapter = new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(_matchOptions, _matchOptionsDto);
+        var seasonService = fixture.FreezeMock<ICachingSeasonService>();
+        _processor = fixture.FreezeMock<IWebSocketMessageProcessor>();
+        var tournamentPlayerAdapter = fixture.FreezeMock<IAdapter<TournamentPlayer, TournamentPlayerDto>>();
+        fixture.Register<ISimpleAdapter<TournamentSide, TournamentSideDto>>(fixture.Create<TournamentSideAdapter>);
+        fixture.Register<ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?>>(() => new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(_matchOptions, _matchOptionsDto));
         _matchAdapter = new MockAdapter<TournamentMatch, TournamentMatchDto>();
-        _roundAdapter = new TournamentRoundAdapter(_matchAdapter, _sideAdapter, _matchOptionAdapter);
-        _auditingHelper = new Mock<IAuditingHelper>();
-        _saygService = new Mock<IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>>();
-        _commandFactory = new Mock<ICommandFactory>();
-        _updateRecordedScoreAsYouGoDtoAdapter = new Mock<IUpdateRecordedScoreAsYouGoDtoAdapter>(MockBehavior.Strict);
-        _notableTournamentPlayerAdapter = new Mock<IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto>>();
+        fixture.Register<IAdapter<TournamentMatch, TournamentMatchDto>>(() => _matchAdapter);
+        fixture.Register<IAdapter<TournamentRound, TournamentRoundDto>>(fixture.Create<TournamentRoundAdapter>);
+        _saygService = fixture.FreezeMock<IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>>();
+        _commandFactory = fixture.FreezeMock<ICommandFactory>();
+        _updateRecordedScoreAsYouGoDtoAdapter = fixture.FreezeMock<IUpdateRecordedScoreAsYouGoDtoAdapter>();
+        var notableTournamentPlayerAdapter = fixture.FreezeMock<IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto>>();
 
-        _command = new AddOrUpdateTournamentGameCommand(
-            _seasonService.Object,
-            _sideAdapter,
-            _roundAdapter,
-            _auditingHelper.Object,
-            _cacheFlags,
-            _saygService.Object,
-            _commandFactory.Object,
-            _updateRecordedScoreAsYouGoDtoAdapter.Object,
-            _tournamentPlayerAdapter.Object,
-            _notableTournamentPlayerAdapter.Object,
-            _processor.Object);
+        _command = fixture.Create<AddOrUpdateTournamentGameCommand>();
 
-        _tournamentPlayerAdapter
+        tournamentPlayerAdapter
             .Setup(a => a.Adapt(It.IsAny<TournamentPlayerDto>(), _token))
             .ReturnsAsync((TournamentPlayerDto player, CancellationToken _) => new TournamentPlayer
             {
@@ -123,15 +106,15 @@ public class AddOrUpdateTournamentGameCommandTests
                 Name = player.Name,
             });
 
-        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(() => _season);
-        _tournamentPlayerAdapter.Setup(a => a.Adapt(OneEightyPlayerDto, _token)).ReturnsAsync(OneEightyPlayer);
-        _notableTournamentPlayerAdapter.Setup(a => a.Adapt(Over100CheckoutPlayerDto, _token)).ReturnsAsync(Over100CheckoutPlayer);
+        seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(() => _season);
+        tournamentPlayerAdapter.Setup(a => a.Adapt(OneEightyPlayerDto, _token)).ReturnsAsync(OneEightyPlayer);
+        notableTournamentPlayerAdapter.Setup(a => a.Adapt(Over100CheckoutPlayerDto, _token)).ReturnsAsync(Over100CheckoutPlayer);
     }
 
     [Test]
     public async Task ApplyUpdates_WhenNoLatestSeason_ReturnsUnsuccessful()
     {
-        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(() => null);
+        _season = null;
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 
@@ -328,7 +311,7 @@ public class AddOrUpdateTournamentGameCommandTests
     [Test]
     public async Task ApplyUpdates_WhenSaygExistsFoundForMatch_UpdatesSaygSession()
     {
-        var command = new Mock<AddOrUpdateSaygCommand>(MockBehavior.Strict, new Mock<ISimpleAdapter<Leg, LegDto>>().Object, new Mock<IUserService>().Object, new Mock<IAccessService>().Object);
+        var command = AutoFixture.Create().FreezeMockOf<AddOrUpdateSaygCommand>();
         var saygUpdate = new UpdateRecordedScoreAsYouGoDto();
         var sayg = new RecordedScoreAsYouGoDto
         {
@@ -362,7 +345,7 @@ public class AddOrUpdateTournamentGameCommandTests
     [Test]
     public async Task ApplyUpdates_WhenSaygExistsFoundForMatchWithMatchOptions_UpdatesSaygSession()
     {
-        var command = new Mock<AddOrUpdateSaygCommand>(MockBehavior.Strict, new Mock<ISimpleAdapter<Leg, LegDto>>().Object, new Mock<IUserService>().Object, new Mock<IAccessService>().Object);
+        var command = AutoFixture.Create().FreezeMockOf<AddOrUpdateSaygCommand>();
         var saygUpdate = new UpdateRecordedScoreAsYouGoDto();
         var sayg = new RecordedScoreAsYouGoDto
         {

@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Filters;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
@@ -9,15 +10,16 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class AddOrUpdateNoteCommandTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private AddOrUpdateNoteCommand _command = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _cacheFlags = new ScopedCacheManagementFlags();
-        _command = new AddOrUpdateNoteCommand(_cacheFlags);
+        _command = AutoFixture.Create()
+            .WithCacheManagementFlags(out _cacheFlags)
+            .Create<AddOrUpdateNoteCommand>();
     }
 
     [Test]
