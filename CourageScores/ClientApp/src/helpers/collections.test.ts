@@ -8,6 +8,7 @@ import {
     distinct,
     elementAt,
     groupAndSortByOccurrences,
+    groupBy,
     isEmpty,
     max,
     reverse,
@@ -560,6 +561,33 @@ describe('collections', () => {
             const result = batchValues([1, 2, 3]);
 
             expect(result).toEqual([[1, 2], [3]]);
+        });
+    });
+
+    describe('groupBy', () => {
+        it('returns empty when given undefined array', () => {
+            const result = groupBy(undefined, 'anything');
+
+            expect(result).toEqual([]);
+        });
+
+        it('returns single element when all items have the same grouping key', () => {
+            const a = { name: 'a', age: 1 };
+            const b = { name: 'a', age: 2 };
+            const result = groupBy([a, b], 'name');
+
+            expect(result).toEqual([{ key: 'a', items: [a, b] }]);
+        });
+
+        it('returns elements for all grouped items', () => {
+            const a = { name: 'a', age: 1 };
+            const b = { name: 'b', age: 2 };
+            const result = groupBy([a, b], 'name');
+
+            expect(result).toEqual([
+                { key: 'a', items: [a] },
+                { key: 'b', items: [b] },
+            ]);
         });
     });
 });

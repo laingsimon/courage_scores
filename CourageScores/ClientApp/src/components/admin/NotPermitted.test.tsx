@@ -44,7 +44,7 @@ describe('NotPermitted', () => {
         it('renders home button', async () => {
             await renderComponent(
                 appProps({
-                    account: user({}),
+                    account: user(),
                 }),
             );
 

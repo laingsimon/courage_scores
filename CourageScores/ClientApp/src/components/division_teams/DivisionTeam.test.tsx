@@ -25,6 +25,7 @@ import { seasonBuilder } from '../../helpers/builders/seasons.ts';
 import { divisionBuilder } from '../../helpers/builders/divisions.ts';
 import { ITeamApi } from '../../interfaces/apis/ITeamApi.ts';
 import { IPreferenceData } from '../common/PreferencesContainer.tsx';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('DivisionTeam', () => {
     let context: TestContext;
@@ -245,9 +246,7 @@ describe('DivisionTeam', () => {
     });
 
     describe('when logged in', () => {
-        const account = user({
-            manageTeams: true,
-        });
+        const account = user([AccessOption.manageTeams]);
         const division = divisionBuilder('DIVISION').build();
         const season = seasonBuilder('SEASON').withDivision(division).build();
 

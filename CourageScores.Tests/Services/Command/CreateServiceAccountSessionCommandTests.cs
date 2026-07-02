@@ -87,10 +87,7 @@ public class CreateServiceAccountSessionCommandTests
     [Test]
     public async Task ApplyUpdates_WhenLoggedIn_ReturnsNotPermittedWhenLoggedIn()
     {
-        _user = new UserDto
-        {
-            Access = new AccessDto(),
-        };
+        _user = new UserDto();
 
         var result = await _command.ApplyUpdate(_existingSession, _token);
 

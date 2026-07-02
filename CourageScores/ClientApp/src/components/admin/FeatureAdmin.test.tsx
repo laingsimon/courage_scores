@@ -40,7 +40,7 @@ describe('FeatureAdmin', () => {
             brandingProps(),
             appProps(
                 {
-                    account: user({}),
+                    account: user(),
                 },
                 reportedError,
             ),

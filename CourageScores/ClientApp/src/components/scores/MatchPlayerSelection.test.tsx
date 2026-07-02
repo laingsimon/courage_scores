@@ -49,6 +49,7 @@ import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto.ts';
 import { ILegBuilder } from '../../helpers/builders/sayg.ts';
 import { BuilderParam } from '../../helpers/builders/builders.ts';
 import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('MatchPlayerSelection', () => {
     const emptyTeam: GameTeamDto = { id: '', name: '' };
@@ -231,7 +232,7 @@ describe('MatchPlayerSelection', () => {
     describe('renders', () => {
         const season: SeasonDto = seasonBuilder('SEASON').build();
         const division: DivisionDto = divisionBuilder('DIVISION').build();
-        const account: UserDto = user({});
+        const account: UserDto = user();
         const homePlayer = playerBuilder('HOME').build();
         const awayPlayer = playerBuilder('AWAY').build();
         const newPlayer = playerBuilder('Add a player...', NEW_PLAYER).build();
@@ -513,7 +514,7 @@ describe('MatchPlayerSelection', () => {
 
         it('when permitted to record scores as you go', async () => {
             await renderAs(
-                user({ recordScoresAsYouGo: true }),
+                user([AccessOption.recordScoresAsYouGo]),
                 props(
                     matchBuilder()
                         .withHome(homePlayer)
@@ -528,7 +529,7 @@ describe('MatchPlayerSelection', () => {
 
         it('when not permitted to record scores as you go', async () => {
             await renderAs(
-                user({ recordScoresAsYouGo: false }),
+                user(),
                 props(
                     matchBuilder()
                         .withHome(homePlayer)
@@ -545,11 +546,8 @@ describe('MatchPlayerSelection', () => {
     describe('interactivity', () => {
         const season: SeasonDto = seasonBuilder('SEASON').build();
         const division: DivisionDto = divisionBuilder('DIVISION').build();
-        const account: UserDto = user({
-            recordScoresAsYouGo: false,
-            managePlayers: true,
-        });
-        const saygOnlyAccount = user({ recordScoresAsYouGo: true });
+        const account: UserDto = user([AccessOption.managePlayers]);
+        const saygOnlyAccount = user([AccessOption.recordScoresAsYouGo]);
         const homePlayer = playerBuilder('HOME').build();
         const awayPlayer = playerBuilder('AWAY').build();
         const newPlayer = playerBuilder('Add a player...', NEW_PLAYER).build();

@@ -150,7 +150,7 @@ describe('Login', () => {
 
     describe('when logged in', () => {
         it('shows google auth account details', async () => {
-            const account = user({});
+            const account = user();
             account.transient = false;
 
             await renderComponent(appProps({ account }));
@@ -161,7 +161,7 @@ describe('Login', () => {
         });
 
         it('shows service account details', async () => {
-            const account = user({});
+            const account = user();
             account.transient = true;
 
             await renderComponent(appProps({ account }));

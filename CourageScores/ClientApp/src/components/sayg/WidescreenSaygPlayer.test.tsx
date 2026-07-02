@@ -7,6 +7,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests.tsx';
 import {
     IWidescreenSaygPlayerProps,
@@ -21,6 +22,7 @@ import {
 import { ILiveOptions } from '../../live/ILiveOptions.ts';
 import { RecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto.ts';
 import { ISaygApi } from '../../interfaces/apis/ISaygApi.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('WidescreenSaygPlayer', () => {
     let context: TestContext;
@@ -73,14 +75,7 @@ describe('WidescreenSaygPlayer', () => {
             brandingProps(),
             appProps(
                 {
-                    account: {
-                        emailAddress: '',
-                        givenName: '',
-                        name: '',
-                        access: {
-                            useWebSockets: true,
-                        },
-                    },
+                    account: user([AccessOption.useWebSockets]),
                 },
                 reportedError,
             ),

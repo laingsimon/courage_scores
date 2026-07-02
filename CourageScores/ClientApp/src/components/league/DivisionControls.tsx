@@ -19,6 +19,8 @@ import { EditSeasonDto } from '../../interfaces/models/dtos/Season/EditSeasonDto
 import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
 import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 import { asyncClear } from '../../helpers/events.ts';
+import { hasAccess } from '../../helpers/conditions.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface IDivisionControlsProps {
     originalSeasonData?: SeasonDto;
@@ -45,11 +47,9 @@ export function DivisionControls({
         seasons,
     } = useApp();
     // noinspection JSUnresolvedVariable
-    const isDivisionAdmin =
-        account && account.access && account.access.manageDivisions;
+    const isDivisionAdmin = hasAccess(account, AccessOption.manageDivisions);
     // noinspection JSUnresolvedVariable
-    const isSeasonAdmin =
-        account && account.access && account.access.manageSeasons;
+    const isSeasonAdmin = hasAccess(account, AccessOption.manageSeasons);
     const [saveError, setSaveError] = useState<
         IClientActionResultDto<DivisionDto> | undefined
     >(undefined);

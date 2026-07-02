@@ -27,9 +27,10 @@ import { add180, addHiCheck } from '../common/Accolades.tsx';
 import { START_SCORING } from './tournaments.ts';
 import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 import { asyncClear } from '../../helpers/events.ts';
-import { hasAccess } from '../../helpers/conditions.ts';
+import { hasAccess, hasAnyAccess } from '../../helpers/conditions.ts';
 import { useNavigate, useLocation } from 'react-router';
 import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface IMatchSaygProps {
     match: TournamentMatchDto;
@@ -84,7 +85,7 @@ export function MatchSayg({
         tournamentData,
         setTournamentData!,
     );
-    const kioskMode: boolean = hasAccess(account, (access) => access.kioskMode);
+    const kioskMode: boolean = hasAccess(account, AccessOption.kioskMode);
     const saygOpen = fragmentSaygId === match.saygId;
 
     async function changeDialogState(changeToOpen: boolean, saygId?: string) {
@@ -181,12 +182,13 @@ export function MatchSayg({
     }
 
     function canOpenSaygDialog(): boolean {
-        const isPermitted: boolean = hasAccess(
+        const saygAccess = hasAccess(account, AccessOption.recordScoresAsYouGo);
+        const canEnterResults = hasAnyAccess(
             account,
-            (access) =>
-                access.recordScoresAsYouGo &&
-                (access.manageTournaments || access.enterTournamentResults),
+            AccessOption.manageTournaments,
+            AccessOption.enterTournamentResults,
         );
+        const isPermitted: boolean = saygAccess && canEnterResults;
         const hasSaygId: boolean = !!match.saygId;
         const hasSidesSelected: boolean =
             match.sideA !== null && match.sideB !== null;

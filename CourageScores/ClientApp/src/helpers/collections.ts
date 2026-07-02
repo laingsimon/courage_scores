@@ -45,6 +45,26 @@ export interface IFrequency {
     occurrences: number;
 }
 
+export function groupBy<T>(
+    items: T[] | undefined,
+    property: string,
+): { key: string; items: T[] }[] {
+    if (!items) {
+        return [];
+    }
+
+    const groups: { [key: string]: T[] } = {};
+
+    for (const item of items) {
+        const key = item[property];
+        const group = groups[key] ?? [];
+        group.push(item);
+        groups[key] = group;
+    }
+
+    return Object.keys(groups).map((key) => ({ key, items: groups[key] }));
+}
+
 /*
  * Group items in a collections by the given property and return them in order of occurrences, descending
  * */

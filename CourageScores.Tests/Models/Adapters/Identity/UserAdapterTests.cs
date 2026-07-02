@@ -32,7 +32,6 @@ public class UserAdapterTests
         var model = new User
         {
             TeamId = Guid.NewGuid(),
-            Access = new Access(),
             Id = Guid.NewGuid(),
             Name = "name",
             EmailAddress = "email@somewhere.com",

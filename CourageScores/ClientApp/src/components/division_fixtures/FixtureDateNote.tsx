@@ -10,6 +10,7 @@ import { EditFixtureDateNoteDto } from '../../interfaces/models/dtos/EditFixture
 import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 import { hasAccess } from '../../helpers/conditions.ts';
 import { renderDate } from '../../helpers/rendering.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface IFixtureDateNoteProps {
     note: EditFixtureDateNoteDto;
@@ -26,10 +27,7 @@ export function FixtureDateNote({
     const { account, onError } = useApp();
     const { noteApi } = useDependencies();
     const [deletingNote, setDeletingNote] = useState<boolean>(false);
-    const isNoteAdmin: boolean = hasAccess(
-        account,
-        (access) => access.manageNotes,
-    );
+    const isNoteAdmin: boolean = hasAccess(account, AccessOption.manageNotes);
     const isOutOfSeason =
         season &&
         note.date &&

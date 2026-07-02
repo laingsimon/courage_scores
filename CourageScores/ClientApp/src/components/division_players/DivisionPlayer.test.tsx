@@ -26,6 +26,7 @@ import { divisionBuilder } from '../../helpers/builders/divisions.ts';
 import { seasonBuilder } from '../../helpers/builders/seasons.ts';
 import { IPlayerApi } from '../../interfaces/apis/IPlayerApi.ts';
 import { IPreferenceData } from '../common/PreferencesContainer.tsx';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('DivisionPlayer', () => {
     let context: TestContext;
@@ -412,9 +413,7 @@ describe('DivisionPlayer', () => {
     });
 
     describe('when logged in', () => {
-        const account = user({
-            managePlayers: true,
-        });
+        const account = user([AccessOption.managePlayers]);
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const season: SeasonDto = seasonBuilder('SEASON')
             .withDivision(division)

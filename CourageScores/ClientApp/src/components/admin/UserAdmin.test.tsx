@@ -15,6 +15,7 @@ import { UpdateAccessDto } from '../../interfaces/models/dtos/Identity/UpdateAcc
 import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
 import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
 import { IAccountApi } from '../../interfaces/apis/IAccountApi.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('UserAdmin', () => {
     let context: TestContext;
@@ -76,7 +77,8 @@ describe('UserAdmin', () => {
         reportedError.verifyNoError();
         expect(context.text()).toContain('Manage access');
         expect(
-            getAccess('manageAccess').element<HTMLInputElement>().checked,
+            getAccess(AccessOption.manageAccess).element<HTMLInputElement>()
+                .checked,
         ).toEqual(false);
     });
 
@@ -95,9 +97,7 @@ describe('UserAdmin', () => {
     });
 
     it('renders user with no access', async () => {
-        const account = user({
-            manageAccess: true,
-        });
+        const account = user([AccessOption.manageAccess]);
         const otherAccount: UserDto = {
             givenName: '',
             emailAddress: 'c@d.com',
@@ -110,7 +110,8 @@ describe('UserAdmin', () => {
         reportedError.verifyNoError();
         expect(context.text()).toContain('Manage access');
         expect(
-            getAccess('manageAccess').element<HTMLInputElement>().checked,
+            getAccess(AccessOption.manageAccess).element<HTMLInputElement>()
+                .checked,
         ).toEqual(false);
     });
 
@@ -119,16 +120,16 @@ describe('UserAdmin', () => {
             givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
-            access: {
-                manageAccess: true,
+            accessLevels: {
+                [AccessOption.manageAccess]: {},
             },
         };
         const otherAccount: UserDto = {
             givenName: '',
             emailAddress: 'c@d.com',
             name: 'Other user',
-            access: {
-                manageAccess: true,
+            accessLevels: {
+                [AccessOption.manageAccess]: {},
             },
         };
         await renderComponent([account, otherAccount], account);
@@ -138,7 +139,8 @@ describe('UserAdmin', () => {
         reportedError.verifyNoError();
         expect(context.text()).toContain('Manage access');
         expect(
-            getAccess('manageAccess').element<HTMLInputElement>().checked,
+            getAccess(AccessOption.manageAccess).element<HTMLInputElement>()
+                .checked,
         ).toEqual(true);
     });
 
@@ -147,29 +149,29 @@ describe('UserAdmin', () => {
             givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
-            access: {
-                manageAccess: true,
+            accessLevels: {
+                [AccessOption.manageAccess]: {},
             },
         };
         const otherAccount: UserDto = {
             givenName: '',
             emailAddress: 'c@d.com',
             name: 'Other user',
-            access: {
-                manageAccess: true,
+            accessLevels: {
+                [AccessOption.manageAccess]: {},
             },
         };
         await renderComponent([account, otherAccount], account);
         await context.required('.dropdown-menu').select('Other user');
-        await getAccess('manageGames').click();
+        await getAccess(AccessOption.manageGames).click();
 
         await context.button('Set access').click();
 
         reportedError.verifyNoError();
         expect(updatedAccess).toEqual({
-            access: {
-                manageAccess: true,
-                manageGames: true,
+            accessLevels: {
+                [AccessOption.manageGames]: {},
+                [AccessOption.manageAccess]: {},
             },
             emailAddress: 'c@d.com',
         });
@@ -180,21 +182,21 @@ describe('UserAdmin', () => {
             givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
-            access: {
-                manageAccess: true,
+            accessLevels: {
+                [AccessOption.manageAccess]: {},
             },
         };
         const otherAccount: UserDto = {
             givenName: '',
             emailAddress: 'c@d.com',
             name: 'Other user',
-            access: {
-                manageAccess: true,
+            accessLevels: {
+                [AccessOption.manageAccess]: {},
             },
         };
         await renderComponent([account, otherAccount], account);
         await context.required('.dropdown-menu').select('Other user');
-        await getAccess('manageGames').click();
+        await getAccess(AccessOption.manageGames).click();
         apiResponse = { success: false, errors: ['SOME ERROR'] };
 
         await context.button('Set access').click();
@@ -209,21 +211,21 @@ describe('UserAdmin', () => {
             givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
-            access: {
-                manageAccess: true,
+            accessLevels: {
+                [AccessOption.manageAccess]: {},
             },
         };
         const otherAccount: UserDto = {
             givenName: '',
             emailAddress: 'c@d.com',
             name: 'Other user',
-            access: {
-                manageAccess: true,
+            accessLevels: {
+                [AccessOption.manageAccess]: {},
             },
         };
         await renderComponent([account, otherAccount], account);
         await context.required('.dropdown-menu').select('Other user');
-        await getAccess('manageGames').click();
+        await getAccess(AccessOption.manageGames).click();
         apiResponse = { success: false, errors: ['SOME ERROR'] };
         await context.button('Set access').click();
         expect(context.text()).toContain('Could not save access');
@@ -238,20 +240,20 @@ describe('UserAdmin', () => {
             givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
-            access: {
-                manageAccess: true,
+            accessLevels: {
+                [AccessOption.manageAccess]: {},
             },
         };
         const otherAccount: UserDto = {
             givenName: '',
             emailAddress: 'c@d.com',
             name: 'Other user',
-            access: {
-                manageAccess: true,
+            accessLevels: {
+                [AccessOption.manageAccess]: {},
             },
         };
         await renderComponent([account, otherAccount], account);
-        await getAccess('manageGames').click();
+        await getAccess(AccessOption.manageGames).click();
 
         await context.button('Set access').click();
 

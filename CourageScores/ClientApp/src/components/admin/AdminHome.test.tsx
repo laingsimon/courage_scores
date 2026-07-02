@@ -15,7 +15,6 @@ import { TableDto } from '../../interfaces/models/dtos/Data/TableDto.ts';
 import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
 import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto.ts';
 import { WebSocketDto } from '../../interfaces/models/dtos/Live/WebSocketDto.ts';
-import { AccessDto } from '../../interfaces/models/dtos/Identity/AccessDto.ts';
 import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
 import { AccountApi } from '../../interfaces/apis/IAccountApi.ts';
 import { SeasonTemplateApi } from '../../interfaces/apis/ISeasonTemplateApi.ts';
@@ -23,6 +22,7 @@ import { ILiveApi } from '../../interfaces/apis/ILiveApi.ts';
 import { DataApi } from '../../interfaces/apis/IDataApi.ts';
 import { IFeatureApi } from '../../interfaces/apis/IFeatureApi.ts';
 import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFeatureDto.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('AdminHome', () => {
     let context: TestContext;
@@ -64,7 +64,11 @@ describe('AdminHome', () => {
         reportedError = new ErrorState();
     });
 
-    async function assertTab(access: AccessDto, href: string, exists: boolean) {
+    async function assertTab(
+        access: AccessOption[],
+        href: string,
+        exists: boolean,
+    ) {
         context = await renderApp(
             iocProps({ dataApi, accountApi, templateApi, liveApi, featureApi }),
             brandingProps(),
@@ -87,7 +91,7 @@ describe('AdminHome', () => {
     }
 
     async function assertContent(
-        access: AccessDto,
+        access: AccessOption[],
         address: string,
         expectContent: string,
     ) {
@@ -115,30 +119,16 @@ describe('AdminHome', () => {
 
     describe('user admin', () => {
         it('shows user admin if permitted', async () => {
-            await assertTab(
-                {
-                    manageAccess: true,
-                },
-                '/admin/user',
-                true,
-            );
+            await assertTab([AccessOption.manageAccess], '/admin/user', true);
         });
 
         it('excludes user admin if not permitted', async () => {
-            await assertTab(
-                {
-                    manageAccess: false,
-                },
-                '/admin/user',
-                false,
-            );
+            await assertTab([], '/admin/user', false);
         });
 
         it('renders the user admin content', async () => {
             await assertContent(
-                {
-                    manageAccess: true,
-                },
+                [AccessOption.manageAccess],
                 '/admin/user',
                 'Manage access',
             );
@@ -147,30 +137,16 @@ describe('AdminHome', () => {
 
     describe('import', () => {
         it('shows import if permitted', async () => {
-            await assertTab(
-                {
-                    importData: true,
-                },
-                '/admin/import',
-                true,
-            );
+            await assertTab([AccessOption.importData], '/admin/import', true);
         });
 
         it('excludes import if not permitted', async () => {
-            await assertTab(
-                {
-                    importData: false,
-                },
-                '/admin/import',
-                false,
-            );
+            await assertTab([], '/admin/import', false);
         });
 
         it('renders the import data content', async () => {
             await assertContent(
-                {
-                    importData: true,
-                },
+                [AccessOption.importData],
                 '/admin/import',
                 'Import data',
             );
@@ -179,30 +155,16 @@ describe('AdminHome', () => {
 
     describe('export', () => {
         it('shows export if permitted', async () => {
-            await assertTab(
-                {
-                    exportData: true,
-                },
-                '/admin/export',
-                true,
-            );
+            await assertTab([AccessOption.exportData], '/admin/export', true);
         });
 
         it('excludes export if not permitted', async () => {
-            await assertTab(
-                {
-                    exportData: false,
-                },
-                '/admin/export',
-                false,
-            );
+            await assertTab([], '/admin/export', false);
         });
 
         it('renders the export data content', async () => {
             await assertContent(
-                {
-                    exportData: true,
-                },
+                [AccessOption.exportData],
                 '/admin/export',
                 'Export data',
             );
@@ -212,29 +174,19 @@ describe('AdminHome', () => {
     describe('errors', () => {
         it('shows view errors if permitted', async () => {
             await assertTab(
-                {
-                    viewExceptions: true,
-                },
+                [AccessOption.viewExceptions],
                 '/admin/errors',
                 true,
             );
         });
 
         it('excludes view errors if not permitted', async () => {
-            await assertTab(
-                {
-                    viewExceptions: false,
-                },
-                '/admin/errors',
-                false,
-            );
+            await assertTab([], '/admin/errors', false);
         });
 
         it('renders the errors content', async () => {
             await assertContent(
-                {
-                    viewExceptions: true,
-                },
+                [AccessOption.viewExceptions],
                 '/admin/errors',
                 'View recent errors',
             );
@@ -244,29 +196,19 @@ describe('AdminHome', () => {
     describe('template admin', () => {
         it('shows template admin if permitted', async () => {
             await assertTab(
-                {
-                    manageSeasonTemplates: true,
-                },
+                [AccessOption.manageSeasonTemplates],
                 '/admin/templates',
                 true,
             );
         });
 
         it('excludes template admin if not permitted', async () => {
-            await assertTab(
-                {
-                    manageSeasonTemplates: false,
-                },
-                '/admin/templates',
-                false,
-            );
+            await assertTab([], '/admin/templates', false);
         });
 
         it('renders the templates content', async () => {
             await assertContent(
-                {
-                    manageSeasonTemplates: true,
-                },
+                [AccessOption.manageSeasonTemplates],
                 '/admin/templates',
                 'Manage templates',
             );
@@ -276,29 +218,19 @@ describe('AdminHome', () => {
     describe('socket admin', () => {
         it('shows socket admin if permitted', async () => {
             await assertTab(
-                {
-                    manageSockets: true,
-                },
+                [AccessOption.manageSockets],
                 '/admin/sockets',
                 true,
             );
         });
 
         it('excludes socket admin if not permitted', async () => {
-            await assertTab(
-                {
-                    manageSockets: false,
-                },
-                '/admin/sockets',
-                false,
-            );
+            await assertTab([], '/admin/sockets', false);
         });
 
         it('renders the socket admin content', async () => {
             await assertContent(
-                {
-                    manageSockets: true,
-                },
+                [AccessOption.manageSockets],
                 '/admin/sockets',
                 'Manage sockets',
             );
@@ -307,30 +239,16 @@ describe('AdminHome', () => {
 
     describe('data browser', () => {
         it('shows browser if permitted', async () => {
-            await assertTab(
-                {
-                    exportData: true,
-                },
-                '/admin/browser',
-                true,
-            );
+            await assertTab([AccessOption.exportData], '/admin/browser', true);
         });
 
         it('excludes browser if not permitted', async () => {
-            await assertTab(
-                {
-                    exportData: false,
-                },
-                '/admin/browser',
-                false,
-            );
+            await assertTab([], '/admin/browser', false);
         });
 
         it('renders the browser data content', async () => {
             await assertContent(
-                {
-                    exportData: true,
-                },
+                [AccessOption.exportData],
                 '/admin/browser',
                 'Data Browser',
             );
@@ -340,29 +258,19 @@ describe('AdminHome', () => {
     describe('features', () => {
         it('shows features if permitted', async () => {
             await assertTab(
-                {
-                    manageFeatures: true,
-                },
+                [AccessOption.manageFeatures],
                 '/admin/features',
                 true,
             );
         });
 
         it('excludes features if not permitted', async () => {
-            await assertTab(
-                {
-                    manageFeatures: false,
-                },
-                '/admin/features',
-                false,
-            );
+            await assertTab([], '/admin/features', false);
         });
 
         it('renders the features data content', async () => {
             await assertContent(
-                {
-                    manageFeatures: true,
-                },
+                [AccessOption.manageFeatures],
                 '/admin/features',
                 'Manage features',
             );

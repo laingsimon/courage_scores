@@ -291,7 +291,7 @@ describe('PrintableSheet', () => {
         const player2 = playerBuilder('PLAYER 2').build();
         const player3 = playerBuilder('PLAYER 3').build();
         const player4 = playerBuilder('PLAYER 4').build();
-        const account = user({});
+        const account = user();
         const player1Team = teamBuilder('TEAM')
             .forSeason(season, division, [player1])
             .build();
@@ -853,7 +853,7 @@ describe('PrintableSheet', () => {
         const division = divisionBuilder('DIVISION').build();
         const season = seasonBuilder('SEASON').withDivision(division).build();
         const matchOptionDefaults = matchOptionsBuilder().build();
-        const account = user({});
+        const account = user();
         const player1 = playerBuilder('PLAYER 1').build();
         const player1Team = teamBuilder('TEAM')
             .forSeason(season, division, [player1])

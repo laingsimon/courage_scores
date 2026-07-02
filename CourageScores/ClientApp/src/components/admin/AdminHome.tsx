@@ -19,13 +19,14 @@ import { useBranding } from '../common/BrandingContainer.tsx';
 import { NavLink } from '../common/NavLink.tsx';
 import { Query } from './Query.tsx';
 import { ServiceAccountSessions } from './ServiceAccountSessions.tsx';
+import { hasAccess } from '../../helpers/conditions.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export function AdminHome() {
     const { mode } = useParams();
     const { dataApi, accountApi } = useDependencies();
     const { account, appLoading, onError } = useApp();
     const effectiveTab = mode || 'user';
-    const access = (account ? account.access : null) || {};
     const [dataTables, setDataTables] = useState<TableDto[] | null>(null);
     const [accounts, setAccounts] = useState<UserDto[] | null>(null);
     const [adminLoading, setAdminLoading] = useState<boolean>(true);
@@ -90,33 +91,59 @@ export function AdminHome() {
                 {appLoading ? <Loading /> : null}
                 {!appLoading && account ? (
                     <ul className="nav nav-tabs">
-                        {renderTab(access.manageAccess, 'user', 'User admin')}
-                        {renderTab(access.importData, 'import', 'Import data')}
-                        {renderTab(access.exportData, 'export', 'Export data')}
-                        {renderTab(access.viewExceptions, 'errors', 'Errors')}
                         {renderTab(
-                            access.manageSeasonTemplates,
+                            hasAccess(account, AccessOption.manageAccess),
+                            'user',
+                            'User admin',
+                        )}
+                        {renderTab(
+                            hasAccess(account, AccessOption.importData),
+                            'import',
+                            'Import data',
+                        )}
+                        {renderTab(
+                            hasAccess(account, AccessOption.exportData),
+                            'export',
+                            'Export data',
+                        )}
+                        {renderTab(
+                            hasAccess(account, AccessOption.viewExceptions),
+                            'errors',
+                            'Errors',
+                        )}
+                        {renderTab(
+                            hasAccess(
+                                account,
+                                AccessOption.manageSeasonTemplates,
+                            ),
                             'templates',
                             'Templates',
                         )}
-                        {renderTab(access.manageSockets, 'sockets', 'Sockets')}
                         {renderTab(
-                            access.exportData,
+                            hasAccess(account, AccessOption.manageSockets),
+                            'sockets',
+                            'Sockets',
+                        )}
+                        {renderTab(
+                            hasAccess(account, AccessOption.exportData),
                             'browser',
                             'Data Browser',
                         )}
                         {renderTab(
-                            access.manageFeatures,
+                            hasAccess(account, AccessOption.manageFeatures),
                             'features',
                             'Features',
                         )}
                         {renderTab(
-                            access.runDataQueries,
+                            hasAccess(account, AccessOption.runDataQueries),
                             'query',
                             'Query data',
                         )}
                         {renderTab(
-                            access.loginServiceAccounts,
+                            hasAccess(
+                                account,
+                                AccessOption.loginServiceAccounts,
+                            ),
                             'service_accounts',
                             'Service accounts',
                         )}
@@ -130,61 +157,79 @@ export function AdminHome() {
                         {!appLoading && effectiveTab === 'user'
                             ? renderIfPermitted(
                                   <UserAdmin />,
-                                  access.manageAccess,
+                                  hasAccess(account, AccessOption.manageAccess),
                               )
                             : null}
                         {!appLoading && effectiveTab === 'import'
                             ? renderIfPermitted(
                                   <ImportData />,
-                                  access.importData,
+                                  hasAccess(account, AccessOption.importData),
                               )
                             : null}
                         {!appLoading && effectiveTab === 'export'
                             ? renderIfPermitted(
                                   <ExportData />,
-                                  access.exportData,
+                                  hasAccess(account, AccessOption.exportData),
                               )
                             : null}
                         {!appLoading && effectiveTab === 'errors'
                             ? renderIfPermitted(
                                   <Errors />,
-                                  access.viewExceptions,
+                                  hasAccess(
+                                      account,
+                                      AccessOption.viewExceptions,
+                                  ),
                               )
                             : null}
                         {!appLoading && effectiveTab === 'templates'
                             ? renderIfPermitted(
                                   <Templates />,
-                                  access.manageSeasonTemplates,
+                                  hasAccess(
+                                      account,
+                                      AccessOption.manageSeasonTemplates,
+                                  ),
                               )
                             : null}
                         {!appLoading && effectiveTab === 'sockets'
                             ? renderIfPermitted(
                                   <SocketAdmin />,
-                                  access.manageSockets,
+                                  hasAccess(
+                                      account,
+                                      AccessOption.manageSockets,
+                                  ),
                               )
                             : null}
                         {!appLoading && effectiveTab === 'browser'
                             ? renderIfPermitted(
                                   <DataBrowser />,
-                                  access.exportData,
+                                  hasAccess(account, AccessOption.exportData),
                               )
                             : null}
                         {!appLoading && effectiveTab === 'features'
                             ? renderIfPermitted(
                                   <FeatureAdmin />,
-                                  access.manageFeatures,
+                                  hasAccess(
+                                      account,
+                                      AccessOption.manageFeatures,
+                                  ),
                               )
                             : null}
                         {!appLoading && effectiveTab === 'query'
                             ? renderIfPermitted(
                                   <Query />,
-                                  access.runDataQueries,
+                                  hasAccess(
+                                      account,
+                                      AccessOption.runDataQueries,
+                                  ),
                               )
                             : null}
                         {!appLoading && effectiveTab === 'service_accounts'
                             ? renderIfPermitted(
                                   <ServiceAccountSessions />,
-                                  access.loginServiceAccounts,
+                                  hasAccess(
+                                      account,
+                                      AccessOption.loginServiceAccounts,
+                                  ),
                               )
                             : null}
                     </AdminContainer>

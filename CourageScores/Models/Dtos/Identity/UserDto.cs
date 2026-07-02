@@ -21,11 +21,6 @@ public class UserDto
     public string EmailAddress { get; set; } = null!;
 
     /// <summary>
-    /// What access does this person have?
-    /// </summary>
-    public AccessDto? Access { get; set; }
-
-    /// <summary>
     /// What levels of access does this person have?
     /// </summary>
     public Dictionary<AccessOption, AccessLevelDto> AccessLevels { get; set; } = new();

@@ -29,6 +29,7 @@ import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
 import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType.ts';
 import { MessageType } from '../../interfaces/models/dtos/MessageType.ts';
 import { BuilderParam } from '../../helpers/builders/builders.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('MatchStatistics', () => {
     let context: TestContext;
@@ -353,9 +354,7 @@ describe('MatchStatistics', () => {
             .opponentName('AWAY')
             .numberOfLegs(3)
             .build();
-        const account = user({
-            recordScoresAsYouGo: true,
-        });
+        const account = user([AccessOption.recordScoresAsYouGo]);
         await renderComponent(
             {
                 id: saygData.id,
@@ -512,7 +511,7 @@ describe('MatchStatistics', () => {
             canSubscribe: true,
             subscribeAtStartup: [{ id, type: LiveDataType.sayg }],
         };
-        const account = user({ useWebSockets: true });
+        const account = user([AccessOption.useWebSockets]);
         console.log = noop;
         const saygData: RecordedScoreAsYouGoDto = saygBuilder()
             .withLeg(0, (b) =>
@@ -543,9 +542,7 @@ describe('MatchStatistics', () => {
             canSubscribe: true,
             subscribeAtStartup: [],
         };
-        const account = user({
-            useWebSockets: true,
-        });
+        const account = user([AccessOption.useWebSockets]);
         const saygData: RecordedScoreAsYouGoDto = saygBuilder()
             .withLeg(0, (b) =>
                 b.currentThrow('home').startingScore(501).home().away(),
@@ -580,7 +577,7 @@ describe('MatchStatistics', () => {
             canSubscribe: true,
             subscribeAtStartup: [{ id, type: LiveDataType.sayg }],
         };
-        const account = user({ useWebSockets: true });
+        const account = user([AccessOption.useWebSockets]);
         console.log = noop;
         const saygData: RecordedScoreAsYouGoDto = saygBuilder(id)
             .withLeg(0, (b) =>
@@ -626,9 +623,7 @@ describe('MatchStatistics', () => {
             canSubscribe: true,
             subscribeAtStartup: [{ id: saygId, type: LiveDataType.sayg }],
         };
-        const account = user({
-            useWebSockets: true,
-        });
+        const account = user([AccessOption.useWebSockets]);
         const saygData: RecordedScoreAsYouGoDto = saygBuilder()
             .withLeg(0, (b) =>
                 b
@@ -681,9 +676,7 @@ describe('MatchStatistics', () => {
             .yourName('HOME')
             .numberOfLegs(3)
             .build();
-        const account = user({
-            useWebSockets: true,
-        });
+        const account = user([AccessOption.useWebSockets]);
         console.log = noop;
         await renderComponent(
             {
@@ -718,7 +711,7 @@ describe('MatchStatistics', () => {
             canSubscribe: true,
             subscribeAtStartup: [{ id, type: LiveDataType.sayg }],
         };
-        const account = user({ useWebSockets: true });
+        const account = user([AccessOption.useWebSockets]);
         const saygData: RecordedScoreAsYouGoDto = saygBuilder(id)
             .withLeg(0, (b) =>
                 b

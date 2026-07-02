@@ -223,7 +223,6 @@ public class UserService : IUserService
         var existingUser = await _userRepository.GetUser(emailAddress, token);
         if (existingUser != null)
         {
-            user.Access = existingUser.Access;
             user.AccessLevels = existingUser.AccessLevels;
             user.TeamId = existingUser.TeamId ?? await GetTeamIdForEmailAddress(emailAddress, token);
         }
