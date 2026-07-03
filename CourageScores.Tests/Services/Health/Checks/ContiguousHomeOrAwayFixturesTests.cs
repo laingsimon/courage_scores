@@ -16,7 +16,7 @@ public class ContiguousHomeOrAwayFixturesTests
         Name = "HOME",
     };
 
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly ContiguousHomeOrAwayFixtures _check = new();
 
     [Test]
@@ -29,7 +29,7 @@ public class ContiguousHomeOrAwayFixturesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.Empty);
@@ -51,7 +51,7 @@ public class ContiguousHomeOrAwayFixturesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.Empty);
@@ -79,13 +79,10 @@ public class ContiguousHomeOrAwayFixturesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Errors, Is.Empty);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "DIVISION: HOME is playing 3 fixtures in a row at home weeks 1 - 3",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["DIVISION: HOME is playing 3 fixtures in a row at home weeks 1 - 3"]));
         Assert.That(result.Success, Is.False);
     }
 
@@ -109,7 +106,7 @@ public class ContiguousHomeOrAwayFixturesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.Empty);
@@ -132,7 +129,7 @@ public class ContiguousHomeOrAwayFixturesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.Empty);
@@ -154,7 +151,7 @@ public class ContiguousHomeOrAwayFixturesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.Empty);
@@ -176,7 +173,7 @@ public class ContiguousHomeOrAwayFixturesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.Empty);
@@ -199,7 +196,7 @@ public class ContiguousHomeOrAwayFixturesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Success, Is.True);
@@ -221,13 +218,10 @@ public class ContiguousHomeOrAwayFixturesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Errors, Is.Empty);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "DIVISION: HOME is playing 3 fixtures in a row at home weeks 1 - 3",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["DIVISION: HOME is playing 3 fixtures in a row at home weeks 1 - 3"]));
         Assert.That(result.Success, Is.False);
     }
 
@@ -247,13 +241,10 @@ public class ContiguousHomeOrAwayFixturesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Errors, Is.Empty);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "DIVISION: HOME is playing 3 fixtures in a row at away weeks 1 - 3",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["DIVISION: HOME is playing 3 fixtures in a row at away weeks 1 - 3"]));
         Assert.That(result.Success, Is.False);
     }
 
@@ -274,13 +265,10 @@ public class ContiguousHomeOrAwayFixturesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Errors, Is.Empty);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "DIVISION: HOME is playing 4 fixtures in a row at away weeks 1 - 4",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["DIVISION: HOME is playing 4 fixtures in a row at away weeks 1 - 4"]));
         Assert.That(result.Success, Is.False);
     }
 
@@ -301,13 +289,10 @@ public class ContiguousHomeOrAwayFixturesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Errors, Is.Empty);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "DIVISION: HOME is playing 3 fixtures in a row at away weeks 1 - 3",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["DIVISION: HOME is playing 3 fixtures in a row at away weeks 1 - 3"]));
         Assert.That(result.Success, Is.False);
     }
 
@@ -328,13 +313,10 @@ public class ContiguousHomeOrAwayFixturesTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Errors, Is.Empty);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "DIVISION: HOME is playing 3 fixtures in a row at away weeks 1 - 3",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["DIVISION: HOME is playing 3 fixtures in a row at away weeks 1 - 3"]));
         Assert.That(result.Success, Is.False);
     }
 

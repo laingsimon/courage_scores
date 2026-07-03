@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Cosmos.Identity;
+﻿using AutoFixture;
+using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Repository;
 using CourageScores.Repository.Identity;
 using CourageScores.Services.Identity;
@@ -14,7 +15,6 @@ public class ServiceAccountSessionCleanUpServiceTests
 
     private Mock<IGenericRepository<ServiceAccountSession>> _repository = null!;
     private Mock<IUserRepository> _userRepository = null!;
-    private Mock<TimeProvider> _clock = null!;
     private ServiceAccountSession[] _sessions = null!;
 
     private IServiceAccountSessionCleanUpService _service = null!;
@@ -23,11 +23,12 @@ public class ServiceAccountSessionCleanUpServiceTests
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _users = [];
-        _repository = new Mock<IGenericRepository<ServiceAccountSession>>();
-        _userRepository = new Mock<IUserRepository>();
-        _clock = new Mock<TimeProvider>();
-        _service = new ServiceAccountSessionCleanUpService(_repository.Object, _userRepository.Object, _clock.Object);
+        _repository = fixture.FreezeMock<IGenericRepository<ServiceAccountSession>>();
+        _userRepository = fixture.FreezeMock<IUserRepository>();
+        var clock = fixture.FreezeMock<TimeProvider>();
+        _service = fixture.Create<ServiceAccountSessionCleanUpService>();
         _sessions = [];
 
         _userRepository
@@ -36,7 +37,7 @@ public class ServiceAccountSessionCleanUpServiceTests
         _repository
             .Setup(r => r.GetSome("t.Deleted = null", _token))
             .Returns(() => TestUtilities.AsyncEnumerable(_sessions));
-        _clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
+        clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
     }
 
     [Test]

@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Cosmos.Game;
+﻿using AutoFixture;
+using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Report;
@@ -22,7 +23,6 @@ public class ReportServiceTests
     private Mock<ICachingSeasonService> _seasonService = null!;
     private Mock<ICachingDivisionService> _divisionService = null!;
     private Mock<IGenericRepository<CosmosGame>> _gameRepository = null!;
-    private Mock<TimeProvider> _clock = null!;
     private Mock<IGenericRepository<TournamentGame>> _tournamentRepository = null!;
     private Mock<IReportFactory> _reportFactory = null!;
     private Mock<IReport> _report = null!;
@@ -39,25 +39,18 @@ public class ReportServiceTests
     [SetUp]
     public void SetupEachTest()
     {
-        _userService = new Mock<IUserService>();
+        var fixture = AutoFixture.Create();
+        _userService = fixture.FreezeMock<IUserService>();
         _access = [AccessOption.RunReports];
-        _accessService = new Mock<IAccessService>();
-        _seasonService = new Mock<ICachingSeasonService>();
-        _divisionService = new Mock<ICachingDivisionService>();
-        _gameRepository = new Mock<IGenericRepository<CosmosGame>>();
-        _tournamentRepository = new Mock<IGenericRepository<TournamentGame>>();
-        _clock = new Mock<TimeProvider>();
-        _reportFactory = new Mock<IReportFactory>();
-        _report = new Mock<IReport>();
-        _service = new ReportService(
-            _userService.Object,
-            _seasonService.Object,
-            _divisionService.Object,
-            _gameRepository.Object,
-            _tournamentRepository.Object,
-            _clock.Object,
-            _reportFactory.Object,
-            _accessService.Object);
+        _accessService = fixture.FreezeMock<IAccessService>();
+        _seasonService = fixture.FreezeMock<ICachingSeasonService>();
+        _divisionService = fixture.FreezeMock<ICachingDivisionService>();
+        _gameRepository = fixture.FreezeMock<IGenericRepository<CosmosGame>>();
+        _tournamentRepository = fixture.FreezeMock<IGenericRepository<TournamentGame>>();
+        fixture.FreezeMock<TimeProvider>();
+        _reportFactory = fixture.FreezeMock<IReportFactory>();
+        _report = fixture.FreezeMock<IReport>();
+        _service = fixture.Create<ReportService>();
 
         _user = new UserDto();
         _season = new SeasonDtoBuilder().Build();

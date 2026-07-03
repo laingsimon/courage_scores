@@ -83,10 +83,7 @@ public class DtoStrategy : IStrategy
 
     private static async Task WriteInterface(TextWriter writer, TypeScriptInterface type, string name, CancellationToken token)
     {
-        var extendsTypes = type.Interfaces.Concat(new[]
-        {
-            type.BaseType
-        }).Where(t => t != null).ToArray();
+        var extendsTypes = type.Interfaces.Concat([type.BaseType]).Where(t => t != null).ToArray();
 
         var extends = extendsTypes.Any()
             ? " extends " + string.Join(", ", extendsTypes.Select(t => type.PartialExtensions.Contains(t!.DotNetType.Name)

@@ -12,10 +12,11 @@ public class CommaDelimitedModelBinder : IModelBinder
 {
     private static readonly ConcurrentDictionary<Type, IModelBinder> TypedModelBinderCache = new ConcurrentDictionary<Type, IModelBinder>();
 
-    private static readonly Type[] SupportedElementTypes = {
+    private static readonly Type[] SupportedElementTypes =
+    [
         typeof(int), typeof(long), typeof(short), typeof(byte),
-        typeof(uint), typeof(ulong), typeof(ushort), typeof(Guid),
-    };
+        typeof(uint), typeof(ulong), typeof(ushort), typeof(Guid)
+    ];
 
     public async Task BindModelAsync(ModelBindingContext bindingContext)
     {

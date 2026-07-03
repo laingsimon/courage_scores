@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using AutoFixture;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Identity;
@@ -19,7 +20,6 @@ public class ActivateServiceAccountSessionCommandTests
     private Mock<IUserRepository> _userRepository = null!;
     private DefaultHttpContext _httpContext = null!;
     private ServiceAccountSession _model = null!;
-    private Mock<IFeatureService> _featureService = null!;
     private ActivateSessionRequestDto _request = null!;
     private ConfiguredFeatureDto _feature = null!;
 
@@ -28,10 +28,11 @@ public class ActivateServiceAccountSessionCommandTests
     [SetUp]
     public void SetupEachTest()
     {
-        _userRepository = new Mock<IUserRepository>();
-        _featureService = new Mock<IFeatureService>();
+        var fixture = AutoFixture.Create();
+        _userRepository = fixture.FreezeMock<IUserRepository>();
+        var featureService = fixture.FreezeMock<IFeatureService>();
         _feature = new ConfiguredFeatureDto { ConfiguredValue = "true" };
-        var httpAccountAccessor = new Mock<IHttpContextAccessor>();
+        var httpAccountAccessor = fixture.FreezeMock<IHttpContextAccessor>();
         _httpContext = new DefaultHttpContext
         {
             Connection =
@@ -43,7 +44,7 @@ public class ActivateServiceAccountSessionCommandTests
         {
             Pin = "pin from service account",
         };
-        _command = new ActivateServiceAccountSessionCommand(_userRepository.Object, httpAccountAccessor.Object, _featureService.Object).WithRequest(_request);
+        _command = fixture.Create<ActivateServiceAccountSessionCommand>().WithRequest(_request);
         _model = new ServiceAccountSession
         {
             ServiceIpAddress = _httpContext.Connection.RemoteIpAddress.ToString(),
@@ -56,7 +57,7 @@ public class ActivateServiceAccountSessionCommandTests
         };
 
         httpAccountAccessor.Setup(x => x.HttpContext).Returns(_httpContext);
-        _featureService.Setup(s => s.Get(FeatureLookup.ServiceAccountSessions, _token)).ReturnsAsync(() => _feature);
+        featureService.Setup(s => s.Get(FeatureLookup.ServiceAccountSessions, _token)).ReturnsAsync(() => _feature);
     }
 
     [Test]

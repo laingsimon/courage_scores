@@ -1,4 +1,5 @@
-﻿using CourageScores.Filters;
+﻿using AutoFixture;
+using CourageScores.Filters;
 using CourageScores.Models;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
@@ -33,49 +34,46 @@ public class AddOrUpdateTeamCommandTests
 
     private Mock<IGameService> _gameService = null!;
     private Mock<ICachingTeamService> _teamService = null!;
-    private Mock<ICommandFactory> _commandFactory = null!;
     private AddOrUpdateTeamCommand _command = null!;
     private Mock<AddOrUpdateGameCommand> _addOrUpdateGameCommand = null!;
-    private Mock<AddSeasonToTeamCommand> _addSeasonToTeamCommand = null!;
-    private Mock<ICachingSeasonService> _seasonService = null!;
     private List<GameDto> _games = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
     private ActionResult<TeamSeason> _addSeasonToTeamActionResult = null!;
-    private TeamSeason _addedTeamSeason = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create().WithCacheManagementFlags(out _cacheFlags);
+        fixture.Register(() => _serializer);
         _games = new List<GameDto>();
-        _cacheFlags = new ScopedCacheManagementFlags();
-        _addedTeamSeason = new TeamSeason { SeasonId = SeasonId };
+        var addedTeamSeason = new TeamSeason { SeasonId = SeasonId };
         _addSeasonToTeamActionResult = new ActionResult<TeamSeason>
         {
             Success = true,
             Messages = { "Success" },
-            Result = _addedTeamSeason,
+            Result = addedTeamSeason,
         };
 
-        _gameService = new Mock<IGameService>();
-        _teamService = new Mock<ICachingTeamService>();
-        _commandFactory = new Mock<ICommandFactory>();
-        _seasonService = new Mock<ICachingSeasonService>();
-        _command = new AddOrUpdateTeamCommand(_teamService.Object, _gameService.Object, _commandFactory.Object, _cacheFlags, _serializer);
-        _addOrUpdateGameCommand = new Mock<AddOrUpdateGameCommand>(_seasonService.Object, _commandFactory.Object, _teamService.Object, _cacheFlags);
-        _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(new Mock<IAuditingHelper>().Object, _seasonService.Object, _cacheFlags);
+        _gameService = fixture.FreezeMock<IGameService>();
+        _teamService = fixture.FreezeMock<ICachingTeamService>();
+        var commandFactory = fixture.FreezeMock<ICommandFactory>();
+        fixture.FreezeMock<ICachingSeasonService>();
+        _command = fixture.Create<AddOrUpdateTeamCommand>();
+        _addOrUpdateGameCommand = fixture.FreezeMockOf<AddOrUpdateGameCommand>();
+        var addSeasonToTeamCommand = fixture.FreezeMockOf<AddSeasonToTeamCommand>();
 
         _addOrUpdateGameCommand.Setup(c => c.WithData(It.IsAny<EditGameDto>())).Returns(_addOrUpdateGameCommand.Object);
-        _addSeasonToTeamCommand.Setup(c => c.ForSeason(SeasonId)).Returns(_addSeasonToTeamCommand.Object);
-        _addSeasonToTeamCommand.Setup(c => c.ForDivision(DivisionId)).Returns(_addSeasonToTeamCommand.Object);
-        _addSeasonToTeamCommand
+        addSeasonToTeamCommand.Setup(c => c.ForSeason(SeasonId)).Returns(addSeasonToTeamCommand.Object);
+        addSeasonToTeamCommand.Setup(c => c.ForDivision(DivisionId)).Returns(addSeasonToTeamCommand.Object);
+        addSeasonToTeamCommand
             .Setup(c => c.ApplyUpdate(It.IsAny<CosmosTeam>(), _token))
             .ReturnsAsync((CosmosTeam team, CancellationToken _) =>
             {
-                team.Seasons.Add(_addedTeamSeason);
+                team.Seasons.Add(addedTeamSeason);
                 return _addSeasonToTeamActionResult;
             });
-        _commandFactory.Setup(f => f.GetCommand<AddOrUpdateGameCommand>()).Returns(_addOrUpdateGameCommand.Object);
-        _commandFactory.Setup(f => f.GetCommand<AddSeasonToTeamCommand>()).Returns(_addSeasonToTeamCommand.Object);
+        commandFactory.Setup(f => f.GetCommand<AddOrUpdateGameCommand>()).Returns(_addOrUpdateGameCommand.Object);
+        commandFactory.Setup(f => f.GetCommand<AddSeasonToTeamCommand>()).Returns(addSeasonToTeamCommand.Object);
         _gameService
             .Setup(s => s.GetWhere($"t.DivisionId = '{DivisionId}' and t.SeasonId = '{SeasonId}'", _token))
             .Returns(() => TestUtilities.AsyncEnumerable(_games.ToArray()));

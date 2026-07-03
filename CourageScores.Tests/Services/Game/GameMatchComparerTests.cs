@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Services.Game;
 using Moq;
@@ -14,9 +15,10 @@ public class GameMatchComparerTests
     [SetUp]
     public void SetupEachTest()
     {
-        _playerComparer = new Mock<IEqualityComparer<ICollection<GamePlayer>>>();
+        var fixture = AutoFixture.Create();
+        _playerComparer = fixture.FreezeMock<IEqualityComparer<ICollection<GamePlayer>>>();
 
-        _comparer = new GameMatchComparer(_playerComparer.Object);
+        _comparer = fixture.Create<GameMatchComparer>();
     }
 
     [Test]

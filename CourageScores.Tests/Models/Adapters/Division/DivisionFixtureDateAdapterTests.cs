@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Adapters.Division;
+﻿using AutoFixture;
+using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
@@ -57,29 +58,28 @@ public class DivisionFixtureDateAdapterTests
     private readonly DateTime _date = new(2001, 02, 03);
 
     private DivisionFixtureDateAdapter _adapter = null!;
-    private Mock<IUserService> _userService = null!;
     private Mock<IDivisionFixtureAdapter> _divisionFixtureAdapter = null!;
     private Mock<IDivisionTournamentFixtureDetailsAdapter> _divisionTournamentFixtureDetailsAdapter = null!;
     private UserDto? _user;
     private SeasonDto _season = null!;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _season = new SeasonDto();
         _user = new UserDto();
-        _userService = new Mock<IUserService>();
+        var userService = fixture.FreezeMock<IUserService>();
         _access = [];
-        _accessService = new Mock<IAccessService>();
-        _divisionFixtureAdapter = new Mock<IDivisionFixtureAdapter>();
-        _divisionTournamentFixtureDetailsAdapter = new Mock<IDivisionTournamentFixtureDetailsAdapter>();
-        _adapter = new DivisionFixtureDateAdapter(_userService.Object, _divisionFixtureAdapter.Object, _divisionTournamentFixtureDetailsAdapter.Object, _accessService.Object);
+        var accessService = fixture.FreezeMock<IAccessService>();
+        _divisionFixtureAdapter = fixture.FreezeMock<IDivisionFixtureAdapter>();
+        _divisionTournamentFixtureDetailsAdapter = fixture.FreezeMock<IDivisionTournamentFixtureDetailsAdapter>();
+        _adapter = fixture.Create<DivisionFixtureDateAdapter>();
 
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _divisionFixtureAdapter.Setup(a => a.Adapt(LeagueFixture, _season, TeamA, TeamB, HomeDivision, AwayDivision, _token)).ReturnsAsync(LeagueFixtureDto);
-        _accessService
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
     }

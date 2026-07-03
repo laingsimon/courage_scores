@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Adapters;
+﻿using AutoFixture;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Live;
@@ -13,30 +14,29 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class PatchTournamentCommandTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly TournamentPlayer _oneEightyPlayer = new();
     private readonly NotableTournamentPlayer _hiCheckPlayer = new();
 
     private PatchTournamentCommand _command = null!;
     private TournamentGame _tournament = null!;
     private PatchTournamentDto _patch = null!;
-    private IAdapter<TournamentPlayer, TournamentPlayerDto> _oneEightyPlayerAdapter = null!;
     private TournamentPlayerDto _oneEightyPlayerDto = null!;
     private NotableTournamentPlayerDto _hiCheckPlayerDto = null!;
-    private IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto> _hiCheckPlayerAdapter = null!;
     private Mock<IWebSocketMessageProcessor> _updatesProcessor = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _tournament = new TournamentGame();
         _patch = new PatchTournamentDto();
         _oneEightyPlayerDto = new TournamentPlayerDto();
         _hiCheckPlayerDto = new NotableTournamentPlayerDto();
-        _oneEightyPlayerAdapter = new MockAdapter<TournamentPlayer, TournamentPlayerDto>(_oneEightyPlayer, _oneEightyPlayerDto);
-        _hiCheckPlayerAdapter = new MockAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto>(_hiCheckPlayer, _hiCheckPlayerDto);
-        _updatesProcessor = new Mock<IWebSocketMessageProcessor>();
-        _command = new PatchTournamentCommand(_oneEightyPlayerAdapter, _hiCheckPlayerAdapter, _updatesProcessor.Object);
+        fixture.Register<IAdapter<TournamentPlayer, TournamentPlayerDto>>(() => new MockAdapter<TournamentPlayer, TournamentPlayerDto>(_oneEightyPlayer, _oneEightyPlayerDto));
+        fixture.Register<IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto>>(() => new MockAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto>(_hiCheckPlayer, _hiCheckPlayerDto));
+        _updatesProcessor = fixture.FreezeMock<IWebSocketMessageProcessor>();
+        _command = fixture.Create<PatchTournamentCommand>();
     }
 
     [Test]
@@ -47,10 +47,7 @@ public class PatchTournamentCommandTests
             .ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "No tournament data to update",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(["No tournament data to update"]));
         Assert.That(result.Result, Is.EqualTo(_tournament));
     }
 
@@ -64,10 +61,7 @@ public class PatchTournamentCommandTests
             .ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "Round doesn't exist",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(["Round doesn't exist"]));
         Assert.That(result.Result, Is.EqualTo(_tournament));
     }
 
@@ -85,10 +79,7 @@ public class PatchTournamentCommandTests
             .ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "Round doesn't exist",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(["Round doesn't exist"]));
         Assert.That(result.Result, Is.EqualTo(_tournament));
     }
 
@@ -103,10 +94,7 @@ public class PatchTournamentCommandTests
             .ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "No round details to update",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(["No round details to update"]));
         Assert.That(result.Result, Is.EqualTo(_tournament));
     }
 
@@ -147,10 +135,7 @@ public class PatchTournamentCommandTests
             .ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Match updated",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(["Match updated"]));
         Assert.That(result.Result, Is.EqualTo(_tournament));
         Assert.That(match.ScoreA, Is.EqualTo(1));
         Assert.That(match.ScoreB, Is.EqualTo(2));
@@ -191,10 +176,7 @@ public class PatchTournamentCommandTests
             .ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "No match details to update",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(["No match details to update"]));
         Assert.That(result.Result, Is.EqualTo(_tournament));
     }
 
@@ -235,10 +217,7 @@ public class PatchTournamentCommandTests
             .ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "Match not found",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(["Match not found"]));
         Assert.That(result.Result, Is.EqualTo(_tournament));
     }
 
@@ -253,10 +232,7 @@ public class PatchTournamentCommandTests
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.EqualTo(_tournament));
-        Assert.That(_tournament.OneEighties, Is.EquivalentTo(new[]
-        {
-            _oneEightyPlayer,
-        }));
+        Assert.That(_tournament.OneEighties, Is.EquivalentTo([_oneEightyPlayer]));
     }
 
     [Test]
@@ -270,10 +246,7 @@ public class PatchTournamentCommandTests
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.EqualTo(_tournament));
-        Assert.That(_tournament.Over100Checkouts, Is.EquivalentTo(new[]
-        {
-            _hiCheckPlayer,
-        }));
+        Assert.That(_tournament.Over100Checkouts, Is.EquivalentTo([_hiCheckPlayer]));
     }
 
     [Test]

@@ -8,7 +8,7 @@ namespace CourageScores.Tests.Models.Adapters.Division;
 public class PlayerPerformanceAdapterTests
 {
     private readonly PlayerPerformanceAdapter _adapter = new();
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
 
     [Test]
     public async Task Adapt_GivenScore_SetsPropertiesCorrectly()

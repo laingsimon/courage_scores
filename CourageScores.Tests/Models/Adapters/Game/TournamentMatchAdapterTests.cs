@@ -1,3 +1,5 @@
+using AutoFixture;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
@@ -18,27 +20,24 @@ public class TournamentMatchAdapterTests
     private static readonly TournamentSideDto SideBDto = new();
     private readonly CancellationToken _token = CancellationToken.None;
     private TournamentMatchAdapter _adapter = null!;
-    private Mock<IUserService> _userService = null!;
     private UserDto? _user;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _user = new UserDto();
-        _userService = new Mock<IUserService>();
+        var userService = fixture.FreezeMock<IUserService>();
         _access = [AccessOption.RecordScoresAsYouGo];
-        _accessService = new Mock<IAccessService>();
-        _adapter = new TournamentMatchAdapter(
-            new MockSimpleAdapter<TournamentSide, TournamentSideDto>(
-                [SideA, SideB, null!],
-                [SideADto, SideBDto, null!]),
-            _userService.Object,
-            _accessService.Object);
+        var accessService = fixture.FreezeMock<IAccessService>();
+        fixture.Register<ISimpleAdapter<TournamentSide, TournamentSideDto>>(() => new MockSimpleAdapter<TournamentSide, TournamentSideDto>(
+            [SideA, SideB, null!],
+            [SideADto, SideBDto, null!]));
+        _adapter = fixture.Create<TournamentMatchAdapter>();
 
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _accessService
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }

@@ -7,7 +7,7 @@ namespace CourageScores.Tests.Models.Adapters.Live;
 [TestFixture]
 public class WebSocketDtoAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly WebSocketDtoAdapter _adapter = new WebSocketDtoAdapter();
 
     [Test]

@@ -1,3 +1,5 @@
+using AutoFixture;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Game.Sayg;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game.Sayg;
@@ -8,7 +10,7 @@ namespace CourageScores.Tests.Models.Adapters.Game.Sayg;
 [TestFixture]
 public class RecordedScoreAsYouGoAdapterTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private RecordedScoreAsYouGoAdapter _adapter = null!;
     private Leg _leg = null!;
     private LegDto _legDto = null!;
@@ -16,10 +18,11 @@ public class RecordedScoreAsYouGoAdapterTests
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _leg = new Leg();
         _legDto = new LegDto();
-        _adapter = new RecordedScoreAsYouGoAdapter(
-            new MockSimpleAdapter<Leg, LegDto>(_leg, _legDto));
+        fixture.Register<ISimpleAdapter<Leg, LegDto>>(() => new MockSimpleAdapter<Leg, LegDto>(_leg, _legDto));
+        _adapter = fixture.Create<RecordedScoreAsYouGoAdapter>();
     }
 
     [Test]
@@ -46,10 +49,7 @@ public class RecordedScoreAsYouGoAdapterTests
 
         var result = await _adapter.Adapt(model, _token);
 
-        Assert.That(result.Legs.Keys, Is.EqualTo(new[]
-        {
-            0,
-        }));
+        Assert.That(result.Legs.Keys, Is.EqualTo([0]));
         Assert.That(result.Legs[0], Is.EqualTo(_legDto));
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.Deleted, Is.EqualTo(model.Deleted));
@@ -86,10 +86,7 @@ public class RecordedScoreAsYouGoAdapterTests
 
         var result = await _adapter.Adapt(dto, _token);
 
-        Assert.That(result.Legs.Keys, Is.EqualTo(new[]
-        {
-            0,
-        }));
+        Assert.That(result.Legs.Keys, Is.EqualTo([0]));
         Assert.That(result.Legs[0], Is.EqualTo(_leg));
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.Deleted, Is.EqualTo(dto.Deleted));

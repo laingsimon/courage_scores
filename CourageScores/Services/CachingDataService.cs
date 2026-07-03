@@ -53,19 +53,13 @@ public class CachingDataService<TModel, TDto> : IGenericDataService<TModel, TDto
     public Task<ActionResultDto<TDto>> Upsert<TOut>(Guid? id, IUpdateCommand<TModel, TOut> updateCommand,
         CancellationToken token)
     {
-        InvalidateCaches(new[]
-        {
-            new CacheKey(id, null),
-        });
+        InvalidateCaches([new CacheKey(id, null)]);
         return _underlyingService.Upsert(id, updateCommand, token);
     }
 
     public Task<ActionResultDto<TDto>> Delete(Guid id, CancellationToken token)
     {
-        InvalidateCaches(new[]
-        {
-            new CacheKey(id, null),
-        });
+        InvalidateCaches([new CacheKey(id, null)]);
         return _underlyingService.Delete(id, token);
     }
 
@@ -79,10 +73,7 @@ public class CachingDataService<TModel, TDto> : IGenericDataService<TModel, TDto
 
         if (IsNoCacheRequest())
         {
-            InvalidateCaches(new[]
-            {
-                key,
-            });
+            InvalidateCaches([key]);
         }
         return (await _cache.GetOrCreateAsync(key, _ => provider()))!;
     }

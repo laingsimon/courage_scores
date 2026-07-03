@@ -1,4 +1,5 @@
 using System.Net.WebSockets;
+using AutoFixture;
 using CourageScores.Common;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Dtos.Identity;
@@ -19,46 +20,38 @@ public class LiveServiceTests
     private Mock<IWebSocketContractFactory> _contractFactory = null!;
     private Mock<IWebSocketContract> _contract = null!;
     private LiveService _service = null!;
-    private Mock<IUserService> _userService = null!;
     private UserDto? _user;
     private Mock<IUpdatedDataSource> _updatedDataSource = null!;
     private Mock<IWebSocketMessageProcessor> _webSocketMessageProcessor = null!;
     private Mock<ISimpleOnewayAdapter<WebSocketDetail, WebSocketDto>> _detailsAdapter = null!;
     private Mock<ISimpleOnewayAdapter<WatchableData, WatchableDataDto>> _watchableAdapter = null!;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _sockets = new List<IWebSocketContract>();
-        _contractFactory = new Mock<IWebSocketContractFactory>();
-        _userService = new Mock<IUserService>();
+        fixture.Register(() => _sockets);
+        _contractFactory = fixture.FreezeMock<IWebSocketContractFactory>();
+        var userService = fixture.FreezeMock<IUserService>();
         _user = null;
         _access = [];
-        _accessService = new Mock<IAccessService>();
-        _updatedDataSource = new Mock<IUpdatedDataSource>();
-        _webSocketMessageProcessor = new Mock<IWebSocketMessageProcessor>();
-        _detailsAdapter = new Mock<ISimpleOnewayAdapter<WebSocketDetail, WebSocketDto>>();
-        _watchableAdapter = new Mock<ISimpleOnewayAdapter<WatchableData, WatchableDataDto>>();
-        _service = new LiveService(
-            _sockets,
-            _contractFactory.Object,
-            _userService.Object,
-            _updatedDataSource.Object,
-            _webSocketMessageProcessor.Object,
-            _detailsAdapter.Object,
-            _watchableAdapter.Object,
-            _accessService.Object);
-        _contract = new Mock<IWebSocketContract>();
+        var accessService = fixture.FreezeMock<IAccessService>();
+        _updatedDataSource = fixture.FreezeMock<IUpdatedDataSource>();
+        _webSocketMessageProcessor = fixture.FreezeMock<IWebSocketMessageProcessor>();
+        _detailsAdapter = fixture.FreezeMock<ISimpleOnewayAdapter<WebSocketDetail, WebSocketDto>>();
+        _watchableAdapter = fixture.FreezeMock<ISimpleOnewayAdapter<WatchableData, WatchableDataDto>>();
+        _service = fixture.Create<LiveService>();
+        _contract = fixture.FreezeMock<IWebSocketContract>();
 
         _contractFactory
             .Setup(f => f.Create(It.IsAny<WebSocket>(), It.IsAny<string>(), _token))
             .ReturnsAsync(() => _contract.Object);
-        _userService
+        userService
             .Setup(s => s.GetUser(_token))
             .ReturnsAsync(() => _user);
-        _accessService
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }

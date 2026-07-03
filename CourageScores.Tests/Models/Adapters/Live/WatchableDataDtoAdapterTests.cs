@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models.Adapters.Live;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Game.Sayg;
@@ -29,7 +30,7 @@ public class WatchableDataDtoAdapterTests
         OpponentName = "OPPONENT",
     };
 
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = CancellationToken.None;
     private WatchableDataDtoAdapter _adapter = null!;
     private Mock<IGenericDataService<TournamentGame, TournamentGameDto>> _tournamentService = null!;
     private Mock<IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>> _saygService = null!;
@@ -37,9 +38,10 @@ public class WatchableDataDtoAdapterTests
     [SetUp]
     public void SetupEachTest()
     {
-        _tournamentService = new Mock<IGenericDataService<TournamentGame, TournamentGameDto>>();
-        _saygService = new Mock<IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>>();
-        _adapter = new WatchableDataDtoAdapter(_tournamentService.Object, _saygService.Object);
+        var fixture = AutoFixture.Create();
+        _tournamentService = fixture.FreezeMock<IGenericDataService<TournamentGame, TournamentGameDto>>();
+        _saygService = fixture.FreezeMock<IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>>();
+        _adapter = fixture.Create<WatchableDataDtoAdapter>();
     }
 
     [Test]
@@ -170,7 +172,7 @@ public class WatchableDataDtoAdapterTests
         Assert.That(result.EventDetails, Is.Not.Null);
         Assert.That(result.EventDetails!.Type, Is.Null);
         Assert.That(result.EventDetails!.Venue, Is.Null);
-        Assert.That(result.EventDetails!.Opponents, Is.EqualTo(new[] { "CHALLENGER", "OPPONENT" }));
+        Assert.That(result.EventDetails!.Opponents, Is.EqualTo(["CHALLENGER", "OPPONENT"]));
     }
 
     [Test]
@@ -185,7 +187,7 @@ public class WatchableDataDtoAdapterTests
         Assert.That(result.EventDetails, Is.Not.Null);
         Assert.That(result.EventDetails!.Type, Is.Null);
         Assert.That(result.EventDetails!.Venue, Is.Null);
-        Assert.That(result.EventDetails!.Opponents, Is.EqualTo(new[] { "CHALLENGER", "OPPONENT" }));
+        Assert.That(result.EventDetails!.Opponents, Is.EqualTo(["CHALLENGER", "OPPONENT"]));
     }
 
     [Test]
@@ -202,7 +204,7 @@ public class WatchableDataDtoAdapterTests
         Assert.That(result.EventDetails, Is.Not.Null);
         Assert.That(result.EventDetails!.Type, Is.Null);
         Assert.That(result.EventDetails!.Venue, Is.Null);
-        Assert.That(result.EventDetails!.Opponents, Is.EqualTo(new[] { "CHALLENGER", "OPPONENT" }));
+        Assert.That(result.EventDetails!.Opponents, Is.EqualTo(["CHALLENGER", "OPPONENT"]));
     }
 
     [Test]
@@ -219,7 +221,7 @@ public class WatchableDataDtoAdapterTests
         Assert.That(result.EventDetails, Is.Not.Null);
         Assert.That(result.EventDetails!.Type, Is.Null);
         Assert.That(result.EventDetails!.Venue, Is.Null);
-        Assert.That(result.EventDetails!.Opponents, Is.EqualTo(new[] { "CHALLENGER", "OPPONENT" }));
+        Assert.That(result.EventDetails!.Opponents, Is.EqualTo(["CHALLENGER", "OPPONENT"]));
     }
 
     [Test]
@@ -235,7 +237,7 @@ public class WatchableDataDtoAdapterTests
         Assert.That(result.EventDetails, Is.Not.Null);
         Assert.That(result.EventDetails!.Type, Is.EqualTo("TYPE"));
         Assert.That(result.EventDetails!.Venue, Is.EqualTo("ADDRESS"));
-        Assert.That(result.EventDetails!.Opponents, Is.EqualTo(new[] { "CHALLENGER", "OPPONENT" }));
+        Assert.That(result.EventDetails!.Opponents, Is.EqualTo(["CHALLENGER", "OPPONENT"]));
     }
 
     [Test]
@@ -251,7 +253,7 @@ public class WatchableDataDtoAdapterTests
         Assert.That(result.EventDetails, Is.Not.Null);
         Assert.That(result.EventDetails!.Type, Is.EqualTo("TYPE"));
         Assert.That(result.EventDetails!.Venue, Is.EqualTo("ADDRESS"));
-        Assert.That(result.EventDetails!.Opponents, Is.EqualTo(new[] { "CHALLENGER", "OPPONENT" }));
+        Assert.That(result.EventDetails!.Opponents, Is.EqualTo(["CHALLENGER", "OPPONENT"]));
     }
 
     [Test]

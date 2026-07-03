@@ -1,4 +1,5 @@
-﻿using CourageScores.Common;
+﻿using AutoFixture;
+using CourageScores.Common;
 using CourageScores.Models;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos;
@@ -49,29 +50,23 @@ public class FeatureServiceTests
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _configuredBoolFeature = ConfiguredFeature(BooleanFeature);
         _configuredBoolFeatureDto = new ConfiguredFeatureDto { Id = BooleanFeature.Id };
         _reconfigureBoolFeatureDto = ReconfigureFeatureDto(BooleanFeature);
         _access = [AccessOption.ManageFeatures];
-        _accessService = new Mock<IAccessService>();
+        _accessService = fixture.FreezeMock<IAccessService>();
         _user = new UserDto { Name = "USER" };
-        _repository = new Mock<IGenericRepository<ConfiguredFeature>>();
-        _userService = new Mock<IUserService>();
-        _featureLookup = new Mock<IFeatureLookup>();
-        _reconfigureAdapter = new Mock<ISimpleOnewayAdapter<ReconfigureFeatureDto, ConfiguredFeature>>();
-        _unconfiguredAdapter = new Mock<ISimpleOnewayAdapter<Guid, ConfiguredFeatureDto>>();
+        _repository = fixture.FreezeMock<IGenericRepository<ConfiguredFeature>>();
+        _userService = fixture.FreezeMock<IUserService>();
+        _featureLookup = fixture.FreezeMock<IFeatureLookup>();
+        _reconfigureAdapter = fixture.FreezeMock<ISimpleOnewayAdapter<ReconfigureFeatureDto, ConfiguredFeature>>();
+        _unconfiguredAdapter = fixture.FreezeMock<ISimpleOnewayAdapter<Guid, ConfiguredFeatureDto>>();
         _adapter = new MockAdapter<ConfiguredFeature, ConfiguredFeatureDto>();
-        _clock = new Mock<TimeProvider>();
-        _service = new FeatureService(
-            _repository.Object,
-            _adapter,
-            _reconfigureAdapter.Object,
-            _unconfiguredAdapter.Object,
-            _userService.Object,
-            _featureLookup.Object,
-            new LoadedFeatures(),
-            _clock.Object,
-            _accessService.Object);
+        fixture.Register<IAdapter<ConfiguredFeature, ConfiguredFeatureDto>>(() => _adapter);
+        fixture.Register(() => new LoadedFeatures());
+        _clock = fixture.FreezeMock<TimeProvider>();
+        _service = fixture.Create<FeatureService>();
         _untypedFeature = new ConfiguredFeature
         {
             Id = Guid.NewGuid(),

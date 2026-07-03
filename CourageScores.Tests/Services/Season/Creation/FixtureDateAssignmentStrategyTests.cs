@@ -20,7 +20,7 @@ public class FixtureDateAssignmentStrategyTests
         .WithDates(new DateTime(2001, 01, 01), new DateTime(2001, 09, 01))
         .Build();
     private readonly IEqualityComparer<DivisionDataDto> _comparer = new DateAndTeamNameComparer();
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly Dictionary<string, TeamDto> _placeholderMappings = new()
     {
         { "A", Team1 },
@@ -46,7 +46,7 @@ public class FixtureDateAssignmentStrategyTests
     {
         var template = Template(new DivisionTemplateDto());
         var teams = new Dictionary<Guid, TeamDto[]>();
-        var context = ProposalContext(new[] { _division1 }, template, teams);
+        var context = ProposalContext([_division1], template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
@@ -70,15 +70,12 @@ public class FixtureDateAssignmentStrategyTests
     {
         var template = Template(TemplateDivision(TemplateDate(TemplateFixture("J", "B"))));
         var teams = new Dictionary<Guid, TeamDto[]>();
-        var context = ProposalContext(new[] { _division1 }, template, teams);
+        var context = ProposalContext([_division1], template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
         Assert.That(result, Is.False);
-        Assert.That(context.Result.Warnings, Is.EquivalentTo(new[]
-        {
-            "Could not find a team for a fixture - J",
-        }));
+        Assert.That(context.Result.Warnings, Is.EquivalentTo(["Could not find a team for a fixture - J"]));
     }
 
     [Test]
@@ -86,15 +83,12 @@ public class FixtureDateAssignmentStrategyTests
     {
         var template = Template(TemplateDivision(TemplateDate(TemplateFixture("A", "J"))));
         var teams = new Dictionary<Guid, TeamDto[]>();
-        var context = ProposalContext(new[] { _division1 }, template, teams);
+        var context = ProposalContext([_division1], template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
         Assert.That(result, Is.False);
-        Assert.That(context.Result.Warnings, Is.EquivalentTo(new[]
-        {
-            "Could not find a team for a fixture - J",
-        }));
+        Assert.That(context.Result.Warnings, Is.EquivalentTo(["Could not find a team for a fixture - J"]));
     }
 
     [Test]
@@ -104,7 +98,7 @@ public class FixtureDateAssignmentStrategyTests
             TemplateDate(TemplateFixture("A", "B"), TemplateFixture("C", "D")),
             TemplateDate(TemplateFixture("B", "C"), TemplateFixture("D", "A"))));
         var teams = new Dictionary<Guid, TeamDto[]>();
-        var context = ProposalContext(new[] { _division1 }, template, teams);
+        var context = ProposalContext([_division1], template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
@@ -134,7 +128,7 @@ public class FixtureDateAssignmentStrategyTests
             Fixtures = { dateWithNote },
         };
         var teams = new Dictionary<Guid, TeamDto[]>();
-        var context = ProposalContext(new[] { division }, template, teams);
+        var context = ProposalContext([division], template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
@@ -165,7 +159,7 @@ public class FixtureDateAssignmentStrategyTests
             Id = Guid.NewGuid(),
         };
         var teams = new Dictionary<Guid, TeamDto[]>();
-        var context = ProposalContext(new[] { _division1, division2 }, template, teams);
+        var context = ProposalContext([_division1, division2], template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
@@ -198,7 +192,7 @@ public class FixtureDateAssignmentStrategyTests
             },
         };
         var teams = new Dictionary<Guid, TeamDto[]>();
-        var context = ProposalContext(new[] { division }, template, teams);
+        var context = ProposalContext([division], template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
@@ -229,7 +223,7 @@ public class FixtureDateAssignmentStrategyTests
             Fixtures = { dateWithTournament },
         };
         var teams = new Dictionary<Guid, TeamDto[]>();
-        var context = ProposalContext(new[] { division }, template, teams);
+        var context = ProposalContext([division], template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
@@ -255,7 +249,7 @@ public class FixtureDateAssignmentStrategyTests
         };
         var teams = new Dictionary<Guid, TeamDto[]>();
         var shortSeason = new SeasonDtoBuilder().WithDates(new DateTime(2001, 01, 01), new DateTime(2001, 01, 02)).Build();
-        var context = ProposalContext(new[] { division }, template, teams, shortSeason);
+        var context = ProposalContext([division], template, teams, shortSeason);
 
         var result = await _strategy.AssignDates(context, _token);
 

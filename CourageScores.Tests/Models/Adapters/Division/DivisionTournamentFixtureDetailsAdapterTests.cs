@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Adapters;
+﻿using AutoFixture;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
@@ -19,21 +20,21 @@ public class DivisionTournamentFixtureDetailsAdapterTests
     private static readonly TeamDto Team1 = new TeamDtoBuilder().WithName("team1").WithAddress("address").Build();
     private static readonly TeamDto Team2 = new TeamDtoBuilder().WithName("team2").WithAddress("address").Build();
 
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private DivisionTournamentFixtureDetailsAdapter _adapter = null!;
     private Mock<ISimpleAdapter<TournamentSide, TournamentSideDto>> _tournamentSideAdapter = null!;
-    private Mock<ITournamentTypeResolver> _tournamentTypeResolver = null!;
     private Mock<IAdapter<TournamentMatch, TournamentMatchDto>> _tournamentMatchAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _tournamentSideAdapter = new Mock<ISimpleAdapter<TournamentSide, TournamentSideDto>>();
-        _tournamentTypeResolver = new Mock<ITournamentTypeResolver>();
-        _tournamentMatchAdapter = new Mock<IAdapter<TournamentMatch, TournamentMatchDto>>();
-        _adapter = new DivisionTournamentFixtureDetailsAdapter(_tournamentSideAdapter.Object, _tournamentTypeResolver.Object, _tournamentMatchAdapter.Object);
+        var fixture = AutoFixture.Create();
+        _tournamentSideAdapter = fixture.FreezeMock<ISimpleAdapter<TournamentSide, TournamentSideDto>>();
+        _tournamentMatchAdapter = fixture.FreezeMock<IAdapter<TournamentMatch, TournamentMatchDto>>();
+        var tournamentTypeResolver = fixture.FreezeMock<ITournamentTypeResolver>();
+        _adapter = fixture.Create<DivisionTournamentFixtureDetailsAdapter>();
 
-        _tournamentTypeResolver.Setup(r => r.GetTournamentType(It.IsAny<TournamentGame>())).Returns("TOURNAMENT TYPE");
+        tournamentTypeResolver.Setup(r => r.GetTournamentType(It.IsAny<TournamentGame>())).Returns("TOURNAMENT TYPE");
     }
 
     [Test]
@@ -64,13 +65,12 @@ public class DivisionTournamentFixtureDetailsAdapterTests
         Assert.That(result.Date, Is.EqualTo(game.Date));
         Assert.That(result.Type, Is.EqualTo(game.Type));
         Assert.That(result.Notes, Is.EqualTo(game.Notes));
-        Assert.That(result.Sides, Is.EqualTo(new[] { winnerDto, runnerUpDto }));
+        Assert.That(result.Sides, Is.EqualTo([winnerDto, runnerUpDto]));
         Assert.That(result.Id, Is.EqualTo(game.Id));
-        Assert.That(result.Players, Is.EqualTo(new[]
-        {
+        Assert.That(result.Players, Is.EqualTo([
             Guid.Parse("B5817736-EF78-4FFE-9701-0B8DF9490357"),
-            Guid.Parse("126B746E-CFF8-4869-8FB9-75D9E0D8AC5C"),
-        }));
+            Guid.Parse("126B746E-CFF8-4869-8FB9-75D9E0D8AC5C")
+        ]));
         Assert.That(result.Proposed, Is.False);
         Assert.That(result.SeasonId, Is.EqualTo(game.SeasonId));
         Assert.That(result.WinningSide, Is.EqualTo(null));
@@ -234,41 +234,41 @@ public class DivisionTournamentFixtureDetailsAdapterTests
         var result = await _adapter.Adapt(game, _token);
 
         Assert.That(result.SingleRound, Is.True);
-        Assert.That(result.FirstRoundMatches, Is.EqualTo(new[] { matchDto }));
+        Assert.That(result.FirstRoundMatches, Is.EqualTo([matchDto]));
         Assert.That(result.Opponent, Is.EqualTo(game.Opponent));
     }
 
     [Test]
     public async Task ForUnselectedVenue_WithSingleTeam_ReturnsCorrectly()
     {
-        var result = await _adapter.ForUnselectedVenue(new[] { Team1 }, _token);
+        var result = await _adapter.ForUnselectedVenue([Team1], _token);
 
         Assert.That(result.Address, Is.EqualTo("address"));
-        Assert.That(result.Id, Is.EqualTo(default(Guid)));
+        Assert.That(result.Id, Is.EqualTo(Guid.Empty));
         Assert.That(result.Proposed, Is.True);
         Assert.That(result.Players, Is.Empty);
         Assert.That(result.Date, Is.EqualTo(default(DateTime)));
         Assert.That(result.Notes, Is.Null);
         Assert.That(result.Type, Is.Null);
         Assert.That(result.Sides, Is.Empty);
-        Assert.That(result.SeasonId, Is.EqualTo(default(Guid)));
+        Assert.That(result.SeasonId, Is.EqualTo(Guid.Empty));
         Assert.That(result.WinningSide, Is.Null);
     }
 
     [Test]
     public async Task ForUnselectedVenue_WithMultipleTeams_ReturnsCorrectly()
     {
-        var result = await _adapter.ForUnselectedVenue(new[] { Team1, Team2 }, _token);
+        var result = await _adapter.ForUnselectedVenue([Team1, Team2], _token);
 
         Assert.That(result.Address, Is.EqualTo("address"));
-        Assert.That(result.Id, Is.EqualTo(default(Guid)));
+        Assert.That(result.Id, Is.EqualTo(Guid.Empty));
         Assert.That(result.Proposed, Is.True);
         Assert.That(result.Players, Is.Empty);
         Assert.That(result.Date, Is.EqualTo(default(DateTime)));
         Assert.That(result.Notes, Is.Null);
         Assert.That(result.Type, Is.Null);
         Assert.That(result.Sides, Is.Empty);
-        Assert.That(result.SeasonId, Is.EqualTo(default(Guid)));
+        Assert.That(result.SeasonId, Is.EqualTo(Guid.Empty));
         Assert.That(result.WinningSide, Is.Null);
     }
 }

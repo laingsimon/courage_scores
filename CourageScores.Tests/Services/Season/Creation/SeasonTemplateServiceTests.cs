@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Dtos;
@@ -39,15 +40,10 @@ public class SeasonTemplateServiceTests
 
     private readonly CancellationToken _token = CancellationToken.None;
     private SeasonTemplateService _service = null!;
-    private Mock<IGenericDataService<Template, TemplateDto>> _underlyingService = null!;
-    private Mock<IUserService> _userService = null!;
-    private Mock<ICachingSeasonService> _seasonService = null!;
     private Mock<ICachingDivisionService> _divisionService = null!;
-    private Mock<ICompatibilityCheckFactory> _checkFactory = null!;
     private Mock<ICompatibilityCheck> _check = null!;
     private Mock<ISeasonProposalStrategy> _proposalStrategy = null!;
     private Mock<ICachingTeamService> _teamService = null!;
-    private Mock<IAccessService> _accessService = null!;
     private UserDto? _user;
     private TemplateDto[] _templates = null!;
     private SeasonDto _season = null!;
@@ -61,30 +57,21 @@ public class SeasonTemplateServiceTests
     [SetUp]
     public void SetupEachTest()
     {
-        _underlyingService = new Mock<IGenericDataService<Template, TemplateDto>>();
-        _userService = new Mock<IUserService>();
-        _seasonService = new Mock<ICachingSeasonService>();
-        _accessService = new Mock<IAccessService>();
-        _divisionService = new Mock<ICachingDivisionService>();
-        _checkFactory = new Mock<ICompatibilityCheckFactory>();
-        _check = new Mock<ICompatibilityCheck>();
-        _proposalStrategy = new Mock<ISeasonProposalStrategy>();
-        _teamService = new Mock<ICachingTeamService>();
-        _healthCheckAdapter = new Mock<ISimpleOnewayAdapter<Template, SeasonHealthDto>>();
-        _healthCheckService = new Mock<IHealthCheckService>();
+        var fixture = AutoFixture.Create();
+        var underlyingService = fixture.FreezeMock<IGenericDataService<Template, TemplateDto>>();
+        var userService = fixture.FreezeMock<IUserService>();
+        var seasonService = fixture.FreezeMock<ICachingSeasonService>();
+        var accessService = fixture.FreezeMock<IAccessService>();
+        _divisionService = fixture.FreezeMock<ICachingDivisionService>();
+        var checkFactory = fixture.FreezeMock<ICompatibilityCheckFactory>();
+        _check = fixture.FreezeMock<ICompatibilityCheck>();
+        _proposalStrategy = fixture.FreezeMock<ISeasonProposalStrategy>();
+        _teamService = fixture.FreezeMock<ICachingTeamService>();
+        _healthCheckAdapter = fixture.FreezeMock<ISimpleOnewayAdapter<Template, SeasonHealthDto>>();
+        _healthCheckService = fixture.FreezeMock<IHealthCheckService>();
         _templateAdapter = new MockAdapter<Template, TemplateDto>();
-        _service = new SeasonTemplateService(
-            _underlyingService.Object,
-            _userService.Object,
-            _seasonService.Object,
-            _divisionService.Object,
-            _checkFactory.Object,
-            _proposalStrategy.Object,
-            _teamService.Object,
-            _healthCheckAdapter.Object,
-            _healthCheckService.Object,
-            _templateAdapter,
-            _accessService.Object);
+        fixture.Register<IAdapter<Template, TemplateDto>>(() => _templateAdapter);
+        _service = fixture.Create<SeasonTemplateService>();
         _user = new UserDto();
         _access = [AccessOption.ManageGames];
         _templates = [];
@@ -103,20 +90,20 @@ public class SeasonTemplateServiceTests
         };
         _teamsInSeason = [];
 
-        _underlyingService.Setup(s => s.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_templates));
-        _underlyingService
+        underlyingService.Setup(s => s.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_templates));
+        underlyingService
             .Setup(s => s.Get(It.IsAny<Guid>(), _token))
             .ReturnsAsync((Guid id, CancellationToken _) => _templates.SingleOrDefault(t => t.Id == id));
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
         _divisionService
             .Setup(s => s.GetDivisionData(
                 It.Is<DivisionDataFilter>(f => f.DivisionId.Contains(_division.Id) && f.SeasonId == _season.Id), _token))
             .ReturnsAsync(() => _division);
-        _checkFactory.Setup(f => f.CreateChecks()).Returns(_check.Object);
+        checkFactory.Setup(f => f.CreateChecks()).Returns(_check.Object);
         _teamService.Setup(s => s.GetTeamsForSeason(_season.Id, _token))
             .Returns(() => TestUtilities.AsyncEnumerable(_teamsInSeason));
-        _accessService
+        accessService
             .Setup(s => s.HasAccess(_user, It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
     }

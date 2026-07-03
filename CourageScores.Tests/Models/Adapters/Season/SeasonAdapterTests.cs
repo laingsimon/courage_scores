@@ -1,7 +1,8 @@
+using AutoFixture;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Season;
 using CourageScores.Models.Dtos;
 using CourageScores.Tests.Services;
-using Moq;
 using NUnit.Framework;
 using CosmosSeason = CourageScores.Models.Cosmos.Season.Season;
 using CosmosDivision = CourageScores.Models.Cosmos.Division;
@@ -13,21 +14,20 @@ public class SeasonAdapterTests
 {
     private static readonly CosmosDivision Division = new();
     private static readonly DivisionDto DivisionDto = new();
-    private readonly CancellationToken _token = new();
-    private Mock<TimeProvider> _clock = null!;
+    private readonly CancellationToken _token = CancellationToken.None;
     private SeasonAdapter _adapter = null!;
     private DateTimeOffset _now;
 
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
+        fixture.Register<IAdapter<CosmosDivision, DivisionDto>>(() => new MockAdapter<CosmosDivision, DivisionDto>(Division, DivisionDto));
         _now = new DateTimeOffset(2001, 02, 03, 0, 0, 0, TimeSpan.Zero);
-        _clock = new Mock<TimeProvider>();
-        _adapter = new SeasonAdapter(
-            new MockAdapter<CosmosDivision, DivisionDto>(Division, DivisionDto),
-            _clock.Object);
+        var clock = fixture.FreezeMock<TimeProvider>();
+        _adapter = fixture.Create<SeasonAdapter>();
 
-        _clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
+        clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
     }
 
     [Test]
@@ -55,10 +55,7 @@ public class SeasonAdapterTests
         Assert.That(result.StartDate, Is.EqualTo(model.StartDate));
         Assert.That(result.EndDate, Is.EqualTo(model.EndDate));
         Assert.That(result.IsCurrent, Is.True);
-        Assert.That(result.Divisions, Is.EqualTo(new[]
-        {
-            DivisionDto,
-        }));
+        Assert.That(result.Divisions, Is.EqualTo([DivisionDto]));
         Assert.That(result.FixtureStartTime, Is.EqualTo(model.FixtureStartTime));
         Assert.That(result.FixtureDuration, Is.EqualTo(model.FixtureDuration));
         Assert.That(result.AllowFavouriteTeams, Is.EqualTo(model.AllowFavouriteTeams));
@@ -162,10 +159,7 @@ public class SeasonAdapterTests
 
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.Name, Is.EqualTo(dto.Name));
-        Assert.That(result.Divisions, Is.EqualTo(new[]
-        {
-            Division,
-        }));
+        Assert.That(result.Divisions, Is.EqualTo([Division]));
         Assert.That(result.FixtureStartTime, Is.EqualTo(TimeSpan.FromHours(20)));
         Assert.That(result.FixtureDuration, Is.EqualTo(4));
         Assert.That(result.AllowFavouriteTeams, Is.EqualTo(dto.AllowFavouriteTeams));

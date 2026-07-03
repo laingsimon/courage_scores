@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.WebSockets;
 using System.Text;
+using AutoFixture;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Models.Dtos.Live;
@@ -17,7 +18,7 @@ namespace CourageScores.Tests.Services.Live;
 [TestFixture]
 public class WebSocketContractTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = CancellationToken.None;
     private Mock<WebSocket> _socket = null!;
     private RecordingSerializerService _serializerService = null!;
     private Mock<IWebSocketMessageProcessor> _processor = null!;
@@ -32,13 +33,16 @@ public class WebSocketContractTests
     [SetUp]
     public void SetupEachTest()
     {
-        _socket = new Mock<WebSocket>();
+        var fixture = AutoFixture.Create();
+        _socket = fixture.FreezeMock<WebSocket>();
         _serializerService = new RecordingSerializerService();
-        _processor = new Mock<IWebSocketMessageProcessor>();
-        _clock = new Mock<TimeProvider>();
+        fixture.Register<IJsonSerializerService>(() => _serializerService);
+        _processor = fixture.FreezeMock<IWebSocketMessageProcessor>();
+        _clock = fixture.FreezeMock<TimeProvider>();
         _details = new WebSocketDetail();
+        fixture.Register(() => _details);
         _key = Guid.NewGuid();
-        _contract = new WebSocketContract(_socket.Object, _serializerService, _processor.Object, _details, _clock.Object);
+        _contract = fixture.Create<WebSocketContract>();
         _receiveResults = new Queue<ReceiveResultAndData>();
         _socket.Setup(s => s.CloseStatus).Returns(() => _socketStatus);
 
@@ -316,7 +320,7 @@ public class WebSocketContractTests
         await _contract.Accept(_token);
 
         Assert.That(_contract.IsSubscribedTo(messageDto.Id.Value), Is.True);
-        Assert.That(_details.Subscriptions, Is.EquivalentTo(new[] { messageDto.Id.Value }));
+        Assert.That(_details.Subscriptions, Is.EquivalentTo([messageDto.Id.Value]));
     }
 
     [Test]

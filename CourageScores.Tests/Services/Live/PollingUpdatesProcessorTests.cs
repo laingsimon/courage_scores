@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using AutoFixture;
 using CourageScores.Common;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Live;
@@ -12,25 +13,26 @@ namespace CourageScores.Tests.Services.Live;
 [TestFixture]
 public class PollingUpdatesProcessorTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = CancellationToken.None;
     private PollingUpdatesProcessor _processor = null!;
     private ConcurrentDictionary<Guid, PollingUpdatesProcessor.UpdateData> _data = null!;
     private Mock<IWebSocketContract> _socket = null!;
     private Mock<TimeProvider> _clock = null!;
-    private Mock<IUserService> _userService = null!;
     private UserDto? _user;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _socket = new Mock<IWebSocketContract>();
+        var fixture = AutoFixture.Create();
+        _socket = fixture.FreezeMock<IWebSocketContract>();
         _data = new ConcurrentDictionary<Guid, PollingUpdatesProcessor.UpdateData>();
-        _clock = new Mock<TimeProvider>();
-        _userService = new Mock<IUserService>();
+        fixture.Register(() => _data);
+        _clock = fixture.FreezeMock<TimeProvider>();
+        var userService = fixture.FreezeMock<IUserService>();
 
-        _processor = new PollingUpdatesProcessor(_data, _clock.Object, _userService.Object);
+        _processor = fixture.Create<PollingUpdatesProcessor>();
 
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
     }
 
     [Test]
@@ -43,12 +45,9 @@ public class PollingUpdatesProcessorTests
     public async Task PublishUpdate_GivenFirstUpdate_RecordsData()
     {
         var now = new DateTimeOffset(2020, 01, 02, 03, 04, 05, 06, TimeSpan.Zero);
-        var times = new Queue<DateTimeOffset>(new[]
-        {
-            now,
-        });
+        var times = new Queue<DateTimeOffset>([now]);
         var id = Guid.NewGuid();
-        _clock.Setup(c => c.GetUtcNow()).Returns(() => times.Dequeue());
+        _clock.Setup(c => c.GetUtcNow()).Returns(times.Dequeue);
         _user = new UserDto { Name = "USER" };
 
         await _processor.PublishUpdate(_socket.Object, id, LiveDataType.Sayg, "DATA", _token);
@@ -65,13 +64,9 @@ public class PollingUpdatesProcessorTests
     {
         var now = new DateTimeOffset(2020, 01, 02, 03, 04, 05, 06, TimeSpan.Zero);
         var next = new DateTimeOffset(2021, 02, 03, 04, 05, 06, 07, TimeSpan.FromHours(1));
-        var times = new Queue<DateTimeOffset>(new[]
-        {
-            now,
-            next,
-        });
+        var times = new Queue<DateTimeOffset>([now, next]);
         var id = Guid.NewGuid();
-        _clock.Setup(c => c.GetUtcNow()).Returns(() => times.Dequeue());
+        _clock.Setup(c => c.GetUtcNow()).Returns(times.Dequeue);
         _user = new UserDto { Name = "USER" };
 
         await _processor.PublishUpdate(_socket.Object, id, LiveDataType.Tournament, "DATA", _token);
@@ -100,13 +95,9 @@ public class PollingUpdatesProcessorTests
     {
         var then = new DateTimeOffset(2020, 01, 02, 03, 04, 05, 06, TimeSpan.Zero);
         var now = new DateTimeOffset(2021, 02, 03, 04, 05, 06, 07, TimeSpan.FromHours(1));
-        var times = new Queue<DateTimeOffset>(new[]
-        {
-            then,
-            now,
-        });
+        var times = new Queue<DateTimeOffset>([then, now]);
         var id = Guid.NewGuid();
-        _clock.Setup(c => c.GetUtcNow()).Returns(() => times.Dequeue());
+        _clock.Setup(c => c.GetUtcNow()).Returns(times.Dequeue);
         await _processor.PublishUpdate(_socket.Object, id, LiveDataType.Sayg, "DATA", _token); // @ then
 
         var update = await _processor.GetUpdate(id, LiveDataType.Sayg, now);
@@ -121,13 +112,9 @@ public class PollingUpdatesProcessorTests
     {
         var then = new DateTimeOffset(2020, 01, 02, 03, 04, 05, 06, TimeSpan.Zero);
         var now = new DateTimeOffset(2021, 02, 03, 04, 05, 06, 07, TimeSpan.FromHours(1));
-        var times = new Queue<DateTimeOffset>(new[]
-        {
-            then,
-            now,
-        });
+        var times = new Queue<DateTimeOffset>([then, now]);
         var id = Guid.NewGuid();
-        _clock.Setup(c => c.GetUtcNow()).Returns(() => times.Dequeue());
+        _clock.Setup(c => c.GetUtcNow()).Returns(times.Dequeue);
         await _processor.PublishUpdate(_socket.Object, id, LiveDataType.Sayg, "DATA", _token); // @ then
 
         var update = await _processor.GetUpdate(id, LiveDataType.Sayg, null);
@@ -142,13 +129,9 @@ public class PollingUpdatesProcessorTests
     {
         var then = new DateTimeOffset(2020, 01, 02, 03, 04, 05, 06, TimeSpan.Zero);
         var now = new DateTimeOffset(2021, 02, 03, 04, 05, 06, 07, TimeSpan.FromHours(1));
-        var times = new Queue<DateTimeOffset>(new[]
-        {
-            then,
-            now,
-        });
+        var times = new Queue<DateTimeOffset>([then, now]);
         var id = Guid.NewGuid();
-        _clock.Setup(c => c.GetUtcNow()).Returns(() => times.Dequeue());
+        _clock.Setup(c => c.GetUtcNow()).Returns(times.Dequeue);
         await _processor.PublishUpdate(_socket.Object, id, LiveDataType.Sayg, "DATA", _token); // @ then
 
         var update = await _processor.GetUpdate(id, LiveDataType.Sayg, then.AddMinutes(-1));
@@ -170,21 +153,18 @@ public class PollingUpdatesProcessorTests
     public async Task GetWatchableData_WhenUpdate_ReturnsWatchableData()
     {
         var updateTime = new DateTimeOffset(2020, 01, 02, 03, 04, 05, 06, TimeSpan.Zero);
-        var times = new Queue<DateTimeOffset>(new[]
-        {
-            updateTime,
-        });
+        var times = new Queue<DateTimeOffset>([updateTime]);
         var id = Guid.NewGuid();
-        _clock.Setup(c => c.GetUtcNow()).Returns(() => times.Dequeue());
+        _clock.Setup(c => c.GetUtcNow()).Returns(times.Dequeue);
         _user = new UserDto { Name = "USER" };
 
         await _processor.PublishUpdate(_socket.Object, id, LiveDataType.Sayg, "DATA", _token);
 
         var watchableData = await _processor.GetWatchableData(_token).ToList();
 
-        Assert.That(watchableData.Select(d => d.Publication.Id), Is.EquivalentTo(new[] { id }));
-        Assert.That(watchableData.Select(d => d.Publication.DataType), Is.EquivalentTo(new[] { LiveDataType.Sayg }));
-        Assert.That(watchableData.Select(d => d.Publication.LastUpdate), Is.EquivalentTo(new[] { updateTime }));
-        Assert.That(watchableData.Select(d => d.Connection.UserName), Is.EquivalentTo(new[] { "USER" }));
+        Assert.That(watchableData.Select(d => d.Publication.Id), Is.EquivalentTo([id]));
+        Assert.That(watchableData.Select(d => d.Publication.DataType), Is.EquivalentTo([LiveDataType.Sayg]));
+        Assert.That(watchableData.Select(d => d.Publication.LastUpdate), Is.EquivalentTo([updateTime]));
+        Assert.That(watchableData.Select(d => d.Connection.UserName), Is.EquivalentTo(["USER"]));
     }
 }

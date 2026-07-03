@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
@@ -21,26 +22,24 @@ public class RemovePlayerCommandTests
     };
 
     private const string UserTeamId = "25BF0C9C-C4C8-4975-BC0F-DAB07030C453";
-    private Mock<ICachingSeasonService> _seasonService = null!;
-    private Mock<IUserService> _userService = null!;
     private Mock<IAuditingHelper> _auditingHelper = null!;
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly SeasonDto _season = new SeasonDtoBuilder().Build();
     private CosmosTeam _team = null!;
     private UserDto? _user;
     private RemovePlayerCommand _command = null!;
     private TeamSeason _teamSeason = null!;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _seasonService = new Mock<ICachingSeasonService>();
-        _userService = new Mock<IUserService>();
+        var fixture = AutoFixture.Create();
+        var seasonService = fixture.FreezeMock<ICachingSeasonService>();
+        var userService = fixture.FreezeMock<IUserService>();
         _access = [AccessOption.ManageTeams];
-        _accessService = new Mock<IAccessService>();
-        _auditingHelper = new Mock<IAuditingHelper>();
+        var accessService = fixture.FreezeMock<IAccessService>();
+        _auditingHelper = fixture.FreezeMock<IAuditingHelper>();
         _user = new UserDto { TeamId = Guid.Parse(UserTeamId) };
         _teamSeason = new TeamSeason
         {
@@ -53,11 +52,11 @@ public class RemovePlayerCommandTests
             Seasons = { _teamSeason },
             Name = "TEAM",
         };
-        _command = new RemovePlayerCommand(_seasonService.Object, _userService.Object, _auditingHelper.Object, _accessService.Object);
+        _command = fixture.Create<RemovePlayerCommand>();
 
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
-        _accessService
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
     }
@@ -70,7 +69,7 @@ public class RemovePlayerCommandTests
         var result = await _command.ForPlayer(TeamPlayer.Id).FromSeason(_season.Id).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[] { "Cannot edit a team that has been deleted" }));
+        Assert.That(result.Errors, Is.EqualTo(["Cannot edit a team that has been deleted"]));
     }
 
     [Test]
@@ -81,7 +80,7 @@ public class RemovePlayerCommandTests
         var result = await _command.ForPlayer(TeamPlayer.Id).FromSeason(_season.Id).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[] { "Player cannot be removed, not logged in" }));
+        Assert.That(result.Errors, Is.EqualTo(["Player cannot be removed, not logged in"]));
     }
 
     [TestCase(false, false, null)]
@@ -97,7 +96,7 @@ public class RemovePlayerCommandTests
         var result = await _command.ForPlayer(TeamPlayer.Id).FromSeason(_season.Id).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[] { "Player cannot be removed, not permitted" }));
+        Assert.That(result.Errors, Is.EqualTo(expected: ["Player cannot be removed, not permitted"]));
     }
 
     [Test]
@@ -106,7 +105,7 @@ public class RemovePlayerCommandTests
         var result = await _command.ForPlayer(TeamPlayer.Id).FromSeason(Guid.NewGuid()).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[] { "Season could not be found" }));
+        Assert.That(result.Errors, Is.EqualTo(["Season could not be found"]));
     }
 
     [Test]
@@ -117,7 +116,7 @@ public class RemovePlayerCommandTests
         var result = await _command.ForPlayer(TeamPlayer.Id).FromSeason(_season.Id).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[] { "Team is not registered to the SEASON season" }));
+        Assert.That(result.Warnings, Is.EqualTo(expected: ["Team is not registered to the SEASON season"]));
     }
 
     [Test]
@@ -128,7 +127,7 @@ public class RemovePlayerCommandTests
         var result = await _command.ForPlayer(TeamPlayer.Id).FromSeason(_season.Id).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[] { "Team is not registered to the SEASON season" }));
+        Assert.That(result.Warnings, Is.EqualTo(["Team is not registered to the SEASON season"]));
     }
 
     [Test]
@@ -137,7 +136,7 @@ public class RemovePlayerCommandTests
         var result = await _command.ForPlayer(Guid.NewGuid()).FromSeason(_season.Id).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[] { "Player does not have a player with this id for the SEASON season" }));
+        Assert.That(result.Warnings, Is.EqualTo(["Player does not have a player with this id for the SEASON season"]));
     }
 
     [Test]
@@ -155,7 +154,7 @@ public class RemovePlayerCommandTests
         var result = await _command.ForPlayer(deletedPlayer.Id).FromSeason(_season.Id).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Player PLAYER removed from the SEASON season" }));
+        Assert.That(result.Messages, Is.EqualTo(expected: ["Player PLAYER removed from the SEASON season"]));
     }
 
     [Test]
@@ -164,7 +163,7 @@ public class RemovePlayerCommandTests
         var result = await _command.ForPlayer(TeamPlayer.Id).FromSeason(_season.Id).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Player PLAYER removed from the SEASON season" }));
+        Assert.That(result.Messages, Is.EqualTo(["Player PLAYER removed from the SEASON season"]));
         _auditingHelper.Verify(h => h.SetDeleted(TeamPlayer, _token));
     }
 }

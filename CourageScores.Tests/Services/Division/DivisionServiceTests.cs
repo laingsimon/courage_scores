@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
@@ -72,15 +73,11 @@ public class DivisionServiceTests
     private readonly List<TournamentGame> _someTournaments = new();
     private DivisionService _service = null!;
     private Mock<IGenericDataService<CourageScores.Models.Cosmos.Division, DivisionDto>> _genericService = null!;
-    private Mock<ICachingTeamService> _teamService = null!;
     private Mock<IGenericDataService<CosmosSeason, SeasonDto>> _genericSeasonService = null!;
     private Mock<IGenericRepository<CosmosGame>> _gameRepository = null!;
     private Mock<IGenericRepository<TournamentGame>> _tournamentGameRepository = null!;
     private Mock<IGenericDataService<FixtureDateNote, FixtureDateNoteDto>> _noteService = null!;
-    private Mock<TimeProvider> _clock = null!;
     private Mock<IDivisionDataDtoFactory> _divisionDataDtoFactory = null!;
-    private Mock<IUserService> _userService = null!;
-    private Mock<IAccessService> _accessService = null!;
     private DivisionDataContext? _divisionDataContext;
     private UserDto? _userDto;
     private DateTimeOffset _now;
@@ -89,16 +86,17 @@ public class DivisionServiceTests
     [SetUp]
     public void SetupEachTest()
     {
-        _genericService = new Mock<IGenericDataService<CourageScores.Models.Cosmos.Division, DivisionDto>>();
-        _teamService = new Mock<ICachingTeamService>();
-        _genericSeasonService = new Mock<IGenericDataService<CosmosSeason, SeasonDto>>();
-        _gameRepository = new Mock<IGenericRepository<CosmosGame>>();
-        _tournamentGameRepository = new Mock<IGenericRepository<TournamentGame>>();
-        _noteService = new Mock<IGenericDataService<FixtureDateNote, FixtureDateNoteDto>>();
-        _userService = new Mock<IUserService>();
-        _accessService = new Mock<IAccessService>();
-        _clock = new Mock<TimeProvider>();
-        _divisionDataDtoFactory = new Mock<IDivisionDataDtoFactory>();
+        var fixture = AutoFixture.Create();
+        _genericService = fixture.FreezeMock<IGenericDataService<CourageScores.Models.Cosmos.Division, DivisionDto>>();
+        var teamService = fixture.FreezeMock<ICachingTeamService>();
+        _genericSeasonService = fixture.FreezeMock<IGenericDataService<CosmosSeason, SeasonDto>>();
+        _gameRepository = fixture.FreezeMock<IGenericRepository<CosmosGame>>();
+        _tournamentGameRepository = fixture.FreezeMock<IGenericRepository<TournamentGame>>();
+        _noteService = fixture.FreezeMock<IGenericDataService<FixtureDateNote, FixtureDateNoteDto>>();
+        var userService = fixture.FreezeMock<IUserService>();
+        var accessService = fixture.FreezeMock<IAccessService>();
+        var clock = fixture.FreezeMock<TimeProvider>();
+        _divisionDataDtoFactory = fixture.FreezeMock<IDivisionDataDtoFactory>();
         _someGames.Clear();
         _someNotes.Clear();
         _someTournaments.Clear();
@@ -107,20 +105,10 @@ public class DivisionServiceTests
         _userDto = new UserDto();
         _access = new HashSet<AccessOption>();
 
-        _service = new DivisionService(
-            _genericService.Object,
-            _teamService.Object,
-            _genericSeasonService.Object,
-            _gameRepository.Object,
-            _tournamentGameRepository.Object,
-            _noteService.Object,
-            _clock.Object,
-            _divisionDataDtoFactory.Object,
-            _userService.Object,
-            _accessService.Object);
+        _service = fixture.Create<DivisionService>();
 
-        _accessService.Setup(s => s.HasAccess(_userDto, It.IsAny<AccessOption>(), _token)).ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
-        _teamService.Setup(s => s.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_allTeams.ToArray()));
+        accessService.Setup(s => s.HasAccess(_userDto, It.IsAny<AccessOption>(), _token)).ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
+        teamService.Setup(s => s.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_allTeams.ToArray()));
         _noteService.Setup(s => s.GetWhere(It.IsAny<string>(), _token)).Returns(() => TestUtilities.AsyncEnumerable(_someNotes.ToArray()));
         _gameRepository.Setup(s => s.GetSome(It.IsAny<string>(), _token)).Returns(() => TestUtilities.AsyncEnumerable(_someGames.ToArray()));
         _tournamentGameRepository.Setup(s => s.GetSome(It.IsAny<string>(), _token)).Returns(() => TestUtilities.AsyncEnumerable(_someTournaments.ToArray()));
@@ -130,11 +118,11 @@ public class DivisionServiceTests
             {
                 _divisionDataContext = context;
             });
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _userDto);
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _userDto);
         _genericService.Setup(s => s.Get(Division1.Id, _token)).ReturnsAsync(Division1);
         _genericService.Setup(s => s.Get(Division2.Id, _token)).ReturnsAsync(Division2);
         _genericSeasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(Season));
-        _clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
+        clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
     }
 
     [Test]

@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Adapters.Season.Creation;
+﻿using AutoFixture;
+using CourageScores.Models.Adapters.Season.Creation;
 using CourageScores.Models.Dtos.Season.Creation;
 using NUnit.Framework;
 
@@ -7,13 +8,14 @@ namespace CourageScores.Tests.Models.Adapters.Season.Creation;
 [TestFixture]
 public class SharedAddressAdapterTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private SharedAddressAdapter _adapter = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _adapter = new SharedAddressAdapter();
+        var fixture = AutoFixture.Create();
+        _adapter = fixture.Create<SharedAddressAdapter>();
     }
 
     [Test]
@@ -27,10 +29,7 @@ public class SharedAddressAdapterTests
 
         var result = await _adapter.Adapt(dto, _token);
 
-        Assert.That(result, Is.EqualTo(new[]
-        {
-            "A", "B",
-        }));
+        Assert.That(result, Is.EqualTo(["A", "B"]));
     }
 
     [Test]
@@ -44,10 +43,7 @@ public class SharedAddressAdapterTests
 
         var result = await _adapter.Adapt(dto, _token);
 
-        Assert.That(result, Is.EqualTo(new[]
-        {
-            "A", "B",
-        }));
+        Assert.That(result, Is.EqualTo(["A", "B"]));
     }
 
     [Test]
@@ -61,9 +57,6 @@ public class SharedAddressAdapterTests
 
         var result = await _adapter.Adapt(model, _token);
 
-        Assert.That(result.Select(p => p.Key), Is.EqualTo(new[]
-        {
-            "A", "B",
-        }));
+        Assert.That(result.Select(p => p.Key), Is.EqualTo(["A", "B"]));
     }
 }

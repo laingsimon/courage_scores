@@ -73,10 +73,7 @@ public class ExceptionHandler
             Message = _includeErrorDetails ? exception.Message : null,
             StackTrace = _includeErrorDetails
                 ? exception.StackTrace?
-                    .Split(new[]
-                    {
-                        '\r', '\n',
-                    }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                     .TakeWhile(stackFrame => !stackFrame.Contains("at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker"))
                     .ToArray()
                 : null,

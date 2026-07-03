@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Common;
 using CourageScores.Common.Cosmos;
 using CourageScores.Models.Dtos.Data;
@@ -15,31 +16,28 @@ namespace CourageScores.Tests.Services.Data;
 public class CosmosTableServiceTests
 {
     private readonly CancellationToken _token = CancellationToken.None;
-    private Mock<Database> _database = null!;
-    private Mock<IUserService> _userService = null!;
-    private Mock<IJsonSerializerService> _jsonSerializer = null!;
     private UserDto? _user;
     private List<string> _tables = null!;
     private CosmosTableService _service = null!;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _tables = ["game", "tournamentgame", "team"];
-        _database = new Mock<Database>();
-        _userService = new Mock<IUserService>();
+        var database = fixture.FreezeMock<Database>();
+        var userService = fixture.FreezeMock<IUserService>();
         _access = [AccessOption.ExportData, AccessOption.ImportData];
-        _accessService = new Mock<IAccessService>();
-        _jsonSerializer = new Mock<IJsonSerializerService>();
-        _service = new CosmosTableService(_database.Object, _userService.Object, _jsonSerializer.Object, _accessService.Object);
+        var accessService = fixture.FreezeMock<IAccessService>();
+        var jsonSerializer = fixture.FreezeMock<IJsonSerializerService>();
+        _service = fixture.Create<CosmosTableService>();
         _user = new UserDto();
-        _database
+        database
             .Setup(d => d.GetContainerQueryStreamIterator((string?)null, null, null))
-            .Returns(() => new MockFeedIterator(_jsonSerializer, _tables.ToArray()));
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _accessService
+            .Returns(() => new MockFeedIterator(jsonSerializer, _tables.ToArray()));
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
     }

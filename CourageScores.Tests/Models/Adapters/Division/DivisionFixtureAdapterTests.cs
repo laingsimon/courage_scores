@@ -1,4 +1,5 @@
-﻿using CourageScores.Models;
+﻿using AutoFixture;
+using CourageScores.Models;
 using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
@@ -28,28 +29,26 @@ public class DivisionFixtureAdapterTests
     private DivisionFixtureTeamDto _homeTeamDto = null!;
     private DivisionFixtureTeamDto _awayTeamDto = null!;
     private Mock<IFeatureService> _featureService = null!;
-    private Mock<TimeProvider> _clock = null!;
     private DateTimeOffset _now;
-    private Mock<IUserService> _userService = null!;
     private UserDto? _user;
     private SeasonDto _season = null!;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _season = new SeasonDto
         {
             FixtureStartTime = TimeSpan.FromHours(21),
             FixtureDuration = 2
         };
-        _divisionFixtureTeamAdapter = new Mock<IDivisionFixtureTeamAdapter>();
-        _featureService = new Mock<IFeatureService>();
-        _clock = new Mock<TimeProvider>();
-        _userService = new Mock<IUserService>();
-        _accessService = new Mock<IAccessService>();
-        _adapter = new DivisionFixtureAdapter(_divisionFixtureTeamAdapter.Object, _featureService.Object, _clock.Object, _userService.Object, _accessService.Object);
+        _divisionFixtureTeamAdapter = fixture.FreezeMock<IDivisionFixtureTeamAdapter>();
+        _featureService = fixture.FreezeMock<IFeatureService>();
+        var clock = fixture.FreezeMock<TimeProvider>();
+        var userService = fixture.FreezeMock<IUserService>();
+        var accessService = fixture.FreezeMock<IAccessService>();
+        _adapter = fixture.Create<DivisionFixtureAdapter>();
         _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, 07, TimeSpan.Zero);
         _homeTeam = new TeamDto
         {
@@ -77,9 +76,9 @@ public class DivisionFixtureAdapterTests
         _divisionFixtureTeamAdapter
             .Setup(a => a.Adapt(It.Is<GameTeam>(t => t.Id == _awayTeam.Id), It.IsAny<string>(), _token))
             .ReturnsAsync(_awayTeamDto);
-        _clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _accessService
+        clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
     }

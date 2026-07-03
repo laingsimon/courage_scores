@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Health;
 using CourageScores.Models.Dtos.Division;
@@ -18,37 +19,29 @@ public class HealthCheckServiceTests
 {
     private readonly CancellationToken _token = CancellationToken.None;
     private HealthCheckService _service = null!;
-    private Mock<IUserService> _userService = null!;
     private Mock<ICachingSeasonService> _seasonService = null!;
     private Mock<ICachingDivisionService> _divisionService = null!;
-    private Mock<ISeasonHealthCheckFactory> _healthCheckFactory = null!;
     private Mock<ISeasonHealthCheck> _healthCheck = null!;
     private Mock<ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions, SeasonHealthDto>> _seasonAdapter = null!;
     private UserDto? _user;
     private SeasonDto _season = null!;
     private DivisionDataDto _division1 = null!;
     private DivisionDataDto _division2 = null!;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _userService = new Mock<IUserService>();
+        var fixture = AutoFixture.Create();
+        var userService = fixture.FreezeMock<IUserService>();
         _access = [AccessOption.RunHealthChecks];
-        _accessService = new Mock<IAccessService>();
-        _seasonService = new Mock<ICachingSeasonService>();
-        _divisionService = new Mock<ICachingDivisionService>();
-        _healthCheckFactory = new Mock<ISeasonHealthCheckFactory>();
-        _healthCheck = new Mock<ISeasonHealthCheck>();
-        _seasonAdapter = new Mock<ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions, SeasonHealthDto>>();
-        _service = new HealthCheckService(
-            _userService.Object,
-            _seasonService.Object,
-            _divisionService.Object,
-            _healthCheckFactory.Object,
-            _seasonAdapter.Object,
-            _accessService.Object);
+        var accessService = fixture.FreezeMock<IAccessService>();
+        _seasonService = fixture.FreezeMock<ICachingSeasonService>();
+        _divisionService = fixture.FreezeMock<ICachingDivisionService>();
+        var healthCheckFactory = fixture.FreezeMock<ISeasonHealthCheckFactory>();
+        _healthCheck = fixture.FreezeMock<ISeasonHealthCheck>();
+        _seasonAdapter = fixture.FreezeMock<ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions, SeasonHealthDto>>();
+        _service = fixture.Create<HealthCheckService>();
         _user = new UserDto();
         _division1 = new DivisionDataDto(null)
         {
@@ -65,16 +58,16 @@ public class HealthCheckServiceTests
             .Build();
 
         _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _divisionService
             .Setup(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId.Contains(_division1.Id) && f.SeasonId == _season.Id && f.IgnoreDates), _token))
             .ReturnsAsync(_division1);
         _divisionService
             .Setup(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId.Contains(_division2.Id) && f.SeasonId == _season.Id && f.IgnoreDates), _token))
             .ReturnsAsync(_division2);
-        _healthCheckFactory.Setup(f => f.GetHealthChecks()).Returns([_healthCheck.Object]);
+        healthCheckFactory.Setup(f => f.GetHealthChecks()).Returns([_healthCheck.Object]);
         _healthCheck.Setup(c => c.Name).Returns("CHECK");
-        _accessService
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }

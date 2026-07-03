@@ -7,12 +7,11 @@ public class CompatibilityCheckFactory : ICompatibilityCheckFactory
     [ExcludeFromCodeCoverage]
     public ICompatibilityCheck CreateChecks()
     {
-        return new CompositeCompatibilityCheck(new ICompatibilityCheck[]
-        {
+        return new CompositeCompatibilityCheck([
             new SameNumberOfDivisions(),
             new NoMoreThanTemplateDivisionTeamCount(),
             new EachDivisionHasRightNumberOfTeamsWithSharedAddress(),
-            new SeasonHasRightNumberOfTeamsWithSharedAddress(),
-        });
+            new SeasonHasRightNumberOfTeamsWithSharedAddress()
+        ]);
     }
 }

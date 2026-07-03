@@ -11,7 +11,7 @@ namespace CourageScores.Tests.Services.Season.Creation.CompatibilityCheck;
 [TestFixture]
 public class SeasonHasRightNumberOfTeamsWithSharedAddressTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly SeasonDto _season = new();
     private readonly SeasonHasRightNumberOfTeamsWithSharedAddress _check = new();
 
@@ -30,31 +30,26 @@ public class SeasonHasRightNumberOfTeamsWithSharedAddressTests
         var teams = new Dictionary<Guid, TeamDto[]>
         {
             {
-                division1.Id, new[]
-                {
+                division1.Id, [
                     new TeamDto
                     {
                         Name = "A",
                         Address = "A",
-                    },
-                }
+                    }
+                ]
             },
             {
-                division2.Id, new[]
-                {
+                division2.Id, [
                     new TeamDto
                     {
                         Name = "B",
                         Address = "B",
-                    },
-                }
+                    }
+                ]
             },
         };
 
-        var result = await _check.Check(template, TemplateMatchContext(new[]
-        {
-            division1, division2,
-        }, teams), _token);
+        var result = await _check.Check(template, TemplateMatchContext([division1, division2], teams), _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -83,31 +78,26 @@ public class SeasonHasRightNumberOfTeamsWithSharedAddressTests
         var teams = new Dictionary<Guid, TeamDto[]>
         {
             {
-                division1.Id, new[]
-                {
+                division1.Id, [
                     new TeamDto
                     {
                         Name = "A",
                         Address = "A",
-                    },
-                }
+                    }
+                ]
             },
             {
-                division2.Id, new[]
-                {
+                division2.Id, [
                     new TeamDto
                     {
                         Name = "B",
                         Address = "B",
-                    },
-                }
+                    }
+                ]
             },
         };
 
-        var result = await _check.Check(template, TemplateMatchContext(new[]
-        {
-            division1, division2,
-        }, teams), _token);
+        var result = await _check.Check(template, TemplateMatchContext([division1, division2], teams), _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -136,31 +126,26 @@ public class SeasonHasRightNumberOfTeamsWithSharedAddressTests
         var teams = new Dictionary<Guid, TeamDto[]>
         {
             {
-                division1.Id, new[]
-                {
+                division1.Id, [
                     new TeamDto
                     {
                         Name = "A",
                         Address = "A",
-                    },
-                }
+                    }
+                ]
             },
             {
-                division2.Id, new[]
-                {
+                division2.Id, [
                     new TeamDto
                     {
                         Name = "B",
                         Address = "A",
-                    },
-                }
+                    }
+                ]
             },
         };
 
-        var result = await _check.Check(template, TemplateMatchContext(new[]
-        {
-            division1, division2,
-        }, teams), _token);
+        var result = await _check.Check(template, TemplateMatchContext([division1, division2], teams), _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -189,8 +174,7 @@ public class SeasonHasRightNumberOfTeamsWithSharedAddressTests
         var teams = new Dictionary<Guid, TeamDto[]>
         {
             {
-                division1.Id, new[]
-                {
+                division1.Id, [
                     new TeamDto
                     {
                         Name = "A",
@@ -200,12 +184,11 @@ public class SeasonHasRightNumberOfTeamsWithSharedAddressTests
                     {
                         Name = "C",
                         Address = "C",
-                    },
-                }
+                    }
+                ]
             },
             {
-                division2.Id, new[]
-                {
+                division2.Id, [
                     new TeamDto
                     {
                         Name = "B",
@@ -215,21 +198,15 @@ public class SeasonHasRightNumberOfTeamsWithSharedAddressTests
                     {
                         Name = "D",
                         Address = "C",
-                    },
-                }
+                    }
+                ]
             },
         };
 
-        var result = await _check.Check(template, TemplateMatchContext(new[]
-        {
-            division1, division2,
-        }, teams), _token);
+        var result = await _check.Check(template, TemplateMatchContext([division1, division2], teams), _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "Template supports up-to 1 cross-division shared addresses, found 2",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Template supports up-to 1 cross-division shared addresses, found 2"]));
     }
 
     private TemplateMatchContext TemplateMatchContext(IEnumerable<DivisionDataDto> divisions, Dictionary<Guid, TeamDto[]> teams)

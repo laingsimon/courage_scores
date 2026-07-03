@@ -1,8 +1,8 @@
+using AutoFixture;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Repository;
-using CourageScores.Services;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
 using CourageScores.Tests.Models.Adapters;
@@ -15,22 +15,19 @@ namespace CourageScores.Tests.Services.Season;
 [TestFixture]
 public class SeasonServiceTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private Mock<IGenericRepository<CosmosSeason>> _repository = null!;
-    private IAdapter<CosmosSeason, SeasonDto> _adapter = null!;
-    private Mock<IAuditingHelper> _auditingHelper = null!;
-    private Mock<IUserService> _userService = null!;
     private Mock<TimeProvider> _clock = null!;
     private UserDto? _user;
     private SeasonService _service = null!;
     private CosmosSeason _season = null!;
     private SeasonDto _seasonDto = null!;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _access = [AccessOption.ManageGames];
         _user = new UserDto();
         _season = new CosmosSeason
@@ -41,25 +38,18 @@ public class SeasonServiceTests
             .WithDates(new DateTime(2001, 01, 01), new DateTime(2001, 05, 20))
             .Build();
 
-        _repository = new Mock<IGenericRepository<CosmosSeason>>();
-        _adapter = new MockAdapter<CosmosSeason, SeasonDto>(_season, _seasonDto);
-        _auditingHelper = new Mock<IAuditingHelper>();
-        _userService = new Mock<IUserService>();
-        _accessService = new Mock<IAccessService>();
-        _clock = new Mock<TimeProvider>();
+        _repository = fixture.FreezeMock<IGenericRepository<CosmosSeason>>();
+        var adapter = new MockAdapter<CosmosSeason, SeasonDto>(_season, _seasonDto);
+        fixture.Register<IAdapter<CosmosSeason, SeasonDto>>(() => adapter);
+        var userService = fixture.FreezeMock<IUserService>();
+        var accessService = fixture.FreezeMock<IAccessService>();
+        _clock = fixture.FreezeMock<TimeProvider>();
 
-        _service = new SeasonService(
-            _repository.Object,
-            _adapter,
-            _userService.Object,
-            _auditingHelper.Object,
-            _clock.Object,
-            new ActionResultAdapter(),
-            _accessService.Object);
+        _service = fixture.Create<SeasonService>();
 
         _repository.Setup(r => r.Get(_season.Id, _token)).ReturnsAsync(_season);
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _accessService
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        accessService
             .Setup(s => s.HasAccess(_user, It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto _, AccessOption option, CancellationToken _) => _user != null && _access.Contains(option));
     }

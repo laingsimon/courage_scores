@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Common;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Identity;
@@ -17,43 +18,31 @@ namespace CourageScores.Tests.Services;
 [TestFixture]
 public class CachingDataServiceTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private TeamDto? _dto = new();
-    private readonly List<TeamDto> _someDtos = new()
-    {
-        new TeamDto(),
-    };
-    private readonly List<TeamDto> _allDtos = new()
-    {
-        new TeamDto(),
-        new TeamDto(),
-    };
+    private readonly List<TeamDto> _someDtos = [new TeamDto()];
+    private readonly List<TeamDto> _allDtos = [new TeamDto(), new TeamDto()];
     private CachingDataService<CosmosTeam, TeamDto> _service = null!;
     private Mock<IGenericDataService<CosmosTeam, TeamDto>> _underlyingService = null!;
-    private ICache _cache = null!;
-    private Mock<IUserService> _userService = null!;
-    private Mock<IHttpContextAccessor> _httpContextAccessor = null!;
     private UserDto? _user;
     private HttpContext? _context;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _userService = new Mock<IUserService>();
-        _underlyingService = new Mock<IGenericDataService<CosmosTeam, TeamDto>>();
-        _cache = new InterceptingMemoryCache(new MemoryCache(new MemoryCacheOptions()));
-        _httpContextAccessor = new Mock<IHttpContextAccessor>();
+        var fixture = AutoFixture.Create();
+        var userService = fixture.FreezeMock<IUserService>();
+        _underlyingService = fixture.FreezeMock<IGenericDataService<CosmosTeam, TeamDto>>();
+        var cache = new InterceptingMemoryCache(new MemoryCache(new MemoryCacheOptions()));
+        fixture.Register<ICache>(() => cache);
+        var httpContextAccessor = fixture.FreezeMock<IHttpContextAccessor>();
         _context = new DefaultHttpContext();
         _user = null;
 
-        _service = new CachingDataService<CosmosTeam, TeamDto>(
-            _underlyingService.Object,
-            _cache,
-            _userService.Object,
-            _httpContextAccessor.Object);
+        _service = fixture.Create<CachingDataService<CosmosTeam, TeamDto>>();
 
-        _httpContextAccessor.Setup(a => a.HttpContext).Returns(() => _context);
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        httpContextAccessor.Setup(a => a.HttpContext).Returns(() => _context);
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _underlyingService
             .Setup(s => s.Get(It.IsAny<Guid>(), _token))
             .ReturnsAsync(() => _dto);

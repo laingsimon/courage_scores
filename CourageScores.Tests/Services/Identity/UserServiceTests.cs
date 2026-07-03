@@ -1,6 +1,7 @@
 using System.Net;
 using System.Security.Claims;
 using System.Security.Principal;
+using AutoFixture;
 using CourageScores.Common;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Identity;
@@ -27,42 +28,38 @@ public class UserServiceTests
     private readonly ConfiguredFeature _serviceAccountSessionFeature = new() { ConfiguredValue = "true" };
     private Mock<IHttpContextAccessor> _httpContextAccessor = null!;
     private Mock<IUserRepository> _userRepository = null!;
-    private ISimpleAdapter<User, UserDto> _userAdapter = null!;
-    private IAccessLevelAdapter _accessAdapter = null!;
-    private Mock<IGenericRepository<CosmosTeam>> _teamRepository = null!;
     private UserService _service = null!;
     private DefaultHttpContext? _httpContext;
     private Mock<IServiceProvider> _httpContextServices = null!;
     private Mock<IAuthenticationService> _authenticationService = null!;
     private List<CosmosTeam> _allTeams = null!;
     private Mock<IGenericRepository<ServiceAccountSession>> _serviceAccountSessionRepository = null!;
-    private Mock<IGenericRepository<ConfiguredFeature>> _featureRepository = null!;
     private MockRequestCookies _requestCookies = null!;
     private Mock<IAccessService> _accessService = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _allTeams = new List<CosmosTeam>();
-        _httpContextAccessor = new Mock<IHttpContextAccessor>();
-        _userRepository = new Mock<IUserRepository>();
-        _accessAdapter = new AccessLevelAdapter();
-        _userAdapter = new UserAdapter(_accessAdapter);
-        _teamRepository = new Mock<IGenericRepository<CosmosTeam>>();
-        _httpContextServices = new Mock<IServiceProvider>();
-        _authenticationService = new Mock<IAuthenticationService>();
-        _serviceAccountSessionRepository = new Mock<IGenericRepository<ServiceAccountSession>>();
-        _featureRepository = new Mock<IGenericRepository<ConfiguredFeature>>();
+        var fixture = AutoFixture.Create();
+        _allTeams = [];
+        _httpContextAccessor = fixture.FreezeMock<IHttpContextAccessor>();
+        _userRepository = fixture.FreezeMock<IUserRepository>();
+        fixture.Register<IAccessLevelAdapter>(fixture.Create<AccessLevelAdapter>);
+        fixture.Register<ISimpleAdapter<User, UserDto>>(fixture.Create<UserAdapter>);
+        var teamRepository = fixture.FreezeMock<IGenericRepository<CosmosTeam>>();
+        _httpContextServices = fixture.FreezeMock<IServiceProvider>();
+        _authenticationService = fixture.FreezeMock<IAuthenticationService>();
+        _serviceAccountSessionRepository = fixture.FreezeMock<IGenericRepository<ServiceAccountSession>>();
+        var featureRepository = fixture.FreezeMock<IGenericRepository<ConfiguredFeature>>();
         _requestCookies = new MockRequestCookies();
         _httpContext = null;
-        _accessService = new Mock<IAccessService>();
+        _accessService = fixture.FreezeMock<IAccessService>();
 
-        _service = new UserService(_httpContextAccessor.Object, _userRepository.Object, _userAdapter, _accessAdapter,
-            _teamRepository.Object, _serviceAccountSessionRepository.Object, _featureRepository.Object, _accessService.Object);
+        _service = fixture.Create<UserService>();
 
         _httpContextServices.Setup(p => p.GetService(typeof(IAuthenticationService))).Returns(_authenticationService.Object);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_allTeams.ToArray()));
-        _featureRepository.Setup(r => r.Get(FeatureLookup.ServiceAccountSessions.Id, _token)).ReturnsAsync(_serviceAccountSessionFeature);
+        teamRepository.Setup(r => r.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_allTeams.ToArray()));
+        featureRepository.Setup(r => r.Get(FeatureLookup.ServiceAccountSessions.Id, _token)).ReturnsAsync(_serviceAccountSessionFeature);
     }
 
     [Test]
@@ -214,8 +211,8 @@ public class UserServiceTests
 
         var user = await _service.GetUser("other@email.com", _token);
 
-        Assert.That(user!.EmailAddress, Is.EqualTo("other@email.com"));
-        Assert.That(user.Name, Is.EqualTo("Other User"));
+        Assert.That(user?.EmailAddress, Is.EqualTo("other@email.com"));
+        Assert.That(user?.Name, Is.EqualTo("Other User"));
     }
 
     [Test]

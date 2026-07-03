@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
@@ -11,18 +12,16 @@ namespace CourageScores.Tests.Models.Adapters;
 [TestFixture]
 public class ErrorDetailAdapterTests
 {
-    private readonly CancellationToken _token = new();
-    private Mock<IHttpContextAccessor> _httpContextAccessor = null!;
-    private DefaultHttpContext _httpContext = null!;
+    private readonly CancellationToken _token = CancellationToken.None;
     private ErrorDetailAdapter _adapter = null!;
-    private Mock<TimeProvider> _clock = null!;
     private DateTimeOffset _now;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _httpContextAccessor = new Mock<IHttpContextAccessor>();
-        _httpContext = new DefaultHttpContext
+        var fixture = AutoFixture.Create();
+        var httpContextAccessor = fixture.FreezeMock<IHttpContextAccessor>();
+        var httpContext = new DefaultHttpContext
         {
             Request =
             {
@@ -36,12 +35,12 @@ public class ErrorDetailAdapterTests
                 QueryString = new QueryString("?some-queryString"),
             },
         };
-        _clock = new Mock<TimeProvider>();
+        var clock = fixture.FreezeMock<TimeProvider>();
         _now = new DateTimeOffset(new DateTime(2001, 02, 03), TimeSpan.Zero);
-        _adapter = new ErrorDetailAdapter(_httpContextAccessor.Object, _clock.Object);
+        _adapter = fixture.Create<ErrorDetailAdapter>();
 
-        _httpContextAccessor.Setup(a => a.HttpContext).Returns(() => _httpContext);
-        _clock.Setup(c => c.GetUtcNow()).Returns(_now);
+        httpContextAccessor.Setup(a => a.HttpContext).Returns(() => httpContext);
+        clock.Setup(c => c.GetUtcNow()).Returns(_now);
     }
 
     [Test]
@@ -73,10 +72,7 @@ public class ErrorDetailAdapterTests
             Url = "url",
             Id = Guid.NewGuid(),
             Source = SourceSystem.Api,
-            Stack = new[]
-            {
-                "frame1", "frame2",
-            },
+            Stack = ["frame1", "frame2"],
             Time = new DateTime(2001, 02, 03),
             UserAgent = "user-agent",
             Message = "message",
@@ -105,10 +101,7 @@ public class ErrorDetailAdapterTests
             Url = "url",
             Id = Guid.NewGuid(),
             Source = SourceSystem.Api,
-            Stack = new[]
-            {
-                "frame1", "frame2",
-            },
+            Stack = ["frame1", "frame2"],
             Time = new DateTime(2001, 02, 03),
             UserAgent = "user-agent",
             Message = "message",

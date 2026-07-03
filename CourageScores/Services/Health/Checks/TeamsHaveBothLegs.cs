@@ -37,10 +37,7 @@ public class TeamsHaveBothLegs : ISeasonHealthCheck
     private static async Task<HealthCheckResultDto> CheckTeam(DivisionHealthDto division, DivisionTeamDto team)
     {
         var allFixtures = division.Dates.SelectMany(fd => fd.Fixtures).OrderBy(f => f.HomeTeam).ThenBy(f => f.AwayTeam).ToList();
-        var allOtherTeams = division.Teams.Except(new[]
-        {
-            team,
-        }).OrderBy(t => t.Name).ToList();
+        var allOtherTeams = division.Teams.Except([team]).OrderBy(t => t.Name).ToList();
 
         return (await allOtherTeams.SelectAsync(otherTeam => CheckLegs(division, allFixtures, team, otherTeam)).ToList())
             .Aggregate(
