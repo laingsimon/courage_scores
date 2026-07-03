@@ -29,7 +29,7 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
             };
         }
 
-        if (model.Id == default)
+        if (model.Id == Guid.Empty)
         {
             create = true;
             model.Id = Guid.NewGuid();
@@ -56,11 +56,8 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
             {
                 Success = result.Success,
                 Messages = result.Messages.Any()
-                    ? new List<string>()
-                    : new List<string>
-                    {
-                        $"{typeof(TModel).Name} {(create ? "created" : "updated")}",
-                    },
+                    ? []
+                    : [$"{typeof(TModel).Name} {(create ? "created" : "updated")}"],
             });
     }
 

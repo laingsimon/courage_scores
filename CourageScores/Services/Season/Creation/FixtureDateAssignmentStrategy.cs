@@ -94,10 +94,7 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
                 {
                     Date = currentDate,
                 };
-                divisionToAddFixturesTo.Fixtures = divisionToAddFixturesTo.Fixtures.Concat(new[]
-                {
-                    fixtureDate,
-                }).OrderBy(f => f.Date).ToList();
+                divisionToAddFixturesTo.Fixtures = divisionToAddFixturesTo.Fixtures.Concat([fixtureDate]).OrderBy(f => f.Date).ToList();
             }
 
             success = await CreateFixturesForDate(context, fixturesToCreate, fixtureDate, token) && success;

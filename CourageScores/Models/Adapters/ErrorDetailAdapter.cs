@@ -55,10 +55,7 @@ public class ErrorDetailAdapter : IAdapter<ErrorDetail, ErrorDetailDto>, IErrorD
             Source = SourceSystem.Api,
             Time = _clock.GetUtcNow().UtcDateTime,
             UserAgent = _httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString(),
-            Stack = errorDetails.Error.StackTrace?.Split(new[]
-            {
-                '\r', '\n',
-            }, StringSplitOptions.RemoveEmptyEntries),
+            Stack = errorDetails.Error.StackTrace?.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries),
             Type = errorDetails.Error.GetType().Name,
             Message = errorDetails.Error.Message,
             Url = _httpContextAccessor.HttpContext?.Request.GetEncodedUrl(),
