@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Common;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos;
@@ -19,19 +20,18 @@ public class ErrorDetailServiceTests
     private readonly CancellationToken _token = CancellationToken.None;
     private ErrorDetailService _service = null!;
     private Mock<IGenericDataService<ErrorDetail, ErrorDetailDto>> _genericService = null!;
-    private Mock<IUserService> _userService = null!;
     private Mock<ICommandFactory> _commandFactory = null!;
     private Mock<IErrorDetailAdapter> _errorDetailAdapter = null!;
     private Mock<AddErrorCommand> _addErrorCommand = null!;
     private UserDto? _user;
     private ErrorDetail _error = null!;
     private ErrorDetailDto _errorDto = null!;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _user = new UserDto();
         _error = new ErrorDetail
         {
@@ -41,27 +41,22 @@ public class ErrorDetailServiceTests
         {
             Id = _error.Id,
         };
-        _genericService = new Mock<IGenericDataService<ErrorDetail, ErrorDetailDto>>();
-        _userService = new Mock<IUserService>();
-        _accessService = new Mock<IAccessService>();
+        _genericService = fixture.FreezeMock<IGenericDataService<ErrorDetail, ErrorDetailDto>>();
+        var userService = fixture.FreezeMock<IUserService>();
+        var accessService = fixture.FreezeMock<IAccessService>();
         _access = [AccessOption.ViewExceptions];
-        _commandFactory = new Mock<ICommandFactory>();
-        _errorDetailAdapter = new Mock<IErrorDetailAdapter>();
-        _addErrorCommand = new Mock<AddErrorCommand>(_userService.Object);
-        _service = new ErrorDetailService(
-            _genericService.Object,
-            _userService.Object,
-            _commandFactory.Object,
-            _errorDetailAdapter.Object,
-            _accessService.Object);
+        _commandFactory = fixture.FreezeMock<ICommandFactory>();
+        _errorDetailAdapter = fixture.FreezeMock<IErrorDetailAdapter>();
+        _addErrorCommand = fixture.FreezeMockOf<AddErrorCommand>();
+        _service = fixture.Create<ErrorDetailService>();
 
         _genericService.Setup(s => s.Get(_error.Id, _token)).ReturnsAsync(_errorDto);
         _genericService
             .Setup(s => s.GetWhere(It.IsAny<string>(), _token))
             .Returns(TestUtilities.AsyncEnumerable(_errorDto));
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _commandFactory.Setup(f => f.GetCommand<AddErrorCommand>()).Returns(_addErrorCommand.Object);
-        _accessService
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }

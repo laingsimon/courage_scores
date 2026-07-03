@@ -292,7 +292,7 @@ describe('ScoreCardHeading', () => {
 
     describe('when an admin', () => {
         const team: TeamDto = teamBuilder('TEAM').build();
-        const account: UserDto = user({}, team.id);
+        const account: UserDto = user([], team.id);
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const season: SeasonDto = seasonBuilder('SEASON').build();
         const homePlayer = playerBuilder('HOME PLAYER').build();
@@ -518,7 +518,7 @@ describe('ScoreCardHeading', () => {
 
     describe('when a clerk', () => {
         const team: TeamDto = teamBuilder('TEAM').build();
-        const account: UserDto = user({}, team.id);
+        const account: UserDto = user([], team.id);
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const season: SeasonDto = seasonBuilder('SEASON').build();
         const homePlayer = playerBuilder('HOME PLAYER').build();

@@ -9,7 +9,7 @@ namespace CourageScores.Tests.Services.Health.Checks;
 [TestFixture]
 public class TeamsHaveBothLegsTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly TeamsHaveBothLegs _check = new();
 
     [Test]
@@ -34,16 +34,10 @@ public class TeamsHaveBothLegsTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division,
-        }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "DIVISION: Missing fixture for HOME vs AWAY", "DIVISION: Missing fixture for AWAY vs HOME",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["DIVISION: Missing fixture for HOME vs AWAY", "DIVISION: Missing fixture for AWAY vs HOME"]));
     }
 
     [Test]
@@ -89,16 +83,10 @@ public class TeamsHaveBothLegsTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division,
-        }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "DIVISION: Missing fixture for AWAY vs HOME",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["DIVISION: Missing fixture for AWAY vs HOME"]));
     }
 
     [Test]
@@ -144,16 +132,10 @@ public class TeamsHaveBothLegsTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division,
-        }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "DIVISION: Missing fixture for HOME vs AWAY",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["DIVISION: Missing fixture for HOME vs AWAY"]));
     }
 
     [Test]
@@ -208,10 +190,7 @@ public class TeamsHaveBothLegsTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division,
-        }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Warnings, Is.Empty);
@@ -278,15 +257,9 @@ public class TeamsHaveBothLegsTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division,
-        }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "DIVISION: Multiple fixtures for AWAY vs HOME (10 Feb, 17 Feb)",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["DIVISION: Multiple fixtures for AWAY vs HOME (10 Feb, 17 Feb)"]));
     }
 }

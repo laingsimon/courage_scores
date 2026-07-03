@@ -5,6 +5,8 @@ import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game
 import { useEditableSayg } from '../sayg/EditableSaygContainer.tsx';
 import { useLocation, useNavigate } from 'react-router';
 import { useApp } from '../common/AppContainer.tsx';
+import { hasAccess } from '../../helpers/conditions.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface IEditSaygPracticeOptionsProps {
     hideSaveButton?: boolean;
@@ -27,7 +29,7 @@ export function EditSaygPracticeOptions({
         newSayg.awayScore = 0;
         await setSayg(newSayg);
         await setEditScore();
-        if (account && account.access && account.access.kioskMode) {
+        if (hasAccess(account, AccessOption.kioskMode)) {
             await fullScreen.enterFullScreen();
         }
     }

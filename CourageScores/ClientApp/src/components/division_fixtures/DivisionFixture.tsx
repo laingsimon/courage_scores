@@ -23,6 +23,8 @@ import { ToggleFavouriteTeam } from '../common/ToggleFavouriteTeam.tsx';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
 import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 import { getTeamsInSeason } from '../../helpers/teams.ts';
+import { hasAccess } from '../../helpers/conditions.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface IDivisionFixtureProps {
     fixture: IEditableDivisionFixtureDto;
@@ -62,7 +64,7 @@ export function DivisionFixture({
         onReloadDivision,
         favouritesEnabled,
     } = useDivisionData();
-    const isAdmin = account && account.access && account.access.manageGames;
+    const isAdmin = hasAccess(account, AccessOption.manageGames);
     const [saving, setSaving] = useState<boolean>(false);
     const [deleting, setDeleting] = useState<boolean>(false);
     const [saveError, setSaveError] =

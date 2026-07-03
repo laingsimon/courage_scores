@@ -15,6 +15,7 @@ import { createTemporaryId } from '../helpers/projection.ts';
 import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType.ts';
 import { PublicationMode } from '../interfaces/models/dtos/Live/PublicationMode.ts';
 import { IAppContainerProps } from './common/AppContainer.tsx';
+import { AccessOption } from '../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('Tv', () => {
     let context: TestContext;
@@ -65,9 +66,7 @@ describe('Tv', () => {
     });
 
     describe('when not permitted', () => {
-        const account = user({
-            useWebSockets: false,
-        });
+        const account = user();
 
         it('does not render login link', async () => {
             await renderComponent(appProps({ account }));
@@ -89,9 +88,7 @@ describe('Tv', () => {
     });
 
     describe('when permitted', () => {
-        const account = user({
-            useWebSockets: true,
-        });
+        const account = user([AccessOption.useWebSockets]);
 
         it('requests links', async () => {
             await renderComponent(appProps({ account }));

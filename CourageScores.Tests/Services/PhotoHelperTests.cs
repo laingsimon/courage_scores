@@ -11,7 +11,7 @@ namespace CourageScores.Tests.Services;
 [TestFixture]
 public class PhotoHelperTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = CancellationToken.None;
     private PhotoHelper _helper = null!;
     private int _maxPhotoHeight;
 
@@ -25,10 +25,10 @@ public class PhotoHelperTests
     [Test]
     public async Task Resize_GivenNonImageFile_ReturnsUnsuccessful()
     {
-        var result = await _helper.ResizePhoto(new byte[] { 0, 1, 2, 3 }, _maxPhotoHeight, _token);
+        var result = await _helper.ResizePhoto([0, 1, 2, 3], _maxPhotoHeight, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not a valid photo" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Not a valid photo"]));
     }
 
     [Test]
@@ -77,21 +77,17 @@ public class PhotoHelperTests
 
     private static byte[] GetImageAtSize(int width, int height)
     {
-        using (var image = new Image<Rgba32>(width, height))
-        {
-            image.Mutate(img => img.Fill(Color.Azure));
+        using var image = new Image<Rgba32>(width, height);
+        image.Mutate(img => img.Fill(Color.Azure));
 
-            var stream = new MemoryStream();
-            image.Save(stream, new PngEncoder());
-            return stream.ToArray();
-        }
+        var stream = new MemoryStream();
+        image.Save(stream, new PngEncoder());
+        return stream.ToArray();
     }
 
     private static Size GetImageSize(byte[] photo)
     {
-        using (var image = Image.Load(new MemoryStream(photo)))
-        {
-            return image.Size;
-        }
+        using var image = Image.Load(new MemoryStream(photo));
+        return image.Size;
     }
 }

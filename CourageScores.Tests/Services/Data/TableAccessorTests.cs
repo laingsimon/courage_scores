@@ -14,7 +14,7 @@ namespace CourageScores.Tests.Services.Data;
 public class TableAccessorTests
 {
     private static readonly JsonSerializer Serializer = new();
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly TableAccessor _accessor = new(new TableDto
     {
         Name = "TABLE",
@@ -24,24 +24,24 @@ public class TableAccessorTests
     private Mock<IZipBuilder> _builder = null!;
     private ExportDataResultDto _result = null!;
     private ExportDataRequestDto _request = null!;
-    private Mock<Container> _container = null!;
     private FeedIterator<JObject> _iterator = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _database = new Mock<Database>();
-        _builder = new Mock<IZipBuilder>();
+        var fixture = AutoFixture.Create();
+        _database = fixture.FreezeMock<Database>();
+        _builder = fixture.FreezeMock<IZipBuilder>();
         _result = new ExportDataResultDto();
         _request = new ExportDataRequestDto();
-        _container = new Mock<Container>();
+        var container = fixture.FreezeMock<Container>();
 
-        _container
+        container
             .Setup(c => c.GetItemQueryIterator<JObject>(It.IsAny<string>(), null, null))
             .Returns(() => _iterator);
         _database
             .Setup(d => d.CreateContainerIfNotExistsAsync("TABLE", "/id", null, null, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(() => new StubContainerResponse(_container));
+            .ReturnsAsync(() => new StubContainerResponse(container));
     }
 
     [Test]
@@ -94,10 +94,7 @@ public class TableAccessorTests
         var otherId = Guid.NewGuid();
         _iterator = new StubFeedIterator<JObject>(Row(id: id), Row(id: otherId));
 #pragma warning disable CS0618
-        _request.Tables.Add("table", new List<Guid>
-        {
-            id,
-        });
+        _request.Tables.Add("table", [id]);
 #pragma warning restore CS0618
 
         await _accessor.ExportData(_database.Object, _result, _builder.Object, _request, _token);
@@ -138,11 +135,10 @@ public class TableAccessorTests
     public async Task ExportData_WhenCancelledBetweenBatches_AbortsEarly()
     {
         var tokenSource = new CancellationTokenSource();
-        _iterator = new StubFeedIterator<JObject>(
-            Row(), Row(), Row(), Row())
+        _iterator = new StubFeedIterator<JObject>(Row(), Row(), Row(), Row())
         {
             BatchSize = 2,
-            AtEndOfBatch = () => tokenSource.Cancel(),
+            AtEndOfBatch = tokenSource.Cancel,
         };
         _request.IncludeDeletedEntries = true;
 
@@ -156,8 +152,7 @@ public class TableAccessorTests
     {
         var index = 0;
         var tokenSource = new CancellationTokenSource();
-        _iterator = new StubFeedIterator<JObject>(
-            Row(), Row(), Row(), Row())
+        _iterator = new StubFeedIterator<JObject>(Row(), Row(), Row(), Row())
         {
             BatchSize = 2,
             BeforeRecord = () =>
@@ -175,8 +170,7 @@ public class TableAccessorTests
     [Test]
     public async Task ExportData_WhenNotCancelledWithMultipleBatches_ReturnsAllRows()
     {
-        _iterator = new StubFeedIterator<JObject>(
-            Row(), Row(), Row(), Row())
+        _iterator = new StubFeedIterator<JObject>(Row(), Row(), Row(), Row())
         {
             BatchSize = 2,
         };

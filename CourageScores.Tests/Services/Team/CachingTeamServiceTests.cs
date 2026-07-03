@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Common;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Team;
@@ -20,30 +21,25 @@ public class CachingTeamServiceTests
     private readonly List<TeamDto> _seasonIdAndDivisionIdTeams = [new TeamDto(), new TeamDto()];
     private CachingTeamService _service = null!;
     private Mock<ITeamService> _underlyingService = null!;
-    private ICache _cache = null!;
-    private Mock<IUserService> _userService = null!;
-    private Mock<IHttpContextAccessor> _httpContextAccessor = null!;
     private UserDto? _user;
     private HttpContext? _context;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _userService = new Mock<IUserService>();
-        _underlyingService = new Mock<ITeamService>();
-        _cache = new InterceptingMemoryCache(new MemoryCache(new MemoryCacheOptions()));
-        _httpContextAccessor = new Mock<IHttpContextAccessor>();
+        var fixture = AutoFixture.Create();
+        var userService = fixture.FreezeMock<IUserService>();
+        _underlyingService = fixture.FreezeMock<ITeamService>();
+        var cache = new InterceptingMemoryCache(new MemoryCache(new MemoryCacheOptions()));
+        fixture.Register<ICache>(() => cache);
+        var httpContextAccessor = fixture.FreezeMock<IHttpContextAccessor>();
         _context = new DefaultHttpContext();
         _user = null;
 
-        _service = new CachingTeamService(
-            _underlyingService.Object,
-            _cache,
-            _userService.Object,
-            _httpContextAccessor.Object);
+        _service = fixture.Create<CachingTeamService>();
 
-        _httpContextAccessor.Setup(a => a.HttpContext).Returns(() => _context);
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        httpContextAccessor.Setup(a => a.HttpContext).Returns(() => _context);
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _underlyingService
             .Setup(s => s.GetTeamsForSeason(It.IsAny<Guid>(), _token))
             .Returns(() => TestUtilities.AsyncEnumerable(_seasonIdOnlyTeams.ToArray()));

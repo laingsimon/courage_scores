@@ -5,7 +5,6 @@ import {
     BootstrapDropdown,
     IBootstrapDropdownItem,
 } from '../common/BootstrapDropdown.tsx';
-import { AccessDto } from '../../interfaces/models/dtos/Identity/AccessDto';
 import { ServiceAccountSessionDto } from '../../interfaces/models/dtos/Identity/ServiceAccountSessionDto';
 import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
 import { useDependencies } from '../common/IocContainer.tsx';
@@ -15,33 +14,35 @@ import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
 import { isEmpty } from '../../helpers/collections.ts';
 import { useApp } from '../common/AppContainer.tsx';
 import { Loading } from '../common/Loading.tsx';
+import { hasAccess } from '../../helpers/conditions.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 interface AccessTemplate {
     name: string;
     description: string;
-    access: AccessDto;
+    access: AccessOption[];
 }
 
 const accessTemplates: AccessTemplate[] = [
     {
         name: 'Superleague Tablet',
         description: 'Superleague Tablet, for entering scores',
-        access: {
-            useWebSockets: true,
-            showDebugOptions: true,
-            enterTournamentResults: true,
-            recordScoresAsYouGo: true,
-            kioskMode: true,
-        },
+        access: [
+            AccessOption.useWebSockets,
+            AccessOption.showDebugOptions,
+            AccessOption.enterTournamentResults,
+            AccessOption.recordScoresAsYouGo,
+            AccessOption.kioskMode,
+        ],
     },
     {
         name: 'Superleague TV',
         description: 'Superleague TV for displaying live results',
-        access: {
-            showDebugOptions: true,
-            useWebSockets: true,
-            kioskMode: true,
-        },
+        access: [
+            AccessOption.showDebugOptions,
+            AccessOption.useWebSockets,
+            AccessOption.kioskMode,
+        ],
     },
 ];
 
@@ -302,7 +303,7 @@ export function SessionResponse() {
         return <Loading />;
     }
 
-    if (account?.access?.loginServiceAccounts !== true) {
+    if (!hasAccess(account, AccessOption.loginServiceAccounts)) {
         return (
             <div className="content-background p-3">
                 <h3>Service account session</h3>

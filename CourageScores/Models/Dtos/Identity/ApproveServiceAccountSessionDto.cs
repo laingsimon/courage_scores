@@ -3,5 +3,5 @@
 public class ApproveServiceAccountSessionDto
 {
     public string Pin { get; init; } = "";
-    public AccessDto Access { get; set; } = new();
+    public AccessOption[] Access { get; set; } = [];
 }

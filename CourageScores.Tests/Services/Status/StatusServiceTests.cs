@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using AutoFixture;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Status;
@@ -16,10 +17,9 @@ namespace CourageScores.Tests.Services.Status;
 [TestFixture]
 public class StatusServiceTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private StatusService _service = null!;
     private Mock<ISeasonService> _seasonService = null!;
-    private Mock<IUserService> _userService = null!;
     private ICache _cache = null!;
     private ApplicationMetrics _applicationMetrics = null!;
     private UserDto? _user;
@@ -28,15 +28,20 @@ public class StatusServiceTests
     [SetUp]
     public void BeforeEachTest()
     {
+        var fixture = AutoFixture.Create();
         _user = new UserDto();
 
-        _seasonService = new Mock<ISeasonService>();
-        _userService = new Mock<IUserService>();
+        _seasonService = fixture.FreezeMock<ISeasonService>();
+        var userService = fixture.FreezeMock<IUserService>();
         _cache = new InterceptingMemoryCache(new MemoryCache(new MemoryCacheOptions()));
+        fixture.Register(() => _cache);
         _applicationMetrics = ApplicationMetrics.Create();
-        _sockets = new Mock<ICollection<IWebSocketContract>>();
-        _service = new StatusService(_seasonService.Object, _cache, _applicationMetrics, _userService.Object, _sockets.Object);
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        fixture.Register(() => _applicationMetrics);
+        _sockets = fixture.FreezeMock<ICollection<IWebSocketContract>>();
+
+        _service = fixture.Create<StatusService>();
+
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
     }
 
     [Test]
@@ -147,7 +152,7 @@ public class StatusServiceTests
         var result = await _service.ClearCache(_token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[] { "Not permitted" }));
+        Assert.That(result.Errors, Is.EqualTo(["Not permitted"]));
     }
 
     [Test]
@@ -156,7 +161,7 @@ public class StatusServiceTests
         var result = await _service.ClearCache(_token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "0 entries removed" }));
+        Assert.That(result.Messages, Is.EqualTo(["0 entries removed"]));
     }
 
     [Test]
@@ -171,10 +176,10 @@ public class StatusServiceTests
         var result = await _service.ClearCache(_token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "1 entries removed" }));
+        Assert.That(result.Messages, Is.EqualTo(["1 entries removed"]));
         Assert.That(result.Result!.Keys.Count, Is.EqualTo(1));
         var cachedKey = result.Result.Keys[0];
-        Assert.That(cachedKey.Keys, Is.EquivalentTo(new[] { "_name", "_nullStringField", "Address", "NullStringProperty" }));
+        Assert.That(cachedKey.Keys, Is.EquivalentTo(["_name", "_nullStringField", "Address", "NullStringProperty"]));
         Assert.That(cachedKey["_name"], Is.EqualTo("NAME"));
         Assert.That(cachedKey["Address"], Is.EqualTo("ADDRESS"));
         Assert.That(cachedKey["_nullStringField"], Is.Null);
@@ -189,7 +194,7 @@ public class StatusServiceTests
         var result = await _service.GetCachedEntries(_token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[] { "Not permitted" }));
+        Assert.That(result.Errors, Is.EqualTo(expected: ["Not permitted"]));
     }
 
     [Test]
@@ -215,7 +220,7 @@ public class StatusServiceTests
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result!.Count, Is.EqualTo(1));
         var cachedKey = result.Result[0];
-        Assert.That(cachedKey.Keys, Is.EquivalentTo(new[] { "_name", "_nullStringField", "Address", "NullStringProperty" }));
+        Assert.That(cachedKey.Keys, Is.EquivalentTo(["_name", "_nullStringField", "Address", "NullStringProperty"]));
         Assert.That(cachedKey["_name"], Is.EqualTo("NAME"));
         Assert.That(cachedKey["Address"], Is.EqualTo("ADDRESS"));
         Assert.That(cachedKey["_nullStringField"], Is.Null);

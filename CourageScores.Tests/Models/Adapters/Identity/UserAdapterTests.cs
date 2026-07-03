@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Adapters.Identity;
+﻿using AutoFixture;
+using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
 using Moq;
@@ -15,8 +16,9 @@ public class UserAdapterTests
     [SetUp]
     public void SetupEachTest()
     {
-        _accessLevelAdapter = new Mock<IAccessLevelAdapter>();
-        _adapter = new UserAdapter(_accessLevelAdapter.Object);
+        var fixture = AutoFixture.Create();
+        _accessLevelAdapter = fixture.FreezeMock<IAccessLevelAdapter>();
+        _adapter = fixture.Create<UserAdapter>();
 
         _accessLevelAdapter
             .Setup(a => a.AddAccess(It.IsAny<User>(), It.IsAny<UserDto>(), _token))
@@ -32,7 +34,6 @@ public class UserAdapterTests
         var model = new User
         {
             TeamId = Guid.NewGuid(),
-            Access = new Access(),
             Id = Guid.NewGuid(),
             Name = "name",
             EmailAddress = "email@somewhere.com",

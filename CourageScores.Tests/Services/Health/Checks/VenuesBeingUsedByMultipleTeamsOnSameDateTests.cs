@@ -9,7 +9,7 @@ namespace CourageScores.Tests.Services.Health.Checks;
 [TestFixture]
 public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly VenuesBeingUsedByMultipleTeamsOnSameDate _check = new();
     private readonly DivisionTeamDto _teamA = new()
     {
@@ -45,10 +45,7 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division1,
-        }, context, _token);
+        var result = await _check.RunCheck([division1], context, _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -79,10 +76,7 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division1,
-        }, context, _token);
+        var result = await _check.RunCheck([division1], context, _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -123,10 +117,7 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division1,
-        }, context, _token);
+        var result = await _check.RunCheck([division1], context, _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -176,10 +167,7 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division1, division2,
-        }, context, _token);
+        var result = await _check.RunCheck([division1, division2], context, _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -211,10 +199,7 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division1,
-        }, context, _token);
+        var result = await _check.RunCheck([division1], context, _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -246,16 +231,10 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division1,
-        }, context, _token);
+        var result = await _check.RunCheck([division1], context, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "ADDRESS is being used for 2 fixtures on week 1",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["ADDRESS is being used for 2 fixtures on week 1"]));
     }
 
     [Test]
@@ -303,16 +282,10 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division1, division2,
-        }, context, _token);
+        var result = await _check.RunCheck([division1, division2], context, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "ADDRESS is being used for 2 fixtures on week 1",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["ADDRESS is being used for 2 fixtures on week 1"]));
     }
 
     [Test]
@@ -360,10 +333,7 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[]
-        {
-            division1, division2,
-        }, context, _token);
+        var result = await _check.RunCheck([division1, division2], context, _token);
 
         Assert.That(result.Success, Is.True);
     }

@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using AutoFixture;
 using CourageScores.Common;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
@@ -14,13 +15,11 @@ namespace CourageScores.Tests.Services.Identity;
 public class ServiceAccountSessionServiceTests
 {
     private readonly CancellationToken _token = CancellationToken.None;
-    private Mock<IUserService> _userService = null!;
     private Mock<IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto>> _dataService = null!;
     private Mock<IServiceAccountSessionCleanUpService> _cleanupService = null!;
     private MockRequestCookies _requestCookies = null!;
     private UserDto? _user;
     private DefaultHttpContext _httpContext = null!;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     private ServiceAccountSessionService _service = null!;
@@ -28,15 +27,16 @@ public class ServiceAccountSessionServiceTests
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _user = null;
         _access = [];
-        _accessService = new Mock<IAccessService>();
-        _userService = new Mock<IUserService>();
-        _dataService = new Mock<IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto>>();
-        _cleanupService = new Mock<IServiceAccountSessionCleanUpService>();
+        var accessService = fixture.FreezeMock<IAccessService>();
+        var userService = fixture.FreezeMock<IUserService>();
+        _dataService = fixture.FreezeMock<IGenericDataService<ServiceAccountSession, ServiceAccountSessionDto>>();
+        _cleanupService = fixture.FreezeMock<IServiceAccountSessionCleanUpService>();
         _requestCookies = new MockRequestCookies();
-        var httpContextAccessor = new Mock<IHttpContextAccessor>();
-        _service = new ServiceAccountSessionService(_userService.Object, _dataService.Object, httpContextAccessor.Object, _cleanupService.Object, _accessService.Object);
+        var httpContextAccessor = fixture.FreezeMock<IHttpContextAccessor>();
+        _service = fixture.Create<ServiceAccountSessionService>();
         _httpContext = new DefaultHttpContext
         {
             Request =
@@ -46,8 +46,8 @@ public class ServiceAccountSessionServiceTests
         };
 
         httpContextAccessor.Setup(a => a.HttpContext).Returns(_httpContext);
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _accessService
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }

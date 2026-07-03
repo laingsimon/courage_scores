@@ -8,7 +8,7 @@ namespace CourageScores.Tests.Services.Health.Checks;
 [TestFixture]
 public class FixturesAfterStartDateTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly FixturesAfterStartDate _check = new();
 
     [Test]
@@ -21,10 +21,7 @@ public class FixturesAfterStartDateTests
         };
         var context = new HealthCheckContext(season);
 
-        var result = await _check.RunCheck(new[]
-        {
-            division,
-        }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -48,10 +45,7 @@ public class FixturesAfterStartDateTests
         };
         var context = new HealthCheckContext(season);
 
-        var result = await _check.RunCheck(new[]
-        {
-            division,
-        }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -75,15 +69,9 @@ public class FixturesAfterStartDateTests
         };
         var context = new HealthCheckContext(season);
 
-        var result = await _check.RunCheck(new[]
-        {
-            division,
-        }, context, _token);
+        var result = await _check.RunCheck([division], context, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "Fixture exists before season start date: 1 Jan",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(["Fixture exists before season start date: 1 Jan"]));
     }
 }

@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
@@ -53,21 +54,23 @@ public class FinalsNightReportTests
     [SetUp]
     public void SetupEachTest()
     {
-        _userService = new Mock<IUserService>();
+        var fixture = AutoFixture.Create();
+        _userService = fixture.FreezeMock<IUserService>();
         _access = [AccessOption.ManageScores, AccessOption.RunReports];
-        _accessService = new Mock<IAccessService>();
-        _manOfTheMatchReport = new Mock<IReport>();
+        _accessService = fixture.FreezeMock<IAccessService>();
+        _manOfTheMatchReport = fixture.FreezeMock<IReport>();
         _division1 = new DivisionDtoBuilder(name: "Division 1").Build();
         _division2 = new DivisionDtoBuilder(name: "Division 2").Build();
         _divisions = [_division1, _division2];
         _divisionData1 = new DivisionDataDto(null) { Id = _division1.Id, Name = _division1.Name, };
         _divisionData2 = new DivisionDataDto(null) { Id = _division2.Id, Name = _division2.Name, };
         _season = new SeasonDtoBuilder().WithDivisions(_division1, _division2).Build();
+        fixture.Register(() => _season);
         _user = new UserDto();
         _playerLookup = new PlayerLookup();
-        _divisionService = new Mock<ICachingDivisionService>();
-        _tournamentService = new Mock<IGenericDataService<TournamentGame, TournamentGameDto>>();
-        _tournamentTypeResolver = new Mock<ITournamentTypeResolver>();
+        _divisionService = fixture.FreezeMock<ICachingDivisionService>();
+        _tournamentService = fixture.FreezeMock<IGenericDataService<TournamentGame, TournamentGameDto>>();
+        _tournamentTypeResolver = fixture.FreezeMock<ITournamentTypeResolver>();
         _momReport = new ReportDto { Rows = { Helper.Row(Helper.Cell("TEAM"), Helper.Cell("MOM"), Helper.Cell("5")) } };
         _tournament = new TournamentGameDto
         {
@@ -79,7 +82,7 @@ public class FinalsNightReportTests
             Round = Helper.Round(Helper.Match("SIDE A", "SIDE B", 1, 2)),
         };
         _tournamentFixtureDateDto = Helper.DivisionFixtureDateDto(new DateTime(2001, 02, 03), Helper.DivisionTournamentFixtureDetailsDto(_tournament.Id, type: _tournament.Type));
-        _report = new FinalsNightReport(_userService.Object, _manOfTheMatchReport.Object, _season, _divisionService.Object, _tournamentService.Object, _tournamentTypeResolver.Object, _accessService.Object);
+        _report = fixture.Create<FinalsNightReport>();
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _divisionService

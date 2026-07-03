@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models.Cosmos;
 using CourageScores.Repository;
 using Moq;
@@ -8,7 +9,7 @@ namespace CourageScores.Tests.Repository;
 [TestFixture]
 public class PhotoRepositoryTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = CancellationToken.None;
     private PhotoRepository _repository = null!;
     private Mock<IGenericRepository<Photo>> _cosmosRepository = null!;
     private Mock<IBlobStorageRepository> _blobStorageRepository = null!;
@@ -18,14 +19,15 @@ public class PhotoRepositoryTests
     [SetUp]
     public void SetupEachTest()
     {
-        _cosmosRepository = new Mock<IGenericRepository<Photo>>();
-        _blobStorageRepository = new Mock<IBlobStorageRepository>();
-        _repository = new PhotoRepository(_cosmosRepository.Object, _blobStorageRepository.Object);
+        var fixture = AutoFixture.Create();
+        _cosmosRepository = fixture.FreezeMock<IGenericRepository<Photo>>();
+        _blobStorageRepository = fixture.FreezeMock<IBlobStorageRepository>();
+        _repository = fixture.Create<PhotoRepository>();
         _photo = new Photo
         {
             Id = Guid.NewGuid(),
         };
-        _photoBytes = new byte[] { 1, 2, 3, 4 };
+        _photoBytes = [1, 2, 3, 4];
 
         _cosmosRepository.Setup(r => r.Get(_photo.Id, _token)).ReturnsAsync(() => _photo);
         _cosmosRepository.Setup(r => r.Upsert(_photo, _token)).ReturnsAsync(() => _photo);
@@ -76,7 +78,7 @@ public class PhotoRepositoryTests
     public async Task Upsert_WhenDeletedNotSet_UpsertsInCosmosAndWritesToBlobStorage()
     {
         _photo.Deleted = null;
-        _photo.PhotoBytes = new byte[] { 5, 6, 7, 8 };
+        _photo.PhotoBytes = [5, 6, 7, 8];
 
         var result = await _repository.Upsert(_photo, _token);
 

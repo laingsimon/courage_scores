@@ -1,6 +1,7 @@
 using System.Net;
 using System.Security.Claims;
 using System.Security.Principal;
+using AutoFixture;
 using CourageScores.Common;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Identity;
@@ -27,42 +28,38 @@ public class UserServiceTests
     private readonly ConfiguredFeature _serviceAccountSessionFeature = new() { ConfiguredValue = "true" };
     private Mock<IHttpContextAccessor> _httpContextAccessor = null!;
     private Mock<IUserRepository> _userRepository = null!;
-    private ISimpleAdapter<User, UserDto> _userAdapter = null!;
-    private IAccessLevelAdapter _accessAdapter = null!;
-    private Mock<IGenericRepository<CosmosTeam>> _teamRepository = null!;
     private UserService _service = null!;
     private DefaultHttpContext? _httpContext;
     private Mock<IServiceProvider> _httpContextServices = null!;
     private Mock<IAuthenticationService> _authenticationService = null!;
     private List<CosmosTeam> _allTeams = null!;
     private Mock<IGenericRepository<ServiceAccountSession>> _serviceAccountSessionRepository = null!;
-    private Mock<IGenericRepository<ConfiguredFeature>> _featureRepository = null!;
     private MockRequestCookies _requestCookies = null!;
     private Mock<IAccessService> _accessService = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _allTeams = new List<CosmosTeam>();
-        _httpContextAccessor = new Mock<IHttpContextAccessor>();
-        _userRepository = new Mock<IUserRepository>();
-        _accessAdapter = new AccessLevelAdapter(new AccessAdapter());
-        _userAdapter = new UserAdapter(_accessAdapter);
-        _teamRepository = new Mock<IGenericRepository<CosmosTeam>>();
-        _httpContextServices = new Mock<IServiceProvider>();
-        _authenticationService = new Mock<IAuthenticationService>();
-        _serviceAccountSessionRepository = new Mock<IGenericRepository<ServiceAccountSession>>();
-        _featureRepository = new Mock<IGenericRepository<ConfiguredFeature>>();
+        var fixture = AutoFixture.Create();
+        _allTeams = [];
+        _httpContextAccessor = fixture.FreezeMock<IHttpContextAccessor>();
+        _userRepository = fixture.FreezeMock<IUserRepository>();
+        fixture.Register<IAccessLevelAdapter>(fixture.Create<AccessLevelAdapter>);
+        fixture.Register<ISimpleAdapter<User, UserDto>>(fixture.Create<UserAdapter>);
+        var teamRepository = fixture.FreezeMock<IGenericRepository<CosmosTeam>>();
+        _httpContextServices = fixture.FreezeMock<IServiceProvider>();
+        _authenticationService = fixture.FreezeMock<IAuthenticationService>();
+        _serviceAccountSessionRepository = fixture.FreezeMock<IGenericRepository<ServiceAccountSession>>();
+        var featureRepository = fixture.FreezeMock<IGenericRepository<ConfiguredFeature>>();
         _requestCookies = new MockRequestCookies();
         _httpContext = null;
-        _accessService = new Mock<IAccessService>();
+        _accessService = fixture.FreezeMock<IAccessService>();
 
-        _service = new UserService(_httpContextAccessor.Object, _userRepository.Object, _userAdapter, _accessAdapter,
-            _teamRepository.Object, _serviceAccountSessionRepository.Object, _featureRepository.Object, _accessService.Object);
+        _service = fixture.Create<UserService>();
 
         _httpContextServices.Setup(p => p.GetService(typeof(IAuthenticationService))).Returns(_authenticationService.Object);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_allTeams.ToArray()));
-        _featureRepository.Setup(r => r.Get(FeatureLookup.ServiceAccountSessions.Id, _token)).ReturnsAsync(_serviceAccountSessionFeature);
+        teamRepository.Setup(r => r.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_allTeams.ToArray()));
+        featureRepository.Setup(r => r.Get(FeatureLookup.ServiceAccountSessions.Id, _token)).ReturnsAsync(_serviceAccountSessionFeature);
     }
 
     [Test]
@@ -107,8 +104,7 @@ public class UserServiceTests
         await _service.GetUser(_token);
 
         _userRepository.Verify(r => r.GetUser("simon@email.com", _token));
-        _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u =>
-            u.Name == "Simon Laing" && u.GivenName == "Simon" && u.EmailAddress == "simon@email.com" && u.TeamId == team.Id), _token));
+        _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u => u.Name == "Simon Laing" && u.GivenName == "Simon" && u.EmailAddress == "simon@email.com" && u.TeamId == team.Id), _token));
     }
 
     [Test]
@@ -122,8 +118,7 @@ public class UserServiceTests
         await _service.GetUser(_token);
 
         _userRepository.Verify(r => r.GetUser("simon@email.com", _token));
-        _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u =>
-            u.Name == "Simon Laing" && u.GivenName == "Simon" && u.EmailAddress == "simon@email.com" && u.TeamId == null), _token));
+        _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u => u.Name == "Simon Laing" && u.GivenName == "Simon" && u.EmailAddress == "simon@email.com" && u.TeamId == null), _token));
     }
 
     [Test]
@@ -136,8 +131,7 @@ public class UserServiceTests
         await _service.GetUser(_token);
 
         _userRepository.Verify(r => r.GetUser("simon@email.com", _token));
-        _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u =>
-            u.Name == "Simon Laing" && u.GivenName == "Simon" && u.EmailAddress == "simon@email.com" && u.TeamId == null), _token));
+        _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u => u.Name == "Simon Laing" && u.GivenName == "Simon" && u.EmailAddress == "simon@email.com" && u.TeamId == null), _token));
     }
 
     [Test]
@@ -150,8 +144,7 @@ public class UserServiceTests
         await _service.GetUser(_token);
 
         _userRepository.Verify(r => r.GetUser("simon@email.com", _token));
-        _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u =>
-            u.Name == "Simon Laing" && u.GivenName == "Simon" && u.EmailAddress == "simon@email.com" && u.TeamId == teamId), _token));
+        _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u => u.Name == "Simon Laing" && u.GivenName == "Simon" && u.EmailAddress == "simon@email.com" && u.TeamId == teamId), _token));
     }
 
     [Test]
@@ -163,8 +156,7 @@ public class UserServiceTests
         await _service.GetUser(_token);
 
         _userRepository.Verify(r => r.GetUser("simon@email.com", _token));
-        _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u =>
-            u.Name == "Simon Laing" && u.GivenName == "Simon" && u.EmailAddress == "simon@email.com"), _token));
+        _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u => u.Name == "Simon Laing" && u.GivenName == "Simon" && u.EmailAddress == "simon@email.com"), _token));
     }
 
     [Test]
@@ -219,8 +211,8 @@ public class UserServiceTests
 
         var user = await _service.GetUser("other@email.com", _token);
 
-        Assert.That(user!.EmailAddress, Is.EqualTo("other@email.com"));
-        Assert.That(user.Name, Is.EqualTo("Other User"));
+        Assert.That(user?.EmailAddress, Is.EqualTo("other@email.com"));
+        Assert.That(user?.Name, Is.EqualTo("Other User"));
     }
 
     [Test]
@@ -319,7 +311,7 @@ public class UserServiceTests
 
         var result = await _service.UpdateAccess(update, _token);
 
-        _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u => u.Name == "Other User" && u.Access!.ManageGames == true), _token));
+        _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u => u.Name == "Other User" && u.AccessLevels.ContainsKey(AccessOption.ManageGames)), _token));
         Assert.That(result.Success, Is.True);
         Assert.That(result.Messages, Is.EquivalentTo(["Access updated"]));
     }
@@ -330,7 +322,7 @@ public class UserServiceTests
         SetupUsers();
         var result = await _service.UpdateAccess(GetUpdateAccessDto(emailAddress: "other@email.com"), _token);
 
-        _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u => u.Name == "Other User" && u.Access!.ManageGames == false), _token));
+        _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u => u.Name == "Other User" && u.AccessLevels.ContainsKey(AccessOption.ManageGames) == false), _token));
         Assert.That(result.Success, Is.True);
         Assert.That(result.Messages, Is.EquivalentTo(["Access updated"]));
     }
@@ -550,8 +542,13 @@ public class UserServiceTests
 
     private static UpdateAccessDto GetUpdateAccessDto(string emailAddress = "", bool manageGames = false)
     {
-#pragma warning disable CS0618 // Type or member is obsolete
-        return new UpdateAccessDto { EmailAddress = emailAddress, Access = new AccessDto { ManageGames = manageGames } };
-#pragma warning restore CS0618 // Type or member is obsolete
+        return new UpdateAccessDto
+        {
+            EmailAddress = emailAddress,
+            AccessLevels = new Dictionary<AccessOption, AccessLevelDto>
+            {
+                { manageGames ? AccessOption.ManageGames : AccessOption.AnalyseMatches, AccessLevelDto.Granted },
+            },
+        };
     }
 }

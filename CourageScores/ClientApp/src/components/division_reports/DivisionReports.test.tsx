@@ -22,6 +22,7 @@ import { ReportCollectionDto } from '../../interfaces/models/dtos/Report/ReportC
 import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
 import { IReportApi } from '../../interfaces/apis/IReportApi.ts';
 import { ReportCellDto } from '../../interfaces/models/dtos/Report/ReportCellDto.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('DivisionReports', () => {
     let context: TestContext;
@@ -92,9 +93,7 @@ describe('DivisionReports', () => {
     }
 
     describe('when logged in', () => {
-        const account = user({
-            runReports: true,
-        });
+        const account = user([AccessOption.runReports]);
 
         it('renders component', async () => {
             const divisionId = createTemporaryId();

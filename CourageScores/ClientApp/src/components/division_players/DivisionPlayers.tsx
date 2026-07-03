@@ -6,6 +6,7 @@ import { PrintDivisionHeading } from '../league/PrintDivisionHeading.tsx';
 import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/DivisionPlayerDto.ts';
 import { useBranding } from '../common/BrandingContainer.tsx';
 import { hasAccess } from '../../helpers/conditions.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface IDivisionPlayersProps {
     hideVenue?: boolean;
@@ -19,10 +20,7 @@ export function DivisionPlayers({
     players,
 }: IDivisionPlayersProps) {
     const { account } = useApp();
-    const isAdmin: boolean = hasAccess(
-        account,
-        (access) => access.managePlayers,
-    );
+    const isAdmin: boolean = hasAccess(account, AccessOption.managePlayers);
     const { players: divisionDataPlayers, name } = useDivisionData();
     const playersToShow = players || divisionDataPlayers;
     const { setTitle } = useBranding();

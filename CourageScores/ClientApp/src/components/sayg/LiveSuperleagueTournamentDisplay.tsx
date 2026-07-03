@@ -20,6 +20,7 @@ import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchO
 import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto.ts';
 import { ifNaN } from '../../helpers/rendering.ts';
 import { LegThrowDto } from '../../interfaces/models/dtos/Game/Sayg/LegThrowDto.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface ILiveSuperleagueTournamentDisplayProps {
     id: string;
@@ -66,10 +67,7 @@ export function LiveSuperleagueTournamentDisplay({
     >([]);
     const tournament = updatedTournament ?? data ?? initialData;
     const { enableLiveUpdates, subscriptions } = useLive();
-    const canUseWebSockets = hasAccess(
-        account,
-        (access) => access.useWebSockets,
-    );
+    const canUseWebSockets = hasAccess(account, AccessOption.useWebSockets);
     const [scoreChanged, setScoreChanged] = useState<undefined | ILastThrow>(
         undefined,
     );
@@ -512,7 +510,7 @@ export function LiveSuperleagueTournamentDisplay({
                         Scores: {watchLiveScores ? '▶️' : '⏸️'}
                     </button>
                 ) : null}
-                {hasAccess(account, (a) => a.showDebugOptions) ? (
+                {hasAccess(account, AccessOption.showDebugOptions) ? (
                     <button
                         className="ms-3 btn btn-sm opacity-50"
                         onClick={() =>

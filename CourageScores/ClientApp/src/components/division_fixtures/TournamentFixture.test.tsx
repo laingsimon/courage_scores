@@ -38,6 +38,7 @@ import { divisionBuilder } from '../../helpers/builders/divisions.ts';
 import { playerBuilder } from '../../helpers/builders/players.ts';
 import { ITournamentGameApi } from '../../interfaces/apis/ITournamentGameApi.ts';
 import { IPreferenceData } from '../common/PreferencesContainer.tsx';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('TournamentFixture', () => {
     let context: TestContext;
@@ -573,9 +574,7 @@ describe('TournamentFixture', () => {
         const season: SeasonDto = seasonBuilder('SEASON').build();
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const player: DivisionPlayerDto = playerBuilder('PLAYER').build();
-        const account = user({
-            manageTournaments: true,
-        });
+        const account = user([AccessOption.manageTournaments]);
 
         it('can delete tournament', async () => {
             const tournament = tournamentBuilder()

@@ -1,10 +1,9 @@
-﻿using CourageScores.Common;
+﻿using AutoFixture;
+using CourageScores.Common;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
-using CourageScores.Services;
-using CourageScores.Services.Identity;
 using CourageScores.Services.Team;
 using Moq;
 using NUnit.Framework;
@@ -15,34 +14,22 @@ namespace CourageScores.Tests.Services.Team;
 [TestFixture]
 public class TeamServiceTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private Mock<IAdapter<CosmosTeam, TeamDto>> _adapter = null!;
     private TeamService _service = null!;
     private Mock<IGenericRepository<CosmosTeam>> _repository = null!;
-    private Mock<IUserService> _userService = null!;
-    private Mock<IAuditingHelper> _auditingHelper = null!;
     private List<CosmosTeam> _allTeams = null!;
     private List<CosmosTeam> _someTeams = null!;
-    private Mock<IAccessService> _accessService = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _repository = new Mock<IGenericRepository<CosmosTeam>>();
-        _userService = new Mock<IUserService>();
-        _accessService = new Mock<IAccessService>();
-        _auditingHelper = new Mock<IAuditingHelper>();
-        _repository = new Mock<IGenericRepository<CosmosTeam>>();
+        var fixture = AutoFixture.Create();
+        _repository = fixture.FreezeMock<IGenericRepository<CosmosTeam>>();
         _allTeams = new List<CosmosTeam>();
         _someTeams = new List<CosmosTeam>();
-        _adapter = new Mock<IAdapter<CosmosTeam, TeamDto>>();
-        _service = new TeamService(
-            _repository.Object,
-            _adapter.Object,
-            _userService.Object,
-            _auditingHelper.Object,
-            new ActionResultAdapter(),
-            _accessService.Object);
+        _adapter = fixture.FreezeMock<IAdapter<CosmosTeam, TeamDto>>();
+        _service = fixture.Create<TeamService>();
 
         _repository.Setup(r => r.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_allTeams.ToArray()));
         _repository.Setup(r => r.GetSome(It.IsAny<string>(), _token)).Returns(() => TestUtilities.AsyncEnumerable(_someTeams.ToArray()));
@@ -89,18 +76,12 @@ public class TeamServiceTests
                 },
             },
         };
-        _allTeams.AddRange(new[]
-        {
-            teamInSeason, teamNotInSeason,
-        });
+        _allTeams.AddRange([teamInSeason, teamNotInSeason]);
 
         var teams = await _service.GetTeamsForSeason(seasonId, _token).ToList();
 
         _repository.Verify(r => r.GetAll(_token));
-        Assert.That(teams.Select(t => t.Id), Is.EquivalentTo(new[]
-        {
-            teamInSeason.Id,
-        }));
+        Assert.That(teams.Select(t => t.Id), Is.EquivalentTo([teamInSeason.Id]));
         Assert.That(teams.SelectMany(t => t.Seasons.Select(s => s.SeasonId)), Has.All.EqualTo(seasonId));
     }
 
@@ -138,18 +119,12 @@ public class TeamServiceTests
                 },
             },
         };
-        _someTeams.AddRange(new[]
-        {
-            teamInDivisionNotSeason, teamInSeasonAndDivision,
-        });
+        _someTeams.AddRange([teamInDivisionNotSeason, teamInSeasonAndDivision]);
 
         var teams = await _service.GetTeamsForSeason(divisionId, seasonId, _token).ToList();
 
         _repository.Verify(r => r.GetSome($"t.DivisionId = '{divisionId}'", _token));
-        Assert.That(teams.Select(t => t.Id), Is.EquivalentTo(new[]
-        {
-            teamInSeasonAndDivision.Id,
-        }));
+        Assert.That(teams.Select(t => t.Id), Is.EquivalentTo([teamInSeasonAndDivision.Id]));
         Assert.That(teams.SelectMany(t => t.Seasons.Select(s => s.SeasonId)), Has.All.EqualTo(seasonId));
     }
 }

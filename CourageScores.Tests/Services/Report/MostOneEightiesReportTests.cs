@@ -8,7 +8,7 @@ namespace CourageScores.Tests.Services.Report;
 [TestFixture]
 public class MostOneEightiesReportTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly Guid _daveId = Guid.NewGuid();
     private readonly Guid _jonId = Guid.NewGuid();
     private readonly PlayerDetails _dave = new()
@@ -29,7 +29,8 @@ public class MostOneEightiesReportTests
     [SetUp]
     public void SetupEachTest()
     {
-        _playerLookup = new Mock<IPlayerLookup>();
+        var fixture = AutoFixture.Create();
+        _playerLookup = fixture.FreezeMock<IPlayerLookup>();
         _playerLookup.Setup(l => l.GetPlayer(_daveId)).ReturnsAsync(_dave);
         _playerLookup.Setup(l => l.GetPlayer(_jonId)).ReturnsAsync(_jon);
         _playerLookup.Setup(l => l.GetPlayer(It.Is<Guid>(id => id != _daveId && id != _jonId)))
@@ -67,10 +68,7 @@ public class MostOneEightiesReportTests
         result.AssertTeamLinks(
             0,
             new ReportTestingExtensions.TeamLink(_jon));
-        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(new[]
-        {
-            "2",
-        }));
+        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(["2"]));
     }
 
     [Test]
@@ -96,10 +94,7 @@ public class MostOneEightiesReportTests
             0,
             new ReportTestingExtensions.TeamLink(_jon),
             new ReportTestingExtensions.TeamLink(_dave));
-        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(new[]
-        {
-            "1", "1",
-        }));
+        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(["1", "1"]));
     }
 
     [Test]
@@ -137,9 +132,6 @@ public class MostOneEightiesReportTests
             0,
             new ReportTestingExtensions.TeamLink(_jon),
             new ReportTestingExtensions.TeamLink(_dave));
-        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(new[]
-        {
-            "2", "2",
-        }));
+        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(["2", "2"]));
     }
 }

@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Common;
 using CourageScores.Filters;
 using CourageScores.Models.Dtos;
@@ -25,30 +26,24 @@ public class CachingDivisionServiceTests
     private readonly List<DivisionDto> _someDivisions = [new DivisionDto()];
     private CachingDivisionService _service = null!;
     private Mock<IDivisionService> _underlyingService = null!;
-    private ICache _cache = null!;
-    private Mock<IUserService> _userService = null!;
-    private Mock<IHttpContextAccessor> _httpContextAccessor = null!;
     private UserDto? _user;
     private HttpContext? _context;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _userService = new Mock<IUserService>();
-        _underlyingService = new Mock<IDivisionService>();
-        _cache = new InterceptingMemoryCache(new MemoryCache(new MemoryCacheOptions()));
-        _httpContextAccessor = new Mock<IHttpContextAccessor>();
+        var fixture = AutoFixture.Create();
+        var userService = fixture.FreezeMock<IUserService>();
+        _underlyingService = fixture.FreezeMock<IDivisionService>();
+        fixture.Register<ICache>(() => new InterceptingMemoryCache(new MemoryCache(new MemoryCacheOptions())));
+        var httpContextAccessor = fixture.FreezeMock<IHttpContextAccessor>();
         _context = new DefaultHttpContext();
         _user = null;
 
-        _service = new CachingDivisionService(
-            _underlyingService.Object,
-            _cache,
-            _userService.Object,
-            _httpContextAccessor.Object);
+        _service = fixture.Create<CachingDivisionService>();
 
-        _httpContextAccessor.Setup(a => a.HttpContext).Returns(() => _context);
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        httpContextAccessor.Setup(a => a.HttpContext).Returns(() => _context);
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _underlyingService
             .Setup(s => s.GetDivisionData(It.IsAny<DivisionDataFilter>(), _token))
             .ReturnsAsync(() => _divisionData);

@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Dtos.Health;
@@ -13,7 +14,7 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class AddOrUpdateSeasonTemplateCommandTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private Template _requestedTemplateChanges = null!;
     private AddOrUpdateSeasonTemplateCommand _command = null!;
     private MockAdapter<Template, TemplateDto> _adapter = null!;
@@ -26,6 +27,7 @@ public class AddOrUpdateSeasonTemplateCommandTests
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _requestedTemplateChanges = new Template
         {
             Name = "TEMPLATE",
@@ -49,9 +51,10 @@ public class AddOrUpdateSeasonTemplateCommandTests
         _healthCheckDto = new SeasonHealthDto();
         _seasonHealthDto = new SeasonHealthCheckResultDto();
         _adapter = new MockAdapter<Template, TemplateDto>();
-        _healthCheckService = new Mock<IHealthCheckService>();
-        _healthCheckAdapter = new Mock<ISimpleOnewayAdapter<Template, SeasonHealthDto>>();
-        _command = new AddOrUpdateSeasonTemplateCommand(_adapter, _healthCheckService.Object, _healthCheckAdapter.Object);
+        fixture.Register<IAdapter<Template, TemplateDto>>(() => _adapter);
+        _healthCheckService = fixture.FreezeMock<IHealthCheckService>();
+        _healthCheckAdapter = fixture.FreezeMock<ISimpleOnewayAdapter<Template, SeasonHealthDto>>();
+        _command = fixture.Create<AddOrUpdateSeasonTemplateCommand>();
         _healthCheckAdapter.Setup(a => a.Adapt(It.IsAny<Template>(), _token)).ReturnsAsync(_healthCheckDto);
         _healthCheckService.Setup(s => s.Check(_healthCheckDto, _token)).ReturnsAsync(_seasonHealthDto);
     }
@@ -68,10 +71,7 @@ public class AddOrUpdateSeasonTemplateCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_template, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Template updated",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(["Template updated"]));
         Assert.That(_template.Name, Is.EqualTo(_requestedTemplateChanges.Name));
         Assert.That(_template.Divisions, Is.EqualTo(_requestedTemplateChanges.Divisions));
         Assert.That(_template.SharedAddresses, Is.EqualTo(_requestedTemplateChanges.SharedAddresses));
@@ -132,10 +132,7 @@ public class AddOrUpdateSeasonTemplateCommandTests
         _healthCheckAdapter.Verify(s => s.Adapt(throwingTemplate, _token));
         Assert.That(result.Success, Is.True);
         Assert.That(throwingTemplate.TemplateHealth, Is.Not.Null);
-        Assert.That(throwingTemplate.TemplateHealth!.Errors, Is.EquivalentTo(new[]
-        {
-            "Exception in adapter",
-        }));
+        Assert.That(throwingTemplate.TemplateHealth!.Errors, Is.EquivalentTo(["Exception in adapter"]));
     }
 
     [Test]
@@ -162,9 +159,6 @@ public class AddOrUpdateSeasonTemplateCommandTests
         _healthCheckAdapter.Verify(s => s.Adapt(throwingTemplate, _token));
         Assert.That(result.Success, Is.True);
         Assert.That(throwingTemplate.TemplateHealth, Is.Not.Null);
-        Assert.That(throwingTemplate.TemplateHealth!.Errors, Is.EquivalentTo(new[]
-        {
-            "Exception in service",
-        }));
+        Assert.That(throwingTemplate.TemplateHealth!.Errors, Is.EquivalentTo(["Exception in service"]));
     }
 }

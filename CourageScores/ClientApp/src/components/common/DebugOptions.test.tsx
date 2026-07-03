@@ -10,6 +10,7 @@ import {
 import { DebugOptions } from './DebugOptions.tsx';
 import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
 import React from 'react';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('DebugOptions', () => {
     let context: TestContext;
@@ -37,7 +38,7 @@ describe('DebugOptions', () => {
     });
 
     it('does not render when no access', async () => {
-        const account = user({});
+        const account = user();
 
         await renderComponent(account, <span>item</span>);
 
@@ -45,9 +46,7 @@ describe('DebugOptions', () => {
     });
 
     it('does not render when not permitted', async () => {
-        const account = user({
-            showDebugOptions: false,
-        });
+        const account = user([]);
 
         await renderComponent(account, <span>item</span>);
 
@@ -55,9 +54,7 @@ describe('DebugOptions', () => {
     });
 
     it('does not render when permitted', async () => {
-        const account = user({
-            showDebugOptions: true,
-        });
+        const account = user([AccessOption.showDebugOptions]);
 
         await renderComponent(account, <span>item</span>);
 
@@ -65,9 +62,7 @@ describe('DebugOptions', () => {
     });
 
     it('can expand dropdown', async () => {
-        const account = user({
-            showDebugOptions: true,
-        });
+        const account = user([AccessOption.showDebugOptions]);
         await renderComponent(account, <span>item</span>);
 
         await context.required('.dropdown-toggle').click();
@@ -76,9 +71,7 @@ describe('DebugOptions', () => {
     });
 
     it('can collapse dropdown', async () => {
-        const account = user({
-            showDebugOptions: true,
-        });
+        const account = user([AccessOption.showDebugOptions]);
         await renderComponent(account, <span>item</span>);
         await context.required('.dropdown-menu').click();
 

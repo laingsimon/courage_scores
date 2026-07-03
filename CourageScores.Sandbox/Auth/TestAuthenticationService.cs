@@ -19,7 +19,6 @@ public class TestAuthenticationService : IAuthenticationService
         GivenName = "Admin",
         Name = "Admin",
         TeamId = null,
-        Access = CreateAdminAccess(),
         AccessLevels = CreateAdminAccessLevels(),
     };
 
@@ -28,25 +27,6 @@ public class TestAuthenticationService : IAuthenticationService
         return Enum.GetValues<AccessOption>()
             .Except([AccessOption.KioskMode])
             .ToDictionary(ao => ao, _ => AccessLevel.Granted);
-    }
-
-    private static Access CreateAdminAccess()
-    {
-        var access = new Access();
-        foreach (var property in typeof(Access).GetProperties())
-        {
-            if (property.Name == nameof(Access.KioskMode))
-            {
-                continue;
-            }
-
-            if (property.PropertyType == typeof(bool))
-            {
-                property.SetValue(access, true);
-            }
-        }
-
-        return access;
     }
 
     internal static async Task AddAdminUserToContainer(IUserRepository repo)

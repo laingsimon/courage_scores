@@ -16,6 +16,7 @@ import { seasonBuilder } from '../../helpers/builders/seasons.ts';
 import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
 import { IAppContainerProps } from '../common/AppContainer.tsx';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('NavMenu', () => {
     let context: TestContext;
@@ -457,17 +458,14 @@ describe('NavMenu', () => {
             seasonBuilder('OTHER SEASON').withDivision(division).build(),
         ];
         const divisions = [division];
-        const account: UserDto = {
-            name: '',
-            emailAddress: '',
-            access: {
-                manageAccess: true,
-            },
-            givenName: 'Simon',
-        };
+        const account: UserDto = user(
+            [AccessOption.manageAccess],
+            undefined,
+            'Simon',
+        );
 
         it('should not show admin link', async () => {
-            const nonAdminAccount = user({});
+            const nonAdminAccount = user();
             await renderComponent(
                 settings,
                 appProps({

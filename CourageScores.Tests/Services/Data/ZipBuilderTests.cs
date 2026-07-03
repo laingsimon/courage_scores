@@ -15,14 +15,9 @@ public class ZipBuilderTests
 
         await zip.AddFile("table", "id", JObject.FromObject(new CourageScores.Models.Cosmos.Division()));
 
-        using (var archive = new ZipArchive(new MemoryStream(await zip.CreateZip())))
-        {
-            var files = archive.Entries.Select(e => e.FullName);
-            Assert.That(files, Is.EqualTo(new[]
-            {
-                "table/id.json",
-            }));
-        }
+        await using var archive = new ZipArchive(new MemoryStream(await zip.CreateZip()));
+        var files = archive.Entries.Select(e => e.FullName);
+        Assert.That(files, Is.EqualTo(["table/id.json"]));
     }
 
     [Test]
@@ -34,13 +29,13 @@ public class ZipBuilderTests
 
         var bytes = await writing.CreateZip();
 
-        var reading = new ZipArchive(new MemoryStream(bytes), ZipArchiveMode.Read);
+        await using var reading = new ZipArchive(new MemoryStream(bytes), ZipArchiveMode.Read);
         var firstEntry = reading.Entries.First();
         Assert.That(firstEntry.FullName, Is.EqualTo("content.txt"));
-        var fileContent = new MemoryStream();
-        Assert.That(() => firstEntry.Open().CopyTo(fileContent), Throws.Nothing);
+        using var fileContent = new MemoryStream();
+        await (await firstEntry.OpenAsync()).CopyToAsync(fileContent);
         fileContent.Seek(0, SeekOrigin.Begin);
-        var decrypted = new MemoryStream();
+        using var decrypted = new MemoryStream();
         await encryptor.Decrypt(fileContent, decrypted);
         Assert.That(System.Text.Encoding.UTF8.GetString(decrypted.ToArray()), Is.EqualTo("content"));
     }
@@ -53,11 +48,11 @@ public class ZipBuilderTests
 
         var bytes = await writing.CreateZip();
 
-        var reading = new ZipArchive(new MemoryStream(bytes), ZipArchiveMode.Read);
+        await using var reading = new ZipArchive(new MemoryStream(bytes), ZipArchiveMode.Read);
         var firstEntry = reading.Entries.First();
         Assert.That(firstEntry.FullName, Is.EqualTo("content.txt"));
-        var fileContent = new MemoryStream();
-        Assert.That(() => firstEntry.Open().CopyTo(fileContent), Throws.Nothing);
+        using var fileContent = new MemoryStream();
+        await (await firstEntry.OpenAsync()).CopyToAsync(fileContent);
         Assert.That(System.Text.Encoding.UTF8.GetString(fileContent.ToArray()), Is.EqualTo("content"));
     }
 }

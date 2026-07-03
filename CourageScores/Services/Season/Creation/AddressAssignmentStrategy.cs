@@ -38,7 +38,7 @@ public class AddressAssignmentStrategy : IAddressAssignmentStrategy
         {
             var divisionalTeamIds = context.MatchContext.Teams[division.Id].ToHashSet();
             var teamsForThisDivisionWithSeasonSharedAddresses = seasonSharedAddresses
-                .Select(array => array.Where(a => divisionalTeamIds.Contains(a)).ToArray())
+                .Select(array => array.Where(divisionalTeamIds.Contains).ToArray())
                 .ToArray();
 
             var divisionTemplate = context.Template.Divisions.ElementAtOrDefault(index);
@@ -138,7 +138,7 @@ public class AddressAssignmentStrategy : IAddressAssignmentStrategy
                 context.PlaceholderMapping.Add(placeholder.Key, team);
             }
 
-            divisionMapping.TemplateDivision.SharedAddresses = divisionMapping.TemplateDivision.SharedAddresses.Except(new[] { templateDivisionSharedAddressPlaceholder }).ToList();
+            divisionMapping.TemplateDivision.SharedAddresses = divisionMapping.TemplateDivision.SharedAddresses.Except([templateDivisionSharedAddressPlaceholder]).ToList();
         }
 
         return Task.FromResult(true);

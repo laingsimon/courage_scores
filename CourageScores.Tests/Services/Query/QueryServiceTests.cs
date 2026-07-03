@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using AutoFixture;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Query;
@@ -16,35 +17,34 @@ public class QueryServiceTests
 {
     private readonly CancellationToken _token = CancellationToken.None;
     private QueryService _service = null!;
-    private Mock<IUserService> _userService = null!;
     private Mock<Database> _database = null!;
-    private Mock<ICosmosTableService> _cosmosTableService = null!;
     private UserDto? _user;
     private TableDto[] _tables = null!;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _user = null;
         _access = [AccessOption.RunDataQueries];
-        _accessService = new Mock<IAccessService>();
-        _userService = new Mock<IUserService>();
+        var accessService = fixture.FreezeMock<IAccessService>();
+        var userService = fixture.FreezeMock<IUserService>();
         _database = new Mock<Database> { DefaultValue = DefaultValue.Mock };
-        _cosmosTableService = new Mock<ICosmosTableService>();
-        _service = new QueryService(_database.Object, _userService.Object, _cosmosTableService.Object, _accessService.Object);
+        fixture.Register(() => _database);
+        var cosmosTableService = fixture.FreezeMock<ICosmosTableService>();
+        _service = fixture.Create<QueryService>();
         _user = new UserDto();
         _tables = [new TableDto { Name = "game" }];
 
         _database
             .Setup(d => d.CreateContainerIfNotExistsAsync(It.IsAny<string>(), It.IsAny<string>(), null, null, _token))
             .ReturnsAsync(() => null);
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _cosmosTableService
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        cosmosTableService
             .Setup(s => s.GetTables(_token))
             .Returns(() => TestUtilities.AsyncEnumerable(_tables));
-        _accessService
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }

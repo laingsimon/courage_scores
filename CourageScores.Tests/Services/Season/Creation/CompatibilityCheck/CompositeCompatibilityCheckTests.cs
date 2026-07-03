@@ -13,11 +13,11 @@ namespace CourageScores.Tests.Services.Season.Creation.CompatibilityCheck;
 [TestFixture]
 public class CompositeCompatibilityCheckTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly TemplateDto _template = new();
     private readonly TemplateMatchContext _context = new(
         new SeasonDto(),
-        new[] { new DivisionDataDto(null) },
+        [new DivisionDataDto(null)],
         new Dictionary<Guid, TeamDto[]>(),
         new Dictionary<string, Guid>());
 
@@ -35,10 +35,7 @@ public class CompositeCompatibilityCheckTests
     public async Task Check_GivenUnsuccessfulCheck_ReturnsFail()
     {
         var underlyingCheck = new Mock<ICompatibilityCheck>();
-        var check = new CompositeCompatibilityCheck(new[]
-        {
-            underlyingCheck.Object,
-        });
+        var check = new CompositeCompatibilityCheck([underlyingCheck.Object]);
         underlyingCheck
             .Setup(c => c.Check(_template, _context, _token))
             .ReturnsAsync(new ActionResultDto<TemplateDto>
@@ -55,10 +52,7 @@ public class CompositeCompatibilityCheckTests
     public async Task Check_GivenSuccessfulCheck_ReturnsSuccess()
     {
         var underlyingCheck = new Mock<ICompatibilityCheck>();
-        var check = new CompositeCompatibilityCheck(new[]
-        {
-            underlyingCheck.Object,
-        });
+        var check = new CompositeCompatibilityCheck([underlyingCheck.Object]);
         underlyingCheck
             .Setup(c => c.Check(_template, _context, _token))
             .ReturnsAsync(new ActionResultDto<TemplateDto>
@@ -76,10 +70,7 @@ public class CompositeCompatibilityCheckTests
     public async Task Check_GivenErrorsReturned_CombinesAllErrors(bool success)
     {
         var underlyingCheck = new Mock<ICompatibilityCheck>();
-        var check = new CompositeCompatibilityCheck(new[]
-        {
-            underlyingCheck.Object,
-        });
+        var check = new CompositeCompatibilityCheck([underlyingCheck.Object]);
         underlyingCheck
             .Setup(c => c.Check(_template, _context, _token))
             .ReturnsAsync(new ActionResultDto<TemplateDto>
@@ -93,10 +84,7 @@ public class CompositeCompatibilityCheckTests
 
         var result = await check.Check(_template, _context, _token);
 
-        Assert.That(result.Errors, Is.EquivalentTo(new[]
-        {
-            "ERROR",
-        }));
+        Assert.That(result.Errors, Is.EquivalentTo(["ERROR"]));
     }
 
     [TestCase(true)]
@@ -104,10 +92,7 @@ public class CompositeCompatibilityCheckTests
     public async Task Check_GivenWarningsReturned_CombinesAllWarnings(bool success)
     {
         var underlyingCheck = new Mock<ICompatibilityCheck>();
-        var check = new CompositeCompatibilityCheck(new[]
-        {
-            underlyingCheck.Object,
-        });
+        var check = new CompositeCompatibilityCheck([underlyingCheck.Object]);
         underlyingCheck
             .Setup(c => c.Check(_template, _context, _token))
             .ReturnsAsync(new ActionResultDto<TemplateDto>
@@ -121,10 +106,7 @@ public class CompositeCompatibilityCheckTests
 
         var result = await check.Check(_template, _context, _token);
 
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "WARNING",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["WARNING"]));
     }
 
     [TestCase(true)]
@@ -132,10 +114,7 @@ public class CompositeCompatibilityCheckTests
     public async Task Check_GivenMessagesReturned_CombinesAllMessages(bool success)
     {
         var underlyingCheck = new Mock<ICompatibilityCheck>();
-        var check = new CompositeCompatibilityCheck(new[]
-        {
-            underlyingCheck.Object,
-        });
+        var check = new CompositeCompatibilityCheck([underlyingCheck.Object]);
         underlyingCheck
             .Setup(c => c.Check(_template, _context, _token))
             .ReturnsAsync(new ActionResultDto<TemplateDto>
@@ -149,9 +128,6 @@ public class CompositeCompatibilityCheckTests
 
         var result = await check.Check(_template, _context, _token);
 
-        Assert.That(result.Messages, Is.EquivalentTo(new[]
-        {
-            "MESSAGE",
-        }));
+        Assert.That(result.Messages, Is.EquivalentTo(["MESSAGE"]));
     }
 }

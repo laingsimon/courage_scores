@@ -40,6 +40,7 @@ import { IPreferenceData } from '../common/PreferencesContainer.tsx';
 import { IDatedDivisionFixtureDto } from './IDatedDivisionFixtureDto.ts';
 import { take } from '../../helpers/collections.ts';
 import { BuilderParam } from '../../helpers/builders/builders.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('DivisionFixture', () => {
     const home = teamBuilder('HOME').build();
@@ -400,9 +401,7 @@ describe('DivisionFixture', () => {
             .address('AWAY ADDRESS')
             .forSeason(season, division)
             .build();
-        const account = user({
-            manageGames: true,
-        });
+        const account = user([AccessOption.manageGames]);
         const date: string = '2023-05-06T00:00:00';
         const nextDate: string = '2023-05-13T00:00:00';
         const anotherTeam = teamBuilder('ANOTHER TEAM')

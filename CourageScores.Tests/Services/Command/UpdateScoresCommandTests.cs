@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Filters;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Season;
@@ -8,7 +9,6 @@ using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
-using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
@@ -66,13 +66,8 @@ public class UpdateScoresCommandTests
     };
 
     private const string UserTeamId = "621BADAE-8FB0-4854-8C7A-6BC185117238";
-    private Mock<IUserService> _userService = null!;
-    private Mock<IAdapter<CosmosGame, GameDto>> _gameAdapter = null!;
-    private Mock<IAuditingHelper> _auditingHelper = null!;
     private Mock<ICachingSeasonService> _seasonService = null!;
-    private Mock<ICommandFactory> _commandFactory = null!;
     private Mock<ITeamService> _teamService = null!;
-    private Mock<IAccessService> _accessService = null!;
     private Mock<AddSeasonToTeamCommand> _addSeasonToTeamCommand = null!;
     private UpdateScoresCommand _command = null!;
     private readonly CancellationToken _token = CancellationToken.None;
@@ -84,7 +79,6 @@ public class UpdateScoresCommandTests
         Success = true,
     };
     private ScopedCacheManagementFlags _cacheFlags = null!;
-    private MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?> _matchOptionAdapter = null!;
     private Mock<IUpdateScoresAdapter> _scoresAdapter = null!;
     private Mock<IEqualityComparer<CosmosGame>> _submissionComparer = null!;
     private CosmosGame _submissionWithLastUpdate = null!;
@@ -93,30 +87,18 @@ public class UpdateScoresCommandTests
     [SetUp]
     public void SetupEachTest()
     {
-        _userService = new Mock<IUserService>();
-        _gameAdapter = new Mock<IAdapter<CosmosGame, GameDto>>();
-        _auditingHelper = new Mock<IAuditingHelper>();
-        _seasonService = new Mock<ICachingSeasonService>();
-        _commandFactory = new Mock<ICommandFactory>();
-        _teamService = new Mock<ITeamService>();
-        _accessService = new Mock<IAccessService>();
-        _cacheFlags = new ScopedCacheManagementFlags();
-        _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(_auditingHelper.Object, _seasonService.Object, _cacheFlags);
-        _matchOptionAdapter = new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>([null], [null]);
-        _scoresAdapter = new Mock<IUpdateScoresAdapter>();
-        _submissionComparer = new Mock<IEqualityComparer<CosmosGame>>();
-        _command = new UpdateScoresCommand(
-            _userService.Object,
-            _gameAdapter.Object,
-            _matchOptionAdapter,
-            _auditingHelper.Object,
-            _seasonService.Object,
-            _commandFactory.Object,
-            _teamService.Object,
-            _cacheFlags,
-            _scoresAdapter.Object,
-            _submissionComparer.Object,
-            _accessService.Object);
+        var fixture = AutoFixture.Create().WithCacheManagementFlags(out _cacheFlags);
+        fixture.FreezeMock<IAdapter<CosmosGame, GameDto>>();
+        var userService = fixture.FreezeMock<IUserService>();
+        _seasonService = fixture.FreezeMock<ICachingSeasonService>();
+        var commandFactory = fixture.FreezeMock<ICommandFactory>();
+        _teamService = fixture.FreezeMock<ITeamService>();
+        var accessService = fixture.FreezeMock<IAccessService>();
+        _addSeasonToTeamCommand = fixture.FreezeMockOf<AddSeasonToTeamCommand>();
+        fixture.Register<ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?>>(() => new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>([null], [null]));
+        _scoresAdapter = fixture.FreezeMock<IUpdateScoresAdapter>();
+        _submissionComparer = fixture.FreezeMock<IEqualityComparer<CosmosGame>>();
+        _command = fixture.Create<UpdateScoresCommand>();
         _game = new CosmosGame
         {
             Home = new GameTeam(),
@@ -136,8 +118,8 @@ public class UpdateScoresCommandTests
             Updated = _scores.LastUpdated!.Value,
         };
 
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _commandFactory.Setup(f => f.GetCommand<AddSeasonToTeamCommand>()).Returns(_addSeasonToTeamCommand.Object);
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        commandFactory.Setup(f => f.GetCommand<AddSeasonToTeamCommand>()).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.CopyPlayersFromSeasonId(It.IsAny<Guid>())).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.ForSeason(It.IsAny<Guid>())).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.ForDivision(It.IsAny<Guid>())).Returns(_addSeasonToTeamCommand.Object);
@@ -146,7 +128,7 @@ public class UpdateScoresCommandTests
         _scoresAdapter.Setup(a => a.AdaptToPlayer(HomePlayer, _token)).ReturnsAsync(HomeGamePlayer);
         _scoresAdapter.Setup(a => a.AdaptToMatch(AwayWinnerMatch, _token)).ReturnsAsync(AdaptedGameMatch);
         _seasonService.Setup(s => s.GetForDate(It.IsAny<DateTime>(), _token)).ReturnsAsync(SeasonDto);
-        _accessService
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
     }

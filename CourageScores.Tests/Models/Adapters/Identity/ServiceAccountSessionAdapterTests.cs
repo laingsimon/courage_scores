@@ -1,9 +1,9 @@
 ﻿using System.Net;
+using AutoFixture;
 using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
 using Microsoft.AspNetCore.Http;
-using Moq;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters.Identity;
@@ -18,6 +18,7 @@ public class ServiceAccountSessionAdapterTests
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _httpContext = new DefaultHttpContext
         {
             Connection =
@@ -25,9 +26,9 @@ public class ServiceAccountSessionAdapterTests
                 RemoteIpAddress = IPAddress.Parse("1.2.3.4"),
             }
         };
-        var httpContextAccessor = new Mock<IHttpContextAccessor>();
+        var httpContextAccessor = fixture.FreezeMock<IHttpContextAccessor>();
 
-        _adapter = new ServiceAccountSessionAdapter(httpContextAccessor.Object);
+        _adapter = fixture.Create<ServiceAccountSessionAdapter>();
 
         httpContextAccessor.Setup(a => a.HttpContext).Returns(_httpContext);
     }

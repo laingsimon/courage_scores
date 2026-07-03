@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Game.Sayg;
 using CourageScores.Models.Cosmos.Game.Sayg;
@@ -10,7 +11,7 @@ namespace CourageScores.Tests.Models.Adapters.Game.Sayg;
 [TestFixture]
 public class LegAdapterTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private LegAdapter _adapter = null!;
     private LegCompetitorScoreDto _homeScoreDto = null!;
     private LegCompetitorScoreDto _awayScoreDto = null!;
@@ -23,18 +24,17 @@ public class LegAdapterTests
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _homeScore = new LegCompetitorScore();
         _awayScore = new LegCompetitorScore();
         _homeScoreDto = new LegCompetitorScoreDto();
         _awayScoreDto = new LegCompetitorScoreDto();
         _legPlayerSequence = new LegPlayerSequence();
         _legPlayerSequenceDto = new LegPlayerSequenceDto();
-        _legCompetitorScoreAdapter =
-            new Mock<ISimpleAdapter<LegCompetitorScoreAdapterContext, LegCompetitorScoreDto>>();
+        _legCompetitorScoreAdapter = fixture.FreezeMock<ISimpleAdapter<LegCompetitorScoreAdapterContext, LegCompetitorScoreDto>>();
+        fixture.Register<ISimpleAdapter<LegPlayerSequence, LegPlayerSequenceDto>>(() => new MockSimpleAdapter<LegPlayerSequence, LegPlayerSequenceDto>(_legPlayerSequence, _legPlayerSequenceDto));
 
-        _adapter = new LegAdapter(
-            _legCompetitorScoreAdapter.Object,
-            new MockSimpleAdapter<LegPlayerSequence, LegPlayerSequenceDto>(_legPlayerSequence, _legPlayerSequenceDto));
+        _adapter = fixture.Create<LegAdapter>();
 
         _legCompetitorScoreAdapter
             .Setup(a => a.Adapt(It.IsAny<LegCompetitorScoreAdapterContext>(), _token))
@@ -133,10 +133,7 @@ public class LegAdapterTests
 
         var result = await _adapter.Adapt(leg, _token);
 
-        Assert.That(result.PlayerSequence, Is.EqualTo(new[]
-        {
-            _legPlayerSequenceDto,
-        }));
+        Assert.That(result.PlayerSequence, Is.EqualTo([_legPlayerSequenceDto]));
     }
 
     [Test]
@@ -203,9 +200,6 @@ public class LegAdapterTests
 
         var result = await _adapter.Adapt(leg, _token);
 
-        Assert.That(result.PlayerSequence, Is.EqualTo(new[]
-        {
-            _legPlayerSequence,
-        }));
+        Assert.That(result.PlayerSequence, Is.EqualTo([_legPlayerSequence]));
     }
 }

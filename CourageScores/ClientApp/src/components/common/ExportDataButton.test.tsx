@@ -18,6 +18,7 @@ import { ExportDataRequestDto } from '../../interfaces/models/dtos/Data/ExportDa
 import { ExportDataResultDto } from '../../interfaces/models/dtos/Data/ExportDataResultDto.ts';
 import { IClientActionResultDto } from './IClientActionResultDto.ts';
 import { IDataApi } from '../../interfaces/apis/IDataApi.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('ExportDataButton', () => {
     let context: TestContext;
@@ -62,9 +63,7 @@ describe('ExportDataButton', () => {
     });
 
     describe('when logged in, not permitted to export', () => {
-        const account = user({
-            exportData: false,
-        });
+        const account = user();
 
         it('renders nothing', async () => {
             await renderComponent({}, account);
@@ -74,9 +73,7 @@ describe('ExportDataButton', () => {
     });
 
     describe('when logged in, permitted to export', () => {
-        const account = user({
-            exportData: true,
-        });
+        const account = user([AccessOption.exportData]);
 
         it('when nothing to export, does not render button', async () => {
             await renderComponent({}, account);

@@ -1,14 +1,37 @@
 ﻿import { UserDto } from '../interfaces/models/dtos/Identity/UserDto.ts';
-import { AccessDto } from '../interfaces/models/dtos/Identity/AccessDto.ts';
+import { AccessOption } from '../interfaces/models/dtos/Identity/AccessOption.ts';
+import { all, any } from './collections.ts';
+import { AccessLevelDto } from '../interfaces/models/dtos/Identity/AccessLevelDto';
+
+export interface IAccessLevels {
+    [key: string]: AccessLevelDto;
+}
 
 export function hasAccess(
     account: UserDto | undefined,
-    getAccess: (access: AccessDto) => boolean | undefined,
+    option: AccessOption,
 ): boolean {
-    // account && account.access && account.access.manageTournaments
-    if (!account || !account.access) {
+    return !!account?.accessLevels?.[option];
+}
+
+export function hasAllAccess(
+    account: UserDto | undefined,
+    ...options: AccessOption[]
+): boolean {
+    if (options.length === 0) {
         return false;
     }
 
-    return getAccess(account.access) || false;
+    return all(options, (op) => hasAccess(account, op));
+}
+
+export function hasAnyAccess(
+    account: UserDto | undefined,
+    ...options: AccessOption[]
+): boolean {
+    if (options.length === 0) {
+        return false;
+    }
+
+    return any(options, (op) => hasAccess(account, op));
 }

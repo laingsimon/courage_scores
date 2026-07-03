@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using AutoFixture;
 using CourageScores.Formatters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Formatters;
@@ -22,15 +23,20 @@ public class CalendarTextOutputFormatterTests
     [SetUp]
     public void SetupEachTest()
     {
-        _formatter = new CalendarTextOutputFormatter();
-        _object = new Mock<ICalendarProvider>();
-        _calendarWriter = new Mock<ICalendarWriter>();
-        var serviceProvider = new Mock<IServiceProvider>();
+        var fixture = AutoFixture.Create();
+        _formatter = fixture.Create<CalendarTextOutputFormatter>();
+        _object = fixture.FreezeMock<ICalendarProvider>();
+        _calendarWriter = fixture.FreezeMock<ICalendarWriter>();
+        var serviceProvider = fixture.FreezeMock<IServiceProvider>();
         _httpContext = new DefaultHttpContext
         {
             RequestServices = serviceProvider.Object,
         };
         serviceProvider.Setup(s => s.GetService(typeof(ICalendarWriter))).Returns(_calendarWriter.Object);
+        fixture.Register(() => WriterFactory);
+        fixture.Register<Type?>(() => typeof(ICalendarProvider));
+        fixture.Register<HttpContext>(() => _httpContext);
+        fixture.Register<object?>(() => _object.Object);
 
         _context = new OutputFormatterWriteContext(_httpContext, WriterFactory, typeof(ICalendarProvider), _object.Object);
     }

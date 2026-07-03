@@ -40,8 +40,7 @@ public class ExceptionHandlerTests
             {
                 Method = "POST",
                 ContentLength = 10,
-                Body = new MemoryStream(new byte[]
-                {
+                Body = new MemoryStream([
                     0,
                     1,
                     2,
@@ -51,8 +50,8 @@ public class ExceptionHandlerTests
                     6,
                     7,
                     8,
-                    9,
-                }),
+                    9
+                ]),
                 ContentType = "application/json",
                 Path = new PathString("/path"),
                 QueryString = new QueryString("?query"),

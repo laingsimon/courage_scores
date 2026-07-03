@@ -23,10 +23,7 @@ public class AsyncEnumerableExtensionsTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Count, Is.EqualTo(2));
-        Assert.That(result, Is.EquivalentTo(new[]
-        {
-            itemB, itemA,
-        }));
+        Assert.That(result, Is.EquivalentTo([itemB, itemA]));
     }
 
     [Test]
@@ -46,10 +43,7 @@ public class AsyncEnumerableExtensionsTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Count, Is.EqualTo(1));
-        Assert.That(result, Is.EquivalentTo(new[]
-        {
-            itemA,
-        }));
+        Assert.That(result, Is.EquivalentTo([itemA]));
     }
 
     [Test]
@@ -69,10 +63,7 @@ public class AsyncEnumerableExtensionsTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Count, Is.EqualTo(2));
-        Assert.That(result, Is.EquivalentTo(new[]
-        {
-            "A", "B",
-        }));
+        Assert.That(result, Is.EquivalentTo(["A", "B"]));
     }
 
     [Test]
@@ -92,10 +83,7 @@ public class AsyncEnumerableExtensionsTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Count, Is.EqualTo(2));
-        Assert.That(result, Is.EquivalentTo(new[]
-        {
-            "A", "B",
-        }));
+        Assert.That(result, Is.EquivalentTo(["A", "B"]));
     }
 
     [Test]
@@ -118,10 +106,7 @@ public class AsyncEnumerableExtensionsTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Count, Is.EqualTo(2));
-        Assert.That(result, Is.EquivalentTo(new[]
-        {
-            "A", "B",
-        }));
+        Assert.That(result, Is.EquivalentTo(["A", "B"]));
     }
 
     [Test]
@@ -139,10 +124,7 @@ public class AsyncEnumerableExtensionsTests
 
         var result = await items.OrderByAsync(x => x.Name).ToList();
 
-        Assert.That(result, Is.EqualTo(new[]
-        {
-            itemA, itemB,
-        }));
+        Assert.That(result, Is.EqualTo([itemA, itemB]));
     }
 
     [Test]
@@ -160,10 +142,7 @@ public class AsyncEnumerableExtensionsTests
 
         var result = await items.OrderByDescendingAsync(x => x.Name).ToList();
 
-        Assert.That(result, Is.EqualTo(new[]
-        {
-            itemB, itemA,
-        }));
+        Assert.That(result, Is.EqualTo([itemB, itemA]));
     }
 
     [Test]
@@ -194,10 +173,7 @@ public class AsyncEnumerableExtensionsTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Count, Is.EqualTo(1));
-        Assert.That(result, Is.EqualTo(new[]
-        {
-            itemA,
-        }));
+        Assert.That(result, Is.EqualTo([itemA]));
     }
 
     [Test]

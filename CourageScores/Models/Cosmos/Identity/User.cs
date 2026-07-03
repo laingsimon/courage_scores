@@ -17,8 +17,6 @@ public class User
     [JsonProperty("emailAddress")]
     public string EmailAddress { get; set; } = null!;
 
-    public Access? Access { get; set; } = new();
-
     public Dictionary<AccessOption, AccessLevel> AccessLevels { get; set; } = new();
 
     [JsonIgnore]

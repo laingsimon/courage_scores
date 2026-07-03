@@ -23,6 +23,7 @@ import { Link } from 'react-router';
 import { EditableSaygContainer } from '../sayg/EditableSaygContainer.tsx';
 import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 import { hasAccess } from '../../helpers/conditions.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export const NEW_PLAYER: string = 'NEW_PLAYER';
 
@@ -350,7 +351,7 @@ export function MatchPlayerSelection({
             any(match.homePlayers) &&
             any(match.awayPlayers) &&
             (!!match.sayg ||
-                hasAccess(account, (access) => access.recordScoresAsYouGo))
+                hasAccess(account, AccessOption.recordScoresAsYouGo))
         );
     }
 

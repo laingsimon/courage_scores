@@ -11,7 +11,7 @@ namespace CourageScores.Tests.Services.Season.Creation.CompatibilityCheck;
 [TestFixture]
 public class EachDivisionHasRightNumberOfTeamsWithSharedAddressTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly SeasonDto _season = new();
     private readonly EachDivisionHasRightNumberOfTeamsWithSharedAddress _check = new();
 
@@ -177,20 +177,14 @@ public class EachDivisionHasRightNumberOfTeamsWithSharedAddressTests
         var result = await _check.Check(template, TemplateMatchContext(division, teams), _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "Division One has 2 shared addresses, template only supports 1",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(["Division One has 2 shared addresses, template only supports 1"]));
     }
 
     private TemplateMatchContext TemplateMatchContext(DivisionDataDto division, TeamDto[] teams)
     {
         return new TemplateMatchContext(
             _season,
-            new[]
-            {
-                division,
-            },
+            [division],
             new Dictionary<Guid, TeamDto[]>
             {
                 {

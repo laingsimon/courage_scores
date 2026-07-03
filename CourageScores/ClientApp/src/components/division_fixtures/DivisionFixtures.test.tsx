@@ -35,6 +35,7 @@ import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentG
 import { IGameApi } from '../../interfaces/apis/IGameApi.ts';
 import { GameTeamDto } from '../../interfaces/models/dtos/Game/GameTeamDto.ts';
 import { ISeasonApi } from '../../interfaces/apis/ISeasonApi.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('DivisionFixtures', () => {
     let context: TestContext;
@@ -501,12 +502,19 @@ describe('DivisionFixtures', () => {
     });
 
     describe('when logged in', () => {
-        const account = user({
-            manageGames: true,
-            manageTournaments: true,
-            manageNotes: true,
-            manageScores: true,
-        });
+        const account = user([
+            AccessOption.manageGames,
+            AccessOption.manageTournaments,
+            AccessOption.manageNotes,
+            AccessOption.manageScores,
+        ]);
+        const bulkDeleteAccount = user([
+            AccessOption.manageGames,
+            AccessOption.manageTournaments,
+            AccessOption.manageNotes,
+            AccessOption.manageScores,
+            AccessOption.bulkDeleteLeagueFixtures,
+        ]);
         let divisionData: IDivisionDataContainerProps;
 
         beforeEach(() => {
@@ -924,8 +932,7 @@ A dry-run of the deletion will run first.`;
 a message`;
 
             it('does not delete any fixtures if user cancels prompt', async () => {
-                account!.access!.bulkDeleteLeagueFixtures = true;
-                await renderComponent(divisionData, account);
+                await renderComponent(divisionData, bulkDeleteAccount);
                 context.prompts.respondToConfirm(dryRunPrompt, false);
 
                 await getDeleteAllButton().click();
@@ -934,8 +941,7 @@ a message`;
             });
 
             it('handles a failure when dry running the delete', async () => {
-                account!.access!.bulkDeleteLeagueFixtures = true;
-                await renderComponent(divisionData, account);
+                await renderComponent(divisionData, bulkDeleteAccount);
                 context.prompts.respondToConfirm(dryRunPrompt, true);
                 bulkDeleteResponse = {
                     success: false,
@@ -953,8 +959,7 @@ a message`;
             });
 
             it('exits if no fixtures are identified', async () => {
-                account!.access!.bulkDeleteLeagueFixtures = true;
-                await renderComponent(divisionData, account);
+                await renderComponent(divisionData, bulkDeleteAccount);
                 context.prompts.respondToConfirm(dryRunPrompt, true);
                 bulkDeleteResponse = {
                     success: true,
@@ -971,8 +976,7 @@ a message`;
             });
 
             it('does not delete any fixtures if user cancels dry run result prompt', async () => {
-                account!.access!.bulkDeleteLeagueFixtures = true;
-                await renderComponent(divisionData, account);
+                await renderComponent(divisionData, bulkDeleteAccount);
                 context.prompts.respondToConfirm(dryRunPrompt, true);
                 bulkDeleteResponse = {
                     success: true,
@@ -990,8 +994,7 @@ a message`;
             });
 
             it.skip('deletes all fixtures if user confirms dry run result prompt', async () => {
-                account!.access!.bulkDeleteLeagueFixtures = true;
-                await renderComponent(divisionData, account);
+                await renderComponent(divisionData, bulkDeleteAccount);
                 Object.defineProperty(window, 'location', {
                     configurable: true,
                     value: { reload: jest.fn() },
@@ -1014,8 +1017,7 @@ a message`;
             });
 
             it('reports an error if actual delete fails', async () => {
-                account!.access!.bulkDeleteLeagueFixtures = true;
-                await renderComponent(divisionData, account);
+                await renderComponent(divisionData, bulkDeleteAccount);
                 context.prompts.respondToConfirm(dryRunPrompt, true);
                 bulkDeleteResponse = {
                     success: true,

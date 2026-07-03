@@ -5,6 +5,8 @@ import {
 } from './ButtonDropdown.tsx';
 import React, { useState } from 'react';
 import { useApp } from './AppContainer.tsx';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
+import { hasAccess } from '../../helpers/conditions.ts';
 
 export interface IDebugOptionsProps {
     text?: string;
@@ -22,10 +24,9 @@ export function DebugOptions({
     const [open, setOpen] = useState<boolean>(false);
     const { account } = useApp();
 
-    const canDisplay: boolean = !!(
-        account &&
-        account.access &&
-        account.access.showDebugOptions
+    const canDisplay: boolean = hasAccess(
+        account,
+        AccessOption.showDebugOptions,
     );
     if (!canDisplay) {
         return null;

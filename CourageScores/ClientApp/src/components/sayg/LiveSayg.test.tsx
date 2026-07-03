@@ -42,6 +42,7 @@ import { createTemporaryId } from '../../helpers/projection.ts';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
 import { IFullScreen } from '../common/IFullScreen.ts';
 import { TeamPlayerDto } from '../../interfaces/models/dtos/Team/TeamPlayerDto.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 const mockedUsedNavigate = jest.fn();
 
@@ -436,8 +437,7 @@ describe('LiveSayg', () => {
 
             expect(requestedTournamentId).toEqual([tournament.id]);
             expect(requestedSaygId).toEqual([sayg.id]);
-            const firstMatchRow = context.required('table tbody tr');
-            const cells = firstMatchRow.all('td');
+            const cells = context.required('table tbody tr').all('td');
             const cellValues = cells.map((c) =>
                 c.className().includes('fw-bold') ? `*${c.text()}*` : c.text(),
             );
@@ -714,7 +714,7 @@ describe('LiveSayg', () => {
 
     describe('updates', () => {
         let tournament1: TournamentGameDto;
-        const account: UserDto = user({ useWebSockets: true });
+        const account: UserDto = user([AccessOption.useWebSockets]);
         const bo = 3;
 
         async function sendUpdate(update: { id: string }) {

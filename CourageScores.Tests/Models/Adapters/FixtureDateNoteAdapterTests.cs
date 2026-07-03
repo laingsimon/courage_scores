@@ -8,7 +8,7 @@ namespace CourageScores.Tests.Models.Adapters;
 [TestFixture]
 public class FixtureDateNoteAdapterTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly FixtureDateNoteAdapter _adapter = new();
 
     [Test]

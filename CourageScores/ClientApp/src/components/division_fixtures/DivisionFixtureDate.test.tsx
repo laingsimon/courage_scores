@@ -30,6 +30,7 @@ import {
 } from '../../helpers/builders/divisions.ts';
 import { seasonBuilder } from '../../helpers/builders/seasons.ts';
 import { teamBuilder } from '../../helpers/builders/teams.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('DivisionFixtureDate', () => {
     let context: TestContext;
@@ -572,10 +573,10 @@ describe('DivisionFixtureDate', () => {
             .address('ANOTHER ADDRESS')
             .forSeason(season, division)
             .build();
-        const account = user({
-            manageGames: true,
-            manageNotes: true,
-        });
+        const account = user([
+            AccessOption.manageGames,
+            AccessOption.manageNotes,
+        ]);
 
         it('renders without potential league fixtures when any tournaments exist', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')

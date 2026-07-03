@@ -1,4 +1,5 @@
 using System.Net;
+using AutoFixture;
 using CourageScores.Common;
 using CourageScores.Filters;
 using CourageScores.Models.Dtos.Data;
@@ -14,43 +15,31 @@ namespace CourageScores.Tests.Services.Data;
 [TestFixture]
 public class DataImporterTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private Mock<Database> _database = null!;
     private Mock<IZipFileReader> _zip = null!;
     private Mock<Container> _container = null!;
     private ImportDataRequestDto _request = null!;
     private ImportDataResultDto _result = null!;
-    private List<TableDto> _currentTables = null!;
     private DataImporter _importer = null!;
     private List<string> _zipFiles = null!;
     private ItemResponse<JObject> _upsertResult = null!;
-    private JObject _fileContent = null!;
     private ScopedCacheManagementFlags _flags = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _database = new Mock<Database>();
-        _request = new ImportDataRequestDto();
-        _result = new ImportDataResultDto();
-        _zip = new Mock<IZipFileReader>();
-        _flags = new ScopedCacheManagementFlags();
-        _fileContent = JObject.FromObject(new CourageScores.Models.Cosmos.Division());
-        _zipFiles = new List<string>
-        {
-            "8AEDEC81-8D28-475B-893E-A34FC60FB0C2.json",
-        };
-        _container = new Mock<Container>();
-        _currentTables = new List<TableDto>
-        {
-            new()
-            {
-                Name = "TABLE",
-                PartitionKey = "/id",
-            },
-        };
+        var fixture = AutoFixture.Create().WithCacheManagementFlags(out _flags);
+        _database = fixture.FreezeMock<Database>();
+        _request = fixture.Freeze<ImportDataRequestDto>();
+        _result = fixture.Freeze<ImportDataResultDto>();
+        _zip = fixture.FreezeMock<IZipFileReader>();
+        var fileContent = JObject.FromObject(new CourageScores.Models.Cosmos.Division());
+        _zipFiles = ["8AEDEC81-8D28-475B-893E-A34FC60FB0C2.json"];
+        _container = fixture.FreezeMock<Container>();
+        fixture.Register<List<TableDto>>(() => [new() { Name = "TABLE", PartitionKey = "/id" }]);
         _upsertResult = new StubItemResponse<JObject>(statusCode: HttpStatusCode.Created);
-        _importer = new DataImporter(_database.Object, _request, _result, _currentTables, _flags);
+        _importer = fixture.Create<DataImporter>();
         _database
             .Setup(d => d.CreateContainerIfNotExistsAsync("TABLE", "/id", null, null, _token))
             .ReturnsAsync(new StubContainerResponse(_container));
@@ -58,9 +47,9 @@ public class DataImporterTests
             .Setup(d => d.CreateContainerIfNotExistsAsync("TABLE_import", "/id", null, null, _token))
             .ReturnsAsync(new StubContainerResponse(_container));
         _zip.Setup(z => z.EnumerateFiles("TABLE")).Returns(() => _zipFiles);
-        _zip.Setup(z => z.ReadJson<JObject>(It.IsAny<string>())).ReturnsAsync(() => _fileContent);
+        _zip.Setup(z => z.ReadJson<JObject>(It.IsAny<string>())).ReturnsAsync(() => fileContent);
         _container
-            .Setup(c => c.UpsertItemAsync(It.Is<JObject>(obj => obj == _fileContent), null, null, _token))
+            .Setup(c => c.UpsertItemAsync(It.Is<JObject>(obj => obj == fileContent), null, null, _token))
             .ReturnsAsync(() => _upsertResult);
     }
 
@@ -95,7 +84,7 @@ public class DataImporterTests
     [Test]
     public async Task ImportData_GivenNoTableFilter_ImportsData()
     {
-        var result = await _importer.ImportData(Array.Empty<string>(), _zip.Object, _token).ToList();
+        var result = await _importer.ImportData([], _zip.Object, _token).ToList();
 
         _container.Verify(c => c.UpsertItemAsync(It.IsAny<JObject>(), null, null, _token));
         Assert.That(result, Is.Not.Empty);
@@ -107,7 +96,7 @@ public class DataImporterTests
     {
         _request.DryRun = true;
 
-        var result = await _importer.ImportData(Array.Empty<string>(), _zip.Object, _token).ToList();
+        var result = await _importer.ImportData([], _zip.Object, _token).ToList();
 
         _database.Verify(d => d.CreateContainerIfNotExistsAsync("TABLE_import", "/id", null, null, _token));
         Assert.That(result, Is.Not.Empty);
@@ -119,7 +108,7 @@ public class DataImporterTests
     {
         _request.DryRun = true;
 
-        await _importer.ImportData(Array.Empty<string>(), _zip.Object, _token).ToList();
+        await _importer.ImportData([], _zip.Object, _token).ToList();
 
         Assert.That(_flags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_flags.EvictDivisionDataCacheForSeasonId, Is.Null);
@@ -130,7 +119,7 @@ public class DataImporterTests
     {
         _request.DryRun = false;
 
-        var result = await _importer.ImportData(Array.Empty<string>(), _zip.Object, _token).ToList();
+        var result = await _importer.ImportData([], _zip.Object, _token).ToList();
 
         _database.Verify(d => d.CreateContainerIfNotExistsAsync("TABLE", "/id", null, null, _token));
         Assert.That(result, Is.Not.Empty);
@@ -142,7 +131,7 @@ public class DataImporterTests
     {
         _request.DryRun = false;
 
-        await _importer.ImportData(Array.Empty<string>(), _zip.Object, _token).ToList();
+        await _importer.ImportData([], _zip.Object, _token).ToList();
 
         Assert.That(_flags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(Guid.Empty));
         Assert.That(_flags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(Guid.Empty));
@@ -153,7 +142,7 @@ public class DataImporterTests
     {
         _request.DryRun = true;
 
-        var result = await _importer.ImportData(Array.Empty<string>(), _zip.Object, _token).ToList();
+        var result = await _importer.ImportData([], _zip.Object, _token).ToList();
 
         _container.Verify(c => c.DeleteContainerAsync(null, _token));
         Assert.That(result, Is.Not.Empty);
@@ -165,7 +154,7 @@ public class DataImporterTests
     {
         _request.DryRun = false;
 
-        var result = await _importer.ImportData(Array.Empty<string>(), _zip.Object, _token).ToList();
+        var result = await _importer.ImportData([], _zip.Object, _token).ToList();
 
         _container.Verify(c => c.DeleteContainerAsync(null, _token), Times.Never);
         Assert.That(result, Is.Not.Empty);
@@ -178,7 +167,7 @@ public class DataImporterTests
     {
         _upsertResult = new StubItemResponse<JObject>(statusCode: statusCode);
 
-        var result = await _importer.ImportData(Array.Empty<string>(), _zip.Object, _token).ToList();
+        var result = await _importer.ImportData([], _zip.Object, _token).ToList();
 
         _container.Verify(c => c.UpsertItemAsync(It.IsAny<JObject>(), null, null, _token));
         Assert.That(result, Is.Not.Empty);
@@ -190,7 +179,7 @@ public class DataImporterTests
     {
         _upsertResult = new StubItemResponse<JObject>(statusCode: HttpStatusCode.NotAcceptable);
 
-        var result = await _importer.ImportData(Array.Empty<string>(), _zip.Object, _token).ToList();
+        var result = await _importer.ImportData([], _zip.Object, _token).ToList();
 
         _container.Verify(c => c.UpsertItemAsync(It.IsAny<JObject>(), null, null, _token));
         Assert.That(result, Is.Not.Empty);
@@ -202,7 +191,7 @@ public class DataImporterTests
     {
         _zipFiles.Add("5AA21DA5-EFB8-4E1B-B3BE-28486A6946BE.json");
 
-        var result = await _importer.ImportData(Array.Empty<string>(), _zip.Object, _token).ToList();
+        var result = await _importer.ImportData([], _zip.Object, _token).ToList();
 
         Assert.That(result, Is.Not.Empty);
         Assert.That(result, Has.None.StartsWith("ERROR"));
@@ -268,7 +257,7 @@ public class DataImporterTests
         _request.DryRun = false;
         _database.Setup(d => d.GetContainer("TABLE")).Returns(_container.Object);
 
-        var result = await _importer.PurgeData(Array.Empty<string>(), _token).ToList();
+        var result = await _importer.PurgeData([], _token).ToList();
 
         Assert.That(result, Is.Not.Empty);
         Assert.That(result, Has.Some.Matches("Purging data in TABLE"));
@@ -281,7 +270,7 @@ public class DataImporterTests
         _request.DryRun = true;
         _database.Setup(d => d.GetContainer("TABLE")).Returns(_container.Object);
 
-        var result = await _importer.PurgeData(Array.Empty<string>(), _token).ToList();
+        var result = await _importer.PurgeData([], _token).ToList();
 
         Assert.That(result, Is.Not.Empty);
         Assert.That(result, Has.Some.Matches("Purging data in TABLE"));

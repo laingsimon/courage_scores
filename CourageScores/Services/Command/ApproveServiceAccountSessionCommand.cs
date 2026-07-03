@@ -1,5 +1,4 @@
 ﻿using CourageScores.Models;
-using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Repository;
@@ -12,7 +11,6 @@ public class ApproveServiceAccountSessionCommand : IUpdateCommand<ServiceAccount
 {
     private readonly IUserService _userService;
     private readonly IUserRepository _userRepository;
-    private readonly ISimpleAdapter<Access, AccessDto> _accessAdapter;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IFeatureService _featureService;
     private readonly IAccessService _accessService;
@@ -21,14 +19,12 @@ public class ApproveServiceAccountSessionCommand : IUpdateCommand<ServiceAccount
     public ApproveServiceAccountSessionCommand(
         IUserService userService,
         IUserRepository userRepository,
-        ISimpleAdapter<Access, AccessDto> accessAdapter,
         IHttpContextAccessor httpContextAccessor,
         IFeatureService featureService,
         IAccessService accessService)
     {
         _userService = userService;
         _userRepository = userRepository;
-        _accessAdapter = accessAdapter;
         _httpContextAccessor = httpContextAccessor;
         _featureService = featureService;
         _accessService = accessService;
@@ -67,22 +63,20 @@ public class ApproveServiceAccountSessionCommand : IUpdateCommand<ServiceAccount
             return Warning("Cannot approve session from a different location");
         }
 
-#pragma warning disable CS0618 // Type or member is obsolete
-        if (_request!.Access.ManageAccess)
+        if (_request!.Access.Contains(AccessOption.ManageAccess))
         {
             return Warning("Cannot create session with manage access permission");
         }
 
-        if (_request!.Access.LoginServiceAccounts)
+        if (_request!.Access.Contains(AccessOption.LoginServiceAccounts))
         {
             return Warning("Cannot create session with login service accounts permission");
         }
-#pragma warning restore CS0618 // Type or member is obsolete
 
         var transientUser = new User
         {
             Id = Guid.NewGuid(),
-            Access = await _accessAdapter.Adapt(_request.Access, token),
+            AccessLevels = _request.Access.ToDictionary(ao => ao, _ => AccessLevel.Granted),
             EmailAddress = $"{model.Id}@couragescores.com",
             Transient = true,
             Name = model.FriendlyName,

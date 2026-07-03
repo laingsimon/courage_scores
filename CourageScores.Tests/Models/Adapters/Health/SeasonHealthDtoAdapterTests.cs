@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Health;
 using CourageScores.Models.Dtos.Division;
@@ -11,15 +12,16 @@ namespace CourageScores.Tests.Models.Adapters.Health;
 [TestFixture]
 public class SeasonHealthDtoAdapterTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private Mock<ISimpleOnewayAdapter<DivisionDataDto, DivisionHealthDto>> _divisionAdapter = null!;
     private SeasonHealthDtoAdapter _adapter = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _divisionAdapter = new Mock<ISimpleOnewayAdapter<DivisionDataDto, DivisionHealthDto>>();
-        _adapter = new SeasonHealthDtoAdapter(_divisionAdapter.Object);
+        var fixture = AutoFixture.Create();
+        _divisionAdapter = fixture.FreezeMock<ISimpleOnewayAdapter<DivisionDataDto, DivisionHealthDto>>();
+        _adapter = fixture.Create<SeasonHealthDtoAdapter>();
     }
 
     [Test]
@@ -30,10 +32,7 @@ public class SeasonHealthDtoAdapterTests
             .Build();
         var division = new DivisionDataDto(null);
         var divisionDto = new DivisionHealthDto();
-        var mapping = new SeasonHealthDtoAdapter.SeasonAndDivisions(season, new List<DivisionDataDto>
-        {
-            division,
-        });
+        var mapping = new SeasonHealthDtoAdapter.SeasonAndDivisions(season, [division]);
         _divisionAdapter.Setup(a => a.Adapt(division, _token)).ReturnsAsync(divisionDto);
 
         var result = await _adapter.Adapt(mapping, _token);
@@ -42,9 +41,6 @@ public class SeasonHealthDtoAdapterTests
         Assert.That(result.Name, Is.EqualTo(season.Name));
         Assert.That(result.StartDate, Is.EqualTo(season.StartDate));
         Assert.That(result.EndDate, Is.EqualTo(season.EndDate));
-        Assert.That(result.Divisions, Is.EqualTo(new[]
-        {
-            divisionDto,
-        }));
+        Assert.That(result.Divisions, Is.EqualTo([divisionDto]));
     }
 }

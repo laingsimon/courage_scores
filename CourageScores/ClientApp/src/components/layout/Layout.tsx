@@ -5,6 +5,7 @@ import { useApp } from '../common/AppContainer.tsx';
 import { Footer } from './Footer.tsx';
 import React from 'react';
 import { hasAccess } from '../../helpers/conditions.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface ILayoutProps {
     children?: React.ReactNode;
@@ -13,8 +14,7 @@ export interface ILayoutProps {
 export function Layout({ children }: ILayoutProps) {
     const { error, onError, embed, account, fullScreen } = useApp();
     const hideHeaderAndFooter =
-        fullScreen.isFullScreen ||
-        hasAccess(account, (access) => access.kioskMode);
+        fullScreen.isFullScreen || hasAccess(account, AccessOption.kioskMode);
 
     function renderError() {
         return <PageError error={error!} />;

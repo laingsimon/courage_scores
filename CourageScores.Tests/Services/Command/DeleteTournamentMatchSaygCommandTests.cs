@@ -1,10 +1,10 @@
+using AutoFixture;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Services;
 using CourageScores.Services.Command;
-using CourageScores.Services.Live;
 using Moq;
 using NUnit.Framework;
 
@@ -13,9 +13,8 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class DeleteTournamentMatchSaygCommandTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = CancellationToken.None;
     private Mock<IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>> _saygService = null!;
-    private Mock<IWebSocketMessageProcessor> _processor = null!;
     private DeleteTournamentMatchSaygCommand _command = null!;
     private TournamentGame _tournament = null!;
     private TournamentMatch _match = null!;
@@ -23,9 +22,9 @@ public class DeleteTournamentMatchSaygCommandTests
     [SetUp]
     public void SetupEachTest()
     {
-        _saygService = new Mock<IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>>();
-        _processor = new Mock<IWebSocketMessageProcessor>();
-        _command = new DeleteTournamentMatchSaygCommand(_saygService.Object, _processor.Object);
+        var fixture = AutoFixture.Create();
+        _saygService = fixture.FreezeMock<IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>>();
+        _command = fixture.Create<DeleteTournamentMatchSaygCommand>();
 
         _match = new TournamentMatch
         {
@@ -54,10 +53,7 @@ public class DeleteTournamentMatchSaygCommandTests
         var result = await _command.FromMatch(_match.Id).ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "Match not found",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(["Match not found"]));
     }
 
     [Test]
@@ -66,10 +62,7 @@ public class DeleteTournamentMatchSaygCommandTests
         var result = await _command.FromMatch(Guid.NewGuid()).ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "Match not found",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(["Match not found"]));
     }
 
     [Test]
@@ -80,10 +73,7 @@ public class DeleteTournamentMatchSaygCommandTests
         var result = await _command.FromMatch(_match.Id).ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "Match does not have a sayg id",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo([$"{nameof(Match)} does not have a sayg id"]));
     }
 
     [Test]
@@ -102,10 +92,7 @@ public class DeleteTournamentMatchSaygCommandTests
         var result = await _command.FromMatch(_match.Id).ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "SOME ERROR",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(["SOME ERROR"]));
     }
 
     [Test]
@@ -124,11 +111,10 @@ public class DeleteTournamentMatchSaygCommandTests
         var result = await _command.FromMatch(_match.Id).ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EquivalentTo(new[]
-        {
+        Assert.That(result.Messages, Is.EquivalentTo([
             "Sayg deleted and removed from match",
-            "SAYG DELETED",
-        }));
+            "SAYG DELETED"
+        ]));
         Assert.That(_match.ScoreA, Is.EqualTo(1));
         Assert.That(_match.ScoreB, Is.EqualTo(2));
     }
@@ -149,11 +135,10 @@ public class DeleteTournamentMatchSaygCommandTests
         var result = await _command.FromMatch(_match.Id).ClearingScores(true).ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EquivalentTo(new[]
-        {
+        Assert.That(result.Messages, Is.EquivalentTo([
             "Sayg deleted and removed from match. Match scores reset",
-            "SAYG DELETED",
-        }));
+            "SAYG DELETED"
+        ]));
         Assert.That(_match.ScoreA, Is.EqualTo(0));
         Assert.That(_match.ScoreA, Is.EqualTo(0));
     }

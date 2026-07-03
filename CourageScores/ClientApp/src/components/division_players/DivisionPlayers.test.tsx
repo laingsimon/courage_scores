@@ -21,6 +21,7 @@ import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
 import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
 import { IPlayerApi } from '../../interfaces/apis/IPlayerApi.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('DivisionPlayers', () => {
     let context: TestContext;
@@ -357,9 +358,7 @@ describe('DivisionPlayers', () => {
 
     describe('when logged in', () => {
         beforeEach(() => {
-            account = user({
-                managePlayers: true,
-            });
+            account = user([AccessOption.managePlayers]);
         });
 
         it('renders players with heading and venue', async () => {

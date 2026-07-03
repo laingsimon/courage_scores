@@ -9,9 +9,10 @@ import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
 import { IMenuItem } from './IMenuItem.ts';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
-import { AccessDto } from '../../interfaces/models/dtos/Identity/AccessDto.ts';
 import { IError } from '../common/IError.ts';
 import { NavLink } from '../common/NavLink.tsx';
+import { hasAccess, hasAnyAccess } from '../../helpers/conditions.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export function NavMenu() {
     const { settings } = useDependencies();
@@ -20,7 +21,7 @@ export function NavMenu() {
     const [collapsed, setCollapsed] = useState<boolean>(true);
     const [navMenuError, setNavMenuError] = useState<IError | null>(null);
     const location = useLocation();
-    const fullScreen = account && account.access && account.access.kioskMode;
+    const fullScreen = hasAccess(account, AccessOption.kioskMode);
 
     useEffect(() => {
         setCollapsed(true);
@@ -69,12 +70,13 @@ export function NavMenu() {
         return any(currentDivisions, (d: DivisionDto) => d.id === division.id);
     }
 
-    function hasAdminAccess(access: AccessDto) {
-        return (
-            access.manageAccess ||
-            access.viewExceptions ||
-            access.importData ||
-            access.exportData
+    function hasAdminAccess() {
+        return hasAnyAccess(
+            account,
+            AccessOption.manageAccess,
+            AccessOption.viewExceptions,
+            AccessOption.importData,
+            AccessOption.exportData,
         );
     }
 
@@ -199,10 +201,7 @@ export function NavMenu() {
                                         </a>
                                     </li>
                                 ) : null}
-                                {!appLoading &&
-                                account &&
-                                account.access &&
-                                hasAdminAccess(account.access) ? (
+                                {!appLoading && hasAdminAccess() ? (
                                     <li className="nav-item">
                                         <NavLink
                                             onClick={navigate}

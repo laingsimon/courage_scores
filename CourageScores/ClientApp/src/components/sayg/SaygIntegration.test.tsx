@@ -45,6 +45,7 @@ import {
 import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 import { isLegWinner } from '../../helpers/superleague.ts';
 import { sum } from '../../helpers/collections.ts';
+import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 describe('SaygIntegrationTest', () => {
     let context: TestContext;
@@ -571,7 +572,7 @@ describe('SaygIntegrationTest', () => {
         });
 
         describe('when permitted', () => {
-            const account = user({ recordScoresAsYouGo: true });
+            const account = user([AccessOption.recordScoresAsYouGo]);
 
             beforeEach(async () => {
                 await renderComponent(props(sayg), account);
@@ -606,7 +607,7 @@ describe('SaygIntegrationTest', () => {
         });
 
         describe('when not permitted', () => {
-            const account = user({ recordScoresAsYouGo: false });
+            const account = user([]);
             let firstThrowCells: IComponent[];
 
             beforeEach(async () => {

@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using CourageScores.Models.Adapters.Identity;
+using AutoFixture;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Identity;
@@ -18,14 +18,12 @@ namespace CourageScores.Tests.Services.Command;
 public class ApproveServiceAccountSessionCommandTests
 {
     private readonly CancellationToken _token = CancellationToken.None;
-    private Mock<IUserService> _userService = null!;
     private Mock<IUserRepository> _userRepository = null!;
     private Mock<IAccessService> _accessService = null!;
     private UserDto? _user;
     private DefaultHttpContext _httpContext = null!;
     private ServiceAccountSession _model = null!;
     private ApproveServiceAccountSessionDto _request = null!;
-    private Mock<IFeatureService> _featureService = null!;
     private ConfiguredFeatureDto _feature = null!;
 
     private ApproveServiceAccountSessionCommand _command = null!;
@@ -33,13 +31,14 @@ public class ApproveServiceAccountSessionCommandTests
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _user = new UserDto
         {
             Name = "approver",
         };
-        _featureService = new Mock<IFeatureService>();
+        var featureService = fixture.FreezeMock<IFeatureService>();
         _feature = new ConfiguredFeatureDto { ConfiguredValue = "true" };
-        var httpContextAccessor = new Mock<IHttpContextAccessor>();
+        var httpContextAccessor = fixture.FreezeMock<IHttpContextAccessor>();
         _httpContext = new DefaultHttpContext
         {
             Connection =
@@ -47,9 +46,9 @@ public class ApproveServiceAccountSessionCommandTests
                 RemoteIpAddress = IPAddress.Parse("1.2.3.4"),
             }
         };
-        _userService = new Mock<IUserService>();
-        _userRepository = new Mock<IUserRepository>();
-        _accessService = new Mock<IAccessService>();
+        var userService = fixture.FreezeMock<IUserService>();
+        _userRepository = fixture.FreezeMock<IUserRepository>();
+        _accessService = fixture.FreezeMock<IAccessService>();
         _model = new ServiceAccountSession
         {
             Id = Guid.NewGuid(),
@@ -62,12 +61,11 @@ public class ApproveServiceAccountSessionCommandTests
         {
             Pin = "approver pin",
         };
-        _command = new ApproveServiceAccountSessionCommand(_userService.Object, _userRepository.Object, new AccessAdapter(), httpContextAccessor.Object, _featureService.Object, _accessService.Object)
-            .WithRequest(_request);
+        _command = fixture.Create<ApproveServiceAccountSessionCommand>().WithRequest(_request);
 
         httpContextAccessor.Setup(a => a.HttpContext).Returns(_httpContext);
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _featureService.Setup(s => s.Get(FeatureLookup.ServiceAccountSessions, _token)).ReturnsAsync(() => _feature);
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        featureService.Setup(s => s.Get(FeatureLookup.ServiceAccountSessions, _token)).ReturnsAsync(() => _feature);
         _accessService.Setup(s => s.HasAccess(_user, AccessOption.LoginServiceAccounts, _token)).ReturnsAsync(true);
     }
 
@@ -130,12 +128,7 @@ public class ApproveServiceAccountSessionCommandTests
     [Test]
     public async Task ApplyUpdate_WhenPermitted_CannotCreateUserWithManageAccessPermission()
     {
-        _request.Access = new AccessDto
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            ManageAccess = true,
-#pragma warning restore CS0618 // Type or member is obsolete
-        };
+        _request.Access = [AccessOption.ManageAccess];
 
         var result = await _command.ApplyUpdate(_model, _token);
 
@@ -146,12 +139,7 @@ public class ApproveServiceAccountSessionCommandTests
     [Test]
     public async Task ApplyUpdate_WhenPermitted_CannotCreateUserWithLoginServiceAccountsPermission()
     {
-        _request.Access = new AccessDto
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            LoginServiceAccounts = true,
-#pragma warning restore CS0618 // Type or member is obsolete
-        };
+        _request.Access = [AccessOption.LoginServiceAccounts];
 
         var result = await _command.ApplyUpdate(_model, _token);
 
@@ -162,17 +150,12 @@ public class ApproveServiceAccountSessionCommandTests
     [Test]
     public async Task ApplyUpdate_WhenPermitted_SetsApproverPinAndCreatesUser()
     {
-        _request.Access = new AccessDto
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            ManageGames = true,
-#pragma warning restore CS0618 // Type or member is obsolete
-        };
+        _request.Access = [AccessOption.ManageGames];
 
         var result = await _command.ApplyUpdate(_model, _token);
 
         var transientUserName = $"{_model.Id}@couragescores.com";
-        _userRepository.Verify(u => u.UpsertUser(It.Is<User>(user => user.Access!.ManageGames == true
+        _userRepository.Verify(u => u.UpsertUser(It.Is<User>(user => user.AccessLevels.ContainsKey(AccessOption.ManageGames)
                                                                      && user.EmailAddress == transientUserName
                                                                      && user.GivenName == _model.FriendlyName
                                                                      && user.Name == _model.FriendlyName

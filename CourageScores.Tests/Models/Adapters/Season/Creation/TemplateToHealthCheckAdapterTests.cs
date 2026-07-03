@@ -22,7 +22,7 @@ public class TemplateToHealthCheckAdapterTests
         },
     };
 
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly TemplateToHealthCheckAdapter _adapter = new();
 
     [Test]

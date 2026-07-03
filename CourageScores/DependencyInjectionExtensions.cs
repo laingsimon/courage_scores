@@ -200,7 +200,6 @@ public static class DependencyInjectionExtensions
     {
         services.AddSingleton<IActionResultAdapter, ActionResultAdapter>();
         services.AddSingleton<ISimpleAdapter<User, UserDto>, UserAdapter>();
-        services.AddSingleton<ISimpleAdapter<Access, AccessDto>, AccessAdapter>();
         services.AddSingleton<IAccessLevelAdapter, AccessLevelAdapter>();
         services.AddSingleton<ITournamentTypeResolver, TournamentTypeResolver>();
 

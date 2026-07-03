@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Cosmos.Identity;
+﻿using AutoFixture;
+using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Repository;
@@ -14,13 +15,10 @@ namespace CourageScores.Tests.Services.Command;
 public class RejectServiceAccountSessionCommandTests
 {
     private readonly CancellationToken _token = CancellationToken.None;
-    private Mock<IUserService> _userService = null!;
     private UserDto? _user;
-    private Mock<IFeatureService> _featureService = null!;
     private ConfiguredFeatureDto _feature = null!;
     private ServiceAccountSession _model = null!;
     private RejectServiceAccountSessionDto _request = null!;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     private RejectServiceAccountSessionCommand _command = null!;
@@ -28,14 +26,15 @@ public class RejectServiceAccountSessionCommandTests
     [SetUp]
     public void SetupEachTest()
     {
+        var fixture = AutoFixture.Create();
         _user = new UserDto
         {
             Name = "approver",
         };
         _access = [AccessOption.LoginServiceAccounts];
-        _accessService = new Mock<IAccessService>();
-        _userService = new Mock<IUserService>();
-        _featureService = new Mock<IFeatureService>();
+        var accessService = fixture.FreezeMock<IAccessService>();
+        var userService = fixture.FreezeMock<IUserService>();
+        var featureService = fixture.FreezeMock<IFeatureService>();
         _feature = new ConfiguredFeatureDto { ConfiguredValue = "true" };
         _model = new ServiceAccountSession
         {
@@ -49,11 +48,11 @@ public class RejectServiceAccountSessionCommandTests
         {
             Reason = "rejecting request"
         };
-        _command = new RejectServiceAccountSessionCommand(_userService.Object, _featureService.Object, _accessService.Object).WithRequest(_request);
+        _command = fixture.Create<RejectServiceAccountSessionCommand>().WithRequest(_request);
 
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _featureService.Setup(s => s.Get(FeatureLookup.ServiceAccountSessions, _token)).ReturnsAsync(() => _feature);
-        _accessService
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        featureService.Setup(s => s.Get(FeatureLookup.ServiceAccountSessions, _token)).ReturnsAsync(() => _feature);
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
     }

@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Adapters.Division;
+﻿using AutoFixture;
+using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Division;
@@ -11,7 +12,7 @@ namespace CourageScores.Tests.Models.Adapters.Division;
 [TestFixture]
 public class DivisionPlayerAdapterTests
 {
-    private readonly CancellationToken _token = new();
+    private readonly CancellationToken _token = CancellationToken.None;
     private readonly DivisionData.PlayerPlayScore _singles = new()
     {
         MatchesPlayed = 1,
@@ -33,17 +34,17 @@ public class DivisionPlayerAdapterTests
     private readonly PlayerPerformanceDto _pairsDto = new();
     private readonly PlayerPerformanceDto _triplesDto = new();
     private DivisionPlayerAdapter _adapter = null!;
-    private Mock<IPlayerPerformanceAdapter> _performanceAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _performanceAdapter = new Mock<IPlayerPerformanceAdapter>();
-        _adapter = new DivisionPlayerAdapter(_performanceAdapter.Object);
+        var fixture = AutoFixture.Create();
+        var performanceAdapter = fixture.FreezeMock<IPlayerPerformanceAdapter>();
+        _adapter = fixture.Create<DivisionPlayerAdapter>();
 
-        _performanceAdapter.Setup(a => a.Adapt(_singles, _token)).ReturnsAsync(_singlesDto);
-        _performanceAdapter.Setup(a => a.Adapt(_pairs, _token)).ReturnsAsync(_pairsDto);
-        _performanceAdapter.Setup(a => a.Adapt(_triples, _token)).ReturnsAsync(_triplesDto);
+        performanceAdapter.Setup(a => a.Adapt(_singles, _token)).ReturnsAsync(_singlesDto);
+        performanceAdapter.Setup(a => a.Adapt(_pairs, _token)).ReturnsAsync(_pairsDto);
+        performanceAdapter.Setup(a => a.Adapt(_triples, _token)).ReturnsAsync(_triplesDto);
     }
 
     [Test]

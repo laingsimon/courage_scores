@@ -1,3 +1,4 @@
+using AutoFixture;
 using CourageScores.Common;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
@@ -20,23 +21,22 @@ public partial class GameServiceTests
 
     private readonly CancellationToken _token = CancellationToken.None;
     private GameDto? _game;
-    private Mock<IUserService> _userService = null!;
     private Mock<IGenericDataService<CosmosGame, GameDto>> _underlyingService = null!;
     private UserDto? _user;
     private GameService _service = null!;
     private Mock<IPermanentDeleteRepository<CosmosGame>> _deletableRepository = null!;
-    private Mock<IAccessService> _accessService = null!;
     private HashSet<AccessOption> _access = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _userService = new Mock<IUserService>();
+        var fixture = AutoFixture.Create();
+        var userService = fixture.FreezeMock<IUserService>();
         _access = [];
-        _accessService = new Mock<IAccessService>();
-        _underlyingService = new Mock<IGenericDataService<CosmosGame, GameDto>>();
-        _deletableRepository = new Mock<IPermanentDeleteRepository<CosmosGame>>();
-        _service = new GameService(_underlyingService.Object, _userService.Object, _deletableRepository.Object, _accessService.Object);
+        var accessService = fixture.FreezeMock<IAccessService>();
+        _underlyingService = fixture.FreezeMock<IGenericDataService<CosmosGame, GameDto>>();
+        _deletableRepository = fixture.FreezeMock<IPermanentDeleteRepository<CosmosGame>>();
+        _service = fixture.Create<GameService>();
         _game = new GameDto
         {
             Id = Guid.NewGuid(),
@@ -64,11 +64,11 @@ public partial class GameServiceTests
             AwaySubmission = new GameDto(),
         };
         _user = new UserDto();
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _underlyingService.Setup(s => s.Get(It.IsAny<Guid>(), _token)).ReturnsAsync(() => _game);
         _underlyingService.Setup(s => s.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_game));
         _underlyingService.Setup(s => s.GetWhere(It.IsAny<string>(), _token)).Returns(() => TestUtilities.AsyncEnumerable(_game));
-        _accessService
+        accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
     }
