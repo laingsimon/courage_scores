@@ -65,7 +65,7 @@ public class ServiceAccountSessionService : IServiceAccountSessionService
             }
 
             var user = await _userService.GetUser(token);
-            if (await _accessService.HasAccess(user, AccessOption.LoginServiceAccounts, token))
+            if (await _accessService.HasAccess(user, AccessOption.LoginServiceAccounts, UserAccessContext.Admin(), token))
             {
                 return session;
             }
@@ -98,7 +98,7 @@ public class ServiceAccountSessionService : IServiceAccountSessionService
         await _cleanupService.DeleteExpiredSessions(token);
 
         var user = await _userService.GetUser(token);
-        if (!await _accessService.HasAccess(user, AccessOption.LoginServiceAccounts, token))
+        if (!await _accessService.HasAccess(user, AccessOption.LoginServiceAccounts, UserAccessContext.Admin(), token))
         {
             yield break;
         }

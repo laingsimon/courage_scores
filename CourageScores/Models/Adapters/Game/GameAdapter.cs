@@ -54,8 +54,9 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
 
     public async Task<GameDto> Adapt(CosmosGame model, CancellationToken token)
     {
+        var context = UserAccessContext.ForTeam(model.SeasonId, model.DivisionId, model.Home.Id);
         var resultsPublished = model.Matches.Any(m => m.HomeScore > 0 && m.AwayScore > 0);
-        return await Adapt(model, resultsPublished, token);
+        return await Adapt(model, resultsPublished, context, token);
     }
 
     public async Task<CosmosGame> Adapt(GameDto dto, CancellationToken token)
@@ -82,7 +83,7 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
         }.AddAuditProperties(dto);
     }
 
-    private async Task<GameDto> Adapt(CosmosGame model, bool resultsPublished, CancellationToken token)
+    private async Task<GameDto> Adapt(CosmosGame model, bool resultsPublished, UserAccessContext context, CancellationToken token)
     {
         return new GameDto
         {
@@ -91,16 +92,16 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
             Date = model.Date,
             Home = await _gameTeamAdapter.Adapt(model.Home, token),
             Id = model.Id,
-            Matches = await AdaptMatches(model, token).ToList(),
+            Matches = await AdaptMatches(model, context, token).ToList(),
             DivisionId = model.DivisionId,
             SeasonId = model.SeasonId,
             Postponed = model.Postponed,
             IsKnockout = model.IsKnockout,
             HomeSubmission = model.HomeSubmission != null
-                ? await Adapt(model.HomeSubmission, resultsPublished, token)
+                ? await Adapt(model.HomeSubmission, resultsPublished, context, token)
                 : null,
             AwaySubmission = model.AwaySubmission != null
-                ? await Adapt(model.AwaySubmission, resultsPublished, token)
+                ? await Adapt(model.AwaySubmission, resultsPublished, context, token)
                 : null,
             ResultsPublished = resultsPublished,
             OneEighties = await model.OneEighties.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token))
@@ -113,11 +114,11 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
         }.AddAuditProperties(model);
     }
 
-    private async IAsyncEnumerable<GameMatchDto> AdaptMatches(CosmosGame model, [EnumeratorCancellation] CancellationToken token)
+    private async IAsyncEnumerable<GameMatchDto> AdaptMatches(CosmosGame model, UserAccessContext context, [EnumeratorCancellation] CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var canInputResultsForHomeOrAwayTeam = await _accessService.HasAccess(user, AccessOption.InputResults, token) && (user!.TeamId == model.Home.Id || user.TeamId == model.Away.Id);
-        var canRecordScoresForFixture = await _accessService.HasAccess(user, AccessOption.ManageScores, token) || canInputResultsForHomeOrAwayTeam;
+        var canInputResultsForHomeOrAwayTeam = await _accessService.HasAccess(user, AccessOption.InputResults, context, token) && (user!.TeamId == model.Home.Id || user.TeamId == model.Away.Id);
+        var canRecordScoresForFixture = await _accessService.HasAccess(user, AccessOption.ManageScores, context, token) || canInputResultsForHomeOrAwayTeam;
         var isRandomiseSinglesFeatureEnabled = await _featureService.GetFeatureValue(FeatureLookup.RandomisedSingles, token, false);
         var randomiseSingles = !canRecordScoresForFixture && isRandomiseSinglesFeatureEnabled;
         var obscureScores = !canRecordScoresForFixture && await ShouldObscureScores(model, token);

@@ -78,8 +78,9 @@ public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
             return Error("Game cannot be updated, not logged in");
         }
 
-        var manageScores = await _accessService.HasAccess(user, AccessOption.ManageScores, token);
-        var inputResults = await _accessService.HasAccess(user, AccessOption.InputResults, token);
+        var context = UserAccessContext.ForTeam(game.SeasonId, game.DivisionId, game.Home?.Id ?? throw new InvalidOperationException("Game has no home team"));
+        var manageScores = await _accessService.HasAccess(user, AccessOption.ManageScores, context, token);
+        var inputResults = await _accessService.HasAccess(user, AccessOption.InputResults, context, token);
         if (!(manageScores || inputResults && (user.TeamId == game.Home.Id || user.TeamId == game.Away.Id)))
         {
             return Error("Game cannot be updated, not permitted");
@@ -110,7 +111,7 @@ public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
             }
         }
 
-        if (await _accessService.HasAccess(user, AccessOption.ManageGames, token))
+        if (await _accessService.HasAccess(user, AccessOption.ManageGames, context, token))
         {
             result = result.Merge(await UpdateGameDetails(game, token));
             if (!result.Success)
@@ -229,6 +230,7 @@ public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
 
     private async Task<ActionResult<GameDto>> UpdateResults(CosmosGame game, CancellationToken token)
     {
+        var context = UserAccessContext.ForTeam(game.SeasonId, game.DivisionId, game.Home.Id);
         if (game.Updated != _scores!.LastUpdated)
         {
             return Warning(_scores.LastUpdated == null
@@ -243,7 +245,7 @@ public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
 
             if (currentMatch == null && updatedMatch != null)
             {
-                game.Matches.Add(await _updateScoresAdapter.AdaptToMatch(updatedMatch, token));
+                game.Matches.Add(await _updateScoresAdapter.AdaptToMatch(updatedMatch, context, token));
             }
             else if (updatedMatch == null && currentMatch != null)
             {
@@ -251,7 +253,7 @@ public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
             }
             else if (currentMatch != null && updatedMatch != null)
             {
-                game.Matches[index] = await _updateScoresAdapter.UpdateMatch(currentMatch, updatedMatch, token);
+                game.Matches[index] = await _updateScoresAdapter.UpdateMatch(currentMatch, updatedMatch, context, token);
             }
         }
 

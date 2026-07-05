@@ -122,8 +122,9 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
     private async Task<bool> ShouldObscureScores(CosmosGame game, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var canInputResultsForHomeOrAwayTeam = await _accessService.HasAccess(user, AccessOption.InputResults, token) && (user?.TeamId == game.Home.Id || user?.TeamId == game.Away.Id);
-        var canRecordScoresForFixture = await _accessService.HasAccess(user, AccessOption.ManageScores, token) || canInputResultsForHomeOrAwayTeam;
+        var context = UserAccessContext.ForTeam(game.SeasonId, game.DivisionId, game.Home.Id);
+        var canInputResultsForHomeOrAwayTeam = await _accessService.HasAccess(user, AccessOption.InputResults, context, token) && (user?.TeamId == game.Home.Id || user?.TeamId == game.Away.Id);
+        var canRecordScoresForFixture = await _accessService.HasAccess(user, AccessOption.ManageScores, context, token) || canInputResultsForHomeOrAwayTeam;
         if (canRecordScoresForFixture)
         {
             return false;

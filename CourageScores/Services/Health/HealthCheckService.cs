@@ -39,7 +39,8 @@ public class HealthCheckService : IHealthCheckService
     {
         var user = await _userService.GetUser(token);
 
-        if (!await _accessService.HasAccess(user, AccessOption.RunHealthChecks, token))
+        var context = UserAccessContext.ForSeason(seasonId);
+        if (!await _accessService.HasAccess(user, AccessOption.RunHealthChecks, context, token))
         {
             return new SeasonHealthCheckResultDto
             {

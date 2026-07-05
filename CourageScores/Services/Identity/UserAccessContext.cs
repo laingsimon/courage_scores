@@ -1,43 +1,62 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace CourageScores.Services.Identity;
 
 [ExcludeFromCodeCoverage]
 public class UserAccessContext
 {
+    public string? CallerMemberName { get; }
+    public string? CallerFilePath { get; }
+
+    public string? NotImplementedReason { get; private init; }
     public Guid? SeasonId { get; private init; }
     public Guid? DivisionId { get; private init; }
     public Guid? TeamId { get; private init; }
 
-    public static UserAccessContext Admin()
+    private UserAccessContext(string? callerMemberName, string? callerFilePath)
     {
-        return new UserAccessContext();
+        CallerMemberName = callerMemberName;
+        CallerFilePath = callerFilePath;
     }
 
-    public static UserAccessContext ForSeason(Guid seasonId)
+    public static UserAccessContext Admin([CallerMemberName] string? memberName = null, [CallerFilePath] string? callerFilePath = null)
     {
-        return new UserAccessContext
+        return new UserAccessContext(memberName, callerFilePath);
+    }
+
+    public static UserAccessContext ForSeason(Guid seasonId, [CallerMemberName] string? memberName = null, [CallerFilePath] string? callerFilePath = null)
+    {
+        return new UserAccessContext(memberName, callerFilePath)
         {
             SeasonId = seasonId,
         };
     }
 
-    public static UserAccessContext ForDivision(Guid seasonId, Guid divisionId)
+    public static UserAccessContext ForDivision(Guid seasonId, Guid divisionId, [CallerMemberName] string? memberName = null, [CallerFilePath] string? callerFilePath = null)
     {
-        return new UserAccessContext
+        return new UserAccessContext(memberName, callerFilePath)
         {
             SeasonId = seasonId,
             DivisionId = divisionId,
         };
     }
 
-    public static UserAccessContext ForTeam(Guid seasonId, Guid divisionId, Guid teamId)
+    public static UserAccessContext ForTeam(Guid seasonId, Guid divisionId, Guid teamId, [CallerMemberName] string? memberName = null, [CallerFilePath] string? callerFilePath = null)
     {
-        return new UserAccessContext
+        return new UserAccessContext(memberName, callerFilePath)
         {
             SeasonId = seasonId,
             DivisionId = divisionId,
             TeamId = teamId,
+        };
+    }
+
+    public static UserAccessContext NotImplemented(string reason, [CallerMemberName] string? memberName = null, [CallerFilePath] string? callerFilePath = null)
+    {
+        return new UserAccessContext(memberName, callerFilePath)
+        {
+            NotImplementedReason = reason,
         };
     }
 }

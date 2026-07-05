@@ -73,7 +73,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         var playerResults = await GetPlayers(divisionData, playerToTeamLookup, context, token).ToList();
         var teamResults = await GetTeams(divisionData, context, playerResults, token).ToList();
         var user = await _userService.GetUser(token);
-        var canShowDataErrors = await _accessService.HasAccess(user, AccessOption.ImportData, token);
+        var canShowDataErrors = await _accessService.HasAccess(user, AccessOption.ImportData, UserAccessContext.ForSeason(context.Season.Id), token);
 
         return new DivisionDataDto(_configuration["ProductName"])
         {
@@ -168,8 +168,9 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     private async Task<bool> ShouldObscureScores(CosmosGame game, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var canInputResultsForHomeOrAwayTeam = await _accessService.HasAccess(user, AccessOption.InputResults, token) && (user?.TeamId == game.Home.Id || user?.TeamId == game.Away.Id);
-        var canRecordScoresForFixture = await _accessService.HasAccess(user, AccessOption.ManageScores, token) || canInputResultsForHomeOrAwayTeam;
+        var context = UserAccessContext.ForTeam(game.SeasonId, game.DivisionId, game.Home.Id);
+        var canInputResultsForHomeOrAwayTeam = await _accessService.HasAccess(user, AccessOption.InputResults, context, token) && (user?.TeamId == game.Home.Id || user?.TeamId == game.Away.Id);
+        var canRecordScoresForFixture = await _accessService.HasAccess(user, AccessOption.ManageScores, context, token) || canInputResultsForHomeOrAwayTeam;
         if (canRecordScoresForFixture)
         {
             return false;
@@ -186,7 +187,11 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         DivisionDataContext context,
         CancellationToken token)
     {
-        if (!await _accessService.HasAccess(userDto, AccessOption.ManagePlayers, token))
+        var divisionId = context.Divisions.Count == 1 ? context.Divisions.FirstOrDefault().Value.Id : default(Guid?);
+        var userAccessContext = divisionId != null
+            ? UserAccessContext.ForDivision(context.Season.Id, divisionId.Value)
+            : UserAccessContext.ForSeason(context.Season.Id);
+        if (!await _accessService.HasAccess(userDto, AccessOption.ManagePlayers, userAccessContext, token))
         {
             return players;
         }

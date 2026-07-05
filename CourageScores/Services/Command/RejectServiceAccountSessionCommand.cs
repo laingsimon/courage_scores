@@ -36,7 +36,7 @@ public class RejectServiceAccountSessionCommand : IUpdateCommand<ServiceAccountS
             return Warning("Not logged in");
         }
 
-        if (!await _accessService.HasAccess(user, AccessOption.LoginServiceAccounts, token))
+        if (!await _accessService.HasAccess(user, AccessOption.LoginServiceAccounts, UserAccessContext.Admin(), token))
         {
             return Warning("Not permitted");
         }

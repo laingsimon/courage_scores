@@ -62,7 +62,7 @@ public class UserService : IUserService
     public async IAsyncEnumerable<UserDto> GetAll([EnumeratorCancellation] CancellationToken token)
     {
         var loggedInUser = await GetUser(token);
-        if (!await _accessService.HasAccess(loggedInUser, AccessOption.ManageAccess, token))
+        if (!await _accessService.HasAccess(loggedInUser, AccessOption.ManageAccess, UserAccessContext.Admin(), token))
         {
             yield break;
         }
@@ -81,7 +81,7 @@ public class UserService : IUserService
     public async Task<UserDto?> GetUser(string emailAddress, CancellationToken token)
     {
         var loggedInUser = await GetUser(token);
-        if (!await _accessService.HasAccess(loggedInUser, AccessOption.ManageAccess, token))
+        if (!await _accessService.HasAccess(loggedInUser, AccessOption.ManageAccess, UserAccessContext.Admin(), token))
         {
             return null;
         }
@@ -107,7 +107,7 @@ public class UserService : IUserService
             };
         }
 
-        if (!await _accessService.HasAccess(loggedInUser, AccessOption.ManageAccess, token))
+        if (!await _accessService.HasAccess(loggedInUser, AccessOption.ManageAccess, UserAccessContext.Admin(), token))
         {
             return new ActionResultDto<UserDto>
             {
@@ -135,7 +135,7 @@ public class UserService : IUserService
 
         userToUpdate = await _accessAdapter.AddAccess(userToUpdate, user, token);
 
-        if (loggedInUser.EmailAddress == user.EmailAddress && !await _accessService.HasAccess(userToUpdate, AccessOption.ManageAccess, token))
+        if (loggedInUser.EmailAddress == user.EmailAddress && !await _accessService.HasAccess(userToUpdate, AccessOption.ManageAccess, UserAccessContext.Admin(), token))
         {
             return new ActionResultDto<UserDto>
             {

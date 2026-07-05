@@ -79,7 +79,7 @@ public class FeatureService : IFeatureService
             return Warning("Not logged in");
         }
 
-        if (!await _accessService.HasAccess(user, AccessOption.ManageFeatures, token))
+        if (!await _accessService.HasAccess(user, AccessOption.ManageFeatures, UserAccessContext.Admin(), token))
         {
             return Warning("Not permitted");
         }
