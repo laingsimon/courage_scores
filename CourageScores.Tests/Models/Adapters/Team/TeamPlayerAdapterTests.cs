@@ -38,7 +38,7 @@ public class TeamPlayerAdapterTests
             Gender = Gender.Female,
         };
         _user = new UserDto();
-        _accessService.Setup(s => s.HasAccess(_user, AccessOption.ManageTeams, _token)).ReturnsAsync(true);
+        _accessService.Setup(s => s.HasAccess(_user, AccessOption.ManageTeams, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(true);
 
         var result = await _adapter.Adapt(model, _token);
 
@@ -72,7 +72,7 @@ public class TeamPlayerAdapterTests
             EmailAddress = "email@somewhere.com",
             Name = "name",
         };
-        _accessService.Setup(s => s.HasAccess(_user, AccessOption.ManageTeams, _token)).ReturnsAsync(false);
+        _accessService.Setup(s => s.HasAccess(_user, AccessOption.ManageTeams, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(false);
 
         var result = await _adapter.Adapt(model, _token);
 
@@ -87,7 +87,7 @@ public class TeamPlayerAdapterTests
             EmailAddress = "email@somewhere.com",
             Name = "name",
         };
-        _accessService.Setup(s => s.HasAccess(_user, AccessOption.ManageTeams, _token)).ReturnsAsync(false);
+        _accessService.Setup(s => s.HasAccess(_user, AccessOption.ManageTeams, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(false);
 
         var result = await _adapter.Adapt(model, _token);
 
@@ -107,8 +107,8 @@ public class TeamPlayerAdapterTests
             EmailAddress = "email@somewhere.com",
         };
         _user = new UserDto();
-        _accessService.Setup(s => s.HasAccess(_user, AccessOption.ManageTeams, _token)).ReturnsAsync(manageTeams);
-        _accessService.Setup(s => s.HasAccess(_user, AccessOption.ManageAccess, _token)).ReturnsAsync(manageAccess);
+        _accessService.Setup(s => s.HasAccess(_user, AccessOption.ManageTeams, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(manageTeams);
+        _accessService.Setup(s => s.HasAccess(_user, AccessOption.ManageAccess, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(manageAccess);
         _user.EmailAddress = emailAddress ?? "other@somewhere.com";
 
         var result = await _adapter.Adapt(model, _token);

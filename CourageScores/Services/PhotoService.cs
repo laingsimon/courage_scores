@@ -38,7 +38,8 @@ public class PhotoService : IPhotoService
     public async Task<ActionResult<PhotoReference>> Upsert(Photo photo, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        if (!await _accessService.HasAccess(user, AccessOption.UploadPhotos, token))
+        var context = UserAccessContext.NotImplemented("seasonId, divisionId, teamId are not accessible");
+        if (!await _accessService.HasAccess(user, AccessOption.UploadPhotos, context, token))
         {
             return Warning<PhotoReference>("Not permitted");
         }
@@ -83,8 +84,9 @@ public class PhotoService : IPhotoService
     public async Task<Photo?> GetPhoto(Guid id, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var canViewAllPhotos = await _accessService.HasAccess(user, AccessOption.ViewAnyPhoto, token);
-        var canViewOwnPhoto = await _accessService.HasAccess(user, AccessOption.UploadPhotos, token);
+        var context = UserAccessContext.NotImplemented("seasonId, divisionId, teamId are not accessible");
+        var canViewAllPhotos = await _accessService.HasAccess(user, AccessOption.ViewAnyPhoto, context, token);
+        var canViewOwnPhoto = await _accessService.HasAccess(user, AccessOption.UploadPhotos, context, token);
 
         if (!canViewAllPhotos && !canViewOwnPhoto)
         {
@@ -110,8 +112,9 @@ public class PhotoService : IPhotoService
     public async Task<ActionResult<Photo>> Delete(Guid id, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var canDeleteAnyPhoto = await _accessService.HasAccess(user, AccessOption.DeleteAnyPhoto, token);
-        var canDeleteOwnPhoto = await _accessService.HasAccess(user, AccessOption.UploadPhotos, token);
+        var context = UserAccessContext.NotImplemented("seasonId, divisionId, teamId are not accessible");
+        var canDeleteAnyPhoto = await _accessService.HasAccess(user, AccessOption.DeleteAnyPhoto, context, token);
+        var canDeleteOwnPhoto = await _accessService.HasAccess(user, AccessOption.UploadPhotos, context, token);
 
         if (!canDeleteOwnPhoto && !canDeleteAnyPhoto)
         {

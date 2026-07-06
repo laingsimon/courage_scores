@@ -18,7 +18,8 @@ public class TeamPlayerAdapter : IAdapter<TeamPlayer, TeamPlayerDto>
 
     public async Task<TeamPlayerDto> Adapt(TeamPlayer model, CancellationToken token)
     {
-        var canShowEmailAddress = await CanShowEmailAddress(model, token);
+        var context = UserAccessContext.NotImplemented("seasonId, divisionId, teamId are not accessible");
+        var canShowEmailAddress = await CanShowEmailAddress(model, context, token);
 
         return new TeamPlayerDto
         {
@@ -44,7 +45,7 @@ public class TeamPlayerAdapter : IAdapter<TeamPlayer, TeamPlayerDto>
         }.AddAuditProperties(dto));
     }
 
-    private async Task<bool> CanShowEmailAddress(TeamPlayer player, CancellationToken token)
+    private async Task<bool> CanShowEmailAddress(TeamPlayer player, UserAccessContext userAccessContext, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
         if (user == null)
@@ -52,8 +53,8 @@ public class TeamPlayerAdapter : IAdapter<TeamPlayer, TeamPlayerDto>
             return false;
         }
 
-        return await _accessService.HasAccess(user, AccessOption.ManageAccess, token)
-            || await _accessService.HasAccess(user, AccessOption.ManageTeams, token)
+        return await _accessService.HasAccess(user, AccessOption.ManageAccess, userAccessContext, token)
+            || await _accessService.HasAccess(user, AccessOption.ManageTeams, userAccessContext, token)
             || player.EmailAddress == user.EmailAddress;
     }
 }

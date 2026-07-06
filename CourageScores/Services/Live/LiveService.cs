@@ -47,7 +47,7 @@ public class LiveService : ILiveService
     public async Task Accept(WebSocket webSocket, string originatingUrl, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        if (!await _accessService.HasAccess(user, AccessOption.UseWebSockets, UserAccessContext.Admin(), token))
+        if (!await _accessService.HasAccess(user, AccessOption.UseWebSockets, UserAccessContext.None(), token))
         {
             return;
         }
@@ -65,7 +65,7 @@ public class LiveService : ILiveService
             return Error<List<WebSocketDto>>("Not logged in");
         }
 
-        if (!await _accessService.HasAccess(user, AccessOption.ManageSockets, UserAccessContext.Admin(), token))
+        if (!await _accessService.HasAccess(user, AccessOption.ManageSockets, UserAccessContext.None(), token))
         {
             return Error<List<WebSocketDto>>("Not permitted");
         }
@@ -85,7 +85,7 @@ public class LiveService : ILiveService
             return Error<WebSocketDto>("Not logged in");
         }
 
-        if (!await _accessService.HasAccess(user, AccessOption.ManageSockets, UserAccessContext.Admin(), token))
+        if (!await _accessService.HasAccess(user, AccessOption.ManageSockets, UserAccessContext.None(), token))
         {
             return Error<WebSocketDto>("Not permitted");
         }

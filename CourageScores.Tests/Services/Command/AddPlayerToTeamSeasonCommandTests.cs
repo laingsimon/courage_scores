@@ -59,8 +59,8 @@ public class AddPlayerToTeamSeasonCommandTests
         _addSeasonToTeamCommand.Setup(c => c.ForDivision(_division.Id)).Returns(_addSeasonToTeamCommand.Object);
         commandFactory.Setup(f => f.GetCommand<AddSeasonToTeamCommand>()).Returns(_addSeasonToTeamCommand.Object);
         accessService
-            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
-            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), It.IsAny<UserAccessContext>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, UserAccessContext _, CancellationToken _) => _access.Contains(access));
     }
 
     [Test]

@@ -43,8 +43,8 @@ public class UpdateScoresAdapterTests
         _user = new UserDto();
         userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         accessService
-            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
-            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), It.IsAny<UserAccessContext>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, UserAccessContext _, CancellationToken _) => _user != null && _access.Contains(access));
     }
 
     [Test]
@@ -121,7 +121,7 @@ public class UpdateScoresAdapterTests
             Sayg = SaygDto,
         };
 
-        var result = await _adapter.AdaptToMatch(inputMatch, _token);
+        var result = await _adapter.AdaptToMatch(inputMatch, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.Not.EqualTo(Guid.Empty));
         Assert.That(result.HomePlayers.Select(p => p.Id), Is.EqualTo([HomePlayerDto.Id]));
@@ -145,7 +145,7 @@ public class UpdateScoresAdapterTests
             Sayg = SaygDto,
         };
 
-        var result = await _adapter.AdaptToMatch(inputMatch, _token);
+        var result = await _adapter.AdaptToMatch(inputMatch, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.Not.EqualTo(Guid.Empty));
         Assert.That(result.HomePlayers.Select(p => p.Id), Is.EqualTo([HomePlayerDto.Id]));
@@ -168,7 +168,7 @@ public class UpdateScoresAdapterTests
             Sayg = SaygDto,
         };
 
-        var result = await _adapter.AdaptToMatch(inputMatch, _token);
+        var result = await _adapter.AdaptToMatch(inputMatch, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.Not.EqualTo(Guid.Empty));
         Assert.That(result.HomePlayers.Select(p => p.Id), Is.EqualTo([HomePlayerDto.Id]));
@@ -206,7 +206,7 @@ public class UpdateScoresAdapterTests
             Sayg = SaygDto,
         };
 
-        var result = await _adapter.UpdateMatch(currentMatch, updatedMatch, _token);
+        var result = await _adapter.UpdateMatch(currentMatch, updatedMatch, UserAccessContext.None(), _token);
 
         Assert.That(result.Author, Is.EqualTo("AUTHOR"));
         Assert.That(result.Created, Is.EqualTo(new DateTime(2001, 02, 03)));
@@ -249,7 +249,7 @@ public class UpdateScoresAdapterTests
             Sayg = SaygDto,
         };
 
-        var result = await _adapter.UpdateMatch(currentMatch, updatedMatch, _token);
+        var result = await _adapter.UpdateMatch(currentMatch, updatedMatch, UserAccessContext.None(), _token);
 
         Assert.That(result.Author, Is.EqualTo("AUTHOR"));
         Assert.That(result.Created, Is.EqualTo(new DateTime(2001, 02, 03)));
@@ -291,7 +291,7 @@ public class UpdateScoresAdapterTests
             Sayg = SaygDto,
         };
 
-        var result = await _adapter.UpdateMatch(currentMatch, updatedMatch, _token);
+        var result = await _adapter.UpdateMatch(currentMatch, updatedMatch, UserAccessContext.None(), _token);
 
         Assert.That(result.Author, Is.EqualTo("AUTHOR"));
         Assert.That(result.Created, Is.EqualTo(new DateTime(2001, 02, 03)));
@@ -325,7 +325,7 @@ public class UpdateScoresAdapterTests
             Sayg = SaygDto,
         };
 
-        var result = await _adapter.UpdateMatch(currentMatch, updatedMatch, _token);
+        var result = await _adapter.UpdateMatch(currentMatch, updatedMatch, UserAccessContext.None(), _token);
 
         Assert.That(currentMatch.Sayg, Is.Null);
         Assert.That(updatedMatch.Sayg, Is.Null);

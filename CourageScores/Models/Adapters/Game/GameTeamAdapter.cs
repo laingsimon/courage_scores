@@ -19,8 +19,9 @@ public class GameTeamAdapter : IAdapter<GameTeam, GameTeamDto>
     public async Task<GameTeamDto> Adapt(GameTeam model, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var isAdmin = await _accessService.HasAccess(user, AccessOption.ManageScores, token);
-        var inputResults = await _accessService.HasAccess(user, AccessOption.InputResults, token);
+        var context = UserAccessContext.NotImplemented(/*seasonId, divisionId, model.Id*/ "seasonId and divisionId are not accessible");
+        var isAdmin = await _accessService.HasAccess(user, AccessOption.ManageScores, context, token);
+        var inputResults = await _accessService.HasAccess(user, AccessOption.InputResults, context, token);
         var isAbleToInputForThisTeam = inputResults && user?.TeamId == model.Id;
 
         return new GameTeamDto

@@ -65,7 +65,8 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
         CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var userAccess = new UserAccessService(_accessService, user);
+        var context = UserAccessContext.NotImplemented("seasonId, divisionId & teamId are not accessible");
+        var userAccess = new UserAccessService(_accessService, context, user);
 
         if (user == null && updateCommand.RequiresLogin)
         {
@@ -126,7 +127,8 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
             return await _actionResultAdapter.Warning<TDto>("Not logged in");
         }
 
-        var userAccess = new UserAccessService(_accessService, user);
+        var context = UserAccessContext.NotImplemented("seasonId, divisionId & teamId are not accessible");
+        var userAccess = new UserAccessService(_accessService, context, user);
         var item = await _repository.Get(id, token);
 
         if (item == null)

@@ -37,7 +37,8 @@ public class TournamentMatchAdapter : IAdapter<TournamentMatch, TournamentMatchD
     public async Task<TournamentMatch> Adapt(TournamentMatchDto dto, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var permitted = await _accessService.HasAccess(user, AccessOption.RecordScoresAsYouGo, token);
+        var context = UserAccessContext.NotImplemented("seasonId, divisionId, teamId are not accessible");
+        var permitted = await _accessService.HasAccess(user, AccessOption.RecordScoresAsYouGo, context, token);
 
         return new TournamentMatch
         {

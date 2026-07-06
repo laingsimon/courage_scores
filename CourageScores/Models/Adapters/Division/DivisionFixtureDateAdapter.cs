@@ -43,7 +43,8 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var canCreateTournaments = await _accessService.HasAccess(user, AccessOption.ManageTournaments, token);
+        var context = UserAccessContext.NotImplemented(/*season.Id, divisionId*/ "divisionId is not accessible");
+        var canCreateTournaments = await _accessService.HasAccess(user, AccessOption.ManageTournaments, context, token);
         var includeFixtureProposals = !tournamentGamesForDate.Any() && includeProposals;
 
         return new DivisionFixtureDateDto

@@ -20,7 +20,7 @@ public class UserAccessContext
         CallerFilePath = callerFilePath;
     }
 
-    public static UserAccessContext Admin([CallerMemberName] string? memberName = null, [CallerFilePath] string? callerFilePath = null)
+    public static UserAccessContext None([CallerMemberName] string? memberName = null, [CallerFilePath] string? callerFilePath = null)
     {
         return new UserAccessContext(memberName, callerFilePath);
     }

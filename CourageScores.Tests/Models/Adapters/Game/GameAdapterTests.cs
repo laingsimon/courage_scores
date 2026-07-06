@@ -78,8 +78,8 @@ public class GameAdapterTests
         clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
         random.Setup(r => r.Next()).Returns(() => _randomValues.Dequeue());
         accessService
-            .Setup(s => s.HasAccess(_user, It.IsAny<AccessOption>(), _token))
-            .ReturnsAsync((UserDto _, AccessOption access, CancellationToken _) => _access.Contains(access));
+            .Setup(s => s.HasAccess(_user, It.IsAny<AccessOption>(), It.IsAny<UserAccessContext>(), _token))
+            .ReturnsAsync((UserDto _, AccessOption access, UserAccessContext _, CancellationToken _) => _access.Contains(access));
     }
 
     [Test]
@@ -125,6 +125,7 @@ public class GameAdapterTests
     public async Task Adapt_GivenPublishedModel_SetPropertiesCorrectly()
     {
         var model = new GameBuilder()
+            .WithTeams(HomeTeam, AwayTeam)
             .WithMatch(PublishedGameMatch)
             .WithMatchOption(MatchOption)
             .Build();

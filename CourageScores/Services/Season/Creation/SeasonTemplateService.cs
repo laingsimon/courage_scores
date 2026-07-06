@@ -137,7 +137,7 @@ public class SeasonTemplateService : ISeasonTemplateService
             return Error<SeasonHealthCheckResultDto>("Not logged in");
         }
 
-        if (!await _accessService.HasAccess(user, AccessOption.ManageSeasonTemplates, UserAccessContext.Admin(), token))
+        if (!await _accessService.HasAccess(user, AccessOption.ManageSeasonTemplates, UserAccessContext.None(), token))
         {
             return Error<SeasonHealthCheckResultDto>("Not permitted");
         }

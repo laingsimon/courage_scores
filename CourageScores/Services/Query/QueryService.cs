@@ -38,7 +38,7 @@ public class QueryService : IQueryService
             return Warning("Not logged in");
         }
 
-        if (!await _accessService.HasAccess(user, AccessOption.RunDataQueries, UserAccessContext.Admin(), token))
+        if (!await _accessService.HasAccess(user, AccessOption.RunDataQueries, UserAccessContext.None(), token))
         {
             return Warning("Not permitted");
         }

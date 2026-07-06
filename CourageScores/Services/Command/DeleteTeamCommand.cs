@@ -41,7 +41,8 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
 
         var user = await _userService.GetUser(token);
 
-        if (!await _accessService.HasAccess(user, AccessOption.ManageTeams, token))
+        var context = UserAccessContext.NotImplemented(/*_seasonId!.Value, divisionId, model.Id*/ "divisionId is not accessible");
+        if (!await _accessService.HasAccess(user, AccessOption.ManageTeams, context, token))
         {
             return new ActionResult<Models.Cosmos.Team.Team>
             {
@@ -87,7 +88,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
             };
         }
 
-        var userAccess = new UserAccessService(_accessService, user);
+        var userAccess = new UserAccessService(_accessService, context, user);
         if (await model.CanDelete(userAccess, token) && _deleteIfNoSeasonsAssigned)
         {
             if (!matchingSeasons.Any())

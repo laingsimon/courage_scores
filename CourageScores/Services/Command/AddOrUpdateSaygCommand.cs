@@ -28,7 +28,7 @@ public class AddOrUpdateSaygCommand : AddOrUpdateCommand<RecordedScoreAsYouGo, U
     protected override async Task<ActionResult<RecordedScoreAsYouGo>> ApplyUpdates(RecordedScoreAsYouGo model, UpdateRecordedScoreAsYouGoDto update, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var context = UserAccessContext.Admin(); // TODO: Is this right?
+        var context = UserAccessContext.None();
         if ((model.TournamentMatchId ?? update.TournamentMatchId) != null && !await _accessService.HasAccess(user, AccessOption.RecordScoresAsYouGo, context, token))
         {
             return new ActionResult<RecordedScoreAsYouGo>

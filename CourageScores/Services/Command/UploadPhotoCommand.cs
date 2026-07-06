@@ -34,7 +34,8 @@ public class UploadPhotoCommand<T> : IUpdateCommand<T, T>
         _photo.ThrowIfNull($"{nameof(WithPhoto)} must be called first");
 
         var user = await _userService.GetUser(token);
-        if (!await _accessService.HasAccess(user, AccessOption.UploadPhotos, token))
+        var context = UserAccessContext.NotImplemented("seasonId, divisionId, teamId are not accessible");
+        if (!await _accessService.HasAccess(user, AccessOption.UploadPhotos, context, token))
         {
             return new ActionResult<T>
             {

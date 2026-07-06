@@ -57,7 +57,7 @@ public class DataService : IDataService
             return Unsuccessful<ExportDataResultDto>("Not logged in");
         }
 
-        if (!await _accessService.HasAccess(user, AccessOption.ExportData, UserAccessContext.Admin(), token))
+        if (!await _accessService.HasAccess(user, AccessOption.ExportData, UserAccessContext.None(), token))
         {
             return Unsuccessful<ExportDataResultDto>("Not permitted");
         }
@@ -73,7 +73,7 @@ public class DataService : IDataService
             return Unsuccessful<ImportDataResultDto>("Not logged in");
         }
 
-        if (!await _accessService.HasAccess(user, AccessOption.ImportData, UserAccessContext.Admin(), token))
+        if (!await _accessService.HasAccess(user, AccessOption.ImportData, UserAccessContext.None(), token))
         {
             return Unsuccessful<ImportDataResultDto>("Not permitted");
         }
@@ -133,7 +133,7 @@ public class DataService : IDataService
             return Unsuccessful<IReadOnlyCollection<SingleDataResultDto>>("Not logged in");
         }
 
-        if (!await _accessService.HasAccess(user, AccessOption.ExportData, UserAccessContext.Admin(), token))
+        if (!await _accessService.HasAccess(user, AccessOption.ExportData, UserAccessContext.None(), token))
         {
             return Unsuccessful<IReadOnlyCollection<SingleDataResultDto>>("Not permitted");
         }
@@ -164,7 +164,7 @@ public class DataService : IDataService
             return Unsuccessful<object>("Not logged in");
         }
 
-        if (!await _accessService.HasAccess(user, AccessOption.ExportData, UserAccessContext.Admin(), token))
+        if (!await _accessService.HasAccess(user, AccessOption.ExportData, UserAccessContext.None(), token))
         {
             return Unsuccessful<object>("Not permitted");
         }
