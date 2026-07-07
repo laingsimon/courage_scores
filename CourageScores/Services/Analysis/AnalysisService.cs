@@ -42,7 +42,7 @@ public class AnalysisService : IAnalysisService
 
 
         var user = await _userService.GetUser(token);
-        var context = UserAccessContext.NotImplemented("seasonId, divisionId are not accessible");
+        var context = UserAccessContext.None();
         if (!await _accessService.HasAccess(user, AccessOption.AnalyseMatches, context, token))
         {
             result.Warnings.Add(user == null
