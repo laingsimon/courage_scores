@@ -80,10 +80,9 @@ public class PhotoService : IPhotoService
         };
     }
 
-    public async Task<Photo?> GetPhoto(Guid id, CancellationToken token)
+    public async Task<Photo?> GetPhoto(Guid id, UserAccessContext context, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var context = UserAccessContext.NotImplemented("seasonId, divisionId, teamId are not accessible");
         var canViewAllPhotos = await _accessService.HasAccess(user, AccessOption.ViewAnyPhoto, context, token);
         var canViewOwnPhoto = await _accessService.HasAccess(user, AccessOption.UploadPhotos, context, token);
 

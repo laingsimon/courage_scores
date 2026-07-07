@@ -199,7 +199,7 @@ public class PhotoServiceTests
     {
         _user = null;
 
-        var result = await _service.GetPhoto(_existingPhoto.Id, _token);
+        var result = await _service.GetPhoto(_existingPhoto.Id, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Null);
     }
@@ -210,7 +210,7 @@ public class PhotoServiceTests
         _access = _access.With(AccessOption.UploadPhotos);
         _existingPhoto.Author = "ANOTHER USER";
 
-        var result = await _service.GetPhoto(_existingPhoto.Id, _token);
+        var result = await _service.GetPhoto(_existingPhoto.Id, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Null);
     }
@@ -221,7 +221,7 @@ public class PhotoServiceTests
         _featureState.ConfiguredValue = "false";
         _access = _access.With(AccessOption.UploadPhotos);
 
-        var result = await _service.GetPhoto(_existingPhoto.Id, _token);
+        var result = await _service.GetPhoto(_existingPhoto.Id, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Null);
     }
@@ -232,7 +232,7 @@ public class PhotoServiceTests
         _access = _access.With(AccessOption.UploadPhotos);
         _existingPhoto.Author = _user!.Name;
 
-        var result = await _service.GetPhoto(_existingPhoto.Id, _token);
+        var result = await _service.GetPhoto(_existingPhoto.Id, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.EqualTo(_existingPhoto));
     }
@@ -244,7 +244,7 @@ public class PhotoServiceTests
         var id = Guid.NewGuid();
         _photoRepository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => null);
 
-        var result = await _service.GetPhoto(id, _token);
+        var result = await _service.GetPhoto(id, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Null);
     }
@@ -255,7 +255,7 @@ public class PhotoServiceTests
         _access = _access.With(AccessOption.UploadPhotos, AccessOption.ViewAnyPhoto);
         _photo.Author = "ANOTHER USER";
 
-        var result = await _service.GetPhoto(_existingPhoto.Id, _token);
+        var result = await _service.GetPhoto(_existingPhoto.Id, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.EqualTo(_existingPhoto));
     }
