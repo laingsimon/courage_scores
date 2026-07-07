@@ -1,11 +1,13 @@
 using CourageScores.Filters;
 using CourageScores.Models;
+using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services.Identity;
+using CosmosTeam = CourageScores.Models.Cosmos.Team.Team;
 
 namespace CourageScores.Services.Command;
 
-public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.Cosmos.Team.Team>
+public class DeleteTeamCommand : IUpdateCommand<CosmosTeam, CosmosTeam>
 {
     private readonly IAuditingHelper _auditingHelper;
     private readonly ScopedCacheManagementFlags _cacheFlags;
@@ -22,13 +24,13 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
         _accessService = accessService;
     }
 
-    public async Task<ActionResult<Models.Cosmos.Team.Team>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
+    public async Task<ActionResult<CosmosTeam>> ApplyUpdate(CosmosTeam model, CancellationToken token)
     {
         _seasonId.ThrowIfNull($"SeasonId hasn't been set, ensure {nameof(FromSeason)} is called");
 
         if (model.Deleted != null)
         {
-            return new ActionResult<Models.Cosmos.Team.Team>
+            return new ActionResult<CosmosTeam>
             {
                 Success = true,
                 Errors =
@@ -41,10 +43,9 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
 
         var user = await _userService.GetUser(token);
 
-        var context = UserAccessContext.NotImplemented(/*_seasonId!.Value, divisionId, model.Id*/ "divisionId is not accessible");
-        if (!await _accessService.HasAccess(user, AccessOption.ManageTeams, context, token))
+        if (!await _accessService.HasAccess(user, AccessOption.ManageTeams, UserAccessContext.None(), token))
         {
-            return new ActionResult<Models.Cosmos.Team.Team>
+            return new ActionResult<CosmosTeam>
             {
                 Success = false,
                 Errors =
@@ -56,16 +57,22 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
         }
 
         var matchingSeasons = model.Seasons.Where(ts => ts.SeasonId == _seasonId!.Value && ts.Deleted == null).ToList();
+        var deletedTeamSeasons = new List<TeamSeason>();
         foreach (var matchingSeason in matchingSeasons)
         {
-            await _auditingHelper.SetDeleted(matchingSeason, token);
+            var teamSeasonContext = UserAccessContext.ForTeam(_seasonId!.Value, matchingSeason.DivisionId, model.Id);
+            if (await _accessService.HasAccess(user, AccessOption.ManageTeams, teamSeasonContext, token))
+            {
+                await _auditingHelper.SetDeleted(matchingSeason, token);
+                deletedTeamSeasons.Add(matchingSeason);
+            }
         }
 
         if (model.Seasons.Any(ts => ts.Deleted == null))
         {
-            if (!matchingSeasons.Any())
+            if (matchingSeasons.Count == 0)
             {
-                return new ActionResult<Models.Cosmos.Team.Team>
+                return new ActionResult<CosmosTeam>
                 {
                     Success = false,
                     Warnings =
@@ -77,24 +84,23 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
             }
 
             _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId!.Value;
-            return new ActionResult<Models.Cosmos.Team.Team>
+            return new ActionResult<CosmosTeam>
             {
                 Success = true,
                 Messages =
                 {
-                    $"Removed team from {matchingSeasons.Count} season/s",
+                    $"Removed team from {deletedTeamSeasons.Count} season/s",
                 },
                 Result = model,
             };
         }
 
-        var userAccess = new UserAccessService(_accessService, context, user);
-        if (await model.CanDelete(userAccess, token) && _deleteIfNoSeasonsAssigned)
+        if (await _accessService.HasAccess(user, AccessOption.ManageTeams, UserAccessContext.ForSeason(_seasonId!.Value), token) && _deleteIfNoSeasonsAssigned)
         {
-            if (!matchingSeasons.Any())
+            if (deletedTeamSeasons.Count == 0)
             {
                 _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId!.Value;
-                return new ActionResult<Models.Cosmos.Team.Team>
+                return new ActionResult<CosmosTeam>
                 {
                     Success = true,
                     Messages =
@@ -107,12 +113,12 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
             }
 
             _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId!.Value;
-            return new ActionResult<Models.Cosmos.Team.Team>
+            return new ActionResult<CosmosTeam>
             {
                 Success = true,
                 Messages =
                 {
-                    $"Removed team from {matchingSeasons.Count} season/s, and team deleted",
+                    $"Removed team from {deletedTeamSeasons.Count} season/s, and team deleted",
                 },
                 Result = model,
                 Delete = true,
@@ -121,14 +127,14 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
 
         _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId!.Value;
 
-        return new ActionResult<Models.Cosmos.Team.Team>
+        return new ActionResult<CosmosTeam>
         {
-            Success = !_deleteIfNoSeasonsAssigned || matchingSeasons.Any(),
+            Success = !_deleteIfNoSeasonsAssigned || deletedTeamSeasons.Any(),
             Messages =
             {
                 _deleteIfNoSeasonsAssigned
-                    ? $"Removed team from {matchingSeasons.Count} season/s, not permitted to delete the team entirely"
-                    : $"Removed team from {matchingSeasons.Count} season/s",
+                    ? $"Removed team from {deletedTeamSeasons.Count} season/s, not permitted to delete the team entirely"
+                    : $"Removed team from {deletedTeamSeasons.Count} season/s",
             },
             Result = model,
         };
