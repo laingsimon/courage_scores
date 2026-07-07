@@ -69,7 +69,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             };
         }
 
-        var context = UserAccessContext.NotImplemented(/*_seasonId!.Value, divisionId, model.Id*/ "divisionId is not accessible");
+        var context = UserAccessContext.ForSeason(_seasonId!.Value);
         var canManageTeams = await _accessService.HasAccess(user, AccessOption.ManageTeams, context, token);
         var canInputResultsForTeam = await _accessService.HasAccess(user, AccessOption.InputResults, context, token) && user.TeamId == model.Id;
         if (!canManageTeams && !canInputResultsForTeam)
