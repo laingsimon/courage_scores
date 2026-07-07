@@ -165,6 +165,11 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable, IPhotoEn
         return await userAccess.HasAccess(AccessOption.ManageGames, token);
     }
 
+    public UserAccessContext GetUserAccessContext()
+    {
+        return UserAccessContext.ForTeam(SeasonId, DivisionId, Home.Id);
+    }
+
     private class GameScoreVisitor : IGameVisitor, IGameVisitable
     {
         private readonly GameTeam _away;

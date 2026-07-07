@@ -35,10 +35,9 @@ public class PhotoService : IPhotoService
         _accessService = accessService;
     }
 
-    public async Task<ActionResult<PhotoReference>> Upsert(Photo photo, CancellationToken token)
+    public async Task<ActionResult<PhotoReference>> Upsert(Photo photo, UserAccessContext context, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var context = UserAccessContext.NotImplemented("seasonId, divisionId, teamId are not accessible");
         if (!await _accessService.HasAccess(user, AccessOption.UploadPhotos, context, token))
         {
             return Warning<PhotoReference>("Not permitted");
@@ -109,10 +108,9 @@ public class PhotoService : IPhotoService
             : null;
     }
 
-    public async Task<ActionResult<Photo>> Delete(Guid id, CancellationToken token)
+    public async Task<ActionResult<Photo>> Delete(Guid id, UserAccessContext context, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var context = UserAccessContext.NotImplemented("seasonId, divisionId, teamId are not accessible");
         var canDeleteAnyPhoto = await _accessService.HasAccess(user, AccessOption.DeleteAnyPhoto, context, token);
         var canDeleteOwnPhoto = await _accessService.HasAccess(user, AccessOption.UploadPhotos, context, token);
 

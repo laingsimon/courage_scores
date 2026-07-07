@@ -73,4 +73,11 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
     {
         return await userAccess.HasAccess(AccessOption.ManageTournaments, token);
     }
+
+    public UserAccessContext GetUserAccessContext()
+    {
+        return DivisionId != null
+            ? UserAccessContext.ForDivision(SeasonId, DivisionId.Value)
+            : UserAccessContext.ForSeason(SeasonId);
+    }
 }

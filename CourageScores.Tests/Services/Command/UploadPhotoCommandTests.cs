@@ -1,6 +1,7 @@
 using AutoFixture;
 using CourageScores.Models;
 using CourageScores.Models.Cosmos;
+using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services;
 using CourageScores.Services.Command;
@@ -36,6 +37,7 @@ public class UploadPhotoCommandTests
         _game = new CosmosGame
         {
             Id = Guid.NewGuid(),
+            Home = new GameTeam(),
         };
         _photo = fixture.FreezeMock<IFormFile>();
         fixture.Register<IPhotoSettings>(() => new MutablePhotoSettings
@@ -98,7 +100,7 @@ public class UploadPhotoCommandTests
         var unsuccessful = new ActionResult<PhotoReference>(); // success = false
         var photo = new Parameter<Photo>();
         _photoService
-            .Setup(s => s.Upsert(It.Is<Photo>(p => photo.Capture(p)), _token))
+            .Setup(s => s.Upsert(It.Is<Photo>(p => photo.Capture(p)), It.IsAny<UserAccessContext>(), _token))
             .ReturnsAsync(unsuccessful);
         var teamId = Guid.NewGuid();
         var fileName = "FILE.png";
@@ -109,7 +111,7 @@ public class UploadPhotoCommandTests
 
         await _command.ApplyUpdate(_game, _token);
 
-        _photoService.Verify(s => s.Upsert(It.IsAny<Photo>(), _token));
+        _photoService.Verify(s => s.Upsert(It.IsAny<Photo>(), It.IsAny<UserAccessContext>(), _token));
         Assert.That(photo.Value!.Id, Is.Not.EqualTo(Guid.Empty));
         Assert.That(photo.Value!.TeamId, Is.EqualTo(teamId));
         Assert.That(photo.Value!.ContentType, Is.EqualTo(contentType));
@@ -127,7 +129,7 @@ public class UploadPhotoCommandTests
             Warnings = { "UNSUCCESSFUL" },
         };
         _photoService
-            .Setup(s => s.Upsert(It.IsAny<Photo>(), _token))
+            .Setup(s => s.Upsert(It.IsAny<Photo>(), It.IsAny<UserAccessContext>(), _token))
             .ReturnsAsync(unsuccessful);
 
         var result = await _command.ApplyUpdate(_game, _token);
@@ -150,7 +152,7 @@ public class UploadPhotoCommandTests
             Result = photoReference,
         };
         _photoService
-            .Setup(s => s.Upsert(It.IsAny<Photo>(), _token))
+            .Setup(s => s.Upsert(It.IsAny<Photo>(), It.IsAny<UserAccessContext>(), _token))
             .ReturnsAsync(successful);
 
         var result = await _command.ApplyUpdate(_game, _token);
@@ -174,7 +176,7 @@ public class UploadPhotoCommandTests
             Result = photoReference,
         };
         _photoService
-            .Setup(s => s.Upsert(It.IsAny<Photo>(), _token))
+            .Setup(s => s.Upsert(It.IsAny<Photo>(), It.IsAny<UserAccessContext>(), _token))
             .ReturnsAsync(successful);
         _game.Photos.Add(new PhotoReference
         {
@@ -184,7 +186,7 @@ public class UploadPhotoCommandTests
 
         var result = await _command.ApplyUpdate(_game, _token);
 
-        _photoService.Verify(s => s.Upsert(It.Is<Photo>(p => p.Id == existingPhotoId), _token));
+        _photoService.Verify(s => s.Upsert(It.Is<Photo>(p => p.Id == existingPhotoId), It.IsAny<UserAccessContext>(), _token));
         Assert.That(result.Success, Is.True);
         Assert.That(result.Messages, Is.EquivalentTo(["Photo added"]));
         Assert.That(_game.Photos, Is.EquivalentTo([photoReference]));
@@ -209,7 +211,7 @@ public class UploadPhotoCommandTests
             Author = "ANOTHER USER 1",
         };
         _photoService
-            .Setup(s => s.Upsert(It.IsAny<Photo>(), _token))
+            .Setup(s => s.Upsert(It.IsAny<Photo>(), It.IsAny<UserAccessContext>(), _token))
             .ReturnsAsync(successful);
         _game.Photos.Add(new PhotoReference
         {
@@ -220,7 +222,7 @@ public class UploadPhotoCommandTests
 
         var result = await _command.ApplyUpdate(_game, _token);
 
-        _photoService.Verify(s => s.Upsert(It.Is<Photo>(p => p.Id == existingPhotoId), _token));
+        _photoService.Verify(s => s.Upsert(It.Is<Photo>(p => p.Id == existingPhotoId), It.IsAny<UserAccessContext>(), _token));
         Assert.That(result.Success, Is.True);
         Assert.That(result.Messages, Is.EquivalentTo(["Photo added"]));
         Assert.That(_game.Photos, Is.EquivalentTo([photoReference, otherUserPhoto]));
@@ -240,7 +242,7 @@ public class UploadPhotoCommandTests
             Result = photoReference,
         };
         _photoService
-            .Setup(s => s.Upsert(It.IsAny<Photo>(), _token))
+            .Setup(s => s.Upsert(It.IsAny<Photo>(), It.IsAny<UserAccessContext>(), _token))
             .ReturnsAsync(successful);
         _game.Photos.Add(new PhotoReference
         {
@@ -255,7 +257,7 @@ public class UploadPhotoCommandTests
 
         var result = await _command.ApplyUpdate(_game, _token);
 
-        _photoService.Verify(s => s.Upsert(It.IsAny<Photo>(), _token), Times.Never);
+        _photoService.Verify(s => s.Upsert(It.IsAny<Photo>(), It.IsAny<UserAccessContext>(), _token), Times.Never);
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(["No more photos can be added to this entity, maximum photo count reached: 2"]));
     }

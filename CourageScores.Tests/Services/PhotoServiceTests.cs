@@ -80,7 +80,7 @@ public class PhotoServiceTests
     {
         _user = null;
 
-        var result = await _service.Upsert(_photo, _token);
+        var result = await _service.Upsert(_photo, UserAccessContext.None(), _token);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(["Not permitted"]));
@@ -91,7 +91,7 @@ public class PhotoServiceTests
     {
         _access = _access.Without(AccessOption.UploadPhotos);
 
-        var result = await _service.Upsert(_photo, _token);
+        var result = await _service.Upsert(_photo, UserAccessContext.None(), _token);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(["Not permitted"]));
@@ -103,7 +103,7 @@ public class PhotoServiceTests
         _featureState.ConfiguredValue = "false";
         _access = _access.With(AccessOption.UploadPhotos);
 
-        var result = await _service.Upsert(_photo, _token);
+        var result = await _service.Upsert(_photo, UserAccessContext.None(), _token);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(["Feature disabled"]));
@@ -120,7 +120,7 @@ public class PhotoServiceTests
         };
         _photoHelper.Setup(h => h.ResizePhoto(_photo.PhotoBytes, _settings.MaxPhotoHeight, _token)).ReturnsAsync(resizeResult);
 
-        var result = await _service.Upsert(_photo, _token);
+        var result = await _service.Upsert(_photo, UserAccessContext.None(), _token);
 
         _photoRepository.Verify(r => r.Upsert(_photo, _token));
         _photoRepository.Verify(r => r.Upsert(It.Is<Photo>(p => p.PhotoBytes == _resizedBytes), _token));
@@ -146,7 +146,7 @@ public class PhotoServiceTests
         };
         _photoHelper.Setup(h => h.ResizePhoto(_photo.PhotoBytes, _settings.MaxPhotoHeight, _token)).ReturnsAsync(resizeResult);
 
-        var result = await _service.Upsert(_photo, _token);
+        var result = await _service.Upsert(_photo, UserAccessContext.None(), _token);
 
         _photoRepository.Verify(r => r.Upsert(It.IsAny<Photo>(), _token), Times.Never);
         Assert.That(result.Success, Is.False);
@@ -168,7 +168,7 @@ public class PhotoServiceTests
         _photo.Updated = default;
         _photoHelper.Setup(h => h.ResizePhoto(_photo.PhotoBytes, _settings.MaxPhotoHeight, _token)).ReturnsAsync(resizeResult);
 
-        await _service.Upsert(_photo, _token);
+        await _service.Upsert(_photo, UserAccessContext.None(), _token);
 
         _photoRepository.Verify(r => r.Upsert(It.Is<Photo>(p => p.Author == _user!.Name && p.Editor == _user.Name && p.Created == _now.UtcDateTime && p.Updated == _now.UtcDateTime), _token));
     }
@@ -189,7 +189,7 @@ public class PhotoServiceTests
         _photo.Editor = null!;
         _photo.Updated = default;
 
-        await _service.Upsert(_photo, _token);
+        await _service.Upsert(_photo, UserAccessContext.None(), _token);
 
         _photoRepository.Verify(r => r.Upsert(It.Is<Photo>(p => p.Author == "AUTHOR" && p.Editor == _user!.Name && p.Created == created && p.Updated == _now.UtcDateTime), _token));
     }
@@ -265,7 +265,7 @@ public class PhotoServiceTests
     {
         _user = null;
 
-        var result = await _service.Delete(_existingPhoto.Id, _token);
+        var result = await _service.Delete(_existingPhoto.Id, UserAccessContext.None(), _token);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(["Not permitted"]));
@@ -276,7 +276,7 @@ public class PhotoServiceTests
     {
         _access = _access.Without(AccessOption.DeleteAnyPhoto);
 
-        var result = await _service.Delete(_existingPhoto.Id, _token);
+        var result = await _service.Delete(_existingPhoto.Id, UserAccessContext.None(), _token);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(["Not permitted"]));
@@ -288,7 +288,7 @@ public class PhotoServiceTests
         _featureState.ConfiguredValue = "false";
         _access = _access.With(AccessOption.DeleteAnyPhoto);
 
-        var result = await _service.Delete(_existingPhoto.Id, _token);
+        var result = await _service.Delete(_existingPhoto.Id, UserAccessContext.None(), _token);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(["Feature disabled"]));
@@ -299,7 +299,7 @@ public class PhotoServiceTests
     {
         _access = _access.With(AccessOption.DeleteAnyPhoto);
 
-        var result = await _service.Delete(Guid.NewGuid(), _token);
+        var result = await _service.Delete(Guid.NewGuid(), UserAccessContext.None(), _token);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(["Not found"]));
@@ -311,7 +311,7 @@ public class PhotoServiceTests
         _access = _access.With(AccessOption.UploadPhotos).Without(AccessOption.DeleteAnyPhoto);
         _existingPhoto.Author = "ANOTHER USER";
 
-        var result = await _service.Delete(_existingPhoto.Id, _token);
+        var result = await _service.Delete(_existingPhoto.Id, UserAccessContext.None(), _token);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(["You can only delete your own photos"]));
@@ -323,7 +323,7 @@ public class PhotoServiceTests
         _access = _access.With(AccessOption.UploadPhotos);
         _existingPhoto.Author = _user!.Name;
 
-        var result = await _service.Delete(_existingPhoto.Id, _token);
+        var result = await _service.Delete(_existingPhoto.Id, UserAccessContext.None(), _token);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.EqualTo(_existingPhoto));
@@ -339,7 +339,7 @@ public class PhotoServiceTests
         _access = _access.Without(AccessOption.UploadPhotos).With(AccessOption.DeleteAnyPhoto);
         _existingPhoto.Author = "ANOTHER USER";
 
-        var result = await _service.Delete(_existingPhoto.Id, _token);
+        var result = await _service.Delete(_existingPhoto.Id, UserAccessContext.None(), _token);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Success, Is.True);
@@ -356,7 +356,7 @@ public class PhotoServiceTests
         _access = _access.With(AccessOption.DeleteAnyPhoto);
         _existingPhoto.Author = _user!.Name;
 
-        var result = await _service.Delete(_existingPhoto.Id, _token);
+        var result = await _service.Delete(_existingPhoto.Id, UserAccessContext.None(), _token);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Success, Is.True);
