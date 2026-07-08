@@ -40,10 +40,13 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         bool includeProposals,
         IReadOnlyDictionary<Guid, DivisionDto?> teamIdToDivisionLookup,
         SeasonDto season,
+        IReadOnlyCollection<Guid> divisionIds,
         CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var context = UserAccessContext.NotImplemented(/*season.Id, divisionId*/ "divisionId is not accessible");
+        var context = divisionIds.Count == 1
+            ? UserAccessContext.ForDivision(season.Id, divisionIds.Single())
+            : UserAccessContext.ForSeason(season.Id);
         var canCreateTournaments = await _accessService.HasAccess(user, AccessOption.ManageTournaments, context, token);
         var includeFixtureProposals = !tournamentGamesForDate.Any() && includeProposals;
 

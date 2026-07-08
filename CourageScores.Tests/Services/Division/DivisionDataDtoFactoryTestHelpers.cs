@@ -84,6 +84,7 @@ public static class DivisionDataDtoFactoryTestHelpers
             includeProposals,
             It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
             It.IsAny<SeasonDto>(),
+            It.IsAny<IReadOnlyCollection<Guid>>(),
             token));
     }
 
@@ -100,6 +101,7 @@ public static class DivisionDataDtoFactoryTestHelpers
                 It.IsAny<bool>(),
                 It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
                 It.IsAny<SeasonDto>(),
+                It.IsAny<IReadOnlyCollection<Guid>>(),
                 token))
             .ReturnsAsync((
                 DateTime date,
@@ -111,6 +113,7 @@ public static class DivisionDataDtoFactoryTestHelpers
                 bool _,
                 IReadOnlyDictionary<Guid, DivisionDto?> _,
                 SeasonDto _,
+                IReadOnlyCollection<Guid> _,
                 CancellationToken _) => new DivisionFixtureDateDto
                 {
                     Date = date,

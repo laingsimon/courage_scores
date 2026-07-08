@@ -19,5 +19,6 @@ public interface IDivisionFixtureDateAdapter
         bool includeProposals,
         IReadOnlyDictionary<Guid, DivisionDto?> teamIdToDivisionLookup,
         SeasonDto season,
+        IReadOnlyCollection<Guid> divisionIds,
         CancellationToken token);
 }

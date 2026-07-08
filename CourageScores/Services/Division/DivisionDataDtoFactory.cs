@@ -283,6 +283,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 includeProposals,
                 teamIdToDivisionLookup,
                 context.Season,
+                context.Divisions.Keys.ToArray(),
                 token);
         }
     }
