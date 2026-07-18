@@ -60,12 +60,14 @@ public class LiveService : ILiveService
     public async Task<ActionResultDto<List<WebSocketDto>>> GetSockets(CancellationToken token)
     {
         var user = await _userService.GetUser(token);
+        var context = UserAccessContext.None();
+
         if (user == null)
         {
             return Error<List<WebSocketDto>>("Not logged in");
         }
 
-        if (!await _accessService.HasAccess(user, AccessOption.ManageSockets, UserAccessContext.None(), token))
+        if (!await _accessService.HasAccess(user, AccessOption.ManageSockets, context, token))
         {
             return Error<List<WebSocketDto>>("Not permitted");
         }
@@ -73,19 +75,21 @@ public class LiveService : ILiveService
         return new ActionResultDto<List<WebSocketDto>>
         {
             Success = true,
-            Result = await _sockets.SelectAsync(s => _webSocketDetailAdapter.Adapt(s.Details, token)).ToList(),
+            Result = await _sockets.SelectAsync(s => _webSocketDetailAdapter.Adapt(s.Details, context, token)).ToList(),
         };
     }
 
     public async Task<ActionResultDto<WebSocketDto>> CloseSocket(Guid socketId, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
+        var context = UserAccessContext.None();
+
         if (user == null)
         {
             return Error<WebSocketDto>("Not logged in");
         }
 
-        if (!await _accessService.HasAccess(user, AccessOption.ManageSockets, UserAccessContext.None(), token))
+        if (!await _accessService.HasAccess(user, AccessOption.ManageSockets, context, token))
         {
             return Error<WebSocketDto>("Not permitted");
         }
@@ -101,7 +105,7 @@ public class LiveService : ILiveService
         return new ActionResultDto<WebSocketDto>
         {
             Success = true,
-            Result = await _webSocketDetailAdapter.Adapt(socket.Details, token),
+            Result = await _webSocketDetailAdapter.Adapt(socket.Details, context, token),
             Messages =
             {
                 "Socket closed",
@@ -161,10 +165,11 @@ public class LiveService : ILiveService
     public async IAsyncEnumerable<WatchableDataDto> GetWatchableData(LiveDataType? type, [EnumeratorCancellation] CancellationToken token)
     {
         var lookups = new Dictionary<Guid, List<WatchableDataDto>>();
+        var context = UserAccessContext.None();
 
         await foreach (var detail in _webSocketMessageProcessor.GetWatchableData(token))
         {
-            var dto = await _watchableDataAdapter.Adapt(detail, token);
+            var dto = await _watchableDataAdapter.Adapt(detail, context, token);
             if (type == null || dto.DataType == type)
             {
                 if (!lookups.TryGetValue(dto.Id, out var dtos))

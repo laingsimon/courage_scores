@@ -41,7 +41,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
     {
         var item = await _repository.Get(id, token);
         return item != null
-            ? await _adapter.Adapt(item, token)
+            ? await _adapter.Adapt(item, UserAccessContext.None(), token)
             : null;
     }
 
@@ -49,7 +49,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
     {
         await foreach (var item in _repository.GetAll(token))
         {
-            yield return await _adapter.Adapt(item, token);
+            yield return await _adapter.Adapt(item, UserAccessContext.None(), token);
         }
     }
 
@@ -57,7 +57,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
     {
         await foreach (var item in _repository.GetSome(query, token))
         {
-            yield return await _adapter.Adapt(item, token);
+            yield return await _adapter.Adapt(item, UserAccessContext.None(), token);
         }
     }
 
@@ -115,7 +115,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
             await publishingCommand.PublishUpdate(updatedItem, outcome.Delete, token);
         }
 
-        return await _actionResultAdapter.Adapt(outcome, await _adapter.Adapt(updatedItem, token));
+        return await _actionResultAdapter.Adapt(outcome, await _adapter.Adapt(updatedItem, context, token));
     }
 
     public async Task<ActionResultDto<TDto>> Delete(Guid id, CancellationToken token)
@@ -153,6 +153,6 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
             },
         };
 
-        return await _actionResultAdapter.Adapt(result, await _adapter.Adapt(item, token));
+        return await _actionResultAdapter.Adapt(result, await _adapter.Adapt(item, context, token));
     }
 }

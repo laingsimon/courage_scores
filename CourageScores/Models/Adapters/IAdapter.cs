@@ -1,5 +1,6 @@
 ﻿using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters;
 
@@ -7,6 +8,6 @@ public interface IAdapter<TModel, TDto>
     where TModel : AuditedEntity
     where TDto : AuditedDto
 {
-    public Task<TDto> Adapt(TModel model, CancellationToken token);
-    public Task<TModel> Adapt(TDto dto, CancellationToken token);
+    Task<TDto> Adapt(TModel model, UserAccessContext context, CancellationToken token);
+    Task<TModel> Adapt(TDto dto, UserAccessContext context, CancellationToken token);
 }

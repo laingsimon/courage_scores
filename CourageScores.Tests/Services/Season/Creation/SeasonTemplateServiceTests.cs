@@ -418,7 +418,7 @@ public class SeasonTemplateServiceTests
         var seasonHealth = new SeasonHealthDto();
         var template = new Template();
         _templateAdapter.AddMapping(template, editTemplateDto);
-        _healthCheckAdapter.Setup(a => a.Adapt(template, _token)).ReturnsAsync(seasonHealth);
+        _healthCheckAdapter.Setup(a => a.Adapt(template, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(seasonHealth);
         _healthCheckService.Setup(s => s.Check(seasonHealth, _token)).ReturnsAsync(templateHealth);
 
         var result = await _service.GetTemplateHealth(editTemplateDto, _token);

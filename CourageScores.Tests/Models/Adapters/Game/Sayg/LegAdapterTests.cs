@@ -3,6 +3,7 @@ using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Game.Sayg;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Services.Identity;
 using Moq;
 using NUnit.Framework;
 
@@ -37,8 +38,8 @@ public class LegAdapterTests
         _adapter = fixture.Create<LegAdapter>();
 
         _legCompetitorScoreAdapter
-            .Setup(a => a.Adapt(It.IsAny<LegCompetitorScoreAdapterContext>(), _token))
-            .ReturnsAsync((LegCompetitorScoreAdapterContext context, CancellationToken _) =>
+            .Setup(a => a.Adapt(It.IsAny<LegCompetitorScoreAdapterContext>(), It.IsAny<UserAccessContext>(), _token))
+            .ReturnsAsync((LegCompetitorScoreAdapterContext context, UserAccessContext _, CancellationToken _) =>
             {
                 if (context.Score == _homeScore)
                 {
@@ -54,8 +55,8 @@ public class LegAdapterTests
             });
 
         _legCompetitorScoreAdapter
-            .Setup(a => a.Adapt(It.IsAny<LegCompetitorScoreDto>(), _token))
-            .ReturnsAsync((LegCompetitorScoreDto dto, CancellationToken _) =>
+            .Setup(a => a.Adapt(It.IsAny<LegCompetitorScoreDto>(), It.IsAny<UserAccessContext>(), _token))
+            .ReturnsAsync((LegCompetitorScoreDto dto, UserAccessContext _, CancellationToken _) =>
             {
                 if (dto == _homeScoreDto)
                 {
@@ -80,7 +81,7 @@ public class LegAdapterTests
             Away = _awayScore,
         };
 
-        var result = await _adapter.Adapt(leg, _token);
+        var result = await _adapter.Adapt(leg, UserAccessContext.None(), _token);
 
         Assert.That(result.Home, Is.EqualTo(_homeScoreDto));
         Assert.That(result.Away, Is.EqualTo(_awayScoreDto));
@@ -98,7 +99,7 @@ public class LegAdapterTests
             CurrentThrow = currentThrow,
         };
 
-        var result = await _adapter.Adapt(leg, _token);
+        var result = await _adapter.Adapt(leg, UserAccessContext.None(), _token);
 
         Assert.That(result.CurrentThrow, Is.EqualTo(expected));
     }
@@ -113,7 +114,7 @@ public class LegAdapterTests
             StartingScore = 501,
         };
 
-        var result = await _adapter.Adapt(leg, _token);
+        var result = await _adapter.Adapt(leg, UserAccessContext.None(), _token);
 
         Assert.That(result.StartingScore, Is.EqualTo(leg.StartingScore));
     }
@@ -131,7 +132,7 @@ public class LegAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(leg, _token);
+        var result = await _adapter.Adapt(leg, UserAccessContext.None(), _token);
 
         Assert.That(result.PlayerSequence, Is.EqualTo([_legPlayerSequenceDto]));
     }
@@ -145,7 +146,7 @@ public class LegAdapterTests
             Away = _awayScoreDto,
         };
 
-        var result = await _adapter.Adapt(leg, _token);
+        var result = await _adapter.Adapt(leg, UserAccessContext.None(), _token);
 
         Assert.That(result.Home, Is.EqualTo(_homeScore));
         Assert.That(result.Away, Is.EqualTo(_awayScore));
@@ -165,7 +166,7 @@ public class LegAdapterTests
             CurrentThrow = currentThrow,
         };
 
-        var result = await _adapter.Adapt(leg, _token);
+        var result = await _adapter.Adapt(leg, UserAccessContext.None(), _token);
 
         Assert.That(result.CurrentThrow, Is.EqualTo(expected));
     }
@@ -180,7 +181,7 @@ public class LegAdapterTests
             StartingScore = 501,
         };
 
-        var result = await _adapter.Adapt(leg, _token);
+        var result = await _adapter.Adapt(leg, UserAccessContext.None(), _token);
 
         Assert.That(result.StartingScore, Is.EqualTo(leg.StartingScore));
     }
@@ -198,7 +199,7 @@ public class LegAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(leg, _token);
+        var result = await _adapter.Adapt(leg, UserAccessContext.None(), _token);
 
         Assert.That(result.PlayerSequence, Is.EqualTo([_legPlayerSequence]));
     }

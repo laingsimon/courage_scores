@@ -2,6 +2,7 @@ using CourageScores.Common;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Health;
 using CourageScores.Models.Dtos.Season;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters.Health;
 
@@ -14,11 +15,11 @@ public class SeasonHealthDtoAdapter : ISimpleOnewayAdapter<SeasonHealthDtoAdapte
         _divisionAdapter = divisionAdapter;
     }
 
-    public async Task<SeasonHealthDto> Adapt(SeasonAndDivisions model, CancellationToken token)
+    public async Task<SeasonHealthDto> Adapt(SeasonAndDivisions model, UserAccessContext context, CancellationToken token)
     {
         return new SeasonHealthDto
         {
-            Divisions = await model.Divisions.SelectAsync(d => _divisionAdapter.Adapt(d, token)).ToList(),
+            Divisions = await model.Divisions.SelectAsync(d => _divisionAdapter.Adapt(d, context, token)).ToList(),
             StartDate = model.Season.StartDate,
             EndDate = model.Season.EndDate,
             Id = model.Season.Id,

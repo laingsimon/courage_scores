@@ -1,6 +1,7 @@
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Tests.Models.Adapters;
 
@@ -60,7 +61,7 @@ internal class MockAdapter<TModel, TDto> : IAdapter<TModel, TDto>
         return this;
     }
 
-    public Task<TDto> Adapt(TModel model, CancellationToken token)
+    public Task<TDto> Adapt(TModel model, UserAccessContext context, CancellationToken token)
     {
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (model == null)
@@ -78,7 +79,7 @@ internal class MockAdapter<TModel, TDto> : IAdapter<TModel, TDto>
         throw new InvalidOperationException($"Unexpected adaption to {typeof(TDto).Name}");
     }
 
-    public Task<TModel> Adapt(TDto dto, CancellationToken token)
+    public Task<TModel> Adapt(TDto dto, UserAccessContext context, CancellationToken token)
     {
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (dto == null)

@@ -131,13 +131,14 @@ public class SeasonTemplateService : ISeasonTemplateService
 
     public async Task<ActionResultDto<SeasonHealthCheckResultDto>> GetTemplateHealth(EditTemplateDto templateDto, CancellationToken token)
     {
+        var context = UserAccessContext.None();
         var user = await _userService.GetUser(token);
         if (user == null)
         {
             return Error<SeasonHealthCheckResultDto>("Not logged in");
         }
 
-        if (!await _accessService.HasAccess(user, AccessOption.ManageSeasonTemplates, UserAccessContext.None(), token))
+        if (!await _accessService.HasAccess(user, AccessOption.ManageSeasonTemplates, context, token))
         {
             return Error<SeasonHealthCheckResultDto>("Not permitted");
         }
@@ -147,7 +148,8 @@ public class SeasonTemplateService : ISeasonTemplateService
             Success = true,
             Result = await _healthCheckService.Check(
                 await _healthCheckAdapter.Adapt(
-                    await _templateAdapter.Adapt(templateDto, token),
+                    await _templateAdapter.Adapt(templateDto, context, token),
+                    context,
                     token),
                 token),
         };

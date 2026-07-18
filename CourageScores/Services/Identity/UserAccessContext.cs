@@ -9,7 +9,6 @@ public class UserAccessContext
     public string? CallerMemberName { get; }
     public string? CallerFilePath { get; }
 
-    public string? NotImplementedReason { get; private init; }
     public Guid? SeasonId { get; private init; }
     public Guid? DivisionId { get; private init; }
     public Guid? TeamId { get; private init; }
@@ -49,14 +48,6 @@ public class UserAccessContext
             SeasonId = seasonId,
             DivisionId = divisionId,
             TeamId = teamId,
-        };
-    }
-
-    public static UserAccessContext NotImplemented(string reason, [CallerMemberName] string? memberName = null, [CallerFilePath] string? callerFilePath = null)
-    {
-        return new UserAccessContext(memberName, callerFilePath)
-        {
-            NotImplementedReason = reason,
         };
     }
 }

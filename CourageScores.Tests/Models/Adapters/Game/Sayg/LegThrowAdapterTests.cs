@@ -1,6 +1,7 @@
 using CourageScores.Models.Adapters.Game.Sayg;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Services.Identity;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters.Game.Sayg;
@@ -20,7 +21,7 @@ public class LegThrowAdapterTests
             NoOfDarts = 3,
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Score, Is.EqualTo(model.Score));
         Assert.That(result.NoOfDarts, Is.EqualTo(model.NoOfDarts));
@@ -35,7 +36,7 @@ public class LegThrowAdapterTests
             NoOfDarts = 3,
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Score, Is.EqualTo(dto.Score));
         Assert.That(result.NoOfDarts, Is.EqualTo(dto.NoOfDarts));

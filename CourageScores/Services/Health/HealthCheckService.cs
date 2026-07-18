@@ -74,7 +74,7 @@ public class HealthCheckService : IHealthCheckService
                 token))
             .ToList();
 
-        var seasonHealthDto = await _seasonAdapter.Adapt(new SeasonHealthDtoAdapter.SeasonAndDivisions(season, divisionalData), token);
+        var seasonHealthDto = await _seasonAdapter.Adapt(new SeasonHealthDtoAdapter.SeasonAndDivisions(season, divisionalData), context, token);
 
         var result = await Check(seasonHealthDto, token);
         result.Errors.InsertRange(0, divisionalData.SelectMany(d => d.DataErrors).Select(de => de.Message));

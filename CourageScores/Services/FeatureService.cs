@@ -67,7 +67,7 @@ public class FeatureService : IFeatureService
                 }
             }
 
-            yield return await _unconfiguredAdapter.Adapt(featureId, token);
+            yield return await _unconfiguredAdapter.Adapt(featureId, UserAccessContext.None(), token);
         }
     }
 
@@ -86,7 +86,7 @@ public class FeatureService : IFeatureService
 
         await LoadFeatures(token);
 
-        var configuredFeature = await _reconfigureAdapter.Adapt(update, token);
+        var configuredFeature = await _reconfigureAdapter.Adapt(update, UserAccessContext.None(), token);
         if (_loadedFeatures.Lookup!.TryGetValue(configuredFeature.Id, out var alreadyConfiguredDto))
         {
             // copy across the audit properties - only Author/Creator would be retained as others will be overwritten
@@ -140,7 +140,7 @@ public class FeatureService : IFeatureService
         }
 
         var updatedFeature = await _repository.Upsert(configuredFeature, token);
-        result.Result = await _featureAdapter.Adapt(updatedFeature, token);
+        result.Result = await _featureAdapter.Adapt(updatedFeature, UserAccessContext.None(), token);
 
         result.Messages.Add("Feature cache cleared");
         _loadedFeatures.Lookup = null;
@@ -185,7 +185,7 @@ public class FeatureService : IFeatureService
         _loadedFeatures.Lookup = new Dictionary<Guid, ConfiguredFeatureDto>(
             await allFeatures.SelectAsync(async f => new KeyValuePair<Guid, ConfiguredFeatureDto>(
                 f.Id,
-                await _featureAdapter.Adapt(f, token))).ToList());
+                await _featureAdapter.Adapt(f, UserAccessContext.None(), token))).ToList());
     }
 
     private static ActionResultDto<ConfiguredFeatureDto> Warning(string message)

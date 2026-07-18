@@ -1,5 +1,6 @@
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters.Identity;
 
@@ -12,7 +13,7 @@ public class UserAdapter : ISimpleAdapter<User, UserDto>
         _accessLevelAdapter = accessLevelAdapter;
     }
 
-    public async Task<UserDto> Adapt(User model, CancellationToken token)
+    public async Task<UserDto> Adapt(User model, UserAccessContext context, CancellationToken token)
     {
         var dto = new UserDto
         {
@@ -26,7 +27,7 @@ public class UserAdapter : ISimpleAdapter<User, UserDto>
         return await _accessLevelAdapter.AddAccess(dto, model, token);
     }
 
-    public async Task<User> Adapt(UserDto dto, CancellationToken token)
+    public async Task<User> Adapt(UserDto dto, UserAccessContext context, CancellationToken token)
     {
         var user = new User
         {

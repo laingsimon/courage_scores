@@ -78,7 +78,7 @@ public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
             return Error("Game cannot be updated, not logged in");
         }
 
-        var context = UserAccessContext.ForTeam(game.SeasonId, game.DivisionId, game.Home?.Id ?? throw new InvalidOperationException("Game has no home team"));
+        var context = UserAccessContext.ForTeam(game.SeasonId, game.DivisionId, game.Home.Id);
         var manageScores = await _accessService.HasAccess(user, AccessOption.ManageScores, context, token);
         var inputResults = await _accessService.HasAccess(user, AccessOption.InputResults, context, token);
         if (!(manageScores || inputResults && (user.TeamId == game.Home.Id || user.TeamId == game.Away.Id)))
@@ -113,7 +113,7 @@ public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
 
         if (await _accessService.HasAccess(user, AccessOption.ManageGames, context, token))
         {
-            result = result.Merge(await UpdateGameDetails(game, token));
+            result = result.Merge(await UpdateGameDetails(game, context, token));
             if (!result.Success)
             {
                 return result;
@@ -127,29 +127,29 @@ public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
         {
             Success = true,
             Messages = { "Scores updated" },
-            Result = await _gameAdapter.Adapt(game, token),
+            Result = await _gameAdapter.Adapt(game, context, token),
         });
     }
 
-    private async Task<ActionResult<GameDto>> UpdateGameDetails(CosmosGame game, CancellationToken token)
+    private async Task<ActionResult<GameDto>> UpdateGameDetails(CosmosGame game, UserAccessContext context, CancellationToken token)
     {
         game.Address = _scores!.Address.TrimOrDefault(game.Address);
         game.Postponed = _scores.Postponed;
         game.IsKnockout = _scores.IsKnockout;
         game.AccoladesCount = _scores.AccoladesCount;
-        game.MatchOptions = await _scores.MatchOptions.SelectAsync(mo => _matchOptionsAdapter.Adapt(mo, token)).ToList();
+        game.MatchOptions = await _scores.MatchOptions.SelectAsync(mo => _matchOptionsAdapter.Adapt(mo, context, token)).ToList();
 
         var dateChanged = _scores.Date != game.Date;
         game.Date = _scores.Date;
 
         var dateChangedResult = dateChanged
-            ? await MoveGameToAlternativeSeason(game, token)
+            ? await MoveGameToAlternativeSeason(game, context, token)
             : null;
 
         return dateChangedResult ?? Success("Game details updated");
     }
 
-    private async Task<ActionResult<GameDto>?> MoveGameToAlternativeSeason(CosmosGame game, CancellationToken token)
+    private async Task<ActionResult<GameDto>?> MoveGameToAlternativeSeason(CosmosGame game, UserAccessContext context, CancellationToken token)
     {
         var newSeasonId = await GetAppropriateSeasonId(game.Date, token);
         if (newSeasonId == null)
@@ -189,7 +189,7 @@ public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
                     "Could not add season to home and/or away teams",
                 },
             })
-            .As(await _gameAdapter.Adapt(game, token));
+            .As(await _gameAdapter.Adapt(game, context, token));
     }
 
     private async Task<ActionResult<GameDto>> UpdateSubmission(CosmosGame game, UserDto user, CancellationToken token)

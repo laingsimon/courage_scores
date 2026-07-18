@@ -1,6 +1,7 @@
 ﻿using CourageScores.Common;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters.Game;
 
@@ -13,26 +14,26 @@ public class TournamentSideAdapter : ISimpleAdapter<TournamentSide, TournamentSi
         _playerAdapter = playerAdapter;
     }
 
-    public async Task<TournamentSideDto> Adapt(TournamentSide model, CancellationToken token)
+    public async Task<TournamentSideDto> Adapt(TournamentSide model, UserAccessContext context, CancellationToken token)
     {
         return new TournamentSideDto
         {
             Id = model.Id,
             Name = model.Name,
             TeamId = model.TeamId,
-            Players = await model.Players.SelectAsync(p => _playerAdapter.Adapt(p, token)).ToList(),
+            Players = await model.Players.SelectAsync(p => _playerAdapter.Adapt(p, context, token)).ToList(),
             NoShow = model.NoShow,
         };
     }
 
-    public async Task<TournamentSide> Adapt(TournamentSideDto dto, CancellationToken token)
+    public async Task<TournamentSide> Adapt(TournamentSideDto dto, UserAccessContext context, CancellationToken token)
     {
         return new TournamentSide
         {
             Id = dto.Id,
             Name = dto.Name?.Trim(),
             TeamId = dto.TeamId,
-            Players = await dto.Players.SelectAsync(p => _playerAdapter.Adapt(p, token)).ToList(),
+            Players = await dto.Players.SelectAsync(p => _playerAdapter.Adapt(p, context, token)).ToList(),
             NoShow = dto.NoShow,
         };
     }

@@ -1,5 +1,6 @@
 using CourageScores.Models.Adapters.Health;
 using CourageScores.Models.Dtos.Division;
+using CourageScores.Services.Identity;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters.Health;
@@ -31,7 +32,7 @@ public class LeagueFixtureHealthDtoAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(new LeagueFixtureHealthDtoAdapter.FixtureDateMapping(date, fixture), _token);
+        var result = await _adapter.Adapt(new LeagueFixtureHealthDtoAdapter.FixtureDateMapping(date, fixture), UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Id, Is.EqualTo(fixture.Id));
@@ -59,7 +60,7 @@ public class LeagueFixtureHealthDtoAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(new LeagueFixtureHealthDtoAdapter.FixtureDateMapping(date, fixture), _token);
+        var result = await _adapter.Adapt(new LeagueFixtureHealthDtoAdapter.FixtureDateMapping(date, fixture), UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Id, Is.EqualTo(fixture.Id));
@@ -91,7 +92,7 @@ public class LeagueFixtureHealthDtoAdapterTests
             IsKnockout = true,
         };
 
-        var result = await _adapter.Adapt(new LeagueFixtureHealthDtoAdapter.FixtureDateMapping(new DateTime(2001, 02, 03), fixture), _token);
+        var result = await _adapter.Adapt(new LeagueFixtureHealthDtoAdapter.FixtureDateMapping(new DateTime(2001, 02, 03), fixture), UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Null);
     }
@@ -110,7 +111,7 @@ public class LeagueFixtureHealthDtoAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(new LeagueFixtureHealthDtoAdapter.FixtureDateMapping(new DateTime(2001, 02, 03), fixture), _token);
+        var result = await _adapter.Adapt(new LeagueFixtureHealthDtoAdapter.FixtureDateMapping(new DateTime(2001, 02, 03), fixture), UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Null);
     }

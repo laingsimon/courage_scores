@@ -4,6 +4,7 @@ using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Health;
 using CourageScores.Models.Dtos.Season.Creation;
 using CourageScores.Services.Health;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Services.Season.Creation;
 
@@ -55,8 +56,11 @@ public class TemplatedSeasonProposalStrategy : ISeasonProposalStrategy
             return result;
         }
 
+        var userAccessContext = UserAccessContext.ForSeason(matchContext.SeasonDto.Id);
+
         var healthCheckInput = await _seasonHealthAdapter.Adapt(
             new SeasonHealthDtoAdapter.SeasonAndDivisions(context.MatchContext.SeasonDto, context.MatchContext.Divisions),
+            userAccessContext,
             token);
         result.Result.ProposalHealth = await _healthCheckService.Check(healthCheckInput, token);
 

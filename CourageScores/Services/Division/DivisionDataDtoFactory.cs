@@ -51,6 +51,11 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         var divisionData = new DivisionData();
         var gameVisitor = new DivisionDataGameVisitor(divisionData);
         var visitorScope = new VisitorScope();
+        var divisionId = context.Divisions.Count == 1 ? context.Divisions.FirstOrDefault().Value.Id : default(Guid?);
+        var userAccessContext = divisionId != null
+            ? UserAccessContext.ForDivision(context.Season.Id, divisionId.Value)
+            : UserAccessContext.ForSeason(context.Season.Id);
+
         foreach (var division in divisions)
         {
             foreach (var game in context.AllGames(division?.Id))
@@ -73,7 +78,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         var playerResults = await GetPlayers(divisionData, playerToTeamLookup, context, token).ToList();
         var teamResults = await GetTeams(divisionData, context, playerResults, token).ToList();
         var user = await _userService.GetUser(token);
-        var canShowDataErrors = await _accessService.HasAccess(user, AccessOption.ImportData, UserAccessContext.ForSeason(context.Season.Id), token);
+        var canShowDataErrors = await _accessService.HasAccess(user, AccessOption.ImportData, userAccessContext, token);
 
         return new DivisionDataDto(_configuration["ProductName"])
         {
@@ -88,10 +93,10 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 .ThenBy(t => t.Name)
                 .ApplyRanks()
                 .ToList(),
-            Fixtures = await GetFixtures(context, divisions, includeProposals, token)
+            Fixtures = await GetFixtures(context, divisions, includeProposals, userAccessContext, token)
                 .OrderByAsync(d => d.Date)
                 .ToList(),
-            Players = (await AddAllPlayersIfAdmin(playerResults, user, context, token))
+            Players = (await AddAllPlayersIfAdmin(playerResults, user, context, userAccessContext, token))
                 .Where(p => context.Filter.IncludeTeam(p.TeamId))
                 .OrderByDescending(p => p.Points)
                 .ThenByDescending(p => p.WinPercentage)
@@ -185,12 +190,9 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     private async Task<IReadOnlyCollection<DivisionPlayerDto>> AddAllPlayersIfAdmin(IReadOnlyCollection<DivisionPlayerDto> players,
         UserDto? userDto,
         DivisionDataContext context,
+        UserAccessContext userAccessContext,
         CancellationToken token)
     {
-        var divisionId = context.Divisions.Count == 1 ? context.Divisions.FirstOrDefault().Value.Id : default(Guid?);
-        var userAccessContext = divisionId != null
-            ? UserAccessContext.ForDivision(context.Season.Id, divisionId.Value)
-            : UserAccessContext.ForSeason(context.Season.Id);
         if (!await _accessService.HasAccess(userDto, AccessOption.ManagePlayers, userAccessContext, token))
         {
             return players;
@@ -252,7 +254,12 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         return context.Divisions.GetValueOrDefault(divisionId.Value);
     }
 
-    private async IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(DivisionDataContext context, IReadOnlyCollection<DivisionDto?> divisions, bool includeProposals, [EnumeratorCancellation] CancellationToken token)
+    private async IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(
+        DivisionDataContext context,
+        IReadOnlyCollection<DivisionDto?> divisions,
+        bool includeProposals,
+        UserAccessContext userAccessContext,
+        [EnumeratorCancellation] CancellationToken token)
     {
         var divisionIds = divisions.Select(d => d?.Id).Where(id => id != null).ToArray(); // should NOT contain null, an empty list means return all divisional data
         var divisionLookup = divisions.Where(d => d != null).ToDictionary(d => d!.Id);
@@ -284,6 +291,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 teamIdToDivisionLookup,
                 context.Season,
                 context.Divisions.Keys.ToArray(),
+                userAccessContext,
                 token);
         }
     }

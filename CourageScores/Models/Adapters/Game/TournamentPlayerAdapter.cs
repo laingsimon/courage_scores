@@ -1,11 +1,12 @@
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters.Game;
 
 public class TournamentPlayerAdapter : IAdapter<TournamentPlayer, TournamentPlayerDto>
 {
-    public Task<TournamentPlayerDto> Adapt(TournamentPlayer model, CancellationToken token)
+    public Task<TournamentPlayerDto> Adapt(TournamentPlayer model, UserAccessContext context, CancellationToken token)
     {
         return Task.FromResult(new TournamentPlayerDto
         {
@@ -15,7 +16,7 @@ public class TournamentPlayerAdapter : IAdapter<TournamentPlayer, TournamentPlay
         }.AddAuditProperties(model));
     }
 
-    public Task<TournamentPlayer> Adapt(TournamentPlayerDto dto, CancellationToken token)
+    public Task<TournamentPlayer> Adapt(TournamentPlayerDto dto, UserAccessContext context, CancellationToken token)
     {
         return Task.FromResult(new TournamentPlayer
         {

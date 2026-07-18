@@ -4,7 +4,7 @@ using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Cosmos.Game;
 
-public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable, IPhotoEntity
+public class TournamentGame : AuditedEntity, IGameVisitable, IPhotoEntity
 {
     public DateTime Date { get; set; }
     public Guid SeasonId { get; set; }

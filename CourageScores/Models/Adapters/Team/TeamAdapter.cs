@@ -1,6 +1,8 @@
 ﻿using CourageScores.Common;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
+using CourageScores.Services.Identity;
+using CosmosTeam = CourageScores.Models.Cosmos.Team.Team;
 
 namespace CourageScores.Models.Adapters.Team;
 
@@ -13,25 +15,25 @@ public class TeamAdapter : IAdapter<Cosmos.Team.Team, TeamDto>
         _seasonAdapter = seasonAdapter;
     }
 
-    public async Task<TeamDto> Adapt(Cosmos.Team.Team model, CancellationToken token)
+    public async Task<TeamDto> Adapt(CosmosTeam model, UserAccessContext context, CancellationToken token)
     {
         return new TeamDto
         {
             Address = model.Address.TrimOrDefault(),
             Id = model.Id,
             Name = model.Name.TrimOrDefault(),
-            Seasons = await model.Seasons.SelectAsync(season => _seasonAdapter.Adapt(season, token)).ToList(),
+            Seasons = await model.Seasons.SelectAsync(season => _seasonAdapter.Adapt(season, context, token)).ToList(),
         }.AddAuditProperties(model);
     }
 
-    public async Task<Cosmos.Team.Team> Adapt(TeamDto dto, CancellationToken token)
+    public async Task<CosmosTeam> Adapt(TeamDto dto, UserAccessContext context, CancellationToken token)
     {
-        return new Cosmos.Team.Team
+        return new CosmosTeam
         {
             Address = dto.Address.TrimOrDefault(),
             Id = dto.Id,
             Name = dto.Name.TrimOrDefault(),
-            Seasons = await dto.Seasons.SelectAsync(season => _seasonAdapter.Adapt(season, token)).ToList(),
+            Seasons = await dto.Seasons.SelectAsync(season => _seasonAdapter.Adapt(season, context, token)).ToList(),
         }.AddAuditProperties(dto);
     }
 }

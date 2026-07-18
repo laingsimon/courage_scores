@@ -63,7 +63,7 @@ public class UpdateScoresAdapter : IUpdateScoresAdapter
             HomePlayers = await updatedMatch.HomePlayers.SelectAsync(p => AdaptToPlayer(p, token)).ToList(),
             HomeScore = updatedMatch.HomeScore,
             Sayg = updatedMatch.Sayg != null && permitted
-                ? await _scoreAsYouGoAdapter.Adapt(updatedMatch.Sayg, token)
+                ? await _scoreAsYouGoAdapter.Adapt(updatedMatch.Sayg, context, token)
                 : null,
         };
 
@@ -94,7 +94,7 @@ public class UpdateScoresAdapter : IUpdateScoresAdapter
             HomePlayers = await updatedMatch.HomePlayers.SelectAsync(p => AdaptToPlayer(p, token)).ToList(),
             HomeScore = updatedMatch.HomeScore,
             Sayg = updatedMatch.Sayg != null && permitted
-                ? await _scoreAsYouGoAdapter.Adapt(updatedMatch.Sayg, token)
+                ? await _scoreAsYouGoAdapter.Adapt(updatedMatch.Sayg, context, token)
                 : currentMatch.Sayg,
         };
         await _auditingHelper.SetUpdated(match, token);

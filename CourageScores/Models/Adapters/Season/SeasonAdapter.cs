@@ -1,6 +1,8 @@
 ﻿using CourageScores.Common;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Season;
+using CourageScores.Services.Identity;
+using CosmosSeason = CourageScores.Models.Cosmos.Season.Season;
 
 namespace CourageScores.Models.Adapters.Season;
 
@@ -15,13 +17,13 @@ public class SeasonAdapter : IAdapter<Cosmos.Season.Season, SeasonDto>
         _clock = clock;
     }
 
-    public async Task<SeasonDto> Adapt(Cosmos.Season.Season model, CancellationToken token)
+    public async Task<SeasonDto> Adapt(CosmosSeason model, UserAccessContext context, CancellationToken token)
     {
         var now = _clock.GetUtcNow().UtcDateTime.Date;
 
         return new SeasonDto
         {
-            Divisions = await model.Divisions.SelectAsync(division => _divisionAdapter.Adapt(division, token)).ToList(),
+            Divisions = await model.Divisions.SelectAsync(division => _divisionAdapter.Adapt(division, context, token)).ToList(),
             Id = model.Id,
             EndDate = model.EndDate,
             StartDate = model.StartDate,
@@ -33,11 +35,11 @@ public class SeasonAdapter : IAdapter<Cosmos.Season.Season, SeasonDto>
         }.AddAuditProperties(model);
     }
 
-    public async Task<Cosmos.Season.Season> Adapt(SeasonDto dto, CancellationToken token)
+    public async Task<CosmosSeason> Adapt(SeasonDto dto, UserAccessContext context, CancellationToken token)
     {
-        return new Cosmos.Season.Season
+        return new CosmosSeason
         {
-            Divisions = await dto.Divisions.SelectAsync(division => _divisionAdapter.Adapt(division, token)).ToList(),
+            Divisions = await dto.Divisions.SelectAsync(division => _divisionAdapter.Adapt(division, context, token)).ToList(),
             Id = dto.Id,
             EndDate = dto.EndDate,
             StartDate = dto.StartDate,

@@ -41,6 +41,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         IReadOnlyDictionary<Guid, DivisionDto?> teamIdToDivisionLookup,
         SeasonDto season,
         IReadOnlyCollection<Guid> divisionIds,
+        UserAccessContext userAccessContext,
         CancellationToken token)
     {
         var user = await _userService.GetUser(token);
@@ -55,7 +56,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
             Date = date,
             Fixtures = (await FixturesPerDate(gamesForDate, season, teams, includeFixtureProposals, otherFixturesForDate, teamIdToDivisionLookup, token).ToList())
                 .OrderBy(f => f.HomeTeam.Name).ToList(),
-            TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate, teams, canCreateTournaments && gamesForDate.Count == 0 && includeProposals, token)
+            TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate, teams, canCreateTournaments && gamesForDate.Count == 0 && includeProposals, userAccessContext, token)
                 .OrderByAsync(f => f.Address).ToList(),
             Notes = notesForDate.ToList(),
         };
@@ -108,6 +109,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         IReadOnlyCollection<TournamentGame> tournamentGames,
         IReadOnlyCollection<TeamDto> teams,
         bool includePossibleVenues,
+        UserAccessContext context,
         [EnumeratorCancellation] CancellationToken token)
     {
         var addressesInUse = new HashSet<string>();
@@ -115,7 +117,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         foreach (var game in tournamentGames)
         {
             addressesInUse.Add(game.Address);
-            yield return await _divisionTournamentFixtureDetailsAdapter.Adapt(game, token);
+            yield return await _divisionTournamentFixtureDetailsAdapter.Adapt(game, context, token);
         }
 
         if (includePossibleVenues)
@@ -125,7 +127,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
                          .GroupBy(t => t.AddressOrName())
                          .Where(g => !addressesInUse.Contains(g.Key)))
             {
-                yield return await _divisionTournamentFixtureDetailsAdapter.ForUnselectedVenue(teamAddress, token);
+                yield return await _divisionTournamentFixtureDetailsAdapter.ForUnselectedVenue(teamAddress, context, token);
             }
         }
     }

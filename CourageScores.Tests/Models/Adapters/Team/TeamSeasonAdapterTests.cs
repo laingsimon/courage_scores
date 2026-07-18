@@ -3,6 +3,7 @@ using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Team;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
+using CourageScores.Services.Identity;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters.Team;
@@ -38,7 +39,7 @@ public class TeamSeasonAdapterTests
             DivisionId = Guid.NewGuid(),
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.SeasonId, Is.EqualTo(model.SeasonId));
@@ -60,7 +61,7 @@ public class TeamSeasonAdapterTests
             DivisionId = Guid.NewGuid(),
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.SeasonId, Is.EqualTo(dto.SeasonId));

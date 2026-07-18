@@ -79,13 +79,13 @@ public class FeatureServiceTests
         };
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _unconfiguredAdapter.Setup(a => a.Adapt(_configuredBoolFeature.Id, _token)).ReturnsAsync(_configuredBoolFeatureDto);
+        _unconfiguredAdapter.Setup(a => a.Adapt(_configuredBoolFeature.Id, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(_configuredBoolFeatureDto);
         _clock.Setup(c => c.GetUtcNow()).Returns(_now);
         _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_configuredBoolFeature));
         _adapter.AddMapping(_configuredBoolFeature, _configuredBoolFeatureDto);
         _featureLookup.Setup(l => l.Get(BooleanFeature.Id)).Returns(BooleanFeature);
-        _reconfigureAdapter.Setup(a => a.Adapt(_reconfigureUntypedFeature, _token)).ReturnsAsync(_untypedFeature);
-        _reconfigureAdapter.Setup(a => a.Adapt(_reconfigureBoolFeatureDto, _token)).ReturnsAsync(_configuredBoolFeature);
+        _reconfigureAdapter.Setup(a => a.Adapt(_reconfigureUntypedFeature, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(_untypedFeature);
+        _reconfigureAdapter.Setup(a => a.Adapt(_reconfigureBoolFeatureDto, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(_configuredBoolFeature);
         _accessService
             .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), It.IsAny<UserAccessContext>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, UserAccessContext _, CancellationToken _) => _user != null && _access.Contains(access));
@@ -150,7 +150,7 @@ public class FeatureServiceTests
             Id = _configuredBoolFeature.Id,
         };
         _configuredBoolFeatureDto.Deleted = new DateTime(2001, 02, 03);
-        _unconfiguredAdapter.Setup(a => a.Adapt(_configuredBoolFeature.Id, _token)).ReturnsAsync(unconfiguredDto);
+        _unconfiguredAdapter.Setup(a => a.Adapt(_configuredBoolFeature.Id, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(unconfiguredDto);
 
         var result = await _service.GetAllFeatures(_token).ToList();
 
@@ -209,7 +209,7 @@ public class FeatureServiceTests
         var updatedFeature = ConfiguredFeature(BooleanFeature, "TRUE");
         _configuredBoolFeatureDto.Author = "AUTHOR";
         _configuredBoolFeatureDto.Created = new DateTime(2020, 10, 10);
-        _reconfigureAdapter.Setup(a => a.Adapt(update, _token)).ReturnsAsync(updatedFeature);
+        _reconfigureAdapter.Setup(a => a.Adapt(update, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(updatedFeature);
 
         var result = await _service.UpdateFeature(update, _token);
 
@@ -228,7 +228,7 @@ public class FeatureServiceTests
         var updatedFeature = ConfiguredFeature(BooleanFeature, "TRUE");
         _configuredBoolFeatureDto.Remover = "REMOVER";
         _configuredBoolFeatureDto.Deleted = new DateTime(2020, 10, 10);
-        _reconfigureAdapter.Setup(a => a.Adapt(update, _token)).ReturnsAsync(updatedFeature);
+        _reconfigureAdapter.Setup(a => a.Adapt(update, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(updatedFeature);
 
         var result = await _service.UpdateFeature(update, _token);
 
@@ -245,7 +245,7 @@ public class FeatureServiceTests
         var updatedFeature = ConfiguredFeature(BooleanFeature, "");
         _configuredBoolFeatureDto.Editor = "EDITOR";
         _configuredBoolFeatureDto.Updated = new DateTime(2020, 10, 10);
-        _reconfigureAdapter.Setup(a => a.Adapt(update, _token)).ReturnsAsync(updatedFeature);
+        _reconfigureAdapter.Setup(a => a.Adapt(update, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(updatedFeature);
 
         var result = await _service.UpdateFeature(update, _token);
 
@@ -263,7 +263,7 @@ public class FeatureServiceTests
         var unconfiguredFeature = CreateFeature(Feature.FeatureValueType.String);
         var updatedFeature = ConfiguredFeature(unconfiguredFeature, "");
         var update = ReconfigureFeatureDto(unconfiguredFeature, "");
-        _reconfigureAdapter.Setup(a => a.Adapt(update, _token)).ReturnsAsync(updatedFeature);
+        _reconfigureAdapter.Setup(a => a.Adapt(update, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(updatedFeature);
 
         var result = await _service.UpdateFeature(update, _token);
 
@@ -327,7 +327,7 @@ public class FeatureServiceTests
         _featureLookup.Setup(l => l.Get(DecimalFeature.Id)).Returns(DecimalFeature);
         var configuredFeature = ConfiguredFeature(DecimalFeature, value);
         var configuredValueDto = ReconfigureFeatureDto(DecimalFeature);
-        _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, _token)).ReturnsAsync(configuredFeature);
+        _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(configuredFeature);
 
         var result = await _service.UpdateFeature(configuredValueDto, _token);
 
@@ -341,7 +341,7 @@ public class FeatureServiceTests
         _featureLookup.Setup(l => l.Get(DecimalFeature.Id)).Returns(DecimalFeature);
         var configuredFeature = ConfiguredFeature(DecimalFeature, "foo");
         var configuredValueDto = ReconfigureFeatureDto(DecimalFeature);
-        _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, _token)).ReturnsAsync(configuredFeature);
+        _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(configuredFeature);
 
         var result = await _service.UpdateFeature(configuredValueDto, _token);
 
@@ -356,7 +356,7 @@ public class FeatureServiceTests
         _featureLookup.Setup(l => l.Get(IntFeature.Id)).Returns(IntFeature);
         var configuredFeature = ConfiguredFeature(IntFeature, value);
         var configuredValueDto = ReconfigureFeatureDto(IntFeature);
-        _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, _token)).ReturnsAsync(configuredFeature);
+        _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(configuredFeature);
 
         var result = await _service.UpdateFeature(configuredValueDto, _token);
 
@@ -370,7 +370,7 @@ public class FeatureServiceTests
         _featureLookup.Setup(l => l.Get(IntFeature.Id)).Returns(IntFeature);
         var configuredFeature = ConfiguredFeature(IntFeature, "foo");
         var configuredValueDto = ReconfigureFeatureDto(IntFeature);
-        _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, _token)).ReturnsAsync(configuredFeature);
+        _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(configuredFeature);
 
         var result = await _service.UpdateFeature(configuredValueDto, _token);
 
@@ -385,7 +385,7 @@ public class FeatureServiceTests
         _featureLookup.Setup(l => l.Get(TimeSpanFeature.Id)).Returns(TimeSpanFeature);
         var configuredFeature = ConfiguredFeature(TimeSpanFeature, value);
         var configuredValueDto = ReconfigureFeatureDto(TimeSpanFeature);
-        _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, _token)).ReturnsAsync(configuredFeature);
+        _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(configuredFeature);
 
         var result = await _service.UpdateFeature(configuredValueDto, _token);
 
@@ -399,7 +399,7 @@ public class FeatureServiceTests
         _featureLookup.Setup(l => l.Get(TimeSpanFeature.Id)).Returns(TimeSpanFeature);
         var configuredFeature = ConfiguredFeature(TimeSpanFeature, "foo");
         var configuredValueDto = ReconfigureFeatureDto(TimeSpanFeature);
-        _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, _token)).ReturnsAsync(configuredFeature);
+        _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(configuredFeature);
 
         var result = await _service.UpdateFeature(configuredValueDto, _token);
 
@@ -413,7 +413,7 @@ public class FeatureServiceTests
         _featureLookup.Setup(l => l.Get(StringFeature.Id)).Returns(StringFeature);
         var configuredFeature = ConfiguredFeature(StringFeature, "some string");
         var configuredValueDto = ReconfigureFeatureDto(StringFeature);
-        _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, _token)).ReturnsAsync(configuredFeature);
+        _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(configuredFeature);
 
         var result = await _service.UpdateFeature(configuredValueDto, _token);
 
@@ -428,7 +428,7 @@ public class FeatureServiceTests
         _featureLookup.Setup(l => l.Get(feature.Id)).Returns(feature);
         var configuredFeature = ConfiguredFeature(feature, "some unknown value");
         var configuredValueDto = ReconfigureFeatureDto(feature);
-        _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, _token)).ReturnsAsync(configuredFeature);
+        _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(configuredFeature);
 
         var result = await _service.UpdateFeature(configuredValueDto, _token);
 

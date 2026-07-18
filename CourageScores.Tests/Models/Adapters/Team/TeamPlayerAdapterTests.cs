@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Team;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Identity;
@@ -14,7 +15,7 @@ public class TeamPlayerAdapterTests
 {
     private readonly CancellationToken _token = CancellationToken.None;
     private Mock<IAccessService> _accessService = null!;
-    private TeamPlayerAdapter _adapter = null!;
+    private IAdapter<TeamPlayer, TeamPlayerDto> _adapter = null!;
     private UserDto? _user;
 
     [SetUp]
@@ -40,7 +41,7 @@ public class TeamPlayerAdapterTests
         _user = new UserDto();
         _accessService.Setup(s => s.HasAccess(_user, AccessOption.ManageTeams, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(true);
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.Name, Is.EqualTo("name"));
@@ -59,7 +60,7 @@ public class TeamPlayerAdapterTests
         };
         _user = null;
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.EmailAddress, Is.Null);
     }
@@ -74,7 +75,7 @@ public class TeamPlayerAdapterTests
         };
         _accessService.Setup(s => s.HasAccess(_user, AccessOption.ManageTeams, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(false);
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.EmailAddress, Is.Null);
     }
@@ -89,7 +90,7 @@ public class TeamPlayerAdapterTests
         };
         _accessService.Setup(s => s.HasAccess(_user, AccessOption.ManageTeams, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(false);
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Gender, Is.Null);
     }
@@ -111,7 +112,7 @@ public class TeamPlayerAdapterTests
         _accessService.Setup(s => s.HasAccess(_user, AccessOption.ManageAccess, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(manageAccess);
         _user.EmailAddress = emailAddress ?? "other@somewhere.com";
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.EmailAddress, Is.EqualTo("email@somewhere.com"));
     }
@@ -128,7 +129,7 @@ public class TeamPlayerAdapterTests
             Gender = GenderDto.Female
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.Name, Is.EqualTo(dto.Name));
@@ -146,7 +147,7 @@ public class TeamPlayerAdapterTests
             EmailAddress = "email@somewhere.com   ",
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Name, Is.EqualTo("name"));
         Assert.That(result.EmailAddress, Is.EqualTo("email@somewhere.com"));
@@ -161,7 +162,7 @@ public class TeamPlayerAdapterTests
             EmailAddress = "email@somewhere.com",
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Gender, Is.Null);
     }

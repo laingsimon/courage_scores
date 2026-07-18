@@ -8,6 +8,7 @@ using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Models.Dtos.Live;
+using CourageScores.Services.Identity;
 using CourageScores.Services.Live;
 using CourageScores.Services.Season;
 
@@ -70,10 +71,14 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         }
 
         var divisionIdToEvictFromCache = GetDivisionIdToEvictFromCache(game, update);
-        var context = new ActionResult<TournamentGame>
+        var result = new ActionResult<TournamentGame>
         {
             Success = true,
         };
+
+        var context = game.DivisionId != null
+            ? UserAccessContext.ForDivision(game.SeasonId, game.DivisionId.Value)
+            : UserAccessContext.ForSeason(game.SeasonId);
 
         game.Address = update.Address.TrimOrDefault();
         game.Date = update.Date;
@@ -87,10 +92,10 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         game.Host = update.Host?.Trim();
         game.Opponent = update.Opponent?.Trim();
         game.Gender = update.Gender?.Trim();
-        game.Sides = await update.Sides.SelectAsync(s => _tournamentSideAdapter.Adapt(s, token)).ToList();
-        game.Round = update.Round != null ? await _tournamentRoundAdapter.Adapt(update.Round, token) : null;
-        game.OneEighties = await update.OneEighties.SelectAsync(p => _tournamentPlayerAdapter.Adapt(p, token)).ToList();
-        game.Over100Checkouts = await update.Over100Checkouts.SelectAsync(p => _notableTournamentPlayerAdapter.Adapt(p, token)).ToList();
+        game.Sides = await update.Sides.SelectAsync(s => _tournamentSideAdapter.Adapt(s, context, token)).ToList();
+        game.Round = update.Round != null ? await _tournamentRoundAdapter.Adapt(update.Round, context, token) : null;
+        game.OneEighties = await update.OneEighties.SelectAsync(p => _tournamentPlayerAdapter.Adapt(p, context, token)).ToList();
+        game.Over100Checkouts = await update.Over100Checkouts.SelectAsync(p => _notableTournamentPlayerAdapter.Adapt(p, context, token)).ToList();
         game.ExcludeFromReports = update.ExcludeFromReports;
 
         foreach (var side in game.Sides)
@@ -98,12 +103,12 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
             await UpdateSide(side, token);
         }
 
-        await UpdateRoundRecursively(game.Round, game.Sides, context, token);
+        await UpdateRoundRecursively(game.Round, game.Sides, result, token);
 
         _cacheFlags.EvictDivisionDataCacheForSeasonId = game.SeasonId;
         _cacheFlags.EvictDivisionDataCacheForDivisionId = divisionIdToEvictFromCache;
 
-        return context.As<TournamentGame>();
+        return result.As<TournamentGame>();
     }
 
     private async Task UpdateRoundRecursively(TournamentRound? round, IReadOnlyCollection<TournamentSide> sides, IActionResult<TournamentGame> context, CancellationToken token)

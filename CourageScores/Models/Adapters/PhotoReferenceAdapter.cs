@@ -1,11 +1,12 @@
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters;
 
 public class PhotoReferenceAdapter : ISimpleAdapter<PhotoReference, PhotoReferenceDto>
 {
-    public Task<PhotoReferenceDto> Adapt(PhotoReference model, CancellationToken token)
+    public Task<PhotoReferenceDto> Adapt(PhotoReference model, UserAccessContext context, CancellationToken token)
     {
         return Task.FromResult(new PhotoReferenceDto
         {
@@ -18,7 +19,7 @@ public class PhotoReferenceAdapter : ISimpleAdapter<PhotoReference, PhotoReferen
         });
     }
 
-    public Task<PhotoReference> Adapt(PhotoReferenceDto dto, CancellationToken token)
+    public Task<PhotoReference> Adapt(PhotoReferenceDto dto, UserAccessContext context, CancellationToken token)
     {
         return Task.FromResult(new PhotoReference
         {

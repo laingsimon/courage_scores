@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using CourageScores.Models.Adapters.Season.Creation;
 using CourageScores.Models.Dtos.Season.Creation;
+using CourageScores.Services.Identity;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters.Season.Creation;
@@ -27,7 +28,7 @@ public class SharedAddressAdapterTests
             new("B"),
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.EqualTo(["A", "B"]));
     }
@@ -41,7 +42,7 @@ public class SharedAddressAdapterTests
             new("  B"),
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.EqualTo(["A", "B"]));
     }
@@ -55,7 +56,7 @@ public class SharedAddressAdapterTests
             "B",
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Select(p => p.Key), Is.EqualTo(["A", "B"]));
     }

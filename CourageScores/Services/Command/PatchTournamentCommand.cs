@@ -3,6 +3,7 @@ using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Live;
+using CourageScores.Services.Identity;
 using CourageScores.Services.Live;
 
 namespace CourageScores.Services.Command;
@@ -33,6 +34,9 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
     public async Task<ActionResult<TournamentGame>> ApplyUpdate(TournamentGame model, CancellationToken token)
     {
         _patch.ThrowIfNull($"{nameof(WithPatch)} must be called first");
+        var context = model.DivisionId != null
+        ? UserAccessContext.ForDivision(model.SeasonId, model.DivisionId.Value)
+        : UserAccessContext.ForSeason(model.SeasonId);
 
         var updates = new ActionResult<object>
         {
@@ -47,13 +51,13 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
 
         if (_patch.Additional180 != null)
         {
-            updates = updates.Merge(await Patch180(model, _patch.Additional180, token));
+            updates = updates.Merge(await Patch180(model, _patch.Additional180, context, token));
             updatesApplied = true;
         }
 
         if (_patch.AdditionalOver100Checkout != null)
         {
-            updates = updates.Merge(await PatchHiCheck(model, _patch.AdditionalOver100Checkout, token));
+            updates = updates.Merge(await PatchHiCheck(model, _patch.AdditionalOver100Checkout, context, token));
             updatesApplied = true;
         }
 
@@ -72,9 +76,9 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         return updates.As(model);
     }
 
-    private async Task<ActionResult<TournamentGame>> Patch180(TournamentGame model, TournamentPlayerDto oneEighty, CancellationToken token)
+    private async Task<ActionResult<TournamentGame>> Patch180(TournamentGame model, TournamentPlayerDto oneEighty, UserAccessContext context, CancellationToken token)
     {
-        model.OneEighties.Add(await _oneEightyPlayerAdapter.Adapt(oneEighty, token));
+        model.OneEighties.Add(await _oneEightyPlayerAdapter.Adapt(oneEighty, context, token));
         return new ActionResult<TournamentGame>
         {
             Success = true,
@@ -86,9 +90,9 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         };
     }
 
-    private async Task<ActionResult<TournamentGame>> PatchHiCheck(TournamentGame model, NotableTournamentPlayerDto hiCheck, CancellationToken token)
+    private async Task<ActionResult<TournamentGame>> PatchHiCheck(TournamentGame model, NotableTournamentPlayerDto hiCheck, UserAccessContext context, CancellationToken token)
     {
-        model.Over100Checkouts.Add(await _hiCheckPlayerAdapter.Adapt(hiCheck, token));
+        model.Over100Checkouts.Add(await _hiCheckPlayerAdapter.Adapt(hiCheck, context, token));
         return new ActionResult<TournamentGame>
         {
             Success = true,

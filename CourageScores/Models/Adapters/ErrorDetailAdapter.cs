@@ -1,5 +1,6 @@
 ﻿using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
+using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http.Extensions;
 
@@ -16,7 +17,7 @@ public class ErrorDetailAdapter : IAdapter<ErrorDetail, ErrorDetailDto>, IErrorD
         _clock = clock;
     }
 
-    public Task<ErrorDetail> Adapt(ErrorDetailDto dto, CancellationToken token)
+    public Task<ErrorDetail> Adapt(ErrorDetailDto dto, UserAccessContext context, CancellationToken token)
     {
         return Task.FromResult(new ErrorDetail
         {
@@ -32,7 +33,7 @@ public class ErrorDetailAdapter : IAdapter<ErrorDetail, ErrorDetailDto>, IErrorD
         }.AddAuditProperties(dto));
     }
 
-    public Task<ErrorDetailDto> Adapt(ErrorDetail model, CancellationToken token)
+    public Task<ErrorDetailDto> Adapt(ErrorDetail model, UserAccessContext context, CancellationToken token)
     {
         return Task.FromResult(new ErrorDetailDto
         {

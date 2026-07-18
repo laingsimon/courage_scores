@@ -55,7 +55,7 @@ public class UserService : IUserService
         }
 
         return _user != null
-            ? await _userAdapter.Adapt(_user, token)
+            ? await _userAdapter.Adapt(_user, UserAccessContext.None(), token)
             : null;
     }
 
@@ -74,7 +74,7 @@ public class UserService : IUserService
                 break;
             }
 
-            yield return await _userAdapter.Adapt(user, token); // NOTE: Includes access
+            yield return await _userAdapter.Adapt(user, UserAccessContext.None(), token); // NOTE: Includes access
         }
     }
 
@@ -88,7 +88,7 @@ public class UserService : IUserService
 
         var user = await _userRepository.GetUser(emailAddress, token);
         return user != null
-            ? await _userAdapter.Adapt(user, token)
+            ? await _userAdapter.Adapt(user, UserAccessContext.None(), token)
             : null;
     }
 
@@ -156,7 +156,7 @@ public class UserService : IUserService
             {
                 "Access updated",
             },
-            Result = await _userAdapter.Adapt(userToUpdate, token),
+            Result = await _userAdapter.Adapt(userToUpdate, UserAccessContext.None(), token),
         };
     }
 

@@ -3,6 +3,7 @@ using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters.Game;
 
@@ -17,29 +18,29 @@ public class GameMatchAdapter : IAdapter<GameMatch, GameMatchDto>
         _scoreAsYouGoAdapter = scoreAsYouGoAdapter;
     }
 
-    public async Task<GameMatchDto> Adapt(GameMatch model, CancellationToken token)
+    public async Task<GameMatchDto> Adapt(GameMatch model, UserAccessContext context, CancellationToken token)
     {
         return new GameMatchDto
         {
             Id = model.Id,
-            AwayPlayers = await model.AwayPlayers.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
+            AwayPlayers = await model.AwayPlayers.SelectAsync(player => _gamePlayerAdapter.Adapt(player, context, token)).ToList(),
             AwayScore = model.AwayScore,
-            HomePlayers = await model.HomePlayers.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
+            HomePlayers = await model.HomePlayers.SelectAsync(player => _gamePlayerAdapter.Adapt(player, context, token)).ToList(),
             HomeScore = model.HomeScore,
-            Sayg = model.Sayg != null ? await _scoreAsYouGoAdapter.Adapt(model.Sayg, token) : null,
+            Sayg = model.Sayg != null ? await _scoreAsYouGoAdapter.Adapt(model.Sayg, context, token) : null,
         }.AddAuditProperties(model);
     }
 
-    public async Task<GameMatch> Adapt(GameMatchDto dto, CancellationToken token)
+    public async Task<GameMatch> Adapt(GameMatchDto dto, UserAccessContext context, CancellationToken token)
     {
         return new GameMatch
         {
             Id = dto.Id,
-            AwayPlayers = await dto.AwayPlayers.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
+            AwayPlayers = await dto.AwayPlayers.SelectAsync(player => _gamePlayerAdapter.Adapt(player, context, token)).ToList(),
             AwayScore = dto.AwayScore,
-            HomePlayers = await dto.HomePlayers.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
+            HomePlayers = await dto.HomePlayers.SelectAsync(player => _gamePlayerAdapter.Adapt(player, context, token)).ToList(),
             HomeScore = dto.HomeScore,
-            Sayg = dto.Sayg != null ? await _scoreAsYouGoAdapter.Adapt(dto.Sayg, token) : null,
+            Sayg = dto.Sayg != null ? await _scoreAsYouGoAdapter.Adapt(dto.Sayg, context, token) : null,
         }.AddAuditProperties(dto);
     }
 }

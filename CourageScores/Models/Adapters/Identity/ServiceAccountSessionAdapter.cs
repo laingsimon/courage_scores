@@ -1,5 +1,6 @@
 ﻿using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters.Identity;
 
@@ -12,7 +13,7 @@ public class ServiceAccountSessionAdapter : IAdapter<ServiceAccountSession, Serv
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public Task<ServiceAccountSessionDto> Adapt(ServiceAccountSession model, CancellationToken token)
+    public Task<ServiceAccountSessionDto> Adapt(ServiceAccountSession model, UserAccessContext context, CancellationToken token)
     {
         return Task.FromResult(new ServiceAccountSessionDto
         {
@@ -32,7 +33,7 @@ public class ServiceAccountSessionAdapter : IAdapter<ServiceAccountSession, Serv
         }.AddAuditProperties(model));
     }
 
-    public Task<ServiceAccountSession> Adapt(ServiceAccountSessionDto dto, CancellationToken token)
+    public Task<ServiceAccountSession> Adapt(ServiceAccountSessionDto dto, UserAccessContext context, CancellationToken token)
     {
         return Task.FromResult(new ServiceAccountSession
         {

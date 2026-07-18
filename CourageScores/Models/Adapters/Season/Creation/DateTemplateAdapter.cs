@@ -1,6 +1,7 @@
 ﻿using CourageScores.Common;
 using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Dtos.Season.Creation;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters.Season.Creation;
 
@@ -13,19 +14,19 @@ public class DateTemplateAdapter : ISimpleAdapter<DateTemplate, DateTemplateDto>
         _fixtureTemplateAdapter = fixtureTemplateAdapter;
     }
 
-    public async Task<DateTemplateDto> Adapt(DateTemplate model, CancellationToken token)
+    public async Task<DateTemplateDto> Adapt(DateTemplate model, UserAccessContext context, CancellationToken token)
     {
         return new DateTemplateDto
         {
-            Fixtures = await model.Fixtures.SelectAsync(f => _fixtureTemplateAdapter.Adapt(f, token)).ToList(),
+            Fixtures = await model.Fixtures.SelectAsync(f => _fixtureTemplateAdapter.Adapt(f, context, token)).ToList(),
         };
     }
 
-    public async Task<DateTemplate> Adapt(DateTemplateDto dto, CancellationToken token)
+    public async Task<DateTemplate> Adapt(DateTemplateDto dto, UserAccessContext context, CancellationToken token)
     {
         return new DateTemplate
         {
-            Fixtures = await dto.Fixtures.SelectAsync(f => _fixtureTemplateAdapter.Adapt(f, token)).ToList(),
+            Fixtures = await dto.Fixtures.SelectAsync(f => _fixtureTemplateAdapter.Adapt(f, context, token)).ToList(),
         };
     }
 }

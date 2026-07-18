@@ -2,6 +2,7 @@ using AutoFixture;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
+using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -79,7 +80,7 @@ public class ErrorDetailAdapterTests
             UserName = "user",
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Type, Is.EqualTo(dto.Type));
         Assert.That(result.Url, Is.EqualTo(dto.Url));
@@ -108,7 +109,7 @@ public class ErrorDetailAdapterTests
             UserName = "user",
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Type, Is.EqualTo(model.Type));
         Assert.That(result.Url, Is.EqualTo(model.Url));

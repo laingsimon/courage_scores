@@ -1,5 +1,6 @@
 using CourageScores.Models.Adapters.Live;
 using CourageScores.Models.Live;
+using CourageScores.Services.Identity;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters.Live;
@@ -26,7 +27,7 @@ public class WebSocketDtoAdapterTests
             UserName = "username",
         };
 
-        var result = await _adapter.Adapt(details, _token);
+        var result = await _adapter.Adapt(details, UserAccessContext.None(), _token);
 
         Assert.That(result.Connected, Is.EqualTo(details.Connected));
         Assert.That(result.Id, Is.EqualTo(details.Id));

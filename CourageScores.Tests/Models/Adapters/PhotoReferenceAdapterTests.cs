@@ -1,6 +1,7 @@
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
+using CourageScores.Services.Identity;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters;
@@ -16,7 +17,7 @@ public class PhotoReferenceAdapterTests
     {
         var dto = new PhotoReferenceDto();
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Author, Is.EqualTo(dto.Author));
         Assert.That(result.Id, Is.EqualTo(dto.Id));
@@ -31,7 +32,7 @@ public class PhotoReferenceAdapterTests
     {
         var model = new PhotoReference();
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Author, Is.EqualTo(model.Author));
         Assert.That(result.Id, Is.EqualTo(model.Id));

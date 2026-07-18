@@ -78,12 +78,12 @@ public class GenericDataServiceTests
     public async Task Get_WhenFound_AdaptsAndReturnsItem()
     {
         var dto = new Dto();
-        _adapter.Setup(a => a.Adapt(_model, _token)).ReturnsAsync(() => dto);
+        _adapter.Setup(a => a.Adapt(_model, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(() => dto);
 
         var result = await _service.Get(_id, _token);
 
         Assert.That(result, Is.Not.Null);
-        _adapter.Verify(a => a.Adapt(_model, _token));
+        _adapter.Verify(a => a.Adapt(_model, It.IsAny<UserAccessContext>(), _token));
         Assert.That(result, Is.SameAs(dto));
     }
 
@@ -92,13 +92,13 @@ public class GenericDataServiceTests
     {
         var dto = new Dto();
         _repository.Setup(r => r.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_model));
-        _adapter.Setup(a => a.Adapt(_model, _token)).ReturnsAsync(() => dto);
+        _adapter.Setup(a => a.Adapt(_model, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(() => dto);
 
         var returnedItems = await _service.GetAll(_token).ToList();
 
         Assert.That(returnedItems, Is.Not.Empty);
         Assert.That(returnedItems, Is.EquivalentTo([dto]));
-        _adapter.Verify(a => a.Adapt(_model, _token));
+        _adapter.Verify(a => a.Adapt(_model, It.IsAny<UserAccessContext>(), _token));
     }
 
     [Test]
@@ -106,13 +106,13 @@ public class GenericDataServiceTests
     {
         var dto = new Dto();
         _repository.Setup(r => r.GetSome("filter", _token)).Returns(() => TestUtilities.AsyncEnumerable(_model));
-        _adapter.Setup(a => a.Adapt(_model, _token)).ReturnsAsync(() => dto);
+        _adapter.Setup(a => a.Adapt(_model, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(() => dto);
 
         var returnedItems = await _service.GetWhere("filter", _token).ToList();
 
         Assert.That(returnedItems, Is.Not.Empty);
         Assert.That(returnedItems, Is.EquivalentTo([dto]));
-        _adapter.Verify(a => a.Adapt(_model, _token));
+        _adapter.Verify(a => a.Adapt(_model, It.IsAny<UserAccessContext>(), _token));
     }
 
     [Test]
@@ -237,7 +237,7 @@ public class GenericDataServiceTests
             Errors = { "some message" },
         };
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => EditPermitted);
-        _adapter.Setup(a => a.Adapt(updatedModel, _token)).ReturnsAsync(() => updatedDto);
+        _adapter.Setup(a => a.Adapt(updatedModel, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(() => updatedDto);
         _repository.Setup(r => r.Upsert(_model, _token)).ReturnsAsync(() => updatedModel);
         command.Setup(c => c.ApplyUpdate(_model, _token)).ReturnsAsync(() => commandResult);
 
@@ -263,7 +263,7 @@ public class GenericDataServiceTests
             Messages = { "some message" },
         };
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => EditPermitted);
-        _adapter.Setup(a => a.Adapt(updatedModel, _token)).ReturnsAsync(() => updatedDto);
+        _adapter.Setup(a => a.Adapt(updatedModel, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(() => updatedDto);
         _repository.Setup(r => r.Upsert(_model, _token)).ReturnsAsync(() => updatedModel);
         command.Setup(c => c.ApplyUpdate(_model, _token)).ReturnsAsync(() => commandResult);
 
@@ -326,7 +326,7 @@ public class GenericDataServiceTests
     {
         var deletedDto = new Dto();
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => DeletePermitted);
-        _adapter.Setup(a => a.Adapt(_model, _token)).ReturnsAsync(() => deletedDto);
+        _adapter.Setup(a => a.Adapt(_model, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(() => deletedDto);
 
         var result = await _service.Delete(_id, _token);
 
@@ -346,7 +346,7 @@ public class GenericDataServiceTests
         var command = new Mock<IUpdateCommand<Model, object>>();
         var commandResult = ActionResult(success: true, delete: true, "some message");
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => EditPermitted);
-        _adapter.Setup(a => a.Adapt(updatedModel, _token)).ReturnsAsync(() => updatedDto);
+        _adapter.Setup(a => a.Adapt(updatedModel, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(() => updatedDto);
         _repository.Setup(r => r.Upsert(_model, _token)).ReturnsAsync(() => updatedModel);
         command.Setup(c => c.ApplyUpdate(_model, _token)).ReturnsAsync(() => commandResult);
 
@@ -370,7 +370,7 @@ public class GenericDataServiceTests
         var command = new Mock<IUpdateCommand<Model, object>>();
         var commandResult = ActionResult(success: true, delete: true, "some message");
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => EditAndDeletePermitted);
-        _adapter.Setup(a => a.Adapt(deletedModel, _token)).ReturnsAsync(() => deletedDto);
+        _adapter.Setup(a => a.Adapt(deletedModel, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(() => deletedDto);
         _repository.Setup(r => r.Upsert(_model, _token)).ReturnsAsync(() => deletedModel);
         command.Setup(c => c.ApplyUpdate(_model, _token)).ReturnsAsync(() => commandResult);
 
@@ -393,7 +393,7 @@ public class GenericDataServiceTests
         var command = new Mock<IPublishingCommand<Model>>().As<IUpdateCommand<Model, object>>();
         var commandResult = ActionResult(success: true, delete: false, "some message");
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => EditAndDeletePermitted);
-        _adapter.Setup(a => a.Adapt(deletedModel, _token)).ReturnsAsync(() => deletedDto);
+        _adapter.Setup(a => a.Adapt(deletedModel, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(() => deletedDto);
         _repository.Setup(r => r.Upsert(_model, _token)).ReturnsAsync(() => deletedModel);
         command.Setup(c => c.ApplyUpdate(_model, _token)).ReturnsAsync(() => commandResult);
 
@@ -410,7 +410,7 @@ public class GenericDataServiceTests
         var command = new Mock<IPublishingCommand<Model>>().As<IUpdateCommand<Model, object>>();
         var commandResult = ActionResult(success: true, delete: true, "some message");
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => EditAndDeletePermitted);
-        _adapter.Setup(a => a.Adapt(deletedModel, _token)).ReturnsAsync(() => deletedDto);
+        _adapter.Setup(a => a.Adapt(deletedModel, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(() => deletedDto);
         _repository.Setup(r => r.Upsert(_model, _token)).ReturnsAsync(() => deletedModel);
         command.Setup(c => c.ApplyUpdate(_model, _token)).ReturnsAsync(() => commandResult);
 

@@ -2,6 +2,7 @@
 using CourageScores.Models.Adapters.Season.Creation;
 using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Dtos.Season.Creation;
+using CourageScores.Services.Identity;
 using CourageScores.Tests.Models.Dtos.Season.Creation;
 using NUnit.Framework;
 
@@ -29,7 +30,7 @@ public class FixtureTemplateAdapterTests
             Away = new TeamPlaceholderDto("A"),
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Home, Is.EqualTo("H"));
         Assert.That(result.Away, Is.EqualTo("A"));
@@ -43,7 +44,7 @@ public class FixtureTemplateAdapterTests
             Home = new TeamPlaceholderDto("H"),
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Home, Is.EqualTo("H"));
         Assert.That(result.Away, Is.Null);
@@ -58,7 +59,7 @@ public class FixtureTemplateAdapterTests
             Away = "A",
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Home, Is.EqualTo(new TeamPlaceholderDto("H")).Using(new TeamPlaceholderDtoEqualityComparer()));
         Assert.That(result.Away, Is.EqualTo(new TeamPlaceholderDto("A")).Using(new TeamPlaceholderDtoEqualityComparer()));
@@ -72,7 +73,7 @@ public class FixtureTemplateAdapterTests
             Home = "H",
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Home, Is.EqualTo(new TeamPlaceholderDto("H")).Using(new TeamPlaceholderDtoEqualityComparer()));
         Assert.That(result.Away, Is.Null);

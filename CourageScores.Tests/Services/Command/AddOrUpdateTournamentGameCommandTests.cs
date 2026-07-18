@@ -12,6 +12,7 @@ using CourageScores.Models.Dtos.Live;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Services;
 using CourageScores.Services.Command;
+using CourageScores.Services.Identity;
 using CourageScores.Services.Live;
 using CourageScores.Services.Season;
 using CourageScores.Tests.Models.Adapters;
@@ -99,16 +100,16 @@ public class AddOrUpdateTournamentGameCommandTests
         _command = fixture.Create<AddOrUpdateTournamentGameCommand>();
 
         tournamentPlayerAdapter
-            .Setup(a => a.Adapt(It.IsAny<TournamentPlayerDto>(), _token))
-            .ReturnsAsync((TournamentPlayerDto player, CancellationToken _) => new TournamentPlayer
+            .Setup(a => a.Adapt(It.IsAny<TournamentPlayerDto>(), It.IsAny<UserAccessContext>(), _token))
+            .ReturnsAsync((TournamentPlayerDto player, UserAccessContext _, CancellationToken _) => new TournamentPlayer
             {
                 Id = player.Id,
                 Name = player.Name,
             });
 
         seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(() => _season);
-        tournamentPlayerAdapter.Setup(a => a.Adapt(OneEightyPlayerDto, _token)).ReturnsAsync(OneEightyPlayer);
-        notableTournamentPlayerAdapter.Setup(a => a.Adapt(Over100CheckoutPlayerDto, _token)).ReturnsAsync(Over100CheckoutPlayer);
+        tournamentPlayerAdapter.Setup(a => a.Adapt(OneEightyPlayerDto, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(OneEightyPlayer);
+        notableTournamentPlayerAdapter.Setup(a => a.Adapt(Over100CheckoutPlayerDto, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(Over100CheckoutPlayer);
     }
 
     [Test]
