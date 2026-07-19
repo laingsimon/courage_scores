@@ -5,6 +5,7 @@ using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Models.Dtos.Live;
 using CourageScores.Models.Live;
 using CourageScores.Services;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters.Live;
 
@@ -21,7 +22,7 @@ public class WatchableDataDtoAdapter : ISimpleOnewayAdapter<WatchableData, Watch
         _saygStorageService = saygStorageService;
     }
 
-    public async Task<WatchableDataDto> Adapt(WatchableData model, CancellationToken token)
+    public async Task<WatchableDataDto> Adapt(WatchableData model, UserAccessContext context, CancellationToken token)
     {
         var originatingUrlBase = string.IsNullOrEmpty(model.Connection.OriginatingUrl)
             ? null

@@ -104,8 +104,8 @@ public class SeasonTemplateServiceTests
         _teamService.Setup(s => s.GetTeamsForSeason(_season.Id, _token))
             .Returns(() => TestUtilities.AsyncEnumerable(_teamsInSeason));
         accessService
-            .Setup(s => s.HasAccess(_user, It.IsAny<AccessOption>(), _token))
-            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
+            .Setup(s => s.HasAccess(_user, It.IsAny<AccessOption>(), It.IsAny<UserAccessContext>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, UserAccessContext _, CancellationToken _) => _access.Contains(access));
     }
 
     [Test]
@@ -418,7 +418,7 @@ public class SeasonTemplateServiceTests
         var seasonHealth = new SeasonHealthDto();
         var template = new Template();
         _templateAdapter.AddMapping(template, editTemplateDto);
-        _healthCheckAdapter.Setup(a => a.Adapt(template, _token)).ReturnsAsync(seasonHealth);
+        _healthCheckAdapter.Setup(a => a.Adapt(template, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(seasonHealth);
         _healthCheckService.Setup(s => s.Check(seasonHealth, _token)).ReturnsAsync(templateHealth);
 
         var result = await _service.GetTemplateHealth(editTemplateDto, _token);

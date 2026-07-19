@@ -68,8 +68,8 @@ public class HealthCheckServiceTests
         healthCheckFactory.Setup(f => f.GetHealthChecks()).Returns([_healthCheck.Object]);
         _healthCheck.Setup(c => c.Name).Returns("CHECK");
         accessService
-            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
-            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), It.IsAny<UserAccessContext>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, UserAccessContext _, CancellationToken _) => _user != null && _access.Contains(access));
     }
 
     [Test]
@@ -110,7 +110,7 @@ public class HealthCheckServiceTests
         var emptySeasonHealth = new SeasonHealthDto();
         _seasonService.Setup(s => s.Get(emptySeason.Id, _token)).ReturnsAsync(emptySeason);
         _seasonAdapter
-            .Setup(a => a.Adapt(It.IsAny<SeasonHealthDtoAdapter.SeasonAndDivisions>(), _token))
+            .Setup(a => a.Adapt(It.IsAny<SeasonHealthDtoAdapter.SeasonAndDivisions>(), It.IsAny<UserAccessContext>(), _token))
             .ReturnsAsync(emptySeasonHealth);
 
         var result = await _service.Check(emptySeason.Id, _token);
@@ -145,7 +145,7 @@ public class HealthCheckServiceTests
                 Success = true,
             });
         _seasonAdapter
-            .Setup(a => a.Adapt(It.IsAny<SeasonHealthDtoAdapter.SeasonAndDivisions>(), _token))
+            .Setup(a => a.Adapt(It.IsAny<SeasonHealthDtoAdapter.SeasonAndDivisions>(), It.IsAny<UserAccessContext>(), _token))
             .ReturnsAsync(new SeasonHealthDto());
 
         var result = await _service.Check(seasonWithMissingDivision.Id, _token);

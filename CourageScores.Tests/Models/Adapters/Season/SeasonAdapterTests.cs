@@ -2,6 +2,7 @@ using AutoFixture;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Season;
 using CourageScores.Models.Dtos;
+using CourageScores.Services.Identity;
 using CourageScores.Tests.Services;
 using NUnit.Framework;
 using CosmosSeason = CourageScores.Models.Cosmos.Season.Season;
@@ -48,7 +49,7 @@ public class SeasonAdapterTests
             AllowFavouriteTeams = true,
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.Name, Is.EqualTo(model.Name));
@@ -77,7 +78,7 @@ public class SeasonAdapterTests
             EndDate = new DateTime(2002, 03, 04),
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.IsCurrent, Is.False);
     }
@@ -98,7 +99,7 @@ public class SeasonAdapterTests
             EndDate = new DateTime(2002, 03, 04),
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.IsCurrent, Is.False);
     }
@@ -119,7 +120,7 @@ public class SeasonAdapterTests
             EndDate = new DateTime(2002, 03, 04),
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.IsCurrent, Is.True);
     }
@@ -140,7 +141,7 @@ public class SeasonAdapterTests
             EndDate = new DateTime(2002, 03, 04),
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.IsCurrent, Is.True);
     }
@@ -155,7 +156,7 @@ public class SeasonAdapterTests
             .WithAllowFavouriteTeams(true)
             .Build();
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.Name, Is.EqualTo(dto.Name));
@@ -171,7 +172,7 @@ public class SeasonAdapterTests
         var dto = new SeasonDtoBuilder(name: "Season 1   ")
             .Build();
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Name, Is.EqualTo("Season 1"));
     }

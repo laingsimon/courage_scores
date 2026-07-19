@@ -88,7 +88,7 @@ public class DivisionDataDtoFactoryTests
 
         userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
         featureService.Setup(s => s.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(() => _vetoedFeature);
-        accessService.Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token)).ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
+        accessService.Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), It.IsAny<UserAccessContext>(), _token)).ReturnsAsync((UserDto? _, AccessOption access, UserAccessContext _, CancellationToken _) => _access.Contains(access));
     }
 
     [Test]

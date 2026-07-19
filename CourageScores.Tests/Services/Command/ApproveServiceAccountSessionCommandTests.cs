@@ -66,7 +66,7 @@ public class ApproveServiceAccountSessionCommandTests
         httpContextAccessor.Setup(a => a.HttpContext).Returns(_httpContext);
         userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         featureService.Setup(s => s.Get(FeatureLookup.ServiceAccountSessions, _token)).ReturnsAsync(() => _feature);
-        _accessService.Setup(s => s.HasAccess(_user, AccessOption.LoginServiceAccounts, _token)).ReturnsAsync(true);
+        _accessService.Setup(s => s.HasAccess(_user, AccessOption.LoginServiceAccounts, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(true);
     }
 
     [Test]
@@ -84,7 +84,7 @@ public class ApproveServiceAccountSessionCommandTests
     public async Task ApplyUpdate_WhenNotPermitted_ReturnUnsuccessful()
     {
         _user = new UserDto();
-        _accessService.Setup(s => s.HasAccess(_user, AccessOption.LoginServiceAccounts, _token)).ReturnsAsync(false);
+        _accessService.Setup(s => s.HasAccess(_user, AccessOption.LoginServiceAccounts, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(false);
 
         var result = await _command.ApplyUpdate(_model, _token);
 

@@ -83,8 +83,8 @@ public class DataServiceTests
         _configuration.Setup(c => c["RestoreRequestToken"]).Returns("Correct");
         _configuration.Setup(c => c["BackupRequestToken"]).Returns("Correct");
         accessService
-            .Setup(s => s.HasAccess(_user, It.IsAny<AccessOption>(), _token))
-            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
+            .Setup(s => s.HasAccess(_user, It.IsAny<AccessOption>(), It.IsAny<UserAccessContext>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, UserAccessContext _, CancellationToken _) => _access.Contains(access));
 
         _dataService = fixture.Create<DataService>();
     }

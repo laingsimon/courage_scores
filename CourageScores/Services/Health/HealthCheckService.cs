@@ -39,7 +39,8 @@ public class HealthCheckService : IHealthCheckService
     {
         var user = await _userService.GetUser(token);
 
-        if (!await _accessService.HasAccess(user, AccessOption.RunHealthChecks, token))
+        var context = UserAccessContext.ForSeason(seasonId);
+        if (!await _accessService.HasAccess(user, AccessOption.RunHealthChecks, context, token))
         {
             return new SeasonHealthCheckResultDto
             {
@@ -73,7 +74,7 @@ public class HealthCheckService : IHealthCheckService
                 token))
             .ToList();
 
-        var seasonHealthDto = await _seasonAdapter.Adapt(new SeasonHealthDtoAdapter.SeasonAndDivisions(season, divisionalData), token);
+        var seasonHealthDto = await _seasonAdapter.Adapt(new SeasonHealthDtoAdapter.SeasonAndDivisions(season, divisionalData), context, token);
 
         var result = await Check(seasonHealthDto, token);
         result.Errors.InsertRange(0, divisionalData.SelectMany(d => d.DataErrors).Select(de => de.Message));

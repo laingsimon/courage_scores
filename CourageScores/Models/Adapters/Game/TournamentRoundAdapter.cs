@@ -1,6 +1,7 @@
 ﻿using CourageScores.Common;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters.Game;
 
@@ -20,29 +21,29 @@ public class TournamentRoundAdapter : IAdapter<TournamentRound, TournamentRoundD
         _matchOptionAdapter = matchOptionAdapter;
     }
 
-    public async Task<TournamentRoundDto> Adapt(TournamentRound model, CancellationToken token)
+    public async Task<TournamentRoundDto> Adapt(TournamentRound model, UserAccessContext context, CancellationToken token)
     {
         return new TournamentRoundDto
         {
             Id = model.Id,
-            Matches = await model.Matches.SelectAsync(m => _matchAdapter.Adapt(m, token)).ToList(),
-            Sides = await model.Sides.SelectAsync(s => _sideAdapter.Adapt(s, token)).ToList(),
-            NextRound = model.NextRound != null ? await Adapt(model.NextRound, token) : null,
+            Matches = await model.Matches.SelectAsync(m => _matchAdapter.Adapt(m, context, token)).ToList(),
+            Sides = await model.Sides.SelectAsync(s => _sideAdapter.Adapt(s, context, token)).ToList(),
+            NextRound = model.NextRound != null ? await Adapt(model.NextRound, context, token) : null,
             Name = model.Name,
-            MatchOptions = await model.MatchOptions.SelectAsync(mo => _matchOptionAdapter.Adapt(mo, token)).ToList(),
+            MatchOptions = await model.MatchOptions.SelectAsync(mo => _matchOptionAdapter.Adapt(mo, context, token)).ToList(),
         }.AddAuditProperties(model);
     }
 
-    public async Task<TournamentRound> Adapt(TournamentRoundDto dto, CancellationToken token)
+    public async Task<TournamentRound> Adapt(TournamentRoundDto dto, UserAccessContext context, CancellationToken token)
     {
         return new TournamentRound
         {
             Id = dto.Id,
-            Matches = await dto.Matches.SelectAsync(m => _matchAdapter.Adapt(m, token)).ToList(),
-            Sides = await dto.Sides.SelectAsync(s => _sideAdapter.Adapt(s, token)).ToList(),
-            NextRound = dto.NextRound != null ? await Adapt(dto.NextRound, token) : null,
+            Matches = await dto.Matches.SelectAsync(m => _matchAdapter.Adapt(m, context, token)).ToList(),
+            Sides = await dto.Sides.SelectAsync(s => _sideAdapter.Adapt(s, context, token)).ToList(),
+            NextRound = dto.NextRound != null ? await Adapt(dto.NextRound, context, token) : null,
             Name = dto.Name?.Trim(),
-            MatchOptions = await dto.MatchOptions.SelectAsync(mo => _matchOptionAdapter.Adapt(mo, token)).ToList(),
+            MatchOptions = await dto.MatchOptions.SelectAsync(mo => _matchOptionAdapter.Adapt(mo, context, token)).ToList(),
         }.AddAuditProperties(dto);
     }
 }

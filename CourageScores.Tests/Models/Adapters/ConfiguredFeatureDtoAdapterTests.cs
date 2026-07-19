@@ -4,6 +4,7 @@ using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 using CourageScores.Repository;
+using CourageScores.Services.Identity;
 using Moq;
 using NUnit.Framework;
 
@@ -34,7 +35,7 @@ public class ConfiguredFeatureDtoAdapterTests
         };
         _featureLookup.Setup(l => l.Get(It.IsAny<Guid>())).Returns(() => null);
 
-        var result = await _adapter.Adapt(configuredFeature, _token);
+        var result = await _adapter.Adapt(configuredFeature, UserAccessContext.None(), _token);
 
         Assert.That(result.ConfiguredValue, Is.EqualTo("CONFIGURED"));
         Assert.That(result.DefaultValue, Is.Null);
@@ -55,7 +56,7 @@ public class ConfiguredFeatureDtoAdapterTests
         };
         _featureLookup.Setup(l => l.Get(feature.Id)).Returns(feature);
 
-        var result = await _adapter.Adapt(configuredFeature, _token);
+        var result = await _adapter.Adapt(configuredFeature, UserAccessContext.None(), _token);
 
         Assert.That(result.ConfiguredValue, Is.EqualTo("CONFIGURED"));
         Assert.That(result.DefaultValue, Is.Null);
@@ -75,7 +76,7 @@ public class ConfiguredFeatureDtoAdapterTests
             Id = Guid.NewGuid(),
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.ConfiguredValue, Is.EqualTo("CONFIGURED"));

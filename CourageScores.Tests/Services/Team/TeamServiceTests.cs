@@ -4,6 +4,7 @@ using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
+using CourageScores.Services.Identity;
 using CourageScores.Services.Team;
 using Moq;
 using NUnit.Framework;
@@ -34,8 +35,8 @@ public class TeamServiceTests
         _repository.Setup(r => r.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_allTeams.ToArray()));
         _repository.Setup(r => r.GetSome(It.IsAny<string>(), _token)).Returns(() => TestUtilities.AsyncEnumerable(_someTeams.ToArray()));
         _adapter
-            .Setup(a => a.Adapt(It.IsAny<CosmosTeam>(), _token))
-            .ReturnsAsync((CosmosTeam t, CancellationToken _) => new TeamDto
+            .Setup(a => a.Adapt(It.IsAny<CosmosTeam>(), It.IsAny<UserAccessContext>(), _token))
+            .ReturnsAsync((CosmosTeam t, UserAccessContext _, CancellationToken _) => new TeamDto
             {
                 Id = t.Id,
                 Seasons = t.Seasons.Select(ts => new TeamSeasonDto

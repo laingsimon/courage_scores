@@ -3,6 +3,7 @@ using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Team;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
+using CourageScores.Services.Identity;
 using NUnit.Framework;
 using CosmosTeam = CourageScores.Models.Cosmos.Team.Team;
 
@@ -39,7 +40,7 @@ public class TeamAdapterTests
             Version = 1,
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Address, Is.EqualTo(model.Address));
         Assert.That(result.Id, Is.EqualTo(model.Id));
@@ -62,7 +63,7 @@ public class TeamAdapterTests
             Version = 1,
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Address, Is.EqualTo("address"));
         Assert.That(result.Name, Is.EqualTo("name"));
@@ -82,7 +83,7 @@ public class TeamAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Address, Is.EqualTo(dto.Address));
         Assert.That(result.Id, Is.EqualTo(dto.Id));
@@ -99,7 +100,7 @@ public class TeamAdapterTests
             Name = "name  ",
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Address, Is.EqualTo("address"));
         Assert.That(result.Name, Is.EqualTo("name"));

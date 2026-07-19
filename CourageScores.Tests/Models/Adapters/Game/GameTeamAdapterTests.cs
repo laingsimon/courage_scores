@@ -1,4 +1,5 @@
 using AutoFixture;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
@@ -15,7 +16,7 @@ public class GameTeamAdapterTests
 {
     private const string UserTeamId = "BB6F3067-F2C2-464F-9136-EA6E0C1E2AD0";
     private readonly CancellationToken _token = CancellationToken.None;
-    private GameTeamAdapter _adapter = null!;
+    private IAdapter<GameTeam, GameTeamDto> _adapter = null!;
     private UserDto? _user;
     private HashSet<AccessOption> _access = null!;
 
@@ -30,8 +31,8 @@ public class GameTeamAdapterTests
         _adapter = fixture.Create<GameTeamAdapter>();
         userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         accessService
-            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
-            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), It.IsAny<UserAccessContext>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, UserAccessContext _, CancellationToken _) => _access.Contains(access));
     }
 
     [Test]
@@ -45,7 +46,7 @@ public class GameTeamAdapterTests
             ManOfTheMatch = Guid.NewGuid(),
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.Name, Is.EqualTo(model.Name));
@@ -58,7 +59,7 @@ public class GameTeamAdapterTests
         _user = null;
         var model = new GameTeam();
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.ManOfTheMatch, Is.Null);
     }
@@ -77,7 +78,7 @@ public class GameTeamAdapterTests
             ManOfTheMatch = Guid.NewGuid(),
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.ManOfTheMatch, Is.EqualTo(Guid.Empty));
     }
@@ -97,7 +98,7 @@ public class GameTeamAdapterTests
             ManOfTheMatch = Guid.NewGuid(),
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.ManOfTheMatch, Is.EqualTo(model.ManOfTheMatch));
     }
@@ -112,7 +113,7 @@ public class GameTeamAdapterTests
             ManOfTheMatch = Guid.NewGuid(),
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.Name, Is.EqualTo(dto.Name));
@@ -127,7 +128,7 @@ public class GameTeamAdapterTests
             Name = "team  ",
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Name, Is.EqualTo("team"));
     }

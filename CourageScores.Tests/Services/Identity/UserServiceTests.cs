@@ -205,7 +205,7 @@ public class UserServiceTests
     public async Task GetUser_GivenEmailAddressWhenPermitted_ReturnsOtherUserDetails()
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
-        _accessService.Setup(s => s.HasAccess(It.Is<UserDto?>(u => u!.EmailAddress == "simon@email.com"), AccessOption.ManageAccess, _token)).ReturnsAsync(true);
+        _accessService.Setup(s => s.HasAccess(It.Is<UserDto?>(u => u!.EmailAddress == "simon@email.com"), AccessOption.ManageAccess, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(true);
         _userRepository.Setup(r => r.GetUser("simon@email.com", _token)).ReturnsAsync(GetUser(emailAddress: "simon@email.com"));
         _userRepository.Setup(r => r.GetUser("other@email.com", _token)).ReturnsAsync(GetUser(name: "Other User", emailAddress: "other@email.com"));
 
@@ -219,7 +219,7 @@ public class UserServiceTests
     public async Task GetUser_GivenEmailAddressWhenPermittedAndUserNotFound_ReturnsNull()
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
-        _accessService.Setup(s => s.HasAccess(It.Is<UserDto?>(u => u!.EmailAddress == "simon@email.com"), AccessOption.ManageAccess, _token)).ReturnsAsync(true);
+        _accessService.Setup(s => s.HasAccess(It.Is<UserDto?>(u => u!.EmailAddress == "simon@email.com"), AccessOption.ManageAccess, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(true);
         _userRepository.Setup(r => r.GetUser("simon@email.com", _token)).ReturnsAsync(GetUser(emailAddress: "simon@email.com"));
         _userRepository.Setup(r => r.GetUser("other@email.com", _token)).ReturnsAsync(() => null);
 
@@ -250,7 +250,7 @@ public class UserServiceTests
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
         var loggedInUser = GetUser(name: "Logged in user");
-        _accessService.Setup(s => s.HasAccess(It.IsAny<UserDto?>(), AccessOption.ManageAccess, _token)).ReturnsAsync(true);
+        _accessService.Setup(s => s.HasAccess(It.IsAny<UserDto?>(), AccessOption.ManageAccess, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(true);
         _userRepository.Setup(r => r.GetUser("simon@email.com", _token)).ReturnsAsync(loggedInUser);
         _userRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(GetUser(name: "Other user"), loggedInUser));
 
@@ -295,7 +295,7 @@ public class UserServiceTests
     public async Task UpdateAccess_WhenRemovingManageAccessFromSelf_ReturnsNotAllowedToRemoveOwnManageAccess()
     {
         SetupUsers();
-        _accessService.Setup(s => s.HasAccess(It.IsAny<User>(), AccessOption.ManageAccess, _token)).ReturnsAsync(false);
+        _accessService.Setup(s => s.HasAccess(It.IsAny<User>(), AccessOption.ManageAccess, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(false);
 
         var result = await _service.UpdateAccess(GetUpdateAccessDto(emailAddress: "simon@email.com"), _token);
 
@@ -476,7 +476,7 @@ public class UserServiceTests
         CreateTicket("Simon Laing", primaryUserEmail, "Simon");
         foreach (var hasAccess in hasAccesses ?? [AccessOption.ManageAccess])
         {
-            _accessService.Setup(s => s.HasAccess(It.Is<UserDto?>(u => u!.EmailAddress == primaryUserEmail), hasAccess, _token)).ReturnsAsync(true);
+            _accessService.Setup(s => s.HasAccess(It.Is<UserDto?>(u => u!.EmailAddress == primaryUserEmail), hasAccess, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(true);
         }
         _userRepository.Setup(r => r.GetUser(primaryUserEmail, _token)).ReturnsAsync(GetUser(emailAddress: primaryUserEmail));
         _userRepository.Setup(r => r.GetUser(secondaryUserEmail, _token)).ReturnsAsync(GetUser(name: "Other User"));

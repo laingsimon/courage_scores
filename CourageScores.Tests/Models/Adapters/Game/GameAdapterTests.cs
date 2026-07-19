@@ -78,8 +78,8 @@ public class GameAdapterTests
         clock.Setup(c => c.GetUtcNow()).Returns(() => _now);
         random.Setup(r => r.Next()).Returns(() => _randomValues.Dequeue());
         accessService
-            .Setup(s => s.HasAccess(_user, It.IsAny<AccessOption>(), _token))
-            .ReturnsAsync((UserDto _, AccessOption access, CancellationToken _) => _access.Contains(access));
+            .Setup(s => s.HasAccess(_user, It.IsAny<AccessOption>(), It.IsAny<UserAccessContext>(), _token))
+            .ReturnsAsync((UserDto _, AccessOption access, UserAccessContext _, CancellationToken _) => _access.Contains(access));
     }
 
     [Test]
@@ -101,7 +101,7 @@ public class GameAdapterTests
         model.HomeSubmission = new CosmosGame();
         model.AwaySubmission = new CosmosGame();
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Address, Is.EqualTo(model.Address));
         Assert.That(result.Date, Is.EqualTo(model.Date));
@@ -125,11 +125,12 @@ public class GameAdapterTests
     public async Task Adapt_GivenPublishedModel_SetPropertiesCorrectly()
     {
         var model = new GameBuilder()
+            .WithTeams(HomeTeam, AwayTeam)
             .WithMatch(PublishedGameMatch)
             .WithMatchOption(MatchOption)
             .Build();
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.ResultsPublished, Is.True);
         Assert.That(result.MatchOptions, Is.EquivalentTo([MatchOptionDto]));
@@ -150,7 +151,7 @@ public class GameAdapterTests
         var randomValues = new[] { 3, 1, 2, 5, 4 };
         _randomValues = new Queue<int>(randomValues);
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         model.AssertPairsAndTriplesInSameOrder(result);
         model.AssertSinglesInRandomOrder(result, randomValues);
@@ -176,7 +177,7 @@ public class GameAdapterTests
 
         _now = new DateTimeOffset(model.Date.AddDays(1), TimeSpan.Zero);
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         model.AssertPairsAndTriplesInSameOrder(result);
         if (randomises)
@@ -207,7 +208,7 @@ public class GameAdapterTests
             .Build();
         _now = new DateTimeOffset(model.Date.AddDays(1), TimeSpan.Zero);
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         model.AssertPairsAndTriplesInSameOrder(result);
         model.AssertSinglesInSameOrder(result);
@@ -231,7 +232,7 @@ public class GameAdapterTests
             .Build();
         _now = new DateTimeOffset(model.Date.AddDays(1), TimeSpan.Zero);
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         model.AssertPairsAndTriplesInSameOrder(result);
         model.AssertSinglesInSameOrder(result);
@@ -254,7 +255,7 @@ public class GameAdapterTests
             .Build();
         _now = new DateTimeOffset(model.Date.AddDays(1), TimeSpan.Zero);
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         model.AssertPairsAndTriplesInSameOrder(result);
         model.AssertSinglesInSameOrder(result);
@@ -370,7 +371,7 @@ public class GameAdapterTests
             MatchOptions = { MatchOptionDto },
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Address, Is.EqualTo(dto.Address));
         Assert.That(result.Date, Is.EqualTo(dto.Date));
@@ -409,7 +410,7 @@ public class GameAdapterTests
             AwaySubmission = new GameDto { Address = "address  " },
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Address, Is.EqualTo("address"));
         Assert.That(result.HomeSubmission!.Address, Is.EqualTo("address"));
@@ -424,7 +425,7 @@ public class GameAdapterTests
             .WithMatch(GameMatch)
             .Build();
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         var expected = shouldAdaptMatches
             ? new[] { GameMatchDto }

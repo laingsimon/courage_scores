@@ -65,7 +65,8 @@ public class SeasonTemplateService : ISeasonTemplateService
             return Error<List<ActionResultDto<TemplateDto>>>("Not logged in");
         }
 
-        if (!await _accessService.HasAccess(user, AccessOption.ManageGames, token) && !await _accessService.HasAccess(user, AccessOption.ManageSeasonTemplates, token))
+        var userAccessContext = UserAccessContext.ForSeason(seasonId);
+        if (!await _accessService.HasAccess(user, AccessOption.ManageGames, userAccessContext, token) && !await _accessService.HasAccess(user, AccessOption.ManageSeasonTemplates, userAccessContext, token))
         {
             return Error<List<ActionResultDto<TemplateDto>>>("Not permitted");
         }
@@ -99,7 +100,8 @@ public class SeasonTemplateService : ISeasonTemplateService
             return Error<ProposalResultDto>("Not logged in");
         }
 
-        if (!await _accessService.HasAccess(user, AccessOption.ManageGames, token))
+        var userAccessContext = UserAccessContext.ForSeason(request.SeasonId);
+        if (!await _accessService.HasAccess(user, AccessOption.ManageGames, userAccessContext, token))
         {
             return Error<ProposalResultDto>("Not permitted");
         }
@@ -129,13 +131,14 @@ public class SeasonTemplateService : ISeasonTemplateService
 
     public async Task<ActionResultDto<SeasonHealthCheckResultDto>> GetTemplateHealth(EditTemplateDto templateDto, CancellationToken token)
     {
+        var context = UserAccessContext.None();
         var user = await _userService.GetUser(token);
         if (user == null)
         {
             return Error<SeasonHealthCheckResultDto>("Not logged in");
         }
 
-        if (!await _accessService.HasAccess(user, AccessOption.ManageSeasonTemplates, token))
+        if (!await _accessService.HasAccess(user, AccessOption.ManageSeasonTemplates, context, token))
         {
             return Error<SeasonHealthCheckResultDto>("Not permitted");
         }
@@ -145,7 +148,8 @@ public class SeasonTemplateService : ISeasonTemplateService
             Success = true,
             Result = await _healthCheckService.Check(
                 await _healthCheckAdapter.Adapt(
-                    await _templateAdapter.Adapt(templateDto, token),
+                    await _templateAdapter.Adapt(templateDto, context, token),
+                    context,
                     token),
                 token),
         };

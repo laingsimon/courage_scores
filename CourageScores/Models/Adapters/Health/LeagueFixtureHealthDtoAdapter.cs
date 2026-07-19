@@ -1,11 +1,12 @@
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Health;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters.Health;
 
 public class LeagueFixtureHealthDtoAdapter : ISimpleOnewayAdapter<LeagueFixtureHealthDtoAdapter.FixtureDateMapping, LeagueFixtureHealthDto?>
 {
-    public Task<LeagueFixtureHealthDto?> Adapt(FixtureDateMapping model, CancellationToken token)
+    public Task<LeagueFixtureHealthDto?> Adapt(FixtureDateMapping model, UserAccessContext context, CancellationToken token)
     {
         if (model.Fixture.IsKnockout)
         {

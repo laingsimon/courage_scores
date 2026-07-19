@@ -39,7 +39,8 @@ public class ReportFactory : IReportFactory
     {
         var user = await _userService.GetUser(token);
 
-        if (await _accessService.HasAccess(user, AccessOption.ManageScores, token))
+        var context = UserAccessContext.ForDivision(request.SeasonId, request.DivisionId);
+        if (await _accessService.HasAccess(user, AccessOption.ManageScores, context, token))
         {
             yield return new ManOfTheMatchReport(request.TopCount);
         }

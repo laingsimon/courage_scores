@@ -3,6 +3,7 @@ using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Season.Creation;
 using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Dtos.Season.Creation;
+using CourageScores.Services.Identity;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters.Season.Creation;
@@ -34,7 +35,7 @@ public class DateTemplateAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Fixtures, Is.EquivalentTo([FixtureTemplate]));
     }
@@ -50,7 +51,7 @@ public class DateTemplateAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Fixtures, Is.EquivalentTo([FixtureTemplateDto]));
     }

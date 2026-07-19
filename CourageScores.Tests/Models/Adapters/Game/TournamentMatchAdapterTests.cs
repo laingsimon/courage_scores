@@ -19,7 +19,7 @@ public class TournamentMatchAdapterTests
     private static readonly TournamentSide SideB = new();
     private static readonly TournamentSideDto SideBDto = new();
     private readonly CancellationToken _token = CancellationToken.None;
-    private TournamentMatchAdapter _adapter = null!;
+    private IAdapter<TournamentMatch, TournamentMatchDto> _adapter = null!;
     private UserDto? _user;
     private HashSet<AccessOption> _access = null!;
 
@@ -38,8 +38,8 @@ public class TournamentMatchAdapterTests
 
         userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         accessService
-            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
-            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), It.IsAny<UserAccessContext>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, UserAccessContext _, CancellationToken _) => _user != null && _access.Contains(access));
     }
 
     [Test]
@@ -55,7 +55,7 @@ public class TournamentMatchAdapterTests
             SaygId = Guid.NewGuid(),
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.ScoreA, Is.EqualTo(model.ScoreA));
@@ -73,7 +73,7 @@ public class TournamentMatchAdapterTests
             SaygId = null,
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.SaygId, Is.Null);
     }
@@ -87,7 +87,7 @@ public class TournamentMatchAdapterTests
             SideB = null,
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.SideA, Is.Null);
         Assert.That(result.SideB, Is.Null);
@@ -116,7 +116,7 @@ public class TournamentMatchAdapterTests
             SaygId = Guid.NewGuid(),
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.ScoreA, Is.EqualTo(dto.ScoreA));
@@ -134,7 +134,7 @@ public class TournamentMatchAdapterTests
             SaygId = null,
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.SaygId, Is.Null);
     }
@@ -148,7 +148,7 @@ public class TournamentMatchAdapterTests
             SideB = null,
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.SideA, Is.Null);
         Assert.That(result.SideB, Is.Null);

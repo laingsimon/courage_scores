@@ -1,6 +1,7 @@
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
+using CourageScores.Services.Identity;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters;
@@ -23,7 +24,7 @@ public class FixtureDateNoteAdapterTests
             Note = "note",
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.Date, Is.EqualTo(model.Date));
@@ -44,7 +45,7 @@ public class FixtureDateNoteAdapterTests
             Note = "note",
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.Date, Is.EqualTo(dto.Date));
@@ -61,7 +62,7 @@ public class FixtureDateNoteAdapterTests
             Note = "note   ",
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Note, Is.EqualTo("note"));
     }

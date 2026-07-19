@@ -7,6 +7,7 @@ using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Season.Creation;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Health;
+using CourageScores.Services.Identity;
 using CourageScores.Services.Season.Creation;
 using Moq;
 using NUnit.Framework;
@@ -88,7 +89,7 @@ public class TemplatedSeasonProposalStrategyTests
             .Setup(s => s.AssignDates(It.IsAny<ProposalContext>(), _token))
             .ReturnsAsync(true);
         _adapter
-            .Setup(a => a.Adapt(It.IsAny<SeasonHealthDtoAdapter.SeasonAndDivisions>(), _token))
+            .Setup(a => a.Adapt(It.IsAny<SeasonHealthDtoAdapter.SeasonAndDivisions>(), It.IsAny<UserAccessContext>(), _token))
             .ReturnsAsync(healthCheckDto);
         _healthCheckService
             .Setup(s => s.Check(healthCheckDto, _token))

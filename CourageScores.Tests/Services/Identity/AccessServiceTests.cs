@@ -16,7 +16,7 @@ public class AccessServiceTests
     {
         var user = new UserDto();
 
-        var result = await _service.HasAccess(user, AccessOption.AnalyseMatches, _token);
+        var result = await _service.HasAccess(user, AccessOption.AnalyseMatches, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.False);
     }
@@ -26,7 +26,7 @@ public class AccessServiceTests
     {
         var user = new UserDto();
 
-        var result = await _service.HasAccess(user, AccessOption.AnalyseMatches, _token);
+        var result = await _service.HasAccess(user, AccessOption.AnalyseMatches, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.False);
     }
@@ -42,7 +42,7 @@ public class AccessServiceTests
             }
         };
 
-        var result = await _service.HasAccess(user, AccessOption.AnalyseMatches, _token);
+        var result = await _service.HasAccess(user, AccessOption.AnalyseMatches, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.True);
     }
@@ -52,7 +52,7 @@ public class AccessServiceTests
     {
         var user = new User();
 
-        var result = await _service.HasAccess(user, AccessOption.AnalyseMatches, _token);
+        var result = await _service.HasAccess(user, AccessOption.AnalyseMatches, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.False);
     }
@@ -68,7 +68,7 @@ public class AccessServiceTests
             }
         };
 
-        var result = await _service.HasAccess(user, AccessOption.AnalyseMatches, _token);
+        var result = await _service.HasAccess(user, AccessOption.AnalyseMatches, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.True);
     }
@@ -78,7 +78,7 @@ public class AccessServiceTests
     {
         var user = new UserDto();
 
-        var result = await _service.HasAccess(user, accessOption, _token);
+        var result = await _service.HasAccess(user, accessOption, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.False);
     }

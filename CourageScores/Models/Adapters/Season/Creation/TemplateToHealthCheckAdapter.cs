@@ -3,12 +3,13 @@ using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Health;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters.Season.Creation;
 
 public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, SeasonHealthDto>
 {
-    public Task<SeasonHealthDto> Adapt(Template model, CancellationToken token)
+    public Task<SeasonHealthDto> Adapt(Template model, UserAccessContext context, CancellationToken token)
     {
         var startDate = new DateTime(2023, 01, 01);
         var dto = new SeasonHealthDto

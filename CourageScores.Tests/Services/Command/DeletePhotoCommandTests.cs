@@ -1,8 +1,10 @@
 using AutoFixture;
 using CourageScores.Models;
 using CourageScores.Models.Cosmos;
+using CourageScores.Models.Cosmos.Game;
 using CourageScores.Services;
 using CourageScores.Services.Command;
+using CourageScores.Services.Identity;
 using Moq;
 using NUnit.Framework;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
@@ -28,6 +30,7 @@ public class DeletePhotoCommandTests
         };
         _game = new CosmosGame
         {
+            Home = new GameTeam(),
             Photos =
             {
                 _photoReference
@@ -42,7 +45,7 @@ public class DeletePhotoCommandTests
     public async Task ApplyUpdate_WhenPhotoCannotBeDeleted_ReturnsUnsuccessful()
     {
         _photoService
-            .Setup(s => s.Delete(_photoReference.Id, _token))
+            .Setup(s => s.Delete(_photoReference.Id, It.IsAny<UserAccessContext>(), _token))
             .ReturnsAsync(new ActionResult<Photo>
             {
                 Warnings =
@@ -62,7 +65,7 @@ public class DeletePhotoCommandTests
     public async Task ApplyUpdate_WhenPhotoHasBeenDeleted_RemovesPhotoFromGame()
     {
         _photoService
-            .Setup(s => s.Delete(_photoReference.Id, _token))
+            .Setup(s => s.Delete(_photoReference.Id, It.IsAny<UserAccessContext>(), _token))
             .ReturnsAsync(new ActionResult<Photo>
             {
                 Success = true,

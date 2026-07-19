@@ -34,7 +34,8 @@ public class UploadPhotoCommand<T> : IUpdateCommand<T, T>
         _photo.ThrowIfNull($"{nameof(WithPhoto)} must be called first");
 
         var user = await _userService.GetUser(token);
-        if (!await _accessService.HasAccess(user, AccessOption.UploadPhotos, token))
+        var context = model.GetUserAccessContext();
+        if (!await _accessService.HasAccess(user, AccessOption.UploadPhotos, context, token))
         {
             return new ActionResult<T>
             {
@@ -85,7 +86,7 @@ public class UploadPhotoCommand<T> : IUpdateCommand<T, T>
             PhotoBytes = fileContent.ToArray(),
         };
 
-        var result = await _photoService.Upsert(photo, token);
+        var result = await _photoService.Upsert(photo, context, token);
         if (!result.Success || result.Result == null)
         {
             return result.As<T>();

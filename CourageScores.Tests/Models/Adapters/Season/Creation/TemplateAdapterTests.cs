@@ -4,6 +4,7 @@ using CourageScores.Models.Adapters.Season.Creation;
 using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Dtos.Health;
 using CourageScores.Models.Dtos.Season.Creation;
+using CourageScores.Services.Identity;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters.Season.Creation;
@@ -46,7 +47,7 @@ public class TemplateAdapterTests
             Description = "Description",
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.SharedAddresses, Is.EqualTo([SharedAddress]));
         Assert.That(result.Id, Is.EqualTo(dto.Id));
@@ -65,7 +66,7 @@ public class TemplateAdapterTests
             TemplateHealth = new SeasonHealthCheckResultDto(),
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Name, Is.EqualTo("Template name"));
     }
@@ -79,7 +80,7 @@ public class TemplateAdapterTests
             Description = "DESCRIPTION   ",
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Description, Is.EqualTo("DESCRIPTION"));
     }
@@ -94,7 +95,7 @@ public class TemplateAdapterTests
             TemplateHealth = new SeasonHealthCheckResultDto(),
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Description, Is.Null);
     }
@@ -117,7 +118,7 @@ public class TemplateAdapterTests
             TemplateHealth = new SeasonHealthCheckResultDto(),
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.SharedAddresses, Is.EqualTo([SharedAddressDto]));
         Assert.That(result.Id, Is.EqualTo(model.Id));
@@ -136,7 +137,7 @@ public class TemplateAdapterTests
             TemplateHealth = new SeasonHealthCheckResultDto(),
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Description, Is.Null);
     }

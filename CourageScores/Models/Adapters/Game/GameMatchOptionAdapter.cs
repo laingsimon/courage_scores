@@ -1,11 +1,12 @@
 ﻿using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters.Game;
 
 public class GameMatchOptionAdapter : ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?>
 {
-    public Task<GameMatchOptionDto?> Adapt(GameMatchOption? model, CancellationToken token)
+    public Task<GameMatchOptionDto?> Adapt(GameMatchOption? model, UserAccessContext context, CancellationToken token)
     {
         if (model == null)
         {
@@ -20,7 +21,7 @@ public class GameMatchOptionAdapter : ISimpleAdapter<GameMatchOption?, GameMatch
         });
     }
 
-    public Task<GameMatchOption?> Adapt(GameMatchOptionDto? dto, CancellationToken token)
+    public Task<GameMatchOption?> Adapt(GameMatchOptionDto? dto, UserAccessContext context, CancellationToken token)
     {
         if (dto == null)
         {

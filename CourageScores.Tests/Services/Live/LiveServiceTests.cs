@@ -52,8 +52,8 @@ public class LiveServiceTests
             .Setup(s => s.GetUser(_token))
             .ReturnsAsync(() => _user);
         accessService
-            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
-            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _user != null && _access.Contains(access));
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), It.IsAny<UserAccessContext>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, UserAccessContext _, CancellationToken _) => _user != null && _access.Contains(access));
     }
 
     [Test]
@@ -134,7 +134,7 @@ public class LiveServiceTests
         _user = new UserDto();
         _access = _access.With(AccessOption.ManageSockets);
         _sockets.Add(socket.Object);
-        _detailsAdapter.Setup(a => a.Adapt(details, _token)).ReturnsAsync(socketDto);
+        _detailsAdapter.Setup(a => a.Adapt(details, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(socketDto);
         socket.Setup(s => s.Details).Returns(details);
 
         var result = await _service.GetSockets(_token);
@@ -157,7 +157,7 @@ public class LiveServiceTests
         };
         var socket = new Mock<IWebSocketContract>();
         _sockets.Add(socket.Object);
-        _detailsAdapter.Setup(a => a.Adapt(details, _token)).ReturnsAsync(socketDto);
+        _detailsAdapter.Setup(a => a.Adapt(details, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(socketDto);
         socket.Setup(s => s.Details).Returns(details);
 
         var result = await _service.CloseSocket(socketDto.Id, _token);
@@ -180,7 +180,7 @@ public class LiveServiceTests
         };
         var socket = new Mock<IWebSocketContract>();
         _sockets.Add(socket.Object);
-        _detailsAdapter.Setup(a => a.Adapt(details, _token)).ReturnsAsync(socketDto);
+        _detailsAdapter.Setup(a => a.Adapt(details, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(socketDto);
         socket.Setup(s => s.Details).Returns(details);
 
         var result = await _service.CloseSocket(socketDto.Id, _token);
@@ -204,7 +204,7 @@ public class LiveServiceTests
         };
         var socket = new Mock<IWebSocketContract>();
         _sockets.Add(socket.Object);
-        _detailsAdapter.Setup(a => a.Adapt(details, _token)).ReturnsAsync(socketDto);
+        _detailsAdapter.Setup(a => a.Adapt(details, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(socketDto);
         socket.Setup(s => s.Details).Returns(details);
 
         var result = await _service.CloseSocket(Guid.NewGuid(), _token);
@@ -228,7 +228,7 @@ public class LiveServiceTests
         };
         var socket = new Mock<IWebSocketContract>();
         _sockets.Add(socket.Object);
-        _detailsAdapter.Setup(a => a.Adapt(details, _token)).ReturnsAsync(socketDto);
+        _detailsAdapter.Setup(a => a.Adapt(details, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(socketDto);
         socket.Setup(s => s.Details).Returns(details);
 
         var result = await _service.CloseSocket(socketDto.Id, _token);
@@ -315,13 +315,13 @@ public class LiveServiceTests
             .Setup(p => p.GetWatchableData(_token))
             .Returns(TestUtilities.AsyncEnumerable(sayg, tournament));
         _watchableAdapter
-            .Setup(a => a.Adapt(It.IsAny<WatchableData>(), _token))
-            .ReturnsAsync((WatchableData data, CancellationToken _) => new WatchableDataDto { DataType = lookup[data.Publication.Id], Id = data.Publication.Id });
+            .Setup(a => a.Adapt(It.IsAny<WatchableData>(), It.IsAny<UserAccessContext>(), _token))
+            .ReturnsAsync((WatchableData data, UserAccessContext _, CancellationToken _) => new WatchableDataDto { DataType = lookup[data.Publication.Id], Id = data.Publication.Id });
 
         var dtos = await _service.GetWatchableData(null, _token).ToList();
 
-        _watchableAdapter.Verify(a => a.Adapt(sayg, _token));
-        _watchableAdapter.Verify(a => a.Adapt(tournament, _token));
+        _watchableAdapter.Verify(a => a.Adapt(sayg, It.IsAny<UserAccessContext>(), _token));
+        _watchableAdapter.Verify(a => a.Adapt(tournament, It.IsAny<UserAccessContext>(), _token));
         Assert.That(dtos.Select(d => d.Id), Is.EquivalentTo([tournament.Publication.Id, sayg.Publication.Id]));
     }
 
@@ -345,13 +345,13 @@ public class LiveServiceTests
             .Setup(p => p.GetWatchableData(_token))
             .Returns(TestUtilities.AsyncEnumerable(sayg, tournament));
         _watchableAdapter
-            .Setup(a => a.Adapt(It.IsAny<WatchableData>(), _token))
-            .ReturnsAsync((WatchableData data, CancellationToken _) => new WatchableDataDto { DataType = lookup[data.Publication.Id], Id = data.Publication.Id });
+            .Setup(a => a.Adapt(It.IsAny<WatchableData>(), It.IsAny<UserAccessContext>(), _token))
+            .ReturnsAsync((WatchableData data, UserAccessContext _, CancellationToken _) => new WatchableDataDto { DataType = lookup[data.Publication.Id], Id = data.Publication.Id });
 
         var dtos = await _service.GetWatchableData(LiveDataType.Sayg, _token).ToList();
 
-        _watchableAdapter.Verify(a => a.Adapt(sayg, _token));
-        _watchableAdapter.Verify(a => a.Adapt(tournament, _token));
+        _watchableAdapter.Verify(a => a.Adapt(sayg, It.IsAny<UserAccessContext>(), _token));
+        _watchableAdapter.Verify(a => a.Adapt(tournament, It.IsAny<UserAccessContext>(), _token));
         Assert.That(dtos.Select(d => d.Id), Is.EquivalentTo([sayg.Publication.Id]));
     }
 
@@ -374,13 +374,13 @@ public class LiveServiceTests
             .Setup(p => p.GetWatchableData(_token))
             .Returns(TestUtilities.AsyncEnumerable(polling, webSocket));
         _watchableAdapter
-            .Setup(a => a.Adapt(It.IsAny<WatchableData>(), _token))
-            .ReturnsAsync((WatchableData data, CancellationToken _) => new WatchableDataDto { DataType = lookup[data.Publication.Id], Id = data.Publication.Id });
+            .Setup(a => a.Adapt(It.IsAny<WatchableData>(), It.IsAny<UserAccessContext>(), _token))
+            .ReturnsAsync((WatchableData data, UserAccessContext _, CancellationToken _) => new WatchableDataDto { DataType = lookup[data.Publication.Id], Id = data.Publication.Id });
 
         var dtos = await _service.GetWatchableData(LiveDataType.Sayg, _token).ToList();
 
-        _watchableAdapter.Verify(a => a.Adapt(webSocket, _token));
-        _watchableAdapter.Verify(a => a.Adapt(polling, _token));
+        _watchableAdapter.Verify(a => a.Adapt(webSocket, It.IsAny<UserAccessContext>(), _token));
+        _watchableAdapter.Verify(a => a.Adapt(polling, It.IsAny<UserAccessContext>(), _token));
         Assert.That(dtos.Select(d => d.Id), Is.EquivalentTo([webSocket.Publication.Id]));
     }
 }

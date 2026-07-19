@@ -1,6 +1,7 @@
 ﻿using CourageScores.Common;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters.Game.Sayg;
 
@@ -13,11 +14,11 @@ public class RecordedScoreAsYouGoAdapter : IAdapter<RecordedScoreAsYouGo, Record
         _legAdapter = legAdapter;
     }
 
-    public async Task<RecordedScoreAsYouGoDto> Adapt(RecordedScoreAsYouGo model, CancellationToken token)
+    public async Task<RecordedScoreAsYouGoDto> Adapt(RecordedScoreAsYouGo model, UserAccessContext context, CancellationToken token)
     {
         return new RecordedScoreAsYouGoDto
         {
-            Legs = await model.Legs.ToDictionaryAsync(key => key, value => _legAdapter.Adapt(value, token)),
+            Legs = await model.Legs.ToDictionaryAsync(key => key, value => _legAdapter.Adapt(value, context, token)),
             Id = model.Id,
             Deleted = model.Deleted,
             HomeScore = model.HomeScore,
@@ -30,11 +31,11 @@ public class RecordedScoreAsYouGoAdapter : IAdapter<RecordedScoreAsYouGo, Record
         }.AddAuditProperties(model);
     }
 
-    public async Task<RecordedScoreAsYouGo> Adapt(RecordedScoreAsYouGoDto dto, CancellationToken token)
+    public async Task<RecordedScoreAsYouGo> Adapt(RecordedScoreAsYouGoDto dto, UserAccessContext context, CancellationToken token)
     {
         return new RecordedScoreAsYouGo
         {
-            Legs = await dto.Legs.ToDictionaryAsync(key => key, value => _legAdapter.Adapt(value, token)),
+            Legs = await dto.Legs.ToDictionaryAsync(key => key, value => _legAdapter.Adapt(value, context, token)),
             Id = dto.Id,
             Deleted = dto.Deleted,
             HomeScore = dto.HomeScore,
