@@ -5,6 +5,7 @@ using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Services.Identity;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters.Game;
@@ -76,7 +77,7 @@ public class TournamentGameAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.Round, Is.EqualTo(RoundDto));
@@ -102,7 +103,7 @@ public class TournamentGameAdapterTests
     {
         var model = new TournamentGame();
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Round, Is.Null);
     }
@@ -143,7 +144,7 @@ public class TournamentGameAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.Round, Is.EqualTo(Round));
@@ -173,7 +174,7 @@ public class TournamentGameAdapterTests
             DivisionId = null,
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.DivisionId, Is.Null);
     }
@@ -186,7 +187,7 @@ public class TournamentGameAdapterTests
             DivisionId = null,
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.DivisionId, Is.Null);
     }
@@ -199,7 +200,7 @@ public class TournamentGameAdapterTests
             Address = "address",
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Round, Is.Null);
     }
@@ -212,7 +213,7 @@ public class TournamentGameAdapterTests
             Address = "address",
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Host, Is.Null);
         Assert.That(result.Opponent, Is.Null);
@@ -231,7 +232,7 @@ public class TournamentGameAdapterTests
             Gender = "gender   ",
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Address, Is.EqualTo("address"));
         Assert.That(result.Notes, Is.EqualTo("notes"));

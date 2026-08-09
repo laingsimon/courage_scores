@@ -3,6 +3,7 @@ using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Services.Identity;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters.Game;
@@ -53,7 +54,7 @@ public class TournamentRoundAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.Matches, Is.EqualTo([MatchDto]));
@@ -89,7 +90,7 @@ public class TournamentRoundAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.NextRound, Is.Not.Null);
         Assert.That(result.NextRound!.Id, Is.EqualTo(nextRound.Id));
@@ -118,7 +119,7 @@ public class TournamentRoundAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.Matches, Is.EqualTo([Match]));
@@ -154,7 +155,7 @@ public class TournamentRoundAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.NextRound, Is.Not.Null);
         Assert.That(result.NextRound!.Id, Is.EqualTo(nextRound.Id));
@@ -169,7 +170,7 @@ public class TournamentRoundAdapterTests
             Name = "name   ",
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Name, Is.EqualTo("name"));
     }
@@ -182,7 +183,7 @@ public class TournamentRoundAdapterTests
             Name = null,
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Name, Is.Null);
     }
@@ -192,7 +193,7 @@ public class TournamentRoundAdapterTests
     {
         var model = new TournamentRound();
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.MatchOptions, Is.Empty);
     }
@@ -202,7 +203,7 @@ public class TournamentRoundAdapterTests
     {
         var dto = new TournamentRoundDto();
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.MatchOptions, Is.Empty);
     }

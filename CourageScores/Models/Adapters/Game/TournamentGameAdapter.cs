@@ -3,6 +3,7 @@ using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters.Game;
 
@@ -28,18 +29,18 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
         _photoReferenceAdapter = photoReferenceAdapter;
     }
 
-    public async Task<TournamentGameDto> Adapt(TournamentGame model, CancellationToken token)
+    public async Task<TournamentGameDto> Adapt(TournamentGame model, UserAccessContext context, CancellationToken token)
     {
         return new TournamentGameDto
         {
             Id = model.Id,
-            Round = model.Round != null ? await _roundAdapter.Adapt(model.Round, token) : null,
+            Round = model.Round != null ? await _roundAdapter.Adapt(model.Round, context, token) : null,
             Date = model.Date,
-            Sides = await model.Sides.SelectAsync(s => _sideAdapter.Adapt(s, token)).ToList(),
+            Sides = await model.Sides.SelectAsync(s => _sideAdapter.Adapt(s, context, token)).ToList(),
             SeasonId = model.SeasonId,
             Address = model.Address,
-            OneEighties = await model.OneEighties.SelectAsync(player => _playerAdapter.Adapt(player, token)).ToList(),
-            Over100Checkouts = await model.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
+            OneEighties = await model.OneEighties.SelectAsync(player => _playerAdapter.Adapt(player, context, token)).ToList(),
+            Over100Checkouts = await model.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, context, token)).ToList(),
             Notes = model.Notes.TrimOrDefault(),
             Type = model.Type.TrimOrDefault(),
             AccoladesCount = model.AccoladesCount,
@@ -49,23 +50,23 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
             Host = model.Host,
             Opponent = model.Opponent,
             Gender = model.Gender,
-            Photos = await model.Photos.SelectAsync(p => _photoReferenceAdapter.Adapt(p, token)).ToList(),
+            Photos = await model.Photos.SelectAsync(p => _photoReferenceAdapter.Adapt(p, context, token)).ToList(),
             ExcludeFromReports = model.ExcludeFromReports,
         }.AddAuditProperties(model);
     }
 
-    public async Task<TournamentGame> Adapt(TournamentGameDto dto, CancellationToken token)
+    public async Task<TournamentGame> Adapt(TournamentGameDto dto, UserAccessContext context, CancellationToken token)
     {
         return new TournamentGame
         {
             Id = dto.Id,
-            Round = dto.Round != null ? await _roundAdapter.Adapt(dto.Round, token) : null,
+            Round = dto.Round != null ? await _roundAdapter.Adapt(dto.Round, context, token) : null,
             Date = dto.Date,
-            Sides = await dto.Sides.SelectAsync(s => _sideAdapter.Adapt(s, token)).ToList(),
+            Sides = await dto.Sides.SelectAsync(s => _sideAdapter.Adapt(s, context, token)).ToList(),
             SeasonId = dto.SeasonId,
             Address = dto.Address.TrimOrDefault(),
-            OneEighties = await dto.OneEighties.SelectAsync(player => _playerAdapter.Adapt(player, token)).ToList(),
-            Over100Checkouts = await dto.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
+            OneEighties = await dto.OneEighties.SelectAsync(player => _playerAdapter.Adapt(player, context, token)).ToList(),
+            Over100Checkouts = await dto.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, context, token)).ToList(),
             Notes = dto.Notes?.Trim(),
             Type = dto.Type?.Trim(),
             AccoladesCount = dto.AccoladesCount,
@@ -75,7 +76,7 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
             Host = dto.Host?.Trim(),
             Opponent = dto.Opponent?.Trim(),
             Gender = dto.Gender?.Trim(),
-            Photos = await dto.Photos.SelectAsync(p => _photoReferenceAdapter.Adapt(p, token)).ToList(),
+            Photos = await dto.Photos.SelectAsync(p => _photoReferenceAdapter.Adapt(p, context, token)).ToList(),
             ExcludeFromReports = dto.ExcludeFromReports,
         }.AddAuditProperties(dto);
     }

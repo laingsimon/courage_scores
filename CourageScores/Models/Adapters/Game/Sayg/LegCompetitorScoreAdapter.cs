@@ -1,6 +1,7 @@
 ﻿using CourageScores.Common;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters.Game.Sayg;
 
@@ -13,23 +14,23 @@ public class LegCompetitorScoreAdapter : ISimpleAdapter<LegCompetitorScoreAdapte
         _throwAdapter = throwAdapter;
     }
 
-    public async Task<LegCompetitorScoreDto> Adapt(LegCompetitorScoreAdapterContext model, CancellationToken token)
+    public async Task<LegCompetitorScoreDto> Adapt(LegCompetitorScoreAdapterContext model, UserAccessContext context, CancellationToken token)
     {
         return new LegCompetitorScoreDto
         {
             Score = GetScore(model.StartingScore, model.Score.Throws),
-            Throws = await model.Score.Throws.SelectAsync(t => _throwAdapter.Adapt(t, token)).ToList(),
+            Throws = await model.Score.Throws.SelectAsync(t => _throwAdapter.Adapt(t, context, token)).ToList(),
             NoOfDarts = model.Score.Throws.Sum(t => t.NoOfDarts),
         };
     }
 
-    public async Task<LegCompetitorScoreAdapterContext> Adapt(LegCompetitorScoreDto dto, CancellationToken token)
+    public async Task<LegCompetitorScoreAdapterContext> Adapt(LegCompetitorScoreDto dto, UserAccessContext context, CancellationToken token)
     {
         return new LegCompetitorScoreAdapterContext(
             0,
             new LegCompetitorScore
             {
-                Throws = await dto.Throws.SelectAsync(t => _throwAdapter.Adapt(t, token)).ToList(),
+                Throws = await dto.Throws.SelectAsync(t => _throwAdapter.Adapt(t, context, token)).ToList(),
             });
     }
 

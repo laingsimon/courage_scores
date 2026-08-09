@@ -1,6 +1,7 @@
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 using CourageScores.Repository;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters;
 
@@ -13,7 +14,7 @@ public class ConfiguredFeatureDtoAdapter : IAdapter<ConfiguredFeature, Configure
         _featureLookup = featureLookup;
     }
 
-    public Task<ConfiguredFeatureDto> Adapt(ConfiguredFeature model, CancellationToken token)
+    public Task<ConfiguredFeatureDto> Adapt(ConfiguredFeature model, UserAccessContext context, CancellationToken token)
     {
         var feature = _featureLookup.Get(model.Id);
         return Task.FromResult(new ConfiguredFeatureDto
@@ -27,7 +28,7 @@ public class ConfiguredFeatureDtoAdapter : IAdapter<ConfiguredFeature, Configure
         }.AddAuditProperties(model));
     }
 
-    public Task<ConfiguredFeature> Adapt(ConfiguredFeatureDto dto, CancellationToken token)
+    public Task<ConfiguredFeature> Adapt(ConfiguredFeatureDto dto, UserAccessContext context, CancellationToken token)
     {
         return Task.FromResult(new ConfiguredFeature
         {

@@ -50,10 +50,10 @@ public class UpdateScoresAdapter : IUpdateScoresAdapter
         return gamePlayer;
     }
 
-    public async Task<GameMatch> AdaptToMatch(RecordScoresDto.RecordScoresGameMatchDto updatedMatch, CancellationToken token)
+    public async Task<GameMatch> AdaptToMatch(RecordScoresDto.RecordScoresGameMatchDto updatedMatch, UserAccessContext context, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var permitted = await _accessService.HasAccess(user, AccessOption.RecordScoresAsYouGo, token);
+        var permitted = await _accessService.HasAccess(user, AccessOption.RecordScoresAsYouGo, context, token);
 
         var match = new GameMatch
         {
@@ -63,7 +63,7 @@ public class UpdateScoresAdapter : IUpdateScoresAdapter
             HomePlayers = await updatedMatch.HomePlayers.SelectAsync(p => AdaptToPlayer(p, token)).ToList(),
             HomeScore = updatedMatch.HomeScore,
             Sayg = updatedMatch.Sayg != null && permitted
-                ? await _scoreAsYouGoAdapter.Adapt(updatedMatch.Sayg, token)
+                ? await _scoreAsYouGoAdapter.Adapt(updatedMatch.Sayg, context, token)
                 : null,
         };
 
@@ -71,10 +71,10 @@ public class UpdateScoresAdapter : IUpdateScoresAdapter
         return match;
     }
 
-    public async Task<GameMatch> UpdateMatch(GameMatch currentMatch, RecordScoresDto.RecordScoresGameMatchDto updatedMatch, CancellationToken token)
+    public async Task<GameMatch> UpdateMatch(GameMatch currentMatch, RecordScoresDto.RecordScoresGameMatchDto updatedMatch, UserAccessContext context, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var permitted = await _accessService.HasAccess(user, AccessOption.RecordScoresAsYouGo, token);
+        var permitted = await _accessService.HasAccess(user, AccessOption.RecordScoresAsYouGo, context, token);
         if (!updatedMatch.HomePlayers.Any() || !updatedMatch.AwayPlayers.Any())
         {
             updatedMatch.Sayg = null;
@@ -94,7 +94,7 @@ public class UpdateScoresAdapter : IUpdateScoresAdapter
             HomePlayers = await updatedMatch.HomePlayers.SelectAsync(p => AdaptToPlayer(p, token)).ToList(),
             HomeScore = updatedMatch.HomeScore,
             Sayg = updatedMatch.Sayg != null && permitted
-                ? await _scoreAsYouGoAdapter.Adapt(updatedMatch.Sayg, token)
+                ? await _scoreAsYouGoAdapter.Adapt(updatedMatch.Sayg, context, token)
                 : currentMatch.Sayg,
         };
         await _auditingHelper.SetUpdated(match, token);

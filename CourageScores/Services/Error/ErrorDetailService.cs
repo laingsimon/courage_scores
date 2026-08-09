@@ -74,6 +74,6 @@ public class ErrorDetailService : IErrorDetailService
     private async Task<bool> CanViewErrors(CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        return await _accessService.HasAccess(user, AccessOption.ViewExceptions, token);
+        return await _accessService.HasAccess(user, AccessOption.ViewExceptions, UserAccessContext.None(), token);
     }
 }

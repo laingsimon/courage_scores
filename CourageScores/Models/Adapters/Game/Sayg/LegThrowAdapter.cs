@@ -1,11 +1,12 @@
 ﻿using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters.Game.Sayg;
 
 public class LegThrowAdapter : ISimpleAdapter<LegThrow, LegThrowDto>
 {
-    public Task<LegThrowDto> Adapt(LegThrow model, CancellationToken token)
+    public Task<LegThrowDto> Adapt(LegThrow model, UserAccessContext context, CancellationToken token)
     {
         return Task.FromResult(new LegThrowDto
         {
@@ -14,7 +15,7 @@ public class LegThrowAdapter : ISimpleAdapter<LegThrow, LegThrowDto>
         });
     }
 
-    public Task<LegThrow> Adapt(LegThrowDto dto, CancellationToken token)
+    public Task<LegThrow> Adapt(LegThrowDto dto, UserAccessContext context, CancellationToken token)
     {
         return Task.FromResult(new LegThrow
         {

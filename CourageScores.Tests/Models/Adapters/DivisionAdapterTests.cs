@@ -1,4 +1,5 @@
 using CourageScores.Models.Adapters;
+using CourageScores.Services.Identity;
 using CourageScores.Tests.Services;
 using NUnit.Framework;
 
@@ -20,7 +21,7 @@ public class DivisionAdapterTests
             Superleague = true,
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.Name, Is.EqualTo(model.Name));
@@ -32,7 +33,7 @@ public class DivisionAdapterTests
     {
         var dto = new DivisionDtoBuilder(name: "Division 1").Superleague().Build();
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.Name, Is.EqualTo(dto.Name));
@@ -44,7 +45,7 @@ public class DivisionAdapterTests
     {
         var dto = new DivisionDtoBuilder(name: "Division 1   ").Build();
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Name, Is.EqualTo("Division 1"));
     }

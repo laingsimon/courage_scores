@@ -80,8 +80,8 @@ public class DivisionFixtureDateAdapterTests
         userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _divisionFixtureAdapter.Setup(a => a.Adapt(LeagueFixture, _season, TeamA, TeamB, HomeDivision, AwayDivision, _token)).ReturnsAsync(LeagueFixtureDto);
         accessService
-            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
-            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), It.IsAny<UserAccessContext>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, UserAccessContext _, CancellationToken _) => _access.Contains(access));
     }
 
     [Test]
@@ -89,7 +89,7 @@ public class DivisionFixtureDateAdapterTests
     {
         _user = null;
         _divisionTournamentFixtureDetailsAdapter
-            .Setup(a => a.Adapt(TournamentGameA, _token))
+            .Setup(a => a.Adapt(TournamentGameA, It.IsAny<UserAccessContext>(), _token))
             .ReturnsAsync(TournamentGameDtoA);
 
         var result = await _adapter.Adapt(
@@ -102,9 +102,11 @@ public class DivisionFixtureDateAdapterTests
             true,
             EmptyTeamIdToDivisionLookup,
             _season,
+            [],
+            UserAccessContext.None(),
             _token);
 
-        _divisionTournamentFixtureDetailsAdapter.Verify(a => a.ForUnselectedVenue(It.IsAny<IEnumerable<TeamDto>>(), _token), Times.Never);
+        _divisionTournamentFixtureDetailsAdapter.Verify(a => a.ForUnselectedVenue(It.IsAny<IEnumerable<TeamDto>>(), It.IsAny<UserAccessContext>(), _token), Times.Never);
         Assert.That(result.Date, Is.EqualTo(_date));
         Assert.That(result.Fixtures, Is.Empty);
         Assert.That(result.TournamentFixtures, Is.EqualTo([TournamentGameDtoA]));
@@ -116,7 +118,7 @@ public class DivisionFixtureDateAdapterTests
     {
         _access = _access.Without(AccessOption.ManageGames);
         _divisionTournamentFixtureDetailsAdapter
-            .Setup(a => a.Adapt(TournamentGameA, _token))
+            .Setup(a => a.Adapt(TournamentGameA, It.IsAny<UserAccessContext>(), _token))
             .ReturnsAsync(TournamentGameDtoA);
 
         var result = await _adapter.Adapt(
@@ -129,9 +131,11 @@ public class DivisionFixtureDateAdapterTests
             true,
             EmptyTeamIdToDivisionLookup,
             _season,
+            [],
+            UserAccessContext.None(),
             _token);
 
-        _divisionTournamentFixtureDetailsAdapter.Verify(a => a.ForUnselectedVenue(It.IsAny<IEnumerable<TeamDto>>(), _token), Times.Never);
+        _divisionTournamentFixtureDetailsAdapter.Verify(a => a.ForUnselectedVenue(It.IsAny<IEnumerable<TeamDto>>(), It.IsAny<UserAccessContext>(), _token), Times.Never);
         Assert.That(result.Date, Is.EqualTo(_date));
         Assert.That(result.Fixtures, Is.Empty);
         Assert.That(result.TournamentFixtures, Is.EqualTo([TournamentGameDtoA]));
@@ -147,10 +151,10 @@ public class DivisionFixtureDateAdapterTests
         };
         _access = _access.With(AccessOption.ManageTournaments);
         _divisionTournamentFixtureDetailsAdapter
-            .Setup(a => a.Adapt(TournamentGameA, _token))
+            .Setup(a => a.Adapt(TournamentGameA, It.IsAny<UserAccessContext>(), _token))
             .ReturnsAsync(TournamentGameDtoA);
         _divisionTournamentFixtureDetailsAdapter
-            .Setup(a => a.ForUnselectedVenue(new[] { TeamB }, _token))
+            .Setup(a => a.ForUnselectedVenue(new[] { TeamB }, It.IsAny<UserAccessContext>(), _token))
             .ReturnsAsync(tournamentGameDtoB);
 
         var result = await _adapter.Adapt(
@@ -163,6 +167,8 @@ public class DivisionFixtureDateAdapterTests
             true,
             EmptyTeamIdToDivisionLookup,
             _season,
+            [],
+            UserAccessContext.None(),
             _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));
@@ -176,7 +182,7 @@ public class DivisionFixtureDateAdapterTests
     {
         _access = _access.With(AccessOption.ManageTournaments);
         _divisionTournamentFixtureDetailsAdapter
-            .Setup(a => a.Adapt(TournamentGameA, _token))
+            .Setup(a => a.Adapt(TournamentGameA, It.IsAny<UserAccessContext>(), _token))
             .ReturnsAsync(TournamentGameDtoA);
 
         var result = await _adapter.Adapt(
@@ -189,6 +195,8 @@ public class DivisionFixtureDateAdapterTests
             false,
             EmptyTeamIdToDivisionLookup,
             _season,
+            [],
+            UserAccessContext.None(),
             _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));
@@ -202,7 +210,7 @@ public class DivisionFixtureDateAdapterTests
     {
         _access = _access.With(AccessOption.ManageTournaments);
         _divisionTournamentFixtureDetailsAdapter
-            .Setup(a => a.Adapt(TournamentGameA, _token))
+            .Setup(a => a.Adapt(TournamentGameA, It.IsAny<UserAccessContext>(), _token))
             .ReturnsAsync(TournamentGameDtoA);
 
         var result = await _adapter.Adapt(
@@ -215,6 +223,8 @@ public class DivisionFixtureDateAdapterTests
             true,
             TeamIdToDivisionLookupABC,
             _season,
+            [],
+            UserAccessContext.None(),
             _token);
 
         _divisionFixtureAdapter.Verify(a => a.ForUnselectedTeam(It.IsAny<TeamDto>(), It.IsAny<bool>(), It.IsAny<IReadOnlyCollection<CosmosGame>>(), It.IsAny<DivisionDto?>(), _token), Times.Never);
@@ -246,6 +256,8 @@ public class DivisionFixtureDateAdapterTests
             true,
             TeamIdToDivisionLookupABC,
             _season,
+            [],
+            UserAccessContext.None(),
             _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));
@@ -270,6 +282,8 @@ public class DivisionFixtureDateAdapterTests
             false,
             TeamIdToDivisionLookupABC,
             _season,
+            [],
+            UserAccessContext.None(),
             _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));
@@ -316,6 +330,8 @@ public class DivisionFixtureDateAdapterTests
             true,
             teamIdToDivisionLookup,
             _season,
+            [],
+            UserAccessContext.None(),
             _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));
@@ -345,6 +361,8 @@ public class DivisionFixtureDateAdapterTests
             true,
             TeamIdToDivisionLookupABC,
             _season,
+            [],
+            UserAccessContext.None(),
             _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));
@@ -384,6 +402,8 @@ public class DivisionFixtureDateAdapterTests
             true,
             TeamIdToDivisionLookupABC,
             _season,
+            [],
+            UserAccessContext.None(),
             _token);
 
         _divisionFixtureAdapter.Verify(a => a.ForUnselectedTeam(TeamC, true, Array.Empty<CosmosGame>(), HomeDivision, _token));
@@ -413,6 +433,8 @@ public class DivisionFixtureDateAdapterTests
             true,
             new Dictionary<Guid, DivisionDto?>(),
             _season,
+            [],
+            UserAccessContext.None(),
             _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));

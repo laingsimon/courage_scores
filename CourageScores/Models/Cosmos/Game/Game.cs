@@ -7,7 +7,7 @@ namespace CourageScores.Models.Cosmos.Game;
 /// <summary>
 /// A record of a number of matches played at a venue between 2 teams on a given date and time
 /// </summary>
-public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable, IPhotoEntity
+public class Game : AuditedEntity, IGameVisitable, IPhotoEntity
 {
     public const int CurrentVersion = 2;
 
@@ -163,6 +163,11 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable, IPhotoEn
     public async Task<bool> CanDelete(IUserAccessService userAccess, CancellationToken token)
     {
         return await userAccess.HasAccess(AccessOption.ManageGames, token);
+    }
+
+    public UserAccessContext GetUserAccessContext()
+    {
+        return UserAccessContext.ForTeam(SeasonId, DivisionId, Home.Id);
     }
 
     private class GameScoreVisitor : IGameVisitor, IGameVisitable

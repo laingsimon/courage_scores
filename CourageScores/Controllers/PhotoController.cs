@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using CourageScores.Services;
+using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TypeScriptMapper;
 
@@ -34,7 +35,7 @@ public class PhotoController : Controller
 
     private async Task GetPhoto(Guid id, int? height, CancellationToken token)
     {
-        var photo = await _photoService.GetPhoto(id, token);
+        var photo = await _photoService.GetPhoto(id, UserAccessContext.None(), token);
         if (photo == null)
         {
             Response.StatusCode = StatusCodes.Status404NotFound;

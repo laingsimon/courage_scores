@@ -1,6 +1,7 @@
 using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Services.Identity;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters.Game;
@@ -15,7 +16,7 @@ public class GameMatchOptionAdapterTests
     {
         var adapter = new GameMatchOptionAdapter();
 
-        var result = await adapter.Adapt((GameMatchOptionDto?)null, _token);
+        var result = await adapter.Adapt((GameMatchOptionDto?)null, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Null);
     }
@@ -25,7 +26,7 @@ public class GameMatchOptionAdapterTests
     {
         var adapter = new GameMatchOptionAdapter();
 
-        var result = await adapter.Adapt((GameMatchOption?)null, _token);
+        var result = await adapter.Adapt((GameMatchOption?)null, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Null);
     }
@@ -41,7 +42,7 @@ public class GameMatchOptionAdapterTests
             StartingScore = 501,
         };
 
-        var result = await adapter.Adapt(dto, _token);
+        var result = await adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.PlayerCount, Is.EqualTo(1));
@@ -60,7 +61,7 @@ public class GameMatchOptionAdapterTests
             StartingScore = 501,
         };
 
-        var result = await adapter.Adapt(model, _token);
+        var result = await adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.PlayerCount, Is.EqualTo(1));

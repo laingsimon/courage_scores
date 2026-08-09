@@ -371,7 +371,8 @@ public class FinalsNightReport : CompositeReport
     {
         var user = await _userService.GetUser(token);
 
-        if (!await _accessService.HasAccess(user, AccessOption.ManageScores, token))
+        var context = UserAccessContext.ForSeason(_season.Id);
+        if (!await _accessService.HasAccess(user, AccessOption.ManageScores, context, token))
         {
             yield return Row(Cell(text: "Man of the match"));
             yield break;

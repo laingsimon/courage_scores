@@ -4,7 +4,7 @@ using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Cosmos.Game;
 
-public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable, IPhotoEntity
+public class TournamentGame : AuditedEntity, IGameVisitable, IPhotoEntity
 {
     public DateTime Date { get; set; }
     public Guid SeasonId { get; set; }
@@ -72,5 +72,12 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
     public async Task<bool> CanDelete(IUserAccessService userAccess, CancellationToken token)
     {
         return await userAccess.HasAccess(AccessOption.ManageTournaments, token);
+    }
+
+    public UserAccessContext GetUserAccessContext()
+    {
+        return DivisionId != null
+            ? UserAccessContext.ForDivision(SeasonId, DivisionId.Value)
+            : UserAccessContext.ForSeason(SeasonId);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using CourageScores.Models.Adapters;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Tests.Models.Adapters;
 
@@ -22,7 +23,7 @@ public class MockSimpleAdapter<TModel, TDto> : ISimpleAdapter<TModel, TDto>
         _dto = dto;
     }
 
-    public Task<TDto> Adapt(TModel model, CancellationToken token)
+    public Task<TDto> Adapt(TModel model, UserAccessContext context, CancellationToken token)
     {
         // ReSharper disable once VariableHidesOuterVariable
         var mappings = _model.Zip(_dto, (model, dto) => (model, dto)).ToArray();
@@ -37,7 +38,7 @@ public class MockSimpleAdapter<TModel, TDto> : ISimpleAdapter<TModel, TDto>
         throw new InvalidOperationException($"Unexpected adaptation of {typeof(TModel).Name} from {mappings.Length} expected/permitted mappings");
     }
 
-    public Task<TModel> Adapt(TDto dto, CancellationToken token)
+    public Task<TModel> Adapt(TDto dto, UserAccessContext context, CancellationToken token)
     {
         // ReSharper disable once VariableHidesOuterVariable
         var mappings = _model.Zip(_dto, (model, dto) => (model, dto)).ToArray();

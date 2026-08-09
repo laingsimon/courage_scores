@@ -43,7 +43,8 @@ public class ReportService : IReportService
     public async Task<ReportCollectionDto> GetReports(ReportRequestDto request, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        if (!await _accessService.HasAccess(user, AccessOption.RunReports, token))
+        var context = UserAccessContext.ForDivision(request.SeasonId, request.DivisionId);
+        if (!await _accessService.HasAccess(user, AccessOption.RunReports, context, token))
         {
             return UnableToProduceReport("Not permitted", request);
         }
@@ -61,7 +62,7 @@ public class ReportService : IReportService
         }
 
         var reportVisitors = await _reportFactory.GetReports(request, token).ToList();
-        var reportVisitor = new CompositeGameVisitor(reportVisitors, await _accessService.HasAccess(user, AccessOption.ManageScores, token));
+        var reportVisitor = new CompositeGameVisitor(reportVisitors, await _accessService.HasAccess(user, AccessOption.ManageScores, context, token));
         var gameCount = 0;
         var playerLookup = new PlayerLookup();
         var visitorScope = new VisitorScope();

@@ -2,6 +2,7 @@
 using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
+using CourageScores.Services.Identity;
 using Moq;
 using NUnit.Framework;
 
@@ -41,7 +42,7 @@ public class UserAdapterTests
             Transient = true,
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.TeamId, Is.EqualTo(model.TeamId));
         Assert.That(result.Name, Is.EqualTo(model.Name));
@@ -63,7 +64,7 @@ public class UserAdapterTests
             GivenName = "Simon",
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Not.Null);
         _accessLevelAdapter.Verify(a => a.AddAccess(It.IsAny<UserDto>(), model, _token));
@@ -81,7 +82,7 @@ public class UserAdapterTests
             Transient = true,
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.TeamId, Is.EqualTo(dto.TeamId));
         Assert.That(result.Name, Is.EqualTo(dto.Name));
@@ -101,7 +102,7 @@ public class UserAdapterTests
             GivenName = "Simon   ",
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Name, Is.EqualTo("name"));
         Assert.That(result.EmailAddress, Is.EqualTo("email@somewhere.com"));

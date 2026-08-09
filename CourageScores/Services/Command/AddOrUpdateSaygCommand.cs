@@ -28,7 +28,8 @@ public class AddOrUpdateSaygCommand : AddOrUpdateCommand<RecordedScoreAsYouGo, U
     protected override async Task<ActionResult<RecordedScoreAsYouGo>> ApplyUpdates(RecordedScoreAsYouGo model, UpdateRecordedScoreAsYouGoDto update, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        if ((model.TournamentMatchId ?? update.TournamentMatchId) != null && !await _accessService.HasAccess(user, AccessOption.RecordScoresAsYouGo, token))
+        var context = UserAccessContext.None();
+        if ((model.TournamentMatchId ?? update.TournamentMatchId) != null && !await _accessService.HasAccess(user, AccessOption.RecordScoresAsYouGo, context, token))
         {
             return new ActionResult<RecordedScoreAsYouGo>
             {
@@ -60,7 +61,7 @@ public class AddOrUpdateSaygCommand : AddOrUpdateCommand<RecordedScoreAsYouGo, U
             };
         }
 
-        model.Legs = await update.Legs.ToDictionaryAsync(key => key, value => _legAdapter.Adapt(value, token));
+        model.Legs = await update.Legs.ToDictionaryAsync(key => key, value => _legAdapter.Adapt(value, context, token));
         model.HomeScore = update.HomeScore;
         model.AwayScore = update.AwayScore;
         model.YourName = update.YourName.TrimOrDefault();

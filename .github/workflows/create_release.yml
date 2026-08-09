@@ -17,7 +17,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Create release if none exists
+      - name: Upsert release pull request
         shell: pwsh
         run: ./Scripts/CreateRelease.ps1
         env:

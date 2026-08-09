@@ -70,7 +70,8 @@ public class GameService : IGameService
     public async Task<ActionResultDto<List<string>>> DeleteUnplayedLeagueFixtures(Guid seasonId, bool dryRun, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        if (!await _accessService.HasAccess(user, AccessOption.BulkDeleteLeagueFixtures, token))
+        var context = UserAccessContext.ForSeason(seasonId);
+        if (!await _accessService.HasAccess(user, AccessOption.BulkDeleteLeagueFixtures, context, token))
         {
             // admin access
             return new ActionResultDto<List<string>>
@@ -108,13 +109,14 @@ public class GameService : IGameService
     private async Task<GameDto> Adapt(GameDto game, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        if (await _accessService.HasAccess(user, AccessOption.ManageScores, token))
+        var context = UserAccessContext.ForTeam(game.SeasonId, game.DivisionId, game.Home.Id);
+        if (await _accessService.HasAccess(user, AccessOption.ManageScores, context, token))
         {
             // admin access
             return game;
         }
 
-        var inputResults = await _accessService.HasAccess(user, AccessOption.InputResults, token);
+        var inputResults = await _accessService.HasAccess(user, AccessOption.InputResults, context, token);
         if (user?.TeamId != game.Home.Id || !inputResults)
         {
             game.HomeSubmission = null;

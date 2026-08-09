@@ -3,6 +3,7 @@ using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Services.Identity;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters.Game;
@@ -44,7 +45,7 @@ public class GameMatchAdapterTests
             Sayg = ScoreAsYouGo,
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.HomeScore, Is.EqualTo(model.HomeScore));
         Assert.That(result.AwayScore, Is.EqualTo(model.AwayScore));
@@ -59,7 +60,7 @@ public class GameMatchAdapterTests
     {
         var model = new GameMatch();
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.HomeScore, Is.Null);
         Assert.That(result.AwayScore, Is.Null);
@@ -87,7 +88,7 @@ public class GameMatchAdapterTests
             Sayg = ScoreAsYouGoDto,
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.HomeScore, Is.EqualTo(dto.HomeScore));
         Assert.That(result.AwayScore, Is.EqualTo(dto.AwayScore));
@@ -105,7 +106,7 @@ public class GameMatchAdapterTests
             Sayg = null,
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Sayg, Is.Null);
     }

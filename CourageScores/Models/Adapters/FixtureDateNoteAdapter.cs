@@ -1,11 +1,12 @@
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters;
 
 public class FixtureDateNoteAdapter : IAdapter<FixtureDateNote, FixtureDateNoteDto>
 {
-    public Task<FixtureDateNoteDto> Adapt(FixtureDateNote model, CancellationToken token)
+    public Task<FixtureDateNoteDto> Adapt(FixtureDateNote model, UserAccessContext context, CancellationToken token)
     {
         return Task.FromResult(new FixtureDateNoteDto
         {
@@ -17,7 +18,7 @@ public class FixtureDateNoteAdapter : IAdapter<FixtureDateNote, FixtureDateNoteD
         }.AddAuditProperties(model));
     }
 
-    public Task<FixtureDateNote> Adapt(FixtureDateNoteDto dto, CancellationToken token)
+    public Task<FixtureDateNote> Adapt(FixtureDateNoteDto dto, UserAccessContext context, CancellationToken token)
     {
         return Task.FromResult(new FixtureDateNote
         {

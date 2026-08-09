@@ -5,6 +5,7 @@ using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
+using CourageScores.Services.Identity;
 using CourageScores.Tests.Models.Cosmos.Game;
 using Moq;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
@@ -84,6 +85,8 @@ public static class DivisionDataDtoFactoryTestHelpers
             includeProposals,
             It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
             It.IsAny<SeasonDto>(),
+            It.IsAny<IReadOnlyCollection<Guid>>(),
+            It.IsAny<UserAccessContext>(),
             token));
     }
 
@@ -100,6 +103,8 @@ public static class DivisionDataDtoFactoryTestHelpers
                 It.IsAny<bool>(),
                 It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
                 It.IsAny<SeasonDto>(),
+                It.IsAny<IReadOnlyCollection<Guid>>(),
+                It.IsAny<UserAccessContext>(),
                 token))
             .ReturnsAsync((
                 DateTime date,
@@ -111,6 +116,8 @@ public static class DivisionDataDtoFactoryTestHelpers
                 bool _,
                 IReadOnlyDictionary<Guid, DivisionDto?> _,
                 SeasonDto _,
+                IReadOnlyCollection<Guid> _,
+                UserAccessContext _,
                 CancellationToken _) => new DivisionFixtureDateDto
                 {
                     Date = date,

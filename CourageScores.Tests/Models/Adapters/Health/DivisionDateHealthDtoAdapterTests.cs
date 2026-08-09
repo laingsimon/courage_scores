@@ -3,6 +3,7 @@ using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Health;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Health;
+using CourageScores.Services.Identity;
 using Moq;
 using NUnit.Framework;
 
@@ -38,10 +39,10 @@ public class DivisionDateHealthDtoAdapterTests
             },
         };
         _fixtureAdapter
-            .Setup(a => a.Adapt(It.Is<LeagueFixtureHealthDtoAdapter.FixtureDateMapping>(m => m.Fixture == fixture && m.Date == model.Date), _token))
+            .Setup(a => a.Adapt(It.Is<LeagueFixtureHealthDtoAdapter.FixtureDateMapping>(m => m.Fixture == fixture && m.Date == model.Date), It.IsAny<UserAccessContext>(), _token))
             .ReturnsAsync(fixtureDto);
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Date, Is.EqualTo(model.Date));
         Assert.That(result.Fixtures, Is.EqualTo([fixtureDto]));

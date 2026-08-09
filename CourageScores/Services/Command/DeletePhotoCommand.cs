@@ -25,7 +25,8 @@ public class DeletePhotoCommand<T> : IUpdateCommand<T, T>
     {
         _photoId.ThrowIfNull($"{nameof(WithId)} must be called first");
 
-        var result = await _photoService.Delete(_photoId!.Value, token);
+        var context = model.GetUserAccessContext();
+        var result = await _photoService.Delete(_photoId!.Value, context, token);
         if (!result.Success)
         {
             return result.As<T>();

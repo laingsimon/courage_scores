@@ -146,7 +146,8 @@ public class DivisionService : IDivisionService
     private async Task<List<Models.Cosmos.Game.Game>> GetGames(DivisionDataFilter filter, SeasonDto season, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        if (await _accessService.HasAccess(user, AccessOption.ManageGames, token))
+        var context = UserAccessContext.ForSeason(season.Id);
+        if (await _accessService.HasAccess(user, AccessOption.ManageGames, context, token))
         {
             // return games from all divisions so that they fixtures in other divisions, for the same address can prevent
             // new games being created at the same address

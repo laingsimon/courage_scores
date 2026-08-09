@@ -7,6 +7,7 @@ using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Models.Dtos.Live;
 using CourageScores.Models.Live;
 using CourageScores.Services;
+using CourageScores.Services.Identity;
 using Moq;
 using NUnit.Framework;
 
@@ -50,7 +51,7 @@ public class WatchableDataDtoAdapterTests
         var sayg = GetWebSocketPublication(dataType: LiveDataType.Sayg, lastUpdate: LastUpdate01Jan2005);
         var details = GetWebSocketDetail(sayg);
 
-        var result = await _adapter.Adapt(new WatchableData(details, sayg, PublicationMode.WebSocket), _token);
+        var result = await _adapter.Adapt(new WatchableData(details, sayg, PublicationMode.WebSocket), UserAccessContext.None(), _token);
 
         Assert.That(result.UserName, Is.EqualTo("username"));
         Assert.That(result.Id, Is.EqualTo(sayg.Id));
@@ -66,7 +67,7 @@ public class WatchableDataDtoAdapterTests
         var tournament = GetWebSocketPublication(dataType: LiveDataType.Tournament, lastUpdate: LastUpdate02Feb2006);
         var details = GetWebSocketDetail(tournament);
 
-        var result = await _adapter.Adapt(new WatchableData(details, tournament, PublicationMode.Polling), _token);
+        var result = await _adapter.Adapt(new WatchableData(details, tournament, PublicationMode.Polling), UserAccessContext.None(), _token);
 
         Assert.That(result.UserName, Is.EqualTo("username"));
         Assert.That(result.Id, Is.EqualTo(tournament.Id));
@@ -82,7 +83,7 @@ public class WatchableDataDtoAdapterTests
         var tournament = GetWebSocketPublication(dataType: (LiveDataType)4, lastUpdate: LastUpdate02Feb2006);
         var details = GetWebSocketDetail(tournament);
 
-        var result = await _adapter.Adapt(new WatchableData(details, tournament, PublicationMode.Polling), _token);
+        var result = await _adapter.Adapt(new WatchableData(details, tournament, PublicationMode.Polling), UserAccessContext.None(), _token);
 
         Assert.That(result.UserName, Is.EqualTo("username"));
         Assert.That(result.Id, Is.EqualTo(tournament.Id));
@@ -101,7 +102,7 @@ public class WatchableDataDtoAdapterTests
             OriginatingUrl = "http://localhost:44426/a/b/c",
         };
 
-        var result = await _adapter.Adapt(new WatchableData(details, sayg, PublicationMode.WebSocket), _token);
+        var result = await _adapter.Adapt(new WatchableData(details, sayg, PublicationMode.WebSocket), UserAccessContext.None(), _token);
 
         Assert.That(result.AbsoluteUrl, Is.EqualTo($"http://localhost:44426/live/match/{sayg.Id}"));
     }
@@ -115,7 +116,7 @@ public class WatchableDataDtoAdapterTests
             OriginatingUrl = "http://localhost/a/b/c",
         };
 
-        var result = await _adapter.Adapt(new WatchableData(details, sayg, PublicationMode.WebSocket), _token);
+        var result = await _adapter.Adapt(new WatchableData(details, sayg, PublicationMode.WebSocket), UserAccessContext.None(), _token);
 
         Assert.That(result.AbsoluteUrl, Is.EqualTo($"http://localhost/live/match/{sayg.Id}"));
     }
@@ -129,7 +130,7 @@ public class WatchableDataDtoAdapterTests
             OriginatingUrl = null,
         };
 
-        var result = await _adapter.Adapt(new WatchableData(details, sayg, PublicationMode.WebSocket), _token);
+        var result = await _adapter.Adapt(new WatchableData(details, sayg, PublicationMode.WebSocket), UserAccessContext.None(), _token);
 
         Assert.That(result.AbsoluteUrl, Is.Null);
     }
@@ -143,7 +144,7 @@ public class WatchableDataDtoAdapterTests
             OriginatingUrl = "",
         };
 
-        var result = await _adapter.Adapt(new WatchableData(details, sayg, PublicationMode.WebSocket), _token);
+        var result = await _adapter.Adapt(new WatchableData(details, sayg, PublicationMode.WebSocket), UserAccessContext.None(), _token);
 
         Assert.That(result.AbsoluteUrl, Is.Null);
     }
@@ -155,7 +156,7 @@ public class WatchableDataDtoAdapterTests
         var details = GetWebSocketDetail(publication);
         _saygService.Setup(s => s.Get(publication.Id, _token)).ReturnsAsync(() => null);
 
-        var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), _token);
+        var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), UserAccessContext.None(), _token);
 
         Assert.That(result.EventDetails, Is.Null);
     }
@@ -167,7 +168,7 @@ public class WatchableDataDtoAdapterTests
         var details = GetWebSocketDetail(publication, originatingUrl: null);
         _saygService.Setup(s => s.Get(RecordedSayg.Id, _token)).ReturnsAsync(RecordedSayg);
 
-        var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), _token);
+        var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), UserAccessContext.None(), _token);
 
         Assert.That(result.EventDetails, Is.Not.Null);
         Assert.That(result.EventDetails!.Type, Is.Null);
@@ -182,7 +183,7 @@ public class WatchableDataDtoAdapterTests
         var details = GetWebSocketDetail(publication, originatingUrl: "");
         _saygService.Setup(s => s.Get(RecordedSayg.Id, _token)).ReturnsAsync(RecordedSayg);
 
-        var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), _token);
+        var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), UserAccessContext.None(), _token);
 
         Assert.That(result.EventDetails, Is.Not.Null);
         Assert.That(result.EventDetails!.Type, Is.Null);
@@ -199,7 +200,7 @@ public class WatchableDataDtoAdapterTests
             originatingUrl: "http://short");  // shorter than a guid (36 chars)
         _saygService.Setup(s => s.Get(RecordedSayg.Id, _token)).ReturnsAsync(RecordedSayg);
 
-        var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), _token);
+        var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), UserAccessContext.None(), _token);
 
         Assert.That(result.EventDetails, Is.Not.Null);
         Assert.That(result.EventDetails!.Type, Is.Null);
@@ -216,7 +217,7 @@ public class WatchableDataDtoAdapterTests
             originatingUrl: "http://some-url/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"); // invalid guid data
         _saygService.Setup(s => s.Get(RecordedSayg.Id, _token)).ReturnsAsync(RecordedSayg);
 
-        var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), _token);
+        var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), UserAccessContext.None(), _token);
 
         Assert.That(result.EventDetails, Is.Not.Null);
         Assert.That(result.EventDetails!.Type, Is.Null);
@@ -232,7 +233,7 @@ public class WatchableDataDtoAdapterTests
         _saygService.Setup(s => s.Get(RecordedSayg.Id, _token)).ReturnsAsync(RecordedSayg);
         _tournamentService.Setup(s => s.Get(Tournament.Id, _token)).ReturnsAsync(Tournament);
 
-        var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), _token);
+        var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), UserAccessContext.None(), _token);
 
         Assert.That(result.EventDetails, Is.Not.Null);
         Assert.That(result.EventDetails!.Type, Is.EqualTo("TYPE"));
@@ -248,7 +249,7 @@ public class WatchableDataDtoAdapterTests
         _saygService.Setup(s => s.Get(RecordedSayg.Id, _token)).ReturnsAsync(RecordedSayg);
         _tournamentService.Setup(s => s.Get(Tournament.Id, _token)).ReturnsAsync(Tournament);
 
-        var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), _token);
+        var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), UserAccessContext.None(), _token);
 
         Assert.That(result.EventDetails, Is.Not.Null);
         Assert.That(result.EventDetails!.Type, Is.EqualTo("TYPE"));
@@ -263,7 +264,7 @@ public class WatchableDataDtoAdapterTests
         var details = GetWebSocketDetail(publication);
         _tournamentService.Setup(s => s.Get(publication.Id, _token)).ReturnsAsync(() => null);
 
-        var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), _token);
+        var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), UserAccessContext.None(), _token);
 
         Assert.That(result.EventDetails, Is.Null);
     }
@@ -275,7 +276,7 @@ public class WatchableDataDtoAdapterTests
         var details = GetWebSocketDetail(publication);
         _tournamentService.Setup(s => s.Get(Tournament.Id, _token)).ReturnsAsync(Tournament);
 
-        var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), _token);
+        var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), UserAccessContext.None(), _token);
 
         Assert.That(result.EventDetails, Is.Not.Null);
         Assert.That(result.EventDetails!.Type, Is.EqualTo("TYPE"));

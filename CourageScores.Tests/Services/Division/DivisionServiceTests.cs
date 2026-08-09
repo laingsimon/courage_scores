@@ -107,7 +107,7 @@ public class DivisionServiceTests
 
         _service = fixture.Create<DivisionService>();
 
-        accessService.Setup(s => s.HasAccess(_userDto, It.IsAny<AccessOption>(), _token)).ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
+        accessService.Setup(s => s.HasAccess(_userDto, It.IsAny<AccessOption>(), It.IsAny<UserAccessContext>(), _token)).ReturnsAsync((UserDto? _, AccessOption access, UserAccessContext _, CancellationToken _) => _access.Contains(access));
         teamService.Setup(s => s.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_allTeams.ToArray()));
         _noteService.Setup(s => s.GetWhere(It.IsAny<string>(), _token)).Returns(() => TestUtilities.AsyncEnumerable(_someNotes.ToArray()));
         _gameRepository.Setup(s => s.GetSome(It.IsAny<string>(), _token)).Returns(() => TestUtilities.AsyncEnumerable(_someGames.ToArray()));

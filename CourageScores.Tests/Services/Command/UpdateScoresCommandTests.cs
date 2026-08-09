@@ -126,11 +126,11 @@ public class UpdateScoresCommandTests
         _teamService.Setup(s => s.Upsert(It.IsAny<Guid>(), It.IsAny<AddSeasonToTeamCommand>(), _token)).ReturnsAsync(() => _teamUpdate);
         _scoresAdapter.Setup(a => a.AdaptToHiCheckPlayer(AwayPlayer, _token)).ReturnsAsync(Over100CheckoutPlayer);
         _scoresAdapter.Setup(a => a.AdaptToPlayer(HomePlayer, _token)).ReturnsAsync(HomeGamePlayer);
-        _scoresAdapter.Setup(a => a.AdaptToMatch(AwayWinnerMatch, _token)).ReturnsAsync(AdaptedGameMatch);
+        _scoresAdapter.Setup(a => a.AdaptToMatch(AwayWinnerMatch, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(AdaptedGameMatch);
         _seasonService.Setup(s => s.GetForDate(It.IsAny<DateTime>(), _token)).ReturnsAsync(SeasonDto);
         accessService
-            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), _token))
-            .ReturnsAsync((UserDto? _, AccessOption access, CancellationToken _) => _access.Contains(access));
+            .Setup(s => s.HasAccess(It.IsAny<UserDto?>(), It.IsAny<AccessOption>(), It.IsAny<UserAccessContext>(), _token))
+            .ReturnsAsync((UserDto? _, AccessOption access, UserAccessContext _, CancellationToken _) => _access.Contains(access));
     }
 
     [Test]
@@ -232,7 +232,7 @@ public class UpdateScoresCommandTests
         _game.Matches.Add(new GameMatchBuilder().Build());
         _user = new UserDto();
         _scores.AddAccolades(HomePlayer, AwayPlayer, AwayWinnerMatch);
-        _scoresAdapter.Setup(a => a.UpdateMatch(_game.Matches.Last(), AwayWinnerMatch, _token)).ReturnsAsync(AdaptedGameMatch);
+        _scoresAdapter.Setup(a => a.UpdateMatch(_game.Matches.Last(), AwayWinnerMatch, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(AdaptedGameMatch);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
@@ -250,7 +250,7 @@ public class UpdateScoresCommandTests
         var matchToKeep = new GameMatchBuilder().Build();
         _game.Matches.AddRange([matchToKeep, new GameMatchBuilder().Build()]);
         _scores.AddAccolades(HomePlayer, AwayPlayer, AwayWinnerMatch);
-        _scoresAdapter.Setup(a => a.UpdateMatch(matchToKeep, AwayWinnerMatch, _token)).ReturnsAsync(AdaptedGameMatch);
+        _scoresAdapter.Setup(a => a.UpdateMatch(matchToKeep, AwayWinnerMatch, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(AdaptedGameMatch);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 

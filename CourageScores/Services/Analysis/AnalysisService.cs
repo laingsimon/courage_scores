@@ -42,7 +42,8 @@ public class AnalysisService : IAnalysisService
 
 
         var user = await _userService.GetUser(token);
-        if (!await _accessService.HasAccess(user, AccessOption.AnalyseMatches, token))
+        var context = UserAccessContext.None();
+        if (!await _accessService.HasAccess(user, AccessOption.AnalyseMatches, context, token))
         {
             result.Warnings.Add(user == null
                 ? "Not logged in"

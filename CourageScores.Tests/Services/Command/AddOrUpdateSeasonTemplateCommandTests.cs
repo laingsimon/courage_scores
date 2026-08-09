@@ -5,6 +5,7 @@ using CourageScores.Models.Dtos.Health;
 using CourageScores.Models.Dtos.Season.Creation;
 using CourageScores.Services.Command;
 using CourageScores.Services.Health;
+using CourageScores.Services.Identity;
 using CourageScores.Tests.Models.Adapters;
 using Moq;
 using NUnit.Framework;
@@ -55,7 +56,7 @@ public class AddOrUpdateSeasonTemplateCommandTests
         _healthCheckService = fixture.FreezeMock<IHealthCheckService>();
         _healthCheckAdapter = fixture.FreezeMock<ISimpleOnewayAdapter<Template, SeasonHealthDto>>();
         _command = fixture.Create<AddOrUpdateSeasonTemplateCommand>();
-        _healthCheckAdapter.Setup(a => a.Adapt(It.IsAny<Template>(), _token)).ReturnsAsync(_healthCheckDto);
+        _healthCheckAdapter.Setup(a => a.Adapt(It.IsAny<Template>(), It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(_healthCheckDto);
         _healthCheckService.Setup(s => s.Check(_healthCheckDto, _token)).ReturnsAsync(_seasonHealthDto);
     }
 
@@ -105,7 +106,7 @@ public class AddOrUpdateSeasonTemplateCommandTests
 
         var result = await _command.WithData(update).ApplyUpdate(_template, _token);
 
-        _healthCheckAdapter.Verify(s => s.Adapt(_template, _token));
+        _healthCheckAdapter.Verify(s => s.Adapt(_template, It.IsAny<UserAccessContext>(), _token));
         _healthCheckService.Verify(s => s.Check(_healthCheckDto, _token));
         Assert.That(result.Success, Is.True);
         Assert.That(_template.TemplateHealth, Is.EqualTo(_seasonHealthDto));
@@ -124,12 +125,12 @@ public class AddOrUpdateSeasonTemplateCommandTests
         };
         _adapter.AddMapping(_requestedTemplateChanges, update);
         _healthCheckAdapter
-            .Setup(a => a.Adapt(throwingTemplate, _token))
+            .Setup(a => a.Adapt(throwingTemplate, It.IsAny<UserAccessContext>(), _token))
             .ThrowsAsync(new InvalidOperationException("Exception in adapter"));
 
         var result = await _command.WithData(update).ApplyUpdate(throwingTemplate, _token);
 
-        _healthCheckAdapter.Verify(s => s.Adapt(throwingTemplate, _token));
+        _healthCheckAdapter.Verify(s => s.Adapt(throwingTemplate, It.IsAny<UserAccessContext>(), _token));
         Assert.That(result.Success, Is.True);
         Assert.That(throwingTemplate.TemplateHealth, Is.Not.Null);
         Assert.That(throwingTemplate.TemplateHealth!.Errors, Is.EquivalentTo(["Exception in adapter"]));
@@ -148,7 +149,7 @@ public class AddOrUpdateSeasonTemplateCommandTests
         };
         _adapter.AddMapping(_requestedTemplateChanges, update);
         _healthCheckAdapter
-            .Setup(a => a.Adapt(throwingTemplate, _token))
+            .Setup(a => a.Adapt(throwingTemplate, It.IsAny<UserAccessContext>(), _token))
             .ReturnsAsync(_healthCheckDto);
         _healthCheckService
             .Setup(s => s.Check(_healthCheckDto, _token))
@@ -156,7 +157,7 @@ public class AddOrUpdateSeasonTemplateCommandTests
 
         var result = await _command.WithData(update).ApplyUpdate(throwingTemplate, _token);
 
-        _healthCheckAdapter.Verify(s => s.Adapt(throwingTemplate, _token));
+        _healthCheckAdapter.Verify(s => s.Adapt(throwingTemplate, It.IsAny<UserAccessContext>(), _token));
         Assert.That(result.Success, Is.True);
         Assert.That(throwingTemplate.TemplateHealth, Is.Not.Null);
         Assert.That(throwingTemplate.TemplateHealth!.Errors, Is.EquivalentTo(["Exception in service"]));

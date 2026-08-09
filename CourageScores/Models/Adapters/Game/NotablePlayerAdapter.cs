@@ -1,12 +1,13 @@
 ﻿using CourageScores.Models.Adapters.Team;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters.Game;
 
 public class NotablePlayerAdapter : IAdapter<NotablePlayer, NotablePlayerDto>
 {
-    public Task<NotablePlayerDto> Adapt(NotablePlayer model, CancellationToken token)
+    public Task<NotablePlayerDto> Adapt(NotablePlayer model, UserAccessContext context, CancellationToken token)
     {
         var hasIntegerScore = int.TryParse(model.Notes, out var integerScore);
 
@@ -22,7 +23,7 @@ public class NotablePlayerAdapter : IAdapter<NotablePlayer, NotablePlayerDto>
         }.AddAuditProperties(model));
     }
 
-    public Task<NotablePlayer> Adapt(NotablePlayerDto dto, CancellationToken token)
+    public Task<NotablePlayer> Adapt(NotablePlayerDto dto, UserAccessContext context, CancellationToken token)
     {
         return Task.FromResult(new NotablePlayer
         {

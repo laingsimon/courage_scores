@@ -1,11 +1,12 @@
 ﻿using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Dtos.Season.Creation;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters.Season.Creation;
 
 public class FixtureTemplateAdapter : ISimpleAdapter<FixtureTemplate, FixtureTemplateDto>
 {
-    public Task<FixtureTemplateDto> Adapt(FixtureTemplate model, CancellationToken token)
+    public Task<FixtureTemplateDto> Adapt(FixtureTemplate model, UserAccessContext context, CancellationToken token)
     {
         return Task.FromResult(new FixtureTemplateDto
         {
@@ -14,7 +15,7 @@ public class FixtureTemplateAdapter : ISimpleAdapter<FixtureTemplate, FixtureTem
         });
     }
 
-    public Task<FixtureTemplate> Adapt(FixtureTemplateDto dto, CancellationToken token)
+    public Task<FixtureTemplate> Adapt(FixtureTemplateDto dto, UserAccessContext context, CancellationToken token)
     {
         return Task.FromResult(new FixtureTemplate
         {

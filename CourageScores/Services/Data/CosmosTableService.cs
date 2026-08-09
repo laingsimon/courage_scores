@@ -81,13 +81,13 @@ public class CosmosTableService : ICosmosTableService
             return false;
         }
 
-        return await _accessService.HasAccess(user, AccessOption.ExportData, token);
+        return await _accessService.HasAccess(user, AccessOption.ExportData, UserAccessContext.None(), token);
     }
 
     private async Task<bool> CanImportDataType(Type? dataType, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var importData = await _accessService.HasAccess(user, AccessOption.ImportData, token);
+        var importData = await _accessService.HasAccess(user, AccessOption.ImportData, UserAccessContext.None(), token);
         if (!importData)
         {
             return false;
@@ -98,7 +98,7 @@ public class CosmosTableService : ICosmosTableService
             return false;
         }
 
-        var userAccess = new UserAccessService(_accessService, user);
+        var userAccess = new UserAccessService(_accessService, UserAccessContext.None(), user);
         var instance = (IPermissionedEntity)Activator.CreateInstance(dataType)!;
         return await instance.CanCreate(userAccess, token) && await instance.CanEdit(userAccess, token) && await instance.CanDelete(userAccess, token);
     }

@@ -5,6 +5,7 @@ using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
+using CourageScores.Services.Identity;
 using CourageScores.Tests.Models.Cosmos.Game;
 using CourageScores.Tests.Models.Dtos;
 using CourageScores.Tests.Services;
@@ -56,10 +57,10 @@ public class DivisionTournamentFixtureDetailsAdapterTests
             .Build();
         var winnerDto = new TournamentSideDto();
         var runnerUpDto = new TournamentSideDto();
-        _tournamentSideAdapter.Setup(a => a.Adapt(winner, _token)).ReturnsAsync(winnerDto);
-        _tournamentSideAdapter.Setup(a => a.Adapt(runnerUp, _token)).ReturnsAsync(runnerUpDto);
+        _tournamentSideAdapter.Setup(a => a.Adapt(winner, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(winnerDto);
+        _tournamentSideAdapter.Setup(a => a.Adapt(runnerUp, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(runnerUpDto);
 
-        var result = await _adapter.Adapt(game, _token);
+        var result = await _adapter.Adapt(game, UserAccessContext.None(), _token);
 
         Assert.That(result.Address, Is.EqualTo(game.Address));
         Assert.That(result.Date, Is.EqualTo(game.Date));
@@ -86,7 +87,7 @@ public class DivisionTournamentFixtureDetailsAdapterTests
             .WithRound(new TournamentRound())
             .Build();
 
-        var result = await _adapter.Adapt(game, _token);
+        var result = await _adapter.Adapt(game, UserAccessContext.None(), _token);
 
         Assert.That(result.WinningSide, Is.EqualTo(null));
     }
@@ -129,10 +130,10 @@ public class DivisionTournamentFixtureDetailsAdapterTests
         {
             Name = "B",
         };
-        _tournamentSideAdapter.Setup(a => a.Adapt(sideA, _token)).ReturnsAsync(sideADto);
-        _tournamentSideAdapter.Setup(a => a.Adapt(sideB, _token)).ReturnsAsync(sideBDto);
+        _tournamentSideAdapter.Setup(a => a.Adapt(sideA, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(sideADto);
+        _tournamentSideAdapter.Setup(a => a.Adapt(sideB, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(sideBDto);
 
-        var result = await _adapter.Adapt(game, _token);
+        var result = await _adapter.Adapt(game, UserAccessContext.None(), _token);
 
         if (winnerName == null)
         {
@@ -157,7 +158,7 @@ public class DivisionTournamentFixtureDetailsAdapterTests
             ))
             .Build();
 
-        var result = await _adapter.Adapt(game, _token);
+        var result = await _adapter.Adapt(game, UserAccessContext.None(), _token);
 
         Assert.That(result.Players, Is.SupersetOf(sideA.Players.Select(p => p.Id)));
         Assert.That(result.Players, Is.SupersetOf(sideB.Players.Select(p => p.Id)));
@@ -178,7 +179,7 @@ public class DivisionTournamentFixtureDetailsAdapterTests
             })
             .Build();
 
-        var result = await _adapter.Adapt(game, _token);
+        var result = await _adapter.Adapt(game, UserAccessContext.None(), _token);
 
         Assert.That(result.Players, Is.EquivalentTo([sidePlayer.Id]));
     }
@@ -204,7 +205,7 @@ public class DivisionTournamentFixtureDetailsAdapterTests
             })
             .Build();
 
-        var result = await _adapter.Adapt(game, _token);
+        var result = await _adapter.Adapt(game, UserAccessContext.None(), _token);
 
         Assert.That(result.Players, Has.Member(sidePlayer.Id));
         Assert.That(result.Players, Is.SupersetOf(sideA.Players.Select(p => p.Id)));
@@ -229,9 +230,9 @@ public class DivisionTournamentFixtureDetailsAdapterTests
                     NumberOfLegs = 7,
                 }))
             .Build();
-        _tournamentMatchAdapter.Setup(a => a.Adapt(match, _token)).ReturnsAsync(matchDto);
+        _tournamentMatchAdapter.Setup(a => a.Adapt(match, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(matchDto);
 
-        var result = await _adapter.Adapt(game, _token);
+        var result = await _adapter.Adapt(game, UserAccessContext.None(), _token);
 
         Assert.That(result.SingleRound, Is.True);
         Assert.That(result.FirstRoundMatches, Is.EqualTo([matchDto]));
@@ -241,7 +242,7 @@ public class DivisionTournamentFixtureDetailsAdapterTests
     [Test]
     public async Task ForUnselectedVenue_WithSingleTeam_ReturnsCorrectly()
     {
-        var result = await _adapter.ForUnselectedVenue([Team1], _token);
+        var result = await _adapter.ForUnselectedVenue([Team1], UserAccessContext.None(), _token);
 
         Assert.That(result.Address, Is.EqualTo("address"));
         Assert.That(result.Id, Is.EqualTo(Guid.Empty));
@@ -258,7 +259,7 @@ public class DivisionTournamentFixtureDetailsAdapterTests
     [Test]
     public async Task ForUnselectedVenue_WithMultipleTeams_ReturnsCorrectly()
     {
-        var result = await _adapter.ForUnselectedVenue([Team1, Team2], _token);
+        var result = await _adapter.ForUnselectedVenue([Team1, Team2], UserAccessContext.None(), _token);
 
         Assert.That(result.Address, Is.EqualTo("address"));
         Assert.That(result.Id, Is.EqualTo(Guid.Empty));

@@ -1,5 +1,6 @@
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters;
 
@@ -12,7 +13,7 @@ public class UnconfiguredFeatureAdapter : ISimpleOnewayAdapter<Guid, ConfiguredF
         _adapter = adapter;
     }
 
-    public async Task<ConfiguredFeatureDto> Adapt(Guid model, CancellationToken token)
+    public async Task<ConfiguredFeatureDto> Adapt(Guid model, UserAccessContext context, CancellationToken token)
     {
         var intermediary = new ConfiguredFeature
         {
@@ -20,6 +21,6 @@ public class UnconfiguredFeatureAdapter : ISimpleOnewayAdapter<Guid, ConfiguredF
             ConfiguredValue = null,
         };
 
-        return await _adapter.Adapt(intermediary, token);
+        return await _adapter.Adapt(intermediary, context, token);
     }
 }

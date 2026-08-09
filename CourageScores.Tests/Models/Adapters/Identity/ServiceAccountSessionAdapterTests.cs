@@ -3,6 +3,7 @@ using AutoFixture;
 using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
+using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Http;
 using NUnit.Framework;
 
@@ -52,7 +53,7 @@ public class ServiceAccountSessionAdapterTests
             Updated = new DateTime(2002, 03, 04),
         };
 
-        var dto = await _adapter.Adapt(model, _token);
+        var dto = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(dto.ApprovedBy, Is.EqualTo(model.ApprovedBy));
         Assert.That(dto.VerificationValue, Is.EqualTo(model.VerificationValue));
@@ -87,7 +88,7 @@ public class ServiceAccountSessionAdapterTests
             Id = Guid.NewGuid(),
         };
 
-        var model = await _adapter.Adapt(dto, _token);
+        var model = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(model.ApprovedBy, Is.EqualTo(dto.ApprovedBy));
         Assert.That(model.VerificationValue, Is.EqualTo(dto.VerificationValue));

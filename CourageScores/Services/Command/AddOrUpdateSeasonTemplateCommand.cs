@@ -4,6 +4,7 @@ using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Dtos.Health;
 using CourageScores.Models.Dtos.Season.Creation;
 using CourageScores.Services.Health;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Services.Command;
 
@@ -25,7 +26,9 @@ public class AddOrUpdateSeasonTemplateCommand : AddOrUpdateCommand<Template, Edi
 
     protected override async Task<ActionResult<Template>> ApplyUpdates(Template template, EditTemplateDto update, CancellationToken token)
     {
-        var dto = await _templateAdapter.Adapt(update, token);
+        var context = UserAccessContext.None();
+
+        var dto = await _templateAdapter.Adapt(update, context, token);
 
         template.Name = dto.Name.TrimOrDefault();
         template.Divisions = dto.Divisions;
@@ -34,7 +37,7 @@ public class AddOrUpdateSeasonTemplateCommand : AddOrUpdateCommand<Template, Edi
 
         try
         {
-            var result = await _healthCheckService.Check(await _healthCheckAdapter.Adapt(template, token), token);
+            var result = await _healthCheckService.Check(await _healthCheckAdapter.Adapt(template, context, token), token);
             template.TemplateHealth = result;
         }
         catch (Exception exc)

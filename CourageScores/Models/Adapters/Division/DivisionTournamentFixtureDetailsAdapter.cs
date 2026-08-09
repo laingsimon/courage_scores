@@ -4,6 +4,7 @@ using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters.Division;
 
@@ -23,7 +24,7 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
         _tournamentMatchAdapter = tournamentMatchAdapter;
     }
 
-    public async Task<DivisionTournamentFixtureDetailsDto> Adapt(TournamentGame tournamentGame, CancellationToken token)
+    public async Task<DivisionTournamentFixtureDetailsDto> Adapt(TournamentGame tournamentGame, UserAccessContext context, CancellationToken token)
     {
         var winningSide = GetWinner(tournamentGame);
         var players = new AccumulatePlayersVisitor();
@@ -36,16 +37,16 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
             Date = tournamentGame.Date,
             SeasonId = tournamentGame.SeasonId,
             WinningSide = !tournamentGame.SingleRound && winningSide != null
-                ? await _tournamentSideAdapter.Adapt(winningSide, token)
+                ? await _tournamentSideAdapter.Adapt(winningSide, context, token)
                 : null,
             Type = _tournamentTypeResolver.GetTournamentType(tournamentGame),
             Proposed = false,
             Players = players.Select(p => p.Id).ToList(),
-            Sides = await tournamentGame.Sides.SelectAsync(side => _tournamentSideAdapter.Adapt(side, token)).ToList(),
+            Sides = await tournamentGame.Sides.SelectAsync(side => _tournamentSideAdapter.Adapt(side, context, token)).ToList(),
             Notes = tournamentGame.Notes,
             SingleRound = tournamentGame.SingleRound,
             FirstRoundMatches = tournamentGame.Round != null
-                ? await tournamentGame.Round.Matches.SelectAsync(m => _tournamentMatchAdapter.Adapt(m, token)).ToList()
+                ? await tournamentGame.Round.Matches.SelectAsync(m => _tournamentMatchAdapter.Adapt(m, context, token)).ToList()
                 : new List<TournamentMatchDto>(),
             Opponent = tournamentGame.SingleRound
                 ? tournamentGame.Opponent
@@ -57,7 +58,7 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
         };
     }
 
-    public Task<DivisionTournamentFixtureDetailsDto> ForUnselectedVenue(IEnumerable<TeamDto> teamAddress, CancellationToken token)
+    public Task<DivisionTournamentFixtureDetailsDto> ForUnselectedVenue(IEnumerable<TeamDto> teamAddress, UserAccessContext context, CancellationToken token)
     {
         return Task.FromResult(new DivisionTournamentFixtureDetailsDto
         {

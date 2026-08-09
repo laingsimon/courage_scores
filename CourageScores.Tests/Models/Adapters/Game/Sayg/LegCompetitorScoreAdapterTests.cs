@@ -3,6 +3,7 @@ using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Game.Sayg;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Services.Identity;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters.Game.Sayg;
@@ -43,7 +44,7 @@ public class LegCompetitorScoreAdapterTests
                 },
             });
 
-        var result = await _adapter.Adapt(context, _token);
+        var result = await _adapter.Adapt(context, UserAccessContext.None(), _token);
 
         Assert.That(result.Score, Is.EqualTo(expectedScore));
     }
@@ -61,7 +62,7 @@ public class LegCompetitorScoreAdapterTests
                 },
             });
 
-        var result = await _adapter.Adapt(context, _token);
+        var result = await _adapter.Adapt(context, UserAccessContext.None(), _token);
 
         Assert.That(result.Throws, Is.EqualTo([_legThrowDto]));
     }
@@ -80,7 +81,7 @@ public class LegCompetitorScoreAdapterTests
                 },
             });
 
-        var result = await _adapter.Adapt(context, _token);
+        var result = await _adapter.Adapt(context, UserAccessContext.None(), _token);
 
         Assert.That(result.NoOfDarts, Is.EqualTo(3));
     }
@@ -96,7 +97,7 @@ public class LegCompetitorScoreAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Score.Throws, Is.EqualTo([_legThrow]));
     }

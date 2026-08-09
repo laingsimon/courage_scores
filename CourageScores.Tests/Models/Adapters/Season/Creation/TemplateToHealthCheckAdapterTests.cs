@@ -2,6 +2,7 @@ using CourageScores.Models.Adapters.Season.Creation;
 using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Health;
+using CourageScores.Services.Identity;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters.Season.Creation;
@@ -33,7 +34,7 @@ public class TemplateToHealthCheckAdapterTests
             Name = "NAME",
         };
 
-        var result = await _adapter.Adapt(template, _token);
+        var result = await _adapter.Adapt(template, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Divisions.Count, Is.EqualTo(0));
@@ -45,7 +46,7 @@ public class TemplateToHealthCheckAdapterTests
     {
         var template = Template(DivisionTemplateABCD);
 
-        var result = await _adapter.Adapt(template, _token);
+        var result = await _adapter.Adapt(template, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Divisions.Count, Is.EqualTo(1));
@@ -64,7 +65,7 @@ public class TemplateToHealthCheckAdapterTests
     {
         var template = Template("A");
 
-        var result = await _adapter.Adapt(template, _token);
+        var result = await _adapter.Adapt(template, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Divisions.Count, Is.EqualTo(1));
@@ -85,7 +86,7 @@ public class TemplateToHealthCheckAdapterTests
             SharedAddresses("E", "F"),
             DivisionTemplateABCD);
 
-        var result = await _adapter.Adapt(template, _token);
+        var result = await _adapter.Adapt(template, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Divisions.Count, Is.EqualTo(1));
@@ -106,7 +107,7 @@ public class TemplateToHealthCheckAdapterTests
             SharedAddresses("A", "D"),
             DivisionTemplateABCD);
 
-        var result = await _adapter.Adapt(template, _token);
+        var result = await _adapter.Adapt(template, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Divisions.Count, Is.EqualTo(1));
@@ -139,7 +140,7 @@ public class TemplateToHealthCheckAdapterTests
             SharedAddresses("E", "F"),
             DateTemplate("A vs B", "C vs D")));
 
-        var result = await _adapter.Adapt(template, _token);
+        var result = await _adapter.Adapt(template, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Divisions.Count, Is.EqualTo(1));
@@ -166,7 +167,7 @@ public class TemplateToHealthCheckAdapterTests
                 SharedAddresses("A", "D"),
                 DateTemplate("A vs B", "C vs D")));
 
-        var result = await _adapter.Adapt(template, _token);
+        var result = await _adapter.Adapt(template, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Divisions.Count, Is.EqualTo(1));
@@ -201,7 +202,7 @@ public class TemplateToHealthCheckAdapterTests
                 SharedAddresses("A", "B"),
                 DateTemplate("A vs B", "C vs D")));
 
-        var result = await _adapter.Adapt(template, _token);
+        var result = await _adapter.Adapt(template, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Divisions.Count, Is.EqualTo(1));
@@ -253,7 +254,7 @@ public class TemplateToHealthCheckAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(template, _token);
+        var result = await _adapter.Adapt(template, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Divisions.Count, Is.EqualTo(1));
@@ -288,7 +289,7 @@ public class TemplateToHealthCheckAdapterTests
                 DateTemplate("A vs B", "C vs D"),
                 DateTemplate("B vs C", "A vs D")));
 
-        var result = await _adapter.Adapt(template, _token);
+        var result = await _adapter.Adapt(template, UserAccessContext.None(), _token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Divisions.Count, Is.EqualTo(1));

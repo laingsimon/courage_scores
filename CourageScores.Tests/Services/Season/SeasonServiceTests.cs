@@ -50,8 +50,8 @@ public class SeasonServiceTests
         _repository.Setup(r => r.Get(_season.Id, _token)).ReturnsAsync(_season);
         userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         accessService
-            .Setup(s => s.HasAccess(_user, It.IsAny<AccessOption>(), _token))
-            .ReturnsAsync((UserDto _, AccessOption option, CancellationToken _) => _user != null && _access.Contains(option));
+            .Setup(s => s.HasAccess(_user, It.IsAny<AccessOption>(), It.IsAny<UserAccessContext>(), _token))
+            .ReturnsAsync((UserDto _, AccessOption option, UserAccessContext _, CancellationToken _) => _user != null && _access.Contains(option));
     }
 
     [Test]

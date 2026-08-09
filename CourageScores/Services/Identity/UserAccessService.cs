@@ -6,13 +6,15 @@ public class UserAccessService : IUserAccessService
 {
     private readonly IAccessService _accessService;
 
-    public UserAccessService(IAccessService accessService, UserDto? user)
+    public UserAccessService(IAccessService accessService, UserAccessContext context, UserDto? user)
     {
         _accessService = accessService;
         User = user;
+        Context = context;
     }
 
     public UserDto? User { get; }
+    public UserAccessContext Context { get; }
 
     public async Task<bool> HasAllAccess(AccessOption[] options, CancellationToken token)
     {
@@ -42,6 +44,6 @@ public class UserAccessService : IUserAccessService
 
     public async Task<bool> HasAccess(AccessOption option, CancellationToken token)
     {
-        return await _accessService.HasAccess(User, option, token);
+        return await _accessService.HasAccess(User, option, Context, token);
     }
 }

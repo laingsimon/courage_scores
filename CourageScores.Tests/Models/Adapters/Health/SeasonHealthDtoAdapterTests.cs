@@ -3,6 +3,7 @@ using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Health;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Health;
+using CourageScores.Services.Identity;
 using CourageScores.Tests.Services;
 using Moq;
 using NUnit.Framework;
@@ -33,9 +34,9 @@ public class SeasonHealthDtoAdapterTests
         var division = new DivisionDataDto(null);
         var divisionDto = new DivisionHealthDto();
         var mapping = new SeasonHealthDtoAdapter.SeasonAndDivisions(season, [division]);
-        _divisionAdapter.Setup(a => a.Adapt(division, _token)).ReturnsAsync(divisionDto);
+        _divisionAdapter.Setup(a => a.Adapt(division, It.IsAny<UserAccessContext>(), _token)).ReturnsAsync(divisionDto);
 
-        var result = await _adapter.Adapt(mapping, _token);
+        var result = await _adapter.Adapt(mapping, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.EqualTo(season.Id));
         Assert.That(result.Name, Is.EqualTo(season.Name));

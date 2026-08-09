@@ -1,6 +1,7 @@
 using CourageScores.Models.Adapters.Game.Sayg;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Services.Identity;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters.Game.Sayg;
@@ -21,7 +22,7 @@ public class LegPlayerSequenceAdapterTests
             Value = inputValue,
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Text, Is.EqualTo(model.Text));
         Assert.That(result.Value, Is.EqualTo(expectedValue));
@@ -39,7 +40,7 @@ public class LegPlayerSequenceAdapterTests
             Value = inputValue,
         };
 
-        var result = await _adapter.Adapt(dto, _token);
+        var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Text, Is.EqualTo(dto.Text));
         Assert.That(result.Value, Is.EqualTo(expectedValue));

@@ -1,5 +1,6 @@
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Dtos;
+using CourageScores.Services.Identity;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters;
@@ -19,7 +20,7 @@ public class ReconfigureFeatureAdapterTests
             ConfiguredValue = "VALUE",
         };
 
-        var result = await _adapter.Adapt(input, _token);
+        var result = await _adapter.Adapt(input, UserAccessContext.None(), _token);
 
         Assert.That(result.Id, Is.EqualTo(input.Id));
         Assert.That(result.ConfiguredValue, Is.EqualTo(input.ConfiguredValue));
@@ -34,7 +35,7 @@ public class ReconfigureFeatureAdapterTests
             ConfiguredValue = "VALUE   ",
         };
 
-        var result = await _adapter.Adapt(input, _token);
+        var result = await _adapter.Adapt(input, UserAccessContext.None(), _token);
 
         Assert.That(result.ConfiguredValue, Is.EqualTo("VALUE"));
     }
@@ -48,7 +49,7 @@ public class ReconfigureFeatureAdapterTests
             ConfiguredValue = null,
         };
 
-        var result = await _adapter.Adapt(input, _token);
+        var result = await _adapter.Adapt(input, UserAccessContext.None(), _token);
 
         Assert.That(result.ConfiguredValue, Is.Null);
     }

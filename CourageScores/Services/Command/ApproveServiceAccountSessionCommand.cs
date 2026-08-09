@@ -46,7 +46,7 @@ public class ApproveServiceAccountSessionCommand : IUpdateCommand<ServiceAccount
             return Warning("Not logged in");
         }
 
-        if (!await _accessService.HasAccess(user, AccessOption.LoginServiceAccounts, token))
+        if (!await _accessService.HasAccess(user, AccessOption.LoginServiceAccounts, UserAccessContext.None(), token))
         {
             return Warning("Not permitted");
         }

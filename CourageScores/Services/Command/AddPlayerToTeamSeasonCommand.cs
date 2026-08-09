@@ -105,8 +105,9 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             };
         }
 
-        var canManageTeams = await _accessService.HasAccess(user, AccessOption.ManageTeams, token);
-        var canInputResultsForTeam = await _accessService.HasAccess(user, AccessOption.InputResults, token) && user.TeamId == model.Id;
+        var context = UserAccessContext.ForTeam(_seasonId!.Value, _divisionId!.Value, model.Id);
+        var canManageTeams = await _accessService.HasAccess(user, AccessOption.ManageTeams, context, token);
+        var canInputResultsForTeam = await _accessService.HasAccess(user, AccessOption.InputResults, context, token) && user.TeamId == model.Id;
         if (!canManageTeams && !canInputResultsForTeam)
         {
             return new ActionResult<TeamPlayer>
