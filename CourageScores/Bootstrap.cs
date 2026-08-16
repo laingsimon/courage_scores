@@ -5,6 +5,7 @@ using CourageScores.Binders;
 using CourageScores.Filters;
 using CourageScores.Formatters;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace CourageScores;
@@ -48,7 +49,12 @@ public class Bootstrap
                 options.AddCommaSeparatedArrayModelBinderProvider();
                 options.OutputFormatters.Add(new CalendarTextOutputFormatter());
             })
-            .AddNewtonsoftJson(options => { options.SerializerSettings.Converters.Add(new StringEnumConverter()); });
+            .AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                options.SerializerSettings.DefaultValueHandling = DefaultValueHandling.Ignore;
+                options.SerializerSettings.Converters.Add(new StringEnumConverter());
+            });
 
         builder.Services.AddSwaggerGenNewtonsoftSupport();
         builder.Services.AddSwaggerGen(options =>
