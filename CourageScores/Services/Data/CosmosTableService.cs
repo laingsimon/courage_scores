@@ -38,6 +38,23 @@ public class CosmosTableService : ICosmosTableService
 
     public async IAsyncEnumerable<TableDto> GetTables([EnumeratorCancellation] CancellationToken token)
     {
+        var user = await _userService.GetUser(token);
+        if (user == null)
+        {
+            // not logged in
+            yield break;
+        }
+
+        var context = UserAccessContext.None();
+        var canAccess = await _accessService.HasAccess(user, AccessOption.ExportData, context, token)
+                        || await _accessService.HasAccess(user, AccessOption.ImportData, context, token)
+                        || await _accessService.HasAccess(user, AccessOption.RunDataQueries, context, token);
+
+        if (!canAccess)
+        {
+            yield break;
+        }
+
         var typeLookup = typeof(IPermissionedEntity).Assembly.GetTypes()
             .Where(t => t.IsAssignableTo(typeof(IPermissionedEntity)) && !t.IsAbstract)
             .ToDictionary(t => t.Name, StringComparer.OrdinalIgnoreCase);
