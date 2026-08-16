@@ -163,7 +163,7 @@ public class DivisionService : IDivisionService
         return await _gameRepository
             .GetSome(
                 filter.DivisionId.Any()
-                    ? $"t.DivisionId in ({string.Join(", ", filter.DivisionId.Select(id => $"'{id}'"))}) or t.IsKnockout = true"
+                    ? $"(t.DivisionId in ({string.Join(", ", filter.DivisionId.Select(id => $"'{id}'"))}) or t.IsKnockout = true)"
                     : $"t.SeasonId = '{season.Id}'",
                 token)
             .WhereAsync(g => filter.IncludeDate(g.Date, season) && filter.IncludeGame(g))
