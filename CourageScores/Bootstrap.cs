@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using CourageScores.Binders;
@@ -43,6 +44,7 @@ public class Bootstrap
             .AddControllersWithViews(options =>
             {
                 options.Filters.Add<CacheManagementFilter>();
+                options.Filters.Add<TelemetryFilter>();
                 options.AddCommaSeparatedArrayModelBinderProvider();
                 options.OutputFormatters.Add(new CalendarTextOutputFormatter());
             })
@@ -55,11 +57,18 @@ public class Bootstrap
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
         });
 
+        var appInsightsIsConfigured = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
+        if (!string.IsNullOrEmpty(appInsightsIsConfigured))
+        {
+            builder.Services.AddApplicationInsightsTelemetry();
+        }
+
         builder.Services.RegisterServices();
 
         _customiseBuilder(builder);
 
         var app = builder.Build();
+        app.UseMiddleware<ResponseContentLengthTelemetryMiddleware>();
 
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
@@ -97,5 +106,21 @@ public class Bootstrap
         app.MapFallbackToFile("index.html");
 
         return app;
+    }
+
+    private class ResponseContentLengthTelemetryMiddleware(RequestDelegate next)
+    {
+        public async Task InvokeAsync(HttpContext context)
+        {
+            context.Response.OnStarting(() =>
+            {
+                var activity = Activity.Current;
+                var contentLength = context.Response.ContentLength ?? -2;
+                activity?.SetTag("http.response_content_length", contentLength);
+                return Task.CompletedTask;
+            });
+
+            await next(context);
+        }
     }
 }
