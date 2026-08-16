@@ -1,0 +1,20 @@
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace CourageScores.Models.Dtos.Team;
+
+/// <summary>
+/// A record of a team and its players, where 'home' is for them, etc.
+/// </summary>
+[ExcludeFromCodeCoverage]
+public class TeamWithoutSeasonsDto : AuditedDto, INameAndAddress
+{
+    /// <summary>
+    /// The name of the team
+    /// </summary>
+    public string Name { get; set; } = null!;
+
+    /// <summary>
+    /// The address for where 'home' is for the team
+    /// </summary>
+    public string Address { get; set; } = null!;
+}

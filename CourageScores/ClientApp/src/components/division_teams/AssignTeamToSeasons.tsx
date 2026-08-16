@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useApp } from '../common/AppContainer.tsx';
 import { sortBy } from '../../helpers/collections.ts';
 import { asyncClear, propChanged } from '../../helpers/events.ts';
@@ -30,18 +30,33 @@ export function AssignTeamToSeasons({
         season: currentSeason,
         onReloadDivision,
     } = useDivisionData();
-    const { divisions, seasons, teams, onError, reloadAll } = useApp();
+    const [teams, setTeams] = useState<TeamDto[] | undefined>();
+    const { divisions, seasons, onError, reloadAll } = useApp();
     const { teamApi } = useDependencies();
-    const team = teams.find((t) => t.id === teamOverview.id)!;
+    const team = teams?.find((t) => t.id === teamOverview.id);
     const [saving, setSaving] = useState<boolean>(false);
-    const [newTeamSeason, setNewTeamSeason] = useState<ModifyTeamSeasonDto>({
-        id: team?.id,
-        divisionId: divisionId,
-        copyPlayersFromSeasonId: currentSeason?.id,
-    });
+    const [newTeamSeason, setNewTeamSeason] = useState<
+        ModifyTeamSeasonDto | undefined
+    >();
     const [saveError, setSaveError] = useState<
         IClientActionResultDto<TeamDto> | undefined
     >(undefined);
+
+    useEffect(() => {
+        if (!teams) {
+            teamApi.getAllWithSeasonsAndPlayers().then(setTeams);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!newTeamSeason && team) {
+            setNewTeamSeason({
+                id: team.id,
+                divisionId: divisionId,
+                copyPlayersFromSeasonId: currentSeason?.id,
+            });
+        }
+    }, [team, newTeamSeason]);
 
     async function removeTeamSeason(teamSeason: TeamSeasonDto) {
         const season = seasons.find((s) => s.id === teamSeason.seasonId);
@@ -57,7 +72,7 @@ export function AssignTeamToSeasons({
         const divisionAssignment = teamSeason.divisionId
             ? ` and ${division?.name ?? 'Division not found'}`
             : '';
-        const message = `Are you sure you want to remove ${team.name} from ${seasonAssignment}${divisionAssignment}?`;
+        const message = `Are you sure you want to remove ${team!.name} from ${seasonAssignment}${divisionAssignment}?`;
         if (!confirm(message)) {
             return;
         }
@@ -66,7 +81,7 @@ export function AssignTeamToSeasons({
         try {
             // remove the teamSeason
             const response = await teamApi.delete(
-                team.id,
+                team!.id,
                 teamSeason.seasonId!,
             );
             if (response.success) {
@@ -83,7 +98,7 @@ export function AssignTeamToSeasons({
     }
 
     async function addTeamSeason() {
-        if (!newTeamSeason.seasonId) {
+        if (!newTeamSeason?.seasonId) {
             alert('Select a season first');
             return;
         }
@@ -106,7 +121,7 @@ export function AssignTeamToSeasons({
                 // reload all
                 await reloadAll();
                 setNewTeamSeason({
-                    id: team.id,
+                    id: team!.id,
                     divisionId: divisionId,
                     copyPlayersFromSeasonId: currentSeason?.id,
                 });
@@ -170,7 +185,7 @@ export function AssignTeamToSeasons({
 
     function renderSeasonSelection(selected?: string) {
         const otherSelectedSeasonIds =
-            team.seasons
+            team!.seasons
                 ?.filter((s) => !s.deleted)
                 ?.map((ts) => ts.seasonId)
                 .filter((id) => id !== selected) ?? [];
@@ -197,6 +212,10 @@ export function AssignTeamToSeasons({
         );
     }
 
+    if (!teams) {
+        return <div>Loading teams...</div>;
+    }
+
     if (!team) {
         return (
             <div>
@@ -221,14 +240,14 @@ export function AssignTeamToSeasons({
                         ?.filter((ts) => !ts.deleted)
                         .map(renderSeason)}
                     <li className="my-1" data-type="new-season">
-                        {renderSeasonSelection(newTeamSeason.seasonId)}
-                        {renderDivisionSelection(newTeamSeason.divisionId)}
+                        {renderSeasonSelection(newTeamSeason?.seasonId)}
+                        {renderDivisionSelection(newTeamSeason?.divisionId)}
                         <label>
                             Copy players from
                             <BootstrapDropdown
                                 className="ms-1"
                                 readOnly={saving}
-                                value={newTeamSeason.copyPlayersFromSeasonId}
+                                value={newTeamSeason?.copyPlayersFromSeasonId}
                                 options={[dontCopyPlayersOption].concat(
                                     seasons.sort(sortBy('name')).map((s) => ({
                                         value: s.id,

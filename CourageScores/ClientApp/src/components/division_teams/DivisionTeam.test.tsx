@@ -32,13 +32,15 @@ describe('DivisionTeam', () => {
     let reportedError: ErrorState;
     let updatedTeam: EditTeamDto | null;
     let apiResponse: IClientActionResultDto<TeamDto> | undefined;
+    let teams: TeamDto[] | null;
 
     const teamApi = api<ITeamApi>({
-        update: async (
-            team: EditTeamDto,
-        ): Promise<IClientActionResultDto<TeamDto>> => {
+        async update(team: EditTeamDto) {
             updatedTeam = team;
             return apiResponse || { success: true, result: team as TeamDto };
+        },
+        async getAllWithSeasonsAndPlayers() {
+            return teams || [];
         },
     });
 
@@ -54,15 +56,17 @@ describe('DivisionTeam', () => {
         reportedError = new ErrorState();
         apiResponse = undefined;
         updatedTeam = null;
+        teams = null;
     });
 
     async function renderComponent(
         team: DivisionTeamDto,
         account: UserDto | undefined,
         divisionData: IDivisionDataContainerProps,
-        teams?: TeamDto[],
+        _teams?: TeamDto[],
         preferenceData?: IPreferenceData,
     ) {
+        teams = _teams || [];
         context = await renderApp(
             iocProps({ teamApi }),
             brandingProps(),
@@ -70,7 +74,6 @@ describe('DivisionTeam', () => {
                 {
                     account,
                     divisions: [],
-                    teams: teams || [],
                     seasons: [],
                 },
                 reportedError,

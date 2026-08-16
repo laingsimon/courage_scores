@@ -181,12 +181,12 @@ export function DivisionPlayer({ player, hideVenue }: IDivisionPlayerProps) {
                     )}
                 </td>
             )}
-            <td>{player.singles?.matchesPlayed}</td>
-            <td>{player.singles?.matchesWon}</td>
-            <td>{player.singles?.matchesLost}</td>
-            <td>{player.points}</td>
-            <td>{player.winPercentage}</td>
-            <td>{player.oneEighties}</td>
+            <td>{player.singles?.matchesPlayed ?? 0}</td>
+            <td>{player.singles?.matchesWon ?? 0}</td>
+            <td>{player.singles?.matchesLost ?? 0}</td>
+            <td>{player.points ?? 0}</td>
+            <td>{player.winPercentage ?? 0}</td>
+            <td>{player.oneEighties ?? 0}</td>
             <td>{player.over100Checkouts}</td>
         </tr>
     );

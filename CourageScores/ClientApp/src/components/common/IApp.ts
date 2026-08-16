@@ -1,7 +1,7 @@
 ﻿import { IBuild } from './IBuild.ts';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
+import { TeamWithoutSeasonsDto } from '../../interfaces/models/dtos/Team/TeamWithoutSeasonsDto';
 import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
 import { IError } from './IError.ts';
 import { IBrowserType } from './IBrowserType.ts';
@@ -15,7 +15,7 @@ export interface IApp {
 
     divisions: DivisionDto[];
     seasons: SeasonDto[];
-    teams: TeamDto[];
+    teams: TeamWithoutSeasonsDto[];
     account?: UserDto;
     appLoading?: boolean;
     controls?: boolean;
