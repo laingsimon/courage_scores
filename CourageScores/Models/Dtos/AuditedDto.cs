@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Newtonsoft.Json;
 
 namespace CourageScores.Models.Dtos;
 
@@ -8,21 +9,25 @@ public abstract class AuditedDto : CosmosDto
     /// <summary>
     /// When was this entity created
     /// </summary>
+    [JsonIgnore]
     public DateTime? Created { get; set; }
 
     /// <summary>
     /// Who created this entity
     /// </summary>
+    [JsonIgnore]
     public string? Author { get; set; }
 
     /// <summary>
     /// When was this entity last edited
     /// </summary>
+    [JsonIgnore]
     public DateTime? Updated { get; set; }
 
     /// <summary>
     /// Who last modified this entity
     /// </summary>
+    [JsonIgnore]
     public string? Editor { get; set; }
 
     /// <summary>
