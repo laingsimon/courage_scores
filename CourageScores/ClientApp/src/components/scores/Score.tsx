@@ -60,6 +60,7 @@ import { NavLink } from '../common/NavLink.tsx';
 import { hasAccess, hasAnyAccess } from '../../helpers/conditions.ts';
 import { getTeamSeasons } from '../../helpers/teams.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
+import { TeamWithoutSeasonsDto } from '../../interfaces/models/dtos/Team/TeamWithoutSeasonsDto';
 
 export interface ICreatePlayerFor {
     side: string;
@@ -83,16 +84,9 @@ const photoFeatureId = 'af2ef520-8153-42b0-9ef4-d8419daebc23';
 
 export function Score() {
     const { fixtureId } = useParams();
-    const { gameApi, featureApi } = useDependencies();
-    const {
-        appLoading,
-        account,
-        divisions,
-        seasons,
-        onError,
-        teams,
-        reloadTeams,
-    } = useApp();
+    const { gameApi, featureApi, teamApi } = useDependencies();
+    const { appLoading, account, divisions, seasons, onError } = useApp();
+    const [teams, setTeams] = useState<TeamDto[] | undefined>();
     const [loading, setLoading] = useState<LoadingState>('init');
     const [data, setData] = useState<GameDto | null>(null);
     const [fixtureData, setFixtureData] = useState<GameDto | null>(null);
@@ -113,6 +107,12 @@ export function Score() {
     const [photosEnabled, setPhotosEnabled] = useState<boolean>(false);
     const { setTitle } = useBranding();
 
+    useEffect(() => {
+        if (!teams) {
+            teamApi.getAllWithSeasonsAndPlayers().then(setTeams);
+        }
+    }, []);
+
     function renderCreatePlayerDialog() {
         const team: GameTeamDto =
             createPlayerFor!.side === 'home'
@@ -120,10 +120,10 @@ export function Score() {
                 : fixtureData!.away;
 
         async function playerCreated(
-            updatedTeamDetails: TeamDto,
+            updatedTeamDetails: TeamWithoutSeasonsDto,
             playersCreated: TeamPlayerDto[],
         ) {
-            await reloadTeams();
+            setTeams(await teamApi.getAllWithSeasonsAndPlayers());
 
             try {
                 if (playersCreated.length > 1) {
@@ -229,7 +229,7 @@ export function Score() {
                 return;
             }
 
-            if (appLoading) {
+            if (appLoading || !teams) {
                 return;
             }
 
@@ -262,7 +262,7 @@ export function Score() {
         teamType: string,
         matches: GameMatchDto[],
     ): SelectablePlayer[] | undefined {
-        const teamData = teams.find((t: TeamDto) => t.id === teamId);
+        const teamData = teams?.find((t) => t.id === teamId);
 
         if (!teamData) {
             onError(`${teamType} team could not be found - ${teamId}`);
@@ -752,7 +752,7 @@ export function Score() {
             `${fixtureData.home.name} vs ${fixtureData.away.name} - ${renderDate(fixtureData.date)}`,
         );
         const accountTeam = account
-            ? teams.find((t) => t.id === account.teamId)
+            ? teams?.find((t) => t.id === account.teamId)
             : undefined;
 
         return (

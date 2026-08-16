@@ -30,13 +30,17 @@ describe('AssignTeamToSeasons', () => {
     let apiDeleted: { teamId: string; seasonId: string }[];
     let apiResponse: IClientActionResultDto<TeamDto>;
     let closed: boolean;
+    let teams: TeamDto[] | null;
 
     const teamApi = api<ITeamApi>({
-        add: async (request: ModifyTeamSeasonDto) => {
+        async getAllWithSeasonsAndPlayers() {
+            return teams || [];
+        },
+        async add(request: ModifyTeamSeasonDto) {
             apiAdded.push(request);
             return apiResponse || { success: true };
         },
-        delete: async (teamId: string, seasonId: string) => {
+        async delete(teamId: string, seasonId: string) {
             apiDeleted.push({ teamId, seasonId });
             return apiResponse || { success: true };
         },
@@ -53,25 +57,26 @@ describe('AssignTeamToSeasons', () => {
     beforeEach(() => {
         reportedError = new ErrorState();
         closed = false;
+        teams = null;
         apiAdded = [];
         apiDeleted = [];
     });
 
     async function renderComponent(
         teamOverview: DivisionTeamDto,
-        teams: TeamDto[],
+        _teams: TeamDto[],
         seasons: SeasonDto[],
         currentSeason: SeasonDto,
         division: DivisionDto,
         divisions: DivisionDto[],
     ) {
+        teams = _teams;
         context = await renderApp(
             iocProps({ teamApi }),
             brandingProps(),
             appProps(
                 {
                     reloadAll: noop,
-                    teams,
                     seasons,
                     divisions: divisions,
                 },
