@@ -42,14 +42,9 @@ public class CosmosTableServiceTests
             .ReturnsAsync((UserDto? _, AccessOption access, UserAccessContext _, CancellationToken _) => _access.Contains(access));
     }
 
-    [TestCase(true)]
-    [TestCase(false)]
-    public async Task GetTables_GivenRequestWithNoTables_ReturnsTableAccessorForAllTables(bool loggedIn)
+    [Test]
+    public async Task GetTables_GivenRequestWithNoTables_ReturnsTableAccessorForAllTables()
     {
-        if (!loggedIn)
-        {
-            _user = null;
-        }
         var request = new ExportDataRequestDto();
 
         var tableAccessors = await _service.GetTables(request, _token).ToList();
@@ -57,16 +52,10 @@ public class CosmosTableServiceTests
         Assert.That(tableAccessors.Select(a => a.TableName), Is.EquivalentTo(["game", "tournamentgame", "team"]));
     }
 
-    [TestCase(true, nameof(Game))]
-    [TestCase(true, "GAME")]
-    [TestCase(false, nameof(Game))]
-    [TestCase(false, "GAME")]
-    public async Task GetTables_GivenRequestWithATableName_ReturnsTableAccessorForGivenTable(bool loggedIn, string requestTable)
+    [TestCase(nameof(Game))]
+    [TestCase("GAME")]
+    public async Task GetTables_GivenRequestWithATableName_ReturnsTableAccessorForGivenTable(string requestTable)
     {
-        if (!loggedIn)
-        {
-            _user = null;
-        }
         var request = new ExportDataRequestDto
         {
 #pragma warning disable CS0618
@@ -85,26 +74,16 @@ public class CosmosTableServiceTests
     }
 
     [Test]
-    public async Task GetTables_WhenNotLoggedIn_ReturnsTableDtoForAllTables()
-    {
-        _user = null;
-        var tables = await _service.GetTables(_token).ToList();
-
-        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(["game", "tournamentgame", "team"]));
-    }
-
-    [Test]
-    public async Task GetTables_WhenNotLoggedIn_ExcludesTablesFromOtherEnvironments()
+    public async Task GetTables_WhenCalled_ExcludesTablesFromOtherEnvironments()
     {
         _tables.Add("user_uat");
-        _user = null;
         var tables = await _service.GetTables(_token).ToList();
 
         Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(["game", "tournamentgame", "team"]));
     }
 
     [Test]
-    public async Task GetTables_WhenLoggedIn_ReturnsTableDtoForAllTables()
+    public async Task GetTables_WhenCalled_ReturnsTableDtoForAllTables()
     {
         var tables = await _service.GetTables(_token).ToList();
 
@@ -127,6 +106,7 @@ public class CosmosTableServiceTests
     [TestCase(true, true, false, true)]
     public async Task GetTables_WhenDataTypeNotFoundForTable_ReturnsNullDataType(bool canImport, bool canExport, bool expectedCanImport, bool expectedCanExport)
     {
+        _access = _access.With(AccessOption.RunDataQueries);
         _access = canImport ? _access.With(AccessOption.ImportData) : _access.Without(AccessOption.ImportData);
         _access = canExport ? _access.With(AccessOption.ExportData) : _access.Without(AccessOption.ExportData);
         _tables.Add("unknown");
@@ -141,24 +121,13 @@ public class CosmosTableServiceTests
         Assert.That(unknownTable.CanExport, Is.EqualTo(expectedCanExport));
     }
 
-    [Test]
-    public async Task GetTables_WhenLoggedOut_ReturnsFalseForCanImportAndExport()
-    {
-        _user = null;
-
-        var tables = await _service.GetTables(_token).ToList();
-
-        Assert.That(tables.Select(a => a.CanExport), Has.All.False);
-        Assert.That(tables.Select(a => a.CanImport), Has.All.False);
-    }
-
     [TestCase(false, true, false, true)]
     [TestCase(false, false, false, false)]
     [TestCase(true, true, true, true)]
     [TestCase(true, false, true, false)]
-    public async Task GetTables_WhenLoggedInAndUserCanCreateEditAndDeleteEntity_ReturnsCorrectly(bool canImport, bool canExport, bool expectedCanImport, bool expectedCanExport)
+    public async Task GetTables_WhenUserCanCreateEditAndDeleteEntity_ReturnsCorrectly(bool canImport, bool canExport, bool expectedCanImport, bool expectedCanExport)
     {
-        _access = _access.With(AccessOption.ManageGames);
+        _access = _access.With(AccessOption.ManageGames, AccessOption.RunDataQueries);
         _access = canImport ? _access.With(AccessOption.ImportData) : _access.Without(AccessOption.ImportData);
         _access = canExport ? _access.With(AccessOption.ExportData) : _access.Without(AccessOption.ExportData);
 
@@ -173,10 +142,10 @@ public class CosmosTableServiceTests
     [TestCase(false, false, false, false)]
     [TestCase(true, true, false, true)]
     [TestCase(true, false, false, false)]
-    public async Task GetTables_WhenLoggedInAndUserCannotCreateEditOrDeleteEntity_ReturnsCorrectly(bool canImport, bool canExport, bool expectedCanImport, bool expectedCanExport)
+    public async Task GetTables_WhenUserCannotCreateEditOrDeleteEntity_ReturnsCorrectly(bool canImport, bool canExport, bool expectedCanImport, bool expectedCanExport)
     {
         _user = new UserDto();
-        _access = _access.Without(AccessOption.ManageGames);
+        _access = _access.Without(AccessOption.ManageGames).With(AccessOption.RunDataQueries);
         _access = canImport ? _access.With(AccessOption.ImportData) : _access.Without(AccessOption.ImportData);
         _access = canExport ? _access.With(AccessOption.ExportData) : _access.Without(AccessOption.ExportData);
 
