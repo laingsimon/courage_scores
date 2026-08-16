@@ -39,6 +39,7 @@ import { ConfiguredFeatureDto } from '../../interfaces/models/dtos/ConfiguredFea
 import { IDatedDivisionFixtureDto } from '../division_fixtures/IDatedDivisionFixtureDto.ts';
 import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
+import { TeamApi } from '../../interfaces/apis/ITeamApi.ts';
 
 interface ICreatedPlayer {
     divisionId: string;
@@ -59,7 +60,7 @@ describe('Score', () => {
     } = {};
     let updatedFixtures: { [fixtureId: string]: RecordScoresDto };
     let createdPlayer: ICreatedPlayer | null;
-    let teamsReloaded: boolean;
+    let teamsLoaded: number;
     let newPlayerApiResult:
         | ((createdPlayer: ICreatedPlayer) => IClientActionResultDto<TeamDto>)
         | null;
@@ -68,6 +69,7 @@ describe('Score', () => {
     let uploadPhotoResponse: IClientActionResultDto<GameDto> | null;
     let deletedPhoto: { id: string; photoId: string } | null;
     let deletePhotoResponse: IClientActionResultDto<GameDto> | null;
+    let teams: TeamDto[] | null;
     const gameApi = api<IGameApi>({
         async get(id: string) {
             if (any(Object.keys(fixtureDataMap), (key: string) => key === id)) {
@@ -123,6 +125,13 @@ describe('Score', () => {
             return [feature];
         },
     });
+    const teamApi = api<TeamApi>({
+        async getAllWithSeasonsAndPlayers(): Promise<TeamDto[]> {
+            teamsLoaded++;
+            return teams ?? [];
+        },
+    });
+
     const addAPlayer = 'Add a player...';
     const nbsp = ' ';
     const nbspx2 = nbsp + nbsp;
@@ -141,10 +150,6 @@ describe('Score', () => {
 
     function join(...values: string[]) {
         return values.join(nbsp);
-    }
-
-    async function reloadTeams() {
-        teamsReloaded = true;
     }
 
     async function createANewPlayer(
@@ -237,7 +242,8 @@ describe('Score', () => {
         reportedError = new ErrorState();
         updatedFixtures = {};
         createdPlayer = null;
-        teamsReloaded = false;
+        teams = null;
+        teamsLoaded = 0;
         newPlayerApiResult = null;
         saveGameApiResult = null;
         uploadedPhoto = null;
@@ -255,8 +261,9 @@ describe('Score', () => {
     }
 
     async function renderComponent(id: string, props: IAppContainerProps) {
+        teams = props.teams;
         context = await renderApp(
-            iocProps({ gameApi, playerApi, featureApi }),
+            iocProps({ gameApi, playerApi, featureApi, teamApi }),
             brandingProps(),
             props,
             <Score />,
@@ -287,7 +294,6 @@ describe('Score', () => {
                 seasons: [season],
                 teams: [homeTeam, awayTeam],
                 account,
-                reloadTeams,
             },
             reportedError,
         );
@@ -532,7 +538,7 @@ describe('Score', () => {
             truncate?: boolean,
         ) {
             return (player: ICreatedPlayer) => {
-                const team = appData.teams.find((t) => t.id === player.teamId)!;
+                const team = teams?.find((t) => t.id === player.teamId)!;
                 const newTeam: TeamDto = {
                     ...team,
                     seasons: team
@@ -597,7 +603,7 @@ describe('Score', () => {
         );
 
         it('renders when team has no seasons', async () => {
-            appData.teams = appData.teams.map((t) => {
+            appData.teams = appData.teams.map((t: TeamDto) => {
                 if (t.name === 'Home team') {
                     t.seasons = undefined;
                 }
@@ -634,7 +640,9 @@ describe('Score', () => {
         });
 
         it('renders previously renamed players', async () => {
-            const homeTeam = appData.teams.find((t) => t.name === 'Home team')!;
+            const homeTeam: TeamDto = appData.teams.find(
+                (t: TeamDto) => t.name === 'Home team',
+            )!;
             const newPlayer = playerBuilder('New name').captain().build();
             homeTeam.seasons![0].players!.push(newPlayer);
             const firstSinglesMatch = fixtureDataMap[fixture.id]!.matches![0];
@@ -658,7 +666,7 @@ describe('Score', () => {
 
             await createANewPlayer('NEW PLAYER');
 
-            expect(teamsReloaded).toEqual(true);
+            expect(teamsLoaded).toEqual(2);
             expect(createdPlayer).not.toBeNull();
             expect(dialog()).toBeFalsy();
         });
@@ -669,7 +677,7 @@ describe('Score', () => {
 
             await createANewPlayer('NEW PLAYER 1\nNEW PLAYER 2', 'home', true);
 
-            expect(teamsReloaded).toEqual(true);
+            expect(teamsLoaded).toEqual(2);
             expect(createdPlayer).not.toBeNull();
             expect(dialog()).toBeFalsy();
             reportedError.verifyNoError();
@@ -681,7 +689,7 @@ describe('Score', () => {
 
             await createANewPlayer('NEW PLAYER 1\nNEW PLAYER 2', 'home', true);
 
-            expect(teamsReloaded).toEqual(true);
+            expect(teamsLoaded).toEqual(2);
             expect(createdPlayer).not.toBeNull();
             expect(dialog()).toBeFalsy();
             reportedError.verifyNoError();
@@ -694,7 +702,7 @@ describe('Score', () => {
             await createANewPlayer('NEW PLAYER');
 
             assertError('Could not find updated teamSeason');
-            expect(teamsReloaded).toEqual(true);
+            expect(teamsLoaded).toEqual(2);
             expect(createdPlayer).not.toBeNull();
             expect(dialog()).toBeFalsy();
         });
@@ -709,7 +717,7 @@ describe('Score', () => {
             await createANewPlayer('NEW PLAYER');
 
             assertError('Could not find updated teamSeason');
-            expect(teamsReloaded).toEqual(true);
+            expect(teamsLoaded).toEqual(2);
             expect(createdPlayer).not.toBeNull();
             expect(dialog()).toBeFalsy();
         });
@@ -723,7 +731,7 @@ describe('Score', () => {
             const error =
                 'Could not find new player in updated season, looking for player with name: "NEW PLAYER"';
             assertError(error);
-            expect(teamsReloaded).toEqual(true);
+            expect(teamsLoaded).toEqual(2);
             expect(createdPlayer).not.toBeNull();
             expect(dialog()).toBeFalsy();
         });
@@ -766,7 +774,9 @@ describe('Score', () => {
         });
 
         it('can change player', async () => {
-            const homeTeam = appData.teams.find((t) => t.name === 'Home team')!;
+            const homeTeam: TeamDto = appData.teams.find(
+                (t: TeamDto) => t.name === 'Home team',
+            )!;
             const anotherHomePlayer = playerBuilder('Another player').build();
             homeTeam.seasons![0].players!.push(anotherHomePlayer);
             const fixture = getPlayedFixtureData(appData);

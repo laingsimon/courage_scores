@@ -27,7 +27,13 @@ public class TeamController : Controller
     }
 
     [HttpGet("/api/Team/")]
-    public IAsyncEnumerable<TeamDto> GetAll(CancellationToken token)
+    public IAsyncEnumerable<TeamWithoutSeasonsDto> GetAll(CancellationToken token)
+    {
+        return _teamService.GetAll(token).Select(t => t.WithoutSeasons());
+    }
+
+    [HttpGet("/api/Team/Seasons")]
+    public IAsyncEnumerable<TeamDto> GetAllWithSeasonsAndPlayers(CancellationToken token)
     {
         return _teamService.GetAll(token);
     }

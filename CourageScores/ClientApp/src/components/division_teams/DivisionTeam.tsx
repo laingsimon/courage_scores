@@ -130,12 +130,12 @@ export function DivisionTeam({ team }: IDivisionTeamProps) {
                         ? renderAddTeamToSeason()
                         : null}
                 </td>
-                <td>{team.played}</td>
-                <td>{team.points}</td>
-                <td>{team.fixturesWon}</td>
-                <td>{team.fixturesLost}</td>
-                <td>{team.fixturesDrawn}</td>
-                <td>{team.difference}</td>
+                <td>{team.played ?? 0}</td>
+                <td>{team.points ?? 0}</td>
+                <td>{team.fixturesWon ?? 0}</td>
+                <td>{team.fixturesLost ?? 0}</td>
+                <td>{team.fixturesDrawn ?? 0}</td>
+                <td>{team.difference ?? 0}</td>
             </tr>
         );
     } catch (e) {

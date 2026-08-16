@@ -15,7 +15,7 @@ import { LiveSayg } from './components/sayg/LiveSayg.tsx';
 import { IApp } from './components/common/IApp.ts';
 import { DivisionDto } from './interfaces/models/dtos/DivisionDto.ts';
 import { SeasonDto } from './interfaces/models/dtos/Season/SeasonDto.ts';
-import { TeamDto } from './interfaces/models/dtos/Team/TeamDto.ts';
+import { TeamWithoutSeasonsDto } from './interfaces/models/dtos/Team/TeamWithoutSeasonsDto';
 import { UserDto } from './interfaces/models/dtos/Identity/UserDto.ts';
 import { Tv } from './components/Tv.tsx';
 import { IBrowserType } from './components/common/IBrowserType.ts';
@@ -51,7 +51,7 @@ export function App({ embed, controls, testRoute }: IAppProps) {
     const [account, setAccount] = useState<UserDto | undefined>(undefined);
     const [divisions, setDivisions] = useState<DivisionDto[]>([]);
     const [seasons, setSeasons] = useState<SeasonDto[]>([]);
-    const [teams, setTeams] = useState<TeamDto[]>([]);
+    const [teams, setTeams] = useState<TeamWithoutSeasonsDto[]>([]);
     const [appLoading, setAppLoading] = useState<boolean | null>(null);
     const [error, setError] = useState<IError | undefined>(undefined);
     const [isFullScreen, setIsFullScreen] = useState<boolean>(
