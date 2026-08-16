@@ -11,6 +11,9 @@ using CourageScores.Repository;
 using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Team;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
+using CosmosSeason = CourageScores.Models.Cosmos.Season.Season;
+using CosmosDivision = CourageScores.Models.Cosmos.Division;
 
 namespace CourageScores.Services.Division;
 
@@ -18,9 +21,9 @@ public class DivisionService : IDivisionService
 {
     private readonly TimeProvider _clock;
     private readonly IDivisionDataDtoFactory _divisionDataDtoFactory;
-    private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
-    private readonly IGenericDataService<Models.Cosmos.Division, DivisionDto> _genericDivisionService;
-    private readonly IGenericDataService<Models.Cosmos.Season.Season, SeasonDto> _genericSeasonService;
+    private readonly IGenericRepository<CosmosGame> _gameRepository;
+    private readonly IGenericDataService<CosmosDivision, DivisionDto> _genericDivisionService;
+    private readonly IGenericDataService<CosmosSeason, SeasonDto> _genericSeasonService;
     private readonly ICachingTeamService _genericTeamService;
     private readonly IGenericDataService<FixtureDateNote, FixtureDateNoteDto> _noteService;
     private readonly IGenericRepository<TournamentGame> _tournamentGameRepository;
@@ -28,10 +31,10 @@ public class DivisionService : IDivisionService
     private readonly IAccessService _accessService;
 
     public DivisionService(
-        IGenericDataService<Models.Cosmos.Division, DivisionDto> genericDivisionService,
+        IGenericDataService<CosmosDivision, DivisionDto> genericDivisionService,
         ICachingTeamService genericTeamService,
-        IGenericDataService<Models.Cosmos.Season.Season, SeasonDto> genericSeasonService,
-        IGenericRepository<Models.Cosmos.Game.Game> gameRepository,
+        IGenericDataService<CosmosSeason, SeasonDto> genericSeasonService,
+        IGenericRepository<CosmosGame> gameRepository,
         IGenericRepository<TournamentGame> tournamentGameRepository,
         IGenericDataService<FixtureDateNote, FixtureDateNoteDto> noteService,
         TimeProvider clock,
@@ -143,7 +146,7 @@ public class DivisionService : IDivisionService
             filter);
     }
 
-    private async Task<List<Models.Cosmos.Game.Game>> GetGames(DivisionDataFilter filter, SeasonDto season, CancellationToken token)
+    private async Task<List<CosmosGame>> GetGames(DivisionDataFilter filter, SeasonDto season, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
         var context = UserAccessContext.ForSeason(season.Id);
@@ -183,7 +186,7 @@ public class DivisionService : IDivisionService
 
     [ExcludeFromCodeCoverage]
     public Task<ActionResultDto<DivisionDto>> Upsert<TOut>(Guid? id,
-        IUpdateCommand<Models.Cosmos.Division, TOut> updateCommand, CancellationToken token)
+        IUpdateCommand<CosmosDivision, TOut> updateCommand, CancellationToken token)
     {
         return _genericDivisionService.Upsert(id, updateCommand, token);
     }
