@@ -330,7 +330,7 @@ public class DivisionServiceTests
 
         await _service.GetDivisionData(Division1Filter, _token);
 
-        _gameRepository.Verify(s => s.GetSome($"t.DivisionId in ('{Division1.Id}') or t.IsKnockout = true", _token));
+        _gameRepository.Verify(s => s.GetSome($"(t.DivisionId in ('{Division1.Id}') or t.IsKnockout = true)", _token));
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), new[] { Division1 }, true, _token));
         Assert.That(_divisionDataContext, Is.Not.Null);
         Assert.That(_divisionDataContext!.AllGames(null), Is.EquivalentTo([Division1GameInSeason]));
@@ -347,7 +347,7 @@ public class DivisionServiceTests
 
         await _service.GetDivisionData(filter, _token);
 
-        _gameRepository.Verify(s => s.GetSome($"t.DivisionId in ('{Division1.Id}', '{Division2.Id}') or t.IsKnockout = true", _token));
+        _gameRepository.Verify(s => s.GetSome($"(t.DivisionId in ('{Division1.Id}', '{Division2.Id}') or t.IsKnockout = true)", _token));
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), new[] { Division1, Division2 }, true, _token));
         Assert.That(_divisionDataContext, Is.Not.Null);
         Assert.That(_divisionDataContext!.AllGames(null), Is.EquivalentTo([Division1GameInSeason, Division2GameInSeason]));
@@ -458,7 +458,7 @@ public class DivisionServiceTests
 
         await _service.GetDivisionData(Division1AndSeason1Filter, _token);
 
-        _gameRepository.Verify(s => s.GetSome($"t.DivisionId in ('{Division1.Id}') or t.IsKnockout = true", _token));
+        _gameRepository.Verify(s => s.GetSome($"(t.DivisionId in ('{Division1.Id}') or t.IsKnockout = true)", _token));
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), new[] { Division1 }, true, _token));
         Assert.That(_divisionDataContext, Is.Not.Null);
         Assert.That(_divisionDataContext!.AllGames(null), Is.EquivalentTo([Division1GameInSeason]));
