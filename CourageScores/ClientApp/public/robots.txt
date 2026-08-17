@@ -5,4 +5,9 @@ User-agent: meta-externalagent
 Disallow: /
 
 User-agent: *
+Allow: /
+Disallow: /data/
+
+User-agent: meta-externalagent
+Allow: /
 Disallow: /data/
