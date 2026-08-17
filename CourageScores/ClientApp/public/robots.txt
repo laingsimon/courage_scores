@@ -1,2 +1,8 @@
+User-agent: facebookexternalhit
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
+
 User-agent: *
 Disallow: /data/
