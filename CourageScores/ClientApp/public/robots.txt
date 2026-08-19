@@ -1,8 +1,7 @@
-User-agent: facebookexternalhit
-Disallow: /
-
+# Keep Meta AI blocked (optional)
 User-agent: meta-externalagent
 Disallow: /
 
+# Allow all crawlers so they can read the HTML noindex directive
 User-agent: *
 Disallow: /data/
