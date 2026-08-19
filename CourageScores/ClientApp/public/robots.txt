@@ -1,8 +1,14 @@
-User-agent: facebookexternalhit
-Disallow: /
-
+# Block AI Training & Data Harvesting Crawlers
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: anthropic-ai
+User-agent: Google-Extended
+User-agent: Applebot-Extended
 User-agent: meta-externalagent
+User-agent: Bytespider
+User-agent: CCBot
 Disallow: /
 
+# Allow normal search engines & link preview generators
 User-agent: *
 Disallow: /data/
