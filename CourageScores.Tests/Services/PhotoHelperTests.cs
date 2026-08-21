@@ -78,7 +78,7 @@ public class PhotoHelperTests
     private static byte[] GetImageAtSize(int width, int height)
     {
         using var image = new Image<Rgba32>(width, height);
-        image.Mutate(img => img.Fill(Color.Azure));
+        image.Mutate(img => img.Paint(c => c.Fill(new SolidBrush(Color.Azure))));
 
         var stream = new MemoryStream();
         image.Save(stream, new PngEncoder());
