@@ -16,6 +16,7 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <NpmAuditBypassCveWarnings>false</NpmAuditBypassCveWarnings>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <SixLaborsLicenseKey>$(SIXLABORS_LICENSE_KEY)</SixLaborsLicenseKey>
     </PropertyGroup>
 
     <ItemGroup>
