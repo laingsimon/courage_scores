@@ -25,6 +25,9 @@ on:
       frame-host-url:
         required: false
         type: string
+    secrets:
+      six_labors_license:
+        required: true
 jobs:
   with-dotnet:
     runs-on: ubuntu-latest
@@ -62,6 +65,7 @@ jobs:
           VITE_APP_DATE: "${{ inputs.commit-date }}"
           VITE_APP_PR_NAME: "${{ github.event.pull_request.title }}"
           VITE_APP_PR_NUMBER: "${{ github.event.pull_request.number }}"
+          SIXLABORS_LICENSE_KEY: ${{ secrets.six_labors_license }}
 
       - name: Check .tsx file sizes
         if: ${{ github.event.inputs.ignore_sizes != 'true' }}

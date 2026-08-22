@@ -25,6 +25,8 @@ jobs:
     with: 
       ignore_sizes: false
       commit-sha: ${{ github.sha }}
+    secrets:
+      six_labors_license: ${{ secrets.SIX_LABORS_LICENSE }}
 
   publish:
     needs:
@@ -36,6 +38,8 @@ jobs:
       commit-sha: ${{ github.sha }}
       commit-date: ${{ needs.setup.outputs.commit-date }}
       frame-host-url: "http://thecourageleague.co.uk"
+    secrets:
+      six_labors_license: ${{ secrets.SIX_LABORS_LICENSE }}
 
   ui_tests:
     needs:

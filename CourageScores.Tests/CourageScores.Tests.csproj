@@ -9,6 +9,7 @@
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);1591</NoWarn>
+        <SixLaborsLicenseKey>$(SIXLABORS_LICENSE_KEY)</SixLaborsLicenseKey>
     </PropertyGroup>
 
     <ItemGroup>
@@ -24,14 +25,19 @@
         <PackageReference Include="NUnit" Version="4.6.1" />
         <PackageReference Include="NUnit3TestAdapter" Version="6.2.0" />
         <PackageReference Include="NunitXml.TestLogger" Version="8.0.0" />
-        <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
-        <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
+        <PackageReference Include="SixLabors.ImageSharp" Version="4.1.1" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\CourageScores.StubCosmos\CourageScores.StubCosmos.csproj" />
         <ProjectReference Include="..\CourageScores\CourageScores.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="test-photo.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>

@@ -12,6 +12,9 @@ on:
       commit-sha:
         required: true
         type: string
+    secrets:
+      six_labors_license:
+        required: true
 jobs:
   with-dotnet:
     runs-on: ubuntu-latest
@@ -29,12 +32,14 @@ jobs:
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: true
           DOTNET_NOLOGO: true
+          SIXLABORS_LICENSE_KEY: ${{ secrets.six_labors_license }}
 
       - name: Test with dotnet
         run: dotnet test --configuration Release --logger:nunit --logger "trx;LogFileName=TestResults.trx" /p:CollectCoverage=true /p:CoverletOutput=Coverage/ /p:CoverletOutputFormat=lcov
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: true
           DOTNET_NOLOGO: true
+          SIXLABORS_LICENSE_KEY: ${{ secrets.six_labors_license }}
 
       - name: Check file sizes
         if: ${{ github.event.inputs.ignore_sizes != 'true' }}
