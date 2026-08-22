@@ -23,6 +23,8 @@ jobs:
     with: 
       ignore_sizes: true # ignoring sizes on a PROD build; they should have been picked up in UAT - also to reduce friction for any hotfixes
       commit-sha: ${{ github.sha }}
+    secrets:
+      six_labors_license: ${{ secrets.SIX_LABORS_LICENSE }}
 
   publish:
     needs:
@@ -35,6 +37,8 @@ jobs:
       commit-date: ${{ needs.setup.outputs.commit-date }}
       robots-tag-header: all
       frame-host-url: "http://thecourageleague.co.uk"
+    secrets:
+      six_labors_license: ${{ secrets.SIX_LABORS_LICENSE }}
 
   ui_tests:
     needs:
