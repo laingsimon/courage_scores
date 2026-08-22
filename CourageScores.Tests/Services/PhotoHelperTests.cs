@@ -1,9 +1,6 @@
 using CourageScores.Services;
 using NUnit.Framework;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Drawing.Processing;
-using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
 namespace CourageScores.Tests.Services;
@@ -77,11 +74,20 @@ public class PhotoHelperTests
 
     private static byte[] GetImageAtSize(int width, int height)
     {
-        using var image = new Image<Rgba32>(width, height);
-        image.Mutate(img => img.Fill(Color.Azure));
+        var path = Path.GetFullPath("test-photo.png");
+        using var imageStream = File.OpenRead(path);
+        using var image = Image.Load(imageStream);
 
+        return ScaleImageToSize(image, new Size(width, height));
+    }
+
+    private static byte[] ScaleImageToSize(Image src, Size requiredSize)
+    {
         var stream = new MemoryStream();
-        image.Save(stream, new PngEncoder());
+
+        src.Mutate(img => img.Resize(requiredSize));
+        src.Save(stream, src.Metadata.DecodedImageFormat!);
+
         return stream.ToArray();
     }
 
