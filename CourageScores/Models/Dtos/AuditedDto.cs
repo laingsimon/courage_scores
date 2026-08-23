@@ -21,7 +21,6 @@ public abstract class AuditedDto : CosmosDto
     /// <summary>
     /// When was this entity last edited
     /// </summary>
-    [JsonIgnore]
     public DateTime? Updated { get; set; }
 
     /// <summary>
