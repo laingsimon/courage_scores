@@ -7,9 +7,9 @@
     appProps,
     ErrorState,
     api,
+    user,
 } from '../../helpers/tests.tsx';
 import { createTemporaryId } from '../../helpers/projection.ts';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
 import { AdminContainer } from './AdminContainer.tsx';
 import { TableDto } from '../../interfaces/models/dtos/Data/TableDto.ts';
 import { Query } from './Query.tsx';
@@ -70,7 +70,7 @@ describe('Query', () => {
             brandingProps(),
             appProps(
                 {
-                    account: account(),
+                    account: user(),
                 },
                 reportedError,
             ),
@@ -82,14 +82,6 @@ describe('Query', () => {
         );
 
         reportedError.verifyNoError();
-    }
-
-    function account(): UserDto {
-        return {
-            name: '',
-            givenName: '',
-            emailAddress: '',
-        };
     }
 
     function request(query?: string, container?: string) {

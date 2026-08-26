@@ -8,6 +8,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests.tsx';
 import { ServiceAccountSessions } from './ServiceAccountSessions.tsx';
 import { createTemporaryId } from '../../helpers/projection.ts';
@@ -53,11 +54,7 @@ describe('ServiceAccountSessions', () => {
             brandingProps(),
             appProps(
                 {
-                    account: {
-                        name: '',
-                        emailAddress: '',
-                        givenName: '',
-                    },
+                    account: user(),
                     appLoading: false,
                 },
                 reportedError,

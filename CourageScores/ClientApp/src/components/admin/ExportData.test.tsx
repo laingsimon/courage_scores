@@ -8,6 +8,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests.tsx';
 import { ExportData } from './ExportData.tsx';
 import { ExportDataRequestDto } from '../../interfaces/models/dtos/Data/ExportDataRequestDto.ts';
@@ -45,11 +46,7 @@ describe('ExportData', () => {
             brandingProps(),
             appProps(
                 {
-                    account: {
-                        name: '',
-                        emailAddress: '',
-                        givenName: '',
-                    },
+                    account: user(),
                 },
                 reportedError,
             ),

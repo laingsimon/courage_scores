@@ -8,6 +8,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests.tsx';
 import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
 import { ReconfigureFeatureDto } from '../../interfaces/models/dtos/ReconfigureFeatureDto.ts';
@@ -52,11 +53,7 @@ describe('EditFeature', () => {
             brandingProps(),
             appProps(
                 {
-                    account: {
-                        name: '',
-                        emailAddress: '',
-                        givenName: '',
-                    },
+                    account: user(),
                 },
                 reportedError,
             ),

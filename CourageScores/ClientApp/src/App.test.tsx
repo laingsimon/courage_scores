@@ -6,6 +6,7 @@ import {
     noop,
     Prompts,
     TestContext,
+    user,
     wrapComponent,
 } from './helpers/tests.tsx';
 import { App } from './App.tsx';
@@ -336,8 +337,8 @@ describe('App', () => {
 
         it('when logged in', async () => {
             account = {
+                ...user(undefined, undefined, 'Simon'),
                 name: 'Simon Laing',
-                givenName: 'Simon',
                 emailAddress: '',
             };
 

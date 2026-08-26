@@ -11,6 +11,7 @@ import {
     noop,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests.tsx';
 import { createTemporaryId } from '../../helpers/projection.ts';
 import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto.ts';
@@ -84,11 +85,7 @@ describe('Templates', () => {
             brandingProps(),
             appProps(
                 {
-                    account: {
-                        name: '',
-                        emailAddress: '',
-                        givenName: '',
-                    },
+                    account: user(),
                 },
                 reportedError,
             ),

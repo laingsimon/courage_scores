@@ -9,6 +9,7 @@ import {
     appProps,
     ErrorState,
     IComponent,
+    user,
 } from '../../helpers/tests.tsx';
 import { DataBrowser } from './DataBrowser.tsx';
 import { createTemporaryId, repeat } from '../../helpers/projection.ts';
@@ -19,7 +20,6 @@ import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
 import { IError } from '../common/IError.ts';
 import { IFailedRequest } from '../common/IFailedRequest.ts';
 import { IDataApi } from '../../interfaces/apis/IDataApi.ts';
-import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
 import { AdminContainer } from './AdminContainer.tsx';
 import { TableDto } from '../../interfaces/models/dtos/Data/TableDto.ts';
 
@@ -101,14 +101,6 @@ describe('DataBrowser', () => {
         );
     }
 
-    function account(): UserDto {
-        return {
-            name: '',
-            givenName: '',
-            emailAddress: '',
-        };
-    }
-
     function getSelectedTable(): string {
         const tableDropdownToggle = context.required('.dropdown-toggle');
         return tableDropdownToggle!.text().trim();
@@ -136,7 +128,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -150,7 +142,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -165,7 +157,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -194,7 +186,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -224,7 +216,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -250,7 +242,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -273,7 +265,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -298,7 +290,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -323,7 +315,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -356,7 +348,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -401,7 +393,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -430,7 +422,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -453,7 +445,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -471,7 +463,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -491,7 +483,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -520,7 +512,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -533,7 +525,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -552,7 +544,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -571,7 +563,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -597,7 +589,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -617,7 +609,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -635,7 +627,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -654,7 +646,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -673,7 +665,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -699,7 +691,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -728,7 +720,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -757,7 +749,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -786,7 +778,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -815,7 +807,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -844,7 +836,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),
@@ -873,7 +865,7 @@ describe('DataBrowser', () => {
             await renderComponent(
                 appProps(
                     {
-                        account: account(),
+                        account: user(),
                     },
                     reportedError,
                 ),

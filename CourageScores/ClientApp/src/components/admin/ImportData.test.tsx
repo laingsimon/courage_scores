@@ -9,6 +9,7 @@ import {
     noop,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests.tsx';
 import { ImportData } from './ImportData.tsx';
 import { ImportDataRequestDto } from '../../interfaces/models/dtos/Data/ImportDataRequestDto.ts';
@@ -54,11 +55,7 @@ describe('ImportData', () => {
             brandingProps(),
             appProps(
                 {
-                    account: {
-                        name: '',
-                        emailAddress: '',
-                        givenName: '',
-                    },
+                    account: user(),
                 },
                 reportedError,
             ),
