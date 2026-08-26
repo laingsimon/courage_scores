@@ -249,7 +249,7 @@ export function UserAdmin() {
         try {
             const update: UpdateAccessDto = {
                 emailAddress: emailAddress,
-                accessLevels: userAccount?.accessLevels,
+                accessLevels: userAccount!.accessLevels,
             };
             const result: IClientActionResultDto<UserDto> =
                 await accountApi.update(update);
