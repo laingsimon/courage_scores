@@ -1,6 +1,6 @@
 // noinspection SqlDialectInspection,SqlNoDataSourceInspection
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ErrorDisplay } from '../common/ErrorDisplay.tsx';
 import {
     BootstrapDropdown,
@@ -218,13 +218,11 @@ export function UserAdmin() {
         [accounts],
     );
 
-    function accessChanged(event: React.ChangeEvent<HTMLInputElement>) {
+    function accessChanged(option: AccessOption, checked: boolean) {
         try {
             const currentAccount: UserDto = Object.assign({}, userAccount);
             const accessLevels: IAccessLevels =
                 currentAccount.accessLevels ?? {};
-            const checked: boolean = event.target.checked;
-            const option: AccessOption = event.target.name as AccessOption;
 
             if (checked) {
                 accessLevels[option] = {}; // granted
@@ -285,29 +283,33 @@ export function UserAdmin() {
         explanation?: string,
     ) {
         const accessLevels: IAccessLevels = userAccount?.accessLevels ?? {};
+        const options: IBootstrapDropdownItem[] = [
+            { value: 'none', text: '🚫' },
+            { value: 'full', text: '✅' },
+        ];
+        const value = accessLevels[option] ? 'full' : 'none';
 
         return (
-            <div key={option} className="input-group mb-3">
-                <div className="form-check form-switch margin-right">
-                    <input
-                        disabled={saving}
-                        className="form-check-input"
-                        type="checkbox"
-                        id={option}
-                        name={option}
-                        checked={!!accessLevels[option]}
-                        onChange={accessChanged}
-                    />
-                    <label className="form-check-label" htmlFor={option}>
-                        {description}
-                        {explanation ? (
-                            <>
-                                <br />
-                                <small>{explanation}</small>
-                            </>
-                        ) : null}
-                    </label>
-                </div>
+            <div key={option} className="mb-3">
+                <BootstrapDropdown
+                    options={options}
+                    value={value}
+                    onChange={async (value) =>
+                        accessChanged(option, value === 'full')
+                    }
+                    slim={true}
+                    className="margin-right"
+                    datatype={option}
+                />
+                <span>
+                    {description}
+                    {explanation ? (
+                        <>
+                            <br />
+                            <small>{explanation}</small>
+                        </>
+                    ) : null}
+                </span>
             </div>
         );
     }

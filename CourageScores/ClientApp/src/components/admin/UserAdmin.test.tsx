@@ -62,7 +62,9 @@ describe('UserAdmin', () => {
     }
 
     function getAccess(name: string) {
-        return context.required(`input[id="${name}"]`);
+        return context
+            .required(`[datatype="${name}"] .dropdown-menu`)
+            .required('.active');
     }
 
     it('renders when no user selected', async () => {
@@ -76,10 +78,7 @@ describe('UserAdmin', () => {
 
         reportedError.verifyNoError();
         expect(context.text()).toContain('Manage access');
-        expect(
-            getAccess(AccessOption.manageAccess).element<HTMLInputElement>()
-                .checked,
-        ).toEqual(false);
+        expect(getAccess(AccessOption.manageAccess).text()).toEqual('🚫');
     });
 
     it('renders user email addresses', async () => {
@@ -109,10 +108,7 @@ describe('UserAdmin', () => {
 
         reportedError.verifyNoError();
         expect(context.text()).toContain('Manage access');
-        expect(
-            getAccess(AccessOption.manageAccess).element<HTMLInputElement>()
-                .checked,
-        ).toEqual(false);
+        expect(getAccess(AccessOption.manageAccess).text()).toEqual('🚫');
     });
 
     it('renders user with access', async () => {
@@ -138,10 +134,7 @@ describe('UserAdmin', () => {
 
         reportedError.verifyNoError();
         expect(context.text()).toContain('Manage access');
-        expect(
-            getAccess(AccessOption.manageAccess).element<HTMLInputElement>()
-                .checked,
-        ).toEqual(true);
+        expect(getAccess(AccessOption.manageAccess).text()).toEqual('✅');
     });
 
     it('can save change to access', async () => {
@@ -163,7 +156,7 @@ describe('UserAdmin', () => {
         };
         await renderComponent([account, otherAccount], account);
         await context.required('.dropdown-menu').select('Other user');
-        await getAccess(AccessOption.manageGames).click();
+        await getAccess(AccessOption.manageGames).parent()!.select('✅');
 
         await context.button('Set access').click();
 
