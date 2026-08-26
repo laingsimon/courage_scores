@@ -1,22 +1,21 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using CourageScores.Models.Cosmos.Game;
+﻿using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Season;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Models.Dtos.Division;
 
-public class DivisionDataFilter : IEquatable<DivisionDataFilter>
+public record DivisionDataFilter(
+    DateTime? Date = null,
+    Guid[]? DivisionId = null,
+    Guid? SeasonId = null,
+    Guid? TeamId = null,
+    bool ExcludeProposals = false,
+    bool IgnoreDates = false) : DivisionDataFilterWithoutDivisionId(Date, SeasonId, TeamId, ExcludeProposals, IgnoreDates)
 {
-    // ReSharper disable MemberCanBePrivate.Global
-    // ReSharper disable UnusedAutoPropertyAccessor.Global
-    public DateTime? Date { get; set; }
-    public HashSet<Guid> DivisionId { get; set; } = new();
-    public Guid? SeasonId { get; set; }
-    public Guid? TeamId { get; set; }
-    public bool ExcludeProposals { get; set; }
-    public bool IgnoreDates { get; set; }
-    // ReSharper restore UnusedAutoPropertyAccessor.Global
-    // ReSharper restore MemberCanBePrivate.Global
+    public bool AnyDivision()
+    {
+        return DivisionId == null || !DivisionId.Any();
+    }
 
     public bool IncludeGame(CosmosGame game)
     {
@@ -45,41 +44,26 @@ public class DivisionDataFilter : IEquatable<DivisionDataFilter>
         return TeamId == null || teamId == TeamId.Value;
     }
 
-    public bool Equals(DivisionDataFilter? other)
+    public virtual bool Equals(DivisionDataFilter? other)
     {
-        return other != null
-               && Nullable.Equals(Date, other.Date)
-               && DivisionId.ToHashSet().SetEquals(other.DivisionId.ToHashSet())
-               && Nullable.Equals(SeasonId, other.SeasonId)
-               && Nullable.Equals(TeamId, other.TeamId);
-    }
-
-    [ExcludeFromCodeCoverage]
-    public override bool Equals(object? obj)
-    {
-        return Equals(obj as DivisionDataFilter);
+        return GetEquatableFilter().Equals(other?.GetEquatableFilter()) &&
+               (DivisionId ?? []).SequenceEqual(other.DivisionId ?? []);
     }
 
     public override int GetHashCode()
     {
-        // ReSharper disable NonReadonlyMemberInGetHashCode
-        return HashCode.Combine(
-            Date,
-            HashCodeOfArrayContents(DivisionId),
-            SeasonId,
-            TeamId);
-        // ReSharper restore NonReadonlyMemberInGetHashCode
+        return HashCode.Combine(GetEquatableFilter(), DivisionId?.GetHashCode());
     }
 
-    private static int HashCodeOfArrayContents<T>(IEnumerable<T> array)
+    private DivisionDataFilterWithoutDivisionId GetEquatableFilter()
     {
-        var hashCode = 0;
-
-        foreach (var item in array)
-        {
-            hashCode ^= item?.GetHashCode() ?? 0;
-        }
-
-        return hashCode;
+        return new DivisionDataFilterWithoutDivisionId(Date, SeasonId, TeamId, ExcludeProposals, IgnoreDates);
     }
 }
+
+public record DivisionDataFilterWithoutDivisionId(
+    DateTime? Date = null,
+    Guid? SeasonId = null,
+    Guid? TeamId = null,
+    bool ExcludeProposals = false,
+    bool IgnoreDates = false);

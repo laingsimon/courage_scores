@@ -86,10 +86,10 @@ public class FinalsNightReportTests
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _divisionService
-            .Setup(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId.Contains(_division1.Id)), _token))
+            .Setup(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId!.Contains(_division1.Id)), _token))
             .ReturnsAsync(_divisionData1);
         _divisionService
-            .Setup(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId.Contains(_division2.Id)), _token))
+            .Setup(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId!.Contains(_division2.Id)), _token))
             .ReturnsAsync(_divisionData2);
         _divisionService.Setup(s => s.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_divisions));
         _manOfTheMatchReport.Setup(r => r.GetReport(_playerLookup, _token)).ReturnsAsync(() => _momReport);

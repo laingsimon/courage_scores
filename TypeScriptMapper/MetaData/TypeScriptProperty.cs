@@ -114,6 +114,11 @@ public class TypeScriptProperty : ITypeScriptMember
             return string.Empty;
         }
 
+        if (type.IsArray && type.HasElementType)
+        {
+            return Array.CreateInstance(type.GetElementType()!, 0);
+        }
+
         return Activator.CreateInstance(type)!;
     }
 

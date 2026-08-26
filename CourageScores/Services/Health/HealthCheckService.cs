@@ -65,12 +65,7 @@ public class HealthCheckService : IHealthCheckService
 
         var divisionalData = await season.Divisions
             .SelectAsync(d => _divisionService.GetDivisionData(
-                new DivisionDataFilter
-                {
-                    DivisionId = { d.Id },
-                    SeasonId = season.Id,
-                    IgnoreDates = true,
-                },
+                new DivisionDataFilter(DivisionId: [d.Id], SeasonId: season.Id, IgnoreDates: true),
                 token))
             .ToList();
 

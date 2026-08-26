@@ -37,8 +37,8 @@ public class CachingDivisionService : ICachingDivisionService
         {
             // invalidate caches where division id matches, any season id
             var keys = CacheKeys.Keys.Where(key =>
-                key.Filter.DivisionId.Contains(divisionId.Value) ||
-                divisionId == Guid.Empty || !key.Filter.DivisionId.Any()).ToArray();
+                key.Filter.DivisionId?.Contains(divisionId.Value) == true ||
+                divisionId == Guid.Empty || !key.Filter.AnyDivision()).ToArray();
             InvalidateCaches(keys);
         }
 
@@ -70,10 +70,7 @@ public class CachingDivisionService : ICachingDivisionService
 
     public async Task<DivisionDto?> Get(Guid id, CancellationToken token)
     {
-        var key = GetKey(new DivisionDataFilter
-        {
-            DivisionId = { id },
-        }, "Get");
+        var key = GetKey(new DivisionDataFilter(DivisionId: [id]), "Get");
         InvalidateCacheIfCacheControlHeaderPresent(key);
         CacheKeys.TryAdd(key, new object());
         return await _cache.GetOrCreateAsync(key, _ => _divisionService.Get(id, token));
@@ -149,7 +146,7 @@ public class CachingDivisionService : ICachingDivisionService
     private void InvalidateCaches(Guid divisionId, string? type)
     {
         var cacheKeys = CacheKeys.Keys.Where(k =>
-                (k.Filter.DivisionId.Contains(divisionId) || !k.Filter.DivisionId.Any()) && (k.Type == type || type == null))
+                (k.Filter.DivisionId?.Contains(divisionId) == true || !k.Filter.AnyDivision()) && (k.Type == type || type == null))
             .ToArray();
         InvalidateCaches(cacheKeys);
     }

@@ -29,15 +29,8 @@ public class DivisionServiceTests
         .WithDates(new DateTime(2001, 01, 01), new DateTime(2001, 05, 01))
         .WithDivisions(Division1)
         .Build();
-    private static readonly DivisionDataFilter Division1Filter = new DivisionDataFilter
-    {
-        DivisionId = { Division1.Id },
-    };
-    private static readonly DivisionDataFilter Division1AndSeason1Filter = new DivisionDataFilter
-    {
-        SeasonId = Season.Id,
-        DivisionId = { Division1.Id },
-    };
+    private static readonly DivisionDataFilter Division1Filter = new DivisionDataFilter(DivisionId: [Division1.Id]);
+    private static readonly DivisionDataFilter Division1AndSeason1Filter = new DivisionDataFilter(DivisionId: [Division1.Id], SeasonId: Season.Id);
     private static readonly TeamDto Division1Team = new TeamDtoBuilder()
         .WithSeason(s => s.ForSeason(Season, Division1))
         .Build();
@@ -151,12 +144,9 @@ public class DivisionServiceTests
     public async Task GetDivisionData_GivenDivisionIdFilterWhenDivisionDeleted_ReturnsDivisionNotFound()
     {
         var division = new DivisionDtoBuilder().Deleted(new DateTime(2001, 02, 03)).Build();
-        var filter = new DivisionDataFilter
-        {
-            DivisionId = { division.Id },
-        };
+        var filter = new DivisionDataFilter(DivisionId: [division.Id]);
         _divisionDataDtoFactory.Setup(f => f.DivisionNotFound(
-            filter.DivisionId,
+            filter.DivisionId!,
             It.Is<IReadOnlyCollection<DivisionDto>>(divs => divs.Select(d => d.Id).SequenceEqual(new[] { division.Id })))).Returns(Empty);
         _genericService.Setup(s => s.Get(division.Id, _token)).ReturnsAsync(division);
 
@@ -168,11 +158,7 @@ public class DivisionServiceTests
     [Test]
     public async Task GetDivisionData_GivenSeasonIdFilterWhenSeasonNotFound_ReturnsSeasonNotFound()
     {
-        var filter = new DivisionDataFilter
-        {
-            DivisionId = { Division1.Id },
-            SeasonId = Guid.NewGuid(),
-        };
+        var filter = new DivisionDataFilter(DivisionId: [Division1.Id], SeasonId: Guid.NewGuid());
         _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(new[] { Division1 }, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(Empty);
 
         var result = await _service.GetDivisionData(filter, _token);
@@ -210,11 +196,7 @@ public class DivisionServiceTests
     {
         _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(new[] { Division1 }, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(Empty);
         _now = new DateTimeOffset(2001, 06, 01, 0, 0, 0, TimeSpan.Zero);
-        var filter = new DivisionDataFilter
-        {
-            DivisionId = { Division1.Id },
-            Date = Season.StartDate,
-        };
+        var filter = new DivisionDataFilter(DivisionId: [Division1.Id], Date: Season.StartDate);
 
         await _service.GetDivisionData(filter, _token);
 
@@ -339,10 +321,7 @@ public class DivisionServiceTests
     [Test]
     public async Task GetDivisionData_GivenMultipleDivisionIdFilter_IncludesMatchingGamesWithinSeason()
     {
-        var filter = new DivisionDataFilter
-        {
-            DivisionId = { Division1.Id, Division2.Id },
-        };
+        var filter = new DivisionDataFilter(DivisionId: [Division1.Id, Division2.Id]);
         _someGames.AddRange([Division1GameInSeason, Division1GameOutOfSeason, Division2GameInSeason]);
 
         await _service.GetDivisionData(filter, _token);
@@ -423,10 +402,7 @@ public class DivisionServiceTests
     [Test]
     public async Task GetDivisionData_GivenMultiDivisionIdFilter_IncludesMatchingTournamentsWithinSeason()
     {
-        var filter = new DivisionDataFilter
-        {
-            DivisionId = { Division1.Id, Division2.Id },
-        };
+        var filter = new DivisionDataFilter(DivisionId: [Division1.Id, Division2.Id]);
         var division1InSeasonTournament = new TournamentGameBuilder()
             .WithDate(new DateTime(2001, 02, 01))
             .WithDivision(Division1)
@@ -481,12 +457,7 @@ public class DivisionServiceTests
     [Test]
     public async Task GetDivisionData_WhenExcludingProposals_RequestsDivisionDataWithoutProposals()
     {
-        var filter = new DivisionDataFilter
-        {
-            SeasonId = Season.Id,
-            DivisionId = { Division1.Id },
-            ExcludeProposals = true,
-        };
+        var filter = new DivisionDataFilter(DivisionId: [Division1.Id], SeasonId: Season.Id, ExcludeProposals: true);
         _access.Add(AccessOption.ManageGames);
 
         await _service.GetDivisionData(filter, _token);

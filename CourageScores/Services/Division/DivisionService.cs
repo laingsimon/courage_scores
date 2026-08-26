@@ -56,12 +56,12 @@ public class DivisionService : IDivisionService
 
     public async Task<DivisionDataDto> GetDivisionData(DivisionDataFilter filter, CancellationToken token)
     {
-        if (!filter.DivisionId.Any() && filter.SeasonId == null)
+        if (filter.AnyDivision() && filter.SeasonId == null)
         {
             return _divisionDataDtoFactory.DivisionIdAndSeasonIdNotSupplied(null);
         }
 
-        var divisions = await filter.DivisionId.SelectAsync(async divisionId =>
+        var divisions = await (filter.DivisionId ?? []).SelectAsync(async divisionId =>
         {
             var division = await _genericDivisionService.Get(divisionId, token);
             if (division == null || division.Deleted != null)
@@ -120,11 +120,11 @@ public class DivisionService : IDivisionService
         CancellationToken token)
     {
         var teamsInSeasonAndDivision = allTeamsInSeason
-            .Where(t => !filter.DivisionId.Any() || filter.DivisionId.Contains(GetDivisionIdForTeam(t, season).GetValueOrDefault()))
+            .Where(t => filter.AnyDivision() || filter.DivisionId?.Contains(GetDivisionIdForTeam(t, season).GetValueOrDefault()) == true)
             .ToList();
 
         var notes = await _noteService.GetWhere($"t.SeasonId = '{season.Id}'", token)
-            .WhereAsync(n => !filter.DivisionId.Any() || n.DivisionId == null || filter.DivisionId.Contains(n.DivisionId.Value))
+            .WhereAsync(n => filter.AnyDivision() || n.DivisionId == null || filter.DivisionId?.Contains(n.DivisionId.Value) == true)
             .WhereAsync(n => filter.IncludeNote(n))
             .ToList();
         var games = await GetGames(filter, season, token);
@@ -162,8 +162,8 @@ public class DivisionService : IDivisionService
 
         return await _gameRepository
             .GetSome(
-                filter.DivisionId.Any()
-                    ? $"(t.DivisionId in ({string.Join(", ", filter.DivisionId.Select(id => $"'{id}'"))}) or t.IsKnockout = true)"
+                !filter.AnyDivision()
+                    ? $"(t.DivisionId in ({string.Join(", ", filter.DivisionId!.Select(id => $"'{id}'"))}) or t.IsKnockout = true)"
                     : $"t.SeasonId = '{season.Id}'",
                 token)
             .WhereAsync(g => filter.IncludeDate(g.Date, season) && filter.IncludeGame(g))

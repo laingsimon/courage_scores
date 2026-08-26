@@ -60,10 +60,10 @@ public class HealthCheckServiceTests
         _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
         userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _divisionService
-            .Setup(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId.Contains(_division1.Id) && f.SeasonId == _season.Id && f.IgnoreDates), _token))
+            .Setup(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId!.Contains(_division1.Id) && f.SeasonId == _season.Id && f.IgnoreDates), _token))
             .ReturnsAsync(_division1);
         _divisionService
-            .Setup(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId.Contains(_division2.Id) && f.SeasonId == _season.Id && f.IgnoreDates), _token))
+            .Setup(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId!.Contains(_division2.Id) && f.SeasonId == _season.Id && f.IgnoreDates), _token))
             .ReturnsAsync(_division2);
         healthCheckFactory.Setup(f => f.GetHealthChecks()).Returns([_healthCheck.Object]);
         _healthCheck.Setup(c => c.Name).Returns("CHECK");
@@ -127,7 +127,7 @@ public class HealthCheckServiceTests
             .Build();
         _seasonService.Setup(s => s.Get(seasonWithMissingDivision.Id, _token)).ReturnsAsync(seasonWithMissingDivision);
         _divisionService
-            .Setup(d => d.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId.Contains(divisionId)), _token))
+            .Setup(d => d.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId!.Contains(divisionId)), _token))
             .ReturnsAsync(() => new DivisionDataDto(null)
             {
                 Id = divisionId,

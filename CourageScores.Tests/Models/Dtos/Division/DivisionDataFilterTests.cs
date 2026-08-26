@@ -153,23 +153,16 @@ public class DivisionDataFilterTests
     [TestCase(null, MatchingTeamId, MatchingDivisionId, MatchingSeasonId, false)]
     public void Equals_GivenProperties_ShouldCorrectlyEqualOtherFilter(string? date, string? teamId, string? divisionId, string? seasonId, bool expectedEquals)
     {
-        var filter1 = new DivisionDataFilter
-        {
-            Date = date == null ? null : DateTime.Parse(date),
-            TeamId = teamId == null ? null : Guid.Parse(teamId),
-            SeasonId = seasonId == null ? null : Guid.Parse(seasonId),
-        };
-        if (divisionId != null)
-        {
-            filter1.DivisionId.Add(Guid.Parse(divisionId));
-        }
-        var filter2 = new DivisionDataFilter
-        {
-            Date = DateTime.Parse(MatchingDate),
-            DivisionId = { Guid.Parse(MatchingDivisionId) },
-            SeasonId = Guid.Parse(MatchingSeasonId),
-            TeamId = Guid.Parse(MatchingTeamId),
-        };
+        var filter1 = new DivisionDataFilter(
+            Date: date == null ? null : DateTime.Parse(date),
+            TeamId: teamId == null ? null : Guid.Parse(teamId),
+            SeasonId: seasonId == null ? null : Guid.Parse(seasonId),
+            DivisionId: divisionId != null ? [Guid.Parse(divisionId)] : null);
+        var filter2 = new DivisionDataFilter(
+            Date: DateTime.Parse(MatchingDate),
+            DivisionId: [Guid.Parse(MatchingDivisionId)],
+            SeasonId: Guid.Parse(MatchingSeasonId),
+            TeamId: Guid.Parse(MatchingTeamId));
 
         var equals = filter1.Equals(filter2);
 

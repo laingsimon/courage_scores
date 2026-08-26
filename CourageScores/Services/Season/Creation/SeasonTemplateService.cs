@@ -157,12 +157,9 @@ public class SeasonTemplateService : ISeasonTemplateService
 
     private async Task<TemplateMatchContext> CreateContext(SeasonDto season, ProposalRequestDto request, CancellationToken token)
     {
-        var divisions = await season.Divisions.SelectAsync(d => _divisionService.GetDivisionData(new DivisionDataFilter
-        {
-            DivisionId = { d.Id },
-            SeasonId = season.Id,
-            ExcludeProposals = true,
-        }, token)).ToList();
+        var divisions = await season.Divisions
+            .SelectAsync(d => _divisionService.GetDivisionData(new DivisionDataFilter(DivisionId: [d.Id], SeasonId: season.Id, ExcludeProposals: true), token))
+            .ToList();
 
         var teamsInSeason = await _teamService.GetTeamsForSeason(season.Id, token).ToList();
         var teams = teamsInSeason
