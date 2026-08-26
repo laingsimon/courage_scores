@@ -3,10 +3,10 @@
 namespace CourageScores.Models.Dtos.Identity;
 
 [ExcludeFromCodeCoverage]
-public class AccessLevelDto
+public record AccessLevelDto(
+    IReadOnlyCollection<Guid>? SeasonIds = null,
+    IReadOnlyCollection<Guid>? DivisionIds = null,
+    IReadOnlyCollection<Guid>? TeamIds = null)
 {
     public static readonly AccessLevelDto Granted = new();
-
-    // properties will be added here once all the refactoring is complete
-    // for now, the presence of this object is equivalent to `true`
 }

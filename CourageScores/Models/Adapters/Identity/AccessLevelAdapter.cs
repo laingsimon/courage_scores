@@ -7,31 +7,39 @@ public class AccessLevelAdapter : IAccessLevelAdapter
 {
     public Task<User> AddAccess(User target, UserDto source, CancellationToken token)
     {
-        target.AccessLevels = GetAccessOptions(source.AccessLevels, _ => AccessLevel.Granted);
+        target.AccessLevels = source.AccessLevels.ToDictionary(pair => pair.Key, AdaptToAccessLevel);
         return Task.FromResult(target);
     }
 
     public Task<User> AddAccess(User target, UpdateAccessDto source, CancellationToken token)
     {
-        target.AccessLevels = GetAccessOptions(source.AccessLevels, _ => AccessLevel.Granted);
+        target.AccessLevels = source.AccessLevels.ToDictionary(pair => pair.Key, AdaptToAccessLevel);
         return Task.FromResult(target);
     }
 
     public Task<UserDto> AddAccess(UserDto target, User source, CancellationToken token)
     {
-        target.AccessLevels = GetAccessOptions(source.AccessLevels, _ => AccessLevelDto.Granted);
+        target.AccessLevels = source.AccessLevels.ToDictionary(pair => pair.Key, AdaptToAccessLevelDto);
         return Task.FromResult(target);
     }
 
-    private static Dictionary<AccessOption, TLevel> GetAccessOptions<TLevel, TSourceAccess>(
-        Dictionary<AccessOption, TSourceAccess>? accessLevels,
-        Func<AccessOption, TLevel> levelSelector)
+    private static AccessLevelDto AdaptToAccessLevelDto(KeyValuePair<AccessOption, AccessLevel> accessLevel)
     {
-        if (accessLevels?.Count > 0)
+        return new AccessLevelDto
         {
-            return accessLevels.ToDictionary(pair => pair.Key, pair => levelSelector(pair.Key));
-        }
+            SeasonIds = accessLevel.Value.SeasonIds,
+            DivisionIds = accessLevel.Value.DivisionIds,
+            TeamIds = accessLevel.Value.TeamIds,
+        };
+    }
 
-        return new Dictionary<AccessOption, TLevel>();
+    private static AccessLevel AdaptToAccessLevel(KeyValuePair<AccessOption, AccessLevelDto> accessLevel)
+    {
+        return new AccessLevel
+        {
+            SeasonIds = accessLevel.Value.SeasonIds,
+            DivisionIds = accessLevel.Value.DivisionIds,
+            TeamIds = accessLevel.Value.TeamIds,
+        };
     }
 }
