@@ -69,7 +69,7 @@ describe('UserAdmin', () => {
 
     it('renders when no user selected', async () => {
         const account: UserDto = {
-            givenName: '',
+            ...user(),
             emailAddress: 'a@b.com',
             name: 'Test 1',
         };
@@ -83,7 +83,7 @@ describe('UserAdmin', () => {
 
     it('renders user email addresses', async () => {
         const account: UserDto = {
-            givenName: '',
+            ...user([AccessOption.manageAccess]),
             emailAddress: 'a@b.com',
             name: 'Test 1',
         };
@@ -98,7 +98,7 @@ describe('UserAdmin', () => {
     it('renders user with no access', async () => {
         const account = user([AccessOption.manageAccess]);
         const otherAccount: UserDto = {
-            givenName: '',
+            ...user(),
             emailAddress: 'c@d.com',
             name: 'Test 1',
         };
@@ -113,20 +113,14 @@ describe('UserAdmin', () => {
 
     it('renders user with access', async () => {
         const account: UserDto = {
-            givenName: '',
+            ...user([AccessOption.manageAccess]),
             emailAddress: 'a@b.com',
             name: 'Admin',
-            accessLevels: {
-                [AccessOption.manageAccess]: {},
-            },
         };
         const otherAccount: UserDto = {
-            givenName: '',
+            ...user([AccessOption.manageAccess]),
             emailAddress: 'c@d.com',
             name: 'Other user',
-            accessLevels: {
-                [AccessOption.manageAccess]: {},
-            },
         };
         await renderComponent([account, otherAccount], account);
 
@@ -139,20 +133,14 @@ describe('UserAdmin', () => {
 
     it('can save change to access', async () => {
         const account: UserDto = {
-            givenName: '',
+            ...user([AccessOption.manageAccess]),
             emailAddress: 'a@b.com',
             name: 'Admin',
-            accessLevels: {
-                [AccessOption.manageAccess]: {},
-            },
         };
         const otherAccount: UserDto = {
-            givenName: '',
+            ...user([AccessOption.manageAccess]),
             emailAddress: 'c@d.com',
             name: 'Other user',
-            accessLevels: {
-                [AccessOption.manageAccess]: {},
-            },
         };
         await renderComponent([account, otherAccount], account);
         await context.required('.dropdown-menu').select('Other user');
