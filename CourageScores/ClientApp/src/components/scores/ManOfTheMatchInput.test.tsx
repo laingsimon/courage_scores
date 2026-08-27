@@ -7,6 +7,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests.tsx';
 import {
     IManOfTheMatchInputProps,
@@ -182,11 +183,7 @@ describe('ManOfTheMatchInput', () => {
     });
 
     describe('when logged in', () => {
-        let account: UserDto = {
-            name: '',
-            givenName: '',
-            emailAddress: '',
-        };
+        let account = user();
 
         describe('renders', () => {
             it('when no matches', async () => {

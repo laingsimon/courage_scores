@@ -8,6 +8,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests.tsx';
 import { SocketAdmin } from './SocketAdmin.tsx';
 import { createTemporaryId } from '../../helpers/projection.ts';
@@ -56,11 +57,7 @@ describe('SocketAdmin', () => {
             brandingProps(),
             appProps(
                 {
-                    account: {
-                        name: '',
-                        emailAddress: '',
-                        givenName: '',
-                    },
+                    account: user(),
                     appLoading: false,
                 },
                 reportedError,

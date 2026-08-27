@@ -12,6 +12,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
+    user,
 } from '../../helpers/tests.tsx';
 import { ErrorDetailDto } from '../../interfaces/models/dtos/ErrorDetailDto.ts';
 import { IErrorApi } from '../../interfaces/apis/IErrorApi.ts';
@@ -45,11 +46,7 @@ describe('Errors', () => {
             brandingProps(),
             appProps(
                 {
-                    account: {
-                        name: '',
-                        emailAddress: '',
-                        givenName: '',
-                    },
+                    account: user(),
                 },
                 reportedError,
             ),

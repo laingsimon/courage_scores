@@ -62,12 +62,14 @@ describe('UserAdmin', () => {
     }
 
     function getAccess(name: string) {
-        return context.required(`input[id="${name}"]`);
+        return context
+            .required(`[datatype="${name}"] .dropdown-menu`)
+            .required('.active');
     }
 
     it('renders when no user selected', async () => {
         const account: UserDto = {
-            givenName: '',
+            ...user(),
             emailAddress: 'a@b.com',
             name: 'Test 1',
         };
@@ -76,15 +78,12 @@ describe('UserAdmin', () => {
 
         reportedError.verifyNoError();
         expect(context.text()).toContain('Manage access');
-        expect(
-            getAccess(AccessOption.manageAccess).element<HTMLInputElement>()
-                .checked,
-        ).toEqual(false);
+        expect(getAccess(AccessOption.manageAccess).text()).toEqual('🚫');
     });
 
     it('renders user email addresses', async () => {
         const account: UserDto = {
-            givenName: '',
+            ...user([AccessOption.manageAccess]),
             emailAddress: 'a@b.com',
             name: 'Test 1',
         };
@@ -99,7 +98,7 @@ describe('UserAdmin', () => {
     it('renders user with no access', async () => {
         const account = user([AccessOption.manageAccess]);
         const otherAccount: UserDto = {
-            givenName: '',
+            ...user(),
             emailAddress: 'c@d.com',
             name: 'Test 1',
         };
@@ -109,28 +108,19 @@ describe('UserAdmin', () => {
 
         reportedError.verifyNoError();
         expect(context.text()).toContain('Manage access');
-        expect(
-            getAccess(AccessOption.manageAccess).element<HTMLInputElement>()
-                .checked,
-        ).toEqual(false);
+        expect(getAccess(AccessOption.manageAccess).text()).toEqual('🚫');
     });
 
     it('renders user with access', async () => {
         const account: UserDto = {
-            givenName: '',
+            ...user([AccessOption.manageAccess]),
             emailAddress: 'a@b.com',
             name: 'Admin',
-            accessLevels: {
-                [AccessOption.manageAccess]: {},
-            },
         };
         const otherAccount: UserDto = {
-            givenName: '',
+            ...user([AccessOption.manageAccess]),
             emailAddress: 'c@d.com',
             name: 'Other user',
-            accessLevels: {
-                [AccessOption.manageAccess]: {},
-            },
         };
         await renderComponent([account, otherAccount], account);
 
@@ -138,32 +128,23 @@ describe('UserAdmin', () => {
 
         reportedError.verifyNoError();
         expect(context.text()).toContain('Manage access');
-        expect(
-            getAccess(AccessOption.manageAccess).element<HTMLInputElement>()
-                .checked,
-        ).toEqual(true);
+        expect(getAccess(AccessOption.manageAccess).text()).toEqual('✅');
     });
 
     it('can save change to access', async () => {
         const account: UserDto = {
-            givenName: '',
+            ...user([AccessOption.manageAccess]),
             emailAddress: 'a@b.com',
             name: 'Admin',
-            accessLevels: {
-                [AccessOption.manageAccess]: {},
-            },
         };
         const otherAccount: UserDto = {
-            givenName: '',
+            ...user([AccessOption.manageAccess]),
             emailAddress: 'c@d.com',
             name: 'Other user',
-            accessLevels: {
-                [AccessOption.manageAccess]: {},
-            },
         };
         await renderComponent([account, otherAccount], account);
         await context.required('.dropdown-menu').select('Other user');
-        await getAccess(AccessOption.manageGames).click();
+        await getAccess(AccessOption.manageGames).parent()!.select('✅');
 
         await context.button('Set access').click();
 
