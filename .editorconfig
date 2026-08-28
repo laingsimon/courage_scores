@@ -48,3 +48,6 @@ dotnet_diagnostic.IDE0065.severity = warning
 
 # IDE0079: Remove unnecessary suppression
 dotnet_diagnostic.IDE0079.severity = warning
+
+
+dotnet_diagnostic.IDE0305.severity = silent

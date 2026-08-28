@@ -274,9 +274,8 @@ describe('PhotoManager', () => {
 
     describe('interactivity', () => {
         const account: UserDto = {
+            ...user(),
             name: 'USER',
-            givenName: '',
-            emailAddress: '',
         };
         const myPhoto: PhotoReferenceDto = {
             id: createTemporaryId(),

@@ -3,7 +3,7 @@
 namespace CourageScores.Models.Dtos.Identity;
 
 [ExcludeFromCodeCoverage]
-public class UserDto
+public class UserDto : IUserAccessDto
 {
     /// <summary>
     /// The full name of the person

@@ -1,11 +1,12 @@
 ﻿import { hasAccess, hasAllAccess, hasAnyAccess } from './conditions.ts';
 import { AccessOption } from '../interfaces/models/dtos/Identity/AccessOption.ts';
+import { user } from './tests.tsx';
 
 describe('conditions', () => {
     const userTemplate = {
+        ...user(undefined, undefined, 'name'),
         name: 'name',
         emailAddress: 'simon@email.com',
-        givenName: 'name',
     };
 
     describe('hasAccess', () => {

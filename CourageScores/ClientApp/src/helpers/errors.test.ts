@@ -1,5 +1,5 @@
 import { mapError, mapForLogging } from './errors.ts';
-import { noop } from './tests.tsx';
+import { noop, user } from './tests.tsx';
 import { UserDto } from '../interfaces/models/dtos/Identity/UserDto.ts';
 
 describe('errors', () => {
@@ -32,9 +32,8 @@ describe('errors', () => {
     describe('mapForLogging', () => {
         it('maps basic properties', () => {
             const account: UserDto = {
+                ...user(),
                 name: 'NAME',
-                emailAddress: '',
-                givenName: '',
             };
             const result = mapForLogging(
                 { message: 'MESSAGE', stack: 'FRAME1\nFRAME2', type: 'TYPE' },
@@ -54,9 +53,8 @@ describe('errors', () => {
 
         it('accepts null stack', () => {
             const account: UserDto = {
+                ...user(),
                 name: 'NAME',
-                emailAddress: '',
-                givenName: '',
             };
             const result = mapForLogging(
                 { message: 'MESSAGE', type: 'TYPE' },
@@ -78,9 +76,8 @@ describe('errors', () => {
 
         it('accepts no type', () => {
             const account: UserDto = {
+                ...user(),
                 name: 'NAME',
-                emailAddress: '',
-                givenName: '',
             };
             const result = mapForLogging(
                 { message: 'MESSAGE', stack: 'FRAME1\nFRAME2' },
