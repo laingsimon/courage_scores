@@ -7,6 +7,7 @@ import { IError } from './IError.ts';
 import { IBrowserType } from './IBrowserType.ts';
 import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 import { IFullScreen } from './IFullScreen.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
 
 export interface IApp {
     error?: IError;
@@ -16,6 +17,7 @@ export interface IApp {
     divisions: DivisionDto[];
     seasons: SeasonDto[];
     teams: TeamWithoutSeasonsDto[];
+    teamsWithSeasons: TeamDto[];
     account?: UserDto;
     appLoading?: boolean;
     controls?: boolean;

@@ -53,7 +53,7 @@ export function DivisionFixture({
         text: 'Bye',
         value: '',
     };
-    const { account, teams: allTeams, onError } = useApp();
+    const { account, teamsWithSeasons: allTeams, onError } = useApp();
     const { getPreference } = usePreferences();
     const {
         id: divisionId,

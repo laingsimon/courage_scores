@@ -32,7 +32,7 @@ export function AssignPlaceholders({
     placeholderMappings,
     setPlaceholderMappings,
 }: IAssignPlaceholdersProps) {
-    const { divisions, seasons, teams } = useApp();
+    const { divisions, seasons, teamsWithSeasons: teams } = useApp();
     const season: SeasonDto = seasons.filter((s) => s.id === seasonId)[0];
     const applicableDivisions: DivisionDto[] = divisions.filter(
         (division: DivisionDto) =>

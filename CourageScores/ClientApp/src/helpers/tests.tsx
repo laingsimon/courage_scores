@@ -188,6 +188,7 @@ export function appProps(
         divisions: [],
         seasons: [],
         teams: [],
+        teamsWithSeasons: [],
         clearError: noop,
         embed: false,
         controls: true,

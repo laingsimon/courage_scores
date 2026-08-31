@@ -57,7 +57,7 @@ interface IWiggler {
 
 export function PrintableSheet({ editable, patchData }: IPrintableSheetProps) {
     const { name } = useBranding();
-    const { onError, teams, divisions } = useApp();
+    const { onError, teamsWithSeasons: teams, divisions } = useApp();
     const {
         tournamentData,
         season,

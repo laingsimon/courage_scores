@@ -25,7 +25,7 @@ export function TournamentDetails({
     disabled,
     setTournamentData,
 }: ITournamentDetailsProps) {
-    const { teams, divisions } = useApp();
+    const { teamsWithSeasons: teams, divisions } = useApp();
     const allDivisions: IBootstrapDropdownItem = { text: 'All divisions' };
 
     function getExportTables(): { [key: string]: string[] } {

@@ -71,7 +71,7 @@ export function EditSuperleagueMatch({
     useFirstNameOnly,
     showFullNames,
 }: IEditSuperleagueMatchProps) {
-    const { teams, reloadTeams, onError, account } = useApp();
+    const { teamsWithSeasons: teams, reloadTeams, onError, account } = useApp();
     const { alreadyPlaying } = useTournament();
     const oddNumberedMatch: boolean = (matchNumber ?? 1) % 2 !== 0;
     const matchOptions: GameMatchOptionDto = {

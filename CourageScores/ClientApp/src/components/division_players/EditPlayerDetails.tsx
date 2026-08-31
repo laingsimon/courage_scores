@@ -69,7 +69,7 @@ export function EditPlayerDetails({
     const [saveError, setSaveError] =
         useState<IClientActionResultDto<TeamDto> | null>(null);
     const { playerApi } = useDependencies();
-    const { teams, divisions, onError } = useApp();
+    const { teamsWithSeasons: teams, divisions, onError } = useApp();
 
     async function saveChanges() {
         /* istanbul ignore next */

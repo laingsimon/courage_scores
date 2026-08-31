@@ -363,7 +363,10 @@ describe('Division', () => {
         describe('team', () => {
             async function render(t: string) {
                 await renderComponent(
-                    defaultAppProps({ teams: [team] }),
+                    defaultAppProps({
+                        teams: [team],
+                        teamsWithSeasons: [team],
+                    }),
                     '/division/:divisionId/:mode/:seasonId',
                     `/division/${division.id}/team:${t}/${season.id}`,
                     defaultContainerProps({ urlStyle: UrlStyle.Single }),
@@ -917,6 +920,7 @@ describe('Division', () => {
                     defaultAppProps({
                         account: user([AccessOption.manageGames]),
                         teams: [homeTeam, awayTeam],
+                        teamsWithSeasons: [homeTeam, awayTeam],
                     }),
                     '/fixtures',
                     `/fixtures/?division=${division.id}`,
@@ -956,6 +960,7 @@ describe('Division', () => {
                     defaultAppProps({
                         account: user([AccessOption.manageGames]),
                         teams: [homeTeam, awayTeam],
+                        teamsWithSeasons: [homeTeam, awayTeam],
                     }),
                     '/fixtures',
                     `/fixtures/?division=${division.id}`,

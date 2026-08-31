@@ -36,6 +36,7 @@ import React from 'react';
 import { CookiesProvider } from 'react-cookie';
 import { ISettings } from './api/settings.ts';
 import { userEvent } from '@testing-library/user-event';
+import { TeamWithoutSeasonsDto } from './interfaces/models/dtos/Team/TeamWithoutSeasonsDto';
 
 describe('App', () => {
     let context: TestContext;
@@ -61,7 +62,8 @@ describe('App', () => {
         getAll: async (): Promise<SeasonDto[]> => allSeasons,
     });
     const teamApi = api<ITeamApi>({
-        getAll: async (): Promise<TeamDto[]> => allTeams,
+        getAll: async (): Promise<TeamWithoutSeasonsDto[]> => allTeams,
+        getAllWithSeasonsAndPlayers: async (): Promise<TeamDto[]> => allTeams,
     });
     const errorApi = api<IErrorApi>({
         add: async (

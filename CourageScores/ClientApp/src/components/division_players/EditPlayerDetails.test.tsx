@@ -136,6 +136,7 @@ describe('EditPlayerDetails', () => {
             appProps(
                 {
                     teams: teams || [],
+                    teamsWithSeasons: teams || [],
                     divisions: divisions || [],
                 },
                 reportedError,
@@ -657,7 +658,7 @@ describe('EditPlayerDetails', () => {
                     success: true,
                     result: {
                         id: teamWithDeletedSeason.id,
-                        seasons: teamWithDeletedSeason!.seasons!.map(
+                        seasons: teamWithDeletedSeason!.seasons.map(
                             (ts: TeamSeasonDto) => {
                                 if (ts.deleted) {
                                     return ts;

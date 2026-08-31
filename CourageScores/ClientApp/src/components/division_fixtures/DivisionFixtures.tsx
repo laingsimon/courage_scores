@@ -47,7 +47,7 @@ export function DivisionFixtures({ setNewFixtures }: IDivisionFixturesProps) {
     } = useDivisionData();
     const { gameApi } = useDependencies();
     const location = useLocation();
-    const { account, onError, controls, teams } = useApp();
+    const { account, onError, controls, teamsWithSeasons: teams } = useApp();
     const isAdmin: boolean = hasAccess(account, AccessOption.manageGames);
     const canAnalyseMatches: boolean = hasAccess(
         account,

@@ -61,7 +61,7 @@ export function EditSide({
     initialAddAsIndividuals,
     initialAddMultiplePlayers,
 }: IEditSideProps) {
-    const { teams, onError, account, reloadTeams } = useApp();
+    const { teamsWithSeasons: teams, onError, account, reloadTeams } = useApp();
     const { tournamentData, season, alreadyPlaying } = useTournament();
     const [playerFilter, setPlayerFilter] = useState<string>('');
     const [addPlayerDialogOpen, setAddPlayerDialogOpen] =

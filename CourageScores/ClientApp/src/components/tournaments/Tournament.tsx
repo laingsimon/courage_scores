@@ -62,7 +62,7 @@ export function Tournament() {
         account,
         seasons,
         onError,
-        teams,
+        teamsWithSeasons: teams,
         reloadTeams,
         divisions,
     } = useApp();

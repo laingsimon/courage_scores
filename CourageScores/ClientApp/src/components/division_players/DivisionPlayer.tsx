@@ -45,6 +45,7 @@ export function DivisionPlayer({ player, hideVenue }: IDivisionPlayerProps) {
         id: player.teamId!,
         name: player.team,
         address: '',
+        seasons: [],
     };
     const { playerApi } = useDependencies();
     const { getPreference } = usePreferences();

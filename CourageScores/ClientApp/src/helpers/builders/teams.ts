@@ -57,7 +57,7 @@ export function teamBuilder(name?: string, id?: string): ITeamBuilder {
             if (deleted) {
                 teamSeason.deleted = '2020-01-03T04:05:06Z';
             }
-            team.seasons?.push(teamSeason);
+            team.seasons.push(teamSeason);
             return builder;
         },
         address: (address: string) => {

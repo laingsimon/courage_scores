@@ -48,7 +48,7 @@ export function MasterDraw({
     setTournamentData,
     kioskMode,
 }: IMasterDrawProps) {
-    const { onError, teams, seasons, divisions } = useApp();
+    const { onError, teamsWithSeasons: teams, seasons, divisions } = useApp();
     const { matchOptionDefaults: singlesMatchOptionDefaults } = useTournament();
     const [newSinglesMatch, setNewSinglesMatch] = useState(getEmptyMatch());
     const [newPairsMatch, setNewPairsMatch] = useState(getEmptyMatch());

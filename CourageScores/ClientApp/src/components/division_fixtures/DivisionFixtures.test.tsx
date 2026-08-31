@@ -116,6 +116,7 @@ describe('DivisionFixtures', () => {
                     divisions: [],
                     controls: !excludeControls,
                     teams: teams || [],
+                    teamsWithSeasons: teams || [],
                 },
                 reportedError,
             ),
