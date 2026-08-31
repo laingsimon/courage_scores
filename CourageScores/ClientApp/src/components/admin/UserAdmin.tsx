@@ -16,6 +16,8 @@ import { UpdateAccessDto } from '../../interfaces/models/dtos/Identity/UpdateAcc
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 import { IAccessLevels } from '../../helpers/conditions.ts';
 import { groupBy } from '../../helpers/collections.ts';
+import { AccessLevelDto } from '../../interfaces/models/dtos/Identity/AccessLevelDto';
+import { UserAccessOption } from './UserAccessOption.tsx';
 
 interface IAccessMapping {
     option: AccessOption;
@@ -187,7 +189,9 @@ export function UserAdmin() {
     const { accountApi } = useDependencies();
     const { accounts } = useAdmin();
     const [saving, setSaving] = useState<boolean>(false);
-    const [userAccount, setUserAccount] = useState<UserDto | null>(null);
+    const [userAccount, setUserAccount] = useState<UserDto | undefined>(
+        undefined,
+    );
     const [emailAddress, setEmailAddress] = useState<string>(
         account?.emailAddress || '',
     );
@@ -218,14 +222,14 @@ export function UserAdmin() {
         [accounts],
     );
 
-    function accessChanged(option: AccessOption, checked: boolean) {
+    async function accessChanged(option: AccessOption, value?: AccessLevelDto) {
         try {
             const currentAccount: UserDto = Object.assign({}, userAccount);
             const accessLevels: IAccessLevels =
                 currentAccount.accessLevels ?? {};
 
-            if (checked) {
-                accessLevels[option] = {}; // granted
+            if (value) {
+                accessLevels[option] = value;
             } else {
                 delete accessLevels[option];
             }
@@ -274,44 +278,7 @@ export function UserAdmin() {
         const userAccount: UserDto | undefined = accounts?.filter(
             (a) => a.emailAddress === emailAddress,
         )[0];
-        setUserAccount(userAccount || null);
-    }
-
-    function renderAccessOption(
-        option: AccessOption,
-        description: string,
-        explanation?: string,
-    ) {
-        const accessLevels: IAccessLevels = userAccount?.accessLevels ?? {};
-        const options: IBootstrapDropdownItem[] = [
-            { value: 'none', text: '🚫' },
-            { value: 'full', text: '✅' },
-        ];
-        const value = accessLevels[option] ? 'full' : 'none';
-
-        return (
-            <div key={option} className="mb-3">
-                <BootstrapDropdown
-                    options={options}
-                    value={value}
-                    onChange={async (value) =>
-                        accessChanged(option, value === 'full')
-                    }
-                    slim={true}
-                    className="margin-right"
-                    datatype={option}
-                />
-                <span>
-                    {description}
-                    {explanation ? (
-                        <>
-                            <br />
-                            <small>{explanation}</small>
-                        </>
-                    ) : null}
-                </span>
-            </div>
-        );
+        setUserAccount(userAccount);
     }
 
     function toOption(acc: UserDto): IBootstrapDropdownItem {
@@ -378,13 +345,16 @@ export function UserAdmin() {
                             <h6>{grouping.key}</h6>
                             {grouping.items
                                 .sort((a, b) => a.name.localeCompare(b.name))
-                                .map((ao) =>
-                                    renderAccessOption(
-                                        ao.option,
-                                        ao.name,
-                                        ao.description,
-                                    ),
-                                )}
+                                .map((ao) => (
+                                    <UserAccessOption
+                                        userAccount={userAccount}
+                                        option={ao.option}
+                                        accessChanged={accessChanged}
+                                        key={ao.option}
+                                        name={ao.name}
+                                        description={ao.description}
+                                    />
+                                ))}
                         </div>
                     ))}
             </div>
