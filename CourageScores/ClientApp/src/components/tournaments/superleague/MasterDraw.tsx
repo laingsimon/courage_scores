@@ -9,7 +9,6 @@ import {
     IBootstrapDropdownItem,
 } from '../../common/BootstrapDropdown.tsx';
 import { TournamentGameDto } from '../../../interfaces/models/dtos/Game/TournamentGameDto.ts';
-import { TeamDto } from '../../../interfaces/models/dtos/Team/TeamDto.ts';
 import { UntypedPromise } from '../../../interfaces/UntypedPromise.ts';
 import { useState } from 'react';
 import { createTemporaryId } from '../../../helpers/projection.ts';
@@ -61,7 +60,7 @@ export function MasterDraw({
         numberOfLegs: 5,
     };
     const teamOptions = getTeamsInSeason(teams, tournamentData.seasonId).map(
-        (t: TeamDto): IBootstrapDropdownItem => {
+        (t): IBootstrapDropdownItem => {
             return {
                 text: t.name,
                 value: t.name,

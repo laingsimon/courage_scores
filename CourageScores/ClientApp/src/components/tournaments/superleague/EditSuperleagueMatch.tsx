@@ -129,7 +129,7 @@ export function EditSuperleagueMatch({
 
     function getTeamSeason(name?: string): TeamAndSeason | undefined {
         const seasonId = tournamentData.seasonId;
-        const teamsByName = teams.filter((t: TeamDto) => t.name === name);
+        const teamsByName = teams.filter((t) => t.name === name);
 
         return teamsByName.flatMap(
             (team) =>

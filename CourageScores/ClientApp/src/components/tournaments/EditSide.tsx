@@ -81,7 +81,7 @@ export function EditSide({
     const teamOptions: IBootstrapDropdownItem[] = [selectATeam].concat(
         teams
             .filter(teamSeasonForSameDivision)
-            .map((t: TeamDto) => {
+            .map((t) => {
                 return { value: t.id, text: t.name };
             })
             .sort(sortBy('text')),
@@ -207,7 +207,7 @@ export function EditSide({
         try {
             const newSide: TournamentSideDto = Object.assign({}, side);
             if (teamId) {
-                const team = teams.find((t: TeamDto) => t.id === teamId)!;
+                const team = teams.find((t) => t.id === teamId)!;
                 newSide.name = newSide.name || team.name;
 
                 newSide.teamId = team.id;

@@ -20,7 +20,6 @@ import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionD
 import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto.ts';
 import { TournamentPlayerDto } from '../../interfaces/models/dtos/Game/TournamentPlayerDto.ts';
 import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto.ts';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
 import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
@@ -252,12 +251,12 @@ export function Tournament() {
             : [];
 
         const players: ISelectablePlayer[] = getTeamsInSeason(
-            teams.filter((t: TeamDto) =>
+            teams.filter((t) =>
                 any(selectedTournamentTeams, (id: string) => id === t.id),
             ),
             tournamentData.seasonId,
         )
-            .flatMap((teamDto: TeamDto) => teamDto?.seasons ?? [])
+            .flatMap((teamDto) => teamDto?.seasons ?? [])
             .flatMap((teamSeason: TeamSeasonDto) =>
                 teamSeason.players!.map(
                     (p: TeamPlayerDto) => p as ISelectablePlayer,
