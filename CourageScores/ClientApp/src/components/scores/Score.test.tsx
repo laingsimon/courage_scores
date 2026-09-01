@@ -304,9 +304,15 @@ describe('Score', () => {
         );
     }
 
+    function getTeams(teams: TeamDto[]) {
+        return [
+            teams.find((t) => t.name === 'Home team')!,
+            teams.find((t) => t.name === 'Away team')!,
+        ];
+    }
+
     function getUnplayedFixtureData(appData: IAppContainerProps): GameDto {
-        const homeTeam = appData.teams.find((t) => t.name === 'Home team')!;
-        const awayTeam = appData.teams.find((t) => t.name === 'Away team')!;
+        const [homeTeam, awayTeam] = getTeams(appData.teamsWithSeasons);
 
         return fixtureBuilder('2023-01-02T00:00:00')
             .forSeason(appData.seasons[0])
@@ -318,13 +324,7 @@ describe('Score', () => {
     }
 
     function getPlayedFixtureData(appData: IAppContainerProps): GameDto {
-        const homeTeam = appData.teamsWithSeasons.find(
-            (t) => t.name === 'Home team',
-        )!;
-        const awayTeam = appData.teamsWithSeasons.find(
-            (t) => t.name === 'Away team',
-        )!;
-
+        const [homeTeam, awayTeam] = getTeams(appData.teamsWithSeasons);
         const firstDivision: DivisionDto = appData.divisions[0];
         const firstSeason: SeasonDto = appData.seasons[0];
 
@@ -612,15 +612,8 @@ describe('Score', () => {
         });
 
         it('renders when team has no seasons', async () => {
-            appData.teamsWithSeasons = appData.teamsWithSeasons.map(
-                (t: TeamDto) => {
-                    if (t.name === 'Home team') {
-                        t.seasons = [];
-                    }
-                    return t;
-                },
-            );
-            appData.teams = appData.teamsWithSeasons;
+            const [homeTeam] = getTeams(appData.teamsWithSeasons);
+            homeTeam.seasons = [];
 
             await renderComponent(fixture.id, appData);
 
@@ -630,14 +623,8 @@ describe('Score', () => {
         });
 
         it('renders when team is not registered to season', async () => {
-            appData.teamsWithSeasons = appData.teamsWithSeasons.map(
-                (t: TeamDto) => {
-                    if (t.name === 'Home team') {
-                        t.seasons = [];
-                    }
-                    return t;
-                },
-            );
+            const [homeTeam] = getTeams(appData.teamsWithSeasons);
+            homeTeam.seasons = [];
 
             await renderComponent(fixture.id, appData);
 
@@ -657,9 +644,7 @@ describe('Score', () => {
         });
 
         it('renders previously renamed players', async () => {
-            const homeTeam: TeamDto = appData.teamsWithSeasons.find(
-                (t: TeamDto) => t.name === 'Home team',
-            )!;
+            const [homeTeam] = getTeams(appData.teamsWithSeasons);
             const newPlayer = playerBuilder('New name').captain().build();
             homeTeam.seasons[0].players!.push(newPlayer);
             const firstSinglesMatch = fixtureDataMap[fixture.id]!.matches![0];
@@ -791,9 +776,7 @@ describe('Score', () => {
         });
 
         it('can change player', async () => {
-            const homeTeam: TeamDto = appData.teamsWithSeasons.find(
-                (t: TeamDto) => t.name === 'Home team',
-            )!;
+            const [homeTeam] = getTeams(appData.teamsWithSeasons);
             const anotherHomePlayer = playerBuilder('Another player').build();
             homeTeam.seasons[0].players!.push(anotherHomePlayer);
             const fixture = getPlayedFixtureData(appData);

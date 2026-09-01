@@ -85,14 +85,10 @@ describe('PrintableSheet', () => {
         );
     }
 
-    function createSide(
-        name: string,
-        player?: TeamPlayerDto,
-    ): BuilderParam<ITournamentSideBuilder> {
+    function createSide(n: string, p?: TeamPlayerDto) {
         return (builder) => {
-            const side = builder.name(name);
-
-            return player ? side.withPlayer(player) : side;
+            const side = builder.name(n);
+            return p ? side.withPlayer(p) : side;
         };
     }
 
