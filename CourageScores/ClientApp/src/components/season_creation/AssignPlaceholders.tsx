@@ -32,7 +32,7 @@ export function AssignPlaceholders({
     placeholderMappings,
     setPlaceholderMappings,
 }: IAssignPlaceholdersProps) {
-    const { divisions, seasons, teams } = useApp();
+    const { divisions, seasons, teamsWithSeasons: teams } = useApp();
     const season: SeasonDto = seasons.filter((s) => s.id === seasonId)[0];
     const applicableDivisions: DivisionDto[] = divisions.filter(
         (division: DivisionDto) =>
@@ -80,7 +80,7 @@ export function AssignPlaceholders({
             text: '🎲 Randomly assign',
         };
         return [randomlyAssign].concat(
-            teamsInDivision.sort(sortBy('name')).map((t: TeamDto) => {
+            teamsInDivision.sort(sortBy('name')).map((t) => {
                 const hasUniqueAddress: boolean =
                     addressCounts[getAddress(t)] === 1;
                 const text: string = hasUniqueAddress
@@ -115,7 +115,7 @@ export function AssignPlaceholders({
             text: '⚙ Automatically assign',
         };
         return [automaticallyAssign].concat(
-            teamsInDivision.sort(sortBy('name')).map((t: TeamDto) => {
+            teamsInDivision.sort(sortBy('name')).map((t) => {
                 const address = getAddress(t);
                 const hasSharedAddress: boolean =
                     addressCounts[address] === sharedAddressSize;
@@ -177,8 +177,8 @@ export function AssignPlaceholders({
                 teamsInDivision.find((t) => t.id === teamId),
             );
             const otherTeamsWithSameAddress: TeamDto[] = teamsInDivision
-                .filter((t: TeamDto) => getAddress(t) === teamAddress)
-                .filter((t: TeamDto) => t.id !== teamId);
+                .filter((t) => getAddress(t) === teamAddress)
+                .filter((t) => t.id !== teamId);
 
             newMappings[placeholder] = teamId;
             for (const otherPlaceholder of otherSharedAddressPlaceholders) {

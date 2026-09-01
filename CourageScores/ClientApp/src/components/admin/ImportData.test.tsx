@@ -134,7 +134,7 @@ describe('ImportData', () => {
         const table1 = tables.filter(
             (t) => t.text().indexOf('Table 1') !== -1,
         )[0];
-        if (table1.className().indexOf('active') !== -1) {
+        if (table1.hasClass('active')) {
             await table1.click();
         }
         await setFileToImport();
@@ -153,7 +153,7 @@ describe('ImportData', () => {
         const table1 = tables.filter(
             (t) => t.text().indexOf('Table 1') !== -1,
         )[0];
-        if (table1.className().indexOf('active') === -1) {
+        if (!table1.hasClass('active')) {
             await table1.click();
         }
         await context.input('password').change('pass');
@@ -177,7 +177,7 @@ describe('ImportData', () => {
         const table1 = tables.filter(
             (t) => t.text().indexOf('Table 1') !== -1,
         )[0];
-        if (table1.className().indexOf('active') === -1) {
+        if (!table1.hasClass('active')) {
             await table1.click();
         }
         await setFileToImport();
@@ -200,7 +200,7 @@ describe('ImportData', () => {
         const table1 = tables.filter(
             (t) => t.text().indexOf('Table 1') !== -1,
         )[0];
-        if (table1.className().indexOf('active') === -1) {
+        if (!table1.hasClass('active')) {
             await table1.click();
         }
         await context.input('purgeData').click();
@@ -225,7 +225,7 @@ describe('ImportData', () => {
         const table1 = tables.filter(
             (t) => t.text().indexOf('Table 1') !== -1,
         )[0];
-        if (table1.className().indexOf('active') === -1) {
+        if (!table1.hasClass('active')) {
             await table1.click();
         }
         await setFileToImport();
@@ -257,7 +257,7 @@ describe('ImportData', () => {
         const table1 = tables.filter(
             (t) => t.text().indexOf('Table 1') !== -1,
         )[0];
-        if (table1.className().indexOf('active') === -1) {
+        if (!table1.hasClass('active')) {
             await table1.click();
         }
         await setFileToImport();
@@ -277,7 +277,7 @@ describe('ImportData', () => {
         const table1 = tables.filter(
             (t) => t.text().indexOf('Table 1') !== -1,
         )[0];
-        if (table1.className().indexOf('active') === -1) {
+        if (!table1.hasClass('active')) {
             await table1.click();
         }
         await setFileToImport();
@@ -301,7 +301,7 @@ describe('ImportData', () => {
         const table1 = tables.filter(
             (t) => t.text().indexOf('Table 1') !== -1,
         )[0];
-        if (table1.className().indexOf('active') === -1) {
+        if (!table1.hasClass('active')) {
             await table1.click();
         }
         await setFileToImport();
@@ -327,7 +327,7 @@ describe('ImportData', () => {
         const table1 = tables.filter(
             (t) => t.text().indexOf('Table 1') !== -1,
         )[0];
-        if (table1.className().indexOf('active') === -1) {
+        if (!table1.hasClass('active')) {
             await table1.click();
         }
         await setFileToImport();

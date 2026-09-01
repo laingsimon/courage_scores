@@ -116,6 +116,7 @@ describe('DivisionFixtures', () => {
                     divisions: [],
                     controls: !excludeControls,
                     teams: teams || [],
+                    teamsWithSeasons: teams || [],
                 },
                 reportedError,
             ),
@@ -517,6 +518,14 @@ describe('DivisionFixtures', () => {
         ]);
         let divisionData: IDivisionDataContainerProps;
 
+        function addNote(text: string) {
+            divisionData.fixtures!.push(
+                fixtureDateBuilder(midnightOn('2022-10-13'))
+                    .withNote((n) => n.note(text))
+                    .build(),
+            );
+        }
+
         beforeEach(() => {
             divisionData = getInSeasonDivisionData();
         });
@@ -707,11 +716,7 @@ describe('DivisionFixtures', () => {
         });
 
         it('can edit a note', async () => {
-            divisionData.fixtures!.push(
-                fixtureDateBuilder(midnightOn('2022-10-13'))
-                    .withNote((n) => n.note('A note'))
-                    .build(),
-            );
+            addNote('A note');
             await renderComponent(divisionData, account);
 
             const fixtureDateElement = getFixtureDateElement(0, account);
@@ -726,11 +731,7 @@ describe('DivisionFixtures', () => {
                 divisionReloaded = true;
                 return divisionData;
             };
-            divisionData.fixtures!.push(
-                fixtureDateBuilder(midnightOn('2022-10-13'))
-                    .withNote((n) => n.note('A note'))
-                    .build(),
-            );
+            addNote('A note');
             await renderComponent(divisionData, account);
             const fixtureDateElement = getFixtureDateElement(0, account);
             await getNote(fixtureDateElement)!.button('Edit').click();
@@ -745,11 +746,7 @@ describe('DivisionFixtures', () => {
         });
 
         it('can close edit notes dialog', async () => {
-            divisionData.fixtures!.push(
-                fixtureDateBuilder(midnightOn('2022-10-13'))
-                    .withNote((n) => n.note('A note'))
-                    .build(),
-            );
+            addNote('A note');
             await renderComponent(divisionData, account);
             const fixtureDateElement = getFixtureDateElement(0, account);
             await getNote(fixtureDateElement)!.button('Edit').click();

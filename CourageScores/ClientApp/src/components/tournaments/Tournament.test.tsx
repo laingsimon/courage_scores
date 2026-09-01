@@ -261,6 +261,7 @@ describe('Tournament', () => {
                     account: scenario.account,
                     seasons: scenario.seasons,
                     teams: scenario.teams,
+                    teamsWithSeasons: scenario.teams,
                     reloadTeams: async () => scenario.teams,
                     divisions: scenario.divisions,
                 },

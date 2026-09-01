@@ -152,6 +152,7 @@ describe('EditSide', () => {
             appProps(
                 {
                     teams: teams || [],
+                    teamsWithSeasons: teams || [],
                     account: account || user(),
                     reloadTeams,
                     divisions,

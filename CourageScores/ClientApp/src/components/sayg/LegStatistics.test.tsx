@@ -44,10 +44,10 @@ describe('LegStatistics', () => {
         return tr.all('td').map((td) => {
             let content = td.text();
 
-            if (td.className().indexOf('fw-bold') !== -1) {
+            if (td.hasClass('fw-bold')) {
                 content = '**' + content + '**';
             }
-            if (td.className().indexOf('text-danger') !== -1) {
+            if (td.hasClass('text-danger')) {
                 content = '_' + content + '_';
             }
 

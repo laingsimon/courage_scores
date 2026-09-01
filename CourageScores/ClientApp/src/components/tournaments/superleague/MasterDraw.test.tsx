@@ -245,6 +245,7 @@ describe('MasterDraw', () => {
                 {
                     account,
                     teams: teams || [],
+                    teamsWithSeasons: teams || [],
                     seasons: season ? [season] : undefined,
                     divisions: [],
                 },
@@ -445,7 +446,7 @@ describe('MasterDraw', () => {
 
         function setPlayerCreatedCallbackForTeam(team: TeamDto) {
             playerCreatedCallback = () => {
-                const ts = team.seasons!.find((t) => t.seasonId === season.id)!;
+                const ts = team.seasons.find((t) => t.seasonId === season.id)!;
                 ts.players!.push({
                     id: createTemporaryId(),
                     name: 'NEW PLAYER',

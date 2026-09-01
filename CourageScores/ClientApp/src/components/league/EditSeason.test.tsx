@@ -192,7 +192,7 @@ describe('EditSeason', () => {
 
         const divisionOptions = context.all('.list-group-item');
         const unselectedDivision = divisionOptions.filter(
-            (d) => d.className().indexOf('active') === -1,
+            (d) => !d.hasClass('active'),
         )[0];
         expect(unselectedDivision.text()).toEqual(division2.name);
         await unselectedDivision.click();
@@ -213,8 +213,8 @@ describe('EditSeason', () => {
         reportedError.verifyNoError();
 
         const divisionOptions = context.all('.list-group-item');
-        const selectedDivision = divisionOptions.filter(
-            (d) => d.className().indexOf('active') !== -1,
+        const selectedDivision = divisionOptions.filter((d) =>
+            d.hasClass('active'),
         )[0];
         expect(selectedDivision.text()).toEqual(division1.name);
         await selectedDivision.click();

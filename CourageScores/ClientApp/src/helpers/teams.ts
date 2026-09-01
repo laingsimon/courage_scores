@@ -8,7 +8,7 @@ export function getTeamSeasons(
     divisionId?: string,
 ): TeamSeasonDto[] {
     return (
-        t.seasons?.filter(
+        t.seasons.filter(
             (ts) =>
                 (!seasonId || ts.seasonId === seasonId) &&
                 (!divisionId ||

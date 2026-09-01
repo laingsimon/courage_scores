@@ -85,14 +85,10 @@ describe('PrintableSheet', () => {
         );
     }
 
-    function createSide(
-        name: string,
-        player?: TeamPlayerDto,
-    ): BuilderParam<ITournamentSideBuilder> {
+    function createSide(n: string, p?: TeamPlayerDto) {
         return (builder) => {
-            const side = builder.name(name);
-
-            return player ? side.withPlayer(player) : side;
+            const side = builder.name(n);
+            return p ? side.withPlayer(p) : side;
         };
     }
 
@@ -149,15 +145,11 @@ describe('PrintableSheet', () => {
                                 ?.element<HTMLAnchorElement>().href,
                         };
 
-                        set(
-                            'div[datatype="sideA"]',
-                            'sideAwinner',
-                            (e) => e.className().indexOf('bg-winner') !== -1,
+                        set('div[datatype="sideA"]', 'sideAwinner', (e) =>
+                            e.hasClass('bg-winner'),
                         );
-                        set(
-                            'div[datatype="sideB"]',
-                            'sideBwinner',
-                            (e) => e.className().indexOf('bg-winner') !== -1,
+                        set('div[datatype="sideB"]', 'sideBwinner', (e) =>
+                            e.hasClass('bg-winner'),
                         );
                         set('span[datatype="sideAname"]', 'sideAname');
                         set('span[datatype="sideBname"]', 'sideBname');
@@ -179,7 +171,7 @@ describe('PrintableSheet', () => {
     }
 
     function whoIsPlayingText(li: IComponent): string {
-        return li.className().indexOf('text-decoration-line-through') !== -1
+        return li.hasClass('text-decoration-line-through')
             ? '-' + li.text() + '-'
             : li.text();
     }
@@ -469,7 +461,7 @@ describe('PrintableSheet', () => {
             oneRound2Sides.round!.matchOptions![0].numberOfLegs = 5;
 
             await render(props.withTournament(oneRound2Sides), {
-                teams: [player2Team],
+                teamsWithSeasons: [player2Team],
                 divisions: [division],
             });
 
@@ -493,7 +485,7 @@ describe('PrintableSheet', () => {
                 .withSide((b) => b.name('E').withPlayer('PLAYER 5'));
 
             await render(props.withTournament(tournamentData.build()), {
-                teams: [player2Team],
+                teamsWithSeasons: [player2Team],
                 divisions: [division],
             });
 
@@ -502,7 +494,7 @@ describe('PrintableSheet', () => {
 
         it('renders winner', async () => {
             await render(props.withTournament(oneRound2Sides), {
-                teams: [player2Team],
+                teamsWithSeasons: [player2Team],
                 divisions: [division],
             });
 
@@ -513,7 +505,7 @@ describe('PrintableSheet', () => {
 
         it('renders winner when cross-divisional', async () => {
             await render(props.withTournament(oneRound2Sides), {
-                teams: [player2Team],
+                teamsWithSeasons: [player2Team],
                 divisions: [division],
             });
 
@@ -524,7 +516,7 @@ describe('PrintableSheet', () => {
 
         it('renders who is playing (singles)', async () => {
             await render(props.withTournament(singles), {
-                teams: [player1Team],
+                teamsWithSeasons: [player1Team],
                 divisions: [division],
             });
 
@@ -539,7 +531,7 @@ describe('PrintableSheet', () => {
                 .build();
 
             await render(props.withTournament(singles), {
-                teams: [team],
+                teamsWithSeasons: [team],
                 divisions: [division],
             });
 
@@ -554,7 +546,7 @@ describe('PrintableSheet', () => {
                 .withSide((b) => b.name('B').teamId(anotherTeam.id));
 
             await render(props.withTournament(tournamentData.build()), {
-                teams: [noPlayerTeam],
+                teamsWithSeasons: [noPlayerTeam],
                 divisions: [division],
             });
 
@@ -568,7 +560,7 @@ describe('PrintableSheet', () => {
 
         it('renders who is playing when cross-divisional', async () => {
             await render(props.withTournament(singles), {
-                teams: [noPlayerTeam],
+                teamsWithSeasons: [noPlayerTeam],
                 divisions: [division],
             });
 
@@ -582,7 +574,7 @@ describe('PrintableSheet', () => {
                 .build();
 
             await render(props.withTournament(singles), {
-                teams: [team],
+                teamsWithSeasons: [team],
                 divisions: [division],
             });
 
@@ -594,7 +586,7 @@ describe('PrintableSheet', () => {
             oneRound2Sides.sides!.push(sideBuilder('C').noShow().build());
 
             await render(props.withTournament(oneRound2Sides), {
-                teams: [],
+                teamsWithSeasons: [],
                 divisions: [division],
             });
 
@@ -619,7 +611,7 @@ describe('PrintableSheet', () => {
             oneRound2Sides.oneEighties!.push(player1, player2);
             oneRound2Sides.oneEighties!.push(player1, player1);
             await render(props.withTournament(oneRound2Sides), {
-                teams: [player1Team],
+                teamsWithSeasons: [player1Team],
                 divisions: [division],
             });
 
@@ -633,7 +625,7 @@ describe('PrintableSheet', () => {
             oneRound2Sides.oneEighties!.push(player1, player2);
             oneRound2Sides.oneEighties!.push(player1, player1);
             await render(props.withTournament(oneRound2Sides), {
-                teams: [player1Team],
+                teamsWithSeasons: [player1Team],
                 divisions: [division],
             });
 
@@ -651,7 +643,7 @@ describe('PrintableSheet', () => {
                 .build();
 
             await render(props.withTournament(oneRound2Sides), {
-                teams: [team],
+                teamsWithSeasons: [team],
                 divisions: [division],
             });
 
@@ -666,7 +658,7 @@ describe('PrintableSheet', () => {
             oneRound2Sides.over100Checkouts!.push({ ...player2, score: 120 });
 
             await render(props.withTournament(oneRound2Sides), {
-                teams: [player1Team],
+                teamsWithSeasons: [player1Team],
                 divisions: [division],
             });
 
@@ -681,7 +673,7 @@ describe('PrintableSheet', () => {
             oneRound2Sides.over100Checkouts!.push({ ...player2, score: 120 });
 
             await render(props.withTournament(oneRound2Sides), {
-                teams: [player1Team],
+                teamsWithSeasons: [player1Team],
                 divisions: [division],
             });
 
@@ -822,7 +814,10 @@ describe('PrintableSheet', () => {
                 props
                     .withTournament(tournamentData.build())
                     .withAllPlayers([player1, player2, player3]),
-                { account, teams: [player1Team, player2Team, player3Team] },
+                {
+                    account,
+                    teamsWithSeasons: [player1Team, player2Team, player3Team],
+                },
             );
             await find('add-side')!.click();
 
@@ -965,7 +960,7 @@ describe('PrintableSheet', () => {
         it('can add a side', async () => {
             await renderEditable(
                 props.withTournament(emptyTournament).withAllPlayers([player1]),
-                { teams: [player1Team], account },
+                { teamsWithSeasons: [player1Team], account },
             );
 
             await find('add-side')!.click();
@@ -981,7 +976,7 @@ describe('PrintableSheet', () => {
         it('can add sides from hint', async () => {
             await renderEditable(
                 props.withTournament(emptyTournament).withAllPlayers([player1]),
-                { teams: [player1Team], account },
+                { teamsWithSeasons: [player1Team], account },
             );
 
             const selector = 'div[datatype="add-sides-hint"] > span';
@@ -993,7 +988,7 @@ describe('PrintableSheet', () => {
         it('does not show add sides hint when some sides', async () => {
             await renderEditable(
                 props.withTournament(sideAandB).withAllPlayers([player1]),
-                { teams: [player1Team], account },
+                { teamsWithSeasons: [player1Team], account },
             );
 
             expect(find('add-sides-hint')).toBeFalsy();
@@ -1002,7 +997,7 @@ describe('PrintableSheet', () => {
         it('can close add a side dialog', async () => {
             await renderEditable(
                 props.withTournament(emptyTournament).withAllPlayers([player1]),
-                { teams: [player1Team], account },
+                { teamsWithSeasons: [player1Team], account },
             );
 
             await find('add-side')!.click();

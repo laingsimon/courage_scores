@@ -439,7 +439,7 @@ describe('LiveSayg', () => {
             expect(requestedSaygId).toEqual([sayg.id]);
             const cells = context.required('table tbody tr').all('td');
             const cellValues = cells.map((c) =>
-                c.className().includes('fw-bold') ? `*${c.text()}*` : c.text(),
+                c.hasClass('fw-bold') ? `*${c.text()}*` : c.text(),
             );
             expect(cellValues).toEqual([
                 '*33.33*', // average
@@ -480,7 +480,7 @@ describe('LiveSayg', () => {
             const firstMatchRow = context.required('table tbody tr');
             const cells = firstMatchRow.all('td');
             const cellValues = cells.map((c) =>
-                c.className().includes('fw-bold') ? `*${c.text()}*` : c.text(),
+                c.hasClass('fw-bold') ? `*${c.text()}*` : c.text(),
             );
             expect(cellValues).toEqual([
                 '25.00', // average

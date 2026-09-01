@@ -18,7 +18,6 @@ import { CreateSeasonDialog } from '../season_creation/CreateSeasonDialog.tsx';
 import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
 import { EditFixtureDateNoteDto } from '../../interfaces/models/dtos/EditFixtureDateNoteDto.ts';
 import { IEditableDivisionFixtureDateDto } from './IEditableDivisionFixtureDateDto.ts';
-import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
 import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto.ts';
 import { DivisionFixtureDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDto.ts';
 import { IFilter } from './IFilter.ts';
@@ -48,7 +47,7 @@ export function DivisionFixtures({ setNewFixtures }: IDivisionFixturesProps) {
     } = useDivisionData();
     const { gameApi } = useDependencies();
     const location = useLocation();
-    const { account, onError, controls, teams } = useApp();
+    const { account, onError, controls, teamsWithSeasons: teams } = useApp();
     const isAdmin: boolean = hasAccess(account, AccessOption.manageGames);
     const canAnalyseMatches: boolean = hasAccess(
         account,
@@ -113,7 +112,7 @@ export function DivisionFixtures({ setNewFixtures }: IDivisionFixturesProps) {
             isNew: true,
             isKnockout: isKnockout,
             date: date,
-            fixtures: seasonalTeams.map((team: TeamDto): DivisionFixtureDto => {
+            fixtures: seasonalTeams.map((team): DivisionFixtureDto => {
                 return {
                     id: team.id,
                     homeTeam: {
@@ -127,7 +126,7 @@ export function DivisionFixtures({ setNewFixtures }: IDivisionFixturesProps) {
                 };
             }),
             tournamentFixtures: seasonalTeams.map(
-                (team: TeamDto): DivisionTournamentFixtureDetailsDto => {
+                (team): DivisionTournamentFixtureDetailsDto => {
                     return {
                         date,
                         address: team.address,

@@ -24,7 +24,7 @@ export function ScoreCardHeading({
     setSubmission,
     setFixtureData,
 }: IScoreCardHeadingProps) {
-    const { account, onError, teams } = useApp();
+    const { account, onError, teamsWithSeasons: teams } = useApp();
     const { division, season } = useLeagueFixture();
     const submissionTeam: TeamDto | undefined =
         account && access === 'clerk' && account.teamId
