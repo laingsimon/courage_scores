@@ -81,6 +81,7 @@ describe('DivisionFixtureDate', () => {
                     account,
                     controls: !excludeControls,
                     teams: teams || [],
+                    teamsWithSeasons: teams || [],
                 },
                 reportedError,
             ),

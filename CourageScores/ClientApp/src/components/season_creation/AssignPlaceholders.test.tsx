@@ -103,6 +103,7 @@ describe('AssignPlaceholders', () => {
                     divisions: [division2, division1],
                     seasons: [season],
                     teams: [teamA, teamB],
+                    teamsWithSeasons: [teamA, teamB],
                 }),
                 {
                     seasonId: season.id,
@@ -124,6 +125,7 @@ describe('AssignPlaceholders', () => {
                     divisions: [division2, division1],
                     seasons: [season],
                     teams: [teamA, teamB],
+                    teamsWithSeasons: [teamA, teamB],
                 }),
                 {
                     seasonId: season.id,
@@ -177,6 +179,7 @@ describe('AssignPlaceholders', () => {
                     divisions: [division2, division1],
                     seasons: [season],
                     teams: [teamA, teamB],
+                    teamsWithSeasons: [teamA, teamB],
                 }),
                 {
                     seasonId: season.id,
@@ -231,6 +234,7 @@ describe('AssignPlaceholders', () => {
                     divisions: [division2, division1],
                     seasons: [season],
                     teams: [teamA, teamB, teamAA, teamC],
+                    teamsWithSeasons: [teamA, teamB, teamAA, teamC],
                 }),
                 {
                     seasonId: season.id,
@@ -264,6 +268,7 @@ describe('AssignPlaceholders', () => {
                     divisions: [division2, division1],
                     seasons: [season],
                     teams: [teamC, teamA, teamB],
+                    teamsWithSeasons: [teamC, teamA, teamB],
                 }),
                 {
                     seasonId: season.id,
@@ -291,6 +296,7 @@ describe('AssignPlaceholders', () => {
                     divisions: [division2, division1],
                     seasons: [season],
                     teams: [teamA, teamAA],
+                    teamsWithSeasons: [teamA, teamAA],
                 }),
                 {
                     seasonId: season.id,
@@ -326,6 +332,7 @@ describe('AssignPlaceholders', () => {
                     divisions: [division2, division1],
                     seasons: [season],
                     teams: [deletedTeamD],
+                    teamsWithSeasons: [deletedTeamD],
                 }),
                 {
                     seasonId: season.id,
@@ -397,6 +404,7 @@ describe('AssignPlaceholders', () => {
                     divisions: [division2, division1],
                     seasons: [season],
                     teams: [teamA, teamC],
+                    teamsWithSeasons: [teamA, teamC],
                 }),
                 {
                     seasonId: season.id,
@@ -425,6 +433,7 @@ describe('AssignPlaceholders', () => {
                     divisions: [division2, division1],
                     seasons: [season],
                     teams: [teamA, teamC],
+                    teamsWithSeasons: [teamA, teamC],
                 }),
                 {
                     seasonId: season.id,
@@ -481,6 +490,7 @@ describe('AssignPlaceholders', () => {
                     divisions: [division1, division2],
                     seasons: [season],
                     teams: [teamA, teamAA],
+                    teamsWithSeasons: [teamA, teamAA],
                 }),
                 {
                     seasonId: season.id,
@@ -535,6 +545,7 @@ describe('AssignPlaceholders', () => {
                     divisions: [division1, division2],
                     seasons: [season],
                     teams: [teamA, teamAA],
+                    teamsWithSeasons: [teamA, teamAA],
                 }),
                 {
                     seasonId: season.id,

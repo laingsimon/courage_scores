@@ -40,6 +40,7 @@ import { IDatedDivisionFixtureDto } from '../division_fixtures/IDatedDivisionFix
 import { TeamSeasonDto } from '../../interfaces/models/dtos/Team/TeamSeasonDto.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 import { TeamApi } from '../../interfaces/apis/ITeamApi.ts';
+import { TeamWithoutSeasonsDto } from '../../interfaces/models/dtos/Team/TeamWithoutSeasonsDto';
 
 interface ICreatedPlayer {
     divisionId: string;
@@ -126,6 +127,9 @@ describe('Score', () => {
         },
     });
     const teamApi = api<TeamApi>({
+        async getAll(): Promise<TeamWithoutSeasonsDto[]> {
+            return teams ?? [];
+        },
         async getAllWithSeasonsAndPlayers(): Promise<TeamDto[]> {
             teamsLoaded++;
             return teams ?? [];
@@ -261,7 +265,7 @@ describe('Score', () => {
     }
 
     async function renderComponent(id: string, props: IAppContainerProps) {
-        teams = props.teams;
+        teams = props.teamsWithSeasons;
         context = await renderApp(
             iocProps({ gameApi, playerApi, featureApi, teamApi }),
             brandingProps(),
@@ -293,15 +297,22 @@ describe('Score', () => {
                 divisions: [division],
                 seasons: [season],
                 teams: [homeTeam, awayTeam],
+                teamsWithSeasons: [homeTeam, awayTeam],
                 account,
             },
             reportedError,
         );
     }
 
+    function getTeams(teams: TeamDto[]) {
+        return [
+            teams.find((t) => t.name === 'Home team')!,
+            teams.find((t) => t.name === 'Away team')!,
+        ];
+    }
+
     function getUnplayedFixtureData(appData: IAppContainerProps): GameDto {
-        const homeTeam = appData.teams.find((t) => t.name === 'Home team')!;
-        const awayTeam = appData.teams.find((t) => t.name === 'Away team')!;
+        const [homeTeam, awayTeam] = getTeams(appData.teamsWithSeasons);
 
         return fixtureBuilder('2023-01-02T00:00:00')
             .forSeason(appData.seasons[0])
@@ -313,14 +324,12 @@ describe('Score', () => {
     }
 
     function getPlayedFixtureData(appData: IAppContainerProps): GameDto {
-        const homeTeam = appData.teams.find((t) => t.name === 'Home team')!;
-        const awayTeam = appData.teams.find((t) => t.name === 'Away team')!;
-
+        const [homeTeam, awayTeam] = getTeams(appData.teamsWithSeasons);
         const firstDivision: DivisionDto = appData.divisions[0];
         const firstSeason: SeasonDto = appData.seasons[0];
 
         function findPlayer(team: TeamDto, name: string): TeamPlayerDto {
-            if (!firstSeason || !team || !team.seasons) {
+            if (!firstSeason || !team) {
                 return { name, id: createTemporaryId() };
             }
 
@@ -488,6 +497,7 @@ describe('Score', () => {
 
         it('renders when no teams', async () => {
             appData.teams = [];
+            appData.teamsWithSeasons = [];
             fixture = getPlayedFixtureData(appData);
 
             await renderComponent(fixture.id, appData);
@@ -588,40 +598,33 @@ describe('Score', () => {
             assertRow(rows[13], '180s', '', '100+ c/o');
         });
 
-        it.each([['divisions'], ['seasons'], ['teams']])(
-            'renders when no %s',
-            async (prop) => {
-                appData[prop] = [];
-                fixture = getPlayedFixtureData(appData);
-
-                await renderComponent(fixture.id, appData);
-
-                assertError(
-                    `App has finished loading, no ${prop} are available`,
-                );
-            },
-        );
-
-        it('renders when team has no seasons', async () => {
-            appData.teams = appData.teams.map((t: TeamDto) => {
-                if (t.name === 'Home team') {
-                    t.seasons = undefined;
-                }
-                return t;
-            });
+        it.each([
+            ['divisions', 'divisions'],
+            ['seasons', 'seasons'],
+            ['teamsWithSeasons', 'teams'],
+        ])('renders when no %s', async (prop, name) => {
+            appData[prop] = [];
+            fixture = getPlayedFixtureData(appData);
 
             await renderComponent(fixture.id, appData);
 
-            assertError('home team has no seasons');
+            assertError(`App has finished loading, no ${name} are available`);
+        });
+
+        it('renders when team has no seasons', async () => {
+            const [homeTeam] = getTeams(appData.teamsWithSeasons);
+            homeTeam.seasons = [];
+
+            await renderComponent(fixture.id, appData);
+
+            assertError(
+                `home team has not registered for this season: ${fixture.seasonId}`,
+            );
         });
 
         it('renders when team is not registered to season', async () => {
-            appData.teams = appData.teams.map((t: TeamDto) => {
-                if (t.name === 'Home team') {
-                    t.seasons = [];
-                }
-                return t;
-            });
+            const [homeTeam] = getTeams(appData.teamsWithSeasons);
+            homeTeam.seasons = [];
 
             await renderComponent(fixture.id, appData);
 
@@ -629,9 +632,10 @@ describe('Score', () => {
         });
 
         it('renders when team not found', async () => {
-            appData.teams = appData.teams.filter(
+            appData.teamsWithSeasons = appData.teamsWithSeasons.filter(
                 (t: TeamDto) => t.name !== 'Home team',
             );
+            appData.teams = appData.teamsWithSeasons;
             fixture = getPlayedFixtureData(appData);
 
             await renderComponent(fixture.id, appData);
@@ -640,11 +644,9 @@ describe('Score', () => {
         });
 
         it('renders previously renamed players', async () => {
-            const homeTeam: TeamDto = appData.teams.find(
-                (t: TeamDto) => t.name === 'Home team',
-            )!;
+            const [homeTeam] = getTeams(appData.teamsWithSeasons);
             const newPlayer = playerBuilder('New name').captain().build();
-            homeTeam.seasons![0].players!.push(newPlayer);
+            homeTeam.seasons[0].players!.push(newPlayer);
             const firstSinglesMatch = fixtureDataMap[fixture.id]!.matches![0];
             firstSinglesMatch.homePlayers![0] = {
                 ...newPlayer,
@@ -774,11 +776,9 @@ describe('Score', () => {
         });
 
         it('can change player', async () => {
-            const homeTeam: TeamDto = appData.teams.find(
-                (t: TeamDto) => t.name === 'Home team',
-            )!;
+            const [homeTeam] = getTeams(appData.teamsWithSeasons);
             const anotherHomePlayer = playerBuilder('Another player').build();
-            homeTeam.seasons![0].players!.push(anotherHomePlayer);
+            homeTeam.seasons[0].players!.push(anotherHomePlayer);
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
 

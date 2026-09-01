@@ -31,6 +31,7 @@ import { AnalyseScores } from './components/analysis/AnalyseScores.tsx';
 import { Login } from './components/Login.tsx';
 import { NewSession } from './components/service_account_sessions/NewSession.tsx';
 import { SessionResponse } from './components/service_account_sessions/SessionResponse.tsx';
+import { TeamDto } from './interfaces/models/dtos/Team/TeamDto';
 
 export interface IAppProps {
     embed?: boolean;
@@ -51,7 +52,10 @@ export function App({ embed, controls, testRoute }: IAppProps) {
     const [account, setAccount] = useState<UserDto | undefined>(undefined);
     const [divisions, setDivisions] = useState<DivisionDto[]>([]);
     const [seasons, setSeasons] = useState<SeasonDto[]>([]);
-    const [teams, setTeams] = useState<TeamWithoutSeasonsDto[]>([]);
+    const [teamsWithoutSeasons, setTeamsWithoutSeasons] = useState<
+        TeamWithoutSeasonsDto[]
+    >([]);
+    const [teams, setTeams] = useState<TeamDto[]>([]);
     const [appLoading, setAppLoading] = useState<boolean | null>(null);
     const [error, setError] = useState<IError | undefined>(undefined);
     const [isFullScreen, setIsFullScreen] = useState<boolean>(
@@ -127,7 +131,9 @@ export function App({ embed, controls, testRoute }: IAppProps) {
     }
 
     async function reloadTeams() {
-        const teams = await teamApi.getAll();
+        const teamsWithoutSeasons = await teamApi.getAll();
+        const teams = await teamApi.getAllWithSeasonsAndPlayers();
+        setTeamsWithoutSeasons(teamsWithoutSeasons);
         setTeams(teams);
     }
 
@@ -186,7 +192,8 @@ export function App({ embed, controls, testRoute }: IAppProps) {
     const appData: IApp = {
         divisions,
         seasons,
-        teams,
+        teams: teamsWithoutSeasons,
+        teamsWithSeasons: teams,
         account,
         error,
         appLoading: appLoading === null ? true : appLoading,

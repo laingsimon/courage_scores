@@ -69,7 +69,7 @@ export function EditPlayerDetails({
     const [saveError, setSaveError] =
         useState<IClientActionResultDto<TeamDto> | null>(null);
     const { playerApi } = useDependencies();
-    const { teams, divisions, onError } = useApp();
+    const { teamsWithSeasons: teams, divisions, onError } = useApp();
 
     async function saveChanges() {
         /* istanbul ignore next */
@@ -166,7 +166,7 @@ export function EditPlayerDetails({
 
     function getDivisionIdForTeam(): string {
         const teamId = newTeamId || (team ? team.id : null) || player.teamId;
-        const found = teams.find((t: TeamDto) => t.id === teamId);
+        const found = teams.find((t) => t.id === teamId);
         const teamSeason = found ? getTeamSeasons(found, seasonId)[0] : null;
         if (teamSeason && teamSeason.divisionId) {
             return teamSeason.divisionId;
@@ -229,7 +229,7 @@ export function EditPlayerDetails({
         return teams
             .filter(teamSeasonForSameDivision)
             .sort(sortBy('name'))
-            .map((t: TeamDto): IBootstrapDropdownItem => {
+            .map((t): IBootstrapDropdownItem => {
                 return { value: t.id, text: t.name };
             });
     }

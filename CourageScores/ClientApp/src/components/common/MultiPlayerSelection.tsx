@@ -43,7 +43,7 @@ export function MultiPlayerSelection({
 }: IMultiPlayerSelectionProps) {
     const [player, setPlayer] = useState<ISelectablePlayer | null>(null);
     const [score, setScore] = useState<string>('');
-    const { onError, teams } = useApp();
+    const { onError, teamsWithSeasons: teams } = useApp();
 
     async function addPlayer() {
         if (!player) {

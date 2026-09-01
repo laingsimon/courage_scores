@@ -61,6 +61,7 @@ describe('ScoreCardHeading', () => {
             appProps({
                 account,
                 teams: teams || [],
+                teamsWithSeasons: teams || [],
             }),
             <LeagueFixtureContainer {...containerProps}>
                 <ScoreCardHeading {...props} />

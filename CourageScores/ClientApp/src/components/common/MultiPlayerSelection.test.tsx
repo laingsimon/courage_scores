@@ -51,6 +51,7 @@ describe('MultiPlayerSelection', () => {
             appProps(
                 {
                     teams: allTeams,
+                    teamsWithSeasons: allTeams,
                 },
                 reportedError,
             ),

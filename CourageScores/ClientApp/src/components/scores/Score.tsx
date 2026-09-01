@@ -60,7 +60,6 @@ import { NavLink } from '../common/NavLink.tsx';
 import { hasAccess, hasAnyAccess } from '../../helpers/conditions.ts';
 import { getTeamSeasons } from '../../helpers/teams.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
-import { TeamWithoutSeasonsDto } from '../../interfaces/models/dtos/Team/TeamWithoutSeasonsDto';
 
 export interface ICreatePlayerFor {
     side: string;
@@ -120,7 +119,7 @@ export function Score() {
                 : fixtureData!.away;
 
         async function playerCreated(
-            updatedTeamDetails: TeamWithoutSeasonsDto,
+            updatedTeamDetails: TeamDto,
             playersCreated: TeamPlayerDto[],
         ) {
             setTeams(await teamApi.getAllWithSeasonsAndPlayers());
@@ -266,11 +265,6 @@ export function Score() {
 
         if (!teamData) {
             onError(`${teamType} team could not be found - ${teamId}`);
-            return;
-        }
-
-        if (!teamData.seasons) {
-            onError(`${teamType} team has no seasons`);
             return;
         }
 
