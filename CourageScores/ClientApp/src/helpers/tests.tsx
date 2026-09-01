@@ -569,6 +569,9 @@ export function wrapComponent(element: Element, user: UserEvent): IComponent {
         className(): string {
             return element.className;
         },
+        hasClass(name: string): boolean {
+            return element.className.indexOf(name) !== -1;
+        },
         async select(
             text: string,
             doNothingIfDisabled?: boolean,
@@ -725,6 +728,11 @@ export interface IComponent {
      * the class name of this element
      */
     className(): string;
+
+    /*
+     * whether the element has the given class
+     */
+    hasClass(name: string): boolean;
 
     /*
      * click this element

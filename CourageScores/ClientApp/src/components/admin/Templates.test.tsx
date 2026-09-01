@@ -149,11 +149,9 @@ describe('Templates', () => {
             const templateItems = context.all(
                 'ul[datatype="templates"] .list-group-item',
             );
-            expect(
-                templateItems.map(
-                    (li) => li.className().indexOf('active') !== -1,
-                ),
-            ).toEqual([true]);
+            expect(templateItems.map((li) => li.hasClass('active'))).toEqual([
+                true,
+            ]);
         });
 
         it('renders selected template by name', async () => {
@@ -172,11 +170,9 @@ describe('Templates', () => {
             const templateItems = context.all(
                 'ul[datatype="templates"] .list-group-item',
             );
-            expect(
-                templateItems.map(
-                    (li) => li.className().indexOf('active') !== -1,
-                ),
-            ).toEqual([true]);
+            expect(templateItems.map((li) => li.hasClass('active'))).toEqual([
+                true,
+            ]);
         });
 
         it('renders templates without description', async () => {

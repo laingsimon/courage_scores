@@ -149,15 +149,11 @@ describe('PrintableSheet', () => {
                                 ?.element<HTMLAnchorElement>().href,
                         };
 
-                        set(
-                            'div[datatype="sideA"]',
-                            'sideAwinner',
-                            (e) => e.className().indexOf('bg-winner') !== -1,
+                        set('div[datatype="sideA"]', 'sideAwinner', (e) =>
+                            e.hasClass('bg-winner'),
                         );
-                        set(
-                            'div[datatype="sideB"]',
-                            'sideBwinner',
-                            (e) => e.className().indexOf('bg-winner') !== -1,
+                        set('div[datatype="sideB"]', 'sideBwinner', (e) =>
+                            e.hasClass('bg-winner'),
                         );
                         set('span[datatype="sideAname"]', 'sideAname');
                         set('span[datatype="sideBname"]', 'sideBname');
@@ -179,7 +175,7 @@ describe('PrintableSheet', () => {
     }
 
     function whoIsPlayingText(li: IComponent): string {
-        return li.className().indexOf('text-decoration-line-through') !== -1
+        return li.hasClass('text-decoration-line-through')
             ? '-' + li.text() + '-'
             : li.text();
     }

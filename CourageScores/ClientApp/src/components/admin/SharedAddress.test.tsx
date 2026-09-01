@@ -104,11 +104,9 @@ describe('SharedAddress', () => {
             });
 
             const addressBadges = context.all('button.badge');
-            expect(
-                addressBadges.map(
-                    (b) => b.className().indexOf(' bg-warning') !== -1,
-                ),
-            ).toEqual([true]);
+            expect(addressBadges.map((b) => b.hasClass(' bg-warning'))).toEqual(
+                [true],
+            );
             const newAddressBadge = context.required('span.badge');
             expect(newAddressBadge.className()).toContain(' bg-warning');
         });
