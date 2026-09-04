@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Cosmos.Identity;
+﻿using AutoFixture;
+using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services.Identity;
 using NUnit.Framework;
@@ -9,7 +10,14 @@ namespace CourageScores.Tests.Services.Identity;
 public class AccessServiceTests
 {
     private readonly CancellationToken _token = CancellationToken.None;
-    private readonly AccessService _service = new AccessService();
+    private AccessService _service = null!;
+
+    [SetUp]
+    public void SetupEachTest()
+    {
+        var factory = AutoFixture.Create();
+        _service = factory.Create<AccessService>();
+    }
 
     [Test]
     public async Task HasAccess_WhenUserHasNoAccess_ReturnsFalse()

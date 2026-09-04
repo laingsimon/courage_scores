@@ -1,17 +1,46 @@
-﻿using CourageScores.Models.Cosmos.Identity;
+﻿using CourageScores.Models.Adapters.Identity;
+using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
 
 namespace CourageScores.Services.Identity;
 
 public class AccessService : IAccessService
 {
-    public Task<bool> HasAccess(UserDto? user, AccessOption access, UserAccessContext context, CancellationToken token)
+    private readonly IAccessLevelAdapter _accessLevelAdapter;
+
+    public AccessService(IAccessLevelAdapter accessLevelAdapter)
     {
-        return Task.FromResult(user?.AccessLevels.ContainsKey(access) ?? false);
+        _accessLevelAdapter = accessLevelAdapter;
     }
 
-    public Task<bool> HasAccess(User? user, AccessOption access, UserAccessContext context, CancellationToken token)
+    public async Task<bool> HasAccess(UserDto? user, AccessOption access, UserAccessContext context, CancellationToken token)
     {
-        return Task.FromResult(user?.AccessLevels.ContainsKey(access) ?? false);
+        return await HasAccess(
+            user?.AccessLevels.ToDictionary(pair => pair.Key, pair => _accessLevelAdapter.Adapt(pair.Value)),
+            access,
+            context);
+    }
+
+    public async Task<bool> HasAccess(User? user, AccessOption access, UserAccessContext context, CancellationToken token)
+    {
+        return await HasAccess(
+            user?.AccessLevels,
+            access,
+            context);
+    }
+
+    private async Task<bool> HasAccess(Dictionary<AccessOption, AccessLevel>? accessLevels, AccessOption access, UserAccessContext context)
+    {
+        if (accessLevels == null)
+        {
+            return false;
+        }
+
+        if (!accessLevels.TryGetValue(access, out var accessLevel))
+        {
+            return false;
+        }
+
+        return accessLevel != null && context != null && !token.IsCancellationRequested;
     }
 }
