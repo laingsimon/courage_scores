@@ -41,6 +41,25 @@ public class AccessService : IAccessService
             return false;
         }
 
-        return accessLevel != null && context != null && !token.IsCancellationRequested;
+        var seasonPermitted = Permitted(accessLevel.SeasonIds, context.SeasonId);
+        var divisionPermitted = Permitted(accessLevel.DivisionIds, context.DivisionId);
+        var teamPermitted = Permitted(accessLevel.TeamIds, context.TeamId);
+
+        return seasonPermitted && divisionPermitted && teamPermitted;
+
+        static bool Permitted(IReadOnlyCollection<Guid>? accessLevelIds, Guid? contextId)
+        {
+            if (accessLevelIds?.Count == 0)
+            {
+                return false;
+            }
+
+            if (accessLevelIds == null || contextId == null)
+            {
+                return true;
+            }
+
+            return accessLevelIds.Contains(contextId.Value);
+        }
     }
 }

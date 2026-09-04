@@ -1,12 +1,15 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
 
 namespace CourageScores.Services.Identity;
 
 [ExcludeFromCodeCoverage]
 public class UserAccessContext
 {
+    [JsonIgnore]
     public string? CallerMemberName { get; }
+    [JsonIgnore]
     public string? CallerFilePath { get; }
 
     public Guid? SeasonId { get; private init; }
