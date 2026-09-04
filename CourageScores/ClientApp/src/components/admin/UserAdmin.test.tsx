@@ -16,6 +16,12 @@ import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
 import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
 import { IAccountApi } from '../../interfaces/apis/IAccountApi.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
+import { TeamApi } from '../../interfaces/apis/ITeamApi.ts';
+import { divisionBuilder } from '../../helpers/builders/divisions.ts';
+import { IApp } from '../common/IApp.ts';
+import { seasonBuilder } from '../../helpers/builders/seasons.ts';
+import { teamBuilder } from '../../helpers/builders/teams.ts';
+import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
 
 describe('UserAdmin', () => {
     let context: TestContext;
@@ -23,11 +29,17 @@ describe('UserAdmin', () => {
     let accountReloaded: boolean;
     let updatedAccess: UpdateAccessDto | null;
     let apiResponse: IClientActionResultDto<UserDto> | null;
+    let teams: TeamDto[] | null;
 
     const accountApi = api<IAccountApi>({
         update: async (update: UpdateAccessDto) => {
             updatedAccess = update;
             return apiResponse || { success: true };
+        },
+    });
+    const teamApi = api<TeamApi>({
+        async getAllWithSeasonsAndPlayers() {
+            return teams ?? [];
         },
     });
 
@@ -40,14 +52,20 @@ describe('UserAdmin', () => {
         accountReloaded = false;
         updatedAccess = null;
         apiResponse = null;
+        teams = null;
     });
 
-    async function renderComponent(accounts: UserDto[], account: UserDto) {
+    async function renderComponent(
+        accounts: UserDto[],
+        account: UserDto,
+        app?: Partial<IApp>,
+    ) {
         context = await renderApp(
-            iocProps({ accountApi }),
+            iocProps({ accountApi, teamApi }),
             brandingProps(),
             appProps(
                 {
+                    ...app,
                     account,
                     reloadAccount: async () => {
                         accountReloaded = true;
@@ -78,7 +96,7 @@ describe('UserAdmin', () => {
 
         reportedError.verifyNoError();
         expect(context.text()).toContain('Manage access');
-        expect(getAccess(AccessOption.manageAccess).text()).toEqual('🚫');
+        expect(getAccess(AccessOption.manageAccess).text()).toEqual('🚫 None');
     });
 
     it('renders user email addresses', async () => {
@@ -108,7 +126,7 @@ describe('UserAdmin', () => {
 
         reportedError.verifyNoError();
         expect(context.text()).toContain('Manage access');
-        expect(getAccess(AccessOption.manageAccess).text()).toEqual('🚫');
+        expect(getAccess(AccessOption.manageAccess).text()).toEqual('🚫 None');
     });
 
     it('renders user with access', async () => {
@@ -128,7 +146,7 @@ describe('UserAdmin', () => {
 
         reportedError.verifyNoError();
         expect(context.text()).toContain('Manage access');
-        expect(getAccess(AccessOption.manageAccess).text()).toEqual('✅');
+        expect(getAccess(AccessOption.manageAccess).text()).toEqual('✅ Full');
     });
 
     it('can save change to access', async () => {
@@ -144,7 +162,7 @@ describe('UserAdmin', () => {
         };
         await renderComponent([account, otherAccount], account);
         await context.required('.dropdown-menu').select('Other user');
-        await getAccess(AccessOption.manageGames).parent()!.select('✅');
+        await getAccess(AccessOption.manageGames).parent()!.select('✅ Full');
 
         await context.button('Set access').click();
 
@@ -158,22 +176,64 @@ describe('UserAdmin', () => {
         });
     });
 
-    it('handles error during save', async () => {
+    it('can edit custom access', async () => {
         const account: UserDto = {
-            givenName: '',
+            ...user([AccessOption.manageAccess]),
             emailAddress: 'a@b.com',
             name: 'Admin',
+        };
+        const division = divisionBuilder('DIVISION 1').build();
+        const season = seasonBuilder('SEASON 1').withDivision(division).build();
+        const team = teamBuilder('TEAM 1').forSeason(season, division).build();
+        teams = [team];
+        const appProps: Partial<IApp> = {
+            divisions: [division],
+            seasons: [season],
+        };
+        await renderComponent([account], account, appProps);
+
+        await getAccess(AccessOption.manageGames).parent()!.select('🎚️️ Custom');
+        await context.button('✏️').click();
+        const dialog = context.required('.modal-dialog');
+        await dialog
+            .required('div[data-type="Seasons"]')
+            .required('ol.list-group li:first-child')
+            .click();
+        await dialog
+            .required('div[data-type="Divisions"]')
+            .required('ol.list-group li:first-child')
+            .click();
+        await dialog
+            .required('div[data-type="Teams"]')
+            .required('ol.list-group li:first-child')
+            .click();
+        await dialog.button('Close').click();
+        await context.button('Set access').click();
+
+        reportedError.verifyNoError();
+        expect(updatedAccess).toEqual({
             accessLevels: {
                 [AccessOption.manageAccess]: {},
+                [AccessOption.manageGames]: {
+                    divisionIds: [division.id],
+                    seasonIds: [season.id],
+                    teamIds: [team.id],
+                },
             },
+            emailAddress: 'a@b.com',
+        });
+    });
+
+    it('handles error during save', async () => {
+        const account: UserDto = {
+            ...user([AccessOption.manageAccess]),
+            emailAddress: 'a@b.com',
+            name: 'Admin',
         };
         const otherAccount: UserDto = {
-            givenName: '',
+            ...user([AccessOption.manageAccess]),
             emailAddress: 'c@d.com',
             name: 'Other user',
-            accessLevels: {
-                [AccessOption.manageAccess]: {},
-            },
         };
         await renderComponent([account, otherAccount], account);
         await context.required('.dropdown-menu').select('Other user');
@@ -189,20 +249,14 @@ describe('UserAdmin', () => {
 
     it('can close error dialog after save failure', async () => {
         const account: UserDto = {
-            givenName: '',
+            ...user([AccessOption.manageAccess]),
             emailAddress: 'a@b.com',
             name: 'Admin',
-            accessLevels: {
-                [AccessOption.manageAccess]: {},
-            },
         };
         const otherAccount: UserDto = {
-            givenName: '',
+            ...user([AccessOption.manageAccess]),
             emailAddress: 'c@d.com',
             name: 'Other user',
-            accessLevels: {
-                [AccessOption.manageAccess]: {},
-            },
         };
         await renderComponent([account, otherAccount], account);
         await context.required('.dropdown-menu').select('Other user');
@@ -218,20 +272,14 @@ describe('UserAdmin', () => {
 
     it('can change access for self', async () => {
         const account: UserDto = {
-            givenName: '',
+            ...user([AccessOption.manageAccess]),
             emailAddress: 'a@b.com',
             name: 'Admin',
-            accessLevels: {
-                [AccessOption.manageAccess]: {},
-            },
         };
         const otherAccount: UserDto = {
-            givenName: '',
+            ...user([AccessOption.manageAccess]),
             emailAddress: 'c@d.com',
             name: 'Other user',
-            accessLevels: {
-                [AccessOption.manageAccess]: {},
-            },
         };
         await renderComponent([account, otherAccount], account);
         await getAccess(AccessOption.manageGames).click();
