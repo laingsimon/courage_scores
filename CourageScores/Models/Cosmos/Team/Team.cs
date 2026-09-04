@@ -42,4 +42,9 @@ public class Team : AuditedEntity, IPermissionedEntity
     {
         return await userAccess.HasAccess(AccessOption.ManageTeams, token);
     }
+
+    public UserAccessContext GetUserAccessContext()
+    {
+        return UserAccessContext.ForTeam(null, null, Id);
+    }
 }

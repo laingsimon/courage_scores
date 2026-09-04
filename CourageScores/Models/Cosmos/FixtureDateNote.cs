@@ -44,4 +44,11 @@ public class FixtureDateNote : AuditedEntity, IPermissionedEntity
     {
         return await userAccess.HasAccess(AccessOption.ManageNotes, token);
     }
+
+    public UserAccessContext GetUserAccessContext()
+    {
+        return DivisionId != null
+            ? UserAccessContext.ForDivision(SeasonId, DivisionId.Value)
+            : UserAccessContext.ForSeason(SeasonId);
+    }
 }

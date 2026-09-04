@@ -1,8 +1,10 @@
+using CourageScores.Models.Dtos.Identity;
+using CourageScores.Services.Identity;
 using Newtonsoft.Json;
 
 namespace CourageScores.Models.Cosmos;
 
-public class Photo : AuditedEntity
+public class Photo : AuditedEntity, IPermissionedEntity
 {
     /// <summary>
     /// i.e. the id of the fixture
@@ -30,4 +32,26 @@ public class Photo : AuditedEntity
     /// The type of the photo
     /// </summary>
     public string ContentType { get; set; } = null!;
+
+    public Task<bool> CanCreate(IUserAccessService userAccess, CancellationToken token)
+    {
+        return userAccess.HasAccess(AccessOption.UploadPhotos, token);
+    }
+
+    public Task<bool> CanEdit(IUserAccessService userAccess, CancellationToken token)
+    {
+        return userAccess.HasAnyAccess([AccessOption.UploadPhotos, AccessOption.ViewAnyPhoto], token);
+    }
+
+    public Task<bool> CanDelete(IUserAccessService userAccess, CancellationToken token)
+    {
+        return userAccess.HasAnyAccess([AccessOption.UploadPhotos, AccessOption.DeleteAnyPhoto], token);
+    }
+
+    public UserAccessContext GetUserAccessContext()
+    {
+        return TeamId != null
+            ? UserAccessContext.ForTeam(null, null, TeamId.Value)
+            : UserAccessContext.None();
+    }
 }
