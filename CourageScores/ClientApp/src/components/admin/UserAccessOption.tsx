@@ -89,6 +89,10 @@ export function UserAccessOption({
             updated[prop] = selected.concat(id);
         }
 
+        if (isEmpty(updated[prop])) {
+            updated[prop] = undefined;
+        }
+
         await accessChanged(option, updated);
     }
 
