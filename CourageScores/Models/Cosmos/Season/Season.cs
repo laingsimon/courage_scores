@@ -62,4 +62,9 @@ public class Season : AuditedEntity, IPermissionedEntity
     {
         return await userAccess.HasAccess(AccessOption.ManageSeasons, token);
     }
+
+    public UserAccessContext GetUserAccessContext()
+    {
+        return UserAccessContext.ForSeason(Id);
+    }
 }

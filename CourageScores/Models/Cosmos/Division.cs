@@ -37,4 +37,9 @@ public class Division : AuditedEntity, IPermissionedEntity
     {
         return await userAccess.HasAccess(AccessOption.ManageDivisions, token);
     }
+
+    public UserAccessContext GetUserAccessContext()
+    {
+        return UserAccessContext.ForDivision(null, Id);
+    }
 }

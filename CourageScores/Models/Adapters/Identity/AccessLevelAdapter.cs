@@ -23,6 +23,16 @@ public class AccessLevelAdapter : IAccessLevelAdapter
         return Task.FromResult(target);
     }
 
+    public AccessLevel Adapt(AccessLevelDto dto)
+    {
+        return new AccessLevel
+        {
+            SeasonIds = dto.SeasonIds,
+            DivisionIds = dto.DivisionIds,
+            TeamIds = dto.TeamIds,
+        };
+    }
+
     private static AccessLevelDto AdaptToAccessLevelDto(KeyValuePair<AccessOption, AccessLevel> accessLevel)
     {
         return new AccessLevelDto
@@ -33,13 +43,8 @@ public class AccessLevelAdapter : IAccessLevelAdapter
         };
     }
 
-    private static AccessLevel AdaptToAccessLevel(KeyValuePair<AccessOption, AccessLevelDto> accessLevel)
+    private AccessLevel AdaptToAccessLevel(KeyValuePair<AccessOption, AccessLevelDto> accessLevel)
     {
-        return new AccessLevel
-        {
-            SeasonIds = accessLevel.Value.SeasonIds,
-            DivisionIds = accessLevel.Value.DivisionIds,
-            TeamIds = accessLevel.Value.TeamIds,
-        };
+        return Adapt(accessLevel.Value);
     }
 }
