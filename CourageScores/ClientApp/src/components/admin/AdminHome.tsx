@@ -24,7 +24,7 @@ import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption
 
 export function AdminHome() {
     const { mode } = useParams();
-    const { dataApi, accountApi } = useDependencies();
+    const { dataApi, accountApi, settings } = useDependencies();
     const { account, appLoading, onError } = useApp();
     const effectiveTab = mode || 'user';
     const [dataTables, setDataTables] = useState<TableDto[] | null>(null);
@@ -147,6 +147,15 @@ export function AdminHome() {
                             'service_accounts',
                             'Service accounts',
                         )}
+                        <li className="nav-item">
+                            <a
+                                className="nav-link bg-danger"
+                                target="_blank"
+                                rel="noopener"
+                                href={`${settings.apiHost}/api/ClearCache`}>
+                                🚨 Clear cache
+                            </a>
+                        </li>
                     </ul>
                 ) : null}
                 {!appLoading && adminLoading ? (
