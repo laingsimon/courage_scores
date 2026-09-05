@@ -224,9 +224,11 @@ export function UserAccessOption({
             <BootstrapDropdown
                 options={options}
                 value={value}
-                onChange={async (value: OptionValue) =>
-                    await accessChanged(option, valueLookup[value])
-                }
+                onChange={async (newValue: OptionValue) => {
+                    if (newValue !== value) {
+                        await accessChanged(option, valueLookup[newValue]);
+                    }
+                }}
                 slim={true}
                 className="margin-right"
                 datatype={option}
