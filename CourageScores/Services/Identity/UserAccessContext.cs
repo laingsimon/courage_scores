@@ -1,12 +1,15 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
 
 namespace CourageScores.Services.Identity;
 
 [ExcludeFromCodeCoverage]
 public class UserAccessContext
 {
+    [JsonIgnore]
     public string? CallerMemberName { get; }
+    [JsonIgnore]
     public string? CallerFilePath { get; }
 
     public Guid? SeasonId { get; private init; }
@@ -32,7 +35,7 @@ public class UserAccessContext
         };
     }
 
-    public static UserAccessContext ForDivision(Guid seasonId, Guid divisionId, [CallerMemberName] string? memberName = null, [CallerFilePath] string? callerFilePath = null)
+    public static UserAccessContext ForDivision(Guid? seasonId, Guid divisionId, [CallerMemberName] string? memberName = null, [CallerFilePath] string? callerFilePath = null)
     {
         return new UserAccessContext(memberName, callerFilePath)
         {
@@ -41,7 +44,7 @@ public class UserAccessContext
         };
     }
 
-    public static UserAccessContext ForTeam(Guid seasonId, Guid divisionId, Guid teamId, [CallerMemberName] string? memberName = null, [CallerFilePath] string? callerFilePath = null)
+    public static UserAccessContext ForTeam(Guid? seasonId, Guid? divisionId, Guid teamId, [CallerMemberName] string? memberName = null, [CallerFilePath] string? callerFilePath = null)
     {
         return new UserAccessContext(memberName, callerFilePath)
         {

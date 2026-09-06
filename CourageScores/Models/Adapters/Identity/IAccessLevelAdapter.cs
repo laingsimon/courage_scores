@@ -8,4 +8,5 @@ public interface IAccessLevelAdapter
     Task<User> AddAccess(User target, UpdateAccessDto source, CancellationToken token);
     Task<User> AddAccess(User target, UserDto source, CancellationToken token);
     Task<UserDto> AddAccess(UserDto target, User source, CancellationToken token);
+    AccessLevel Adapt(AccessLevelDto dto);
 }

@@ -23,6 +23,11 @@ public class UserAccessService : IUserAccessService
         foreach (var option in options)
         {
             var hasThisAccess = await HasAccess(option, token);
+            if (!hasThisAccess)
+            {
+                return false;
+            }
+
             hasAccess = hasAccess == null ? hasThisAccess : hasAccess & hasThisAccess;
         }
 
