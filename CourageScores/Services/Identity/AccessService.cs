@@ -29,14 +29,9 @@ public class AccessService : IAccessService
             context);
     }
 
-    private async Task<bool> HasAccess(Dictionary<AccessOption, AccessLevel>? accessLevels, AccessOption access, UserAccessContext context)
+    private static async Task<bool> HasAccess(Dictionary<AccessOption, AccessLevel>? accessLevels, AccessOption access, UserAccessContext context)
     {
-        if (accessLevels == null)
-        {
-            return false;
-        }
-
-        if (!accessLevels.TryGetValue(access, out var accessLevel))
+        if (accessLevels == null || !accessLevels.TryGetValue(access, out var accessLevel))
         {
             return false;
         }
@@ -46,20 +41,20 @@ public class AccessService : IAccessService
         var teamPermitted = Permitted(accessLevel.TeamIds, context.TeamId);
 
         return seasonPermitted && divisionPermitted && teamPermitted;
+    }
 
-        static bool Permitted(IReadOnlyCollection<Guid>? accessLevelIds, Guid? contextId)
+    private static bool Permitted(IReadOnlyCollection<Guid>? accessLevelIds, Guid? contextId)
+    {
+        if (accessLevelIds?.Count == 0)
         {
-            if (accessLevelIds?.Count == 0)
-            {
-                return false;
-            }
-
-            if (accessLevelIds == null || contextId == null)
-            {
-                return true;
-            }
-
-            return accessLevelIds.Contains(contextId.Value);
+            return false;
         }
+
+        if (accessLevelIds == null || contextId == null)
+        {
+            return true;
+        }
+
+        return accessLevelIds.Contains(contextId.Value);
     }
 }
