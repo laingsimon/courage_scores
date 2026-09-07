@@ -11,7 +11,7 @@ import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
 import { IError } from '../common/IError.ts';
 import { NavLink } from '../common/NavLink.tsx';
-import { hasAccess, hasAnyAccess } from '../../helpers/conditions.ts';
+import { hasAccess, hasAnyAccessLevel } from '../../helpers/conditions.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export function NavMenu() {
@@ -71,12 +71,12 @@ export function NavMenu() {
     }
 
     function hasAdminAccess() {
-        return hasAnyAccess(
+        return hasAnyAccessLevel(
             account,
-            AccessOption.manageAccess,
-            AccessOption.viewExceptions,
-            AccessOption.importData,
-            AccessOption.exportData,
+            { option: AccessOption.manageAccess },
+            { option: AccessOption.viewExceptions },
+            { option: AccessOption.importData },
+            { option: AccessOption.exportData },
         );
     }
 

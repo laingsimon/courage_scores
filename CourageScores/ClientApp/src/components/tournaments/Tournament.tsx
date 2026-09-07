@@ -44,7 +44,7 @@ import { renderDate } from '../../helpers/rendering.ts';
 import { isEqual } from '../common/ObjectComparer.ts';
 import { retry } from '../../helpers/retry.ts';
 import { getTeamsInSeason } from '../../helpers/teams.ts';
-import { hasAccess, hasAnyAccess } from '../../helpers/conditions.ts';
+import { hasAccess, hasAnyAccessLevel } from '../../helpers/conditions.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface ITournamentPlayerMap {
@@ -576,10 +576,18 @@ export function Tournament() {
                                 Add player
                             </button>
                         ) : null}
-                        {hasAnyAccess(
+                        {hasAnyAccessLevel(
                             account,
-                            AccessOption.uploadPhotos,
-                            AccessOption.viewAnyPhoto,
+                            {
+                                option: AccessOption.uploadPhotos,
+                                seasonId: tournamentData.seasonId,
+                                divisionId: tournamentData.divisionId,
+                            },
+                            {
+                                option: AccessOption.viewAnyPhoto,
+                                seasonId: tournamentData.seasonId,
+                                divisionId: tournamentData.divisionId,
+                            },
                         ) &&
                         photosEnabled &&
                         !tournamentData.singleRound ? (
@@ -603,10 +611,18 @@ export function Tournament() {
                             account,
                             AccessOption.uploadPhotos,
                         )}
-                        canDeletePhotos={hasAnyAccess(
+                        canDeletePhotos={hasAnyAccessLevel(
                             account,
-                            AccessOption.uploadPhotos,
-                            AccessOption.deleteAnyPhoto,
+                            {
+                                option: AccessOption.uploadPhotos,
+                                seasonId: tournamentData?.seasonId,
+                                divisionId: tournamentData?.divisionId,
+                            },
+                            {
+                                option: AccessOption.deleteAnyPhoto,
+                                seasonId: tournamentData?.seasonId,
+                                divisionId: tournamentData?.divisionId,
+                            },
                         )}
                         canViewAllPhotos={hasAccess(
                             account,

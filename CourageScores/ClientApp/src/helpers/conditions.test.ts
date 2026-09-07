@@ -3,7 +3,6 @@
     hasAccessLevel,
     hasAllAccess,
     hasAllAccessLevels,
-    hasAnyAccess,
     hasAnyAccessLevel,
     UserAccessContext,
 } from './conditions.ts';
@@ -330,60 +329,6 @@ describe('conditions', () => {
                     },
                 },
                 AccessOption.manageAccess,
-            );
-
-            expect(result).toBe(true);
-        });
-    });
-
-    describe('hasAnyAccess', () => {
-        it('returns false when no options provided', () => {
-            const result = hasAnyAccess({
-                ...userTemplate,
-                accessLevels: {
-                    [AccessOption.manageAccess]: {},
-                },
-            });
-
-            expect(result).toBe(false);
-        });
-
-        it('returns false when no option is not defined', () => {
-            const result = hasAnyAccess(
-                {
-                    ...userTemplate,
-                    accessLevels: {},
-                },
-                AccessOption.manageAccess,
-            );
-
-            expect(result).toBe(false);
-        });
-
-        it('returns true when option is defined', () => {
-            const result = hasAnyAccess(
-                {
-                    ...userTemplate,
-                    accessLevels: {
-                        [AccessOption.manageAccess]: {},
-                    },
-                },
-                AccessOption.manageAccess,
-            );
-
-            expect(result).toBe(true);
-        });
-
-        it('returns true when either option is defined', () => {
-            const result = hasAnyAccess(
-                {
-                    ...userTemplate,
-                    accessLevels: {
-                        [AccessOption.manageAccess]: {},
-                    },
-                },
-                AccessOption.manageAccess,
-                AccessOption.manageDivisions,
             );
 
             expect(result).toBe(true);

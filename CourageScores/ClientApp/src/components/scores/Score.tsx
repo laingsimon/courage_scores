@@ -57,7 +57,7 @@ import { PhotoManager } from '../common/PhotoManager.tsx';
 import { UploadPhotoDto } from '../../interfaces/models/dtos/UploadPhotoDto.ts';
 import { useBranding } from '../common/BrandingContainer.tsx';
 import { NavLink } from '../common/NavLink.tsx';
-import { hasAccess, hasAnyAccess } from '../../helpers/conditions.ts';
+import { hasAccess, hasAnyAccessLevel } from '../../helpers/conditions.ts';
 import { getTeamSeasons } from '../../helpers/teams.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
@@ -894,10 +894,18 @@ export function Score() {
                                 Unpublish
                             </button>
                         ) : null}
-                        {hasAnyAccess(
+                        {hasAnyAccessLevel(
                             account,
-                            AccessOption.uploadPhotos,
-                            AccessOption.viewAnyPhoto,
+                            {
+                                option: AccessOption.uploadPhotos,
+                                seasonId: fixtureData.seasonId,
+                                divisionId: fixtureData.divisionId,
+                            },
+                            {
+                                option: AccessOption.viewAnyPhoto,
+                                seasonId: fixtureData.seasonId,
+                                divisionId: fixtureData.divisionId,
+                            },
                         ) && photosEnabled ? (
                             <button
                                 className="btn btn-primary margin-right"
@@ -946,10 +954,18 @@ export function Score() {
                             AccessOption.uploadPhotos,
                         )}
                         canDeletePhotos={
-                            hasAnyAccess(
+                            hasAnyAccessLevel(
                                 account,
-                                AccessOption.uploadPhotos,
-                                AccessOption.deleteAnyPhoto,
+                                {
+                                    option: AccessOption.uploadPhotos,
+                                    seasonId: fixtureData.seasonId,
+                                    divisionId: fixtureData.divisionId,
+                                },
+                                {
+                                    option: AccessOption.deleteAnyPhoto,
+                                    seasonId: fixtureData.seasonId,
+                                    divisionId: fixtureData.divisionId,
+                                },
                             ) || access === 'admin'
                         }
                         canViewAllPhotos={

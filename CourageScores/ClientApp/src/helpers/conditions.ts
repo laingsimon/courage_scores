@@ -83,10 +83,3 @@ export function hasAllAccess(
         ...options.map((option) => ({ option })),
     );
 }
-
-export function hasAnyAccess(
-    account: UserDto | undefined,
-    ...options: AccessOption[]
-): boolean {
-    return hasAnyAccessLevel(account, ...options.map((option) => ({ option })));
-}
