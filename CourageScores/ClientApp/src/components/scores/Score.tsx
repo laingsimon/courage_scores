@@ -4,11 +4,7 @@ import { MatchPlayerSelection, NEW_PLAYER } from './MatchPlayerSelection.tsx';
 import { ErrorDisplay } from '../common/ErrorDisplay.tsx';
 import { DivisionControls } from '../league/DivisionControls.tsx';
 import { any, elementAt, isEmpty, sortBy } from '../../helpers/collections.ts';
-import {
-    asyncCallback,
-    asyncClear,
-    propChanged,
-} from '../../helpers/events.ts';
+import { asyncCallback, asyncClear } from '../../helpers/events.ts';
 import { EMPTY_ID, repeat } from '../../helpers/projection.ts';
 import { renderDate } from '../../helpers/rendering.ts';
 import { Loading } from '../common/Loading.tsx';
@@ -22,8 +18,6 @@ import { GameDetails } from './GameDetails.tsx';
 import { add180, addHiCheck } from '../common/Accolades.tsx';
 import { useDependencies } from '../common/IocContainer.tsx';
 import { useApp } from '../common/AppContainer.tsx';
-import { Dialog } from '../common/Dialog.tsx';
-import { EditPlayerDetails } from '../division_players/EditPlayerDetails.tsx';
 import {
     ILeagueFixtureContainerProps,
     LeagueFixtureContainer,
@@ -40,7 +34,6 @@ import {
 } from '../../helpers/matchOptions.ts';
 import { PageError } from '../common/PageError.tsx';
 import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
-import { DebugOptions } from '../common/DebugOptions.tsx';
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
 import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
@@ -57,23 +50,16 @@ import { PhotoManager } from '../common/PhotoManager.tsx';
 import { UploadPhotoDto } from '../../interfaces/models/dtos/UploadPhotoDto.ts';
 import { useBranding } from '../common/BrandingContainer.tsx';
 import { NavLink } from '../common/NavLink.tsx';
-import { hasAccess, hasAnyAccess } from '../../helpers/conditions.ts';
+import { hasAccessLevel, hasAnyAccessLevel } from '../../helpers/conditions.ts';
 import { getTeamSeasons } from '../../helpers/teams.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
-
-export interface ICreatePlayerFor {
-    side: string;
-    matchIndex?: number;
-    index: number;
-}
+import {
+    ICreatePlayerFor,
+    ScoreCardCreatePlayerDialog,
+} from './ScoreCardCreatePlayerDialog.tsx';
 
 interface IRenamedPlayer {
     renamed?: boolean;
-}
-
-interface IEditableMatchPlayer {
-    name: string;
-    captain?: boolean;
 }
 
 type LoadingState = 'init' | 'loading' | 'ready';
@@ -99,8 +85,6 @@ export function Score() {
     const [submission, setSubmission] = useState<string | undefined>(undefined);
     const [createPlayerFor, setCreatePlayerFor] =
         useState<ICreatePlayerFor | null>(null);
-    const [newPlayerDetails, setNewPlayerDetails] =
-        useState<IEditableMatchPlayer>({ name: '' });
     const [showPhotoManager, setShowPhotoManager] = useState<boolean>(false);
     const access = getAccess();
     const [photosEnabled, setPhotosEnabled] = useState<boolean>(false);
@@ -112,93 +96,15 @@ export function Score() {
         }
     }, []);
 
-    function renderCreatePlayerDialog() {
-        const team: GameTeamDto =
-            createPlayerFor!.side === 'home'
-                ? fixtureData!.home
-                : fixtureData!.away;
-
-        async function playerCreated(
-            updatedTeamDetails: TeamDto,
-            playersCreated: TeamPlayerDto[],
-        ) {
-            setTeams(await teamApi.getAllWithSeasonsAndPlayers());
-
-            try {
-                if (playersCreated.length > 1) {
-                    // multiple players created
-                    return;
-                }
-
-                const updatedTeamSeason = getTeamSeasons(
-                    updatedTeamDetails,
-                    fixtureData!.seasonId,
-                )[0];
-                if (!updatedTeamSeason) {
-                    onError('Could not find updated teamSeason');
-                    return;
-                }
-
-                const firstNewPlayer = newPlayerDetails.name
-                    .split('\n')[0]
-                    ?.trim();
-                const newPlayers = updatedTeamSeason.players!.filter(
-                    (p) =>
-                        p.name.trim().toLowerCase() ===
-                        firstNewPlayer.toLowerCase(),
-                );
-                if (!any(newPlayers)) {
-                    onError(
-                        `Could not find new player in updated season, looking for player with name: "${firstNewPlayer}"`,
-                    );
-                    return;
-                }
-
-                const newPlayer: TeamPlayerDto = newPlayers[0];
-                const match: GameMatchDto =
-                    fixtureData!.matches![createPlayerFor!.matchIndex!];
-                const newMatch: GameMatchDto = Object.assign({}, match);
-                newMatch[createPlayerFor!.side + 'Players'][
-                    createPlayerFor!.index
-                ] = {
-                    id: newPlayer.id,
-                    name: newPlayer.name,
-                };
-
-                const newFixtureData: GameDto = Object.assign({}, fixtureData);
-                fixtureData!.matches![createPlayerFor!.matchIndex!] = newMatch;
-                setFixtureData(newFixtureData);
-            } catch (e) {
-                /* istanbul ignore next */
-                onError(e);
-            } finally {
-                setCreatePlayerFor(null);
-                setNewPlayerDetails({ name: '', captain: false });
-            }
-        }
-
-        return (
-            <Dialog title={`Create ${createPlayerFor!.side} player...`}>
-                <EditPlayerDetails
-                    player={newPlayerDetails}
-                    seasonId={fixtureData!.seasonId!}
-                    gameId={fixtureData!.id}
-                    team={team}
-                    divisionId={fixtureData!.divisionId}
-                    onChange={propChanged(
-                        newPlayerDetails,
-                        setNewPlayerDetails,
-                    )}
-                    onCancel={async () => setCreatePlayerFor(null)}
-                    onSaved={playerCreated}
-                />
-            </Dialog>
-        );
-    }
-
     function getAccess(): string {
         if (account) {
-            if (hasAccess(account, AccessOption.manageScores)) {
+            if (
+                hasAccessLevel(account, {
+                    option: AccessOption.manageScores,
+                    seasonId: fixtureData?.seasonId,
+                    divisionId: fixtureData?.divisionId,
+                })
+            ) {
                 return 'admin';
             } else if (account.teamId) {
                 return 'clerk';
@@ -489,7 +395,7 @@ export function Score() {
             },
         );
 
-        function onMatchChanged(newMatch: GameMatchDto, index: number) {
+        async function onMatchChanged(newMatch: GameMatchDto) {
             const newFixtureData: GameDto = Object.assign({}, fixtureData);
             newFixtureData.matches![index] = newMatch;
 
@@ -528,9 +434,7 @@ export function Score() {
             <MatchTypeContainer {...matchTypeProps}>
                 <MatchPlayerSelection
                     match={fixtureData!.matches![index]}
-                    onMatchChanged={async (newMatch: GameMatchDto) =>
-                        onMatchChanged(newMatch, index)
-                    }
+                    onMatchChanged={onMatchChanged}
                     onMatchOptionsChanged={onMatchOptionsChanged}
                     on180={add180(
                         fixtureData!,
@@ -677,7 +581,7 @@ export function Score() {
         return false;
     }
 
-    function fixtureDetailsChanged(details: GameDto) {
+    async function fixtureDetailsChanged(details: GameDto) {
         const wasKnockout = fixtureData!.isKnockout;
 
         if (details.isKnockout !== wasKnockout) {
@@ -697,6 +601,24 @@ export function Score() {
         }
 
         setFixtureData(details);
+    }
+
+    function navLink(link: string, text: string) {
+        return (
+            <li className="nav-item">
+                <NavLink to={link}>{text}</NavLink>
+            </li>
+        );
+    }
+
+    function sectionHeading(text: string) {
+        return (
+            <tr>
+                <td colSpan={5} className="text-primary fw-bold text-center">
+                    {text}
+                </td>
+            </tr>
+        );
     }
 
     if (loading !== 'ready') {
@@ -726,7 +648,11 @@ export function Score() {
             (!saving &&
                 ((access === 'admin' && !submission) ||
                     (!fixtureData.resultsPublished &&
-                        hasAccess(account, AccessOption.inputResults)))) ||
+                        hasAccessLevel(account, {
+                            option: AccessOption.inputResults,
+                            seasonId: fixtureData.seasonId,
+                            divisionId: fixtureData.divisionId,
+                        })))) ||
             false;
         const leagueFixtureData: ILeagueFixtureContainerProps = {
             season: season,
@@ -745,9 +671,6 @@ export function Score() {
         setTitle(
             `${fixtureData.home.name} vs ${fixtureData.away.name} - ${renderDate(fixtureData.date)}`,
         );
-        const accountTeam = account
-            ? teams?.find((t) => t.id === account.teamId)
-            : undefined;
 
         return (
             <div>
@@ -757,38 +680,26 @@ export function Score() {
                     overrideMode="fixtures"
                 />
                 <ul className="nav nav-tabs">
-                    <li className="nav-item">
-                        <NavLink
-                            to={`/teams/${season.name}/?division=${division.name}`}>
-                            Teams
-                        </NavLink>
-                    </li>
-                    <li className="nav-item">
-                        <NavLink
-                            to={`/fixtures/${season.name}/?division=${division.name}`}>
-                            Fixtures
-                        </NavLink>
-                    </li>
-                    <li className="nav-item">
-                        <NavLink className="active" to={`/score/${fixtureId}`}>
-                            {renderDate(data!.date)}
-                        </NavLink>
-                    </li>
-                    <li className="nav-item">
-                        <NavLink
-                            to={`/players/${season.name}/?division=${division.name}`}>
-                            Players
-                        </NavLink>
-                    </li>
+                    {navLink(
+                        `/teams/${season.name}/?division=${division.name}`,
+                        'Teams',
+                    )}
+                    {navLink(
+                        `/fixtures/${season.name}/?division=${division.name}`,
+                        'Fixtures',
+                    )}
+                    {navLink(`/score/${fixtureId}`, renderDate(data!.date))}
+                    {navLink(
+                        `/players/${season.name}/?division=${division.name}`,
+                        'Players',
+                    )}
                 </ul>
                 <LeagueFixtureContainer {...leagueFixtureData}>
                     <div className="content-background p-3 overflow-auto">
                         {fixtureData.address || access === 'admin' ? (
                             <GameDetails
                                 saving={saving}
-                                setFixtureData={async (data: GameDto) =>
-                                    fixtureDetailsChanged(data)
-                                }
+                                setFixtureData={fixtureDetailsChanged}
                                 access={access}
                                 fixtureData={fixtureData}
                                 season={season}
@@ -799,12 +710,8 @@ export function Score() {
                             <ScoreCardHeading
                                 access={access}
                                 data={data!}
-                                setSubmission={async (value: string) =>
-                                    setSubmission(value)
-                                }
-                                setFixtureData={async (value: GameDto) =>
-                                    setFixtureData(value)
-                                }
+                                setSubmission={asyncCallback(setSubmission)}
+                                setFixtureData={asyncCallback(setFixtureData)}
                                 submission={submission}
                             />
                             {hasBeenPlayed ||
@@ -814,13 +721,7 @@ export function Score() {
                                     account?.teamId === data!.away.id) ||
                                     account?.teamId === data!.home.id)) ? (
                                 <tbody>
-                                    <tr>
-                                        <td
-                                            colSpan={5}
-                                            className="text-primary fw-bold text-center">
-                                            Singles
-                                        </td>
-                                    </tr>
+                                    {sectionHeading('Singles')}
                                     {renderMatchPlayerSelection(0, 5, 1)}
                                     {renderMergeMatch(0)}
                                     {renderMatchPlayerSelection(1, 5, 1)}
@@ -831,37 +732,19 @@ export function Score() {
                                     {renderMergeMatch(3)}
                                     {renderMatchPlayerSelection(4, 5, 1)}
                                     {renderMergeMatch(4)}
-                                    <tr>
-                                        <td
-                                            colSpan={5}
-                                            className="text-primary fw-bold text-center">
-                                            Pairs
-                                        </td>
-                                    </tr>
+                                    {sectionHeading('Pairs')}
                                     {renderMatchPlayerSelection(5, 3, 2)}
                                     {renderMergeMatch(5)}
                                     {renderMatchPlayerSelection(6, 3, 2)}
                                     {renderMergeMatch(6)}
-                                    <tr>
-                                        <td
-                                            colSpan={5}
-                                            className="text-primary fw-bold text-center">
-                                            Triples
-                                        </td>
-                                    </tr>
+                                    {sectionHeading('Triples')}
                                     {renderMatchPlayerSelection(7, 3, 3)}
                                     {renderMergeMatch(7)}
                                     {access !== 'readonly' &&
                                     (!fixtureData.resultsPublished ||
-                                        access === 'admin') ? (
-                                        <tr>
-                                            <td
-                                                colSpan={5}
-                                                className="text-center border-0">
-                                                Man of the match
-                                            </td>
-                                        </tr>
-                                    ) : null}
+                                        access === 'admin')
+                                        ? sectionHeading('Man of the match')
+                                        : null}
                                     {renderManOfTheMatchInput()}
                                     {renderMergeManOfTheMatch()}
                                     {render180sAndHiCheckInput()}
@@ -894,10 +777,18 @@ export function Score() {
                                 Unpublish
                             </button>
                         ) : null}
-                        {hasAnyAccess(
+                        {hasAnyAccessLevel(
                             account,
-                            AccessOption.uploadPhotos,
-                            AccessOption.viewAnyPhoto,
+                            {
+                                option: AccessOption.uploadPhotos,
+                                seasonId: fixtureData.seasonId,
+                                divisionId: fixtureData.divisionId,
+                            },
+                            {
+                                option: AccessOption.viewAnyPhoto,
+                                seasonId: fixtureData.seasonId,
+                                divisionId: fixtureData.divisionId,
+                            },
                         ) && photosEnabled ? (
                             <button
                                 className="btn btn-primary margin-right"
@@ -905,56 +796,50 @@ export function Score() {
                                 📷 Photos
                             </button>
                         ) : null}
-                        <DebugOptions>
-                            <span className="dropdown-item">
-                                Access: {access}
-                            </span>
-                            {account ? (
-                                <span className="dropdown-item">
-                                    Team: {accountTeam?.name || account.teamId}
-                                </span>
-                            ) : null}
-                            <span className="dropdown-item">
-                                Data:{' '}
-                                {fixtureData?.resultsPublished
-                                    ? 'published'
-                                    : 'draft'}
-                            </span>
-                            <span className="dropdown-item">
-                                Editable: {editable ? 'Yes' : 'No'}
-                                <span> | </span>
-                                Disabled:{' '}
-                                {leagueFixtureData.disabled ? 'Yes' : 'No'}
-                                <span> | </span>
-                                InputResults:{' '}
-                                {hasAccess(account, AccessOption.inputResults)
-                                    ? 'Yes'
-                                    : 'No'}
-                            </span>
-                        </DebugOptions>
                     </div>
                 </LeagueFixtureContainer>
-                {createPlayerFor ? renderCreatePlayerDialog() : null}
+                {createPlayerFor ? (
+                    <ScoreCardCreatePlayerDialog
+                        setTeams={asyncCallback(setTeams)}
+                        createPlayerFor={createPlayerFor}
+                        setCreatePlayerFor={asyncCallback(setCreatePlayerFor)}
+                        fixtureData={fixtureData}
+                        setFixtureData={asyncCallback(setFixtureData)}
+                    />
+                ) : null}
                 {showPhotoManager ? (
                     <PhotoManager
                         doUpload={uploadPhotos}
                         photos={fixtureData.photos || []}
                         onClose={async () => setShowPhotoManager(false)}
                         doDelete={deletePhotos}
-                        canUploadPhotos={hasAccess(
-                            account,
-                            AccessOption.uploadPhotos,
-                        )}
+                        canUploadPhotos={hasAccessLevel(account, {
+                            option: AccessOption.uploadPhotos,
+                            seasonId: fixtureData.seasonId,
+                            divisionId: fixtureData.divisionId,
+                        })}
                         canDeletePhotos={
-                            hasAnyAccess(
+                            hasAnyAccessLevel(
                                 account,
-                                AccessOption.uploadPhotos,
-                                AccessOption.deleteAnyPhoto,
+                                {
+                                    option: AccessOption.uploadPhotos,
+                                    seasonId: fixtureData.seasonId,
+                                    divisionId: fixtureData.divisionId,
+                                },
+                                {
+                                    option: AccessOption.deleteAnyPhoto,
+                                    seasonId: fixtureData.seasonId,
+                                    divisionId: fixtureData.divisionId,
+                                },
                             ) || access === 'admin'
                         }
                         canViewAllPhotos={
                             access === 'admin' ||
-                            hasAccess(account, AccessOption.viewAnyPhoto)
+                            hasAccessLevel(account, {
+                                option: AccessOption.viewAnyPhoto,
+                                seasonId: fixtureData.seasonId,
+                                divisionId: fixtureData.divisionId,
+                            })
                         }
                     />
                 ) : null}

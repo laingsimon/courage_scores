@@ -6,7 +6,7 @@ import { LiveDataType } from '../interfaces/models/dtos/Live/LiveDataType.ts';
 import { PublicationMode } from '../interfaces/models/dtos/Live/PublicationMode.ts';
 import { useApp } from './common/AppContainer.tsx';
 import { useLocation } from 'react-router';
-import { hasAccess } from '../helpers/conditions.ts';
+import { hasAccessLevel } from '../helpers/conditions.ts';
 import { AccessOption } from '../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export function Tv() {
@@ -37,7 +37,10 @@ export function Tv() {
 
     async function reloadConnections() {
         /* istanbul ignore next */
-        if (loading || !hasAccess(account, AccessOption.useWebSockets)) {
+        if (
+            loading ||
+            !hasAccessLevel(account, { option: AccessOption.useWebSockets })
+        ) {
             /* istanbul ignore next */
             return;
         }
@@ -138,7 +141,7 @@ export function Tv() {
             ) : null}
             {account &&
             !appLoading &&
-            !hasAccess(account, AccessOption.useWebSockets) ? (
+            !hasAccessLevel(account, { option: AccessOption.useWebSockets }) ? (
                 <div>No access</div>
             ) : null}
             <div className="mt-1">

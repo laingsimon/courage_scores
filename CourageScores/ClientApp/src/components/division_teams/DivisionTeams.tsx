@@ -8,7 +8,7 @@ import { sortBy } from '../../helpers/collections.ts';
 import { PrintDivisionHeading } from '../league/PrintDivisionHeading.tsx';
 import { EditTeamDto } from '../../interfaces/models/dtos/Team/EditTeamDto.ts';
 import { useBranding } from '../common/BrandingContainer.tsx';
-import { hasAccess } from '../../helpers/conditions.ts';
+import { hasAccessLevel } from '../../helpers/conditions.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export function DivisionTeams() {
@@ -20,7 +20,11 @@ export function DivisionTeams() {
         onReloadDivision,
     } = useDivisionData();
     const { account, reloadTeams } = useApp();
-    const isAdmin = hasAccess(account, AccessOption.manageTeams);
+    const isAdmin = hasAccessLevel(account, {
+        option: AccessOption.manageTeams,
+        seasonId: season?.id,
+        divisionId,
+    });
     const [newTeam, setNewTeam] = useState<boolean>(false);
     const [teamDetails, setTeamDetails] = useState<EditTeamDto>({
         name: '',

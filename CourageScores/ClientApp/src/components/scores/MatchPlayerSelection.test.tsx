@@ -27,7 +27,7 @@ import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
 import { GamePlayerDto } from '../../interfaces/models/dtos/Game/GamePlayerDto.ts';
 import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
 import { GameMatchDto } from '../../interfaces/models/dtos/Game/GameMatchDto.ts';
-import { ICreatePlayerFor } from './Score.ts';
+import { ICreatePlayerFor } from './ScoreCardCreatePlayerDialog.tsx';
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
 import { playerBuilder } from '../../helpers/builders/players.ts';

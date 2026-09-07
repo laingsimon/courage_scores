@@ -16,7 +16,7 @@ import { usePreferences } from '../common/PreferencesContainer.tsx';
 import { any } from '../../helpers/collections.ts';
 import { Link } from 'react-router';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
-import { hasAccess } from '../../helpers/conditions.ts';
+import { hasAccessLevel } from '../../helpers/conditions.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface IDivisionPlayerProps {
@@ -40,7 +40,11 @@ export function DivisionPlayer({ player, hideVenue }: IDivisionPlayerProps) {
     const [deleting, setDeleting] = useState<boolean>(false);
     const [saveError, setSaveError] =
         useState<IClientActionResultDto<TeamDto> | null>(null);
-    const isAdmin: boolean = hasAccess(account, AccessOption.managePlayers);
+    const isAdmin: boolean = hasAccessLevel(account, {
+        option: AccessOption.managePlayers,
+        seasonId: season?.id,
+        divisionId,
+    });
     const team: TeamDto = {
         id: player.teamId!,
         name: player.team,

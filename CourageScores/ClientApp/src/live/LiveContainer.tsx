@@ -5,7 +5,7 @@ import { ILive } from './ILive.ts';
 import { ILiveOptions } from './ILiveOptions.ts';
 import { ISubscriptionRequest } from './ISubscriptionRequest.ts';
 import { UntypedPromise } from '../interfaces/UntypedPromise.ts';
-import { hasAccess } from '../helpers/conditions.ts';
+import { hasAccessLevel } from '../helpers/conditions.ts';
 import { isEmpty } from '../helpers/collections.ts';
 import { DISCONNECTED } from './WebSocketUpdateStrategy.ts';
 import { AccessOption } from '../interfaces/models/dtos/Identity/AccessOption.ts';
@@ -34,7 +34,9 @@ export function LiveContainer({
 }: ILiveContainerProps) {
     const { webSocket } = useDependencies();
     const { onError, account } = useApp();
-    const canConnect: boolean = hasAccess(account, AccessOption.useWebSockets);
+    const canConnect: boolean = hasAccessLevel(account, {
+        option: AccessOption.useWebSockets,
+    });
     const [pending, setPending] = useState<PendingRequest[]>([]);
     const [subscribing, setSubscribing] = useState<boolean>(false);
     let threadSafePending = pending;
