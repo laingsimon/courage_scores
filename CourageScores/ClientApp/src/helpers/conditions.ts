@@ -71,27 +71,22 @@ export function hasAccess(
     account: UserDto | undefined,
     option: AccessOption,
 ): boolean {
-    return !!account?.accessLevels?.[option];
+    return hasAccessLevel(account, { option });
 }
 
 export function hasAllAccess(
     account: UserDto | undefined,
     ...options: AccessOption[]
 ): boolean {
-    if (options.length === 0) {
-        return false;
-    }
-
-    return all(options, (op) => hasAccess(account, op));
+    return hasAllAccessLevels(
+        account,
+        ...options.map((option) => ({ option })),
+    );
 }
 
 export function hasAnyAccess(
     account: UserDto | undefined,
     ...options: AccessOption[]
 ): boolean {
-    if (options.length === 0) {
-        return false;
-    }
-
-    return any(options, (op) => hasAccess(account, op));
+    return hasAnyAccessLevel(account, ...options.map((option) => ({ option })));
 }
