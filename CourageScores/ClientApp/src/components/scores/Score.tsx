@@ -34,7 +34,6 @@ import {
 } from '../../helpers/matchOptions.ts';
 import { PageError } from '../common/PageError.tsx';
 import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
-import { DebugOptions } from '../common/DebugOptions.tsx';
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
 import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
@@ -662,9 +661,6 @@ export function Score() {
         setTitle(
             `${fixtureData.home.name} vs ${fixtureData.away.name} - ${renderDate(fixtureData.date)}`,
         );
-        const accountTeam = account
-            ? teams?.find((t) => t.id === account.teamId)
-            : undefined;
 
         return (
             <div>
@@ -790,33 +786,6 @@ export function Score() {
                                 📷 Photos
                             </button>
                         ) : null}
-                        <DebugOptions>
-                            <span className="dropdown-item">
-                                Access: {access}
-                            </span>
-                            {account ? (
-                                <span className="dropdown-item">
-                                    Team: {accountTeam?.name || account.teamId}
-                                </span>
-                            ) : null}
-                            <span className="dropdown-item">
-                                Data:{' '}
-                                {fixtureData?.resultsPublished
-                                    ? 'published'
-                                    : 'draft'}
-                            </span>
-                            <span className="dropdown-item">
-                                Editable: {editable ? 'Yes' : 'No'}
-                                <span> | </span>
-                                Disabled:{' '}
-                                {leagueFixtureData.disabled ? 'Yes' : 'No'}
-                                <span> | </span>
-                                InputResults:{' '}
-                                {hasAccess(account, AccessOption.inputResults)
-                                    ? 'Yes'
-                                    : 'No'}
-                            </span>
-                        </DebugOptions>
                     </div>
                 </LeagueFixtureContainer>
                 {createPlayerFor ? (
