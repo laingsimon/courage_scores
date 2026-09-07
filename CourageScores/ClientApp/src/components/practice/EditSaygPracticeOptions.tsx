@@ -5,7 +5,7 @@ import { UpdateRecordedScoreAsYouGoDto } from '../../interfaces/models/dtos/Game
 import { useEditableSayg } from '../sayg/EditableSaygContainer.tsx';
 import { useLocation, useNavigate } from 'react-router';
 import { useApp } from '../common/AppContainer.tsx';
-import { hasAccess } from '../../helpers/conditions.ts';
+import { hasAccessLevel } from '../../helpers/conditions.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface IEditSaygPracticeOptionsProps {
@@ -29,7 +29,7 @@ export function EditSaygPracticeOptions({
         newSayg.awayScore = 0;
         await setSayg(newSayg);
         await setEditScore();
-        if (hasAccess(account, AccessOption.kioskMode)) {
+        if (hasAccessLevel(account, { option: AccessOption.kioskMode })) {
             await fullScreen.enterFullScreen();
         }
     }

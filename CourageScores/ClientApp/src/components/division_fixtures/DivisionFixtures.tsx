@@ -25,7 +25,7 @@ import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dto
 import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto.ts';
 import { useBranding } from '../common/BrandingContainer.tsx';
 import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
-import { hasAccess } from '../../helpers/conditions.ts';
+import { hasAccessLevel } from '../../helpers/conditions.ts';
 import { useDependencies } from '../common/IocContainer.tsx';
 import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
 import { Link } from 'react-router';
@@ -48,11 +48,16 @@ export function DivisionFixtures({ setNewFixtures }: IDivisionFixturesProps) {
     const { gameApi } = useDependencies();
     const location = useLocation();
     const { account, onError, controls, teamsWithSeasons: teams } = useApp();
-    const isAdmin: boolean = hasAccess(account, AccessOption.manageGames);
-    const canAnalyseMatches: boolean = hasAccess(
-        account,
-        AccessOption.analyseMatches,
-    );
+    const isAdmin: boolean = hasAccessLevel(account, {
+        option: AccessOption.manageGames,
+        seasonId: season?.id,
+        divisionId,
+    });
+    const canAnalyseMatches: boolean = hasAccessLevel(account, {
+        option: AccessOption.analyseMatches,
+        seasonId: season?.id,
+        divisionId,
+    });
     const [newDate, setNewDate] = useState<string>('');
     const [newDateDialogOpen, setNewDateDialogOpen] = useState<boolean>(false);
     const [isKnockout, setIsKnockout] = useState<boolean>(false);
@@ -389,10 +394,11 @@ export function DivisionFixtures({ setNewFixtures }: IDivisionFixturesProps) {
                             </button>
                         )}
                         {superleague ||
-                        !hasAccess(
-                            account,
-                            AccessOption.bulkDeleteLeagueFixtures,
-                        ) ? null : (
+                        !hasAccessLevel(account, {
+                            option: AccessOption.bulkDeleteLeagueFixtures,
+                            seasonId: season?.id,
+                            divisionId,
+                        }) ? null : (
                             <button
                                 className="btn btn-danger margin-right"
                                 onClick={bulkDeleteFixtures}>

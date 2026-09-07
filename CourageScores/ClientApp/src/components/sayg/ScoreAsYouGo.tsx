@@ -12,7 +12,7 @@ import { ILegDisplayOptions } from './ILegDisplayOptions.ts';
 import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 import { asyncCallback } from '../../helpers/events.ts';
 import { LegPlayerSequenceDto } from '../../interfaces/models/dtos/Game/Sayg/LegPlayerSequenceDto.ts';
-import { hasAccess } from '../../helpers/conditions.ts';
+import { hasAccessLevel } from '../../helpers/conditions.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface IScoreAsYouGoProps {
@@ -63,10 +63,9 @@ export function ScoreAsYouGo({
     changeNumberOfLegs,
 }: IScoreAsYouGoProps) {
     const { onError, account, browser } = useApp();
-    const canEditThrows: boolean = hasAccess(
-        account,
-        AccessOption.recordScoresAsYouGo,
-    );
+    const canEditThrows: boolean = hasAccessLevel(account, {
+        option: AccessOption.recordScoresAsYouGo,
+    });
     const location: Location = useLocation();
     const [useWidescreenStatistics, setUseWidescreenStatistics] =
         useState<boolean>(shouldUseWidescreenStatistics(location, browser));

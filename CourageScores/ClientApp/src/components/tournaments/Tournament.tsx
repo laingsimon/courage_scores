@@ -44,7 +44,7 @@ import { renderDate } from '../../helpers/rendering.ts';
 import { isEqual } from '../common/ObjectComparer.ts';
 import { retry } from '../../helpers/retry.ts';
 import { getTeamsInSeason } from '../../helpers/teams.ts';
-import { hasAccess, hasAnyAccessLevel } from '../../helpers/conditions.ts';
+import { hasAccessLevel, hasAnyAccessLevel } from '../../helpers/conditions.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface ITournamentPlayerMap {
@@ -68,18 +68,6 @@ export function Tournament() {
     } = useApp();
     const { divisionApi, tournamentApi, webSocket, featureApi } =
         useDependencies();
-    const canManageTournaments: boolean = hasAccess(
-        account,
-        AccessOption.manageTournaments,
-    );
-    const canManagePlayers: boolean = hasAccess(
-        account,
-        AccessOption.managePlayers,
-    );
-    const canEnterTournamentResults = hasAccess(
-        account,
-        AccessOption.enterTournamentResults,
-    );
     const [loading, setLoading] = useState<string>('init');
     const [saving, setSaving] = useState<boolean>(false);
     const [patching, setPatching] = useState<boolean>(false);
@@ -108,6 +96,21 @@ export function Tournament() {
     const [originalTournamentData, setOriginalTournamentData] =
         useState<TournamentGameDto | null>(null);
     const [saveRequired, setSaveRequired] = useState<number>(0);
+    const canManageTournaments: boolean = hasAccessLevel(account, {
+        option: AccessOption.manageTournaments,
+        seasonId: tournamentData?.seasonId,
+        divisionId: tournamentData?.divisionId,
+    });
+    const canManagePlayers: boolean = hasAccessLevel(account, {
+        option: AccessOption.managePlayers,
+        seasonId: tournamentData?.seasonId,
+        divisionId: tournamentData?.divisionId,
+    });
+    const canEnterTournamentResults = hasAccessLevel(account, {
+        option: AccessOption.enterTournamentResults,
+        seasonId: tournamentData?.seasonId,
+        divisionId: tournamentData?.divisionId,
+    });
 
     useEffect(
         () => {
@@ -607,10 +610,11 @@ export function Tournament() {
                         photos={tournamentData!.photos!}
                         onClose={async () => setShowPhotoManager(false)}
                         doDelete={deletePhotos}
-                        canUploadPhotos={hasAccess(
-                            account,
-                            AccessOption.uploadPhotos,
-                        )}
+                        canUploadPhotos={hasAccessLevel(account, {
+                            option: AccessOption.uploadPhotos,
+                            seasonId: tournamentData?.seasonId,
+                            divisionId: tournamentData?.divisionId,
+                        })}
                         canDeletePhotos={hasAnyAccessLevel(
                             account,
                             {
@@ -624,10 +628,11 @@ export function Tournament() {
                                 divisionId: tournamentData?.divisionId,
                             },
                         )}
-                        canViewAllPhotos={hasAccess(
-                            account,
-                            AccessOption.viewAnyPhoto,
-                        )}
+                        canViewAllPhotos={hasAccessLevel(account, {
+                            option: AccessOption.viewAnyPhoto,
+                            seasonId: tournamentData?.seasonId,
+                            divisionId: tournamentData?.divisionId,
+                        })}
                     />
                 ) : null}
                 {saveError ? (

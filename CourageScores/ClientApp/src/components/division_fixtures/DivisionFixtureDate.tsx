@@ -20,7 +20,7 @@ import { EditFixtureDateNoteDto } from '../../interfaces/models/dtos/EditFixture
 import { NewTournamentFixture } from './NewTournamentFixture.tsx';
 import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 import React from 'react';
-import { hasAccess } from '../../helpers/conditions.ts';
+import { hasAccessLevel } from '../../helpers/conditions.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface IDivisionFixtureDateProps {
@@ -45,20 +45,33 @@ export function DivisionFixtureDate({
     const { account, controls } = useApp();
     const navigate = useNavigate();
     const location = useLocation();
-    const { season, fixtures, teams, superleague } = useDivisionData();
-    const canManageTournaments: boolean = hasAccess(
-        account,
-        AccessOption.manageTournaments,
-    );
-    const canManageGames: boolean = hasAccess(
-        account,
-        AccessOption.manageGames,
-    );
-    const canAnalyseMatches: boolean = hasAccess(
-        account,
-        AccessOption.analyseMatches,
-    );
-    const isNoteAdmin: boolean = hasAccess(account, AccessOption.manageNotes);
+    const {
+        season,
+        fixtures,
+        teams,
+        superleague,
+        id: divisionId,
+    } = useDivisionData();
+    const canManageTournaments: boolean = hasAccessLevel(account, {
+        option: AccessOption.manageTournaments,
+        seasonId: season?.id,
+        divisionId,
+    });
+    const canManageGames: boolean = hasAccessLevel(account, {
+        option: AccessOption.manageGames,
+        seasonId: season?.id,
+        divisionId,
+    });
+    const canAnalyseMatches: boolean = hasAccessLevel(account, {
+        option: AccessOption.analyseMatches,
+        seasonId: season?.id,
+        divisionId,
+    });
+    const isNoteAdmin: boolean = hasAccessLevel(account, {
+        option: AccessOption.manageNotes,
+        seasonId: season?.id,
+        divisionId,
+    });
     const filterByDateUrl: string = getFilterByDateUrl(date.date);
 
     function getFilterByDateUrl(date: string): string {

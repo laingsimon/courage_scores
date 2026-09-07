@@ -66,10 +66,3 @@ export function hasAnyAccessLevel(
 
     return any(contexts, (context) => hasAccessLevel(account, context));
 }
-
-export function hasAccess(
-    account: UserDto | undefined,
-    option: AccessOption,
-): boolean {
-    return hasAccessLevel(account, { option });
-}

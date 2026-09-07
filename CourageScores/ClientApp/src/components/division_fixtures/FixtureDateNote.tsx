@@ -8,7 +8,7 @@ import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
 import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto.ts';
 import { EditFixtureDateNoteDto } from '../../interfaces/models/dtos/EditFixtureDateNoteDto.ts';
 import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
-import { hasAccess } from '../../helpers/conditions.ts';
+import { hasAccessLevel } from '../../helpers/conditions.ts';
 import { renderDate } from '../../helpers/rendering.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
@@ -27,7 +27,10 @@ export function FixtureDateNote({
     const { account, onError } = useApp();
     const { noteApi } = useDependencies();
     const [deletingNote, setDeletingNote] = useState<boolean>(false);
-    const isNoteAdmin: boolean = hasAccess(account, AccessOption.manageNotes);
+    const isNoteAdmin: boolean = hasAccessLevel(account, {
+        option: AccessOption.manageNotes,
+        seasonId: season?.id,
+    });
     const isOutOfSeason =
         season &&
         note.date &&

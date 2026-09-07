@@ -27,7 +27,7 @@ import { add180, addHiCheck } from '../common/Accolades.tsx';
 import { START_SCORING } from './tournaments.ts';
 import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 import { asyncClear } from '../../helpers/events.ts';
-import { hasAccess, hasAnyAccessLevel } from '../../helpers/conditions.ts';
+import { hasAccessLevel, hasAnyAccessLevel } from '../../helpers/conditions.ts';
 import { useNavigate, useLocation } from 'react-router';
 import { TournamentRoundDto } from '../../interfaces/models/dtos/Game/TournamentRoundDto.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
@@ -85,7 +85,11 @@ export function MatchSayg({
         tournamentData,
         setTournamentData!,
     );
-    const kioskMode: boolean = hasAccess(account, AccessOption.kioskMode);
+    const kioskMode: boolean = hasAccessLevel(account, {
+        option: AccessOption.kioskMode,
+        seasonId: tournamentData.seasonId,
+        divisionId: tournamentData.divisionId,
+    });
     const saygOpen = fragmentSaygId === match.saygId;
 
     async function changeDialogState(changeToOpen: boolean, saygId?: string) {
@@ -182,7 +186,11 @@ export function MatchSayg({
     }
 
     function canOpenSaygDialog(): boolean {
-        const saygAccess = hasAccess(account, AccessOption.recordScoresAsYouGo);
+        const saygAccess = hasAccessLevel(account, {
+            option: AccessOption.recordScoresAsYouGo,
+            seasonId: tournamentData.seasonId,
+            divisionId: tournamentData.divisionId,
+        });
         const canEnterResults = hasAnyAccessLevel(
             account,
             {

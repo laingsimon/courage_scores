@@ -50,7 +50,7 @@ import { PhotoManager } from '../common/PhotoManager.tsx';
 import { UploadPhotoDto } from '../../interfaces/models/dtos/UploadPhotoDto.ts';
 import { useBranding } from '../common/BrandingContainer.tsx';
 import { NavLink } from '../common/NavLink.tsx';
-import { hasAccess, hasAnyAccessLevel } from '../../helpers/conditions.ts';
+import { hasAccessLevel, hasAnyAccessLevel } from '../../helpers/conditions.ts';
 import { getTeamSeasons } from '../../helpers/teams.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 import {
@@ -98,7 +98,13 @@ export function Score() {
 
     function getAccess(): string {
         if (account) {
-            if (hasAccess(account, AccessOption.manageScores)) {
+            if (
+                hasAccessLevel(account, {
+                    option: AccessOption.manageScores,
+                    seasonId: fixtureData?.seasonId,
+                    divisionId: fixtureData?.divisionId,
+                })
+            ) {
                 return 'admin';
             } else if (account.teamId) {
                 return 'clerk';
@@ -642,7 +648,11 @@ export function Score() {
             (!saving &&
                 ((access === 'admin' && !submission) ||
                     (!fixtureData.resultsPublished &&
-                        hasAccess(account, AccessOption.inputResults)))) ||
+                        hasAccessLevel(account, {
+                            option: AccessOption.inputResults,
+                            seasonId: fixtureData.seasonId,
+                            divisionId: fixtureData.divisionId,
+                        })))) ||
             false;
         const leagueFixtureData: ILeagueFixtureContainerProps = {
             season: season,
@@ -803,10 +813,11 @@ export function Score() {
                         photos={fixtureData.photos || []}
                         onClose={async () => setShowPhotoManager(false)}
                         doDelete={deletePhotos}
-                        canUploadPhotos={hasAccess(
-                            account,
-                            AccessOption.uploadPhotos,
-                        )}
+                        canUploadPhotos={hasAccessLevel(account, {
+                            option: AccessOption.uploadPhotos,
+                            seasonId: fixtureData.seasonId,
+                            divisionId: fixtureData.divisionId,
+                        })}
                         canDeletePhotos={
                             hasAnyAccessLevel(
                                 account,
@@ -824,7 +835,11 @@ export function Score() {
                         }
                         canViewAllPhotos={
                             access === 'admin' ||
-                            hasAccess(account, AccessOption.viewAnyPhoto)
+                            hasAccessLevel(account, {
+                                option: AccessOption.viewAnyPhoto,
+                                seasonId: fixtureData.seasonId,
+                                divisionId: fixtureData.divisionId,
+                            })
                         }
                     />
                 ) : null}

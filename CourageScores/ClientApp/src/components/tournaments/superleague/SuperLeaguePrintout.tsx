@@ -23,7 +23,7 @@ import { PatchTournamentDto } from '../../../interfaces/models/dtos/Game/PatchTo
 import { PatchTournamentRoundDto } from '../../../interfaces/models/dtos/Game/PatchTournamentRoundDto.ts';
 import { LiveDataType } from '../../../interfaces/models/dtos/Live/LiveDataType.ts';
 import { Loading } from '../../common/Loading.tsx';
-import { hasAccess } from '../../../helpers/conditions.ts';
+import { hasAccessLevel } from '../../../helpers/conditions.ts';
 import { AccessOption } from '../../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface ISuperLeaguePrintoutProps {
@@ -67,7 +67,11 @@ export function SuperLeaguePrintout({
                 !any(Object.keys(saygDataMap), (key: string) => key === id),
         );
     const showWinner: boolean = location.search.indexOf('winner') !== -1;
-    const kioskMode: boolean = hasAccess(account, AccessOption.kioskMode);
+    const kioskMode: boolean = hasAccessLevel(account, {
+        option: AccessOption.kioskMode,
+        seasonId: tournamentData.seasonId,
+        divisionId: tournamentData.divisionId,
+    });
 
     useEffect(
         () => {

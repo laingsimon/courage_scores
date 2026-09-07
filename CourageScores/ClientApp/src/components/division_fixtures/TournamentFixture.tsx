@@ -15,7 +15,7 @@ import { ToggleFavouriteTeam } from '../common/ToggleFavouriteTeam.tsx';
 import { Link } from 'react-router';
 import { TournamentMatchDto } from '../../interfaces/models/dtos/Game/TournamentMatchDto.ts';
 import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
-import { hasAccess } from '../../helpers/conditions.ts';
+import { hasAccessLevel } from '../../helpers/conditions.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface ITournamentFixtureProps {
@@ -30,12 +30,21 @@ export function TournamentFixture({
     expanded,
 }: ITournamentFixtureProps) {
     const { getPreference } = usePreferences();
-    const { name: divisionName, season, favouritesEnabled } = useDivisionData();
+    const {
+        name: divisionName,
+        season,
+        favouritesEnabled,
+        id: divisionId,
+    } = useDivisionData();
     const { account, teams } = useApp();
     const [deleting, setDeleting] = useState<boolean>(false);
     const [saveError, setSaveError] =
         useState<IClientActionResultDto<TournamentGameDto> | null>(null);
-    const isAdmin: boolean = hasAccess(account, AccessOption.manageTournaments);
+    const isAdmin: boolean = hasAccessLevel(account, {
+        option: AccessOption.manageTournaments,
+        seasonId: season?.id,
+        divisionId,
+    });
     const { tournamentApi } = useDependencies();
     const favouriteTeamIds: string[] =
         getPreference<string[]>('favouriteTeamIds') || [];

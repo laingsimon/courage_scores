@@ -1,5 +1,4 @@
 ﻿import {
-    hasAccess,
     hasAccessLevel,
     hasAllAccessLevels,
     hasAnyAccessLevel,
@@ -274,60 +273,6 @@ describe('conditions', () => {
                 },
                 { option: AccessOption.manageAccess },
                 { option: AccessOption.manageDivisions },
-            );
-
-            expect(result).toBe(true);
-        });
-    });
-
-    describe('hasAccess', () => {
-        it('returns false when not logged in', () => {
-            const result = hasAccess(undefined, AccessOption.manageAccess);
-
-            expect(result).toBe(false);
-        });
-
-        it('returns false when access levels is null', () => {
-            const result = hasAccess(userTemplate, AccessOption.manageAccess);
-
-            expect(result).toBe(false);
-        });
-
-        it('returns false when access levels does not contain access', () => {
-            const result = hasAccess(
-                {
-                    ...userTemplate,
-                    accessLevels: {},
-                },
-                AccessOption.manageAccess,
-            );
-
-            expect(result).toBe(false);
-        });
-
-        it('returns false when access levels does not contain access', () => {
-            const result = hasAccess(
-                {
-                    ...userTemplate,
-                    accessLevels: {
-                        [AccessOption.manageAccess]: undefined!,
-                    },
-                },
-                AccessOption.manageAccess,
-            );
-
-            expect(result).toBe(false);
-        });
-
-        it('returns true when access levels contains non-null access', () => {
-            const result = hasAccess(
-                {
-                    ...userTemplate,
-                    accessLevels: {
-                        [AccessOption.manageAccess]: {},
-                    },
-                },
-                AccessOption.manageAccess,
             );
 
             expect(result).toBe(true);

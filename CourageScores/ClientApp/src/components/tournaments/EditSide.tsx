@@ -23,7 +23,7 @@ import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
 import { TournamentGameDto } from '../../interfaces/models/dtos/Game/TournamentGameDto.ts';
 import { DivisionTournamentFixtureDetailsDto } from '../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto.ts';
 import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
-import { hasAccess } from '../../helpers/conditions.ts';
+import { hasAccessLevel } from '../../helpers/conditions.ts';
 import { getTeamSeasons } from '../../helpers/teams.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
@@ -99,7 +99,11 @@ export function EditSide({
         return [];
     });
     const canAddPlayers: boolean =
-        hasAccess(account, AccessOption.managePlayers) && !side.teamId;
+        hasAccessLevel(account, {
+            option: AccessOption.managePlayers,
+            seasonId: season?.id,
+            divisionId,
+        }) && !side.teamId;
     const tournamentSideType: ITournamentSideType =
         getTournamentSideType(tournamentData);
 
