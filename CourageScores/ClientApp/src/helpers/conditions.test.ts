@@ -1,7 +1,6 @@
 ﻿import {
     hasAccess,
     hasAccessLevel,
-    hasAllAccess,
     hasAllAccessLevels,
     hasAnyAccessLevel,
     UserAccessContext,
@@ -329,62 +328,6 @@ describe('conditions', () => {
                     },
                 },
                 AccessOption.manageAccess,
-            );
-
-            expect(result).toBe(true);
-        });
-    });
-
-    describe('hasAllAccess', () => {
-        it('returns false when no options provided', () => {
-            const result = hasAllAccess({
-                ...userTemplate,
-                accessLevels: {
-                    [AccessOption.manageAccess]: {},
-                },
-            });
-
-            expect(result).toBe(false);
-        });
-
-        it('returns false when no option is not defined', () => {
-            const result = hasAllAccess(
-                {
-                    ...userTemplate,
-                    accessLevels: {},
-                },
-                AccessOption.manageAccess,
-            );
-
-            expect(result).toBe(false);
-        });
-
-        it('returns false when one option is not defined', () => {
-            const result = hasAllAccess(
-                {
-                    ...userTemplate,
-                    accessLevels: {
-                        [AccessOption.manageAccess]: {},
-                    },
-                },
-                AccessOption.manageAccess,
-                AccessOption.manageDivisions,
-            );
-
-            expect(result).toBe(false);
-        });
-
-        it('returns true when all options are defined', () => {
-            const result = hasAllAccess(
-                {
-                    ...userTemplate,
-                    accessLevels: {
-                        [AccessOption.manageAccess]: {},
-                        [AccessOption.manageDivisions]: {},
-                    },
-                },
-                AccessOption.manageAccess,
-                AccessOption.manageDivisions,
             );
 
             expect(result).toBe(true);

@@ -73,13 +73,3 @@ export function hasAccess(
 ): boolean {
     return hasAccessLevel(account, { option });
 }
-
-export function hasAllAccess(
-    account: UserDto | undefined,
-    ...options: AccessOption[]
-): boolean {
-    return hasAllAccessLevels(
-        account,
-        ...options.map((option) => ({ option })),
-    );
-}
