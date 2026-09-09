@@ -14,7 +14,7 @@ import { LiveDataType } from '../../interfaces/models/dtos/Live/LiveDataType.ts'
 import { ISubscriptionRequest } from '../../live/ISubscriptionRequest.ts';
 import { IUpdateLookup } from './LiveSayg.ts';
 import { LegCompetitorScoreDto } from '../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto.ts';
-import { hasAccess } from '../../helpers/conditions.ts';
+import { hasAccessLevel } from '../../helpers/conditions.ts';
 import { getScoreFromThrows } from '../../helpers/sayg.ts';
 import { GameMatchOptionDto } from '../../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
 import { TournamentSideDto } from '../../interfaces/models/dtos/Game/TournamentSideDto.ts';
@@ -67,7 +67,11 @@ export function LiveSuperleagueTournamentDisplay({
     >([]);
     const tournament = updatedTournament ?? data ?? initialData;
     const { enableLiveUpdates, subscriptions } = useLive();
-    const canUseWebSockets = hasAccess(account, AccessOption.useWebSockets);
+    const canUseWebSockets = hasAccessLevel(account, {
+        option: AccessOption.useWebSockets,
+        seasonId: tournament?.seasonId,
+        divisionId: tournament?.divisionId,
+    });
     const [scoreChanged, setScoreChanged] = useState<undefined | ILastThrow>(
         undefined,
     );
@@ -510,7 +514,11 @@ export function LiveSuperleagueTournamentDisplay({
                         Scores: {watchLiveScores ? '▶️' : '⏸️'}
                     </button>
                 ) : null}
-                {hasAccess(account, AccessOption.showDebugOptions) ? (
+                {hasAccessLevel(account, {
+                    option: AccessOption.showDebugOptions,
+                    seasonId: tournament?.seasonId,
+                    divisionId: tournament?.divisionId,
+                }) ? (
                     <button
                         className="ms-3 btn btn-sm opacity-50"
                         onClick={() =>

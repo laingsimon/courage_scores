@@ -5,7 +5,7 @@ import { useApp } from '../common/AppContainer.tsx';
 import { PrintDivisionHeading } from '../league/PrintDivisionHeading.tsx';
 import { DivisionPlayerDto } from '../../interfaces/models/dtos/Division/DivisionPlayerDto.ts';
 import { useBranding } from '../common/BrandingContainer.tsx';
-import { hasAccess } from '../../helpers/conditions.ts';
+import { hasAccessLevel } from '../../helpers/conditions.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface IDivisionPlayersProps {
@@ -20,8 +20,17 @@ export function DivisionPlayers({
     players,
 }: IDivisionPlayersProps) {
     const { account } = useApp();
-    const isAdmin: boolean = hasAccess(account, AccessOption.managePlayers);
-    const { players: divisionDataPlayers, name } = useDivisionData();
+    const {
+        players: divisionDataPlayers,
+        name,
+        id: divisionId,
+        season,
+    } = useDivisionData();
+    const isAdmin: boolean = hasAccessLevel(account, {
+        option: AccessOption.managePlayers,
+        seasonId: season?.id,
+        divisionId,
+    });
     const playersToShow = players || divisionDataPlayers;
     const { setTitle } = useBranding();
 

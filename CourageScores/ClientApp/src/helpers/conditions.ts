@@ -7,31 +7,62 @@ export interface IAccessLevels {
     [key: string]: AccessLevelDto;
 }
 
-export function hasAccess(
-    account: UserDto | undefined,
-    option: AccessOption,
-): boolean {
-    return !!account?.accessLevels?.[option];
+export interface UserAccessContext {
+    option: AccessOption;
+    seasonId?: string;
+    divisionId?: string;
+    teamId?: string;
 }
 
-export function hasAllAccess(
-    account: UserDto | undefined,
-    ...options: AccessOption[]
-): boolean {
-    if (options.length === 0) {
+const permitted = (accessLevelIds?: string[], contextId?: string): boolean => {
+    if (accessLevelIds?.length === 0) {
         return false;
     }
 
-    return all(options, (op) => hasAccess(account, op));
-}
+    if (!accessLevelIds || !contextId) {
+        return true;
+    }
 
-export function hasAnyAccess(
+    return accessLevelIds.includes(contextId);
+};
+
+export function hasAccessLevel(
     account: UserDto | undefined,
-    ...options: AccessOption[]
+    context: UserAccessContext,
 ): boolean {
-    if (options.length === 0) {
+    const accessLevel = account?.accessLevels?.[context.option];
+    if (!accessLevel) {
         return false;
     }
 
-    return any(options, (op) => hasAccess(account, op));
+    const seasonPermitted = permitted(accessLevel.seasonIds, context.seasonId);
+    const divisionPermitted = permitted(
+        accessLevel.divisionIds,
+        context.divisionId,
+    );
+    const teamPermitted = permitted(accessLevel.teamIds, context.teamId);
+
+    return seasonPermitted && divisionPermitted && teamPermitted;
+}
+
+export function hasAllAccessLevels(
+    account: UserDto | undefined,
+    ...contexts: UserAccessContext[]
+): boolean {
+    if (contexts.length === 0) {
+        return false;
+    }
+
+    return all(contexts, (context) => hasAccessLevel(account, context));
+}
+
+export function hasAnyAccessLevel(
+    account: UserDto | undefined,
+    ...contexts: UserAccessContext[]
+): boolean {
+    if (contexts.length === 0) {
+        return false;
+    }
+
+    return any(contexts, (context) => hasAccessLevel(account, context));
 }

@@ -30,7 +30,7 @@ import { IIdish } from './IDivisionUri.ts';
 import { IError } from '../common/IError.ts';
 import { NavLink } from '../common/NavLink.tsx';
 import { SeasonDto } from '../../interfaces/models/dtos/Season/SeasonDto.ts';
-import { hasAccess } from '../../helpers/conditions.ts';
+import { hasAccessLevel } from '../../helpers/conditions.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface IRequestedDivisionDataDto
@@ -421,7 +421,11 @@ export function Division() {
                                 </NavLink>
                             </li>
                         ) : null}
-                        {hasAccess(account, AccessOption.runReports) &&
+                        {hasAccessLevel(account, {
+                            option: AccessOption.runReports,
+                            seasonId: divisionData?.season?.id,
+                            divisionId: divisionData?.id,
+                        }) &&
                         requestedDivisions!.length === 1 &&
                         !divisionDataToUse!.superleague ? (
                             <li className="nav-item">
@@ -436,7 +440,11 @@ export function Division() {
                                 </NavLink>
                             </li>
                         ) : null}
-                        {hasAccess(account, AccessOption.runHealthChecks) &&
+                        {hasAccessLevel(account, {
+                            option: AccessOption.runHealthChecks,
+                            seasonId: divisionData?.season?.id,
+                            divisionId: divisionData?.id,
+                        }) &&
                         requestedDivisions!.length === 1 &&
                         !divisionDataToUse!.superleague ? (
                             <li className="nav-item">
@@ -494,12 +502,20 @@ export function Division() {
                         ) : null}
                         {effectiveTab === 'reports' &&
                         divisionDataToUse.season &&
-                        hasAccess(account, AccessOption.runReports) ? (
+                        hasAccessLevel(account, {
+                            option: AccessOption.runReports,
+                            seasonId: divisionData?.season?.id,
+                            divisionId: divisionData?.id,
+                        }) ? (
                             <DivisionReports />
                         ) : null}
                         {effectiveTab === 'health' &&
                         divisionDataToUse.season &&
-                        hasAccess(account, AccessOption.runHealthChecks) ? (
+                        hasAccessLevel(account, {
+                            option: AccessOption.runHealthChecks,
+                            seasonId: divisionData?.season?.id,
+                            divisionId: divisionData?.id,
+                        }) ? (
                             <DivisionHealth />
                         ) : null}
                         {effectiveTab &&

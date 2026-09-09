@@ -184,11 +184,13 @@ describe('UserAdmin', () => {
         };
         const division = divisionBuilder('DIVISION 1').build();
         const season = seasonBuilder('SEASON 1').withDivision(division).build();
-        const team = teamBuilder('TEAM 1').forSeason(season, division).build();
-        teams = [team];
+        const team1 = teamBuilder('TEAM 1').forSeason(season, division).build();
+        const team2 = teamBuilder('TEAM 2').forSeason(season, division).build();
+        const team3 = teamBuilder('TEAM 3').build();
+        teams = [team1, team2, team3];
         const appProps: Partial<IApp> = {
-            divisions: [division],
-            seasons: [season],
+            divisions: [division, divisionBuilder('DIVISION 2').build()],
+            seasons: [season, seasonBuilder('SEASON 2').build()],
         };
         await renderComponent([account], account, appProps);
 
@@ -217,7 +219,60 @@ describe('UserAdmin', () => {
                 [AccessOption.manageGames]: {
                     divisionIds: [division.id],
                     seasonIds: [season.id],
-                    teamIds: [team.id],
+                    teamIds: [team1.id],
+                },
+            },
+            emailAddress: 'a@b.com',
+        });
+    });
+
+    it('sets id array to undefined when empty', async () => {
+        const division = divisionBuilder('DIVISION 1').build();
+        const season = seasonBuilder('SEASON 1').withDivision(division).build();
+        const team1 = teamBuilder('TEAM 1').forSeason(season, division).build();
+        const account: UserDto = {
+            ...user([]),
+            accessLevels: {
+                [AccessOption.manageGames]: {
+                    divisionIds: [division.id],
+                    seasonIds: [season.id],
+                    teamIds: [team1.id],
+                },
+            },
+            emailAddress: 'a@b.com',
+            name: 'Admin',
+        };
+        teams = [team1];
+        const appProps: Partial<IApp> = {
+            divisions: [division],
+            seasons: [season],
+        };
+        await renderComponent([account], account, appProps);
+
+        await context.button('✏️').click();
+        const dialog = context.required('.modal-dialog');
+        await dialog
+            .required('div[data-type="Seasons"]')
+            .required('ol.list-group li:first-child')
+            .click();
+        await dialog
+            .required('div[data-type="Divisions"]')
+            .required('ol.list-group li:first-child')
+            .click();
+        await dialog
+            .required('div[data-type="Teams"]')
+            .required('ol.list-group li:first-child')
+            .click();
+        await dialog.button('Close').click();
+        await context.button('Set access').click();
+
+        reportedError.verifyNoError();
+        expect(updatedAccess).toEqual({
+            accessLevels: {
+                [AccessOption.manageGames]: {
+                    divisionIds: undefined,
+                    seasonIds: undefined,
+                    teamIds: undefined,
                 },
             },
             emailAddress: 'a@b.com',

@@ -12,7 +12,7 @@ import { usePreferences } from '../common/PreferencesContainer.tsx';
 import { any } from '../../helpers/collections.ts';
 import { Link } from 'react-router';
 import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
-import { hasAccess } from '../../helpers/conditions.ts';
+import { hasAccessLevel } from '../../helpers/conditions.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 export interface IDivisionTeamProps {
@@ -33,7 +33,11 @@ export function DivisionTeam({ team }: IDivisionTeamProps) {
     );
     const [editTeam, setEditTeam] = useState<boolean>(false);
     const [addTeamToSeason, setAddTeamToSeason] = useState<boolean>(false);
-    const isAdmin = hasAccess(account, AccessOption.manageTeams);
+    const isAdmin = hasAccessLevel(account, {
+        option: AccessOption.manageTeams,
+        seasonId: season?.id,
+        divisionId,
+    });
     const { getPreference } = usePreferences();
     const favouriteTeamIds: string[] =
         getPreference<string[]>('favouriteTeamIds') || [];

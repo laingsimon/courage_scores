@@ -14,7 +14,7 @@ import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
 import { isEmpty } from '../../helpers/collections.ts';
 import { useApp } from '../common/AppContainer.tsx';
 import { Loading } from '../common/Loading.tsx';
-import { hasAccess } from '../../helpers/conditions.ts';
+import { hasAccessLevel } from '../../helpers/conditions.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 
 interface AccessTemplate {
@@ -303,7 +303,9 @@ export function SessionResponse() {
         return <Loading />;
     }
 
-    if (!hasAccess(account, AccessOption.loginServiceAccounts)) {
+    if (
+        !hasAccessLevel(account, { option: AccessOption.loginServiceAccounts })
+    ) {
         return (
             <div className="content-background p-3">
                 <h3>Service account session</h3>

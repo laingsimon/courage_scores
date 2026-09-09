@@ -6,7 +6,7 @@ import {
 import React, { useState } from 'react';
 import { useApp } from './AppContainer.tsx';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
-import { hasAccess } from '../../helpers/conditions.ts';
+import { hasAccessLevel } from '../../helpers/conditions.ts';
 
 export interface IDebugOptionsProps {
     text?: string;
@@ -24,10 +24,9 @@ export function DebugOptions({
     const [open, setOpen] = useState<boolean>(false);
     const { account } = useApp();
 
-    const canDisplay: boolean = hasAccess(
-        account,
-        AccessOption.showDebugOptions,
-    );
+    const canDisplay: boolean = hasAccessLevel(account, {
+        option: AccessOption.showDebugOptions,
+    });
     if (!canDisplay) {
         return null;
     }
