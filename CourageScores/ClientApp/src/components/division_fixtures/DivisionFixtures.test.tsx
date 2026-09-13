@@ -187,13 +187,12 @@ describe('DivisionFixtures', () => {
         }
     }
 
-    function getFixtureDateElement(index: number, account?: UserDto) {
-        const fixtureElements = context.all('div.content-background > div');
-        expect(fixtureElements.length).toEqual(2 + (account ? 2 : 0));
-        const fixtureDatesContainer = fixtureElements[account ? 2 : 1];
-        const fixtureDates = fixtureDatesContainer.all(':scope > *');
-        expect(fixtureDates.length).toBeGreaterThan(index);
-        return fixtureDates[index];
+    function getFixtureDateElement(index: number) {
+        const fixtureElements = context.all(
+            'div.content-background div[data-type="fixture-date"]',
+        );
+        expect(fixtureElements.length).toBeGreaterThan(index);
+        return fixtureElements[index];
     }
 
     function assertFixtureDate(element: IComponent, expectedDate: string) {
@@ -539,7 +538,7 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            const fixtureDateElement = getFixtureDateElement(0, account);
+            const fixtureDateElement = getFixtureDateElement(0);
             assertFixtureDate(fixtureDateElement, '3 Feb📌 Add noteQualifier');
             expect(getNote(fixtureDateElement)!.text()).toEqual(
                 '📌Finals night!Edit',
@@ -557,7 +556,7 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            const fixtureDateElement = getFixtureDateElement(0, account);
+            const fixtureDateElement = getFixtureDateElement(0);
             const element = getFixturesForDate(fixtureDateElement, 1)[0];
             assertFixture(element, 'home1', '1', '2', 'away1', account);
         });
@@ -577,7 +576,7 @@ describe('DivisionFixtures', () => {
             await renderComponent(divisionData, account);
 
             assertFixture(
-                getFixturesForDate(getFixtureDateElement(0, account), 1)[0],
+                getFixturesForDate(getFixtureDateElement(0), 1)[0],
                 'home2 - ko',
                 '3',
                 '4',
@@ -603,7 +602,7 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            const fixtureDateElement = getFixtureDateElement(0, account);
+            const fixtureDateElement = getFixtureDateElement(0);
             const element = getFixturesForDate(fixtureDateElement, 1)[0];
             assertFixture(element, 'home3', 'P', 'P', 'A team', account);
         });
@@ -618,7 +617,7 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            const fixtureDateElement = getFixtureDateElement(0, account);
+            const fixtureDateElement = getFixtureDateElement(0);
             const element = getTournamentProposals(fixtureDateElement, 1)[0];
             assertFixture(element, 'home4 - bye', '', '', 'Bye', account);
         });
@@ -639,7 +638,7 @@ describe('DivisionFixtures', () => {
             await renderComponent(divisionData, account);
 
             assertTournament(
-                getTournamentProposals(getFixtureDateElement(0, account), 1)[0],
+                getTournamentProposals(getFixtureDateElement(0), 1)[0],
                 'Pairs at an address',
                 'The winning side',
                 account,
@@ -661,7 +660,7 @@ describe('DivisionFixtures', () => {
             await renderComponent(divisionData, account);
 
             assertTournament(
-                getTournamentProposals(getFixtureDateElement(0, account), 1)[0],
+                getTournamentProposals(getFixtureDateElement(0), 1)[0],
                 'Pairs at another address',
                 undefined,
                 account,
@@ -690,7 +689,7 @@ describe('DivisionFixtures', () => {
                 true,
             );
 
-            const fixtureDateElement = getFixtureDateElement(0, account);
+            const fixtureDateElement = getFixtureDateElement(0);
             const addressDropdown = fixtureDateElement.required(
                 '.address-dropdown .dropdown-menu',
             );
@@ -709,7 +708,7 @@ describe('DivisionFixtures', () => {
             );
             await renderComponent(divisionData, account);
 
-            const fixtureDateElement = getFixtureDateElement(0, account);
+            const fixtureDateElement = getFixtureDateElement(0);
             await fixtureDateElement.button('📌 Add note').click();
 
             expect(getDialog()!.text()).toContain('Create note');
@@ -719,7 +718,7 @@ describe('DivisionFixtures', () => {
             addNote('A note');
             await renderComponent(divisionData, account);
 
-            const fixtureDateElement = getFixtureDateElement(0, account);
+            const fixtureDateElement = getFixtureDateElement(0);
             await getNote(fixtureDateElement)!.button('Edit').click();
 
             expect(getDialog()!.text()).toContain('Edit note');
@@ -733,7 +732,7 @@ describe('DivisionFixtures', () => {
             };
             addNote('A note');
             await renderComponent(divisionData, account);
-            const fixtureDateElement = getFixtureDateElement(0, account);
+            const fixtureDateElement = getFixtureDateElement(0);
             await getNote(fixtureDateElement)!.button('Edit').click();
 
             const dialog = getDialog()!;
@@ -748,7 +747,7 @@ describe('DivisionFixtures', () => {
         it('can close edit notes dialog', async () => {
             addNote('A note');
             await renderComponent(divisionData, account);
-            const fixtureDateElement = getFixtureDateElement(0, account);
+            const fixtureDateElement = getFixtureDateElement(0);
             await getNote(fixtureDateElement)!.button('Edit').click();
 
             await getDialog()!.button('Close').click();
