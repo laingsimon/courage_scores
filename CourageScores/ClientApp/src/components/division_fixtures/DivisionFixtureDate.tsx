@@ -231,7 +231,8 @@ export function DivisionFixtureDate({
     return (
         <div
             key={date.date}
-            className={`${getClassName()}${date.isNew ? ' alert-success pt-3 mb-3' : ''}`}>
+            className={`${getClassName()}${date.isNew ? ' alert-success pt-3 mb-3' : ''}`}
+            data-type="fixture-date">
             <div data-fixture-date={date.date} className="bg-light"></div>
             <h4>
                 📅 <Link to={filterByDateUrl}>{renderDate(date.date)}</Link>
