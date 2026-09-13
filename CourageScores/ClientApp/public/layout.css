@@ -350,6 +350,10 @@ body .width-75 {
     width: 75px;
 }
 
+body .width-5em {
+    width: 5em;
+}
+
 .right-50 {
     right: 50px;
 }
