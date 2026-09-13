@@ -30,6 +30,6 @@ public class ServiceAccountSession : AuditedEntity, IPermissionedEntity
 
     public async Task<bool> CanDelete(IUserAccessService userAccess, CancellationToken token)
     {
-        return await userAccess.HasAccess(AccessOption.LoginServiceAccounts, token);
+        return TransientUsername == userAccess.User?.EmailAddress || await userAccess.HasAccess(AccessOption.LoginServiceAccounts, token);
     }
 }
