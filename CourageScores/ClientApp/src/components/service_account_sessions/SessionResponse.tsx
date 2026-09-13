@@ -213,14 +213,19 @@ export function SessionResponse() {
                             Pin
                         </label>
                         <div className="flex-grow-0">
-                            <input
-                                id="pin"
-                                value={pin}
-                                maxLength={4}
-                                placeholder="Under QR code"
-                                onChange={stateChanged(updatePin)}
-                                className="form-control width-100"
-                            />
+                            <div className="d-flex flex-row">
+                                <input
+                                    id="pin"
+                                    value={pin}
+                                    maxLength={4}
+                                    placeholder="____"
+                                    onChange={stateChanged(updatePin)}
+                                    className="form-control width-5em fs-2 letter-spacing-3 text-danger font-monospace"
+                                />
+                                <div className="align-content-center ps-3">
+                                    Under QR code
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div className="d-flex flex-row align-items-center">

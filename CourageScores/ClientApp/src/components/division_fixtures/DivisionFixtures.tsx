@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { FilterFixtures } from './FilterFixtures.tsx';
 import { useLocation } from 'react-router';
 import { EditNote } from './EditNote.tsx';
-import { any, isEmpty, sortBy } from '../../helpers/collections.ts';
+import { any, isEmpty, skip, sortBy } from '../../helpers/collections.ts';
 import { asyncCallback, stateChanged } from '../../helpers/events.ts';
 import { useApp } from '../common/AppContainer.tsx';
 import { useDivisionData } from '../league/DivisionDataContainer.tsx';
@@ -93,7 +93,27 @@ export function DivisionFixtures({ setNewFixtures }: IDivisionFixturesProps) {
     }
 
     function renderFixtureDate(fixtureDate: IEditableDivisionFixtureDateDto) {
-        return (
+        const allLeagueFixturesLength =
+            fixtures?.filter((f) => any(f.fixtures)).length ?? 0;
+        const firstDateAfterMidSeason = skip(
+            fixtures,
+            allLeagueFixturesLength / 2,
+        )[0];
+        const isFirstDateAfterMidSeason =
+            firstDateAfterMidSeason?.date === fixtureDate.date;
+
+        return [
+            isFirstDateAfterMidSeason && isAdmin ? (
+                <div
+                    key="mid-season-marker"
+                    className="border-1 border-top border-success-subtle pt-1 position-relative">
+                    <div className="position-absolute right-0">
+                        <div className="no-wrap text-center bg-success-subtle p-2 top-negative-15 position-relative">
+                            Second half ⬇️
+                        </div>
+                    </div>
+                </div>
+            ) : null,
             <DivisionFixtureDate
                 key={fixtureDate.date + (fixtureDate.isNew ? '_new' : '')}
                 date={fixtureDate}
@@ -103,8 +123,8 @@ export function DivisionFixtures({ setNewFixtures }: IDivisionFixturesProps) {
                 setShowPlayers={asyncCallback(setShowPlayers)}
                 setNewFixtures={setNewFixtures}
                 onTournamentChanged={onTournamentChanged}
-            />
-        );
+            />,
+        ].filter((e) => !!e);
     }
 
     function getNewFixtureDate(
@@ -372,7 +392,7 @@ export function DivisionFixtures({ setNewFixtures }: IDivisionFixturesProps) {
                       .filter((fd: DivisionFixtureDateDto) =>
                           fixtureDateFilters.apply(fd),
                       ) // for any post-fixture filtering, e.g. notes=only-with-fixtures
-                      .map(renderFixtureDate);
+                      .flatMap(renderFixtureDate);
         return (
             <div className="content-background p-3">
                 {isAdmin ? (
