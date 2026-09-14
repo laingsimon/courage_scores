@@ -13,7 +13,7 @@
     "react-markdown": "^10.1.0",
     "react-router-bootstrap": "^0.26.3",
     "remark-gfm": "^4.0.1",
-    "vite": "^8.2.2"
+    "vite": "^8.3.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -22,7 +22,7 @@
     "@testing-library/user-event": "^14.6.6",
     "@types/jest": "^30.0.0",
     "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.5",
+    "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-basic-ssl": "^2.3.0",
     "eslint": "^10.10.0",
     "eslint-plugin-react-hooks": "^7.1.1",
@@ -32,7 +32,7 @@
     "jest-environment-jsdom": "^30.5.0",
     "prettier": "3.9.6",
     "react": "^19.0.0",
-    "react-dom": "^19.2.8",
+    "react-dom": "^19.3.0",
     "ts-jest": "^29.4.12",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3",
