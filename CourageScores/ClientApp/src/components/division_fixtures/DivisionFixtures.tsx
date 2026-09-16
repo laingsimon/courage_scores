@@ -94,7 +94,7 @@ export function DivisionFixtures({ setNewFixtures }: IDivisionFixturesProps) {
 
     function renderFixtureDate(fixtureDate: IEditableDivisionFixtureDateDto) {
         const allLeagueFixturesLength =
-            fixtures?.filter((f) => any(f.fixtures)).length ?? 0;
+            fixtures?.filter((f) => any(f.fixtures, f => !f.isKnockout)).length ?? 0;
         const firstDateAfterMidSeason = skip(
             fixtures,
             allLeagueFixturesLength / 2,
