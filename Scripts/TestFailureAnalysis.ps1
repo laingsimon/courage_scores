@@ -133,12 +133,15 @@ function Get-DotNetFailures([Parameter(ValueFromPipeline)] $Path)
             | Select-String -NotMatch -Pattern "coverlet" `
             | Select-String -NotMatch -Pattern " -> "
 
+        $DotNetJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "build / with-dotnet"
         Write-Output "<details><summary><strong>Dotnet tests:</strong></summary>
 <p>
 
 $($CodeBlock)
 $($RelevantLines -join "`n")
 $($CodeBlock)
+
+[Dotnet Logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($DotNetJobId)?pr=$($PullRequestNumber))
 
 </p>
 </details>
@@ -199,12 +202,16 @@ function Get-JestFailures([Parameter(ValueFromPipeline)] $Path)
             return
         }
 
+        $ReactJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "publish / with-dotnet"
+
         Write-Output "<details><summary><strong>React tests:</strong></summary>
 <p>
 
 $($CodeBlock)
 $($TestLines -join "`n")
 $($CodeBlock)
+
+[React Logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($ReactJobId)?pr=$($PullRequestNumber))
 
 </p>
 </details>
@@ -222,12 +229,15 @@ function Get-PlaywrightMessages([Parameter(ValueFromPipeline)] $Path)
             return
         }
 
+        $PlaywrightJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "ui_tests / with-playwright"
         Write-Output "<details><summary><strong>Playwright tests:</strong></summary>
 <p>
 
 $($CodeBlock)
 $($Output -join "`n")
 $($CodeBlock)
+
+[Playwright logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($PlaywrightJobId)?pr=$($PullRequestNumber))
 
 </p>
 </details>
@@ -273,17 +283,8 @@ if ($AnalysisStatus -ne "TODO" -and $Force -ne $true)
 try
 {
     $CommentsToAdd = Get-Logs -Url $LogsUrl
-    $DotNetJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "build / with-dotnet"
-    $ReactJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "publish / with-dotnet"
-    $PlaywrightJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "ui_tests / with-playwright"
     $AnalysisJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $env:GITHUB_RUN_ID -Attempt $env:GITHUB_RUN_ATTEMPT -Name "Analyse test results (PRs only)"
-    $LogLinks = "[Dotnet Logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($DotNetJobId)?pr=$($PullRequestNumber))" + `
-    " `| " + `
-    "[React Logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($ReactJobId)?pr=$($PullRequestNumber))" + `
-    " `| " + `
-    "[Playwright logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($PlaywrightJobId)?pr=$($PullRequestNumber))" + `
-    " `| " + `
-    "[Analysis](https://github.com/$($Repo)/actions/runs/$($env:GITHUB_RUN_ID)/job/$($AnalysisJobId))"
+    $LogLinks = "[Analysis](https://github.com/$($Repo)/actions/runs/$($env:GITHUB_RUN_ID)/job/$($AnalysisJobId))"
 
     # replace the comment to show this is working...
     $NewCommentText = "<!-- LogsUrl=$($LogsUrl) -->
