@@ -46,7 +46,7 @@ function Get-Logs($Url)
 
             if ($Exception.Message -like "*not_found*" -or $Exception.Message -like "*404*")
             {
-                Write-Message "Failed to get logs, waiting for a bit"
+                Write-Message "Failed to get logs, waiting for a bit - $($Exception.Message)"
                 ## maybe the run hasn't finished yet, give it some time
                 Start-Sleep -Seconds 3
             }
@@ -231,21 +231,23 @@ if ($AnalysisStatus -ne "TODO" -and $Force -ne $true)
     return
 }
 
-$CommentsToAdd = Get-Logs -Url $LogsUrl
-$DotNetJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "build / with-dotnet"
-$ReactJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "publish / with-dotnet"
-$PlaywrightJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "ui_tests / with-playwright"
-$AnalysisJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $env:GITHUB_RUN_ID -Attempt $env:GITHUB_RUN_ATTEMPT -Name "Analyse test results (PRs only)"
-$LogLinks = "[Dotnet Logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($DotNetJobId)?pr=$($PullRequestNumber))" + `
-" `| " + `
-"[React Logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($ReactJobId)?pr=$($PullRequestNumber))" + `
-" `| " + `
-"[Playwright logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($PlaywrightJobId)?pr=$($PullRequestNumber))" + `
-" `| " + `
-"[Analysis](https://github.com/$($Repo)/actions/runs/$($env:GITHUB_RUN_ID)/job/$($AnalysisJobId))"
+try
+{
+    $CommentsToAdd = Get-Logs -Url $LogsUrl
+    $DotNetJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "build / with-dotnet"
+    $ReactJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "publish / with-dotnet"
+    $PlaywrightJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $GitHubRunId -Attempt $GitHubRunAttempt -Name "ui_tests / with-playwright"
+    $AnalysisJobId = Get-JobId -GitHubToken $GitHubToken -Repo $Repo -RunId $env:GITHUB_RUN_ID -Attempt $env:GITHUB_RUN_ATTEMPT -Name "Analyse test results (PRs only)"
+    $LogLinks = "[Dotnet Logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($DotNetJobId)?pr=$($PullRequestNumber))" + `
+    " `| " + `
+    "[React Logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($ReactJobId)?pr=$($PullRequestNumber))" + `
+    " `| " + `
+    "[Playwright logs](https://github.com/$($Repo)/actions/runs/$($GitHubRunId)/job/$($PlaywrightJobId)?pr=$($PullRequestNumber))" + `
+    " `| " + `
+    "[Analysis](https://github.com/$($Repo)/actions/runs/$($env:GITHUB_RUN_ID)/job/$($AnalysisJobId))"
 
-# replace the comment to show this is working...
-$NewCommentText = "<!-- LogsUrl=$($LogsUrl) -->
+    # replace the comment to show this is working...
+    $NewCommentText = "<!-- LogsUrl=$($LogsUrl) -->
 <!-- PullRequestNumber=$($PullRequestNumber) -->
 <!-- RefName=$($RefName) -->
 <!-- GitHubJob=$($GitHubJob) -->
@@ -258,11 +260,30 @@ $($CommentsToAdd -join "`n")
 
 $($LogLinks)"
 
-$NewCommentContent = "### $($TestsCommentHeading)`n$($NewCommentText)"
+    $NewCommentContent = "### $($TestsCommentHeading)`n$($NewCommentText)"
 
-if ($Force)
-{
-    $Comments = $null
+    if ($Force)
+    {
+        $Comments = $null
+    }
+
+    Update-PullRequestComment -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $Comments -Markdown $NewCommentContent
 }
+catch
+{
+    $Exception = $_.Exception
 
-Update-PullRequestComment -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $Comments -Markdown $NewCommentContent
+    $NewCommentText = "<!-- LogsUrl=$($LogsUrl) -->
+<!-- PullRequestNumber=$($PullRequestNumber) -->
+<!-- RefName=$($RefName) -->
+<!-- GitHubJob=$($GitHubJob) -->
+<!-- GitHubEvent=$($GitHubEvent) -->
+<!-- GitHubRunId=$($GitHubRunId) -->
+<!-- GitHubRunAttempt=$($GitHubRunAttempt) -->
+<!-- AnalysisStatus=ERROR -->
+
+Error analysing run: $($Exception.Message)"
+    $NewCommentContent = "### $($TestsCommentHeading)`n$($NewCommentText)"
+
+    Update-PullRequestComment -GitHubToken $GitHubToken -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $Comments -Markdown $NewCommentContent
+}
