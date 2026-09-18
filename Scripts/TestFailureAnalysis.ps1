@@ -133,7 +133,16 @@ function Get-DotNetFailures([Parameter(ValueFromPipeline)] $Path)
             | Select-String -NotMatch -Pattern "coverlet" `
             | Select-String -NotMatch -Pattern " -> "
 
-        Write-Output "#### Dotnet tests:`n$($CodeBlock)`n$($RelevantLines -join "`n")`n$($CodeBlock)"
+        Write-Output "<details><summary><strong>Dotnet tests:</strong></summary>
+<p>
+
+$($CodeBlock)
+$($RelevantLines -join "`n")
+$($CodeBlock)
+
+</p>
+</details>
+"
     }
 }
 
@@ -190,7 +199,16 @@ function Get-JestFailures([Parameter(ValueFromPipeline)] $Path)
             return
         }
 
-        Write-Output "#### React tests:`n$($CodeBlock)`n$($TestLines -join "`n")`n$($CodeBlock)"
+        Write-Output "<details><summary><strong>React tests:</strong></summary>
+<p>
+
+$($CodeBlock)
+$($TestLines -join "`n")
+$($CodeBlock)
+
+</p>
+</details>
+"
     }
 }
 
@@ -204,7 +222,16 @@ function Get-PlaywrightMessages([Parameter(ValueFromPipeline)] $Path)
             return
         }
 
-        Write-Output "#### Playwright tests:`n$($CodeBlock)`n$($Output -join "`n")`n$($CodeBlock)"
+        Write-Output "<details><summary><strong>Playwright tests:</strong></summary>
+<p>
+
+$($CodeBlock)
+$($Output -join "`n")
+$($CodeBlock)
+
+</p>
+</details>
+"
     }
 }
 
