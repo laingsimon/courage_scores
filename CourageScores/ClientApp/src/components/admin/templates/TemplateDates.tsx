@@ -1,9 +1,9 @@
 import { TemplateDate } from './TemplateDate.tsx';
-import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto.ts';
-import { repeat } from '../../helpers/projection.ts';
-import { any } from '../../helpers/collections.ts';
-import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto.ts';
-import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { DateTemplateDto } from '../../../interfaces/models/dtos/Season/Creation/DateTemplateDto.ts';
+import { repeat } from '../../../helpers/projection.ts';
+import { any } from '../../../helpers/collections.ts';
+import { FixtureTemplateDto } from '../../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto.ts';
+import { UntypedPromise } from '../../../interfaces/UntypedPromise.ts';
 
 export interface ITemplateDatesProps {
     dates: DateTemplateDto[];
@@ -145,6 +145,7 @@ export function TemplateDates({
                         highlight={highlight}
                         setHighlight={setHighlight}
                         deleteDates={deleteDates}
+                        divisionCount={divisionCount}
                     />
                 </li>
             ))}

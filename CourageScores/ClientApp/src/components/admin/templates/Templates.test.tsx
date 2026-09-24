@@ -1,4 +1,4 @@
-﻿import { AdminContainer } from './AdminContainer.tsx';
+﻿import { AdminContainer } from '../AdminContainer.tsx';
 import { Templates } from './Templates.tsx';
 import {
     api,
@@ -12,13 +12,13 @@ import {
     renderApp,
     TestContext,
     user,
-} from '../../helpers/tests.tsx';
-import { createTemporaryId } from '../../helpers/projection.ts';
-import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto.ts';
-import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
-import { SeasonHealthCheckResultDto } from '../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto.ts';
-import { EditTemplateDto } from '../../interfaces/models/dtos/Season/Creation/EditTemplateDto.ts';
-import { ISeasonTemplateApi } from '../../interfaces/apis/ISeasonTemplateApi.ts';
+} from '../../../helpers/tests.tsx';
+import { createTemporaryId } from '../../../helpers/projection.ts';
+import { TemplateDto } from '../../../interfaces/models/dtos/Season/Creation/TemplateDto.ts';
+import { IClientActionResultDto } from '../../common/IClientActionResultDto.ts';
+import { SeasonHealthCheckResultDto } from '../../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto.ts';
+import { EditTemplateDto } from '../../../interfaces/models/dtos/Season/Creation/EditTemplateDto.ts';
+import { ISeasonTemplateApi } from '../../../interfaces/apis/ISeasonTemplateApi.ts';
 
 const mockedUsedNavigate = jest.fn();
 
