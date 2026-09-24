@@ -13,6 +13,8 @@ public class DateTemplateAdapterTests
 {
     private static readonly FixtureTemplate FixtureTemplate = new();
     private static readonly FixtureTemplateDto FixtureTemplateDto = new();
+    private static readonly NoteTemplate NoteTemplate = new();
+    private static readonly NoteTemplateDto NoteTemplateDto = new();
     private readonly CancellationToken _token = CancellationToken.None;
     private DateTemplateAdapter _adapter = null!;
 
@@ -21,6 +23,7 @@ public class DateTemplateAdapterTests
     {
         var fixture = AutoFixture.Create();
         fixture.Register<ISimpleAdapter<FixtureTemplate, FixtureTemplateDto>>(() => new MockSimpleAdapter<FixtureTemplate, FixtureTemplateDto>(FixtureTemplate, FixtureTemplateDto));
+        fixture.Register<ISimpleAdapter<NoteTemplate, NoteTemplateDto>>(() => new MockSimpleAdapter<NoteTemplate, NoteTemplateDto>(NoteTemplate, NoteTemplateDto));
         _adapter = fixture.Create<DateTemplateAdapter>();
     }
 
@@ -33,11 +36,16 @@ public class DateTemplateAdapterTests
             {
                 FixtureTemplateDto,
             },
+            Notes =
+            {
+                NoteTemplateDto,
+            }
         };
 
         var result = await _adapter.Adapt(dto, UserAccessContext.None(), _token);
 
         Assert.That(result.Fixtures, Is.EquivalentTo([FixtureTemplate]));
+        Assert.That(result.Notes, Is.EquivalentTo([NoteTemplate]));
     }
 
     [Test]
@@ -49,10 +57,15 @@ public class DateTemplateAdapterTests
             {
                 FixtureTemplate,
             },
+            Notes =
+            {
+                NoteTemplate,
+            }
         };
 
         var result = await _adapter.Adapt(model, UserAccessContext.None(), _token);
 
         Assert.That(result.Fixtures, Is.EquivalentTo([FixtureTemplateDto]));
+        Assert.That(result.Notes, Is.EquivalentTo([NoteTemplateDto]));
     }
 }

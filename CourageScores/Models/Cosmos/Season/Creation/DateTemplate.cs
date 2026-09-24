@@ -6,4 +6,5 @@ namespace CourageScores.Models.Cosmos.Season.Creation;
 public class DateTemplate
 {
     public List<FixtureTemplate> Fixtures { get; set; } = new();
+    public List<NoteTemplate> Notes { get; set; } = new();
 }
