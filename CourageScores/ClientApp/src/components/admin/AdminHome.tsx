@@ -9,7 +9,7 @@ import { Errors } from './Errors.tsx';
 import { useApp } from '../common/AppContainer.tsx';
 import { useDependencies } from '../common/IocContainer.tsx';
 import { AdminContainer } from './AdminContainer.tsx';
-import { Templates } from './Templates.tsx';
+import { Templates } from './templates/Templates.tsx';
 import { SocketAdmin } from './SocketAdmin.tsx';
 import { DataBrowser } from './DataBrowser.tsx';
 import { TableDto } from '../../interfaces/models/dtos/Data/TableDto.ts';

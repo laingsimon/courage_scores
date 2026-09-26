@@ -8,10 +8,14 @@ namespace CourageScores.Models.Adapters.Season.Creation;
 public class DateTemplateAdapter : ISimpleAdapter<DateTemplate, DateTemplateDto>
 {
     private readonly ISimpleAdapter<FixtureTemplate, FixtureTemplateDto> _fixtureTemplateAdapter;
+    private readonly ISimpleAdapter<NoteTemplate, NoteTemplateDto> _noteTemplateAdapter;
 
-    public DateTemplateAdapter(ISimpleAdapter<FixtureTemplate, FixtureTemplateDto> fixtureTemplateAdapter)
+    public DateTemplateAdapter(
+        ISimpleAdapter<FixtureTemplate, FixtureTemplateDto> fixtureTemplateAdapter,
+        ISimpleAdapter<NoteTemplate, NoteTemplateDto> noteTemplateAdapter)
     {
         _fixtureTemplateAdapter = fixtureTemplateAdapter;
+        _noteTemplateAdapter = noteTemplateAdapter;
     }
 
     public async Task<DateTemplateDto> Adapt(DateTemplate model, UserAccessContext context, CancellationToken token)
@@ -19,6 +23,7 @@ public class DateTemplateAdapter : ISimpleAdapter<DateTemplate, DateTemplateDto>
         return new DateTemplateDto
         {
             Fixtures = await model.Fixtures.SelectAsync(f => _fixtureTemplateAdapter.Adapt(f, context, token)).ToList(),
+            Notes = await model.Notes.SelectAsync(n => _noteTemplateAdapter.Adapt(n, context, token)).ToList(),
         };
     }
 
@@ -27,6 +32,7 @@ public class DateTemplateAdapter : ISimpleAdapter<DateTemplate, DateTemplateDto>
         return new DateTemplate
         {
             Fixtures = await dto.Fixtures.SelectAsync(f => _fixtureTemplateAdapter.Adapt(f, context, token)).ToList(),
+            Notes = await dto.Notes.SelectAsync(n => _noteTemplateAdapter.Adapt(n, context, token)).ToList(),
         };
     }
 }

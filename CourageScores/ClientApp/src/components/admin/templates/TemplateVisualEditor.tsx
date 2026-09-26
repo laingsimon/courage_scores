@@ -1,10 +1,10 @@
 import { SharedAddresses } from './SharedAddresses.tsx';
 import { TemplateDivisions } from './TemplateDivisions.tsx';
-import { DivisionTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto.ts';
-import { EditTemplateDto } from '../../interfaces/models/dtos/Season/Creation/EditTemplateDto.ts';
+import { DivisionTemplateDto } from '../../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto.ts';
+import { EditTemplateDto } from '../../../interfaces/models/dtos/Season/Creation/EditTemplateDto.ts';
 import { useState } from 'react';
-import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
-import { asyncCallback } from '../../helpers/events.ts';
+import { UntypedPromise } from '../../../interfaces/UntypedPromise.ts';
+import { asyncCallback } from '../../../helpers/events.ts';
 
 export interface ITemplateVisualEditorProps {
     template: EditTemplateDto;

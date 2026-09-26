@@ -1,4 +1,4 @@
-import { AdminContainer } from './AdminContainer.tsx';
+import { AdminContainer } from '../AdminContainer.tsx';
 import {
     appProps,
     brandingProps,
@@ -7,12 +7,12 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests.tsx';
+} from '../../../helpers/tests.tsx';
 import {
     ITemplateDivisionsProps,
     TemplateDivisions,
 } from './TemplateDivisions.tsx';
-import { DivisionTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto.ts';
+import { DivisionTemplateDto } from '../../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto.ts';
 
 describe('TemplateDivisions', () => {
     let context: TestContext;

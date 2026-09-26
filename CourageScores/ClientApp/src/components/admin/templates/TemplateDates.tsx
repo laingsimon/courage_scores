@@ -1,9 +1,9 @@
 import { TemplateDate } from './TemplateDate.tsx';
-import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto.ts';
-import { repeat } from '../../helpers/projection.ts';
-import { any } from '../../helpers/collections.ts';
-import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto.ts';
-import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
+import { DateTemplateDto } from '../../../interfaces/models/dtos/Season/Creation/DateTemplateDto.ts';
+import { repeat } from '../../../helpers/projection.ts';
+import { any } from '../../../helpers/collections.ts';
+import { FixtureTemplateDto } from '../../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto.ts';
+import { UntypedPromise } from '../../../interfaces/UntypedPromise.ts';
 
 export interface ITemplateDatesProps {
     dates: DateTemplateDto[];
@@ -117,7 +117,10 @@ export function TemplateDates({
             </li>
             {dates.map((d: DateTemplateDto, index: number) => (
                 <li className="list-group-item position-relative" key={index}>
-                    {index === Math.floor(dates.length / 2) ? (
+                    {index ===
+                    Math.floor(
+                        dates.filter((d) => any(d.fixtures)).length / 2,
+                    ) ? (
                         <div className="position-absolute left-negative-100 top-negative-15 bg-warning-subtle px-2">
                             Mid season &rarr;
                         </div>
@@ -142,6 +145,7 @@ export function TemplateDates({
                         highlight={highlight}
                         setHighlight={setHighlight}
                         deleteDates={deleteDates}
+                        divisionCount={divisionCount}
                     />
                 </li>
             ))}
