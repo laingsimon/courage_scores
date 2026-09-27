@@ -148,7 +148,7 @@ export function TemplateDates({
                         highlight={highlight}
                         setHighlight={setHighlight}
                         deleteDates={deleteDates}
-                        divisionCount={divisionCount}
+                        divisionNo={divisionNo}
                         getCrossDivisionalNotes={() =>
                             getCrossDivisionalNotes(index)
                         }

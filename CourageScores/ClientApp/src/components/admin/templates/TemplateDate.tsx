@@ -35,7 +35,7 @@ export interface ITemplateDateProps {
     setHighlight(highlight?: string): UntypedPromise;
     deleteDates(mnemonic: string): UntypedPromise;
     getCrossDivisionalNotes: () => NoteTemplateDto[];
-    divisionCount: number;
+    divisionNo: number;
 }
 
 export function TemplateDate({
@@ -50,7 +50,7 @@ export function TemplateDate({
     setHighlight,
     deleteDates,
     getCrossDivisionalNotes,
-    divisionCount,
+    divisionNo,
 }: ITemplateDateProps) {
     const [spec, setSpec] = useState<string>('');
     const [editingNote, setEditingNote] = useState<
@@ -309,16 +309,10 @@ export function TemplateDate({
                                 asyncCallback(setEditingNote),
                                 'NULL',
                             )}>
-                            <option key="" value={'NULL'}>
-                                All divisions
+                            <option value={'NULL'}>All divisions</option>
+                            <option value={divisionNo}>
+                                Division {divisionNo}
                             </option>
-                            {Array.from({ length: divisionCount }).map(
-                                (_, index) => (
-                                    <option key={index} value={index + 1}>
-                                        Division {index + 1}
-                                    </option>
-                                ),
-                            )}
                         </select>
                     </div>
 

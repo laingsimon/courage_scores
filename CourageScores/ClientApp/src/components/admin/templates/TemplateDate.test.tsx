@@ -72,7 +72,7 @@ describe('TemplateDate', () => {
                         highlight: '',
                         setHighlight,
                         deleteDates,
-                        divisionCount: 0,
+                        divisionNo: 1,
                         getCrossDivisionalNotes,
                         ...props,
                     }}
@@ -498,7 +498,7 @@ describe('TemplateDate', () => {
                 date: {
                     notes: [],
                 },
-                divisionCount: 2,
+                divisionNo: 2,
             });
 
             await context
@@ -526,7 +526,7 @@ describe('TemplateDate', () => {
                 date: {
                     notes: [note],
                 },
-                divisionCount: 2,
+                divisionNo: 2,
             });
 
             await context.button('NOTE ✏️').click();
@@ -560,7 +560,7 @@ describe('TemplateDate', () => {
                 date: {
                     notes: [note],
                 },
-                divisionCount: 2,
+                divisionNo: 2,
             });
 
             await context.button('NOTE ✏️').click();
