@@ -253,20 +253,20 @@ export function TemplateDate({
             </span>
 
             <button
-                className="btn btn-sm btn-outline-danger float-end p-1"
+                className="btn btn-sm btn-outline-danger float-end p-1 min-width-25"
                 data-type="fixture"
                 onClick={onDelete}>
                 🗑️
             </button>
             <button
-                className="btn btn-sm btn-outline-info float-end p-1"
+                className="btn btn-sm btn-outline-info float-end p-1 min-width-25"
                 data-type="fixture"
                 disabled={!moveEarlier}
                 onClick={moveEarlier}>
                 ⬆
             </button>
             <button
-                className="btn btn-sm btn-outline-info float-end p-1"
+                className="btn btn-sm btn-outline-info float-end p-1 min-width-25"
                 data-type="fixture"
                 disabled={!moveLater}
                 onClick={moveLater}>
