@@ -85,8 +85,10 @@ describe('TemplateDate', () => {
         it('empty fixtures', async () => {
             await renderComponent({});
 
-            const fixtures = context.all('div > button');
-            expect(fixtures.map((f) => f.text())).toEqual(['🗑️', '⬆', '⬇']);
+            const fixtures = context.all(
+                'span[data-type="fixture-buttons"] > button',
+            );
+            expect(fixtures.map((f) => f.text())).toEqual(['⬆', '⬇', '🗑️']);
         });
 
         it('existing fixture', async () => {
@@ -103,9 +105,9 @@ describe('TemplateDate', () => {
             const fixtures = context.all('button[data-type="fixture"]');
             expect(fixtures.map((f) => f.text())).toEqual([
                 'A - B ×',
-                '🗑️',
                 '⬆',
                 '⬇',
+                '🗑️',
             ]);
         });
 
@@ -122,9 +124,9 @@ describe('TemplateDate', () => {
             const fixtures = context.all('button[data-type="fixture"]');
             expect(fixtures.map((f) => f.text())).toEqual([
                 'A ×',
-                '🗑️',
                 '⬆',
                 '⬇',
+                '🗑️',
             ]);
         });
 
