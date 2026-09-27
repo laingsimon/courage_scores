@@ -96,7 +96,7 @@ export function TemplateDate({
     async function addNote() {
         const newNote: NoteTemplateDto = {
             id: createTemporaryId(),
-            note: 'NEW NOTE',
+            note: '',
         };
         setEditingNote(newNote);
     }

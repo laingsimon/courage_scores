@@ -506,6 +506,7 @@ describe('TemplateDate', () => {
                 .button('➕')
                 .click();
             const dialog = context.required('.modal-dialog');
+            await dialog.input('note').change('NEW NOTE');
             await dialog.button('Save').click();
 
             expect(context.optional('.modal-dialog')).toBeFalsy();
