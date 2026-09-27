@@ -102,6 +102,11 @@ export function TemplateDate({
     }
 
     async function saveNoteToTemplate(editingNote: NoteTemplateDto) {
+        if (!editingNote.note) {
+            alert('Enter some text for the note');
+            return;
+        }
+
         const newNotes = date.notes?.some((n) => n.id === editingNote.id)
             ? date.notes.map((n) => (n.id === editingNote.id ? editingNote : n))
             : [...(date.notes ?? []), editingNote];

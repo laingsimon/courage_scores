@@ -520,6 +520,26 @@ describe('TemplateDate', () => {
             });
         });
 
+        it('cannot add an empty note', async () => {
+            await renderComponent({
+                date: {
+                    notes: [],
+                },
+                divisionNo: 2,
+            });
+
+            await context
+                .required('span[data-type="notes"]')
+                .button('➕')
+                .click();
+            const dialog = context.required('.modal-dialog');
+            await dialog.button('Save').click();
+
+            expect(context.optional('.modal-dialog')).toBeTruthy();
+            expect(update).toBeNull();
+            context.prompts.alertWasShown('Enter some text for the note');
+        });
+
         it('can edit note', async () => {
             const note: NoteTemplateDto = {
                 id: createTemporaryId(),
