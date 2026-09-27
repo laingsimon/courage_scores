@@ -36,6 +36,7 @@ export interface ITemplateDateProps {
     deleteDates(mnemonic: string): UntypedPromise;
     getCrossDivisionalNotes: () => NoteTemplateDto[];
     divisionNo: number;
+    weekNumber: number;
 }
 
 export function TemplateDate({
@@ -51,6 +52,7 @@ export function TemplateDate({
     deleteDates,
     getCrossDivisionalNotes,
     divisionNo,
+    weekNumber,
 }: ITemplateDateProps) {
     const [spec, setSpec] = useState<string>('');
     const [editingNote, setEditingNote] = useState<
@@ -173,204 +175,223 @@ export function TemplateDate({
     }
 
     return (
-        <div className="position-relative">
-            <span data-type="fixtures">
-                {date.fixtures?.map((f, index: number) => (
-                    <button
-                        key={index}
-                        data-type="fixture"
-                        onClick={async () =>
-                            await deleteFixtureOrMnemonic(index)
-                        }
-                        className={`btn btn-sm margin-right px-1 badge ${f.away ? 'btn-info' : 'btn-outline-info text-dark'}`}>
-                        <span
-                            className={`px-1 ${sharedAddressClassName(f.home)}${getHighlightClassName(f.home)}`}
-                            onMouseMove={async (event) =>
-                                await highlightIfCtrlDown(event, f.home)
+        <>
+            {' '}
+            <div className="align-content-center text-center width-50 flex-shrink-0 px-2 me-1 bg-secondary-subtle">
+                {weekNumber}
+            </div>
+            <div className="position-relative">
+                <span data-type="fixtures">
+                    {date.fixtures?.map((f, index: number) => (
+                        <button
+                            key={index}
+                            data-type="fixture"
+                            onClick={async () =>
+                                await deleteFixtureOrMnemonic(index)
                             }
-                            onMouseLeave={async () => await setHighlight()}>
-                            {f.home}
-                        </span>
-                        {f.away ? <span> - </span> : null}
-                        {f.away ? (
+                            className={`btn btn-sm margin-right px-1 badge ${f.away ? 'btn-info' : 'btn-outline-info text-dark'}`}>
                             <span
-                                className={`px-1${getHighlightClassName(f.away)}`}
+                                className={`px-1 ${sharedAddressClassName(f.home)}${getHighlightClassName(f.home)}`}
                                 onMouseMove={async (event) =>
-                                    await highlightIfCtrlDown(event, f.away!)
+                                    await highlightIfCtrlDown(event, f.home)
                                 }
                                 onMouseLeave={async () => await setHighlight()}>
-                                {f.away}
+                                {f.home}
                             </span>
-                        ) : null}{' '}
-                        &times;
-                    </button>
-                ))}
-                <span className="margin-right badge bg-info ps-1">
-                    <input
-                        className="width-50 border-0 outline-0"
-                        name="spec"
-                        placeholder="h[ - a]"
-                        onKeyUp={onKeyUp}
-                        value={spec || ''}
-                        onChange={stateChanged(setSpec)}
-                    />
+                            {f.away ? <span> - </span> : null}
+                            {f.away ? (
+                                <span
+                                    className={`px-1${getHighlightClassName(f.away)}`}
+                                    onMouseMove={async (event) =>
+                                        await highlightIfCtrlDown(
+                                            event,
+                                            f.away!,
+                                        )
+                                    }
+                                    onMouseLeave={async () =>
+                                        await setHighlight()
+                                    }>
+                                    {f.away}
+                                </span>
+                            ) : null}{' '}
+                            &times;
+                        </button>
+                    ))}
+                    <span className="margin-right badge bg-info ps-1">
+                        <input
+                            className="width-50 border-0 outline-0"
+                            name="spec"
+                            placeholder="h[ - a]"
+                            onKeyUp={onKeyUp}
+                            value={spec || ''}
+                            onChange={stateChanged(setSpec)}
+                        />
+                        <button
+                            className="ms-1 bg-info border-0 px-0"
+                            onClick={addFixture}>
+                            ➕
+                        </button>
+                    </span>
+                </span>
+
+                <span
+                    data-type="notes"
+                    className="ms-1 ps-1 border-solid border-0 border-start border-secondary">
+                    {date.notes?.map((n) => (
+                        <button
+                            data-type="note"
+                            key={n.id}
+                            className="btn btn-sm badge bg-info-subtle text-black ps-1 ms-1"
+                            onClick={() => setEditingNote(n)}>
+                            {n.note}
+                            <span className="ps-1"> ✏️</span>
+                        </button>
+                    ))}
+
+                    {getCrossDivisionalNotes().map((n) => (
+                        <span
+                            data-type="note"
+                            key={n.id}
+                            className="btn btn-sm badge bg-info-subtle text-black ps-1 ms-1 opacity-50">
+                            {n.note}
+                        </span>
+                    ))}
+
                     <button
-                        className="ms-1 bg-info border-0 px-0"
-                        onClick={addFixture}>
+                        className="ms-1 bg-info-subtle border-0 px-1 badge"
+                        onClick={addNote}>
                         ➕
                     </button>
                 </span>
-            </span>
 
-            <span
-                data-type="notes"
-                className="ms-1 ps-1 border-solid border-0 border-start border-secondary">
-                {date.notes?.map((n) => (
+                <span className="no-wrap float-end" data-type="fixture-buttons">
                     <button
-                        data-type="note"
-                        key={n.id}
-                        className="btn btn-sm badge bg-info-subtle text-black ps-1 ms-1"
-                        onClick={() => setEditingNote(n)}>
-                        {n.note}
-                        <span className="ps-1"> ✏️</span>
+                        className="btn btn-sm btn-outline-info p-1 min-width-25"
+                        data-type="fixture"
+                        disabled={!moveEarlier}
+                        onClick={moveEarlier}>
+                        ⬆
                     </button>
-                ))}
+                    <button
+                        className="btn btn-sm btn-outline-info p-1 min-width-25"
+                        data-type="fixture"
+                        disabled={!moveLater}
+                        onClick={moveLater}>
+                        ⬇
+                    </button>
+                    <button
+                        className="btn btn-sm btn-outline-danger p-1 min-width-25"
+                        data-type="fixture"
+                        onClick={onDelete}>
+                        🗑️
+                    </button>
+                </span>
 
-                {getCrossDivisionalNotes().map((n) => (
-                    <span
-                        data-type="note"
-                        key={n.id}
-                        className="btn btn-sm badge bg-info-subtle text-black ps-1 ms-1 opacity-50">
-                        {n.note}
-                    </span>
-                ))}
-
-                <button
-                    className="ms-1 bg-info-subtle border-0 px-1 badge"
-                    onClick={addNote}>
-                    ➕
-                </button>
-            </span>
-
-            <span className="no-wrap float-end" data-type="fixture-buttons">
-                <button
-                    className="btn btn-sm btn-outline-info p-1 min-width-25"
-                    data-type="fixture"
-                    disabled={!moveEarlier}
-                    onClick={moveEarlier}>
-                    ⬆
-                </button>
-                <button
-                    className="btn btn-sm btn-outline-info p-1 min-width-25"
-                    data-type="fixture"
-                    disabled={!moveLater}
-                    onClick={moveLater}>
-                    ⬇
-                </button>
-                <button
-                    className="btn btn-sm btn-outline-danger p-1 min-width-25"
-                    data-type="fixture"
-                    onClick={onDelete}>
-                    🗑️
-                </button>
-            </span>
-
-            {editingNote ? (
-                <Dialog title="Edit note">
-                    <div className="form-group my-3 d-flex">
-                        <label htmlFor="note-text" className="input-group-text">
-                            Note
-                        </label>
-                        <textarea
-                            cols={75}
-                            rows={2}
-                            id="note-text"
-                            value={editingNote.note}
-                            name="note"
-                            onChange={valueChanged(
-                                editingNote,
-                                asyncCallback(setEditingNote),
-                            )}></textarea>
-                    </div>
-                    <div className="form-group my-3">
-                        <h5>Preview</h5>
-                        <div>
-                            <FixtureDateNote
-                                note={editingNote}
-                                preventDelete={true}
-                            />
+                {editingNote ? (
+                    <Dialog title="Edit note">
+                        <div className="form-group my-3 d-flex">
+                            <label
+                                htmlFor="note-text"
+                                className="input-group-text">
+                                Note
+                            </label>
+                            <textarea
+                                cols={75}
+                                rows={2}
+                                id="note-text"
+                                value={editingNote.note}
+                                name="note"
+                                onChange={valueChanged(
+                                    editingNote,
+                                    asyncCallback(setEditingNote),
+                                )}></textarea>
                         </div>
-                    </div>
-                    <div className="input-group my-3">
-                        <div className="input-group-prepend">
-                            <span className="input-group-text">
-                                Division (optional)
-                            </span>
+                        <div className="form-group my-3">
+                            <h5>Preview</h5>
+                            <div>
+                                <FixtureDateNote
+                                    note={editingNote}
+                                    preventDelete={true}
+                                />
+                            </div>
                         </div>
-                        <select
-                            value={editingNote.divisionNumber || 'NULL'}
-                            name="divisionNumber"
-                            onChange={valueChanged(
-                                editingNote,
-                                asyncCallback(setEditingNote),
-                                'NULL',
-                            )}>
-                            <option value={'NULL'}>All divisions</option>
-                            <option value={divisionNo}>
-                                Division {divisionNo}
-                            </option>
-                        </select>
-                    </div>
-
-                    <div className="input-group my-3">
-                        <div className="input-group-prepend">
-                            <span className="input-group-text">
-                                Day of week
-                            </span>
-                        </div>
-                        <select
-                            value={editingNote.alternativeDayOfWeek || 'NULL'}
-                            name="alternativeDayOfWeek"
-                            onChange={valueChanged(
-                                editingNote,
-                                asyncCallback(setEditingNote),
-                                'NULL',
-                            )}>
-                            <option key="" value={'NULL'}>
-                                Same day as fixtures
-                            </option>
-                            {weekDays.map((weekDay) => (
-                                <option key={weekDay} value={weekDay}>
-                                    {weekDay}
+                        <div className="input-group my-3">
+                            <div className="input-group-prepend">
+                                <span className="input-group-text">
+                                    Division (optional)
+                                </span>
+                            </div>
+                            <select
+                                value={editingNote.divisionNumber || 'NULL'}
+                                name="divisionNumber"
+                                onChange={valueChanged(
+                                    editingNote,
+                                    asyncCallback(setEditingNote),
+                                    'NULL',
+                                )}>
+                                <option value={'NULL'}>All divisions</option>
+                                <option value={divisionNo}>
+                                    Division {divisionNo}
                                 </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className="modal-footer px-0 pb-0">
-                        <div className="left-aligned">
+                            </select>
+                        </div>
+
+                        <div className="input-group my-3">
+                            <div className="input-group-prepend">
+                                <span className="input-group-text">
+                                    Day of week
+                                </span>
+                            </div>
+                            <select
+                                value={
+                                    editingNote.alternativeDayOfWeek || 'NULL'
+                                }
+                                name="alternativeDayOfWeek"
+                                onChange={valueChanged(
+                                    editingNote,
+                                    asyncCallback(setEditingNote),
+                                    'NULL',
+                                )}>
+                                <option key="" value={'NULL'}>
+                                    Same day as fixtures
+                                </option>
+                                {weekDays.map((weekDay) => (
+                                    <option key={weekDay} value={weekDay}>
+                                        {weekDay}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="modal-footer px-0 pb-0">
+                            <div className="left-aligned">
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={() => setEditingNote(undefined)}>
+                                    Close
+                                </button>
+                            </div>
+                            {date.notes?.some(
+                                (n) => n.id === editingNote.id,
+                            ) ? (
+                                <button
+                                    className="btn btn-danger"
+                                    onClick={async () =>
+                                        removeNote(editingNote)
+                                    }>
+                                    Remove
+                                </button>
+                            ) : null}
                             <button
-                                className="btn btn-secondary"
-                                onClick={() => setEditingNote(undefined)}>
-                                Close
+                                className="btn btn-primary"
+                                onClick={async () =>
+                                    saveNoteToTemplate(editingNote)
+                                }>
+                                Save
                             </button>
                         </div>
-                        {date.notes?.some((n) => n.id === editingNote.id) ? (
-                            <button
-                                className="btn btn-danger"
-                                onClick={async () => removeNote(editingNote)}>
-                                Remove
-                            </button>
-                        ) : null}
-                        <button
-                            className="btn btn-primary"
-                            onClick={async () =>
-                                saveNoteToTemplate(editingNote)
-                            }>
-                            Save
-                        </button>
-                    </div>
-                </Dialog>
-            ) : null}
-        </div>
+                    </Dialog>
+                ) : null}
+            </div>
+        </>
     );
 }
