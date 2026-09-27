@@ -17,6 +17,7 @@ export interface ITemplateDatesProps {
     highlight?: string;
     setHighlight(highlight?: string): UntypedPromise;
     getCrossDivisionalNotes: (dateIndex: number) => NoteTemplateDto[];
+    onBeginMove?: (weekNumber: number) => UntypedPromise;
 }
 
 export function TemplateDates({
@@ -30,6 +31,7 @@ export function TemplateDates({
     highlight,
     setHighlight,
     getCrossDivisionalNotes,
+    onBeginMove,
 }: ITemplateDatesProps) {
     async function updateDate(update: DateTemplateDto, updateIndex: number) {
         await onUpdate(
@@ -119,7 +121,9 @@ export function TemplateDates({
                 </small>
             </li>
             {dates.map((d: DateTemplateDto, index: number) => (
-                <li className="list-group-item position-relative" key={index}>
+                <li
+                    className="list-group-item position-relative d-flex flex-row ps-1"
+                    key={index}>
                     {index ===
                     Math.floor(
                         dates.filter((d) => any(d.fixtures)).length / 2,
@@ -128,10 +132,8 @@ export function TemplateDates({
                             Mid season &rarr;
                         </div>
                     ) : null}
-                    <small className="position-absolute left-0 ps-0 pt-1 text-end width-10">
-                        {index + 1}{' '}
-                    </small>
                     <TemplateDate
+                        weekNumber={index + 1}
                         date={d}
                         onDelete={() => deleteDate(index)}
                         onUpdate={(update) => updateDate(update, index)}
