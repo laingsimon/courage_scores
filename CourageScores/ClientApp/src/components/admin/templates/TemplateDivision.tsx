@@ -6,6 +6,7 @@ import { DateTemplateDto } from '../../../interfaces/models/dtos/Season/Creation
 import { FixtureTemplateDto } from '../../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto.ts';
 import { any, distinct } from '../../../helpers/collections.ts';
 import { UntypedPromise } from '../../../interfaces/UntypedPromise.ts';
+import { NoteTemplateDto } from '../../../interfaces/models/dtos/Season/Creation/NoteTemplateDto';
 
 export interface ITemplateDivisionProps {
     divisionNo: number;
@@ -17,6 +18,7 @@ export interface ITemplateDivisionProps {
     divisionCount: number;
     highlight?: string;
     setHighlight(highlight?: string): UntypedPromise;
+    getCrossDivisionalNotes: (dateIndex: number) => NoteTemplateDto[];
 }
 
 export function TemplateDivision({
@@ -29,6 +31,7 @@ export function TemplateDivision({
     onCopyToDivision,
     highlight,
     setHighlight,
+    getCrossDivisionalNotes,
 }: ITemplateDivisionProps) {
     const [expanded, setExpanded] = useState<boolean>(true);
 
@@ -130,6 +133,7 @@ export function TemplateDivision({
                     onCopyToDivision={onCopyToDivision}
                     highlight={highlight}
                     setHighlight={setHighlight}
+                    getCrossDivisionalNotes={getCrossDivisionalNotes}
                 />
             ) : null}
             {expanded ? (

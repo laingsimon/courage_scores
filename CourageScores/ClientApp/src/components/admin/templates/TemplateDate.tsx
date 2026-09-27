@@ -34,6 +34,7 @@ export interface ITemplateDateProps {
     highlight?: string;
     setHighlight(highlight?: string): UntypedPromise;
     deleteDates(mnemonic: string): UntypedPromise;
+    getCrossDivisionalNotes: () => NoteTemplateDto[];
     divisionCount: number;
 }
 
@@ -48,6 +49,7 @@ export function TemplateDate({
     highlight,
     setHighlight,
     deleteDates,
+    getCrossDivisionalNotes,
     divisionCount,
 }: ITemplateDateProps) {
     const [spec, setSpec] = useState<string>('');
@@ -228,6 +230,15 @@ export function TemplateDate({
                         {n.note}
                         <span className="ps-1"> ✏️</span>
                     </button>
+                ))}
+
+                {getCrossDivisionalNotes().map((n) => (
+                    <span
+                        data-type="note"
+                        key={n.id}
+                        className="btn btn-sm badge bg-info-subtle text-black ps-1 ms-1 opacity-50">
+                        {n.note}
+                    </span>
                 ))}
 
                 <button

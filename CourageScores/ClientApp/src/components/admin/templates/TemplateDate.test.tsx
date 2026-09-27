@@ -50,6 +50,10 @@ describe('TemplateDate', () => {
         deleteDatesContaining = mnemonic;
     }
 
+    function getCrossDivisionalNotes() {
+        return [];
+    }
+
     async function renderComponent(props: Partial<ITemplateDateProps>) {
         context = await renderApp(
             iocProps(),
@@ -69,6 +73,7 @@ describe('TemplateDate', () => {
                         setHighlight,
                         deleteDates,
                         divisionCount: 0,
+                        getCrossDivisionalNotes,
                         ...props,
                     }}
                 />

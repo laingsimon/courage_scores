@@ -4,6 +4,7 @@ import { repeat } from '../../../helpers/projection.ts';
 import { any } from '../../../helpers/collections.ts';
 import { FixtureTemplateDto } from '../../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto.ts';
 import { UntypedPromise } from '../../../interfaces/UntypedPromise.ts';
+import { NoteTemplateDto } from '../../../interfaces/models/dtos/Season/Creation/NoteTemplateDto';
 
 export interface ITemplateDatesProps {
     dates: DateTemplateDto[];
@@ -15,6 +16,7 @@ export interface ITemplateDatesProps {
     divisionCount: number;
     highlight?: string;
     setHighlight(highlight?: string): UntypedPromise;
+    getCrossDivisionalNotes: (dateIndex: number) => NoteTemplateDto[];
 }
 
 export function TemplateDates({
@@ -27,6 +29,7 @@ export function TemplateDates({
     onCopyToDivision,
     highlight,
     setHighlight,
+    getCrossDivisionalNotes,
 }: ITemplateDatesProps) {
     async function updateDate(update: DateTemplateDto, updateIndex: number) {
         await onUpdate(
@@ -146,6 +149,9 @@ export function TemplateDates({
                         setHighlight={setHighlight}
                         deleteDates={deleteDates}
                         divisionCount={divisionCount}
+                        getCrossDivisionalNotes={() =>
+                            getCrossDivisionalNotes(index)
+                        }
                     />
                 </li>
             ))}

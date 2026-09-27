@@ -48,33 +48,41 @@ describe('TemplateDivision', () => {
 
     async function setHighlight(_?: string) {}
 
-    async function renderComponent(props: ITemplateDivisionProps) {
+    function getCrossDivisionalNotes() {
+        return [];
+    }
+
+    async function renderComponent(props: Partial<ITemplateDivisionProps>) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
             appProps({}, reportedError),
             <AdminContainer accounts={[]} tables={[]}>
-                <TemplateDivision {...props} />
+                <TemplateDivision
+                    {...{
+                        divisionNo: 1,
+                        division: {
+                            sharedAddresses: [],
+                            dates: [],
+                        },
+                        templateSharedAddresses: [],
+                        onUpdate,
+                        onDelete,
+                        divisionCount: 1,
+                        onCopyToDivision,
+                        highlight: '',
+                        setHighlight,
+                        getCrossDivisionalNotes,
+                        ...props,
+                    }}
+                />
             </AdminContainer>,
         );
     }
 
     describe('renders', () => {
         it('division heading', async () => {
-            await renderComponent({
-                divisionNo: 1,
-                division: {
-                    sharedAddresses: [],
-                    dates: [],
-                },
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                divisionCount: 1,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
-            });
+            await renderComponent({});
 
             const heading = context.required('h6');
             expect(heading.text()).toEqual('⬆️ Division 1 (click to collapse)');
@@ -87,13 +95,6 @@ describe('TemplateDivision', () => {
                     sharedAddresses: [['A']],
                     dates: [],
                 },
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                divisionCount: 1,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
             });
 
             const divisionSharedAddresses = context.required(
@@ -104,7 +105,6 @@ describe('TemplateDivision', () => {
 
         it('dates', async () => {
             await renderComponent({
-                divisionNo: 1,
                 division: {
                     sharedAddresses: [],
                     dates: [
@@ -118,13 +118,6 @@ describe('TemplateDivision', () => {
                         },
                     ],
                 },
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                divisionCount: 1,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
             });
 
             const dates = context.required('div > ul:nth-child(3)');
@@ -145,7 +138,6 @@ describe('TemplateDivision', () => {
             }
 
             await renderComponent({
-                divisionNo: 1,
                 division: {
                     sharedAddresses: [],
                     dates: [
@@ -158,13 +150,6 @@ describe('TemplateDivision', () => {
                         fixtures('4v8', '5v3', '6v2', '7v1'),
                     ],
                 },
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                divisionCount: 1,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
             });
 
             const sharableAddresses = context.all(
@@ -181,20 +166,7 @@ describe('TemplateDivision', () => {
 
     describe('interactivity', () => {
         it('can expand division', async () => {
-            await renderComponent({
-                divisionNo: 1,
-                division: {
-                    sharedAddresses: [],
-                    dates: [],
-                },
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                divisionCount: 1,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
-            });
+            await renderComponent({});
             const heading = context.required('h6');
 
             await heading.click();
@@ -203,20 +175,7 @@ describe('TemplateDivision', () => {
         });
 
         it('can collapse division', async () => {
-            await renderComponent({
-                divisionNo: 1,
-                division: {
-                    sharedAddresses: [],
-                    dates: [],
-                },
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                divisionCount: 1,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
-            });
+            await renderComponent({});
             const heading = context.required('h6');
 
             await heading.click();
@@ -226,20 +185,7 @@ describe('TemplateDivision', () => {
         });
 
         it('can update shared addresses', async () => {
-            await renderComponent({
-                divisionNo: 1,
-                division: {
-                    sharedAddresses: [],
-                    dates: [],
-                },
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                divisionCount: 1,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
-            });
+            await renderComponent({});
 
             await context.button('➕ Add shared address').click();
 
@@ -250,20 +196,7 @@ describe('TemplateDivision', () => {
         });
 
         it('can update dates', async () => {
-            await renderComponent({
-                divisionNo: 1,
-                division: {
-                    sharedAddresses: [],
-                    dates: [],
-                },
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                divisionCount: 1,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
-            });
+            await renderComponent({});
 
             await context.button('➕ Add a week').click();
 
@@ -278,20 +211,7 @@ describe('TemplateDivision', () => {
         });
 
         it('can remove division', async () => {
-            await renderComponent({
-                divisionNo: 1,
-                division: {
-                    sharedAddresses: [],
-                    dates: [],
-                },
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                divisionCount: 1,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
-            });
+            await renderComponent({});
 
             await context.button('🗑️ Remove division').click();
 
@@ -300,7 +220,7 @@ describe('TemplateDivision', () => {
 
         it('can copy details to another division', async () => {
             await renderComponent({
-                divisionNo: 1,
+                divisionCount: 2,
                 division: {
                     sharedAddresses: [],
                     dates: [
@@ -314,13 +234,6 @@ describe('TemplateDivision', () => {
                         },
                     ],
                 },
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                divisionCount: 2,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
             });
 
             await context.button('Copy to division 2').click();

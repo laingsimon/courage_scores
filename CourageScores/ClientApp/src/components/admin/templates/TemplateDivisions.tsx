@@ -3,6 +3,7 @@ import { DivisionTemplateDto } from '../../../interfaces/models/dtos/Season/Crea
 import { DateTemplateDto } from '../../../interfaces/models/dtos/Season/Creation/DateTemplateDto.ts';
 import { FixtureTemplateDto } from '../../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto.ts';
 import { UntypedPromise } from '../../../interfaces/UntypedPromise.ts';
+import { NoteTemplateDto } from '../../../interfaces/models/dtos/Season/Creation/NoteTemplateDto';
 
 export interface ITemplateDivisionsProps {
     divisions: DivisionTemplateDto[];
@@ -108,11 +109,31 @@ export function TemplateDivisions({
         });
     }
 
+    function getCrossDivisionalNotes(
+        exceptDivIndex: number,
+        dateIndex: number,
+    ): NoteTemplateDto[] {
+        return divisions
+            .filter((_, index) => index !== exceptDivIndex)
+            .flatMap(
+                (div) =>
+                    div.dates?.filter((_, index) => index === dateIndex) ?? [],
+            )
+            .flatMap(
+                (date) =>
+                    date.notes?.filter((n) => n.divisionNumber === undefined) ??
+                    [],
+            );
+    }
+
     return (
         <ul className="list-group mb-3">
             <li className="list-group-item bg-light">Divisions</li>
             {divisions.map((d: DivisionTemplateDto, index: number) => (
-                <li className="list-group-item" key={index}>
+                <li
+                    className="list-group-item"
+                    key={index}
+                    data-type="division">
                     <TemplateDivision
                         divisionNo={index + 1}
                         division={d}
@@ -127,6 +148,9 @@ export function TemplateDivisions({
                         }
                         highlight={highlight}
                         setHighlight={setHighlight}
+                        getCrossDivisionalNotes={(dateIndex) =>
+                            getCrossDivisionalNotes(index, dateIndex)
+                        }
                     />
                 </li>
             ))}

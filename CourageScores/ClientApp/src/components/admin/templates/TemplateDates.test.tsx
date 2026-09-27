@@ -38,13 +38,35 @@ describe('TemplateDates', () => {
 
     async function setHighlight(_?: string) {}
 
-    async function renderComponent(props: ITemplateDatesProps) {
+    function getCrossDivisionalNotes() {
+        return [];
+    }
+
+    async function renderComponent(props: Partial<ITemplateDatesProps>) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
             appProps({}, reportedError),
             <AdminContainer accounts={[]} tables={[]}>
-                <TemplateDates {...props} />
+                <TemplateDates
+                    {...{
+                        dates: [
+                            {
+                                fixtures: [],
+                            },
+                        ],
+                        divisionSharedAddresses: [],
+                        templateSharedAddresses: [],
+                        onUpdate,
+                        divisionCount: 1,
+                        divisionNo: 1,
+                        onCopyToDivision,
+                        highlight: '',
+                        setHighlight,
+                        getCrossDivisionalNotes,
+                        ...props,
+                    }}
+                />
             </AdminContainer>,
         );
     }
@@ -58,21 +80,7 @@ describe('TemplateDates', () => {
 
     describe('renders', () => {
         it('heading', async () => {
-            await renderComponent({
-                dates: [
-                    {
-                        fixtures: [],
-                    },
-                ],
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                divisionCount: 1,
-                divisionNo: 1,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
-            });
+            await renderComponent({});
 
             const prefix = context.required('ul li:first-child');
             expect(prefix.text()).toEqual(
@@ -81,21 +89,7 @@ describe('TemplateDates', () => {
         });
 
         it('no copy button when only division', async () => {
-            await renderComponent({
-                dates: [
-                    {
-                        fixtures: [],
-                    },
-                ],
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                divisionCount: 1,
-                divisionNo: 1,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
-            });
+            await renderComponent({});
 
             const prefix = context.required('ul li:first-child');
             expect(prefix.all('button')).toEqual([]);
@@ -104,14 +98,8 @@ describe('TemplateDates', () => {
         it('no copy button when no dates', async () => {
             await renderComponent({
                 dates: [],
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
                 divisionCount: 3,
                 divisionNo: 2,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
             });
 
             const prefix = context.required('ul li:first-child');
@@ -120,19 +108,8 @@ describe('TemplateDates', () => {
 
         it('copy buttons for other divisions', async () => {
             await renderComponent({
-                dates: [
-                    {
-                        fixtures: [],
-                    },
-                ],
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
                 divisionCount: 3,
                 divisionNo: 2,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
             });
 
             const prefix = context.required('ul li:first-child');
@@ -146,14 +123,6 @@ describe('TemplateDates', () => {
         it('when empty dates', async () => {
             await renderComponent({
                 dates: [],
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                divisionCount: 1,
-                divisionNo: 1,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
             });
 
             const dateElements = context.all('ul li');
@@ -167,14 +136,6 @@ describe('TemplateDates', () => {
                         fixtures: [fixture('A', 'B')],
                     },
                 ],
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                divisionCount: 1,
-                divisionNo: 1,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
             });
 
             const dateElement = context.required('ul li:nth-child(2)');
@@ -186,14 +147,6 @@ describe('TemplateDates', () => {
         it('can add a date/week', async () => {
             await renderComponent({
                 dates: [],
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                divisionCount: 1,
-                divisionNo: 1,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
             });
 
             await context.button('➕ Add a week').click();
@@ -212,14 +165,6 @@ describe('TemplateDates', () => {
                         fixtures: [fixture('A', 'B')],
                     },
                 ],
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                divisionCount: 1,
-                divisionNo: 1,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
             });
 
             await context.button('🗑️').click();
@@ -237,14 +182,6 @@ describe('TemplateDates', () => {
                         fixtures: [fixture('C', 'D')],
                     },
                 ],
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                divisionCount: 1,
-                divisionNo: 1,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
             });
             const secondDate = context.required(
                 '.list-group-item:nth-child(3)',
@@ -272,14 +209,6 @@ describe('TemplateDates', () => {
                         fixtures: [fixture('C', 'D')],
                     },
                 ],
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                divisionCount: 1,
-                divisionNo: 1,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
             });
             const firstDate = context.required('.list-group-item:nth-child(2)');
 
@@ -305,14 +234,6 @@ describe('TemplateDates', () => {
                         fixtures: [fixture('C', 'D')],
                     },
                 ],
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                divisionCount: 1,
-                divisionNo: 1,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
             });
 
             await context.button('A - B ×').click();
@@ -338,13 +259,7 @@ describe('TemplateDates', () => {
                     },
                 ],
                 divisionSharedAddresses: ['A', 'C'],
-                templateSharedAddresses: [],
-                onUpdate,
                 divisionCount: 2,
-                divisionNo: 1,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
             });
 
             await context.button('Copy to division 2').click();
@@ -362,14 +277,7 @@ describe('TemplateDates', () => {
                         fixtures: [fixture('C', 'D')],
                     },
                 ],
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
                 divisionCount: 2,
-                divisionNo: 1,
-                onCopyToDivision,
-                highlight: '',
-                setHighlight,
             });
 
             await context.button('📋 Copy to second half').click();
@@ -402,13 +310,8 @@ describe('TemplateDates', () => {
                     },
                 ],
                 divisionSharedAddresses: ['A', 'C'],
-                templateSharedAddresses: [],
-                onUpdate,
                 divisionCount: 2,
-                divisionNo: 1,
-                onCopyToDivision,
                 highlight: 'C',
-                setHighlight,
             });
             context.prompts.respondToConfirm(
                 'Are you sure you want to delete all fixtures where C are playing?',
