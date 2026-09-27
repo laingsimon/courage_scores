@@ -99,13 +99,12 @@ export function TemplateDate({
             note: 'NEW NOTE',
         };
         setEditingNote(newNote);
-        await updateNotes([...(date.notes ?? []), newNote]);
     }
 
     async function saveNoteToTemplate(editingNote: NoteTemplateDto) {
-        const newNotes = date.notes!.map((n) =>
-            n.id === editingNote.id ? editingNote : n,
-        );
+        const newNotes = date.notes?.some((n) => n.id === editingNote.id)
+            ? date.notes.map((n) => (n.id === editingNote.id ? editingNote : n))
+            : [...(date.notes ?? []), editingNote];
         await updateNotes(newNotes);
         setEditingNote(undefined);
     }
@@ -348,11 +347,13 @@ export function TemplateDate({
                                 Close
                             </button>
                         </div>
-                        <button
-                            className="btn btn-danger"
-                            onClick={async () => removeNote(editingNote)}>
-                            Remove
-                        </button>
+                        {date.notes?.some((n) => n.id === editingNote.id) ? (
+                            <button
+                                className="btn btn-danger"
+                                onClick={async () => removeNote(editingNote)}>
+                                Remove
+                            </button>
+                        ) : null}
                         <button
                             className="btn btn-primary"
                             onClick={async () =>

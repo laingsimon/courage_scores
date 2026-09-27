@@ -505,8 +505,10 @@ describe('TemplateDate', () => {
                 .required('span[data-type="notes"]')
                 .button('➕')
                 .click();
+            const dialog = context.required('.modal-dialog');
+            await dialog.button('Save').click();
 
-            expect(context.optional('.modal-dialog')).toBeTruthy();
+            expect(context.optional('.modal-dialog')).toBeFalsy();
             expect(update).toEqual({
                 notes: [
                     {
