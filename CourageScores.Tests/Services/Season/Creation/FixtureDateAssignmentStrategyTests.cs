@@ -260,20 +260,94 @@ public class FixtureDateAssignmentStrategyTests
             Is.EquivalentTo(["Some fixtures will be created after the season ends. You need to update the season end-date to see them. The last fixture was created on 08 Jan 2001"]));
     }
 
-    private ProposalContext ProposalContext(IReadOnlyCollection<DivisionDataDto> divisions, TemplateDto template,
-        Dictionary<Guid, TeamDto[]> teams, SeasonDto? season = null)
+    [Test]
+    public async Task AssignDates_GivenSingleDivisionAndFixtureDateWithNoteOnSameDate_AddsNoteAndFixture()
     {
-        return new ProposalContext(
-            new TemplateMatchContext(season ?? Season, divisions, teams, new Dictionary<string, Guid>()),
-            template,
-            new ActionResultDto<ProposalResultDto>
-            {
-                Result = new ProposalResultDto
-                {
-                    PlaceholderMappings = _placeholderMappings,
-                    Divisions = divisions.ToList(),
-                },
-            });
+        var template = Template(TemplateDivision(
+            TemplateDate(TemplateFixture("A", "B")).WithNotes(new NoteTemplateDto { Note = "template-note" })
+        ));
+        var division = new DivisionDataDto(null)
+        {
+            Id = Guid.NewGuid(),
+        };
+        var teams = new Dictionary<Guid, TeamDto[]>();
+        var shortSeason = new SeasonDtoBuilder().WithDates(new DateTime(2026, 02, 05), new DateTime(2026, 02, 28)).Build();
+        var context = ProposalContext([division], template, teams, shortSeason);
+
+        var result = await _strategy.AssignDates(context, _token);
+
+        Assert.That(result, Is.True);
+        var divisionDates = context.Result.Result?.Divisions?[0].Fixtures;
+        Assert.That(
+            divisionDates?.Select(Serialise),
+            Is.EquivalentTo([
+                "2026-02-05: Fixtures=[Team 1 vs Team 2], Notes=[template-note]",
+            ]));
+    }
+
+    [Test]
+    public async Task AssignDates_GivenSingleDivisionAndFixtureDateWithNoteOnOtherDate_AddsNoteToEarlierDayInSameWeekAsFixture()
+    {
+        var template = Template(TemplateDivision(
+            TemplateDate(TemplateFixture("A", "B")).WithNotes(new NoteTemplateDto { Note = "mon-note", AlternativeDayOfWeek = DayOfWeek.Monday })
+        ));
+        var division = new DivisionDataDto(null)
+        {
+            Id = Guid.NewGuid(),
+        };
+        var teams = new Dictionary<Guid, TeamDto[]>();
+        var shortSeason = new SeasonDtoBuilder().WithDates(new DateTime(2026, 02, 05), new DateTime(2026, 02, 28)).Build();
+        var context = ProposalContext([division], template, teams, shortSeason);
+
+        var result = await _strategy.AssignDates(context, _token);
+
+        Assert.That(result, Is.True);
+        Assert.That(
+            context.Result.Result?.Divisions?[0].Fixtures?.Select(Serialise),
+            Is.EquivalentTo([
+                "2026-02-02: Fixtures=[], Notes=[mon-note]", // 2-Feb is the preceding mon
+                "2026-02-05: Fixtures=[Team 1 vs Team 2], Notes=[]",
+            ]));
+    }
+
+    [Test]
+    public async Task AssignDates_GivenSingleDivisionAndFixtureDateWithNoteOnOtherDate_AddsNoteToLaterDayInSameWeekAsFixture()
+    {
+        var template = Template(TemplateDivision(
+            TemplateDate(TemplateFixture("A", "B")).WithNotes(new NoteTemplateDto { Note = "sunday-note", AlternativeDayOfWeek = DayOfWeek.Sunday })
+        ));
+        var division = new DivisionDataDto(null)
+        {
+            Id = Guid.NewGuid(),
+        };
+        var teams = new Dictionary<Guid, TeamDto[]>();
+        var shortSeason = new SeasonDtoBuilder().WithDates(new DateTime(2026, 02, 05), new DateTime(2026, 02, 28)).Build();
+        var context = ProposalContext([division], template, teams, shortSeason);
+
+        var result = await _strategy.AssignDates(context, _token);
+
+        Assert.That(result, Is.True);
+        Assert.That(
+            context.Result.Result?.Divisions?[0].Fixtures?.Select(Serialise),
+            Is.EquivalentTo([
+                "2026-02-05: Fixtures=[Team 1 vs Team 2], Notes=[]",
+                "2026-02-08: Fixtures=[], Notes=[sunday-note]", // 8-Feb is the following sunday
+            ]));
+    }
+
+    private static string Serialise(DivisionFixtureDateDto date)
+    {
+        return $"{date.Date:yyyy-MM-dd}: Fixtures=[{string.Join(", ", date.Fixtures.Select(Serialise))}], Notes=[{string.Join(", ", date.Notes.Select(Serialise))}]";
+    }
+
+    private static string Serialise(DivisionFixtureDto fixture)
+    {
+        return $"{fixture.HomeTeam.Name} vs {fixture.AwayTeam?.Name ?? "bye"}";
+    }
+
+    private static string Serialise(FixtureDateNoteDto note)
+    {
+        return $"{note.Note}";
     }
 
     private static TemplateDto Template(params DivisionTemplateDto[] divisions)
@@ -343,6 +417,22 @@ public class FixtureDateAssignmentStrategyTests
         };
     }
 
+    private ProposalContext ProposalContext(IReadOnlyCollection<DivisionDataDto> divisions, TemplateDto template,
+        Dictionary<Guid, TeamDto[]> teams, SeasonDto? season = null)
+    {
+        return new ProposalContext(
+            new TemplateMatchContext(season ?? Season, divisions, teams, new Dictionary<string, Guid>()),
+            template,
+            new ActionResultDto<ProposalResultDto>
+            {
+                Result = new ProposalResultDto
+                {
+                    PlaceholderMappings = _placeholderMappings,
+                    Divisions = divisions.ToList(),
+                },
+            });
+    }
+
     private class DateAndTeamNameComparer : IEqualityComparer<DivisionDataDto>
     {
         public bool Equals(DivisionDataDto? x, DivisionDataDto? y)
@@ -352,24 +442,14 @@ public class FixtureDateAssignmentStrategyTests
                 return true;
             }
 
-            if (x == null || y == null)
-            {
-                return false;
-            }
-
-            if (x.Fixtures.Count != y.Fixtures.Count)
+            if (x == null || y == null || x.Fixtures.Count != y.Fixtures.Count)
             {
                 return false;
             }
 
             foreach (var tuple in x.Fixtures.Zip(y.Fixtures))
             {
-                if (tuple.First.Date != tuple.Second.Date)
-                {
-                    return false;
-                }
-
-                return FixturesEqual(tuple.First.Fixtures, tuple.Second.Fixtures);
+                return tuple.First.Date == tuple.Second.Date && FixturesEqual(tuple.First.Fixtures, tuple.Second.Fixtures);
             }
 
             return true;
@@ -394,12 +474,9 @@ public class FixtureDateAssignmentStrategyTests
                     continue;
                 }
 
-                if (tuple.First.AwayTeam == null && tuple.Second.AwayTeam != null || tuple.First.AwayTeam != null && tuple.Second.AwayTeam == null)
-                {
-                    return false;
-                }
-
-                if (tuple.First.AwayTeam!.Name != tuple.Second.AwayTeam!.Name)
+                if (tuple.First.AwayTeam == null && tuple.Second.AwayTeam != null
+                    || tuple.First.AwayTeam != null && tuple.Second.AwayTeam == null
+                    || tuple.First.AwayTeam!.Name != tuple.Second.AwayTeam!.Name)
                 {
                     return false;
                 }
@@ -412,5 +489,17 @@ public class FixtureDateAssignmentStrategyTests
         {
             return 0;
         }
+    }
+}
+
+file static class TestExtensions
+{
+    public static DateTemplateDto WithNotes(this DateTemplateDto date, params NoteTemplateDto[] notes)
+    {
+        return new DateTemplateDto
+        {
+            Fixtures = date.Fixtures,
+            Notes = notes.ToList(),
+        };
     }
 }
