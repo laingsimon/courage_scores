@@ -1,7 +1,7 @@
-param()
-$AuditCommentHeading = "npm audit report"
-$OutdatedCommentHeading = "npm outdated report"
-$BypassNpmAuditViaCommentCommentContent = "bypass npm audit"
+param([string] $Project, [switch] $Install)
+$AuditCommentHeading = "npm audit report - $($Project)"
+$OutdatedCommentHeading = "npm outdated report - $($Project)"
+$BypassNpmAuditViaCommentCommentContent = "bypass npm audit - $($Project)"
 $GitHubMarkdownCodeBlock="``````"
 
 Import-Module -Name "$PSScriptRoot/NpmFunctions.psm1"
@@ -115,6 +115,11 @@ if ($GitHubEvent -eq "pull_request")
     $OutdatedComments = [array] (Get-PullRequestComments -GitHubToken $Token -Repo $Repo -CommentsUrl $CommentsUrl -CommentHeading $OutdatedCommentHeading)
 }
 
+if ($Install)
+{
+    Write-Message "Restoring npm packages"
+    $null = Invoke-NpmCommand -Command "install"
+}
 $NpmAuditResult = Invoke-NpmCommand -Command "audit"
 $Vulnerabilities = Extract-Vulnerabilities -NpmAuditResult $NpmAuditResult
 $FormattedVulnerabilities = $Vulnerabilities.Keys | Select-Object @{ label='url'; expression={"$($Vulnerabilities[$_]) - https://github.com/advisories/$($_)"} } | Join-String -property url -Separator "`n"

@@ -83,10 +83,17 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           COMMIT_SHA: "${{ inputs.commit-sha }}"
 
-      - name: Run npm audit
+      - name: Run npm audit (app)
         shell: pwsh
-        run: ../../Scripts/NpmAudit.ps1
+        run: ../../Scripts/NpmAudit.ps1 -Project ClientApp
         working-directory: ./CourageScores/ClientApp
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Run npm audit (behavioural tests)
+        shell: pwsh
+        run: ../Scripts/NpmAudit.ps1 -Project BehaviouralTests -Install
+        working-directory: ./CourageScores.BehaviouralTests
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
