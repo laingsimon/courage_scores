@@ -104,7 +104,9 @@ export function DivisionFixtures({ setNewFixtures }: IDivisionFixturesProps) {
             firstDateAfterMidSeason?.date === fixtureDate.date;
 
         return [
-            isFirstDateAfterMidSeason && isAdmin ? (
+            isFirstDateAfterMidSeason &&
+            isAdmin &&
+            allLeagueFixturesLength > 1 ? (
                 <div
                     key="mid-season-marker"
                     className="border-1 border-top border-success-subtle pt-1 position-relative">
