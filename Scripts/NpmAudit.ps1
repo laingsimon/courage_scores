@@ -1,7 +1,7 @@
-param()
-$AuditCommentHeading = "npm audit report"
-$OutdatedCommentHeading = "npm outdated report"
-$BypassNpmAuditViaCommentCommentContent = "bypass npm audit"
+param([string] $Project)
+$AuditCommentHeading = "npm audit report - $($Project)"
+$OutdatedCommentHeading = "npm outdated report - $($Project)"
+$BypassNpmAuditViaCommentCommentContent = "bypass npm audit - $($Project)"
 $GitHubMarkdownCodeBlock="``````"
 
 Import-Module -Name "$PSScriptRoot/NpmFunctions.psm1"
