@@ -73,7 +73,7 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
     private static async Task<bool> ProvisionFixturesForThisDate(
         ProposalContext context,
         DateTime currentDate,
-        IEnumerable<DateTemplateDto> templateDateForDivisions,
+        IReadOnlyCollection<DateTemplateDto> templateDateForDivisions,
         CancellationToken token)
     {
         var divisionMappings = context.MatchContext.GetDivisionMappings(context.Template);
@@ -100,13 +100,18 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
             }
 
             success = await CreateFixturesForDate(context, fixturesToCreate, fixtureDate, token) && success;
-            foreach (var note in dateTemplate.Notes)
+            foreach (var note in dateTemplate.Notes.Where(n => n.DivisionNumber == division).Concat(GetCrossDivisionalNotesFromAllTemplates(templateDateForDivisions)))
             {
                 ConvertToNote(note, currentDate, season.Id, context.MatchContext.Divisions, divisionToAddFixturesTo);
             }
         }
 
         return success;
+    }
+
+    private static IEnumerable<NoteTemplateDto> GetCrossDivisionalNotesFromAllTemplates(IReadOnlyCollection<DateTemplateDto> templateDateForDivisions)
+    {
+        return templateDateForDivisions.SelectMany(d => d.Notes).Where(n => n.DivisionNumber == null);
     }
 
     private static void ConvertToNote(
