@@ -38,6 +38,8 @@ import {
 import { seasonBuilder } from '../../helpers/builders/seasons.ts';
 import { ISeasonTemplateApi } from '../../interfaces/apis/ISeasonTemplateApi.ts';
 import { IGameApi } from '../../interfaces/apis/IGameApi.ts';
+import { INoteApi } from '../../interfaces/apis/INoteApi.ts';
+import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto';
 
 describe('CreateSeasonDialog', () => {
     let context: TestContext;
@@ -52,8 +54,14 @@ describe('CreateSeasonDialog', () => {
     let apiResponse: IClientActionResultDto<ProposalResultDto> | null;
     let proposalRequest: ProposalRequestDto | null;
     let updatedFixtures: EditGameDto[];
+    let updatedNotes: FixtureDateNoteDto[];
     let updateFixtureApiResponse:
         | ((fixture: EditGameDto) => Promise<IClientActionResultDto<GameDto>>)
+        | null;
+    let updateNoteApiResponse:
+        | ((
+              fixture: FixtureDateNoteDto,
+          ) => Promise<IClientActionResultDto<FixtureDateNoteDto>>)
         | null;
     let divisionReloaded: boolean;
 
@@ -81,6 +89,14 @@ describe('CreateSeasonDialog', () => {
                 : { success: true };
         },
     });
+    const noteApi = api<INoteApi>({
+        async upsert(id: string, note: FixtureDateNoteDto) {
+            updatedNotes.push(note);
+            return updateNoteApiResponse
+                ? await updateNoteApiResponse(note)
+                : { success: true };
+        },
+    });
 
     async function reloadAll() {
         allDataReloaded = true;
@@ -101,8 +117,10 @@ describe('CreateSeasonDialog', () => {
 
     beforeEach(() => {
         updatedFixtures = [];
+        updatedNotes = [];
         divisionReloaded = false;
         updateFixtureApiResponse = null;
+        updateNoteApiResponse = null;
         proposalRequest = null;
         apiResponse = null;
         allDataReloaded = false;
@@ -133,7 +151,7 @@ describe('CreateSeasonDialog', () => {
             ...divisionDataProps,
         };
         context = await renderApp(
-            iocProps({ templateApi, gameApi }),
+            iocProps({ templateApi, gameApi, noteApi }),
             brandingProps(),
             appContainerProps,
             <DivisionDataContainer {...ddProps}>
@@ -307,6 +325,12 @@ describe('CreateSeasonDialog', () => {
                                                 ),
                                         '1.1',
                                     )
+                                    .withNote((b) => b.note('proposed note'))
+                                    .withNote((b) =>
+                                        b
+                                            .note('existing note')
+                                            .updated('some time'),
+                                    )
                                     .withFixture(
                                         (f) =>
                                             f.playing(
@@ -370,7 +394,7 @@ describe('CreateSeasonDialog', () => {
                 expect(context.optional('div.modal')).toBeTruthy();
                 expect(context.optional('div.position-fixed')).toBeFalsy();
                 expect(context.text()).toContain(
-                    'Press Next to save all 3 fixtures across 2 divisions',
+                    'Press Next to save all 3 fixtures & 1 notes across 2 divisions',
                 );
             });
         });
@@ -808,6 +832,12 @@ describe('CreateSeasonDialog', () => {
                                                 ),
                                         '1.1',
                                     )
+                                    .withNote((b) => b.note('proposed note'))
+                                    .withNote((b) =>
+                                        b
+                                            .note('existing note')
+                                            .updated('some time'),
+                                    ) // excluded as not a proposal
                                     .withFixture(
                                         (f) =>
                                             f.playing(
@@ -881,7 +911,7 @@ describe('CreateSeasonDialog', () => {
                 expect(closed).toEqual(true);
             });
 
-            it('reports any errors during save and does not close dialog', async () => {
+            it('reports any fixture errors during save and does not close dialog', async () => {
                 updateFixtureApiResponse = async () => {
                     return {
                         success: false,
@@ -900,7 +930,30 @@ describe('CreateSeasonDialog', () => {
                 expect(allDataReloaded).toEqual(true);
                 expect(closed).toEqual(false);
                 expect(context.text()).toContain(
-                    'Some (3) fixtures could not be saved',
+                    'Some (3) fixtures or notes could not be saved',
+                );
+            });
+
+            it('reports any note errors during save and does not close dialog', async () => {
+                updateNoteApiResponse = async () => {
+                    return {
+                        success: false,
+                        errors: ['SOME ERROR'],
+                        warnings: [],
+                        messages: [],
+                    };
+                };
+
+                await context.button('Next').click();
+
+                reportedError.verifyNoError();
+                expect(updatedNotes.length).toEqual(1);
+                expect(divisionReloaded).toEqual(true);
+                expect(divisionDataSetTo).toBeUndefined();
+                expect(allDataReloaded).toEqual(true);
+                expect(closed).toEqual(false);
+                expect(context.text()).toContain(
+                    'Some (1) fixtures or notes could not be saved',
                 );
             });
 
@@ -918,7 +971,7 @@ describe('CreateSeasonDialog', () => {
                 expect(allDataReloaded).toEqual(true);
                 expect(closed).toEqual(false);
                 expect(context.text()).toContain(
-                    'Some (3) fixtures could not be saved',
+                    'Some (3) fixtures or notes could not be saved',
                 );
             });
         });
